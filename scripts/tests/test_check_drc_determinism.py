@@ -125,7 +125,7 @@ def test_raw_warning_items_are_preserved_for_rust_identity() -> None:
         "description": "Silkscreen overlap",
         "items": [_item("Segment of R1 on F.Silkscreen")],
     }
-    grouped = cdd._group_raw_report({"violations": [warning]})
+    grouped = cdd._group_raw_findings([warning])
     assert grouped["W:silk_overlap"][0]["items"] == warning["items"]
     assert grouped["W:silk_overlap"][0]["type"] == "W:silk_overlap"
 

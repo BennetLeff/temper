@@ -54,8 +54,8 @@ def test_compare_drc_reports_reads_the_same_arrays_as_the_parser():
 
 
 def test_measure_uncapped_drc_counts_unconnected_items_it_claims_to_cap():
-    """Its cap table names unconnected_items; its counters must therefore be
-    able to see one. Before the fix this returned {} for this input."""
+    """The Rust cap authority and Python counter must both recognize the
+    production category. Before the fix the counter returned {} here."""
     report = {
         "violations": [{"type": "clearance"}],
         "unconnected_items": [{"type": "unconnected_items"}, {"type": "unconnected_items"}],
@@ -64,7 +64,6 @@ def test_measure_uncapped_drc_counts_unconnected_items_it_claims_to_cap():
         "clearance": 1,
         "unconnected_items": 2,
     }
-    assert "unconnected_items" in measure_uncapped_drc._EXTENDED_CATEGORIES
     assert measure_uncapped_drc.cap_for("unconnected_items") == 499
 
 

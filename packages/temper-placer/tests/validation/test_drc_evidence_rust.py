@@ -7,6 +7,8 @@ import json
 import pytest
 import temper_drc_rs
 
+from tests.validation._drc_evidence_py_oracle import identities as oracle_identities
+
 
 def _creepage(*, actual: str = "10.2975", track_length: str = "0.8485") -> dict:
     return {
@@ -74,6 +76,32 @@ def test_provider_item_churn_is_raw_fringe_not_semantic_change() -> None:
     assert result["raw"]["intersection_size"] == 0
     assert result["raw"]["union_size"] == 2
     assert len(result["raw"]["unstable_fringe"]) == 2
+
+
+@pytest.mark.parametrize(
+    "finding",
+    [
+        _creepage(),
+        {
+            "type": "shorting_items",
+            "description": "Items shorting two nets (nets rtd_sense_p and gnd)",
+            "items": [
+                {"description": "Via [gnd] on F.Cu - B.Cu", "pos": {"x": 96.5, "y": 91.0}},
+                {
+                    "description": "Track [rtd_sense_p] on F.Cu, length 2.2000 mm",
+                    "pos": {"x": 97.0, "y": 91.0},
+                },
+            ],
+        },
+    ],
+)
+def test_rust_identity_matches_pinned_python_oracle_on_production_shapes(finding: dict) -> None:
+    family, observation, raw = oracle_identities(finding)
+    result = _envelope([[finding]])
+
+    assert result["family"]["intersection"] == [{"key": family, "count": 1}]
+    assert result["observation"]["intersection"] == [{"key": observation, "count": 1}]
+    assert result["raw"]["intersection"] == [{"key": raw, "count": 1}]
 
 
 def test_actual_distance_and_finding_multiplicity_remain_identity_bearing() -> None:

@@ -17,6 +17,8 @@ import os
 import shutil
 import subprocess
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from itertools import combinations
 from pathlib import Path
 
@@ -63,9 +65,14 @@ from temper_placer.validation.netlist_reconciliation import (  # noqa: E402
     reconcile,
 )
 
-RUST_FOOTPRINT_SCOPE = json.loads(
-    temper_quality_oracle.corridor_footprint_scope_json_py()
-)
+RUST_FOOTPRINT_SCOPE = json.loads(temper_quality_oracle.corridor_footprint_scope_json_py())
+_SILK_PROJECTION_LOCKS: dict[str, threading.Lock] = {}
+_SILK_PROJECTION_LOCKS_GUARD = threading.Lock()
+
+
+def _silk_projection_lock(projection_sha256: str) -> threading.Lock:
+    with _SILK_PROJECTION_LOCKS_GUARD:
+        return _SILK_PROJECTION_LOCKS.setdefault(projection_sha256, threading.Lock())
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -78,6 +85,43 @@ def sha256(path: Path) -> str:
 
 def canonical_bytes(value: object) -> bytes:
     return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode()
+
+
+def _load_materialization_checkpoint(
+    path: Path, *, candidate_id: str, board_sha256: str, instrument_context_sha256: str
+) -> dict | None:
+    """Load only a complete, content-bound pre-route measurement."""
+    if not path.is_file():
+        return None
+    try:
+        checkpoint = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if (
+        checkpoint.get("schema") != "temper-net41-materialization-checkpoint/v3"
+        or checkpoint.get("candidate_id") != candidate_id
+        or checkpoint.get("scratch_board_sha256") != board_sha256
+        or checkpoint.get("instrument_context_sha256") != instrument_context_sha256
+        or checkpoint.get("evidence", {}).get("instrument_state") != "trusted"
+    ):
+        return None
+    return checkpoint
+
+
+def _write_materialization_checkpoint(path: Path, checkpoint: dict) -> None:
+    """Atomically persist one conclusive candidate for exact resume."""
+    temporary = path.with_suffix(".tmp")
+    temporary.write_bytes(canonical_bytes(checkpoint))
+    temporary.replace(path)
+
+
+def _try_write_materialization_checkpoint(path: Path, checkpoint: dict) -> str | None:
+    """Persist resume state without converting good instrument evidence into failure."""
+    try:
+        _write_materialization_checkpoint(path, checkpoint)
+    except OSError as error:
+        return str(error)
+    return None
 
 
 def run_checked(
@@ -136,10 +180,7 @@ def instrument_row(
 
 def semantic_samples(runs: list[dict[str, list[dict]]]) -> list[list[dict]]:
     """Flatten grouped raw runs without changing Rust-owned category identity."""
-    return [
-        [finding for category in sorted(run) for finding in run[category]]
-        for run in runs
-    ]
+    return [[finding for category in sorted(run) for finding in run[category]] for run in runs]
 
 
 def drc_admission_comparison(
@@ -160,9 +201,7 @@ def drc_admission_comparison(
         "candidate_silk_receipt": candidate_silk,
     }
     return json.loads(
-        temper_drc_rs.drc_admission_comparison_json(
-            json.dumps(request, separators=(",", ":"))
-        )
+        temper_drc_rs.drc_admission_comparison_json(json.dumps(request, separators=(",", ":")))
     )
 
 
@@ -190,9 +229,7 @@ def preflight(
     except Exception as error:  # instrument errors become terminal evidence
         payload = {"command": "make extensions-check", "error": str(error)}
         instruments.append(
-            instrument_row(
-                "pyo3-extensions", "error", str(error), board_sha256, payload
-            )
+            instrument_row("pyo3-extensions", "error", str(error), board_sha256, payload)
         )
 
     try:
@@ -205,9 +242,7 @@ def preflight(
             ],
             env=env,
         )
-        pass_line = next(
-            line.strip() for line in oracle.splitlines() if line.startswith("PASS")
-        )
+        pass_line = next(line.strip() for line in oracle.splitlines() if line.startswith("PASS"))
         payload = {
             "oracle": "pcbnew-live-asymmetric-45-degree",
             "pass_line": pass_line,
@@ -224,9 +259,7 @@ def preflight(
     except Exception as error:
         payload = {"oracle": "pcbnew-live-asymmetric-45-degree", "error": str(error)}
         instruments.append(
-            instrument_row(
-                "pcbnew-rotation-oracle", "error", str(error), board_sha256, payload
-            )
+            instrument_row("pcbnew-rotation-oracle", "error", str(error), board_sha256, payload)
         )
 
     drc_receipt: dict[str, object]
@@ -266,11 +299,7 @@ def preflight(
         unresolved = comparison["unresolved_cap_categories"]
         failures = [
             *(f"unresolved reporting cap {category}" for category in unresolved),
-            *(
-                []
-                if comparison["semantic_repeats_agree"]
-                else ["semantic repeat disagreement"]
-            ),
+            *([] if comparison["semantic_repeats_agree"] else ["semantic repeat disagreement"]),
         ]
         drc_receipt = {
             "schema_version": "temper-net41-baseline-drc-preflight/v2",
@@ -285,8 +314,7 @@ def preflight(
             "trusted_for_candidate_admission": not failures,
         }
         detail = (
-            f"version {version}; DRC admission evidence is untrusted: "
-            + "; ".join(failures)
+            f"version {version}; DRC admission evidence is untrusted: " + "; ".join(failures)
             if failures
             else (
                 f"version {version}; 3 semantic repeats agree; raw caps retained "
@@ -310,9 +338,7 @@ def preflight(
             "error": str(error),
         }
         instruments.append(
-            instrument_row(
-                "baseline-kicad-drc", "error", str(error), board_sha256, drc_receipt
-            )
+            instrument_row("baseline-kicad-drc", "error", str(error), board_sha256, drc_receipt)
         )
     return instruments, drc_receipt
 
@@ -348,19 +374,13 @@ def exact_placement_board(
     placements: dict[str, list[float]],
     endpoint_x_mm: float,
 ) -> str:
-    declared = [
-        (ref, *placements[ref]) for ref in RUST_FOOTPRINT_SCOPE["movable_refs"]
-    ]
+    declared = [(ref, *placements[ref]) for ref in RUST_FOOTPRINT_SCOPE["movable_refs"]]
     declared.append(("R14", endpoint_x_mm, 249.56, 270.0))
-    return design_bundle.parse_engine.update_declared_footprint_positions_exact_py(
-        source, declared
-    )
+    return design_bundle.parse_engine.update_declared_footprint_positions_exact_py(source, declared)
 
 
 def applicable_selv_pads(board_path: Path) -> tuple[list[tuple[str, tuple, str]], int]:
-    placement, domains, _stats = load_real_board_placement(
-        board_path, DOMAIN_MANIFEST, NETLIST
-    )
+    placement, domains, _stats = load_real_board_placement(board_path, DOMAIN_MANIFEST, NETLIST)
     outline = placement["board"]["outline"]
     origin_x = min(point[0] for point in outline)
     origin_y = min(point[1] for point in outline)
@@ -401,12 +421,10 @@ def applicable_selv_pads(board_path: Path) -> tuple[list[tuple[str, tuple, str]]
 def measure_candidate(candidate: dict[str, object], pads: list[tuple[str, tuple, str]]) -> dict:
     points = [tuple(map(float, point)) for point in candidate["route_points"]]
     distances: list[tuple[float, str]] = []
-    for index, (start, end) in enumerate(zip(points, points[1:], strict=True)):
+    for index, (start, end) in enumerate(zip(points, points[1:], strict=False)):
         for label, spec, layer in pads:
             if layer == "all" or layer == ROUTE_LAYER:
-                value = temper_geometry.pad_to_capsule_distance_py(
-                    spec, start, end, ROUTE_WIDTH_MM
-                )
+                value = temper_geometry.pad_to_capsule_distance_py(spec, start, end, ROUTE_WIDTH_MM)
                 distances.append((float(value), f"{label}<->segment[{index}]"))
     endpoint = points[-1]
     for label, spec, layer in pads:
@@ -422,9 +440,7 @@ def measure_candidate(candidate: dict[str, object], pads: list[tuple[str, tuple,
         "candidate_id": candidate["candidate_id"],
         "minimum_clearance_mm": minimum,
         "minimum_creepage_lower_bound_mm": minimum,
-        "route_length_mm": sum(
-            math.dist(a, b) for a, b in zip(points, points[1:], strict=True)
-        ),
+        "route_length_mm": sum(math.dist(a, b) for a, b in zip(points, points[1:], strict=False)),
         "closest_pair": closest,
         "pairs_examined": len(distances),
     }
@@ -499,9 +515,7 @@ def safety_signature(row) -> tuple[str, ...]:
 
 
 def safety_measure(board_path: Path) -> tuple[dict, dict[tuple[str, ...], float], dict]:
-    placement, domains, stats = load_real_board_placement(
-        board_path, DOMAIN_MANIFEST, NETLIST
-    )
+    placement, domains, stats = load_real_board_placement(board_path, DOMAIN_MANIFEST, NETLIST)
     result = verify_iec60335_compliance(placement, domains)
     values = {safety_signature(row): float(row.measured_mm) for row in result.violations}
     receipt = {
@@ -542,9 +556,7 @@ def topology_snapshot(board_text: str) -> dict[str, object]:
     )
 
 
-def repeated_drc_receipt(
-    board_path: Path, baseline: dict[str, object]
-) -> tuple[dict, bool, dict]:
+def repeated_drc_receipt(board_path: Path, baseline: dict[str, object]) -> tuple[dict, bool, dict]:
     runs = drc_determinism.measure(board_path, 3)
     raw = drc_determinism.analyse(runs)
     categories = [
@@ -557,13 +569,32 @@ def repeated_drc_receipt(
     capped = [row["category"] for row in categories if row["at_cap"]]
     samples = semantic_samples(runs)
     silk_receipt = None
-    if any(category.removeprefix("W:") == "silk_overlap" for category in capped):
-        silk_receipt = uncapped_drc.measure_silk_mutation_cone(
-            source_board=BOARD,
-            subject_board=board_path,
-            declared_refs=list(RUST_FOOTPRINT_SCOPE["affected_refs"]),
-            scratch_dir=board_path.parent / "silk-scope",
+    if any(
+        category.removeprefix("W:") == "silk_overlap"
+        for category in set(capped) | set(baseline["capped_categories"])
+    ):
+        declared_refs = list(RUST_FOOTPRINT_SCOPE["affected_refs"])
+        bootstrap = uncapped_drc._rust_silk_scope_receipt(
+            {
+                "source_board": BOARD.read_text(encoding="utf-8"),
+                "subject_board": board_path.read_text(encoding="utf-8"),
+                "declared_refs": declared_refs,
+                "use_declared_scope": False,
+                "raw_global_capped": True,
+                "instrument_context": uncapped_drc.silk_instrument_context(BOARD),
+                "leaves": [],
+            }
         )
+        projection = bootstrap["silk_projection_sha256"]
+        projection_root = board_path.parents[1] / "silk-projection-cache" / projection
+        with _silk_projection_lock(projection):
+            silk_receipt = uncapped_drc.measure_silk_mutation_cone(
+                source_board=BOARD,
+                subject_board=board_path,
+                declared_refs=declared_refs,
+                scratch_dir=projection_root,
+                partition_seed=baseline.get("silk_scope_receipt"),
+            )
     comparison = drc_admission_comparison(
         baseline_samples=baseline["semantic_samples"],
         candidate_samples=samples,
@@ -572,14 +603,10 @@ def repeated_drc_receipt(
         baseline_silk=baseline.get("silk_scope_receipt"),
         candidate_silk=silk_receipt,
     )
-    trusted = (
-        comparison["semantic_repeats_agree"]
-        and not comparison["unresolved_cap_categories"]
-        and comparison["new_hard_observation_count"] == 0
-        and comparison["worsened_hard_observation_count"] == 0
-        and comparison["indeterminate_hard_comparison_count"] == 0
-        and comparison["new_scoped_silk_finding_count"] == 0
-    )
+    # Rust separates evidence availability from candidate admission. A
+    # conclusive new/worsened hard finding or scoped silk finding is a real
+    # candidate veto, not an instrument failure.
+    trusted = comparison["instrument_conclusive"]
     payload = {
         "board_sha256": sha256(board_path),
         "sample_count": len(runs),
@@ -616,9 +643,7 @@ def inspect_materialized_candidate(
         )
 
     snapshot = topology_snapshot(text)
-    connected = snapshot["net41_component_count"] == 1 and not snapshot[
-        "net41_isolated_pad_ids"
-    ]
+    connected = snapshot["net41_component_count"] == 1 and not snapshot["net41_isolated_pad_ids"]
     record("connectivity", snapshot)
     expected_selv_categories = {"pads", "tracks", "vias", "zones"}
     selv_counts = snapshot["selv_object_counts"]
@@ -662,9 +687,7 @@ def inspect_materialized_candidate(
     )
     required_current = float(temper_drc_rs.get_net_current(ROUTE_NET_NAME))
     capacity = float(
-        temper_geometry.ipc2221b_current_capacity_a_py(
-            ROUTE_WIDTH_MM, 1.0, 10.0, True
-        )
+        temper_geometry.ipc2221b_current_capacity_a_py(ROUTE_WIDTH_MM, 1.0, 10.0, True)
     )
     current_capacity_valid = capacity >= required_current
     record(
@@ -678,9 +701,7 @@ def inspect_materialized_candidate(
     )
 
     positions = footprint_positions(text)
-    contained = containment_failures(
-        baseline["bodies"], positions, placement["board"]["outline"]
-    )
+    contained = containment_failures(baseline["bodies"], positions, placement["board"]["outline"])
     record("containment", {"failures": contained})
     body = overlap_map(baseline["bodies"], positions)
     courtyard = overlap_map(baseline["courtyards"], positions)
@@ -721,9 +742,7 @@ def inspect_materialized_candidate(
             "validated": mutation_scope_valid,
         },
     )
-    drc_payload, drc_trusted, drc_comparison = repeated_drc_receipt(
-        candidate_path, baseline_drc
-    )
+    drc_payload, drc_trusted, drc_comparison = repeated_drc_receipt(candidate_path, baseline_drc)
     record(
         "normalized-kicad-drc",
         drc_payload,
@@ -756,21 +775,15 @@ def inspect_materialized_candidate(
             "worsened_courtyard_overlap_count": len(worsened_courtyard),
             "mutation_scope_valid": mutation_scope_valid,
             "drc_category_states": drc_comparison["category_states"],
-            "drc_semantic_repeats_agree": drc_comparison[
-                "semantic_repeats_agree"
-            ],
-            "drc_new_hard_observation_count": drc_comparison[
-                "new_hard_observation_count"
-            ],
+            "drc_semantic_repeats_agree": drc_comparison["semantic_repeats_agree"],
+            "drc_new_hard_observation_count": drc_comparison["new_hard_observation_count"],
             "drc_worsened_hard_observation_count": drc_comparison[
                 "worsened_hard_observation_count"
             ],
             "drc_indeterminate_hard_comparison_count": drc_comparison[
                 "indeterminate_hard_comparison_count"
             ],
-            "drc_new_scoped_silk_finding_count": drc_comparison[
-                "new_scoped_silk_finding_count"
-            ],
+            "drc_new_scoped_silk_finding_count": drc_comparison["new_scoped_silk_finding_count"],
             "netlist_reconciled": False,
         },
     }
@@ -990,9 +1003,7 @@ def route_and_inspect_candidate(
             pad_payload,
         )
     )
-    reconciliation = reconcile(
-        extract_board_netlist(routed_path), parse_design_netlist(NETLIST)
-    )
+    reconciliation = reconcile(extract_board_netlist(routed_path), parse_design_netlist(NETLIST))
     reconciliation_payload = {
         "finding_count": len(reconciliation.findings),
         "findings": [
@@ -1142,9 +1153,7 @@ def run_trusted_campaign(
     source = inputs["board_bytes"].decode()
     project_board = project / "temper.kicad_pcb"
     project_board.write_text(source, encoding="utf-8")
-    baseline_placement, baseline_safety, baseline_safety_receipt = safety_measure(
-        project_board
-    )
+    baseline_placement, baseline_safety, baseline_safety_receipt = safety_measure(project_board)
     baseline_positions = footprint_positions(source)
     bodies = extract_fab_bodies(project_board)
     courtyards = extract_kicad_metadata(project_board).courtyards
@@ -1178,9 +1187,17 @@ def run_trusted_campaign(
         pads, _total = applicable_selv_pads(staged_board)
         for candidate in rows:
             measured = measure_candidate(candidate, pads)
-            measurements.append({key: measured[key] for key in (
-                "candidate_id", "minimum_clearance_mm", "minimum_creepage_lower_bound_mm", "route_length_mm"
-            )})
+            measurements.append(
+                {
+                    key: measured[key]
+                    for key in (
+                        "candidate_id",
+                        "minimum_clearance_mm",
+                        "minimum_creepage_lower_bound_mm",
+                        "route_length_mm",
+                    )
+                }
+            )
             detailed_measurements[candidate["candidate_id"]] = measured
         if group_index % 20 == 0 or group_index == 1:
             print(f"prefilter groups {group_index}/{len(by_group)}", flush=True)
@@ -1204,7 +1221,8 @@ def run_trusted_campaign(
 
     candidate_root = scratch / "candidates"
     candidate_root.mkdir(parents=True, exist_ok=True)
-    for index, candidate_id in enumerate(survivors, 1):
+
+    def materialize_one(candidate_id: str) -> tuple[str, Path, dict, dict, dict | None]:
         candidate_dir = candidate_root / candidate_id
         candidate_dir.mkdir(parents=True, exist_ok=True)
         for name in ("temper.kicad_pro", "temper.kicad_dru", "fp-lib-table"):
@@ -1213,11 +1231,10 @@ def run_trusted_campaign(
         if not libraries.exists():
             libraries.symlink_to(project / "libs", target_is_directory=True)
         candidate_path = candidate_dir / "temper.kicad_pcb"
+        instruction = None
         try:
-            instruction_json = (
-                temper_quality_oracle.corridor_materialization_instruction_json_py(
-                    **inputs, candidate_id=candidate_id
-                )
+            instruction_json = temper_quality_oracle.corridor_materialization_instruction_json_py(
+                **inputs, candidate_id=candidate_id
             )
             instruction = json.loads(
                 temper_quality_oracle.validate_corridor_materialization_instruction_json_py(
@@ -1226,31 +1243,120 @@ def run_trusted_campaign(
             )
             if candidate_lookup[candidate_id]["route_points"] != instruction["route_points"]:
                 raise RuntimeError("screened candidate geometry differs from Rust instruction")
-            candidate_path.write_text(
-                materialize_candidate(source, instruction), encoding="utf-8"
+            candidate_path.write_text(materialize_candidate(source, instruction), encoding="utf-8")
+            board_hash = sha256(candidate_path)
+            instrument_context_sha256 = sha256_bytes(
+                canonical_bytes(
+                    {
+                        "schema": "temper-net41-materialization-instrument/v3",
+                        "baseline_drc": baseline_drc,
+                        "instruction": instruction,
+                    }
+                )
             )
-            evidence, payloads = inspect_materialized_candidate(
-                candidate_path, instruction, baseline, baseline_drc
+            checkpoint_path = candidate_dir / "pre-route-checkpoint.json"
+            checkpoint = _load_materialization_checkpoint(
+                checkpoint_path,
+                candidate_id=candidate_id,
+                board_sha256=board_hash,
+                instrument_context_sha256=instrument_context_sha256,
             )
-            instructions[candidate_id] = instruction
+            if checkpoint is not None:
+                evidence = checkpoint["evidence"]
+                payloads = checkpoint["instrument_payloads"]
+                instruction = checkpoint["instruction"]
+            else:
+                evidence, payloads = inspect_materialized_candidate(
+                    candidate_path, instruction, baseline, baseline_drc
+                )
+                # Persist every completed diagnostic atomically, but the
+                # loader above reuses only Rust-conclusive trusted evidence.
+                persistence_error = _try_write_materialization_checkpoint(
+                    checkpoint_path,
+                    {
+                        "schema": "temper-net41-materialization-checkpoint/v3",
+                        "candidate_id": candidate_id,
+                        "scratch_board_sha256": board_hash,
+                        "instrument_context_sha256": instrument_context_sha256,
+                        "instruction": instruction,
+                        "evidence": evidence,
+                        "instrument_payloads": payloads,
+                    },
+                )
+                if persistence_error:
+                    print(
+                        f"checkpoint persistence unavailable {candidate_id}: {persistence_error}",
+                        flush=True,
+                    )
         except Exception as error:
             if not candidate_path.exists():
                 candidate_path.write_text(source, encoding="utf-8")
+            board_hash = sha256(candidate_path)
             evidence, payloads = unavailable_materialization_evidence(
-                candidate_id, sha256(candidate_path), error
+                candidate_id, board_hash, error
             )
-        candidate_paths[candidate_id] = candidate_path
-        materialized.append(evidence)
-        manifest_rows.append(
-            {
-                "candidate_id": candidate_id,
-                "scratch_board": str(candidate_path.relative_to(scratch)),
-                "scratch_board_sha256": sha256(candidate_path),
-                "instrument_payloads": payloads,
-            }
-        )
-        if index % 20 == 0 or index == 1:
-            print(f"materialized candidates {index}/{len(survivors)}", flush=True)
+            unavailable_context_sha256 = sha256_bytes(
+                canonical_bytes(
+                    {
+                        "schema": "temper-net41-materialization-instrument/v3",
+                        "baseline_drc": baseline_drc,
+                        "instruction": instruction,
+                    }
+                )
+            )
+            persistence_error = _try_write_materialization_checkpoint(
+                candidate_dir / "pre-route-checkpoint.json",
+                {
+                    "schema": "temper-net41-materialization-checkpoint/v3",
+                    "candidate_id": candidate_id,
+                    "scratch_board_sha256": board_hash,
+                    "instrument_context_sha256": unavailable_context_sha256,
+                    "instruction": instruction,
+                    "evidence": evidence,
+                    "instrument_payloads": payloads,
+                },
+            )
+            if persistence_error:
+                print(
+                    f"checkpoint persistence unavailable {candidate_id}: {persistence_error}",
+                    flush=True,
+                )
+            print(f"materialization unavailable {candidate_id}: {error}", flush=True)
+        return candidate_id, candidate_path, evidence, payloads, instruction
+
+    # Eight concurrent single-threaded KiCad processes are stable on the
+    # production host. Twenty exhausted the version/config preflight and
+    # converted valid candidates into instrument errors, so keep the default
+    # beneath that measured process-pressure boundary.
+    worker_count = min(8, os.cpu_count() or 1)
+    configured_workers = os.environ.get("TEMPER_NET41_MATERIALIZE_WORKERS")
+    if configured_workers is not None:
+        worker_count = int(configured_workers)
+        if worker_count < 1:
+            raise RuntimeError("TEMPER_NET41_MATERIALIZE_WORKERS must be positive")
+    print(
+        f"materialization workers {worker_count}; ordered survivors {len(survivors)}",
+        flush=True,
+    )
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        results = executor.map(materialize_one, survivors)
+        for index, (candidate_id, candidate_path, evidence, payloads, instruction) in enumerate(
+            results, 1
+        ):
+            if instruction is not None:
+                instructions[candidate_id] = instruction
+            candidate_paths[candidate_id] = candidate_path
+            materialized.append(evidence)
+            manifest_rows.append(
+                {
+                    "candidate_id": candidate_id,
+                    "scratch_board": str(candidate_path.relative_to(scratch)),
+                    "scratch_board_sha256": sha256(candidate_path),
+                    "instrument_payloads": payloads,
+                }
+            )
+            if index % 20 == 0 or index == 1:
+                print(f"materialized candidates {index}/{len(survivors)}", flush=True)
 
     routed: list[dict[str, object]] = []
     routed_manifest_rows: list[dict[str, object]] = []
@@ -1269,16 +1375,12 @@ def run_trusted_campaign(
         **inputs, campaign_request_json=json.dumps(campaign_request)
     )
     terminal = json.loads(terminal_text)
-    pre_route_ids = [
-        row["candidate_id"] for row in terminal["materialized"] if row["accepted"]
-    ]
+    pre_route_ids = [row["candidate_id"] for row in terminal["materialized"] if row["accepted"]]
     # A non-trusted materialization is terminal: do not route around missing
     # higher-stage evidence. Otherwise route the Rust-returned deterministic
     # prefix, consulting Rust after each attempt so evidence stops at the
     # first admitted route.
-    materialization_trusted = all(
-        row["instrument_state"] == "trusted" for row in materialized
-    )
+    materialization_trusted = all(row["instrument_state"] == "trusted" for row in materialized)
     if materialization_trusted:
         for candidate_id in pre_route_ids[:12]:
             evidence, payloads, routed_path = route_and_inspect_candidate(
@@ -1302,9 +1404,10 @@ def run_trusted_campaign(
                 **inputs, campaign_request_json=json.dumps(campaign_request)
             )
             terminal = json.loads(terminal_text)
-            if terminal["status"] in {"completed", "instrument-error"} or evidence[
-                "execution_state"
-            ] != "conclusive":
+            if (
+                terminal["status"] in {"completed", "instrument-error"}
+                or evidence["execution_state"] != "conclusive"
+            ):
                 break
     manifest = {
         "schema_version": "temper-net41-corridor-candidate-manifest/v1",

@@ -57,19 +57,16 @@ def _evidence_envelope(samples: list[list[dict]]) -> dict:
     )
 
 
-def _group_raw_report(raw_report: dict) -> dict[str, list[dict]]:
+def _group_raw_findings(raw_findings: list[dict]) -> dict[str, list[dict]]:
     """Group lossless raw records; severity is part of the category namespace."""
-    from temper_placer.validation._drc_api import _VIOLATION_ARRAY_KEYS
-
     grouped: dict[str, list[dict]] = collections.defaultdict(list)
-    for key in _VIOLATION_ARRAY_KEYS:
-        for finding in raw_report.get(key, []):
-            category = str(finding.get("type", "unknown"))
-            if finding.get("severity") == "warning":
-                category = "W:" + category
-            transported = dict(finding)
-            transported["type"] = category
-            grouped[category].append(transported)
+    for finding in raw_findings:
+        category = str(finding.get("type", "unknown"))
+        if finding.get("severity") == "warning":
+            category = "W:" + category
+        transported = dict(finding)
+        transported["type"] = category
+        grouped[category].append(transported)
     return grouped
 
 
@@ -78,7 +75,7 @@ def _sample(pcb_path: Path, *, inject: str, sample_index: int) -> dict[str, list
     from temper_placer.validation._drc_api import run_drc_measurement
 
     measurement = run_drc_measurement(pcb_path, strict=True)
-    by_category = _group_raw_report(measurement.raw_report)
+    by_category = _group_raw_findings(measurement.raw_findings)
 
     if inject == INJECT_SYNTHETIC and sample_index % 2 == 1:
         # Deliberate, obviously-fake variance: drop one violation from a category

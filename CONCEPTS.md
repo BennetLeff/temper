@@ -41,6 +41,18 @@ A board-content-bound, measured upper limit for each design-rule-check
 category that acts as a regression ratchet, not as evidence that the design
 debt below the limit is acceptable.
 
+### DRC evidence envelope
+
+A repeated-measurement record that preserves both an external checker's raw
+provider identity and the engineering-semantic multiset used to decide whether
+the observed physical conditions are stable.
+
+### Mutation-scoped uncapping
+
+A design-rule-check measurement that resolves a saturated whole-board
+category only for the complete, mechanically proved set of findings a closed
+candidate mutation can change; it never claims the global total is known.
+
 ### Bounded candidate study
 
 A predeclared staged family of scratch placement variants, with routing only

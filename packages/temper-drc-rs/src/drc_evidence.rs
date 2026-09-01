@@ -1,10 +1,11 @@
 //! Semantic identity and repeatability envelopes for raw KiCad DRC findings.
 //!
-//! KiCad may report the same creepage path through a different connected
-//! copper primitive on consecutive runs.  This module keeps that provider
-//! churn in a raw identity while deriving a second, engineering-semantic
-//! identity from the rule message, exact measured distance, net multiset,
-//! and component multiset.  All bag operations preserve duplicate findings.
+//! KiCad may report the same creepage path or missing connection through a
+//! different connected copper primitive on consecutive runs. This module
+//! keeps that provider churn in a raw identity while deriving a second,
+//! engineering-semantic identity from the rule message, exact measured
+//! distance, net multiset, and component multiset. All bag operations preserve
+//! duplicate findings.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::OnceLock;
@@ -14,7 +15,10 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-#[derive(Clone, Debug, Deserialize)]
+#[cfg(feature = "python")]
+use pyo3::pyfunction;
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct RawFinding {
     #[serde(rename = "type")]
     pub category: String,
@@ -22,13 +26,13 @@ pub struct RawFinding {
     pub items: Vec<RawItem>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct RawItem {
     pub description: String,
     pub pos: RawPosition,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct RawPosition {
     x: serde_json::Number,
     y: serde_json::Number,
@@ -56,9 +60,10 @@ pub struct FamilyKey {
     pub message_semantics: String,
     pub nets: Vec<String>,
     pub components: Vec<String>,
-    /// Empty only for creepage, whose connected-copper representative is
-    /// provider-selected. Every other category keeps canonical raw items so
-    /// this narrowly-scoped exception cannot hide a physical item change.
+    /// Empty only for categories whose connected-copper representative is
+    /// provider-selected (`creepage` and `unconnected_items`). Every other
+    /// category keeps canonical raw items so this exception cannot hide a
+    /// physical item change.
     pub items: Vec<RawItemKey>,
 }
 
@@ -153,6 +158,8 @@ pub enum EvidenceError {
     FootprintCensusDrift,
     #[error("DRC_SILK_SCOPE_UNDECLARED_MUTATION: {references:?}")]
     UndeclaredMutation { references: Vec<String> },
+    #[error("DRC_SILK_SCOPE_NON_RIGID_MUTATION: {references:?}")]
+    NonRigidMutation { references: Vec<String> },
     #[error(
         "DRC_SILK_SCOPE_AMBIGUOUS_PAIR: expected two footprint references, found {references:?}"
     )]
@@ -163,6 +170,18 @@ pub enum EvidenceError {
 
 const SILK_SAFE_MARGIN: u32 = 20;
 
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+struct SilkInstrumentContext {
+    schema: String,
+    kicad_cli_version: String,
+    runner: String,
+    runner_flags: Vec<String>,
+    project_sha256: String,
+    dru_sha256: String,
+    fp_lib_table_sha256: String,
+    libraries_sha256: String,
+}
+
 #[derive(Debug, Deserialize)]
 struct SilkScopeRequest {
     source_board: String,
@@ -171,22 +190,74 @@ struct SilkScopeRequest {
     #[serde(default)]
     use_declared_scope: bool,
     raw_global_capped: bool,
+    instrument_context: SilkInstrumentContext,
+    #[serde(default)]
+    execution: Option<SilkExecution>,
     #[serde(default)]
     leaves: Vec<SilkLeaf>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+struct SilkExecution {
+    kicad_invocation_count: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reused_projection_receipt_sha256: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    partition_seed_receipt_sha256: Option<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 struct SilkLeaf {
     pairs: Vec<[String; 2]>,
+    cells: Vec<SilkCell>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+struct SilkCell {
     sample_counts: Vec<u32>,
     #[serde(default)]
-    findings: Vec<RawFinding>,
+    sample_findings: Vec<Vec<RawFinding>>,
+    #[serde(default)]
+    item_region: Option<SilkItemRegion>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+struct SilkItemRegion {
+    pair: [String; 2],
+    first_item_count: usize,
+    second_item_count: usize,
+    first_indices: Vec<usize>,
+    second_indices: Vec<usize>,
+}
+
+#[derive(Debug, Deserialize)]
+struct SilkCellCheckRequest {
+    pairs: Vec<[String; 2]>,
+    safe_ceiling: u32,
+    cell: SilkCell,
+}
+
+#[derive(Debug, Serialize)]
+struct SilkCellCheckReceipt {
+    schema: &'static str,
+    sample_count: usize,
+    safely_below_cap: bool,
+    semantic_samples_agree: bool,
+    resolved: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Ord, PartialOrd, Serialize)]
 struct ScopedSilkFinding {
     pair: [String; 2],
-    observation: ObservationKey,
+    message_semantics: String,
+    item_descriptions: Vec<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "kind", rename_all = "kebab-case")]
+enum SilkFindingSubject {
+    Pair { pair: [String; 2] },
+    SelfOverlap { reference: String },
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -195,9 +266,15 @@ struct SilkScopeReceipt {
     source_sha256: String,
     subject_sha256: String,
     silk_projection_sha256: String,
+    instrument_context: SilkInstrumentContext,
+    instrument_context_sha256: String,
+    partition_manifest_sha256: String,
+    leaf_hashes: Vec<String>,
+    leaves: Vec<SilkLeaf>,
     safe_ceiling: u32,
     declared_refs: Vec<String>,
     actual_mutated_refs: Vec<String>,
+    rigid_only_mutated_refs: Vec<String>,
     measurement_scope_refs: Vec<String>,
     expected_pair_count: usize,
     covered_pair_count: usize,
@@ -209,6 +286,8 @@ struct SilkScopeReceipt {
     findings: Vec<BagEntry<ScopedSilkFinding>>,
     complete: bool,
     category_state: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    execution: Option<SilkExecution>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -234,6 +313,7 @@ enum CategoryState {
 #[derive(Debug, Serialize)]
 struct ComparisonReceipt {
     schema: &'static str,
+    instrument_conclusive: bool,
     semantic_repeats_agree: bool,
     category_states: BTreeMap<String, CategoryState>,
     raw_global_capped_categories: Vec<String>,
@@ -372,12 +452,13 @@ fn identities(
         message_semantics,
         nets,
         components,
-        items: if finding
-            .category
-            .strip_prefix("W:")
-            .unwrap_or(&finding.category)
-            == "creepage"
-        {
+        items: if matches!(
+            finding
+                .category
+                .strip_prefix("W:")
+                .unwrap_or(&finding.category),
+            "creepage" | "unconnected_items"
+        ) {
             Vec::new()
         } else {
             raw_items.clone()
@@ -400,8 +481,7 @@ fn digest_bag<K: Serialize>(bag: &BTreeMap<K, usize>) -> Result<String, Evidence
     // pairs is both type-preserving and canonical for any serializable key.
     let entries: Vec<(&K, &usize)> = bag.iter().collect();
     let bytes = serde_json::to_vec(&entries).map_err(EvidenceError::Serialization)?;
-    let digest = Sha256::digest(bytes);
-    Ok(digest.iter().map(|byte| format!("{byte:02x}")).collect())
+    Ok(sha256_hex(&bytes))
 }
 
 fn bag_envelope<K>(bags: &[BTreeMap<K, usize>]) -> Result<BagEnvelope<K>, EvidenceError>
@@ -545,7 +625,7 @@ fn observations_by_family(
 
 fn receipt_completes_silk(receipt: Option<&SilkScopeReceipt>) -> bool {
     receipt.is_some_and(|receipt| {
-        receipt.schema == "temper.silk-mutation-scope/v2"
+        receipt.schema == "temper.silk-mutation-scope/v4"
             && receipt.complete
             && receipt.category_state == "raw-saturated-scoped-complete"
             && receipt.expected_pair_count == receipt.covered_pair_count
@@ -556,11 +636,28 @@ fn receipt_completes_silk(receipt: Option<&SilkScopeReceipt>) -> bool {
     })
 }
 
-fn scoped_silk_pair_bag(
+fn silk_receipts_comparable(
+    baseline: Option<&SilkScopeReceipt>,
+    candidate: Option<&SilkScopeReceipt>,
+) -> bool {
+    match (baseline, candidate) {
+        (Some(baseline), Some(candidate)) => {
+            receipt_completes_silk(Some(baseline))
+                && receipt_completes_silk(Some(candidate))
+                && baseline.source_sha256 == candidate.source_sha256
+                && baseline.instrument_context_sha256 == candidate.instrument_context_sha256
+                && baseline.safe_ceiling == candidate.safe_ceiling
+                && baseline.declared_refs == candidate.declared_refs
+        }
+        _ => false,
+    }
+}
+
+fn scoped_silk_finding_bag(
     receipt: &SilkScopeReceipt,
     scope: &BTreeSet<String>,
-) -> BTreeMap<[String; 2], usize> {
-    let mut pairs = BTreeMap::new();
+) -> BTreeMap<ScopedSilkFinding, usize> {
+    let mut findings = BTreeMap::new();
     for entry in &receipt.findings {
         if entry
             .key
@@ -568,10 +665,10 @@ fn scoped_silk_pair_bag(
             .iter()
             .any(|reference| scope.contains(reference))
         {
-            *pairs.entry(entry.key.pair.clone()).or_insert(0) += entry.count;
+            *findings.entry(entry.key.clone()).or_insert(0) += entry.count;
         }
     }
-    pairs
+    findings
 }
 
 /// Compare two immutable subjects using the same semantic identity used for
@@ -600,6 +697,10 @@ pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceErr
 
     let baseline_silk_complete = receipt_completes_silk(request.baseline_silk_receipt.as_ref());
     let candidate_silk_complete = receipt_completes_silk(request.candidate_silk_receipt.as_ref());
+    let silk_receipts_comparable = silk_receipts_comparable(
+        request.baseline_silk_receipt.as_ref(),
+        request.candidate_silk_receipt.as_ref(),
+    );
     let mut category_states = BTreeMap::new();
     let mut unresolved_cap_categories = Vec::new();
     for category in categories {
@@ -608,8 +709,9 @@ pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceErr
         let state = if !baseline_capped && !candidate_capped {
             CategoryState::UncappedExact
         } else if bare_category(&category) == "silk_overlap"
-            && (!baseline_capped || baseline_silk_complete)
-            && (!candidate_capped || candidate_silk_complete)
+            && baseline_silk_complete
+            && candidate_silk_complete
+            && silk_receipts_comparable
         {
             CategoryState::RawSaturatedScopedComplete
         } else {
@@ -665,9 +767,7 @@ pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceErr
     }
 
     let mut new_scoped_silk_finding_count = 0usize;
-    if receipt_completes_silk(request.baseline_silk_receipt.as_ref())
-        && receipt_completes_silk(request.candidate_silk_receipt.as_ref())
-    {
+    if silk_receipts_comparable {
         let candidate_receipt = request.candidate_silk_receipt.as_ref().ok_or_else(|| {
             EvidenceError::InvalidComparison("candidate silk receipt vanished".into())
         })?;
@@ -679,16 +779,20 @@ pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceErr
             .iter()
             .cloned()
             .collect();
-        let baseline_silk = scoped_silk_pair_bag(baseline_receipt, &scope);
-        let candidate_silk = scoped_silk_pair_bag(candidate_receipt, &scope);
-        for (pair, candidate_count) in candidate_silk {
+        let baseline_silk = scoped_silk_finding_bag(baseline_receipt, &scope);
+        let candidate_silk = scoped_silk_finding_bag(candidate_receipt, &scope);
+        for (finding, candidate_count) in candidate_silk {
             new_scoped_silk_finding_count +=
-                candidate_count.saturating_sub(baseline_silk.get(&pair).copied().unwrap_or(0));
+                candidate_count.saturating_sub(baseline_silk.get(&finding).copied().unwrap_or(0));
         }
     }
 
+    let instrument_conclusive = semantic_repeats_agree
+        && unresolved_cap_categories.is_empty()
+        && indeterminate_hard_comparison_count == 0;
     let receipt = ComparisonReceipt {
-        schema: "temper.drc-admission-comparison/v1",
+        schema: "temper.drc-admission-comparison/v2",
+        instrument_conclusive,
         semantic_repeats_agree,
         category_states,
         raw_global_capped_categories: all_caps.into_iter().collect(),
@@ -797,6 +901,189 @@ fn footprint_blocks(text: &str) -> Result<BTreeMap<String, String>, EvidenceErro
     Ok(blocks)
 }
 
+fn top_level_placement_span(block: &str) -> Result<Option<(usize, usize)>, EvidenceError> {
+    let bytes = block.as_bytes();
+    let mut depth = 0usize;
+    let mut in_string = false;
+    let mut escaped = false;
+    for (index, byte) in bytes.iter().copied().enumerate() {
+        if in_string {
+            if escaped {
+                escaped = false;
+            } else if byte == b'\\' {
+                escaped = true;
+            } else if byte == b'"' {
+                in_string = false;
+            }
+            continue;
+        }
+        match byte {
+            b'"' => in_string = true,
+            b'(' => {
+                if depth == 1
+                    && bytes.get(index + 1..index + 3) == Some(b"at")
+                    && bytes
+                        .get(index + 3)
+                        .is_some_and(|next| next.is_ascii_whitespace() || *next == b')')
+                {
+                    return Ok(Some((index, balanced_end(block, index)?)));
+                }
+                depth += 1;
+            }
+            b')' => depth = depth.saturating_sub(1),
+            _ => {}
+        }
+    }
+    Ok(None)
+}
+
+fn direct_child_spans(
+    block: &str,
+    wanted_head: &str,
+) -> Result<Vec<(usize, usize)>, EvidenceError> {
+    let bytes = block.as_bytes();
+    let mut spans = Vec::new();
+    let mut depth = 0usize;
+    let mut in_string = false;
+    let mut escaped = false;
+    for (index, byte) in bytes.iter().copied().enumerate() {
+        if in_string {
+            if escaped {
+                escaped = false;
+            } else if byte == b'\\' {
+                escaped = true;
+            } else if byte == b'"' {
+                in_string = false;
+            }
+            continue;
+        }
+        match byte {
+            b'"' => in_string = true,
+            b'(' => {
+                if depth == 1 {
+                    let mut head_start = index + 1;
+                    while bytes.get(head_start).is_some_and(u8::is_ascii_whitespace) {
+                        head_start += 1;
+                    }
+                    let mut head_end = head_start;
+                    while bytes.get(head_end).is_some_and(|next| {
+                        !next.is_ascii_whitespace() && *next != b'(' && *next != b')'
+                    }) {
+                        head_end += 1;
+                    }
+                    if block.get(head_start..head_end) == Some(wanted_head) {
+                        spans.push((index, balanced_end(block, index)?));
+                    }
+                }
+                depth += 1;
+            }
+            b')' => depth = depth.saturating_sub(1),
+            _ => {}
+        }
+    }
+    Ok(spans)
+}
+
+fn at_values(expression: &str) -> Result<(f64, f64, f64), EvidenceError> {
+    let values: Vec<&str> = expression
+        .trim_matches(|character| character == '(' || character == ')')
+        .split_ascii_whitespace()
+        .collect();
+    if values.len() < 3 || values.len() > 4 || values[0] != "at" {
+        return Err(EvidenceError::MalformedBoard(format!(
+            "unsupported placement expression {expression}"
+        )));
+    }
+    let parse = |value: &str| {
+        value
+            .parse::<f64>()
+            .map_err(|_| EvidenceError::MalformedBoard(format!("invalid placement scalar {value}")))
+    };
+    Ok((
+        parse(values[1])?,
+        parse(values[2])?,
+        values.get(3).map_or(Ok(0.0), |value| parse(value))?,
+    ))
+}
+
+fn sexpr_tokens(text: &str) -> Result<Vec<String>, EvidenceError> {
+    let bytes = text.as_bytes();
+    let mut tokens = Vec::new();
+    let mut index = 0usize;
+    while index < bytes.len() {
+        if bytes[index].is_ascii_whitespace() {
+            index += 1;
+        } else if matches!(bytes[index], b'(' | b')') {
+            tokens.push((bytes[index] as char).to_string());
+            index += 1;
+        } else if bytes[index] == b'"' {
+            let start = index;
+            index += 1;
+            let mut escaped = false;
+            while index < bytes.len() {
+                let byte = bytes[index];
+                index += 1;
+                if escaped {
+                    escaped = false;
+                } else if byte == b'\\' {
+                    escaped = true;
+                } else if byte == b'"' {
+                    break;
+                }
+            }
+            if bytes.get(index.saturating_sub(1)) != Some(&b'"') {
+                return Err(EvidenceError::MalformedBoard(
+                    "unterminated string in footprint".to_string(),
+                ));
+            }
+            tokens.push(text[start..index].to_string());
+        } else {
+            let start = index;
+            while bytes
+                .get(index)
+                .is_some_and(|byte| !byte.is_ascii_whitespace() && *byte != b'(' && *byte != b')')
+            {
+                index += 1;
+            }
+            tokens.push(text[start..index].to_string());
+        }
+    }
+    Ok(tokens)
+}
+
+/// Canonicalize only the representation changes made by the established
+/// exact placement writer: layout whitespace, the footprint's root `(at)`,
+/// and pad body angles re-expressed relative to that root angle. Pad offsets
+/// and every non-placement child token remain identity-bearing.
+fn rigid_placement_projection(block: &str) -> Result<Vec<String>, EvidenceError> {
+    let (root_start, root_end) = top_level_placement_span(block)?.ok_or_else(|| {
+        EvidenceError::MalformedBoard("footprint has no top-level placement".to_string())
+    })?;
+    let (_, _, root_angle) = at_values(&block[root_start..root_end])?;
+    let mut replacements = vec![(root_start, root_end, "(at <rigid-placement>)".to_string())];
+    for (pad_start, pad_end) in direct_child_spans(block, "pad")? {
+        let pad = &block[pad_start..pad_end];
+        let (relative_start, relative_end) = top_level_placement_span(pad)?
+            .ok_or_else(|| EvidenceError::MalformedBoard("pad has no placement".to_string()))?;
+        let (x, y, pad_angle) = at_values(&pad[relative_start..relative_end])?;
+        let mut local_angle = (pad_angle - root_angle).rem_euclid(360.0);
+        if local_angle.abs() < 1e-12 || (360.0 - local_angle).abs() < 1e-12 {
+            local_angle = 0.0;
+        }
+        replacements.push((
+            pad_start + relative_start,
+            pad_start + relative_end,
+            format!("(at {x} {y} {local_angle})"),
+        ));
+    }
+    replacements.sort_by_key(|replacement| replacement.0);
+    let mut projected = block.to_string();
+    for (start, end, replacement) in replacements.into_iter().rev() {
+        projected.replace_range(start..end, &replacement);
+    }
+    sexpr_tokens(&projected)
+}
+
 fn normalized_pair(first: &str, second: &str) -> [String; 2] {
     if first <= second {
         [first.to_string(), second.to_string()]
@@ -828,11 +1115,196 @@ fn silk_projection_digest(blocks: &BTreeMap<String, String>) -> String {
     sha256_hex(&bytes)
 }
 
+fn silk_child_count(block: &str) -> Result<usize, EvidenceError> {
+    [
+        "fp_text",
+        "fp_text_box",
+        "fp_line",
+        "fp_rect",
+        "fp_circle",
+        "fp_arc",
+        "fp_poly",
+    ]
+    .into_iter()
+    .try_fold(0usize, |count, head| {
+        Ok(count + direct_child_spans(block, head)?.len())
+    })
+}
+
+fn scoped_sample_bag(
+    findings: &[RawFinding],
+    leaf_pairs: &BTreeSet<[String; 2]>,
+    sample_index: usize,
+) -> Result<BTreeMap<ScopedSilkFinding, usize>, EvidenceError> {
+    let mut bag = BTreeMap::new();
+    for (finding_index, finding) in findings.iter().enumerate() {
+        if bare_category(&finding.category) != "silk_overlap" {
+            return Err(EvidenceError::InvalidComparison(format!(
+                "scoped silk cell contains {}",
+                finding.category
+            )));
+        }
+        let pair = match silk_finding_subject(finding)? {
+            SilkFindingSubject::SelfOverlap { .. } => continue,
+            SilkFindingSubject::Pair { pair } => pair,
+        };
+        if !leaf_pairs.contains(&pair) {
+            continue;
+        }
+        // Scoped silk comparison deliberately omits absolute positions: a
+        // rigid footprint move changes those coordinates even when the same
+        // two silk primitives remain in contact. Primitive descriptions are
+        // retained so an equal-count Text->Segment substitution is new
+        // evidence rather than an invisible footprint-pair count tie.
+        let (message_semantics, _actual_distance_mm) = split_actual_distance(&finding.description)
+            .map_err(|()| EvidenceError::MalformedDistance {
+                sample: sample_index,
+                finding: finding_index,
+                description: finding.description.clone(),
+            })?;
+        let mut item_descriptions: Vec<String> = finding
+            .items
+            .iter()
+            .map(|item| item.description.clone())
+            .collect();
+        item_descriptions.sort();
+        *bag.entry(ScopedSilkFinding {
+            pair,
+            message_semantics,
+            item_descriptions,
+        })
+        .or_insert(0) += 1;
+    }
+    Ok(bag)
+}
+
+fn cell_resolution(
+    cell: &SilkCell,
+    leaf_pairs: &BTreeSet<[String; 2]>,
+    safe_ceiling: u32,
+) -> Result<(bool, bool, Vec<BTreeMap<ScopedSilkFinding, usize>>), EvidenceError> {
+    let counts_match_findings = cell.sample_counts.len() == cell.sample_findings.len()
+        && cell
+            .sample_counts
+            .iter()
+            .zip(&cell.sample_findings)
+            .all(|(count, findings)| *count as usize == findings.len());
+    let safely_below_cap = counts_match_findings
+        && cell.sample_counts.len() == 3
+        && cell.sample_counts.iter().all(|count| *count < safe_ceiling);
+    let bags = cell
+        .sample_findings
+        .iter()
+        .enumerate()
+        .map(|(sample_index, findings)| scoped_sample_bag(findings, leaf_pairs, sample_index))
+        .collect::<Result<Vec<_>, _>>()?;
+    let samples_agree = bags.len() == 3
+        && bags
+            .first()
+            .is_some_and(|first| bags.iter().all(|bag| bag == first));
+    Ok((safely_below_cap, samples_agree, bags))
+}
+
+pub fn silk_cell_check_json(request_json: &str) -> Result<String, EvidenceError> {
+    let request: SilkCellCheckRequest = serde_json::from_str(request_json)?;
+    let pairs = request
+        .pairs
+        .iter()
+        .map(|pair| normalized_pair(&pair[0], &pair[1]))
+        .collect();
+    let (safely_below_cap, semantic_samples_agree, _bags) =
+        cell_resolution(&request.cell, &pairs, request.safe_ceiling)?;
+    serde_json::to_string(&SilkCellCheckReceipt {
+        schema: "temper.silk-cell-check/v1",
+        sample_count: request.cell.sample_findings.len(),
+        safely_below_cap,
+        semantic_samples_agree,
+        resolved: safely_below_cap && semantic_samples_agree,
+    })
+    .map_err(EvidenceError::Serialization)
+}
+
+fn item_partition_complete(
+    leaf: &SilkLeaf,
+    subject: &BTreeMap<String, String>,
+) -> Result<bool, EvidenceError> {
+    let regions: Vec<&SilkItemRegion> = leaf
+        .cells
+        .iter()
+        .filter_map(|cell| cell.item_region.as_ref())
+        .collect();
+    if regions.is_empty() {
+        return Ok(leaf.cells.len() == 1);
+    }
+    if regions.len() != leaf.cells.len() || leaf.pairs.len() != 1 {
+        return Ok(false);
+    }
+    let pair = normalized_pair(&leaf.pairs[0][0], &leaf.pairs[0][1]);
+    let first_count = silk_child_count(subject.get(&pair[0]).ok_or_else(|| {
+        EvidenceError::MissingDeclaredReference {
+            reference: pair[0].clone(),
+        }
+    })?)?;
+    let second_count = silk_child_count(subject.get(&pair[1]).ok_or_else(|| {
+        EvidenceError::MissingDeclaredReference {
+            reference: pair[1].clone(),
+        }
+    })?)?;
+    let mut coverage = BTreeMap::<(usize, usize), usize>::new();
+    for region in regions {
+        if normalized_pair(&region.pair[0], &region.pair[1]) != pair
+            || region.pair != pair
+            || region.first_item_count != first_count
+            || region.second_item_count != second_count
+            || region.first_indices.is_empty()
+            || region.second_indices.is_empty()
+            || region
+                .first_indices
+                .iter()
+                .any(|index| *index >= first_count)
+            || region
+                .second_indices
+                .iter()
+                .any(|index| *index >= second_count)
+        {
+            return Ok(false);
+        }
+        for first in &region.first_indices {
+            for second in &region.second_indices {
+                *coverage.entry((*first, *second)).or_insert(0) += 1;
+            }
+        }
+    }
+    Ok(coverage.len() == first_count.saturating_mul(second_count)
+        && coverage.values().all(|count| *count == 1))
+}
+
 /// Validate a complete mutation-cone silk receipt. Board text is parsed only
 /// to census exact footprint blocks; Python remains responsible for staging
 /// KiCad projects and transporting raw leaf results.
 pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceError> {
     let request: SilkScopeRequest = serde_json::from_str(request_json)?;
+    if request.instrument_context.schema != "temper.kicad-drc-instrument/v1"
+        || request
+            .instrument_context
+            .kicad_cli_version
+            .trim()
+            .is_empty()
+        || request.instrument_context.runner.trim().is_empty()
+        || request.instrument_context.runner_flags.is_empty()
+        || [
+            &request.instrument_context.project_sha256,
+            &request.instrument_context.dru_sha256,
+            &request.instrument_context.fp_lib_table_sha256,
+            &request.instrument_context.libraries_sha256,
+        ]
+        .iter()
+        .any(|digest| digest.len() != 64 || !digest.bytes().all(|byte| byte.is_ascii_hexdigit()))
+    {
+        return Err(EvidenceError::InvalidComparison(
+            "invalid scoped silk instrument context".to_string(),
+        ));
+    }
     let source = footprint_blocks(&request.source_board)?;
     let subject = footprint_blocks(&request.subject_board)?;
     let source_refs: BTreeSet<String> = source.keys().cloned().collect();
@@ -861,6 +1333,23 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
             references: undeclared,
         });
     }
+    let mut non_rigid = Vec::new();
+    for reference in &actual {
+        let source_block = source
+            .get(reference)
+            .expect("actual mutations are drawn from the source census");
+        let subject_block = subject
+            .get(reference)
+            .expect("source and subject footprint censuses already match");
+        if rigid_placement_projection(source_block)? != rigid_placement_projection(subject_block)? {
+            non_rigid.push(reference.clone());
+        }
+    }
+    if !non_rigid.is_empty() {
+        return Err(EvidenceError::NonRigidMutation {
+            references: non_rigid,
+        });
+    }
     let scope = if request.use_declared_scope {
         declared.clone()
     } else {
@@ -875,15 +1364,6 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
     let mut scoped_findings: BTreeMap<ScopedSilkFinding, usize> = BTreeMap::new();
     let mut unresolved_leaf_count = 0usize;
     for leaf in &request.leaves {
-        let samples_agree = leaf.sample_counts.len() == 3
-            && leaf
-                .sample_counts
-                .first()
-                .is_some_and(|first| leaf.sample_counts.iter().all(|count| count == first));
-        let safely_below_cap = leaf.sample_counts.iter().all(|count| *count < safe_ceiling);
-        if !samples_agree || !safely_below_cap {
-            unresolved_leaf_count += 1;
-        }
         for pair in &leaf.pairs {
             *coverage
                 .entry(normalized_pair(&pair[0], &pair[1]))
@@ -894,23 +1374,24 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
             .iter()
             .map(|pair| normalized_pair(&pair[0], &pair[1]))
             .collect();
-        for (finding_index, finding) in leaf.findings.iter().enumerate() {
-            if bare_category(&finding.category) != "silk_overlap" {
-                return Err(EvidenceError::InvalidComparison(format!(
-                    "scoped silk leaf contains {}",
-                    finding.category
-                )));
+        let mut leaf_resolved = !leaf.cells.is_empty() && item_partition_complete(leaf, &subject)?;
+        let mut stable_bags = Vec::new();
+        for cell in &leaf.cells {
+            let (safely_below_cap, samples_agree, bags) =
+                cell_resolution(cell, &leaf_pairs, safe_ceiling)?;
+            leaf_resolved &= safely_below_cap && samples_agree;
+            if samples_agree {
+                stable_bags.push(bags[0].clone());
             }
-            let pair = silk_finding_pair(finding)?;
-            if !leaf_pairs.contains(&pair) {
-                return Err(EvidenceError::InvalidComparison(format!(
-                    "scoped silk finding pair {pair:?} is outside its leaf"
-                )));
+        }
+        if !leaf_resolved {
+            unresolved_leaf_count += 1;
+            continue;
+        }
+        for bag in stable_bags {
+            for (finding, count) in bag {
+                *scoped_findings.entry(finding).or_insert(0) += count;
             }
-            let (_family, observation, _raw) = identities(finding, 0, finding_index)?;
-            *scoped_findings
-                .entry(ScopedSilkFinding { pair, observation })
-                .or_insert(0) += 1;
         }
     }
     let covered: BTreeSet<[String; 2]> = coverage.keys().cloned().collect();
@@ -932,14 +1413,33 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
     } else {
         "raw-saturated-unresolved"
     };
+    let instrument_context_json =
+        serde_json::to_vec(&request.instrument_context).map_err(EvidenceError::Serialization)?;
+    let partition_manifest_json =
+        serde_json::to_vec(&request.leaves).map_err(EvidenceError::Serialization)?;
+    let leaf_hashes = request
+        .leaves
+        .iter()
+        .map(|leaf| {
+            serde_json::to_vec(leaf)
+                .map(|bytes| sha256_hex(&bytes))
+                .map_err(EvidenceError::Serialization)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
     let receipt = SilkScopeReceipt {
-        schema: "temper.silk-mutation-scope/v2".to_string(),
+        schema: "temper.silk-mutation-scope/v4".to_string(),
         source_sha256: sha256_hex(request.source_board.as_bytes()),
         subject_sha256: sha256_hex(request.subject_board.as_bytes()),
         silk_projection_sha256: silk_projection_digest(&subject),
+        instrument_context_sha256: sha256_hex(&instrument_context_json),
+        instrument_context: request.instrument_context,
+        partition_manifest_sha256: sha256_hex(&partition_manifest_json),
+        leaf_hashes,
+        leaves: request.leaves,
         safe_ceiling,
         declared_refs: declared.into_iter().collect(),
-        actual_mutated_refs: actual.into_iter().collect(),
+        actual_mutated_refs: actual.iter().cloned().collect(),
+        rigid_only_mutated_refs: actual.into_iter().collect(),
         measurement_scope_refs: scope.into_iter().collect(),
         expected_pair_count: expected.len(),
         covered_pair_count: expected.intersection(&covered).count(),
@@ -954,6 +1454,7 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
             .collect(),
         complete,
         category_state: category_state.to_string(),
+        execution: request.execution,
     };
     serde_json::to_string(&receipt).map_err(EvidenceError::Serialization)
 }
@@ -961,7 +1462,7 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
 /// Extract the canonical footprint pair from one raw `silk_overlap` record.
 /// The raw item descriptions remain KiCad's oracle; Rust owns the parsing and
 /// rejects ambiguous records rather than letting Python invent a pair.
-fn silk_finding_pair(finding: &RawFinding) -> Result<[String; 2], EvidenceError> {
+fn silk_finding_subject(finding: &RawFinding) -> Result<SilkFindingSubject, EvidenceError> {
     let mut references = BTreeSet::new();
     for item in &finding.items {
         if let Some(reference) = component_re()
@@ -972,10 +1473,24 @@ fn silk_finding_pair(finding: &RawFinding) -> Result<[String; 2], EvidenceError>
         }
     }
     let references: Vec<String> = references.into_iter().collect();
-    if references.len() != 2 {
-        return Err(EvidenceError::AmbiguousSilkPair { references });
+    match references.as_slice() {
+        [reference] => Ok(SilkFindingSubject::SelfOverlap {
+            reference: reference.clone(),
+        }),
+        [first, second] => Ok(SilkFindingSubject::Pair {
+            pair: normalized_pair(first, second),
+        }),
+        _ => Err(EvidenceError::AmbiguousSilkPair { references }),
     }
-    Ok(normalized_pair(&references[0], &references[1]))
+}
+
+fn silk_finding_pair(finding: &RawFinding) -> Result<[String; 2], EvidenceError> {
+    match silk_finding_subject(finding)? {
+        SilkFindingSubject::Pair { pair } => Ok(pair),
+        SilkFindingSubject::SelfOverlap { reference } => Err(EvidenceError::AmbiguousSilkPair {
+            references: vec![reference],
+        }),
+    }
 }
 
 pub fn silk_finding_pair_json(finding_json: &str) -> Result<String, EvidenceError> {
@@ -983,29 +1498,34 @@ pub fn silk_finding_pair_json(finding_json: &str) -> Result<String, EvidenceErro
     serde_json::to_string(&silk_finding_pair(&finding)?).map_err(EvidenceError::Serialization)
 }
 
+pub fn silk_finding_subject_json(finding_json: &str) -> Result<String, EvidenceError> {
+    let finding: RawFinding = serde_json::from_str(finding_json)?;
+    serde_json::to_string(&silk_finding_subject(&finding)?).map_err(EvidenceError::Serialization)
+}
+
 #[cfg(feature = "python")]
-#[pyo3::pyfunction(name = "drc_evidence_envelope_json")]
+#[pyfunction(name = "drc_evidence_envelope_json")]
 fn evidence_envelope_json_py(samples_json: &str) -> pyo3::PyResult<String> {
     evidence_envelope_json(samples_json)
         .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
 }
 
 #[cfg(feature = "python")]
-#[pyo3::pyfunction(name = "drc_silk_scope_receipt_json")]
+#[pyfunction(name = "drc_silk_scope_receipt_json")]
 fn silk_scope_receipt_json_py(request_json: &str) -> pyo3::PyResult<String> {
     silk_scope_receipt_json(request_json)
         .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
 }
 
 #[cfg(feature = "python")]
-#[pyo3::pyfunction(name = "drc_silk_finding_pair_json")]
-fn silk_finding_pair_json_py(finding_json: &str) -> pyo3::PyResult<String> {
-    silk_finding_pair_json(finding_json)
+#[pyfunction(name = "drc_silk_cell_check_json")]
+fn silk_cell_check_json_py(request_json: &str) -> pyo3::PyResult<String> {
+    silk_cell_check_json(request_json)
         .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
 }
 
 #[cfg(feature = "python")]
-#[pyo3::pyfunction(name = "drc_admission_comparison_json")]
+#[pyfunction(name = "drc_admission_comparison_json")]
 fn comparison_receipt_json_py(request_json: &str) -> pyo3::PyResult<String> {
     comparison_receipt_json(request_json)
         .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
@@ -1016,13 +1536,14 @@ pub fn register(module: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResu
     use pyo3::prelude::PyModuleMethods;
     module.add_function(pyo3::wrap_pyfunction!(evidence_envelope_json_py, module)?)?;
     module.add_function(pyo3::wrap_pyfunction!(silk_scope_receipt_json_py, module)?)?;
-    module.add_function(pyo3::wrap_pyfunction!(silk_finding_pair_json_py, module)?)?;
+    module.add_function(pyo3::wrap_pyfunction!(silk_cell_check_json_py, module)?)?;
     module.add_function(pyo3::wrap_pyfunction!(comparison_receipt_json_py, module)?)?;
     Ok(())
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     fn creepage(actual: &str, net_b: &str, component: &str, provider: &str) -> RawFinding {
@@ -1044,7 +1565,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn provider_churn_is_semantically_stable_and_raw_visible() {
         let samples = vec![
             vec![creepage("10.2975", "V_BUS_SENSE", "R14", "0.8485")],
@@ -1070,7 +1591,47 @@ mod tests {
         );
     }
 
-    #[test]
+    fn missing_connection(provider: &str, net: &str, component: &str) -> RawFinding {
+        RawFinding {
+            category: "unconnected_items".to_string(),
+            description: "Missing connection between items".to_string(),
+            items: vec![
+                RawItem {
+                    description: format!("PTH pad 2 [{net}] of {component}"),
+                    pos: RawPosition::new("102.5", "243.0"),
+                },
+                RawItem {
+                    description: format!("Track [{net}] on In3.Cu, length {provider} mm"),
+                    pos: RawPosition::new("98.95", "240.15"),
+                },
+            ],
+        }
+    }
+
+    #[cfg_attr(test, test)]
+    fn missing_connection_provider_churn_is_stable_but_identity_changes_are_not() {
+        let baseline = missing_connection("0.1414", "rtd_sense_p", "J1");
+        let provider_changed = missing_connection("8.9000", "rtd_sense_p", "J1");
+        let envelope = evidence_envelope(&[
+            vec![baseline.clone()],
+            vec![provider_changed.clone()],
+            vec![baseline.clone()],
+        ])
+        .expect("valid production-shaped missing connection");
+        assert!(envelope.observation.stable);
+        assert!(!envelope.raw.stable);
+
+        for changed in [
+            missing_connection("8.9000", "different_net", "J1"),
+            missing_connection("8.9000", "rtd_sense_p", "J2"),
+        ] {
+            let changed = evidence_envelope(&[vec![baseline.clone()], vec![changed]])
+                .expect("valid identity mutation");
+            assert!(!changed.observation.stable);
+        }
+    }
+
+    #[cfg_attr(test, test)]
     fn identity_bearing_mutations_are_not_normalized() {
         let baseline = creepage("10.2975", "V_BUS_SENSE", "R14", "0.8485");
         let cases = [
@@ -1090,7 +1651,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn order_canonicalizes_but_duplicate_multisets_survive() {
         let mut a = creepage("10.2975", "V_BUS_SENSE", "R14", "0.8485");
         a.items.push(a.items[1].clone());
@@ -1106,7 +1667,7 @@ mod tests {
         assert!(!changed.observation.stable);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn duplicate_findings_use_multiset_intersection_and_union() {
         let v = creepage("10.2975", "V_BUS_SENSE", "R14", "0.8485");
         let envelope = evidence_envelope(&[
@@ -1128,7 +1689,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn non_creepage_item_position_remains_identity_bearing() {
         let baseline = RawFinding {
             category: "clearance".to_string(),
@@ -1150,7 +1711,7 @@ mod tests {
         assert!(!envelope.observation.stable);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn malformed_identity_field_is_typed_error() {
         let err = evidence_envelope_json(
             r#"[[{"type":"creepage","description":"Creepage violation (actual nope mm)","items":[]}]]"#,
@@ -1165,7 +1726,20 @@ mod tests {
         )
     }
 
-    #[test]
+    fn instrument_context() -> serde_json::Value {
+        serde_json::json!({
+            "schema": "temper.kicad-drc-instrument/v1",
+            "kicad_cli_version": "10.0.5",
+            "runner": "test-runner/v1",
+            "runner_flags": ["drc", "--format", "json", "--all-track-errors", "single-thread"],
+            "project_sha256": "1".repeat(64),
+            "dru_sha256": "2".repeat(64),
+            "fp_lib_table_sha256": "3".repeat(64),
+            "libraries_sha256": "4".repeat(64)
+        })
+    }
+
+    #[cfg_attr(test, test)]
     fn silk_scope_receipt_binds_actual_mutation_and_exact_pair_coverage() {
         let request = serde_json::json!({
             "source_board": board("10 0"),
@@ -1173,9 +1747,10 @@ mod tests {
             "declared_refs": ["R2"],
             "use_declared_scope": false,
             "raw_global_capped": true,
+            "instrument_context": instrument_context(),
             "leaves": [
-                {"pairs": [["R1", "R2"]], "sample_counts": [3, 3, 3]},
-                {"pairs": [["R2", "R3"]], "sample_counts": [0, 0, 0]}
+                {"pairs": [["R1", "R2"]], "cells": [{"sample_counts": [0, 0, 0], "sample_findings": [[], [], []]}]},
+                {"pairs": [["R2", "R3"]], "cells": [{"sample_counts": [0, 0, 0], "sample_findings": [[], [], []]}]}
             ]
         });
         let receipt: serde_json::Value = serde_json::from_str(
@@ -1189,7 +1764,7 @@ mod tests {
         assert_eq!(receipt["category_state"], "raw-saturated-scoped-complete");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn silk_scope_rejects_undeclared_mutation() {
         let request = serde_json::json!({
             "source_board": board("10 0"),
@@ -1197,6 +1772,7 @@ mod tests {
             "declared_refs": ["R2"],
             "use_declared_scope": false,
             "raw_global_capped": true,
+            "instrument_context": instrument_context(),
             "leaves": []
         });
         let error = silk_scope_receipt_json(&request.to_string())
@@ -1204,7 +1780,50 @@ mod tests {
         assert!(matches!(error, EvidenceError::UndeclaredMutation { .. }));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
+    fn silk_scope_rejects_declared_non_rigid_mutation() {
+        let request = serde_json::json!({
+            "source_board": board("10 0"),
+            "subject_board": board("10 0").replace(
+                "(property \"Reference\" \"R2\")",
+                "(property \"Reference\" \"R2\") (fp_text value \"changed\")"
+            ),
+            "declared_refs": ["R2"],
+            "use_declared_scope": false,
+            "raw_global_capped": true,
+            "instrument_context": instrument_context(),
+            "leaves": []
+        });
+        let error = silk_scope_receipt_json(&request.to_string())
+            .expect_err("declared child mutation must fail before measurement");
+        assert!(matches!(error, EvidenceError::NonRigidMutation { .. }));
+    }
+
+    #[cfg_attr(test, test)]
+    fn rigid_projection_accepts_writer_formatting_and_relative_pad_reorientation() {
+        let source = r#"(footprint "Test:R" (property "Reference" "R1") (at 0 0)
+  (pad "1" smd rect (at 1 2) (size 1 1) (layers "F.Cu")))"#;
+        let subject = r#"(footprint "Test:R"
+  (property "Reference" "R1")
+  (at 10 20 180)
+  (pad "1" smd rect
+    (at 1 2 180)
+    (size 1 1)
+    (layers "F.Cu")
+  )
+)"#;
+        assert_eq!(
+            rigid_placement_projection(source).expect("source projection"),
+            rigid_placement_projection(subject).expect("subject projection")
+        );
+        let moved_pad = subject.replace("(at 1 2 180)", "(at 1.1 2 180)");
+        assert_ne!(
+            rigid_placement_projection(source).expect("source projection"),
+            rigid_placement_projection(&moved_pad).expect("mutated projection")
+        );
+    }
+
+    #[cfg_attr(test, test)]
     fn silk_scope_marks_duplicate_missing_disagreeing_and_near_cap_unresolved() {
         let request = serde_json::json!({
             "source_board": board("10 0"),
@@ -1212,9 +1831,10 @@ mod tests {
             "declared_refs": ["R2"],
             "use_declared_scope": true,
             "raw_global_capped": true,
+            "instrument_context": instrument_context(),
             "leaves": [
-                {"pairs": [["R1", "R2"], ["R1", "R2"]], "sample_counts": [179, 179, 179]},
-                {"pairs": [["R2", "R3"]], "sample_counts": [1, 2, 1]}
+                {"pairs": [["R1", "R2"], ["R1", "R2"]], "cells": [{"sample_counts": [179, 179, 179], "sample_findings": [[], [], []]}]},
+                {"pairs": [["R2", "R3"]], "cells": [{"sample_counts": [1, 2, 1], "sample_findings": [[], [], []]}]}
             ]
         });
         let receipt: serde_json::Value = serde_json::from_str(
@@ -1230,8 +1850,82 @@ mod tests {
         assert_eq!(receipt["unresolved_leaf_count"], 2);
     }
 
-    #[test]
-    fn silk_finding_pair_is_rust_owned_and_ambiguous_records_fail() {
+    #[cfg_attr(test, test)]
+    fn silk_cell_rejects_equal_counts_with_different_semantic_sets() {
+        let first = serde_json::json!({
+            "type": "silk_overlap",
+            "description": "Silkscreen overlap",
+            "items": [
+                {"description": "Text REF of R1 on F.Silkscreen", "pos": {"x": 0, "y": 0}},
+                {"description": "Arc of R2 on F.Silkscreen", "pos": {"x": 1, "y": 1}}
+            ]
+        });
+        let changed = serde_json::json!({
+            "type": "silk_overlap",
+            "description": "Silkscreen overlap",
+            "items": [
+                {"description": "Segment of R1 on F.Silkscreen", "pos": {"x": 0, "y": 0}},
+                {"description": "Arc of R2 on F.Silkscreen", "pos": {"x": 1, "y": 1}}
+            ]
+        });
+        let request = serde_json::json!({
+            "pairs": [["R1", "R2"]],
+            "safe_ceiling": 179,
+            "cell": {
+                "sample_counts": [1, 1, 1],
+                "sample_findings": [[first.clone()], [changed], [first]]
+            }
+        });
+        let receipt: serde_json::Value = serde_json::from_str(
+            &silk_cell_check_json(&request.to_string()).expect("typed cell receipt"),
+        )
+        .expect("valid receipt JSON");
+        assert_eq!(receipt["safely_below_cap"], true);
+        assert_eq!(receipt["semantic_samples_agree"], false);
+        assert_eq!(receipt["resolved"], false);
+    }
+
+    #[cfg_attr(test, test)]
+    fn silk_scope_reports_missing_and_foreign_pairs_independently() {
+        let missing_request = serde_json::json!({
+            "source_board": board("10 0"),
+            "subject_board": board("10 0"),
+            "declared_refs": ["R2"],
+            "use_declared_scope": true,
+            "raw_global_capped": true,
+            "instrument_context": instrument_context(),
+            "leaves": [
+                {"pairs": [["R1", "R2"]], "cells": [{"sample_counts": [0, 0, 0], "sample_findings": [[], [], []]}]}
+            ]
+        });
+        let missing: serde_json::Value = serde_json::from_str(
+            &silk_scope_receipt_json(&missing_request.to_string()).expect("missing receipt"),
+        )
+        .expect("valid receipt JSON");
+        assert_eq!(missing["missing_pairs"], serde_json::json!([["R2", "R3"]]));
+        assert_eq!(missing["foreign_pairs"], serde_json::json!([]));
+
+        let foreign_request = serde_json::json!({
+            "source_board": board("10 0"),
+            "subject_board": board("10 0"),
+            "declared_refs": ["R2"],
+            "use_declared_scope": true,
+            "raw_global_capped": true,
+            "instrument_context": instrument_context(),
+            "leaves": [
+                {"pairs": [["R1", "R2"], ["R2", "R3"], ["R1", "R3"]], "cells": [{"sample_counts": [0, 0, 0], "sample_findings": [[], [], []]}]}
+            ]
+        });
+        let foreign: serde_json::Value = serde_json::from_str(
+            &silk_scope_receipt_json(&foreign_request.to_string()).expect("foreign receipt"),
+        )
+        .expect("valid receipt JSON");
+        assert_eq!(foreign["missing_pairs"], serde_json::json!([]));
+        assert_eq!(foreign["foreign_pairs"], serde_json::json!([["R1", "R3"]]));
+    }
+
+    #[cfg_attr(test, test)]
+    fn silk_finding_subject_is_rust_owned_and_ambiguous_records_fail() {
         let finding = serde_json::json!({
             "type": "silk_overlap",
             "description": "Silkscreen overlap",
@@ -1244,9 +1938,23 @@ mod tests {
             silk_finding_pair_json(&finding.to_string()).expect("two-ref pair"),
             r#"["C3","R2"]"#
         );
-        let ambiguous = finding.to_string().replace(" of C3 on", " of R2 on");
+        let self_overlap = finding.to_string().replace(" of C3 on", " of R2 on");
+        assert_eq!(
+            silk_finding_subject_json(&self_overlap).expect("one-ref self overlap"),
+            r#"{"kind":"self-overlap","reference":"R2"}"#
+        );
         assert!(matches!(
-            silk_finding_pair_json(&ambiguous).expect_err("same-ref record is ambiguous"),
+            silk_finding_pair_json(&self_overlap).expect_err("self overlap is not a pair"),
+            EvidenceError::AmbiguousSilkPair { .. }
+        ));
+        let ambiguous = serde_json::json!({
+            "type": "silk_overlap",
+            "description": "Silkscreen overlap",
+            "items": []
+        });
+        assert!(matches!(
+            silk_finding_subject_json(&ambiguous.to_string())
+                .expect_err("zero-ref finding is ambiguous"),
             EvidenceError::AmbiguousSilkPair { .. }
         ));
     }
@@ -1262,7 +1970,7 @@ mod tests {
         })
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn admission_comparison_ranks_hard_distances_after_provider_normalization() {
         let baseline =
             ["0.8", "11.9", "0.8"].map(|provider| vec![creepage_value("10.2", provider)]);
@@ -1281,12 +1989,13 @@ mod tests {
         )
         .expect("valid receipt");
         assert_eq!(receipt["semantic_repeats_agree"], true);
+        assert_eq!(receipt["instrument_conclusive"], true);
         assert_eq!(receipt["new_hard_observation_count"], 0);
         assert_eq!(receipt["worsened_hard_observation_count"], 1);
         assert_eq!(receipt["indeterminate_hard_comparison_count"], 0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn admission_comparison_allows_only_complete_silk_scope_to_resolve_a_cap() {
         let scope_request = serde_json::json!({
             "source_board": board("10 0"),
@@ -1294,15 +2003,33 @@ mod tests {
             "declared_refs": ["R2"],
             "use_declared_scope": true,
             "raw_global_capped": true,
+            "instrument_context": instrument_context(),
             "leaves": [
-                {"pairs": [["R1", "R2"]], "sample_counts": [1, 1, 1]},
-                {"pairs": [["R2", "R3"]], "sample_counts": [0, 0, 0]}
+                {"pairs": [["R1", "R2"]], "cells": [{"sample_counts": [0, 0, 0], "sample_findings": [[], [], []]}]},
+                {"pairs": [["R2", "R3"]], "cells": [{"sample_counts": [0, 0, 0], "sample_findings": [[], [], []]}]}
             ]
         });
         let silk_receipt: serde_json::Value = serde_json::from_str(
             &silk_scope_receipt_json(&scope_request.to_string()).expect("complete silk scope"),
         )
         .expect("valid silk receipt");
+        let one_sided_request = serde_json::json!({
+            "baseline_samples": [[], [], []],
+            "candidate_samples": [[], [], []],
+            "baseline_capped_categories": ["W:silk_overlap"],
+            "candidate_capped_categories": [],
+            "baseline_silk_receipt": silk_receipt.clone(),
+            "candidate_silk_receipt": null
+        });
+        let one_sided: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_json(&one_sided_request.to_string())
+                .expect("one-sided cap remains typed"),
+        )
+        .expect("valid comparison receipt");
+        assert_eq!(
+            one_sided["category_states"]["W:silk_overlap"],
+            "raw-saturated-unresolved"
+        );
         let request = serde_json::json!({
             "baseline_samples": [[], [], []],
             "candidate_samples": [[], [], []],
@@ -1329,28 +2056,30 @@ mod tests {
         );
     }
 
-    #[test]
-    fn scoped_silk_comparison_uses_exact_pair_multiplicity_not_moved_coordinates() {
-        let finding = |x: i32| {
+    #[cfg_attr(test, test)]
+    fn scoped_silk_comparison_uses_primitive_identity_not_moved_coordinates() {
+        let finding = |x: i32, first_kind: &str| {
             serde_json::json!({
                 "type": "silk_overlap",
                 "description": "Silkscreen overlap",
                 "items": [
-                    {"description": "Text REF of R1 on F.Silkscreen", "pos": {"x": x, "y": 0}},
+                    {"description": format!("{first_kind} of R1 on F.Silkscreen"), "pos": {"x": x, "y": 0}},
                     {"description": "Arc of R2 on F.Silkscreen", "pos": {"x": 1, "y": 1}}
                 ]
             })
         };
         let scope_receipt = |findings: Vec<serde_json::Value>| {
+            let finding_count = findings.len();
             let request = serde_json::json!({
                 "source_board": board("10 0"),
                 "subject_board": board("10 0"),
                 "declared_refs": ["R2"],
                 "use_declared_scope": true,
                 "raw_global_capped": true,
+                "instrument_context": instrument_context(),
                 "leaves": [
-                    {"pairs": [["R1", "R2"]], "sample_counts": [1, 1, 1], "findings": findings},
-                    {"pairs": [["R2", "R3"]], "sample_counts": [0, 0, 0]}
+                    {"pairs": [["R1", "R2"]], "cells": [{"sample_counts": [finding_count, finding_count, finding_count], "sample_findings": [findings.clone(), findings.clone(), findings]}]},
+                    {"pairs": [["R2", "R3"]], "cells": [{"sample_counts": [0, 0, 0], "sample_findings": [[], [], []]}]}
                 ]
             });
             serde_json::from_str::<serde_json::Value>(
@@ -1358,9 +2087,10 @@ mod tests {
             )
             .expect("valid receipt")
         };
-        let baseline = scope_receipt(vec![finding(0)]);
-        let moved = scope_receipt(vec![finding(99)]);
-        let added = scope_receipt(vec![finding(99), finding(100)]);
+        let baseline = scope_receipt(vec![finding(0, "Text REF")]);
+        let moved = scope_receipt(vec![finding(99, "Text REF")]);
+        let substituted = scope_receipt(vec![finding(99, "Segment")]);
+        let added = scope_receipt(vec![finding(99, "Text REF"), finding(100, "Text REF")]);
         let compare = |candidate: serde_json::Value| {
             let request = serde_json::json!({
                 "baseline_samples": [[], [], []],
@@ -1376,6 +2106,34 @@ mod tests {
             .expect("valid comparison")
         };
         assert_eq!(compare(moved)["new_scoped_silk_finding_count"], 0);
+        assert_eq!(compare(substituted)["new_scoped_silk_finding_count"], 1);
         assert_eq!(compare(added)["new_scoped_silk_finding_count"], 1);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("drc_evidence::tests::provider_churn_is_semantically_stable_and_raw_visible", provider_churn_is_semantically_stable_and_raw_visible),
+        ("drc_evidence::tests::missing_connection_provider_churn_is_stable_but_identity_changes_are_not", missing_connection_provider_churn_is_stable_but_identity_changes_are_not),
+        ("drc_evidence::tests::identity_bearing_mutations_are_not_normalized", identity_bearing_mutations_are_not_normalized),
+        ("drc_evidence::tests::order_canonicalizes_but_duplicate_multisets_survive", order_canonicalizes_but_duplicate_multisets_survive),
+        ("drc_evidence::tests::duplicate_findings_use_multiset_intersection_and_union", duplicate_findings_use_multiset_intersection_and_union),
+        ("drc_evidence::tests::non_creepage_item_position_remains_identity_bearing", non_creepage_item_position_remains_identity_bearing),
+        ("drc_evidence::tests::malformed_identity_field_is_typed_error", malformed_identity_field_is_typed_error),
+        ("drc_evidence::tests::silk_scope_receipt_binds_actual_mutation_and_exact_pair_coverage", silk_scope_receipt_binds_actual_mutation_and_exact_pair_coverage),
+        ("drc_evidence::tests::silk_scope_rejects_undeclared_mutation", silk_scope_rejects_undeclared_mutation),
+        ("drc_evidence::tests::silk_scope_rejects_declared_non_rigid_mutation", silk_scope_rejects_declared_non_rigid_mutation),
+        ("drc_evidence::tests::rigid_projection_accepts_writer_formatting_and_relative_pad_reorientation", rigid_projection_accepts_writer_formatting_and_relative_pad_reorientation),
+        ("drc_evidence::tests::silk_scope_marks_duplicate_missing_disagreeing_and_near_cap_unresolved", silk_scope_marks_duplicate_missing_disagreeing_and_near_cap_unresolved),
+        ("drc_evidence::tests::silk_cell_rejects_equal_counts_with_different_semantic_sets", silk_cell_rejects_equal_counts_with_different_semantic_sets),
+        ("drc_evidence::tests::silk_scope_reports_missing_and_foreign_pairs_independently", silk_scope_reports_missing_and_foreign_pairs_independently),
+        ("drc_evidence::tests::silk_finding_subject_is_rust_owned_and_ambiguous_records_fail", silk_finding_subject_is_rust_owned_and_ambiguous_records_fail),
+        ("drc_evidence::tests::admission_comparison_ranks_hard_distances_after_provider_normalization", admission_comparison_ranks_hard_distances_after_provider_normalization),
+        ("drc_evidence::tests::admission_comparison_allows_only_complete_silk_scope_to_resolve_a_cap", admission_comparison_allows_only_complete_silk_scope_to_resolve_a_cap),
+        ("drc_evidence::tests::scoped_silk_comparison_uses_primitive_identity_not_moved_coordinates", scoped_silk_comparison_uses_primitive_identity_not_moved_coordinates),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
