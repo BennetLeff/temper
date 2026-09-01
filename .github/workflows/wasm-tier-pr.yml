@@ -399,7 +399,7 @@ jobs:
             tools/wasm/test_pr_preview_build.mjs \
             tools/wasm/test_candidate_cadence.mjs
           node tools/wasm/test_sweep_durability.mjs
-          python3 -m pip install pytest==9.0.2
+          python3 -m pip install pytest==9.1.1
           python3 -m pytest tools/wasm/test_r19_agreement_ledger.py -q
 
   tier-verdict:
