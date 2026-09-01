@@ -1,0 +1,99 @@
+# Assertions in elec/**/*.ato that this gate found cannot fail, or cannot be
+# decided. See scripts/check_ato_assertion_vacuity.py for what this file is
+# and why it is a ratchet rather than a suppression list.
+#
+# Format: <KIND>|<file>::<module>::<assert source> <count>
+# Regenerate with:
+#   uv run python scripts/check_ato_assertion_vacuity.py --write-inventory
+#
+# This ledger is expected to SHRINK. An entry that no longer fires is a
+# FAILURE, not a pass: record the fix in the same commit. Every line here is
+# an electrical question for the power-stage owner.
+#
+# KINDS, in descending sharpness:
+#   VIOLATED            evaluates FALSE as written
+#   TAUTOLOGY           outcome invariant under perturbation of every operand
+#   TIE_MARGIN          decided by an exact numeric tie; zero margin
+#   NO_CIRCUIT_COUPLING no component value can falsify it
+#   INDETERMINATE       undecidable across the declared tolerance intervals
+#
+# Nothing may be added here by hand. Anything NOT listed here fails the build,
+# so a newly written vacuous assertion is blocked from commit one.
+
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::c_tank_tolerance within 0.01 to 0.30 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::c_tank_total within 150nF to 600nF 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::eta_min >= 0.85 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_line within 59Hz to 61Hz 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_pll_tracking_min < f_pll_tracking_max 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_resonant_nominal within 20kHz to 35kHz 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_switching <= f_pll_tracking_max 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_switching >= f_pll_tracking_min 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_switching within 20kHz to 100kHz 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::hb.gate_hs.boot_diode.voltage_rating >= v_bus_max 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::hb.power_loop.q_high.current_rating >= i_peak_max * 1.5 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::hb.power_loop.q_high.voltage_rating >= v_bus_max * 1.5 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::hb.power_loop.q_low.current_rating >= i_peak_max * 1.5 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::hb.power_loop.q_low.voltage_rating >= v_bus_max * 1.5 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::i_ocp_trip_peak < i_igbt_soa_limit 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::i_ocp_trip_rms < hb.power_loop.q_high.current_rating 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::i_peak_max <= constraints.i_max 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::l_pan_loaded_ratio within 0.2 to 0.8 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::l_tank_assumed within 50uH to 250uH 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::l_tank_tolerance within 0.05 to 0.30 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::p_output_max within 1500W to 1800W 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::p_standby_max < 5W 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::power_in.c_bus1.voltage_rating >= v_bus_max * 0.7 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::power_in.c_bus2.voltage_rating >= v_bus_max * 0.7 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::power_in.d1.voltage_rating >= v_bus_max * 1.5 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::power_in.d2.voltage_rating >= v_bus_max * 1.5 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_ambient_max within 313.15K to 333.15K 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_dt_sw > t_igbt_off + 50ns 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_mcu_boot < t_soft_start_delay 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_thermal_trip < thermal_constraints.igbt_derate_temp 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_wdt_timeout > t_fault_response_max * 10 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::tank.c_tank1.voltage_rating >= 1000V 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::tank.c_tank2.voltage_rating >= 1000V 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_ac_nominal within 100V to 130V 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_bus_max <= 400V 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_bus_max <= constraints.v_max 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_bus_nominal within 280V to 380V 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_bus_ripple_max < v_bus_nominal * 0.1 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_ovp_trip < v_cap_max 1
+NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_ovp_trip > v_bus_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::AuxSupply::c_in_bulk.voltage_rating >= 170V * 1.25 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::AuxSupply::power_out.voltage within 15V +/- 10% 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BuckConverter3V3::power_out.voltage within 3.3V +/- 5% 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::c_snub1.voltage_rating >= v_bus_half * 2 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::c_snub2.voltage_rating >= v_bus_half * 2 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::r_dis1a.voltage_rating >= v_bus_half * 0.625 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::r_dis1b.voltage_rating >= v_bus_half * 0.625 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::r_dis2a.voltage_rating >= v_bus_half * 0.625 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::r_dis2b.voltage_rating >= v_bus_half * 0.625 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::r_snub1.voltage_rating >= v_bus_half * 2 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::r_snub2.voltage_rating >= v_bus_half * 2 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::GateDriveHS::driver.i_source_peak >= constraints.i_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::GateDriveHS::rg_on.power_rating >= p_rg_avg * 1.5 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::GateDriveLS::rg_on.power_rating >= p_rg_avg * 1.5 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::HalfBridge::power_15v_ls.voltage <= gate_hs.driver.v_cc_sec_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::HalfBridge::t_dead_time within 300ns to 310ns 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::MCU::power.voltage within 3.3V +/- 5% 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::OVPComparator::v_adc_max <= 3.3V 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerInput::c_bus1.voltage_rating >= v_bus_half * 1.25 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerInput::c_bus2.voltage_rating >= v_bus_half * 1.25 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerInput::cmc.current_rating >= constraints.i_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerInput::fuse.current_rating >= constraints.i_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerInput::fuse.voltage_rating >= constraints.v_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerInput::r_bleed1.voltage_rating >= v_bus_half * 1.25 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerInput::r_bleed2.voltage_rating >= v_bus_half * 1.25 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerLoop::q_high.current_rating >= constraints.i_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerLoop::q_high.voltage_rating >= constraints.v_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerLoop::q_low.current_rating >= constraints.i_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerLoop::q_low.voltage_rating >= constraints.v_max 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::RTDSensing::power.voltage within 3.3V +/- 10% 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::ResonantTank::c_tank1.voltage_rating >= v_tank_peak * 1.43 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::ResonantTank::c_tank2.voltage_rating >= v_tank_peak * 1.43 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::ResonantTank::c_tank3.voltage_rating >= v_tank_peak * 1.43 1
+NO_CIRCUIT_COUPLING|elec/src/modules.ato::ThermalSystem::r_fan_drop.power_rating >= p_drop_max * 2 1
+TIE_MARGIN|elec/src/main.ato::Top::i_peak_max <= constraints.i_max 1
+TIE_MARGIN|elec/src/main.ato::Top::p_output_max within 1500W to 1800W 1
+TIE_MARGIN|elec/src/modules.ato::GateDriveHS::driver.i_source_peak >= constraints.i_max 1

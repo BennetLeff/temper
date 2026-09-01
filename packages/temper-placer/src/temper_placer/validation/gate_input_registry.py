@@ -554,6 +554,7 @@ def _acceptance_truth_non_covered() -> InputSpec:
 # test re-derives this list from the workflow and fails on drift.
 _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # (script, primary declared input file, reason probe is non-covered)
+    ("check_ato_assertion_vacuity.py", "elec/src/", "electrical assertion falsifiability gate; scans the Ato source tree and has its own perturbation witnesses plus mutation canaries; generic gate-input probe harness deferred"),
     ("check_board_containment.py", "pcb/temper.kicad_pcb", "board-containment invariant (R26); needs the real board; probe harness deferred"),
     ("check_board_defect_corpus.py", "pcb/temper.kicad_pcb", "board-defect mutation corpus (plan 2026-08-02-024 R38); needs the real board; probe harness deferred"),
     ("check_bom_source_reconciliation.py", "docs/hardware/BOM.md", "BOM<->source reconciliation (goal-set R14); needs the real BOM and elec/src; probe harness deferred"),

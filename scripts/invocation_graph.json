@@ -22,6 +22,9 @@
   "capacity_budget_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_ato_assertion_vacuity.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_board_containment.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py",
