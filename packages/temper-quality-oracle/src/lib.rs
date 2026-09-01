@@ -18,6 +18,7 @@ pub mod aesthetic;
 pub mod classification;
 pub mod cluster_f;
 pub mod config;
+pub mod corridor_campaign;
 pub mod derivation;
 pub mod ipc2221;
 pub mod oracle;
@@ -1047,6 +1048,114 @@ fn validate_and_screen_corridor_evidence_json_py(
 }
 
 #[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (*, declaration_bytes, basis_bytes, board_bytes, predecessor_receipt_bytes, predecessor_manifest_bytes, domain_manifest_bytes, netlist_bytes, kicad_dru_bytes, campaign_request_json))]
+#[allow(clippy::too_many_arguments)]
+fn execute_corridor_campaign_json_py(
+    declaration_bytes: &[u8],
+    basis_bytes: &[u8],
+    board_bytes: &[u8],
+    predecessor_receipt_bytes: &[u8],
+    predecessor_manifest_bytes: &[u8],
+    domain_manifest_bytes: &[u8],
+    netlist_bytes: &[u8],
+    kicad_dru_bytes: &[u8],
+    campaign_request_json: &str,
+) -> PyResult<String> {
+    fn decode(bytes: &[u8]) -> PyResult<&str> {
+        std::str::from_utf8(bytes).map_err(|error| PyValueError::new_err(error.to_string()))
+    }
+    let request = serde_json::from_str(campaign_request_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let evidence = regional_feasibility::CorridorEvidenceInputs {
+        declaration_json: decode(declaration_bytes)?,
+        basis_json: decode(basis_bytes)?,
+        board_text: decode(board_bytes)?,
+        predecessor_receipt_json: decode(predecessor_receipt_bytes)?,
+        predecessor_manifest_json: decode(predecessor_manifest_bytes)?,
+        domain_manifest_text: decode(domain_manifest_bytes)?,
+        netlist_text: decode(netlist_bytes)?,
+        kicad_dru_text: decode(kicad_dru_bytes)?,
+    };
+    let receipt = corridor_campaign::execute_corridor_campaign(&evidence, request)
+        .map_err(PyValueError::new_err)?;
+    serde_json::to_string_pretty(&receipt)
+        .map(|value| value + "\n")
+        .map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (*, declaration_bytes, basis_bytes, board_bytes, predecessor_receipt_bytes, predecessor_manifest_bytes, domain_manifest_bytes, netlist_bytes, kicad_dru_bytes, candidate_id))]
+#[allow(clippy::too_many_arguments)]
+fn corridor_materialization_instruction_json_py(
+    declaration_bytes: &[u8],
+    basis_bytes: &[u8],
+    board_bytes: &[u8],
+    predecessor_receipt_bytes: &[u8],
+    predecessor_manifest_bytes: &[u8],
+    domain_manifest_bytes: &[u8],
+    netlist_bytes: &[u8],
+    kicad_dru_bytes: &[u8],
+    candidate_id: &str,
+) -> PyResult<String> {
+    fn decode(bytes: &[u8]) -> PyResult<&str> {
+        std::str::from_utf8(bytes).map_err(|error| PyValueError::new_err(error.to_string()))
+    }
+    let evidence = regional_feasibility::CorridorEvidenceInputs {
+        declaration_json: decode(declaration_bytes)?,
+        basis_json: decode(basis_bytes)?,
+        board_text: decode(board_bytes)?,
+        predecessor_receipt_json: decode(predecessor_receipt_bytes)?,
+        predecessor_manifest_json: decode(predecessor_manifest_bytes)?,
+        domain_manifest_text: decode(domain_manifest_bytes)?,
+        netlist_text: decode(netlist_bytes)?,
+        kicad_dru_text: decode(kicad_dru_bytes)?,
+    };
+    let instruction =
+        corridor_campaign::corridor_materialization_instruction(&evidence, candidate_id)
+            .map_err(PyValueError::new_err)?;
+    serde_json::to_string(&instruction).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (*, declaration_bytes, basis_bytes, board_bytes, predecessor_receipt_bytes, predecessor_manifest_bytes, domain_manifest_bytes, netlist_bytes, kicad_dru_bytes, instruction_json))]
+#[allow(clippy::too_many_arguments)]
+fn validate_corridor_materialization_instruction_json_py(
+    declaration_bytes: &[u8],
+    basis_bytes: &[u8],
+    board_bytes: &[u8],
+    predecessor_receipt_bytes: &[u8],
+    predecessor_manifest_bytes: &[u8],
+    domain_manifest_bytes: &[u8],
+    netlist_bytes: &[u8],
+    kicad_dru_bytes: &[u8],
+    instruction_json: &str,
+) -> PyResult<String> {
+    fn decode(bytes: &[u8]) -> PyResult<&str> {
+        std::str::from_utf8(bytes).map_err(|error| PyValueError::new_err(error.to_string()))
+    }
+    let evidence = regional_feasibility::CorridorEvidenceInputs {
+        declaration_json: decode(declaration_bytes)?,
+        basis_json: decode(basis_bytes)?,
+        board_text: decode(board_bytes)?,
+        predecessor_receipt_json: decode(predecessor_receipt_bytes)?,
+        predecessor_manifest_json: decode(predecessor_manifest_bytes)?,
+        domain_manifest_text: decode(domain_manifest_bytes)?,
+        netlist_text: decode(netlist_bytes)?,
+        kicad_dru_text: decode(kicad_dru_bytes)?,
+    };
+    let submitted = serde_json::from_str(instruction_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let instruction = corridor_campaign::validate_corridor_materialization_instruction(
+        &evidence, submitted,
+    )
+    .map_err(PyValueError::new_err)?;
+    serde_json::to_string(&instruction).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(prepare_quality_py, m)?)?;
@@ -1077,6 +1186,12 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(
         validate_and_screen_corridor_evidence_json_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(execute_corridor_campaign_json_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_materialization_instruction_json_py, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        validate_corridor_materialization_instruction_json_py,
         m
     )?)?;
 

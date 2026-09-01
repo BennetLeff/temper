@@ -1,0 +1,48 @@
+{
+  "candidate_set_digest": "2f7befb395b4e07c0713b5b33f923c360195c0d41cd503d81779ddfcaad4cb11",
+  "coverage": {
+    "admitted": 0,
+    "declared": 2880,
+    "materialized": 0,
+    "measured": 0,
+    "pre_route_survivors": 0,
+    "prefilter_survivors": 0,
+    "routed": 0
+  },
+  "declaration_hash": "58b6df887ff880f82a7aa07cfbd8f23ea6dde5e4a5c217f18c1f19efffdf0e61",
+  "instrument_state": [
+    {
+      "detail": "all discovered pyo3 extensions are fresh and importable",
+      "name": "pyo3-extensions",
+      "receipt_sha256": "5a1e97b688a36608022715644e8c9c34fb78a6b82e55901a803bd711274b2a78",
+      "state": "trusted",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+    },
+    {
+      "detail": "live pcbnew oracle passed: PASS -- all 10 site(s) agree with pcbnew to 1e-05mm across 16 probe row(s).",
+      "name": "pcbnew-rotation-oracle",
+      "receipt_sha256": "e7211e2fc07957968de2015b5ba9ec074a16d1f20f58ca600a39097e1418ef59",
+      "state": "trusted",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+    },
+    {
+      "detail": "version 10.0.5; 3 repeated normalized runs are untrusted: reporting cap W:silk_overlap; repeated-set disagreement creepage",
+      "name": "baseline-kicad-drc",
+      "receipt_sha256": "554e4816d7803b413f4f56d800c9ec9b3b1e3a34d53f63d11c094648388597bb",
+      "state": "error",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+    }
+  ],
+  "materialized_results": [],
+  "prefilter_measurements": [],
+  "production_authorities": {
+    "board_sha256_after": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "board_sha256_before": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "changed": false,
+    "drc_ceiling_sha256_after": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2",
+    "drc_ceiling_sha256_before": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2"
+  },
+  "schema_version": "temper-net41-corridor-candidate-manifest/v1",
+  "screen_results": [],
+  "terminal_receipt_sha256": "a0f924cb06425db30c99c86d096bb98d77eb0e80782bff3867c0d93fc0be21fa"
+}

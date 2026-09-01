@@ -39,6 +39,7 @@ carried-over stale input.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import statistics
@@ -181,6 +182,7 @@ def route_once(
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
+    target_nets: list[str] | None = None,
 ) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
 
@@ -192,6 +194,11 @@ def route_once(
     comparable with the committed route. Pass keep_existing_copper=True to
     route on top of what is already there.
     """
+    if target_nets is not None and not keep_existing_copper:
+        raise ValueError(
+            "target_nets requires keep_existing_copper=True; scoped routing must retain unrelated copper as obstacles"
+        )
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
@@ -228,6 +235,7 @@ def route_once(
         net_batch_size=net_batch_size,
         max_sat_nets=max_sat_nets,
         enable_nlayer_astar_spike=enable_nlayer_astar_spike,
+        target_nets=target_nets,
     )
     wall_s = time.perf_counter() - t0
 
@@ -321,6 +329,9 @@ def route_once(
         "pad_connectivity": pad_connectivity,
         "net_batch_summary": getattr(result, "net_batch_summary", None) or {},
         "net_route_results": net_route_results,
+        "target_nets": list(target_nets) if target_nets is not None else None,
+        "input_board_sha256": hashlib.sha256(pcb_path.read_bytes()).hexdigest(),
+        "output_board_sha256": hashlib.sha256(content.encode()).hexdigest(),
     }
 
 
@@ -470,6 +481,7 @@ def run_single(
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
+    target_nets: list[str] | None = None,
 ) -> int:
     print(f"Routing {pcb_path} ...")
     r = route_once(
@@ -480,6 +492,8 @@ def run_single(
         net_batch_size=net_batch_size,
         max_sat_nets=max_sat_nets,
         enable_nlayer_astar_spike=enable_nlayer_astar_spike,
+        keep_existing_copper=target_nets is not None,
+        target_nets=target_nets,
     )
     print(_format_run("Result", r))
     if r["unrouted_nets"]:
@@ -769,6 +783,17 @@ def main(argv: list[str] | None = None) -> int:
             "docs/evidence/2026-08-08-nlayer-via-astar-spike.md."
         ),
     )
+    parser.add_argument(
+        "--target-net",
+        action="append",
+        default=None,
+        metavar="NET",
+        help=(
+            "Route only this exact board net; repeat for multiple nets. "
+            "Scoped mode retains all existing copper as obstacles and never "
+            "performs the default whole-board strip."
+        ),
+    )
     args = parser.parse_args(argv)
 
     if not args.pcb.exists():
@@ -785,6 +810,8 @@ def main(argv: list[str] | None = None) -> int:
             net_batch_size=args.batch_size,
             max_sat_nets=args.max_sat_nets,
             enable_nlayer_astar_spike=args.nlayer_astar_spike,
+            keep_existing_copper=args.target_net is not None,
+            target_nets=args.target_net,
         )
         args._worker_output.write_text(
             json.dumps(_prepare_worker_report(r)), encoding="utf-8"
@@ -794,6 +821,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.runs is not None:
         if args.runs < 1:
             parser.error("--runs must be >= 1")
+        if args.target_net is not None:
+            parser.error("--target-net is a scratch-output mode and cannot be combined with --runs")
         return run_measurement(
             args.pcb,
             args.rules,
@@ -827,6 +856,7 @@ def main(argv: list[str] | None = None) -> int:
         net_batch_size=args.batch_size,
         max_sat_nets=args.max_sat_nets,
         enable_nlayer_astar_spike=args.nlayer_astar_spike,
+        target_nets=args.target_net,
     )
 
 

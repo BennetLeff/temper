@@ -58,6 +58,20 @@ family and authoritative measurement instruments; a calibration run that uses
 the wrong coordinate convention or offers no physically admissible option is
 retained as diagnostic evidence but excluded from the design verdict.
 
+### Instrument receipt
+
+A runner-produced, content-hashed record of one named measurement instrument's
+outcome whose claimed subject identity and membership in the complete required
+instrument set are structurally checked by the campaign authority.
+
+### Instrument error
+
+A bounded candidate study terminal state in which a structurally complete
+preflight instrument set contains a capped, unstable, or failed result, so no
+candidate may receive measurement, rejection, materialization, routing, or
+admission credit from that run. Missing, malformed, or wrong-subject evidence
+is rejected before a terminal receipt is formed.
+
 ### Stopped-indeterminate
 
 A bounded candidate study terminal state in which useful scoped measurements

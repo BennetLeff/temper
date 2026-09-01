@@ -99,3 +99,16 @@ def test_pathfinding_with_multiple_nets():
 
     assert result.success_count == 2
     assert result.failure_count == 0
+
+
+@pytest.mark.l4_regression
+def test_explicit_target_scope_routes_only_named_net_in_2d_driver():
+    path1 = ChannelPath("NET1", ["CH1"], [(0, 0), (5, 5)], 7.07)
+    path2 = ChannelPath("NET2", ["CH2"], [(10, 10), (15, 15)], 7.07)
+    mapping = ChannelMapping(channel_paths={"NET1": path1, "NET2": path2})
+    grid = OccupancyGrid("F.Cu", np.zeros((20, 20), dtype=np.int8), (0, 0), 1.0, 20, 20)
+
+    result = run_astar_pathfinding(mapping, grid, target_nets=["NET2"])
+
+    assert set(result.routed_paths) == {"NET2"}
+    assert "NET1" not in result.failed_nets

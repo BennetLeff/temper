@@ -62,9 +62,7 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use std::collections::BTreeSet;
 
-use crate::parse_engine::{
-    parse_ki_document, shortest_digits, KiAtom, KiNode,
-};
+use crate::parse_engine::{KiAtom, KiNode, parse_ki_document, shortest_digits};
 
 /// Find the `(at ...)` sub-node within a list of KiNodes (footprint or pad
 /// children). Returns the index and a mutable reference to the at-list.
@@ -165,20 +163,28 @@ fn child_list_mut<'a>(items: &'a mut [KiNode], head: &str) -> Option<&'a mut Vec
 
 fn child_text<'a>(items: &'a [KiNode], head: &str) -> Option<&'a str> {
     let sub = child_list(items, head)?;
-    let KiNode::Atom(atom) = sub.get(1)? else { return None };
+    let KiNode::Atom(atom) = sub.get(1)? else {
+        return None;
+    };
     atom_text(atom)
 }
 
 fn child_number(items: &[KiNode], head: &str) -> Option<f64> {
     let sub = child_list(items, head)?;
-    let KiNode::Atom(atom) = sub.get(1)? else { return None };
+    let KiNode::Atom(atom) = sub.get(1)? else {
+        return None;
+    };
     atom_f64(atom)
 }
 
 fn child_point(items: &[KiNode], head: &str) -> Option<(f64, f64)> {
     let sub = child_list(items, head)?;
-    let KiNode::Atom(x) = sub.get(1)? else { return None };
-    let KiNode::Atom(y) = sub.get(2)? else { return None };
+    let KiNode::Atom(x) = sub.get(1)? else {
+        return None;
+    };
+    let KiNode::Atom(y) = sub.get(2)? else {
+        return None;
+    };
     Some((atom_f64(x)?, atom_f64(y)?))
 }
 
@@ -187,7 +193,9 @@ fn child_texts(items: &[KiNode], head: &str) -> Option<Vec<String>> {
         .iter()
         .skip(1)
         .map(|node| {
-            let KiNode::Atom(atom) = node else { return None };
+            let KiNode::Atom(atom) = node else {
+                return None;
+            };
             atom_text(atom).map(str::to_string)
         })
         .collect()
@@ -201,7 +209,9 @@ fn footprint_pad_anchor(
 ) -> Result<FootprintPadAnchor, String> {
     let origin = child_point(footprint, "at")
         .ok_or_else(|| "moving footprint has no numeric at".to_string())?;
-    let angle = child_list(footprint, "at").map(read_at_angle).unwrap_or(0.0);
+    let angle = child_list(footprint, "at")
+        .map(read_at_angle)
+        .unwrap_or(0.0);
     let mut matches = Vec::new();
     for item in footprint {
         let KiNode::List(pad) = item else { continue };
@@ -209,7 +219,9 @@ fn footprint_pad_anchor(
             continue;
         }
         let number = pad.get(1).and_then(|node| {
-            let KiNode::Atom(atom) = node else { return None };
+            let KiNode::Atom(atom) = node else {
+                return None;
+            };
             atom_text(atom)
         });
         if number != Some(pad_number) {
@@ -224,9 +236,8 @@ fn footprint_pad_anchor(
         if net.fract() != 0.0 {
             return Err(format!("moving pad {pad_number} net is not integral"));
         }
-        let rotated = temper_geometry::kicad_transform::rotate_local_to_world_deg(
-            local.0, local.1, angle,
-        );
+        let rotated =
+            temper_geometry::kicad_transform::rotate_local_to_world_deg(local.0, local.1, angle);
         matches.push((
             (origin.0 + rotated.0, origin.1 + rotated.1),
             layers,
@@ -235,7 +246,10 @@ fn footprint_pad_anchor(
     }
     match matches.as_slice() {
         [one] => Ok(one.clone()),
-        rows => Err(format!("expected one moving pad {pad_number}, found {}", rows.len())),
+        rows => Err(format!(
+            "expected one moving pad {pad_number}, found {}",
+            rows.len()
+        )),
     }
 }
 
@@ -380,8 +394,10 @@ pub fn replace_declared_route_and_move_footprint(
     if !east_shift_mm.is_finite() || east_shift_mm <= 0.0 {
         return Err("east shift must be finite and positive".into());
     }
-    if !moving_via_size_mm.is_finite() || moving_via_size_mm <= 0.0
-        || !moving_via_drill_mm.is_finite() || moving_via_drill_mm <= 0.0
+    if !moving_via_size_mm.is_finite()
+        || moving_via_size_mm <= 0.0
+        || !moving_via_drill_mm.is_finite()
+        || moving_via_drill_mm <= 0.0
         || moving_via_drill_mm >= moving_via_size_mm
     {
         return Err("moving via size/drill declaration is invalid".into());
@@ -395,7 +411,9 @@ pub fn replace_declared_route_and_move_footprint(
     let root_items = nodes
         .iter()
         .find_map(|node| {
-            let KiNode::List(items) = node else { return None };
+            let KiNode::List(items) = node else {
+                return None;
+            };
             (list_head(items) == Some("kicad_pcb")).then_some(items.as_slice())
         })
         .ok_or_else(|| "document root is not a (kicad_pcb ...) list".to_string())?;
@@ -441,7 +459,8 @@ pub fn replace_declared_route_and_move_footprint(
                     .ok_or_else(|| format!("segment {stamp} has no start"))?;
                 let end = child_point(items, "end")
                     .ok_or_else(|| format!("segment {stamp} has no end"))?;
-                fixed_seen |= approx_point(start, fixed_endpoint) || approx_point(end, fixed_endpoint);
+                fixed_seen |=
+                    approx_point(start, fixed_endpoint) || approx_point(end, fixed_endpoint);
                 route_edges.push((stamp, start, end));
             }
             Some("via")
@@ -449,7 +468,9 @@ pub fn replace_declared_route_and_move_footprint(
                     && child_text(items, "tstamp") == Some(moving_via_tstamp) =>
             {
                 if moving_endpoint.is_some() {
-                    return Err(format!("duplicate moving via identity: {moving_via_tstamp}"));
+                    return Err(format!(
+                        "duplicate moving via identity: {moving_via_tstamp}"
+                    ));
                 }
                 moving_endpoint = child_point(items, "at");
                 let size = child_number(items, "size")
@@ -469,20 +490,25 @@ pub fn replace_declared_route_and_move_footprint(
         }
     }
     if footprint_count != 1 {
-        return Err(format!("expected one footprint {footprint_ref}, found {footprint_count}"));
+        return Err(format!(
+            "expected one footprint {footprint_ref}, found {footprint_count}"
+        ));
     }
     if actual_segments != declared {
         let missing: Vec<_> = declared.difference(&actual_segments).cloned().collect();
-        return Err(format!("declared segment identity missing from route: {missing:?}"));
+        return Err(format!(
+            "declared segment identity missing from route: {missing:?}"
+        ));
     }
     let moving_endpoint = moving_endpoint
         .ok_or_else(|| format!("moving via identity not found: {moving_via_tstamp}"))?;
-    let via_layers = moving_via_layers
-        .ok_or_else(|| "moving via has no layer span".to_string())?;
+    let via_layers = moving_via_layers.ok_or_else(|| "moving via has no layer span".to_string())?;
     let (pad_anchor, pad_layers, pad_net) = moving_pad
         .ok_or_else(|| format!("moving pad {footprint_ref}.{moving_pad_number} not found"))?;
     if pad_net != route_net {
-        return Err(format!("moving pad net {pad_net} does not match route net {route_net}"));
+        return Err(format!(
+            "moving pad net {pad_net} does not match route net {route_net}"
+        ));
     }
     if !approx_point(pad_anchor, moving_endpoint) {
         return Err(format!(
@@ -490,14 +516,18 @@ pub fn replace_declared_route_and_move_footprint(
         ));
     }
     if !via_layers.iter().any(|layer| layer == route_layer) {
-        return Err(format!("moving via layer span omits route layer {route_layer}"));
+        return Err(format!(
+            "moving via layer span omits route layer {route_layer}"
+        ));
     }
     let pad_copper_layers: Vec<_> = pad_layers
         .iter()
         .filter(|layer| layer.as_str() == "*.Cu" || layer.ends_with(".Cu"))
         .collect();
     if pad_copper_layers.is_empty()
-        || (!pad_copper_layers.iter().any(|layer| layer.as_str() == "*.Cu")
+        || (!pad_copper_layers
+            .iter()
+            .any(|layer| layer.as_str() == "*.Cu")
             && !pad_copper_layers
                 .iter()
                 .any(|layer| via_layers.iter().any(|via| via == *layer)))
@@ -538,7 +568,9 @@ pub fn replace_declared_route_and_move_footprint(
             "declared route is not one continuous graph from the fixed endpoint: {disconnected:?}"
         ));
     }
-    let moving_seen = reachable.iter().any(|point| approx_point(*point, moving_endpoint));
+    let moving_seen = reachable
+        .iter()
+        .any(|point| approx_point(*point, moving_endpoint));
     if !fixed_seen || !moving_seen {
         return Err("declared chain does not connect both fixed endpoint and moving via".into());
     }
@@ -555,7 +587,10 @@ pub fn replace_declared_route_and_move_footprint(
     };
     let at = child_list_mut(fp_items, "at")
         .ok_or_else(|| format!("footprint {footprint_ref} has no at"))?;
-    let KiNode::Atom(x_atom) = at.get(1).ok_or_else(|| "footprint at has no x".to_string())? else {
+    let KiNode::Atom(x_atom) = at
+        .get(1)
+        .ok_or_else(|| "footprint at has no x".to_string())?
+    else {
         return Err("footprint x is not numeric".into());
     };
     let x = atom_f64(x_atom).ok_or_else(|| "footprint x is not numeric".to_string())?;
@@ -572,7 +607,13 @@ pub fn replace_declared_route_and_move_footprint(
         else {
             return Err("segment block is not a list".into());
         };
-        mutate_point_with_shear(items, "start", fixed_endpoint, moving_endpoint, east_shift_mm)?;
+        mutate_point_with_shear(
+            items,
+            "start",
+            fixed_endpoint,
+            moving_endpoint,
+            east_shift_mm,
+        )?;
         mutate_point_with_shear(items, "end", fixed_endpoint, moving_endpoint, east_shift_mm)?;
         replacements.push((start, end, write_ki_node(&segment_nodes[0], 0)));
     }
@@ -641,6 +682,315 @@ pub fn replace_declared_route_and_move_footprint_py(
     .map_err(PyValueError::new_err)
 }
 
+fn corridor_uuid(candidate_id: &str, ordinal: usize) -> Result<String, String> {
+    let digest = candidate_id
+        .rsplit_once('-')
+        .map(|(_, digest)| digest)
+        .ok_or_else(|| "candidate id has no digest suffix".to_string())?;
+    if digest.len() != 64 || !digest.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return Err("candidate id digest must be 64 hexadecimal characters".into());
+    }
+    if ordinal > 255 {
+        return Err("corridor route item ordinal exceeds UUID namespace".into());
+    }
+    let raw = format!("{}{:02x}", &digest[..30], ordinal);
+    Ok(format!(
+        "{}-{}-{}-{}-{}",
+        &raw[..8],
+        &raw[8..12],
+        &raw[12..16],
+        &raw[16..20],
+        &raw[20..32]
+    ))
+}
+
+/// Replace the exact declared Net-41 route with one content-addressed dogleg.
+///
+/// The caller must move declared footprints first. This function proves the
+/// old segment/via identity set is complete, checks the new endpoints against
+/// the named pads, then removes only those route blocks and appends the new
+/// segments/via. Every unrelated byte remains untouched.
+#[allow(clippy::too_many_arguments)]
+pub fn replace_declared_route_with_points(
+    content: &str,
+    candidate_id: &str,
+    route_net: i64,
+    route_layer: &str,
+    route_width_mm: f64,
+    via_size_mm: f64,
+    via_drill_mm: f64,
+    via_span: &[String],
+    fixed_ref: &str,
+    fixed_pad_number: &str,
+    moving_ref: &str,
+    moving_pad_number: &str,
+    old_segment_tstamps: &[String],
+    old_via_tstamp: &str,
+    route_points: &[(f64, f64)],
+) -> Result<String, String> {
+    if route_points.len() < 2
+        || route_points
+            .iter()
+            .any(|point| !point.0.is_finite() || !point.1.is_finite())
+        || route_points
+            .windows(2)
+            .any(|pair| approx_point(pair[0], pair[1]))
+    {
+        return Err("route points must contain finite, distinct adjacent endpoints".into());
+    }
+    if !route_width_mm.is_finite()
+        || route_width_mm <= 0.0
+        || !via_size_mm.is_finite()
+        || via_size_mm <= 0.0
+        || !via_drill_mm.is_finite()
+        || via_drill_mm <= 0.0
+        || via_drill_mm >= via_size_mm
+        || via_span.len() != 2
+        || !via_span.iter().any(|layer| layer == route_layer)
+    {
+        return Err("declared route width or via geometry is invalid".into());
+    }
+    let declared: BTreeSet<_> = old_segment_tstamps.iter().cloned().collect();
+    if declared.is_empty() || declared.len() != old_segment_tstamps.len() {
+        return Err("old segment identities must be non-empty and unique".into());
+    }
+
+    let nodes = parse_ki_document(content)?;
+    let root_items = nodes
+        .iter()
+        .find_map(|node| {
+            let KiNode::List(items) = node else {
+                return None;
+            };
+            (list_head(items) == Some("kicad_pcb")).then_some(items.as_slice())
+        })
+        .ok_or_else(|| "document root is not a (kicad_pcb ...) list".to_string())?;
+    let mut actual_segments = BTreeSet::new();
+    let mut actual_via_count = 0usize;
+    let mut fixed_pad = None;
+    let mut moving_pad = None;
+    for item in root_items {
+        let KiNode::List(items) = item else { continue };
+        match list_head(items) {
+            Some("footprint") if find_reference(items).as_deref() == Some(fixed_ref) => {
+                if fixed_pad.is_some() {
+                    return Err(format!("duplicate fixed footprint {fixed_ref}"));
+                }
+                fixed_pad = Some(footprint_pad_anchor(items, fixed_pad_number)?);
+            }
+            Some("footprint") if find_reference(items).as_deref() == Some(moving_ref) => {
+                if moving_pad.is_some() {
+                    return Err(format!("duplicate moving footprint {moving_ref}"));
+                }
+                moving_pad = Some(footprint_pad_anchor(items, moving_pad_number)?);
+            }
+            Some("segment") if child_number(items, "net") == Some(route_net as f64) => {
+                let stamp = child_text(items, "tstamp")
+                    .ok_or_else(|| "net route segment has no tstamp".to_string())?
+                    .to_string();
+                if child_text(items, "layer") != Some(route_layer)
+                    || child_number(items, "width") != Some(route_width_mm)
+                    || !declared.contains(&stamp)
+                {
+                    return Err(format!(
+                        "undeclared or mismatched segment on net {route_net}: {stamp}"
+                    ));
+                }
+                if !actual_segments.insert(stamp.clone()) {
+                    return Err(format!("duplicate segment identity: {stamp}"));
+                }
+            }
+            Some("via") if child_number(items, "net") == Some(route_net as f64) => {
+                if child_text(items, "tstamp") != Some(old_via_tstamp) {
+                    return Err("undeclared via on route net".into());
+                }
+                actual_via_count += 1;
+            }
+            Some("arc") if child_number(items, "net") == Some(route_net as f64) => {
+                return Err("declared route net unexpectedly contains an arc".into());
+            }
+            Some("zone") if child_number(items, "net") == Some(route_net as f64) => {
+                return Err("declared route net unexpectedly contains a zone".into());
+            }
+            _ => {}
+        }
+    }
+    if actual_segments != declared || actual_via_count != 1 {
+        return Err("declared route identity set is stale or incomplete".into());
+    }
+    let (fixed_anchor, fixed_layers, fixed_net) =
+        fixed_pad.ok_or_else(|| format!("fixed pad {fixed_ref}.{fixed_pad_number} not found"))?;
+    let (moving_anchor, moving_layers, moving_net) = moving_pad
+        .ok_or_else(|| format!("moving pad {moving_ref}.{moving_pad_number} not found"))?;
+    if fixed_net != route_net || moving_net != route_net {
+        return Err("route endpoint pad net does not match declared route net".into());
+    }
+    if !approx_point(route_points[0], fixed_anchor)
+        || !approx_point(
+            *route_points.last().unwrap_or(&route_points[0]),
+            moving_anchor,
+        )
+    {
+        return Err("route points do not terminate at the declared pads".into());
+    }
+    let pad_reaches_span = |layers: &[String]| {
+        layers.iter().any(|layer| layer == "*.Cu")
+            || layers.iter().any(|layer| via_span.contains(layer))
+    };
+    let fixed_pad_reaches_route = fixed_layers.iter().any(|layer| layer == "*.Cu")
+        || fixed_layers.iter().any(|layer| layer == route_layer);
+    if !fixed_pad_reaches_route || !pad_reaches_span(&moving_layers) {
+        return Err("route via span does not reach both endpoint pads".into());
+    }
+
+    let mut removals = Vec::with_capacity(old_segment_tstamps.len() + 1);
+    for stamp in old_segment_tstamps {
+        removals.push(span_for_marker(
+            content,
+            "segment",
+            &format!("(tstamp {stamp})"),
+        )?);
+    }
+    removals.push(span_for_marker(
+        content,
+        "via",
+        &format!("(tstamp {old_via_tstamp})"),
+    )?);
+    removals.sort_unstable();
+    if removals.windows(2).any(|pair| pair[0].1 > pair[1].0) {
+        return Err("declared route blocks overlap".into());
+    }
+    let mut output = content.to_string();
+    for (start, end) in removals.into_iter().rev() {
+        output.replace_range(start..end, "");
+    }
+
+    let mut blocks = Vec::new();
+    for (index, points) in route_points.windows(2).enumerate() {
+        blocks.push(format!(
+            "  (segment (start {} {}) (end {} {}) (width {}) (layer \"{}\") (net {}) (tstamp {}))",
+            render_float(points[0].0),
+            render_float(points[0].1),
+            render_float(points[1].0),
+            render_float(points[1].1),
+            render_float(route_width_mm),
+            route_layer,
+            route_net,
+            corridor_uuid(candidate_id, index + 1)?,
+        ));
+    }
+    let endpoint = route_points
+        .last()
+        .copied()
+        .ok_or_else(|| "route has no endpoint".to_string())?;
+    let layers = via_span
+        .iter()
+        .map(|layer| format!("\"{layer}\""))
+        .collect::<Vec<_>>()
+        .join(" ");
+    blocks.push(format!(
+        "  (via blind (at {} {}) (size {}) (drill {}) (layers {}) (net {}) (tstamp {}))",
+        render_float(endpoint.0),
+        render_float(endpoint.1),
+        render_float(via_size_mm),
+        render_float(via_drill_mm),
+        layers,
+        route_net,
+        corridor_uuid(candidate_id, route_points.len())?,
+    ));
+    let insert_at = output
+        .rfind(')')
+        .ok_or_else(|| "board root has no closing parenthesis".to_string())?;
+    output.insert_str(insert_at, &("\n".to_string() + &blocks.join("\n") + "\n"));
+    parse_ki_document(&output)?;
+    Ok(output)
+}
+
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn replace_declared_route_with_points_py(
+    content: &str,
+    candidate_id: &str,
+    route_net: i64,
+    route_layer: &str,
+    route_width_mm: f64,
+    via_size_mm: f64,
+    via_drill_mm: f64,
+    via_span: Vec<String>,
+    fixed_ref: &str,
+    fixed_pad_number: &str,
+    moving_ref: &str,
+    moving_pad_number: &str,
+    old_segment_tstamps: Vec<String>,
+    old_via_tstamp: &str,
+    route_points: Vec<(f64, f64)>,
+) -> PyResult<String> {
+    replace_declared_route_with_points(
+        content,
+        candidate_id,
+        route_net,
+        route_layer,
+        route_width_mm,
+        via_size_mm,
+        via_drill_mm,
+        &via_span,
+        fixed_ref,
+        fixed_pad_number,
+        moving_ref,
+        moving_pad_number,
+        &old_segment_tstamps,
+        old_via_tstamp,
+        &route_points,
+    )
+    .map_err(PyValueError::new_err)
+}
+
+/// Hash every byte except copper blocks owned by one exact net number.
+///
+/// Comparing this fingerprint before and after scoped routing proves that
+/// footprints, outline, zones on other nets, and unrelated copper remained
+/// byte-identical while allowing only the target net's segment/via/arc/zone
+/// blocks to change.
+pub fn non_target_content_sha256(content: &str, route_net: i64) -> Result<String, String> {
+    parse_ki_document(content)?;
+    let mut removals = Vec::new();
+    for head in ["segment", "via", "arc", "zone"] {
+        let marker = format!("({head}");
+        let mut cursor = 0usize;
+        while let Some(offset) = content[cursor..].find(&marker) {
+            let start = cursor + offset;
+            let (block_start, block_end) = block_span(content, start)?;
+            let block = &content[block_start..block_end];
+            let parsed = parse_ki_document(block)?;
+            let owns_target = parsed.iter().any(|node| {
+                let KiNode::List(items) = node else {
+                    return false;
+                };
+                list_head(items) == Some(head)
+                    && child_number(items, "net") == Some(route_net as f64)
+            });
+            if owns_target {
+                removals.push((block_start, block_end));
+            }
+            cursor = block_end;
+        }
+    }
+    removals.sort_unstable();
+    if removals.windows(2).any(|pair| pair[0].1 > pair[1].0) {
+        return Err("target-net copper blocks overlap".into());
+    }
+    let mut non_target = content.to_string();
+    for (start, end) in removals.into_iter().rev() {
+        non_target.replace_range(start..end, "");
+    }
+    Ok(crate::sha256(non_target.as_bytes()))
+}
+
+#[pyfunction]
+pub fn non_target_content_sha256_py(content: &str, route_net: i64) -> PyResult<String> {
+    non_target_content_sha256(content, route_net).map_err(PyValueError::new_err)
+}
+
 /// Update an `(at X Y [angle])` node's X, Y, and angle values.
 fn update_at_node(at_items: &mut Vec<KiNode>, x: f64, y: f64, angle: f64) {
     // Set X (index 1) and Y (index 2)
@@ -707,21 +1057,33 @@ fn reorient_pad_angle(old_angle: f64, delta: f64) -> f64 {
 /// angle is reoriented by `new_angle - old_angle` (preserving each pad's
 /// intrinsic orientation relative to its parent). Fails closed if the
 /// document is not a valid `(kicad_pcb ...)` list.
-#[pyfunction]
-pub fn update_footprint_positions_py(
+pub fn update_footprint_positions(
     content: &str,
     placements: Vec<(String, f64, f64, f64)>,
-) -> PyResult<String> {
-    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
-    let root = nodes.first_mut().ok_or_else(|| {
-        PyValueError::new_err("empty document — no root node")
-    })?;
+) -> Result<String, String> {
+    if placements.iter().any(|(reference, x, y, angle)| {
+        reference.trim().is_empty() || !x.is_finite() || !y.is_finite() || !angle.is_finite()
+    }) {
+        return Err("placements must have non-empty references and finite geometry".into());
+    }
+    let declared: BTreeSet<_> = placements.iter().map(|row| row.0.clone()).collect();
+    if declared.len() != placements.len() {
+        return Err("placement references must be unique".into());
+    }
+    let mut nodes = parse_ki_document(content)?;
+    let root = nodes
+        .first_mut()
+        .ok_or_else(|| "empty document — no root node".to_string())?;
     let KiNode::List(root_items) = root else {
-        return Err(PyValueError::new_err("document root is not a list"));
+        return Err("document root is not a list".into());
     };
 
+    let mut updated = BTreeSet::new();
+
     for item in root_items.iter_mut() {
-        let KiNode::List(fp_items) = item else { continue };
+        let KiNode::List(fp_items) = item else {
+            continue;
+        };
         let head = match fp_items.first() {
             Some(KiNode::Atom(KiAtom::Bare(b))) if b == "footprint" => b.as_str(),
             _ => continue,
@@ -739,6 +1101,9 @@ pub fn update_footprint_positions_py(
         let Some((_, new_x, new_y, new_angle)) = placement else {
             continue;
         };
+        if !updated.insert(ref_str.clone()) {
+            return Err(format!("duplicate footprint reference in board: {ref_str}"));
+        }
         let new_x = *new_x;
         let new_y = *new_y;
         let new_angle = *new_angle;
@@ -751,7 +1116,9 @@ pub fn update_footprint_positions_py(
 
         // Read old angle before mutating
         let old_angle = {
-            let KiNode::List(at_items) = &fp_items[at_idx] else { continue };
+            let KiNode::List(at_items) = &fp_items[at_idx] else {
+                continue;
+            };
             read_at_angle(at_items)
         };
 
@@ -765,7 +1132,9 @@ pub fn update_footprint_positions_py(
         // Reorient pad angles if delta is not a multiple of 360
         if delta.rem_euclid(360.0) != 0.0 {
             for fp_item in fp_items.iter_mut() {
-                let KiNode::List(pad_items) = fp_item else { continue };
+                let KiNode::List(pad_items) = fp_item else {
+                    continue;
+                };
                 let is_pad = matches!(
                     pad_items.first(),
                     Some(KiNode::Atom(KiAtom::Bare(b))) if b == "pad"
@@ -780,7 +1149,94 @@ pub fn update_footprint_positions_py(
         }
     }
 
+    if updated != declared {
+        let missing: Vec<_> = declared.difference(&updated).cloned().collect();
+        return Err(format!(
+            "declared footprint references are missing: {missing:?}"
+        ));
+    }
     Ok(write_board_document(&nodes))
+}
+
+#[pyfunction]
+pub fn update_footprint_positions_py(
+    content: &str,
+    placements: Vec<(String, f64, f64, f64)>,
+) -> PyResult<String> {
+    update_footprint_positions(content, placements).map_err(PyValueError::new_err)
+}
+
+/// Move an exact declared footprint set while preserving every byte outside
+/// those footprint blocks.
+pub fn update_declared_footprint_positions_exact(
+    content: &str,
+    placements: Vec<(String, f64, f64, f64)>,
+) -> Result<String, String> {
+    if placements.is_empty()
+        || placements.iter().any(|(reference, x, y, angle)| {
+            reference.trim().is_empty() || !x.is_finite() || !y.is_finite() || !angle.is_finite()
+        })
+    {
+        return Err("declared placements must be non-empty with finite geometry".into());
+    }
+    let declared: BTreeSet<_> = placements.iter().map(|row| row.0.as_str()).collect();
+    if declared.len() != placements.len() {
+        return Err("declared placement references must be unique".into());
+    }
+    let mut replacements = Vec::with_capacity(placements.len());
+    for (reference, new_x, new_y, new_angle) in placements {
+        let marker = format!("(property \"Reference\" \"{reference}\")");
+        let (start, end) = span_for_marker(content, "footprint", &marker)?;
+        let mut nodes = parse_ki_document(&content[start..end])?;
+        let [KiNode::List(items)] = nodes.as_mut_slice() else {
+            return Err(format!("footprint {reference} block is malformed"));
+        };
+        if find_reference(items).as_deref() != Some(reference.as_str()) {
+            return Err(format!("footprint block identity changed for {reference}"));
+        }
+        let at_index = find_at_node_mut(items)
+            .ok_or_else(|| format!("footprint {reference} has no at node"))?;
+        let old_angle = {
+            let KiNode::List(at_items) = &items[at_index] else {
+                return Err(format!("footprint {reference} at node is malformed"));
+            };
+            read_at_angle(at_items)
+        };
+        let delta = new_angle - old_angle;
+        let KiNode::List(at_items) = &mut items[at_index] else {
+            return Err(format!("footprint {reference} at node is malformed"));
+        };
+        update_at_node(at_items, new_x, new_y, new_angle);
+        if delta.rem_euclid(360.0) != 0.0 {
+            for item in items.iter_mut() {
+                let KiNode::List(pad) = item else { continue };
+                if list_head(pad) != Some("pad") {
+                    continue;
+                }
+                let angle = reorient_pad_angle(read_pad_angle(pad), delta);
+                update_pad_angle(pad, angle);
+            }
+        }
+        replacements.push((start, end, write_ki_node(&nodes[0], 0)));
+    }
+    replacements.sort_by_key(|row| row.0);
+    if replacements.windows(2).any(|pair| pair[0].1 > pair[1].0) {
+        return Err("declared footprint blocks overlap".into());
+    }
+    let mut output = content.to_string();
+    for (start, end, replacement) in replacements.into_iter().rev() {
+        output.replace_range(start..end, &replacement);
+    }
+    parse_ki_document(&output)?;
+    Ok(output)
+}
+
+#[pyfunction]
+pub fn update_declared_footprint_positions_exact_py(
+    content: &str,
+    placements: Vec<(String, f64, f64, f64)>,
+) -> PyResult<String> {
+    update_declared_footprint_positions_exact(content, placements).map_err(PyValueError::new_err)
 }
 
 /// A Python nested list (as produced by ``zone_sexpr_py``,
@@ -797,12 +1253,17 @@ fn py_sexpr_to_text(_py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<String>
 
     // Try list first (most common for nested structures)
     if obj.is_instance_of::<PyList>() {
-        let parts: Vec<String> = obj.try_iter()?
+        let parts: Vec<String> = obj
+            .try_iter()?
             .map(|item| py_sexpr_to_text(_py, &item?))
             .collect::<PyResult<_>>()?;
         Ok(format!("({})", parts.join(" ")))
     } else if let Ok(b) = obj.extract::<bool>() {
-        Ok(if b { "true".to_string() } else { "false".to_string() })
+        Ok(if b {
+            "true".to_string()
+        } else {
+            "false".to_string()
+        })
     } else if let Ok(i) = obj.extract::<i64>() {
         Ok(i.to_string())
     } else if let Ok(f) = obj.extract::<f64>() {
@@ -826,7 +1287,9 @@ fn is_keyword_token(s: &str) -> bool {
     if !bytes[0].is_ascii_lowercase() && bytes[0] != b'_' {
         return false;
     }
-    bytes[1..].iter().all(|&b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'_')
+    bytes[1..]
+        .iter()
+        .all(|&b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'_')
 }
 
 /// Render a single atom to its source token text.
@@ -871,13 +1334,21 @@ fn render_float(v: f64) -> String {
         return "nan".to_string();
     }
     if v.is_infinite() {
-        return if v < 0.0 { "-inf".to_string() } else { "inf".to_string() };
+        return if v < 0.0 {
+            "-inf".to_string()
+        } else {
+            "inf".to_string()
+        };
     }
     if v == 0.0 {
         // Float(-0.0) is unreachable from any parse (the tokenizer converts
         // every integral decimal -- including -0.0 -- to Int), but render
         // it the way py_repr_f64 would for consistency.
-        return if v.is_sign_negative() { "-0.0".to_string() } else { "0.0".to_string() };
+        return if v.is_sign_negative() {
+            "-0.0".to_string()
+        } else {
+            "0.0".to_string()
+        };
     }
     let (neg, digits, exp) = match shortest_digits(v) {
         Ok(t) => t,
@@ -987,13 +1458,11 @@ pub fn append_items_to_board_py(
     item_sexprs: Vec<Py<PyAny>>,
 ) -> PyResult<String> {
     let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
-    let root = nodes.first_mut().ok_or_else(|| {
-        PyValueError::new_err("empty document — no root node")
-    })?;
+    let root = nodes
+        .first_mut()
+        .ok_or_else(|| PyValueError::new_err("empty document — no root node"))?;
     let KiNode::List(root_items) = root else {
-        return Err(PyValueError::new_err(
-            "document root is not a list",
-        ));
+        return Err(PyValueError::new_err("document root is not a list"));
     };
     let root_is_pcb = matches!(
         root_items.first(),
@@ -1006,8 +1475,7 @@ pub fn append_items_to_board_py(
     };
     for item_obj in &item_sexprs {
         let item_text = py_sexpr_to_text(py, item_obj.bind(py))?;
-        let item_nodes =
-            parse_ki_document(&item_text).map_err(PyValueError::new_err)?;
+        let item_nodes = parse_ki_document(&item_text).map_err(PyValueError::new_err)?;
         for item_node in item_nodes {
             root_items.push(item_node);
         }
@@ -1020,10 +1488,7 @@ pub fn append_items_to_board_py(
 /// Returns a Python dict. Fails closed (ValueError) if the text is not
 /// parseable.
 #[pyfunction]
-pub fn extract_net_map_from_text_py(
-    py: Python<'_>,
-    content: &str,
-) -> PyResult<Py<PyAny>> {
+pub fn extract_net_map_from_text_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     use pyo3::types::PyDict;
     let nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
     let out = PyDict::new(py);
@@ -1211,6 +1676,7 @@ mod tests {
     (property "Reference" "R14")
     (pad "2" smd circle (at 2.9625 0) (size 2 2) (layers "F.Cu" "F.Mask") (net 41 "discharge.r_snub1-p2")))
   (gr_text "KEEP EXACT" (at 1 2) (layer "F.SilkS"))
+  (segment (start 1 1) (end 2 2) (width 0.2) (layer "F.Cu") (net 7) (tstamp aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa))
   (segment (start 112 218) (end 114 235) (width 5) (layer "In3.Cu") (net 41) (tstamp 11111111-1111-1111-1111-111111111111))
   (segment (start 114 235) (end 118.64 252.5225) (width 5) (layer "In3.Cu") (net 41) (tstamp 22222222-2222-2222-2222-222222222222))
   (via (at 118.64 252.5225) (size 2) (drill 1) (layers "In3.Cu" "F.Cu") (net 41) (tstamp 33333333-3333-3333-3333-333333333333))
@@ -1226,7 +1692,9 @@ mod tests {
             5.0,
             (112.0, 218.0),
             "33333333-3333-3333-3333-333333333333",
-            "2", 2.0, 1.0,
+            "2",
+            2.0,
+            1.0,
             &[
                 "11111111-1111-1111-1111-111111111111".into(),
                 "22222222-2222-2222-2222-222222222222".into(),
@@ -1250,7 +1718,9 @@ mod tests {
             5.0,
             (112.0, 218.0),
             "33333333-3333-3333-3333-333333333333",
-            "2", 2.0, 1.0,
+            "2",
+            2.0,
+            1.0,
             &["11111111-1111-1111-1111-111111111111".into()],
             4.0,
         )
@@ -1272,7 +1742,9 @@ mod tests {
             5.0,
             (112.0, 218.0),
             "33333333-3333-3333-3333-333333333333",
-            "2", 2.0, 1.0,
+            "2",
+            2.0,
+            1.0,
             &[
                 "11111111-1111-1111-1111-111111111111".into(),
                 "22222222-2222-2222-2222-222222222222".into(),
@@ -1288,25 +1760,125 @@ mod tests {
     fn declared_route_move_rejects_via_disconnected_from_named_pad() {
         let fixture = ROUTE_FIXTURE.replace("(at 118.64 249.56 270)", "(at 119.64 249.56 270)");
         let err = replace_declared_route_and_move_footprint(
-            &fixture, "R14", 41, "In3.Cu", 5.0, (112.0, 218.0),
-            "33333333-3333-3333-3333-333333333333", "2", 2.0, 1.0,
-            &["11111111-1111-1111-1111-111111111111".into(),
-              "22222222-2222-2222-2222-222222222222".into()], 4.0,
-        ).expect_err("the selected via must terminate at the named pad");
+            &fixture,
+            "R14",
+            41,
+            "In3.Cu",
+            5.0,
+            (112.0, 218.0),
+            "33333333-3333-3333-3333-333333333333",
+            "2",
+            2.0,
+            1.0,
+            &[
+                "11111111-1111-1111-1111-111111111111".into(),
+                "22222222-2222-2222-2222-222222222222".into(),
+            ],
+            4.0,
+        )
+        .expect_err("the selected via must terminate at the named pad");
         assert!(err.contains("not co-located with pad R14.2"));
     }
 
     #[test]
     fn declared_route_move_rejects_wrong_via_layer_span() {
         let fixture = ROUTE_FIXTURE.replace(
-            "(layers \"In3.Cu\" \"F.Cu\")", "(layers \"In3.Cu\" \"In4.Cu\")",
+            "(layers \"In3.Cu\" \"F.Cu\")",
+            "(layers \"In3.Cu\" \"In4.Cu\")",
         );
         let err = replace_declared_route_and_move_footprint(
-            &fixture, "R14", 41, "In3.Cu", 5.0, (112.0, 218.0),
-            "33333333-3333-3333-3333-333333333333", "2", 2.0, 1.0,
-            &["11111111-1111-1111-1111-111111111111".into(),
-              "22222222-2222-2222-2222-222222222222".into()], 4.0,
-        ).expect_err("the via must reach the selected pad copper layer");
+            &fixture,
+            "R14",
+            41,
+            "In3.Cu",
+            5.0,
+            (112.0, 218.0),
+            "33333333-3333-3333-3333-333333333333",
+            "2",
+            2.0,
+            1.0,
+            &[
+                "11111111-1111-1111-1111-111111111111".into(),
+                "22222222-2222-2222-2222-222222222222".into(),
+            ],
+            4.0,
+        )
+        .expect_err("the via must reach the selected pad copper layer");
         assert!(err.contains("does not reach pad R14.2 copper"));
+    }
+
+    #[test]
+    fn corridor_route_replacement_is_exact_and_content_addressed() {
+        let fixture = r#"(kicad_pcb
+  (net 41 "discharge.r_snub1-p2")
+  (footprint "C" (layer "F.Cu") (at 112 206)
+    (property "Reference" "C7")
+    (pad "1" thru_hole circle (at 0 0) (size 2 2) (drill 1) (layers "*.Cu") (net 41 "discharge.r_snub1-p2")))
+  (footprint "R" (layer "F.Cu") (at 122.64 249.56 270)
+    (property "Reference" "R14")
+    (pad "2" smd circle (at 2.9625 0) (size 2 2) (layers "F.Cu") (net 41 "discharge.r_snub1-p2")))
+  (gr_text "KEEP EXACT" (at 1 2) (layer "F.SilkS"))
+  (segment (start 112 218) (end 114 235) (width 0.5) (layer "In3.Cu") (net 41) (tstamp 11111111-1111-1111-1111-111111111111))
+  (segment (start 114 235) (end 122.64 252.5225) (width 0.5) (layer "In3.Cu") (net 41) (tstamp 22222222-2222-2222-2222-222222222222))
+  (via (at 122.64 252.5225) (size 0.9) (drill 0.3) (layers "In3.Cu" "F.Cu") (net 41) (tstamp 33333333-3333-3333-3333-333333333333))
+)"#;
+        let candidate =
+            "NET41-CORRIDOR-bee7aefc03add8e981ee5a2afbda91e48a4feea6b1b708ea4a0859f405c37ccc";
+        let output = replace_declared_route_with_points(
+            fixture,
+            candidate,
+            41,
+            "In3.Cu",
+            0.5,
+            0.9,
+            0.3,
+            &["In3.Cu".into(), "F.Cu".into()],
+            "C7",
+            "1",
+            "R14",
+            "2",
+            &[
+                "11111111-1111-1111-1111-111111111111".into(),
+                "22222222-2222-2222-2222-222222222222".into(),
+            ],
+            "33333333-3333-3333-3333-333333333333",
+            &[(112.0, 206.0), (120.0, 226.0), (122.64, 252.5225)],
+        )
+        .expect("declared route should be replaceable");
+        assert!(!output.contains("11111111-1111-1111-1111-111111111111"));
+        assert!(!output.contains("33333333-3333-3333-3333-333333333333"));
+        assert_eq!(output.matches("(segment ").count(), 2);
+        assert_eq!(output.matches("(via ").count(), 1);
+        assert!(output.contains("(via blind "));
+        assert!(output.contains("  (gr_text \"KEEP EXACT\" (at 1 2) (layer \"F.SilkS\"))\n"));
+        assert!(output.contains("bee7aefc-03ad-d8e9-81ee-5a2afbda9101"));
+        assert_eq!(
+            non_target_content_sha256(fixture, 41),
+            non_target_content_sha256(&output, 41)
+        );
+    }
+
+    #[test]
+    fn corridor_route_replacement_rejects_partial_old_identity() {
+        let fixture = ROUTE_FIXTURE.replace("(width 5)", "(width 0.5)");
+        let error = replace_declared_route_with_points(
+            &fixture,
+            "NET41-CORRIDOR-bee7aefc03add8e981ee5a2afbda91e48a4feea6b1b708ea4a0859f405c37ccc",
+            41,
+            "In3.Cu",
+            0.5,
+            0.9,
+            0.3,
+            &["In3.Cu".into(), "F.Cu".into()],
+            "R14",
+            "2",
+            "R14",
+            "2",
+            &["11111111-1111-1111-1111-111111111111".into()],
+            "33333333-3333-3333-3333-333333333333",
+            &[(118.64, 252.5225), (119.0, 252.5225)],
+        )
+        .expect_err("partial old route identity must fail");
+        assert!(error.contains("undeclared") || error.contains("stale or incomplete"));
     }
 }

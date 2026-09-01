@@ -348,7 +348,8 @@
     ".github/workflows/regression.yml",
     "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py",
     "packages/temper-placer/tests/regression/_drc_ratchet_py_oracle.py",
-    "packages/temper-placer/tests/regression/test_drc_ratchet.py"
+    "packages/temper-placer/tests/regression/test_drc_ratchet.py",
+    "packages/temper-placer/tests/validation/test_drc_json_top_level_keys.py"
   ],
   "ci_check_erc.py": [
     ".github/workflows/erc-gate.yml"
@@ -387,7 +388,9 @@
     "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py"
   ],
   "evaluate_regional_layout.py": [],
-  "full_pipeline_profile.py": [],
+  "full_pipeline_profile.py": [
+    "packages/temper-placer/src/temper_placer/regression/closure_test.py"
+  ],
   "gate_mutate.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py"
@@ -548,6 +551,7 @@
   "route_board.py": [
     ".github/workflows/board-regeneration.yml",
     "Makefile",
+    "packages/temper-placer/src/temper_placer/regression/closure_test.py",
     "packages/temper-placer/src/temper_placer/router_v6/_adapter_types.py",
     "packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py",
     "packages/temper-placer/src/temper_placer/router_v6/net_batching_subprocess.py",
@@ -561,6 +565,7 @@
   "run_feedback_loop.py": [
     "scripts/test_backpath_fix.sh"
   ],
+  "run_net41_corridor_campaign.py": [],
   "scan_external_corpus.py": [
     ".github/workflows/corpus-batch.yml"
   ],
@@ -591,7 +596,8 @@
     "scripts/sprint1_validation.sh"
   ],
   "validate_perf_capture.py": [
-    ".github/workflows/pr-perf-baseline-capture.yml"
+    ".github/workflows/pr-perf-baseline-capture.yml",
+    ".github/workflows/pr-perf-check.yml"
   ],
   "verify_proofs.py": [],
   "verify_pumpkin_engine.py": [

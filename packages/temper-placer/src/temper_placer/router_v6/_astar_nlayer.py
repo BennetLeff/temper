@@ -121,6 +121,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import temper_geometry as _tg
+import temper_rust_router as _trr
 
 from temper_placer.router_v6._astar_ordering import _compute_net_order
 from temper_placer.router_v6._astar_search import (
@@ -1214,12 +1215,10 @@ def run_astar_pathfinding_nlayer(
         existing_vias_per_net = _extract_existing_via_centers_per_net(pcb)
 
     net_order = _compute_net_order(channel_mapping)
-    routable_nets = [n for n in net_order if _should_route(n)]
-    if target_nets:
-        target_set = set(target_nets)
-        routable_nets = [n for n in routable_nets if n in target_set]
-    elif max_nets is not None:
-        routable_nets = routable_nets[:max_nets]
+    default_routable = [n for n in net_order if _should_route(n)]
+    routable_nets = _trr.select_routable_nets_py(
+        net_order, target_nets, default_routable, max_nets
+    )
 
     net_ids = {name: i + 1 for i, name in enumerate(routable_nets)}
     id_to_net = {v: k for k, v in net_ids.items()}

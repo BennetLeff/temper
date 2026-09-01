@@ -395,7 +395,9 @@ pub fn declare_corridor_candidates_from_evidence(
 pub struct RawCorridorMeasurements {
     pub candidate_id: String,
     pub minimum_clearance_mm: f64,
-    pub minimum_creepage_mm: f64,
+    /// Euclidean copper distance is a conservative lower bound on the path
+    /// length creepage instrument. It may prove a pass, never manufacture one.
+    pub minimum_creepage_lower_bound_mm: f64,
     pub route_length_mm: f64,
 }
 
@@ -431,7 +433,7 @@ pub struct CorridorScreenVerdict {
     pub clearance_creepage_prefilter_subset: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CorridorValidatedScreenRequest {
     pub schema_version: String,
@@ -477,7 +479,7 @@ pub fn screen_corridor_candidates(
         if raw.candidate_id.trim().is_empty()
             || !seen.insert(raw.candidate_id.clone())
             || !raw.minimum_clearance_mm.is_finite()
-            || !raw.minimum_creepage_mm.is_finite()
+            || !raw.minimum_creepage_lower_bound_mm.is_finite()
             || !raw.route_length_mm.is_finite()
             || raw.route_length_mm < 0.0
         {
@@ -495,12 +497,12 @@ pub fn screen_corridor_candidates(
                 source: authority.clearance_source.clone(),
             });
         }
-        if raw.minimum_creepage_mm < authority.creepage_mm {
+        if raw.minimum_creepage_lower_bound_mm < authority.creepage_mm {
             vetoes.push(AttributedVeto {
                 authority_key: authority.creepage_key.clone(),
                 required_mm: authority.creepage_mm,
                 authority_role: authority.creepage_role,
-                measured_mm: raw.minimum_creepage_mm,
+                measured_mm: raw.minimum_creepage_lower_bound_mm,
                 source: authority.creepage_source.clone(),
             });
         }
@@ -513,9 +515,9 @@ pub fn screen_corridor_candidates(
     let mut survivors: Vec<_> = results.iter().filter(|row| row.vetoes.is_empty()).collect();
     survivors.sort_by(|a, b| {
         let a_margin = (a.raw_measurements.minimum_clearance_mm - authority.clearance_mm)
-            .min(a.raw_measurements.minimum_creepage_mm - authority.creepage_mm);
+            .min(a.raw_measurements.minimum_creepage_lower_bound_mm - authority.creepage_mm);
         let b_margin = (b.raw_measurements.minimum_clearance_mm - authority.clearance_mm)
-            .min(b.raw_measurements.minimum_creepage_mm - authority.creepage_mm);
+            .min(b.raw_measurements.minimum_creepage_lower_bound_mm - authority.creepage_mm);
         b_margin
             .total_cmp(&a_margin)
             .then(
@@ -525,8 +527,8 @@ pub fn screen_corridor_candidates(
             )
             .then(
                 b.raw_measurements
-                    .minimum_creepage_mm
-                    .total_cmp(&a.raw_measurements.minimum_creepage_mm),
+                    .minimum_creepage_lower_bound_mm
+                    .total_cmp(&a.raw_measurements.minimum_creepage_lower_bound_mm),
             )
             .then(
                 a.raw_measurements
@@ -604,10 +606,9 @@ fn screen_validated_corridor_candidates(
 /// Validate the complete evidence envelope and screen its Rust-derived family
 /// in one transaction.  No receipt or candidate declaration crosses the
 /// caller boundary, so neither authority can be forged or substituted.
-pub fn validate_and_screen_corridor_evidence(
+pub fn validate_corridor_evidence(
     evidence: &CorridorEvidenceInputs<'_>,
-    request: CorridorValidatedScreenRequest,
-) -> Result<CorridorValidatedScreenVerdict, String> {
+) -> Result<CorridorDeclaration, String> {
     let candidate_set = declare_corridor_candidates_from_evidence(
         evidence.declaration_json,
         evidence.predecessor_manifest_json,
@@ -627,6 +628,14 @@ pub fn validate_and_screen_corridor_evidence(
             candidate_set_json: &candidate_set_json,
         },
     )?;
+    Ok(candidate_set)
+}
+
+pub fn validate_and_screen_corridor_evidence(
+    evidence: &CorridorEvidenceInputs<'_>,
+    request: CorridorValidatedScreenRequest,
+) -> Result<CorridorValidatedScreenVerdict, String> {
+    let candidate_set = validate_corridor_evidence(evidence)?;
     screen_validated_corridor_candidates(candidate_set, request)
 }
 
@@ -1085,7 +1094,7 @@ pub(crate) mod tests {
             .map(|(index, candidate)| RawCorridorMeasurements {
                 candidate_id: candidate.candidate_id.clone(),
                 minimum_clearance_mm: if index == 0 { 6.0 } else { 5.9 },
-                minimum_creepage_mm: 12.6,
+                minimum_creepage_lower_bound_mm: 12.6,
                 route_length_mm: 10.0,
             })
             .collect()

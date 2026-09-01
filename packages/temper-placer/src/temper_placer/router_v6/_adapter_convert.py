@@ -239,6 +239,7 @@ def route_pcb(
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
+    target_nets: list[str] | None = None,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -339,6 +340,10 @@ def route_pcb(
             the production 2-layer-capped path. Default False -- see
             ``RouterV6Pipeline.__init__``'s docstring for the full
             rationale.
+        target_nets: Optional exact non-empty net-name scope. When supplied,
+            only these known board nets enter Stage 4 routing; retained board
+            copper remains the caller's responsibility and is not stripped by
+            this adapter. ``None`` preserves whole-board behavior.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -356,6 +361,22 @@ def route_pcb(
     if pcb_path is None:
         raise ValueError("ParsedPCB has no source_path attribute")
     pcb_path = Path(pcb_path)
+
+    if target_nets is not None:
+        if not target_nets or any(not isinstance(name, str) or not name.strip() for name in target_nets):
+            raise ValueError("target_nets must be a non-empty list of non-empty net names")
+        if len(set(target_nets)) != len(target_nets):
+            raise ValueError("target_nets must not contain duplicates")
+        parsed_names = {
+            str(net.name)
+            for net in getattr(parsed, "nets", [])
+            if getattr(net, "name", None)
+        }
+        if not parsed_names:
+            raise ValueError("target_nets requires parsed.nets for exact scope validation")
+        unknown = sorted(set(target_nets) - parsed_names)
+        if unknown:
+            raise ValueError(f"target_nets contains unknown board nets: {unknown}")
 
     # Resolve per-net layer assignments from the netclass SSOT (W2 R2) so the
     # router constrains each net to its assigned layer instead of letting a
@@ -439,6 +460,7 @@ def route_pcb(
         net_batch_size=net_batch_size,
         max_sat_nets=max_sat_nets,
         enable_nlayer_astar_spike=enable_nlayer_astar_spike,
+        target_nets=list(target_nets) if target_nets is not None else None,
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.
