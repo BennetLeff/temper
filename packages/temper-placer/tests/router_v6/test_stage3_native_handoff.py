@@ -38,6 +38,60 @@ def _fixture_model():
     return model, ["net0", "net1"]
 
 
+def test_canonical_capacity_constraint_remains_native_supported():
+    """Canonical capacity metadata and terms may use the packed path."""
+
+    model, _ = _fixture_model()
+
+    assert model.native_model_supported()
+    [constraint] = list(model.constraints)
+    assert constraint.name == "cap_CH1"
+    assert constraint.description == ""
+
+
+def test_custom_capacity_metadata_stays_foreign_for_legacy_fallback():
+    """Custom public metadata must survive and keep the legacy solver path."""
+
+    import temper_rust_router as router
+    from temper_placer.router_v6.constraint_model import (
+        CapacityConstraint,
+        ConstraintModel,
+        NetChannelVar,
+    )
+
+    model = ConstraintModel()
+    variables = [
+        NetChannelVar(name="uses_N0_CH1", net_idx=0, channel_id="CH1"),
+        NetChannelVar(name="uses_N1_CH1", net_idx=1, channel_id="CH1"),
+    ]
+    for variable in variables:
+        model.add_variable(variable)
+    custom = CapacityConstraint(
+        name="caller_capacity",
+        description="preserve this explanation",
+        channel_id="CH1",
+        capacity=1.0,
+        slack_factor=1.0,
+        terms=[(variable, 1.0) for variable in variables],
+    )
+    model.add_constraint(custom)
+
+    assert not model.native_model_supported()
+    [retained] = list(model.constraints)
+    assert retained is custom
+    assert retained.name == "caller_capacity"
+    assert retained.description == "preserve this explanation"
+
+    canonical, net_names = _fixture_model()
+    expected = router.solve_topology_rust(
+        list(canonical.variables), list(canonical.constraints), net_names
+    )
+    got = router.solve_topology_rust(
+        list(model.variables), list(model.constraints), net_names
+    )
+    assert got == expected
+
+
 def test_native_handoff_has_no_getter_round_trip_and_matches_legacy():
     """The production handoff must bypass the object-rebuilding getters."""
 

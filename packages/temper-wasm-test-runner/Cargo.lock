@@ -957,6 +957,7 @@ dependencies = [
  "sha2",
  "temper-geometry",
  "temper-pcl-ir",
+ "temper-rust-router-core",
  "thiserror 2.0.19",
 ]
 
@@ -983,6 +984,7 @@ dependencies = [
  "regex",
  "rstar 0.12.2",
  "spade",
+ "temper-io-types",
 ]
 
 [[package]]

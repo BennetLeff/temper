@@ -100,8 +100,9 @@
 //!   name such as `NetChannelVar(name="BOGUS", …)` — is retained as the
 //!   caller's original object (`VarKind::Foreign`) and still routed into
 //!   the same dict. No production path takes it.
-//! - `add_constraint` always retains the caller's object verbatim: its two
-//!   users are the PCL lowering paths, which hand over constraints
+//! - `add_constraint` retains the caller's object verbatim whenever its
+//!   metadata or term variables cannot be reconstructed from packed fields:
+//!   its two users are the PCL lowering paths, which hand over constraints
 //!   referencing objects the model knows nothing about (a
 //!   `DiffPairConstraint` whose `p_var` is a bare `str`, for one).
 //!
@@ -1521,6 +1522,29 @@ impl ConstraintModel {
         })
     }
 
+    /// Return the packed index for a capacity term only when the caller's
+    /// object is a `NetChannelVar` whose complete public shape matches the
+    /// packed record. Matching on `name` alone would let a hand-written or
+    /// otherwise noncanonical term silently reconstruct as a different
+    /// variable.
+    fn capacity_term_variable_index(&self, var: &Bound<'_, PyAny>) -> Option<u32> {
+        let candidate = var.extract::<PyRef<'_, NetChannelVar>>().ok()?;
+        let idx = self.variable_index_for_name(&candidate.name)?;
+        let packed = *self.vars.get(idx as usize)?;
+        let key_value = self.ids.get(packed.key()).ok()?;
+        let expected_type = match packed.kind() {
+            VarKind::NetChannel => "bool",
+            VarKind::Bundle => "bundle",
+            _ => return None,
+        };
+        let expected_name = canonical_packed_variable_name(packed, key_value)?;
+        (candidate.name == expected_name
+            && candidate.var_type == expected_type
+            && candidate.net_idx == i64::from(packed.net_idx)
+            && candidate.channel_id == key_value)
+            .then_some(idx)
+    }
+
     /// `add_variable`: append and route into the type-appropriate dict.
     fn add_variable(&mut self, var: Bound<'_, PyAny>) -> PyResult<()> {
         guard(|| {
@@ -1550,30 +1574,26 @@ impl ConstraintModel {
         })
     }
 
-    /// `add_constraint`: append a constraint, packing ordinary contract
-    /// values and retaining unsupported PCL/foreign values verbatim.
+    /// `add_constraint`: append a constraint, packing exactly canonical
+    /// capacity values and retaining unsupported PCL/foreign values verbatim.
     fn add_constraint(&mut self, constraint: Bound<'_, PyAny>) -> PyResult<()> {
         guard(|| {
-            // Pack ordinary contract constraints when their variable
-            // references resolve to this model. Unsupported PCL/foreign
-            // objects retain the exact legacy behavior below.
+            // Pack only constraints whose metadata and term variables can be
+            // reconstructed byte-for-byte. Unsupported PCL/foreign objects
+            // retain the exact legacy behavior below.
             if constraint.is_instance_of::<CapacityConstraint>() {
                 let (channel_id, capacity, slack_factor, terms) = {
                     let c = constraint.extract::<PyRef<'_, CapacityConstraint>>()?;
-                    let terms = match &c.terms {
-                        CapacityTerms::Owned(items) => {
+                    let canonical_metadata =
+                        c.name == format!("cap_{}", c.channel_id) && c.description.is_empty();
+                    let terms = match (&c.terms, canonical_metadata) {
+                        (CapacityTerms::Owned(items), true) => {
                             let mut resolved = Vec::with_capacity(items.len());
                             let mut packable = true;
                             for (var, width) in items {
-                                let Ok(name_obj) = var.bind(constraint.py()).getattr("name") else {
-                                    packable = false;
-                                    break;
-                                };
-                                let Ok(name) = name_obj.extract::<String>() else {
-                                    packable = false;
-                                    break;
-                                };
-                                let Some(idx) = self.variable_index_for_name(&name) else {
+                                let Some(idx) = self
+                                    .capacity_term_variable_index(&var.bind(constraint.py()))
+                                else {
                                     // This is a normal compatibility case:
                                     // preserve the original object below.
                                     packable = false;
@@ -1583,7 +1603,10 @@ impl ConstraintModel {
                             }
                             packable.then_some(resolved)
                         }
-                        CapacityTerms::Packed { .. } => None,
+                        // A reconstructed term list borrows another model's
+                        // arena, so it is not safe to transplant into this
+                        // model. Keep the original object instead.
+                        _ => None,
                     };
                     (c.channel_id.clone(), c.capacity, c.slack_factor, terms)
                 };

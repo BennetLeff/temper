@@ -16,12 +16,11 @@ transcribed into ``temper-geometry``'s ``bundle_analyzer`` module:
   strict point-in-convex-polygon scan; the result set is a pure function of
   the footprint region, so it is identical.
 
-The oracle blocks below are copied VERBATIM from the module AS COMMITTED on
-``origin/main`` before this migration (``git show HEAD:.../bundle_analyzer.py``);
-do not edit — they are the reference.  The `# @req`-free, verbatim body of
-``_compute_geometric_footprint``, ``_build_edge_index`` and
-``_compute_covered_edges`` is embedded as ``_oracle_*`` and driven by an
-``_OracleBundleAnalyzer`` that shares the unchanged orchestration.
+The end-to-end comparison uses the standalone ``_bundle_analyzer_py_oracle``
+module pinned to the module as committed immediately before the orchestration
+migration (``git show 8fd69df1:.../bundle_analyzer.py``).  Its orchestration
+and all manifest decisions are pure Python; it does not inherit from or call
+the production adapter.
 
 Comparisons are bit-exact:
 
@@ -40,11 +39,8 @@ Comparisons are bit-exact:
 
 from __future__ import annotations
 
-import math
 import random
-from types import SimpleNamespace
 
-import tests.graph_fixtures as nx
 import numpy as np
 import pytest
 import shapely
@@ -52,124 +48,9 @@ import temper_geometry as _tg
 from shapely import STRtree
 from shapely.geometry import MultiPoint, Polygon
 
+import tests.graph_fixtures as nx
 from temper_placer.router_v6.bundle_analyzer import BundleAnalyzer
-
-# ---------------------------------------------------------------------------
-# Verbatim pre-migration oracles (copied from the module AS COMMITTED before
-# the Wave 4 migration; do not edit — they are the reference).
-# ---------------------------------------------------------------------------
-
-
-def _oracle_compute_geometric_footprint(positions, median_edge_length) -> Polygon:
-    """Verbatim pre-migration ``_compute_geometric_footprint`` geometry."""
-    if len(positions) < 2:
-        # Single pad: create a small square around it
-        if positions:
-            cx, cy = positions[0]
-            m = median_edge_length
-            return Polygon(
-                [
-                    (cx - m, cy - m),
-                    (cx + m, cy - m),
-                    (cx + m, cy + m),
-                    (cx - m, cy + m),
-                ]
-            )
-        # No positions: empty polygon
-        return Polygon()
-
-    if len(positions) == 2:
-        # Two pads: create a rectangular envelope
-        (x1, y1), (x2, y2) = positions
-        _dx, _dy = abs(x2 - x1), abs(y2 - y1)
-        margin = median_edge_length
-        minx = min(x1, x2) - margin
-        maxx = max(x1, x2) + margin
-        miny = min(y1, y2) - margin
-        maxy = max(y1, y2) + margin
-        return Polygon(
-            [
-                (minx, miny),
-                (maxx, miny),
-                (maxx, maxy),
-                (minx, maxy),
-            ]
-        )
-
-    mp = MultiPoint(positions)
-    hull = mp.convex_hull
-    if isinstance(hull, Polygon):
-        return hull.buffer(median_edge_length)
-    return Polygon()
-
-
-def _oracle_build_edge_index(skeletons) -> tuple[np.ndarray, np.ndarray, STRtree]:
-    """Verbatim pre-migration ``_build_edge_index`` (id + STRtree)."""
-    edge_ids: list[str] = []
-    mids_x: list[float] = []
-    mids_y: list[float] = []
-    for layer_name, skeleton in skeletons.items():
-        for i, (_u, _v) in enumerate(skeleton.graph.edges):  # type: ignore[attr-defined]
-            n1, n2 = sorted([_u, _v])
-            edge_ids.append(f"{layer_name}_E{i}_{n1}_{n2}")
-            mids_x.append((n1[0] + n2[0]) / 2.0)
-            mids_y.append((n1[1] + n2[1]) / 2.0)
-
-    ids = np.array(edge_ids, dtype=object)
-    if edge_ids:
-        edge_points = shapely.points(np.array(mids_x), np.array(mids_y))
-        edge_tree = STRtree(edge_points)
-    else:
-        edge_points = np.empty(0, dtype=object)
-        edge_tree = None
-    return ids, edge_points, edge_tree
-
-
-def _oracle_compute_covered_edges(edge_ids, edge_tree, footprint: Polygon) -> frozenset[str]:
-    """Verbatim pre-migration ``_compute_covered_edges``."""
-    if edge_tree is None or footprint.is_empty:
-        return frozenset()
-    try:
-        idx = edge_tree.query(footprint, predicate="contains")
-    except Exception:
-        return frozenset()
-    if len(idx) == 0:
-        return frozenset()
-    return frozenset(edge_ids[idx].tolist())
-
-
-# ---------------------------------------------------------------------------
-# Oracle analyzer: the pre-migration module with its GEOS internals restored,
-# sharing the unchanged orchestration with the shim.
-# ---------------------------------------------------------------------------
-
-
-class _OracleBundleAnalyzer(BundleAnalyzer):
-    """The pre-migration BundleAnalyzer (GEOS footprints + STRtree covers).
-
-    Overrides only the two migrated kernels with the verbatim pre-migration
-    implementations; ``analyze()`` and every other method are the shim's
-    (unchanged) orchestration, so the end-to-end comparison pins exactly the
-    GEOS seam replacement.
-    """
-
-    def _compute_geometric_footprint(self, net) -> Polygon:
-        return _oracle_compute_geometric_footprint(
-            self._net_pad_positions(net), self._median_edge_length
-        )
-
-    def _build_edge_index(self) -> None:
-        if self._edge_ids is not None:
-            return
-        self._edge_ids, self._edge_points, self._edge_tree = _oracle_build_edge_index(
-            self.skeletons
-        )
-
-    def _compute_covered_edges(self, footprint: Polygon) -> frozenset[str]:
-        self._build_edge_index()
-        assert self._edge_ids is not None
-        return _oracle_compute_covered_edges(self._edge_ids, self._edge_tree, footprint)
-
+from tests.router_v6._bundle_analyzer_py_oracle import BundleAnalyzer as OracleBundleAnalyzer
 
 # ---------------------------------------------------------------------------
 # Test fixtures (mocks mirror the existing test_bundle_analyzer.py)
@@ -221,6 +102,49 @@ class _MockDesignRules:
             via_diameter_mm=0.6,
             via_drill_mm=0.3,
         )
+
+
+class _MockSafetyDesignRules(_MockDesignRules):
+    """Design-rule fixture retaining the real board's gate-drive safety tier."""
+
+    def __init__(self, safety_categories):
+        super().__init__()
+        self._safety_categories = safety_categories
+
+    def get_rules_for_net(self, net_name):
+        rule = super().get_rules_for_net(net_name)
+        rule.safety_category = self._safety_categories.get(net_name)
+        return rule
+
+
+class _MockDiffPair:
+    def __init__(self, base_name, p_net, n_net):
+        self.base_name = base_name
+        self.p_net = p_net
+        self.n_net = n_net
+
+
+class _DuplicateEdgeGraph:
+    """Graph-like fixture that emits duplicate IDs for Rust canonicalization."""
+
+    def __init__(self, edges):
+        self._edges = edges
+
+    @property
+    def edges(self):
+        return [(u, v) for u, v, _data in self._edges]
+
+    def edges_with_data(self):
+        return list(self._edges)
+
+
+class _DuplicateEdgeSkeleton:
+    def __init__(self):
+        self.graph = _DuplicateEdgeGraph([
+            ((0.0, 0.0), (10.0, 0.0), {"weight": 10.0}),
+            ((0.0, 0.0), (10.0, 0.0), {"weight": 10.0}),
+            ((10.0, 0.0), (20.0, 0.0), {"weight": 10.0}),
+        ])
 
 
 class _MockSkeleton:
@@ -375,6 +299,29 @@ def _consumed_surface(manifest):
     }
 
 
+def _assert_manifest_matches_oracle(
+    nets, skeletons, *, design_rules=None, diff_pairs=None, threshold=0.5
+):
+    mine = BundleAnalyzer(
+        nets,
+        skeletons,
+        design_rules=design_rules,
+        diff_pairs=diff_pairs,
+        pcb=_make_pcb_for_nets(*nets),
+        jaccard_threshold=threshold,
+    ).analyze()
+    reference = OracleBundleAnalyzer(
+        nets,
+        skeletons,
+        design_rules=design_rules,
+        diff_pairs=diff_pairs,
+        pcb=_make_pcb_for_nets(*nets),
+        jaccard_threshold=threshold,
+    ).analyze()
+    assert _consumed_surface(mine) == _consumed_surface(reference), "manifest differential mismatch"
+    return mine, reference
+
+
 def test_analyze_consumed_surface_bit_identical():
     """Rust-backed analyze() == pre-migration analyze() on the consumed surface."""
     rng = random.Random(101)
@@ -393,9 +340,90 @@ def test_analyze_consumed_surface_bit_identical():
         dr = _MockDesignRules()
 
         mine = BundleAnalyzer(nets, skeletons, design_rules=dr, pcb=pcb).analyze()
-        ref = _OracleBundleAnalyzer(nets, skeletons, design_rules=dr, pcb=pcb).analyze()
+        ref = OracleBundleAnalyzer(nets, skeletons, design_rules=dr, pcb=pcb).analyze()
 
         assert _consumed_surface(mine) == _consumed_surface(ref), f"manifest mismatch trial {trial}"
+
+
+def test_analyze_preserves_gate_drive_safety_categories():
+    """GATE_HS/GATE_LS use the live board's HV safety category in grouping."""
+    positions = [(0.0, 0.0), (10.0, 0.0), (5.0, 5.0)]
+    nets = [
+        _MockNet("GATE_HS", positions),
+        _MockNet("GATE_LS", positions),
+        _MockNet("SIG_GATE_SHAPED", positions),
+    ]
+    rules = _MockSafetyDesignRules({"GATE_HS": "HV", "GATE_LS": "HV"})
+    mine, reference = _assert_manifest_matches_oracle(
+        nets, {"F.Cu": _make_grid_skeleton((-5, 15), (-5, 10), spacing=5.0)},
+        design_rules=rules,
+    )
+    assert _consumed_surface(mine) == _consumed_surface(reference)
+    gate_bundle = next(b for b in mine.bundles.values() if 0 in b.net_indices)
+    assert gate_bundle.net_indices == [0, 1]
+    assert all(2 not in b.net_indices for b in mine.bundles.values())
+    assert 2 in mine.unbundled_net_indices
+
+
+def test_analyze_canonicalizes_duplicate_edge_ids():
+    """Duplicate edge IDs retain Python's frozenset semantics in Rust."""
+    nets = [_MockNet("SIG_A", [(0.0, 0.0), (10.0, 0.0)]),
+            _MockNet("SIG_B", [(0.0, 0.0), (10.0, 0.0)])]
+    mine, reference = _assert_manifest_matches_oracle(
+        nets, {"F.Cu": _DuplicateEdgeSkeleton()}
+    )
+    assert _consumed_surface(mine) == _consumed_surface(reference)
+    assert mine.bundles[0].net_indices == [0, 1]
+
+
+def test_analyze_matches_unmatched_diff_pair_and_threshold_ordering():
+    """Pair order, duplicate bases, unmatched diff nets, and strict threshold agree."""
+    positions = [(0.0, 0.0), (10.0, 0.0)]
+    nets = [
+        _MockNet("PAIR_N", positions),
+        _MockNet("PAIR_P", positions),
+        _MockNet("ORPHAN_P", positions),
+        _MockNet("SIG_A", positions),
+    ]
+    diff_pairs = [
+        _MockDiffPair("PAIR", "PAIR_P", "PAIR_N"),
+        _MockDiffPair("PAIR", "ORPHAN_P", "MISSING_N"),
+    ]
+    skeletons = {"F.Cu": _make_grid_skeleton((-5, 15), (-5, 5), spacing=5.0)}
+    mine, reference = _assert_manifest_matches_oracle(
+        nets, skeletons, diff_pairs=diff_pairs, threshold=0.5
+    )
+    assert _consumed_surface(mine) == _consumed_surface(reference)
+    assert any(b.is_diff_pair and b.net_indices == [0, 1] for b in mine.bundles.values())
+    # Empty edge-cover overlap is exactly Jaccard=1.0; the boundary is strict.
+    boundary_nets = [_MockNet("BOUND_A"), _MockNet("BOUND_B")]
+    _assert_manifest_matches_oracle(
+        boundary_nets, {}, threshold=1.0
+    )
+    below_boundary, _ = _assert_manifest_matches_oracle(
+        boundary_nets, {}, threshold=0.999
+    )
+    assert below_boundary.bundles[0].net_indices == [0, 1]
+
+
+def test_mutated_rust_manifest_output_fails_differential(monkeypatch):
+    """A manifest-record mutation cannot make the oracle comparison vacuous."""
+    nets = [_MockNet("SIG_A", [(0.0, 0.0), (10.0, 0.0)]),
+            _MockNet("SIG_B", [(0.0, 0.0), (10.0, 0.0)])]
+    original = _tg.analyze_bundle_manifest_py
+
+    def mutate_manifest(*args, **kwargs):
+        records, id_pairs, unbundled = original(*args, **kwargs)
+        assert records
+        mutated = list(records)
+        record = list(mutated[0])
+        record[6] = ["mutated-constraint"]
+        mutated[0] = tuple(record)
+        return mutated, id_pairs, unbundled
+
+    monkeypatch.setattr(_tg, "analyze_bundle_manifest_py", mutate_manifest)
+    with pytest.raises(AssertionError, match="differential|constraint|mutated"):
+        _assert_manifest_matches_oracle(nets, {})
 
 
 def test_edge_cover_sets_bit_identical_per_net():
@@ -410,7 +438,7 @@ def test_edge_cover_sets_bit_identical_per_net():
     dr = _MockDesignRules()
 
     mine = BundleAnalyzer(nets, skeletons, design_rules=dr, pcb=pcb)
-    ref = _OracleBundleAnalyzer(nets, skeletons, design_rules=dr, pcb=pcb)
+    ref = OracleBundleAnalyzer(nets, skeletons, design_rules=dr, pcb=pcb)
 
     for net in nets:
         mine_fp = mine._compute_geometric_footprint(net)
