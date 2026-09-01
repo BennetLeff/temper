@@ -89,7 +89,19 @@ def test_custom_capacity_metadata_stays_foreign_for_legacy_fallback():
     got = router.solve_topology_rust(
         list(model.variables), list(model.constraints), net_names
     )
-    assert got == expected
+    # The legacy and native calls execute separate solver instances.  Their
+    # semantic result must match, but elapsed-time/statistics fields are
+    # inherently run-dependent.
+    for key in (
+        "status",
+        "assignments",
+        "topology_graph",
+        "num_vars",
+        "num_clauses",
+        "unsat_core",
+        "var_to_net",
+    ):
+        assert got[key] == expected[key]
 
 
 def test_native_handoff_has_no_getter_round_trip_and_matches_legacy():
