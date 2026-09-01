@@ -9,8 +9,9 @@ HV collector/emitter pins within 6mm (IEC 60335-1 creepage).
 
 The pure geometry + constraint kernels are implemented in Rust in the
 ``temper-drc-rs`` crate (Wave 4 **Phase 5, batch 2** — deterministic leaf
-stages): ``_point_to_segment_distance``, ``_validate_proximity`` and
-``_validate_signal_hv`` delegate to ``temper_drc_rs``. The parsed-pads
+stages): ``_point_to_segment_distance``, ``validate_proximity_py`` and
+``validate_signal_hv_py`` are called directly by the Rust orchestration
+stage. The parsed-pads
 ``_get_pin_position`` offset resolution additionally delegates to
 ``temper_drc_rs.resolve_pin_position_py`` (Wave 4 orchestration-port).
 
@@ -23,13 +24,14 @@ the proximity / signal-HV constraint sweeps, the hard-violation filter, the
 ``run_placement_validation``), crossing the FFI once per stage call. This
 module keeps the public API: the ``PlacementValidationStage`` /
 ``PlacementViolation`` / ``PlacementValidationError`` names and the directly
-exercised per-constraint helper methods (``_validate_proximity`` /
-``_validate_signal_hv`` / ``_get_pin_position`` / ``_get_component_positions``
+exercised extraction/configuration helpers (``_get_pin_position`` /
+``_get_component_positions``
 / ``_get_proximity_constraints`` / ``_get_signal_hv_constraints`` /
 ``_point_to_segment_distance`` / ``_log_summary`` — pinned by
 ``test_drc_leaf_rust_differential.py``) stay as the pre-D6 bodies; the Rust
-stage CALLS the validation helpers back on this instance (the D4/D5 mixin
-boundary). The pre-migration implementation is pinned VERBATIM in
+stage calls the temper-drc-rs validation kernels directly and leaves Python
+only for pin-position extraction, object construction and summary logging.
+The pre-migration implementation is pinned VERBATIM in
 ``tests/deterministic/_placement_validation_run_py_oracle.py``.
 """
 
@@ -144,97 +146,6 @@ class PlacementValidationStage(Stage):
     def _get_signal_hv_constraints(self):
         """Get signal-to-HV clearance constraints from config."""
         return self.constraints.get("signal_hv_clearances", [])
-
-    def _validate_proximity(
-        self, constraint, component_positions: dict
-    ) -> PlacementViolation | None:
-        """Validate a PlacementProximityConstraint."""
-        from_pos = self._get_pin_position(
-            constraint.from_component, constraint.from_pin, component_positions
-        )
-        to_pos = self._get_pin_position(
-            constraint.to_component, constraint.to_pin, component_positions
-        )
-
-        result = _drc.validate_proximity_py(constraint, from_pos, to_pos)
-        if result is None or not result[0]:
-            return None
-        _flag, severity, actual, required, message, comp_a, comp_b = result
-
-        if severity == "warning" and (from_pos is None or to_pos is None):
-            return PlacementViolation(
-                constraint_name=constraint.name,
-                violation_type="missing_component",
-                message=message,
-                severity=severity,
-                component_a=comp_a or None,
-                component_b=comp_b or None,
-            )
-
-        return PlacementViolation(
-            constraint_name=constraint.name,
-            violation_type="proximity",
-            message=message,
-            severity=severity,
-            component_a=comp_a or None,
-            component_b=comp_b or None,
-            actual_distance_mm=actual,
-            required_distance_mm=required,
-        )
-
-    def _validate_signal_hv(
-        self, constraint, component_positions: dict
-    ) -> PlacementViolation | None:
-        """Validate a SignalToHVClearance constraint.
-
-        Checks that the signal path from signal_pin to target_pin doesn't
-        pass too close to any HV pins.
-
-        The validation uses a simplified geometric check:
-        1. Calculate straight-line distance from signal_pin to target_pin
-        2. For each HV pin, calculate distance from HV pin to the signal line segment
-        3. If any HV pin is within required_clearance_mm of the line, violation
-        """
-        signal_pos = self._get_pin_position(
-            constraint.signal_component, constraint.signal_pin, component_positions
-        )
-        target_pos = self._get_pin_position(
-            constraint.target_component, constraint.target_pin, component_positions
-        )
-
-        hv_positions = []
-        for hv_pin in constraint.hv_pins:
-            hv_pos = self._get_pin_position(
-                constraint.hv_component, hv_pin, component_positions
-            )
-            if hv_pos:
-                hv_positions.append((hv_pin, hv_pos))
-
-        result = _drc.validate_signal_hv_py(
-            constraint, signal_pos, target_pos, hv_positions
-        )
-        if result is None or not result[0]:
-            return None
-        _flag, severity, actual, required, message, comp_a, comp_b, violation_type = result
-
-        if violation_type == "missing_component":
-            return PlacementViolation(
-                constraint_name=constraint.name,
-                violation_type=violation_type,
-                message=message,
-                severity=severity,
-            )
-
-        return PlacementViolation(
-            constraint_name=constraint.name,
-            violation_type=violation_type,
-            message=message,
-            severity=severity,
-            component_a=comp_a or None,
-            component_b=comp_b or None,
-            actual_distance_mm=actual,
-            required_distance_mm=required,
-        )
 
     def _point_to_segment_distance(
         self,

@@ -64,7 +64,6 @@ from tests.router_v6._escape_via_builders import (
     build_component,
     build_dense_package,
     build_design_rules,
-    build_pads,
 )
 from tests.router_v6._escape_via_cases import (
     BENCH_PACKAGES,
@@ -72,7 +71,6 @@ from tests.router_v6._escape_via_cases import (
     PACKAGES,
     RULE_SETS,
     STRATEGIES,
-    VALID_PROBES,
     random_packages,
 )
 from tests.router_v6._pending_rust import missing_symbols, rust
@@ -92,7 +90,6 @@ _RUST_MODULE = "temper_geometry"
 
 REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "escape_generate_vias_py",
-    "escape_is_position_valid_py",
 )
 
 
@@ -108,7 +105,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 _SRC = _REPO_ROOT / "packages" / "temper-placer" / "src" / "temper_placer" / "router_v6"
 
 _ORACLE_PIN_SHA = "143752893c177dc976da614566c64e4e53e4951f"
-_ORACLE_NAMES: tuple[str, ...] = ("EscapeVia", "generate_escape_vias", "_is_position_valid")
+_ORACLE_NAMES: tuple[str, ...] = ("EscapeVia", "generate_escape_vias")
 
 
 def _capture(fn):
@@ -442,59 +439,6 @@ def test_a_float_rotation_is_reachable_through_the_real_object_model():
     assert comp.initial_rotation_quadrant == 0.5
     assert isinstance(comp.initial_rotation_quadrant, float)
     assert not isinstance(comp.initial_rotation_quadrant, int)
-
-
-# ---------------------------------------------------------------------------
-# _is_position_valid
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("probe", VALID_PROBES, ids=lambda p: p[0])
-def test_is_position_valid_bit_exact(probe):
-    label, x, y, radius, clearance, pads = probe
-    _assert_same(
-        f"_is_position_valid[{label}]",
-        lambda: ORACLE._is_position_valid(
-            x, y, radius, build_pads(pads), (0.0, 0.0), 0.0, clearance, _ignore_net=None
-        ),
-        "escape_is_position_valid_py",
-        lambda fn: fn(x, y, radius, pads, clearance),
-    )
-
-
-def test_is_position_valid_ignores_its_ignore_net_argument():
-    """``_ignore_net`` is underscore-prefixed and never read.
-
-    Green today.  This is deliberate per the module's own inline comment
-    ("If it overlaps source pin, it's effectively Via-in-Pad, not Dog-Bone"),
-    so it is asserted as a *contract* rather than reported as a defect --
-    the Rust mirror must not "helpfully" honour the argument.
-    """
-    pads = [(0.0, 0.0, 0.4, 0.4, "circle")]
-    comp = build_pads(pads)
-    results = {
-        ORACLE._is_position_valid(0.1, 0.0, 0.225, comp, (0.0, 0.0), 0.0, 0.15, _ignore_net=v)
-        for v in (None, "", "N0", "SOMETHING_ELSE")
-    }
-    assert results == {False}, f"_ignore_net changed the outcome: {results}"
-
-
-def test_is_position_valid_short_circuits_on_the_first_failing_pad():
-    """The scan returns on the first violating pad, so pad ORDER is
-    observable through the number of distance computations even though the
-    boolean result is order-independent."""
-    first = next(p for p in VALID_PROBES if p[0] == "first_pad_fails")
-    last = next(p for p in VALID_PROBES if p[0] == "last_pad_fails")
-    a = ORACLE._is_position_valid(
-        first[1], first[2], first[3], build_pads(first[5]), (0.0, 0.0), 0.0, first[4]
-    )
-    b = ORACLE._is_position_valid(
-        last[1], last[2], last[3], build_pads(last[5]), (0.0, 0.0), 0.0, last[4]
-    )
-    assert a is False
-    assert b is False
-    # an empty pad list can only be True -- the loop body never runs
-    assert ORACLE._is_position_valid(0.0, 0.0, 1.0, build_pads([]), (0.0, 0.0), 0.0, 1.0) is True
 
 
 # ---------------------------------------------------------------------------

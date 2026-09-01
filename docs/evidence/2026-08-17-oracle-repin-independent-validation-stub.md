@@ -1,3 +1,4 @@
+<!-- provenance: commit=41eaa9a3d54b15bb9342dc42357a4bde3f3663d2 dirty=UNKNOWN -->
 # Independent validation of #1313's oracle-hash-drift evidence + SafetySpec defaults — STUB
 
 Status: IN PROGRESS. This is a survival stub committed as the first action in

@@ -45,7 +45,7 @@ surface run in Rust; this module is the delegation shim that keeps every
 existing import path working.
 
 The value enums (``ConstraintType``, ``DistanceMetric``,
-``Axis``, ``BoardSide``, ``EdgeType``, ``CompilationTarget``, ``SemanticTag``)
+``Axis``, ``BoardSide``, ``EdgeType``)
 stay Python ``enum.Enum``: production does ``for t in ConstraintType`` and
 ``ConstraintType(value)``, which a ``#[pyclass]`` enum cannot provide.
 ``ConstraintTier`` is a Rust pyclass (it has no class-level iteration
@@ -53,10 +53,10 @@ anywhere — the one enum that IS tractable). The Rust objects hold the LIVE
 singletons/Python enum members and hand them back through the getters.
 
 ``BaseConstraint`` stays Python. It is the ABC the tagged-constraint classes
-subclass, and its ``backends`` registry is populated at import time by
-``sat_bridge.py`` and dispatched by ``parser.py`` — the
-Phase-1 ortools-encoder KEEP slice. The migrated pyclasses are registered as
-*virtual* subclasses so ``isinstance(c, BaseConstraint)`` keeps holding.
+subclass. Router lowering is owned by the explicit compiler in
+``router_compiler.py``; constraints no longer carry a mutable, import-time backend
+registry. The migrated pyclasses are registered as *virtual* subclasses so
+``isinstance(c, BaseConstraint)`` keeps holding.
 
 Verification: bit-identical parity against the pinned pre-migration
 implementation is asserted by
@@ -68,44 +68,10 @@ lives in ``packages/temper-constraint-compiler/VERIFICATION.md``.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
 
 import temper_constraint_compiler as _rust
-
-if TYPE_CHECKING:
-    from temper_placer.core.board import Board
-    from temper_placer.core.netlist import Netlist
-    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
-    from temper_placer.router_v6.channel_widths import ChannelWidths
-    from temper_placer.router_v6.stage0_data import DesignRules
-
-
-class CompilationTarget(Enum):
-    """Backend targets for constraint compilation."""
-
-    JAX = "jax"
-    SAT = "sat"
-    DRC = "drc"
-    CP_SAT = "cp_sat"
-
-
-class SemanticTag(Enum):
-    """Semantic capabilities of constraint types.
-
-    Used by downstream compilers to select grounding strategies
-    without type-specific dispatch. New constraint types auto-gain
-    SAT/DRC grounding via these tags.
-    """
-
-    SEPARATION = "separation"
-    PROXIMITY = "proximity"
-    ORDERING = "ordering"
-    ZONING = "zoning"
-    ALIGNMENT = "alignment"
-
 
 ConstraintTier = _rust.ConstraintTier
 """Priority tier for a constraint (HARD=1, STRONG=2, SOFT=3).
@@ -130,100 +96,29 @@ Every other semantic (value/name/str/repr/==/hash/dict-key) is preserved.
 class ConstraintType(Enum):
     """Types of topological constraints supported by PCL.
 
-    Each member carries (value, capabilities, supported_targets) as a 3-tuple.
-    Use .value for the string form, .capabilities and .supported_targets
-    for semantic dispatch.
+    Each member carries only its serialization value. Compiler ownership is
+    explicit in each compiler's handler catalog; this enum does not carry
+    compiler capability metadata.
     """
 
-    ADJACENT = (
-        "adjacent",
-        frozenset({SemanticTag.PROXIMITY}),
-        frozenset(
-            {
-                CompilationTarget.JAX,
-                CompilationTarget.SAT,
-                CompilationTarget.DRC,
-                CompilationTarget.CP_SAT,
-            }
-        ),
-    )
-    SEPARATED = (
-        "separated",
-        frozenset({SemanticTag.SEPARATION, SemanticTag.ORDERING}),
-        frozenset(
-            {
-                CompilationTarget.JAX,
-                CompilationTarget.SAT,
-                CompilationTarget.DRC,
-                CompilationTarget.CP_SAT,
-            }
-        ),
-    )
-    ENCLOSING = (
-        "enclosing",
-        frozenset({SemanticTag.ZONING}),
-        frozenset(
-            {
-                CompilationTarget.JAX,
-                CompilationTarget.SAT,
-                CompilationTarget.DRC,
-                CompilationTarget.CP_SAT,
-            }
-        ),
-    )
-    KEEPOUT = (
-        "keepout",
-        frozenset({SemanticTag.ZONING, SemanticTag.SEPARATION}),
-        frozenset({CompilationTarget.JAX, CompilationTarget.DRC}),
-    )
-    ALIGNED = (
-        "aligned",
-        frozenset({SemanticTag.ALIGNMENT}),
-        frozenset({CompilationTarget.JAX, CompilationTarget.DRC}),
-    )
-    ON_SIDE = (
-        "on_side",
-        frozenset({SemanticTag.ZONING}),
-        frozenset(
-            {
-                CompilationTarget.JAX,
-                CompilationTarget.SAT,
-                CompilationTarget.DRC,
-                CompilationTarget.CP_SAT,
-            }
-        ),
-    )
-    ANCHORED = (
-        "anchored",
-        frozenset({SemanticTag.ZONING}),
-        frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}),
-    )
-    LOOP_AREA = (
-        "loop_area",
-        frozenset({SemanticTag.PROXIMITY, SemanticTag.ORDERING}),
-        frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}),
-    )
+    ADJACENT = "adjacent"
+    SEPARATED = "separated"
+    ENCLOSING = "enclosing"
+    KEEPOUT = "keepout"
+    ALIGNED = "aligned"
+    ON_SIDE = "on_side"
+    ANCHORED = "anchored"
+    LOOP_AREA = "loop_area"
 
     @property
     def label(self) -> str:
         """Return the string label (backward-compatible with old .value)."""
-        return self._value_[0]
+        return self._value_
 
     @property
     def value(self) -> str:  # type: ignore[override]
         """Return the string label for serialization. Overrides Enum.value."""
-        return self._value_[0]
-
-    @property
-    def capabilities(self) -> frozenset[SemanticTag]:
-        """Semantic tags for capability-based dispatch."""
-        return self._value_[1]
-
-    @property
-    def supported_targets(self) -> frozenset[CompilationTarget]:
-        """Compilation targets this type supports."""
-        return self._value_[2]
-
+        return self._value_
 
 class DistanceMetric(Enum):
     """How to measure distance between components."""
@@ -268,8 +163,6 @@ class BaseConstraint(ABC):
     - tier: Priority level (HARD/STRONG/SOFT)
     - because: Mandatory rationale (≥10 characters)
     - id: Optional unique identifier for debugging
-    - targets: Compilation targets (default ["jax"])
-
     Subclasses implement specific constraint logic.
     """
 
@@ -277,22 +170,12 @@ class BaseConstraint(ABC):
     tier: ConstraintTier
     because: str
     id: str = ""
-    targets: list[str] = field(default_factory=lambda: ["sat"])
-
     def __post_init__(self):
         """Validate constraint fields."""
         if len(self.because) < 10:
             raise ValueError(
                 f"Rationale 'because' must be ≥10 chars, got {len(self.because)}: '{self.because}'"
             )
-
-        # Validate targets against CompilationTarget values
-        valid_targets = {t.value for t in CompilationTarget}
-        for t in self.targets:
-            if t not in valid_targets:
-                raise ValueError(
-                    f"Invalid compilation target '{t}'. Must be one of {sorted(valid_targets)}"
-                )
 
         # Auto-generate ID if not provided
         if not self.id:
@@ -322,13 +205,6 @@ class BaseConstraint(ABC):
             self.tier = ConstraintTier.STRONG
         elif self.tier == ConstraintTier.STRONG:
             self.tier = ConstraintTier.HARD
-
-
-# Class-level backend registry shared across all constraint instances.
-# Each key maps a CompilationTarget.value string to a callable
-# (constraint, context) -> backend_output.
-# Populated by bridge modules at import time (lazy registration).
-BaseConstraint.backends: dict[str, Callable] = {}  # type: ignore[attr-defined, misc]
 
 
 # The constraint objects and CompilationContext are pyo3 contract classes in

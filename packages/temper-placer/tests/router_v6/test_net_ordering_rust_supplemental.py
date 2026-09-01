@@ -9,15 +9,8 @@ close a gap; the gap is closed here instead.
 Nothing in this file weakens or restates a differential assertion -- every
 test below is about an input shape the corpus does not contain.
 
-Survivors closed here
----------------------
-``M24`` -- ``parse_key_tuple``'s ``bool``/``int`` distinction erased.
-  ``PRIORITY_KEYS`` carries the ``True`` config-priority row, but
-  ``test_priority_key_bit_exact`` only ever passes the pair's **left**
-  element to ``net_priority_key_py`` and ``True`` sits on the right.  So the
-  key builder is never called with a ``bool`` and the mutant survives 145/145.
-  ``True == 1`` in Python, and only the concrete type separates them.
-
+Survivor closed here
+--------------------
 ``M09`` -- the ``< 2``-pin guard relaxed to ``< 1``.
   Equivalent on the corpus (a one-pin box gives ``x - x == 0.0``), but NOT
   equivalent when that single coordinate is NaN: ``NaN - NaN`` is NaN, while
@@ -25,9 +18,6 @@ Survivors closed here
 """
 
 from __future__ import annotations
-
-import copy
-import pickle
 
 import pytest
 
@@ -43,52 +33,6 @@ NAN = float("nan")
 
 def _rust(symbol: str):
     return rust(_RUST_MODULE, symbol)
-
-
-def _priority_key(key: tuple) -> tuple:
-    cp, lc, nc, pc, wl, name = key
-    return ORACLE.NetPriority(
-        config_priority=cp,
-        loop_criticality=lc,
-        net_class=ORACLE.NetClass(nc),
-        pin_count=pc,
-        estimated_wirelength=wl,
-        name=name,
-    )._key()
-
-
-# ---------------------------------------------------------------------------
-# M24: bool is not int, even though True == 1
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize(
-    "key",
-    [
-        (True, 3, 4, 2, 1.0, "N"),
-        (False, 3, 4, 2, 1.0, "N"),
-        (1, 3, 4, 2, 1.0, "N"),
-        (0, 3, 4, 2, 1.0, "N"),
-        (True, 3, 0, 2, -0.0, "é"),
-    ],
-)
-def test_priority_key_preserves_bool_vs_int(key):
-    """A ``bool`` config priority must come back a ``bool``, not an ``int``.
-
-    ``sig()`` is what separates them; ``==`` cannot, because ``True == 1``.
-    """
-    a = _priority_key(key)
-    b = _rust("net_priority_key_py")(key)
-    assert sig(a) == sig(b), f"oracle={a!r} rust={b!r}"
-    # ... and the discrimination is real, not accidental: on the bool rows the
-    # int-valued twin must compare EQUAL and sign DIFFERENTLY, or the
-    # assertion above is satisfied by any implementation at all.
-    if isinstance(key[0], bool):
-        int_key = (int(key[0]), *key[1:])
-        assert _priority_key(key) == _priority_key(int_key), "premise: they compare equal"
-        assert sig(_priority_key(key)) != sig(_priority_key(int_key)), (
-            "premise: sig() separates bool from int -- if this fails the test above is vacuous"
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -126,15 +70,7 @@ def test_short_net_guard_returns_zero_not_nan(label, components):
 
 
 def test_rust_arm_returns_only_builtin_types():
-    """The Rust arm hands back plain ``list``/``tuple``/``float``/``str``/``int``.
-
-    No pyclass is introduced, so nothing stored on another object can change
-    identity, and ``pickle``/``deepcopy`` behaviour is the builtins'.
-    """
-    key = _rust("net_priority_key_py")((5, 3, 4, 2, 1.0, "N"))
-    assert type(key) is tuple
-    assert [type(x).__name__ for x in key] == ["int", "int", "int", "int", "float", "str"]
-
+    """The Rust arm hands back plain ``list``/``float``/``str``/``int``."""
     order = _rust("order_nets_py")(
         [("U0", (0.0, 0.0), 0, [("1", (0.0, 0.0), "A"), ("2", (1.0, 0.0), "A")])],
         [("A", [("U0", "1"), ("U0", "2")], None)],
@@ -151,22 +87,6 @@ def test_rust_arm_returns_only_builtin_types():
 
     cls = _rust("net_class_from_string_py")("HighVoltage")
     assert type(cls) is int
-
-
-@pytest.mark.parametrize(
-    "value",
-    [
-        (5, 3, 4, 2, 1.0, "N"),
-        (True, 3, 4, 2, -0.0, "é"),
-    ],
-)
-def test_rust_results_round_trip_pickle_and_deepcopy(value):
-    """Explicit, because a sibling slice's differential was green across 941
-    assertions while both arms were broken: `==` on the round-tripped value is
-    not enough, the signature has to survive too."""
-    key = _rust("net_priority_key_py")(value)
-    assert sig(pickle.loads(pickle.dumps(key))) == sig(key)
-    assert sig(copy.deepcopy(key)) == sig(key)
 
 
 def test_production_module_is_untouched_by_this_migration():

@@ -253,7 +253,8 @@ class TestBusCohortReprEqHash:
 class TestBusCohortNetsAndSignalCount:
     def test_nets_getter_identity(self):
         prod = BusCohortConstraint("X", ["a", "b"])
-        assert prod.nets is prod.nets
+        nets_back = prod.nets
+        assert nets_back is prod.nets
 
     def test_nets_append_persists(self):
         prod = BusCohortConstraint("SPI_BUS", ["a"])

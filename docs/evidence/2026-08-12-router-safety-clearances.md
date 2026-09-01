@@ -1,4 +1,4 @@
-<!-- provenance: branch feat/router-safety-clearances, worktree /home/bennet/Desktop/temper-router-safety, base origin/main cc732df2b. HEAD at every measurement below: 81635dda4 (worktree clean, `git status --porcelain` empty). pcb/temper.kicad_pcb sha256=6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64 -- byte-identical to the hash docs/evidence/2026-08-12-dru-rule-precedence.md records, NEVER written by this task (`git status --porcelain pcb/` empty throughout; every route wrote to a scratch path outside the repo). power_pcb_dataset/drc_ceiling.json not touched. scripts/verify_pumpkin_engine.py: VERIFIED (sha256=7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e source_commit=5bbf650d4) before any solve. kicad-cli 10.0.5. This worktree has its OWN .venv (`make venv-isolate`), 10/10 extensions fresh, check_venv_integrity 16/16 under this root. No subagents dispatched. Machine quiet throughout (load 0.35-2.0, 42-58 GB free). -->
+<!-- provenance: commit=fbc5ce517fec9bbefcbaf632efa6b0ee4062d047 dirty=UNKNOWN -->
 
 # Per-net-pair clearance now decides the route, not just the verdict: 1,289 → 41 track/via violations, pad connectivity 48/139 → 51/139, +0.9% runtime
 
@@ -63,7 +63,7 @@ Out of memory: Killed process 1785483 (python) total-vm:75053012kB, anon-rss:613
 launch and 58 GB free after the reap — so this is the router, not contention. It
 reproduces the OOM `docs/evidence/2026-08-12-router-tank-creepage.md` (PR #1098)
 recorded at 58 GB and attributed to a busy machine; it is not that. The cause is
-Stage 3's constraint model (`docs/evidence/2026-08-12-router-model-memory-probe.py`
+Stage 3's constraint model (`docs/evidence/scripts/2026-08-12-router-model-memory-probe.py`
 extrapolates 22.5 M `NetChannelVar`s), which is already someone else's in-flight
 work. **Every route below therefore uses `--net-batching`, both columns, and is run
 under a 40 GB cgroup cap** (`systemd-run --user --scope -p MemoryMax=40G`) so a
@@ -266,7 +266,7 @@ cannot measure these boards** — reported as a finding, not worked around.
 
 ### 2.2 The uncapped measurement
 
-`docs/evidence/2026-08-12-router-safety-clearances-measure.py` counts violations
+`docs/evidence/scripts/2026-08-12-router-safety-clearances-measure.py` counts violations
 directly from the routed geometry against the same generated pair table: for every
 different-net track/via pair sharing a layer, `distance − w_a/2 − w_b/2 <
 required(class_a, class_b)`. Uncapped, exact, 0.7 s per board, identical protocol on
@@ -530,7 +530,7 @@ systemd-run --user --scope -p MemoryMax=40G \
     --net-batching --output /tmp/routed.kicad_pcb
 
 # uncapped violation count
-.venv/bin/python docs/evidence/2026-08-12-router-safety-clearances-measure.py \
+.venv/bin/python docs/evidence/scripts/2026-08-12-router-safety-clearances-measure.py \
     --board /tmp/routed.kicad_pcb --label after --out /tmp/after.json
 ```
 

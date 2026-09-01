@@ -13,9 +13,7 @@ Orchestration Engine plan 2026-08-09-001, orchestration-port unit U-I) as
 ``classify_feedback``. What stays Python (the U-I boundary): the four
 ``_handle_*`` constraint-building handlers (they construct the PCL
 ``SeparatedConstraint`` / ``KeepoutConstraint`` / ``AnchoredConstraint``
-objects and do the design-rules marshalling), the leaf helpers
-(``_find_critical_components`` / ``_detect_persistent_ics`` /
-``_compute_heuristic_position``), and the ``ConstraintDelta`` /
+objects and do the design-rules marshalling), and the ``ConstraintDelta`` /
 ``UnclassifiedFailure`` / ``ClassificationResult`` data carriers. The public
 API is unchanged. The pre-migration module is pinned VERBATIM as
 ``tests/placer/cp_sat/_feedback_py_oracle.py`` (content-hash registered in
@@ -122,9 +120,10 @@ class FeedbackClassifier:
         # The classification DECISION sequencing (routing-field extraction,
         # the clean early-return, the four-class dispatch in oracle order, the
         # unclassified collection and the priority sort) is delegated to
-        # `classify_feedback` (temper-orchestration, unit U-I). The four
-        # `_handle_*` constraint-building handlers and the leaf helpers stay
-        # Python call-backs.
+        # `classify_feedback` (temper-orchestration, unit U-I). Congestion
+        # handling is Rust-owned; the method below remains a compatibility
+        # adapter for direct callers and custom classifier subclasses. The
+        # other constraint-building handlers stay Python object seams.
         return _orch.classify_feedback(
             self,
             routing_result,
@@ -138,52 +137,8 @@ class FeedbackClassifier:
     # -----------------------------------------------------------------------
 
     def _handle_congestion(self, region: object, placed_refs: list[str]) -> ConstraintDelta | None:
-        """Handle congestion by injecting SeparatedConstraint for adjacent components."""
-        comp_a = getattr(region, "comp_a", None)
-        comp_b = getattr(region, "comp_b", None)
-        current_distance = getattr(region, "current_distance_mm", 2.0)
-
-        if comp_a and comp_b and comp_a in placed_refs and comp_b in placed_refs:
-            from temper_placer.pcl.constraints import (
-                ConstraintTier,
-                SeparatedConstraint,
-            )
-
-            new_distance = max(current_distance + 1.0, current_distance * 1.5)
-            constraint = SeparatedConstraint(
-                a=comp_a,
-                b=comp_b,
-                min_distance_mm=new_distance,
-                tier=ConstraintTier.STRONG,
-                because=f"Congested routing corridor between {comp_a} and {comp_b} — widen channel",
-                id=f"feedback_congestion_{comp_a}_{comp_b}",
-            )
-            return ConstraintDelta(
-                constraint=constraint,
-                reason=f"Congestion between {comp_a} and {comp_b} at {current_distance:.1f}mm",
-                priority=10,
-            )
-
-        bbox = getattr(region, "bbox", None)
-        if bbox is not None:
-            from temper_placer.pcl.constraints import (
-                ConstraintTier,
-                KeepoutConstraint,
-            )
-
-            constraint = KeepoutConstraint(
-                zone_name=f"congestion_{hash(bbox) & 0xFFFF:04x}",
-                tier=ConstraintTier.SOFT,
-                because="Congestion in routing region — keep components clear",
-                id=f"feedback_congestion_keepout_{hash(bbox) & 0xFFFF:04x}",
-            )
-            return ConstraintDelta(
-                constraint=constraint,
-                reason=f"General congestion in region {bbox}",
-                priority=20,
-            )
-
-        return None
+        """Compatibility adapter for the Rust-owned congestion handler."""
+        return _orch.handle_congestion(region, placed_refs)
 
     # -----------------------------------------------------------------------
     # Class 2: DRC Clearance Violation
@@ -210,14 +165,75 @@ class FeedbackClassifier:
             net_a = getattr(violation, "net_a", None)
             net_b = getattr(violation, "net_b", None)
             if net_a and net_b:
-                from temper_placer.core.net_classification import classify_net_type
-
-                _map = {"ground": "GND", "power": "Power", "hv": "HighVoltage", "signal": "Signal"}
-                class_a = _map.get(classify_net_type(net_a), "Signal")
-                class_b = _map.get(classify_net_type(net_b), "Signal")
-                rules_a = self.design_rules.get_rules_for_net("", net_class=class_a)
-                rules_b = self.design_rules.get_rules_for_net("", net_class=class_b)
+                # CLASSIFIER FIXED 2026-08-19
+                # (docs/evidence/2026-08-19-is-hv-net-blast-radius.md).
+                # This used to classify by net NAME through
+                # `core.net_classification.classify_net_type()` and then map
+                # the four generic buckets onto class names:
+                #
+                #     _map = {"ground": "GND", "power": "Power",
+                #             "hv": "HighVoltage", "signal": "Signal"}
+                #     class_a = _map.get(classify_net_type(net_a), "Signal")
+                #     rules_a = design_rules.get_rules_for_net("", net_class=class_a)
+                #
+                # `classify_net_type` is a keyword/word-boundary match over
+                # `HV_NET_PATTERNS = {"AC_L","AC_N","PE","DC_BUS+","DC_BUS-",
+                # "SW_NODE"}`, none of which is how this board spells its
+                # HV nets. MEASURED (this repo's own `.venv`, freshly built
+                # pyo3 extensions), old behaviour vs. the authoritative
+                # `TEMPER_NET_ASSIGNMENTS`-backed answer:
+                #
+                #   net               classify_net_type -> clearance | authoritative
+                #   +170V_BUS         signal -> Signal    0.15mm     | HighVoltage      2.0mm
+                #   DC_BUS_RTN        signal -> Signal    0.15mm     | HighVoltage      2.0mm
+                #   tank-out          signal -> Signal    0.15mm     | HighVoltage      2.0mm
+                #   tank.c_tank1-p2   signal -> Signal    0.15mm     | HighVoltageTank  2.0mm
+                #   hb-gnd            ground -> GND       0.30mm     | HighVoltage      2.0mm
+                #   ac_l / ac_n       hv     -> HighVoltage 2.0mm    | ACMains          6.0mm
+                #
+                # i.e. the rectified 170V DC bus and the resonant tank were
+                # being remediated at the 0.15mm unclassified-signal figure,
+                # and the mains conductors themselves at 2.0mm instead of
+                # 6.0mm, every time this feedback path injected a separation
+                # constraint in response to a DRC clearance violation.
+                # ("Signal" is not a declared net class at all -- it falls
+                # through `get_rules_for_net`'s cascade to the LV default.)
+                #
+                # The fix is the SAME one PR #1323 applied to
+                # `netclass_constraints.py` for the identical defect: ask
+                # `design_rules.get_rules_for_net(net_name)` -- the
+                # manifest/kicad_pro-backed `TEMPER_NET_ASSIGNMENTS`
+                # classifier every other `DesignRules` consumer already
+                # uses -- and take the class name it resolves to. No new
+                # mechanism, no new figure, and no clearance value is
+                # written here: `authoriative_mm` still comes entirely from
+                # the resolved classes' own `clearance` / `class_pairs`.
+                #
+                # The `"Default" -> "Signal"` normalization below is NOT
+                # cosmetic and is copied deliberately from
+                # `netclass_constraints._pin_class_infos`, which PR #1323
+                # added for this exact reason: `netclass_rules.yaml`'s
+                # `class_pairs` table spells the generic-LV bucket
+                # "Signal" (`HighVoltage-Signal: 6.0mm`,
+                # `ACMains-Signal: 6.0mm`, ...) while `get_rules_for_net`
+                # returns "Default" for a net with no assignment. Leaving
+                # it as "Default" makes every `class_pairs` row miss and
+                # drops an HV<->LV pair from that table's 6.0mm to
+                # `max(HighVoltage.clearance, Default.clearance)` = 2.0mm.
+                # MEASURED here before the normalization was added: `AC_L`
+                # vs `SPI_CLK` fell from 6.0mm to 2.0mm. That is a
+                # loosening and must not be introduced by a fix whose whole
+                # point is that the old classifier was too loose.
+                rules_a = self.design_rules.get_rules_for_net(net_a)
+                rules_b = self.design_rules.get_rules_for_net(net_b)
+                class_a = "Signal" if rules_a.name == "Default" else rules_a.name
+                class_b = "Signal" if rules_b.name == "Default" else rules_b.name
                 authoriative_mm = max(rules_a.clearance, rules_b.clearance)
+                because_text = (
+                    f"Post-route DRC clearance violation at {required_mm}mm between "
+                    f"net {net_a} ({class_a}) and net {net_b} ({class_b}) — enforce "
+                    f"the stricter of the two net classes' own clearance"
+                )
                 cp_key = tuple(sorted([class_a, class_b]))
                 if (
                     hasattr(self.design_rules, "class_pairs")
@@ -226,9 +242,30 @@ class FeedbackClassifier:
                     authoriative_mm = self.design_rules.class_pairs[cp_key].get(
                         "clearance", authoriative_mm
                     )
-                    because_text = self.design_rules.class_pairs[cp_key].get("because", "")
-                else:
-                    because_text = ""
+                    # CRASH FIXED 2026-08-19, same evidence doc. Both of the
+                    # `because` assignments this branch used to make could
+                    # produce the empty string -- `.get("because", "")` when a
+                    # class_pairs entry carries no rationale, and a bare
+                    # `else: because_text = ""` for every class pair with no
+                    # entry at all -- and `SeparatedConstraint` rejects a
+                    # rationale under 10 characters. Confirmed PRE-EXISTING on
+                    # pristine origin/main (eb5022510): every one of
+                    # `+170V_BUS`x`WDT_KICK`, `AC_L`x`WDT_KICK`,
+                    # `WDT_KICK`x`BTN_UP` and `SW_NODE`x`GND` raised
+                    # `ValueError: Rationale 'because' must be >=10 chars` from
+                    # this method, i.e. the whole net-aware branch was unusable
+                    # for any pair outside `class_pairs`. It went unnoticed
+                    # because no test ever gave a violation object `net_a`/
+                    # `net_b` attributes, so the branch was never entered (the
+                    # mocks in `test_feedback.py` and
+                    # `test_feedback_rust_differential.py` still do not, which
+                    # is why the pinned differential oracle is unaffected by
+                    # this change). The default rationale computed above is now
+                    # kept whenever `class_pairs` has nothing better to say,
+                    # rather than being blanked.
+                    cp_because = self.design_rules.class_pairs[cp_key].get("because", "")
+                    if cp_because:
+                        because_text = cp_because
 
         from temper_placer.pcl.constraints import (
             ConstraintTier,
@@ -270,10 +307,10 @@ class FeedbackClassifier:
 
         if isinstance(positions, dict) and comp_ref in positions:
             current_pos = tuple(map(float, positions[comp_ref]))
-            heuristic_pos = _compute_heuristic_position(comp_ref, current_pos, net_name)
+            heuristic_pos = _orch.compute_heuristic_position(comp_ref, current_pos, net_name)
         elif positions is not None and idx < len(positions):
             current_pos = (float(positions[idx][0]), float(positions[idx][1]))
-            heuristic_pos = _compute_heuristic_position(comp_ref, current_pos, net_name)
+            heuristic_pos = _orch.compute_heuristic_position(comp_ref, current_pos, net_name)
         else:
             heuristic_pos = (50.0, 50.0)
 
@@ -361,31 +398,10 @@ class FeedbackClassifier:
         placed_refs: list[str],
         _netlist: object | None = None,
     ) -> list[str]:
-        """Find critical ICs involved in an unrouted net.
-
-        Checks both the net name heuristic and (if available) the
-        actual netlist connectivity to determine which critical ICs
-        are on the given net.
-        """
-        critical = []
-
-        # Heuristic: net names containing IGBT-related patterns
-        # are likely connected to Q1/Q2.
-        gate_nets = {"GATE", "SW", "BUS", "PHASE", "OUT", "DRIVE"}
-        mcu_nets = {"SPI", "I2C", "UART", "ADC", "GPIO", "MCU"}
-
-        net_upper = net_name.upper()
-        for ref in self.CRITICAL_ICS:
-            if ref not in placed_refs:
-                continue
-            if "Q" in ref or "IGBT" in ref.upper():
-                if any(pat in net_upper for pat in gate_nets):
-                    critical.append(ref)
-            elif "MCU" in ref.upper() or "U_GATE" in ref.upper():
-                if any(pat in net_upper for pat in mcu_nets) or ref.upper() in net_upper:
-                    critical.append(ref)
-
-        return critical
+        """Compatibility shim for the Rust-owned critical-net heuristic."""
+        return _orch.find_critical_components(
+            net_name, _placement, placed_refs, _netlist, self.CRITICAL_ICS
+        )
 
     def _detect_persistent_ics(
         self,
@@ -393,31 +409,11 @@ class FeedbackClassifier:
         previous_unclassified: list[UnclassifiedFailure],
         round_number: int,
     ) -> list[str]:
-        """Detect ICs that have had unrouted pins for 3+ rounds."""
-        if round_number < self.PERSISTENCE_THRESHOLD:
-            return []
-
-        # Check which ICs appear in unclassified failures across rounds
-        ic_fail_count: dict[str, int] = {}
-        for failure in previous_unclassified:
-            for comp in failure.components:
-                if comp in self.CRITICAL_ICS:
-                    ic_fail_count[comp] = ic_fail_count.get(comp, 0) + 1
-
-        return [ic for ic, count in ic_fail_count.items() if count >= self.PERSISTENCE_THRESHOLD]
-
-
-def _compute_heuristic_position(
-    comp_ref: str, current_pos: tuple[float, float], _net_name: str
-) -> tuple[float, float]:
-    """Compute a heuristic optimal position for a component based on net.
-
-    Simple heuristic: bias toward board center for central ICs,
-    toward edges for connectors.
-    """
-    x, y = current_pos
-    if "Q" in comp_ref and "U_" not in comp_ref:
-        return (x, y - 5.0)
-    if "U_" in comp_ref or "MCU" in comp_ref:
-        return (x, y)
-    return (x, y + 5.0)
+        """Compatibility shim for the Rust-owned persistence counter."""
+        return _orch.detect_persistent_ics(
+            _unrouted_nets,
+            previous_unclassified,
+            round_number,
+            self.CRITICAL_ICS,
+            self.PERSISTENCE_THRESHOLD,
+        )

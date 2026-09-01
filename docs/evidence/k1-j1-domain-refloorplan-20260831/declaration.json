@@ -1,0 +1,149 @@
+{
+  "fence_mm": {
+    "x_max": 108.5,
+    "x_min": 90.0,
+    "y_max": 253.0,
+    "y_min": 239.0
+  },
+  "fixed_obstacle_clear_options": true,
+  "full_cartesian_size": 972,
+  "movable_refs": [
+    "J1",
+    "R45",
+    "R58",
+    "R66",
+    "SW1",
+    "U22"
+  ],
+  "mutually_body_and_courtyard_clear_combinations": 60,
+  "options": {
+    "J1": [
+      [
+        103,
+        242.5,
+        180
+      ],
+      [
+        104,
+        242.5,
+        180
+      ],
+      [
+        103,
+        243,
+        180
+      ],
+      [
+        104,
+        243,
+        180
+      ],
+      [
+        105,
+        243,
+        180
+      ],
+      [
+        103,
+        243.5,
+        180
+      ],
+      [
+        104,
+        243.5,
+        180
+      ],
+      [
+        105,
+        243.5,
+        180
+      ],
+      [
+        106,
+        243.5,
+        180
+      ]
+    ],
+    "R45": [
+      [
+        93,
+        244,
+        270
+      ],
+      [
+        93.5,
+        244,
+        270
+      ]
+    ],
+    "R58": [
+      [
+        91,
+        242.5,
+        90
+      ],
+      [
+        91.5,
+        242.5,
+        90
+      ]
+    ],
+    "R66": [
+      [
+        102,
+        249.5,
+        180
+      ],
+      [
+        102.5,
+        249.5,
+        180
+      ],
+      [
+        103,
+        249.5,
+        180
+      ]
+    ],
+    "SW1": [
+      [
+        102,
+        247.5,
+        180
+      ],
+      [
+        102.5,
+        247.5,
+        180
+      ],
+      [
+        103,
+        247.5,
+        180
+      ]
+    ],
+    "U22": [
+      [
+        105.5,
+        249,
+        180
+      ],
+      [
+        106,
+        249,
+        180
+      ],
+      [
+        106.5,
+        249,
+        180
+      ]
+    ]
+  },
+  "ordering": "(-J1_y, abs(J1_x-105), total displacement, placement tuple)",
+  "placement_screen_budget": 96,
+  "placements_selected": 60,
+  "routed_promotion_budget": 24,
+  "status": "declared-before-materialization",
+  "supersedes_calibration_manifest": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/manifest.json"
+}

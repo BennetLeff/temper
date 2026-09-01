@@ -1,3 +1,4 @@
+<!-- provenance: commit=f4907a25c7167fb87ace24afd9ac2e717820a1e6 dirty=UNKNOWN -->
 # JUSTIFIED-KEEP Verdict — `validation/drc_result.py`
 
 **Date**: 2026-08-10

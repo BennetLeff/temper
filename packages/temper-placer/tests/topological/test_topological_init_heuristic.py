@@ -148,17 +148,6 @@ class TestHeuristicProperties:
 
         # Should have reasonable defaults
         assert heuristic._force_iterations > 0
-        assert heuristic._backend in ("numpy", "jax")
-
-    def test_custom_parameters(self):
-        """Custom parameters are accepted."""
-        heuristic = TopologicalInitializationHeuristic(
-            force_iterations=200,
-            backend="jax",
-        )
-
-        assert heuristic._force_iterations == 200
-        assert heuristic._backend == "jax"
 
 
 # =============================================================================
@@ -474,43 +463,6 @@ class TestErrorHandling:
 
         if not result.success:
             assert len(result.message) > 0
-
-
-# =============================================================================
-# Tests: Backend Selection
-# =============================================================================
-
-
-class TestBackendSelection:
-    """Tests for backend selection (numpy/jax)."""
-
-    def test_numpy_backend_works(self, simple_context):
-        """NumPy backend produces valid results."""
-        heuristic = TopologicalInitializationHeuristic(backend="numpy")
-
-        result = heuristic.apply(simple_context)
-
-        assert result.success is True
-        assert len(result.placements) > 0
-
-    def test_jax_backend_works(self, simple_context):
-        """JAX backend produces valid results (if available)."""
-        try:
-            import jax  # noqa
-        except ImportError:
-            pytest.skip("JAX not available")
-
-        heuristic = TopologicalInitializationHeuristic(backend="jax")
-
-        result = heuristic.apply(simple_context)
-
-        assert result.success is True
-        assert len(result.placements) > 0
-
-    def test_invalid_backend_raises(self):
-        """Invalid backend raises error."""
-        with pytest.raises((ValueError, TypeError)):
-            TopologicalInitializationHeuristic(backend="invalid_backend")
 
 
 # =============================================================================

@@ -1,3 +1,4 @@
+<!-- provenance: commit=51eae6c1a8efe90344868cfce1d4454bbe6d5e26 dirty=UNKNOWN -->
 # DRC ceiling re-baseline: closing the `silk_overlap` and 120-sample methodology gaps
 
 **Status: COMPLETE.**

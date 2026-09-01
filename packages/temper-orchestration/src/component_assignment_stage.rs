@@ -190,9 +190,7 @@ fn assign_inner<'py>(
     let domain_ok = PyDict::new(py);
     let has_domains = domain_for_ref.len()? > 0 && domain_regions.len()? > 0;
     if has_domains {
-        let shape_point = py
-            .import("shapely.geometry")?
-            .getattr("Point")?;
+        let shape_point = py.import("shapely.geometry")?.getattr("Point")?;
         let mut seen_refs: HashSet<String> = HashSet::new();
         for component in netlist.bind(py).getattr("components")?.try_iter()? {
             let component = component?;
@@ -266,11 +264,7 @@ fn assign_inner<'py>(
                         Some(info_bound.clone())
                     } else if info_bound.is_instance_of::<PyDict>() {
                         let v = info_bound.call_method1("get", ("position",))?;
-                        if v.is_none() {
-                            None
-                        } else {
-                            Some(v)
-                        }
+                        if v.is_none() { None } else { Some(v) }
                     } else {
                         None
                     }
@@ -306,13 +300,8 @@ fn assign_inner<'py>(
 
 #[cfg(feature = "python")]
 /// `dict(obj)` -- the builtin dict constructor over an iterable of pairs.
-fn builtins_dict<'py>(
-    py: Python<'py>,
-    obj: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyAny>> {
-    py.import("builtins")?
-        .getattr("dict")?
-        .call1((obj,))
+fn builtins_dict<'py>(py: Python<'py>, obj: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+    py.import("builtins")?.getattr("dict")?.call1((obj,))
 }
 
 #[cfg(feature = "python")]

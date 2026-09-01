@@ -79,12 +79,16 @@ impl Stage<BoardState> for PreflightStage {
                 let start = Instant::now();
                 let mut checks: Vec<Py<PyAny>> = Vec::new();
                 let to_stage = |e: PyErr| pyerr_stage("preflight", e);
-                checks.push(component_area_check(py, board.bind(py), netlist.bind(py)).map_err(to_stage)?);
+                checks.push(
+                    component_area_check(py, board.bind(py), netlist.bind(py)).map_err(to_stage)?,
+                );
                 checks.push(
                     constraint_satisfiability_check(py, netlist.bind(py), constraints.bind(py))
                         .map_err(to_stage)?,
                 );
-                checks.push(zone_capacity_check(py, board.bind(py), netlist.bind(py)).map_err(to_stage)?);
+                checks.push(
+                    zone_capacity_check(py, board.bind(py), netlist.bind(py)).map_err(to_stage)?,
+                );
                 checks.push(
                     loop_area_feasibility_check(py, netlist.bind(py), constraints.bind(py))
                         .map_err(to_stage)?,
@@ -162,7 +166,12 @@ fn constraint_satisfiability_check(
             for rule in as_vec(&rules)? {
                 let a = opt_getattr_default(py, rule.bind(py), "component_a", py_string(py, ""))?;
                 let b = opt_getattr_default(py, rule.bind(py), "component_b", py_string(py, ""))?;
-                let max_d = opt_getattr_default(py, rule.bind(py), "max_distance_mm", py_float(py, f64::INFINITY))?;
+                let max_d = opt_getattr_default(
+                    py,
+                    rule.bind(py),
+                    "max_distance_mm",
+                    py_float(py, f64::INFINITY),
+                )?;
                 let a_in = comp_map.get_item(a.bind(py))?;
                 let b_in = comp_map.get_item(b.bind(py))?;
                 if let (Some(ca), Some(cb)) = (a_in, b_in) {
@@ -197,7 +206,11 @@ fn constraint_satisfiability_check(
         }
     }
 
-    let result = if impossible.is_empty() { "pass" } else { "fail" };
+    let result = if impossible.is_empty() {
+        "pass"
+    } else {
+        "fail"
+    };
     let message = if impossible.is_empty() {
         "No issues".to_string()
     } else {
@@ -225,12 +238,24 @@ fn zone_capacity_check(
     let start = Instant::now();
     let zones = opt_getattr(py, board, "zones")?;
     let Some(zones) = zones else {
-        return check_dict(py, "Zone Capacity", "pass", "No zones", None,
-                          start.elapsed().as_secs_f64() * 1000.0);
+        return check_dict(
+            py,
+            "Zone Capacity",
+            "pass",
+            "No zones",
+            None,
+            start.elapsed().as_secs_f64() * 1000.0,
+        );
     };
     if !zones.bind(py).is_truthy()? {
-        return check_dict(py, "Zone Capacity", "pass", "No zones", None,
-                          start.elapsed().as_secs_f64() * 1000.0);
+        return check_dict(
+            py,
+            "Zone Capacity",
+            "pass",
+            "No zones",
+            None,
+            start.elapsed().as_secs_f64() * 1000.0,
+        );
     }
     let mut violations: Vec<String> = Vec::new();
     for zone in as_vec(zones.bind(py))? {
@@ -247,7 +272,11 @@ fn zone_capacity_check(
             ));
         }
     }
-    let result = if violations.is_empty() { "pass" } else { "fail" };
+    let result = if violations.is_empty() {
+        "pass"
+    } else {
+        "fail"
+    };
     let message = violations
         .first()
         .cloned()
@@ -279,7 +308,12 @@ fn loop_area_feasibility_check(
     let mut violations: Vec<String> = Vec::new();
     let loops = opt_getattr_default(py, constraints, "critical_loops", py_list(py))?;
     for loop_ in as_vec(loops.bind(py))? {
-        let max_a = opt_getattr_default(py, loop_.bind(py), "max_area_mm2", py_float(py, f64::INFINITY))?;
+        let max_a = opt_getattr_default(
+            py,
+            loop_.bind(py),
+            "max_area_mm2",
+            py_float(py, f64::INFINITY),
+        )?;
         // `pins` truthy -> refs from pin tuples; elif `nets` truthy ->
         // skip (no pin info). hasattr semantics via opt_getattr.
         let pins = opt_getattr(py, loop_.bind(py), "pins")?;
@@ -313,13 +347,14 @@ fn loop_area_feasibility_check(
         };
         if feasibility::loop_area_violation(max_a_f, truthy, content_dims) {
             let name = opt_getattr_default(py, loop_.bind(py), "name", py_string(py, "unknown"))?;
-            violations.push(format!(
-                "Loop {} too small",
-                py_str(name.bind(py))?
-            ));
+            violations.push(format!("Loop {} too small", py_str(name.bind(py))?));
         }
     }
-    let result = if violations.is_empty() { "pass" } else { "warn" };
+    let result = if violations.is_empty() {
+        "pass"
+    } else {
+        "warn"
+    };
     let message = violations
         .first()
         .cloned()
@@ -348,7 +383,10 @@ fn isolation_feasibility_check(
     let mut hv = 0_usize;
     for comp in &components {
         let net_class = opt_getattr_default(py, comp.bind(py), "net_class", py_string(py, ""))?;
-        if net_class.bind(py).eq(PyString::new(py, "HighVoltage").into_any())? {
+        if net_class
+            .bind(py)
+            .eq(PyString::new(py, "HighVoltage").into_any())?
+        {
             hv += 1;
         }
     }

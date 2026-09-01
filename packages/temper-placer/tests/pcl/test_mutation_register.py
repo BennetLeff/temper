@@ -87,13 +87,13 @@ class TestRegisterSchema:
 
 
 class TestTriagePreservation:
-    def test_triage_from_register_reads_back_survivor_verdicts(self, register) -> None:
+    def test_triage_from_register_reads_back_curated_verdicts(self, register) -> None:
         triage = runner._triage_from_register(REGISTER)
         for surface in _active_surfaces(register):
             for m in surface["mutations"]:
-                if m["outcome"] == "survived":
+                if m["outcome"] in ("survived", "non-applicable"):
                     assert (surface["id"], m["id"]) in triage
-        assert len(triage) == 15  # all survivors carry a curated verdict (16th was keepout, now non-applicable)
+        assert len(triage) == 18  # 15 survivors plus 3 non-applicable keepout mutations
 
 
 class TestOperatorCoverage:

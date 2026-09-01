@@ -1,3 +1,4 @@
+<!-- provenance: commit=0d62131abf3236c0233d93125f6d8cf3925eb88d dirty=UNKNOWN -->
 # JUSTIFIED-KEEP Verdict — `core/state.py`
 
 **Date**: 2026-08-09  

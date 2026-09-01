@@ -43,7 +43,7 @@ PROOF_PATH = f"packages/temper-placer/src/{HANDLERS_REL}/synthetic.py"
 # The handlers-only scan spec, for detection unit tests that build a bare
 # synthetic src tree (the other scan-set modules are not present there).
 HANDLERS_ONLY_SPEC: list[dict] = [
-    {"glob": f"{HANDLERS_REL}/*.py", "selector": "register_handler"},
+    {"glob": f"{HANDLERS_REL}/*.py", "selector": "handler_functions"},
 ]
 
 # ---------------------------------------------------------------------------
@@ -90,13 +90,11 @@ def _import_module():
 PHYSICS_IMPORT_MODULE = '''"""Synthetic physics-dependent encoder for gate tests."""
 from __future__ import annotations
 
-from temper_placer.pcl.constraints import ConstraintType, SeparatedConstraint
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
+from temper_placer.pcl.constraints import SeparatedConstraint
 
 from temper_placer.physics.thermal_fdm import solve_thermal
 
 
-@register_handler(ConstraintType.SEPARATED)
 def encode_thermal(constraint, components, model, ctx):
     """Synthetic encoder whose encoded bound depends on a physics quantity."""
     _ = solve_thermal
@@ -106,11 +104,9 @@ def encode_thermal(constraint, components, model, ctx):
 BODY_REF_MODULE = '''"""Synthetic module: physics referenced only inside the surface body."""
 from __future__ import annotations
 
-from temper_placer.pcl.constraints import ConstraintType, SeparatedConstraint
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
+from temper_placer.pcl.constraints import SeparatedConstraint
 
 
-@register_handler(ConstraintType.SEPARATED)
 def encode_body_ref(constraint, components, model, ctx):
     """No marker here; the bound depends on a physics field used in code."""
     solver = thermal_fdm  # Name reference inside the surface body
@@ -121,11 +117,9 @@ def encode_body_ref(constraint, components, model, ctx):
 MARKER_ONLY_MODULE = '''"""Synthetic module: physics gating declared by marker only."""
 from __future__ import annotations
 
-from temper_placer.pcl.constraints import ConstraintType, SeparatedConstraint
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
+from temper_placer.pcl.constraints import SeparatedConstraint
 
 
-@register_handler(ConstraintType.SEPARATED)
 def encode_marker_only(constraint, components, model, ctx):
     """A surface that declares physics gating explicitly.
 
@@ -137,11 +131,9 @@ def encode_marker_only(constraint, components, model, ctx):
 PURE_GEOMETRY_MODULE = '''"""Synthetic pure-geometry encoder for gate tests."""
 from __future__ import annotations
 
-from temper_placer.pcl.constraints import ConstraintType, SeparatedConstraint
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
+from temper_placer.pcl.constraints import SeparatedConstraint
 
 
-@register_handler(ConstraintType.SEPARATED)
 def encode_pure_geometry(constraint, components, model, ctx):
     """A pure-geometry encoder: no physics references, no marker."""
     return []

@@ -103,13 +103,23 @@ fn install_fakes(py: Python<'_>) -> PyResult<Bound<'_, PyAny>> {
     temper_placer.add("router_v6", &router_v6)?;
     modules.set_item("temper_placer", &temper_placer)?;
     modules.set_item("temper_placer.router_v6", &router_v6)?;
-    modules.set_item("temper_placer.router_v6._zone_pour_stitch", &zone_pour_stitch)?;
+    modules.set_item(
+        "temper_placer.router_v6._zone_pour_stitch",
+        &zone_pour_stitch,
+    )?;
     Ok(fakes.into_any())
 }
 
 /// The registered pyfunctions, resolved through the extension module exactly
 /// like the router_v6/_adapter_convert.py shims resolve them.
-fn kernels<'py>(py: Python<'py>) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyAny>, Bound<'py, PyAny>, Bound<'py, PyAny>)> {
+fn kernels<'py>(
+    py: Python<'py>,
+) -> PyResult<(
+    Bound<'py, PyAny>,
+    Bound<'py, PyAny>,
+    Bound<'py, PyAny>,
+    Bound<'py, PyAny>,
+)> {
     let m = py.import("temper_orchestration")?;
     Ok((
         m.getattr("run_collect_pad_positions")?,
@@ -138,7 +148,12 @@ fn rust_extensions_required() -> bool {
 fn kernels_or_skip<'py>(
     py: Python<'py>,
     test_name: &str,
-) -> Option<(Bound<'py, PyAny>, Bound<'py, PyAny>, Bound<'py, PyAny>, Bound<'py, PyAny>)> {
+) -> Option<(
+    Bound<'py, PyAny>,
+    Bound<'py, PyAny>,
+    Bound<'py, PyAny>,
+    Bound<'py, PyAny>,
+)> {
     let result = kernels(py);
     if let Err(e) = &result
         && e.is_instance_of::<pyo3::exceptions::PyModuleNotFoundError>(py)
@@ -188,14 +203,19 @@ fn uh_marshal_sequence_collect_payload_emit_result() {
 
         // 2. build the per-route payload (route conversion).
         let path = fakes.call_method0("make_path").unwrap();
-        let route = fakes
-            .call_method1("make_route", (path.clone(),))
-            .unwrap();
+        let route = fakes.call_method1("make_route", (path.clone(),)).unwrap();
         let payload = payload_kernel
             .call1((path, route, "NET1", 1i64, 2usize))
             .unwrap();
-        let payload: (String, f64, Vec<(f64, f64, String)>, f64, i64, Vec<(f64, f64, f64, f64, String, String)>, usize) =
-            payload.extract().unwrap();
+        let payload: (
+            String,
+            f64,
+            Vec<(f64, f64, String)>,
+            f64,
+            i64,
+            Vec<(f64, f64, f64, f64, String, String)>,
+            usize,
+        ) = payload.extract().unwrap();
         assert_eq!(payload.1, 1.0); // path_length
         assert_eq!(payload.2.len(), 2); // chamfered (identity) points
         assert_eq!(payload.3, 0.2); // width
@@ -253,15 +273,20 @@ fn uh_marshal_degenerate_inputs_do_not_panic() {
 
         // Zero-length path -> no points; the payload still carries vias.
         let path = fakes.call_method1("make_path", (0.0f64,)).unwrap();
-        let route = fakes
-            .call_method1("make_route", (path.clone(),))
+        let route = fakes.call_method1("make_route", (path.clone(),)).unwrap();
+        let payload: (
+            String,
+            f64,
+            Vec<(f64, f64, String)>,
+            f64,
+            i64,
+            Vec<(f64, f64, f64, f64, String, String)>,
+            usize,
+        ) = payload_kernel
+            .call1((path, route, "NET1", 0i64, 0usize))
+            .unwrap()
+            .extract()
             .unwrap();
-        let payload: (String, f64, Vec<(f64, f64, String)>, f64, i64, Vec<(f64, f64, f64, f64, String, String)>, usize) =
-            payload_kernel
-                .call1((path, route, "NET1", 0i64, 0usize))
-                .unwrap()
-                .extract()
-                .unwrap();
         assert!(payload.2.is_empty());
 
         // Missing stage3 / manufacturing_report -> empty extraction.

@@ -1,3 +1,4 @@
+<!-- provenance: commit=272fbe36c805fbbc16b2c72bbb6f962fcb8aac9d dirty=UNKNOWN -->
 ---
 title: Stage 3 SAT capacity vacuity — no-op is byte-identical to the merged direct solver
 type: evidence

@@ -1,3 +1,4 @@
+<!-- provenance: commit=28de4543d4ccb44141eac0282e05c22e3df29926 dirty=UNKNOWN -->
 # Full netclass_assignments sync: inventory, classification, and DRC-impact triage
 
 **Date:** 2026-08-11

@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 """
 Compare two KiCad DRC reports and show the delta in violations.
+
+Reads EVERY violation-shaped top-level array kicad-cli emits, not just
+``violations``.  Until 2026-08-19 it read ``violations`` alone, so a
+comparison run through this script could show a board "improving" while its
+``unconnected_items`` count -- 339 on the committed board, i.e. 47% of its
+real errors -- moved in either direction unseen.  Every DRC comparison in
+every evidence document produced by this script inherits that blind spot;
+re-run any comparison whose conclusion depended on connectivity.
 """
 
 import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+
+# Must stay equal to temper_placer.validation._drc_api._VIOLATION_ARRAY_KEYS
+# -- pinned by scripts/tests/test_drc_report_array_keys.py.
+_VIOLATION_ARRAY_KEYS = ("violations", "unconnected_items", "schematic_parity")
 
 
 @dataclass
@@ -35,9 +48,10 @@ def compare_drc_reports(before_json: Path, after_json: Path) -> dict[str, DRCDel
 
     def count_violations(report):
         counts = {}
-        for v in report.get("violations", []):
-            vtype = v.get("type", "unknown")
-            counts[vtype] = counts.get(vtype, 0) + 1
+        for key in _VIOLATION_ARRAY_KEYS:
+            for v in report.get(key, []):
+                vtype = v.get("type", "unknown")
+                counts[vtype] = counts.get(vtype, 0) + 1
         return counts
 
     before_counts = count_violations(before)

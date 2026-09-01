@@ -313,7 +313,7 @@ layer, to the full float precision captured). `docs/evidence/
 2026-07-27-committed-route.md` measured 37.5%-53.1% completion spread on
 "identical code and input"; this task's 4 samples show zero spread. The
 difference is plausibly the call shape: this task's harness (matching
-`docs/evidence/2026-07-25-outline-ab-experiment.py`'s pattern, also used
+`docs/evidence/scripts/2026-07-25-outline-ab-experiment.py`'s pattern, also used
 by the two prior sibling evidence docs for their own live measurements)
 passes `placements={}` (empty dict, "route with existing board
 positions") and a fixed `sat_conflict_limit=20_000` (the `route_pcb`

@@ -359,9 +359,9 @@ copper-accurate constraint worth building as the primary enabler.
 ## Files
 
 - `docs/evidence/2026-08-01-solve-wall-box-vs-copper-gap.md` — this document
-- `docs/evidence/gap2_wall_measure.py` — solve variants A/A0/B/C + unsat cores
+- `docs/evidence/scripts/gap2_wall_measure.py` — solve variants A/A0/B/C + unsat cores
 - `docs/evidence/gap2_wall_solve_cores.json` — the solve cores (with provenance)
-- `docs/evidence/gap2_wall_pairs.py` — per-pair box-vs-copper measurement
+- `docs/evidence/scripts/gap2_wall_pairs.py` — per-pair box-vs-copper measurement
 - `docs/evidence/gap2_wall_pairs.csv` — the 12,101-row table (45 non-CLEAN)
 - `docs/evidence/gap2_wall_summary.json` — headline counts
 
@@ -370,7 +370,7 @@ copper-accurate constraint worth building as the primary enabler.
 ```bash
 cd .claude/worktrees/agent-gap2-wall
 make netlist && make extensions
-uv run --no-sync python docs/evidence/gap2_wall_measure.py   # solves A/A0/B/C
-uv run --no-sync python docs/evidence/gap2_wall_pairs.py     # per-pair table
+uv run --no-sync python docs/evidence/scripts/gap2_wall_measure.py   # solves A/A0/B/C
+uv run --no-sync python docs/evidence/scripts/gap2_wall_pairs.py     # per-pair table
 # expected: 12,101 unique pairs; 45 box-violated; 0 copper-violated; 45 gap2-holds
 ```

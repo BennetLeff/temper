@@ -37,10 +37,8 @@
 //!   oracle writes.
 //! * Python tuple comparison uses `PyObject_RichCompareBool`, which has an
 //!   **identity shortcut**: `x is y` implies `x == y`, even for NaN.  The
-//!   corpus hands the *same* NaN object to both sides of one `PRIORITY_KEYS`
-//!   row, so `NetPriority(..nan..) == NetPriority(..nan..)` is `True` there
-//!   while two independently-computed NaNs compare unequal.  [`py_eq_elem`]
-//!   reproduces this; extracting to `f64` and comparing loses it.
+//!   key comparator retains this distinction for any Python-originated key
+//!   elements, while `order_nets` uses freshly computed values.
 //! * `list.sort` is CPython's timsort.  With a NaN wirelength the 6-tuple
 //!   key stops being a total order and the output becomes a function of the
 //!   algorithm, not just of the data.  [`py_list_sort`] is a port of CPython
@@ -54,7 +52,7 @@ use pyo3::exceptions::PyValueError;
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
-use pyo3::types::{PyBool, PyDict, PyFloat, PyString, PyTuple};
+use pyo3::types::PyDict;
 
 // ===========================================================================
 // CPython builtin `max` / `min` over an iterable  (catalog B5)
@@ -364,16 +362,14 @@ fn loop_criticality(net_name: &str, loops: &[LoopRow]) -> i64 {
 }
 
 // ===========================================================================
-// NetPriority: the 6-tuple key and its comparison
+// Net-order key and its comparison
 // ===========================================================================
 
-/// One element of the comparison key, carrying enough to reproduce both
-/// CPython's value comparison and its identity shortcut.
+/// One element of the comparison key, carrying enough to reproduce CPython's
+/// value comparison and its identity shortcut.
 #[derive(Clone)]
 enum KeyElem {
-    /// An `int`, plus whether the Python object was a `bool` (`True == 1`,
-    /// but `sig()` separates them, so the distinction must survive).
-    Int(i64, bool),
+    Int(i64),
     /// A `float`, plus the identity of the Python object it came from, when
     /// there is one -- see [`py_eq_elem`].  `None` means "computed in Rust,
     /// no Python object behind it", and two `None`s are **not** identical:
@@ -387,16 +383,12 @@ enum KeyElem {
 /// `PyObject_RichCompareBool(a, b, Py_EQ)` for a key element.
 ///
 /// CPython short-circuits on identity **before** calling `==`, so two
-/// references to the *same* NaN object compare equal.  That is not a
-/// curiosity here: `PRIORITY_KEYS` carries a row whose two sides both hold
-/// the corpus module's single `NAN` object, and the oracle answers
-/// `a == b -> True` for it.  An implementation that extracts to `f64` and
-/// tests `a == b` answers `False` and fails that row.
+/// references to the *same* NaN object compare equal. The comparator retains
+/// that distinction for Python-originated values; `order_nets` supplies
+/// freshly computed values instead.
 fn py_eq_elem(a: &KeyElem, b: &KeyElem) -> bool {
     match (a, b) {
-        // `True == 1` in Python: boolness does not affect the comparison,
-        // only the signature.
-        (KeyElem::Int(x, _), KeyElem::Int(y, _)) => x == y,
+        (KeyElem::Int(x), KeyElem::Int(y)) => x == y,
         (KeyElem::Float(x, ida), KeyElem::Float(y, idb)) => {
             matches!((ida, idb), (Some(a), Some(b)) if a == b) || x == y
         }
@@ -407,7 +399,7 @@ fn py_eq_elem(a: &KeyElem, b: &KeyElem) -> bool {
 
 fn py_lt_elem(a: &KeyElem, b: &KeyElem) -> bool {
     match (a, b) {
-        (KeyElem::Int(x, _), KeyElem::Int(y, _)) => x < y,
+        (KeyElem::Int(x), KeyElem::Int(y)) => x < y,
         (KeyElem::Float(x, _), KeyElem::Float(y, _)) => x < y,
         // Python compares `str` byte-wise by code point; Rust's `Ord` for
         // `str` is byte-wise over UTF-8, which is the same order.
@@ -426,61 +418,6 @@ fn py_key_lt(a: &[KeyElem], b: &[KeyElem]) -> bool {
         return py_lt_elem(x, y);
     }
     false
-}
-
-fn py_key_eq(a: &[KeyElem], b: &[KeyElem]) -> bool {
-    a.iter().zip(b.iter()).all(|(x, y)| py_eq_elem(x, y))
-}
-
-/// Read a `PRIORITY_KEYS` row into key elements.
-///
-/// Element 2 goes through `NetClass(nc)` in the oracle, which raises
-/// `ValueError` for a value that is not a member -- reproduced here so error
-/// parity holds for inputs outside the corpus.
-#[cfg(feature = "python")]
-fn parse_key_tuple(t: &Bound<'_, PyAny>) -> PyResult<Vec<KeyElem>> {
-    let cp = t.get_item(0)?;
-    let is_bool = cp.is_instance_of::<PyBool>();
-    let cp_val: i64 = cp.extract()?;
-
-    let lc: i64 = t.get_item(1)?.extract()?;
-    let nc: i64 = t.get_item(2)?.extract()?;
-    if !(0..=5).contains(&nc) {
-        return Err(PyValueError::new_err(format!(
-            "{nc} is not a valid NetClass"
-        )));
-    }
-    let pc: i64 = t.get_item(3)?.extract()?;
-
-    let wl_obj = t.get_item(4)?;
-    let wl: f64 = wl_obj.extract()?;
-    let wl_id = Some(wl_obj.as_ptr() as usize);
-
-    let name: String = t.get_item(5)?.extract()?;
-
-    Ok(vec![
-        KeyElem::Int(cp_val, is_bool),
-        KeyElem::Int(lc, false),
-        KeyElem::Int(nc, false),
-        KeyElem::Int(pc, false),
-        KeyElem::Float(wl, wl_id),
-        KeyElem::Str(name),
-    ])
-}
-
-#[cfg(feature = "python")]
-fn key_to_py<'py>(py: Python<'py>, key: &[KeyElem]) -> PyResult<Bound<'py, PyTuple>> {
-    let mut items: Vec<Bound<'py, PyAny>> = Vec::with_capacity(key.len());
-    for e in key {
-        let obj: Bound<'py, PyAny> = match e {
-            KeyElem::Int(v, true) => PyBool::new(py, *v != 0).to_owned().into_any(),
-            KeyElem::Int(v, false) => v.into_pyobject(py)?.into_any(),
-            KeyElem::Float(v, _) => PyFloat::new(py, *v).into_any(),
-            KeyElem::Str(s) => PyString::new(py, s).into_any(),
-        };
-        items.push(obj);
-    }
-    PyTuple::new(py, items)
 }
 
 // ===========================================================================
@@ -1162,10 +1099,8 @@ fn parse_nets(nets: &Bound<'_, PyAny>) -> PyResult<Vec<NetRow>> {
 
 /// The oracle's per-net key, in field order.
 ///
-/// Every element is a plain `int`/`float`/`str` here -- unlike
-/// `net_priority_key_py`, whose `config_priority` may be a `bool` handed in
-/// by the corpus, `order_nets` sources it from a `dict[str, int]` or from the
-/// literal default 5.
+/// Every element is a plain `int`/`float`/`str` here. `order_nets` sources
+/// `config_priority` from a `dict[str, int]` or from the literal default 5.
 fn order_key(
     net: &NetRow,
     components: &[CompRow],
@@ -1175,10 +1110,10 @@ fn order_key(
     const DEFAULT_PRIORITY: i64 = 5;
     let config_priority = config.get(&net.name).copied().unwrap_or(DEFAULT_PRIORITY);
     vec![
-        KeyElem::Int(config_priority, false),
-        KeyElem::Int(loop_criticality(&net.name, loops), false),
-        KeyElem::Int(net_class_from_string(&net.net_class), false),
-        KeyElem::Int(net.pin_count, false),
+        KeyElem::Int(config_priority),
+        KeyElem::Int(loop_criticality(&net.name, loops)),
+        KeyElem::Int(net_class_from_string(&net.net_class)),
+        KeyElem::Int(net.pin_count),
         // Each HPWL is a freshly computed value with no Python object
         // behind it, so the identity shortcut cannot fire between two
         // different nets -- exactly as in CPython, where `width + height`
@@ -1223,54 +1158,6 @@ pub fn net_compute_bbox_area_py(net: &str, components: &Bound<'_, PyAny>) -> PyR
     Ok(compute_bbox_area(net, &comps))
 }
 
-/// `NetPriority(*key)._key()` -- type-preserving.
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn net_priority_key_py<'py>(
-    py: Python<'py>,
-    key: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyTuple>> {
-    let parsed = parse_key_tuple(key)?;
-    key_to_py(py, &parsed)
-}
-
-/// The eight comparison outcomes `net_priority_lt_py` reports, in the order
-/// the differential signs them.
-#[cfg(feature = "python")]
-type ComparisonOutcomes = (bool, bool, bool, bool, bool, bool, bool, bool);
-
-/// The eight comparison outcomes the differential signs:
-/// `(a<b, b<a, a==b, a>b, a<=b, a>=b, a.__lt__(str) is NotImplemented,
-///   a.__eq__(str) is NotImplemented)`.
-///
-/// `>`/`<=`/`>=` come from `@total_ordering`, which derives them from `<` and
-/// `==`: `a > b` is `not (a < b or a == b)`, `a <= b` is `a < b or a == b`,
-/// `a >= b` is `not a < b`.  The last two entries are always `True` -- the
-/// oracle's `__lt__`/`__eq__` return `NotImplemented` for a non-`NetPriority`
-/// operand -- and are asserted rather than assumed.
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn net_priority_lt_py(
-    left: &Bound<'_, PyAny>,
-    right: &Bound<'_, PyAny>,
-) -> PyResult<ComparisonOutcomes> {
-    let a = parse_key_tuple(left)?;
-    let b = parse_key_tuple(right)?;
-    let a_lt_b = py_key_lt(&a, &b);
-    let b_lt_a = py_key_lt(&b, &a);
-    let a_eq_b = py_key_eq(&a, &b);
-    Ok((
-        a_lt_b,
-        b_lt_a,
-        a_eq_b,
-        !(a_lt_b || a_eq_b),
-        a_lt_b || a_eq_b,
-        !a_lt_b,
-        true,
-        true,
-    ))
-}
-
 /// `net_ordering.order_nets(build_order_netlist(components, nets),
 /// build_loops(loop_specs), config)`.
 #[cfg(feature = "python")]
@@ -1313,8 +1200,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(net_loop_criticality_py, m)?)?;
     m.add_function(wrap_pyfunction!(net_compute_hpwl_py, m)?)?;
     m.add_function(wrap_pyfunction!(net_compute_bbox_area_py, m)?)?;
-    m.add_function(wrap_pyfunction!(net_priority_key_py, m)?)?;
-    m.add_function(wrap_pyfunction!(net_priority_lt_py, m)?)?;
     m.add_function(wrap_pyfunction!(order_nets_py, m)?)?;
     Ok(())
 }
@@ -1385,10 +1270,10 @@ pub(crate) mod tests {
     fn nan_keys_reproduce_cpython_sort_placement() {
         let key = |wl: f64, name: &str| {
             vec![
-                KeyElem::Int(5, false),
-                KeyElem::Int(3, false),
-                KeyElem::Int(4, false),
-                KeyElem::Int(2, false),
+                KeyElem::Int(5),
+                KeyElem::Int(3),
+                KeyElem::Int(4),
+                KeyElem::Int(2),
                 KeyElem::Float(wl, None),
                 KeyElem::Str(name.to_string()),
             ]

@@ -8,7 +8,7 @@ editable entries under this repo root, 239 other registered worktrees excluded) 
 `scripts/check_stale_extensions.py` PASSED (10/10 fresh) before any measurement.
 pumpkin_engine identity VERIFIED via `scripts/verify_pumpkin_engine.py` (exit 0,
 binary_sha256=7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e,
-source_commit=5bbf650d47) before every solve. kicad-cli 10.0.5 at
+source_commit=5bbf650d47d3a07fffd10a44e7c06c43a0a800bd) before every solve. kicad-cli 10.0.5 at
 /home/bennet/.local/opt/kicad-10.0.5 (LD_LIBRARY_PATH covering root/usr/lib*,
 KICAD_STOCK_DATA_HOME=root/usr/share/kicad). PYTHONHASHSEED left UNSET, matching the
 recipe doc's own primary determinism protocol. Every board write went to

@@ -197,8 +197,8 @@ mutations:
     axis: condition-invert
     function: run
     match: if-invert
-    index: 3
-    line_hint: "if report.unclassified_hv_nets or report.classes_with_no_rules:"
+    index: 4
+    line_hint: "if ("
     description: >-
       Invert the final violation guard in run() so a clean run is reported
       as a violation and a real violation is reported clean -- the
@@ -451,8 +451,8 @@ mutations:
     axis: condition-invert
     function: run
     match: if-invert
-    index: 1
-    line_hint: "if report.mismatches:"
+    index: 2
+    line_hint: "if report.mismatches or report.unresolved_references:"
     description: >-
       Invert the final violation guard in run() so a real field mismatch
       is reported clean and an agreeing class is reported a violation --

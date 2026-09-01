@@ -1,4 +1,4 @@
-"""Coverage-paydown wave 21: regression shims (cp_sat_comparison, fingerprint,
+"""Coverage-paydown wave 21: regression modules (fingerprint,
 metrics_recorder, closure_test, drc_ratchet, manifest), router_v6 pure
 orchestration (stage_ledger, tree_route_geometry, routing_results,
 constraints_design_rules), and the two ABC surfaces (deterministic Stage,
@@ -38,7 +38,6 @@ from temper_placer.heuristics.base import (
 )
 from temper_placer.regression import fingerprint as fingerprint_mod
 from temper_placer.regression.closure_test import ClosureResult, ClosureTest
-from temper_placer.regression.cp_sat_comparison import compare_metric_dicts
 from temper_placer.regression.drc_ratchet import DrcRatchet
 from temper_placer.regression.manifest import GoldenManifest
 from temper_placer.regression.metrics_recorder import (
@@ -140,30 +139,6 @@ class TestHeuristicABC:
         Heuristic.__dict__["name"].fget(h)
         Heuristic.__dict__["priority"].fget(h)
         Heuristic.__dict__["apply"](h, None)
-
-
-# ---------------------------------------------------------------------------
-# regression/cp_sat_comparison.py::compare_metric_dicts
-# ---------------------------------------------------------------------------
-
-
-class TestCompareMetricDicts:
-    def test_all_clearance_metrics_pass(self):
-        result = compare_metric_dicts(
-            {"clearance_3mm": 5.0, "clearance_6mm": 7.0, "thermal_score": 3.0},
-            {"clearance_3mm": 4.0, "clearance_6mm": 6.5, "thermal_score": 2.0},
-        )
-        assert result.passed is True
-        assert len(result.comparisons) == 3
-        assert result.summary
-
-    def test_wirelength_violation_fails(self):
-        result = compare_metric_dicts(
-            {"total_manhattan_wirelength": 120.0},
-            {"total_manhattan_wirelength": 100.0},
-        )
-        assert result.passed is False
-        assert any(not c.passed for c in result.comparisons)
 
 
 # ---------------------------------------------------------------------------

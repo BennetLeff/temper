@@ -179,15 +179,19 @@ def test_courtyard_clearance_strict_in_default(d1, d2, e):
 @given(d=_pos_mm, e1=_margin, e2=_margin)
 def test_courtyard_clearance_strict_in_expansion(d, e1, e2):
     """P4 — strictly increasing in the mask expansion (a constant
-    fails).  Guarded like P5: two expansions that are both tiny relative
-    to d can round to the same τ."""
+    fails).  Compare against the reference expression's actual f64
+    rounding rather than a decimal-relative threshold: 1e-12 is tiny in
+    millimetres but is many ulps at d=2.0."""
     if e1 < e2:
-        if 2.0 * e1 <= d * 1e-12 and 2.0 * e2 <= d * 1e-12:
+        expected1, expected2 = d + 2 * e1, d + 2 * e2
+        actual1 = _tc.courtyard_clearance_mm_py(d, e1)
+        actual2 = _tc.courtyard_clearance_mm_py(d, e2)
+        if expected1 == expected2:
             # Both expansion terms round away at d's scale: τ is
             # bit-identical, which is exactly the reference behavior.
-            assert _tc.courtyard_clearance_mm_py(d, e1) == _tc.courtyard_clearance_mm_py(d, e2)
+            assert actual1 == actual2
         else:
-            assert _tc.courtyard_clearance_mm_py(d, e1) < _tc.courtyard_clearance_mm_py(d, e2)
+            assert actual1 < actual2
 
 
 @settings(max_examples=MAX_EXAMPLES, deadline=None)

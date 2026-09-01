@@ -844,8 +844,13 @@ class TestRealTree:
             by_kind[f.kind] = by_kind.get(f.kind, 0) + 1
         assert by_kind.get(KIND_MPN_MISMATCH, 0) == 0, by_kind
         assert by_kind.get(KIND_COSTED_NO_CIRCUIT, 0) == 0, by_kind
-        assert by_kind.get(KIND_WIRED_UNCOSTED, 0) == 0, by_kind
-        assert len(backlog) == 0, len(backlog)
+        # Re-pinned 2026-08-22 (issue #1445 item 4): j_rtd1 and tp_ocp2_fault
+        # were named as open owner decisions in HANDOFF-2026-08-21.md §4.3 --
+        # whether they belong in BOM.md is a purchasing/hardware call, not a
+        # verification claim -- so they carry dated BACKLOG entries rather
+        # than invented justifications, per this file's own backlog contract.
+        assert by_kind.get(KIND_WIRED_UNCOSTED, 0) == 2, by_kind
+        assert len(backlog) == 2, len(backlog)
 
         # Every backlog finding must be marked backlog, never counted as a
         # justified exception -- the two categories must never blur.

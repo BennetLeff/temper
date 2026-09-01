@@ -1,4 +1,4 @@
-<!-- provenance: commit=ba8fd59ba dirty=false -->
+<!-- provenance: commit=ba8fd59ba5ddd0bf6127963157c770c11c3d4314 dirty=false -->
 
 # Cross-extension `Py<T>` downcast breaks pyclass identity — Tier-1 tightening must not use `extract::<Py<T>>()`
 

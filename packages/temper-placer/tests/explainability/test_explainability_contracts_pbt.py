@@ -1,16 +1,16 @@
 """Property-based tests (G4) + metamorphic relations (G5) for the Phase-A U8
 explainability data contracts in ``temper-orchestration`` (Rust Orchestration
 Engine plan 2026-08-09-001, ``explainability/{decision,trace,
-serialization,markdown_report}.py`` row).
+serialization}.py`` row).
 
 Module-to-property map (G4 — every migrated behavior reached):
 - Trace monoid  -> P1 (identity law), P2 (add appends), MR1 (composition
   order-preservation), MR2 (identity under ``why`` output).
-- Decision      -> P3 (to_dict -> deserialize_decision round-trip).
+- Decision      -> P3 (to_dict -> test-local deserialize_decision round-trip).
 - DecisionTrace -> P4 (summary aggregation), P5 (query_subject
   chronological filter), MR4 (summary scale invariance).
-- MarkdownReport-> P6 (deterministic string), MR3 (component report reflects
-  the appended final value).
+- The MarkdownReport binding was differential-only and is intentionally not
+  included in this data-contract property suite.
 
 Non-vacuity: every property routes its observable through the ``_IMPL``
 indirection and has a ``test_pN_fails_for_<mutant>`` companion re-running it
@@ -23,6 +23,7 @@ from __future__ import annotations
 from datetime import datetime
 
 import pytest
+import temper_io_types as _rust
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -32,15 +33,38 @@ from temper_placer.explainability.decision import (
     DecisionTrace,
     DecisionType,
 )
-from temper_placer.explainability.markdown_report import (
-    render_component_report,
-    render_markdown_report,
-)
-from temper_placer.explainability.pipeline import compose_traces
-from temper_placer.explainability.serialization import deserialize_decision
-from temper_placer.explainability.trace import Entry, Trace
+from temper_orchestration import Trace
 
 _FIXED_DT = datetime(2026, 8, 4, 12, 30, 45)
+
+
+def _deserialize_decision(data):
+    """Test-local Python persistence adapter for the orchestration pyclass."""
+    try:
+        phase = DecisionPhase(data.get("phase", "geometric"))
+    except ValueError:
+        phase = DecisionPhase.GEOMETRIC
+    try:
+        dtype = DecisionType(data.get("decision_type", "position_update"))
+    except ValueError:
+        dtype = DecisionType.POSITION_UPDATE
+    timestamp_value = data.get("timestamp")
+    if timestamp_value:
+        try:
+            timestamp = datetime.fromisoformat(timestamp_value)
+        except ValueError:
+            timestamp = datetime.now()
+    else:
+        timestamp = datetime.now()
+    return Decision(
+        id=data.get("id", ""), timestamp=timestamp, phase=phase,
+        decision_type=dtype, subject=data.get("subject", ""),
+        value=data.get("value"),
+        previous_value=data.get("previous_value"),
+        reason=data.get("reason", ""), constraint_refs=data.get("constraint_refs", []),
+        loss_contribution=data.get("loss_contribution", 0.0), alternatives=[],
+        epoch=data.get("epoch"), iteration=data.get("iteration"),
+    )
 
 _IMPL = {
     "trace_empty": lambda: Trace.empty(),
@@ -51,14 +75,20 @@ _IMPL = {
     "why": lambda t, s: t.why(s),
     "decision": lambda **kw: Decision(**kw),
     "to_dict": lambda d: d.to_dict(),
-    "deserialize": lambda payload: deserialize_decision(payload),
+    "deserialize": lambda payload: _deserialize_decision(payload),
     "make_trace": lambda decisions: _trace(decisions),
     "summary": lambda t: t.summary(),
     "query_subject": lambda t, s: t.query_subject(s),
-    "render_markdown": lambda t: render_markdown_report(t),
-    "render_component": lambda t, s: render_component_report(t, s),
-    "compose": lambda *ts: compose_traces(*ts),
+    "compose": lambda *ts: _compose_traces(*ts),
 }
+
+
+def _compose_traces(*traces):
+    """Compose through the live orchestration Trace monoid API."""
+    result = Trace.empty()
+    for trace in traces:
+        result = result + trace
+    return result
 
 _FINITE = {"allow_nan": False, "allow_infinity": False}
 
@@ -134,7 +164,7 @@ def test_p1_trace_monoid_identity(entries):
 def test_p1_fails_for_dropped_entries_mutant(_restore_impl):
     """A concat that DROPS the left operand's entries violates P1 (an empty
     identity concat would return only the right side's entries)."""
-    _IMPL["trace_add_entries"] = lambda a, b: b
+    _IMPL["trace_add_entries"] = lambda _a, b: b
     with pytest.raises(AssertionError):
         test_p1_trace_monoid_identity.hypothesis.inner_test([("Q1", (1, 2), "r")])
 
@@ -271,7 +301,7 @@ def test_p5_query_subject_filter(entries):
     """P5. `query_subject(s)` returns exactly the decisions whose subject is
     ``s``, in insertion order."""
     trace = DecisionTrace(run_id="run", start_time=_FIXED_DT)
-    for i, (s, v, counter) in enumerate(entries):
+    for i, (s, v, _counter) in enumerate(entries):
         trace.decisions.append(_decision(s, v, counter=i))
     for s in ("Q1", "Q2", "nobody"):
         got = _IMPL["query_subject"](trace, s)
@@ -292,44 +322,6 @@ def test_p5_fails_for_unsorted_mutant(_restore_impl):
         test_p5_query_subject_filter.hypothesis.inner_test(
             [("Q1", 1, 0), ("Q1", 2, 1), ("Q2", 3, 2)]
         )
-
-
-# ---------------------------------------------------------------------------
-# G4 — P6: Markdown is a deterministic string
-# ---------------------------------------------------------------------------
-
-@given(entries=st.lists(
-    st.tuples(_subject(), _value(), st.text(min_size=1, max_size=30)),
-    max_size=8,
-))
-@settings(max_examples=50, deadline=30000)
-def test_p6_markdown_deterministic(entries):
-    """P6. Rendering the same trace twice is byte-identical (the report is a
-    pure function of the trace), and the component report names the subject."""
-    trace = DecisionTrace(run_id="run-x", start_time=_FIXED_DT)
-    for i, (s, v, r) in enumerate(entries):
-        trace.decisions.append(_decision(s, v, reason=r, counter=i))
-    a = _IMPL["render_markdown"](trace)
-    b = _IMPL["render_markdown"](trace)
-    assert a == b
-    assert "# Placement Decision Report" in a
-    if entries:
-        subject = entries[0][0]
-        comp = _IMPL["render_component"](trace, subject)
-        assert comp == _IMPL["render_component"](trace, subject)
-        assert f"# Decision Report: {subject}" in comp
-
-
-def test_p6_fails_for_timestamp_mutant(_restore_impl):
-    """A renderer that injects the current time violates P6's determinism."""
-    real = _IMPL["render_markdown"]
-
-    def mutant(t):
-        return real(t) + f"\n<!-- {datetime.now()} -->"
-
-    _IMPL["render_markdown"] = mutant
-    with pytest.raises(AssertionError):
-        test_p6_markdown_deterministic.hypothesis.inner_test([("Q1", (1, 2), "r")])
 
 
 # ---------------------------------------------------------------------------
@@ -400,39 +392,6 @@ def test_mr2_fails_for_object_identity_mutant(_restore_impl):
         test_mr2_identity_why_invariant.hypothesis.inner_test(
             [("Q1", (1, 2), "a"), ("Q1", (3, 4), "b")], "Q1"
         )
-
-
-# ---------------------------------------------------------------------------
-# G5 — MR3: component report reflects the appended final value
-# ---------------------------------------------------------------------------
-
-@given(entries=st.lists(st.tuples(_subject(), _value()), max_size=6))
-@settings(max_examples=50, deadline=30000)
-def test_mr3_markdown_monotone_in_final_value(entries):
-    """MR3. Appending a decision for subject X changes the component report
-    for X (when the appended value differs), and the NEW report's final-value
-    line names the appended value — the report is monotone in the decision
-    history."""
-    trace = DecisionTrace(run_id="run-m", start_time=_FIXED_DT)
-    for i, (s, v) in enumerate(entries):
-        trace.decisions.append(_decision(s, v, counter=i))
-    before = _IMPL["render_component"](trace, "Q1")
-    trace.decisions.append(_decision("Q1", "NEW-VALUE", counter=99))
-    after = _IMPL["render_component"](trace, "Q1")
-    assert "NEW-VALUE" in after
-    assert before != after or "NEW-VALUE" in before
-
-
-def test_mr3_fails_for_stale_final_value_mutant(_restore_impl):
-    """A renderer that always shows the FIRST decision's value violates MR3."""
-    real = _IMPL["render_component"]
-
-    def mutant(t, s):
-        return real(t, s).replace("NEW-VALUE", "STALE")
-
-    _IMPL["render_component"] = mutant
-    with pytest.raises(AssertionError):
-        test_mr3_markdown_monotone_in_final_value.hypothesis.inner_test([("Q1", (1, 2))])
 
 
 # ---------------------------------------------------------------------------

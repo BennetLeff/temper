@@ -1,3 +1,4 @@
+<!-- provenance: commit=c19afdd760159f33eca01671a94059a3fe105c17 dirty=UNKNOWN -->
 type,rule,actual,required,itemA,netA,domA,itemB,netB,domB,crossing
 creepage,HV to LV,4.28,8.0,PTH pad 1 [a] of U3,a,HV,PTH pad 3 [<no net>] of U3,<no net>,UNRESOLVED,HV-UNRESOLVED
 creepage,HV to LV,4.6159,8.0,"Track [a] on F.Cu, length 6.1000 mm",a,HV,Pad 1 [+15V] of C15 on F.Cu,+15V,SELV,HV-SELV

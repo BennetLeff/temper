@@ -9,4 +9,8 @@ version = "0.1.0"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
-module-name = "temper_io_types"
+# The generated package initializer imports the extension as a child module.
+# Keep the maturin module name aligned with that layout; using the bare package
+# name places the .so beside __init__.py and leaves ``import temper_io_types``
+# unable to resolve ``temper_io_types.temper_io_types``.
+module-name = "temper_io_types.temper_io_types"

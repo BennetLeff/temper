@@ -1,25 +1,23 @@
-"""Zone geometry for the deterministic placement pipeline.
+"""``Zone`` dataclass -- the placement-zone data type.
 
-The stage orchestration is implemented in Rust (``temper-orchestration``'s
-``ZoneGeometryStage``, Phase D batch D2 of the Rust Orchestration Engine
-plan 2026-08-09-001): it reads ``board`` from the state, dispatches on the
-config (the config-vs-default branches), and delegates the layout math to
-the already-Rust leaf kernels (``temper_design_bundle_python
-.deterministic_stages.define_zone_layout`` / ``scale_zone_bounds`` — the
-Wave-4 Phase-5 first-slice migration). This module keeps the public API
-(``Zone``, the ``ZoneGeometryStage`` Stage subclass, its constructor and
-``name``) and delegates ``run`` across the FFI once per stage call. The
-differential oracle for the pre-migration implementation is pinned VERBATIM
-in ``tests/deterministic/_zone_geometry_py_oracle.py``.
+Shim-debt cleanup (2026-08-20): the ``ZoneGeometryStage`` class (its
+constructor state and its ``run``) moved to ``stages/__init__.py`` as a
+:class:`~stages.base.RustFunctionStage` parameterized adapter over
+``temper_orchestration.run_zone_geometry`` (Phase D batch D2 of the Rust
+Orchestration Engine plan 2026-08-09-001).
+
+This module survives as the home of the :class:`Zone` dataclass -- a real
+data type, not a shim: the Rust ``ZoneGeometryStage``
+(``temper-orchestration/src/zone_geometry_stage.rs``) and the
+``netlist_owned`` marshalling resolve it at runtime by importing
+``temper_placer.deterministic.stages.zone_geometry`` and reading ``Zone``,
+and the pinned VERBATIM oracle
+(``tests/deterministic/_zone_geometry_py_oracle.py``) compares the stage's
+output structurally against its own Zone snapshot. The stage class no
+longer lives here.
 """
 
 from dataclasses import dataclass
-from typing import Any
-
-import temper_orchestration as _to
-
-from ..state import BoardState
-from .base import Stage
 
 
 @dataclass(frozen=True)
@@ -30,13 +28,4 @@ class Zone:
     bounds: tuple[tuple[float, float], tuple[float, float]]  # ((x_min, y_min), (x_max, y_max))
 
 
-class ZoneGeometryStage(Stage):
-    def __init__(self, zone_config: list[dict[str, Any]] | None = None):
-        self.zone_config = zone_config
-
-    @property
-    def name(self) -> str:
-        return "zone_geometry"
-
-    def run(self, state: BoardState) -> BoardState:
-        return _to.run_zone_geometry(state, self.zone_config)
+__all__ = ["Zone"]

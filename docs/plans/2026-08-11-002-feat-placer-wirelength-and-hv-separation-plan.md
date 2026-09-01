@@ -610,7 +610,7 @@ spike runs.
   is contingent on `R24`'s 2026-08-04 move remaining in place and no
   subsequent placement change re-introducing a stranded HV pad cluster —
   worth a cheap re-check (re-running
-  `docs/evidence/2026-08-04-r24-barrier-admissibility.py` against current
+  `docs/evidence/scripts/2026-08-04-r24-barrier-admissibility.py` against current
   HEAD) before U2's spike, since this plan's own investigation did not
   re-run it against today's exact commit.
 - **Production's real objective-bearing solve budget is 180,000ms/round,

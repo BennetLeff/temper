@@ -7,8 +7,8 @@
 (byte-identical to `28dc960de`, the base of the concurrent
 `docs/evidence/2026-08-04-domain-first-resolve-keepout.md` — verified with
 `git diff 28dc960de 838096820 -- pcb/temper.kicad_pcb elec/domain_manifest.yaml` = empty).
-**Script:** `docs/evidence/2026-08-04-isolation-barrier-freeform-corridor.py`
-(`uv run --no-sync python docs/evidence/2026-08-04-isolation-barrier-freeform-corridor.py`);
+**Script:** `docs/evidence/scripts/2026-08-04-isolation-barrier-freeform-corridor.py`
+(`uv run --no-sync python docs/evidence/scripts/2026-08-04-isolation-barrier-freeform-corridor.py`);
 raw numbers in the sibling `.json`.
 **Question, per PR #565:** the prior probes searched only *straight* corridors.
 The gate requires edge-to-edge + exactly-two-regions, **not straightness**. Does

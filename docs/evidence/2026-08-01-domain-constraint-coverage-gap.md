@@ -23,7 +23,7 @@ Pair sets are computed with the generator's own functions
 (`generate_domain_clearance_constraints`, `find_intra_footprint_domain_conflicts`),
 and violations with the validator itself (`verify_iec60335_compliance`) — no
 reimplementation anywhere. Measurement script:
-`docs/evidence/gap2_measure.py` (committed alongside this doc).
+`docs/evidence/scripts/gap2_measure.py` (committed alongside this doc).
 
 ## 1. Pair-set table (current board, f20400709)
 
@@ -187,7 +187,7 @@ All five handoff claims verified exactly on the current committed board.
 cd .claude/worktrees/agent-gap2-coverage
 make netlist                          # elec/build/default.net (gitignored)
 cd packages/temper-placer
-uv run --no-sync python ../../docs/evidence/gap2_measure.py
+uv run --no-sync python ../../docs/evidence/scripts/gap2_measure.py
 ```
 
 The script prints Set A/Set B counts, A−B/B−A, the margin distribution, the
@@ -196,5 +196,5 @@ check, and the A−B composition. It requires no src/ changes and no board write
 
 ## Files
 
-- `docs/evidence/gap2_measure.py` — the measurement script (committed).
+- `docs/evidence/scripts/gap2_measure.py` — the measurement script (committed).
 - `docs/evidence/2026-08-01-domain-constraint-coverage-gap.md` — this document.
