@@ -555,6 +555,46 @@ class TestRoutePcbErrorHandling:
         with pytest.raises(ValueError, match="source_path"):
             route_pcb(parsed, {})
 
+    def test_target_net_scope_requires_nonempty_known_unique_names(self, tmp_path):
+        path = tmp_path / "board.kicad_pcb"
+        path.write_text('(kicad_pcb (version 20240108) (net 1 "SIG"))\n')
+        nets = [SimpleNamespace(name="SIG")]
+        parsed = SimpleNamespace(source_path=path, nets=nets)
+        with pytest.raises(ValueError, match="non-empty"):
+            route_pcb(parsed, {}, target_nets=[])
+        with pytest.raises(ValueError, match="duplicates"):
+            route_pcb(parsed, {}, target_nets=["SIG", "SIG"])
+        with pytest.raises(ValueError, match="unknown board nets"):
+            route_pcb(parsed, {}, target_nets=["OTHER"])
+
+    def test_target_net_scope_requires_parsed_net_authority(self, tmp_path):
+        path = tmp_path / "board.kicad_pcb"
+        path.write_text('(kicad_pcb (version 20240108) (net 1 "SIG"))\n')
+        parsed = SimpleNamespace(source_path=path)
+        with pytest.raises(ValueError, match="parsed.nets"):
+            route_pcb(parsed, {}, target_nets=["SIG"])
+
+    def test_target_net_scope_reaches_pipeline_constructor(self, tmp_path):
+        path = tmp_path / "board.kicad_pcb"
+        path.write_text('(kicad_pcb (version 20240108) (net 1 "SIG"))\n')
+        parsed = SimpleNamespace(source_path=path, nets=[SimpleNamespace(name="SIG")])
+        pipeline_result = SimpleNamespace(
+            stage4=SimpleNamespace(
+                routing_results=SimpleNamespace(
+                    compiled_routes={}, tree_routes={}, partial_tree_routes={}, failed_nets=[]
+                )
+            ),
+            pcb=SimpleNamespace(components=[], nets=[]),
+            completion_rate=0.0,
+            enable_zone_pours=False,
+        )
+        with umock.patch(
+            "temper_placer.router_v6.pipeline.RouterV6Pipeline"
+        ) as pipeline_cls:
+            pipeline_cls.return_value.run.return_value = pipeline_result
+            route_pcb(parsed, {}, target_nets=["SIG"], enable_zone_pours=False)
+        assert pipeline_cls.call_args.kwargs["target_nets"] == ["SIG"]
+
 
 class TestZoneLayersForNet:
     """TEMPER_NET_ASSIGNMENTS coverage against the production board's real
@@ -2143,6 +2183,48 @@ class TestHVACForcedSegmentFailClosed:
         assert "SW_NODE" not in (result.failure_reports or {}), (
             "A net excluded by _should_route is not a decline and must not "
             "appear in failure_reports"
+        )
+
+    def test_explicit_target_scope_overrides_default_hv_name_exclusion(self):
+        """A validated target is an execution command, not a second filter."""
+        import numpy as np
+
+        from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
+        from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
+        from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+        from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+
+        grid = OccupancyGrid("F.Cu", np.zeros((30, 30), dtype=np.int8), (0, 0), 1.0, 30, 30)
+        grid.grid[:, 15] = 1
+        design_rules = DesignRules()
+        design_rules.net_classes["HighVoltage"] = NetClassRules(
+            name="HighVoltage",
+            clearance_mm=6.0,
+            trace_width_mm=3.0,
+            via_diameter_mm=1.2,
+            via_drill_mm=0.6,
+            safety_category="HV",
+        )
+        design_rules.net_class_assignments["SW_NODE"] = "HighVoltage"
+        channel_path = ChannelPath(
+            net_name="SW_NODE",
+            channel_sequence=["ch_0"],
+            waypoints=[(0.0, 0.0), (29.0, 0.0)],
+            total_length=29.0,
+            preferred_layer="F.Cu",
+        )
+
+        result = run_astar_pathfinding(
+            ChannelMapping({"SW_NODE": channel_path}),
+            grid,
+            design_rules=design_rules,
+            max_iter=10_000,
+            target_nets=["SW_NODE"],
+        )
+
+        assert "SW_NODE" in (result.failure_reports or {}), (
+            "the explicit HV target must reach A* and produce a conclusive "
+            "failure instead of being silently removed by _should_route"
         )
 
     def test_ac_net_name_excluded_from_astar_by_should_route(self):

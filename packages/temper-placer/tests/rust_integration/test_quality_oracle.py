@@ -74,7 +74,7 @@ class TestOracleModule:
                         {
                             "candidate_id": row["candidate_id"],
                             "minimum_clearance_mm": 6.0,
-                            "minimum_creepage_mm": 12.6,
+                            "minimum_creepage_lower_bound_mm": 12.6,
                             "route_length_mm": float(row["ordinal"]),
                         }
                         for row in candidate_set["candidates"]

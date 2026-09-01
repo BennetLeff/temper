@@ -300,7 +300,10 @@ scripts:
   - _lib.repo
   - argparse
   - ast
+  - collections.abc
   - dataclasses
+  - hashlib
+  - json
   - pathlib
   - re
   - sys
@@ -2561,6 +2564,7 @@ scripts:
   imports:
   - __future__
   - argparse
+  - hashlib
   - json
   - os
   - pathlib
@@ -2570,6 +2574,39 @@ scripts:
   - tempfile
   - time
   - typing
+- path: run_net41_corridor_campaign.py
+  purpose: Execute and replay the immutable Net-41 corridor screening and admission campaign with Rust-owned
+    identity and terminal classification.
+  owner: bennet
+  last_run: '2026-09-01'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - check_drc_determinism
+  - hashlib
+  - itertools
+  - json
+  - math
+  - os
+  - pathlib
+  - route_board
+  - shapely.geometry
+  - shutil
+  - subprocess
+  - sys
+  - temper_design_bundle_python
+  - temper_drc_rs
+  - temper_geometry
+  - temper_placer.core.pad_geometry
+  - temper_placer.io.fab_body_extraction
+  - temper_placer.io.kicad_metadata
+  - temper_placer.io.real_board
+  - temper_placer.requirements.validators._copper
+  - temper_placer.requirements.validators.clearance
+  - temper_placer.validation.netlist_reconciliation
+  - temper_quality_oracle
 - path: run_feedback_loop.py
   purpose: Run iterative feedback loop (shell-invoked)
   owner: unassigned

@@ -4,7 +4,7 @@ type: fix
 date: "2026-09-01"
 topic: net41-corridor-execution
 artifact_contract: ce-unified-plan/v1
-artifact_readiness: requirements-only
+artifact_readiness: implementation-ready
 product_contract_source: ce-brainstorm
 execution: code
 ---
@@ -16,7 +16,9 @@ execution: code
 - **Objective:** Produce a trustworthy terminal verdict for the declared Net-41 In3.Cu corridor family: either one fully admitted promotion candidate, a negative result bounded to every candidate the declaration requires this campaign to decide, or an indeterminate result that preserves production authority unchanged.
 - **Means:** Build a Rust-owned staged execution and admission driver around the immutable 2,880-candidate declaration, with Python limited to KiCad staging and instrument transport.
 - **Product authority:** `docs/evidence/net41-route-layer-corridor-20260831/declaration.json` fixes the family, mutation fence, safety roles, ranking, route budget, and one-candidate selection limit. This plan may execute that declaration but may not rewrite it or treat the selection limit as production-promotion authority.
-- **Open blockers:** None block planning. PR #1557 must first be merge-ready, the live pcbnew rotation oracle must be available before measurements are credited, and current-edition appliance-safety review remains external to this campaign.
+- **Stop conditions:** Stop with `instrument-error` when preflight cannot form trustworthy scoped evidence. Stop with `stopped-indeterminate` when trustworthy evidence exists but a required verdict remains unresolved. Never convert either state into a candidate rejection or production change.
+- **Execution profile:** Deep, scratch-only implementation and measurement campaign. PR #1557 is the exact code prerequisite; its branch-owned gates are green and its remaining failures reproduce on its base.
+- **Tail ownership:** The implementing goal owns code, measurements, evidence, review, compound documentation, commit, successor PR, and merge-readiness monitoring.
 
 ---
 
@@ -186,14 +188,6 @@ flowchart TB
 - Generated `pcb/temper.kicad_dru`, the sibling `fp-lib-table` and libraries, a seeded KiCad environment, fresh pyo3 extensions, and live pcbnew bindings are available before reported measurements.
 - Current-edition IEC 60335-1 and IEC 60335-2-6 review remains required. It does not block scratch exploration, but it blocks any claim of qualified safety approval or fabrication release.
 
-### Outstanding Questions
-
-**Deferred to Planning**
-
-- Which existing internal `target_nets`, review-output, Rust route-mutation, and orchestration surfaces should be extended through the public path without introducing a second candidate owner?
-- Which existing evidence schemas should be extended for materialization, per-stage receipts, and terminal replay rather than creating overlapping formats?
-- Which changed-surface verification commands provide the smallest complete closure set after the execution driver and terminal result are known?
-
 <!-- ce-section: work-relationships -->
 ### How This Work Fits Together
 
@@ -217,3 +211,209 @@ This plan owns execution and terminal admission of the already-declared net-41 c
 - `packages/temper-quality-oracle/src/regional_feasibility.rs`
 - `scripts/route_board.py`
 - GitHub issue #505, `Make production router emit a bounded campaign candidate`
+
+---
+
+## Planning Contract
+
+### Key Technical Decisions
+
+- KTD1. **Extend the existing Rust corridor authority.** Add execution-state and receipt types beside `regional_feasibility` in `temper-quality-oracle`; reuse `temper-design-bundle` for exact board mutation. This keeps identity, order, hard-veto evaluation, terminal classification, and receipt integrity in Rust. Governs R1-R6, R10-R14.
+- KTD2. **Expose the existing target-net capability through the public router adapter.** Thread an explicit `target_nets` value from `route_pcb` into `RouterV6Pipeline`; reject an empty scope and preserve the current whole-board default when it is absent. Governs R9-R12.
+- KTD3. **Materialize before truncating.** Use the Rust-derived prefilter order as input, materialize every prefilter survivor, and submit one exact pre-route verdict row for each survivor before Rust returns the first 12 route candidates. Governs R3-R6, R10, R14.
+- KTD4. **Treat evidence as an append-only, content-addressed stage ledger.** Extend the existing declaration and predecessor receipt vocabulary with candidate, instrument, stage, and terminal records. The Python runner may write Rust-returned JSON and raw instrument artifacts, but it may not derive terminal state. Governs R8, R13-R16.
+- KTD5. **Compare normalized DRC sets against a repeated baseline.** Generate the DRU, stage the full project and libraries, run the baseline and each admitted candidate with the repository DRC API, reject caps or inconsistent repeated sets, and compare normalized rule/net/item identities rather than aggregate counts. Governs R6-R8, R11.
+- KTD6. **Keep the committed result scratch-only.** Store compact manifests, receipts, logs, and at most one selected scratch-board artifact under the evidence directory. Keep bulk candidate projects outside the repository and prove production board and DRC-ceiling hashes unchanged. Governs R13-R16.
+
+### High-Level Technical Design
+
+```mermaid
+stateDiagram-v2
+  [*] --> Preflight
+  Preflight --> InstrumentError: no trustworthy scoped verdict
+  Preflight --> Prefilter: authority and instruments valid
+  Prefilter --> Materialized: exact 2880 rows accepted
+  Materialized --> PreRouteClosed: every prefilter survivor has all vetoes
+  PreRouteClosed --> Routing: deterministic first min(12, survivors)
+  Routing --> Completed: highest-ranked full pass selected
+  Routing --> Exhausted: no pass and no eligible row untested
+  Routing --> StoppedIndeterminate: unresolved or budget leaves eligible rows
+  InstrumentError --> [*]
+  Completed --> [*]
+  Exhausted --> [*]
+  StoppedIndeterminate --> [*]
+```
+
+The Rust campaign authority consumes complete stage submissions. Each submission names the declaration digest, candidate-set digest, exact candidate IDs, content hashes, instrument states, and normalized verdicts. Rust validates stage coverage and produces the next admissible set or one terminal receipt. Python transports files and invokes pcbnew, KiCad DRC, geometry, connectivity, and routing instruments. No Python branch decides rank, pass, exhaustion, or selection.
+
+### Implementation Constraints
+
+- The immutable declaration remains the only candidate-family authority. Candidate IDs, ordering, route geometry, thresholds, budgets, and the one-selection limit are not regenerated in Python.
+- `replace_declared_route_and_move_footprint` remains the mutation fence for declaration-owned Net-41 copper and footprint movement. Any extension must validate exact identities before emitting bytes and preserve all unrelated bytes.
+- `target_nets` is a routing scope, not permission to delete retained copper. The caller supplies a scratch board with only the declaration-owned route removed or replaced; unrelated copper remains an obstacle.
+- Live pcbnew verification uses an asymmetric 45-degree probe before measurement. A pinned corpus pass alone is not sufficient for campaign credit.
+- A DRC result at a known category cap, a failed command, a missing sidecar/library, an unloadable or stale extension, or disagreement between repeated normalized sets is an instrument condition.
+- The runner shall not edit `pcb/temper.kicad_pcb`, `power_pcb_dataset/drc_ceiling.json`, or the immutable declaration.
+
+### Sequencing
+
+1. Define and test Rust lifecycle schemas before adding transport code.
+2. Expose target-net routing and exact route replacement behind tests before the campaign calls it.
+3. Build the thin runner and complete pre-route measurement path before spending the route budget.
+4. Run full admission and let Rust emit the terminal result.
+5. Replay the result, review the diff and evidence, compound the learning, then ship and monitor the successor PR.
+
+### Risks and Mitigations
+
+| Risk | Consequence | Mitigation |
+|---|---|---|
+| A Python helper becomes a second authority | Candidate or terminal truth can drift | Rust accepts complete raw stage evidence and returns ordered/terminal records; mutation tests alter the Python transport and the Rust owner independently. |
+| Target-net routing still strips or rewrites unrelated copper | Scratch result is not mutation-scoped | Byte-identity tests cover unrelated segments, vias, zones, footprints, outline, and sidecars before any production-board run. |
+| DRC or geometry instrumentation lies | A false pass or false rejection is committed | Fresh-extension gate, live pcbnew oracle, generated DRU, full library staging, cap detection, repeated normalized DRC sets, and external-oracle tests run before campaign credit. |
+| Materializing all survivors is expensive | The route budget is applied early and hides candidates | Keep projects in scratch storage, write compact receipts, and checkpoint content hashes without truncating the survivor set. |
+| Twelve routed failures are misreported as exhaustion | The negative result exceeds its bound | Rust requires `untested_eligible_count == 0` for `exhausted`; otherwise the terminal state is `stopped-indeterminate`. |
+| Shared pyo3 artifacts are stale or poisoned | Tests execute code no commit describes | Build with `make extensions`, verify with `make extensions-check` immediately before credited measurements, and never use a featureless bare Cargo build. |
+
+### Deferred to Follow-Up Work
+
+- Promoting a selected scratch board into `pcb/temper.kicad_pcb`, including same-change 120-sample DRC remeasurement and ceiling provenance.
+- Adding a broader enclosure-led J1 family, an isolation slot, a new copper layer/span, or any adaptive expansion beyond the immutable 2,880 candidates.
+- Current-edition appliance-safety approval and fabrication release.
+
+---
+
+## Implementation Units
+
+### U1. Rust campaign lifecycle and receipt authority
+
+- **Goal:** Add a closed Rust state machine that validates complete stage evidence, preserves canonical order, enforces route and selection budgets, and emits exactly one terminal classification.
+- **Requirements:** R1-R4, R8, R10, R13-R16; F1, F3; AE1, AE4-AE7.
+- **Dependencies:** PR #1557 exact head.
+- **Files:** `packages/temper-quality-oracle/src/corridor_campaign.rs`, `packages/temper-quality-oracle/src/lib.rs`, `packages/temper-quality-oracle/src/wasm_test_registry.rs`, `packages/temper-placer/tests/rust_integration/test_quality_oracle.py`.
+- **Approach:**
+  1. Define deny-unknown-fields schemas for preflight, materialized veto, routed admission, instrument state, candidate record, selection, and terminal receipt.
+  2. Bind every request to the declaration and candidate-set digests and validate exact expected IDs at each stage.
+  3. Reuse the prefilter order from `regional_feasibility`; accept no caller-supplied rank.
+  4. Encode mutually exclusive terminal rules and prove that `exhausted` is impossible when an eligible candidate remains untested.
+  5. Expose one JSON PyO3 seam that transports complete stage evidence and returns Rust-owned records.
+- **Patterns to follow:** `regional_feasibility::validate_and_screen_corridor_evidence`, deny-unknown-fields evidence structs, `collision_campaign` closed-state tests.
+- **Test scenarios:**
+  - Covers AE1. A request missing one of 2,880 prefilter IDs fails before a stage receipt exists.
+  - Duplicate, extra, reordered, non-finite, stale-digest, and unknown-field submissions fail closed.
+  - Covers AE4. Preflight instrument failure produces `instrument-error` only when no scoped candidate verdict exists.
+  - Covers AE5. The same failure after trustworthy pre-route evidence produces `stopped-indeterminate`.
+  - Covers AE6. Twelve routed failures plus one untested eligible candidate cannot produce `exhausted`.
+  - Covers AE7. Multiple full passes select only the highest-ranked pass after all higher-ranked routed rows are conclusive.
+- **Verification:** Rust and Python boundary tests reproduce all four terminal states and the serialized terminal receipt is stable under replay.
+
+### U2. Public bounded Net-41 routing and mutation seam
+
+- **Goal:** Make the existing target-net router capability reachable through the public adapter while retaining unrelated copper and replacing only declaration-owned Net-41 content.
+- **Requirements:** R5, R9-R12; F2; AE3.
+- **Dependencies:** U1.
+- **Files:** `packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py`, `packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py`, `scripts/route_board.py`, `packages/temper-design-bundle/src/sexpr_writer.rs`, `packages/temper-placer/tests/router_v6/test_adapter.py`, `packages/temper-placer/tests/io/test_sexpr_writer_oracle_differential.py`, `packages/temper-placer/tests/scripts/test_route_board.py`.
+- **Approach:**
+  1. Thread non-empty `target_nets` into the existing pipeline without changing absent-scope behavior.
+  2. Add a scratch-only route mode that does not call whole-board `strip_existing_copper`.
+  3. Extend the Rust writer only if the declaration-owned route must be removed before routing; validate exact segment/via IDs and preserve unrelated bytes.
+  4. Carry target scope, input hash, output hash, completion, pad connectivity, and per-net route result into the public receipt.
+- **Patterns to follow:** Existing `RouterV6Pipeline.target_nets`, `_write_routes_to_content`, Rust atomic route mutation, topology/copper audit receipts.
+- **Test scenarios:**
+  - An absent scope preserves the current adapter behavior.
+  - An empty or unknown target scope fails before routing.
+  - A one-net scope reaches both 2D and n-layer routing stages.
+  - Unrelated segments, vias, zones, footprint blocks, and outline bytes survive a scoped route unchanged.
+  - A stale or partial declared Net-41 identity fails before output bytes exist.
+  - A router-reported complete net with disconnected target pads remains incomplete in the public receipt.
+- **Verification:** Adapter integration tests prove scope propagation and byte preservation; the public route receipt distinguishes route generation from connected completion.
+
+### U3. Scratch materialization and complete pre-route admission
+
+- **Goal:** Materialize every ordered prefilter survivor and run every declared pre-route veto before Rust applies the route budget.
+- **Requirements:** R3-R8, R10, R13-R15; F1-F2; AE2, AE4.
+- **Dependencies:** U1, U2.
+- **Files:** `docs/evidence/net41-corridor-execution-20260901/run_campaign.py`, `docs/evidence/net41-corridor-execution-20260901/README.md`, `packages/temper-placer/tests/rust_integration/test_corridor_campaign.py`.
+- **Approach:**
+  1. Stage the board, project, generated DRU, `fp-lib-table`, libraries, domain manifest, and netlist into isolated candidate directories.
+  2. Ask Rust for the declaration and materialize candidate bytes with the existing Rust mutation owners.
+  3. Collect exact clearance/creepage rows for all 2,880 identities and submit one atomic v4 prefilter request.
+  4. For every prefilter survivor, collect graph connectivity, full SELV denominator, safety-set deltas, route geometry/current capacity, containment, body/courtyard overlap, mutation scope, and repeated normalized DRC evidence.
+  5. Submit all materialized rows to Rust and use only its ordered route-candidate output.
+- **Execution note:** Run the live pcbnew oracle and fresh-extension check immediately before the credited campaign. Keep all bulk scratch projects outside git.
+- **Patterns to follow:** `docs/evidence/r14-hv-domain-refloorplan-20260831/run_campaign.py`, `_drc_api.run_drc`, `regional_topology` graph and exact-denominator validation.
+- **Test scenarios:**
+  - Covers AE2. A geometry-prefilter survivor with a courtyard overlap is rejected before routing.
+  - A missing sidecar or the 168/0 footprint-resolution signature becomes an instrument condition.
+  - A capped DRC category or disagreement across normalized repeated sets cannot become a candidate verdict.
+  - The pre-route stage rejects missing, duplicated, extra, or unmaterialized survivor rows.
+  - A materialized board with an open C7.1-to-R14.2 graph fails connectivity even when distances pass.
+- **Verification:** The campaign ledger accounts for all 2,880 candidates and every prefilter survivor, with raw role/value/source measurements and no route-budget truncation.
+
+### U4. Bounded routing, post-route admission, and terminal evidence
+
+- **Goal:** Route at most the deterministic first 12 complete pre-route survivors, fully admit their outputs, and commit one replayable terminal result without production changes.
+- **Requirements:** R8-R16; F2-F3; AE3, AE5-AE7.
+- **Dependencies:** U1-U3.
+- **Files:** `docs/evidence/net41-corridor-execution-20260901/run_campaign.py`, `docs/evidence/net41-corridor-execution-20260901/candidate-manifest.json`, `docs/evidence/net41-corridor-execution-20260901/terminal-receipt.json`, `docs/evidence/net41-corridor-execution-20260901/promotion-candidate.json`, `docs/evidence/net41-corridor-execution-20260901/README.md`, `packages/temper-placer/tests/rust_integration/test_corridor_campaign.py`.
+- **Approach:**
+  1. Route the Rust-selected prefix with explicit Net-41 scope and retained-copper obstacles.
+  2. Repeat every route-sensitive admission instrument and reconcile router completion with exact pad connectivity and netlist identity.
+  3. Submit conclusive, indeterminate, or instrument evidence to Rust without local terminal branching.
+  4. Commit at most one selected scratch PCB and promotion-candidate record when full admission succeeds; omit `promotion-candidate.json` otherwise.
+  5. Record hashes proving the production board and DRC ceiling are unchanged.
+- **Patterns to follow:** Content-addressed terminal receipts in `docs/evidence/r14-hv-domain-refloorplan-20260831`, normalized DRC set comparison, per-stage DRC fences.
+- **Test scenarios:**
+  - Covers AE3. Connected routing with a new safety signature is rejected.
+  - Covers AE5. Router timeout plus unresolved manual attempt produces `stopped-indeterminate`.
+  - Covers AE6. The route budget never exceeds 12 and preserves the untested eligible count.
+  - Covers AE7. A fully admitted result emits exactly one selection whose board hash and candidate identity replay.
+  - An output that changes unrelated copper, violates current capacity, or fails netlist reconciliation is rejected.
+- **Verification:** The evidence directory contains one terminal receipt whose exact denominators, hashes, reasons, instrument state, and optional selection replay from a clean scratch directory.
+
+### U5. Closure, documentation, and shipping
+
+- **Goal:** Prove the implementation and evidence are trustworthy, capture the reusable learning, and ship the successor PR to merge-ready.
+- **Requirements:** R1-R16; all flows and acceptance examples.
+- **Dependencies:** U1-U4.
+- **Files:** `docs/solutions/architecture-patterns/`, `docs/evidence/net41-corridor-execution-20260901/README.md`, generated registries affected by U1-U4.
+- **Approach:**
+  1. Replay the campaign with fresh extensions and truthful instruments.
+  2. Run changed-surface, generated-artifact, import-boundary, workflow, and production-authority guards.
+  3. Perform correctness, testing, and standards review; fix actionable findings without weakening inherited gates.
+  4. Write a compound document that records the semantic-owner pattern, terminal-state discipline, and any instrument incident learned during execution.
+  5. Commit all code and Markdown/evidence artifacts, push, open the successor PR, and monitor it until branch-owned merge-readiness is established.
+- **Test scenarios:** Test expectation: none -- this unit verifies and documents the behavioral units rather than adding behavior.
+- **Verification:** The PR contains the plan, implementation, evidence, terminal receipt, and compound documentation; production authorities are byte-identical and all branch-owned gates are green.
+
+---
+
+## Verification Contract
+
+| Surface | Verification | Done signal |
+|---|---|---|
+| Rust campaign authority | `env -u CONDA_PREFIX cargo test -p temper-quality-oracle --features python` | Lifecycle, exact coverage, mutation, terminal-state, and serialization tests pass without creating a featureless pyo3 artifact. |
+| Rust board mutation | `env -u CONDA_PREFIX cargo test -p temper-design-bundle --features python` | Exact identity and unrelated-byte preservation tests pass. |
+| Public router scope | Targeted `pytest` selection for `test_adapter.py`, `test_route_board.py`, and writer integration | Scope reaches the pipeline, retained copper survives, and false completion is rejected. |
+| Python/Rust boundary | Targeted `pytest` selection for `test_quality_oracle.py` and `test_corridor_campaign.py` | Unknown fields, stale identities, partial coverage, and all terminal transitions fail or pass as specified. |
+| Extension truth | `env -u CONDA_PREFIX make extensions` followed immediately by `make extensions-check` | All pyo3 extensions are loadable and fresh immediately before credited measurement. |
+| Geometry truth | Live `check_pad_world_position_oracle.py --verify-live-oracle` plus the committed pad-core oracle | Asymmetric 45-degree pcbnew probes and registered import-and-call sites pass. |
+| DRC truth | Campaign baseline and candidate checks through `_drc_api.run_drc`, repeated and normalized | No cap, library-resolution signature, command failure, or unexplained repeated-set disagreement is admitted. |
+| Generated artifacts | `make regen` then `make regen-check` | No generated registry, oracle hash, or documented count drifts. |
+| Repository boundaries | `uv run python scripts/import_linter_gate.py` and workflow lint when applicable | Import contracts pass; workflow changes, if any, pass `actionlint`. |
+| Production authority | Byte-hash comparison for `pcb/temper.kicad_pcb` and `power_pcb_dataset/drc_ceiling.json` | Both match the prerequisite head exactly. |
+| Review and PR | `ce-code-review`, PR checks, and `ce-babysit-pr` | No unresolved branch-owned correctness, testing, standards, or CI failure remains. |
+
+The campaign receipt is the measurement exit criterion. It must report all six denominators, one of the four legal terminal states, content hashes for every selected artifact, raw instrument state, and zero production-authority changes.
+
+---
+
+## Definition of Done
+
+- U1 is done when Rust alone can validate every stage and emit exactly one stable terminal receipt for all declared edge cases.
+- U2 is done when the public router honors an explicit non-empty target-net scope and tests prove unrelated board content is preserved.
+- U3 is done when all 2,880 exact candidates are screened and every prefilter survivor receives every pre-route veto before truncation.
+- U4 is done when at most 12 Rust-selected survivors have conclusive routed evidence or an explicit indeterminate condition, and the terminal result replays.
+- U5 is done when reviews, generated checks, import boundaries, truthful-instrument checks, compound documentation, successor PR creation, and merge-readiness monitoring are complete.
+- The immutable declaration, production board, and DRC ceiling remain byte-identical to the prerequisite head.
+- No dead-end implementation, duplicate Python authority, bulk scratch project, or superseded evidence artifact remains in the diff.
+- The final PR description states the bounded claim precisely and includes every Markdown and evidence file required to audit it.

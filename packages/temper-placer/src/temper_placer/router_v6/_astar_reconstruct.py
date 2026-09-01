@@ -19,6 +19,8 @@ import math
 import time
 from collections import deque
 
+import temper_rust_router as _trr
+
 logger = logging.getLogger(__name__)
 
 from temper_placer.router_v6._astar_ordering import _compute_net_order
@@ -169,15 +171,14 @@ def run_astar_pathfinding(
         existing_vias_per_net = _extract_existing_via_centers_per_net(pcb)
 
     net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
-    routable_nets = [n for n in net_order if _should_route(n)]
-
-    if target_nets:
-        target_set = set(target_nets)
-        print(f"  Profiling Mode: Routing only {len(target_nets)} specific nets")
-        routable_nets = [n for n in routable_nets if n in target_set]
-    elif max_nets is not None:
+    if target_nets is not None:
+        print(f"  Scoped Mode: Routing only {len(target_nets)} explicitly requested nets")
+    default_routable = [n for n in net_order if _should_route(n)]
+    routable_nets = _trr.select_routable_nets_py(
+        net_order, target_nets, default_routable, max_nets
+    )
+    if target_nets is None and max_nets is not None:
         print(f"  Limiting to first {max_nets} nets for profiling...")
-        routable_nets = routable_nets[:max_nets]
 
     if congestion_tensor is not None:
         from temper_placer.router_v6.congestion_tensor import CongestionTensor

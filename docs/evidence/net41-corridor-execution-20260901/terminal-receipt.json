@@ -1,0 +1,46 @@
+{
+  "schema_version": "temper-corridor-campaign-receipt/v1",
+  "status": "instrument-error",
+  "reason": "preflight baseline-kicad-drc: version 10.0.5; 3 repeated normalized runs are untrusted: reporting cap W:silk_overlap; repeated-set disagreement creepage",
+  "declaration_hash": "58b6df887ff880f82a7aa07cfbd8f23ea6dde5e4a5c217f18c1f19efffdf0e61",
+  "candidate_set_digest": "2f7befb395b4e07c0713b5b33f923c360195c0d41cd503d81779ddfcaad4cb11",
+  "production_board_sha256_before": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "production_board_sha256_after": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "drc_ceiling_sha256_before": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2",
+  "drc_ceiling_sha256_after": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2",
+  "declared_count": 2880,
+  "measured_count": 0,
+  "prefilter_survivor_count": 0,
+  "materialized_count": 0,
+  "pre_route_survivor_count": 0,
+  "routed_count": 0,
+  "admitted_count": 0,
+  "untested_eligible_count": 0,
+  "preflight": [
+    {
+      "name": "pyo3-extensions",
+      "state": "trusted",
+      "detail": "all discovered pyo3 extensions are fresh and importable",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+      "receipt_sha256": "5a1e97b688a36608022715644e8c9c34fb78a6b82e55901a803bd711274b2a78"
+    },
+    {
+      "name": "pcbnew-rotation-oracle",
+      "state": "trusted",
+      "detail": "live pcbnew oracle passed: PASS -- all 10 site(s) agree with pcbnew to 1e-05mm across 16 probe row(s).",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+      "receipt_sha256": "e7211e2fc07957968de2015b5ba9ec074a16d1f20f58ca600a39097e1418ef59"
+    },
+    {
+      "name": "baseline-kicad-drc",
+      "state": "error",
+      "detail": "version 10.0.5; 3 repeated normalized runs are untrusted: reporting cap W:silk_overlap; repeated-set disagreement creepage",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+      "receipt_sha256": "554e4816d7803b413f4f56d800c9ec9b3b1e3a34d53f63d11c094648388597bb"
+    }
+  ],
+  "materialized": [],
+  "routed": [],
+  "selected_candidate_id": null,
+  "selected_board_sha256": null
+}

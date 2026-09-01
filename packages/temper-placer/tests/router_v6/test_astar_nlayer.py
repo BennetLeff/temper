@@ -298,6 +298,24 @@ def test_run_astar_pathfinding_nlayer_declines_unroutable_net_honestly():
     assert "DEAD_NET" in result.failure_reports
 
 
+def test_explicit_target_scope_routes_only_named_net_in_nlayer_driver():
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    first = ChannelPath("NET1", ["CH1"], [(1.0, 1.0), (4.0, 4.0)], 5.0)
+    second = ChannelPath("NET2", ["CH2"], [(5.0, 5.0), (8.0, 8.0)], 5.0)
+    mapping = ChannelMapping(channel_paths={"NET1": first, "NET2": second})
+
+    result = run_astar_pathfinding_nlayer(
+        mapping,
+        grids,
+        design_rules=DesignRules(),
+        target_nets=["NET2"],
+        max_iter=20_000,
+    )
+
+    assert set(result.routed_paths) == {"NET2"}
+    assert "NET1" not in result.failed_nets
+
+
 # ---------------------------------------------------------------------------
 # 5. _land_route_on_pad_layers: measured 2026-08-14 fix for the b39b382d
 #    fake-completion shape this module's own SSOT-driven preferred_layer can
@@ -766,8 +784,6 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # pad's halo carries 12.6mm. Both must be present in the per-family
     # halo lists.
     lv_family = families[(0.2, 0.2, "Default")]
-    hv_family = families[(5.0, 2.0, "HighVoltage")]
-
     lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
     lv_halo_nets = {n for n, _o, _h in lv_halos}
     assert "HV_PAD_NET" in lv_halo_nets, "HV pad must halo an LV searching net"

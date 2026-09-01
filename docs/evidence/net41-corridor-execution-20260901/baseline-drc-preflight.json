@@ -1,0 +1,185 @@
+{
+  "board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "capped_categories": [
+    "W:silk_overlap"
+  ],
+  "categories": [
+    {
+      "at_cap": false,
+      "category": "W:lib_footprint_issues",
+      "count_stable": true,
+      "counts": {
+        "13": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "W:lib_footprint_mismatch",
+      "count_stable": true,
+      "counts": {
+        "27": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "W:missing_courtyard",
+      "count_stable": true,
+      "counts": {
+        "5": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "W:silk_edge_clearance",
+      "count_stable": true,
+      "counts": {
+        "1": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "W:silk_over_copper",
+      "count_stable": true,
+      "counts": {
+        "45": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": true,
+      "category": "W:silk_overlap",
+      "count_stable": true,
+      "counts": {
+        "199": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "W:track_dangling",
+      "count_stable": true,
+      "counts": {
+        "1": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "W:via_dangling",
+      "count_stable": true,
+      "counts": {
+        "111": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "clearance",
+      "count_stable": true,
+      "counts": {
+        "209": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "copper_edge_clearance",
+      "count_stable": true,
+      "counts": {
+        "11": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "courtyards_overlap",
+      "count_stable": true,
+      "counts": {
+        "4": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "creepage",
+      "count_stable": true,
+      "counts": {
+        "100": 3
+      },
+      "distinct_set_count_at_least": 2,
+      "set_stable": false
+    },
+    {
+      "at_cap": false,
+      "category": "drill_out_of_range",
+      "count_stable": true,
+      "counts": {
+        "6": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "hole_clearance",
+      "count_stable": true,
+      "counts": {
+        "33": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "shorting_items",
+      "count_stable": true,
+      "counts": {
+        "39": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "solder_mask_bridge",
+      "count_stable": true,
+      "counts": {
+        "4": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    },
+    {
+      "at_cap": false,
+      "category": "unconnected_items",
+      "count_stable": true,
+      "counts": {
+        "348": 3
+      },
+      "distinct_set_count_at_least": 1,
+      "set_stable": true
+    }
+  ],
+  "kicad_cli_version": "10.0.5",
+  "sample_count": 3,
+  "schema_version": "temper-net41-baseline-drc-preflight/v1",
+  "trusted_for_candidate_admission": false,
+  "unstable_categories": [
+    "creepage"
+  ]
+}
