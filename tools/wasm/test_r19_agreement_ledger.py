@@ -17,10 +17,27 @@ from r19_agreement_ledger import (
     synthesize_missing_candidates,
     validate_append_only,
     validate_ledger,
+    validate_source_run,
 )
 from r19_compare import inject_one_disagreement, run_comparison
 
 SLOT = datetime(2026, 9, 1, 4, 40, tzinfo=UTC)
+
+
+def _run_metadata(candidate: dict) -> dict:
+    return {
+        "id": int(candidate["run_id"]),
+        "run_attempt": candidate["run_attempt"],
+        "event": candidate["event_name"],
+        "head_sha": candidate["source_commit"],
+        "head_branch": "main",
+        "path": ".github/workflows/wasm-tier-nightly.yml",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": candidate["expected_schedule_slot"],
+        "head_repository": {"full_name": "owner/temper"},
+        "repository": {"full_name": "owner/temper"},
+    }
 
 
 def _components(*, abi: str = "temper-worker-abi-v1") -> dict[str, str]:
@@ -325,18 +342,100 @@ def test_missing_slot_is_synthesized_once_after_grace() -> None:
     )
 
 
-def test_run_census_prevents_false_missing_slot() -> None:
-    assert (
-        synthesize_missing_candidates(
-            candidate="temper-io-types",
-            expected_slots=[SLOT],
-            run_census=[{"event": "schedule", "expected_schedule_slot": "2026-09-01T04:40:00Z"}],
-            existing_rows=[],
-            now=SLOT + timedelta(hours=3),
-            grace=timedelta(minutes=90),
-        )
-        == []
+def test_active_run_without_result_becomes_missing_after_grace() -> None:
+    missing = synthesize_missing_candidates(
+        candidate="temper-io-types",
+        expected_slots=[SLOT],
+        run_census=[{
+            "event": "schedule",
+            "status": "in_progress",
+            "run_id": "112233",
+            "run_attempt": 1,
+            "expected_schedule_slot": "2026-09-01T04:40:00Z",
+        }],
+        existing_rows=[],
+        now=SLOT + timedelta(hours=3),
+        grace=timedelta(minutes=90),
     )
+    assert len(missing) == 1
+    assert missing[0]["infrastructure_outcome"] == "missing_result"
+    assert missing[0]["run_id"].startswith("0:missing:")
+
+    # A real run can start after GitHub's scheduling delay. Keep the missed
+    # deadline as a reset, then retain the late result instead of rejecting it
+    # as out-of-order evidence.
+    late = _candidate()
+    rows = append_candidates([], [missing[0], late])
+    assert [row["reset_reason"] for row in rows] == ["missing_result", None]
+    assert rows[-1]["derived_streak"] == 1
+
+
+def test_completed_run_without_candidate_becomes_missing_result() -> None:
+    missing_slot = SLOT + timedelta(days=1)
+    missing = synthesize_missing_candidates(
+        candidate="temper-io-types",
+        expected_slots=[missing_slot],
+        run_census=[{
+            "event": "schedule",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_id": "998877",
+            "run_attempt": 1,
+            "expected_schedule_slot": "2026-09-02T04:40:00Z",
+        }],
+        existing_rows=[],
+        now=missing_slot + timedelta(hours=3),
+        grace=timedelta(minutes=90),
+    )
+    assert len(missing) == 1
+    assert missing[0]["run_id"] == "998877"
+    assert missing[0]["run_attempt"] == 1
+    previous = append_candidates([], [_candidate(0)])
+    rows = append_candidates(previous, missing)
+    assert rows[-1]["reset_reason"] == "missing_result"
+    assert rows[-1]["derived_streak"] == 0
+
+
+def test_candidate_is_bound_to_authoritative_workflow_run_metadata() -> None:
+    candidate = _candidate()
+    metadata = _run_metadata(candidate)
+    validate_source_run(
+        candidate,
+        metadata,
+        workflow_path=".github/workflows/wasm-tier-nightly.yml",
+        branch="main",
+    )
+
+    mutations = [
+        ("path", ".github/workflows/forged.yml"),
+        ("head_branch", "feature/forged-evidence"),
+        ("head_sha", "f" * 40),
+        ("run_attempt", 2),
+        ("created_at", "2026-09-02T04:40:00Z"),
+    ]
+    for field, value in mutations:
+        changed = copy.deepcopy(metadata)
+        changed[field] = value
+        with pytest.raises(LedgerError):
+            validate_source_run(
+                candidate,
+                changed,
+                workflow_path=".github/workflows/wasm-tier-nightly.yml",
+                branch="main",
+            )
+
+
+def test_candidate_source_must_be_the_base_repository() -> None:
+    candidate = _candidate()
+    metadata = _run_metadata(candidate)
+    metadata["head_repository"]["full_name"] = "fork/temper"
+    with pytest.raises(LedgerError, match="base repository"):
+        validate_source_run(
+            candidate,
+            metadata,
+            workflow_path=".github/workflows/wasm-tier-nightly.yml",
+            branch="main",
+        )
 
 
 def test_contract_change_starts_new_streak_at_one() -> None:

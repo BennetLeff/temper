@@ -2,7 +2,9 @@
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
 import { createPreviewWorker } from "../../packages/temper-worker/src/preview_worker_core.js";
@@ -18,8 +20,10 @@ import {
   makeScheduledUploadTag,
   parseUploadOutput,
   parseCheckExternalId,
+  processUploadDiagnostics,
   resolveUploadedVersion,
   validateArtifactForPublish,
+  validateExpectedFailuresPolicy,
   validateHealthIdentity,
   validateImmutablePreviewUrl,
   validateProductionInvariant,
@@ -104,6 +108,60 @@ test("artifact identity and the empty import allowlist fail closed", () => {
   const tooMany = manifest();
   tooMany.census = { ...tooMany.census, registered: 10_001, executed: 10_001, distinct_names: 10_001 };
   assert.throws(() => validateArtifactForPublish(tooMany, expected), /census budget/);
+});
+
+test("the Phase 6 candidate cannot self-declare a WASM regression expected", () => {
+  const base = Buffer.from('{"expected_failures":{}}\n');
+  assert.doesNotThrow(() => validateExpectedFailuresPolicy(base, base));
+  assert.throws(
+    () => validateExpectedFailuresPolicy(
+      Buffer.from('{"expected_failures":{"suite::hidden":{"class":"trap","reason":"PR-added"}}}\n'),
+      base,
+    ),
+    /differs from the base-owned policy/,
+  );
+  const nonemptyBase = Buffer.from('{"expected_failures":{"suite::hidden":{"class":"trap","reason":"base"}}}\n');
+  assert.throws(
+    () => validateExpectedFailuresPolicy(nonemptyBase, nonemptyBase),
+    /must have no expected failures/,
+  );
+});
+
+test("upload diagnostics are scrubbed before success or failure is reported", () => {
+  const capability = "secret-preview-capability-123";
+  assert.deepEqual(processUploadDiagnostics("uploaded\n", capability, 0), {
+    output: "uploaded\n",
+    error: null,
+  });
+  assert.deepEqual(processUploadDiagnostics("network failed\n", capability, 17), {
+    output: "network failed\n",
+    error: "Wrangler version upload failed with exit 17",
+  });
+  const leaked = processUploadDiagnostics(`request=${capability}\n`, capability, 1);
+  assert.equal(leaked.output, "request=[REDACTED]\n");
+  assert.equal(leaked.error, "Wrangler output exposed the preview capability");
+  assert.doesNotMatch(leaked.output, new RegExp(capability));
+});
+
+test("the workflow upload scrubber preserves sanitized failed-command diagnostics", () => {
+  const directory = mkdtempSync(join(tmpdir(), "wasm-upload-scrub-"));
+  const output = join(directory, "upload.txt");
+  const capability = "secret-preview-capability-456";
+  try {
+    writeFileSync(output, `wrangler failed with ${capability}\n`);
+    const result = spawnSync(process.execPath, [
+      new URL("./preview_version.mjs", import.meta.url).pathname,
+      "scrub-upload", "--upload-output", output, "--exit-code", "17",
+    ], {
+      encoding: "utf8",
+      env: { ...process.env, TEMPER_PREVIEW_CAPABILITY: capability },
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Wrangler output exposed the preview capability/);
+    assert.equal(readFileSync(output, "utf8"), "wrangler failed with [REDACTED]\n");
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test("upload tags distinguish attempts and version resolution is exact", () => {
@@ -232,6 +290,13 @@ test("orphan and deadline reconciliation preserves approval-pending", () => {
   const now = Date.parse("2026-09-01T12:00:00Z");
   assert.equal(classifyPendingCheck({ now, createdAt: now - 60_000, sourceStatus: "queued", approvalPending: true }).state, "pending-approval");
   assert.equal(classifyPendingCheck({ now, createdAt: now - 31 * 60_000, sourceStatus: "completed", published: false }).state, "failed-orphan");
+  assert.equal(classifyPendingCheck({
+    now,
+    createdAt: now - 40 * 60_000,
+    sourceStatus: "completed",
+    sourceCompletedAt: now - 5 * 60_000,
+    published: false,
+  }).state, "pending");
   assert.equal(classifyPendingCheck({ now, createdAt: now - 61 * 60_000, sourceStatus: "queued", approvalPending: false }).state, "failed-deadline");
   assert.equal(classifyPendingCheck({ now, createdAt: now - 60_000, sourceStatus: "in_progress", published: false }).state, "pending");
   assert.deepEqual(
@@ -243,6 +308,20 @@ test("orphan and deadline reconciliation preserves approval-pending", () => {
     `temper-wasm-preview-v1:99:2:42:short`,
     `other:99:2:42:${SHA}`,
   ]) assert.throws(() => parseCheckExternalId(invalid), /external_id/);
+});
+
+test("diagnostics are durable before an authoritative preview success", () => {
+  const workflow = readFileSync(
+    new URL("../../.github/workflows/wasm-tier-preview-status.yml", import.meta.url),
+    "utf8",
+  );
+  const upload = workflow.indexOf("- name: Upload diagnostics for every non-cancelled exit");
+  const complete = workflow.indexOf("- name: Complete producer-bound check");
+  assert.ok(upload >= 0 && complete > upload);
+  assert.match(workflow.slice(upload, complete), /id: diagnostics/);
+  assert.match(workflow.slice(upload, complete), /if-no-files-found: error/);
+  assert.match(workflow.slice(complete), /steps\.diagnostics\.outcome/);
+  assert.match(workflow.slice(complete), /publishOk && diagnosticsOk && current/);
 });
 
 test("privileged workflows contain only immutable Action refs", () => {
@@ -258,12 +337,12 @@ test("privileged workflows contain only immutable Action refs", () => {
   assert.match(publisher, /npm ci --prefix "\$\{WRANGLER_RUNTIME\}" --ignore-scripts/);
   assert.doesNotMatch(publisher, /npm install|npm view|--no-package-lock/);
   assert.match(publisher, /rm -f \/tmp\/preview-stage\/secrets\.json/);
-  assert.match(publisher, /grep -Fq "\$\{CAPABILITY\}" \/tmp\/preview-diagnostics\/upload\.txt/);
+  assert.match(publisher, /TEMPER_PREVIEW_CAPABILITY="\$\{CAPABILITY\}" node tools\/wasm\/preview_version\.mjs/);
   assert.match(publisher, /pr\.head\.sha === expectedHead/);
   assert.match(publisher, /production-invariant --before .*production-before\.json --after .*production-after\.json/);
   assert.match(publisher, /source\?\.status === "waiting"/);
-  assert.match(publisher, /age > 30 \* 60_000/);
-  assert.match(publisher, /age > 60 \* 60_000/);
+  assert.match(publisher, /sourceCompletedAge > 30 \* 60_000/);
+  assert.match(publisher, /source\?\.status !== "completed" && age > 60 \* 60_000/);
   assert.match(publisher, /preview-source-identities/);
   assert.doesNotMatch(publisher, /parts\.length !== 6/);
   const nightly = readFileSync(new URL("../../.github/workflows/wasm-tier-nightly.yml", import.meta.url), "utf8");
@@ -273,9 +352,8 @@ test("privileged workflows contain only immutable Action refs", () => {
   for (const workflow of [publisher, nightly]) {
     const upload = workflow.indexOf('"${WRANGLER}" versions upload');
     const capture = workflow.indexOf("upload_rc=$?", upload);
-    const scrub = workflow.indexOf('grep -Fq "${CAPABILITY}"', capture);
-    const honorFailure = workflow.indexOf('[ "${upload_rc}" -ne 0 ]', scrub);
-    assert.ok(upload >= 0 && capture > upload && scrub > capture && honorFailure > scrub,
-      "upload output must be scrubbed before a failing Wrangler exit is honored");
+    const scrub = workflow.indexOf("scrub-upload --upload-output", capture);
+    assert.ok(upload >= 0 && capture > upload && scrub > capture,
+      "the tested scrubber must process output and honor failure after Wrangler exits");
   }
 });

@@ -25,7 +25,10 @@ jobs:
       pull-requests: read
       checks: write
     steps:
-      - name: Create a pending check on the immutable PR head
+      # Persist the recovery identity before creating any check. If artifact
+      # storage is unavailable, this job fails without leaving a check that no
+      # later workflow can identify or terminalize.
+      - name: Write the base-owned source identity
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           script: |
@@ -43,21 +46,6 @@ jobs:
               run_attempt: Number(process.env.GITHUB_RUN_ATTEMPT),
               external_id: externalId,
             }) + "\n");
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: "Cloudflare exact-head WASM preview",
-              head_sha: pr.head.sha,
-              status: "in_progress",
-              external_id: externalId,
-              details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              output: {
-                title: "Waiting for credential-free build and trusted publisher",
-                summary: pr.head.repo.fork
-                  ? "A maintainer may need to approve the credential-free fork build. No Cloudflare credential is exposed to it."
-                  : "The PR head is building without credentials; a fresh protected-environment publisher will validate and sweep its artifact.",
-              },
-            });
 
       - name: Upload base-owned source identity for failure reconciliation
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -66,6 +54,33 @@ jobs:
           path: /tmp/preview-source-identity.json
           if-no-files-found: error
           retention-days: 14
+
+      - name: Create a pending check on the immutable PR head
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const fs = require("node:fs");
+            const identity = JSON.parse(fs.readFileSync("/tmp/preview-source-identity.json", "utf8"));
+            const pr = context.payload.pull_request;
+            if (!pr || pr.state !== "open" || pr.draft) throw new Error("initializer requires an open, non-draft PR");
+            if (identity.head_sha !== pr.head.sha || identity.pull_request_number !== pr.number) {
+              throw new Error("source identity changed before pending-check creation");
+            }
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "Cloudflare exact-head WASM preview",
+              head_sha: identity.head_sha,
+              status: "in_progress",
+              external_id: identity.external_id,
+              details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              output: {
+                title: "Waiting for credential-free build and trusted publisher",
+                summary: pr.head.repo.fork
+                  ? "A maintainer may need to approve the credential-free fork build. No Cloudflare credential is exposed to it."
+                  : "The PR head is building without credentials; a fresh protected-environment publisher will validate and sweep its artifact.",
+              },
+            });
 
   build-candidate:
     name: Build exact PR-head WASM candidate (credential-free)
@@ -146,7 +161,9 @@ jobs:
             const fs = require("node:fs");
             const base = JSON.parse(fs.readFileSync("/tmp/base-preview-candidate.json", "utf8"));
             const head = JSON.parse(fs.readFileSync("/tmp/preview-candidate.json", "utf8"));
-            if (head.crate !== base.crate) throw new Error(`head candidate ${head.crate} differs from base-owned candidate ${base.crate}`);
+            if (JSON.stringify(head) !== JSON.stringify(base)) {
+              throw new Error("head preview control contract differs from the base-owned contract");
+            }
           '
 
       - name: Install wasm32 target
@@ -219,6 +236,10 @@ jobs:
           EXPECTED_PATH="$(cat /tmp/expected-path.txt)"
           git -C "${GITHUB_WORKSPACE}/head" show "${HEAD_SHA}:${EXPECTED_PATH}" \
             > /tmp/wasm-preview-artifact/expected-failures.json
+          node "${GITHUB_WORKSPACE}/control/tools/wasm/preview_version.mjs" \
+            validate-expected-failures \
+            --candidate /tmp/wasm-preview-artifact/expected-failures.json \
+            --base "${GITHUB_WORKSPACE}/control/${EXPECTED_PATH}"
           env -u GITHUB_ENV -u GITHUB_OUTPUT -u GITHUB_PATH -u GITHUB_STEP_SUMMARY \
               -u GITHUB_TOKEN -u GH_TOKEN \
               -u ACTIONS_RUNTIME_TOKEN -u ACTIONS_CACHE_URL -u ACTIONS_RESULTS_URL \

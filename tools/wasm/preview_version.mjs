@@ -97,6 +97,44 @@ export function validateArtifactForPublish(manifest, expected) {
   return manifest;
 }
 
+export function validateExpectedFailuresPolicy(candidateBytes, baseBytes) {
+  if (!Buffer.isBuffer(candidateBytes) || !Buffer.isBuffer(baseBytes)) {
+    throw new Error("expected-failure policy inputs must be bytes");
+  }
+  if (!candidateBytes.equals(baseBytes)) {
+    throw new Error("head expected-failure manifest differs from the base-owned policy");
+  }
+  let manifest;
+  try { manifest = JSON.parse(baseBytes.toString("utf8")); } catch {
+    throw new Error("base-owned expected-failure manifest is invalid JSON");
+  }
+  const expected = manifest?.expected_failures;
+  if (!expected || typeof expected !== "object" || Array.isArray(expected)) {
+    throw new Error("base-owned expected-failure policy is malformed");
+  }
+  if (Object.keys(expected).length !== 0) {
+    throw new Error("Phase 6 preview candidate must have no expected failures");
+  }
+}
+
+export function processUploadDiagnostics(output, capability, exitCode) {
+  if (typeof output !== "string" || typeof capability !== "string" || capability.length < 16) {
+    throw new Error("upload diagnostics require text and a non-trivial capability");
+  }
+  const rc = Number(exitCode);
+  if (!Number.isSafeInteger(rc) || rc < 0 || rc > 255) {
+    throw new Error("upload exit code must be an integer from 0 through 255");
+  }
+  const leaked = output.includes(capability);
+  const sanitized = output.split(capability).join("[REDACTED]");
+  return {
+    output: sanitized,
+    error: leaked
+      ? "Wrangler output exposed the preview capability"
+      : (rc === 0 ? null : `Wrangler version upload failed with exit ${rc}`),
+  };
+}
+
 function versionTag(row) {
   return row?.annotations?.["workers/tag"] ?? row?.annotations?.tag ?? row?.tag ?? null;
 }
@@ -174,16 +212,20 @@ export function validateProductionInvariant(before, after) {
   if (canonical(before) !== canonical(after)) throw new Error("production deployment changed during preview upload");
 }
 
-export function classifyPendingCheck({ now, createdAt, sourceStatus, approvalPending = false, published = false }) {
+export function classifyPendingCheck({ now, createdAt, sourceStatus, sourceCompletedAt = null, approvalPending = false, published = false }) {
   const age = Number(now) - Number(createdAt);
   if (published) return { state: "published", conclusion: null };
   if (approvalPending && age <= 24 * 60 * 60_000) {
     return { state: "pending-approval", conclusion: null, summary: "Approve the credential-free source workflow to continue." };
   }
-  if (sourceStatus === "completed" && age > 30 * 60_000) {
+  const parsedCompletedAt = Number(sourceCompletedAt);
+  const completedAge = sourceCompletedAt === null || !Number.isFinite(parsedCompletedAt)
+    ? age
+    : Number(now) - parsedCompletedAt;
+  if (sourceStatus === "completed" && completedAge > 30 * 60_000) {
     return { state: "failed-orphan", conclusion: "failure", summary: "Source build finished but no trusted preview verdict was published." };
   }
-  if (age > 60 * 60_000) {
+  if (sourceStatus !== "completed" && age > 60 * 60_000) {
     return { state: "failed-deadline", conclusion: "timed_out", summary: "Exact-head preview verdict deadline expired." };
   }
   return { state: "pending", conclusion: null };
@@ -234,6 +276,24 @@ async function cli(args) {
     const rows = JSON.parse(readFileSync(value(args, "--versions"), "utf8"));
     const resolved = resolveUploadedVersion(rows, value(args, "--tag"), value(args, "--service"));
     writeFileSync(value(args, "--output"), `${canonical(resolved)}\n`);
+    return;
+  }
+  if (command === "validate-expected-failures") {
+    validateExpectedFailuresPolicy(
+      readFileSync(value(args, "--candidate")),
+      readFileSync(value(args, "--base")),
+    );
+    return;
+  }
+  if (command === "scrub-upload") {
+    const path = value(args, "--upload-output");
+    const result = processUploadDiagnostics(
+      readFileSync(path, "utf8"),
+      process.env.TEMPER_PREVIEW_CAPABILITY ?? "",
+      Number(value(args, "--exit-code")),
+    );
+    writeFileSync(path, result.output);
+    if (result.error) throw new Error(result.error);
     return;
   }
   if (command === "parse-upload") {

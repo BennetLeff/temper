@@ -345,6 +345,10 @@ on:
       - 'tools/wasm/**'
       - 'scripts/gen_wasm_test_registry.py'
       - '.github/workflows/wasm-tier-pr.yml'
+      - '.github/workflows/wasm-tier-ledger.yml'
+      - '.github/workflows/wasm-tier-nightly.yml'
+      - '.github/workflows/wasm-tier-preview-status.yml'
+      - '.github/workflows/wasm-tier-preview-verdict.yml'
   workflow_dispatch:
     inputs:
       inject_failure:
@@ -375,6 +379,29 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  phase6-contract-tests:
+    name: Phase 6 WASM evidence controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - name: Run credential-free Phase 6 contract tests
+        run: |
+          set -euo pipefail
+          node --test \
+            tools/wasm/test_preview_version.mjs \
+            tools/wasm/test_pr_preview_build.mjs \
+            tools/wasm/test_candidate_cadence.mjs
+          node tools/wasm/test_sweep_durability.mjs
+          python3 -m pip install pytest==9.0.2
+          python3 -m pytest tools/wasm/test_r19_agreement_ledger.py -q
+
   tier-verdict:
     name: Deployed WASM tier verdict (advisory — scoped to touched tiers, no cargo)
     runs-on: ubuntu-latest

@@ -1036,16 +1036,9 @@ jobs:
             > "${diag}/upload.txt" 2>&1
           upload_rc=$?
           set -e
-          if grep -Fq "${CAPABILITY}" "${diag}/upload.txt"; then
-            sed -i "s/${CAPABILITY}/[REDACTED]/g" "${diag}/upload.txt"
-            exit 1
-          fi
-          if [ "${upload_rc}" -ne 0 ]; then
-            cat "${diag}/upload.txt"
-            echo "::error::Wrangler version upload failed with exit ${upload_rc} after sanitized diagnostics were preserved"
-            exit 1
-          fi
           rm -f "${stage}/secrets.json"
+          TEMPER_PREVIEW_CAPABILITY="${CAPABILITY}" node tools/wasm/preview_version.mjs \
+            scrub-upload --upload-output "${diag}/upload.txt" --exit-code "${upload_rc}"
           node tools/wasm/preview_version.mjs parse-upload --upload-output "${diag}/upload.txt" \
             --service temper-wasm-io-types --output "${diag}/upload-identity.json"
           "${WRANGLER}" versions list --config "${stage}/wrangler.toml" --json > "${diag}/versions.json"

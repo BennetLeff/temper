@@ -318,6 +318,55 @@ def _validate_candidate(row: dict[str, Any]) -> None:
     _validate_counts(row)
 
 
+def validate_source_run(
+    candidate: dict[str, Any],
+    metadata: dict[str, Any],
+    *,
+    workflow_path: str,
+    branch: str,
+) -> None:
+    """Bind an untrusted candidate to GitHub's authoritative workflow-run record."""
+    _validate_candidate(candidate)
+    if not isinstance(metadata, dict):
+        raise LedgerError("workflow-run metadata must be a JSON object")
+    expected = {
+        "run_id": str(metadata.get("id", "")),
+        "run_attempt": metadata.get("run_attempt"),
+        "event_name": metadata.get("event"),
+        "source_commit": metadata.get("head_sha"),
+    }
+    for field, value in expected.items():
+        if candidate[field] != value:
+            raise LedgerError(
+                f"candidate {field} does not match authoritative workflow-run metadata"
+            )
+    if metadata.get("path") != workflow_path:
+        raise LedgerError("source run did not execute the trusted nightly workflow path")
+    if metadata.get("head_branch") != branch:
+        raise LedgerError("source run did not execute on the trusted nightly branch")
+    if metadata.get("status") != "completed":
+        raise LedgerError("source workflow run is not completed")
+    if metadata.get("conclusion") not in {
+        "success", "failure", "timed_out", "cancelled", "action_required", "neutral"
+    }:
+        raise LedgerError("source workflow run has no terminal conclusion")
+    head_repository = metadata.get("head_repository")
+    repository = metadata.get("repository")
+    if (
+        not isinstance(head_repository, dict)
+        or not isinstance(repository, dict)
+        or head_repository.get("full_name") != repository.get("full_name")
+    ):
+        raise LedgerError("source workflow run did not execute from the base repository")
+    if candidate["event_name"] == "schedule":
+        created = _parse_timestamp(metadata.get("created_at"), "workflow_run.created_at")
+        expected_slot = created.astimezone(UTC).strftime("%Y-%m-%dT04:40:00Z")
+        if candidate["expected_schedule_slot"] != expected_slot:
+            raise LedgerError(
+                "candidate expected_schedule_slot does not match the scheduled source run"
+            )
+
+
 def _raw(row: dict[str, Any]) -> dict[str, Any]:
     return {key: copy_value(row[key]) for key in RAW_FIELDS}
 
@@ -541,17 +590,42 @@ def synthesize_missing_candidates(
     represented = {
         row["expected_schedule_slot"] for row in existing_rows if row["candidate"] == candidate
     }
-    census_slots = {
-        entry.get("expected_schedule_slot")
-        for entry in run_census
-        if entry.get("event") == "schedule"
-    }
+    census = list(run_census)
+    completed_by_slot: dict[str, dict[str, Any]] = {}
+    for entry in census:
+        if entry.get("event") != "schedule" or entry.get("status") != "completed":
+            continue
+        slot_text = entry.get("expected_schedule_slot")
+        if not isinstance(slot_text, str):
+            continue
+        current = completed_by_slot.get(slot_text)
+        entry_key = (entry.get("run_attempt", 0), str(entry.get("run_id", "")))
+        current_key = (
+            (current or {}).get("run_attempt", 0),
+            str((current or {}).get("run_id", "")),
+        )
+        if current is None or entry_key > current_key:
+            completed_by_slot[slot_text] = entry
     missing: list[dict[str, Any]] = []
     for slot in sorted(expected_slots):
         slot_text = _format_timestamp(slot)
         deadline = slot.astimezone(UTC) + grace
-        if slot_text in represented or slot_text in census_slots or now.astimezone(UTC) < deadline:
+        if slot_text in represented or now.astimezone(UTC) < deadline:
             continue
+        completed = completed_by_slot.get(slot_text)
+        completed_run_id = (completed or {}).get("run_id")
+        completed_attempt = (completed or {}).get("run_attempt")
+        run_id = (
+            str(completed_run_id)
+            if isinstance(completed_run_id, (str, int)) and str(completed_run_id)
+            else f"0:missing:{slot_text}"
+        )
+        run_attempt = (
+            completed_attempt
+            if isinstance(completed_attempt, int) and not isinstance(completed_attempt, bool)
+            and completed_attempt >= 0
+            else 0
+        )
         missing.append(
             {
                 "schema_version": SCHEMA_VERSION,
@@ -560,8 +634,8 @@ def synthesize_missing_candidates(
                 "expected_schedule_slot": slot_text,
                 "observed_at": _format_timestamp(deadline),
                 "source_commit": None,
-                "run_id": f"missing:{slot_text}",
-                "run_attempt": 0,
+                "run_id": run_id,
+                "run_attempt": run_attempt,
                 "event_name": "watchdog",
                 "comparison_contract": {"digest": None, "components": None},
                 "wasm_sha256": None,
@@ -709,6 +783,14 @@ def _parser() -> argparse.ArgumentParser:
     append.add_argument("--ledger", type=Path, required=True)
     append.add_argument("--candidate", type=Path, action="append", required=True)
 
+    source_run = sub.add_parser(
+        "validate-source-run", help="bind one candidate to authoritative Actions metadata"
+    )
+    source_run.add_argument("--candidate", type=Path, required=True)
+    source_run.add_argument("--run-metadata", type=Path, required=True)
+    source_run.add_argument("--workflow-path", required=True)
+    source_run.add_argument("--branch", required=True)
+
     watchdog = sub.add_parser("watchdog", help="append missing-result rows after grace")
     watchdog.add_argument("--ledger", type=Path, required=True)
     watchdog.add_argument("--candidate-name", required=True)
@@ -765,6 +847,17 @@ def main(argv: list[str] | None = None) -> int:
             after = append_candidates(before, candidates)
             write_jsonl(args.ledger, after)
             print(f"accepted {len(after) - len(before)} new row(s); ledger has {len(after)}")
+        elif args.command == "validate-source-run":
+            candidates = _load_candidate_documents(args.candidate)
+            if len(candidates) != 1:
+                raise LedgerError("source-run validation requires exactly one candidate row")
+            validate_source_run(
+                candidates[0],
+                json.loads(args.run_metadata.read_text()),
+                workflow_path=args.workflow_path,
+                branch=args.branch,
+            )
+            print("candidate matches authoritative workflow-run metadata")
         elif args.command == "watchdog":
             before = load_jsonl(args.ledger)
             census_value = json.loads(args.run_census.read_text())

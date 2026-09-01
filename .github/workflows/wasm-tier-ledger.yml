@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows: ["WASM Tier Nightly Sweep (R19 Agreement)"]
     types: [completed]
+    branches: [main]
   # The nightly is expected at 04:40 UTC.  This independent 07:10 census is
   # beyond the 90-minute grace period, so a run that never started cannot
   # disappear from the evidence record.
@@ -56,6 +57,8 @@ jobs:
           mkdir -p /tmp/r19-candidates
           source_run_id="${WORKFLOW_RUN_ID:-${DISPATCH_RUN_ID:-}}"
           if [ -n "${source_run_id}" ]; then
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${source_run_id}" \
+              > /tmp/r19-source-run.json
             gh run download "${source_run_id}" \
               --pattern 'r19-ledger-candidate-*' \
               --dir /tmp/r19-candidates \
@@ -70,7 +73,7 @@ jobs:
           set -euo pipefail
           day="$(date -u +%Y-%m-%d)"
           gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/wasm-tier-nightly.yml/runs?event=schedule&created=${day}&per_page=100" \
-            --jq '{workflow_runs: [.workflow_runs[] | {event: .event, expected_schedule_slot: (.created_at[0:10] + "T04:40:00Z")}]}' \
+            --jq '{workflow_runs: [.workflow_runs[] | {event: .event, status: .status, conclusion: .conclusion, run_id: (.id | tostring), run_attempt: .run_attempt, expected_schedule_slot: (.created_at[0:10] + "T04:40:00Z")}]}' \
             > /tmp/r19-run-census.json
           echo "${day}T04:40:00Z" > /tmp/r19-expected-slot.txt
 
@@ -105,6 +108,12 @@ jobs:
           while IFS= read -r -d '' candidate; do
             # One candidate per artifact preserves one accepted row per commit.
             jq -e 'type == "object"' "${candidate}" >/dev/null
+            test -s /tmp/r19-source-run.json
+            python3 /tmp/r19_agreement_ledger.py validate-source-run \
+              --candidate "${candidate}" \
+              --run-metadata /tmp/r19-source-run.json \
+              --workflow-path .github/workflows/wasm-tier-nightly.yml \
+              --branch main
             python3 /tmp/r19_agreement_ledger.py append \
               --ledger "${ledger}" --candidate "${candidate}"
             if ! git diff --quiet -- "${ledger}"; then

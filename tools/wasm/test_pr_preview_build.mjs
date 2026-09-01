@@ -163,6 +163,47 @@ test("the staging script builds only the topology-derived preview target", () =>
   }
 });
 
+test("the source identity is durable before the pending check is created", () => {
+  const workflow = readFileSync(
+    new URL("../../.github/workflows/wasm-tier-preview-verdict.yml", import.meta.url),
+    "utf8",
+  );
+  const write = workflow.indexOf("- name: Write the base-owned source identity");
+  const upload = workflow.indexOf("- name: Upload base-owned source identity for failure reconciliation");
+  const create = workflow.indexOf("- name: Create a pending check on the immutable PR head");
+  assert.ok(write >= 0 && upload > write && create > upload);
+  assert.ok(workflow.indexOf("github.rest.checks.create", create) > create);
+  assert.equal(workflow.slice(write, upload).includes("github.rest.checks.create"), false);
+});
+
+test("both trusted workflows reject every head-owned preview control redirect", () => {
+  const producer = readFileSync(
+    new URL("../../.github/workflows/wasm-tier-preview-verdict.yml", import.meta.url),
+    "utf8",
+  );
+  const publisher = readFileSync(
+    new URL("../../.github/workflows/wasm-tier-preview-status.yml", import.meta.url),
+    "utf8",
+  );
+  assert.match(producer, /JSON\.stringify\(head\) !== JSON\.stringify\(base\)/);
+  assert.match(publisher, /cmp -s \/tmp\/base-preview-candidate\.json \/tmp\/head-preview-candidate\.json/);
+  for (const workflow of [producer, publisher]) {
+    assert.match(workflow, /head preview control contract differs from the base-owned contract/);
+  }
+});
+
+test("both privileged upload paths use the tested diagnostics scrubber", () => {
+  for (const path of [
+    "../../.github/workflows/wasm-tier-preview-status.yml",
+    "../../.github/workflows/wasm-tier-nightly.yml",
+  ]) {
+    const workflow = readFileSync(new URL(path, import.meta.url), "utf8");
+    assert.match(workflow, /TEMPER_PREVIEW_CAPABILITY="\$\{CAPABILITY\}" node tools\/wasm\/preview_version\.mjs/);
+    assert.match(workflow, /scrub-upload --upload-output/);
+    assert.doesNotMatch(workflow, /sed -i "s\/\$\{CAPABILITY\}/);
+  }
+});
+
 test("zero candidates and a candidate with two build modules fail closed", () => {
   const empty = structuredClone(topology);
   empty.promotion_candidates = [];
@@ -276,7 +317,7 @@ test("the base-owned workflow checks out and attests an exact credential-free he
   assert.match(workflow, /\/control\/scripts\/stage_wasm_families\.sh/);
   assert.match(workflow, /\/control\/tools\/wasm\/run_wasm_tests\.mjs/);
   assert.match(workflow, /\/control\/tools\/wasm\/tier_topology\.mjs/);
-  assert.match(workflow, /head\.crate !== base\.crate/);
+  assert.match(workflow, /JSON\.stringify\(head\) !== JSON\.stringify\(base\)/);
   assert.match(workflow, /HEAD_SHA}:tools\/wasm\/wasm_tier_topology\.json/);
   assert.match(workflow, /github\.run_id.*github\.run_attempt/);
   assert.doesNotMatch(workflow, /actions\/cache|save-cache/);
