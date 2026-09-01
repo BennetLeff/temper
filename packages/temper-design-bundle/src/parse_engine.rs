@@ -310,7 +310,7 @@ pub enum Num {
 }
 
 impl Num {
-    fn as_f64(&self) -> f64 {
+    pub(crate) fn as_f64(&self) -> f64 {
         match self {
             Num::I(v) => *v as f64,
             Num::F(v) => *v,

@@ -30,6 +30,8 @@ Groups:
 from __future__ import annotations
 
 import sys
+import json
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
@@ -37,12 +39,15 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_creepage_clearance_drift import (  # noqa: E402
+    Declaration,
+    FamilyResult,
     KNOWN_TIER_MISCLASSIFICATIONS,
     GateError,
     build_families,
     discover_ato,
     discover_python,
     discover_yaml,
+    _resolve_reinforced_clearance_authority,
     run,
 )
 
@@ -710,6 +715,185 @@ class TestAntiVacuity:
         with pytest.raises(GateError):
             run(tmp_path)
 
+
+class TestRoleAwareAuthority:
+    @staticmethod
+    def _family() -> FamilyResult:
+        return FamilyResult(
+            metric="clearance",
+            tier="reinforced",
+            members=[
+                Declaration(
+                    file="packages/temper-placer/configs/netclass_rules.yaml",
+                    line=1,
+                    name="classes.HighVoltage.clearance",
+                    metric="clearance",
+                    metric_confidence="direct",
+                    tier="reinforced",
+                    value_mm=2.0,
+                    raw="clearance: 2.0",
+                    context="reinforced",
+                ),
+                Declaration(
+                    file="elec/src/constraints.ato",
+                    line=2,
+                    name="HV_to_LV.min_clearance",
+                    metric="clearance",
+                    metric_confidence="direct",
+                    tier="reinforced",
+                    value_mm=6.0,
+                    raw="min_clearance = 6.0mm",
+                    context="reinforced",
+                ),
+                Declaration(
+                    file="packages/temper-placer/configs/netclass_rules.yaml",
+                    line=3,
+                    name="classes.HighVoltageIsolated.clearance",
+                    metric="clearance",
+                    metric_confidence="direct",
+                    tier="reinforced",
+                    value_mm=6.0,
+                    raw="clearance: 6.0",
+                    context="reinforced",
+                ),
+            ],
+        )
+
+    def test_role_aware_verdict_is_digest_bound_and_review_visible(self) -> None:
+        family = self._family()
+        contract = {
+            "schema_version": "temper-isolation-authority/v1",
+            "contract_digest": "c" * 64,
+            "topology_authority_digest": "t" * 64,
+            "rows": [
+                {
+                    "key": f"authority.{index}",
+                    "role": role,
+                    "source": f"source-{index}",
+                    "review_status": "current_edition_review_required",
+                    "applicable_minimum_key": "minimum",
+                }
+                for index, role in enumerate(
+                    ["fabrication_check", "conservative_design_target", "fabrication_check"]
+                )
+            ],
+            "projections": [
+                {
+                    "file": row.file,
+                    "name": row.name,
+                    "authority_key": f"authority.{index}",
+                    "value_mm": row.value_mm,
+                }
+                for index, row in enumerate(family.members)
+            ],
+        }
+
+        def evaluate(request_json: str) -> str:
+            request = json.loads(request_json)
+            canonical = json.dumps(
+                [request["schema_version"], sorted(request["rows"], key=lambda row: (row["file"], row["name"]))],
+                separators=(",", ":"),
+            )
+            return json.dumps(
+                {
+                    "schema_version": "temper-isolation-verdict/v1",
+                    "request_digest": sha256(canonical.encode()).hexdigest(),
+                    "canonical_request_json": canonical,
+                    "contract_schema_version": contract["schema_version"],
+                    "contract_digest": contract["contract_digest"],
+                    "topology_authority_digest": contract["topology_authority_digest"],
+                    "role_resolved": True,
+                    "results": [
+                        {
+                            "file": row.file,
+                            "name": row.name,
+                            "authority_key": f"authority.{index}",
+                            "role": contract["rows"][index]["role"],
+                            "value_mm": row.value_mm,
+                            "relation": "at_or_above_applicable_minimum",
+                            "source": contract["rows"][index]["source"],
+                            "review_status": "current_edition_review_required",
+                        }
+                        for index, row in enumerate(family.members)
+                    ],
+                    "review_required": ["clearance.hv_lv.120v_ovc2.minimum"],
+                }
+            )
+
+        verdict = _resolve_reinforced_clearance_authority(
+            family,
+            contract_json=json.dumps(contract),
+            evaluator=evaluate,
+        )
+
+        assert verdict["role_resolved"] is True
+        assert verdict["review_required"] == ["clearance.hv_lv.120v_ovc2.minimum"]
+
+        malformed = json.loads(evaluate(json.dumps({"schema_version": "x", "rows": []})))
+        malformed["results"][0].pop("role")
+        with pytest.raises(GateError, match="changed role"):
+            _resolve_reinforced_clearance_authority(
+                family,
+                contract_json=json.dumps(contract),
+                evaluator=lambda _request: json.dumps(malformed),
+            )
+
+    def test_digest_or_coverage_loss_fails_closed(self) -> None:
+        family = self._family()
+        contract = {
+            "schema_version": "temper-isolation-authority/v1",
+            "contract_digest": "c" * 64,
+            "topology_authority_digest": "t" * 64,
+            "rows": [],
+            "projections": [],
+        }
+
+        def bad_evaluator(_request_json: str) -> str:
+            return json.dumps(
+                {
+                    "schema_version": "temper-isolation-verdict/v1",
+                    "request_digest": "0" * 64,
+                    "canonical_request_json": "[]",
+                    "contract_schema_version": contract["schema_version"],
+                    "contract_digest": "wrong",
+                    "topology_authority_digest": contract["topology_authority_digest"],
+                    "role_resolved": True,
+                    "results": [],
+                    "review_required": [],
+                }
+            )
+
+        with pytest.raises(GateError):
+            _resolve_reinforced_clearance_authority(
+                family,
+                contract_json=json.dumps(contract),
+                evaluator=bad_evaluator,
+            )
+
+    def test_production_discovery_and_real_rust_authority_agree(self) -> None:
+        repo_root = Path(__file__).resolve().parents[2]
+        pytest.importorskip("temper_design_bundle_python")
+
+        state, report, families, *_ = run(repo_root)
+
+        assert state == "clean"
+        governed = next(
+            family
+            for family in families
+            if (family.metric, family.tier) == ("clearance", "reinforced")
+        )
+        assert {(row.file, row.name) for row in governed.members} == {
+            (
+                "packages/temper-placer/configs/netclass_rules.yaml",
+                "classes.HighVoltage.clearance",
+            ),
+            ("elec/src/constraints.ato", "HV_to_LV.min_clearance"),
+            (
+                "packages/temper-placer/configs/netclass_rules.yaml",
+                "classes.HighVoltageIsolated.clearance",
+            ),
+        }
+        assert report.role_resolutions[("clearance", "reinforced")]["role_resolved"] is True
 
 # ---------------------------------------------------------------------------
 # End-to-end

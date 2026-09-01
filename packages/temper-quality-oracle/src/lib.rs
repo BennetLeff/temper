@@ -14,21 +14,21 @@
 // keeps the lint.
 #![cfg_attr(not(feature = "python"), allow(dead_code))]
 
-pub mod cluster_f;
-pub mod types;
-pub mod ipc2221;
+pub mod aesthetic;
 pub mod classification;
-pub mod derivation;
+pub mod cluster_f;
 pub mod config;
-pub mod thresholds;
+pub mod derivation;
+pub mod ipc2221;
 pub mod oracle;
 pub mod placement_metrics;
 pub mod property_campaigns;
-pub mod aesthetic;
 pub mod quality_score;
-pub mod routing_quality;
-pub mod validation_metrics;
 pub mod regional_feasibility;
+pub mod routing_quality;
+pub mod thresholds;
+pub mod types;
+pub mod validation_metrics;
 
 // NOT gated on `python`. The wasm32 tier builds with --no-default-features,
 // so an added `python` gate here would silently exclude the registry and the
@@ -44,13 +44,13 @@ pub mod wasm_test_registry;
 pub(crate) mod tests_common;
 
 #[cfg(feature = "python")]
+use pyo3::Py;
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList};
-#[cfg(feature = "python")]
-use pyo3::Py;
 #[cfg(feature = "python")]
 use std::collections::HashMap;
 
@@ -58,8 +58,8 @@ use std::collections::HashMap;
 use crate::oracle::PreparedQuality;
 #[cfg(feature = "python")]
 use crate::types::{
-    ComponentInfo, NetClassification, NetClass, NetInfo, Netlist, PcbSpecification,
-    PlacementState, PrecomputedMetrics, QualityConfig, QualityVerdict,
+    ComponentInfo, NetClass, NetClassification, NetInfo, Netlist, PcbSpecification, PlacementState,
+    PrecomputedMetrics, QualityConfig, QualityVerdict,
 };
 
 #[cfg(feature = "python")]
@@ -79,7 +79,7 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
             .ok_or_else(|| PyValueError::new_err("net.name required"))?
             .extract()?;
         let pins: Vec<String> = if let Ok(Some(pins_any)) = net_dict.get_item("pins") {
-                if let Ok(pins_list) = pins_any.cast_into::<PyList>() {
+            if let Ok(pins_list) = pins_any.cast_into::<PyList>() {
                 pins_list
                     .iter()
                     .filter_map(|p: Bound<'_, PyAny>| p.extract::<String>().ok())
@@ -97,37 +97,37 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
     if let Ok(Some(comps_any)) = dict.get_item("components")
         && let Ok(comps_list) = comps_any.cast_into::<PyList>()
     {
-            for item in comps_list.iter() {
-                let comp_dict: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
-                let ref_des: String = comp_dict
-                    .get_item("ref")?
-                    .ok_or_else(|| PyValueError::new_err("component.ref required"))?
-                    .extract()?;
-                let footprint: String = comp_dict
-                    .get_item("footprint")?
-                    .ok_or_else(|| PyValueError::new_err("component.footprint required"))?
-                    .extract()?;
-                let width: f64 = comp_dict
-                    .get_item("width")?
-                    .and_then(|v| v.extract().ok())
-                    .unwrap_or(10.0);
-                let height: f64 = comp_dict
-                    .get_item("height")?
-                    .and_then(|v| v.extract().ok())
-                    .unwrap_or(10.0);
-                let voltage: f64 = comp_dict
-                    .get_item("voltage")?
-                    .and_then(|v| v.extract().ok())
-                    .unwrap_or(0.0);
-                components.push(ComponentInfo {
-                    ref_des,
-                    footprint,
-                    width_mm: width,
-                    height_mm: height,
-                    voltage,
-                });
-            }
+        for item in comps_list.iter() {
+            let comp_dict: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
+            let ref_des: String = comp_dict
+                .get_item("ref")?
+                .ok_or_else(|| PyValueError::new_err("component.ref required"))?
+                .extract()?;
+            let footprint: String = comp_dict
+                .get_item("footprint")?
+                .ok_or_else(|| PyValueError::new_err("component.footprint required"))?
+                .extract()?;
+            let width: f64 = comp_dict
+                .get_item("width")?
+                .and_then(|v| v.extract().ok())
+                .unwrap_or(10.0);
+            let height: f64 = comp_dict
+                .get_item("height")?
+                .and_then(|v| v.extract().ok())
+                .unwrap_or(10.0);
+            let voltage: f64 = comp_dict
+                .get_item("voltage")?
+                .and_then(|v| v.extract().ok())
+                .unwrap_or(0.0);
+            components.push(ComponentInfo {
+                ref_des,
+                footprint,
+                width_mm: width,
+                height_mm: height,
+                voltage,
+            });
         }
+    }
     let _ = py;
 
     Ok(Netlist { nets, components })
@@ -193,8 +193,14 @@ fn metrics_to_py_dict(
 ) -> PyResult<Py<PyDict>> {
     let dict = PyDict::new(py);
     dict.set_item("thermal_score", metrics.thermal_score.value())?;
-    dict.set_item("zone_compliance_score", metrics.zone_compliance_score.value())?;
-    dict.set_item("hv_lv_clearance_score", metrics.hv_lv_clearance_score.value())?;
+    dict.set_item(
+        "zone_compliance_score",
+        metrics.zone_compliance_score.value(),
+    )?;
+    dict.set_item(
+        "hv_lv_clearance_score",
+        metrics.hv_lv_clearance_score.value(),
+    )?;
     dict.set_item("loop_area_score", metrics.loop_area_score.value())?;
     dict.set_item("congestion_score", metrics.congestion_score.value())?;
     dict.set_item("compactness_score", metrics.compactness_score.value())?;
@@ -208,10 +214,7 @@ fn metrics_to_py_dict(
 }
 
 #[cfg(feature = "python")]
-fn violation_to_py_dict(
-    py: Python<'_>,
-    v: &crate::types::Violation,
-) -> PyResult<Py<PyDict>> {
+fn violation_to_py_dict(py: Python<'_>, v: &crate::types::Violation) -> PyResult<Py<PyDict>> {
     let dict = PyDict::new(py);
     dict.set_item(
         "type",
@@ -337,9 +340,18 @@ fn verdict_to_py_dict(py: Python<'_>, verdict: &QualityVerdict) -> PyResult<Py<P
 #[cfg(feature = "python")]
 fn quality_config_to_py_dict(py: Python<'_>, config: &QualityConfig) -> PyResult<Py<PyDict>> {
     let dict = PyDict::new(py);
-    dict.set_item("thermal_components", PyList::new(py, config.thermal_components.iter())?)?;
-    dict.set_item("hv_components", PyList::new(py, config.hv_components.iter())?)?;
-    dict.set_item("lv_components", PyList::new(py, config.lv_components.iter())?)?;
+    dict.set_item(
+        "thermal_components",
+        PyList::new(py, config.thermal_components.iter())?,
+    )?;
+    dict.set_item(
+        "hv_components",
+        PyList::new(py, config.hv_components.iter())?,
+    )?;
+    dict.set_item(
+        "lv_components",
+        PyList::new(py, config.lv_components.iter())?,
+    )?;
     let zones = PyDict::new(py);
     for (k, v) in &config.zone_assignments {
         zones.set_item(k, v)?;
@@ -424,9 +436,15 @@ fn config_from_py_dict(prepared: &Bound<'_, PyDict>) -> PyResult<QualityConfig> 
         .unwrap_or(0.0);
 
     Ok(QualityConfig {
-        thermal_components: extract_string_list(&config, "thermal_components")?.into_iter().collect(),
-        hv_components: extract_string_list(&config, "hv_components")?.into_iter().collect(),
-        lv_components: extract_string_list(&config, "lv_components")?.into_iter().collect(),
+        thermal_components: extract_string_list(&config, "thermal_components")?
+            .into_iter()
+            .collect(),
+        hv_components: extract_string_list(&config, "hv_components")?
+            .into_iter()
+            .collect(),
+        lv_components: extract_string_list(&config, "lv_components")?
+            .into_iter()
+            .collect(),
         zone_assignments,
         loop_components,
         min_hv_lv_clearance_mm: min_clearance,
@@ -581,9 +599,7 @@ fn placement_score_py(
 #[cfg(feature = "python")]
 #[pyfunction]
 fn drc_score_py(error_count: i64, warning_count: i64) -> PyResult<f64> {
-    temper_py_bridge::catch_panic(|| {
-        Ok(quality_score::drc_score(error_count, warning_count))
-    })
+    temper_py_bridge::catch_panic(|| Ok(quality_score::drc_score(error_count, warning_count)))
 }
 
 #[cfg(feature = "python")]
@@ -865,19 +881,25 @@ fn evaluate_regional_candidate_py(
     endpoint_tolerance_mm: f64,
     instrument_errors: Vec<String>,
 ) -> PyResult<Py<PyDict>> {
-    use regional_feasibility::{RegionalSnapshot, evaluate_regional_candidate, routed_pad_endpoint_drift};
+    use regional_feasibility::{
+        RegionalSnapshot, evaluate_regional_candidate, routed_pad_endpoint_drift,
+    };
     use std::collections::{BTreeMap, BTreeSet};
 
     temper_py_bridge::catch_panic(|| {
         let baseline = RegionalSnapshot {
             cross_domain_pairs: baseline_pairs.into_iter().collect::<BTreeSet<_>>(),
             drc_errors_by_rule: baseline_drc.into_iter().collect::<BTreeMap<_, _>>(),
-            body_overlap_by_pair: baseline_body_overlaps.into_iter().collect::<BTreeMap<_, _>>(),
+            body_overlap_by_pair: baseline_body_overlaps
+                .into_iter()
+                .collect::<BTreeMap<_, _>>(),
         };
         let candidate = RegionalSnapshot {
             cross_domain_pairs: candidate_pairs.into_iter().collect::<BTreeSet<_>>(),
             drc_errors_by_rule: candidate_drc.into_iter().collect::<BTreeMap<_, _>>(),
-            body_overlap_by_pair: candidate_body_overlaps.into_iter().collect::<BTreeMap<_, _>>(),
+            body_overlap_by_pair: candidate_body_overlaps
+                .into_iter()
+                .collect::<BTreeMap<_, _>>(),
         };
         let endpoint_drift = routed_pad_endpoint_drift(
             &baseline_pads,
@@ -886,16 +908,26 @@ fn evaluate_regional_candidate_py(
             &candidate_endpoints,
             endpoint_tolerance_mm,
         );
-        let verdict = evaluate_regional_candidate(&baseline, &candidate, endpoint_drift, instrument_errors);
+        let verdict =
+            evaluate_regional_candidate(&baseline, &candidate, endpoint_drift, instrument_errors);
         let out = PyDict::new(py);
         out.set_item("accepted", verdict.accepted)?;
         out.set_item("improved", verdict.improved)?;
         out.set_item("reasons", verdict.reasons)?;
         out.set_item("new_cross_domain_pairs", verdict.new_cross_domain_pairs)?;
-        out.set_item("removed_cross_domain_pairs", verdict.removed_cross_domain_pairs)?;
+        out.set_item(
+            "removed_cross_domain_pairs",
+            verdict.removed_cross_domain_pairs,
+        )?;
         out.set_item("drc_rule_deltas", verdict.drc_rule_deltas)?;
-        out.set_item("new_or_worsened_body_pairs", verdict.new_or_worsened_body_pairs)?;
-        out.set_item("routed_pad_endpoint_drift", verdict.routed_pad_endpoint_drift)?;
+        out.set_item(
+            "new_or_worsened_body_pairs",
+            verdict.new_or_worsened_body_pairs,
+        )?;
+        out.set_item(
+            "routed_pad_endpoint_drift",
+            verdict.routed_pad_endpoint_drift,
+        )?;
         Ok(out.into())
     })
 }
@@ -963,6 +995,36 @@ fn evaluate_pre_route_candidate_py(
 }
 
 #[cfg(feature = "python")]
+#[pyfunction]
+fn declare_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
+    let request = serde_json::from_str(request_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let declaration = regional_feasibility::declare_corridor_candidates(request)
+        .map_err(PyValueError::new_err)?;
+    serde_json::to_string(&declaration).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn screen_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
+    let request = serde_json::from_str(request_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let verdict =
+        regional_feasibility::screen_corridor_candidates(request).map_err(PyValueError::new_err)?;
+    serde_json::to_string(&verdict).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn screen_declared_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
+    let request = serde_json::from_str(request_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let verdict = regional_feasibility::screen_declared_corridor_candidates(request)
+        .map_err(PyValueError::new_err)?;
+    serde_json::to_string(&verdict).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(prepare_quality_py, m)?)?;
@@ -987,6 +1049,9 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evaluate_regional_candidate_py, m)?)?;
     m.add_function(wrap_pyfunction!(declare_regional_candidates_py, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_pre_route_candidate_py, m)?)?;
+    m.add_function(wrap_pyfunction!(declare_corridor_candidates_json_py, m)?)?;
+    m.add_function(wrap_pyfunction!(screen_corridor_candidates_json_py, m)?)?;
+    m.add_function(wrap_pyfunction!(screen_declared_corridor_candidates_json_py, m)?)?;
 
     cluster_f::bindings::register(m)?;
     Ok(())
