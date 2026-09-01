@@ -71,13 +71,17 @@ from shapely import contains, points
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
-from temper_placer.router_v6.astar_core import _astar_search
+from temper_placer.router_v6.astar_search2d_rust import (
+    _astar_search_2d_rust as _astar_search,
+)
 from temper_placer.router_v6.corridor_erosion import corridor_mask_for_net
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 # Cell size for the backbone-routing grid. Coarser than production's 0.1mm
-# default (chosen, like the corridor-aware-astar-spike, to keep the
-# pure-Python A* inner loop tractable at whole-board scope) -- a physical
+# default (chosen, when this search was still pure Python, to keep its inner
+# loop tractable at whole-board scope; the search is Rust now -- see
+# `astar_search2d_rust` -- but the cell size is a physical/DRC choice that was
+# never re-derived from the port, so it is left where it was) -- a physical
 # corridor at these trace widths (0.3-0.4mm) either fits a given gap or it
 # doesn't, largely independent of grid discretization aside from
 # quantization noise at the mm/5 scale.

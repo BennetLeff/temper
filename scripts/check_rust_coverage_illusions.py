@@ -637,8 +637,11 @@ KNOWN_INCIDENTS: tuple[tuple[str, str, str], ...] = (
     (
         "temper_placer.router_v6.astar_core",
         "packages/temper-rust-router-core/src/astar.rs",
-        "astar_kernel_3d is a 2D kernel; astar_core.py's _astar_search is live "
-        "pure Python called from _corridor_backbone.py:523",
+        "astar_kernel_3d is a 2D kernel; astar_core.py's _astar_search WAS "
+        "live pure Python called from _corridor_backbone.py:523. That "
+        "function was ported on 2026-08-18 (astar_search2d.rs, byte-identical "
+        "board) and deleted; the module still calls no Rust and the namesake "
+        "still does not implement it, which is why the row stands.",
     ),
     (
         "temper_placer.core.courtyard",

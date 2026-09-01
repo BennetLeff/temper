@@ -2571,6 +2571,15 @@ scripts:
   - kiutils.items.zones
   - pathlib
   - sys
+- path: capture_astar_backbone_corpus.py
+  purpose: Records every corridor-backbone A* search one full route performs, as the fixture the
+    Rust port's differential replays. Those grids exist nowhere on disk -- they are rasterized
+    mid-run from the board polygon, the HV keepout, other nets' clearance polygons AND the F.Cu
+    copper the same run already emitted -- so a differential for that search cannot be fed from
+    pcb/temper.kicad_pcb alone. --verify-digest re-checks that the recording shim left the routed
+    board byte-identical, which is what makes the corpus a record of production rather than of an
+    instrumented variant of it. Reads the board; never writes it.
+  owner: bennet
 - path: route_board.py
   purpose: The routing entry point, and what `make route` invokes; supersedes internal_route.py, which
     was deleted 2026-08-04 as import-dead (see module docstring). --output is mandatory and refuses to
