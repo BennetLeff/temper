@@ -10,7 +10,7 @@ crate-type = ["rlib", "cdylib"]
 
 [features]
 default = []
-python = ["dep:pyo3", "dep:temper-py-bridge"]
+python = ["dep:pyo3", "dep:temper-py-bridge", "temper-rust-router-core/sat"]
 # Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
 # call each test function by index -- `cargo test`'s libtest harness cannot
@@ -31,6 +31,7 @@ wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"
+temper-rust-router-core = { path = "../temper-rust-router-core", default-features = false }
 sha2 = "0.10"
 thiserror = "2"
 regex = "1"

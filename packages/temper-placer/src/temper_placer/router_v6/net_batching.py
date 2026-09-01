@@ -476,7 +476,6 @@ def _solve_subset(
     sat_conflict_limit: int | None,
     sat_time_limit_ms: int | None,
 ) -> tuple[ConstraintModel, dict[str, Any]]:
-    from temper_rust_router import audit_result, solve_topology_rust
 
     model_builder = ModelBuilder(
         skeletons=skeletons,
@@ -488,23 +487,34 @@ def _solve_subset(
         enable_geographic_pruning=enable_geographic_pruning,
     )
     cm = model_builder.build()
-    py_vars = list(cm.variables)
-    py_cons = list(cm.constraints)
     net_names_subset = [n.name for n in nets_subset]
-    rust_result = solve_topology_rust(
-        py_vars,
-        py_cons,
-        net_names_subset,
-        conflict_limit=sat_conflict_limit,
-        time_limit_ms=sat_time_limit_ms,
-    )
+    if cm.native_model_supported():
+        rust_result = cm.solve_native(
+            net_names_subset,
+            conflict_limit=sat_conflict_limit,
+            time_limit_ms=sat_time_limit_ms,
+        )
+    else:
+        # PCL/hand-built Foreign records use the pre-existing compatibility
+        # bridge; normal packed models never materialize these getters.
+        from temper_rust_router import solve_topology_rust
+
+        py_vars = list(cm.variables)
+        py_cons = list(cm.constraints)
+        rust_result = solve_topology_rust(
+            py_vars,
+            py_cons,
+            net_names_subset,
+            conflict_limit=sat_conflict_limit,
+            time_limit_ms=sat_time_limit_ms,
+        )
     # Per docs/plans/2026-08-12-003-fix-sat-capacity-encoding-plan.md's R3
     # (branch spike/sat-capacity-vacuity, not yet on main -- cited here as
     # provenance, not a machine-checked @req tag): audit every batch-level
     # "sat" result the same way `_pipeline_route.py:437-452`'s monolithic
     # path already does --
-    # this is the module's *only* production call site that still holds
-    # cm.variables/cm.constraints (the pyo3 objects `audit_result` needs);
+    # this path uses ConstraintModel.audit_native, so the pyo3 objects are
+    # never rebuilt for the production batch handoff;
     # `_batch_worker_entry`'s own result dict, which is all that crosses
     # back to the parent over the subprocess pipe, only carries this
     # dict's plain-data "audit_violations" key onward. The parent
@@ -512,18 +522,23 @@ def _solve_subset(
     # raised -- see its own "sat" handling, both batch-level and the
     # singleton-retry mirror -- mirroring where `_consume_capacity` is
     # called for the same "sat" result.
-    rust_result["audit_violations"] = (
-        list(
-            audit_result(
+    if rust_result.get("status") == "sat":
+        if cm.native_model_supported():
+            audit_violations = cm.audit_native(
+                dict(rust_result.get("assignments", {})), net_names_subset
+            )
+        else:
+            from temper_rust_router import audit_result
+
+            audit_violations = audit_result(
                 py_vars,
                 py_cons,
                 dict(rust_result.get("assignments", {})),
                 net_names_subset,
             )
-        )
-        if rust_result.get("status") == "sat"
-        else []
-    )
+        rust_result["audit_violations"] = list(audit_violations)
+    else:
+        rust_result["audit_violations"] = []
     return cm, rust_result
 
 

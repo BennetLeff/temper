@@ -823,9 +823,9 @@ impl VarIndex {
 
 /// One constraint, in Rust-native form.
 ///
-/// The builder only ever emits the first three; `add_constraint` (the
-/// Python-facing entry point, used by the PCL lowering paths) always takes
-/// `Foreign` and keeps the caller's object exactly as it was handed over.
+/// The builder emits the first three. `add_constraint` packs ordinary
+/// contract constraints when their variable references resolve locally, and
+/// retains unsupported PCL/foreign objects exactly as handed over.
 #[derive(Debug, Clone, Copy)]
 enum PackedConstraint {
     /// `cap_{channel_id}`; terms are `[term_start, term_start + term_len)`
@@ -1149,6 +1149,248 @@ impl ConstraintModel {
         }
         Ok(d.unbind())
     }
+
+    /// Convert the packed registry to the shared Rust solver model.
+    ///
+    /// This is intentionally an in-process Rust handoff: it never calls the
+    /// Python ``variables``/``constraints`` getters.  Names are reconstructed
+    /// only at the solver boundary because the shared encoder's public model
+    /// still uses names for deterministic CNF numbering and extraction.
+    fn to_internal_model(&self) -> PyResult<temper_rust_router_core::InternalConstraintModel> {
+        use temper_rust_router_core::{InternalConstraint, InternalVariable};
+
+        let mut variables = Vec::with_capacity(self.vars.len());
+        for packed in &self.vars {
+            let name = match packed.kind() {
+                VarKind::Foreign => {
+                    return Err(PyRuntimeError::new_err(
+                        "native Stage-3 handoff does not support foreign variables",
+                    ));
+                }
+                VarKind::NetChannel | VarKind::Bundle => {
+                    let prefix = if packed.kind() == VarKind::Bundle { 'B' } else { 'N' };
+                    format!("uses_{prefix}{}_{}", packed.net_idx, self.ids.get(packed.key())?)
+                }
+                VarKind::Via => format!(
+                    "via_N{}_{}",
+                    packed.net_idx,
+                    self.ids.get(packed.key())?
+                ),
+            };
+            match packed.kind() {
+                VarKind::NetChannel | VarKind::Bundle => variables.push(InternalVariable::NetChannel {
+                    name,
+                    net_idx: packed.net_idx as usize,
+                    channel_id: self.ids.get(packed.key())?.to_string(),
+                }),
+                VarKind::Via => variables.push(InternalVariable::Via {
+                    name,
+                    net_idx: packed.net_idx as usize,
+                    location_id: self.ids.get(packed.key())?.to_string(),
+                }),
+                VarKind::Foreign => unreachable!(),
+            }
+        }
+
+        let mut constraints = Vec::with_capacity(self.cons.len());
+        for packed in &self.cons {
+            match *packed {
+                PackedConstraint::Foreign(_) => {
+                    return Err(PyRuntimeError::new_err(
+                        "native Stage-3 handoff does not support foreign constraints",
+                    ));
+                }
+                PackedConstraint::Capacity {
+                    channel,
+                    capacity,
+                    slack_factor,
+                    term_start,
+                    term_len,
+                } => {
+                    let mut terms = Vec::with_capacity(term_len as usize);
+                    for i in term_start..term_start + term_len {
+                        let (var_idx, width) = self.term(i)?;
+                        let var = variables.get(var_idx as usize).ok_or_else(|| {
+                            PyRuntimeError::new_err("native Stage-3 handoff has invalid term variable")
+                        })?;
+                        let name = match var {
+                            InternalVariable::NetChannel { name, .. }
+                            | InternalVariable::NetLayer { name, .. }
+                            | InternalVariable::Via { name, .. }
+                            | InternalVariable::Ordering { name, .. } => name.clone(),
+                        };
+                        terms.push((name, width));
+                    }
+                    constraints.push(InternalConstraint::Capacity {
+                        channel_id: self.ids.get(channel)?.to_string(),
+                        capacity,
+                        slack_factor,
+                        terms,
+                    });
+                }
+                PackedConstraint::DiffPair {
+                    channel,
+                    p_var,
+                    n_var,
+                    ..
+                } => {
+                    let p_var_name = match variables.get(p_var as usize) {
+                        Some(InternalVariable::NetChannel { name, .. })
+                        | Some(InternalVariable::NetLayer { name, .. })
+                        | Some(InternalVariable::Via { name, .. })
+                        | Some(InternalVariable::Ordering { name, .. }) => name.clone(),
+                        None => return Err(PyRuntimeError::new_err(
+                            "native Stage-3 handoff has invalid diff-pair variable",
+                        )),
+                    };
+                    let n_var_name = match variables.get(n_var as usize) {
+                        Some(InternalVariable::NetChannel { name, .. })
+                        | Some(InternalVariable::NetLayer { name, .. })
+                        | Some(InternalVariable::Via { name, .. })
+                        | Some(InternalVariable::Ordering { name, .. }) => name.clone(),
+                        None => return Err(PyRuntimeError::new_err(
+                            "native Stage-3 handoff has invalid diff-pair variable",
+                        )),
+                    };
+                    constraints.push(InternalConstraint::DiffPair {
+                        channel_id: self.ids.get(channel)?.to_string(),
+                        p_var_name,
+                        n_var_name,
+                    });
+                }
+                PackedConstraint::Layer { channel, net_idx, allowed } => {
+                    constraints.push(InternalConstraint::LayerRestriction {
+                        var_name: format!("uses_N{net_idx}_{}", self.ids.get(channel)?),
+                        allowed,
+                    });
+                }
+            }
+        }
+        Ok(temper_rust_router_core::InternalConstraintModel { variables, constraints })
+    }
+}
+
+fn native_result_to_py(
+    py: Python<'_>,
+    result: temper_rust_router_core::TopologyResult,
+    var_names: &[String],
+    topology: &temper_rust_router_core::TopologyGraph,
+) -> PyResult<Py<PyDict>> {
+    use temper_rust_router_core::SolverStatus;
+    let d = PyDict::new(py);
+    d.set_item(
+        "status",
+        match result.status {
+            SolverStatus::Satisfiable => "sat",
+            SolverStatus::Unsatisfiable => "unsat",
+            SolverStatus::Unknown => "unknown",
+        },
+    )?;
+    let assignments = PyDict::new(py);
+    for (idx, value) in &result.assignments {
+        if *idx < var_names.len() {
+            assignments.set_item(&var_names[*idx], *value)?;
+        }
+    }
+    d.set_item("assignments", assignments)?;
+    let py_topology = PyDict::new(py);
+    for (net_name, net_topology) in &topology.net_topologies {
+        let entry = PyDict::new(py);
+        entry.set_item("uses_channels", net_topology.uses_channels.clone())?;
+        entry.set_item("path_graph", net_topology.path_graph.clone())?;
+        entry.set_item("total_length_estimate", net_topology.total_length_estimate)?;
+        py_topology.set_item(net_name, entry)?;
+    }
+    d.set_item("topology_graph", py_topology)?;
+    d.set_item("solver_time_ms", result.solver_time_ms)?;
+    d.set_item("num_vars", result.num_vars)?;
+    d.set_item("num_clauses", result.num_clauses)?;
+    d.set_item("unsat_core", result.unsat_core.clone())?;
+    if let Some(stats) = result.solver_stats {
+        let py_stats = PyDict::new(py);
+        py_stats.set_item("conflicts", stats.conflicts)?;
+        py_stats.set_item("decisions", stats.decisions)?;
+        py_stats.set_item("propagations", stats.propagations)?;
+        py_stats.set_item("decision_level_histogram", stats.decision_level_histogram.to_vec())?;
+        py_stats.set_item("unsat_core_size", stats.unsat_core_size)?;
+        py_stats.set_item("variable_count", stats.variable_count)?;
+        py_stats.set_item("clause_count", stats.clause_count)?;
+        py_stats.set_item("cpu_solve_time_ms", stats.cpu_solve_time_ms)?;
+        let ratio = if stats.variable_count > 0 {
+            stats.clause_count as f64 / stats.variable_count as f64
+        } else {
+            0.0
+        };
+        py_stats.set_item("clause_to_var_ratio", ratio)?;
+        let throughput = if stats.cpu_solve_time_ms > 0.001 {
+            (stats.variable_count * stats.clause_count) as f64 / stats.cpu_solve_time_ms
+        } else {
+            0.0
+        };
+        py_stats.set_item("solve_throughput", throughput)?;
+        d.set_item("solver_stats", py_stats)?;
+    }
+    // Kept for compatibility with solve_topology_rust's intentionally empty
+    // var_to_net field (the full mapping is not consumed downstream).
+    d.set_item("var_to_net", Vec::<usize>::new())?;
+    Ok(d.unbind())
+}
+
+fn native_audit_to_py(
+    py: Python<'_>,
+    violations: &[temper_rust_router_core::audit::AuditViolation],
+) -> PyResult<Py<PyList>> {
+    let out = PyList::empty(py);
+    for violation in violations {
+        let d = PyDict::new(py);
+        match violation {
+            temper_rust_router_core::audit::AuditViolation::Capacity {
+                channel_id,
+                max_nets,
+                actual_count,
+                violating_vars,
+            } => {
+                d.set_item("type", "capacity")?;
+                d.set_item("channel_id", channel_id)?;
+                d.set_item("max_nets", *max_nets)?;
+                d.set_item("actual_count", *actual_count)?;
+                d.set_item("violating_vars", violating_vars)?;
+            }
+            temper_rust_router_core::audit::AuditViolation::DiffPairMismatch {
+                channel_id,
+                p_var,
+                n_var,
+                p_value,
+                n_value,
+            } => {
+                d.set_item("type", "diff_pair")?;
+                d.set_item("channel_id", channel_id)?;
+                d.set_item("p_var", p_var)?;
+                d.set_item("n_var", n_var)?;
+                d.set_item("p_value", *p_value)?;
+                d.set_item("n_value", *n_value)?;
+            }
+            temper_rust_router_core::audit::AuditViolation::LayerViolation {
+                var_name,
+                expected,
+                actual,
+            } => {
+                d.set_item("type", "layer")?;
+                d.set_item("var_name", var_name)?;
+                d.set_item("expected", *expected)?;
+                d.set_item("actual", *actual)?;
+            }
+            temper_rust_router_core::audit::AuditViolation::UnexplainedUnsat => {
+                d.set_item("type", "unexplained_unsat")?;
+            }
+            temper_rust_router_core::audit::AuditViolation::NoAssignmentForVar(name) => {
+                d.set_item("type", "no_assignment")?;
+                d.set_item("var_name", name)?;
+            }
+        }
+        out.append(d)?;
+    }
+    Ok(out.unbind())
 }
 
 #[pymethods]
@@ -1156,6 +1398,132 @@ impl ConstraintModel {
     #[new]
     fn new() -> Self {
         Self::default()
+    }
+
+    /// Solve the packed model through the shared Rust router core.
+    ///
+    /// This is the production Stage-3 handoff.  It deliberately lives on
+    /// this originating pyclass so no cross-extension downcast or capsule is
+    /// required.  ``solve_topology_rust`` remains the legacy list API.
+    #[pyo3(signature = (net_names, conflict_limit=None, time_limit_ms=None))]
+    fn solve_native(
+        &self,
+        py: Python<'_>,
+        net_names: Vec<String>,
+        conflict_limit: Option<u32>,
+        time_limit_ms: Option<u64>,
+    ) -> PyResult<Py<PyDict>> {
+        guard(|| {
+            let model = self.to_internal_model()?;
+            let (result, var_names, topology) = temper_rust_router_core::pipeline::solve_model(
+                model,
+                &net_names,
+                conflict_limit,
+                time_limit_ms,
+            )
+            .map_err(|error| PyRuntimeError::new_err(format!("{error:?}")))?;
+            native_result_to_py(py, result, &var_names, &topology)
+        })
+    }
+
+    /// Audit assignments against the packed model without rebuilding Python
+    /// variable or constraint objects.
+    #[pyo3(signature = (assignments, net_names))]
+    fn audit_native(
+        &self,
+        py: Python<'_>,
+        assignments: &Bound<'_, PyDict>,
+        net_names: Vec<String>,
+    ) -> PyResult<Py<PyList>> {
+        guard(|| {
+            let _ = net_names;
+            let model = self.to_internal_model()?;
+            let var_names: Vec<String> = model
+                .variables
+                .iter()
+                .map(|variable| match variable {
+                    temper_rust_router_core::InternalVariable::NetChannel { name, .. }
+                    | temper_rust_router_core::InternalVariable::NetLayer { name, .. }
+                    | temper_rust_router_core::InternalVariable::Via { name, .. }
+                    | temper_rust_router_core::InternalVariable::Ordering { name, .. } => name.clone(),
+                })
+                .collect();
+            let name_to_idx: std::collections::HashMap<&str, usize> = var_names
+                .iter()
+                .enumerate()
+                .map(|(idx, name)| (name.as_str(), idx))
+                .collect();
+            let mut values = std::collections::HashMap::new();
+            for (name, value) in assignments.iter() {
+                let name: String = name.extract()?;
+                let value: bool = value.extract()?;
+                if let Some(&idx) = name_to_idx.get(name.as_str()) {
+                    values.insert(idx, value);
+                }
+            }
+            native_audit_to_py(
+                py,
+                &temper_rust_router_core::pipeline::audit_model(&model, values, &var_names),
+            )
+        })
+    }
+
+    /// Return the same clause-origin expansion used by the Python shim,
+    /// directly from packed constraints (no ``constraints`` getter).
+    fn native_clause_origins(&self, py: Python<'_>) -> PyResult<Vec<String>> {
+        let mut origins = Vec::new();
+        for constraint in &self.cons {
+            let (name, count) = match *constraint {
+                PackedConstraint::Capacity { channel, term_len, .. } => (
+                    format!("cap_{}", self.ids.get(channel)?),
+                    std::cmp::max(1, term_len as usize * 3),
+                ),
+                PackedConstraint::DiffPair { channel, base, .. } => (
+                    format!("diff_{}_{}", self.ids.get(base)?, self.ids.get(channel)?),
+                    2,
+                ),
+                PackedConstraint::Layer { channel, net_idx, .. } => (
+                    format!("layer_restr_N{net_idx}_{}", self.ids.get(channel)?),
+                    1,
+                ),
+                PackedConstraint::Foreign(key) => {
+                    let name: String = self
+                        .foreign_cons
+                        .get(key as usize)
+                        .ok_or_else(|| PyRuntimeError::new_err("foreign constraint missing"))?
+                        .bind(py)
+                        .getattr("name")?
+                        .extract()?;
+                    (name, 1)
+                }
+            };
+            origins.extend(std::iter::repeat_n(name, count));
+        }
+        Ok(origins)
+    }
+
+    /// Whether every record can cross the native shared-core boundary.
+    /// Foreign records are retained for legacy/PCL compatibility.
+    fn native_model_supported(&self) -> bool {
+        self.vars.iter().all(|v| v.kind() != VarKind::Foreign)
+            && self
+                .cons
+                .iter()
+                .all(|c| !matches!(c, PackedConstraint::Foreign(_)))
+    }
+
+    fn variable_index_for_name(&self, name: &str) -> Option<u32> {
+        self.vars.iter().enumerate().find_map(|(idx, packed)| {
+            let candidate = match packed.kind() {
+                VarKind::NetChannel | VarKind::Bundle => {
+                    let prefix = if packed.kind() == VarKind::Bundle { 'B' } else { 'N' };
+                    format!("uses_{prefix}{}_{}", packed.net_idx, self.ids.get(packed.key()).ok()?)
+                }
+                VarKind::Via => format!("via_N{}_{}", packed.net_idx, self.ids.get(packed.key()).ok()?),
+                VarKind::Foreign => return None,
+            };
+            (candidate == name).then_some(idx as u32)
+        })
     }
 
     /// `add_variable`: append and route into the type-appropriate dict.
@@ -1187,15 +1555,63 @@ impl ConstraintModel {
         })
     }
 
-    /// `add_constraint`: append a constraint.
-    ///
-    /// Always retained verbatim. The Python-facing entry point exists for
-    /// the two PCL lowering paths, which add a handful of constraints
-    /// carrying objects the model knows nothing about (a
-    /// `DiffPairConstraint` whose `p_var` is a bare `str`, for one); the
-    /// builder's own 200k-odd constraints never come through here.
+    /// `add_constraint`: append a constraint, packing ordinary contract
+    /// values and retaining unsupported PCL/foreign values verbatim.
     fn add_constraint(&mut self, constraint: Bound<'_, PyAny>) -> PyResult<()> {
         guard(|| {
+            // Pack ordinary contract constraints when their variable
+            // references resolve to this model. Unsupported PCL/foreign
+            // objects retain the exact legacy behavior below.
+            if constraint.is_instance_of::<CapacityConstraint>() {
+                let (channel_id, capacity, slack_factor, terms) = {
+                    let c = constraint.extract::<PyRef<'_, CapacityConstraint>>()?;
+                    let terms = match &c.terms {
+                        CapacityTerms::Owned(items) => {
+                            let mut resolved = Vec::with_capacity(items.len());
+                            let mut packable = true;
+                            for (var, width) in items {
+                                let Ok(name_obj) = var.bind(constraint.py()).getattr("name") else {
+                                    packable = false;
+                                    break;
+                                };
+                                let Ok(name) = name_obj.extract::<String>() else {
+                                    packable = false;
+                                    break;
+                                };
+                                let Some(idx) = self.variable_index_for_name(&name) else {
+                                    // This is a normal compatibility case:
+                                    // preserve the original object below.
+                                    packable = false;
+                                    break;
+                                };
+                                resolved.push((idx, *width));
+                            }
+                            packable.then_some(resolved)
+                        }
+                        CapacityTerms::Packed { .. } => None,
+                    };
+                    (c.channel_id.clone(), c.capacity, c.slack_factor, terms)
+                };
+                if let Some(terms) = terms {
+                    let channel = self.ids.intern(&channel_id)?;
+                    let start = u32::try_from(self.term_vars.len())
+                        .map_err(|_| PyRuntimeError::new_err("term arena overflow"))?;
+                    for (idx, width) in &terms {
+                        self.term_vars.push(*idx);
+                        self.term_widths.push(*width);
+                    }
+                    let len = u32::try_from(terms.len())
+                        .map_err(|_| PyRuntimeError::new_err("term arena overflow"))?;
+                    self.cons.push(PackedConstraint::Capacity {
+                        channel,
+                        capacity,
+                        slack_factor,
+                        term_start: start,
+                        term_len: len,
+                    });
+                    return Ok(());
+                }
+            }
             let key = u32::try_from(self.foreign_cons.len())
                 .map_err(|_| PyRuntimeError::new_err("ConstraintModel: too many constraints"))?;
             self.foreign_cons.push(constraint.unbind());

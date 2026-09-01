@@ -273,6 +273,10 @@ def _build_clause_origin(model: ConstraintModel) -> list[str]:
     ``ConstraintModel`` is passed through and the duck-typed attribute walk
     (``hasattr`` / truthiness / ``len``) mirrors the oracle exactly.
     """
+    native = getattr(model, "native_clause_origins", None)
+    supported = getattr(model, "native_model_supported", None)
+    if native is not None and (supported is None or supported()):
+        return list(native())
     return _to.run_build_clause_origin(model)
 
 
@@ -614,10 +618,15 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     if self.verbose:
         print("  3.8: Solving topology (Rust)...")
 
-    py_vars = list(constraint_model.variables)
-    py_cons = list(constraint_model.constraints)
-
+    # Audit through the same boundary used for solving. Bundled and foreign
+    # compatibility paths already materialize their legacy lists; only the
+    # packed, non-bundled path is eligible for native audit.
+    used_native_model = False
     if self.enable_bundling and bundle_manifest is not None:
+        # Bundled solving remains the legacy compatibility path until its
+        # CEGAR manifest is accepted directly by the originating model.
+        py_vars = list(constraint_model.variables)
+        py_cons = list(constraint_model.constraints)
         from temper_rust_router import solve_topology_rust_bundled
 
         manifest_dict = {
@@ -639,24 +648,38 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         degraded_nets = list(rust_result.get("degraded_nets", []))
         aesthetic_preferences: list = []
     else:
-        from temper_rust_router import solve_topology_rust
-
         _stage3_mem_trace(
             f"_run_stage3 solve_topology_rust ENTER "
-            f"(py_vars={len(py_vars)} py_cons={len(py_cons)})"
+            f"(native model vars={constraint_model.variable_count} "
+            f"cons={constraint_model.constraint_count})"
         )
         # `target_names` (the selective-SAT subset) when active, else the
         # full net list -- the topology output then covers exactly the nets
         # the model encodes; unselected nets fall through to Stage 4's
         # fallback A* path (map_topology_to_channels drops nets with no
         # channel sequence before Stage 4's fallback_channel_path fires).
-        rust_result = solve_topology_rust(
-            py_vars,
-            py_cons,
-            target_names if target_names is not None else net_names,
-            conflict_limit=self.sat_conflict_limit,
-            time_limit_ms=self.sat_time_limit_ms,
-        )
+        if constraint_model.native_model_supported():
+            used_native_model = True
+            rust_result = constraint_model.solve_native(
+                target_names if target_names is not None else net_names,
+                conflict_limit=self.sat_conflict_limit,
+                time_limit_ms=self.sat_time_limit_ms,
+            )
+        else:
+            # PCL and hand-built compatibility constraints are retained as
+            # Foreign objects by ConstraintModel. Materialize only this
+            # uncommon fallback; packed production models never enter it.
+            from temper_rust_router import solve_topology_rust
+
+            py_vars = list(constraint_model.variables)
+            py_cons = list(constraint_model.constraints)
+            rust_result = solve_topology_rust(
+                py_vars,
+                py_cons,
+                target_names if target_names is not None else net_names,
+                conflict_limit=self.sat_conflict_limit,
+                time_limit_ms=self.sat_time_limit_ms,
+            )
         _stage3_mem_trace("_run_stage3 solve_topology_rust EXIT")
         cegar_iterations = 0
         budget_used = 0
@@ -745,16 +768,23 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
             print("    UNSAT: No conflict report available (core extraction failed)")
 
     if rust_result["status"] == "sat":
-        from temper_rust_router import audit_result
-
-        audit_violations = list(
-            audit_result(
-                py_vars,
-                py_cons,
-                dict(rust_result.get("assignments", {})),
-                net_names,
+        if used_native_model:
+            audit_violations = list(
+                constraint_model.audit_native(
+                    dict(rust_result.get("assignments", {})), net_names
+                )
             )
-        )
+        else:
+            from temper_rust_router import audit_result
+
+            audit_violations = list(
+                audit_result(
+                    py_vars,
+                    py_cons,
+                    dict(rust_result.get("assignments", {})),
+                    net_names,
+                )
+            )
         if audit_violations:
             msg = f"Rust solver produced {len(audit_violations)} constraint violation(s): {audit_violations}"
             if self.verbose:

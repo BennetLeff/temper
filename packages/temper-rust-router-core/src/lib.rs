@@ -23,6 +23,7 @@ pub mod extraction;
 pub mod loop_extractor;
 pub mod net_batching;
 pub mod property_campaigns;
+pub mod pipeline;
 pub mod provenance;
 pub mod pruning;
 #[cfg(feature = "sat")]

@@ -18,7 +18,6 @@ kernel.
 
 from __future__ import annotations
 
-import os
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -176,7 +175,7 @@ class TestRunStage3DirectVacuityRegression:
         # clearance = 0.3... choose widths so the bridge fits exactly one).
         widths = ChannelWidths(
             layer_name="F.Cu",
-            node_widths={p: 5.0 for p in (a, b, x, y)},
+            node_widths=dict.fromkeys((a, b, x, y), 5.0),
             edge_widths={(a, b): 0.5, (a, x): 5.0, (x, y): 5.0, (y, b): 5.0},
             min_width=0.5,
             max_width=5.0,
@@ -267,15 +266,52 @@ class TestRunStage3Dispatch:
 
         from temper_placer.router_v6._pipeline_core import RouterV6Pipeline
 
+        calls = []
+
+        class NativeModel:
+            variable_count = 0
+            constraint_count = 0
+
+            def native_model_supported(self):
+                return True
+
+            def solve_native(self, *_args, **_kwargs):
+                calls.append("solve_native")
+                return {
+                    "status": "sat",
+                    "assignments": {},
+                    "topology_graph": {},
+                    "num_vars": 0,
+                    "num_clauses": 0,
+                    "unsat_core": [],
+                    "solver_time_ms": 0.0,
+                    "solver_stats": {},
+                    "var_to_net": [],
+                }
+
+            def native_clause_origins(self):
+                return []
+
+            def audit_native(self, *_args, **_kwargs):
+                return []
+
+        class NativeModelBuilder:
+            def __init__(self, **_kwargs):
+                pass
+
+            def build(self):
+                return NativeModel()
+
         with patch.object(
             RouterV6Pipeline, "_run_stage3_direct", return_value="DIRECT"
         ) as direct, patch(
-            "temper_rust_router.solve_topology_rust"
-        ) as solve:
+            "temper_placer.router_v6._pipeline_route.ModelBuilder",
+            NativeModelBuilder,
+        ):
             out = pipeline._run_stage3(pcb, stage2)
-        # The SAT path ran (solve_topology_rust called) and the direct path
-        # was NOT taken.
-        assert solve.called
+        # The force-SAT hatch reached the originating model's native solve,
+        # and the direct path was NOT taken.
+        assert calls == ["solve_native"]
         direct.assert_not_called()
         assert out is not None
 
