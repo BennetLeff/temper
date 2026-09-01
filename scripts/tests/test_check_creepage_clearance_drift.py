@@ -29,8 +29,8 @@ Groups:
 
 from __future__ import annotations
 
-import sys
 import json
+import sys
 from hashlib import sha256
 from pathlib import Path
 
@@ -39,15 +39,15 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_creepage_clearance_drift import (  # noqa: E402
+    KNOWN_TIER_MISCLASSIFICATIONS,
     Declaration,
     FamilyResult,
-    KNOWN_TIER_MISCLASSIFICATIONS,
     GateError,
+    _resolve_reinforced_clearance_authority,
     build_families,
     discover_ato,
     discover_python,
     discover_yaml,
-    _resolve_reinforced_clearance_authority,
     run,
 )
 
@@ -838,36 +838,93 @@ class TestRoleAwareAuthority:
                 evaluator=lambda _request: json.dumps(malformed),
             )
 
-    def test_digest_or_coverage_loss_fails_closed(self) -> None:
+    @pytest.mark.parametrize(
+        "mutation",
+        ["contract_digest", "result_coverage", "canonical_request", "review_required"],
+    )
+    def test_digest_or_coverage_loss_fails_closed(self, mutation: str) -> None:
         family = self._family()
         contract = {
             "schema_version": "temper-isolation-authority/v1",
             "contract_digest": "c" * 64,
             "topology_authority_digest": "t" * 64,
-            "rows": [],
-            "projections": [],
+            "rows": [
+                {
+                    "key": f"authority.{index}",
+                    "role": "fabrication_check",
+                    "source": f"source-{index}",
+                    "review_status": "current_edition_review_required",
+                    "applicable_minimum_key": "minimum",
+                }
+                for index, _row in enumerate(family.members)
+            ],
+            "projections": [
+                {
+                    "file": row.file,
+                    "name": row.name,
+                    "authority_key": f"authority.{index}",
+                    "value_mm": row.value_mm,
+                }
+                for index, row in enumerate(family.members)
+            ],
         }
 
-        def bad_evaluator(_request_json: str) -> str:
-            return json.dumps(
-                {
-                    "schema_version": "temper-isolation-verdict/v1",
-                    "request_digest": "0" * 64,
-                    "canonical_request_json": "[]",
-                    "contract_schema_version": contract["schema_version"],
-                    "contract_digest": "wrong",
-                    "topology_authority_digest": contract["topology_authority_digest"],
-                    "role_resolved": True,
-                    "results": [],
-                    "review_required": [],
-                }
+        def bad_evaluator(request_json: str) -> str:
+            request = json.loads(request_json)
+            canonical = json.dumps(
+                [
+                    request["schema_version"],
+                    sorted(request["rows"], key=lambda row: (row["file"], row["name"])),
+                ],
+                separators=(",", ":"),
             )
+            verdict = {
+                "schema_version": "temper-isolation-verdict/v1",
+                "request_digest": sha256(canonical.encode()).hexdigest(),
+                "canonical_request_json": canonical,
+                "contract_schema_version": contract["schema_version"],
+                "contract_digest": contract["contract_digest"],
+                "topology_authority_digest": contract["topology_authority_digest"],
+                "role_resolved": True,
+                "results": [
+                    {
+                        "file": row.file,
+                        "name": row.name,
+                        "authority_key": f"authority.{index}",
+                        "role": "fabrication_check",
+                        "value_mm": row.value_mm,
+                        "relation": "at_or_above_applicable_minimum",
+                        "source": f"source-{index}",
+                        "review_status": "current_edition_review_required",
+                    }
+                    for index, row in enumerate(family.members)
+                ],
+                "review_required": ["clearance.hv_lv.120v_ovc2.minimum"],
+            }
+            if mutation == "contract_digest":
+                verdict["contract_digest"] = "wrong"
+            elif mutation == "result_coverage":
+                verdict["results"] = verdict["results"][:-1]
+            elif mutation == "canonical_request":
+                verdict["canonical_request_json"] = "[]"
+            else:
+                verdict["review_required"] = []
+            return json.dumps(verdict)
 
         with pytest.raises(GateError):
             _resolve_reinforced_clearance_authority(
                 family,
                 contract_json=json.dumps(contract),
                 evaluator=bad_evaluator,
+            )
+
+    def test_half_configured_authority_transport_fails_closed(self) -> None:
+        family = self._family()
+        with pytest.raises(GateError, match="must provide both"):
+            _resolve_reinforced_clearance_authority(family, contract_json="{}")
+        with pytest.raises(GateError, match="must provide both"):
+            _resolve_reinforced_clearance_authority(
+                family, evaluator=lambda _request: "{}"
             )
 
     def test_production_discovery_and_real_rust_authority_agree(self) -> None:

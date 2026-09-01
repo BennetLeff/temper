@@ -144,11 +144,11 @@ mod config_loader;
 #[cfg(feature = "python")]
 mod reference_loader;
 
-pub mod isolation_authority;
 #[cfg(feature = "python")]
 mod loaders;
 pub(crate) mod parse_engine;
 pub mod regional_topology;
+pub mod safety_value_authority;
 #[cfg(feature = "python")]
 mod sexpr_writer;
 
@@ -506,7 +506,7 @@ mod python {
         // Safety-critical values with provenance: the recovered
         // IEC 60335-1 Table 16/17/18 lookups (see safety_value.rs).
         crate::safety_value::register(module)?;
-        crate::isolation_authority::register(module)?;
+        crate::safety_value_authority::register(module)?;
         crate::regional_topology::register(module)?;
         Ok(())
     }
