@@ -901,6 +901,68 @@ fn evaluate_regional_candidate_py(
 }
 
 #[cfg(feature = "python")]
+#[pyfunction]
+fn declare_regional_candidates_py(
+    placement_ids: Vec<String>,
+    east_shifts_mm: Vec<f64>,
+    placement_budget: usize,
+) -> PyResult<Vec<(usize, String, String, f64)>> {
+    use pyo3::exceptions::PyValueError;
+
+    regional_feasibility::declare_regional_candidates(
+        placement_ids,
+        east_shifts_mm,
+        placement_budget,
+    )
+    .map(|rows| {
+        rows.into_iter()
+            .map(|row| {
+                (
+                    row.ordinal,
+                    row.candidate_id,
+                    row.placement_id,
+                    row.east_shift_mm,
+                )
+            })
+            .collect()
+    })
+    .map_err(PyValueError::new_err)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn evaluate_pre_route_candidate_py(
+    k1_j1_gap_mm: f64,
+    route_to_selv_gap_mm: f64,
+    affected_safety_count: usize,
+    new_safety_count: usize,
+    worsened_safety_count: usize,
+    new_body_overlap_count: usize,
+    worsened_body_overlap_count: usize,
+    new_courtyard_overlap_count: usize,
+    worsened_courtyard_overlap_count: usize,
+    containment_failure_count: usize,
+) -> PyResult<(bool, Vec<String>)> {
+    use regional_feasibility::{PreRouteCandidateInput, evaluate_pre_route_candidate};
+    temper_py_bridge::catch_panic(|| {
+        let verdict = evaluate_pre_route_candidate(&PreRouteCandidateInput {
+            k1_j1_gap_mm,
+            route_to_selv_gap_mm,
+            affected_safety_count,
+            new_safety_count,
+            worsened_safety_count,
+            new_body_overlap_count,
+            worsened_body_overlap_count,
+            new_courtyard_overlap_count,
+            worsened_courtyard_overlap_count,
+            containment_failure_count,
+        });
+        Ok((verdict.accepted, verdict.reasons))
+    })
+}
+
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(prepare_quality_py, m)?)?;
@@ -923,6 +985,8 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(wirelength_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(distribution_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_regional_candidate_py, m)?)?;
+    m.add_function(wrap_pyfunction!(declare_regional_candidates_py, m)?)?;
+    m.add_function(wrap_pyfunction!(evaluate_pre_route_candidate_py, m)?)?;
 
     cluster_f::bindings::register(m)?;
     Ok(())

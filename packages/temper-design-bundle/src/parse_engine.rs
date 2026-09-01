@@ -3884,6 +3884,14 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
         crate::sexpr_writer::update_footprint_positions_py,
         &sub
     )?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::replace_footprint_block_by_reference_py,
+        &sub
+    )?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::replace_declared_route_and_move_footprint_py,
+        &sub
+    )?)?;
     module.add_submodule(&sub)?;
     Ok(())
 }

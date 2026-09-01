@@ -51,6 +51,7 @@ pub use pad_geometry::{
 #[cfg(feature = "python")]
 pub use clearance_geometry::{
     component_reach_py, copper_scan_py, origin_distance_py, pad_pair_distance_py,
+    pad_to_capsule_distance_py,
     rotate_local_to_world_py,
 };
 #[cfg(feature = "python")]

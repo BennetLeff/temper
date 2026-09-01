@@ -49,6 +49,7 @@ use crate::organizational_geometry::{
 use crate::style_geometry::{radial_sector_positions_py, signal_chain_positions_py};
 use crate::clearance_geometry::{
     component_reach_py, copper_scan_py, origin_distance_py, pad_pair_distance_py,
+    pad_to_capsule_distance_py,
     rotate_local_to_world_py,
 };
 // Wave 4, router_v6 core slice. The `drc_` prefix is load-bearing: this
@@ -485,6 +486,7 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(origin_distance_py, m)?)?;
     m.add_function(wrap_pyfunction!(component_reach_py, m)?)?;
     m.add_function(wrap_pyfunction!(pad_pair_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_to_capsule_distance_py, m)?)?;
     m.add_function(wrap_pyfunction!(copper_scan_py, m)?)?;
 
     // audit (Wave 3 #5: R24 post-solve audit geometry)
