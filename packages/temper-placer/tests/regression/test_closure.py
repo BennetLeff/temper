@@ -5,6 +5,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
 from temper_placer.regression.closure_test import ClosureResult, ClosureTest
 
 
@@ -290,3 +292,64 @@ class TestClosureTestRequireAllStages:
             assert any("Placement not available" in w for w in result.warnings)
             # validate() will catch the zero-results and make passed=False
             # because benders_iterations=0, router_completion_pct=0
+
+
+class TestRouterCompletionUnitConversion:
+    """The fraction -> percent seam in ``ClosureTest.run`` (Step 3).
+
+    ``RoutingResult.completion_rate`` is a FRACTION in [0, 1];
+    ``ClosureResult.router_completion_pct`` is a PERCENT in [0, 100].
+    Assigning the fraction unscaled understated every reported completion
+    by 100x -- a 90%-routed board rendered as "Router completion: 0.9%",
+    and the recorded ``completion_pct`` metric (declared ``unit: "percent"``
+    in ``regression/metrics_schema.yaml``) was compared against a 95.0
+    threshold it could never reach.
+    """
+
+    @staticmethod
+    def _stage_result(**data_attrs):
+        return type("Res", (), {"data": type("D", (), data_attrs)()})()
+
+    def _run(self, tmp_path: Path, completion_rate):
+        pcb_path = tmp_path / "test.kicad_pcb"
+        pcb_path.write_text("(kicad_pcb)")
+
+        def _dispatch(*, phase, **_kwargs):
+            if phase == "placement":
+                return self._stage_result(iterations=2, cuts=0, placements={})
+            if completion_rate is None:
+                return self._stage_result()  # no completion_rate attribute
+            return self._stage_result(completion_rate=completion_rate)
+
+        with (
+            patch("temper_placer.io.kicad_parser.parse_kicad_pcb_v6", return_value={}),
+            patch("temper_placer.runner.resolve_and_run", side_effect=_dispatch),
+        ):
+            # Use a custom strategy so this seam test exercises the protocol
+            # StageOutput path it mocks. The default ``template`` spelling now
+            # selects the direct CP-SAT backend on current main.
+            return ClosureTest(pcb_path=pcb_path, strategy="test_protocol").run()
+
+    @pytest.mark.parametrize(
+        ("rate", "expected_pct", "rendered"),
+        [
+            (0.9, 90.0, "Router completion: 90.0%"),
+            (1.0, 100.0, "Router completion: 100.0%"),
+            (0.3775510204081632, 37.75510204081632, "Router completion: 37.8%"),
+        ],
+    )
+    def test_fraction_is_scaled_to_percent(self, tmp_path, rate, expected_pct, rendered):
+        result = self._run(tmp_path, rate)
+        assert result.router_completion_pct == pytest.approx(expected_pct)
+        assert rendered in result.summary()
+
+    def test_zero_rate_stays_zero_so_validate_still_fires(self, tmp_path):
+        """0.0 scales to 0.0, so the zero-results assertion is unchanged."""
+        result = self._run(tmp_path, 0.0)
+        assert result.router_completion_pct == 0.0
+        assert any("router_completion_pct <= 0" in e for e in result.errors)
+
+    def test_missing_completion_rate_defaults_to_zero(self, tmp_path):
+        """A routing result without ``completion_rate`` must not become 100%."""
+        result = self._run(tmp_path, None)
+        assert result.router_completion_pct == 0.0

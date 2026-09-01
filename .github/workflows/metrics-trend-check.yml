@@ -53,10 +53,15 @@ jobs:
           REPORT=""
           while IFS=, read -r board stage module; do
             [ -z "$board" ] && continue
+            # `|| true` here used to make the compound command exit 0
+            # unconditionally, so the `$?` read on the next line was ALWAYS 0
+            # and DRIFT_FOUND could never become true -- the drift issue has
+            # never been created. `|| exit_code=$?` keeps the real code while
+            # still not tripping the step's default `set -e`.
+            exit_code=0
             result=$(uv run python scripts/pipeline_metrics.py trend \
               --board "$board" --stage "$stage" --module "$module" \
-              --window "$WINDOW" --sigma-multiple "$SIGMA" --json 2>&1) || true
-            exit_code=$?
+              --window "$WINDOW" --sigma-multiple "$SIGMA" --json) || exit_code=$?
             if [ "$exit_code" = "1" ]; then
               DRIFT_FOUND=true
               REPORT="${REPORT}\n## $module / $board / $stage\n\n\`\`\`json\n$result\n\`\`\`"
@@ -73,8 +78,11 @@ jobs:
       - name: Run SPC check
         id: spc
         run: |
+          # No `2>&1`: this stream is parsed as JSON below, and any warning
+          # on stderr (e.g. load_metrics' schema warnings) would corrupt it.
+          # Let stderr go to the step log instead.
           SPC_OUTPUT=$(uv run python scripts/pipeline_metrics.py spc \
-            --board temper --window 20 --json 2>&1) || SPC_EXIT=$?
+            --board temper --window 20 --json) || SPC_EXIT=$?
           echo "$SPC_OUTPUT" | tee spc-result.json
           SPC_VIOLATION=$(uv run python -c "
           import json, sys
@@ -109,8 +117,9 @@ jobs:
       - name: Run SLO check
         id: slo
         run: |
+          # No `2>&1`: parsed as JSON below (see the SPC step).
           SLO_OUTPUT=$(uv run python scripts/pipeline_metrics.py slo \
-            --slo-file power_pcb_dataset/metrics/slo_definitions.yaml --json 2>&1) || SLO_EXIT=$?
+            --slo-file power_pcb_dataset/metrics/slo_definitions.yaml --json) || SLO_EXIT=$?
           echo "$SLO_OUTPUT" | tee slo-result.json
           SLO_ANY_BLOCK=$(uv run python -c "
           import json, sys
@@ -173,3 +182,32 @@ jobs:
                 owner: context.repo.owner, repo: context.repo.repo,
                 title, body, labels: ["metrics-drift"] });
             }
+
+      # `spc_exit` and `slo_exit` were written to $GITHUB_OUTPUT by the two
+      # steps above and then read by NOTHING. Post-activation a `block` SLO
+      # violation would file an issue and still leave the job green, which is
+      # not what R14 ("SLO `block` tier blocks") specifies. This step is the
+      # missing consumer.
+      #
+      # It runs after the issue-creation steps so the report still lands before
+      # the job goes red. During the silent room
+      # (`observability_state.json: activated: false`) both commands exit 0 by
+      # design, so this cannot fail the job until the platform is deliberately
+      # activated. What it DOES catch immediately is a broken invocation: until
+      # this commit's parent, `slo`/`spc` were not registered subcommands at
+      # all and exited 2 on every run, and that 2 was captured and discarded.
+      - name: Enforce SPC/SLO exit codes
+        run: |
+          SPC_EXIT="${{ steps.spc.outputs.spc_exit }}"
+          SLO_EXIT="${{ steps.slo.outputs.slo_exit }}"
+          echo "spc_exit=${SPC_EXIT:-0}  slo_exit=${SLO_EXIT:-0}"
+          status=0
+          if [ "${SPC_EXIT:-0}" != "0" ]; then
+            echo "::error::SPC check exited ${SPC_EXIT} (violation post-activation, or a broken invocation)"
+            status=1
+          fi
+          if [ "${SLO_EXIT:-0}" != "0" ]; then
+            echo "::error::SLO check exited ${SLO_EXIT} (block violation post-activation, or a broken invocation)"
+            status=1
+          fi
+          exit $status

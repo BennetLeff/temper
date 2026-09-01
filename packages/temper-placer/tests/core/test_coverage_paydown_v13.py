@@ -318,7 +318,9 @@ class TestPipelineMetricsRecord:
         assert d["module"] == "pipeline"
         assert d["git_commit"] == "abc123"
         assert d["metrics"] == {"completion_pct": 95.0}
-        assert d["schema_version"] == 2
+        # v3: ``completion_pct`` became a percent (was a fraction in v1/v2);
+        # see CURRENT_SCHEMA_VERSION in metrics_recorder.py.
+        assert d["schema_version"] == 3
         assert d["stage_name"] == "closure"
 
     def test_to_dict_with_drc_delta(self):
