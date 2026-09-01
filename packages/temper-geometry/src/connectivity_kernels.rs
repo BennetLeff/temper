@@ -594,6 +594,10 @@ pub fn connectivity_components_py(
     .map_err(temper_py_bridge::panic_to_err)
 }
 
+/// Return type for the pyo3 surface of [`pad_connectivity_audit`].
+#[cfg(feature = "python")]
+type PadConnectivityAuditPyResult = (i64, bool, bool, Vec<i64>, Vec<String>, bool);
+
 /// pyo3 surface for [`pad_connectivity_audit`]. Positions are tuple lists so
 /// the Python adapter can pass its existing dataclass fields without exposing
 /// those classes to the geometry crate.
@@ -610,7 +614,7 @@ pub fn pad_connectivity_audit_py(
     all_layers: Vec<String>,
     tolerance_mm: f64,
     zone_layers: Vec<String>,
-) -> PyResult<(i64, bool, bool, Vec<i64>, Vec<String>, bool)> {
+) -> PyResult<PadConnectivityAuditPyResult> {
     if pad_positions.len() != pad_layers.len() {
         return Err(PyValueError::new_err("pad position/layer length mismatch"));
     }

@@ -713,6 +713,7 @@ fn bundle_jaccard(a: &HashSet<usize>, b: &HashSet<usize>) -> f64 {
 /// handling, connected components, and stable IDs. Group traversal is
 /// explicitly first-seen by net index; no hash-map iteration contributes to
 /// output ordering.
+#[allow(clippy::too_many_arguments)]
 pub fn analyze_bundle_manifest(
     net_names: &[String],
     safety_categories: &[Option<String>],
@@ -859,8 +860,14 @@ pub fn analyze_bundle_manifest(
                 let a = remaining_non_diff[left];
                 let b = remaining_non_diff[right];
                 if bundle_jaccard(&edge_covers[a], &edge_covers[b]) > jaccard_threshold {
-                    adjacency.get_mut(&a).unwrap().push(b);
-                    adjacency.get_mut(&b).unwrap().push(a);
+                    let Some(neighbors) = adjacency.get_mut(&a) else {
+                        return Err("bundle adjacency is missing a known net");
+                    };
+                    neighbors.push(b);
+                    let Some(neighbors) = adjacency.get_mut(&b) else {
+                        return Err("bundle adjacency is missing a known net");
+                    };
+                    neighbors.push(a);
                 }
             }
         }
@@ -960,8 +967,19 @@ pub fn covered_edge_indices_py(
 /// intentionally plain Python values so the placer shim can preserve its
 /// existing dataclass API without reimplementing any decisions.
 #[cfg(feature = "python")]
+type BundleManifestPyResult = (
+    Vec<(usize, Vec<usize>, Option<String>, String, bool, bool, Vec<String>)>,
+    Vec<(usize, usize)>,
+    Vec<usize>,
+);
+
+/// Rust-owned BundleAnalyzer orchestration.  The tuple records are
+/// intentionally plain Python values so the placer shim can preserve its
+/// existing dataclass API without reimplementing any decisions.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (net_names, safety_categories, diff_pairs, footprint_rings, edge_ids, mids_x, mids_y, jaccard_threshold=0.5, single_layer_mode=false))]
+#[allow(clippy::too_many_arguments)]
 pub fn analyze_bundle_manifest_py(
     net_names: Vec<String>,
     safety_categories: Vec<Option<String>>,
@@ -972,11 +990,7 @@ pub fn analyze_bundle_manifest_py(
     mids_y: Vec<f64>,
     jaccard_threshold: f64,
     single_layer_mode: bool,
-) -> PyResult<(
-    Vec<(usize, Vec<usize>, Option<String>, String, bool, bool, Vec<String>)>,
-    Vec<(usize, usize)>,
-    Vec<usize>,
-)> {
+) -> PyResult<BundleManifestPyResult> {
     temper_py_bridge::catch_unwind(move || {
         let result = analyze_bundle_manifest(
             &net_names,
@@ -1250,7 +1264,7 @@ pub(crate) mod tests {
         // preserves Python's frozenset(edge_id) semantics and does not.
         let result = analyze_bundle_manifest(
             &names,
-            &vec![None, None],
+            &[None, None],
             &[],
             &rings,
             &[
@@ -1275,7 +1289,7 @@ pub(crate) mod tests {
         let rings = vec![rect(-1.0, 2.1), rect(-1.0, 2.1)];
         let result = analyze_bundle_manifest(
             &names,
-            &vec![None, None],
+            &[None, None],
             &[],
             &rings,
             &["E0".to_string()],
@@ -1295,7 +1309,7 @@ pub(crate) mod tests {
         let rings = vec![rect(-1.0, 2.1), rect(-1.0, 2.1)];
         let result = analyze_bundle_manifest(
             &names,
-            &vec![None, None],
+            &[None, None],
             &[
                 ("USB_DP".to_string(), "MISSING_P".to_string(), "DP".to_string()),
                 ("USB_DN".to_string(), "MISSING_N".to_string(), "DN".to_string()),

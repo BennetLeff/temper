@@ -1592,7 +1592,7 @@ impl ConstraintModel {
                             let mut packable = true;
                             for (var, width) in items {
                                 let Some(idx) = self
-                                    .capacity_term_variable_index(&var.bind(constraint.py()))
+                                    .capacity_term_variable_index(var.bind(constraint.py()))
                                 else {
                                     // This is a normal compatibility case:
                                     // preserve the original object below.

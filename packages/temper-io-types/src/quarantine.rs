@@ -55,6 +55,7 @@
 //! their inputs accordingly. kicad_pcb content is ASCII by the format's
 //! spec, so `has_kicad_header` is exact on any real board file.
 
+#[cfg(feature = "python")]
 use std::path::Path;
 
 /// `hashlib.sha256(data).hexdigest()[:prefix_len]` — the stack-hash prefix.

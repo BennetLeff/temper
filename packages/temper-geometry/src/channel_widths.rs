@@ -14,6 +14,11 @@ use numpy::{IntoPyArray, PyArray2, PyArrayMethods};
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
+type ChannelWidthsEdtPyResult<'py> = (Bound<'py, PyArray2<f64>>, Vec<u8>, usize, usize);
+
+type ChannelWidthsPolygon = (Vec<(f64, f64)>, Vec<Vec<(f64, f64)>>);
+
 /// Build the raster mask used by the channel-width EDT and run the exact
 /// transform in one Rust-owned operation.  Shapely remains the owner of
 /// geometry objects; the Python boundary supplies only flattened outer and
@@ -27,7 +32,7 @@ pub fn prepare_channel_widths_edt(
     holes: Vec<Vec<Vec<f64>>>,
     bounds: (f64, f64, f64, f64),
     cell_size: f64,
-) -> PyResult<(Bound<'_, PyArray2<f64>>, Vec<u8>, usize, usize)> {
+) -> PyResult<ChannelWidthsEdtPyResult<'_>> {
     if outer_rings.len() != holes.len() {
         return Err(pyo3::exceptions::PyValueError::new_err(
             "outer_rings and holes must have the same length",
@@ -71,7 +76,7 @@ pub fn prepare_channel_widths_edt_kernel(
     let width = ((max_x - min_x) / cell_size).ceil() as usize + 1;
     let height = ((max_y - min_y) / cell_size).ceil() as usize + 1;
     let mut mask = vec![0u8; height * width];
-    let polygons: Vec<(Vec<(f64, f64)>, Vec<Vec<(f64, f64)>>)> = outer_rings
+    let polygons: Vec<ChannelWidthsPolygon> = outer_rings
         .iter()
         .zip(holes.iter())
         .map(|(outer, holes)| {
