@@ -404,6 +404,8 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("regional_feasibility::tests::pre_route_verdict_owns_canonical_reason_order", pre_route_verdict_owns_canonical_reason_order),
+        ("regional_feasibility::tests::pre_route_verdict_accepts_only_an_empty_veto_set", pre_route_verdict_accepts_only_an_empty_veto_set),
         ("regional_feasibility::tests::accepts_real_pareto_improvement", accepts_real_pareto_improvement),
         ("regional_feasibility::tests::rejects_creepage_win_that_buys_a_short", rejects_creepage_win_that_buys_a_short),
         ("regional_feasibility::tests::rejects_new_pair_even_when_counts_fall", rejects_new_pair_even_when_counts_fall),
