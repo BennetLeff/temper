@@ -1,4 +1,4 @@
 globalThis.TEMPER_ATLAS_BUILD = Object.freeze({
-  "commit": "d1d61abf9811d8595b5c976ea8518a253fd624a5",
+  "commit": "6522b124e45915e2e0cf9d050157ce743b537176",
   "ref": "main"
 });
