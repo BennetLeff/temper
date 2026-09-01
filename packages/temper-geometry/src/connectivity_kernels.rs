@@ -41,6 +41,48 @@
 
 pub const CONTACT_TOLERANCE_MM: f64 = 1e-4;
 
+use std::collections::HashMap;
+
+/// Canonical union-find shared by the physical connectivity partition and the
+/// endpoint/layer audit below. Choosing the smaller root keeps results
+/// deterministic while remaining independent of union order.
+struct UnionFind {
+    parent: Vec<usize>,
+}
+
+impl UnionFind {
+    fn new(size: usize) -> Self {
+        Self { parent: (0..size).collect() }
+    }
+
+    fn add_node(&mut self) -> usize {
+        let index = self.parent.len();
+        self.parent.push(index);
+        index
+    }
+
+    fn find(&mut self, mut index: usize) -> usize {
+        let mut root = index;
+        while self.parent[root] != root {
+            root = self.parent[root];
+        }
+        while self.parent[index] != root {
+            let next = self.parent[index];
+            self.parent[index] = root;
+            index = next;
+        }
+        root
+    }
+
+    fn union(&mut self, left: usize, right: usize) {
+        let left_root = self.find(left);
+        let right_root = self.find(right);
+        if left_root != right_root {
+            self.parent[left_root.max(right_root)] = left_root.min(right_root);
+        }
+    }
+}
+
 /// A copper pad, denormalized to the fields the predicates read.
 pub struct PadData {
     pub x: f64,
@@ -225,41 +267,25 @@ pub fn connectivity_partition(
     let zone_start = via_start + vias.len();
     debug_assert!(total_items >= zone_start);
 
-    let mut parent: Vec<usize> = (0..total_items).collect();
-
-    fn find(parent: &mut [usize], mut index: usize) -> usize {
-        while parent[index] != index {
-            parent[index] = parent[parent[index]];
-            index = parent[index];
-        }
-        index
-    }
-
-    fn union(parent: &mut [usize], left: usize, right: usize) {
-        let left_root = find(parent, left);
-        let right_root = find(parent, right);
-        if left_root != right_root {
-            parent[left_root.max(right_root)] = left_root.min(right_root);
-        }
-    }
+    let mut parent = UnionFind::new(total_items);
 
     for left in 0..tracks.len() {
         for right in (left + 1)..tracks.len() {
             let t = &tracks[left];
             let o = &tracks[right];
             if t.layer == o.layer && tracks_touch(t, o) {
-                union(&mut parent, track_start + left, track_start + right);
+                parent.union(track_start + left, track_start + right);
             }
         }
         let t = &tracks[left];
         for (pad_index, pad) in pads.iter().enumerate() {
             if pad.layers.contains(&t.layer) && segment_touches_pad(t, pad, t.width / 2.0) {
-                union(&mut parent, track_start + left, pad_index);
+                parent.union(track_start + left, pad_index);
             }
         }
         for (via_index, via) in vias.iter().enumerate() {
             if via.layers.contains(&t.layer) && track_touches_via(t, via) {
-                union(&mut parent, track_start + left, via_start + via_index);
+                parent.union(track_start + left, via_start + via_index);
             }
         }
     }
@@ -269,7 +295,7 @@ pub fn connectivity_partition(
             let a = &pads[left];
             let b = &pads[right];
             if layers_intersect(&a.layers, &b.layers) && pads_touch(a, b) {
-                union(&mut parent, left, right);
+                parent.union(left, right);
             }
         }
     }
@@ -279,19 +305,19 @@ pub fn connectivity_partition(
             let a = &vias[left];
             let b = &vias[right];
             if layers_intersect(&a.layers, &b.layers) && points_touch(a.x, a.y, b.x, b.y) {
-                union(&mut parent, via_start + left, via_start + right);
+                parent.union(via_start + left, via_start + right);
             }
         }
         let a = &vias[left];
         for (pad_index, pad) in pads.iter().enumerate() {
             if layers_intersect(&a.layers, &pad.layers) && via_touches_pad(a, pad) {
-                union(&mut parent, via_start + left, pad_index);
+                parent.union(via_start + left, pad_index);
             }
         }
     }
 
     for &(i, j) in zone_pairs {
-        union(&mut parent, i, j);
+        parent.union(i, j);
     }
 
     // Group pads by canonical root. Iterating pads in index order keeps each
@@ -299,13 +325,189 @@ pub fn connectivity_partition(
     // deterministic (the Python shim re-sorts by (-len, identity) anyway).
     let mut groups: std::collections::BTreeMap<usize, Vec<usize>> = std::collections::BTreeMap::new();
     for (pad_index, _) in pads.iter().enumerate() {
-        groups.entry(find(&mut parent, pad_index)).or_default().push(pad_index);
+        groups.entry(parent.find(pad_index)).or_default().push(pad_index);
     }
     ConnectivityPartition {
         pad_components: groups.into_iter().collect(),
-        track_roots: (0..tracks.len()).map(|i| find(&mut parent, track_start + i)).collect(),
-        via_roots: (0..vias.len()).map(|i| find(&mut parent, via_start + i)).collect(),
+        track_roots: (0..tracks.len()).map(|i| parent.find(track_start + i)).collect(),
+        via_roots: (0..vias.len()).map(|i| parent.find(via_start + i)).collect(),
     }
+}
+
+type AuditNode = (i64, i64, String);
+
+fn audit_cluster_key(x: f64, y: f64, tolerance_mm: f64) -> (i64, i64) {
+    let snap_x = crate::host_math::py_round(x * 1_000_000.0) / 1_000_000.0;
+    let snap_y = crate::host_math::py_round(y * 1_000_000.0) / 1_000_000.0;
+    (
+        (crate::host_math::py_round(snap_x / tolerance_mm)) as i64,
+        (crate::host_math::py_round(snap_y / tolerance_mm)) as i64,
+    )
+}
+
+fn audit_node(x: f64, y: f64, layer: &str, tolerance_mm: f64) -> AuditNode {
+    let (cluster_x, cluster_y) = audit_cluster_key(x, y, tolerance_mm);
+    (cluster_x, cluster_y, layer.to_string())
+}
+
+fn intern_audit_node(
+    uf: &mut UnionFind,
+    nodes: &mut HashMap<AuditNode, usize>,
+    node: AuditNode,
+) -> usize {
+    if let Some(&index) = nodes.get(&node) {
+        return index;
+    }
+    let index = uf.add_node();
+    nodes.insert(node, index);
+    index
+}
+
+/// Endpoint/layer graph used by `router_v6.pad_connectivity_audit`.
+///
+/// Unlike `connectivity_partition`, this deliberately models only snapped
+/// segment endpoints, via layer spans, and pad barrel nodes. It does not use
+/// physical-width predicates: the audit answers whether emitted endpoint
+/// geometry reaches the pads. The return values are primitive so the Python
+/// adapter can preserve its public dataclasses and diagnostic references.
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
+pub fn pad_connectivity_audit(
+    pad_positions: &[(f64, f64)],
+    pad_layers: &[String],
+    segment_positions: &[(f64, f64, f64, f64)],
+    segment_layers: &[String],
+    via_positions: &[(f64, f64)],
+    via_layers: &[Vec<String>],
+    all_layers: &[String],
+    tolerance_mm: f64,
+    zone_layers: &[String],
+) -> (usize, bool, bool, Vec<usize>, Vec<String>, bool) {
+    if pad_positions.len() <= 1 {
+        return (
+            pad_positions.len(),
+            true,
+            !segment_positions.is_empty() || !via_positions.is_empty(),
+            Vec::new(),
+            Vec::new(),
+            false,
+        );
+    }
+
+    let mut layer_universe = if all_layers.is_empty() {
+        let mut layers: Vec<String> = segment_layers
+            .iter()
+            .cloned()
+            .chain(pad_layers.iter().filter(|layer| layer.as_str() != "*").cloned())
+            .collect();
+        layers.sort();
+        layers.dedup();
+        layers
+    } else {
+        all_layers.to_vec()
+    };
+    // The Python implementation receives an explicit sequence unchanged.
+    // Preserve that sequence for node construction, but ensure derived data
+    // is deterministic when the caller omitted it.
+    if all_layers.is_empty() {
+        layer_universe.sort();
+        layer_universe.dedup();
+    }
+
+    let mut uf = UnionFind::new(0);
+    let mut node_ids: HashMap<AuditNode, usize> = HashMap::new();
+    for (index, &(x1, y1, x2, y2)) in segment_positions.iter().enumerate() {
+        let layer = &segment_layers[index];
+        let left = intern_audit_node(&mut uf, &mut node_ids, audit_node(x1, y1, layer, tolerance_mm));
+        let right = intern_audit_node(&mut uf, &mut node_ids, audit_node(x2, y2, layer, tolerance_mm));
+        uf.union(left, right);
+    }
+
+    for (index, &(x, y)) in via_positions.iter().enumerate() {
+        let layers = if via_layers[index].is_empty() {
+            &layer_universe
+        } else {
+            &via_layers[index]
+        };
+        let keys: Vec<usize> = layers
+            .iter()
+            .map(|layer| intern_audit_node(&mut uf, &mut node_ids, audit_node(x, y, layer, tolerance_mm)))
+            .collect();
+        if let Some(first) = keys.first() {
+            for key in keys.iter().skip(1) {
+                uf.union(*first, *key);
+            }
+        }
+    }
+
+    let mut pad_representatives: Vec<usize> = Vec::with_capacity(pad_positions.len());
+    for (index, &(x, y)) in pad_positions.iter().enumerate() {
+        let layers: Vec<String> = if pad_layers[index] == "*" {
+            if layer_universe.is_empty() {
+                vec!["*".to_string()]
+            } else {
+                layer_universe.clone()
+            }
+        } else {
+            vec![pad_layers[index].clone()]
+        };
+        let keys: Vec<usize> = layers
+            .iter()
+            .map(|layer| intern_audit_node(&mut uf, &mut node_ids, audit_node(x, y, layer, tolerance_mm)))
+            .collect();
+        if let Some(first) = keys.first() {
+            for key in keys.iter().skip(1) {
+                uf.union(*first, *key);
+            }
+            pad_representatives.push(*first);
+        }
+    }
+
+    // Resolve every root only after all pad barrel unions have completed.
+    // This is the two-pass rule that prevents stale roots in multi-layer THT
+    // pads from splitting a genuinely connected component.
+    let pad_roots: Vec<usize> = pad_representatives.iter().map(|&node| uf.find(node)).collect();
+    let mut groups: Vec<(usize, usize)> = Vec::new();
+    for root in &pad_roots {
+        if let Some((_, count)) = groups.iter_mut().find(|(candidate, _)| candidate == root) {
+            *count += 1;
+        } else {
+            groups.push((*root, 1));
+        }
+    }
+    let largest = groups.iter().map(|(_, count)| *count).max().unwrap_or(0);
+    let majority_root = if largest > 1 {
+        groups.iter().find(|(_, count)| *count == largest).map(|(root, _)| *root)
+    } else {
+        None
+    };
+    let unreached: Vec<usize> = pad_roots
+        .iter()
+        .enumerate()
+        .filter_map(|(index, root)| {
+            if majority_root.as_ref() != Some(root) {
+                Some(index)
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    let mut declared_zones = zone_layers.to_vec();
+    declared_zones.sort();
+    declared_zones.dedup();
+    let zone_dependent = !declared_zones.is_empty()
+        && !unreached.is_empty()
+        && unreached.iter().all(|&index| {
+            pad_layers[index] == "*" || declared_zones.binary_search(&pad_layers[index]).is_ok()
+        });
+    (
+        largest,
+        largest == pad_positions.len(),
+        !segment_positions.is_empty() || !via_positions.is_empty(),
+        unreached,
+        declared_zones,
+        zone_dependent,
+    )
 }
 
 #[cfg(feature = "python")]
@@ -323,7 +525,7 @@ use temper_py_bridge;
 /// `[x, y, diameter]` array (3 per via); layer lists accompany each item.
 #[cfg(feature = "python")]
 #[pyfunction]
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
 pub fn connectivity_components_py(
     pads: Vec<f64>,
     pad_shapes: Vec<i64>,
@@ -399,9 +601,76 @@ pub fn connectivity_components_py(
     .map_err(temper_py_bridge::panic_to_err)
 }
 
+/// pyo3 surface for [`pad_connectivity_audit`]. Positions are tuple lists so
+/// the Python adapter can pass its existing dataclass fields without exposing
+/// those classes to the geometry crate.
+#[cfg(feature = "python")]
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn pad_connectivity_audit_py(
+    pad_positions: Vec<(f64, f64)>,
+    pad_layers: Vec<String>,
+    segment_positions: Vec<(f64, f64, f64, f64)>,
+    segment_layers: Vec<String>,
+    via_positions: Vec<(f64, f64)>,
+    via_layers: Vec<Vec<String>>,
+    all_layers: Vec<String>,
+    tolerance_mm: f64,
+    zone_layers: Vec<String>,
+) -> PyResult<(i64, bool, bool, Vec<i64>, Vec<String>, bool)> {
+    if pad_positions.len() != pad_layers.len() {
+        return Err(PyValueError::new_err("pad position/layer length mismatch"));
+    }
+    if segment_positions.len() != segment_layers.len() {
+        return Err(PyValueError::new_err("segment position/layer length mismatch"));
+    }
+    if via_positions.len() != via_layers.len() {
+        return Err(PyValueError::new_err("via position/layer length mismatch"));
+    }
+    if tolerance_mm == 0.0 || !tolerance_mm.is_finite() {
+        return Err(PyValueError::new_err("tolerance_mm must be finite and non-zero"));
+    }
+    temper_py_bridge::catch_unwind(move || {
+        let (largest, fully_connected, has_any_copper, unreached, zones, zone_dependent) =
+            pad_connectivity_audit(
+                &pad_positions,
+                &pad_layers,
+                &segment_positions,
+                &segment_layers,
+                &via_positions,
+                &via_layers,
+                &all_layers,
+                tolerance_mm,
+                &zone_layers,
+            );
+        (
+            largest as i64,
+            fully_connected,
+            has_any_copper,
+            unreached.into_iter().map(|index| index as i64).collect(),
+            zones,
+            zone_dependent,
+        )
+    })
+    .map_err(temper_py_bridge::panic_to_err)
+}
+
+/// Compatibility helper for callers that historically imported
+/// `pad_connectivity_audit._cluster_key` from Python.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn pad_connectivity_cluster_key_py(x: f64, y: f64, tolerance_mm: f64) -> PyResult<(i64, i64)> {
+    if tolerance_mm == 0.0 || !tolerance_mm.is_finite() {
+        return Err(PyValueError::new_err("tolerance_mm must be finite and non-zero"));
+    }
+    Ok(audit_cluster_key(x, y, tolerance_mm))
+}
+
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(connectivity_components_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_connectivity_audit_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_connectivity_cluster_key_py, m)?)?;
     Ok(())
 }
 
@@ -527,6 +796,54 @@ pub(crate) mod tests {
         assert!(!segment_touches_pad(&tr, &pr, 0.1));
     }
 
+    #[cfg_attr(test, test)]
+    fn pad_audit_snaps_wdt_sub_nanometre_noise() {
+        let result = pad_connectivity_audit(
+            &[(117.3925, 139.53000000000003), (10.0, 0.0)],
+            &["F.Cu".to_string(), "F.Cu".to_string()],
+            &[(117.3925, 139.53, 10.0, 0.0)],
+            &["F.Cu".to_string()],
+            &[],
+            &[],
+            &[],
+            0.02,
+            &[],
+        );
+        assert_eq!(result, (2, true, true, Vec::new(), Vec::new(), false));
+    }
+
+    #[cfg_attr(test, test)]
+    fn pad_audit_tht_union_resolves_after_all_barrel_unions() {
+        let result = pad_connectivity_audit(
+            &[(0.0, 0.0), (10.0, 0.0), (20.0, 0.0)],
+            &["F.Cu".to_string(), "*".to_string(), "*".to_string()],
+            &[(0.0, 0.0, 10.0, 0.0), (10.0, 0.0, 20.0, 0.0)],
+            &["F.Cu".to_string(), "F.Cu".to_string()],
+            &[],
+            &[],
+            &["B.Cu".to_string(), "F.Cu".to_string()],
+            0.02,
+            &[],
+        );
+        assert_eq!(result, (3, true, true, Vec::new(), Vec::new(), false));
+    }
+
+    #[cfg_attr(test, test)]
+    fn pad_audit_wrong_layer_stays_disconnected() {
+        let result = pad_connectivity_audit(
+            &[(0.0, 0.0), (20.0, 0.0)],
+            &["F.Cu".to_string(), "F.Cu".to_string()],
+            &[(0.0, 0.0, 20.0, 0.0)],
+            &["B.Cu".to_string()],
+            &[],
+            &[],
+            &["F.Cu".to_string(), "B.Cu".to_string()],
+            0.02,
+            &[],
+        );
+        assert_eq!(result, (1, false, true, vec![0, 1], Vec::new(), false));
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -541,6 +858,9 @@ pub(crate) mod tests {
         ("connectivity_kernels::tests::zone_pairs_join_pads", zone_pairs_join_pads),
         ("connectivity_kernels::tests::rotated_rect_pad_accepts_crossing_track", rotated_rect_pad_accepts_crossing_track),
         ("connectivity_kernels::tests::liang_barsky_misses_offset_line", liang_barsky_misses_offset_line),
+        ("connectivity_kernels::tests::pad_audit_snaps_wdt_sub_nanometre_noise", pad_audit_snaps_wdt_sub_nanometre_noise),
+        ("connectivity_kernels::tests::pad_audit_tht_union_resolves_after_all_barrel_unions", pad_audit_tht_union_resolves_after_all_barrel_unions),
+        ("connectivity_kernels::tests::pad_audit_wrong_layer_stays_disconnected", pad_audit_wrong_layer_stays_disconnected),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

@@ -19,9 +19,9 @@ copper-plus-pad connectivity graph and check every pad is actually in one
 connected component -- not merely that copper with the right net number
 exists somewhere on the board.
 
-**Design.** ``check_net_pad_connectivity`` is the core, pure-data check:
-no I/O, no parsing, takes plain pad/segment/via records and returns a
-verdict. This is what a router (this spike's ``_astar_nlayer.py`` or, if
+**Design.** ``check_net_pad_connectivity`` is the public adapter around the
+Rust-owned, pure-data graph kernel: no I/O, no parsing, plain pad/segment/via
+records in and primitive verdict data out. This is what a router (this spike's ``_astar_nlayer.py`` or, if
 this were productionized, the real per-net driver) would call right after
 producing a route, before ever trusting a completion counter.
 ``audit_pcb_file`` is a thin adapter that parses a written ``.kicad_pcb``
@@ -38,6 +38,8 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+
+import temper_geometry as _tg
 
 from temper_placer.router_v6.topology_copper_audit import (
     _extract_top_level_blocks,
@@ -159,55 +161,6 @@ class NetConnectivityResult:
         return "broken"
 
 
-class _UnionFind:
-    """Union-find with path compression and union-by-size.
-
-    Union-by-size only keeps trees shallow; it does NOT, by itself, make it
-    safe to snapshot ``find(x)`` mid-construction and treat that snapshot
-    as permanent. *Any* union (rank-based or not) can still relocate the
-    root of an already-merged component -- ``union`` always reparents one
-    of the two input roots, and a caller who read that root before the
-    reparenting has a now-stale value. The only thing that makes a
-    ``find()`` result trustworthy is calling it *after* every union that
-    could touch that component has already happened. See
-    ``check_net_pad_connectivity``'s two-pass pad handling, which is the
-    actual fix for that failure mode (was: a per-pad root snapshot taken
-    mid-loop, before later pads' own multi-layer unions had run -- verified
-    against this board's ``thermal.j_fan-p1``, ``discharge.r_dis1a-p2``,
-    and ``discharge.r_dis2a-p2`` nets, and pinned by this module's own
-    regression tests).
-    """
-
-    __slots__ = ("_parent", "_size")
-
-    def __init__(self) -> None:
-        self._parent: dict = {}
-        self._size: dict = {}
-
-    def _ensure(self, x) -> None:
-        if x not in self._parent:
-            self._parent[x] = x
-            self._size[x] = 1
-
-    def find(self, x):
-        self._ensure(x)
-        root = x
-        while self._parent[root] != root:
-            root = self._parent[root]
-        while self._parent[x] != root:
-            self._parent[x], x = root, self._parent[x]
-        return root
-
-    def union(self, a, b) -> None:
-        ra, rb = self.find(a), self.find(b)
-        if ra == rb:
-            return
-        if self._size[ra] < self._size[rb]:
-            ra, rb = rb, ra
-        self._parent[rb] = ra
-        self._size[ra] += self._size[rb]
-
-
 # KiCad's own file format and geometry engine store and quantise every
 # board coordinate to 1 nanometre (1e-6 mm) resolution -- an mm value in a
 # written .kicad_pcb never carries more than 6 decimal digits, and KiCad's
@@ -232,13 +185,6 @@ class _UnionFind:
 # of a grid line a point falls on, not a bug. What this fixes is only the
 # case where the SAME physical point, reconstructed via two different
 # float code paths, disagreed with itself about which bucket it was in.
-_KICAD_NM_PER_MM = 1_000_000
-
-
-def _snap_to_kicad_nm(value: float) -> float:
-    return round(value * _KICAD_NM_PER_MM) / _KICAD_NM_PER_MM
-
-
 def _cluster_key(point: Point, tolerance_mm: float) -> tuple[int, int]:
     """Snap a world point onto a tolerance-sized bucket.
 
@@ -251,14 +197,13 @@ def _cluster_key(point: Point, tolerance_mm: float) -> tuple[int, int]:
     after routing, on written board geometry, independent of grid pitch.
 
     The coordinates are first snapped to KiCad's own 1nm resolution
-    (``_snap_to_kicad_nm``) so that sub-nanometre float noise from this
+    Rust's shared ``pad_connectivity_cluster_key_py`` snap so that
+    sub-nanometre float noise from this
     codebase's own transform math can never push a point across a
     ``round()`` tie boundary that the point's "true" (nanometre-resolution)
     value does not actually sit on.
     """
-    x = _snap_to_kicad_nm(point[0])
-    y = _snap_to_kicad_nm(point[1])
-    return (round(x / tolerance_mm), round(y / tolerance_mm))
+    return tuple(_tg.pad_connectivity_cluster_key_py(point[0], point[1], tolerance_mm))
 
 
 def check_net_pad_connectivity(
@@ -272,8 +217,8 @@ def check_net_pad_connectivity(
 ) -> NetConnectivityResult:
     """Does this net's copper actually connect all of its own pads?
 
-    A net with 0 or 1 pads is trivially connected (nothing to join).
-    Otherwise: build a union-find over (snapped-point, layer) nodes, union
+    A net with 0 or 1 pads is trivially connected (nothing to join). The
+    Rust kernel builds a union-find over (snapped-point, layer) nodes, union
     every segment's two endpoints (same layer only -- a segment never
     changes layer), union every via's position across the layers it spans,
     then union each pad's own node(s) in. The verdict is
@@ -290,97 +235,27 @@ def check_net_pad_connectivity(
     sits on a layer with a zone for this net: see
     ``NetConnectivityResult.category``.
     """
-    if len(pads) <= 1:
-        return NetConnectivityResult(
-            net_name=net_name,
-            pad_count=len(pads),
-            pads_connected=len(pads),
-            fully_connected=True,
-            has_any_copper=bool(segments or vias),
-        )
-
-    uf = _UnionFind()
-
-    def node(point: Point, layer: str):
-        return (_cluster_key(point, tolerance_mm), layer)
-
-    for seg in segments:
-        uf.union(node(seg.p1, seg.layer), node(seg.p2, seg.layer))
-
-    layer_universe = tuple(all_layers) if all_layers else tuple(
-        sorted({s.layer for s in segments} | {p.layer for p in pads if p.layer != ALL_LAYERS})
+    largest, fully_connected, has_any_copper, unreached_indices, graph_zones, zone_dependent_unmeasured = _tg.pad_connectivity_audit_py(
+        [pad.position for pad in pads],
+        [pad.layer for pad in pads],
+        [(seg.p1[0], seg.p1[1], seg.p2[0], seg.p2[1]) for seg in segments],
+        [seg.layer for seg in segments],
+        [via.position for via in vias],
+        [list(via.layers) for via in vias],
+        list(all_layers),
+        tolerance_mm,
+        list(zone_layers),
     )
-
-    for via in vias:
-        via_layers = via.layers or layer_universe
-        keys = [node(via.position, layer) for layer in via_layers]
-        for k in keys[1:]:
-            uf.union(keys[0], k)
-
-    def pad_nodes(pad: NetPad):
-        if pad.layer == ALL_LAYERS:
-            layers = layer_universe or (ALL_LAYERS,)
-            return [node(pad.position, layer) for layer in layers]
-        return [node(pad.position, pad.layer)]
-
-    # First pass: union each pad's own multi-layer nodes together (a THT
-    # pad's barrel joins every layer it spans) -- but do NOT read back a
-    # root yet. ``_UnionFind.union`` always reparents one of its two input
-    # roots, so a root read here could still be silently relocated by a
-    # LATER pad's own multi-layer union (this is the stale-root bug: see
-    # ``_UnionFind``'s docstring). Collect each pad's representative node
-    # instead of its root.
-    pad_repr_nodes = []
-    for pad in pads:
-        nodes = pad_nodes(pad)
-        for extra in nodes[1:]:
-            uf.union(nodes[0], extra)
-        pad_repr_nodes.append(nodes[0])
-
-    # Second, separate pass: every union that exists (segments, vias, and
-    # every pad's own multi-layer expansion) is now complete, so no
-    # further union can happen and no root read from here on can go stale.
-    pad_roots = [uf.find(repr_node) for repr_node in pad_repr_nodes]
-
-    counts: dict = {}
-    for root in pad_roots:
-        counts[root] = counts.get(root, 0) + 1
-    largest = max(counts.values()) if counts else 0
-    # Only treat a component as "the" majority when it actually joins more
-    # than one pad -- if every pad is its own isolated singleton (largest
-    # == 1), no pad is genuinely connected to any other, and an arbitrary
-    # tie-broken "majority" pick would wrongly exempt one pad from
-    # unreached_pads even though it reaches nobody either.
-    majority_root = max(counts, key=counts.get) if counts and largest > 1 else None
-    unreached = tuple(
-        pad for pad, root in zip(pads, pad_roots) if majority_root is None or root != majority_root
-    )
-
-    zone_layer_set = set(zone_layers)
-
-    def _zone_could_reach(pad: NetPad) -> bool:
-        if not zone_layer_set:
-            return False
-        # A through-hole pad's barrel touches every copper layer, so a
-        # zone on ANY layer is a candidate; an SMD pad only benefits from
-        # a zone on its own specific layer.
-        return pad.layer == ALL_LAYERS or pad.layer in zone_layer_set
-
-    # Explicit non-empty guard (the anti-vacuity gate's recognized form):
-    # all() over an empty unreached set would be vacuously True.
-    if not unreached:
-        zone_dependent_unmeasured = False
-    else:
-        zone_dependent_unmeasured = all(_zone_could_reach(p) for p in unreached)
+    unreached = tuple(pads[index] for index in unreached_indices)
 
     return NetConnectivityResult(
         net_name=net_name,
         pad_count=len(pads),
         pads_connected=largest,
-        fully_connected=(largest == len(pads)),
-        has_any_copper=bool(segments or vias),
+        fully_connected=fully_connected,
+        has_any_copper=has_any_copper,
         unreached_pads=unreached,
-        zone_layers=tuple(sorted(zone_layer_set)),
+        zone_layers=tuple(graph_zones),
         zone_dependent_unmeasured=zone_dependent_unmeasured,
     )
 
