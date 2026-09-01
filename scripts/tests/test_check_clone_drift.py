@@ -47,15 +47,15 @@ def _write(tmp_path: Path, rel: str, content: str) -> Path:
 
 
 def _pair(**overrides) -> registry.ClonePair:
-    base = dict(
-        name="widget_blocked",
-        file_a="a.py",
-        qualname_a="_blocked",
-        file_b="b.py",
-        qualname_b="_blocked",
-        min_similarity=0.8,
-        evidence="test fixture",
-    )
+    base = {
+        "name": "widget_blocked",
+        "file_a": "a.py",
+        "qualname_a": "_blocked",
+        "file_b": "b.py",
+        "qualname_b": "_blocked",
+        "min_similarity": 0.8,
+        "evidence": "test fixture",
+    }
     base.update(overrides)
     return registry.ClonePair(**base)
 
@@ -217,9 +217,7 @@ class TestSyntheticRegistryFailsThenPasses:
         assert results[0].live_similarity == 1.0
 
     def test_gate_script_exit_code_flips_with_the_same_pair(self, tmp_path, monkeypatch):
-        """End-to-end proof through the CLI-facing report function, not
-        just scan_pair -- pins EXIT_VIOLATION then EXIT_CLEAN for the
-        identical drifted-then-reconciled transition above."""
+        """Pin the real CLI exit code for drifted then reconciled twins."""
         _write(tmp_path, "ground_plane.py", _TWIN_FULL)
         _write(tmp_path, "power_islands.py", _TWIN_STRIPPED)
         pair = _pair(
@@ -230,16 +228,17 @@ class TestSyntheticRegistryFailsThenPasses:
             min_similarity=0.8,
         )
         monkeypatch.setattr(registry, "PAIRED_FUNCTIONS", (pair,))
-        results = check.run(tmp_path)
-        has_violation, has_tool_error = check._print_report(results)
-        assert has_violation is True
-        assert has_tool_error is False
+        monkeypatch.setattr(check, "find_repo_root", lambda: tmp_path)
+        monkeypatch.setattr(sys, "argv", ["check_clone_drift.py"])
+
+        with pytest.raises(SystemExit) as exc_info:
+            check.main()
+        assert exc_info.value.code == check.EXIT_VIOLATION
 
         _write(tmp_path, "power_islands.py", _TWIN_FULL)
-        results = check.run(tmp_path)
-        has_violation, has_tool_error = check._print_report(results)
-        assert has_violation is False
-        assert has_tool_error is False
+        with pytest.raises(SystemExit) as exc_info:
+            check.main()
+        assert exc_info.value.code == check.EXIT_CLEAN
 
 
 # ---------------------------------------------------------------------------
