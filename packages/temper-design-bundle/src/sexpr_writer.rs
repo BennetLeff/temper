@@ -193,10 +193,12 @@ fn child_texts(items: &[KiNode], head: &str) -> Option<Vec<String>> {
         .collect()
 }
 
+type FootprintPadAnchor = ((f64, f64), Vec<String>, i64);
+
 fn footprint_pad_anchor(
     footprint: &[KiNode],
     pad_number: &str,
-) -> Result<((f64, f64), Vec<String>, i64), String> {
+) -> Result<FootprintPadAnchor, String> {
     let origin = child_point(footprint, "at")
         .ok_or_else(|| "moving footprint has no numeric at".to_string())?;
     let angle = child_list(footprint, "at").map(read_at_angle).unwrap_or(0.0);
@@ -442,25 +444,26 @@ pub fn replace_declared_route_and_move_footprint(
                 fixed_seen |= approx_point(start, fixed_endpoint) || approx_point(end, fixed_endpoint);
                 route_edges.push((stamp, start, end));
             }
-            Some("via") if child_number(items, "net") == Some(route_net as f64) => {
-                if child_text(items, "tstamp") == Some(moving_via_tstamp) {
-                    if moving_endpoint.is_some() {
-                        return Err(format!("duplicate moving via identity: {moving_via_tstamp}"));
-                    }
-                    moving_endpoint = child_point(items, "at");
-                    let size = child_number(items, "size")
-                        .ok_or_else(|| "moving via has no numeric size".to_string())?;
-                    let drill = child_number(items, "drill")
-                        .ok_or_else(|| "moving via has no numeric drill".to_string())?;
-                    if (size - moving_via_size_mm).abs() > 1e-9
-                        || (drill - moving_via_drill_mm).abs() > 1e-9
-                    {
-                        return Err(format!(
-                            "moving via size/drill {size}/{drill} does not match {moving_via_size_mm}/{moving_via_drill_mm}"
-                        ));
-                    }
-                    moving_via_layers = child_texts(items, "layers");
+            Some("via")
+                if child_number(items, "net") == Some(route_net as f64)
+                    && child_text(items, "tstamp") == Some(moving_via_tstamp) =>
+            {
+                if moving_endpoint.is_some() {
+                    return Err(format!("duplicate moving via identity: {moving_via_tstamp}"));
                 }
+                moving_endpoint = child_point(items, "at");
+                let size = child_number(items, "size")
+                    .ok_or_else(|| "moving via has no numeric size".to_string())?;
+                let drill = child_number(items, "drill")
+                    .ok_or_else(|| "moving via has no numeric drill".to_string())?;
+                if (size - moving_via_size_mm).abs() > 1e-9
+                    || (drill - moving_via_drill_mm).abs() > 1e-9
+                {
+                    return Err(format!(
+                        "moving via size/drill {size}/{drill} does not match {moving_via_size_mm}/{moving_via_drill_mm}"
+                    ));
+                }
+                moving_via_layers = child_texts(items, "layers");
             }
             _ => {}
         }
