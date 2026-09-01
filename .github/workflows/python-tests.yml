@@ -688,7 +688,11 @@ jobs:
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+          # The corridor declaration binds the generated netlist byte-for-byte.
+          # Include that authority in the cache identity so a declaration made
+          # from a fresh build cannot restore older bytes under an unchanged
+          # electronics-source key.
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile', 'docs/evidence/net41-route-layer-corridor-20260831/declaration.json') }}
 
       - name: Build electronics netlist
         id: netlist
