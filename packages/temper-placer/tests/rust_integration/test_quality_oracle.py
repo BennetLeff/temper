@@ -9,6 +9,7 @@ Covers:
 """
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -42,6 +43,11 @@ class TestOracleModule:
 
     def _validated_screen(self, *, mutate_evidence=None):
         root, evidence, predecessor = self._corridor_evidence()
+        scripts_dir = root / "scripts"
+        if str(scripts_dir) not in sys.path:
+            sys.path.insert(0, str(scripts_dir))
+        import generate_kicad_dru
+
         declaration = (evidence / "declaration.json").read_bytes()
         manifest = (predecessor / "pre-route-manifest.json").read_bytes()
         candidate_set = json.loads(
@@ -57,7 +63,10 @@ class TestOracleModule:
             "predecessor_manifest_bytes": manifest,
             "domain_manifest_bytes": (root / "elec/domain_manifest.yaml").read_bytes(),
             "netlist_bytes": (root / "elec/build/default.net").read_bytes(),
-            "kicad_dru_bytes": (root / "pcb/temper.kicad_dru").read_bytes(),
+            # The DRU is generated and gitignored, so a clean CI checkout has
+            # no pcb/temper.kicad_dru to read. Exercise the same SSOT output
+            # without making the integration test depend on local residue.
+            "kicad_dru_bytes": generate_kicad_dru.generate_dru().encode(),
             "screening_request_json": json.dumps(
                 {
                     "schema_version": "temper-regional-validated-screen-request/v4",
