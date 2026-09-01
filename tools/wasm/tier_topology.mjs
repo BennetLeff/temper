@@ -60,6 +60,7 @@ function validate(t, path) {
     throw new Error(`${path}: "base_domain" must be a non-empty string`);
   }
   const owner = new Map(); // worker script name -> crate that claims it
+  const crates = new Set();
   for (const tier of t.tiers) {
     for (const field of ["crate", "cargo_features", "staged_module", "full_corpus_worker", "wrangler_dir", "expected_failures"]) {
       if (typeof tier[field] !== "string" || !tier[field]) {
@@ -69,6 +70,10 @@ function validate(t, path) {
     if (!Array.isArray(tier.shards) || tier.shards.length === 0) {
       throw new Error(`${path}: tier ${tier.crate} must declare at least one shard`);
     }
+    if (crates.has(tier.crate)) {
+      throw new Error(`${path}: duplicate tier crate ${JSON.stringify(tier.crate)}`);
+    }
+    crates.add(tier.crate);
     for (const script of [tier.full_corpus_worker, ...tier.shards.map((s) => s.worker)]) {
       const prev = owner.get(script);
       if (prev !== undefined && prev !== tier.crate) {
@@ -80,6 +85,31 @@ function validate(t, path) {
       }
       owner.set(script, tier.crate);
     }
+  }
+  // Older ad-hoc fixture topologies predate the cadence contract; absence is
+  // equivalent to the explicit production spelling `[]`. A present value is
+  // always validated strictly and never coerced.
+  const promotionCandidates = t.promotion_candidates === undefined ? [] : t.promotion_candidates;
+  if (!Array.isArray(promotionCandidates)) {
+    throw new Error(`${path}: "promotion_candidates" must be an array (use [] for no candidates)`);
+  }
+  const candidates = new Set();
+  for (const candidate of promotionCandidates) {
+    if (typeof candidate !== "string" || !candidate) {
+      throw new Error(`${path}: every promotion_candidates entry must be a non-empty crate-name string`);
+    }
+    if (candidates.has(candidate)) {
+      throw new Error(`${path}: duplicate promotion candidate ${JSON.stringify(candidate)}`);
+    }
+    candidates.add(candidate);
+    if (!crates.has(candidate)) {
+      throw new Error(
+        `${path}: unknown promotion candidate ${JSON.stringify(candidate)}; known tiers: ${[...crates].join(", ")}`,
+      );
+    }
+  }
+  if (candidates.size > 1) {
+    throw new Error(`${path}: promotion_candidates currently supports at most one candidate`);
   }
 }
 
@@ -127,6 +157,24 @@ export function tierByCrate(topology, crate) {
     );
   }
   return tier;
+}
+
+/**
+ * Native/R19 derivations for one scheduled slot: the ordinary rotated tier
+ * followed by promotion candidates, with a rotation/candidate collision run
+ * exactly once. The full all-tier wasm32 census is intentionally not based on
+ * this list; callers that enforce deployed freshness must continue using
+ * `topology.tiers`.
+ */
+export function scheduledComparisonTiers(topology, rotatedCrate) {
+  const selected = [tierByCrate(topology, rotatedCrate)];
+  const seen = new Set([rotatedCrate]);
+  for (const candidate of topology.promotion_candidates ?? []) {
+    if (seen.has(candidate)) continue;
+    selected.push(tierByCrate(topology, candidate));
+    seen.add(candidate);
+  }
+  return selected;
 }
 
 /**

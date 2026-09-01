@@ -168,8 +168,10 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # are left as written and marked. The rotation cycle is therefore
 # `len(tiers)` nights, which is TWELVE today, not the "under 1.5 weeks" this
 # section originally claimed. docs/evidence/2026-08-24-wasm-tier-phase5-verdict.md
-# §3 measures what that cadence means: for 11 of 12 tier crates, native
-# `cargo test` runs on its rotation night and NOWHERE ELSE.
+# §3 measures the Phase 5 cadence: for 11 of 12 tier crates, native `cargo
+# test` ran on its rotation night and nowhere else. Phase 6 deliberately
+# changes that statement for topology-declared promotion candidates: they run
+# on every scheduled derivation while ordinary tiers retain the rotation.
 #
 # THE PROBLEM, MEASURED. Every tier's native `cargo test` used to run EVERY
 # night, for the SAME reason every tier's wasm32 census already runs every
@@ -196,13 +198,14 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #     nothing measured, ever again.
 #   - "Retire R19" was rejected outright: no replacement trust source was
 #     proposed for it, and this task requires one if chosen.
-#   - Sample/rotate was chosen: ONE tier, selected deterministically per
-#     night, gets the FULL unmodified treatment this file always ran for
+#   - Sample/rotate was chosen: one tier, selected deterministically per
+#     night, gets the full unmodified treatment this file always ran for
 #     every tier -- native `cargo test`, R19 comparison against its own
-#     wasm32 census, the whole works. Every OTHER tier gets NONE of it
-#     tonight. Every tier cycles back in every `len(tiers)` nights (TWELVE as
-#     of 2026-08-24; was 9 when this was written), which is where the "even if
-#     only weekly" floor this
+#     wasm32 census, the whole works. Phase 6 unions the explicit promotion
+#     candidate with that tier, deduplicating a collision; every other tier
+#     gets none of it tonight. Every tier cycles back in every `len(tiers)`
+#     nights (TWELVE as of 2026-08-24; was 9 when this was written), which is
+#     where the "even if only weekly" floor this
 #     task set for host-libm-class native-only tests comes from: a tier's own
 #     native-only tests execute whenever ITS rotation night comes up, because
 #     the native arm on that night is the ordinary, unfiltered `cargo test`
@@ -212,10 +215,12 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # WHY THIS STOPS THE SCALING THE TASK IDENTIFIED. Before: nightly native cost
 # = SUM of every tier's native suite, every night (nine tiers at the time of
 # this 2026-08-11 measurement); a test added to ANY tier raised EVERY night's
-# cost. After: nightly native cost = ONE tier's native suite, the one whose
-# rotation night it is; a test added to a tier that is not tonight's pick
-# costs nothing tonight -- it is only paid on that tier's own rotation night,
-# at most once every `len(tiers)` nights (twelve, as of 2026-08-24). This does not make
+# cost. After Phase 5: nightly native cost = one rotated tier's native suite.
+# During Phase 6 qualification it is one rotated tier plus the bounded
+# promotion-candidate set (currently one), deduplicated on collision nights.
+# A test added to any other tier costs nothing tonight -- it is paid on that
+# tier's own rotation night, at most once every `len(tiers)` nights (twelve,
+# as of 2026-08-24). This does not make
 # any SINGLE tier's own growth free (temper-drc-rs's own rotation night still
 # costs more as temper-drc-rs grows) -- what stops scaling is the thing the
 # task measured: the LOCAL JOB'S total cost no longer grows with the SUM
@@ -243,12 +248,10 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #
 # ANTI-VACUITY, GENERALISED. `inject_disagreement` used to hardcode
 # `temper-drc-rs`'s file, which only worked because temper-drc-rs's native
-# arm ran every night. Now only tonight's rotated tier has a native
-# comparison to disagree with, so the injection step below reads
-# `ROTATED_SUFFIX` (set by the new "Select tonight's R19 native-arm tier"
-# step) instead of a literal crate name -- the demonstration still targets
-# whichever tier is actually under test tonight, rotated or forced via the
-# `r19_tier` dispatch input.
+# arm ran every night. The pre-U4 fixture below still reads `ROTATED_SUFFIX`
+# and targets the rotated/forced tier; U4 replaces that routing with an
+# explicit candidate and applies it after the immutable Worker sweep. Until
+# then, candidate rows remain diagnostic and cannot qualify.
 on:
   schedule:
     # Nightly at 04:40 UTC -- clear of python-tests' 03:00, r9-evidence's
@@ -337,7 +340,7 @@ jobs:
       # which is what makes the anti-vacuity demo and the before/after
       # measurement below reproducible on demand rather than waiting for the
       # calendar to cooperate.
-      - name: Select tonight's R19 native-arm tier (rotation)
+      - name: Select tonight's R19 comparison set (rotation plus candidates)
         id: rotation
         run: |
           set -euo pipefail
@@ -353,8 +356,9 @@ jobs:
           # used the `r19_tier` override and took the `forced` branch instead.
           export DAY_OF_YEAR="$(date -u +%-j)"
           node -e '
-            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, tierFlagSuffix }) => {
-              const tiers = loadTopology().tiers;
+            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, scheduledComparisonTiers, tierFlagSuffix }) => {
+              const topology = loadTopology();
+              const tiers = topology.tiers;
               const forced = process.env.R19_TIER_INPUT || "auto";
               let picked;
               if (forced !== "auto") {
@@ -367,14 +371,22 @@ jobs:
                 const dayOfYear = Number(process.env.DAY_OF_YEAR);
                 picked = tiers[dayOfYear % tiers.length];
               }
+              const selected = scheduledComparisonTiers(topology, picked.crate);
               console.log(`ROTATED_CRATE=${picked.crate}`);
               console.log(`ROTATED_SUFFIX=${tierFlagSuffix(picked.crate)}`);
+              console.log(`PROMOTION_CANDIDATE_COUNT=${topology.promotion_candidates.length}`);
+              console.log(`SELECTED_COMPARISON_COUNT=${selected.length}`);
+              console.log(`SELECTED_COMPARISON_CRATES=${selected.map((t) => t.crate).join(",")}`);
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/rotation.env
           cat /tmp/rotation.env
           cat /tmp/rotation.env >> "$GITHUB_ENV"
           cat /tmp/rotation.env >> "$GITHUB_OUTPUT"
-          echo "tonight's R19 native-arm tier selected (day-of-year ${DAY_OF_YEAR} mod tier count, or the r19_tier override)"
+          # Values become available to later steps through GITHUB_ENV; source
+          # the same trusted file so this step can report them too.
+          # shellcheck disable=SC1091
+          source /tmp/rotation.env
+          echo "tonight's R19 comparison set selected: ${SELECTED_COMPARISON_CRATES} (rotated tier plus topology promotion candidates, deduplicated)"
         env:
           R19_TIER_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.r19_tier || 'auto' }}
 
@@ -384,14 +396,13 @@ jobs:
       # below is genuinely "the same commit's GitHub Actions results," per
       # this workflow's own dispatch brief.
       #
-      # SCOPED TO TONIGHT'S ROTATED TIER ONLY (`ROTATED_CRATE`/`ROTATED_SUFFIX`,
-      # set above) -- this is the cost fix this file's header describes. The
-      # loop below is unchanged from before rotation; only the tsv it reads
-      # now has one row instead of nine.
+      # SCOPED TO TONIGHT'S ROTATED TIER PLUS PROMOTION CANDIDATES. This keeps
+      # the rotation cost fix: the loop has one row normally and two while a
+      # non-colliding candidate is collecting evidence, never all tiers.
       # ------------------------------------------------------------------
 
-      # ONE STEP, ONE INVOCATION TONIGHT, ZERO HAND-WRITTEN CRATE NAMES. The
-      # arguments come from tonight's rotated tier's `native_test_args` in
+      # ONE STEP, ONE INVOCATION PER SELECTED TIER, ZERO HAND-WRITTEN CRATE
+      # NAMES. The arguments come from each selected tier's `native_test_args` in
       # tools/wasm/wasm_tier_topology.json.
       #
       # This used to be one hand-written step per crate. That was tolerable at
@@ -440,16 +451,17 @@ jobs:
       - name: Native cargo test, one per tier (arguments from the topology)
         run: |
           set -euo pipefail
-          # FILTERED TO ROTATED_CRATE (rotation step above) -- the row count
-          # here is 1, not `len(tiers)`. This is the actual cost fix: before
-          # rotation this generated one row per tier and ran `cargo test` for
-          # every one of them, every night; now it runs for whichever single
-          # tier tonight's rotation (or the `r19_tier` override) picked.
+          # The scheduled comparison set is the rotated tier UNION the
+          # topology's promotion candidates.  `scheduledComparisonTiers`
+          # deduplicates a candidate on its own rotation night, so the same
+          # crate is never paid for twice.  The all-tier wasm32 census below
+          # deliberately remains independent of this narrowed list.
           node -e '
-            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, tierFlagSuffix }) => {
-              for (const t of loadTopology().tiers) {
-                if (t.crate !== process.env.ROTATED_CRATE) continue;
-                console.log([t.crate, tierFlagSuffix(t.crate), t.native_test_args.join(" ")].join("\t"));
+            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, scheduledComparisonTiers, tierFlagSuffix }) => {
+              const topology = loadTopology();
+              for (const [index, t] of scheduledComparisonTiers(topology, process.env.ROTATED_CRATE).entries()) {
+                const role = index === 0 ? "rotation" : "candidate";
+                console.log([t.crate, tierFlagSuffix(t.crate), role, t.native_test_args.join(" ")].join("\t"));
               }
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/native_arms.tsv
@@ -462,8 +474,11 @@ jobs:
           echo "native arms:"; cat /tmp/native_arms.tsv
           failed=""
           ran=0
-          while IFS=$'\t' read -r crate suffix args; do
+          rotation_native_seconds=0
+          candidate_native_seconds=0
+          while IFS=$'\t' read -r crate suffix role args; do
             echo "::group::native cargo test ${crate} (${args})"
+            started_at="$(date +%s)"
             # Unquoted on purpose: ${args} is an argument LIST from the topology,
             # not one string. `< /dev/null` so a child cannot consume the rest of
             # this loop's stdin and end it early after one crate.
@@ -484,6 +499,12 @@ jobs:
               echo "::error::${crate}'s native arm produced no 'test ' lines. r19_compare.py would then find no native verdict for ANY of that crate's wasm32 test names and score them all as wasm32_only -- counted nowhere, failing nothing. Failing here instead."
               failed="${failed} ${crate}(no-verdicts)"
             fi
+            elapsed="$(( $(date +%s) - started_at ))"
+            if [ "${role}" = "candidate" ]; then
+              candidate_native_seconds="$((candidate_native_seconds + elapsed))"
+            else
+              rotation_native_seconds="$((rotation_native_seconds + elapsed))"
+            fi
             ran=$((ran + 1))
             echo "::endgroup::"
           done < /tmp/native_arms.tsv
@@ -492,11 +513,21 @@ jobs:
             echo "::error::Ran ${ran} of ${expected} native arms — the loop ended early, so some tier has no native verdicts and its wasm32 corpus would be compared against nothing."
             exit 1
           fi
+          {
+            echo "PROMOTION_CANDIDATE_COUNT=${PROMOTION_CANDIDATE_COUNT}"
+            echo "SELECTED_COMPARISON_COUNT=${SELECTED_COMPARISON_COUNT}"
+            echo "ROTATION_NATIVE_SECONDS=${rotation_native_seconds}"
+            echo "CANDIDATE_NATIVE_SECONDS=${candidate_native_seconds}"
+            # U7 owns the immutable-version upload. Keeping the metric explicit
+            # at zero makes this pre-U7 diagnostic state visible rather than
+            # letting an absent step masquerade as unmeasured success.
+            echo "VERSION_UPLOAD_SECONDS=0"
+          } > /tmp/r19_cadence_metrics.env
           if [ -n "${failed}" ]; then
             echo "::error::Native cargo test failed for:${failed}. A native regression is not something the R19 comparison needs to explain, so this job stops before building the wasm32 side."
             exit 1
           fi
-          echo "all ${ran} native arms green (tonight: ${ROTATED_CRATE})"
+          echo "all ${ran} selected native arms green (${SELECTED_COMPARISON_CRATES})"
           # Kept at their historical paths so any reader, doc or tool that knows
           # temper-drc-rs's native results by these names still finds them
           # (docs/evidence/2026-08-10-wasm-tier-u3-native-only-classification.md
@@ -640,11 +671,10 @@ jobs:
             cp /tmp/wasm_local_drc-rs.json /tmp/wasm_local.json
           fi
 
-      # ONE COMPARISON, TONIGHT'S ROTATED TIER ONLY (R19 rotation, 2026-08-11
-      # -- see this file's header). Before rotation this ran once per tier,
-      # every night, nine comparisons; the native side no longer exists for
-      # the other eight tonight (the native cargo test step above only ran
-      # for ROTATED_CRATE), so comparing them would either error on a
+      # ONE COMPARISON PER SELECTED TIER: tonight's rotated tier plus the
+      # topology's promotion candidate, deduplicated on a collision night.
+      # The native side does not exist for any other tier, so comparing them
+      # would either error on a
       # missing file or -- worse -- silently score every one of their wasm32
       # names as `native_only`/`wasm32_only`, which is counted nowhere and
       # fails nothing: exactly the false-agreement shape this job's own
@@ -657,16 +687,17 @@ jobs:
       # same reason it always was: r19_compare.py joins BY TEST NAME, so a
       # wasm32 name absent from the native side is scored `wasm32_only` --
       # counted nowhere, failing nothing.
-      - name: R19 comparison — tonight's rotated tier only (native vs local wasm32)
+      - name: R19 comparison — selected tiers (native vs local wasm32)
         run: |
           set -euo pipefail
           node -e '
-            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, tierFlagSuffix }) => {
-              for (const t of loadTopology().tiers) {
-                if (t.crate !== process.env.ROTATED_CRATE) continue;
+            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, scheduledComparisonTiers, tierFlagSuffix }) => {
+              const topology = loadTopology();
+              for (const [index, t] of scheduledComparisonTiers(topology, process.env.ROTATED_CRATE).entries()) {
                 console.log([
                   t.crate,
                   tierFlagSuffix(t.crate),
+                  index === 0 ? "rotation" : "candidate",
                   t.expected_failures,
                   t.staged_module,
                   JSON.stringify(t.native_test_args),
@@ -677,7 +708,7 @@ jobs:
           test -s /tmp/r19_arms.tsv
           disagreed=""
           ran=0
-          while IFS=$'\t' read -r crate suffix manifest staged native_args_json; do
+          while IFS=$'\t' read -r crate suffix role manifest staged native_args_json; do
             echo "::group::R19 ${crate}"
             matrix="/tmp/r19_local_${suffix}_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json"
             if ! python3 tools/wasm/r19_compare.py \
@@ -737,7 +768,7 @@ jobs:
             echo "::error::R19 disagreement (native vs local wasm32) in:${disagreed}. Each crate's matrix is in the artifact; a disagreement is a test whose native and wasm32 verdicts differ and which is NOT in that crate's expected-failure manifest."
             exit 1
           fi
-          echo "tonight's rotated tier (${ROTATED_CRATE}) agrees"
+          echo "tonight's selected comparison tiers (${SELECTED_COMPARISON_CRATES}) agree"
           # Historical path, as elsewhere in this job -- only meaningful (and
           # only produced) when temper-drc-rs is tonight's rotated tier.
           if [ "${ROTATED_CRATE}" = "temper-drc-rs" ]; then
@@ -761,19 +792,30 @@ jobs:
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/summary_tiers.tsv
           TIER_COUNT="$(wc -l < /tmp/summary_tiers.tsv | tr -d ' ')"
-          OTHER_TIER_COUNT="$((TIER_COUNT - 1))"
+          if [ -s /tmp/native_arms.tsv ]; then
+            SELECTED_TIER_COUNT="$(wc -l < /tmp/native_arms.tsv | tr -d ' ')"
+          else
+            SELECTED_TIER_COUNT=0
+          fi
+          OTHER_TIER_COUNT="$((TIER_COUNT - SELECTED_TIER_COUNT))"
+          # shellcheck disable=SC1091
+          source /tmp/r19_cadence_metrics.env 2>/dev/null || true
           {
             echo "### Local wasm32 vs native — R19 agreement"
             echo ""
             echo "- commit: \`${COMMIT_SHA}\`"
             echo "- board sha256: \`${BOARD_SHA256}\` (\`pcb/temper.kicad_pcb\`)"
-            echo "- **R19 native-arm rotation: \`${ROTATED_CRATE:-unresolved}\`** gets the full native/R19 treatment tonight; the other ${OTHER_TIER_COUNT} tiers are not re-derived tonight (full cycle every ${TIER_COUNT} nights — this file's header, \"R19 NATIVE-ARM ROTATION\", explains why). Counts are read from tools/wasm/wasm_tier_topology.json at run time, deliberately: this line used to hardcode \"eight\" and was wrong for every night after the tenth tier landed."
+            echo "- **R19 rotation: \`${ROTATED_CRATE:-unresolved}\`**; selected set: \`${SELECTED_COMPARISON_CRATES:-unresolved}\` (rotation union promotion candidates, deduplicated). The other ${OTHER_TIER_COUNT} tiers are not natively re-derived tonight; the all-tier wasm32 census remains unchanged."
+            echo "- promotion candidates configured: ${PROMOTION_CANDIDATE_COUNT:-unresolved}"
+            echo "- rotated-tier native seconds: ${ROTATION_NATIVE_SECONDS:-unresolved}"
+            echo "- promotion-candidate native seconds: ${CANDIDATE_NATIVE_SECONDS:-unresolved}"
+            echo "- immutable-version upload seconds: ${VERSION_UPLOAD_SECONDS:-0} (U7 not live; candidate rows remain diagnostic/non-qualifying)"
             echo ""
             while IFS=$'\t' read -r crate suffix; do
               echo "#### ${crate}"
               echo ""
-              if [ "${crate}" != "${ROTATED_CRATE:-}" ]; then
-                echo "_Not sampled tonight — rotation picked \`${ROTATED_CRATE:-unresolved}\`. This tier's wasm32 build/census still ran above (R5.1 freshness); only the native-comparison arm skipped it._"
+              if ! cut -f1 /tmp/native_arms.tsv 2>/dev/null | grep -Fqx "${crate}"; then
+                echo "_Not sampled tonight — it is neither the rotated tier nor a promotion candidate. This tier's wasm32 build/census still ran above (R5.1 freshness); only the native-comparison arm skipped it._"
               else
                 echo '```'
                 cat "/tmp/r19_local_${suffix}_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 \
@@ -804,6 +846,7 @@ jobs:
             /tmp/native_arms.tsv
             /tmp/wasm_arms.tsv
             /tmp/r19_arms.tsv
+            /tmp/r19_cadence_metrics.env
           retention-days: 30
           if-no-files-found: error
 
@@ -1041,20 +1084,28 @@ jobs:
           set -euo pipefail
           node -e '
             import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, tierFlagSuffix }) => {
-              for (const t of loadTopology().tiers) console.log([t.crate, tierFlagSuffix(t.crate)].join("\t"));
+              const topology = loadTopology();
+              const candidates = new Set(topology.promotion_candidates);
+              for (const t of topology.tiers) console.log([t.crate, tierFlagSuffix(t.crate), candidates.has(t.crate) ? "1" : "0"].join("\t"));
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/sweep_tiers.tsv
           test -s /tmp/sweep_tiers.tsv
           failed=""
           ran=0
-          while IFS=$'\t' read -r crate suffix; do
+          candidate_worker_sweep_seconds=0
+          while IFS=$'\t' read -r crate suffix candidate; do
             echo "::group::sweep ${crate}"
+            started_at="$(date +%s)"
             node tools/wasm/sweep_multi_worker.mjs \
               --tier "${crate}" \
               --concurrency 64 \
               --board-sha256 "${BOARD_SHA256}" \
               --json "/tmp/worker_sweep_${suffix}.json" < /dev/null \
               || failed="${failed} ${crate}"
+            elapsed="$(( $(date +%s) - started_at ))"
+            if [ "${candidate}" = "1" ]; then
+              candidate_worker_sweep_seconds="$((candidate_worker_sweep_seconds + elapsed))"
+            fi
             ran=$((ran + 1))
             echo "::endgroup::"
           done < /tmp/sweep_tiers.tsv
@@ -1063,6 +1114,7 @@ jobs:
             echo "::error::Swept ${ran} of ${expected} tiers — the loop ended early, so some deployed tier was never dispatched."
             exit 1
           fi
+          echo "CANDIDATE_WORKER_SWEEP_SECONDS=${candidate_worker_sweep_seconds}" > /tmp/worker_cadence_metrics.env
           # NO unsuffixed /tmp/worker_sweep.json alias here (audited 2026-08-11:
           # nothing reads it -- not wasm-tier-pr.yml, not the Makefile, not
           # r19_compare.py, not check_deployed_freshness.mjs -- grep the repo for
@@ -1085,14 +1137,13 @@ jobs:
           fi
           echo "all ${ran} tiers swept"
 
-      # ONE COMPARISON, TONIGHT'S ROTATED TIER ONLY (R19 rotation, 2026-08-11
-      # -- mirrors local-sweep-r19's own R19 comparison step, and reads
-      # WHICH tier that was from local-sweep-r19's own uploaded
+      # ONE COMPARISON PER SELECTED TIER. This mirrors local-sweep-r19 and reads
+      # the exact rotation-plus-candidate set from local-sweep-r19's uploaded
       # native_arms.tsv rather than re-deriving it independently (a second,
       # separate rotation computation here could disagree with the first on
       # a date rollover mid-run, or on the r19_tier override not being
-      # visible to this job at all). native_arms.tsv has exactly one row
-      # post-rotation: (crate, suffix, native_test_args).
+      # visible to this job at all). native_arms.tsv has one or two rows:
+      # (crate, suffix, role, native_test_args).
       #
       # Every OTHER tier is EXPECTED to have no native file tonight —
       # that is not a failure, it is what rotation means — so they are
@@ -1103,7 +1154,7 @@ jobs:
       # do." The deployed-Worker SWEEP above (which this step does not
       # gate) still answers "did any deployed test fail on wasm32" for
       # every tier, every night, same as before.
-      - name: R19 comparison — tonight's rotated tier only (native vs deployed Workers)
+      - name: R19 comparison — selected tiers (native vs deployed Workers)
         if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
@@ -1112,12 +1163,14 @@ jobs:
             exit 1
           fi
           ROTATED_CRATE_D="$(cut -f1 /tmp/local-artifact/native_arms.tsv | head -1)"
-          export ROTATED_CRATE_D
-          echo "tonight's rotated tier (from local-sweep-r19's artifact): ${ROTATED_CRATE_D}"
+          SELECTED_CRATES_D="$(cut -f1 /tmp/local-artifact/native_arms.tsv | paste -sd, -)"
+          export ROTATED_CRATE_D SELECTED_CRATES_D
+          echo "tonight's selected tiers (from local-sweep-r19's artifact): ${SELECTED_CRATES_D}"
           node -e '
             import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, tierFlagSuffix }) => {
+              const selected = new Set(process.env.SELECTED_CRATES_D.split(","));
               for (const t of loadTopology().tiers) {
-                console.log([t.crate, tierFlagSuffix(t.crate), t.expected_failures, t.crate === process.env.ROTATED_CRATE_D ? "1" : "0"].join("\t"));
+                console.log([t.crate, tierFlagSuffix(t.crate), t.expected_failures, selected.has(t.crate) ? "1" : "0"].join("\t"));
               }
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/worker_r19_arms.tsv
@@ -1125,9 +1178,9 @@ jobs:
           problems=""
           ran=0
           skipped=0
-          while IFS=$'\t' read -r crate suffix manifest rotated; do
-            if [ "${rotated}" != "1" ]; then
-              echo "R19 (deployed) ${crate}: not sampled tonight (rotation picked ${ROTATED_CRATE_D})"
+          while IFS=$'\t' read -r crate suffix manifest selected; do
+            if [ "${selected}" != "1" ]; then
+              echo "R19 (deployed) ${crate}: not sampled tonight (not in ${SELECTED_CRATES_D})"
               skipped=$((skipped + 1))
               continue
             fi
@@ -1136,7 +1189,7 @@ jobs:
               echo "::error::No deployed-Worker sweep for ${crate}: /tmp/worker_sweep_${suffix}.json was never written, because an earlier step failed (the staleness check, or the dispatch itself). Reporting no agreement result for a sweep that did not happen."
               problems="${problems} ${crate}(no-sweep)"
             elif [ ! -f "/tmp/local-artifact/native_${suffix}.txt" ]; then
-              echo "::error::${crate} is tonight's rotated tier per native_arms.tsv, but /tmp/local-artifact/native_${suffix}.txt is missing — local-sweep-r19's native cargo test step must have failed for it. That job's own R19 check would already have failed the run; this is reported here too rather than silently comparing nothing."
+              echo "::error::${crate} is selected per native_arms.tsv, but /tmp/local-artifact/native_${suffix}.txt is missing — local-sweep-r19's native cargo test step must have failed for it. That job's own R19 check would already have failed the run; this is reported here too rather than silently comparing nothing."
               problems="${problems} ${crate}(no-native-file)"
             elif ! python3 tools/wasm/r19_compare.py \
                    --native-file "/tmp/local-artifact/native_${suffix}.txt" \
@@ -1151,9 +1204,9 @@ jobs:
             ran=$((ran + 1))
             echo "::endgroup::"
           done < /tmp/worker_r19_arms.tsv
-          expected=1
+          expected="$(wc -l < /tmp/local-artifact/native_arms.tsv | tr -d ' ')"
           if [ "${ran}" != "${expected}" ]; then
-            echo "::error::Compared ${ran} of ${expected} rotated tier(s) — expected exactly one (${ROTATED_CRATE_D})."
+            echo "::error::Compared ${ran} of ${expected} selected tier(s) (${SELECTED_CRATES_D})."
             exit 1
           fi
           cp "/tmp/r19_worker_drc-rs_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
@@ -1162,7 +1215,7 @@ jobs:
             echo "::error::Deployed-path R19 problems in:${problems}."
             exit 1
           fi
-          echo "rotated tier (${ROTATED_CRATE_D}) agrees with native; ${skipped} tier(s) not sampled tonight"
+          echo "selected tiers (${SELECTED_CRATES_D}) agree with native; ${skipped} tier(s) not sampled tonight"
 
       - name: Write job summary
         if: ${{ !cancelled() }}
@@ -1175,12 +1228,22 @@ jobs:
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/summary_tiers.tsv
           ROTATED_CRATE_D="$(cut -f1 /tmp/local-artifact/native_arms.tsv 2>/dev/null | head -1)"
+          SELECTED_CRATES_D="$(cut -f1 /tmp/local-artifact/native_arms.tsv 2>/dev/null | paste -sd, -)"
+          # shellcheck disable=SC1091
+          source /tmp/local-artifact/r19_cadence_metrics.env 2>/dev/null || true
+          # shellcheck disable=SC1091
+          source /tmp/worker_cadence_metrics.env 2>/dev/null || true
           {
             echo "### Deployed Workers vs native — R19 agreement"
             echo ""
             echo "- commit: \`${COMMIT_SHA}\`"
             echo "- board sha256: \`${BOARD_SHA256}\` (\`pcb/temper.kicad_pcb\`)"
-            echo "- **R19 native-arm rotation: \`${ROTATED_CRATE_D:-unresolved}\`** — the only tier compared against native tonight. Every other tier below was still SWEPT on wasm32 (does it pass?) but not compared against a native re-derivation (does it still agree?) — see this workflow's header, \"R19 NATIVE-ARM ROTATION\"."
+            echo "- **R19 rotation: \`${ROTATED_CRATE_D:-unresolved}\`**; selected set: \`${SELECTED_CRATES_D:-unresolved}\` (rotation union promotion candidates, deduplicated). Every other tier below was still SWEPT on wasm32 but not compared against a native re-derivation."
+            echo "- promotion candidates configured: ${PROMOTION_CANDIDATE_COUNT:-unresolved}"
+            echo "- rotated-tier native seconds: ${ROTATION_NATIVE_SECONDS:-unresolved}"
+            echo "- promotion-candidate native seconds: ${CANDIDATE_NATIVE_SECONDS:-unresolved}"
+            echo "- promotion-candidate immutable-version upload seconds: ${VERSION_UPLOAD_SECONDS:-0} (U7 not live; diagnostic/non-qualifying)"
+            echo "- promotion-candidate Worker sweep seconds: ${CANDIDATE_WORKER_SWEEP_SECONDS:-unresolved}"
             echo ""
             echo "#### Deployed-corpus freshness (R5.1, per tier)"
             echo ""
@@ -1191,8 +1254,8 @@ jobs:
             while IFS=$'\t' read -r crate suffix; do
               echo "#### R19 comparison — ${crate}"
               echo ""
-              if [ "${crate}" != "${ROTATED_CRATE_D:-}" ]; then
-                echo "_Not sampled tonight — rotation picked \`${ROTATED_CRATE_D:-unresolved}\`. This tier was still swept on wasm32 above._"
+              if ! cut -f1 /tmp/local-artifact/native_arms.tsv 2>/dev/null | grep -Fqx "${crate}"; then
+                echo "_Not sampled tonight — it is neither the rotated tier nor a promotion candidate. This tier was still swept on wasm32 above._"
               else
                 echo '```'
                 cat "/tmp/r19_worker_${suffix}_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 \
@@ -1213,6 +1276,7 @@ jobs:
             /tmp/freshness_args.txt
             /tmp/worker_sweep*.json
             /tmp/r19_worker_*.json
+            /tmp/worker_cadence_metrics.env
           retention-days: 30
           if-no-files-found: warn
 

@@ -218,6 +218,11 @@
     "",
     "## Fields",
     "",
+    "  promotion_candidates  Zero or one existing tier crate selected on every scheduled",
+    "                        R19 derivation in addition to the ordinary rotated tier. A",
+    "                        collision is deduplicated. Before U7 supplies immutable Worker",
+    "                        versions, these extra candidate rows are diagnostic and cannot",
+    "                        advance the promotion ledger.",
     "  crate              Cargo package whose registry this tier carries. Informational, and",
     "                     the key callers use to name a tier on the command line.",
     "  cargo_features     --features passed to temper-wasm-test-runner to build the full",
@@ -330,6 +335,7 @@
   ],
   "base_domain": "bennetleff.workers.dev",
   "abi_version": 1,
+  "promotion_candidates": ["temper-io-types"],
   "tiers": [
     {
       "crate": "temper-drc-rs",
