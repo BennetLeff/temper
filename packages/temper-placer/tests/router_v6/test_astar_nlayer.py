@@ -782,8 +782,6 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # (max(12.6, 2.0) == 12.6), so this part of the fixture is unchanged by
     # the 2026-08-17 fix.
     lv_family = families[(0.2, 0.2, "Default")]
-    hv_family = families[(5.0, 2.0, "HighVoltage")]
-
     lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
     lv_halo_nets = {n for n, _o, _h in lv_halos}
     assert "HV_PAD_NET" in lv_halo_nets, "HV pad must halo an LV searching net"
@@ -866,7 +864,7 @@ def test_creepage_halo_stamp_preserves_holes_across_multipolygon_components():
         16,
     )
 
-    _nl._stamp_foreign_creepage_halos(
+    _nl._stamp_foreign_pair_halos(
         "ROUTING",
         {"F.Cu": grid},
         {"F.Cu": [("FOREIGN", outer_rings, holes)]},
