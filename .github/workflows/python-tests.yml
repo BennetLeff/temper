@@ -2175,30 +2175,23 @@ jobs:
       #   6.0 sites or extend ACCEPTED_DRIFT with the decided value.
       #
       # ENABLEMENT STATUS: BOTH steps below are enabled as of 2026-08-15.
-      # The gate is red by design on origin/main -- exit 3 on the single
-      # honest red above (the ACCEPTED_DRIFT registry clears the other
-      # four). None of the underlying values was changed to make this
-      # pass -- a clearance/creepage value must never be edited to satisfy
-      # a gate (standing repo constraint). This job
-      # (board-provenance-requirements-gates) is NOT in required_contexts,
-      # so the red does not wedge merges; it is a visible, labelled honest
-      # red that finds real cross-source drift and reports it on every
-      # run. Per this file's own convention the gate is NOT
-      # continue-on-error'd: a gate that can run must be allowed to fail
-      # loudly. Un-redding it is a human value decision on the
-      # [clearance/reinforced] family -- NOT a permission to weaken or
-      # re-silence this gate.
+      # The [clearance/reinforced] family is role-resolved by the Rust
+      # isolation authority as of 2026-08-31, without changing any underlying
+      # clearance or creepage value. The gate is expected to exit 0 only while
+      # all three production projections bit-match that closed mapping and the
+      # required current-edition review remains visible. A return to exit 3 or
+      # a GateError is a real regression -- NOT a permission to weaken or
+      # re-silence this gate. Per this file's convention the gate is not
+      # continue-on-error'd: a gate that can run must fail loudly.
       - name: Creepage/clearance drift gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_creepage_clearance_drift.py -v --tb=short
 
       - name: Creepage/clearance SSOT-drift gate (cross-source figure agreement)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # RED BY DESIGN on origin/main (exit 3, one honest red -- the
-        # [clearance/reinforced] family; the ACCEPTED_DRIFT registry clears
-        # the other four). Not continue-on-error: a gate that can run must
-        # fail loudly. See the block above for the exact family and the
-        # human decision that would un-red it.
+        # Expected green only through the exact Rust role mapping described
+        # above. Any mismatch, missing projection, or hidden review marker
+        # must fail loudly.
         run: uv run python scripts/check_creepage_clearance_drift.py
 
       # 2026-08-17 fact-deduplication audit (docs/evidence/2026-08-17-fact-

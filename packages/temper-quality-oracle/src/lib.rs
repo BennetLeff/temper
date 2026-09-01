@@ -1094,6 +1094,36 @@ fn evaluate_ct07_u8_handoff_json(input_json: &str) -> PyResult<String> {
 }
 
 #[cfg(feature = "python")]
+#[pyfunction]
+fn declare_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
+    let request = serde_json::from_str(request_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let declaration = regional_feasibility::declare_corridor_candidates(request)
+        .map_err(PyValueError::new_err)?;
+    serde_json::to_string(&declaration).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn screen_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
+    let request = serde_json::from_str(request_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let verdict =
+        regional_feasibility::screen_corridor_candidates(request).map_err(PyValueError::new_err)?;
+    serde_json::to_string(&verdict).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn screen_declared_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
+    let request = serde_json::from_str(request_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let verdict = regional_feasibility::screen_declared_corridor_candidates(request)
+        .map_err(PyValueError::new_err)?;
+    serde_json::to_string(&verdict).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(prepare_quality_py, m)?)?;
@@ -1132,6 +1162,9 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evaluate_ct07_u7_a_identity_json, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_ct07_u7_b_closure_json, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_ct07_u8_handoff_json, m)?)?;
+    m.add_function(wrap_pyfunction!(declare_corridor_candidates_json_py, m)?)?;
+    m.add_function(wrap_pyfunction!(screen_corridor_candidates_json_py, m)?)?;
+    m.add_function(wrap_pyfunction!(screen_declared_corridor_candidates_json_py, m)?)?;
 
     cluster_f::bindings::register(m)?;
     Ok(())

@@ -31,6 +31,10 @@ A documentation-and-evidence identity for one clearance or creepage finding,
 including the involved components, metric, insulation boundary, and pair kind,
 used as a set so resolving one hazard cannot hide the introduction of another.
 
+### Isolation authority role
+
+The purpose and decision weight of one clearance or creepage value, such as a scoped standards derivation, a project design floor, a fabrication constraint, or a governing production requirement. Values with different roles are not interchangeable merely because they share a metric or insulation-tier label.
+
 ### DRC ceiling
 
 A board-content-bound, measured upper limit for each design-rule-check

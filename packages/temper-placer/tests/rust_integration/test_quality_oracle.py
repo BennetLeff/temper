@@ -207,6 +207,146 @@ class TestOracleModule:
         with pytest.raises(ValueError, match="missing required evidence axis"):
             temper_quality_oracle.evaluate_isolation_qualification_json(json.dumps(missing))
 
+    def test_corridor_family_is_content_addressed_and_authority_bound(self):
+        require_oracle()
+        request = {
+            "schema_version": "temper-regional-corridor-request/v2",
+            "declaration_hash": "d" * 64,
+            "board_hash": "b" * 64,
+            "generated_input_hashes": ["a" * 64, "c" * 64],
+            "placements": [
+                {"placement_id": "P002", "j1_position": [101.0, 200.0]},
+                {"placement_id": "P001", "j1_position": [100.0, 200.0]},
+            ],
+            "endpoint_x_mm": [122.64, 123.14],
+            "corridor_x_mm": [120.0, 120.5],
+            "entry_y_mm": [226.0, 230.0],
+            "endpoint_y_mm": 252.5225,
+            "fixed_start": [112.0, 218.0],
+            "knee_y_mm": 250.0,
+            "layer": "In3.Cu",
+            "route_width_mm": 0.5,
+            "via_diameter_mm": 0.9,
+            "via_drill_mm": 0.3,
+            "via_span": ["In3.Cu", "F.Cu"],
+            "candidate_budget": 16,
+        }
+        first = json.loads(
+            temper_quality_oracle.declare_corridor_candidates_json_py(json.dumps(request))
+        )
+        request["placements"].reverse()
+        second = json.loads(
+            temper_quality_oracle.declare_corridor_candidates_json_py(json.dumps(request))
+        )
+        assert first == second
+        assert first["candidate_count"] == 16
+        assert first["topology_authority"]["clearance_mm"] == 6.0
+        assert first["topology_authority"]["creepage_mm"] == 12.6
+        assert len({row["candidate_id"] for row in first["candidates"]}) == 16
+
+    def test_corridor_screening_is_attributed_and_deterministic(self):
+        require_oracle()
+        request = {
+            "schema_version": "temper-regional-screen-request/v2",
+            "candidates": [
+                {"candidate_id": "c", "minimum_clearance_mm": 7.0, "minimum_creepage_mm": 13.0, "route_length_mm": 30.0},
+                {"candidate_id": "a", "minimum_clearance_mm": 7.0, "minimum_creepage_mm": 13.0, "route_length_mm": 30.0},
+                {"candidate_id": "b", "minimum_clearance_mm": 5.9, "minimum_creepage_mm": 20.0, "route_length_mm": 10.0},
+            ],
+            "route_budget": 12,
+        }
+        result = json.loads(
+            temper_quality_oracle.screen_corridor_candidates_json_py(json.dumps(request))
+        )
+        assert result["routing_subset"] == ["a", "c"]
+        rejected = next(row for row in result["results"] if row["candidate_id"] == "b")
+        assert rejected["raw_measurements"]["minimum_clearance_mm"] == 5.9
+        assert rejected["vetoes"][0]["authority_key"] == "clearance.hv_lv.project.target"
+
+    @pytest.mark.parametrize(
+        ("candidate_id", "clearance", "creepage", "expected_keys"),
+        [
+            ("clearance-only", 5.9, 12.6, ["clearance.hv_lv.project.target"]),
+            ("creepage-only", 6.0, 12.5, ["creepage.hv_lv.pd3.production"]),
+            ("both", 5.9, 12.5, ["clearance.hv_lv.project.target", "creepage.hv_lv.pd3.production"]),
+            ("exact-threshold", 6.0, 12.6, []),
+        ],
+    )
+    def test_corridor_screening_enforces_each_safety_threshold(
+        self, candidate_id, clearance, creepage, expected_keys
+    ):
+        require_oracle()
+        request = {
+            "schema_version": "temper-regional-screen-request/v2",
+            "candidates": [{
+                "candidate_id": candidate_id,
+                "minimum_clearance_mm": clearance,
+                "minimum_creepage_mm": creepage,
+                "route_length_mm": 1.0,
+            }],
+            "route_budget": 1,
+        }
+        result = json.loads(
+            temper_quality_oracle.screen_corridor_candidates_json_py(json.dumps(request))
+        )
+        row = result["results"][0]
+        assert [veto["authority_key"] for veto in row["vetoes"]] == expected_keys
+        for veto in row["vetoes"]:
+            assert veto["required_mm"] in (6.0, 12.6)
+            assert veto["measured_mm"] in (clearance, creepage)
+            assert veto["source"]
+
+    def test_bound_corridor_screen_requires_the_complete_declared_family(self):
+        require_oracle()
+        declaration_request = {
+            "schema_version": "temper-regional-corridor-request/v2",
+            "declaration_hash": "d" * 64,
+            "board_hash": "b" * 64,
+            "generated_input_hashes": ["a" * 64],
+            "placements": [{"placement_id": "P001", "j1_position": [100.0, 200.0]}],
+            "endpoint_x_mm": [122.64, 123.14],
+            "corridor_x_mm": [120.0],
+            "entry_y_mm": [226.0],
+            "endpoint_y_mm": 252.5225,
+            "fixed_start": [112.0, 206.0],
+            "knee_y_mm": 250.0,
+            "layer": "In3.Cu",
+            "route_width_mm": 0.5,
+            "via_diameter_mm": 0.9,
+            "via_drill_mm": 0.3,
+            "via_span": ["In3.Cu", "F.Cu"],
+            "candidate_budget": 2,
+        }
+        candidate_set = json.loads(
+            temper_quality_oracle.declare_corridor_candidates_json_py(
+                json.dumps(declaration_request)
+            )
+        )
+        measurements = [{
+            "candidate_id": candidate["candidate_id"],
+            "minimum_clearance_mm": 6.0,
+            "minimum_creepage_mm": 12.6,
+            "route_length_mm": 10.0,
+        } for candidate in candidate_set["candidates"]]
+        request = {
+            "schema_version": "temper-regional-bound-screen-request/v3",
+            "candidate_set": candidate_set,
+            "candidates": measurements,
+            "route_budget": 1,
+        }
+        verdict = json.loads(
+            temper_quality_oracle.screen_declared_corridor_candidates_json_py(
+                json.dumps(request)
+            )
+        )
+        assert verdict["evaluated_count"] == 2
+        assert verdict["candidate_set_digest"] == candidate_set["candidate_set_digest"]
+        request["candidates"] = measurements[:-1]
+        with pytest.raises(ValueError, match="exact declared candidate set"):
+            temper_quality_oracle.screen_declared_corridor_candidates_json_py(
+                json.dumps(request)
+            )
+
 
 def _qualification_manifest():
     """Small, complete fixture for the Rust-owned qualification contract."""
