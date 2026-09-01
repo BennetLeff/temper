@@ -223,7 +223,7 @@ test("comparison-contract digest is bit-identical to the U2 Python ledger", () =
     comparatorSha256, abi: "immutable-worker-v1",
   });
   const tier = topology.tiers.find((item) => item.crate === "temper-io-types");
-  const py = spawnSync("uv", ["run", "python", "-c", `
+  const script = `
 import hashlib, json, sys
 from tools.wasm.r19_agreement_ledger import canonical_line, comparison_contract_digest
 x=json.load(sys.stdin)
@@ -237,11 +237,16 @@ components={
  "comparator_version": "r19_compare.py@" + x["comparator"],
 }
 print(json.dumps({"components": components, "digest": comparison_contract_digest(components)}, sort_keys=True))
-`], {
+`;
+  const options = {
     cwd: new URL("../..", import.meta.url),
     input: JSON.stringify({ names: census.results.map((row) => row.name), expected: expectedFailuresBytes.toString(), tier, abi: "immutable-worker-v1", comparator: comparatorSha256 }),
     encoding: "utf8",
-  });
+  };
+  const uv = spawnSync("uv", ["run", "python", "-c", script], options);
+  const py = uv.error?.code === "ENOENT"
+    ? spawnSync("python3", ["-c", script], options)
+    : uv;
   assert.equal(py.status, 0, py.stderr);
   assert.deepEqual(js, JSON.parse(py.stdout));
 });
