@@ -1,12 +1,29 @@
 name: Dashboard Deploy
 
+concurrency:
+  group: dashboard-pages
+  cancel-in-progress: true
+
 on:
   # no-pr-trigger: dashboard deployment, post-merge only
   push:
     branches: [main]
     paths:
+      - '.github/required-checks.json'
+      - '.github/workflows/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'Makefile'
+      - 'components/**'
+      - 'crates/**'
       - 'dashboard/**'
-      - 'power_pcb_dataset/metrics/pipeline_metrics.jsonl'
+      - 'docs/hardware/**'
+      - 'elec/**'
+      - 'firmware/**'
+      - 'packages/**'
+      - 'pcb/**'
+      - 'power_pcb_dataset/**'
+      - 'scripts/**'
 
 jobs:
   deploy:
@@ -17,6 +34,13 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+
+      - name: Build and validate architecture atlas
+        run: >-
+          node dashboard/architecture/validate.mjs
+          --write-build-info dashboard/architecture/build-info.js
+          --commit "$GITHUB_SHA"
+          --ref main
 
       - name: Copy JSONL into dashboard
         run: |
