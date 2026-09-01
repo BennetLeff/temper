@@ -14,7 +14,7 @@ use rustsat::{
 };
 use rustsat_cadical::CaDiCaL;
 
-use crate::encoding::{encode_to_cnf, CnfFormula};
+use crate::encoding::{CnfFormula, encode_to_cnf};
 use crate::esl;
 use crate::types::InternalConstraintModel;
 
@@ -210,12 +210,16 @@ pub fn diagnose_submodel(
 ) -> BmcDiagnostic {
     use crate::types::InternalVariable;
 
-    let _all_names: Vec<String> = model.variables.iter().map(|v| match v {
-        InternalVariable::NetChannel { name, .. } => name.clone(),
-        InternalVariable::NetLayer { name, .. } => name.clone(),
-        InternalVariable::Via { name, .. } => name.clone(),
-        InternalVariable::Ordering { name, .. } => name.clone(),
-    }).collect();
+    let _all_names: Vec<String> = model
+        .variables
+        .iter()
+        .map(|v| match v {
+            InternalVariable::NetChannel { name, .. } => name.clone(),
+            InternalVariable::NetLayer { name, .. } => name.clone(),
+            InternalVariable::Via { name, .. } => name.clone(),
+            InternalVariable::Ordering { name, .. } => name.clone(),
+        })
+        .collect();
 
     // Build a sub-model from the most-constrained capacity constraints.
     let mut selected_var_names: Vec<String> = Vec::new();
@@ -238,7 +242,8 @@ pub fn diagnose_submodel(
 
     for cap in caps {
         if let crate::types::InternalConstraint::Capacity { terms, .. } = cap {
-            let new_vars: Vec<&String> = terms.iter()
+            let new_vars: Vec<&String> = terms
+                .iter()
                 .map(|(name, _)| name)
                 .filter(|n| !selected_vars_set.contains_key(*n))
                 .collect();
@@ -269,7 +274,10 @@ pub fn diagnose_submodel(
 
     // Build sub-model.
     let sub_model = InternalConstraintModel {
-        variables: selected_var_names.iter().filter_map(|n| selected_vars_set.get(n).cloned()).collect(),
+        variables: selected_var_names
+            .iter()
+            .filter_map(|n| selected_vars_set.get(n).cloned())
+            .collect(),
         constraints: selected_constraints,
     };
 
@@ -369,7 +377,11 @@ mod tests {
             }],
         };
         let result = bmc_verify(&model, &["N0".into(), "N1".into()], DEFAULT_BMC_BOUND).unwrap();
-        assert!(result.passed, "Expected BMC to pass, got {:?}", result.counterexamples);
+        assert!(
+            result.passed,
+            "Expected BMC to pass, got {:?}",
+            result.counterexamples
+        );
         assert_eq!(result.total_assignments, 4);
     }
 
@@ -387,7 +399,7 @@ mod tests {
                 .collect(),
             constraints: vec![InternalConstraint::Capacity {
                 channel_id: "ch1".into(),
-                capacity: 0.3,       // max = floor(0.3 * 1.0 / 0.127) = 2
+                capacity: 0.3, // max = floor(0.3 * 1.0 / 0.127) = 2
                 slack_factor: 1.0,
                 terms: vec![
                     ("a".into(), 0.127),
@@ -396,7 +408,12 @@ mod tests {
                 ],
             }],
         };
-        let result = bmc_verify(&model, &["N0".into(), "N1".into(), "N2".into()], DEFAULT_BMC_BOUND).unwrap();
+        let result = bmc_verify(
+            &model,
+            &["N0".into(), "N1".into(), "N2".into()],
+            DEFAULT_BMC_BOUND,
+        )
+        .unwrap();
         assert!(result.passed, "BMC found {:?}", result.counterexamples);
         assert_eq!(result.total_assignments, 8);
     }
@@ -414,7 +431,11 @@ mod tests {
             variables: vars,
             constraints: vec![],
         };
-        let result = bmc_verify(&model, &(0..11).map(|i| format!("N{i}")).collect::<Vec<_>>(), 10);
+        let result = bmc_verify(
+            &model,
+            &(0..11).map(|i| format!("N{i}")).collect::<Vec<_>>(),
+            10,
+        );
         assert!(result.is_err());
     }
 

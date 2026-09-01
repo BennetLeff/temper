@@ -73,7 +73,6 @@ def convex_polygon_vertices(n: int):
         ]
     )
 
-
 # =============================================================================
 # Point distance invariants
 # =============================================================================
@@ -151,14 +150,6 @@ def test_polygon_area_non_negative(verts):
 
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
-@given(convex_polygon_vertices(3))
-def test_polygon_signed_area_matches_area(verts):
-    signed = tg.polygon_signed_area(verts)
-    area = tg.polygon_area(verts)
-    assert abs(area - abs(signed)) < _TOL, f"area {area} != |signed| {abs(signed)}"
-
-
-@settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
 @given(convex_polygon_vertices(3), _coords, _coords)
 def test_polygon_area_translation_invariant(verts, dx, dy):
     area_before = tg.polygon_area(verts)
@@ -167,17 +158,6 @@ def test_polygon_area_translation_invariant(verts, dx, dy):
     area_after = tg.polygon_area(translated)
     assert abs(area_before - area_after) < 1e-6, (
         f"area changed {area_before} -> {area_after} after translation"
-    )
-
-
-@settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
-@given(convex_polygon_vertices(3), _coords)
-def test_polygon_area_rotation_invariant(verts, angle):
-    area_before = tg.polygon_area(verts)
-    rotated = tg.rotate_polygon(verts, angle)
-    area_after = tg.polygon_area(rotated)
-    assert abs(area_before - area_after) < 1e-6, (
-        f"area changed {area_before} -> {area_after} after rotation"
     )
 
 
@@ -237,29 +217,10 @@ def test_smooth_max_ge_true_max(a, b, alpha):
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
 @given(_coords, _coords, _pos)
-def test_smooth_min_le_true_min(a, b, alpha):
-    result = tg.smooth_min(a, b, alpha)
-    true_min = min(a, b)
-    assert result <= true_min + 1e-12, (
-        f"smooth_min({a}, {b}, {alpha}) = {result} > true_min {true_min}"
-    )
-
-
-@settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
-@given(_coords, _coords, _pos)
 def test_smooth_max_symmetric(a, b, alpha):
     ab = tg.smooth_max(a, b, alpha)
     ba = tg.smooth_max(b, a, alpha)
     assert abs(ab - ba) < 1e-12, f"smooth_max not symmetric: {ab} vs {ba}"
-
-
-@settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
-@given(_coords, _coords, _pos)
-def test_smooth_min_minus_identity(a, b, alpha):
-    """Verify min(a,b) = -max(-a, -b)."""
-    min_val = tg.smooth_min(a, b, alpha)
-    neg_max = -tg.smooth_max(-a, -b, alpha)
-    assert abs(min_val - neg_max) < 1e-12, f"identity failed: min={min_val}, -max(-a,-b)={neg_max}"
 
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
@@ -271,40 +232,3 @@ def test_smooth_max_converges(a, b):
     assert abs(result - true_max) < 1e-3, (
         f"smooth_max should converge at high alpha: {result} vs {true_max}"
     )
-
-
-# =============================================================================
-# Projection invariants
-# =============================================================================
-
-
-@settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
-@given(_coords, _coords, _pos, _pos, _nonneg)
-def test_project_onto_board_within_bounds(px, py, board_w, board_h, margin):
-    """Projected point must stay within [margin, board_dim - margin]."""
-    if 2.0 * margin > min(board_w, board_h):
-        return  # skip invalid configuration
-    rx, ry = tg.project_onto_board(px, py, board_w, board_h, margin)
-    assert rx >= margin - 1e-9, f"x {rx} below margin {margin}"
-    assert rx <= board_w - margin + 1e-9, f"x {rx} above board_w - margin {board_w - margin}"
-    assert ry >= margin - 1e-9, f"y {ry} below margin {margin}"
-    assert ry <= board_h - margin + 1e-9, f"y {ry} above board_h - margin {board_h - margin}"
-
-
-@settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
-@given(_coords, _coords, _coords, _coords, _pos, _pos, _coords, _coords)
-def test_project_onto_zone_containment(px, py, zx, zy, zw, zh, _hint_x, _hint_y):
-    """Project onto a zone: result must be inside the zone."""
-    rx, ry = tg.project_onto_zone(px, py, zx, zy, zw, zh)
-    assert rx >= zx - 1e-9, f"x {rx} < zone left {zx}"
-    assert rx <= zx + zw + 1e-9, f"x {rx} > zone right {zx + zw}"
-    assert ry >= zy - 1e-9, f"y {ry} < zone bottom {zy}"
-    assert ry <= zy + zh + 1e-9, f"y {ry} > zone top {zy + zh}"
-
-
-@settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
-@given(_coords, _coords)
-def test_identity_projection_unchanged(x, y):
-    rx, ry = tg.identity_projection(x, y)
-    assert abs(rx - x) < _TOL, f"x changed: {rx} vs {x}"
-    assert abs(ry - y) < _TOL, f"y changed: {ry} vs {y}"

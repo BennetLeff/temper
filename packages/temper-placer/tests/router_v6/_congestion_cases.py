@@ -65,17 +65,6 @@ Coverage intent per named list
                              severity string plus one unknown one (which
                              takes the ``.get(severity, 3.0)`` default), and
                              the ``{:.2f}`` half-even formatting values.
-``HEATMAP_ROUTERS``          ``CongestionHeatmap.from_router``: an all-zero
-                             field (the ``max_val > 0`` false branch), a NaN
-                             cell (``np.max`` propagates -- B12), conflict
-                             locations on, off and exactly at the grid edge,
-                             and a field whose f32 downcast is lossy.
-``DAMPING_CASES``            ``apply_suggestions_with_damping``: damping
-                             ``0.0``/``0.5``/``1.0`` and out-of-range
-                             ``-1.0``/``2.0``, a suggestion whose component is
-                             absent from ``current_positions``, and the
-                             ``priority >= min_priority_threshold`` boundary
-                             hit exactly.
 
 ``BENCH_*`` are the subsets the perf arms will time.  They are *subsets*, not
 separate data: the containment test is what makes the #714 gap unreachable.
@@ -89,14 +78,11 @@ __all__ = [
     "ANALYZE_DESIGNS",
     "BENCH_ANALYZE_DESIGNS",
     "BENCH_DEMAND_SUPPLY_PAIRS",
-    "BENCH_HEATMAP_ROUTERS",
     "BENCH_NET_BBOXES",
     "BENCH_ROUTING_RESULT_CASES",
     "BOARD_GRIDS",
-    "DAMPING_CASES",
     "DEMAND_PCBS",
     "DEMAND_SUPPLY_PAIRS",
-    "HEATMAP_ROUTERS",
     "NET_BBOXES",
     "ROUTING_RESULT_CASES",
     "SUGGESTION_REGIONS",
@@ -584,136 +570,6 @@ SUGGESTION_POSITIONS: dict[str, tuple[float, float]] = {
     "SIGNED_ZERO": (-0.0, -0.0),
 }
 
-# (damping_factor, min_priority_threshold) -- apply_suggestions_with_damping
-DAMPING_CASES: list[tuple[float, float]] = [
-    (0.0, 0.5),
-    (0.5, 0.5),
-    (1.0, 0.5),
-    (0.25, 0.0),
-    (0.5, 1.0),
-    (-1.0, 0.5),  # out of the documented [0, 1] range -- overshoot backwards
-    (2.0, 0.5),  # out of range -- overshoot forwards
-    (NAN, 0.5),
-    (INF, 0.5),
-    (DENORM, 0.5),
-    (0.5, NAN),  # priority >= NaN is always False -> nothing applied
-]
-
-# ---------------------------------------------------------------------------
-# CongestionHeatmap.from_router -- (label, present_congestion (L,R,C nested),
-#                                   history_cost, conflict_locations,
-#                                   cell_size, origin)
-# The nested lists are (rows, cols, layers): from_router reduces over axis=2.
-# ---------------------------------------------------------------------------
-_Z3 = [[[0.0, 0.0] for _ in range(3)] for _ in range(3)]
-_ONE3 = [[[1.0, 1.0] for _ in range(3)] for _ in range(3)]
-
-
-def _ramp(rows: int, cols: int, layers: int, scale: float = 1.0) -> list:
-    return [
-        [[scale * (r * cols * layers + c * layers + k) for k in range(layers)] for c in range(cols)]
-        for r in range(rows)
-    ]
-
-
-HEATMAP_ROUTERS: list[tuple[str, list, list, list, float, tuple[float, float]]] = [
-    # all-zero congestion AND unit history -> combined is all zeros ->
-    # max_val > 0 is False -> the UNNORMALIZED array is returned
-    ("all_zero_no_normalize", _Z3, _ONE3, [], 1.0, (0.0, 0.0)),
-    # ordinary ramp
-    ("ramp", _ramp(4, 5, 2), _ONE3 and _ramp(4, 5, 2, 0.5), [], 1.0, (0.0, 0.0)),
-    # history below the 1.0 base -> history_2d goes negative
-    ("history_below_base", _ramp(3, 3, 2), _Z3, [], 1.0, (0.0, 0.0)),
-    # B12: np.max propagates NaN through the axis reduction
-    (
-        "nan_in_congestion",
-        [[[NAN, 0.0], [1.0, 2.0], [3.0, 4.0]] for _ in range(3)],
-        _ONE3,
-        [],
-        1.0,
-        (0.0, 0.0),
-    ),
-    (
-        "nan_in_history",
-        _ramp(3, 3, 2),
-        [[[NAN, 1.0], [1.0, 1.0], [1.0, 1.0]] for _ in range(3)],
-        [],
-        1.0,
-        (0.0, 0.0),
-    ),
-    ("inf_in_congestion", [[[INF, 0.0]] * 3 for _ in range(3)], _ONE3, [], 1.0, (0.0, 0.0)),
-    # conflict locations: inside, exactly on each edge, and outside
-    (
-        "conflicts_inside",
-        _ramp(4, 4, 2),
-        _ONE3 and _ramp(4, 4, 2, 0.0),
-        [{"world_x": 1.5, "world_y": 2.5, "nets": ["A", "B"]}],
-        1.0,
-        (0.0, 0.0),
-    ),
-    (
-        "conflicts_on_edges",
-        _ramp(4, 4, 2),
-        _ramp(4, 4, 2, 0.0),
-        [
-            {"world_x": 0.0, "world_y": 0.0, "nets": ["A"]},
-            {"world_x": 3.999, "world_y": 3.999, "nets": ["A", "B", "C"]},
-            {"world_x": 4.0, "world_y": 4.0, "nets": ["A"]},  # exactly out of bounds
-            {"world_x": -0.001, "world_y": 1.0, "nets": ["A"]},  # int() truncates toward 0!
-        ],
-        1.0,
-        (0.0, 0.0),
-    ),
-    (
-        "conflicts_with_origin_offset",
-        _ramp(4, 4, 2),
-        _ramp(4, 4, 2, 0.0),
-        [{"world_x": -4.5, "world_y": -3.5, "nets": ["A"]}],
-        1.0,
-        (-5.0, -5.0),
-    ),
-    # a field whose f32 downcast is lossy (0.1 is not representable in f32)
-    (
-        "lossy_f32",
-        [[[0.1, 0.2], [0.3, 0.7], [1.0 / 3.0, 0.0]] for _ in range(3)],
-        _Z3,
-        [],
-        1.0,
-        (0.0, 0.0),
-    ),
-    # non-unit cell size and negative origin -- get_congestion_at index math
-    ("non_unit_cell", _ramp(4, 4, 2), _ramp(4, 4, 2, 0.0), [], 0.25, (-3.0, 7.5)),
-]
-
-BENCH_HEATMAP_ROUTERS = [
-    h for h in HEATMAP_ROUTERS if h[0] in {"ramp", "conflicts_on_edges", "lossy_f32"}
-]
-
-# world coordinates fed to get_congestion_at / get_hotspots
-HEATMAP_QUERIES: list[tuple[float, float]] = [
-    (0.0, 0.0),
-    (-0.0, -0.0),
-    (1.5, 2.5),
-    (-100.0, -100.0),  # clamps to 0
-    (1e6, 1e6),  # clamps to shape - 1
-    (-0.5, 0.5),  # int() truncates toward zero, so -0.5 -> 0, not -1
-    (INF, 0.0),  # OverflowError
-    (NAN, 0.0),  # ValueError
-]
-
-HOTSPOT_THRESHOLDS: list[tuple[float, int]] = [
-    (0.0, 10),
-    (0.5, 10),
-    (0.5, 0),
-    (0.5, 1),
-    (1.0, 10),
-    (_ulp_over(1.0), 10),
-    (NAN, 10),  # `val >= NaN` is always False -> empty
-    (-1.0, 10),
-]
-
-
-# ---------------------------------------------------------------------------
 # Deterministic random sweeps.  Seeded, so the "randomized" coverage the
 # differential adds on top of the fixed corpus is itself reproducible.
 # ---------------------------------------------------------------------------

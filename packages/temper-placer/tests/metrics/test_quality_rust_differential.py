@@ -23,15 +23,6 @@ Bit-exactness notes (catalog: ``docs/wave4-discipline-contract.md`` §2):
   except the accumulator folds (``min(min_found, clearance)``,
   ``max(actual_area, min_possible_area)``).  The Rust side mirrors the
   argument order through ``py_max2``/``py_min2``.
-- **B11 (new class, recorded by this migration) — numpy pairwise summation.**
-  ``np.sum`` over float64 is not naive left-to-right addition.  Measured on
-  numpy 2.3.5: for every n >= 8 naive summation disagrees with ``np.sum`` on
-  20-95% of random inputs; for n <= 7 they agree exactly.
-  ``test_numpy_pairwise_sum_matches_np_sum_across_branches`` pins the Rust
-  replication directly against ``np.sum`` across all three of numpy's
-  branches, and ``test_naive_summation_would_fail_the_pin`` proves the pin
-  discriminates.
-
 Ordering (the aggregation trap this module was flagged for)
 ------------------------------------------------------------
 ``thermal_score`` accumulates over a ``set``.  We do **not** assert that the
@@ -197,58 +188,6 @@ class TestBitExactnessCatalogPins:
             if (lambda x: (x**2).hex() != (x * x).hex())(rng.uniform(0, 1e6))
         )
         assert diffs > 0
-
-    @pytest.mark.parametrize(
-        "n", [1, 2, 3, 7, 8, 9, 15, 16, 63, 64, 127, 128, 129, 200, 256, 300, 1000]
-    )
-    def test_numpy_pairwise_sum_matches_np_sum_across_branches(self, n):
-        """B11: the Rust replication of numpy's pairwise sum is bit-exact.
-
-        `n` spans all three of numpy's branches: naive (<8), 8-way unrolled
-        block (8..=128), and recursive halving (>128).
-        """
-        rng = random.Random(1000 + n)
-        for _ in range(40):
-            vals = [rng.uniform(-1e4, 1e4) for _ in range(n)]
-            expected = float(np.sum(np.array(vals, dtype=np.float64)))
-            got = _tqo.numpy_pairwise_sum_py(vals)
-            assert_bit_identical(got, expected, f"numpy_pairwise_sum(n={n})")
-
-    def test_naive_summation_would_fail_the_pin(self):
-        """B11 anti-vacuity: naive summation genuinely disagrees with np.sum.
-
-        Without this, the pairwise pin above could be passing because numpy
-        happens to sum naively — in which case the whole B11 mitigation would
-        be dead weight and nobody would know.
-        """
-        rng = random.Random(4)
-        divergences = 0
-        for n in (8, 16, 64, 129, 300):
-            for _ in range(200):
-                vals = [rng.uniform(-1e4, 1e4) for _ in range(n)]
-                np_sum = float(np.sum(np.array(vals, dtype=np.float64)))
-                naive = 0.0
-                for v in vals:
-                    naive += v
-                if np_sum.hex() != naive.hex():
-                    divergences += 1
-        assert divergences > 0, (
-            "naive left-to-right summation agreed with np.sum on every sample; "
-            "catalog class B11 is not reproducible here and must be re-measured"
-        )
-
-    def test_naive_summation_agrees_below_the_pairwise_threshold(self):
-        """B11 boundary: n <= 7 is naive in numpy too — pins where the class starts."""
-        rng = random.Random(5)
-        for n in range(1, 8):
-            for _ in range(200):
-                vals = [rng.uniform(-1e4, 1e4) for _ in range(n)]
-                np_sum = float(np.sum(np.array(vals, dtype=np.float64)))
-                naive = 0.0
-                for v in vals:
-                    naive += v
-                assert np_sum.hex() == naive.hex()
-
 
 # ---------------------------------------------------------------------------
 # thermal_score
@@ -889,4 +828,3 @@ class TestEmptyInputSemantics:
             got, _oracle_connectivity_clustering_score(st, nl, ctx), "clustering empty"
         )
         assert key(got) == ("float", (1.0).hex())
-

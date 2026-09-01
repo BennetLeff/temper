@@ -19,9 +19,9 @@ from pathlib import Path
 import numpy as np
 
 from temper_placer.deterministic import DeterministicPipeline
+from temper_placer.deterministic.stages import NetOrderingStage
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGridStage
 from temper_placer.deterministic.stages.layer_assignment import LayerAssignmentStage
-from temper_placer.deterministic.stages.net_ordering import NetOrderingStage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.diagnostics import (
     BoardRoutingReport,

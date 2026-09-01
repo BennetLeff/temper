@@ -17,8 +17,7 @@ from pathlib import Path
 import pytest
 
 from temper_placer.deterministic import create_drc_aware_pipeline
-from temper_placer.deterministic.stages import ZoneAwareSlotGenerationStage
-from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
+from temper_placer.deterministic.stages import ZoneAwareSlotGenerationStage, ZoneGeometryStage
 from temper_placer.io.config_loader import (
     load_constraints,
 )
@@ -102,7 +101,7 @@ class TestStageFiltersOverlappingCandidates:
     def test_stage_filters_overlapping_candidates(self):
         """Run the stage on the production config and verify no emitted slot
         AABB intersects an isolation-slot AABB."""
-        from temper_placer.io.isolation_slot_geometry import isolation_slot_aabb
+        from tests._legacy_oracle_modules import isolation_slot_aabb
 
         constraints = load_constraints(_TEMPER_CONFIG)
         assert constraints.isolation_slots, "Config must declare isolation slots"

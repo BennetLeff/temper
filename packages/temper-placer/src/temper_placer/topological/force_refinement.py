@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
 
-Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+Array: TypeAlias = np.ndarray
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -143,7 +143,6 @@ def apply_force_refinement(
     zone_assignments: dict[str, str],
     iterations: int = 100,
     learning_rate: float = 0.1,
-    backend: str = "numpy",
 ) -> dict[str, tuple[float, float]]:
     """Apply force-directed refinement to positions.
 
@@ -154,7 +153,6 @@ def apply_force_refinement(
         zone_assignments: Dict of component ref to zone name
         iterations: Number of refinement iterations
         learning_rate: Step size for position updates
-        backend: Computation backend ("numpy" or "jax")
 
     Returns:
         Refined positions dict
@@ -209,20 +207,10 @@ def apply_force_refinement(
             min_dist = data.get("distance", 20.0)
             separations.append((src_idx, tgt_idx, min_dist))
 
-    # Run refinement
-    if backend == "jax":
-        try:
-            # JAX backend - for now, fall back to numpy
-            # Could implement JIT-compiled version later
-            refined = _force_refine_numpy(
-                pos_array, adjacencies, separations, zone_bounds, iterations, learning_rate
-            )
-        except ImportError as e:
-            raise ImportError("JAX not available") from e
-    else:
-        refined = _force_refine_numpy(
-            pos_array, adjacencies, separations, zone_bounds, iterations, learning_rate
-        )
+    # Run refinement through the Rust-backed NumPy-compatible kernel.
+    refined = _force_refine_numpy(
+        pos_array, adjacencies, separations, zone_bounds, iterations, learning_rate
+    )
 
     # Convert back to dict
     return {ref: (float(refined[i, 0]), float(refined[i, 1])) for i, ref in enumerate(refs)}

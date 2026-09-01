@@ -1,4 +1,4 @@
-<!-- provenance: commit=eca0d755a dirty=false (worktree agent-ae9876aa8752c1a79, main tip at task start). pcb/temper.kicad_pcb sha256 6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1, matches task brief, NOT modified by this task -- all measurement on scratch copies under /tmp. -->
+<!-- provenance: commit=eca0d755a815dbfce478aee623601d5569f56624 dirty=false (worktree agent-ae9876aa8752c1a79, main tip at task start). pcb/temper.kicad_pcb sha256 6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1, matches task brief, NOT modified by this task -- all measurement on scratch copies under /tmp. -->
 ---
 title: "+3V3 pour-stitch track_width defect: root cause and fix, independent of M6c; M6c re-evaluated on top of it"
 date: 2026-08-17

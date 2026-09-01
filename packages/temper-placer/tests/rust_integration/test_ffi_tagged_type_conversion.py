@@ -57,6 +57,18 @@ def test_shape_codes_reach_rust_identically(code, width, height, expected):
     assert _tg.pad_corner_radius_py(width, height, code, 0.25) == expected
 
 
+def test_pad_to_capsule_public_binding_is_shape_aware_and_fail_closed():
+    roundrect = (1.7, 1.95, SHAPE_CODES["roundrect"], 0.0, 5.0, 0.0, 0.147059)
+    assert _tg.pad_to_capsule_distance_py(roundrect, (-10.0, 0.0), (10.0, 0.0), 0.5) == pytest.approx(3.775)
+    with pytest.raises(ValueError, match="positive"):
+        _tg.pad_to_capsule_distance_py(roundrect, (0.0, 0.0), (0.0, 0.0), 0.0)
+
+
+def test_pad_to_capsule_degenerate_segment_models_a_via():
+    circle = (2.0, 2.0, SHAPE_CODES["circle"], 0.0, 0.0, 0.0, 0.25)
+    assert _tg.pad_to_capsule_distance_py(circle, (4.0, 0.0), (4.0, 0.0), 2.0) == pytest.approx(2.0)
+
+
 def test_fence_samples_shape_codes_match_old_string_semantics():
     # rect-ish codes (oval/rect/roundrect) -> 8 corner+edge samples;
     # circle / thru_hole / unknown -> sample_count_circle points.

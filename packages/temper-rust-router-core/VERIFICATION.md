@@ -229,7 +229,7 @@ already delegated to the Rust extractor (`extract.rs`), but the
 Python. This crate now carries a **bit-identical** port of that leaf —
 `classify_py.rs` (`classify_component_py` + `parse_capacitance_py`) — wired
 through the `temper-rust-router` pyo3 bridge
-(`classify_component_rs` / `parse_capacitance_rs`, JSON in/out). The Python
+(`classify_component_rs`, JSON in/out). The Python
 `classify_component` in `loop_extractor.py` is now a Rust-first delegation
 shim over the Python body (which remains the fallback and the reference).
 
@@ -266,12 +266,12 @@ identically to the oracle, it classifies a ref of length k+1 identically.
    output is verified by the base corpus — the branch set is finite and
    fully enumerated by the differential corpus.
 2. **Float bit-exactness is confined to one op.** The only float produced
-   is `numeric * multiplier` inside `parse_capacitance_py`, where
+   is `numeric * multiplier` inside the private `parse_capacitance_py`, where
    `numeric` is CPython-`float()`-parsed (same IEEE-754 double; overflow
    saturates to `inf` exactly as CPython's `float()` does) and `multiplier`
    is one of the literal `1e-6`/`1e-3`/`1.0`/`1e6` constants from the
    oracle's table. The differential pins the corpus `float.hex()`-exact;
-   the PBT pins the unit scale (`test_p6_parse_unit_scaling`) and the
+   the core Rust tests pin the parser's unit scale and the
    confidence literal set (`test_p2_...`). Confidence values are the same
    f64 literals CPython parses (`0.0/0.7/0.8/0.9`), bit-identical by
    construction.

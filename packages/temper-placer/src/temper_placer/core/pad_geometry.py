@@ -238,7 +238,9 @@ def pad_axis_radius(
     if axis not in (0, 1):
         raise ValueError(f"axis must be 0 (X) or 1 (Y), got {axis!r}")
     _warn_unknown_shape(shape)
-    return _tg.pad_axis_radius_py(width, height, shape_code(shape), axis, rotation_rad, roundrect_ratio)
+    return _tg.pad_axis_radius_py(
+        width, height, shape_code(shape), axis, rotation_rad, roundrect_ratio
+    )
 
 
 def pad_bounding_radius(
@@ -281,9 +283,27 @@ def pad_core_polygon(
     positive, a ``LineString`` when one collapses (``oval``), a ``Point``
     when both do (``circle``). Shapely handles all three uniformly in
     ``.distance()``, which is what makes :func:`pad_pair_distance` exact.
+
+    **Rotation convention.** ``rotation_rad`` is the pad's absolute board
+    rotation, and KiCad orients a pad's copper by **R(-theta)** -- so the
+    angle handed to ``shapely.affinity.rotate`` (whose own parameter is
+    CCW-positive, R(+theta)) is the NEGATION, obtained from the sanctioned
+    bridge ``kicad_transform.shapely_rotation_angle_deg`` rather than
+    written out here. Until 2026-08-18 this function passed
+    ``math.degrees(rotation_rad)`` straight through -- R(+theta) -- which
+    is a mirror image of the truth at every angle that is not a multiple
+    of 90 degrees. It went unnoticed because all 527 pads on
+    ``pcb/temper.kicad_pcb`` sit at multiples of 90, where the two
+    conventions give the same corner SET (differing only in ring order,
+    which no distance or containment query can observe). Correct by
+    coincidence of placement, not by construction. Pinned against pcbnew's
+    own pad corners at non-90 angles by
+    ``scripts/check_pad_core_polygon_oracle.py``.
     """
     from shapely.affinity import rotate, translate
     from shapely.geometry import LineString, Point, box
+
+    from temper_placer.geometry.kicad_transform import shapely_rotation_angle_deg
 
     hw, hh = pad_core_half_extents(width, height, shape, roundrect_ratio)
     if hw <= 0.0 and hh <= 0.0:
@@ -295,7 +315,12 @@ def pad_core_polygon(
     else:
         core = box(-hw, -hh, hw, hh)
 
-    rotated = rotate(core, math.degrees(rotation_rad), origin=(0, 0), use_radians=False)
+    rotated = rotate(
+        core,
+        shapely_rotation_angle_deg(math.degrees(rotation_rad)),
+        origin=(0, 0),
+        use_radians=False,
+    )
     return translate(rotated, xoff=cx, yoff=cy)
 
 
@@ -369,9 +394,17 @@ def pad_polygon(
     midpoint between vertices; solving ``r_buffer * cos(pi/(2*quad_segs)) =
     r`` for ``r_buffer`` guarantees the buffered polygon contains the true
     disk of radius ``r`` everywhere, not just at the sampled vertices.
+
+    **Rotation convention.** Same R(-theta) rule, same fix, same date as
+    :func:`pad_core_polygon` -- see that function's docstring. The
+    ``math.cos`` call below is NOT a rotation: it is the chord/arc
+    inflation factor ``1 / cos(pi / (2*quad_segs))``, which has no angle
+    of its own.
     """
     from shapely.affinity import rotate, translate
     from shapely.geometry import box
+
+    from temper_placer.geometry.kicad_transform import shapely_rotation_angle_deg
 
     hw, hh = pad_core_half_extents(width, height, shape, roundrect_ratio)
     r = pad_corner_radius(width, height, shape, roundrect_ratio)
@@ -393,5 +426,10 @@ def pad_polygon(
             core = box(-hw, -hh, hw, hh)
             poly = core.buffer(r_buffer, quad_segs=quad_segs, join_style="round")
 
-    rotated = rotate(poly, math.degrees(rotation_rad), origin=(0, 0), use_radians=False)
+    rotated = rotate(
+        poly,
+        shapely_rotation_angle_deg(math.degrees(rotation_rad)),
+        origin=(0, 0),
+        use_radians=False,
+    )
     return translate(rotated, xoff=cx, yoff=cy)

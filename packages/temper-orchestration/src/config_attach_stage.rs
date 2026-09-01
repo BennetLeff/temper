@@ -60,9 +60,8 @@ pub fn run_config_attach(
     state: Py<PyAny>,
     config: Option<Py<PyAny>>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("config_attach: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("config_attach: {e}")))?;
     let stage = ConfigAttachStage {
         config: config.clone(),
     };

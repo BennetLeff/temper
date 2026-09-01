@@ -1,5 +1,5 @@
 """Coverage paydown tests v10: constraints reporter, validation metrics,
-validation preflight, io provenance, testing quarantine/golden-diff,
+validation preflight, io provenance, testing quarantine,
 heuristics organizational/style/structural pure functions, pipeline helpers.
 
 Exercises public functions in:
@@ -8,7 +8,6 @@ Exercises public functions in:
 - validation/preflight.py: PreflightResult (error_count, warning_count, info_count, merge)
 - io/provenance.py: Provenance.as_comment
 - testing/quarantine.py: QuarantineEntry.to_dict/to_json, classify_error
-- testing/golden_diff.py: DiffReport.to_json
 - heuristics/organizational.py: classify_signal_domains, classify_power_topology
 - heuristics/style.py: identify_ground_domains
 - heuristics/structural.py: identify_connectors, identify_thermal_components
@@ -397,43 +396,6 @@ class TestPreflightResult:
         assert merged.passed is True
 
 
-# ===========================================================================
-# io/provenance.py — Provenance.as_comment
-# ===========================================================================
-
-
-class TestProvenance:
-    """Covers Provenance.as_comment."""
-
-    def test_as_comment_full(self):
-        from temper_placer.io.provenance import Provenance
-
-        p = Provenance(
-            board_sha256="abc123",
-            netlist_sha256="def456",
-            config_sha256="ghi789",
-            generated_at="2024-01-01T00:00:00+00:00",
-        )
-        comment = p.as_comment()
-        assert "board=abc123" in comment
-        assert "netlist=def456" in comment
-        assert "config=ghi789" in comment
-        assert "at=2024-01-01" in comment
-
-    def test_as_comment_no_config(self):
-        from temper_placer.io.provenance import Provenance
-
-        p = Provenance(
-            board_sha256="abc123",
-            netlist_sha256="def456",
-            config_sha256=None,
-            generated_at="2024-01-01T00:00:00+00:00",
-        )
-        comment = p.as_comment()
-        assert "config=" not in comment
-        assert "board=abc123" in comment
-        assert "netlist=def456" in comment
-
 
 # ===========================================================================
 # testing/quarantine.py — QuarantineEntry.to_dict/to_json, classify_error
@@ -564,42 +526,6 @@ class TestClassifyError:
         err = MockErr("some random placement error")
         result = classify_error("placement", err)
         assert result == "UNKNOWN"
-
-
-# ===========================================================================
-# testing/golden_diff.py — DiffReport.to_json
-# ===========================================================================
-
-
-class TestDiffReport:
-    """Covers DiffReport.to_json."""
-
-    def test_to_json_empty(self):
-        from temper_placer.testing.golden_diff import DiffReport
-
-        report = DiffReport(board="test_board", stage="drc", passed=True)
-        result = report.to_json()
-        assert result == []
-
-    def test_to_json_with_entries(self):
-        from temper_placer.testing.golden_diff import DiffEntry, DiffReport
-
-        entry = DiffEntry(
-            board="test_board",
-            stage="drc",
-            category="BINARY",
-            entity="net 'HV_IN'",
-            field="presence",
-            golden_value="present",
-            candidate_value="missing",
-        )
-        report = DiffReport(
-            board="test_board", stage="drc", passed=False, entries=[entry]
-        )
-        result = report.to_json()
-        assert len(result) == 1
-        assert result[0]["entity"] == "net 'HV_IN'"
-        assert result[0]["category"] == "BINARY"
 
 
 # ===========================================================================

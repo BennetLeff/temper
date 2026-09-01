@@ -165,3 +165,56 @@ _MINIMAL_BOARD_TEMPLATE = """(kicad_pcb (version 20221018) (generator pcbnew)
   )
 )
 """
+
+
+class TestDnfStagedExemption:
+    """OCP-02's staged parts are exempt only WHERE the decision parks them.
+
+    `docs/evidence/2026-08-16-ocp02-descope-decision.md` is a formal DNF
+    decision: T2/C37/R65 stay off-board because the CST3015's intrinsic
+    9.100mm primary<->secondary creepage cannot meet the 12.6mm PD3 bar in
+    any placement. The gate has to accept that without becoming blind to
+    the defect class it exists to catch, so the exemption is keyed by
+    POSITION and these tests are the falsifiers for that.
+    """
+
+    def test_committed_board_passes_with_the_staged_parts_reported(self):
+        report = gate.analyze_board(BOARD)
+        assert report.ok
+        assert report.violations == []
+        # Not silently dropped: still measured, still surfaced.
+        assert report.refs_staged() == {"T2", "C37", "R65"}
+        assert len(report.staged) == 8
+
+    def test_a_staged_part_moved_elsewhere_is_a_violation_again(self, tmp_path):
+        """The whole point of keying on position rather than on ref.
+
+        A blanket ref-allowlist would let T2 drift anywhere off-board
+        unreported -- exactly the class this gate was written for.
+        """
+        import re
+
+        text = BOARD.read_text()
+        idx = text.find('"T2"')
+        start = text.rfind("(footprint", 0, idx)
+        seg = text[start:idx]
+        m = re.search(r"\(at 100 300(?: [-\d.]+)?\)", seg)
+        assert m, "T2's staging coordinate is not where this test expects it"
+        moved = tmp_path / "t2_drifted.kicad_pcb"
+        moved.write_text(
+            text[:start]
+            + seg.replace(m.group(0), m.group(0).replace("100 300", "101 300"), 1)
+            + text[idx:]
+        )
+
+        report = gate.analyze_board(moved)
+        assert not report.ok
+        assert report.refs_outside() == {"T2"}
+        # The other two stay exempt -- the exemption is per-part, not a mode.
+        assert report.refs_staged() == {"C37", "R65"}
+
+    def test_staged_refs_match_the_decision_record(self):
+        assert set(gate.DNF_STAGED_MM) == {"T2", "C37", "R65"}
+        assert gate.DNF_STAGED_MM["T2"] == (100.0, 300.0)
+        assert gate.DNF_STAGED_MM["C37"] == (20.0, 272.12)
+        assert gate.DNF_STAGED_MM["R65"] == (44.0, 272.12)

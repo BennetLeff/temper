@@ -13,10 +13,10 @@ module renders any value as a hashable signature in which
 
 It extends ``tests/physics/_leafcmp.py`` (the same idea, used by the
 Phase 4 differentials) with the leaf kinds this phase needs: sets and
-frozensets, and the four contract objects (``Rect``, ``FabPreset``,
-``PinInfo``, ``PlacementViolation``), each of which is reduced to its
-public attribute tuple so a Rust pyclass and a Python dataclass produce
-the same signature *iff* every attribute matches in value and type.
+frozensets, and the contract objects (``Rect``, ``FabPreset``), each of
+which is reduced to its public attribute tuple so a Rust pyclass and a
+Python dataclass produce the same signature *iff* every attribute
+matches in value and type.
 
 ``test_sig_self.py`` is the anti-vacuity proof for this file: it asserts
 that each of the five distinctions above actually changes the signature.
@@ -42,15 +42,6 @@ _CONTRACT_FIELDS: dict[str, tuple[str, ...]] = {
         "etch_undercut_mm",
         "layer_registration_mm",
         "drill_tolerance_mm",
-    ),
-    "PinInfo": ("x", "y", "net_name", "component_name", "pin_name", "diameter_mm"),
-    "PlacementViolation": (
-        "item_a",
-        "item_b",
-        "distance",
-        "required",
-        "violation_type",
-        "message",
     ),
 }
 

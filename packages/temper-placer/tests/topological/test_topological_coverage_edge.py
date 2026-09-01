@@ -3,7 +3,6 @@ Coverage-paydown tests for topological module edge cases.
 
 Exercises previously uncovered code paths:
 - TopologicalGraph.from_pcl with EnclosingConstraint (lines 287, 291)
-- apply_force_refinement JAX fallback (lines 220-221)
 - apply_force_refinement with graph nodes not in positions (line 202)
 - ZoneSolver.solve backtracking exhaustion (line 181)
 """
@@ -148,39 +147,3 @@ class TestForceRefinementGraphNodesNotInPositions:
         assert "C1" in refined
         assert "C2" in refined
         # EXTRA is not in refined dict (it wasn't in positions)
-
-
-class TestForceRefinementJaxFallback:
-    """Cover JAX backend exception handling (lines 220-221)."""
-
-    def test_jax_backend_import_error_handled(self):
-        """When JAX is not available, backend='jax' falls through gracefully."""
-        from temper_placer.topological.force_refinement import apply_force_refinement
-
-        graph = TopologicalGraph()
-        graph.add_component("C1")
-        graph.add_component("C2")
-        graph.add_adjacency("C1", "C2", max_distance=10.0, constraint_id="a1")
-
-        zone = Zone(name="Z", bounds=(0, 0, 100, 100))
-        positions = {"C1": (25.0, 50.0), "C2": (75.0, 50.0)}
-        zone_assignments = {"C1": "Z", "C2": "Z"}
-
-        # The real JAX backend path is in apply_force_refinement (line 213-224).
-        # For backend='jax', it tries the import and falls back to numpy.
-        # Since JAX is not installed, this will attempt the ImportError path.
-        # The code catches ImportError and raises it again, so it will raise.
-        # We just verify the path runs through without silent corruption.
-        # The actual behavior is that JAX backend falls to numpy if JAX not installed
-        # (the try/except ImportError in the code now just re-raises).
-        # Let's just use the numpy backend to verify it works.
-        refined = apply_force_refinement(
-            positions=positions,
-            graph=graph,
-            zones={"Z": zone},
-            zone_assignments=zone_assignments,
-            iterations=10,
-            backend="numpy",
-        )
-        assert "C1" in refined
-        assert "C2" in refined

@@ -114,18 +114,20 @@ def _square_body(ref: str, half: float = 1.0) -> FabBody:
 class TestAllowlist:
     def test_load_real_allowlist(self) -> None:
         allowlist = load_body_collision_allowlist(_ALLOWLIST_PATH)
-        # The 6 real body collisions PR #1158 measured -- see that PR's
-        # Section 2.2 and this repo's body_collision_allowlist.yaml.
-        expected_pairs = {
-            frozenset(("C2", "C3")),
-            frozenset(("C5", "C7")),
-            frozenset(("C4", "R46")),
-            frozenset(("C5", "L1")),
-            frozenset(("C4", "C22")),
-            frozenset(("C4", "R4")),
-        }
+        # PR #1158 measured 6 real body collisions. Five have since been
+        # fixed on the board and were pruned from the allowlist on
+        # 2026-08-25 -- C5<->C7 (106.8341mm^2) by #1498's C7 move, which is
+        # the fix that entry's own note described as "not yet applied", plus
+        # C5<->L1 (10.3219), C4<->R46 (5.1200), C4<->C22 (1.2800) and
+        # C4<->R4 (0.0306). Re-measured with an emptied allowlist, C2<->C3
+        # is the only real body overlap left on this board.
+        #
+        # Pruning is a ratchet: a dead entry would silently re-accept its
+        # overlap if it ever came back, whereas with the entry gone the
+        # return is a NEW violation and fails the gate.
+        expected_pairs = {frozenset(("C2", "C3"))}
         assert set(allowlist.entries.keys()) == expected_pairs
-        assert len(allowlist) == 6
+        assert len(allowlist) == 1
         entry = allowlist.get("C2", "C3")
         assert entry is not None
         assert entry.baseline_overlap_mm2 == pytest.approx(115.6512, abs=1e-3)
@@ -392,9 +394,7 @@ class TestSolvePlacementWiringContract:
 
     def test_non_optimal_solve_logs_audit_skip_warning(self, caplog) -> None:
         netlist, board, fab_bodies = self._inputs()
-        with caplog.at_level(
-            logging.WARNING, logger="temper_placer.placer.cp_sat._encoder_solve"
-        ):
+        with caplog.at_level(logging.WARNING, logger="temper_placer.placer.cp_sat._encoder_solve"):
             result = solve_placement(
                 netlist=netlist,
                 board=board,
@@ -441,7 +441,14 @@ class TestProductionBoardAllowlistCoverage:
         result = audit_body_collisions(fab_bodies, positions, rotations, allowlist)
 
         assert result.clean, result.report()
-        assert len(result.allowlisted) == 6, result.report()
+        # 1, not 6, since 2026-08-25. Five allowlist entries were pruned
+        # because the overlaps they accepted no longer exist -- notably
+        # C5<->C7 (106.8341mm^2), whose own note said "Verified single-part
+        # fix exists (move C7 63.5mm) -- not yet applied", which #1498
+        # applied. Re-measured with an emptied allowlist, C2<->C3 is the only
+        # real body overlap left on this board. See the PRUNED block in
+        # configs/body_collision_allowlist.yaml for the five figures.
+        assert len(result.allowlisted) == 1, result.report()
 
         touched_refs = {frozenset((v.ref_a, v.ref_b)) for v in result.allowlisted}
         assert touched_refs == set(allowlist.entries.keys())

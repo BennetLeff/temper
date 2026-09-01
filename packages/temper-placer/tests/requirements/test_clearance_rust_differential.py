@@ -44,6 +44,9 @@ import pytest
 import temper_geometry as _tg
 
 from temper_placer.core.pad_geometry import pad_pair_distance
+from temper_placer.geometry.kicad_transform import (
+    rotate_local_to_world as _kicad_rotate_local_to_world,
+)
 from temper_placer.requirements.validators._copper import (
     _component_pads,
     _CopperModel,
@@ -87,9 +90,34 @@ def _oracle_bounding_radius(width, height, shape, roundrect_ratio):
 
 
 def _oracle_core_polygon(width, height, shape, cx, cy, rotation_rad=0.0, roundrect_ratio=0.25):
-    """pad_geometry.pad_core_polygon, verbatim (pre-migration)."""
+    """pad_geometry.pad_core_polygon, verbatim.
+
+    ROTATION SIGN, 2026-08-18. This oracle and the Rust kernel it pins
+    both carried ``rotate(core, +math.degrees(rotation_rad))`` -- R(+theta)
+    -- where KiCad orients a pad's copper R(-theta). Both were corrected
+    together, which is the only way to correct them: this file's contract
+    is bit-exactness between Shapely/GEOS and the Rust replica, and a
+    differential in which one side moved and the other did not proves
+    nothing about either.
+
+    That means THIS FILE CANNOT, ON ITS OWN, TELL THE TWO CONVENTIONS
+    APART -- a consistently-wrong pair passes it, which is exactly the
+    state the repo was in from the Wave 3 migration until 2026-08-18. The
+    convention itself is anchored elsewhere, against pcbnew's own pad
+    corners at angles that are not multiples of 90 degrees:
+    ``scripts/check_pad_core_polygon_oracle.py`` plus
+    ``scripts/pad_core_polygon_oracle_corpus.json``. It is also read back
+    into this suite by ``test_core_polygon_matches_pcbnew_at_non_90_degrees``
+    below, so the anchor cannot be deleted without failing here too.
+
+    The negation is taken from ``kicad_transform.shapely_rotation_angle_deg``
+    -- the sanctioned bridge, called rather than typed -- so the oracle
+    stays verbatim with the implementation it mirrors.
+    """
     from shapely.affinity import rotate, translate
     from shapely.geometry import LineString, Point, box
+
+    from temper_placer.geometry.kicad_transform import shapely_rotation_angle_deg
 
     hw, hh = _oracle_half_extents(width, height, shape, roundrect_ratio)
     if hw <= 0.0 and hh <= 0.0:
@@ -100,7 +128,12 @@ def _oracle_core_polygon(width, height, shape, cx, cy, rotation_rad=0.0, roundre
         core = LineString([(0.0, -hh), (0.0, hh)])
     else:
         core = box(-hw, -hh, hw, hh)
-    rotated = rotate(core, math.degrees(rotation_rad), origin=(0, 0), use_radians=False)
+    rotated = rotate(
+        core,
+        shapely_rotation_angle_deg(math.degrees(rotation_rad)),
+        origin=(0, 0),
+        use_radians=False,
+    )
     return translate(rotated, xoff=cx, yoff=cy)
 
 
@@ -175,8 +208,7 @@ class _OracleCopperModel:
                 continue
             ox, oy = self._origin[ref]
             self._reach[ref] = max(
-                math.hypot(p[3] - ox, p[4] - oy)
-                + _oracle_bounding_radius(p[5], p[6], p[7], p[8])
+                math.hypot(p[3] - ox, p[4] - oy) + _oracle_bounding_radius(p[5], p[6], p[7], p[8])
                 for p in pads
             )
 
@@ -313,7 +345,10 @@ def _rand_comp(rng, ref):
 
 def _rand_placement(rng):
     comps = [_rand_comp(rng, f"C{i}") for i in range(rng.randint(2, 6))]
-    return {"components": comps, "nets": {"N_HV": {"domain": "DC_BUS"}, "N_LV": {"domain": "LV_CONTROL"}}}
+    return {
+        "components": comps,
+        "nets": {"N_HV": {"domain": "DC_BUS"}, "N_LV": {"domain": "LV_CONTROL"}},
+    }
 
 
 _NETS_DOMAIN = {
@@ -350,7 +385,14 @@ def test_rotate_bit_exact_random(seed):
         x = rng.uniform(-50, 50)
         y = rng.uniform(-50, 50)
         theta = rng.choice(
-            [0.0, math.pi / 2, math.pi, -math.pi / 2, 2 * math.pi, rng.uniform(-8 * math.pi, 8 * math.pi)]
+            [
+                0.0,
+                math.pi / 2,
+                math.pi,
+                -math.pi / 2,
+                2 * math.pi,
+                rng.uniform(-8 * math.pi, 8 * math.pi),
+            ]
         )
         assert _rotate(x, y, theta) == _oracle_rotate(x, y, theta)
 
@@ -392,7 +434,10 @@ def test_pad_pair_distance_edge_cases():
         # point exactly on a rect edge
         ((4.0, 4.0, "rect", 0.0, 0.0, 0.0, 0.0), (0.0, 0.0, "circle", 2.0, 2.0, 0.0, 0.0)),
         # 45-degree rotated rects (exact representable values)
-        ((4.0, 4.0, "rect", 0.0, 0.0, math.pi / 4, 0.0), (4.0, 4.0, "rect", 10.0, 0.0, math.pi / 4, 0.0)),
+        (
+            (4.0, 4.0, "rect", 0.0, 0.0, math.pi / 4, 0.0),
+            (4.0, 4.0, "rect", 10.0, 0.0, math.pi / 4, 0.0),
+        ),
         # zero-size pads (both circles collapse to points)
         ((0.0, 0.0, "circle", 1.0, 1.0, 0.0, 0.0), (0.0, 0.0, "circle", 4.0, 5.0, 0.0, 0.0)),
         # oval collapsing to a point
@@ -402,7 +447,10 @@ def test_pad_pair_distance_edge_cases():
         # roundrect with a ratio larger than half-size (hw/hh clamp to 0)
         ((2.0, 2.0, "roundrect", 0.0, 0.0, 0.0, 3.0), (2.0, 2.0, "roundrect", 5.0, 0.0, 0.0, 3.0)),
         # small rect fully inside a big rotated rect (vertex-inside containment)
-        ((20.0, 20.0, "rect", 0.0, 0.0, 0.7853981633974483, 0.0), (2.0, 2.0, "rect", 0.0, 0.0, 0.0, 0.0)),
+        (
+            (20.0, 20.0, "rect", 0.0, 0.0, 0.7853981633974483, 0.0),
+            (2.0, 2.0, "rect", 0.0, 0.0, 0.0, 0.0),
+        ),
         # touching at a corner
         ((2.0, 2.0, "rect", 0.0, 0.0, 0.0, 0.0), (2.0, 2.0, "rect", 2.0, 2.0, 0.0, 0.0)),
         # unknown shape fallback (r=0 sharp corners)
@@ -417,7 +465,92 @@ def test_pad_pair_distance_edge_cases():
 def test_pad_pair_distance_zero_when_overlapping():
     # Two pads on top of each other must report exactly 0.0 (not a tiny
     # polygonised residue) -- the property the copper-to-copper fix exists for.
-    assert pad_pair_distance((4.0, 4.0, "rect", 0.0, 0.0, 0.0, 0.0), (4.0, 4.0, "rect", 0.5, 0.5, 0.0, 0.0)) == 0.0
+    assert (
+        pad_pair_distance(
+            (4.0, 4.0, "rect", 0.0, 0.0, 0.0, 0.0), (4.0, 4.0, "rect", 0.5, 0.5, 0.0, 0.0)
+        )
+        == 0.0
+    )
+
+
+# ---------------------------------------------------------------------------
+# Rotation CONVENTION -- the one thing the oracle above cannot check
+#
+# Every other test in this file compares the Rust kernel against
+# _oracle_core_polygon. That pins bit-exactness and nothing else: both
+# sides shared an R(+theta) rotation from the Wave 3 migration until
+# 2026-08-18 and every one of those tests passed throughout. The two tests
+# below break that circularity by comparing against pcbnew -- KiCad's own
+# placement engine -- at angles where the two conventions actually differ.
+# ---------------------------------------------------------------------------
+
+
+def _pcbnew_corpus():
+    """The pinned pcbnew ground truth, loaded from the gate's own corpus so
+    there is exactly one copy of these numbers in the repo."""
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve()
+    for parent in root.parents:
+        candidate = parent / "scripts" / "pad_core_polygon_oracle_corpus.json"
+        if candidate.is_file():
+            return json.loads(candidate.read_text())
+    pytest.fail(
+        "scripts/pad_core_polygon_oracle_corpus.json is missing. It is the only "
+        "record of which way KiCad turns a pad, and this suite's own oracle "
+        "cannot substitute for it -- see _oracle_core_polygon's docstring."
+    )
+
+
+def _corner_set_error(got, want):
+    def worst(a, b):
+        return max(min(math.dist(p, q) for q in b) for p in a)
+
+    return max(worst(got, want), worst(want, got))
+
+
+def test_core_polygon_matches_pcbnew_at_non_90_degrees():
+    """The oracle's own corner set must be pcbnew's, at non-90 angles.
+
+    Ground truth: scripts/kicad_pad_polygon_oracle.py under real pcbnew
+    (pinned; regenerate, never re-pin). Corners are compared as SETS
+    because ring order is not observable geometry.
+    """
+    data = _pcbnew_corpus()
+    assert data["rows"], "empty corpus -- refusing to pass vacuously"
+    worst = 0.0
+    for row, want in zip(data["rows"], data["expected"]):
+        w, h, cx, cy, deg = row
+        assert deg % 90 != 0, f"row {row} is at a 90-degree multiple and cannot discriminate"
+        geom = _oracle_core_polygon(w, h, "rect", cx, cy, math.radians(deg), 0.0)
+        got = list(geom.exterior.coords)[:-1]
+        worst = max(worst, _corner_set_error(got, [tuple(p) for p in want]))
+    # pcbnew stores nanometres, so its own answers are quantised at 1e-6 mm.
+    assert worst <= 1e-5, (
+        f"worst corner error {worst}mm -- the pad's copper is not where KiCad puts it"
+    )
+
+
+def test_flipping_the_convention_is_caught_by_the_pcbnew_corpus():
+    """Mutation test: had the sign stayed R(+theta), the assertion above
+    would have failed by whole millimetres. Proves that test is not
+    vacuous, without needing to re-edit the source to find out."""
+    from shapely.affinity import rotate, translate
+    from shapely.geometry import box
+
+    data = _pcbnew_corpus()
+    worst_mutant = 0.0
+    for row, want in zip(data["rows"], data["expected"]):
+        w, h, cx, cy, deg = row
+        # The pre-2026-08-18 body, verbatim: no sign flip.
+        mutant = translate(rotate(box(-w / 2, -h / 2, w / 2, h / 2), deg, origin=(0, 0)), cx, cy)
+        got = list(mutant.exterior.coords)[:-1]
+        worst_mutant = max(worst_mutant, _corner_set_error(got, [tuple(p) for p in want]))
+    assert worst_mutant > 0.1, (
+        f"the R(+theta) mutant is only {worst_mutant}mm from pcbnew's answer -- the corpus "
+        "cannot discriminate the conventions and the test above proves nothing"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -513,8 +646,12 @@ def test_copper_model_copper_distance_bit_exact(seed):
         refs = [c["ref"] for c in placement["components"]]
         for ra in refs:
             for rb in refs:
-                got = model.copper_distance(ra, VoltageDomain.DC_BUS, rb, VoltageDomain.LV_CONTROL, _NETS_DOMAIN)
-                exp = oracle.copper_distance(ra, VoltageDomain.DC_BUS, rb, VoltageDomain.LV_CONTROL, _NETS_DOMAIN)
+                got = model.copper_distance(
+                    ra, VoltageDomain.DC_BUS, rb, VoltageDomain.LV_CONTROL, _NETS_DOMAIN
+                )
+                exp = oracle.copper_distance(
+                    ra, VoltageDomain.DC_BUS, rb, VoltageDomain.LV_CONTROL, _NETS_DOMAIN
+                )
                 assert got == exp, (ra, rb)
 
 
@@ -533,16 +670,38 @@ def test_copper_model_intra_self_pair_skipped():
         "rotation_deg": 0.0,
         "nets": ["N_HV", "N_LV"],
         "pads": [
-            {"number": "1", "net": None, "offset": (-3.0, 0.0), "width": 2.0, "height": 2.0, "shape": "rect", "roundrect_ratio": 0.25, "pad_rotation_deg": 0.0},
-            {"number": "2", "net": None, "offset": (3.0, 0.0), "width": 2.0, "height": 2.0, "shape": "rect", "roundrect_ratio": 0.25, "pad_rotation_deg": 0.0},
+            {
+                "number": "1",
+                "net": None,
+                "offset": (-3.0, 0.0),
+                "width": 2.0,
+                "height": 2.0,
+                "shape": "rect",
+                "roundrect_ratio": 0.25,
+                "pad_rotation_deg": 0.0,
+            },
+            {
+                "number": "2",
+                "net": None,
+                "offset": (3.0, 0.0),
+                "width": 2.0,
+                "height": 2.0,
+                "shape": "rect",
+                "roundrect_ratio": 0.25,
+                "pad_rotation_deg": 0.0,
+            },
         ],
     }
     placement = {"components": [comp], "nets": {}}
     model = _CopperModel(placement)
     oracle = _OracleCopperModel(placement)
     nets_domain = {}  # no domain matches -> both fall back to the full list
-    got = model.copper_distance("U1", VoltageDomain.DC_BUS, "U1", VoltageDomain.LV_CONTROL, nets_domain)
-    exp = oracle.copper_distance("U1", VoltageDomain.DC_BUS, "U1", VoltageDomain.LV_CONTROL, nets_domain)
+    got = model.copper_distance(
+        "U1", VoltageDomain.DC_BUS, "U1", VoltageDomain.LV_CONTROL, nets_domain
+    )
+    exp = oracle.copper_distance(
+        "U1", VoltageDomain.DC_BUS, "U1", VoltageDomain.LV_CONTROL, nets_domain
+    )
     assert got == exp
     # true copper gap: 6.0 - 1.0 - 1.0 = 4.0 (pad centers 6 apart, 1.0 half-widths)
     assert got == (4.0, "copper", "U1.1 <-> U1.2")
@@ -551,6 +710,7 @@ def test_copper_model_intra_self_pair_skipped():
 # ---------------------------------------------------------------------------
 # Metamorphic relations (>= 3 required by the Wave 3 gate)
 # ---------------------------------------------------------------------------
+
 
 # M1: translating both pads by the same vector preserves the distance
 @pytest.mark.parametrize("seed", range(8))
@@ -569,10 +729,22 @@ def test_metamorphic_translation_invariance(seed):
 
 
 def _world_rotate(pad, delta):
+    """Rotate a whole pad -- centre AND copper -- about the world origin by
+    ``delta``, in ONE consistent direction.
+
+    Both halves must turn the same way or the "rotation preserves distance"
+    metamorphic relation below is not the relation being tested. Until
+    2026-08-18 this helper turned the centre by R(+delta) while
+    ``rot + delta`` turned the copper by R(-delta) under KiCad's real
+    convention -- opposite senses. It agreed with itself only because
+    ``pad_core_polygon`` was ALSO R(+theta) at the time; correcting the
+    kernel exposed it immediately (8/8 seeds, worst 0.047mm on the first
+    failing case). The centre now goes through the sanctioned
+    ``kicad_transform.rotate_local_to_world`` -- R(-delta), the same sense
+    the pad-angle term already had -- rather than a locally typed matrix.
+    """
     w, h, s, cx, cy, rot, rr = pad
-    c, sn = math.cos(delta), math.sin(delta)
-    nx = c * cx - sn * cy
-    ny = sn * cx + c * cy
+    nx, ny = _kicad_rotate_local_to_world(cx, cy, delta)
     return (w, h, s, nx, ny, rot + delta, rr)
 
 

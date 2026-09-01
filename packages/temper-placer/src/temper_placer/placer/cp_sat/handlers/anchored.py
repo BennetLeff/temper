@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
-from temper_placer.pcl.constraints import AnchoredConstraint, ConstraintType
+from temper_placer.pcl.constraints import AnchoredConstraint
+from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
 from temper_placer.placer.cp_sat.handlers._protocol import AssumptionLiteral
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
@@ -16,10 +15,6 @@ if TYPE_CHECKING:
         ModelProtocol,
     )
 
-logger = logging.getLogger(__name__)
-
-
-@register_handler(ConstraintType.ANCHORED)
 def encode_anchored(
     constraint: AnchoredConstraint,
     components: dict[str, ComponentVarsProtocol],
@@ -30,8 +25,10 @@ def encode_anchored(
     labels: list[AssumptionLiteral] = []
     v = components.get(constraint.component)
     if v is None:
-        logger.warning("Anchored %s: comp '%s' not found", constraint.id, constraint.component)
-        return labels
+        raise UnresolvedConstraintRefsError(
+            f"Anchored constraint {constraint.id!r} references missing component "
+            f"{constraint.component!r}"
+        )
 
     label = f"anchor_{constraint.id}"
     assumption = model.new_assumption(label)

@@ -1,3 +1,4 @@
+<!-- provenance: commit=3d1321afae04f341e73c3b0f4268b4cce7d0855e dirty=UNKNOWN -->
 # Python-over-Rust Interrogation — the 69,343-LOC with-Rust-ref surface
 
 **Branch**: `research/python-over-rust` (worktree `/tmp/opencode/wt-pyoverrust`, off `origin/main` @ `75b8203a`)

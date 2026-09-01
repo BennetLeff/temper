@@ -18,7 +18,7 @@
 //!   mod`/`mod` declaration in `lib.rs`), plus every `#[pyfunction]`/
 //!   `#[pymodule]` item declared directly in `lib.rs` itself
 //!   (`solve_topology_rust`, `audit_result`, `classify_component_rs`,
-//!   `parse_capacitance_rs`, `astar_kernel_3d_py`, `line_of_sight_py`,
+//!   `astar_kernel_3d_py`, `line_of_sight_py`,
 //!   the `#[pymodule] fn temper_rust_router`).  None of these have
 //!   `#[test]` of their own that exercises anything beyond the pyo3
 //!   boundary itself -- the pure kernels underneath

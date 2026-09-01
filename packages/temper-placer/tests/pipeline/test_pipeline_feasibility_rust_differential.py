@@ -3,8 +3,7 @@ pinned oracle.
 
 Wave 4, pipeline slice: the feasibility/check compute of
 ``temper_placer.pipeline.{convergence,preflight,derivation}`` moves to the
-``temper-orchestration`` crate (``temper_orchestration.record_loss`` /
-``check_success`` / ``is_converged`` / ``check_routability_regression`` /
+``temper-orchestration`` crate (``temper_orchestration.is_converged`` /
 ``component_area_ratio`` / ``proximity_rule_impossible`` /
 ``zone_over_capacity`` / ``loop_area_violation`` /
 ``isolation_barrier_too_large`` / ``derive_emi_max_dist`` /
@@ -63,10 +62,7 @@ from tests.core._contract_canon import canon, canon_call
 from tests.pipeline import _pipeline_feasibility_py_oracle as _oracle
 
 # --- Rust symbols under test ---
-RS_RECORD_LOSS = _to.record_loss
-RS_CHECK_SUCCESS = _to.check_success
 RS_IS_CONVERGED = _to.is_converged
-RS_CHECK_ROUTABILITY_REGRESSION = _to.check_routability_regression
 RS_COMPONENT_AREA_RATIO = _to.component_area_ratio
 RS_PROXIMITY_RULE = _to.proximity_rule_impossible
 RS_ZONE_OVER_CAPACITY = _to.zone_over_capacity
@@ -117,7 +113,6 @@ def test_oracle_and_port_are_different_implementations() -> None:
     assert hasattr(_conv, "_rs")
     assert hasattr(_pref, "_rs")
     assert hasattr(_der, "_rs")
-    assert hasattr(_conv._rs, "check_routability_regression")
     assert hasattr(_pref._rs, "component_area_ratio")
     assert hasattr(_der._rs, "mains_voltage_to_class_code")
 
@@ -125,30 +120,6 @@ def test_oracle_and_port_are_different_implementations() -> None:
 # ---------------------------------------------------------------------------
 # Reference arms — mechanically extracted from the oracle's bodies.
 # ---------------------------------------------------------------------------
-
-
-def _ref_record_loss(best_loss, loss, min_improvement):
-    """Extracted from ConvergenceChecker.record_loss (oracle body)."""
-    if best_loss == float("inf"):
-        return (loss, True)
-    improvement = (best_loss - loss) / best_loss
-    if improvement >= min_improvement:
-        return (loss, True)
-    return (best_loss, False)
-
-
-def _ref_check_success(overlap, boundary, routing, margin,
-                       max_overlap, max_boundary, min_routing, min_margin):
-    """Extracted from ConvergenceChecker.check_success (oracle body)."""
-    if overlap > max_overlap:
-        return False
-    if boundary > max_boundary:
-        return False
-    if routing < min_routing:
-        return False
-    if margin < min_margin:  # noqa: SIM103 - verbatim oracle shape
-        return False
-    return True
 
 
 def _ref_is_converged(current, previous):
@@ -242,72 +213,6 @@ def _ref_extract_min_clearance(key, value):
 # ---------------------------------------------------------------------------
 # convergence kernels
 # ---------------------------------------------------------------------------
-
-
-def _assert_record_loss(best, loss, min_imp):
-    # canon_call: the zero-best case must raise ZeroDivisionError in BOTH
-    # arms (Python division vs the kernel's explicit raise), with parity.
-    ref = canon_call(_ref_record_loss, best, loss, min_imp)
-    got = canon_call(RS_RECORD_LOSS, best, loss, min_imp)
-    assert ref == got, f"record_loss mismatch: best={best!r} loss={loss!r} min={min_imp!r}\n  ref={ref}\n  got={got}"
-
-
-@pytest.mark.parametrize(
-    "best,loss,min_imp",
-    [
-        (float("inf"), 100.0, 0.001),
-        (float("inf"), float("nan"), 0.001),
-        (100.0, 90.0, 0.01),
-        (100.0, 99.5, 0.01),
-        (100.0, 100.0, 0.01),
-        (100.0, 0.0, 0.01),
-        (100.0, float("nan"), 0.001),
-        (0.0, -10.0, 0.01),
-        (-100.0, -110.0, 0.01),
-        (1e-300, 9e-301, 0.01),
-        (1e300, 9e299, 0.01),
-        (float("-inf"), 1.0, 0.01),
-        (50.0, 49.999, 0.001),
-    ],
-    ids=lambda c: repr(c),
-)
-def test_record_loss_bit_exact(best, loss, min_imp):
-    _assert_record_loss(best, loss, min_imp)
-
-
-def _assert_check_success(args):
-    ref = canon(_ref_check_success(*args))
-    got = canon(RS_CHECK_SUCCESS(*args))
-    assert ref == got, f"check_success mismatch: {args}\n  ref={ref}\n  got={got}"
-
-
-def _check_success_cases():
-    base = (0.0, 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05)
-    cases = [base]
-    # one metric beyond each threshold
-    cases.append((0.02, 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, 0.02, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, 0.0, 0.99, 0.1, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, 0.0, 1.0, 0.049, 0.01, 0.01, 1.0, 0.05))
-    # defaults: inf overlap/boundary fail, missing routing/margin default 0.0
-    cases.append((float("inf"), 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, float("inf"), 1.0, 0.1, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, 0.0, 0.0, 0.0, 0.01, 0.01, 1.0, 0.05))
-    # NaN never fails a comparison (NaN > x / NaN < x are both False)
-    cases.append((float("nan"), 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, float("nan"), 1.0, 0.1, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, 0.0, float("nan"), 0.1, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, 0.0, 1.0, float("nan"), 0.01, 0.01, 1.0, 0.05))
-    # exact-boundary ties: equal is not greater/less
-    cases.append((0.01, 0.0, 1.0, 0.05, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, 0.0, 1.0, 0.05, 0.01, 0.01, 1.0, 0.05))
-    cases.append((0.0, 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05))
-    return cases
-
-
-@pytest.mark.parametrize("args", _check_success_cases(), ids=repr)
-def test_check_success_bit_exact(args):
-    _assert_check_success(args)
 
 
 def _assert_is_converged(current, previous):

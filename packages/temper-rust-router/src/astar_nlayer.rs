@@ -14,7 +14,7 @@
 
 use pyo3::prelude::*;
 use temper_rust_router_core::astar_nlayer::{
-    astar_search_3d, route_segment_3d, LayerGrid, NlayerInput,
+    LayerGrid, NlayerInput, astar_search_3d, route_segment_3d,
 };
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -58,7 +58,42 @@ fn decode_planes<'a>(
             cell_sizes.len()
         )));
     }
-    let expected: usize = (0..n).map(|i| (widths[i] * heights[i]) as usize).sum();
+    let mut expected = 0usize;
+    for i in 0..n {
+        if widths[i] <= 0 || heights[i] <= 0 {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "layer {i} has non-positive dimensions: {}x{}",
+                widths[i], heights[i]
+            )));
+        }
+        if !cell_sizes[i].is_finite() || cell_sizes[i] <= 0.0 {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "layer {i} has invalid cell_size: {}",
+                cell_sizes[i]
+            )));
+        }
+        let width = usize::try_from(widths[i]).map_err(|_| {
+            pyo3::exceptions::PyValueError::new_err(format!(
+                "layer {i} width does not fit in usize: {}",
+                widths[i]
+            ))
+        })?;
+        let height = usize::try_from(heights[i]).map_err(|_| {
+            pyo3::exceptions::PyValueError::new_err(format!(
+                "layer {i} height does not fit in usize: {}",
+                heights[i]
+            ))
+        })?;
+        let cells = width.checked_mul(height).ok_or_else(|| {
+            pyo3::exceptions::PyValueError::new_err(format!(
+                "layer {i} dimensions overflow width*height: {}x{}",
+                widths[i], heights[i]
+            ))
+        })?;
+        expected = expected.checked_add(cells).ok_or_else(|| {
+            pyo3::exceptions::PyValueError::new_err("total layer dimensions overflow usize")
+        })?;
+    }
     if planes.len() != expected {
         return Err(pyo3::exceptions::PyValueError::new_err(format!(
             "planes blob is {} bytes; expected sum(width*height) over {n} layers = {expected}",
@@ -71,7 +106,20 @@ fn decode_planes<'a>(
     let mut out = Vec::with_capacity(n);
     let mut offset = 0usize;
     for i in 0..n {
-        let len = (widths[i] * heights[i]) as usize;
+        let len = usize::try_from(widths[i])
+            .ok()
+            .and_then(|width| {
+                usize::try_from(heights[i])
+                    .ok()
+                    .and_then(|height| width.checked_mul(height))
+            })
+            // The checked calculation above already validated these values;
+            // keep this branch defensive if the decoder is edited later.
+            .ok_or_else(|| {
+                pyo3::exceptions::PyValueError::new_err(format!(
+                    "layer {i} dimensions cannot be represented"
+                ))
+            })?;
         out.push(LayerGrid {
             name_rank: name_ranks[i],
             cells: &signed[offset..offset + len],

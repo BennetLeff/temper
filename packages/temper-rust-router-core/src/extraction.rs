@@ -70,23 +70,14 @@ pub fn extract_topology(
 
     for net_name in net_names {
         if let Some(channels) = net_channels.remove(net_name.as_str()) {
-            net_topologies.insert(
-                net_name.to_string(),
-                make_net_topo(net_name, channels),
-            );
+            net_topologies.insert(net_name.to_string(), make_net_topo(net_name, channels));
         } else {
-            net_topologies.insert(
-                net_name.to_string(),
-                make_net_topo(net_name, Vec::new()),
-            );
+            net_topologies.insert(net_name.to_string(), make_net_topo(net_name, Vec::new()));
         }
     }
 
     for (net_name, channels) in net_channels {
-        net_topologies.insert(
-            net_name.clone(),
-            make_net_topo(&net_name, channels),
-        );
+        net_topologies.insert(net_name.clone(), make_net_topo(&net_name, channels));
     }
 
     TopologyGraph { net_topologies }
@@ -109,8 +100,11 @@ pub fn expand_assignments(
     let mut expanded = assignments.clone();
 
     // Build name-to-index map.
-    let name_to_idx: HashMap<&str, usize> =
-        var_names.iter().enumerate().map(|(i, n)| (n.as_str(), i)).collect();
+    let name_to_idx: HashMap<&str, usize> = var_names
+        .iter()
+        .enumerate()
+        .map(|(i, n)| (n.as_str(), i))
+        .collect();
 
     // Build bundle_id → (channel_id → true/false) from class vars.
     let mut bundle_ch_vals: HashMap<usize, HashMap<String, bool>> = HashMap::new();
@@ -124,7 +118,10 @@ pub fn expand_assignments(
                     && let Some(&idx) = name_to_idx.get(name.as_str())
                     && let Some(&val) = assignments.get(&idx)
                 {
-                    bundle_ch_vals.entry(bid).or_default().insert(ch.to_string(), val);
+                    bundle_ch_vals
+                        .entry(bid)
+                        .or_default()
+                        .insert(ch.to_string(), val);
                 }
             }
         }
@@ -162,8 +159,11 @@ pub fn extract_bundled(
     manifest: &InternalBundleManifest,
 ) -> TopologyGraph {
     // Build name-to-index map for class vars.
-    let name_to_idx: HashMap<&str, usize> =
-        var_names.iter().enumerate().map(|(i, n)| (n.as_str(), i)).collect();
+    let name_to_idx: HashMap<&str, usize> = var_names
+        .iter()
+        .enumerate()
+        .map(|(i, n)| (n.as_str(), i))
+        .collect();
 
     // Expand class-variable assignments to per-net assignments.
     let mut expanded = assignments.clone();
@@ -171,11 +171,8 @@ pub fn extract_bundled(
 
     // Index bundles by id once (F3) — previously a linear scan over
     // `manifest.bundles` ran inside the per-class-var loop below.
-    let bundle_by_id: HashMap<usize, &BundleClass> = manifest
-        .bundles
-        .iter()
-        .map(|b| (b.bundle_id, b))
-        .collect();
+    let bundle_by_id: HashMap<usize, &BundleClass> =
+        manifest.bundles.iter().map(|b| (b.bundle_id, b)).collect();
 
     for name in var_names {
         if !name.starts_with("uses_B") {
@@ -187,7 +184,9 @@ pub fn extract_bundled(
             let ch = &rest[underscore_pos + 1..];
             if let Ok(bid) = bid_str.parse::<usize>() {
                 // Look up class var assignment.
-                let class_val = name_to_idx.get(name.as_str()).and_then(|&idx| assignments.get(&idx).copied());
+                let class_val = name_to_idx
+                    .get(name.as_str())
+                    .and_then(|&idx| assignments.get(&idx).copied());
                 if class_val != Some(true) {
                     continue;
                 }
@@ -239,22 +238,13 @@ pub fn extract_bundled(
     let mut net_topologies: HashMap<String, NetTopology> = HashMap::new();
     for net_name in net_names {
         if let Some(channels) = net_channels.remove(net_name.as_str()) {
-            net_topologies.insert(
-                net_name.to_string(),
-                make_net_topo(net_name, channels),
-            );
+            net_topologies.insert(net_name.to_string(), make_net_topo(net_name, channels));
         } else {
-            net_topologies.insert(
-                net_name.to_string(),
-                make_net_topo(net_name, Vec::new()),
-            );
+            net_topologies.insert(net_name.to_string(), make_net_topo(net_name, Vec::new()));
         }
     }
     for (net_name, channels) in net_channels {
-        net_topologies.insert(
-            net_name.clone(),
-            make_net_topo(&net_name, channels),
-        );
+        net_topologies.insert(net_name.clone(), make_net_topo(&net_name, channels));
     }
 
     TopologyGraph { net_topologies }
@@ -293,20 +283,16 @@ fn build_path_graph(net_name: &str, channels: &[String]) -> Vec<(String, String)
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
     use super::*;
-    use crate::types::{
-        BundleClass, InternalBundleManifest,
-    };
+    use crate::types::{BundleClass, InternalBundleManifest};
 
     fn make_test_manifest() -> InternalBundleManifest {
         InternalBundleManifest {
-            bundles: vec![
-                BundleClass {
-                    bundle_id: 0,
-                    net_indices: vec![0, 1],
-                    constraint_types: vec!["safety".to_string(), "performance".to_string()],
-                    is_diff_pair: false,
-                },
-            ],
+            bundles: vec![BundleClass {
+                bundle_id: 0,
+                net_indices: vec![0, 1],
+                constraint_types: vec!["safety".to_string(), "performance".to_string()],
+                is_diff_pair: false,
+            }],
             bundle_id_for_net: {
                 let mut m = HashMap::new();
                 m.insert(0, 0);
@@ -320,10 +306,7 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn test_expand_assignments_singleton_bundle() {
         let manifest = make_test_manifest();
-        let var_names = vec![
-            "uses_B0_CH1".to_string(),
-            "uses_B0_CH2".to_string(),
-        ];
+        let var_names = vec!["uses_B0_CH1".to_string(), "uses_B0_CH2".to_string()];
         let mut assignments = HashMap::new();
         assignments.insert(0, true); // uses_B0_CH1
 
@@ -335,9 +318,7 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn test_expand_assignments_false_class_var() {
         let manifest = make_test_manifest();
-        let var_names = vec![
-            "uses_B0_CH1".to_string(),
-        ];
+        let var_names = vec!["uses_B0_CH1".to_string()];
         let mut assignments = HashMap::new();
         assignments.insert(0, false);
 
@@ -358,4 +339,3 @@ pub(crate) mod tests {
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
-

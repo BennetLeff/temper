@@ -59,9 +59,6 @@ import tests.deterministic._power_plane_run_py_oracle as _orc_pp
 from temper_placer.core.board import Via
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import (
-    ApplyPlacementsStage as _shim_ap,
-)
-from temper_placer.deterministic.stages import (
     FinePitchEscapeStage as _shim_fpe,
 )
 from temper_placer.deterministic.stages import (
@@ -108,11 +105,13 @@ def test_oracle_and_port_are_different_implementations() -> None:
         _shim_hlp.run: "run_hv_lv_partition",
         _shim_pp.run: "run_power_plane",
         _shim_la.run: "run_layer_assignment",
-        _shim_ap.run: "run_apply_placements",
     }
     for fn, symbol in expected.items():
         src = inspect.getsource(fn)
         assert symbol in src, f"{fn.__qualname__} does not delegate to {symbol}"
+    # The apply_placements one-line shim module was deleted (shim-debt
+    # cleanup 2026-08-19); the production path is the pyfunction directly,
+    # and the oracle's class must NOT resolve to it.
     for symbol in [
         "run_fine_pitch_escape",
         "run_hv_lv_partition",
@@ -121,6 +120,10 @@ def test_oracle_and_port_are_different_implementations() -> None:
         "run_apply_placements",
     ]:
         assert getattr(_to, symbol) is not None
+    assert (
+        "run_apply_placements"
+        not in _orc_ap.ApplyPlacementsStage.run.__code__.co_names
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -700,21 +703,24 @@ def test_la_empty_net_class_fallback_to_signal() -> None:
 def _run_ap_both(state):
     return (
         _orc_ap.ApplyPlacementsStage().run(state),
-        _shim_ap().run(state),
+        # Shim-debt cleanup 2026-08-19: the one-line shim module
+        # stages/apply_placements.py was deleted; the port arm is the
+        # temper-orchestration pyfunction directly.
+        _to.run_apply_placements(state),
     )
 
 
 def test_ap_no_netlist_guard_identity() -> None:
     state = BoardState(netlist=None, placements=frozenset({("R1", (1.0, 1.0))}))
     assert _orc_ap.ApplyPlacementsStage().run(state) is state
-    assert _shim_ap().run(state) is state
+    assert _to.run_apply_placements(state) is state
 
 
 def test_ap_no_placements_guard_identity() -> None:
     r1 = _comp("R1", [_pin("1", (0, 0))], initial_position=(1.0, 1.0))
     state = BoardState(netlist=_netlist([r1]), placements=None)
     assert _orc_ap.ApplyPlacementsStage().run(state) is state
-    assert _shim_ap().run(state) is state
+    assert _to.run_apply_placements(state) is state
 
 
 def test_ap_placements_applied_bit_exact() -> None:

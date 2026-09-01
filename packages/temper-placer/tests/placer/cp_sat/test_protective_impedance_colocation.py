@@ -132,3 +132,13 @@ def test_absent_refs_are_filtered_not_silently_emitted(chains, netlist):
 def test_unresolvable_chain_is_skipped_not_guessed():
     """A chain whose interior net is absent must not constrain anything."""
     assert resolve_chain_pairs([{"name": "x", "chain": ["a.b", "a.c"]}], []) == []
+
+
+def test_strict_resolution_fails_closed_on_unresolvable_chain():
+    """The production solver mode must not silently drop a safety pair."""
+    with pytest.raises(ValueError, match="interior net"):
+        resolve_chain_pairs(
+            [{"name": "x", "chain": ["a.b", "a.c"]}],
+            [],
+            strict=True,
+        )

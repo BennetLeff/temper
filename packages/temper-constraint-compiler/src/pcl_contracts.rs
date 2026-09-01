@@ -8,15 +8,19 @@
 //! # What moved and why
 //!
 //! The eight PCL constraint classes and `CompilationContext` are contract
-//! objects: every ortools/CP-SAT/DRC consumer reads their *data surface*
+//! objects: every ortools/CP-SAT consumer reads their *data surface*
 //! (fields, `id`, `tier`, `involves_component`, `to_dict`), and the parse
 //! layer constructs them from YAML dicts. They are now pyo3 `#[pyclass]`
 //! objects so construction validation, id generation, serialization and
 //! involvement checks run in Rust.
 //!
+//! The real DRC engine (`temper_drc_rs` and KiCad validation) has its own
+//! constraint model and is intentionally not represented as a PCL compiler
+//! target here. No PCL-to-DRC lowering exists yet.
+//!
 //! What deliberately stays Python:
 //! - the value enums (`ConstraintTier`, `ConstraintType`, `DistanceMetric`,
-//!   `Axis`, `BoardSide`, `EdgeType`, `CompilationTarget`, `SemanticTag`) —
+//!   `Axis`, `BoardSide`, `EdgeType`) —
 //!   production does `for t in ConstraintType` and `ConstraintType(value)`,
 //!   which a `#[pyclass]` enum cannot provide (the tag_dispatch precedent).
 //!   The migrated objects hold the LIVE Python singletons and hand them back
@@ -40,12 +44,6 @@
 //! optional fields (`pin_a`, `pin_b`, `region`, `position`, and the
 //! `CompilationContext` optionals) are stored as `None`, which is exactly
 //! what the pre-migration `None` defaults were.
-//!
-//! One deliberate widening: the constructors accept `targets=` (the
-//! `BaseConstraint` dataclass field) and validate it exactly like the
-//! pre-migration `__post_init__`. The pre-migration concrete `__init__`
-//! signatures rejected it, but no in-repo caller passes it (grep-verified),
-//! and the oracle dataclass accepts it — see VERIFICATION.md.
 //!
 //! No `unwrap`/`expect` anywhere (clippy `unwrap_used`/`expect_used` deny is
 //! a crate lint); the pyo3 entry points that run non-trivial logic are
@@ -182,7 +180,6 @@ struct ConstraintTypes {
     constraint_tier: Py<PyAny>,
     constraint_type: Py<PyAny>,
     distance_metric: Py<PyAny>,
-    compilation_target: Py<PyAny>,
 }
 
 static CONSTRAINT_TYPES: PyOnceLock<ConstraintTypes> = PyOnceLock::new();
@@ -194,7 +191,6 @@ fn constraint_types(py: Python<'_>) -> PyResult<&'static ConstraintTypes> {
             constraint_tier: constraints.getattr("ConstraintTier")?.unbind(),
             constraint_type: constraints.getattr("ConstraintType")?.unbind(),
             distance_metric: constraints.getattr("DistanceMetric")?.unbind(),
-            compilation_target: constraints.getattr("CompilationTarget")?.unbind(),
         })
     })
 }
@@ -227,44 +223,6 @@ fn validate_because(because: &str) -> PyResult<()> {
     Ok(())
 }
 
-/// `targets` validation — the pre-migration `__post_init__` loop. The message
-/// hardcodes `sorted(valid_targets)` == `['cp_sat', 'drc', 'jax', 'sat']`
-/// (a constant string sort; pinned by the differential).
-fn validate_targets(py: Python<'_>, targets: &Bound<'_, PyAny>) -> PyResult<()> {
-    let types = constraint_types(py)?;
-    let valid = PyList::empty(py);
-    for name in ["JAX", "SAT", "DRC", "CP_SAT"] {
-        let member = types.compilation_target.bind(py).getattr(name)?;
-        valid.append(member.getattr("value")?)?;
-    }
-    for item in targets.try_iter()? {
-        let item = item?;
-        if !valid.as_any().contains(&item)? {
-            let item_str = item.str()?.to_str()?.to_string();
-            return Err(PyValueError::new_err(format!(
-                "Invalid compilation target '{item_str}'. Must be one of ['cp_sat', 'drc', 'jax', 'sat']"
-            )));
-        }
-    }
-    Ok(())
-}
-
-/// `targets` default resolution: `["sat"]` (a fresh list per instance) or the
-/// caller-provided list, validated.
-fn resolve_targets(py: Python<'_>, targets: Option<&Bound<'_, PyAny>>) -> PyResult<Py<PyAny>> {
-    match targets {
-        Some(t) => {
-            validate_targets(py, t)?;
-            Ok(t.clone().unbind())
-        }
-        None => {
-            let list = PyList::empty(py);
-            list.append("sat")?;
-            Ok(list.into_any().unbind())
-        }
-    }
-}
-
 /// `if not self.id: self.id = self._generate_id()`.
 fn generate_id(
     py: Python<'_>,
@@ -277,14 +235,13 @@ fn generate_id(
     }
 }
 
-/// The shared `BaseConstraint`-state resolution: `because`/`targets`
-/// validation, `constraint_type` member, and auto id generation.
+/// The shared `BaseConstraint`-state resolution: `because` validation,
+/// `constraint_type` member, and auto id generation.
 struct BaseState {
     tier: Py<PyAny>,
     because: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -293,7 +250,6 @@ fn resolve_base_state(
     tier: Bound<'_, PyAny>,
     because: Bound<'_, PyAny>,
     id: Option<&Bound<'_, PyAny>>,
-    targets: Option<&Bound<'_, PyAny>>,
     ct_name: &str,
     gen_id: impl FnOnce(Python<'_>) -> PyResult<Py<PyAny>>,
 ) -> PyResult<BaseState> {
@@ -302,13 +258,11 @@ fn resolve_base_state(
     let types = constraint_types(py)?;
     let constraint_type = enum_member(py, &types.constraint_type, ct_name)?;
     let id = generate_id(py, id, gen_id)?;
-    let targets = resolve_targets(py, targets)?;
     Ok(BaseState {
         tier: tier.unbind(),
         because: because.unbind(),
         id,
         constraint_type,
-        targets,
     })
 }
 
@@ -448,14 +402,13 @@ pub struct AdjacentConstraint {
     pin_b: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[pymethods]
 impl AdjacentConstraint {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (a, b, max_distance_mm, tier, because, metric=None, pin_a=None, pin_b=None, id=None, targets=None))]
+    #[pyo3(signature = (a, b, max_distance_mm, tier, because, metric=None, pin_a=None, pin_b=None, id=None))]
     fn new(
         py: Python<'_>,
         a: Bound<'_, PyAny>,
@@ -467,7 +420,6 @@ impl AdjacentConstraint {
         pin_a: Option<Bound<'_, PyAny>>,
         pin_b: Option<Bound<'_, PyAny>>,
         id: Option<Bound<'_, PyAny>>,
-        targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
             let metric = match metric {
@@ -479,7 +431,6 @@ impl AdjacentConstraint {
                 tier,
                 because,
                 id.as_ref(),
-                targets.as_ref(),
                 "ADJACENT",
                 |py| {
                     Ok(
@@ -500,7 +451,6 @@ impl AdjacentConstraint {
                 pin_b: pin_b.map_or_else(|| py.None(), |v| v.unbind()),
                 id: base.id,
                 constraint_type: base.constraint_type,
-                targets: base.targets,
             })
         })
     }
@@ -637,15 +587,6 @@ impl AdjacentConstraint {
         self.constraint_type = value.unbind();
     }
 
-    #[getter]
-    fn targets(&self, py: Python<'_>) -> Py<PyAny> {
-        self.targets.clone_ref(py)
-    }
-
-    #[setter]
-    fn set_targets(&mut self, value: Bound<'_, PyAny>) {
-        self.targets = value.unbind();
-    }
     /// The dataclass field order (repr/eq/hash order).
     fn field_values(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -659,7 +600,6 @@ impl AdjacentConstraint {
             self.pin_b.clone_ref(py),
             self.id.clone_ref(py),
             self.constraint_type.clone_ref(py),
-            self.targets.clone_ref(py),
         ]
     }
 
@@ -679,7 +619,6 @@ impl AdjacentConstraint {
                 "pin_b",
                 "id",
                 "constraint_type",
-                "targets",
             ],
             &values,
         )
@@ -733,14 +672,13 @@ pub struct SeparatedConstraint {
     metric: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[pymethods]
 impl SeparatedConstraint {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (a, b, min_distance_mm, tier, because, metric=None, id=None, targets=None))]
+    #[pyo3(signature = (a, b, min_distance_mm, tier, because, metric=None, id=None))]
     fn new(
         py: Python<'_>,
         a: Bound<'_, PyAny>,
@@ -750,7 +688,6 @@ impl SeparatedConstraint {
         because: Bound<'_, PyAny>,
         metric: Option<Bound<'_, PyAny>>,
         id: Option<Bound<'_, PyAny>>,
-        targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
             let metric = match metric {
@@ -762,7 +699,6 @@ impl SeparatedConstraint {
                 tier,
                 because,
                 id.as_ref(),
-                targets.as_ref(),
                 "SEPARATED",
                 |py| {
                     Ok(
@@ -781,7 +717,6 @@ impl SeparatedConstraint {
                 metric,
                 id: base.id,
                 constraint_type: base.constraint_type,
-                targets: base.targets,
             })
         })
     }
@@ -890,15 +825,6 @@ impl SeparatedConstraint {
         self.constraint_type = value.unbind();
     }
 
-    #[getter]
-    fn targets(&self, py: Python<'_>) -> Py<PyAny> {
-        self.targets.clone_ref(py)
-    }
-
-    #[setter]
-    fn set_targets(&mut self, value: Bound<'_, PyAny>) {
-        self.targets = value.unbind();
-    }
     /// The dataclass field order (repr/eq/hash order).
     fn field_values(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -910,7 +836,6 @@ impl SeparatedConstraint {
             self.metric.clone_ref(py),
             self.id.clone_ref(py),
             self.constraint_type.clone_ref(py),
-            self.targets.clone_ref(py),
         ]
     }
 
@@ -928,7 +853,6 @@ impl SeparatedConstraint {
                 "metric",
                 "id",
                 "constraint_type",
-                "targets",
             ],
             &values,
         )
@@ -979,14 +903,13 @@ pub struct EnclosingConstraint {
     margin_mm: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[pymethods]
 impl EnclosingConstraint {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (outer, inner, tier, because, margin_mm=None, id=None, targets=None))]
+    #[pyo3(signature = (outer, inner, tier, because, margin_mm=None, id=None))]
     fn new(
         py: Python<'_>,
         outer: Bound<'_, PyAny>,
@@ -995,7 +918,6 @@ impl EnclosingConstraint {
         because: Bound<'_, PyAny>,
         margin_mm: Option<Bound<'_, PyAny>>,
         id: Option<Bound<'_, PyAny>>,
-        targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
             let margin_mm = match margin_mm {
@@ -1007,7 +929,6 @@ impl EnclosingConstraint {
                 tier,
                 because,
                 id.as_ref(),
-                targets.as_ref(),
                 "ENCLOSING",
                 |py| {
                     Ok(PyString::new(py, &format!("enc_{}", py_str(py, &outer)?))
@@ -1023,7 +944,6 @@ impl EnclosingConstraint {
                 margin_mm,
                 id: base.id,
                 constraint_type: base.constraint_type,
-                targets: base.targets,
             })
         })
     }
@@ -1121,15 +1041,6 @@ impl EnclosingConstraint {
         self.constraint_type = value.unbind();
     }
 
-    #[getter]
-    fn targets(&self, py: Python<'_>) -> Py<PyAny> {
-        self.targets.clone_ref(py)
-    }
-
-    #[setter]
-    fn set_targets(&mut self, value: Bound<'_, PyAny>) {
-        self.targets = value.unbind();
-    }
     /// The dataclass field order (repr/eq/hash order).
     fn field_values(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -1140,7 +1051,6 @@ impl EnclosingConstraint {
             self.margin_mm.clone_ref(py),
             self.id.clone_ref(py),
             self.constraint_type.clone_ref(py),
-            self.targets.clone_ref(py),
         ]
     }
 
@@ -1157,7 +1067,6 @@ impl EnclosingConstraint {
                 "margin_mm",
                 "id",
                 "constraint_type",
-                "targets",
             ],
             &values,
         )
@@ -1206,14 +1115,13 @@ pub struct KeepoutConstraint {
     margin_mm: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[pymethods]
 impl KeepoutConstraint {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (zone_name, tier, because, margin_mm=None, id=None, targets=None))]
+    #[pyo3(signature = (zone_name, tier, because, margin_mm=None, id=None))]
     fn new(
         py: Python<'_>,
         zone_name: Bound<'_, PyAny>,
@@ -1221,7 +1129,6 @@ impl KeepoutConstraint {
         because: Bound<'_, PyAny>,
         margin_mm: Option<Bound<'_, PyAny>>,
         id: Option<Bound<'_, PyAny>>,
-        targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
             let margin_mm = match margin_mm {
@@ -1233,7 +1140,6 @@ impl KeepoutConstraint {
                 tier,
                 because,
                 id.as_ref(),
-                targets.as_ref(),
                 "KEEPOUT",
                 |py| {
                     Ok(
@@ -1250,7 +1156,6 @@ impl KeepoutConstraint {
                 margin_mm,
                 id: base.id,
                 constraint_type: base.constraint_type,
-                targets: base.targets,
             })
         })
     }
@@ -1337,15 +1242,6 @@ impl KeepoutConstraint {
         self.constraint_type = value.unbind();
     }
 
-    #[getter]
-    fn targets(&self, py: Python<'_>) -> Py<PyAny> {
-        self.targets.clone_ref(py)
-    }
-
-    #[setter]
-    fn set_targets(&mut self, value: Bound<'_, PyAny>) {
-        self.targets = value.unbind();
-    }
     /// The dataclass field order (repr/eq/hash order).
     fn field_values(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -1355,7 +1251,6 @@ impl KeepoutConstraint {
             self.margin_mm.clone_ref(py),
             self.id.clone_ref(py),
             self.constraint_type.clone_ref(py),
-            self.targets.clone_ref(py),
         ]
     }
 
@@ -1371,7 +1266,6 @@ impl KeepoutConstraint {
                 "margin_mm",
                 "id",
                 "constraint_type",
-                "targets",
             ],
             &values,
         )
@@ -1420,14 +1314,13 @@ pub struct AlignedConstraint {
     tolerance_mm: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[pymethods]
 impl AlignedConstraint {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (components, axis, tier, because, tolerance_mm=None, id=None, targets=None))]
+    #[pyo3(signature = (components, axis, tier, because, tolerance_mm=None, id=None))]
     fn new(
         py: Python<'_>,
         components: Bound<'_, PyAny>,
@@ -1436,7 +1329,6 @@ impl AlignedConstraint {
         because: Bound<'_, PyAny>,
         tolerance_mm: Option<Bound<'_, PyAny>>,
         id: Option<Bound<'_, PyAny>>,
-        targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
             let n: usize = components.call_method0("__len__")?.extract()?;
@@ -1454,7 +1346,6 @@ impl AlignedConstraint {
                 tier,
                 because,
                 id.as_ref(),
-                targets.as_ref(),
                 "ALIGNED",
                 |py| {
                     let axis_value = enum_value_str(py, &axis)?;
@@ -1472,7 +1363,6 @@ impl AlignedConstraint {
                 tolerance_mm,
                 id: base.id,
                 constraint_type: base.constraint_type,
-                targets: base.targets,
             })
         })
     }
@@ -1570,15 +1460,6 @@ impl AlignedConstraint {
         self.constraint_type = value.unbind();
     }
 
-    #[getter]
-    fn targets(&self, py: Python<'_>) -> Py<PyAny> {
-        self.targets.clone_ref(py)
-    }
-
-    #[setter]
-    fn set_targets(&mut self, value: Bound<'_, PyAny>) {
-        self.targets = value.unbind();
-    }
     /// The dataclass field order (repr/eq/hash order).
     fn field_values(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -1589,7 +1470,6 @@ impl AlignedConstraint {
             self.tolerance_mm.clone_ref(py),
             self.id.clone_ref(py),
             self.constraint_type.clone_ref(py),
-            self.targets.clone_ref(py),
         ]
     }
 
@@ -1606,7 +1486,6 @@ impl AlignedConstraint {
                 "tolerance_mm",
                 "id",
                 "constraint_type",
-                "targets",
             ],
             &values,
         )
@@ -1657,14 +1536,13 @@ pub struct OnSideConstraint {
     max_distance_mm: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[pymethods]
 impl OnSideConstraint {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (components, side, edge, tier, because, max_distance_mm=None, id=None, targets=None))]
+    #[pyo3(signature = (components, side, edge, tier, because, max_distance_mm=None, id=None))]
     fn new(
         py: Python<'_>,
         components: Bound<'_, PyAny>,
@@ -1674,7 +1552,6 @@ impl OnSideConstraint {
         because: Bound<'_, PyAny>,
         max_distance_mm: Option<Bound<'_, PyAny>>,
         id: Option<Bound<'_, PyAny>>,
-        targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
             let max_distance_mm = match max_distance_mm {
@@ -1686,7 +1563,6 @@ impl OnSideConstraint {
                 tier,
                 because,
                 id.as_ref(),
-                targets.as_ref(),
                 "ON_SIDE",
                 |py| {
                     let side_value = enum_value_str(py, &side)?;
@@ -1705,7 +1581,6 @@ impl OnSideConstraint {
                 max_distance_mm,
                 id: base.id,
                 constraint_type: base.constraint_type,
-                targets: base.targets,
             })
         })
     }
@@ -1814,15 +1689,6 @@ impl OnSideConstraint {
         self.constraint_type = value.unbind();
     }
 
-    #[getter]
-    fn targets(&self, py: Python<'_>) -> Py<PyAny> {
-        self.targets.clone_ref(py)
-    }
-
-    #[setter]
-    fn set_targets(&mut self, value: Bound<'_, PyAny>) {
-        self.targets = value.unbind();
-    }
     /// The dataclass field order (repr/eq/hash order).
     fn field_values(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -1834,7 +1700,6 @@ impl OnSideConstraint {
             self.max_distance_mm.clone_ref(py),
             self.id.clone_ref(py),
             self.constraint_type.clone_ref(py),
-            self.targets.clone_ref(py),
         ]
     }
 
@@ -1852,7 +1717,6 @@ impl OnSideConstraint {
                 "max_distance_mm",
                 "id",
                 "constraint_type",
-                "targets",
             ],
             &values,
         )
@@ -1903,14 +1767,13 @@ pub struct AnchoredConstraint {
     position: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[pymethods]
 impl AnchoredConstraint {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (component, tier, because, region=None, position=None, id=None, targets=None))]
+    #[pyo3(signature = (component, tier, because, region=None, position=None, id=None))]
     fn new(
         py: Python<'_>,
         component: Bound<'_, PyAny>,
@@ -1919,7 +1782,6 @@ impl AnchoredConstraint {
         region: Option<Bound<'_, PyAny>>,
         position: Option<Bound<'_, PyAny>>,
         id: Option<Bound<'_, PyAny>>,
-        targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
             let region = region.map_or_else(|| py.None(), |v| v.unbind());
@@ -1941,7 +1803,6 @@ impl AnchoredConstraint {
                 tier,
                 because,
                 id.as_ref(),
-                targets.as_ref(),
                 "ANCHORED",
                 |py| {
                     Ok(
@@ -1959,7 +1820,6 @@ impl AnchoredConstraint {
                 position,
                 id: base.id,
                 constraint_type: base.constraint_type,
-                targets: base.targets,
             })
         })
     }
@@ -2061,15 +1921,6 @@ impl AnchoredConstraint {
         self.constraint_type = value.unbind();
     }
 
-    #[getter]
-    fn targets(&self, py: Python<'_>) -> Py<PyAny> {
-        self.targets.clone_ref(py)
-    }
-
-    #[setter]
-    fn set_targets(&mut self, value: Bound<'_, PyAny>) {
-        self.targets = value.unbind();
-    }
     /// The dataclass field order (repr/eq/hash order).
     fn field_values(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2080,7 +1931,6 @@ impl AnchoredConstraint {
             self.position.clone_ref(py),
             self.id.clone_ref(py),
             self.constraint_type.clone_ref(py),
-            self.targets.clone_ref(py),
         ]
     }
 
@@ -2097,7 +1947,6 @@ impl AnchoredConstraint {
                 "position",
                 "id",
                 "constraint_type",
-                "targets",
             ],
             &values,
         )
@@ -2146,14 +1995,13 @@ pub struct LoopAreaConstraint {
     because: Py<PyAny>,
     id: Py<PyAny>,
     constraint_type: Py<PyAny>,
-    targets: Py<PyAny>,
 }
 
 #[pymethods]
 impl LoopAreaConstraint {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (loop_name, max_area_mm2, tier, because, id=None, targets=None))]
+    #[pyo3(signature = (loop_name, max_area_mm2, tier, because, id=None))]
     fn new(
         py: Python<'_>,
         loop_name: Bound<'_, PyAny>,
@@ -2161,7 +2009,6 @@ impl LoopAreaConstraint {
         tier: Bound<'_, PyAny>,
         because: Bound<'_, PyAny>,
         id: Option<Bound<'_, PyAny>>,
-        targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
             let base = resolve_base_state(
@@ -2169,7 +2016,6 @@ impl LoopAreaConstraint {
                 tier,
                 because,
                 id.as_ref(),
-                targets.as_ref(),
                 "LOOP_AREA",
                 |py| {
                     Ok(
@@ -2186,7 +2032,6 @@ impl LoopAreaConstraint {
                 because: base.because,
                 id: base.id,
                 constraint_type: base.constraint_type,
-                targets: base.targets,
             })
         })
     }
@@ -2272,15 +2117,6 @@ impl LoopAreaConstraint {
         self.constraint_type = value.unbind();
     }
 
-    #[getter]
-    fn targets(&self, py: Python<'_>) -> Py<PyAny> {
-        self.targets.clone_ref(py)
-    }
-
-    #[setter]
-    fn set_targets(&mut self, value: Bound<'_, PyAny>) {
-        self.targets = value.unbind();
-    }
     /// The dataclass field order (repr/eq/hash order).
     fn field_values(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2290,7 +2126,6 @@ impl LoopAreaConstraint {
             self.because.clone_ref(py),
             self.id.clone_ref(py),
             self.constraint_type.clone_ref(py),
-            self.targets.clone_ref(py),
         ]
     }
 
@@ -2306,7 +2141,6 @@ impl LoopAreaConstraint {
                 "because",
                 "id",
                 "constraint_type",
-                "targets",
             ],
             &values,
         )

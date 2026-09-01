@@ -1,14 +1,15 @@
 """CP-SAT constraint encoder core — context, dispatch, and validation.
 
-Handlers are registered by the handlers/ package at import time.
-encode_constraints() dispatches through HANDLER_REGISTRY.
+``handlers.CP_SAT_HANDLER_CATALOG`` is an explicit, immutable table assembled
+when the handlers package is imported. No handler module registration side
+effect is required for dispatch.
 """
 
 from __future__ import annotations
 
 import logging
 import os as _os
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from copy import copy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -19,7 +20,11 @@ from temper_placer.pcl.constraints import (
     ConstraintType,
     SeparatedConstraint,
 )
-from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
+from temper_placer.placer.cp_sat.handlers import (
+    CP_SAT_HANDLER_CATALOG,
+    EXPLICITLY_UNSUPPORTED_TYPES,
+)
 from temper_placer.placer.cp_sat.model import ComponentVars, CpSatModel
 
 if TYPE_CHECKING:
@@ -57,6 +62,7 @@ class EncoderContext:
         board_y_max_units: int = 0,
         courtyard_clearance_mm: float = 0.0,
         board_edge_margin_units: int = 0,
+        unresolved_ref_policy: str | None = None,
     ) -> None:
         self.board_w_mm = board_w_mm
         self.board_h_mm = board_h_mm
@@ -68,6 +74,18 @@ class EncoderContext:
         self.board_x_max_units = board_x_max_units
         self.board_y_max_units = board_y_max_units
         self.courtyard_clearance_mm = courtyard_clearance_mm
+        # Keep the policy in the context consumed by handlers.  The solver
+        # reads the module-level setting live when it constructs this object,
+        # so tests and callers can downgrade known legacy drift to ``warn``
+        # without handlers taking a stale import-time snapshot.  Direct
+        # handler callers retain the strict default.
+        self.unresolved_ref_policy = (unresolved_ref_policy or _UNRESOLVED_REF_POLICY).lower()
+        # Populated by solve_placement after its complete reference
+        # reconciliation pass.  Keeping the report on the context lets the
+        # dispatcher honor ``warn`` centrally for every handler, including
+        # handlers whose own required operands would otherwise raise while
+        # encoding (for example an absent loop or zone).
+        self.unresolved_constraint_ids: set[str] = set()
         self.board_edge_margin_units = board_edge_margin_units
 
 
@@ -282,6 +300,8 @@ def encode_constraints(
     netlist=None,
     netclass_rules_data=None,
     auto_pairwise_touch_refs: set[str] | None = None,
+    enforce_creepage: bool = True,
+    handler_catalog: Mapping[ConstraintType, Callable[..., list[AssumptionLiteral]]] | None = None,
 ) -> list[AssumptionLiteral]:
     """Encode all constraints into the CP-SAT model.
 
@@ -312,6 +332,7 @@ def encode_constraints(
     UNSAT-core inspection.
     """
     components = model.component_map
+    active_catalog = handler_catalog if handler_catalog is not None else CP_SAT_HANDLER_CATALOG
     if ctx is None:
         ctx = EncoderContext(
             board_w_mm=100.0,
@@ -331,6 +352,7 @@ def encode_constraints(
             netclass_rules_data.design_rules,
             existing_constraints=constraints,
             touch_refs=auto_pairwise_touch_refs,
+            enforce_creepage=enforce_creepage,
         )
         constraints = list(constraints) + auto_constraints
 
@@ -345,16 +367,36 @@ def encode_constraints(
 
     all_assumptions: list[AssumptionLiteral] = []
     for c in constraints:
-        handler = HANDLER_REGISTRY.get(c.constraint_type)
+        if ctx.unresolved_ref_policy == "warn" and c.id in ctx.unresolved_constraint_ids:
+            continue
+        handler = active_catalog.get(c.constraint_type)
         if handler is None:
             UNSUPPORTED_TYPES.add(c.constraint_type)
+            if c.constraint_type not in EXPLICITLY_UNSUPPORTED_TYPES:
+                raise RuntimeError(
+                    "CP-SAT handler table is missing a non-optional constraint "
+                    f"type {c.constraint_type!r} ({c.id})"
+                )
             logger.warning(
-                "No CP-SAT handler for constraint type %s (%s)",
+                "Explicitly unsupported CP-SAT constraint type %s (%s)",
                 c.constraint_type,
                 c.id,
             )
             continue
-        assumptions = handler(c, components, model, ctx)
+        try:
+            assumptions = handler(c, components, model, ctx)
+        except UnresolvedConstraintRefsError:
+            # ``validate_constraint_refs`` is the normal source of this
+            # decision, but some handlers resolve richer operands than that
+            # lightweight preflight (for example zone membership).  Under an
+            # explicit ``warn`` policy, keep the downgrade coherent and skip
+            # that constraint; the default remains fail-closed.
+            if ctx.unresolved_ref_policy != "warn":
+                raise
+            logger.warning(
+                "Skipping unresolved constraint %s under warn policy", c.id
+            )
+            continue
         all_assumptions.extend(assumptions)
 
     return all_assumptions
@@ -454,18 +496,6 @@ def _generate_courtyard_separated_constraints(
 # ---------------------------------------------------------------------------
 # Constraint ref validation
 # ---------------------------------------------------------------------------
-
-
-class UnresolvedConstraintRefsError(ValueError):
-    """Raised when constraints reference component refs absent from the netlist.
-
-    A constraint whose operand does not resolve to any component is a
-    silent no-op — it is encoded against nothing and simply drops. That
-    is a fail-closed violation: config↔netlist drift (a renamed or
-    missing component) silently degrades the placement with no signal.
-    Making it raise turns "looks applied but isn't" into an error at the
-    resolution boundary, which is the one place it can be caught cheaply.
-    """
 
 
 def validate_constraint_refs(

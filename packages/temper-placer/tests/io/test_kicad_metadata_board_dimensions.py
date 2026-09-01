@@ -18,7 +18,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_real_board_dimensions_match_corrected_outline():
-    """extract_kicad_metadata on the production board returns 152x234mm.
+    """extract_kicad_metadata on the production board returns 164x234mm.
 
     Edge.Cuts was originally a 100x150mm placeholder rectangle at the
     origin while placement spanned x 31.5-145.9, y 30.7-240.4mm — 113 of
@@ -28,12 +28,17 @@ def test_real_board_dimensions_match_corrected_outline():
     (docs/STRATEGY.md, "Honest state (2026-07-25)" > Board). This test
     pins the parser to that corrected outline rather than the stale
     placeholder it replaced.
+
+    Re-pinned 2026-08-22: the left edge moved x 20 -> 8 (outline now
+    (8,20)-(172,254), 164x234mm) when the left-column enlargement landed
+    on main — the same edit the 2026-08-16 redesign investigation measured
+    before it merged. Verified against pcb/temper.kicad_pcb's gr_poly.
     """
     pcb_path = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
     if not pcb_path.exists():
         pytest.skip("Production PCB not available")
     meta = extract_kicad_metadata(pcb_path)
-    assert meta.board_width == 152.0
+    assert meta.board_width == 164.0
     assert meta.board_height == 234.0
 
 

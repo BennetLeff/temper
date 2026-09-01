@@ -1,3 +1,4 @@
+<!-- provenance: commit=a9a6b7dfcf9cc5e86184664ef26ae25a33e11f73 dirty=UNKNOWN -->
 # `silk_overlap`'s two saturating pairs (C2xC3, C5xC7) are symptoms of real
 # capacitor body collisions, not a cosmetic silkscreen defect
 

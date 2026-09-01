@@ -1,4 +1,4 @@
-<!-- provenance: commit=a418aa780 dirty=false -->
+<!-- provenance: commit=a418aa7809622165eb5c67f212aca26b5f3638ca dirty=false -->
 
 <!-- worktree /tmp/opencode/agent-creepage-v2, branch fix/creepage-routing-constraints-v2,
      based on 607cc7bd6 (origin/main). kicad-cli 10.0.5. Every DRC number in this

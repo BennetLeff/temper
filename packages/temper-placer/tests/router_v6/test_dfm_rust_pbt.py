@@ -314,117 +314,7 @@ def test_p14_rust_power_net_membership_is_a_boundary_match() -> None:
 
 
 # ===========================================================================
-# P7, P8, P15 -- power_plane
-# ===========================================================================
-
-
-def test_p7_rust_power_pours_are_ordered_disjoint_and_in_bounds() -> None:
-    """P7: the pours march left to right without overlapping, inside the board.
-
-    NOT claimed: that they tile it. ``x_min + i*(strip+gap)`` re-rounds, so
-    the last pour's right edge differs from the board's in 34% of
-    configurations; asserting a tiling would be a false invariant.
-    """
-    reach = _Reach("P7")
-    pours_fn = _rust("dfm_power_pour_bounds_py")
-
-    @given(
-        _COORD,
-        st.floats(min_value=10.0, max_value=500.0, allow_nan=False, allow_infinity=False),
-        st.integers(min_value=1, max_value=8),
-        st.floats(min_value=0.0, max_value=1.0, allow_nan=False, allow_infinity=False),
-    )
-    @_SETTINGS
-    def prop(x_min, width, n, gap) -> None:
-        if width - gap * (n - 1) <= 0.0:
-            return  # the kernel raises here; the differential covers that arm
-        pours = pours_fn(x_min, 0.0, x_min + width, 10.0, n, gap)
-        assert len(pours) == n
-        prev_max = None
-        for lo, _, hi, _ in pours:
-            assert lo <= hi
-            assert x_min - 1e-9 <= lo
-            assert hi <= x_min + width + 1e-9
-            if prev_max is not None:
-                assert lo >= prev_max - 1e-9
-            prev_max = hi
-        reach.hit(n)
-
-    prop()
-    reach.assert_reached(min_outcomes=5)
-
-
-def test_p8_rust_thermal_via_grid_is_square_and_centred() -> None:
-    """P8: ``count`` vias on a sqrt(count)-square lattice about the centre.
-
-    Restricted to dyadic pitches and integer centres so the claim is EXACT.
-    """
-    reach = _Reach("P8")
-    grid = _rust("dfm_thermal_via_positions_py")
-
-    @given(
-        st.integers(min_value=-1000, max_value=1000),
-        st.integers(min_value=-1000, max_value=1000),
-        st.sampled_from([1, 4, 9, 16, 25, 36]),
-        st.sampled_from([0.25, 0.5, 1.0, 2.0, 4.0]),
-    )
-    @_SETTINGS
-    def prop(cx_i, cy_i, count, pitch) -> None:
-        cx, cy = float(cx_i), float(cy_i)
-        pos = grid(cx, cy, count, pitch)
-        side = round(math.sqrt(count))
-        assert len(pos) == count
-        xs = sorted({p[0] for p in pos})
-        ys = sorted({p[1] for p in pos})
-        assert len(xs) == side and len(ys) == side
-        for a, b in zip(xs, xs[1:], strict=False):
-            assert b - a == pitch
-        for a, b in zip(ys, ys[1:], strict=False):
-            assert b - a == pitch
-        assert (xs[0] + xs[-1]) / 2.0 == cx
-        assert (ys[0] + ys[-1]) / 2.0 == cy
-        reach.hit(count)
-
-    prop()
-    reach.assert_reached(min_outcomes=5)
-
-
-def test_p15_rust_board_bounds_and_rect_polygon_agree() -> None:
-    """P15 (added here): the bounds and their polygon are the same rectangle.
-
-    ``_rect_polygon(_board_bounds(b))`` must enumerate the AABB's four
-    corners counter-clockwise, and the polygon's extent must be exactly the
-    bounds it came from -- bit-exactly, since neither kernel does arithmetic
-    beyond the two additions in ``_board_bounds``.
-    """
-    reach = _Reach("P15")
-    bounds_fn = _rust("dfm_board_bounds_py")
-    poly_fn = _rust("dfm_rect_polygon_py")
-
-    @given(
-        _COORD,
-        _COORD,
-        st.floats(min_value=0.0, max_value=500.0, allow_nan=False, allow_infinity=False),
-        st.floats(min_value=0.0, max_value=500.0, allow_nan=False, allow_infinity=False),
-    )
-    @_SETTINGS
-    def prop(ox, oy, w, h) -> None:
-        x_min, y_min, x_max, y_max = bounds_fn(ox, oy, w, h)
-        assert (x_min, y_min) == (ox, oy)
-        assert x_max == ox + w
-        assert y_max == oy + h
-        poly = poly_fn(x_min, y_min, x_max, y_max)
-        assert poly == [(x_min, y_min), (x_max, y_min), (x_max, y_max), (x_min, y_max)]
-        assert min(p[0] for p in poly) == x_min
-        assert max(p[0] for p in poly) == x_max
-        reach.hit((w > 0.0, h > 0.0))
-
-    prop()
-    reach.assert_reached()
-
-
-# ===========================================================================
-# P9, P10, P16 -- copper_balance (+ via_placement's layer map)
+# P9, P10, P16 -- copper_balance
 # ===========================================================================
 
 
@@ -483,17 +373,14 @@ def test_p10_rust_copper_area_is_additive_over_the_layer_partition() -> None:
 
 
 def test_p16_rust_layer_order_is_a_consistent_stackup() -> None:
-    """P16 (added here): betweenness and adjacency describe one stackup.
+    """P16 (added here): betweenness describes one consistent stackup.
 
     ``layer_is_between`` is strict and symmetric in its endpoints, no layer
-    is between itself and anything, and ``adjacent_layer`` is total on the
-    four copper layers and partial everywhere else -- including the pinned
-    asymmetry that ``B.Cu -> In2.Cu`` does **not** invert
-    ``In2.Cu -> B.Cu`` into a cycle.
+    is between itself and anything, and an unknown name is never in the
+    stackup, in any position.
     """
     reach = _Reach("P16")
     between = _rust("dfm_layer_is_between_py")
-    adjacent = _rust("dfm_adjacent_layer_py")
     junk = ["F.SilkS", "Edge.Cuts", "", "f.cu", "In3.Cu"]
 
     @given(
@@ -512,9 +399,6 @@ def test_p16_rust_layer_order_is_a_consistent_stackup() -> None:
         # an unknown name is never in the stackup, in any position
         assert not between(a, b, bad)
         assert not between(bad, b, c)
-        # adjacency is total on the copper layers, partial off them
-        assert adjacent(a) in LAYER_NAMES
-        assert adjacent(bad) is None
         reach.hit((between(a, b, c), a))
 
     prop()
@@ -599,35 +483,6 @@ def test_p12_rust_teardrop_sits_on_the_annulus_and_is_width_bounded() -> None:
 
     prop()
     # both the teardrop and the gated-out arm must be reachable
-    reach.assert_reached()
-
-
-# ===========================================================================
-# P13 -- via_placement
-# ===========================================================================
-
-
-def test_p13_rust_via_segment_index_is_the_first_match() -> None:
-    """P13: the returned index is the FIRST match, not merely *a* match."""
-    reach = _Reach("P13")
-    index = _rust("dfm_via_segment_index_py")
-
-    @given(st.lists(st.tuples(_COORD, _COORD), min_size=0, max_size=12), _COORD, _COORD)
-    @_SETTINGS
-    def prop(points, vx, vy) -> None:
-        xs = [p[0] for p in points]
-        ys = [p[1] for p in points]
-        idx = index(vx, vy, xs, ys)
-        matches = [
-            i for i in range(len(points)) if abs(xs[i] - vx) < 1e-4 and abs(ys[i] - vy) < 1e-4
-        ]
-        if not matches:
-            assert idx is None
-        else:
-            assert idx == matches[0]
-        reach.hit(idx is None)
-
-    prop()
     reach.assert_reached()
 
 

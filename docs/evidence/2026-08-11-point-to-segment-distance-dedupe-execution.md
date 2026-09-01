@@ -1,6 +1,6 @@
 # `point_to_segment_distance` dedupe — execution record (issue #987) — 2026-08-11
 
-<!-- provenance: branch=migrate/point-segment-dedupe, based on origin/main (fetch+rebase as needed), dirty=false (tracked tree pristine at each commit) -->
+<!-- provenance: commit=783ca00e77c2f056284de9a487c928cc335e7989 dirty=UNKNOWN -->
 
 **Executes the plan whose decision evidence is `2026-08-11-point-to-segment-distance-dedupe-spike.md`** (issue #987, spiked as #918). The spike proved the 3 non-canonical Wave-4 copies are standardizable onto the canonical hypot contract — the divergence is a decision-immune pin artifact on real inputs — and the two blockers it identified (private canonical kernel; missing `temper-geometry` dependency in `temper-design-bundle`) were both authorized by the orchestrator for this execution.
 

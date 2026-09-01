@@ -123,8 +123,10 @@ def _looks_like_ptsd_signature(params: str) -> bool:
     if "<" in params or "&" in params:
         return False
     parts = [p.strip() for p in params.split(",") if p.strip()]
-    all_f64 = len(parts) >= 5 and all(p.endswith("f64") and "(" not in p for p in parts)
     tuple_shaped = len(TUPLE_PARAMS.findall(params)) >= 2
+    if not parts:
+        return tuple_shaped
+    all_f64 = len(parts) >= 5 and all(p.endswith("f64") and "(" not in p for p in parts)
     return all_f64 or tuple_shaped
 
 

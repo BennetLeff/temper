@@ -218,62 +218,6 @@ pub fn batch_rotate_points(
 }
 
 // =============================================================================
-// One-hot Encoding / Decoding
-// =============================================================================
-
-/// Convert a rotation index to a one-hot vector of length `n_angles`.
-///
-/// The result has `1.0` at index `idx` (clamped to `[0, n_angles)`) and `0.0`
-/// elsewhere.
-pub fn rotation_index_to_onehot(idx: usize, n_angles: usize) -> Vec<f64> {
-    let mut v = vec![0.0; n_angles];
-    if idx < n_angles {
-        v[idx] = 1.0;
-    }
-    v
-}
-
-/// Convert a rotation angle in degrees to a one-hot vector by finding the
-/// nearest allowed angle.
-///
-/// The input is normalized to `[0, 360)` before matching.
-pub fn rotation_degrees_to_onehot(deg: f64, allowed: &[f64]) -> Vec<f64> {
-    let deg_norm = deg % 360.0;
-    let mut best_i = 0;
-    let mut best_dist = f64::INFINITY;
-    for (i, &a) in allowed.iter().enumerate() {
-        let diff = (deg_norm - a).abs();
-        if diff < best_dist {
-            best_dist = diff;
-            best_i = i;
-        }
-    }
-    let mut v = vec![0.0; allowed.len()];
-    v[best_i] = 1.0;
-    v
-}
-
-/// Decode a (possibly soft) one-hot vector to a rotation angle in degrees
-/// via weighted sum with the allowed angles.
-pub fn onehot_to_rotation_degrees(onehot: &[f64], allowed: &[f64]) -> f64 {
-    onehot
-        .iter()
-        .zip(allowed.iter())
-        .map(|(o, a)| o * a)
-        .sum()
-}
-
-/// Decode a (possibly soft) one-hot vector to a rotation angle in radians
-/// via weighted sum with the allowed angles.
-pub fn onehot_to_rotation_radians(onehot: &[f64], allowed_rad: &[f64]) -> f64 {
-    onehot
-        .iter()
-        .zip(allowed_rad.iter())
-        .map(|(o, a)| o * a)
-        .sum()
-}
-
-// =============================================================================
 // Gumbel-Softmax & Rotation Sampling
 // =============================================================================
 
@@ -655,108 +599,6 @@ pub(crate) mod tests {
     }
 
     // -----------------------------------------------------------------
-    // rotation_index_to_onehot
-    // -----------------------------------------------------------------
-    #[cfg_attr(test, test)]
-    fn test_rotation_index_to_onehot() {
-        let v = rotation_index_to_onehot(1, 4);
-        assert_eq!(v, vec![0.0, 1.0, 0.0, 0.0]);
-    }
-
-    #[cfg_attr(test, test)]
-    fn test_rotation_index_to_onehot_out_of_range() {
-        let v = rotation_index_to_onehot(10, 4);
-        assert_eq!(v, vec![0.0, 0.0, 0.0, 0.0]);
-    }
-
-    // -----------------------------------------------------------------
-    // rotation_degrees_to_onehot
-    // -----------------------------------------------------------------
-    #[cfg_attr(test, test)]
-    fn test_rotation_degrees_to_onehot_exact() {
-        let v = rotation_degrees_to_onehot(90.0, &ROTATION_ANGLES_DEG);
-        assert_eq!(v, vec![0.0, 1.0, 0.0, 0.0]);
-    }
-
-    #[cfg_attr(test, test)]
-    fn test_rotation_degrees_to_onehot_normalized() {
-        // 450° → 90°
-        let v = rotation_degrees_to_onehot(450.0, &ROTATION_ANGLES_DEG);
-        assert_eq!(v, vec![0.0, 1.0, 0.0, 0.0]);
-    }
-
-    #[cfg_attr(test, test)]
-    fn test_rotation_degrees_to_onehot_rounded() {
-        // 91° → nearest is 90°
-        let v = rotation_degrees_to_onehot(91.0, &ROTATION_ANGLES_DEG);
-        assert_eq!(v, vec![0.0, 1.0, 0.0, 0.0]);
-    }
-
-    // -----------------------------------------------------------------
-    // onehot_to_rotation_degrees round-trip
-    // -----------------------------------------------------------------
-    #[cfg_attr(test, test)]
-    fn test_onehot_to_rotation_degrees_0() {
-        let deg = onehot_to_rotation_degrees(&[1.0, 0.0, 0.0, 0.0], &ROTATION_ANGLES_DEG);
-        assert!((deg - 0.0).abs() < 1e-15);
-    }
-
-    #[cfg_attr(test, test)]
-    fn test_onehot_to_rotation_degrees_90() {
-        let deg = onehot_to_rotation_degrees(&[0.0, 1.0, 0.0, 0.0], &ROTATION_ANGLES_DEG);
-        assert!((deg - 90.0).abs() < 1e-15);
-    }
-
-    #[cfg_attr(test, test)]
-    fn test_onehot_to_rotation_degrees_180() {
-        let deg = onehot_to_rotation_degrees(&[0.0, 0.0, 1.0, 0.0], &ROTATION_ANGLES_DEG);
-        assert!((deg - 180.0).abs() < 1e-15);
-    }
-
-    #[cfg_attr(test, test)]
-    fn test_onehot_to_rotation_degrees_270() {
-        let deg = onehot_to_rotation_degrees(&[0.0, 0.0, 0.0, 1.0], &ROTATION_ANGLES_DEG);
-        assert!((deg - 270.0).abs() < 1e-15);
-    }
-
-    #[cfg_attr(test, test)]
-    fn test_onehot_round_trip() {
-        // round-trip: degree → onehot → degree
-        let allowed = &[0.0, 90.0, 180.0, 270.0];
-        for &deg in allowed {
-            let onehot = rotation_degrees_to_onehot(deg, allowed);
-            let deg_back = onehot_to_rotation_degrees(&onehot, allowed);
-            assert!(
-                (deg - deg_back).abs() < 1e-15,
-                "round-trip failed for {}°: got {}°",
-                deg,
-                deg_back
-            );
-        }
-    }
-
-    #[cfg_attr(test, test)]
-    fn test_onehot_round_trip_soft() {
-        // Soft one-hot (e.g. from Gumbel-Softmax) → weighted average
-        let soft = [0.1, 0.7, 0.1, 0.1];
-        let deg = onehot_to_rotation_degrees(&soft, &[0.0, 90.0, 180.0, 270.0]);
-        // 0.1*0 + 0.7*90 + 0.1*180 + 0.1*270 = 63 + 18 + 27 = 108
-        assert!((deg - 108.0).abs() < 1e-14, "expected 108, got {}", deg);
-    }
-
-    // -----------------------------------------------------------------
-    // onehot_to_rotation_radians
-    // -----------------------------------------------------------------
-    #[cfg_attr(test, test)]
-    fn test_onehot_to_rotation_radians() {
-        let rad = onehot_to_rotation_radians(
-            &[0.0, 1.0, 0.0, 0.0],
-            &[0.0, std::f64::consts::FRAC_PI_2, std::f64::consts::PI, 3.0 * std::f64::consts::FRAC_PI_2],
-        );
-        assert!((rad - std::f64::consts::FRAC_PI_2).abs() < 1e-15);
-    }
-
-    // -----------------------------------------------------------------
     // gumbel_softmax: with low temperature → argmax
     // -----------------------------------------------------------------
     #[cfg_attr(test, test)]
@@ -1002,27 +844,6 @@ pub(crate) mod tests {
     }
 
     #[cfg_attr(test, test)]
-    fn test_rotation_encoding_round_trip_over_finite_angle_set() {
-        // index -> one-hot -> degrees and degrees -> one-hot -> degrees are
-        // both the identity on the finite set.
-        for (i, &deg) in ROTATION_ANGLES_DEG.iter().enumerate() {
-            let onehot = rotation_index_to_onehot(i, ROTATION_ANGLES_DEG.len());
-            let deg_back = onehot_to_rotation_degrees(&onehot, &ROTATION_ANGLES_DEG);
-            assert!(
-                (deg - deg_back).abs() < 1e-15,
-                "index {i}: {deg} != {deg_back}"
-            );
-
-            let onehot_deg = rotation_degrees_to_onehot(deg, &ROTATION_ANGLES_DEG);
-            let deg_back_2 = onehot_to_rotation_degrees(&onehot_deg, &ROTATION_ANGLES_DEG);
-            assert!(
-                (deg - deg_back_2).abs() < 1e-15,
-                "degrees {deg}: {deg} != {deg_back_2}"
-            );
-        }
-    }
-
-    #[cfg_attr(test, test)]
     fn test_transform_pin_position_sign_flip_discriminates_at_90_and_270() {
         // Falsifier: prove the convention anchors actually discriminate.
         // At 90° and 270°, transform_pin_position (R(-θ)) must differ from
@@ -1112,18 +933,6 @@ pub(crate) mod tests {
         ("transform::tests::test_batch_get_rotated_bounds_empty", test_batch_get_rotated_bounds_empty),
         ("transform::tests::test_batch_get_rotated_bounds", test_batch_get_rotated_bounds),
         ("transform::tests::test_batch_rotate_points_n5", test_batch_rotate_points_n5),
-        ("transform::tests::test_rotation_index_to_onehot", test_rotation_index_to_onehot),
-        ("transform::tests::test_rotation_index_to_onehot_out_of_range", test_rotation_index_to_onehot_out_of_range),
-        ("transform::tests::test_rotation_degrees_to_onehot_exact", test_rotation_degrees_to_onehot_exact),
-        ("transform::tests::test_rotation_degrees_to_onehot_normalized", test_rotation_degrees_to_onehot_normalized),
-        ("transform::tests::test_rotation_degrees_to_onehot_rounded", test_rotation_degrees_to_onehot_rounded),
-        ("transform::tests::test_onehot_to_rotation_degrees_0", test_onehot_to_rotation_degrees_0),
-        ("transform::tests::test_onehot_to_rotation_degrees_90", test_onehot_to_rotation_degrees_90),
-        ("transform::tests::test_onehot_to_rotation_degrees_180", test_onehot_to_rotation_degrees_180),
-        ("transform::tests::test_onehot_to_rotation_degrees_270", test_onehot_to_rotation_degrees_270),
-        ("transform::tests::test_onehot_round_trip", test_onehot_round_trip),
-        ("transform::tests::test_onehot_round_trip_soft", test_onehot_round_trip_soft),
-        ("transform::tests::test_onehot_to_rotation_radians", test_onehot_to_rotation_radians),
         ("transform::tests::test_gumbel_softmax_low_temp_argmax", test_gumbel_softmax_low_temp_argmax),
         ("transform::tests::test_gumbel_softmax_high_temp_uniform", test_gumbel_softmax_high_temp_uniform),
         ("transform::tests::test_gumbel_softmax_empty", test_gumbel_softmax_empty),
@@ -1136,7 +945,6 @@ pub(crate) mod tests {
         ("transform::tests::test_rotate_point_inverse_round_trip_over_finite_angle_set", test_rotate_point_inverse_round_trip_over_finite_angle_set),
         ("transform::tests::test_transform_pin_position_convention_anchor_over_finite_angle_set", test_transform_pin_position_convention_anchor_over_finite_angle_set),
         ("transform::tests::test_transform_pin_positions_batch_convention_anchor", test_transform_pin_positions_batch_convention_anchor),
-        ("transform::tests::test_rotation_encoding_round_trip_over_finite_angle_set", test_rotation_encoding_round_trip_over_finite_angle_set),
         ("transform::tests::test_transform_pin_position_sign_flip_discriminates_at_90_and_270", test_transform_pin_position_sign_flip_discriminates_at_90_and_270),
         ("transform::tests::test_transform_pin_position_composition_discriminates_only_non_masking_pairs", test_transform_pin_position_composition_discriminates_only_non_masking_pairs),
     ];

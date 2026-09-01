@@ -15,7 +15,21 @@ from typing import Any
 
 from temper_placer.regression.closure_test import ClosureResult
 
-CURRENT_SCHEMA_VERSION = 2
+# v3 (2026-08-19): ``completion_pct`` is a PERCENT in [0, 100].
+#
+# In v1/v2 records this key holds a FRACTION in [0, 1]: the producer
+# (``ClosureTest.run``) stamped ``RoutingResult.completion_rate`` straight
+# into ``ClosureResult.router_completion_pct`` without scaling, so every
+# recorded value is 100x too small. ``metrics_schema.yaml`` always declared
+# the field ``unit: "percent", min: 0.0, max: 100.0`` -- and never caught
+# this, because a fraction is trivially inside [0, 100].
+#
+# The historical records are NOT rewritten: they are the measurements that
+# were taken, and re-scaling them would invent numbers no run produced. The
+# version bump is what lets a consumer tell the two conventions apart --
+# without it the series is silently heterogeneous and any trend, SPC or SLO
+# aggregate that spans the boundary is meaningless.
+CURRENT_SCHEMA_VERSION = 3
 
 
 @dataclass
@@ -68,6 +82,8 @@ def record_closure_result(
         module="pipeline",
         git_commit=commit,
         metrics={
+            # Percent in [0, 100] -- see CURRENT_SCHEMA_VERSION above and
+            # the ``router_completion_pct`` unit note on ClosureResult.
             "completion_pct": round(result.router_completion_pct, 1),
             "drc_errors": result.drc_errors,
             "drc_warnings": result.drc_warnings,

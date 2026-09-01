@@ -251,9 +251,8 @@ pub fn copper_weight_oz_for(layer: &Layer) -> f64 {
 /// The explicit, named, greppable escape hatch for synthetic test
 /// fixtures that genuinely need a `Stackup` without a real board file on
 /// disk. Not a bare tuple literal: constructing a `Stackup` this way
-/// requires spelling `TestOnlyLayerSpec` and `Stackup::test_only` (or, from
-/// Python, `test_only_stackup`) — both greppable, unmistakably-named, and
-/// absent from every production call site.
+/// requires spelling `TestOnlyLayerSpec` and `Stackup::test_only` — both
+/// greppable, unmistakably-named, and absent from every production call site.
 #[derive(Debug, Clone)]
 pub struct TestOnlyLayerSpec {
     pub name: String,
@@ -445,25 +444,7 @@ impl Stackup {
     /// prior known-good value, never defaulted. Position is DERIVED from
     /// declared copper-layer order (first/last = outer).
     pub fn parse(pcb_content: &str) -> Result<Stackup, StackupParseError> {
-        let layers_block = extract_balanced(pcb_content, "(layers").map_err(|e| match e {
-            ExtractError::NotFound => StackupParseError::NoLayersBlock,
-            ExtractError::Unbalanced => StackupParseError::UnbalancedLayersBlock,
-        })?;
-
-        let mut declared: Vec<(String, LayerRole)> = Vec::new();
-        for cap in layer_entry_regex().captures_iter(layers_block) {
-            let name = cap[1].to_string();
-            if !name.ends_with(".Cu") {
-                continue;
-            }
-            let Some(role) = LayerRole::from_token(&cap[2]) else {
-                continue;
-            };
-            declared.push((name, role));
-        }
-        if declared.is_empty() {
-            return Err(StackupParseError::NoRecognizedCopperLayer);
-        }
+        let declared = parse_declared_layer_roles(pcb_content)?;
 
         let setup_block = extract_balanced(pcb_content, "(setup").map_err(|e| match e {
             ExtractError::NotFound => StackupParseError::NoStackupBlock,
@@ -513,8 +494,8 @@ impl Stackup {
     /// TEST-ONLY escape hatch: build a synthetic `Stackup` without parsing
     /// a real board file. Explicit and greppable by design — there is no
     /// way to reach this from a bare tuple/list literal; a caller must
-    /// spell `Stackup::test_only` (or, from Python, `test_only_stackup`)
-    /// and provide a [`TestOnlyLayerSpec`] per layer.
+    /// spell `Stackup::test_only` and provide a [`TestOnlyLayerSpec`] per
+    /// layer.
     ///
     /// Position is still DERIVED from declaration order (first/last =
     /// outer), exactly as [`Stackup::parse`] derives it — this escape
@@ -574,6 +555,37 @@ impl Stackup {
             .filter(|l| ENGINE_SUPPORTED_SIGNAL_LAYER_NAMES.contains(&l.name.as_str()))
             .collect()
     }
+}
+
+/// Parse only the board's declared `(layers ...)` block.
+///
+/// This intentionally does not require `(setup (stackup ...))`: callers that
+/// need layer architecture/roles must not be forced to provide fabrication
+/// thickness data. `Stackup::parse` uses this same parser before applying its
+/// stronger copper-weight invariant.
+pub fn parse_declared_layer_roles(
+    pcb_content: &str,
+) -> Result<Vec<(String, LayerRole)>, StackupParseError> {
+    let layers_block = extract_balanced(pcb_content, "(layers").map_err(|e| match e {
+        ExtractError::NotFound => StackupParseError::NoLayersBlock,
+        ExtractError::Unbalanced => StackupParseError::UnbalancedLayersBlock,
+    })?;
+
+    let mut declared = Vec::new();
+    for cap in layer_entry_regex().captures_iter(layers_block) {
+        let name = cap[1].to_string();
+        if !name.ends_with(".Cu") {
+            continue;
+        }
+        let Some(role) = LayerRole::from_token(&cap[2]) else {
+            continue;
+        };
+        declared.push((name, role));
+    }
+    if declared.is_empty() {
+        return Err(StackupParseError::NoRecognizedCopperLayer);
+    }
+    Ok(declared)
 }
 
 // ---------------------------------------------------------------------------
@@ -665,88 +677,23 @@ impl PyLayer {
     }
 }
 
-#[cfg(feature = "python")]
-#[pyclass(name = "Stackup", module = "temper_geometry", skip_from_py_object)]
-#[derive(Clone)]
-pub struct PyStackup(Stackup);
-
-#[cfg(feature = "python")]
-#[pymethods]
-impl PyStackup {
-    fn layer(&self, name: &str) -> Option<PyLayer> {
-        self.0.layer(name).cloned().map(PyLayer)
-    }
-
-    fn layer_names(&self) -> Vec<String> {
-        self.0.layers().iter().map(|l| l.name().to_string()).collect()
-    }
-
-    /// Every declared `signal`-role layer name, in declared order — the
-    /// *architecture* question. See [`Stackup::signal_layers`].
-    fn signal_layer_names(&self) -> Vec<String> {
-        self.0.signal_layers().map(|l| l.name().to_string()).collect()
-    }
-
-    /// Every declared `signal`-role layer name the router can actually
-    /// target today, in declared order — the *routing-decision* question.
-    /// See [`Stackup::routable_signal_layers`].
-    fn routable_signal_layer_names(&self) -> Vec<String> {
-        self.0
-            .routable_signal_layers()
-            .into_iter()
-            .map(|l| l.name().to_string())
-            .collect()
-    }
-
-    fn __len__(&self) -> usize {
-        self.0.layers().len()
-    }
-}
-
+/// Return declared copper layer roles without requiring stackup thickness.
+/// This is the production boundary for architecture consumers such as
+/// `board_layer_roles.py`; use [`Stackup::parse`] in Rust when copper weight
+/// is needed.
 #[cfg(feature = "python")]
 #[pyfunction]
-#[pyo3(name = "parse_stackup")]
-pub fn parse_stackup_py(pcb_content: String) -> PyResult<PyStackup> {
-    temper_py_bridge::catch_unwind(|| -> PyResult<PyStackup> {
-        Stackup::parse(&pcb_content)
-            .map(PyStackup)
+#[pyo3(name = "parse_declared_layer_roles")]
+pub fn parse_declared_layer_roles_py(pcb_content: String) -> PyResult<Vec<(String, String)>> {
+    temper_py_bridge::catch_unwind(|| -> PyResult<Vec<(String, String)>> {
+        parse_declared_layer_roles(&pcb_content)
+            .map(|layers| {
+                layers
+                    .into_iter()
+                    .map(|(name, role)| (name, role.as_str().to_string()))
+                    .collect()
+            })
             .map_err(|e| PyValueError::new_err(e.to_string()))
-    })
-    .map_err(temper_py_bridge::panic_to_err)?
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(name = "parse_stackup_from_path")]
-pub fn parse_stackup_from_path_py(path: String) -> PyResult<PyStackup> {
-    temper_py_bridge::catch_unwind(|| -> PyResult<PyStackup> {
-        Stackup::from_path(Path::new(&path))
-            .map(PyStackup)
-            .map_err(|e| PyValueError::new_err(e.to_string()))
-    })
-    .map_err(temper_py_bridge::panic_to_err)?
-}
-
-/// The named, greppable Python-side escape hatch for synthetic test
-/// fixtures — mirrors [`Stackup::test_only`]. `specs` is
-/// `[(name, role_str, copper_thickness_mm), ...]`; `role_str` must be one
-/// of `"signal"`/`"power"`/`"mixed"`/`"jumper"`.
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(name = "test_only_stackup")]
-pub fn test_only_stackup_py(specs: Vec<(String, String, f64)>) -> PyResult<PyStackup> {
-    temper_py_bridge::catch_unwind(|| -> PyResult<PyStackup> {
-        let mut parsed = Vec::with_capacity(specs.len());
-        for (name, role_str, copper_thickness_mm) in specs {
-            let role = LayerRole::from_token(&role_str).ok_or_else(|| {
-                PyValueError::new_err(format!(
-                    "test_only_stackup: unrecognized role {role_str:?} for layer \
-                     {name:?} (expected one of signal/power/mixed/jumper)"
-                ))
-            })?;
-            parsed.push(TestOnlyLayerSpec { name, role, copper_thickness_mm });
-        }
-        Ok(PyStackup(Stackup::test_only(parsed)))
     })
     .map_err(temper_py_bridge::panic_to_err)?
 }
@@ -765,10 +712,7 @@ pub fn engine_supported_signal_layer_names_py() -> Vec<String> {
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyLayer>()?;
-    m.add_class::<PyStackup>()?;
-    m.add_function(wrap_pyfunction!(parse_stackup_py, m)?)?;
-    m.add_function(wrap_pyfunction!(parse_stackup_from_path_py, m)?)?;
-    m.add_function(wrap_pyfunction!(test_only_stackup_py, m)?)?;
+    m.add_function(wrap_pyfunction!(parse_declared_layer_roles_py, m)?)?;
     m.add_function(wrap_pyfunction!(engine_supported_signal_layer_names_py, m)?)?;
     Ok(())
 }

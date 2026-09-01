@@ -160,8 +160,11 @@ def validate_raise_evidence(
 
       (a) an **attributed cause**: a NEW non-empty ``_march`` entry in
           the new ceiling file (a key absent from the old ``_march``,
-          with a non-empty prose value naming the component/commit that
-          drove the raise). This file's ``_march`` log is the single
+          with a non-empty value naming the component/commit that drove
+          the raise -- a prose string, the legacy format, or a structured
+          entry ``{"date": ..., "cause": "...", "per_type_delta": {...}}``
+          whose ``cause`` field is non-empty, the standardized format
+          since 2026-08-19). This file's ``_march`` log is the single
           cause authority; there is deliberately no separate
           trailer-body grammar to parse.
       (b) a **measured sample**: the raised board's new ``provenance``
@@ -205,10 +208,29 @@ def validate_raise_evidence(
     # that), so the requirement is "at least one", not one per raise.
     old_march = old_ceiling.get("_march") or {}
     new_march = new_ceiling.get("_march") or {}
+
+    def _has_cause(value: object) -> bool:
+        """A ``_march`` entry counts as an attributed cause when it names
+        one: a non-empty prose string (the legacy format every entry in
+        this file used before the 2026-08-19 standardization), or a
+        structured entry whose non-empty ``cause`` field names it (the
+        standardized format: ``{"date": ..., "cause": ...,
+        "per_type_delta": {...}}``). A structured entry with a missing or
+        blank ``cause`` is NOT a cause -- the same semantic as a blank
+        string, and just as much a contract failure; the format extension
+        must not let a shape without a named cause through.
+        """
+        if isinstance(value, str):
+            return bool(value.strip())
+        if isinstance(value, dict):
+            cause = value.get("cause")
+            return isinstance(cause, str) and bool(cause.strip())
+        return False
+
     new_cause_entries = [
         key
         for key, value in new_march.items()
-        if key not in old_march and isinstance(value, str) and value.strip()
+        if key not in old_march and _has_cause(value)
     ]
     if not new_cause_entries:
         problems.append(

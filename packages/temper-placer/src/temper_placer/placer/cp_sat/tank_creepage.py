@@ -14,18 +14,16 @@ today, so **PD3 (10.0mm) governs as-built**
 (``docs/evidence/2026-08-11-pd2-decision-record.md``).
 
 ``docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md`` (PR #1084,
-branch ``feat/hv-hv-creepage-enforcement`` — also not on ``main``) turned
-that figure into a ``.kicad_dru`` rule and measured it rejecting the
-committed board: **C25 pad 2 <-> a track of ``discharge.k_dis1-nc``, actual
-2.2656mm against 6.3mm required — 2.8x short**, plus a second real pair
-(R30's own two pads, 5.0mm) and two more that only cross the bar at the
-PD3 figure. That work reaches exactly one enforcement path — kicad-cli's
-DRC, run *after* placement and routing are both already fixed. **Nothing
-upstream of DRC currently keeps a re-solved board from reproducing the
-same shortfall.** This module is the placement-time half: it gives the
-CP-SAT/Pumpkin solver a HARD constraint that pushes the tank node's own
-components away from every other high-voltage component *before* a board
-is placed, rather than discovering the shortfall only after routing.
+branch ``feat/hv-hv-creepage-enforcement`` — also not on ``main``) records
+the original DRC shortfall (C25 pad 2 versus a
+``discharge.k_dis1-nc`` track measured at 2.2656mm against the then-selected
+6.3mm figure). The rule now selects the as-built PD3 value, 10.0mm, and the
+current board's net-level checker covers tank-to-bus pairs in addition to the
+component-level placement constraint below. Routing-stage pad-to-track
+clearance remains a separate concern: this module gives the CP-SAT/Pumpkin
+solver a HARD constraint that pushes tank-node components away from other
+high-voltage components *before* placement, but it cannot constrain later
+routed copper.
 
 **What this constraint actually guarantees, stated precisely, because it
 is easy to overstate.** Creepage is a distance measured *along a surface*
@@ -81,19 +79,16 @@ they happen to be the specific pair kicad-cli's DRU rule named.
 
 The pair the box constraint structurally cannot see: tank <-> DC-bus rails
 -----------------------------------------------------------------------------
-The one pair this module's own evidence doc measures as the board's
+The pair this module's own evidence doc identified as the board's
 highest-voltage shortfall — ``tank.c_tank1-p2`` vs the **DC-bus rails**
-(``+170V_BUS``, ``DC_BUS_RTN``), 2.0mm provided against 6.3mm PD2 /
-10.0mm PD3 required (``docs/evidence/2026-08-12-hv-hv-creepage-
-determination.md`` Sec 4.3, a 3.2x-5.0x shortfall) — is **not a
-component-pair at all**. The bus rails are *nets*: a net with no refdes
-can never appear in :func:`tank_creepage_pairs`, so the box constraint
-(and the old test that asserted on it) is structurally blind to exactly
-the pair that matters. The 2026-08-15 safety-assertion audit
+(``+170V_BUS``, ``DC_BUS_RTN``) — is **not a component-pair at all**. The
+bus rails are *nets*: a net with no refdes can never appear in
+:func:`tank_creepage_pairs`, so the box constraint was structurally blind to
+that pair. The 2026-08-15 safety-assertion audit
 (``docs/evidence/2026-08-15-safety-assertion-audit-resumed.md`` Part 0)
-classified this as a real structural mask, not a documentation gap:
-``len(pairs) == 4 * 42`` would pass unchanged with the tank<->bus gap at
-2.0mm.
+classified this as a real structural mask, not a documentation gap. The
+net-level enumeration and copper checker below close that coverage gap;
+their pair rule resolves to the current 10.0mm PD3 requirement.
 
 This module therefore also exposes a **net-level** enumeration
 (:func:`tank_bus_net_pairs`) and a **copper-level** checker
@@ -107,16 +102,13 @@ metric has two honest quantities:
   tank-node pad lies *inside* a bus-rail zone outline on a layer the pad
   occupies, the pad-pad distance is NOT the copper gap — the pour
   approaches the foreign pad to exactly the design's enforced netclass
-  clearance, so the design itself bounds the gap. Measured on the
-  committed board: C26's and R30's tank pads sit inside the ``DC_BUS_RTN``
-  pours on both F.Cu and B.Cu (both are THT, layer=all) — the "2.0mm
-  provided" of the evidence doc is physically real on the committed
-  board, not a hypothetical routing outcome.
+  clearance. The current board has no such tank-pad containment; the
+  checker still retains this branch for boards where a bus pour approaches a
+  tank pad.
 
-The checker reports both kinds against the PD3 margin, and the test pins
-the *enforced* figures (netclass clearance, DRU-emitted creepage, SSOT
-declared creepage) against the 6.3/10.0 requirement so the shortfall is a
-hard, labelled failure rather than a prose caveat.
+The checker reports both kinds against the PD3 margin, and the tests pin the
+generic clearance and pair-level creepage figures separately so a future
+regression cannot hide behind a prose caveat.
 
 Scope: which components, and why
 ---------------------------------
@@ -201,6 +193,7 @@ __all__ = [
     "tank_bus_net_pairs",
     "tank_bus_pad_gap_mm",
     "tank_bus_pour_contained_pads",
+    "required_tank_bus_creepage_mm",
     "enforced_tank_bus_clearance_mm",
     "check_tank_bus_creepage",
     "find_tank_self_pairs",
@@ -564,14 +557,55 @@ def enforced_tank_bus_clearance_mm() -> float:
     reinforced mains<->PELV barrier value re-applied as same-domain HV<->HV
     clearance (``scripts/generate_kicad_dru.py:63-67``, N1 in
     ``docs/evidence/2026-08-15-safety-assertion-audit-resumed.md``); this
-    function exists so the test can assert the enforced figure against the
-    requirement and FAIL until the value is corrected.
+    This function intentionally reports only the generic clearance floor;
+    callers that need the tank↔bus safety requirement must use
+    :func:`required_tank_bus_creepage_mm`, which resolves the pair-level
+    creepage table instead of conflating the two metrics.
     """
     from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 
     tank_cls = TEMPER_NET_CLASSES["HighVoltageTank"].clearance
     bus_cls = TEMPER_NET_CLASSES["HighVoltage"].clearance
     return float(max(tank_cls, bus_cls))
+
+
+def required_tank_bus_creepage_mm(
+    net_class_map: dict[str, str] | None = None,
+) -> float:
+    """Return the generated pair-level creepage requirement for tank rails.
+
+    The tank node and DC-bus rails are different nets whose classes happen
+    to have only a 2.0 mm *generic clearance* floor.  The safety requirement
+    is the pair rule emitted by ``generate_kicad_dru.py`` and consumed by the
+    router's ``pair_creepage`` table.  Keep this lookup explicit so callers
+    cannot accidentally substitute ``NetClassRules.clearance`` for the
+    distinct creepage requirement (the original 2.0-vs-10.0 CI failure).
+
+    ``net_class_map`` is injectable for focused tests.  With no override the
+    authoritative placer net assignments are used.  Only rails present in
+    that map are live for the current board; absent legacy aliases must not
+    silently resolve as KiCad's ``Default`` class and inflate this result.
+    The strictest resolved live rail value is returned when a board carries
+    more than one rail class.
+    """
+    from temper_placer.router_v6.pair_creepage import default_creepage_table
+
+    if net_class_map is None:
+        from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
+
+        net_class_map = TEMPER_NET_ASSIGNMENTS
+
+    tank_class = net_class_map.get(TANK_NODE_NET)
+    if tank_class is None:
+        return 0.0
+    rail_classes: list[str] = [
+        net_class_map[net]
+        for net in sorted(TANK_BUS_RAIL_NETS)
+        if net in net_class_map
+    ]
+    table = default_creepage_table()
+    requirements = [table.required(tank_class, rail_class) for rail_class in rail_classes]
+    return max(requirements, default=0.0)
 
 
 def check_tank_bus_creepage(

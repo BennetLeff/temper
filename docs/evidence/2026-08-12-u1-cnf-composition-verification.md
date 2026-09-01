@@ -13,7 +13,7 @@
        ConstraintModel memory probes re-run verbatim from
        docs/evidence/2026-08-12-router-model-memory-probe{,-distinct-keys}.py;
        CnfFormula clause-representation probe re-run verbatim from
-       docs/evidence/2026-08-12-cnf-repr-probe-isolated.rs (compiled directly
+       docs/evidence/scripts/2026-08-12-cnf-repr-probe-isolated.rs (compiled directly
        with rustc -O -- the probe has no external deps and does not need the
        crate on the compile path, since it reproduces the CSR layout
        structurally rather than importing CnfFormula itself); rustc 1.97.1
@@ -171,10 +171,10 @@ six-run spread of 380.2-647.2 s.
 ### `ConstraintModel` (packed by #1088)
 
 ```
-$ uv run --no-sync python3 docs/evidence/2026-08-12-router-model-memory-probe.py 2000000
+$ uv run --no-sync python3 docs/evidence/scripts/2026-08-12-router-model-memory-probe.py 2000000
 N=2000000  RSS delta=0.047 GB  bytes/var=25.1
 
-$ uv run --no-sync python3 docs/evidence/2026-08-12-router-model-memory-probe-distinct-keys.py
+$ uv run --no-sync python3 docs/evidence/scripts/2026-08-12-router-model-memory-probe-distinct-keys.py
 N=2044900  distinct net_channel_vars keys=2044900
 model RSS delta=0.063 GB  bytes/var=33.0
 ```
@@ -186,7 +186,7 @@ allocator arena, but measured rather than assumed.
 
 ### `CnfFormula` (packed by #1075)
 
-`docs/evidence/2026-08-12-cnf-repr-probe-isolated.rs`, vendored onto this
+`docs/evidence/scripts/2026-08-12-cnf-repr-probe-isolated.rs`, vendored onto this
 branch by #1075's own preliminary docs commit, compiled directly with
 `rustc -O` (no external crate dependencies -- it reproduces the `Vec<Vec<i32>>`
 vs. flat-`Vec<i32>`-plus-`Vec<u32>`-offsets layouts structurally rather than

@@ -1,4 +1,4 @@
-<!-- provenance: branch feat/rust-geometry-obstacle-map, base origin/main @ 6285d6889, pcb/temper.kicad_pcb read-only (sha256 077d4b6993c2708ea8d32572300f2964d2e0fb1634f903f5736b3a6eb38f2fda before and after — never written) -->
+<!-- provenance: commit=dabbeaf73c678be2aa969d30f547eeda41d18c07 dirty=UNKNOWN -->
 
 # Rust obstacle-map integration: the A* containment predicate moves to temper-geometry
 

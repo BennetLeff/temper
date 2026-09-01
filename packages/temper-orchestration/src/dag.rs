@@ -281,10 +281,16 @@ impl StageEvent {
         if !lhs.error.bind(py).eq(rhs.error.bind(py))? {
             return Ok(false);
         }
-        if !lhs.feedback_contract.bind(py).eq(rhs.feedback_contract.bind(py))? {
+        if !lhs
+            .feedback_contract
+            .bind(py)
+            .eq(rhs.feedback_contract.bind(py))?
+        {
             return Ok(false);
         }
-        lhs.feedback_attempt.bind(py).eq(rhs.feedback_attempt.bind(py))
+        lhs.feedback_attempt
+            .bind(py)
+            .eq(rhs.feedback_attempt.bind(py))
     }
 
     /// Dataclasses are unhashable (`eq=True`, `frozen=False`).
@@ -412,7 +418,11 @@ impl PipelineExecutionLog {
         if !lhs.retry_counts.bind(py).eq(rhs.retry_counts.bind(py))? {
             return Ok(false);
         }
-        if !lhs.feedback_activations.bind(py).eq(rhs.feedback_activations.bind(py))? {
+        if !lhs
+            .feedback_activations
+            .bind(py)
+            .eq(rhs.feedback_activations.bind(py))?
+        {
             return Ok(false);
         }
         lhs.events.bind(py).eq(rhs.events.bind(py))
@@ -420,6 +430,8 @@ impl PipelineExecutionLog {
 
     /// Dataclasses are unhashable (`eq=True`, `frozen=False`).
     fn __hash__(&self) -> PyResult<isize> {
-        Err(PyTypeError::new_err("unhashable type: 'PipelineExecutionLog'"))
+        Err(PyTypeError::new_err(
+            "unhashable type: 'PipelineExecutionLog'",
+        ))
     }
 }

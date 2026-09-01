@@ -1,3 +1,4 @@
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 ---
 module: pcb
 tags: [routing, zones, pour, rust-migration, geometry, creepage, gnd]
@@ -232,7 +233,7 @@ next session's job.**
 
 ## 7. Prototype measurements (real board, `pcb/temper.kicad_pcb` @ origin/main)
 
-Harness: `docs/evidence/2026-08-15-zone-pour-design.py` (shapely mirrors
+Harness: `docs/evidence/scripts/2026-08-15-zone-pour-design.py` (shapely mirrors
 the Rust algorithm; run with the shared venv, read-only). Board: 35568 mm²,
 6-layer, 19 HV-domain nets (elec/domain_manifest.yaml).
 
