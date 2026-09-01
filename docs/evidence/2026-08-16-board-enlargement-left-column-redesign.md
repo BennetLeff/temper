@@ -1,4 +1,4 @@
-<!-- provenance: measured against pcb/temper.kicad_pcb @ 9c1f4a37 (this branch,
+<!-- provenance: commit=c1f7025d37b32be9bb6ad2ac732dc43d399b9f18 dirty=UNKNOWN -->
      board = origin/main 593d9ab24 + L12 outline enlargement + 3 component moves),
      kicad-cli 10.0.5, --all-track-errors, single-thread KICAD_CONFIG_HOME pin,
      regenerated PD3 DRU from scripts/generate_kicad_dru.py at the measured commit.

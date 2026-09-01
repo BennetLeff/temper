@@ -1,4 +1,4 @@
-<!-- provenance: commit=a3fbaff37afd739b72f2b109847813b30ceb8e88 (origin/fix/board-schematic-resync)
+<!-- provenance: commit=96db2ccde669efa82d85fb494d5d152d8af8848f dirty=UNKNOWN -->
      dirty=false throughout (git status --porcelain clean apart from this document; git grep -l
      "^<<<<<<< " empty). Own git worktree (/home/bennet/Desktop/temper-slot-creepage-eval, branch
      analysis/slot-creepage-rescue), never the main checkout. pcb/temper.kicad_pcb

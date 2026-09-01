@@ -1,4 +1,4 @@
-<!-- provenance: commit=66f84b87 dirty=false -->
+<!-- provenance: commit=66f84b8767a516f36745fc7155b1d722031c113c dirty=false -->
 <!-- measured_at_commit: 66f84b87 (merge: migrate/phase-d4-assignment) -->
 
 # Spike S4: Is `nx.connected_components` observable in `_ensure_skeleton_connectivity`?

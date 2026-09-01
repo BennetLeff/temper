@@ -8,7 +8,7 @@
 
 use std::collections::HashMap;
 
-use crate::types::{InternalConstraint, InternalConstraintModel, TopologyResult, SolverStatus};
+use crate::types::{InternalConstraint, InternalConstraintModel, SolverStatus, TopologyResult};
 
 /// Result of auditing a single constraint.
 #[derive(Debug, PartialEq)]
@@ -91,9 +91,12 @@ pub fn audit_constraints(
 
                 let mut true_vars: Vec<String> = Vec::new();
                 for (vname, _w) in terms {
-                    if let Some(val) =
-                        assignment_value_for(&name_to_idx, &result.assignments, vname, &mut violations)
-                        && val
+                    if let Some(val) = assignment_value_for(
+                        &name_to_idx,
+                        &result.assignments,
+                        vname,
+                        &mut violations,
+                    ) && val
                     {
                         true_vars.push(vname.clone());
                     }
@@ -113,10 +116,18 @@ pub fn audit_constraints(
                 p_var_name,
                 n_var_name,
             } => {
-                let p_val =
-                    assignment_value_for(&name_to_idx, &result.assignments, p_var_name, &mut violations);
-                let n_val =
-                    assignment_value_for(&name_to_idx, &result.assignments, n_var_name, &mut violations);
+                let p_val = assignment_value_for(
+                    &name_to_idx,
+                    &result.assignments,
+                    p_var_name,
+                    &mut violations,
+                );
+                let n_val = assignment_value_for(
+                    &name_to_idx,
+                    &result.assignments,
+                    n_var_name,
+                    &mut violations,
+                );
                 if let (Some(p), Some(n)) = (p_val, n_val)
                     && p != n
                 {
@@ -130,9 +141,12 @@ pub fn audit_constraints(
                 }
             }
             InternalConstraint::LayerRestriction { var_name, allowed } => {
-                if let Some(val) =
-                    assignment_value_for(&name_to_idx, &result.assignments, var_name, &mut violations)
-                    && val != *allowed
+                if let Some(val) = assignment_value_for(
+                    &name_to_idx,
+                    &result.assignments,
+                    var_name,
+                    &mut violations,
+                ) && val != *allowed
                 {
                     violations.push(AuditViolation::LayerViolation {
                         var_name: var_name.clone(),
@@ -159,19 +173,31 @@ pub fn audit_constraints(
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
     use super::*;
-    use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable, SolverStatus, TopologyResult};
+    use crate::types::{
+        InternalConstraint, InternalConstraintModel, InternalVariable, SolverStatus, TopologyResult,
+    };
     use std::collections::HashMap;
 
     fn make_result(status: SolverStatus, assignments: HashMap<usize, bool>) -> TopologyResult {
-        TopologyResult { status, num_vars: 0, num_clauses: 0, assignments, unsat_core: vec![], solver_time_ms: 0.0, solver_stats: None }
+        TopologyResult {
+            status,
+            num_vars: 0,
+            num_clauses: 0,
+            assignments,
+            unsat_core: vec![],
+            solver_time_ms: 0.0,
+            solver_stats: None,
+        }
     }
 
     #[cfg_attr(test, test)]
     fn capacity_within_bounds() {
         let (model, var_names) = make_self_test_model();
         let mut a = HashMap::new();
-        a.insert(0, true); a.insert(1, true);
-        a.insert(2, false); a.insert(3, false);
+        a.insert(0, true);
+        a.insert(1, true);
+        a.insert(2, false);
+        a.insert(3, false);
         let r = make_result(SolverStatus::Satisfiable, a);
         assert!(audit_constraints(&model, &r, &var_names).is_empty());
     }
@@ -180,19 +206,34 @@ pub(crate) mod tests {
     fn capacity_violation() {
         let (model, var_names) = make_self_test_model();
         let mut a = HashMap::new();
-        for i in 0..4 { a.insert(i, i < 3); }
+        for i in 0..4 {
+            a.insert(i, i < 3);
+        }
         let r = make_result(SolverStatus::Satisfiable, a);
         let v = audit_constraints(&model, &r, &var_names);
         assert_eq!(v.len(), 1);
-        match &v[0] { AuditViolation::Capacity { actual_count, max_nets, .. } => { assert_eq!(*actual_count, 3); assert_eq!(*max_nets, 2); } _ => panic!() }
+        match &v[0] {
+            AuditViolation::Capacity {
+                actual_count,
+                max_nets,
+                ..
+            } => {
+                assert_eq!(*actual_count, 3);
+                assert_eq!(*max_nets, 2);
+            }
+            _ => panic!(),
+        }
     }
 
     #[cfg_attr(test, test)]
     fn capacity_exact_limit() {
         let (model, var_names) = make_self_test_model();
         let mut a = HashMap::new();
-        a.insert(0, true); a.insert(1, true);
-        for i in 2..4 { a.insert(i, false); }
+        a.insert(0, true);
+        a.insert(1, true);
+        for i in 2..4 {
+            a.insert(i, false);
+        }
         let r = make_result(SolverStatus::Satisfiable, a);
         assert!(audit_constraints(&model, &r, &var_names).is_empty());
     }
@@ -201,26 +242,55 @@ pub(crate) mod tests {
     fn diff_pair_mismatch() {
         let vn = vec!["p_CH1".to_string(), "n_CH1".to_string()];
         let m = InternalConstraintModel {
-            variables: vn.iter().enumerate().map(|(i,n)| InternalVariable::NetChannel { name:n.clone(), net_idx:i, channel_id:"CH1".into() }).collect(),
-            constraints: vec![InternalConstraint::DiffPair { channel_id:"CH1".into(), p_var_name:"p_CH1".into(), n_var_name:"n_CH1".into() }],
+            variables: vn
+                .iter()
+                .enumerate()
+                .map(|(i, n)| InternalVariable::NetChannel {
+                    name: n.clone(),
+                    net_idx: i,
+                    channel_id: "CH1".into(),
+                })
+                .collect(),
+            constraints: vec![InternalConstraint::DiffPair {
+                channel_id: "CH1".into(),
+                p_var_name: "p_CH1".into(),
+                n_var_name: "n_CH1".into(),
+            }],
         };
         let mut a = HashMap::new();
-        a.insert(0, true); a.insert(1, false);
+        a.insert(0, true);
+        a.insert(1, false);
         let r = make_result(SolverStatus::Satisfiable, a);
         let v = audit_constraints(&m, &r, &vn);
         assert_eq!(v.len(), 1);
-        match &v[0] { AuditViolation::DiffPairMismatch { .. } => {} _ => panic!() }
+        match &v[0] {
+            AuditViolation::DiffPairMismatch { .. } => {}
+            _ => panic!(),
+        }
     }
 
     #[cfg_attr(test, test)]
     fn diff_pair_match() {
         let vn = vec!["p_CH1".to_string(), "n_CH1".to_string()];
         let m = InternalConstraintModel {
-            variables: vn.iter().enumerate().map(|(i,n)| InternalVariable::NetChannel { name:n.clone(), net_idx:i, channel_id:"CH1".into() }).collect(),
-            constraints: vec![InternalConstraint::DiffPair { channel_id:"CH1".into(), p_var_name:"p_CH1".into(), n_var_name:"n_CH1".into() }],
+            variables: vn
+                .iter()
+                .enumerate()
+                .map(|(i, n)| InternalVariable::NetChannel {
+                    name: n.clone(),
+                    net_idx: i,
+                    channel_id: "CH1".into(),
+                })
+                .collect(),
+            constraints: vec![InternalConstraint::DiffPair {
+                channel_id: "CH1".into(),
+                p_var_name: "p_CH1".into(),
+                n_var_name: "n_CH1".into(),
+            }],
         };
         let mut a = HashMap::new();
-        a.insert(0, true); a.insert(1, true);
+        a.insert(0, true);
+        a.insert(1, true);
         let r = make_result(SolverStatus::Satisfiable, a);
         assert!(audit_constraints(&m, &r, &vn).is_empty());
     }
@@ -229,15 +299,29 @@ pub(crate) mod tests {
     fn layer_violation() {
         let vn = vec!["uses_N0_L1_E0".to_string()];
         let m = InternalConstraintModel {
-            variables: vn.iter().enumerate().map(|(i,n)| InternalVariable::NetChannel { name:n.clone(), net_idx:i, channel_id:"L1_E0".into() }).collect(),
-            constraints: vec![InternalConstraint::LayerRestriction { var_name:"uses_N0_L1_E0".into(), allowed:false }],
+            variables: vn
+                .iter()
+                .enumerate()
+                .map(|(i, n)| InternalVariable::NetChannel {
+                    name: n.clone(),
+                    net_idx: i,
+                    channel_id: "L1_E0".into(),
+                })
+                .collect(),
+            constraints: vec![InternalConstraint::LayerRestriction {
+                var_name: "uses_N0_L1_E0".into(),
+                allowed: false,
+            }],
         };
         let mut a = HashMap::new();
         a.insert(0, true);
         let r = make_result(SolverStatus::Satisfiable, a);
         let v = audit_constraints(&m, &r, &vn);
         assert_eq!(v.len(), 1);
-        match &v[0] { AuditViolation::LayerViolation { .. } => {} _ => panic!() }
+        match &v[0] {
+            AuditViolation::LayerViolation { .. } => {}
+            _ => panic!(),
+        }
     }
 
     #[cfg_attr(test, test)]
@@ -246,16 +330,29 @@ pub(crate) mod tests {
         let r = make_result(SolverStatus::Unsatisfiable, HashMap::new());
         let v = audit_constraints(&m, &r, &vn);
         assert_eq!(v.len(), 1);
-        match &v[0] { AuditViolation::UnexplainedUnsat => {} _ => panic!() }
+        match &v[0] {
+            AuditViolation::UnexplainedUnsat => {}
+            _ => panic!(),
+        }
     }
 
     /// Brute-force constraint checker for a single assignment.
-    fn brute_force_check(model: &InternalConstraintModel, assign: &HashMap<usize, bool>) -> Vec<String> {
+    fn brute_force_check(
+        model: &InternalConstraintModel,
+        assign: &HashMap<usize, bool>,
+    ) -> Vec<String> {
         let mut violations = Vec::new();
         for c in &model.constraints {
             match c {
-                InternalConstraint::Capacity { channel_id, capacity, slack_factor, terms } => {
-                    if terms.is_empty() { continue; }
+                InternalConstraint::Capacity {
+                    channel_id,
+                    capacity,
+                    slack_factor,
+                    terms,
+                } => {
+                    if terms.is_empty() {
+                        continue;
+                    }
                     let min_w = terms.iter().map(|(_, w)| *w).fold(f64::INFINITY, f64::min);
                     let max_nets = ((capacity * slack_factor) / min_w).floor() as usize;
                     let mut true_count = 0;
@@ -271,17 +368,28 @@ pub(crate) mod tests {
                         violations.push(format!("capacity:{channel_id}:{true_count}>{max_nets}"));
                     }
                 }
-                InternalConstraint::DiffPair { p_var_name, n_var_name, .. } => {
-                    if let (Some(p), Some(n)) = (var_position(model, p_var_name), var_position(model, n_var_name)) {
+                InternalConstraint::DiffPair {
+                    p_var_name,
+                    n_var_name,
+                    ..
+                } => {
+                    if let (Some(p), Some(n)) = (
+                        var_position(model, p_var_name),
+                        var_position(model, n_var_name),
+                    ) {
                         let pv = assign.get(&p).copied().unwrap_or(false);
                         let nv = assign.get(&n).copied().unwrap_or(false);
-                        if pv != nv { violations.push(format!("diffpair:{p_var_name}!={n_var_name}")); }
+                        if pv != nv {
+                            violations.push(format!("diffpair:{p_var_name}!={n_var_name}"));
+                        }
                     }
                 }
                 InternalConstraint::LayerRestriction { var_name, allowed } => {
                     if let Some(pos) = var_position(model, var_name) {
                         let val = assign.get(&pos).copied().unwrap_or(false);
-                        if val != *allowed { violations.push(format!("layer:{var_name}:{val}!={allowed}")); }
+                        if val != *allowed {
+                            violations.push(format!("layer:{var_name}:{val}!={allowed}"));
+                        }
                     }
                 }
                 InternalConstraint::ChannelSeparation { .. } => {
@@ -308,27 +416,39 @@ pub(crate) mod tests {
         // the audit matches brute-force for all 2^4 = 16 assignments.
         let vn: Vec<String> = (0..4).map(|i| format!("v{i}")).collect();
         let model = InternalConstraintModel {
-            variables: vn.iter().enumerate().map(|(i, n)| InternalVariable::NetChannel {
-                name: n.clone(), net_idx: i, channel_id: "CH1".into(),
-            }).collect(),
+            variables: vn
+                .iter()
+                .enumerate()
+                .map(|(i, n)| InternalVariable::NetChannel {
+                    name: n.clone(),
+                    net_idx: i,
+                    channel_id: "CH1".into(),
+                })
+                .collect(),
             constraints: vec![
                 InternalConstraint::Capacity {
-                    channel_id: "CH1".into(), capacity: 2.0, slack_factor: 1.0,
+                    channel_id: "CH1".into(),
+                    capacity: 2.0,
+                    slack_factor: 1.0,
                     terms: vn.iter().map(|n| (n.clone(), 1.0)).collect(),
                 },
                 InternalConstraint::DiffPair {
                     channel_id: "CH1".into(),
-                    p_var_name: "v0".into(), n_var_name: "v1".into(),
+                    p_var_name: "v0".into(),
+                    n_var_name: "v1".into(),
                 },
                 InternalConstraint::LayerRestriction {
-                    var_name: "v3".into(), allowed: false,
+                    var_name: "v3".into(),
+                    allowed: false,
                 },
             ],
         };
 
         for bits in 0..16u32 {
             let mut assign = HashMap::new();
-            for i in 0..4 { assign.insert(i, (bits >> i) & 1 == 1); }
+            for i in 0..4 {
+                assign.insert(i, (bits >> i) & 1 == 1);
+            }
 
             let result = TopologyResult {
                 status: SolverStatus::Satisfiable,
@@ -346,7 +466,8 @@ pub(crate) mod tests {
             let audit_has = !audit_violations.is_empty();
             let brute_has = !brute_violations.is_empty();
 
-            assert_eq!(audit_has, brute_has,
+            assert_eq!(
+                audit_has, brute_has,
                 "Mismatch for assignment {bits:04b}: audit={audit_has} brute={brute_has} audit_v={audit_violations:?} brute_v={brute_violations:?}"
             );
         }
@@ -366,16 +487,20 @@ pub(crate) mod tests {
             })
             .collect();
 
-        let constraints = vec![
-            InternalConstraint::Capacity {
-                channel_id: "CH1".into(),
-                capacity: 2.0,
-                slack_factor: 1.0,
-                terms: var_names.iter().map(|n| (n.clone(), 1.0)).collect(),
-            },
-        ];
+        let constraints = vec![InternalConstraint::Capacity {
+            channel_id: "CH1".into(),
+            capacity: 2.0,
+            slack_factor: 1.0,
+            terms: var_names.iter().map(|n| (n.clone(), 1.0)).collect(),
+        }];
 
-        (InternalConstraintModel { variables: vars, constraints }, var_names)
+        (
+            InternalConstraintModel {
+                variables: vars,
+                constraints,
+            },
+            var_names,
+        )
     }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---

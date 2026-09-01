@@ -115,11 +115,7 @@ fn rev(pair: P2Pair) -> P2Pair {
 /// second argument can only be `-0.0` in degenerate arithmetic, but the
 /// faithful `if x > 0.0 { x } else { 0.0 }` form is what the oracle writes.
 fn py_max_zero(x: f64) -> f64 {
-    if x > 0.0 {
-        x
-    } else {
-        0.0
-    }
+    if x > 0.0 { x } else { 0.0 }
 }
 
 /// `net_batching.order_nets_for_batching` — the net-grouping stage.
@@ -272,7 +268,10 @@ pub fn shrink_channel_widths(
         let Some(layer_deltas) = deltas.get(layer.as_str()) else {
             continue;
         };
-        let layer_keys = deltas_order.get(layer.as_str()).map(Vec::as_slice).unwrap_or(&[]);
+        let layer_keys = deltas_order
+            .get(layer.as_str())
+            .map(Vec::as_slice)
+            .unwrap_or(&[]);
         // Forward-orientation edge index for the oracle's `if (u, v) in
         // new_edge_widths` check (the `elif (v, u)` reversal is a fallback).
         let index: HashMap<P2Pair, usize> = edges
@@ -284,7 +283,10 @@ pub fn shrink_channel_widths(
         let mut widths: Vec<(Point, Point, f64)> = edges.clone();
         for key in layer_keys {
             let amount = *layer_deltas.get(key).unwrap_or(&0.0);
-            let idx = index.get(key).copied().or_else(|| index.get(&rev(*key)).copied());
+            let idx = index
+                .get(key)
+                .copied()
+                .or_else(|| index.get(&rev(*key)).copied());
             let Some(idx) = idx else { continue };
             widths[idx].2 = py_max_zero(widths[idx].2 - amount);
         }
@@ -388,8 +390,16 @@ pub(crate) mod tests {
     fn order_diff_pair_adjacency() {
         // p has the HIGHEST pin count, so in the raw sort n sorts before p;
         // the post-pass must move n to immediately follow p.
-        let got = order(&["USB_D-", "OTHER", "USB_D+"], &[1, 3, 5], &[false; 3], &[("USB_D+", "USB_D-")]);
-        let names: Vec<&str> = got.iter().map(|&i| ["USB_D-", "OTHER", "USB_D+"][i]).collect();
+        let got = order(
+            &["USB_D-", "OTHER", "USB_D+"],
+            &[1, 3, 5],
+            &[false; 3],
+            &[("USB_D+", "USB_D-")],
+        );
+        let names: Vec<&str> = got
+            .iter()
+            .map(|&i| ["USB_D-", "OTHER", "USB_D+"][i])
+            .collect();
         assert_eq!(names, vec!["OTHER", "USB_D+", "USB_D-"]);
     }
 
@@ -419,10 +429,16 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn chunk_indices_matches_python_slicing() {
         assert_eq!(chunk_indices(&[], 3), Vec::<Vec<usize>>::new());
-        assert_eq!(chunk_indices(&[0, 1, 2, 3, 4], 2), vec![vec![0, 1], vec![2, 3], vec![4]]);
+        assert_eq!(
+            chunk_indices(&[0, 1, 2, 3, 4], 2),
+            vec![vec![0, 1], vec![2, 3], vec![4]]
+        );
         assert_eq!(chunk_indices(&[0, 1, 2], 5), vec![vec![0, 1, 2]]);
         // size 0: every chunk is the empty slice seq[i:i] (CPython).
-        assert_eq!(chunk_indices(&[0, 1, 2], 0), vec![Vec::new(), Vec::new(), Vec::new()]);
+        assert_eq!(
+            chunk_indices(&[0, 1, 2], 0),
+            vec![Vec::new(), Vec::new(), Vec::new()]
+        );
         // size -1: ragged, via the negative-stop wrap (seq[i:i-1]).
         assert_eq!(
             chunk_indices(&[0, 1, 2], -1),
@@ -450,10 +466,7 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn shrink_matches_reversed_orientation_edge() {
-        let layers = vec![(
-            "F.Cu".to_string(),
-            vec![((1.0, 0.0), (0.0, 0.0), 2.5)],
-        )];
+        let layers = vec![("F.Cu".to_string(), vec![((1.0, 0.0), (0.0, 0.0), 2.5)])];
         let consumed = vec![("e1".to_string(), 0.5)];
         let lookup = vec![("e1".to_string(), "F.Cu".to_string(), (0.0, 0.0), (1.0, 0.0))];
         let out = shrink_channel_widths(&layers, &consumed, &lookup);
@@ -463,12 +476,14 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn shrink_negative_zero_coordinate_matches_positive_zero_key() {
         // Python `-0.0 == 0.0`; the canonical key collapses them.
-        let layers = vec![(
-            "F.Cu".to_string(),
-            vec![((0.0, 0.0), (1.0, 0.0), 2.5)],
-        )];
+        let layers = vec![("F.Cu".to_string(), vec![((0.0, 0.0), (1.0, 0.0), 2.5)])];
         let consumed = vec![("e1".to_string(), 0.5)];
-        let lookup = vec![("e1".to_string(), "F.Cu".to_string(), (-0.0, -0.0), (1.0, 0.0))];
+        let lookup = vec![(
+            "e1".to_string(),
+            "F.Cu".to_string(),
+            (-0.0, -0.0),
+            (1.0, 0.0),
+        )];
         let out = shrink_channel_widths(&layers, &consumed, &lookup);
         assert_eq!(out[0].1[0].2, 2.0);
     }
@@ -476,14 +491,8 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn shrink_two_orientations_of_one_edge_accumulate() {
         // deltas (u,v) and (v,u) both reduce the stored (u,v) edge.
-        let layers = vec![(
-            "F.Cu".to_string(),
-            vec![((0.0, 0.0), (1.0, 0.0), 3.0)],
-        )];
-        let consumed = vec![
-            ("e1".to_string(), 0.5),
-            ("e2".to_string(), 1.0),
-        ];
+        let layers = vec![("F.Cu".to_string(), vec![((0.0, 0.0), (1.0, 0.0), 3.0)])];
+        let consumed = vec![("e1".to_string(), 0.5), ("e2".to_string(), 1.0)];
         let lookup = vec![
             ("e1".to_string(), "F.Cu".to_string(), (0.0, 0.0), (1.0, 0.0)),
             ("e2".to_string(), "F.Cu".to_string(), (1.0, 0.0), (0.0, 0.0)),
@@ -495,10 +504,7 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn shrink_skips_unknown_layer_and_unmatched_edge() {
-        let layers = vec![(
-            "F.Cu".to_string(),
-            vec![((0.0, 0.0), (1.0, 0.0), 2.5)],
-        )];
+        let layers = vec![("F.Cu".to_string(), vec![((0.0, 0.0), (1.0, 0.0), 2.5)])];
         let consumed = vec![("e1".to_string(), 1.0), ("e2".to_string(), 2.0)];
         let lookup = vec![
             ("e1".to_string(), "B.Cu".to_string(), (0.0, 0.0), (1.0, 0.0)),
@@ -521,7 +527,10 @@ pub(crate) mod tests {
         let out = consume_capacity(&widths, &topo, &current);
         // e2 (existing) stays at position 0 and accumulates 1.0 + 0.7;
         // e1 appends after it: order = [e2, e1].
-        assert_eq!(out, vec![("e2".to_string(), 1.7), ("e1".to_string(), 0.7 + 0.4)]);
+        assert_eq!(
+            out,
+            vec![("e2".to_string(), 1.7), ("e1".to_string(), 0.7 + 0.4)]
+        );
     }
 
     #[cfg_attr(test, test)]

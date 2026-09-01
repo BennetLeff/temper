@@ -129,6 +129,13 @@ pub fn log(x: f64) -> f64 {
 /// CPython ``math.log`` semantics: libm `log`, but raises ``ValueError``
 /// for domain errors (x <= 0 and finite), matching CPython's
 /// ``math.log(0)`` → ``ValueError`` (not ``-inf``).
+///
+/// Currently uncalled. Retained rather than deleted for the same reason the
+/// raw `log` directly above carries the same attribute: these are a matched
+/// pair of CPython-semantics primitives, and `log`'s own NOTE points readers
+/// HERE as the one to prefer. Deleting this would strand that reference and
+/// leave only the variant that silently returns -inf where CPython raises.
+#[allow(dead_code)]
 pub fn py_log(x: f64) -> Result<f64, &'static str> {
     if x.is_finite() && x <= 0.0 {
         return Err("math domain error");

@@ -77,15 +77,19 @@ use crate::stage::{Stage, StageError, StageErrorKind};
 
 /// The canonical D1->D7 stage order of `create_drc_aware_pipeline()` (the
 /// 23 stages of the factory's ordered construction, in declaration order).
-#[cfg(feature = "python")]
+///
+/// Ungated (2026-08-20, Option E scaffolding): the table is pure const data
+/// with no pyo3 dependency; the wasm tier and the Rust CLI driver both build
+/// `--no-default-features`. The pyo3 stage-factory/run-loop surface below
+/// stays python-gated.
 const DRC_AWARE_STAGE_KINDS: &[&str] = &[
     "config_attach",
     "net_class_setup",
     "zone_geometry",
     "zone_assignment",
     "hv_lv_partition",
-    "slot_generation",        // zone_aware -> zone_aware_slot_generation
-    "component_assignment",   // phased config -> phased_component_assignment
+    "slot_generation",      // zone_aware -> zone_aware_slot_generation
+    "component_assignment", // phased config -> phased_component_assignment
     "apply_placements",
     "courtyard_check",
     "apply_placements",
@@ -106,16 +110,27 @@ const DRC_AWARE_STAGE_KINDS: &[&str] = &[
 
 /// The canonical 23-stage order with the zone-aware and phased substitutions
 /// applied (what `create_drc_aware_pipeline()` actually builds by default).
-#[cfg(feature = "python")]
+///
+/// Ungated (2026-08-20, Option E scaffolding): pure Rust (a deterministic
+/// substitution over the const table), so the Rust CLI driver can sequence
+/// the D1->D7 order without an interpreter.
 pub fn drc_aware_stage_order(zone_aware: bool, phased: bool) -> Vec<&'static str> {
     DRC_AWARE_STAGE_KINDS
         .iter()
         .map(|k| match *k {
             "slot_generation" => {
-                if zone_aware { "zone_aware_slot_generation" } else { "slot_generation" }
+                if zone_aware {
+                    "zone_aware_slot_generation"
+                } else {
+                    "slot_generation"
+                }
             }
             "component_assignment" => {
-                if phased { "phased_component_assignment" } else { "component_assignment" }
+                if phased {
+                    "phased_component_assignment"
+                } else {
+                    "component_assignment"
+                }
             }
             other => other,
         })
@@ -183,7 +198,8 @@ impl PythonStageShim {
             .ctx
             .current_py_state
             .lock()
-            .map_err(|_| PyRuntimeError::new_err("pipeline run context poisoned"))? = result.clone().unbind();
+            .map_err(|_| PyRuntimeError::new_err("pipeline run context poisoned"))? =
+            result.clone().unbind();
 
         // The oracle's fence block: `if self.fence and stage.invariants:`.
         if let Some(fence) = &self.ctx.fence {
@@ -237,7 +253,8 @@ impl PythonStageShim {
                     .ctx
                     .previous_violations
                     .lock()
-                    .map_err(|_| PyRuntimeError::new_err("pipeline run context poisoned"))? = Some(fs);
+                    .map_err(|_| PyRuntimeError::new_err("pipeline run context poisoned"))? =
+                    Some(fs);
             }
         }
 
@@ -289,7 +306,9 @@ pub(crate) fn run_pipeline(
     let py_state: Py<PyAny> = match initial_state {
         Some(s) => s,
         None => {
-            let cls = py.import("temper_placer.deterministic.state")?.getattr("BoardState")?;
+            let cls = py
+                .import("temper_placer.deterministic.state")?
+                .getattr("BoardState")?;
             cls.call0()?.into_any().unbind()
         }
     };
@@ -373,7 +392,11 @@ fn config_has_phased_rules(py: Python<'_>, config: Option<&Bound<'_, PyAny>>) ->
     let Some(config) = config else {
         return Ok(false);
     };
-    for name in ["placement_priority", "component_spacing_rules", "component_groups"] {
+    for name in [
+        "placement_priority",
+        "component_spacing_rules",
+        "component_groups",
+    ] {
         let v = attr_or_none(config, name)?;
         if v.bind(py).is_truthy()? {
             return Ok(true);
@@ -507,9 +530,11 @@ pub(crate) fn build_drc_aware_python_stages(
     let mut stages: Vec<Py<PyAny>> = Vec::new();
 
     // D1 setup: config attach + net class mapping early. (`ConfigAttachStage`
-    // is not re-exported from `stages/__init__.py`; import its module.)
+    // was re-exported from `stages/__init__.py` in the shim-debt cleanup of
+    // 2026-08-20 -- the `stages/config_attach.py` module now re-exports the
+    // adapter class, so construct it from the package like every other stage.)
     stages.push(
-        py.import("temper_placer.deterministic.stages.config_attach")?
+        stages_mod
             .getattr("ConfigAttachStage")?
             .call1((config.clone(),))?
             .into_any()

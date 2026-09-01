@@ -252,7 +252,8 @@ class TestNetGraph:
     def test_edges_identity(self):
         """edges getter returns the SAME Python object (not a copy)."""
         prod = NetGraph("NET1")
-        assert prod.edges is prod.edges  # identity
+        edges_back = prod.edges
+        assert edges_back is prod.edges  # identity
         # Default factory creates a fresh list per instance
         prod2 = NetGraph("NET2")
         assert prod.edges is not prod2.edges  # not shared
@@ -260,7 +261,8 @@ class TestNetGraph:
     def test_star_nodes_identity(self):
         """star_nodes getter returns the SAME Python set (not a copy)."""
         prod = NetGraph("NET1")
-        assert prod.star_nodes is prod.star_nodes  # identity
+        star_back = prod.star_nodes
+        assert star_back is prod.star_nodes  # identity
         # Default factory creates a fresh set per instance
         prod2 = NetGraph("NET2")
         assert prod.star_nodes is not prod2.star_nodes  # not shared

@@ -375,7 +375,7 @@ re-measure the 120-sample ceiling and update both files per AGENTS.md.
 ## 9. Reproduction
 
 ```bash
-uv run --no-sync python docs/evidence/2026-08-03_mains_selv_barrier_falsification.py
+uv run --no-sync python docs/evidence/scripts/2026-08-03_mains_selv_barrier_falsification.py
 # expected: HV bbox x[21.24,168.00] / SELV bbox x[21.24,171.00];
 # best split vertical 111 far-side / 239 intruders, horizontal 116 / 82;
 # BLOCKERS: ['K1 5.369mm', 'T1 5.977mm']  (informative, NOT decisive);

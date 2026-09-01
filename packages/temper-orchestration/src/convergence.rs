@@ -23,7 +23,7 @@
 //   calling CPython's `format()` builtin and `str(list)` — parity by
 //   identity, not by coincidence of formatter implementations.
 // - `check_routability_regression` reuses the feasibility kernel
-//   (`routability_regression_core` via the exported pyfunction); the
+//   (`routability_regression_core`); the
 //   best/stall state is written back the way the pre-migration shim did.
 //   The `_best_routed_nets` / `_best_routability` / `_stall_count`
 //   attributes are DECLARED optional fields (None / 0 defaults) rather than
@@ -51,7 +51,7 @@ use pyo3::types::{PyDict, PyFrozenSet, PyList};
 #[cfg(feature = "python")]
 use crate::board_state::BoardState;
 #[cfg(feature = "python")]
-use crate::feasibility::check_routability_regression;
+use crate::feasibility::routability_regression_core;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
@@ -73,7 +73,14 @@ fn now_secs() -> f64 {
 /// (the repo's `Severity` precedent — pyo3 has no metaclass hook, so
 /// `TerminationReason.SUCCESS` etc. are class attributes constructed on
 /// access). `__eq__` compares by value; `__hash__` is a stable name hash.
-#[cfg_attr(feature = "python", pyclass(skip_from_py_object, module = "temper_orchestration", name = "TerminationReason"))]
+#[cfg_attr(
+    feature = "python",
+    pyclass(
+        skip_from_py_object,
+        module = "temper_orchestration",
+        name = "TerminationReason"
+    )
+)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TerminationReason {
     value: &'static str,
@@ -160,7 +167,11 @@ impl TerminationReason {
 
     /// Enum repr: `<TerminationReason.SUCCESS: 'success'>`.
     fn __repr__(&self) -> String {
-        format!("<TerminationReason.{}: '{}'>", self.member_name(), self.value)
+        format!(
+            "<TerminationReason.{}: '{}'>",
+            self.member_name(),
+            self.value
+        )
     }
 
     /// Enum str: `TerminationReason.SUCCESS`.
@@ -188,7 +199,15 @@ impl TerminationReason {
 
 #[cfg(feature = "python")]
 /// Mirror of Python `pipeline.convergence.ConvergenceCriteria` (dataclass).
-#[cfg_attr(feature = "python", pyclass(dict, from_py_object, module = "temper_orchestration", name = "ConvergenceCriteria"))]
+#[cfg_attr(
+    feature = "python",
+    pyclass(
+        dict,
+        from_py_object,
+        module = "temper_orchestration",
+        name = "ConvergenceCriteria"
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct ConvergenceCriteria {
     #[pyo3(get, set)]
@@ -291,7 +310,12 @@ impl ConvergenceCriteria {
 /// not a `datetime`. The routability-regression bookkeeping attributes
 /// (`_best_routed_nets`, `_best_routability`, `_stall_count`) are declared
 /// fields here (None/0 defaults) — see the module docstring's boundary note.
-#[pyclass(dict, skip_from_py_object, module = "temper_orchestration", name = "ConvergenceState")]
+#[pyclass(
+    dict,
+    skip_from_py_object,
+    module = "temper_orchestration",
+    name = "ConvergenceState"
+)]
 #[derive(Clone, Debug)]
 pub struct ConvergenceState {
     #[pyo3(get, set)]
@@ -568,8 +592,7 @@ impl ConvergenceChecker {
         let best_routability = state._best_routability;
         let stall_count = state._stall_count as i64;
 
-        let out = check_routability_regression(
-            py,
+        let out = routability_regression_core(
             routed.clone(),
             total_nets,
             previous,
@@ -578,30 +601,30 @@ impl ConvergenceChecker {
             best_routed,
             best_routability,
             stall_count,
-        )?;
-        let out_dict = out.bind(py).cast::<PyDict>()?;
-        let outcome: String = dict_require(out_dict, "outcome")?;
-        let current_ratio: f64 = dict_require(out_dict, "current_ratio")?;
-        let threshold_product: f64 = dict_require(out_dict, "threshold_product")?;
-        let lost_nets: Vec<String> = dict_require(out_dict, "lost_nets")?;
-        let best_routed_out: Option<Vec<String>> = dict_require(out_dict, "best_routed")?;
-        let best_ratio_out: Option<f64> = dict_require(out_dict, "best_ratio")?;
-        let stall_count_out: i64 = dict_require(out_dict, "stall_count")?;
+        );
+        let outcome = out.outcome;
+        let current_ratio = out.current_ratio;
+        let threshold_product = out.threshold_product;
+        let lost_nets = out.lost_nets;
+        let best_routed_out = out.best_routed;
+        let best_ratio_out = out.best_ratio;
+        let stall_count_out = out.stall_count;
 
         // Write back the kernel's post-call state (mirrors the shim).
         if let Some(best) = &best_routed_out {
-            state._best_routed_nets = Some(
-                PyFrozenSet::new(py, best.iter().map(|s| s.as_str()))?.unbind(),
-            );
+            state._best_routed_nets =
+                Some(PyFrozenSet::new(py, best.iter().map(|s| s.as_str()))?.unbind());
             state._best_routability = best_ratio_out;
         }
         state._stall_count = stall_count_out as usize;
 
-        match outcome.as_str() {
+        match outcome {
             "regression" => {
                 state.terminated = true;
-                state.termination_reason =
-                    Some(Py::new(py, TerminationReason::new("routability_regression"))?);
+                state.termination_reason = Some(Py::new(
+                    py,
+                    TerminationReason::new("routability_regression"),
+                )?);
                 // The f-strings render via CPython's `format()` so the
                 // `:.3f` digits are bit-identical to the oracle's rendering.
                 let current = py_format_float(py, current_ratio, ".3f")?;
@@ -617,8 +640,10 @@ impl ConvergenceChecker {
             }
             "converged" => {
                 state.terminated = true;
-                state.termination_reason =
-                    Some(Py::new(py, TerminationReason::new("routability_converged"))?);
+                state.termination_reason = Some(Py::new(
+                    py,
+                    TerminationReason::new("routability_converged"),
+                )?);
                 let message = format!(
                     "Routability converged: {}/{} nets routed with identical net set for {} iterations",
                     routed.len(),
@@ -642,18 +667,6 @@ fn metric_or(metrics: &Bound<'_, PyDict>, key: &str, default: f64) -> PyResult<f
         Some(value) => value.extract::<f64>(),
         None => Ok(default),
     }
-}
-
-#[cfg(feature = "python")]
-/// Extract a required dict item (the routability kernel always sets every
-/// key; a missing key is a kernel contract violation, not a user error).
-fn dict_require<T>(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<T>
-where
-    T: for<'a, 'py> FromPyObject<'a, 'py, Error = PyErr>,
-{
-    dict.get_item(key)?
-        .ok_or_else(|| pyo3::exceptions::PyKeyError::new_err(key.to_string()))?
-        .extract()
 }
 
 #[cfg(feature = "python")]

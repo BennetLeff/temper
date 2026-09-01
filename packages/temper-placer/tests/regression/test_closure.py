@@ -2,7 +2,10 @@
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
+
+import pytest
 
 from temper_placer.regression.closure_test import ClosureResult, ClosureTest
 
@@ -142,8 +145,105 @@ class TestClosureResultValidation:
 class TestClosureTestRequireAllStages:
     """Unit tests for require_all_stages behavior."""
 
+    def test_retired_template_falls_back_to_supported_cp_sat(self, tmp_path: Path):
+        """A missing legacy strategy uses CP-SAT and routes its result.
+
+        The old ``template`` registration wrapped the retired JAX backend;
+        this test guards the supported replacement without importing or
+        restoring that adapter.
+        """
+        pcb_path = tmp_path / "test.kicad_pcb"
+        pcb_path.write_text("(kicad_pcb)")
+        parsed = SimpleNamespace(
+            components=[],
+            nets=[],
+            board=SimpleNamespace(origin=(10.0, 20.0)),
+        )
+        placement = SimpleNamespace(
+            status="optimal",
+            to_placements_dict=lambda: {"R1": (1.0, 2.0)},
+            to_rotations_dict=lambda: {"R1": 0.0},
+        )
+        routed = SimpleNamespace(data=SimpleNamespace(completion_rate=1.0))
+        route_calls = []
+
+        def missing_strategy(*_args, **_kwargs):
+            from temper_placer.runner import StrategyExhaustedError
+
+            raise StrategyExhaustedError("placement", ["template"], [])
+
+        def fake_route(_parsed, placements, **kwargs):
+            route_calls.append((placements, kwargs))
+            return routed
+
+        with (
+            patch("temper_placer.io.kicad_parser.parse_kicad_pcb_v6", return_value=parsed),
+            patch("temper_placer.regression.closure_test._run_channel_analysis", return_value=1),
+            patch(
+                "temper_placer.regression.closure_test._load_routing_design_rules",
+                return_value="authoritative-rules",
+            ),
+            patch("temper_placer.runner.resolve_and_run", side_effect=missing_strategy) as resolve,
+            patch(
+                "temper_placer.regression.closure_test._run_cp_sat_placement",
+                return_value=placement,
+            ),
+            patch("temper_placer.router_v6.route_pcb", side_effect=fake_route),
+            patch(
+                "temper_placer.validation._drc_api.run_drc",
+                return_value=SimpleNamespace(error_count=0, warning_count=0),
+            ),
+        ):
+            result = ClosureTest(
+                pcb_path=pcb_path,
+                repo_root=tmp_path,
+                strategy="template",
+            ).run()
+
+        assert result.passed
+        resolve.assert_not_called()
+        assert route_calls == [
+            (
+                {"R1": (11.0, 22.0)},
+                {
+                    "design_rules": "authoritative-rules",
+                    "rotations": {"R1": 0.0},
+                    "components": [],
+                },
+            )
+        ]
+        assert not any("template" in message for message in result.errors)
+
+    def test_unsupported_strategy_is_not_masked_by_cp_sat_fallback(self, tmp_path: Path):
+        """Only the retired template alias may use the CP-SAT replacement."""
+        pcb_path = tmp_path / "test.kicad_pcb"
+        pcb_path.write_text("(kicad_pcb)")
+        parsed = SimpleNamespace(components=[], nets=[], board=SimpleNamespace(origin=(0.0, 0.0)))
+
+        def missing_strategy(*_args, **_kwargs):
+            from temper_placer.runner import StrategyExhaustedError
+
+            raise StrategyExhaustedError("placement", ["custom"], [])
+
+        with (
+            patch("temper_placer.io.kicad_parser.parse_kicad_pcb_v6", return_value=parsed),
+            patch("temper_placer.regression.closure_test._run_channel_analysis", return_value=1),
+            patch("temper_placer.runner.resolve_and_run", side_effect=missing_strategy),
+            patch("temper_placer.regression.closure_test._run_cp_sat_placement") as fallback,
+        ):
+            result = ClosureTest(
+                pcb_path=pcb_path,
+                repo_root=tmp_path,
+                strategy="custom",
+                require_all_stages=True,
+            ).run()
+
+        fallback.assert_not_called()
+        assert any("Placement not available" in message for message in result.errors)
+        assert any("placement stage failed" in message for message in result.errors)
+
     def test_require_all_stages_placement_error(self, tmp_path: Path):
-        """Placement ImportError with require_all_stages=True becomes an error."""
+        """A CP-SAT placement failure with require_all_stages=True is fatal."""
         pcb_path = tmp_path / "test.kicad_pcb"
         pcb_path.write_text("(kicad_pcb)")
 
@@ -153,9 +253,9 @@ class TestClosureTestRequireAllStages:
                 return_value={},
             ),
             patch(
-                "temper_placer.runner.resolve_and_run",
+                "temper_placer.regression.closure_test._run_cp_sat_placement",
                 side_effect=ImportError("No module named temper_placer.protocol"),
-            ),
+            ) as run_cp_sat,
         ):
             test = ClosureTest(
                 pcb_path=pcb_path,
@@ -164,6 +264,10 @@ class TestClosureTestRequireAllStages:
             result = test.run()
             assert result.passed is False
             assert any("Placement not available" in e for e in result.errors)
+            # A failed placement cannot supply meaningful routing input. The
+            # runner must stop at the failed stage instead of invoking the
+            # router with an empty placement map.
+            assert run_cp_sat.call_count == 1
 
     def test_default_graceful_degradation(self, tmp_path: Path):
         """Placement ImportError without require_all_stages is a warning, not error."""
@@ -188,3 +292,64 @@ class TestClosureTestRequireAllStages:
             assert any("Placement not available" in w for w in result.warnings)
             # validate() will catch the zero-results and make passed=False
             # because benders_iterations=0, router_completion_pct=0
+
+
+class TestRouterCompletionUnitConversion:
+    """The fraction -> percent seam in ``ClosureTest.run`` (Step 3).
+
+    ``RoutingResult.completion_rate`` is a FRACTION in [0, 1];
+    ``ClosureResult.router_completion_pct`` is a PERCENT in [0, 100].
+    Assigning the fraction unscaled understated every reported completion
+    by 100x -- a 90%-routed board rendered as "Router completion: 0.9%",
+    and the recorded ``completion_pct`` metric (declared ``unit: "percent"``
+    in ``regression/metrics_schema.yaml``) was compared against a 95.0
+    threshold it could never reach.
+    """
+
+    @staticmethod
+    def _stage_result(**data_attrs):
+        return type("Res", (), {"data": type("D", (), data_attrs)()})()
+
+    def _run(self, tmp_path: Path, completion_rate):
+        pcb_path = tmp_path / "test.kicad_pcb"
+        pcb_path.write_text("(kicad_pcb)")
+
+        def _dispatch(*, phase, **_kwargs):
+            if phase == "placement":
+                return self._stage_result(iterations=2, cuts=0, placements={})
+            if completion_rate is None:
+                return self._stage_result()  # no completion_rate attribute
+            return self._stage_result(completion_rate=completion_rate)
+
+        with (
+            patch("temper_placer.io.kicad_parser.parse_kicad_pcb_v6", return_value={}),
+            patch("temper_placer.runner.resolve_and_run", side_effect=_dispatch),
+        ):
+            # Use a custom strategy so this seam test exercises the protocol
+            # StageOutput path it mocks. The default ``template`` spelling now
+            # selects the direct CP-SAT backend on current main.
+            return ClosureTest(pcb_path=pcb_path, strategy="test_protocol").run()
+
+    @pytest.mark.parametrize(
+        ("rate", "expected_pct", "rendered"),
+        [
+            (0.9, 90.0, "Router completion: 90.0%"),
+            (1.0, 100.0, "Router completion: 100.0%"),
+            (0.3775510204081632, 37.75510204081632, "Router completion: 37.8%"),
+        ],
+    )
+    def test_fraction_is_scaled_to_percent(self, tmp_path, rate, expected_pct, rendered):
+        result = self._run(tmp_path, rate)
+        assert result.router_completion_pct == pytest.approx(expected_pct)
+        assert rendered in result.summary()
+
+    def test_zero_rate_stays_zero_so_validate_still_fires(self, tmp_path):
+        """0.0 scales to 0.0, so the zero-results assertion is unchanged."""
+        result = self._run(tmp_path, 0.0)
+        assert result.router_completion_pct == 0.0
+        assert any("router_completion_pct <= 0" in e for e in result.errors)
+
+    def test_missing_completion_rate_defaults_to_zero(self, tmp_path):
+        """A routing result without ``completion_rate`` must not become 100%."""
+        result = self._run(tmp_path, None)
+        assert result.router_completion_pct == 0.0

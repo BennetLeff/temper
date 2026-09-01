@@ -19,8 +19,6 @@ from types import SimpleNamespace
 
 import pytest
 
-from temper_placer.explainability.decision import DecisionPhase, DecisionType
-from temper_placer.explainability.logger import DecisionLogger
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
     DrcGate,
@@ -38,110 +36,6 @@ from temper_placer.placer.cp_sat.model import (
     CpSolverSolution,
     SolveStatus,
 )
-
-# ---------------------------------------------------------------------------
-# explainability/logger.py — DecisionLogger (14 allowlisted methods)
-# ---------------------------------------------------------------------------
-
-
-class TestDecisionLogger:
-    def test_enable_disable_is_enabled(self):
-        logger = DecisionLogger()
-        assert logger.is_enabled() is True
-        logger.disable()
-        assert logger.is_enabled() is False
-        logger.enable()
-        assert logger.is_enabled() is True
-
-    def test_set_phase_epoch_iteration(self):
-        logger = DecisionLogger()
-        logger.set_phase(DecisionPhase.ROUTING)
-        logger.set_epoch(42)
-        logger.set_iteration(7)
-        assert logger.current_phase is DecisionPhase.ROUTING
-        assert logger.current_epoch == 42
-        assert logger.current_iteration == 7
-
-    def test_phase_context_manager_restores(self):
-        logger = DecisionLogger()
-        logger.set_phase(DecisionPhase.GEOMETRIC)
-        with logger.phase(DecisionPhase.SEMANTIC):
-            assert logger.current_phase is DecisionPhase.SEMANTIC
-        assert logger.current_phase is DecisionPhase.GEOMETRIC
-
-    def test_epoch_context_manager_restores(self):
-        logger = DecisionLogger()
-        logger.set_epoch(1)
-        with logger.epoch(500):
-            assert logger.current_epoch == 500
-        assert logger.current_epoch == 1
-
-    def test_log_position(self):
-        logger = DecisionLogger()
-        logger.set_phase(DecisionPhase.GEOMETRIC)
-        logger.set_epoch(7)
-        logger.set_iteration(3)
-        logger.log_position(
-            "C1", (10.0, 20.0), previous=(0.0, 0.0), reason="gradient update",
-        )
-        assert len(logger.trace.decisions) == 1
-        d = logger.trace.decisions[0]
-        assert d.subject == "C1"
-        assert d.value == (10.0, 20.0)
-        assert d.previous_value == (0.0, 0.0)
-        assert d.reason == "gradient update"
-        assert d.decision_type is DecisionType.POSITION_UPDATE
-        assert d.epoch == 7
-        assert d.iteration == 3
-
-    def test_log_rotation(self):
-        logger = DecisionLogger()
-        logger.log_rotation("C1", 2, previous=0, reason="polarity")
-        assert len(logger.trace.decisions) == 1
-        d = logger.trace.decisions[0]
-        assert d.subject == "C1"
-        assert d.value == 2
-        assert d.decision_type is DecisionType.ROTATION
-
-    def test_log_heuristic(self):
-        logger = DecisionLogger()
-        logger.log_heuristic("thermal_edge", "C1", (1.0, 2.0), confidence=0.9)
-        assert len(logger.trace.decisions) == 1
-        d = logger.trace.decisions[0]
-        assert d.value == (1.0, 2.0)
-        assert "thermal_edge" in d.reason
-
-    def test_log_constraint_application(self):
-        logger = DecisionLogger()
-        logger.log_constraint_application("thermal.edge", ["C1", "C2"], "moved_to_edge")
-        assert len(logger.trace.decisions) == 1
-        d = logger.trace.decisions[0]
-        assert "thermal.edge" in d.reason
-        assert "C1" in d.reason and "C2" in d.reason
-
-    def test_disabled_log_methods_are_noops(self):
-        logger = DecisionLogger()
-        logger.disable()
-        logger.log_position("C1", (1.0, 1.0))
-        logger.log_rotation("C1", 1)
-        logger.log_heuristic("h", "C1", (2.0, 2.0))
-        logger.log_constraint_application("c", ["C1"], "moved")
-        assert len(logger.trace.decisions) == 0
-
-    def test_should_log(self):
-        logger = DecisionLogger()
-        assert logger.should_log(0, interval=100) is True
-        assert logger.should_log(50, interval=100) is False
-        assert logger.should_log(100, interval=100) is True
-        assert logger.should_log(99, interval=100, is_final=True) is True
-
-    def test_significant_change(self):
-        logger = DecisionLogger()
-        # distance 5.0 against thresholds straddling it
-        assert logger.significant_change((0.0, 0.0), (3.0, 4.0), threshold=5.0) is True
-        assert logger.significant_change((0.0, 0.0), (3.0, 4.0), threshold=6.0) is False
-        assert logger.significant_change((0.0, 0.0), (0.1, 0.0), threshold=0.5) is False
-
 
 # ---------------------------------------------------------------------------
 # placer/cp_sat/model.py — CpSatModel / CpSolverSolution

@@ -47,6 +47,10 @@ from pathlib import Path
 
 import pytest
 import temper_orchestration as _to
+from tests._legacy_oracle_modules import install as _install_legacy_oracle_modules
+
+_install_legacy_oracle_modules()
+
 import tests.deterministic._deterministic_pipeline_py_oracle as _orc
 
 from temper_placer.core.board import Board

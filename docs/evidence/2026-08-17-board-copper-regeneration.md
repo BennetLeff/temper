@@ -1,4 +1,4 @@
-<!-- provenance: commit=aec4bf1f8 dirty=false at stub-creation time (worktree agent-a62e31eb2a2fa68d7). pcb/temper.kicad_pcb sha256 bf2dbb3dcd48f9f1457306769e786d6fcbfa87287339f8a39473888ce80db1f5 at stub time -- this stub is a placeholder written before any board write, per this worktree's survival rule (a worktree with no commits is destroyed when the agent stops). -->
+<!-- provenance: commit=aec4bf1f865c566c8ecbfc437c47d4768612f758 dirty=false at stub-creation time (worktree agent-a62e31eb2a2fa68d7). pcb/temper.kicad_pcb sha256 bf2dbb3dcd48f9f1457306769e786d6fcbfa87287339f8a39473888ce80db1f5 at stub time -- this stub is a placeholder written before any board write, per this worktree's survival rule (a worktree with no commits is destroyed when the agent stops). -->
 ---
 title: "Regenerating the committed board's copper: verification-before-write (in progress)"
 date: 2026-08-17

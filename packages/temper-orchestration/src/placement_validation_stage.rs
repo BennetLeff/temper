@@ -8,21 +8,20 @@
 // the hard-violation filter, the `PlacementValidationError` raise decision +
 // message text and the `placement_violations=tuple(...)` write. The Python
 // stage instance is carried as the config carrier (the D4/D5
-// `PhasedAssignmentStage` pattern): the per-constraint validation helpers
-// `_validate_proximity` / `_validate_signal_hv` (and the `_get_pin_position` /
+// `PhasedAssignmentStage` pattern): the `_get_pin_position` /
 // `_get_component_positions` / `_get_proximity_constraints` /
-// `_get_signal_hv_constraints` / `_log_summary` methods they drive) stay
-// Python single-source and are CALLED BACK on the stage -- they are directly
-// exercised by the pre-existing suites (`test_drc_leaf_rust_differential.py`),
-// the established D5 mixin-helper boundary. The `PlacementValidationError`
+// `_get_signal_hv_constraints` / `_log_summary` methods stay Python for
+// extraction, logging and object marshalling. The Rust stage calls the
+// temper-drc-rs validation kernels directly; these paths are exercised by
+// the pre-existing differential suites. The `PlacementValidationError`
 // exception class stays Python (the shim raises it with the Rust-decided
 // message).
 //
 // What stays Python / single-source (driven through FFI, bit-exact by
 // construction):
 // - the temper-drc-rs `validate_proximity_py` / `validate_signal_hv_py`
-//   kernels and the `PlacementViolation` dataclass (both reached through the
-//   called-back helper methods),
+//   kernels and the `PlacementViolation` dataclass (the kernels are called
+//   directly; the dataclass remains a Python marshalling boundary),
 // - `logging` for the summary lines,
 // - CPython string operations for the raise message.
 
@@ -32,7 +31,7 @@ use std::borrow::Cow;
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
-use pyo3::types::PyList;
+use pyo3::types::{PyDict, PyFloat, PyList, PyTuple};
 
 #[cfg(feature = "python")]
 use crate::board_state::BoardState;
@@ -63,7 +62,9 @@ impl Stage<BoardState> for PlacementValidationStage {
     }
 
     fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
-        stage_guard(STAGE_NAME, || Python::attach(|py| self.run_inner(py, state)))
+        stage_guard(STAGE_NAME, || {
+            Python::attach(|py| self.run_inner(py, state))
+        })
     }
 }
 
@@ -94,32 +95,39 @@ impl PlacementValidationStage {
         // {ref: (x, y)} dict, built here from board.components (the method
         // stays on the Python stage as directly-exercised public API; the
         // differential pins the two agree).
-        let component_positions = pyo3::types::PyDict::new(py);
+        let component_positions = PyDict::new(py);
         if let Ok(components) = board.getattr("components") {
             for comp in components.try_iter()? {
                 let comp = comp?;
-                let pos = pyo3::types::PyTuple::new(
+                let ref_: String = comp.getattr("ref")?.extract()?;
+                let x: f64 = comp.getattr("x")?.extract()?;
+                let y: f64 = comp.getattr("y")?.extract()?;
+                let pos = PyTuple::new(
                     py,
-                    [comp.getattr("x")?.into_any(), comp.getattr("y")?.into_any()],
+                    [
+                        PyFloat::new(py, x).into_any(),
+                        PyFloat::new(py, y).into_any(),
+                    ],
                 )?;
-                component_positions.set_item(comp.getattr("ref")?, pos)?;
+                component_positions.set_item(ref_, pos)?;
             }
         }
 
         let violations = PyList::empty(py);
+        let drc = py.import("temper_drc_rs")?;
         let proximity = stage.call_method0("_get_proximity_constraints")?;
         for constraint in proximity.try_iter()? {
             let constraint = constraint?;
-            let v = stage.call_method1("_validate_proximity", (&constraint, &component_positions))?;
-            if !v.is_none() {
+            if let Some(v) = validate_proximity(py, stage, &drc, &constraint, &component_positions)?
+            {
                 violations.append(v)?;
             }
         }
         let signal_hv = stage.call_method0("_get_signal_hv_constraints")?;
         for constraint in signal_hv.try_iter()? {
             let constraint = constraint?;
-            let v = stage.call_method1("_validate_signal_hv", (&constraint, &component_positions))?;
-            if !v.is_none() {
+            if let Some(v) = validate_signal_hv(py, stage, &drc, &constraint, &component_positions)?
+            {
                 violations.append(v)?;
             }
         }
@@ -145,15 +153,205 @@ impl PlacementValidationStage {
             ));
         }
 
-        let tuple = py.import("builtins")?.getattr("tuple")?.call1((&violations,))?;
+        let tuple = py
+            .import("builtins")?
+            .getattr("tuple")?
+            .call1((&violations,))?;
         let mut new_state = state;
         // U6 (O-C3): the oracle's tuple construction is kept verbatim, then
         // marshalled INTO the owned `PlacementViolationList` field.
-        new_state.placement_violations = Some(
-            crate::marshal::to_owned::<PlacementViolationList>(&tuple)?,
-        );
+        new_state.placement_violations =
+            Some(crate::marshal::to_owned::<PlacementViolationList>(&tuple)?);
         Ok(new_state)
     }
+}
+
+#[cfg(feature = "python")]
+/// Resolve a pin through the Rust-owned parsed-pad kernel.  The Python stage
+/// remains a configuration carrier (`parsed_pads`), but no stage method is
+/// called for individual pins: all values needed by the kernel are typed at
+/// this boundary and the existing `temper-drc-rs` implementation owns the
+/// fallback and offset arithmetic.
+fn resolve_pin_position_direct<'py>(
+    _py: Python<'py>,
+    drc: &Bound<'py, PyAny>,
+    stage: &Bound<'py, PyAny>,
+    component_ref: &Bound<'py, PyAny>,
+    pin: &Bound<'py, PyAny>,
+    component_positions: &Bound<'py, PyDict>,
+) -> PyResult<Bound<'py, PyAny>> {
+    // `resolve_pin_position_py` is the Rust-owned kernel. Calling it from
+    // this Rust stage keeps the Python object only at the typed FFI boundary;
+    // importantly, the Python stage's `_get_pin_position` method is never
+    // consulted, so an override cannot reintroduce a compute callback.
+    let parsed_pads = stage.getattr("parsed_pads")?;
+    drc.call_method1(
+        "resolve_pin_position_py",
+        (component_ref, pin, component_positions, parsed_pads),
+    )
+}
+
+#[cfg(feature = "python")]
+/// Build the Python dataclass after a Rust DRC leaf has returned a violation.
+/// The class remains Python-owned marshalling; validation decisions and
+/// geometry stay in `temper-drc-rs`.
+#[allow(clippy::too_many_arguments)]
+fn make_placement_violation<'py>(
+    py: Python<'py>,
+    constraint: &Bound<'py, PyAny>,
+    violation_type: &str,
+    severity: &Bound<'py, PyAny>,
+    message: &Bound<'py, PyAny>,
+    actual: Option<&Bound<'py, PyAny>>,
+    required: Option<&Bound<'py, PyAny>>,
+    component_a: Option<&str>,
+    component_b: Option<&str>,
+) -> PyResult<Bound<'py, PyAny>> {
+    let kwargs = PyDict::new(py);
+    kwargs.set_item("constraint_name", constraint.getattr("name")?)?;
+    kwargs.set_item("violation_type", violation_type)?;
+    kwargs.set_item("message", message)?;
+    kwargs.set_item("severity", severity)?;
+    if let Some(value) = component_a
+        && !value.is_empty()
+    {
+        kwargs.set_item("component_a", value)?;
+    }
+    if let Some(value) = component_b
+        && !value.is_empty()
+    {
+        kwargs.set_item("component_b", value)?;
+    }
+    if let Some(value) = actual {
+        kwargs.set_item("actual_distance_mm", value)?;
+    }
+    if let Some(value) = required {
+        kwargs.set_item("required_distance_mm", value)?;
+    }
+    py.import("temper_placer.deterministic.stages.placement_validation")?
+        .getattr("PlacementViolation")?
+        .call((), Some(&kwargs))
+}
+
+#[cfg(feature = "python")]
+fn validate_proximity<'py>(
+    py: Python<'py>,
+    stage: &Bound<'py, PyAny>,
+    drc: &Bound<'py, PyAny>,
+    constraint: &Bound<'py, PyAny>,
+    component_positions: &Bound<'py, PyDict>,
+) -> PyResult<Option<Bound<'py, PyAny>>> {
+    let from_pos = resolve_pin_position_direct(
+        py,
+        drc,
+        stage,
+        &constraint.getattr("from_component")?,
+        &constraint.getattr("from_pin")?,
+        component_positions,
+    )?;
+    let to_pos = resolve_pin_position_direct(
+        py,
+        drc,
+        stage,
+        &constraint.getattr("to_component")?,
+        &constraint.getattr("to_pin")?,
+        component_positions,
+    )?;
+    let result = drc.call_method1("validate_proximity_py", (constraint, &from_pos, &to_pos))?;
+    if result.is_none() || !result.get_item(0)?.extract::<bool>()? {
+        return Ok(None);
+    }
+    let severity = result.get_item(1)?;
+    let actual = result.get_item(2)?;
+    let required = result.get_item(3)?;
+    let message = result.get_item(4)?;
+    let component_a: String = result.get_item(5)?.extract()?;
+    let component_b: String = result.get_item(6)?.extract()?;
+    let missing =
+        severity.extract::<String>()? == "warning" && (from_pos.is_none() || to_pos.is_none());
+    let kind = if missing {
+        "missing_component"
+    } else {
+        "proximity"
+    };
+    Ok(Some(make_placement_violation(
+        py,
+        constraint,
+        kind,
+        &severity,
+        &message,
+        if missing { None } else { Some(&actual) },
+        if missing { None } else { Some(&required) },
+        Some(&component_a),
+        Some(&component_b),
+    )?))
+}
+
+#[cfg(feature = "python")]
+fn validate_signal_hv<'py>(
+    py: Python<'py>,
+    stage: &Bound<'py, PyAny>,
+    drc: &Bound<'py, PyAny>,
+    constraint: &Bound<'py, PyAny>,
+    component_positions: &Bound<'py, PyDict>,
+) -> PyResult<Option<Bound<'py, PyAny>>> {
+    let signal_pos = resolve_pin_position_direct(
+        py,
+        drc,
+        stage,
+        &constraint.getattr("signal_component")?,
+        &constraint.getattr("signal_pin")?,
+        component_positions,
+    )?;
+    let target_pos = resolve_pin_position_direct(
+        py,
+        drc,
+        stage,
+        &constraint.getattr("target_component")?,
+        &constraint.getattr("target_pin")?,
+        component_positions,
+    )?;
+    let hv_positions = PyList::empty(py);
+    for hv_pin in constraint.getattr("hv_pins")?.try_iter()? {
+        let hv_pin = hv_pin?;
+        let hv_pos = resolve_pin_position_direct(
+            py,
+            drc,
+            stage,
+            &constraint.getattr("hv_component")?,
+            &hv_pin,
+            component_positions,
+        )?;
+        if !hv_pos.is_none() {
+            hv_positions.append((hv_pin, hv_pos))?;
+        }
+    }
+    let result = drc.call_method1(
+        "validate_signal_hv_py",
+        (constraint, &signal_pos, &target_pos, &hv_positions),
+    )?;
+    if result.is_none() || !result.get_item(0)?.extract::<bool>()? {
+        return Ok(None);
+    }
+    let severity = result.get_item(1)?;
+    let actual = result.get_item(2)?;
+    let required = result.get_item(3)?;
+    let message = result.get_item(4)?;
+    let component_a: String = result.get_item(5)?.extract()?;
+    let component_b: String = result.get_item(6)?.extract()?;
+    let kind: String = result.get_item(7)?.extract()?;
+    let missing = kind == "missing_component";
+    Ok(Some(make_placement_violation(
+        py,
+        constraint,
+        &kind,
+        &severity,
+        &message,
+        if missing { None } else { Some(&actual) },
+        if missing { None } else { Some(&required) },
+        if missing { None } else { Some(&component_a) },
+        if missing { None } else { Some(&component_b) },
+    )?))
 }
 
 #[cfg(feature = "python")]
@@ -186,9 +384,8 @@ pub fn run_placement_validation(
     state: Py<PyAny>,
     stage: Py<PyAny>,
 ) -> PyResult<(Py<PyAny>, Option<String>)> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let rust_stage = PlacementValidationStage { stage };
     let result = rust_stage.run(rust_state);
     crate::d6_util::write_back_or_raise(py, state.bind(py), result, &["placement_violations"])

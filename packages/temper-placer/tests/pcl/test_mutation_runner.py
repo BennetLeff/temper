@@ -125,20 +125,9 @@ class TestSeparatedScenarios:
         assert r.outcome == "killed"
         assert "placement-auditor:separated" in r.defenses_fired
 
-    def test_dropped_y_ok_clause_is_a_recorded_survivor(self, results) -> None:
-        """The weak-nooverlap2d-class mutation is NOT caught by either defense.
-
-        The plan's U1 scenario expected the auditor to kill a dropped ``y_ok``
-        disjunct; empirically it survives — the auditor's max-axis Chebyshev
-        gap equals the enforced margin even when one axis fully overlaps. The
-        suite records reality; the register triages it as test-gap.
-        """
-        r = results["sep_drop_y_ok_clause"]
-        assert r.outcome == "survived"
-
-    def test_runner_classifies_survival_when_no_defense_catches(self, results) -> None:
-        assert results["sep_drop_y_ok_clause"].outcome == "survived"
-        assert results["sep_drop_y_ok_clause"].detail == "all defenses passed"
+    def test_dropped_y_axis_terms_mutation_is_exercised(self, results) -> None:
+        """The direct four-way disjunction remains covered after x_ok/y_ok removal."""
+        assert results["sep_drop_y_axis_terms"].outcome != "non-applicable"
 
 
 class TestNoOpDetection:

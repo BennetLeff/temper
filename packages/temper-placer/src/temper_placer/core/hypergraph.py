@@ -23,8 +23,8 @@ Orchestration plan Phase A unit U7
 Storage is typed Rust ``Vec`` fields; the numpy-visible surface (``row``/
 ``col``/``data`` and the ``@`` result) is preserved exactly by materializing
 numpy arrays through numpy itself, and ``__matmul__`` still runs the
-pre-migration kernel code path. ``extraction/hypergraph_factory.py`` keeps
-its KTD9 numpy/set assembly and constructs the typed ``Coo`` unchanged.
+pre-migration kernel code path. The pinned hypergraph-factory differential
+keeps the KTD9 numpy/set assembly as evidence and constructs ``Coo`` there.
 """
 
 from __future__ import annotations

@@ -142,9 +142,13 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # What this workflow deliberately does NOT do (mirrors board-regeneration.yml
 # §"Hard prohibitions" and this task's own constraints):
 # - Never deploys a Worker, never invokes `wrangler`. Deploying is
-#   .github/workflows/wasm-tier-deploy.yml, which is `workflow_dispatch`-only
-#   and lives in its own file precisely so this prohibition stays literally
-#   true and no scheduled trigger can ever reach a `wrangler deploy`.
+#   .github/workflows/wasm-tier-deploy.yml, and it lives in its own file
+#   precisely so this prohibition stays literally true and no trigger here can
+#   ever reach a `wrangler deploy`. (This used to say that file was
+#   `workflow_dispatch`-only. It stopped being so in #975, which added the
+#   automatic `push: branches: [main]` deploy; it now carries push + schedule +
+#   dispatch. The prohibition above is unaffected -- it is about what THIS file
+#   does, not about how the other one triggers.)
 # - Never makes any tier verdict a required PR context (D5.4): this workflow is
 #   scheduled + manual, and nothing here runs on `pull_request`.
 # - Never writes power_pcb_dataset/drc_ceiling.json or pcb/temper.kicad_pcb.
@@ -156,8 +160,19 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # the way it is.
 # -----------------------------------------------------------------------------
 #
+# COUNT NOTE (2026-08-24, #1482): this section was written when the topology
+# held NINE tiers. It holds TWELVE. Every hardcoded count below has been
+# replaced with the count's SOURCE (`len(tiers)` in
+# tools/wasm/wasm_tier_topology.json), except where a number is part of a dated
+# 2026-08-11 measurement and changing it would falsify the measurement -- those
+# are left as written and marked. The rotation cycle is therefore
+# `len(tiers)` nights, which is TWELVE today, not the "under 1.5 weeks" this
+# section originally claimed. docs/evidence/2026-08-24-wasm-tier-phase5-verdict.md
+# §3 measures what that cadence means: for 11 of 12 tier crates, native
+# `cargo test` runs on its rotation night and NOWHERE ELSE.
+#
 # THE PROBLEM, MEASURED. Every tier's native `cargo test` used to run EVERY
-# night, for the SAME reason all nine tiers' wasm32 census already runs every
+# night, for the SAME reason every tier's wasm32 census already runs every
 # night -- but unlike the census (see below), the native run is pure
 # duplication: the deployed Cloudflare tier already proves the wasm32 side
 # passes, so re-deriving the NATIVE side of a comparison nightly, for every
@@ -184,9 +199,10 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #   - Sample/rotate was chosen: ONE tier, selected deterministically per
 #     night, gets the FULL unmodified treatment this file always ran for
 #     every tier -- native `cargo test`, R19 comparison against its own
-#     wasm32 census, the whole works. The other eight get NONE of it tonight.
-#     Every tier cycles back in every `len(tiers)` nights (9 tiers today --
-#     under 1.5 weeks), which is where the "even if only weekly" floor this
+#     wasm32 census, the whole works. Every OTHER tier gets NONE of it
+#     tonight. Every tier cycles back in every `len(tiers)` nights (TWELVE as
+#     of 2026-08-24; was 9 when this was written), which is where the "even if
+#     only weekly" floor this
 #     task set for host-libm-class native-only tests comes from: a tier's own
 #     native-only tests execute whenever ITS rotation night comes up, because
 #     the native arm on that night is the ordinary, unfiltered `cargo test`
@@ -194,19 +210,20 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #     tier that is up.
 #
 # WHY THIS STOPS THE SCALING THE TASK IDENTIFIED. Before: nightly native cost
-# = SUM of all nine tiers' native suites, every night; a test added to ANY
-# tier raised EVERY night's cost. After: nightly native cost = ONE tier's
-# native suite, the one whose rotation night it is; a test added to a tier
-# that is not tonight's pick costs nothing tonight -- it is only paid on that
-# tier's own rotation night, at most once every 9 nights. This does not make
+# = SUM of every tier's native suite, every night (nine tiers at the time of
+# this 2026-08-11 measurement); a test added to ANY tier raised EVERY night's
+# cost. After: nightly native cost = ONE tier's native suite, the one whose
+# rotation night it is; a test added to a tier that is not tonight's pick
+# costs nothing tonight -- it is only paid on that tier's own rotation night,
+# at most once every `len(tiers)` nights (twelve, as of 2026-08-24). This does not make
 # any SINGLE tier's own growth free (temper-drc-rs's own rotation night still
 # costs more as temper-drc-rs grows) -- what stops scaling is the thing the
 # task measured: the LOCAL JOB'S total cost no longer grows with the SUM
-# across nine tiers times however many agents are adding tests to any of
-# them, because eight of those nine tiers cost nothing on any given night.
+# across every tier times however many agents are adding tests to any of
+# them, because all but one of them cost nothing on any given night.
 #
 # WHAT DELIBERATELY DOES NOT ROTATE, AND WHY. The wasm32 build+execute step
-# ("Build + run every tier's wasm32 registry") still runs for all nine tiers,
+# ("Build + run every tier's wasm32 registry") still runs for EVERY tier,
 # every night, unchanged. That is not the duplication this task named -- it
 # is the ONLY source of the freshly-BUILT `summary.registered` count
 # tools/wasm/check_deployed_freshness.mjs compares the deployed Workers
@@ -215,7 +232,8 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # check_deployed_freshness.mjs" -- assigning task's scope boundary) and its
 # own docstring is explicit that it takes a built count for EVERY tier, no
 # flag skips one. Rotating that step would either break R5.1's staleness
-# detection for eight tiers a night (silently trusting a stale built count)
+# detection for every non-rotated tier a night (silently trusting a stale
+# built count)
 # or require feeding it a stale cached count -- both are a real weakening of
 # an existing safety property this task did not ask for and this file does
 # not make. The wasm32 side of the corpus growth problem (68s of the same
@@ -526,9 +544,10 @@ jobs:
       # of the freshly-BUILT count tools/wasm/check_deployed_freshness.mjs
       # (out of scope for this change) compares the deployed Workers against
       # for EVERY tier, every night (R5.1) -- that script takes a built count
-      # for all nine tiers unconditionally, with no flag to skip one.
+      # for EVERY tier unconditionally, with no flag to skip one.
       # Rotating this step would either break R5.1's staleness detection for
-      # eight tiers a night or require feeding it a stale cached count, both
+      # every non-rotated tier a night or require feeding it a stale cached
+      # count, both
       # a real weakening of an existing safety property this task did not
       # ask for. So this remains the one piece of the old per-tier loop that
       # still runs for every tier, every night -- see this file's own header,
@@ -699,12 +718,14 @@ jobs:
               for (const t of loadTopology().tiers) console.log([t.crate, tierFlagSuffix(t.crate)].join("\t"));
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/summary_tiers.tsv
+          TIER_COUNT="$(wc -l < /tmp/summary_tiers.tsv | tr -d ' ')"
+          OTHER_TIER_COUNT="$((TIER_COUNT - 1))"
           {
             echo "### Local wasm32 vs native — R19 agreement"
             echo ""
             echo "- commit: \`${COMMIT_SHA}\`"
             echo "- board sha256: \`${BOARD_SHA256}\` (\`pcb/temper.kicad_pcb\`)"
-            echo "- **R19 native-arm rotation: \`${ROTATED_CRATE:-unresolved}\`** gets the full native/R19 treatment tonight; the other eight tiers are not re-derived tonight (full cycle every \`len(tiers)\` nights — see this file's header, \"R19 NATIVE-ARM ROTATION\")."
+            echo "- **R19 native-arm rotation: \`${ROTATED_CRATE:-unresolved}\`** gets the full native/R19 treatment tonight; the other ${OTHER_TIER_COUNT} tiers are not re-derived tonight (full cycle every ${TIER_COUNT} nights — this file's header, \"R19 NATIVE-ARM ROTATION\", explains why). Counts are read from tools/wasm/wasm_tier_topology.json at run time, deliberately: this line used to hardcode \"eight\" and was wrong for every night after the tenth tier landed."
             echo ""
             while IFS=$'\t' read -r crate suffix; do
               echo "#### ${crate}"
@@ -1022,7 +1043,7 @@ jobs:
       # visible to this job at all). native_arms.tsv has exactly one row
       # post-rotation: (crate, suffix, native_test_args).
       #
-      # The other eight tiers are EXPECTED to have no native file tonight —
+      # Every OTHER tier is EXPECTED to have no native file tonight —
       # that is not a failure, it is what rotation means — so they are
       # reported as "not sampled tonight" rather than as a problem. This is
       # a real narrowing of what "all deployed tiers agree with native"

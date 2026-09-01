@@ -128,7 +128,10 @@ pub(crate) mod tests {
     #[cfg(not(target_arch = "wasm32"))]
     #[cfg_attr(test, test)]
     fn host_libm_symbols_actually_resolve() {
-        assert!(dlsym_binary(c"pow").is_some(), "dlsym could not resolve `pow`");
+        assert!(
+            dlsym_binary(c"pow").is_some(),
+            "dlsym could not resolve `pow`"
+        );
     }
 
     #[cfg_attr(test, test)]
@@ -150,7 +153,10 @@ pub(crate) mod tests {
         // The host-libm pow (dlsym'd on Linux; the powf fallback, which is
         // the LIVE route on Darwin) must NOT equal the x*x result here.
         let p = pow(discriminator, 2.0);
-        assert_ne!(p, xx, "discriminator lost its bite — pow now folds to multiply");
+        assert_ne!(
+            p, xx,
+            "discriminator lost its bite — pow now folds to multiply"
+        );
         // And it must match what CPython's math.pow gives for the same input
         // (9064.360529156045, hex 0x1.1b42e25d1c33cp+13) — the same value on
         // darwin libm and glibc (see the platform-sensitivity note above).
@@ -207,7 +213,11 @@ pub(crate) mod tests {
     fn p1_pow_zero_exponent_impl(seed: u64) {
         let mut rng = SplitMix64::new(seed);
         let x = campaign_wide_f64(&mut rng);
-        assert_eq!(pow(x, 0.0), 1.0, "pow({x}, 0.0) should be 1.0 (seed={seed})");
+        assert_eq!(
+            pow(x, 0.0),
+            1.0,
+            "pow({x}, 0.0) should be 1.0 (seed={seed})"
+        );
     }
 
     /// P2. pow(x, 1.0) = x for any finite x.
@@ -222,7 +232,10 @@ pub(crate) mod tests {
         let mut rng = SplitMix64::new(seed);
         let x = campaign_wide_f64(&mut rng);
         let r = pow(x, 2.0);
-        assert!(r >= 0.0 || r.is_nan(), "pow({x}, 2.0) = {r} is negative (seed={seed})");
+        assert!(
+            r >= 0.0 || r.is_nan(),
+            "pow({x}, 2.0) = {r} is negative (seed={seed})"
+        );
     }
 
     /// P4. pow(x, y) is finite for modest non-negative inputs. `x` is drawn
@@ -235,7 +248,10 @@ pub(crate) mod tests {
         let x = rng.range(1e-6, 1e3);
         let y = rng.range(-50.0, 50.0);
         let r = pow(x, y);
-        assert!(r.is_finite(), "pow({x}, {y}) = {r} is not finite (seed={seed})");
+        assert!(
+            r.is_finite(),
+            "pow({x}, {y}) = {r} is not finite (seed={seed})"
+        );
     }
 
     /// P5. pow(1.0, y) = 1.0 for all finite exponents.
@@ -283,285 +299,565 @@ pub(crate) mod tests {
     // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors, R19/U6) ---
     // 7 properties x 20 seeds = 140 distinct-input wasm tests.
     #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_000() { p1_pow_zero_exponent_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_001() { p1_pow_zero_exponent_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_002() { p1_pow_zero_exponent_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_003() { p1_pow_zero_exponent_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_004() { p1_pow_zero_exponent_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_005() { p1_pow_zero_exponent_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_006() { p1_pow_zero_exponent_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_007() { p1_pow_zero_exponent_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_008() { p1_pow_zero_exponent_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_009() { p1_pow_zero_exponent_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_010() { p1_pow_zero_exponent_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_011() { p1_pow_zero_exponent_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_012() { p1_pow_zero_exponent_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_013() { p1_pow_zero_exponent_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_014() { p1_pow_zero_exponent_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_015() { p1_pow_zero_exponent_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_016() { p1_pow_zero_exponent_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_017() { p1_pow_zero_exponent_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_018() { p1_pow_zero_exponent_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p1_pow_zero_exponent_seed_019() { p1_pow_zero_exponent_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_000() { p2_pow_unity_exponent_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_001() { p2_pow_unity_exponent_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_002() { p2_pow_unity_exponent_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_003() { p2_pow_unity_exponent_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_004() { p2_pow_unity_exponent_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_005() { p2_pow_unity_exponent_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_006() { p2_pow_unity_exponent_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_007() { p2_pow_unity_exponent_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_008() { p2_pow_unity_exponent_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_009() { p2_pow_unity_exponent_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_010() { p2_pow_unity_exponent_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_011() { p2_pow_unity_exponent_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_012() { p2_pow_unity_exponent_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_013() { p2_pow_unity_exponent_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_014() { p2_pow_unity_exponent_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_015() { p2_pow_unity_exponent_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_016() { p2_pow_unity_exponent_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_017() { p2_pow_unity_exponent_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_018() { p2_pow_unity_exponent_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p2_pow_unity_exponent_seed_019() { p2_pow_unity_exponent_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_000() { p3_pow_square_non_negative_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_001() { p3_pow_square_non_negative_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_002() { p3_pow_square_non_negative_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_003() { p3_pow_square_non_negative_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_004() { p3_pow_square_non_negative_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_005() { p3_pow_square_non_negative_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_006() { p3_pow_square_non_negative_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_007() { p3_pow_square_non_negative_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_008() { p3_pow_square_non_negative_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_009() { p3_pow_square_non_negative_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_010() { p3_pow_square_non_negative_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_011() { p3_pow_square_non_negative_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_012() { p3_pow_square_non_negative_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_013() { p3_pow_square_non_negative_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_014() { p3_pow_square_non_negative_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_015() { p3_pow_square_non_negative_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_016() { p3_pow_square_non_negative_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_017() { p3_pow_square_non_negative_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_018() { p3_pow_square_non_negative_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p3_pow_square_non_negative_seed_019() { p3_pow_square_non_negative_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_000() { p4_pow_modest_inputs_finite_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_001() { p4_pow_modest_inputs_finite_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_002() { p4_pow_modest_inputs_finite_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_003() { p4_pow_modest_inputs_finite_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_004() { p4_pow_modest_inputs_finite_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_005() { p4_pow_modest_inputs_finite_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_006() { p4_pow_modest_inputs_finite_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_007() { p4_pow_modest_inputs_finite_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_008() { p4_pow_modest_inputs_finite_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_009() { p4_pow_modest_inputs_finite_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_010() { p4_pow_modest_inputs_finite_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_011() { p4_pow_modest_inputs_finite_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_012() { p4_pow_modest_inputs_finite_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_013() { p4_pow_modest_inputs_finite_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_014() { p4_pow_modest_inputs_finite_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_015() { p4_pow_modest_inputs_finite_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_016() { p4_pow_modest_inputs_finite_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_017() { p4_pow_modest_inputs_finite_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_018() { p4_pow_modest_inputs_finite_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p4_pow_modest_inputs_finite_seed_019() { p4_pow_modest_inputs_finite_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_000() { p5_pow_one_to_anything_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_001() { p5_pow_one_to_anything_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_002() { p5_pow_one_to_anything_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_003() { p5_pow_one_to_anything_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_004() { p5_pow_one_to_anything_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_005() { p5_pow_one_to_anything_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_006() { p5_pow_one_to_anything_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_007() { p5_pow_one_to_anything_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_008() { p5_pow_one_to_anything_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_009() { p5_pow_one_to_anything_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_010() { p5_pow_one_to_anything_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_011() { p5_pow_one_to_anything_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_012() { p5_pow_one_to_anything_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_013() { p5_pow_one_to_anything_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_014() { p5_pow_one_to_anything_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_015() { p5_pow_one_to_anything_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_016() { p5_pow_one_to_anything_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_017() { p5_pow_one_to_anything_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_018() { p5_pow_one_to_anything_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p5_pow_one_to_anything_seed_019() { p5_pow_one_to_anything_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_000() { p6_pow_additive_exponents_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_001() { p6_pow_additive_exponents_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_002() { p6_pow_additive_exponents_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_003() { p6_pow_additive_exponents_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_004() { p6_pow_additive_exponents_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_005() { p6_pow_additive_exponents_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_006() { p6_pow_additive_exponents_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_007() { p6_pow_additive_exponents_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_008() { p6_pow_additive_exponents_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_009() { p6_pow_additive_exponents_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_010() { p6_pow_additive_exponents_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_011() { p6_pow_additive_exponents_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_012() { p6_pow_additive_exponents_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_013() { p6_pow_additive_exponents_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_014() { p6_pow_additive_exponents_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_015() { p6_pow_additive_exponents_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_016() { p6_pow_additive_exponents_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_017() { p6_pow_additive_exponents_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_018() { p6_pow_additive_exponents_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p6_pow_additive_exponents_seed_019() { p6_pow_additive_exponents_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_000() { p7_pow_square_then_square_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_001() { p7_pow_square_then_square_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_002() { p7_pow_square_then_square_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_003() { p7_pow_square_then_square_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_004() { p7_pow_square_then_square_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_005() { p7_pow_square_then_square_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_006() { p7_pow_square_then_square_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_007() { p7_pow_square_then_square_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_008() { p7_pow_square_then_square_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_009() { p7_pow_square_then_square_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_010() { p7_pow_square_then_square_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_011() { p7_pow_square_then_square_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_012() { p7_pow_square_then_square_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_013() { p7_pow_square_then_square_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_014() { p7_pow_square_then_square_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_015() { p7_pow_square_then_square_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_016() { p7_pow_square_then_square_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_017() { p7_pow_square_then_square_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_018() { p7_pow_square_then_square_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p7_pow_square_then_square_seed_019() { p7_pow_square_then_square_impl(19); }
+    fn p1_pow_zero_exponent_seed_000() {
+        p1_pow_zero_exponent_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_001() {
+        p1_pow_zero_exponent_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_002() {
+        p1_pow_zero_exponent_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_003() {
+        p1_pow_zero_exponent_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_004() {
+        p1_pow_zero_exponent_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_005() {
+        p1_pow_zero_exponent_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_006() {
+        p1_pow_zero_exponent_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_007() {
+        p1_pow_zero_exponent_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_008() {
+        p1_pow_zero_exponent_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_009() {
+        p1_pow_zero_exponent_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_010() {
+        p1_pow_zero_exponent_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_011() {
+        p1_pow_zero_exponent_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_012() {
+        p1_pow_zero_exponent_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_013() {
+        p1_pow_zero_exponent_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_014() {
+        p1_pow_zero_exponent_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_015() {
+        p1_pow_zero_exponent_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_016() {
+        p1_pow_zero_exponent_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_017() {
+        p1_pow_zero_exponent_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_018() {
+        p1_pow_zero_exponent_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_pow_zero_exponent_seed_019() {
+        p1_pow_zero_exponent_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_000() {
+        p2_pow_unity_exponent_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_001() {
+        p2_pow_unity_exponent_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_002() {
+        p2_pow_unity_exponent_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_003() {
+        p2_pow_unity_exponent_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_004() {
+        p2_pow_unity_exponent_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_005() {
+        p2_pow_unity_exponent_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_006() {
+        p2_pow_unity_exponent_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_007() {
+        p2_pow_unity_exponent_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_008() {
+        p2_pow_unity_exponent_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_009() {
+        p2_pow_unity_exponent_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_010() {
+        p2_pow_unity_exponent_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_011() {
+        p2_pow_unity_exponent_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_012() {
+        p2_pow_unity_exponent_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_013() {
+        p2_pow_unity_exponent_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_014() {
+        p2_pow_unity_exponent_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_015() {
+        p2_pow_unity_exponent_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_016() {
+        p2_pow_unity_exponent_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_017() {
+        p2_pow_unity_exponent_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_018() {
+        p2_pow_unity_exponent_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_pow_unity_exponent_seed_019() {
+        p2_pow_unity_exponent_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_000() {
+        p3_pow_square_non_negative_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_001() {
+        p3_pow_square_non_negative_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_002() {
+        p3_pow_square_non_negative_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_003() {
+        p3_pow_square_non_negative_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_004() {
+        p3_pow_square_non_negative_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_005() {
+        p3_pow_square_non_negative_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_006() {
+        p3_pow_square_non_negative_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_007() {
+        p3_pow_square_non_negative_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_008() {
+        p3_pow_square_non_negative_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_009() {
+        p3_pow_square_non_negative_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_010() {
+        p3_pow_square_non_negative_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_011() {
+        p3_pow_square_non_negative_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_012() {
+        p3_pow_square_non_negative_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_013() {
+        p3_pow_square_non_negative_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_014() {
+        p3_pow_square_non_negative_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_015() {
+        p3_pow_square_non_negative_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_016() {
+        p3_pow_square_non_negative_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_017() {
+        p3_pow_square_non_negative_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_018() {
+        p3_pow_square_non_negative_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_pow_square_non_negative_seed_019() {
+        p3_pow_square_non_negative_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_000() {
+        p4_pow_modest_inputs_finite_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_001() {
+        p4_pow_modest_inputs_finite_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_002() {
+        p4_pow_modest_inputs_finite_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_003() {
+        p4_pow_modest_inputs_finite_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_004() {
+        p4_pow_modest_inputs_finite_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_005() {
+        p4_pow_modest_inputs_finite_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_006() {
+        p4_pow_modest_inputs_finite_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_007() {
+        p4_pow_modest_inputs_finite_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_008() {
+        p4_pow_modest_inputs_finite_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_009() {
+        p4_pow_modest_inputs_finite_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_010() {
+        p4_pow_modest_inputs_finite_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_011() {
+        p4_pow_modest_inputs_finite_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_012() {
+        p4_pow_modest_inputs_finite_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_013() {
+        p4_pow_modest_inputs_finite_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_014() {
+        p4_pow_modest_inputs_finite_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_015() {
+        p4_pow_modest_inputs_finite_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_016() {
+        p4_pow_modest_inputs_finite_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_017() {
+        p4_pow_modest_inputs_finite_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_018() {
+        p4_pow_modest_inputs_finite_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_pow_modest_inputs_finite_seed_019() {
+        p4_pow_modest_inputs_finite_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_000() {
+        p5_pow_one_to_anything_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_001() {
+        p5_pow_one_to_anything_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_002() {
+        p5_pow_one_to_anything_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_003() {
+        p5_pow_one_to_anything_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_004() {
+        p5_pow_one_to_anything_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_005() {
+        p5_pow_one_to_anything_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_006() {
+        p5_pow_one_to_anything_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_007() {
+        p5_pow_one_to_anything_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_008() {
+        p5_pow_one_to_anything_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_009() {
+        p5_pow_one_to_anything_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_010() {
+        p5_pow_one_to_anything_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_011() {
+        p5_pow_one_to_anything_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_012() {
+        p5_pow_one_to_anything_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_013() {
+        p5_pow_one_to_anything_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_014() {
+        p5_pow_one_to_anything_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_015() {
+        p5_pow_one_to_anything_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_016() {
+        p5_pow_one_to_anything_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_017() {
+        p5_pow_one_to_anything_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_018() {
+        p5_pow_one_to_anything_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_pow_one_to_anything_seed_019() {
+        p5_pow_one_to_anything_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_000() {
+        p6_pow_additive_exponents_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_001() {
+        p6_pow_additive_exponents_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_002() {
+        p6_pow_additive_exponents_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_003() {
+        p6_pow_additive_exponents_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_004() {
+        p6_pow_additive_exponents_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_005() {
+        p6_pow_additive_exponents_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_006() {
+        p6_pow_additive_exponents_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_007() {
+        p6_pow_additive_exponents_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_008() {
+        p6_pow_additive_exponents_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_009() {
+        p6_pow_additive_exponents_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_010() {
+        p6_pow_additive_exponents_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_011() {
+        p6_pow_additive_exponents_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_012() {
+        p6_pow_additive_exponents_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_013() {
+        p6_pow_additive_exponents_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_014() {
+        p6_pow_additive_exponents_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_015() {
+        p6_pow_additive_exponents_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_016() {
+        p6_pow_additive_exponents_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_017() {
+        p6_pow_additive_exponents_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_018() {
+        p6_pow_additive_exponents_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_pow_additive_exponents_seed_019() {
+        p6_pow_additive_exponents_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_000() {
+        p7_pow_square_then_square_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_001() {
+        p7_pow_square_then_square_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_002() {
+        p7_pow_square_then_square_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_003() {
+        p7_pow_square_then_square_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_004() {
+        p7_pow_square_then_square_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_005() {
+        p7_pow_square_then_square_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_006() {
+        p7_pow_square_then_square_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_007() {
+        p7_pow_square_then_square_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_008() {
+        p7_pow_square_then_square_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_009() {
+        p7_pow_square_then_square_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_010() {
+        p7_pow_square_then_square_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_011() {
+        p7_pow_square_then_square_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_012() {
+        p7_pow_square_then_square_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_013() {
+        p7_pow_square_then_square_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_014() {
+        p7_pow_square_then_square_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_015() {
+        p7_pow_square_then_square_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_016() {
+        p7_pow_square_then_square_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_017() {
+        p7_pow_square_then_square_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_018() {
+        p7_pow_square_then_square_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p7_pow_square_then_square_seed_019() {
+        p7_pow_square_then_square_impl(19);
+    }
     // --- END generated seeded property-mirror wrappers ---
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---

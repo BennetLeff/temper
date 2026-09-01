@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
-from temper_placer.pcl.constraints import ConstraintType, OnSideConstraint
+from temper_placer.pcl.constraints import OnSideConstraint
+from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
 from temper_placer.placer.cp_sat.handlers._protocol import AssumptionLiteral
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
@@ -16,10 +15,6 @@ if TYPE_CHECKING:
         ModelProtocol,
     )
 
-logger = logging.getLogger(__name__)
-
-
-@register_handler(ConstraintType.ON_SIDE)
 def encode_onside(
     constraint: OnSideConstraint,
     components: dict[str, ComponentVarsProtocol],
@@ -31,11 +26,15 @@ def encode_onside(
     max_d_u = model.mm_to_units(constraint.max_distance_mm)
     side = constraint.side.value  # "left", "right", "top", "bottom"
 
+    missing = [ref for ref in constraint.components if ref not in components]
+    if missing:
+        raise UnresolvedConstraintRefsError(
+            f"OnSide constraint {constraint.id!r} references missing component(s): "
+            + ", ".join(repr(ref) for ref in missing)
+        )
+
     for ref in constraint.components:
-        v = components.get(ref)
-        if v is None:
-            logger.warning("OnSide %s: comp '%s' not found", constraint.id, ref)
-            continue
+        v = components[ref]
         label = f"oside_{constraint.id}_{ref}"
         assumption = model.new_assumption(label)
 
@@ -47,5 +46,5 @@ def encode_onside(
             model.add_constraint_enforced(v.y_end >= ctx.board_y_max_units - max_d_u, assumption)
         elif side == "bottom":
             model.add_constraint_enforced(v.y_start <= ctx.board_y_min_units + max_d_u, assumption)
-        labels.append(assumption)
+        labels.append(cast(AssumptionLiteral, assumption))
     return labels

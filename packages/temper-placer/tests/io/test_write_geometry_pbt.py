@@ -311,6 +311,16 @@ def test_p4_fails_for_lexicographic_layer_kernel(_restore_kernels):
 # ---------------------------------------------------------------------------
 
 
+def _pad_tuple(p):
+    """Project a kiutils-shaped pad onto the production tuple contract."""
+    return (
+        p.position.X if p.position else 0.0,
+        p.position.Y if p.position else 0.0,
+        p.size.X if p.size else 1.0,
+        p.size.Y if p.size else 1.0,
+    )
+
+
 def _world_pad(pad, fp_angle):
     lx = pad.position.X if pad.position else 0.0
     ly = pad.position.Y if pad.position else 0.0
@@ -332,7 +342,9 @@ def _world_pad(pad, fp_angle):
 )
 def test_p5_component_bounds_contain_every_pad(fp_x, fp_y, fp_angle, pads):
     """P5: every pad's world half-extent box is inside the returned bounds."""
-    x_min, y_min, x_max, y_max = _kernels.bounds(fp_x, fp_y, fp_angle, pads)
+    x_min, y_min, x_max, y_max = _kernels.bounds(
+        fp_x, fp_y, fp_angle, [_pad_tuple(p) for p in pads]
+    )
     for pad in pads:
         rx, ry = _world_pad(pad, fp_angle)
         w = pad.size.X if pad.size else 1.0
@@ -348,7 +360,7 @@ def test_p5_component_bounds_contain_every_pad(fp_x, fp_y, fp_angle, pads):
 def test_p6_single_pad_bounds_bit_exact(fp_x, fp_y, lx, ly, w, h):
     """P6: at a zero angle the single-pad bounds are the exact closed form."""
     pad = _pad(lx, ly, w, h)
-    x_min, y_min, x_max, y_max = _kernels.bounds(fp_x, fp_y, 0.0, [pad])
+    x_min, y_min, x_max, y_max = _kernels.bounds(fp_x, fp_y, 0.0, [_pad_tuple(pad)])
     assert x_min == fp_x + lx - w / 2
     assert y_min == fp_y + ly - h / 2
     assert x_max == fp_x + lx + w / 2
@@ -442,11 +454,11 @@ def test_p9_fails_for_first_wins_kernel(_restore_kernels):
 @SETTINGS
 @given(fp_x=_COORD, fp_y=_COORD, fp_angle=_COORD, pads=_pads(min_size=1, max_size=3), growth=_DIM)
 def test_mr1_pad_growth_never_shrinks_bounds(fp_x, fp_y, fp_angle, pads, growth):
-    base = _kernels.bounds(fp_x, fp_y, fp_angle, pads)
+    base = _kernels.bounds(fp_x, fp_y, fp_angle, [_pad_tuple(p) for p in pads])
     grown_pads = [
         _pad(p.position.X, p.position.Y, p.size.X + growth, p.size.Y + growth) for p in pads
     ]
-    grown = _kernels.bounds(fp_x, fp_y, fp_angle, grown_pads)
+    grown = _kernels.bounds(fp_x, fp_y, fp_angle, [_pad_tuple(p) for p in grown_pads])
     assert grown[0] <= base[0] + 1e-12  # x_min can only shrink (or stay)
     assert grown[1] <= base[1] + 1e-12  # y_min
     assert grown[2] >= base[2] - 1e-12  # x_max can only grow

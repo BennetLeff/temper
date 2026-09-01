@@ -289,3 +289,26 @@ allowlist:
     reason: >
       TPS3700 (U21.6) dual-window-supervisor OUTB pin, same unconfirmed
       single-window-use finding as rtd_pan.rail_monitor-outb above.
+
+  # --- Single-pin nets: BACKLOG (seeded 2026-08-22, post-12-PR-landing triage,
+  # issue #1445 item 4). Same standing as the 2026-08-07 batch above: real,
+  # open, not independently confirmed benign; a maintainer decision each. --
+  - check: single_pin_net
+    net: "ac_l"
+    backlog: true
+    seeded: "2026-08-22"
+    reason: >
+      ac_l (AC mains line) connects only to F1.1 -- the L path continues
+      from fuse.p2 through the CMC (modules.ato:889-891), so the net named
+      ac_l is just the input-terminal node. Root shape matches the usb_dn/
+      usb_dp backlog entries: no AC inlet connector component exists
+      anywhere in elec/src, so mains entry is unwired at the schematic
+      level. A missing-circuit question for a hardware maintainer, not a
+      one-line fix.
+  - check: single_pin_net
+    net: "io13"
+    backlog: true
+    seeded: "2026-08-22"
+    reason: >
+      Unused ESP32-S3 IO pin on U27.21 -- same category as gpio18/io48
+      above (likely benign MCU headroom), not independently confirmed.

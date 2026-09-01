@@ -287,5 +287,17 @@ class TestCheckBoardSyncStamp:
         if not board.is_file() or not netlist.is_file():
             pytest.skip("board or compiled netlist missing (run `make netlist`)")
         rc = stamp_gate.run(board, netlist, src_dir)
-        # Never silently 0 on a board that has never been stamped.
-        assert rc in (stamp_gate.EXIT_VIOLATION, stamp_gate.EXIT_GATE_ERROR)
+        # History: pre-#1447 this board had no stamp and the honest verdict
+        # was VIOLATION/GATE_ERROR ("never silently 0 on a board that has
+        # never been stamped"). #1447 wrote the first real stamp and #1460
+        # made its digest environment-portable (netlist build-path
+        # normalisation), so with a stamp present the honest assertion is
+        # EXIT_OK; an un-stamped board must still fail closed.
+        stamp = board.with_name(board.name + ".source-digest")
+        if stamp.is_file():
+            assert rc == stamp_gate.EXIT_OK, (
+                f"board carries a stamp but the gate returned rc={rc} -- "
+                "the stamp is stale or the digest normalisation regressed"
+            )
+        else:
+            assert rc in (stamp_gate.EXIT_VIOLATION, stamp_gate.EXIT_GATE_ERROR)

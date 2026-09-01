@@ -1,3 +1,4 @@
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 ---
 module: router_v6
 tags: [routing, zones, pour, gnd, 3v3, connectivity, rust-migration, creepage]
@@ -28,7 +29,7 @@ and exactly the wrong one for answering "does the filled plane connect the
 pads". Two new read-only harnesses close that gap without touching the
 audit:
 
-- `docs/evidence/2026-08-16-pcbnew-zone-fill-connectivity.py` -- fills
+- `docs/evidence/scripts/2026-08-16-pcbnew-zone-fill-connectivity.py` -- fills
   every zone with KiCad 10.0.5's own engine (`pcbnew.ZONE_FILLER`, the
   same engine `kicad-cli pcb drc --refill-zones` and the GUI use), then
   measures REAL pad connectivity from KiCad's own `CONNECTIVITY_DATA`
@@ -36,7 +37,7 @@ audit:
   union-find over canonical geometric keys (the pcbnew Python binding
   wraps the same C++ object in a NEW Python wrapper per call, so `id()` is
   not a stable graph node key -- measured and worked around).
-- `docs/evidence/2026-08-16-zone-fill-splice-verify.py` -- splices the
+- `docs/evidence/scripts/2026-08-16-zone-fill-splice-verify.py` -- splices the
   production emission functions' output into a stripped board copy and
   runs the above.
 
@@ -114,7 +115,7 @@ R1/R7 (2026-07-28) made the Power netclass trace-only because the old
 posed: with the Rust zone generator (holes preserved, islands honest,
 creepage-aware carve) and In2.Cu available, is that still correct?
 
-Measured (`docs/evidence/2026-08-16-p3v3-in2cu-pour-feasibility.py`, the
+Measured (`docs/evidence/scripts/2026-08-16-p3v3-in2cu-pour-feasibility.py`, the
 production seam's own obstacle machinery):
 
 | region | outlines | +3V3 pads inside | pour area |
@@ -254,7 +255,7 @@ the audit can see. The pcbnew harness is the fill-aware truth.
 - `packages/temper-placer/tests/router_v6/test_power_islands.py` -- overlap
   test updated to the Rust emitter format (one `(polygon ...)` element
   per ring, `(pts\n` newline, holes grouped with their exterior).
-- `docs/evidence/2026-08-16-p3v3-in2cu-pour-feasibility.py`,
+- `docs/evidence/scripts/2026-08-16-p3v3-in2cu-pour-feasibility.py`,
   `2026-08-16-pcbnew-zone-fill-connectivity.py`,
   `2026-08-16-zone-fill-splice-verify.py` -- the measurement harnesses.
 

@@ -45,7 +45,8 @@ impl Stage<BoardState> for ApplyPlacementsStage {
     fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
         stage_guard("apply_placements", || {
             Python::attach(|py| {
-                let to_stage = |e: pyo3::PyErr| crate::derivation_stage::pyerr_stage("apply_placements", e);
+                let to_stage =
+                    |e: pyo3::PyErr| crate::derivation_stage::pyerr_stage("apply_placements", e);
                 self.run_inner(py, state).map_err(to_stage)
             })
         })
@@ -107,14 +108,12 @@ impl ApplyPlacementsStage {
 #[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_apply_placements(state)`.
 #[pyfunction]
-pub fn run_apply_placements(
-    py: Python<'_>,
-    state: Py<PyAny>,
-) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("apply_placements: {e}"))
-    })?;
+pub fn run_apply_placements(py: Python<'_>, state: Py<PyAny>) -> PyResult<Py<PyAny>> {
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("apply_placements: {e}")))?;
     let stage = ApplyPlacementsStage;
-    let out = stage.run(rust_state).map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
+    let out = stage
+        .run(rust_state)
+        .map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["netlist"])
 }

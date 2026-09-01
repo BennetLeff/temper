@@ -1,4 +1,4 @@
-<!-- provenance: commit=5f5f0dd1d dirty=false -->
+<!-- provenance: commit=5f5f0dd1d1966be34d2ee1fc173c94754bd8e9de dirty=false -->
 
 # U0 boundary marshaller + round-trip losslessness gate — owned structs dodge the cross-`.so` pyclass-identity blocker by construction
 

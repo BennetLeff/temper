@@ -278,9 +278,7 @@ impl Marshal for SlotId {
     }
 
     fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
-        Ok(PyTuple::new(py, [self.0, self.1])?
-            .into_any()
-            .unbind())
+        Ok(PyTuple::new(py, [self.0, self.1])?.into_any().unbind())
     }
 }
 
@@ -328,7 +326,12 @@ impl Marshal for HashSet<SlotId> {
         // `Vec` and therefore round-trips colliding sets bit-identically too;
         // an owned set cannot, by construction.
         let mut slots: Vec<SlotId> = self.iter().copied().collect();
-        slots.sort_by_key(|s| (crate::board_state::slot_bits(s.0), crate::board_state::slot_bits(s.1)));
+        slots.sort_by_key(|s| {
+            (
+                crate::board_state::slot_bits(s.0),
+                crate::board_state::slot_bits(s.1),
+            )
+        });
         let mut items = Vec::with_capacity(slots.len());
         for slot in &slots {
             items.push(slot.to_python(py)?);
@@ -506,7 +509,8 @@ fn eval_with<'py>(
     globals: Option<&Bound<'py, PyDict>>,
 ) -> Bound<'py, PyAny> {
     let cstr = std::ffi::CString::new(expr).expect("expr has no NUL byte");
-    py.eval(cstr.as_c_str(), globals, None).expect("eval failed")
+    py.eval(cstr.as_c_str(), globals, None)
+        .expect("eval failed")
 }
 
 #[cfg(test)]
@@ -877,8 +881,20 @@ mod tests {
                 "frozenset({(0.0, 5.0), (5.0, 0.0), (5.0, 5.0), (10.0, 0.0), (0.0, 10.0)})",
             ))
             .unwrap();
-            let r1 = to_python::<HashSet<SlotId>>(py, &owned).unwrap().bind(py).repr().unwrap().extract::<String>().unwrap();
-            let r2 = to_python::<HashSet<SlotId>>(py, &owned).unwrap().bind(py).repr().unwrap().extract::<String>().unwrap();
+            let r1 = to_python::<HashSet<SlotId>>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .repr()
+                .unwrap()
+                .extract::<String>()
+                .unwrap();
+            let r2 = to_python::<HashSet<SlotId>>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .repr()
+                .unwrap()
+                .extract::<String>()
+                .unwrap();
             assert_eq!(r1, r2, "rebuild must be deterministic across calls");
         });
     }

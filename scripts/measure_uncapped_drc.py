@@ -171,15 +171,40 @@ def run_kicad_drc(board_dir: Path, dru_text: str | None) -> dict:
     return data
 
 
+# Every violation-shaped top-level array kicad-cli emits, in the repo's
+# canonical order. This MUST stay equal to
+# ``temper_placer.validation._drc_api._VIOLATION_ARRAY_KEYS`` -- pinned by
+# ``scripts/tests/test_drc_report_array_keys.py``, because a divergence
+# here is exactly the defect that hid 339 unconnected_items from every DRC
+# number this project ever recorded.
+#
+# This module previously counted ``violations`` only, while its own
+# ``_EXTENDED_CATEGORIES`` table above names ``unconnected_items`` as a
+# 499-capped category -- so asking this tool for the true uncapped count of
+# ``unconnected_items`` returned 0, contradicting its own cap table. A tool
+# that reports 0 for a category it knows exists is worse than one that
+# refuses: 0 reads as "solved".
+_VIOLATION_ARRAY_KEYS = ("violations", "unconnected_items", "schematic_parity")
+
+
+def _all_violations(drc_json: dict) -> list:
+    """Every violation kicad-cli reported, across all of its top-level
+    violation arrays -- not just ``violations``."""
+    out: list = []
+    for key in _VIOLATION_ARRAY_KEYS:
+        out.extend(drc_json.get(key, []))
+    return out
+
+
 def category_counts(drc_json: dict) -> dict:
     from collections import Counter
 
-    return dict(Counter(v["type"] for v in drc_json.get("violations", [])))
+    return dict(Counter(v["type"] for v in _all_violations(drc_json)))
 
 
 def category_count(board_dir: Path, dru_text: str | None, category: str) -> int:
     data = run_kicad_drc(board_dir, dru_text)
-    return sum(1 for v in data.get("violations", []) if v["type"] == category)
+    return sum(1 for v in _all_violations(data) if v["type"] == category)
 
 
 # ---------------------------------------------------------------------------

@@ -242,7 +242,9 @@ impl Stage<BoardState> for TrackDeduplicationStage {
 impl TrackDeduplicationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let routes = match &state.routes {
-            Some(r) if !r.is_empty() => crate::marshal::to_python::<HashSet<RouteEntry>>(py, r)?.into_bound(py),
+            Some(r) if !r.is_empty() => {
+                crate::marshal::to_python::<HashSet<RouteEntry>>(py, r)?.into_bound(py)
+            }
             _ => return Ok(state),
         };
         let builtins = py.import("builtins")?;
@@ -292,10 +294,7 @@ impl TrackDeduplicationStage {
         }
 
         let drc = py.import("temper_drc_rs")?;
-        let result = drc.call_method1(
-            "deduplicate_traces_py",
-            (&marshalled, self.tolerance_mm),
-        )?;
+        let result = drc.call_method1("deduplicate_traces_py", (&marshalled, self.tolerance_mm))?;
         let kept_indices = result.get_item(0)?;
         let duplicates: usize = result.get_item(1)?.extract()?;
 
@@ -364,7 +363,9 @@ impl ShortCircuitDetectionStage {
             _ => return Ok(state),
         };
         let routes = match &state.routes {
-            Some(r) if !r.is_empty() => crate::marshal::to_python::<HashSet<RouteEntry>>(py, r)?.into_bound(py),
+            Some(r) if !r.is_empty() => {
+                crate::marshal::to_python::<HashSet<RouteEntry>>(py, r)?.into_bound(py)
+            }
             _ => return Ok(state),
         };
 
@@ -404,7 +405,14 @@ impl ShortCircuitDetectionStage {
                 if ip.is_truthy()? {
                     ip
                 } else {
-                    PyTuple::new(py, [0_i64.into_pyobject(py)?.into_any(), 0_i64.into_pyobject(py)?.into_any()])?.into_any()
+                    PyTuple::new(
+                        py,
+                        [
+                            0_i64.into_pyobject(py)?.into_any(),
+                            0_i64.into_pyobject(py)?.into_any(),
+                        ],
+                    )?
+                    .into_any()
                 }
             };
             for pin in comp.getattr("pins")?.try_iter()? {
@@ -424,7 +432,11 @@ impl ShortCircuitDetectionStage {
                                 let layer = layer?;
                                 let key = PyTuple::new(
                                     py,
-                                    [px.clone().into_any(), py_val.clone().into_any(), layer.str()?.into_any()],
+                                    [
+                                        px.clone().into_any(),
+                                        py_val.clone().into_any(),
+                                        layer.str()?.into_any(),
+                                    ],
                                 )?;
                                 pin_net_map.set_item(&key, net.getattr("name")?)?;
                             }
@@ -437,7 +449,11 @@ impl ShortCircuitDetectionStage {
                             )?;
                             let key = PyTuple::new(
                                 py,
-                                [px.clone().into_any(), py_val.clone().into_any(), layer.into_any()],
+                                [
+                                    px.clone().into_any(),
+                                    py_val.clone().into_any(),
+                                    layer.into_any(),
+                                ],
                             )?;
                             pin_net_map.set_item(&key, net.getattr("name")?)?;
                         }
@@ -541,7 +557,10 @@ fn contains_pair<'py>(
     pin_name: &Bound<'py, PyAny>,
     net: &Bound<'py, PyAny>,
 ) -> PyResult<bool> {
-    let pair = PyTuple::new(py, [comp_ref.clone().into_any(), pin_name.clone().into_any()])?;
+    let pair = PyTuple::new(
+        py,
+        [comp_ref.clone().into_any(), pin_name.clone().into_any()],
+    )?;
     let pins = net.getattr("pins")?;
     pins.call_method1("__contains__", (&pair,))?.extract()
 }
@@ -549,16 +568,13 @@ fn contains_pair<'py>(
 #[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_drc_sweep(state, tolerance)`.
 #[pyfunction]
-pub fn run_drc_sweep(
-    py: Python<'_>,
-    state: Py<PyAny>,
-    tolerance: f64,
-) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+pub fn run_drc_sweep(py: Python<'_>, state: Py<PyAny>, tolerance: f64) -> PyResult<Py<PyAny>> {
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let stage = DRCSweepStage { tolerance };
-    let out = stage.run(rust_state).map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
+    let out = stage
+        .run(rust_state)
+        .map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["routes", "vias"])
 }
 
@@ -575,7 +591,9 @@ pub fn run_track_deduplication(
         pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME_DEDUP}: {e}"))
     })?;
     let stage = TrackDeduplicationStage { tolerance_mm };
-    let out = stage.run(rust_state).map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
+    let out = stage
+        .run(rust_state)
+        .map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["routes"])
 }
 
@@ -592,6 +610,8 @@ pub fn run_short_circuit_detection(
         pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME_SHORT}: {e}"))
     })?;
     let stage = ShortCircuitDetectionStage { tolerance_mm };
-    let out = stage.run(rust_state).map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
+    let out = stage
+        .run(rust_state)
+        .map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["routes"])
 }

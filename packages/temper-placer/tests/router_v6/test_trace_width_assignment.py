@@ -289,7 +289,7 @@ def test_layer_aware_external_matches_legacy_exactly():
     implied current round-trips through the identical formula it was
     recovered from. "GND"/"HV_TEST"/"GATE_TEST" all keyword-classify (matching
     "GND"/"HV_"/"GATE" respectively) but have no entry in
-    `temper_drc_rs.net_currents()` -- unlike the board's actual "GATE_H"/
+    `temper_drc_rs.NET_CURRENTS` table -- unlike the board's actual "GATE_H"/
     "GATE_L"/"AC_L"/"AC_N", each of which has a SPECIFIC citation that
     supersedes the back-derivation (see
     test_layer_aware_ac_l_widens_even_on_external_layer) -- so these three
@@ -319,7 +319,7 @@ def test_layer_aware_external_matches_legacy_exactly():
 
 
 def test_layer_aware_ac_l_widens_even_on_external_layer():
-    """AC_L has a SPECIFIC citation in temper_drc_rs.net_currents() (10.0A,
+    """AC_L has a SPECIFIC citation in temper_drc_rs.NET_CURRENTS (10.0A,
     the real AC-mains current) that supersedes the back-derived legacy
     width -- and 10.0A is MORE than the legacy hv_width=0.635mm constant
     was ever sized for (its own implied current is ~2.8A at 2oz external,
@@ -371,7 +371,7 @@ def test_layer_aware_router_nlayer_routing_regression():
     docs/evidence/2026-08-13-router-nlayer-routing.md SS4 found live:
     power_in.bypass_relay-coil1/-coil2 and power_in.q_relay_drv-g routed at
     0.508mm on In3.Cu (1oz). With their real cited currents (75.4mA /
-    75.4mA / 3.3mA -- temper_drc_rs.net_currents()), IPC-2221B's minimum
+    75.4mA / 3.3mA -- the Rust IPC current table), IPC-2221B's minimum
     for 1oz internal copper is far under even the board's fabrication-floor
     width, so the floor governs -- these nets were genuinely safe, not
     narrowly safe, and this test pins BOTH conclusions: (1) the assigned
@@ -430,7 +430,7 @@ def test_layer_aware_router_nlayer_routing_regression():
 
 def test_layer_aware_ntc_no_widens_on_internal_layer():
     """power_in.ntc-no carries real AC-mains line current (10A, same
-    physical path as ac_l/ac_n -- see temper_drc_rs's net_currents()
+    physical path as ac_l/ac_n -- see temper_drc_rs.NET_CURRENTS's
     citation) despite its "power_in." classification. On an internal
     layer, this must widen well past the flat power_width constant.
     """

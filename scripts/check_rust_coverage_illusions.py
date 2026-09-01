@@ -73,10 +73,10 @@ A gate that passes on the code that motivated it is worth nothing. Two
 structural defences, both of which fail the gate rather than warn:
 
 * ``--self-test`` (and ``tests/scripts/test_rust_coverage_illusion_gate.py``)
-  asserts that the four incidents above are present IN THE COMPUTED
+  asserts that the three unresolved incidents above are present IN THE COMPUTED
   FINDINGS, keyed by the exact (python module, rust file) pairs, and that
   each is flagged for the right reason. This runs against the analysis, not
-  against the ledger, so parking the four in the ledger -- the normal and
+  against the ledger, so parking the three in the ledger -- the normal and
   expected disposition -- cannot silence the demonstration. If a future
   refactor genuinely resolves one of them, the self-test's expectation must
   be deleted deliberately, with the pairing named in the diff.
@@ -629,7 +629,7 @@ def analyse() -> tuple[list[Finding], dict[str, object]]:
 # Anti-vacuity self-test
 # ---------------------------------------------------------------------------
 
-# The four 2026-08-18 incidents, as (python module, rust file) pairs. These
+# The three unresolved 2026-08-18 incidents, as (python module, rust file) pairs. These
 # are the cases that motivated the gate; a gate that does not flag them is
 # worth nothing. Kept here rather than only in a test so `--self-test` is
 # runnable in CI alongside the gate itself.
@@ -650,12 +650,6 @@ KNOWN_INCIDENTS: tuple[tuple[str, str, str], ...] = (
         "not core/courtyard.py",
     ),
     (
-        "temper_placer.core.hypergraph",
-        "packages/temper-design-bundle/src/hypergraph_factory.rs",
-        "hypergraph_factory.rs ports extraction/hypergraph_factory.py, "
-        "not core/hypergraph.py",
-    ),
-    (
         "temper_placer.router_v6._astar_ordering",
         "packages/temper-rust-router/src/net_ordering.rs",
         "net_ordering.rs serves the deterministic stages; the live A* path "
@@ -665,10 +659,10 @@ KNOWN_INCIDENTS: tuple[tuple[str, str, str], ...] = (
 
 
 def self_test(findings: list[Finding]) -> list[str]:
-    """Assert the four motivating incidents are IN THE FINDINGS.
+    """Assert the three unresolved motivating incidents are IN THE FINDINGS.
 
     Runs against the analysis, never against the ledger, so the normal and
-    expected disposition -- parking all four in the ledger -- cannot silence
+    expected disposition -- parking all three in the ledger -- cannot silence
     the demonstration that the gate sees them.
     """
     by_module = {f.module: f for f in findings}

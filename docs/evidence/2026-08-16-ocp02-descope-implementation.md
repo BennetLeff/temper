@@ -1,4 +1,4 @@
-<!-- provenance: commit=7b424488fc70f86b3be0630b9b213e38313df4a2 (origin/main at fork point,
+<!-- provenance: commit=29b338abb868b217dc95fdae6b7ab191b623a194 dirty=UNKNOWN -->
      dirty=false throughout). Own git worktree (/tmp/opencode/agent-ocp-certlab, branch
      chore/ocp02-descope-and-certlab-send), never the main checkout, never
      .claude/worktrees/agent-a374c69e35366ad12. pcb/temper.kicad_pcb sha256=

@@ -7,10 +7,6 @@
 //! - `temper_placer/deterministic/channels.py` — `routability_penalty` hot
 //!   path + worst-severity bottleneck index build (`build_channel_index` /
 //!   `ChannelIndex`).
-//! - `temper_placer/deterministic/bottleneck_map.py` — `score_at` (CPython
-//!   float floor-division) + `_coerce_score` clamp.
-//! - `temper_placer/deterministic/seed_filter.py` — `filter_seed` accept/reject
-//!   fold.
 //! - `temper_placer/deterministic/feedback/violation_mapper.py` — the regex
 //!   component/zone/clearance extraction of `map_violation`.
 //! - `temper_placer/deterministic/feedback/zone_adjuster.py` — the threshold /
@@ -28,21 +24,15 @@
 //!
 //! Numeric-fidelity notes (each pinned by the differential):
 //!
-//! - `bottleneck_score_at` uses CPython float **floor-division**
-//!   (`int(a // b)`), which is NOT `(a / b).floor()` — CPython's
-//!   `float_divmod` computes `div = (a - fmod(a, b)) / b` with an exact-
-//!   multiple correction. `py_floor_div` below transcribes that algorithm.
-//!   The `routability_penalty` kernel, by contrast, uses naive
+//! - The `routability_penalty` kernel uses naive
 //!   `floor(a / b)` (`math.floor((x_mm * 1000.0) / cell_size_um)`) — the two
-//!   floor operations are deliberately NOT unified.
+//!   floor operations in the historical Python implementations are deliberately
+//!   NOT unified.
 //! - `min`/`max` on zone bounds use Python semantics (`b if b < a else a`,
 //!   NaN-propagating), never `f64::min`/`f64::max` (which discard NaN).
 //! - The clearance-group-to-float conversion calls Python `builtins.float`
 //!   so `float("0.15")` parity — including the exact `ValueError` for
 //!   malformed groups like `"."` — is exact by construction.
-//! - The bottleneck `x`/`y` coercion calls Python `builtins.int` for the same
-//!   reason (Python `int(1.5)` truncates, `int("1")` parses, `int(nan)` raises
-//!   — Rust `as i64` casts differ on NaN/overflow).
 //!
 //! Known, documented deviation: the `re.IGNORECASE` violation patterns are
 //! compiled with the `regex` crate's `(?i)`; Unicode case folding agrees with
@@ -52,13 +42,13 @@
 //! `float()` raise on the oracle side; the kernel calls `builtins.float` so
 //! the failure mode matches.
 //!
-//! Error-parity helpers: `py_unpack_2` transcribes CPython's UNPACK_SEQUENCE
-//! (the seed position unpack and the zone-config `max_size` unpack, including
+//! Error-parity helper: `py_unpack_2` transcribes CPython's UNPACK_SEQUENCE
+//! (the zone-config `max_size` unpack, including
 //! the rewritten `cannot unpack non-iterable <T> object` TypeError and the
 //! bounded at-most-3-item consume of `_PyUnpackIterable`),
-//! `coerce_position_elem`/`coerce_max_size_elem` reproduce the oracle's
-//! arithmetic TypeErrors for non-numeric elements, and the zone-config
-//! `can_expand` / DRC `items` reads use Python iteration semantics. The
+//! `coerce_max_size_elem` reproduces the oracle's arithmetic TypeError for
+//! non-numeric elements, and the zone-config `can_expand` / DRC `items` reads
+//! use Python iteration semantics. The
 //! degenerate-map guards are shaped like the oracle's (`!(x > 0.0)`, not
 //! `x <= 0.0`) so NaN reaches the oracle's error path instead of silently
 //! disabling the map (see the differential error-parity cases).
@@ -66,47 +56,15 @@
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
-use pyo3::exceptions::{PyIndexError, PyOverflowError, PyTypeError, PyValueError};
+use pyo3::exceptions::{PyOverflowError, PyTypeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PyBool, PyDict, PyModule, PySet, PyString};
+use pyo3::types::{PyDict, PyModule, PySet, PyString};
 use regex::Regex;
 use temper_py_bridge::catch_panic;
 
 // ---------------------------------------------------------------------------
 // CPython numeric-semantics helpers (see module docstring)
 // ---------------------------------------------------------------------------
-
-/// CPython float floor-division `a // b`, transcribed from CPython 3.12
-/// `Objects/floatobject.c` `_float_div_mod` (the `floordiv` arm). Rust `%`
-/// on floats is the truncated remainder, i.e. C `fmod` semantics, so `a % b`
-/// is the `mod` operand CPython feeds it.
-///
-/// The algorithm is NOT `(a / b).floor()`: the quotient is computed as
-/// `(a - fmod(a, b)) / b`, corrected by `-1.0` when the fmod remainder has
-/// the opposite sign to the denominator, then snapped to the nearest integral
-/// value with a `> 0.5` correction (handles fp error making `div` land just
-/// below an integer), and an exact-zero result carries the sign of the true
-/// quotient (`-0.0 // 2.0` is `-0.0`, which `int()` turns into `0`).
-fn py_floor_div(a: f64, b: f64) -> f64 {
-    let m = a % b;
-    let mut div = (a - m) / b;
-    if m != 0.0 && (b < 0.0) != (m < 0.0) {
-        // Ensure the remainder has the same sign as the denominator; the
-        // observable effect for `//` is the `-1.0` quotient correction.
-        div -= 1.0;
-    }
-    if div != 0.0 {
-        let floordiv = div.floor();
-        if div - floordiv > 0.5 {
-            floordiv + 1.0
-        } else {
-            floordiv
-        }
-    } else {
-        // div is zero: carry the sign of the true quotient (copysign(0.0, a/b)).
-        (0.0_f64).copysign(a / b)
-    }
-}
 
 /// Python `min(a, b)`: returns `b if b < a else a` — NaN-propagating, unlike
 /// `f64::min` which discards a NaN operand.
@@ -128,7 +86,7 @@ fn py_max(a: f64, b: f64) -> f64 {
 }
 
 /// Call `builtins.<name>(arg)` — exact Python coercion semantics (used for
-/// `float` on regex groups and `int` on bottleneck coordinates).
+/// `float` on regex groups).
 fn builtin_call<'py>(
     py: Python<'py>,
     name: &str,
@@ -162,9 +120,8 @@ fn type_name_of(obj: &Bound<'_, PyAny>) -> String {
 /// instead of hanging and a 4+ item generator is left un-consumed after the
 /// third (both pinned by the differential). Short/long iterables raise the
 /// exact not-enough/too-many `ValueError` texts; strings iterate to
-/// characters and dicts to keys, exactly like the oracle's unpack sites (the
-/// seed positions `x, y = position` and the zone-config `max_width, max_height
-/// = max_size`).
+/// characters and dicts to keys, exactly like the zone-config unpack site
+/// (`max_width, max_height = max_size`).
 fn py_unpack_2<'py>(
     py: Python<'py>,
     obj: &Bound<'py, PyAny>,
@@ -208,19 +165,6 @@ fn py_unpack_2<'py>(
     }
 }
 
-/// Coerce one unpacked seed-position element as the oracle's `x - origin_x`
-/// arithmetic would: numerics (int/float/bool) subtract; anything else raises
-/// the oracle's exact `TypeError: unsupported operand type(s) for -: '<T>'
-/// and 'float'` (CPython's binary-op failure for the subtract).
-fn coerce_position_elem(item: &Bound<'_, PyAny>) -> PyResult<f64> {
-    item.extract::<f64>().map_err(|_| {
-        PyTypeError::new_err(format!(
-            "unsupported operand type(s) for -: '{}' and 'float'",
-            type_name_of(item)
-        ))
-    })
-}
-
 /// Coerce one unpacked `max_size` element as the oracle's `min(width +
 /// expansion, max_width)` comparison would: numerics compare; anything else
 /// raises the oracle's exact `TypeError: '<' not supported between instances
@@ -244,13 +188,9 @@ fn not_string_err(_py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyErr {
     ))
 }
 
-/// Python `int()` error for a non-finite float — `int(inf)` raises
-/// `OverflowError: cannot convert float infinity to integer`, `int(nan)` raises
-/// `ValueError: cannot convert float NaN to integer` (floatobject.c
-/// `float___int___impl`). Through the `a // b` path the floordiv result is NaN
-/// for any non-finite operand (fmod(a, b) is NaN for infinite a), so NaN
-/// surfaces as ValueError — the type split below is what the differential
-/// pins.
+/// Python's `math.floor()` errors for non-finite values — NaN raises
+/// `ValueError`, while infinity raises `OverflowError`. Preserve that split
+/// for the channel-index lookup rather than allowing a saturating Rust cast.
 fn float_to_int_overflow(q: f64) -> PyErr {
     if q.is_nan() {
         PyValueError::new_err("cannot convert float NaN to integer")
@@ -424,176 +364,6 @@ fn build_channel_index(
             grid: grid_flat,
             index,
         })
-    })
-}
-
-// ---------------------------------------------------------------------------
-// bottleneck_map: score_at + coerce
-// ---------------------------------------------------------------------------
-
-/// `BottleneckMap.score_at`: O(1) floor-to-cell lookup with the CPython
-/// float floor-division. Out-of-bounds (including negative relative coords
-/// and cells beyond the grid) returns `0.0`; degenerate maps return `0.0`.
-#[pyfunction]
-#[allow(clippy::too_many_arguments)]
-#[pyo3(signature = (cell_size_mm, width, height, origin_x, origin_y, scores, x, y))]
-fn bottleneck_score_at(
-    cell_size_mm: f64,
-    width: i64,
-    height: i64,
-    origin_x: f64,
-    origin_y: f64,
-    scores: Vec<f64>,
-    x: f64,
-    y: f64,
-) -> PyResult<f64> {
-    catch_panic(|| {
-        if width <= 0 || height <= 0 || cell_size_mm <= 0.0 {
-            return Ok(0.0);
-        }
-        let rel_x = x - origin_x;
-        let rel_y = y - origin_y;
-        if rel_x < 0.0 || rel_y < 0.0 {
-            return Ok(0.0);
-        }
-        // CPython float floor-division, then int() — matching
-        // `int(rel_x // cell_size_mm)`. `int(inf)` raises OverflowError in
-        // Python; replicate for the (unreachable in real maps) overflow case
-        // rather than silently saturating.
-        let qx = py_floor_div(rel_x, cell_size_mm);
-        let qy = py_floor_div(rel_y, cell_size_mm);
-        if !qx.is_finite() || !qy.is_finite() {
-            // Python: `int(rel_x // cell_size)` raises OverflowError with the
-            // exact "infinity"/"NaN" message; replicate rather than silently
-            // saturating the `as i64` cast.
-            return Err(float_to_int_overflow(if !qx.is_finite() { qx } else { qy }));
-        }
-        let col = qx as i64;
-        let row = qy as i64;
-        if col >= width || row >= height {
-            return Ok(0.0);
-        }
-        let idx = (row * width + col) as usize;
-        if idx >= scores.len() {
-            // Oracle: `self.scores[row * width + col]` on a scores tuple
-            // shorter than width*height raises IndexError — the sidecar
-            // loader truncates to `raw[:expected]`, so such a map is
-            // production-reachable. Do NOT silently return 0.0 (P2).
-            return Err(PyIndexError::new_err("tuple index out of range"));
-        }
-        Ok(scores[idx])
-    })
-}
-
-/// `_coerce_score`: reject bool/None with the oracle's `ValueError` text;
-/// coerce via `builtins.float` (exact Python semantics — the oracle passes
-/// strings through, matching its docstring-vs-code mismatch); clamp to
-/// `[0.0, 1.0]`.
-#[pyfunction]
-fn bottleneck_coerce_score(py: Python<'_>, value: &Bound<'_, PyAny>) -> PyResult<f64> {
-    catch_panic(|| {
-        if value.is_instance_of::<PyBool>() || value.is_none() {
-            let rendered = value.repr()?.extract::<String>()?;
-            return Err(PyValueError::new_err(format!(
-                "Cannot coerce {rendered} to score"
-            )));
-        }
-        let result = py_float(py, value)?;
-        if result < 0.0 {
-            return Ok(0.0);
-        }
-        if result > 1.0 {
-            return Ok(1.0);
-        }
-        Ok(result)
-    })
-}
-
-// ---------------------------------------------------------------------------
-// seed_filter
-// ---------------------------------------------------------------------------
-
-/// `filter_seed`: first-failure accept/reject over the seed (iterated in
-/// insertion order), with the stricter HV threshold applied to refs in
-/// `hv_refs`. `score >= limit` rejects.
-#[pyfunction]
-#[allow(clippy::too_many_arguments)]
-#[pyo3(signature = (seed, cell_size_mm, width, height, origin_x, origin_y, scores, threshold, hv_threshold, hv_refs))]
-fn filter_seed_kernel(
-    seed: &Bound<'_, PyDict>,
-    cell_size_mm: f64,
-    width: i64,
-    height: i64,
-    origin_x: f64,
-    origin_y: f64,
-    scores: Vec<f64>,
-    threshold: f64,
-    hv_threshold: f64,
-    hv_refs: &Bound<'_, PySet>,
-) -> PyResult<bool> {
-    catch_panic(|| {
-        let py = seed.py();
-        // Guard shaped like bottleneck_score_at's (and the oracle's score_at):
-        // `!(width <= 0 || height <= 0 || cell_size_mm <= 0.0)`. For a NaN
-        // cell_size_mm, `cell_size_mm <= 0.0` is False, so the map stays
-        // "valid" and NaN flows into py_floor_div, raising the oracle's
-        // `ValueError: cannot convert float NaN to integer` — the old
-        // `cell_size_mm > 0.0` shape made NaN silently disable the filter
-        // (valid_map=False -> score 0.0 -> accept everything) (P1).
-        let valid_map = !(width <= 0 || height <= 0 || cell_size_mm <= 0.0);
-        for (ref_key, pos) in seed.iter() {
-            // Python `x, y = position` — CPython 2-target unpack semantics
-            // (py_unpack_2): a 1-tuple raises the oracle's ValueError 'not
-            // enough values to unpack (expected 2, got 1)', a non-sequence
-            // the oracle's TypeError 'cannot unpack non-iterable <T> object'
-            // (the prior get_item raised IndexError / "'int' object is not
-            // subscriptable") (P2).
-            let (x_obj, y_obj) = py_unpack_2(py, &pos)?;
-            let score = if !valid_map {
-                0.0
-            } else {
-                // Element coercion mirrors the oracle's `rel_x = x - origin_x`
-                // arithmetic, which happens AFTER the degenerate-map guard:
-                // with a degenerate map the elements are never touched and a
-                // non-numeric position does not raise (P2).
-                let x = coerce_position_elem(&x_obj)?;
-                let y = coerce_position_elem(&y_obj)?;
-                let rel_x = x - origin_x;
-                let rel_y = y - origin_y;
-                if rel_x < 0.0 || rel_y < 0.0 {
-                    0.0
-                } else {
-                    let qx = py_floor_div(rel_x, cell_size_mm);
-                    let qy = py_floor_div(rel_y, cell_size_mm);
-                    if !qx.is_finite() || !qy.is_finite() {
-                        return Err(float_to_int_overflow(if !qx.is_finite() {
-                            qx
-                        } else {
-                            qy
-                        }));
-                    }
-                    let col = qx as i64;
-                    let row = qy as i64;
-                    if col >= width || row >= height {
-                        0.0
-                    } else {
-                        let idx = (row * width + col) as usize;
-                        if idx >= scores.len() {
-                            // Oracle: score_at's tuple index raises IndexError
-                            // for a short scores sequence (P2).
-                            return Err(PyIndexError::new_err("tuple index out of range"));
-                        }
-                        scores[idx]
-                    }
-                }
-            };
-            let in_hv = hv_refs.contains(ref_key)?;
-            let limit = if in_hv { hv_threshold } else { threshold };
-            if score >= limit {
-                return Ok(false);
-            }
-        }
-        Ok(true)
     })
 }
 
@@ -944,9 +714,6 @@ pub(crate) fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     let sub = PyModule::new(py, "deterministic_hubs")?;
     sub.add_class::<ChannelIndex>()?;
     sub.add_function(wrap_pyfunction!(build_channel_index, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(bottleneck_score_at, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(bottleneck_coerce_score, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(filter_seed_kernel, &sub)?)?;
     sub.add_function(wrap_pyfunction!(map_violation_kernel, &sub)?)?;
     sub.add_function(wrap_pyfunction!(zone_adjustments_kernel, &sub)?)?;
     sub.add_function(wrap_pyfunction!(process_drc_violation, &sub)?)?;
@@ -961,17 +728,6 @@ pub(crate) fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
 #[allow(clippy::expect_used)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn floor_div_matches_cpython_known_cases() {
-        // 0.3 // 0.1 == 2.0 (0.3 / 0.1 = 2.9999999999999996)
-        assert_eq!(py_floor_div(0.3, 0.1), 2.0);
-        assert_eq!(py_floor_div(5.0, 2.0), 2.0);
-        assert_eq!(py_floor_div(6.0, 2.0), 3.0);
-        assert_eq!(py_floor_div(2.5, 0.5), 5.0);
-        assert_eq!(py_floor_div(0.0, 2.0), 0.0);
-        assert_eq!(py_floor_div(-3.0, 2.0), -2.0);
-    }
 
     #[test]
     fn severity_weights() {

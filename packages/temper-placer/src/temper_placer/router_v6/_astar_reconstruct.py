@@ -53,10 +53,8 @@ from temper_placer.router_v6.astar_grid import (
     _build_tht_pad_locations,
     _extract_existing_via_centers_per_net,
     _extract_pad_centers_per_net,
-    _mark_route_blocked,
     _restore_net_pads,
     _unblock_net_pads,
-    _unmark_route_blocked,
 )
 from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.clearance_floor import effective_blocking_clearance
@@ -429,25 +427,33 @@ def run_astar_pathfinding(
                         # stale over/under-sized footprint behind whenever
                         # ripped_name's real class differs from the default.
                         ripped_rule = design_rules.get_rules_for_net(ripped_name)
-                        if profile_grids is None:
-                            _unmark_route_blocked(
-                                ripped_path,
-                                all_grids,
-                                ripped_rule.trace_width_mm,
-                                effective_blocking_clearance(ripped_rule),
-                                ripped_id,
-                            )
-                        else:
-                            # Symmetric with mark_route below: the same radii,
-                            # per family. Unmarking every family with one
-                            # radius would leave a stale halo in all but one
-                            # of them.
-                            profile_grids.unmark_route(
-                                ripped_path,
-                                ripped_name,
-                                ripped_rule.trace_width_mm,
-                                ripped_id,
-                            )
+                        # `profile_grids` is never None here: it is built
+                        # unconditionally whenever `enable_pair_clearance`
+                        # (default True) is set, and no caller in the repo
+                        # passes `enable_pair_clearance=False` (MEASURED
+                        # 2026-08-19, `git grep enable_pair_clearance` --
+                        # only this function's own signature and the `if
+                        # enable_pair_clearance:` guard above match). A
+                        # `profile_grids is None` fallback that stamped a
+                        # flat, same-width-assumed clearance here used to
+                        # exist and was deleted as dead: it also
+                        # under-reserved on the 352 measured mixed-width
+                        # pairs both live stamping paths now handle
+                        # directly (`_astar_nlayer.py`,
+                        # `pair_clearance.stamp_clearance_mm`). See
+                        # docs/evidence/2026-08-18-no-rust-ledger-clearance-
+                        # floor-and-topology-copper-audit.md Sec 1.
+                        #
+                        # Symmetric with mark_route below: the same radii,
+                        # per family. Unmarking every family with one
+                        # radius would leave a stale halo in all but one
+                        # of them.
+                        profile_grids.unmark_route(
+                            ripped_path,
+                            ripped_name,
+                            ripped_rule.trace_width_mm,
+                            ripped_id,
+                        )
                         del routed_paths[ripped_name]
                         reroute_queue.append(ripped_name)
                         ripup_counts[ripped_name] = ripup_counts.get(ripped_name, 0) + 1
@@ -476,21 +482,15 @@ def run_astar_pathfinding(
             # clearance-profile family at that family's own radius, so the
             # separation no longer depends on which of the pair routed first.
             net_rule = design_rules.get_rules_for_net(net_name)
-            if profile_grids is None:
-                _mark_route_blocked(
-                    route_path,
-                    all_grids,
-                    trace_width=net_rule.trace_width_mm,
-                    clearance=effective_blocking_clearance(net_rule),
-                    net_id=net_id,
-                )
-            else:
-                profile_grids.mark_route(
-                    route_path,
-                    net_name,
-                    net_rule.trace_width_mm,
-                    net_id,
-                )
+            # `profile_grids` is never None here -- see the unmark_route
+            # comment above for the same reasoning and the dead
+            # `_mark_route_blocked` fallback this replaced.
+            profile_grids.mark_route(
+                route_path,
+                net_name,
+                net_rule.trace_width_mm,
+                net_id,
+            )
 
             # forced_segment_count > 0 always returns above now (no net
             # class is exempt from the fail-closed gate) -- a route

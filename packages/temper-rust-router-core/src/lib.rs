@@ -16,6 +16,8 @@ pub mod bmc;
 pub mod combinator;
 pub mod direct_topology;
 pub mod encoding;
+#[cfg(feature = "sat")]
+pub mod equivalence;
 pub mod esl;
 pub mod extraction;
 pub mod loop_extractor;
@@ -23,12 +25,10 @@ pub mod net_batching;
 pub mod property_campaigns;
 pub mod provenance;
 pub mod pruning;
-pub mod theta_star;
 #[cfg(feature = "sat")]
 pub mod solver;
-#[cfg(feature = "sat")]
-pub mod equivalence;
 pub mod tension;
+pub mod theta_star;
 pub mod types;
 #[cfg(feature = "sat")]
 pub mod watchdog;
@@ -44,10 +44,10 @@ pub mod watchdog;
 #[cfg(feature = "wasm-registry")]
 pub mod wasm_test_registry;
 
-#[cfg(feature = "sat")]
-pub use solver::{solve_with_cadical, SolveLimits};
-pub use extraction::{extract_bundled, extract_topology, expand_assignments};
+pub use extraction::{expand_assignments, extract_bundled, extract_topology};
 pub use loop_extractor::extract::auto_extract_loops;
+#[cfg(feature = "sat")]
+pub use solver::{SolveLimits, solve_with_cadical};
 pub use types::{
     BundleClass, BundledSolverResult, InternalBundleManifest, InternalConstraint,
     InternalConstraintModel, InternalVariable, SolverStats, SolverStatus, TopologyGraph,

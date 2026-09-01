@@ -30,11 +30,10 @@ dev = [
     # "Known-Failure Pin Registry Gate" died on ModuleNotFoundError on every run
     # -- silently, because that step carries continue-on-error.
     "pyyaml>=6.0",
-    # packages/temper-placer/tests/physics/test_thermal_fdm_mms.py derives the
-    # manufactured source term symbolically. Undeclared, so that test has never
-    # been collected -- it failed at import and the suite running it carries
-    # continue-on-error.
-    "sympy>=1.12",
+    # sympy was a dev dep ONLY for packages/temper-placer/tests/physics/
+    # test_thermal_fdm_mms.py's symbolic MMS source-term derivation; the terms
+    # are now pre-computed and hardcoded in that test (2026-08-20), so sympy
+    # (and its mpmath dependency) were removed from the lock.
     "python-sat>=1.9.dev5",
     "temper-geometry",
     "temper-io-types",

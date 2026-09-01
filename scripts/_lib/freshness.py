@@ -62,6 +62,7 @@ chain it after the build command (``build && write-stamp``), never alongside.
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable  # noqa: F401 -- used in signature
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -94,13 +95,26 @@ def _hash_file(path: Path, digest: hashlib._Hash) -> None:
             digest.update(chunk)
 
 
-def compute_inputs_digest(source_files: Iterable[Path], root: Path) -> str:
+def compute_inputs_digest(
+    source_files: Iterable[Path],
+    root: Path,
+    content_normalizer: Callable[[Path, bytes], bytes] | None = None,
+) -> str:
     """SHA-256 over the sorted (relative path, content) pairs of the inputs.
 
     Paths are included, not just content, so that renaming a file changes the
     digest -- a rename with identical bytes genuinely changes the build inputs.
     Paths are relativised to ``root`` and POSIX-normalised so a digest computed
     in a container matches one computed on a developer's machine.
+
+    ``content_normalizer``, when given, is applied to each file's bytes before
+    hashing. Required for inputs whose bytes embed the absolute build path:
+    atopile's netlist writes the build directory into every component's
+    sheetpath (e.g. ``/tmp/opencode/.../elec/src/main.ato:Top::...``), so an
+    un-normalised netlist digest differs between /__w/temper/temper on CI and
+    any local checkout even when the design is byte-identical (#1445/#1457
+    follow-up: the board-sync stamp was unreproducible across environments
+    for exactly this reason).
 
     Raises FileNotFoundError if any listed input is missing, rather than
     silently hashing a shorter list. A gate that skipped a deleted input would
@@ -113,10 +127,14 @@ def compute_inputs_digest(source_files: Iterable[Path], root: Path) -> str:
     if not entries:
         raise ValueError("refusing to compute a digest over zero input files")
 
+    root_resolved = root.resolve()
     for path in entries:
-        rel = path.resolve().relative_to(root.resolve()).as_posix()
+        rel = path.resolve().relative_to(root_resolved).as_posix()
         digest.update(f"{rel}\0".encode())
-        _hash_file(path, digest)
+        data = path.read_bytes()
+        if content_normalizer is not None:
+            data = content_normalizer(path, data)
+        digest.update(data)
         digest.update(b"\0")
 
     return digest.hexdigest()
@@ -133,12 +151,17 @@ def stamp_path_for(artifact: Path) -> Path:
     return artifact.with_name(artifact.name + STAMP_SUFFIX)
 
 
-def write_stamp(artifact: Path, source_files: Iterable[Path], root: Path) -> str:
+def write_stamp(
+    artifact: Path,
+    source_files: Iterable[Path],
+    root: Path,
+    content_normalizer: Callable[[Path, bytes], bytes] | None = None,
+) -> str:
     """Record the digest of ``source_files`` beside ``artifact``. Returns it.
 
     Call this only after the build that produced ``artifact`` succeeded.
     """
-    digest = compute_inputs_digest(source_files, root)
+    digest = compute_inputs_digest(source_files, root, content_normalizer)
     stamp_path_for(artifact).write_text(f"{STAMP_VERSION} {digest}\n", encoding="utf-8")
     return digest
 
