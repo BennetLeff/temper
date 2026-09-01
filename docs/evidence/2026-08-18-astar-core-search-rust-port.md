@@ -159,3 +159,19 @@ files is four lines of module registration. The cause is `968d1a33d`
 invisible to anyone whose `temper_rust_router` predates that commit. Not
 touched here: it is a real safety enforcement meeting a stale test
 expectation, and deciding which gives way is not this change's call.
+
+## 2026-09-01 refresh against current `main`
+
+The production board changed after the original capture, so the corpus was
+recaptured rather than re-labelled. A fresh, uninstrumented `route_once()`
+produced routed-content SHA-256
+`7ca01328a795ef43376ca28f601e0ff04b4ab2a73c22b7ede45fd75c247aaf85`
+with 4,714 segments, 176 vias, and 170 zones. The instrumented capture then
+reproduced that digest byte-for-byte.
+
+The current board produces 283 live corridor-backbone searches: 272 return
+`None` and 11 find a path. Production still uses exactly the original
+argument shape (`net_id=1`, corridor mask present, no neighbor tensor, no
+thermal field), and every captured occupancy grid still contains only `0`
+and `-1`. The Rust implementation and pinned pre-migration Python oracle are
+held to bit-exact agreement over this refreshed corpus.

@@ -160,6 +160,11 @@ def main(argv: list[str] | None = None) -> int:
     np.savez_compressed(args.out / "astar_backbone_corpus.npz", **payload)
 
     summary = {
+        "captured_from": "one full scripts/route_board.py route_once() pass",
+        "captured_with": (
+            "the Rust astar_search2d implementation, checked against the pinned "
+            "pre-migration Python oracle by test_astar_search2d_rust_differential.py"
+        ),
         "pcb_sha256": hashlib.sha256(args.pcb.read_bytes()).hexdigest(),
         "routed_content_sha256": digest,
         "segments": result.get("segments"),

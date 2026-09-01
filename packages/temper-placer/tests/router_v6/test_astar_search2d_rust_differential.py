@@ -1,10 +1,10 @@
 """Differential: the Rust 2D corridor A* vs its pinned Python oracle.
 
-Feeds the **real corridor-backbone grids** -- every one of the 271 searches a
+Feeds the **real corridor-backbone grids** -- every one of the 283 searches a
 full ``scripts/route_board.py`` pass over ``pcb/temper.kicad_pcb`` actually
 performs -- to both ``astar_search2d_rust._astar_search_2d_rust`` and the
 pinned ``_astar_core_py_oracle._astar_search``, and requires **bit-exact**
-agreement on the emitted cell sequence, including on the 260 searches that
+agreement on the emitted cell sequence, including on the 272 searches that
 find no path at all.
 
 Why a recorded corpus rather than grids built in a fixture
@@ -66,8 +66,8 @@ VERBATIM_MARKER = "# --- BEGIN VERBATIM EXTRACTION ---"
 # The digest the corpus was captured under, and the board it was captured
 # from. Both are asserted below rather than merely recorded: a corpus taken
 # against a different board is not evidence about this one.
-EXPECTED_PCB_SHA256 = "26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b"
-EXPECTED_ROUTED_SHA256 = "6d4e17337bcf2633fb256f3da4d6fe981c91123827eff715a2c8aa870d195981"
+EXPECTED_PCB_SHA256 = "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+EXPECTED_ROUTED_SHA256 = "7ca01328a795ef43376ca28f601e0ff04b4ab2a73c22b7ede45fd75c247aaf85"
 
 
 class _GridAdapter:
@@ -155,7 +155,7 @@ def test_corpus_covers_the_production_argument_shape(corpus):
 def test_corpus_is_the_full_recorded_pass(corpus):
     data, meta = corpus
     n = len(meta["calls"])
-    assert n == meta["summary"]["calls"] == 271, f"expected 271 recorded calls, got {n}"
+    assert n == meta["summary"]["calls"] == 283, f"expected 283 recorded calls, got {n}"
     # 96% of the real searches find nothing. That is the regime this kernel
     # spends its time in -- a corpus of only successful routes would exercise
     # almost none of the frontier exhaustion, node re-expansion, and stale-entry
