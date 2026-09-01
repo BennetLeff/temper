@@ -1,4 +1,4 @@
-<!-- provenance: commit=91b65e8a59a22ef6567e2ff8e04539a992935651 dirty=false (the 120-sample DRC campaign and exact-copper measurement were taken on this clean commit; this evidence file and the ceiling update were authored afterward from those recorded results) -->
+<!-- provenance: commit=dfdfe20de48117393aa26fcc2100ee2ac07e29f8 (persistent main commit for PR #1521 carrying this evidence; the 120-sample DRC campaign and exact-copper measurement were taken on the clean board commit recorded below; this evidence file and the ceiling update were authored afterward from those recorded results) dirty=false -->
 
 # Clear C27's actionable creepage pairs by moving its SELV counterparts
 

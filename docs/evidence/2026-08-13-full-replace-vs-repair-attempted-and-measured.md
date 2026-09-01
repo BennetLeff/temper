@@ -1,4 +1,4 @@
-<!-- provenance: commit=d9f12d18e7220566de465ac303d8b30b6001bf0a dirty=false -->
+<!-- provenance: commit=2c1f112a6e1867b978ef3aa309c5de7b43b29331 (persistent main commit for PR #1168 carrying this evidence; original measurement worktree ref was not retained) dirty=false -->
 <!-- worktree agent/full-replace-attempt off origin/fix/board-schematic-resync + PR #1157 (aa90a4376) + PR #1158 (01098a7c9) + PR #1144 (f28db82b4) -->
 
 # Full re-place, attempted for the first time: measured, and it loses to repair

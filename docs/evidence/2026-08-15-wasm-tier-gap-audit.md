@@ -1,4 +1,4 @@
-<!-- provenance: commit=00e1f1d573ac50d5f31e8a1d4a0b26317f43a131 dirty=false -->
+<!-- provenance: commit=593d9ab24a9da0d03b51733f07da9ae4c15511bf (persistent main commit for PR #1275 carrying this evidence; original audit worktree ref was not retained) dirty=false -->
 
 # WASM tier gap audit — orchestration eligibility, tier gaps, CI wiring, post-session freshness
 

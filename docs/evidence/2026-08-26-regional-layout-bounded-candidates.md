@@ -1,4 +1,4 @@
-<!-- provenance: commit=2da1fcb3857064a4c1bde09e991b825ed26c24cf dirty=false -->
+<!-- provenance: commit=c24d0381044e6c77621d18a7616b5e945bb4419b (persistent main commit for PR #1523 carrying this evidence; original experiment worktree ref was not retained) dirty=false -->
 # Regional HV↔SELV layout candidates — bounded result
 
 ## Decision contract

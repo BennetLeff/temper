@@ -1,4 +1,4 @@
-<!-- provenance: commit=73ddab178a7843308e2706d76ab8a8ebee532f58 (merge base, worktree-agent-a0c9bd1a1df109a4d) dirty=true (working-tree changes at authoring time: this document plus the diff it describes) -->
+<!-- provenance: commit=c46db447a4d07477f3623a6ee3ef51217e0e6cf0 (persistent main commit introducing this evidence and the described change; original authoring worktree ref was not retained) dirty=true (working-tree changes at authoring time: this document plus the diff it describes) -->
 
 # `hypergraph.py`/`hypergraph_factory.py`'s `coo_matrix` — retired, no new Rust needed (2026-08-07)
 

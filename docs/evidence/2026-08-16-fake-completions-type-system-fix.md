@@ -1,4 +1,4 @@
-<!-- provenance: commit=71b3325d88338cc106112bc9584d42631b65c027 dirty=false -->
+<!-- provenance: commit=0d2a64cca802b0a45b21c489a6f1cb96971ff834 (persistent main commit for PR #1256 carrying this evidence; original fix worktree ref was not retained) dirty=false -->
 <!-- provenance: this document's fix is on branch fix/fake-completions-type-system,
 built from origin/main @ 5cebf30f0 (docs(evidence): definitive final route on
 main -- 92/139 pad-connected, 0 unconnected DRC items (#1247)). The measured
