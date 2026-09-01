@@ -15,6 +15,7 @@
     ".github/required-checks.json",
     ".unwired-kernel-inventory",
     ".orphaned-python-module-inventory",
+    ".ato-assertion-vacuity-inventory",
     "scripts/deadcode-baseline.py",
     "scripts/vulture_gate.py",
     "scripts/trace_invocations.py",
@@ -191,7 +192,11 @@
         "scripts/check_oracle_hashes.py",
         "scripts/update_oracle_hashes.py",
         "scripts/oracle_hashes.json",
-        "scripts/tests/test_check_oracle_hashes.py"
+        "scripts/tests/test_check_oracle_hashes.py",
+        "scripts/check_ato_assertion_vacuity.py",
+        "scripts/_lib/ato_model.py",
+        "scripts/tests/test_check_ato_assertion_vacuity.py",
+        ".ato-assertion-vacuity-inventory"
       ]
     },
     "Repo Hygiene & Import Gates": {
