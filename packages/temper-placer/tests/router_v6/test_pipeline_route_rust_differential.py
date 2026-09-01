@@ -42,7 +42,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 import temper_orchestration as _to
 
 from temper_placer.router_v6._adapter_convert import (
