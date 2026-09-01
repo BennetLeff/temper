@@ -143,7 +143,7 @@ def rank_function_pairs(
     ranked: list[tuple[float, int, Path, str, Path, str]] = []
     for _jaccard, _nshared, fa, fb, shared in candidates:
         defs_a, defs_b = get_defs(fa), get_defs(fb)
-        for name in shared:
+        for name in sorted(shared):
             qa = [q for q in defs_a if q.rsplit(".", 1)[-1] == name]
             qb = [q for q in defs_b if q.rsplit(".", 1)[-1] == name]
             for a in qa:
@@ -155,7 +155,7 @@ def rank_function_pairs(
                         continue
                     r = registry.similarity(defs_a[a], defs_b[b])
                     ranked.append((r, tok_len, fa, a, fb, b))
-    ranked.sort(key=lambda t: -t[0])
+    ranked.sort(key=lambda t: (-t[0], -t[1], str(t[2]), t[3], str(t[4]), t[5]))
     return ranked
 
 

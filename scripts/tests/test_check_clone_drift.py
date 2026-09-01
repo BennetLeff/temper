@@ -37,6 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import check_clone_drift as check  # noqa: E402
 import clone_drift_registry as registry  # noqa: E402
+import find_clone_pairs as discovery  # noqa: E402
 
 
 def _write(tmp_path: Path, rel: str, content: str) -> Path:
@@ -239,6 +240,18 @@ class TestSyntheticRegistryFailsThenPasses:
         with pytest.raises(SystemExit) as exc_info:
             check.main()
         assert exc_info.value.code == check.EXIT_CLEAN
+
+
+def test_discovery_ranking_is_deterministic_for_tied_pairs(tmp_path, monkeypatch):
+    body = "(x):\n    if x:\n        value = transform(x)\n        return finish(value)\n    return fallback(x)\n"
+    file_a = _write(tmp_path, "a.py", f"def beta{body}\ndef alpha{body}")
+    file_b = _write(tmp_path, "b.py", f"def beta{body}\ndef alpha{body}")
+    candidates = [(1.0, 2, file_a, file_b, {"beta", "alpha"})]
+    monkeypatch.setattr(discovery, "MIN_BODY_TOKENS", 0)
+
+    ranked = discovery.rank_function_pairs(tmp_path, candidates)
+
+    assert [entry[3] for entry in ranked] == ["alpha", "beta"]
 
 
 # ---------------------------------------------------------------------------
