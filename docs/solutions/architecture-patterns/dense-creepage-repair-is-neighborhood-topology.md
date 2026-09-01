@@ -10,26 +10,30 @@ severity: critical
 applies_when:
   - "a mains-to-SELV creepage repair moves a connector or boundary component inside a dense populated region"
   - "a candidate clears its named safety pair but adds different safety signatures, shorts, or mechanical collisions"
-  - "the moved footprint's approach copper and previously unrouted conductors must be evaluated with placement"
-  - "a finite single-component search is exhausted without proving that every local neighborhood layout is infeasible"
-  - "the checked-in land pattern differs from its manufacturer or approved-library authority"
+  - "a moved footprint and its approach copper must be declared and evaluated as one isolation-corridor object"
+  - "scope expansion requires one exact fixed-object veto from a completed bounded family"
+  - "an exhausted campaign has missing, capped, or otherwise indeterminate verification instruments"
 symptoms:
   - "A candidate clears its named creepage pair while the board's total safety debt grows."
   - "Electrical connectivity passes even though the moved connector creates shorts or mechanical collisions."
   - "Authoritative footprint geometry changes the distance used to justify the placement."
+  - "Every placement clears the footprint gap while the moved high-voltage route remains too close to SELV copper."
+  - "A reproducible candidate family cannot support a terminal certificate because a required instrument is unavailable or capped."
 related_components:
   - pcb-layout
   - req-safe
   - kicad-drc
   - rtd-connector-routing
+  - kicad-geometry
+  - candidate-search
 tags:
   - mains-selv-isolation
   - pcb-floorplan
   - creepage
   - bounded-search
   - pareto-veto
-  - connector-routing
-  - kicad-drc
+  - route-corridor
+  - stopped-indeterminate
   - falsifiable-design
 ---
 
@@ -63,6 +67,30 @@ J1-R14 and R14-U22 reinforced-creepage signatures plus new or worsened
 functional-spacing signatures. The corrected right/bottom family is therefore
 exhausted before routing, while the wider neighborhood remains unproven
 (`docs/evidence/2026-08-31-k1-j1-domain-refloorplan.md`).
+
+The next campaign made R14 and the complete local high-voltage approach route
+first-class movable authority. It crossed those 60 placements with four
+eastward R14/net-41 route transforms, producing 240 deterministic candidates.
+All 240 still cleared K1-J1 at
+13.304745870407777..13.77882654659717 mm, but none cleared the complete
+pre-route contract. The closest measured net-41-to-SELV pad-copper relationship
+was J1.1 to the same declared segment in every candidate. A shape-aware Rust pad-core-to-route
+capsule measurement put it at only
+9.55333347008141..11.545158055694412 mm against the 12.6 mm requirement.
+Every candidate also added or worsened affected functional safety signatures;
+60 added a C5-R14 courtyard overlap
+(`docs/evidence/r14-hv-domain-refloorplan-20260831/pre-route-manifest.json`).
+
+That result closes the prior “add R14 and its route” handoff, but it does not
+prove the topology impossible. The common route veto is between already
+movable J1 and already-declared net-41 copper, while the full safety veto set
+contains several relationships. No one fixed object therefore authorized the
+predeclared one-object expansion. The run also lacked a live pcbnew Python
+oracle and its clean baseline DRC repeatedly reported the saturated
+`silk_overlap=199` category. It ended `stopped-indeterminate`: the exact family
+rejections remain evidence, but neither an expansion nor a topology-negative
+certificate can be inferred from incomplete instruments
+(`docs/evidence/r14-hv-domain-refloorplan-20260831/stopped-indeterminate.md`).
 
 That result was accepted only after invalidating two calibration defects. The
 first gap calculation treated unresolved parsed pad offsets as board
@@ -126,9 +154,15 @@ design study rather than as a mandate to change the board.
    implements this no-trade rule: new cross-domain pairs, relevant DRC rises,
    body collisions, endpoint drift, and instrument errors all contribute
    rejection reasons; acceptance requires no reasons
-   (`packages/temper-quality-oracle/src/regional_feasibility.rs:107`).
+   (`packages/temper-quality-oracle/src/regional_feasibility.rs:134`).
 
-5. **Move the connector and its copper as one design object.** Reroute the
+5. **Move the endpoint footprint and its declared copper as one design
+   object.** Bind the route by net, layer, width, fixed endpoint, moving via,
+   and exact segment identities; reject partial, stale, duplicate, or extra
+   membership before mutation. The R14 campaign's Rust mutator validates the
+   full chain, moves the footprint and via together, transforms every declared
+   segment, and copies bytes outside those blocks unchanged
+   (`packages/temper-design-bundle/src/sexpr_writer.rs:266`). Reroute any other
    affected approaches on each scratch board and prove intended connectivity
    separately from creepage. The connectivity audit parses the written board
    and evaluates its pad, segment, and via graph
@@ -136,7 +170,7 @@ design study rather than as a mandate to change the board.
    Its `is_fake_completion` property distinguishes “copper exists” from “the
    pads are joined,” while zone-dependent cases remain unmeasured rather than
    being called connected
-   (`packages/temper-placer/src/temper_placer/router_v6/pad_connectivity_audit.py:118`).
+   (`packages/temper-placer/src/temper_placer/router_v6/pad_connectivity_audit.py:130`).
 
 6. **Use independent instruments for independent claims.** Exact safety
    signatures answer whether the target pair was removed or substituted.
@@ -144,7 +178,7 @@ design study rather than as a mandate to change the board.
    hole, and courtyard faults. Fabrication-body and containment checks address
    different mechanical questions. The isolation-barrier gate remains an
    independent fail-closed invariant
-   (`scripts/check_isolation_keepout.py:894`).
+   (`scripts/check_isolation_keepout.py:570`).
 
 7. **Reject suspect measurements before judging candidates.** The regional
    evaluator rejects missing or stale generated rules, missing project or
@@ -154,7 +188,8 @@ design study rather than as a mandate to change the board.
    KiCad project context cannot be resolved, invokes `kicad-cli` with
    `--all-track-errors`, and attempts to pin KiCad to one thread; the pinning
    helper can explicitly degrade to the ambient environment
-   (`packages/temper-placer/src/temper_placer/validation/_drc_api.py:581`).
+   (`packages/temper-placer/src/temper_placer/validation/_drc_api.py:569` and
+   `packages/temper-placer/src/temper_placer/validation/_drc_api.py:395`).
 
 8. **Stop at the cheapest decisive veto.** Do not keep nudging the same
    component, accept a lower aggregate while new signatures appear, or raise
@@ -167,11 +202,23 @@ design study rather than as a mandate to change the board.
 9. **Escalate only the topology the evidence names.** The connector-only study
    justified a six-footprint neighborhood. The fully covered right/bottom
    family then showed that fixed R14/high-voltage copper blocks that specific
-   packing. The next run must either relocate J1 along a different board-edge
-   and enclosure/cable axis or explicitly add R14 and its associated HV route
-   to the movable set inside the board-wide domain-first barrier refloorplan.
-   Neither result licenses a smaller creepage value or a global infeasibility
-   claim.
+   packing, which authorized the completed R14/net-41 family. That family did
+   not identify one further fixed object: its common route veto was between
+   already-movable J1 and already-declared net-41 copper. Any next run must be a
+   new topology declaration—such as an enclosure-authorized J1 access change,
+   a route-layer/corridor redesign, or a manufacturing-authorized isolation
+   slot. Neither result licenses a smaller creepage value or a global
+   infeasibility claim.
+
+10. **Separate family rejection, expansion authority, and terminal
+    certification.** A complete manifest can conclusively report that every
+    declared candidate failed its measured vetoes without proving the broader
+    topology impossible. Expand only when one exact fixed object explains the
+    completed family; mixed relationships, an already-movable closest pair,
+    timeout, cap, or instrument error do not authorize new scope. If required
+    evidence is unavailable or indeterminate, preserve the family result but
+    end `stopped-indeterminate`, leave production authorities unchanged, and
+    state what must be restored before a stronger claim is possible.
 
 ## Why This Matters
 
@@ -200,6 +247,22 @@ aggregate. All 60 mechanically valid placements measured K1-J1 at
 8.71360662977365..9.211078285214919 mm from R14, both below the 12.6 mm
 reinforced requirement. A named-gap pass can therefore be a deterministic
 safety-debt transfer even when mechanical geometry is clean.
+
+The R14/net-41 campaign demonstrates the next layer of the same failure. Even
+after the previously fixed high-voltage object was moved with its route, all
+240 candidates passed K1-J1 while all 240 failed the direct route-to-SELV pad-copper
+clearance. Treating the route as part of the candidate prevented 240 false
+placement winners from consuming routing and DRC effort. The complete safety
+signature set also showed why the closest pair alone was not expansion
+authority: R54-R66, R54-U22, R66-U22, and—in 192 candidates—R66-SW1 were part
+of the affected regression pattern.
+
+Earlier routing work found that an already-routed board measured as clean
+router input could manufacture a regression, and that fresh extensions,
+repeated samples, and normalized violation sets were needed to distinguish
+instrument state from board behavior. That history is why a missing live
+oracle or capped DRC category is a stop condition, not a reason to widen the
+search or certify infeasibility. (session history)
 
 Prior K1-region campaigns had already eliminated relay-internal geometry,
 R56, RT1, and C7 as clean explanations and retained K1's measured Pareto
@@ -293,6 +356,31 @@ instrument ignored footprint rotation for the 180-degree J1, and its option
 set gave U22 no fixed-obstacle-clear slot. The corrected declaration fixed
 both preconditions before materialization.
 
+### R14 and routed-corridor family result
+
+The next declaration bound R14 to net 41's complete 15-segment In3.Cu chain,
+its moving blind via, and its fixed upstream endpoint. Rust sorted the 60
+predecessor placement identities and four east shifts, checked the 240-row
+budget, and assigned stable candidate identities
+(`packages/temper-quality-oracle/src/regional_feasibility.rs:25`).
+
+| Gate | Result |
+|---|---:|
+| Declared and replayed candidates | 240/240 |
+| K1-J1 at or above 13.1 mm | 240/240 |
+| Net-41-to-SELV pad copper at or above 12.6 mm | 0/240 |
+| No affected/new/worsened safety signature | 0/240 |
+| No new courtyard overlap | 180/240 |
+| Pre-route survivors | 0/240 |
+| Routed promotions | 0 |
+| Evidence-authorized expansions | 0 |
+
+The campaign is content-addressed and replayable, but its terminal status is
+`stopped-indeterminate`: the pinned rotation corpus passed, while live pcbnew
+verification was unavailable and baseline DRC contained a capped category.
+The production board, production J1 footprint, and DRC ceiling therefore remain
+byte-identical to the recorded pre-work hashes.
+
 ### Handoff wording
 
 A useful handoff is constrained and falsifiable:
@@ -309,6 +397,17 @@ That wording preserves the successful routing idea, rejects the unsafe
 placements, and defines the next board-design unit without claiming that every
 possible local solution has been exhausted.
 
+After executing that named expansion, the bounded handoff becomes:
+
+> The tested R14/net-41 family contains 240 declared candidates; all 240 clear
+> K1-J1, while all 240 fail exact J1.1-to-net-41 separation and regress affected
+> safety signatures. No single fixed object authorizes the optional expansion,
+> and no candidate was eligible for routing. The run stops indeterminate because
+> live pcbnew verification is unavailable and baseline DRC contains a capped
+> category. Do not continue the same east-shift family. Start a new,
+> enclosure- or manufacturing-authorized topology that moves J1/access, moves
+> the route corridor away from J1, or introduces a validated isolation slot.
+
 ## Related
 
 - `docs/evidence/2026-08-30-k1-j1-creepage-repair.md` — the measured candidate
@@ -316,6 +415,12 @@ possible local solution has been exhausted.
 - `docs/evidence/2026-08-31-k1-j1-domain-refloorplan.md` — the corrected,
   fully covered right/bottom neighborhood-family result and its invalidated
   calibration instruments.
+- `docs/evidence/r14-hv-domain-refloorplan-20260831/stopped-indeterminate.md`
+  — the complete 240-candidate R14/net-41 continuation, terminal instrument
+  limits, and next topology boundary.
+- `docs/plans/2026-08-31-1559-fix-r14-hv-domain-refloorplan-plan.md` — the
+  declaration, one-object expansion rule, routing gate, and terminal-state
+  contract executed by the continuation.
 - `docs/solutions/architecture-patterns/physical-isolation-barrier-requires-domain-first-floorplan-2026-07-30.md`
   — the larger topology this stopped run hands off to; its current-state facts
   need a separate refresh against the PD3 board.

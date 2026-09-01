@@ -34,6 +34,32 @@ class TestOracleModule:
         require_oracle()
         assert callable(temper_quality_oracle.prepare_quality_py)
 
+    def test_regional_declaration_is_sorted_and_budgeted(self):
+        require_oracle()
+        rows = temper_quality_oracle.declare_regional_candidates_py(
+            ["C002", "C001"], [5.5, 4.0, 5.0, 4.5], 8
+        )
+        assert rows[0] == (1, "R14HV-001", "C001", 4.0)
+        assert rows[-1] == (8, "R14HV-008", "C002", 5.5)
+        with pytest.raises(ValueError, match="budget"):
+            temper_quality_oracle.declare_regional_candidates_py(["C001"], [4.0, 4.5], 1)
+
+    def test_pre_route_verdict_is_rust_owned_and_ordered(self):
+        require_oracle()
+        accepted, reasons = temper_quality_oracle.evaluate_pre_route_candidate_py(
+            12.0, 11.0, 1, 1, 1, 1, 1, 1, 1, 1
+        )
+        assert not accepted
+        assert reasons == [
+            "k1_j1",
+            "route_to_selv",
+            "affected_safety",
+            "safety_regression",
+            "body_overlap",
+            "courtyard_overlap",
+            "containment",
+        ]
+
 class TestQualityOraclePipeline:
     def test_empty_board_passes(self):
         require_oracle()

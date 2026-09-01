@@ -48,3 +48,12 @@ Its reported denominator includes only candidates produced by a validated
 family and authoritative measurement instruments; a calibration run that uses
 the wrong coordinate convention or offers no physically admissible option is
 retained as diagnostic evidence but excluded from the design verdict.
+
+### Stopped-indeterminate
+
+A bounded candidate study terminal state in which useful scoped measurements
+exist but a required instrument, route, or evidence condition cannot support
+either promotion or a conclusive negative certificate.
+
+It preserves the measured family result while forbidding uncertainty from
+authorizing wider scope or being restated as physical impossibility.

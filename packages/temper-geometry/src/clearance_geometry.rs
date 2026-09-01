@@ -413,6 +413,41 @@ fn pad_pair_distance_spec(a: &PadSpec, b: &PadSpec) -> f64 {
     (gap - ra - rb).max(0.0)
 }
 
+/// Exact copper distance from one shape-aware pad to a capsule.
+///
+/// A routed segment is its centreline Minkowski-summed with a disk whose
+/// radius is half the copper width. A via is the degenerate case where both
+/// centreline endpoints are equal and the width is the via diameter.
+fn pad_to_capsule_distance_spec(
+    pad: &PadSpec,
+    p0: (f64, f64),
+    p1: (f64, f64),
+    width: f64,
+) -> Result<f64, String> {
+    if !width.is_finite() || width <= 0.0 {
+        return Err("capsule width must be finite and positive".into());
+    }
+    for value in [p0.0, p0.1, p1.0, p1.1] {
+        if !value.is_finite() {
+            return Err("capsule endpoints must be finite".into());
+        }
+    }
+    let (pad_width, pad_height, shape, cx, cy, rotation_rad, roundrect_ratio) = pad;
+    let pad_core = pad_core(
+        *pad_width,
+        *pad_height,
+        *shape,
+        *cx,
+        *cy,
+        *rotation_rad,
+        *roundrect_ratio,
+    );
+    let capsule_core = Core::Segment(p0.0, p0.1, p1.0, p1.1);
+    let gap = core_distance(&pad_core, &capsule_core);
+    let pad_radius = corner_radius(*pad_width, *pad_height, *shape, *roundrect_ratio);
+    Ok((gap - pad_radius - width / 2.0).max(0.0))
+}
+
 // ---------------------------------------------------------------------------
 // The copper pair scan (the `_CopperModel.copper_distance` inner loop)
 // ---------------------------------------------------------------------------
@@ -522,6 +557,20 @@ pub fn pad_pair_distance_py(pad_a: PadSpec, pad_b: PadSpec) -> PyResult<f64> {
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+/// Exact shape-aware copper distance from a pad to a track capsule or via.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn pad_to_capsule_distance_py(
+    pad: PadSpec,
+    p0: (f64, f64),
+    p1: (f64, f64),
+    width: f64,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_unwind(|| pad_to_capsule_distance_spec(&pad, p0, p1, width))
+        .map_err(temper_py_bridge::panic_to_err)?
+        .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
 /// The `_CopperModel.copper_distance` pair scan (see `copper_scan`).
 /// `ids_a`/`ids_b` must be ``[id(p) for p in pads_a]`` /
 /// ``[id(p) for p in pads_b]`` from Python — equal ids reproduce the
@@ -557,6 +606,35 @@ pub(crate) mod tests {
     fn test_zero_rotation_is_identity() {
         let (rx, ry) = rotate_local_to_world(3.0, -2.0, 0.0);
         assert_eq!((rx, ry), (3.0, -2.0));
+    }
+
+    #[cfg_attr(test, test)]
+    fn pad_to_capsule_matches_equivalent_oval_pad() {
+        let pad = (1.7, 1.95, crate::pad_geometry::SHAPE_ROUNDRECT, 0.0, 5.0, 0.0, 0.147059);
+        let got = pad_to_capsule_distance_spec(&pad, (-10.0, 0.0), (10.0, 0.0), 0.5).unwrap();
+        let equivalent_capsule = (
+            20.5,
+            0.5,
+            crate::pad_geometry::SHAPE_OVAL,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+        );
+        assert_eq!(got, pad_pair_distance_spec(&pad, &equivalent_capsule));
+    }
+
+    #[cfg_attr(test, test)]
+    fn pad_to_capsule_rejects_invalid_width() {
+        let pad = (1.0, 1.0, crate::pad_geometry::SHAPE_CIRCLE, 0.0, 0.0, 0.0, 0.25);
+        assert!(pad_to_capsule_distance_spec(&pad, (0.0, 2.0), (0.0, 2.0), 0.0).is_err());
+    }
+
+    #[cfg_attr(test, test)]
+    fn pad_to_capsule_degenerate_segment_is_a_via_circle() {
+        let pad = (2.0, 2.0, crate::pad_geometry::SHAPE_CIRCLE, 0.0, 0.0, 0.0, 0.25);
+        let got = pad_to_capsule_distance_spec(&pad, (4.0, 0.0), (4.0, 0.0), 2.0).unwrap();
+        assert_eq!(got, 2.0);
     }
 
     #[cfg_attr(test, test)]
@@ -657,6 +735,9 @@ pub(crate) mod tests {
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("clearance_geometry::tests::test_rotate_local_to_world_matches_manual", test_rotate_local_to_world_matches_manual),
         ("clearance_geometry::tests::test_zero_rotation_is_identity", test_zero_rotation_is_identity),
+        ("clearance_geometry::tests::pad_to_capsule_matches_equivalent_oval_pad", pad_to_capsule_matches_equivalent_oval_pad),
+        ("clearance_geometry::tests::pad_to_capsule_rejects_invalid_width", pad_to_capsule_rejects_invalid_width),
+        ("clearance_geometry::tests::pad_to_capsule_degenerate_segment_is_a_via_circle", pad_to_capsule_degenerate_segment_is_a_via_circle),
         ("clearance_geometry::tests::test_corner_radius_agrees_with_shared_model", test_corner_radius_agrees_with_shared_model),
         ("clearance_geometry::tests::test_pad_pair_distance_zero_when_identical", test_pad_pair_distance_zero_when_identical),
         ("clearance_geometry::tests::test_pad_pair_distance_rect_gap", test_pad_pair_distance_rect_gap),

@@ -69,3 +69,72 @@ def test_oracle_function_reproduces_pinned_capture():
     assert tedit.sub("(tedit <now>)", actual) == tedit.sub(
         "(tedit <now>)", KIUTILS_MINIMAL_BOARD_SEXPR
     )
+
+
+def test_declared_route_move_rejects_empty_chain_declaration():
+    import temper_design_bundle_python as tdb
+
+    board = '''(kicad_pcb
+      (net 41 "discharge.r_snub1-p2")
+      (footprint "R" (layer "F.Cu") (at 118.64 249.56 270)
+        (property "Reference" "R14"))
+      (segment (start 112 218) (end 118.64 252.5225) (width 5) (layer "In3.Cu") (net 41) (tstamp 11111111-1111-1111-1111-111111111111))
+      (via (at 118.64 252.5225) (size 2) (drill 1) (layers "In3.Cu" "F.Cu") (net 41) (tstamp 33333333-3333-3333-3333-333333333333)))'''
+    with pytest.raises(ValueError, match="non-empty"):
+        tdb.parse_engine.replace_declared_route_and_move_footprint_py(
+            board,
+            "R14",
+            41,
+            "In3.Cu",
+            5.0,
+            (112.0, 218.0),
+            "33333333-3333-3333-3333-333333333333",
+            "2",
+            2.0,
+            1.0,
+            [],
+            4.0,
+        )
+
+
+def test_rust_j1_block_replacement_matches_retired_python_oracle(tmp_path):
+    """The predecessor mutator remains an oracle, never the active builder."""
+    import temper_design_bundle_python as tdb
+
+    predecessor = REPO_ROOT / "docs/evidence/k1-j1-domain-refloorplan-20260831"
+    source = REPO_ROOT / "pcb/temper.kicad_pcb"
+    expected_path = tmp_path / "python-oracle.kicad_pcb"
+    namespace = {"__name__": "retired_j1_builder_oracle"}
+    exec((predecessor / "build_authority.py").read_text(), namespace)
+    namespace["build"](source, expected_path, 237.0, True)
+
+    replacement = (predecessor / "approved-j1-board-footprint.kicad_sexpr").read_text().rstrip("\n").lstrip(" ")
+    actual = tdb.parse_engine.replace_footprint_block_by_reference_py(
+        source.read_text(), "J1", replacement
+    )
+    assert actual == expected_path.read_text()
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        (("(at 118.64 249.56 270)", "(at 119.64 249.56 270)"), "not co-located"),
+        (("(layers \"In3.Cu\" \"F.Cu\")", "(layers \"In3.Cu\" \"In4.Cu\")"), "does not reach"),
+    ],
+)
+def test_declared_route_move_rejects_disconnected_pad_or_layer_span(mutation, message):
+    import temper_design_bundle_python as tdb
+
+    board = '''(kicad_pcb
+      (net 41 "discharge.r_snub1-p2")
+      (footprint "R" (layer "F.Cu") (at 118.64 249.56 270)
+        (property "Reference" "R14")
+        (pad "2" smd circle (at 2.9625 0) (size 2 2) (layers "F.Cu" "F.Mask") (net 41 "discharge.r_snub1-p2")))
+      (segment (start 112 218) (end 118.64 252.5225) (width 5) (layer "In3.Cu") (net 41) (tstamp 11111111-1111-1111-1111-111111111111))
+      (via (at 118.64 252.5225) (size 2) (drill 1) (layers "In3.Cu" "F.Cu") (net 41) (tstamp 33333333-3333-3333-3333-333333333333)))'''
+    with pytest.raises(ValueError, match=message):
+        tdb.parse_engine.replace_declared_route_and_move_footprint_py(
+            board.replace(*mutation), "R14", 41, "In3.Cu", 5.0,
+            (112.0, 218.0), "33333333-3333-3333-3333-333333333333",
+            "2", 2.0, 1.0, ["11111111-1111-1111-1111-111111111111"], 4.0,
+        )
