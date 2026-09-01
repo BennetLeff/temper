@@ -629,27 +629,6 @@ jobs:
           # Historical path, kept for the same reason /tmp/native.txt is.
           cp /tmp/wasm_local_drc-rs.json /tmp/wasm_local.json
 
-      # Resolve the explicit promotion candidate here without mutating its
-      # local census. The deterministic flip is applied later, after the real
-      # immutable-preview sweep, so native and local Node remain green.
-      - name: Anti-vacuity — inject a disagreement (workflow_dispatch only)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_disagreement == 'flip_one_verdict' }}
-        env:
-          INJECT_DISAGREEMENT_CANDIDATE: temper-io-types
-        run: |
-          set -euo pipefail
-          target_suffix="$(node --input-type=module -e '
-            import { loadTopology, tierFlagSuffix } from "./tools/wasm/tier_topology.mjs";
-            const topology = loadTopology();
-            const candidate = process.env.INJECT_DISAGREEMENT_CANDIDATE;
-            if (!topology.promotion_candidates.includes(candidate)) {
-              throw new Error(`${candidate} is not a topology promotion candidate`);
-            }
-            process.stdout.write(tierFlagSuffix(candidate));
-          ')"
-          test -f "/tmp/wasm_local_${target_suffix}.json"
-          echo "candidate resolved; U7 applies the deterministic flip only after the immutable Worker sweep"
-
       # ONE COMPARISON PER SELECTED TIER: tonight's rotated tier plus the
       # topology's promotion candidate, deduplicated on a collision night.
       # The native side does not exist for any other tier, so comparing them
@@ -1076,10 +1055,11 @@ jobs:
           PREVIEW_URL="$(jq -r .preview_url "${diag}/upload-identity.json")"
           test "$(jq -r .id "${diag}/resolved-version.json")" = "${VERSION_ID}"
           VERSION_UPLOAD_SECONDS="$(( $(date +%s) - upload_started_at ))"
-          for delay in 2 4 8 16 30 30 30 30; do
+          propagation_delays=(2 4 8 16 30 30 30)
+          for attempt in {0..7}; do
             code="$(curl -sS --max-time 20 -H "x-temper-preview-capability: ${CAPABILITY}" -o "${diag}/health.json" -w '%{http_code}' "${PREVIEW_URL}/health" || true)"
             [ "${code}" = 200 ] && break
-            sleep "${delay}"
+            if [ "${attempt}" -lt 7 ]; then sleep "${propagation_delays[attempt]}"; fi
           done
           test "${code}" = 200
           node tools/wasm/preview_version.mjs validate-health --health "${diag}/health.json" \

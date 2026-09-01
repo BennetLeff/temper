@@ -84,6 +84,7 @@ jobs:
           else
             git checkout -b "${branch}" origin/main
           fi
+          git rev-parse HEAD > /tmp/r19-ledger-start-head.txt
           test -f tools/wasm/r19_agreement_ledger.jsonl
           python3 /tmp/r19_agreement_ledger.py validate \
             --ledger tools/wasm/r19_agreement_ledger.jsonl
@@ -140,7 +141,7 @@ jobs:
       - name: Push evidence branch without rewriting history
         run: |
           set -euo pipefail
-          if git diff --quiet origin/main...HEAD -- tools/wasm/r19_agreement_ledger.jsonl; then
+          if [ "$(git rev-parse HEAD)" = "$(cat /tmp/r19-ledger-start-head.txt)" ]; then
             echo 'No new ledger rows to push.'
             exit 0
           fi

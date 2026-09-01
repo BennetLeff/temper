@@ -178,10 +178,12 @@ def test_precomparison_failure_is_infrastructure_reset_not_disagreement() -> Non
 def test_workflow_routes_diagnostic_injection_to_explicit_candidate() -> None:
     workflow = Path(".github/workflows/wasm-tier-nightly.yml").read_text()
     injection_step = workflow.split(
-        "- name: Anti-vacuity — inject a disagreement (workflow_dispatch only)", 1
+        "- name: Anti-vacuity — flip one completed immutable Worker verdict", 1
     )[1].split("- name: R19 comparison — selected tiers", 1)[0]
 
-    assert "INJECT_DISAGREEMENT_CANDIDATE: temper-io-types" in injection_step
+    assert "/tmp/worker_sweep_io-types.json" in injection_step
+    assert '"candidate": "temper-io-types"' in injection_step
+    assert '"stage": "post-immutable-sweep"' in injection_step
     assert "ROTATED_SUFFIX" not in injection_step
 
 
@@ -416,3 +418,12 @@ def test_contract_digest_rejects_missing_or_extra_components() -> None:
     extra["unreviewed_component"] = "surprise"
     with pytest.raises(LedgerError, match="component keys"):
         comparison_contract_digest(extra)
+
+
+def test_evidence_workflow_pushes_only_when_this_run_appended_a_row() -> None:
+    workflow = (
+        Path(__file__).resolve().parents[2] / ".github/workflows/wasm-tier-ledger.yml"
+    ).read_text()
+    assert "git rev-parse HEAD > /tmp/r19-ledger-start-head.txt" in workflow
+    assert '$(cat /tmp/r19-ledger-start-head.txt)' in workflow
+    assert "git diff --quiet origin/main...HEAD" not in workflow

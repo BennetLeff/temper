@@ -89,7 +89,7 @@ const SHARDS = SELECTED_TIERS.flatMap((t) =>
   t.shards.map((s) => ({ ...s, crate: t.crate })),
 );
 const FAMILIES = SHARDS.map((s) => s.family);
-const CONCURRENCY = parseInt(arg("--concurrency", "64"), 10);
+const CONCURRENCY = parseInt(arg("--concurrency", String(PREVIEW_LIMITS.concurrency)), 10);
 const JSON_OUT = arg("--json", null);
 const WARMUP = process.argv.includes("--warmup");
 // R5 (goal-set plan): every finding names the exact artifact it came from by
@@ -104,8 +104,8 @@ const WARMUP = process.argv.includes("--warmup");
 const BOARD_SHA256 = arg("--board-sha256", null);
 
 // --- R22/R23 durability knobs -----------------------------------------
-const REQUEST_TIMEOUT_MS = parseInt(arg("--request-timeout-ms", "20000"), 10);
-const MAX_RETRIES = parseInt(arg("--max-retries", "2"), 10);
+const REQUEST_TIMEOUT_MS = parseInt(arg("--request-timeout-ms", String(PREVIEW_LIMITS.requestTimeoutMs)), 10);
+const MAX_RETRIES = parseInt(arg("--max-retries", String(PREVIEW_LIMITS.maxRetries)), 10);
 const RETRY_BACKOFF_MS = Math.max(0, parseInt(arg("--retry-backoff-ms", "200"), 10));
 const REPLICA_FLUSH_EVERY = Math.max(1, parseInt(arg("--replica-flush-every", "25"), 10));
 // Defaults derived from --json so the two existing CI callers (which only
@@ -132,16 +132,25 @@ function usageError(message) {
   process.exit(2);
 }
 
-if (!Number.isSafeInteger(CONCURRENCY) || CONCURRENCY < 1 || CONCURRENCY > PREVIEW_LIMITS.concurrency) {
-  usageError(`concurrency must be in [1, ${PREVIEW_LIMITS.concurrency}]`);
+if (!Number.isSafeInteger(CONCURRENCY) || CONCURRENCY < 1) {
+  usageError("concurrency must be a positive integer");
 }
-if (!Number.isSafeInteger(REQUEST_TIMEOUT_MS) || REQUEST_TIMEOUT_MS < 1 || REQUEST_TIMEOUT_MS > PREVIEW_LIMITS.requestTimeoutMs) {
-  usageError(`request timeout must be in [1, ${PREVIEW_LIMITS.requestTimeoutMs}]ms`);
+if (!Number.isSafeInteger(REQUEST_TIMEOUT_MS) || REQUEST_TIMEOUT_MS < 1) {
+  usageError("request timeout must be a positive integer");
 }
-if (!Number.isSafeInteger(MAX_RETRIES) || MAX_RETRIES < 0 || MAX_RETRIES > PREVIEW_LIMITS.maxRetries) {
-  usageError(`max retries must be in [0, ${PREVIEW_LIMITS.maxRetries}]`);
+if (!Number.isSafeInteger(MAX_RETRIES) || MAX_RETRIES < 0) {
+  usageError("max retries must be a non-negative integer");
 }
 if (PREVIEW_URL_ARG) {
+  if (CONCURRENCY > PREVIEW_LIMITS.concurrency) {
+    usageError(`preview concurrency must be at most ${PREVIEW_LIMITS.concurrency}`);
+  }
+  if (REQUEST_TIMEOUT_MS > PREVIEW_LIMITS.requestTimeoutMs) {
+    usageError(`preview request timeout must be at most ${PREVIEW_LIMITS.requestTimeoutMs}ms`);
+  }
+  if (MAX_RETRIES > PREVIEW_LIMITS.maxRetries) {
+    usageError(`preview max retries must be at most ${PREVIEW_LIMITS.maxRetries}`);
+  }
   if (!TIER_ARG || SELECTED_TIERS.length !== 1) usageError("--preview-url requires exactly one explicit --tier");
   const tier = SELECTED_TIERS[0];
   if (tier.shards.length !== 1 || tier.shards[0].worker !== tier.full_corpus_worker) {

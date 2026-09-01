@@ -261,8 +261,8 @@ export function previewCandidateContract(topology) {
   });
 }
 
-const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
-function canonicalDeep(value) {
+export const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+export function canonicalDeep(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalDeep).join(",")}]`;
   if (value !== null && typeof value === "object") {
     return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalDeep(value[key])}`).join(",")}}`;

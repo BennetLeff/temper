@@ -115,11 +115,12 @@ test("the staging script builds only the topology-derived preview target", () =>
   const dir = mkdtempSync(join(tmpdir(), "temper-preview-stage-"));
   try {
     const repo = join(dir, "head");
-    const output = join(dir, "artifact");
-    const target = join(dir, "target");
+    const output = join(repo, "packages", "temper-worker", "src");
+    const target = join(repo, "target-shared");
     const bin = join(dir, "bin");
     mkdirSync(join(repo, "packages", "temper-wasm-test-runner"), { recursive: true });
-    mkdirSync(output);
+    mkdirSync(output, { recursive: true });
+    mkdirSync(join(repo, "tools", "wasm"), { recursive: true });
     mkdirSync(bin);
     const changed = structuredClone(topology);
     const tier = changed.tiers.find((entry) => entry.crate === "temper-io-types");
@@ -127,7 +128,7 @@ test("the staging script builds only the topology-derived preview target", () =>
     tier.staged_module = "renamed_candidate.wasm";
     tier.shards[0].cargo_features = tier.cargo_features;
     tier.shards[0].staged_module = tier.staged_module;
-    const topologyPath = join(dir, "topology.json");
+    const topologyPath = join(repo, "tools", "wasm", "wasm_tier_topology.json");
     writeFileSync(topologyPath, JSON.stringify(changed));
     const cargo = join(bin, "cargo");
     writeFileSync(
@@ -141,9 +142,6 @@ test("the staging script builds only the topology-derived preview target", () =>
         fileURLToPath(new URL("../../scripts/stage_wasm_families.sh", import.meta.url)),
         "--preview-candidate",
         "--repo-root", repo,
-        "--topology", topologyPath,
-        "--output-dir", output,
-        "--target-dir", target,
       ],
       {
         encoding: "utf8",

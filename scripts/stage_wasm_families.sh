@@ -38,10 +38,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(pwd)"
-TOPOLOGY="${REPO_ROOT}/tools/wasm/wasm_tier_topology.json"
+TOPOLOGY=""
 TOPOLOGY_LOADER="${SCRIPT_DIR}/../tools/wasm/tier_topology.mjs"
-STAGE_DIR="${REPO_ROOT}/packages/temper-worker/src"
-TARGET_DIR="${REPO_ROOT}/target-shared"
+STAGE_DIR=""
+TARGET_DIR=""
 PREVIEW_CANDIDATE=0
 
 while [ "$#" -gt 0 ]; do
@@ -68,6 +68,9 @@ while [ "$#" -gt 0 ]; do
 done
 
 REPO_ROOT="$(cd -- "$REPO_ROOT" && pwd)"
+TOPOLOGY="${TOPOLOGY:-${REPO_ROOT}/tools/wasm/wasm_tier_topology.json}"
+STAGE_DIR="${STAGE_DIR:-${REPO_ROOT}/packages/temper-worker/src}"
+TARGET_DIR="${TARGET_DIR:-${REPO_ROOT}/target-shared}"
 mkdir -p "$STAGE_DIR" "$TARGET_DIR"
 STAGE_DIR="$(cd -- "$STAGE_DIR" && pwd)"
 TARGET_DIR="$(cd -- "$TARGET_DIR" && pwd)"

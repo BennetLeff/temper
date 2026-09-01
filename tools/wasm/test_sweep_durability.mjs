@@ -473,8 +473,16 @@ console.log("\nPREVIEW: explicit immutable URL, capability, and budgets");
   expectTrue("missing capability fails closed", missing.code !== 0);
   const alias = runSweep(["--tier", "fixture-beta", "--preview-url", `https://${previewService}.fixture.workers.dev`]);
   expectTrue("mutable production URL is rejected", alias.code !== 0);
-  const overConcurrency = runSweep(["--tier", "fixture-beta", "--concurrency", "65"]);
+  const overConcurrency = runSweep(
+    ["--tier", "fixture-beta", "--preview-url", previewUrl, "--concurrency", "65"],
+    { census: previewCensus, env: { TEMPER_PREVIEW_CAPABILITY: "cap", REQUIRE_CAPABILITY: "cap" } },
+  );
   expectTrue("concurrency over budget is rejected", overConcurrency.code !== 0);
+  const relaxedProduction = runSweep([
+    "--tier", "fixture-beta", "--concurrency", "65",
+    "--request-timeout-ms", "20001", "--max-retries", "3",
+  ]);
+  expect("preview ceilings do not constrain deployed-mode tuning", relaxedProduction.code, 0);
   const largeProduction = runSweep(["--tier", "fixture-beta"], {
     census: { [previewService]: { ...FIXTURE_CENSUS[previewService], count: 10_001 } },
   });

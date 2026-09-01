@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /** Base-owned validation and identity protocol for immutable Worker previews. */
 
-import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { canonicalDeep as canonical, sha256 } from "./tier_topology.mjs";
+
+export { sha256 };
 
 export const WRANGLER_VERSION = "4.128.0";
 export const WRANGLER_INTEGRITY =
@@ -23,18 +25,6 @@ const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const VERSION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const CHECK_EXTERNAL_PREFIX = "temper-wasm-preview-v1";
-
-function canonical(value) {
-  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
-  if (value && typeof value === "object") {
-    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`;
-  }
-  return JSON.stringify(value);
-}
-
-export function sha256(value) {
-  return createHash("sha256").update(value).digest("hex");
-}
 
 export function makeUploadTag({ repository, pr, headSha, runId, runAttempt }) {
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !SHA40.test(headSha)) {

@@ -241,12 +241,13 @@ jobs:
           printf 'version_uploaded\n' >> /tmp/preview-diagnostics/stages.txt
 
           healthy=false
-          for delay in 2 4 8 16 30 30 30 30; do
+          propagation_delays=(2 4 8 16 30 30 30)
+          for attempt in {0..7}; do
             code="$(curl --silent --show-error --max-time 20 \
               -H "x-temper-preview-capability: ${CAPABILITY}" \
               -o /tmp/preview-diagnostics/health.json -w '%{http_code}' "${PREVIEW_URL}/health" || true)"
             if [ "${code}" = 200 ]; then healthy=true; break; fi
-            sleep "${delay}"
+            if [ "${attempt}" -lt 7 ]; then sleep "${propagation_delays[attempt]}"; fi
           done
           test "${healthy}" = true
           node tools/wasm/preview_version.mjs validate-health \
