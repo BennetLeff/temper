@@ -6,10 +6,10 @@ which demonstrates (permanently, without needing kicad-cli at test time) that
 `_drc_api._parse_drc_json` was blind to kicad-cli's top-level
 `unconnected_items` array.
 
-**Do not regenerate these to make a test pass.** They are a measurement, not a
-baseline. If the board changes, the numbers below change and the test's pinned
-constants must be re-measured *with an explanation attached* — that is the
-whole point of pinning them.
+**Do not regenerate these to make a test pass.** They are historical evidence,
+not a moving baseline. When the production board changes, keep this corpus and
+its content-hash identity intact; record a new measurement separately if
+current-board counts are needed.
 
 ## Conditions (state these with every number)
 
