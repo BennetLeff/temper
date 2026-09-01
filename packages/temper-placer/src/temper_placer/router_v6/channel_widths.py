@@ -9,24 +9,22 @@ production path's ORCHESTRATION — the per-edge interior sampling, the
 all-points assembly, the batched ``temper-geometry.edt_width_lookup_batch``
 dispatch, the node/edge-width assembly and the min/max/avg statistics —
 moved to ``temper-orchestration``'s ``channel_mapping.rs``
-(``run_channel_widths_edt``).  This module keeps its full public API as a
-thin FFI delegation: the shim computes the rasterised EDT grid / interior
-mask / bounds Python-side and marshals the skeleton nodes/edges, then wraps
-the Rust results back into the ``ChannelWidths`` dataclass (unchanged).
+(``run_channel_widths_edt``).  The rasterised EDT grid preparation is now
+owned by ``temper-geometry`` as one Rust call; this module only extracts
+Shapely rings and adapts the returned byte buffers for its disk cache, then
+wraps the Rust orchestration results back into ``ChannelWidths`` (unchanged).
 
 **The shapely-blocked portions stay Python (evidence).** The pieces this
 module still owns have no Rust equivalent, measured in the E4 scoping:
 
-- ``_rasterize_boundary_mask`` — ``shapely.contains_xy`` (the C-level array
-  ``contains`` predicate over the grid; the module docstring's boundary
-  semantics proof relies on shapely's exact predicate).
 - ``_compute_width_at_point`` — shapely prepared-geometry ``Point.distance``
   to the exterior/interior rings (GEOS distance, the per-point reference
   path).
 - ``_compute_board_fingerprint`` — the routing polygon's ``wkb``
   serialization (shapely) hashed for the EDT disk cache.
 - ``_build_edt`` / ``_atomic_write_npz`` / ``_evict_if_over_budget`` — the
-  rasterise + npz disk-cache lifecycle (shapely + numpy file I/O).
+  Rust rasterise/EDT dispatch plus npz disk-cache lifecycle (Shapely ring
+  extraction and NumPy file I/O).
 - The ``available_area.is_empty`` guard and the ``MultiPolygon``
   decomposition / prepared-geometry caches (shapely objects).
 - The per-point reference path (``use_edt=False``) — entirely
@@ -153,63 +151,6 @@ class ChannelWidths:
     def get_node_width(self, node: tuple[float, float]) -> float:
         """Get width at a specific node."""
         return self.node_widths.get(node, 0.0)
-
-
-def _rasterize_boundary_mask(
-    available_area,
-    bounds: tuple[float, float, float, float],
-    cell_size: float,
-) -> np.ndarray:
-    """Rasterize the available routing area onto a binary grid.
-
-    Cells whose centers lie inside the available area are marked as
-    interior (True).  Cells outside or on the boundary are False.
-
-    The result is used as input to the Euclidean distance transform,
-    where False cells act as distance-zero sources and True cells
-    receive the distance to the nearest boundary.
-
-    Proof of correctness (base case):
-        For any cell exactly on the polygon boundary, the Shapely
-        ``contains`` predicate returns False (boundary is not
-        interior).  The cell is marked False in the mask.  The EDT
-        assigns distance 0 to that cell.  This matches the Shapely
-        distance query: distance(Point_on_boundary, boundary_ring) = 0.
-
-    Induction step:
-        For a cell at grid distance d from the nearest boundary cell,
-        the EDT propagates distance through the grid using the Eikonal
-        equation.  The error relative to the true Euclidean distance
-        is bounded by cell_size * sqrt(2) (the diagonal of a single
-        cell).  As cell_size → 0, the EDT converges to the true
-        distance.
-    """
-    import shapely
-
-    min_x, min_y, max_x, max_y = bounds
-    w = int(np.ceil((max_x - min_x) / cell_size)) + 1
-    h = int(np.ceil((max_y - min_y) / cell_size)) + 1
-
-    xs = np.linspace(min_x, min_x + (w - 1) * cell_size, w)
-    ys = np.linspace(min_y, min_y + (h - 1) * cell_size, h)
-    xx, yy = np.meshgrid(xs, ys, indexing="xy")
-
-    # Vectorised, not looped. This previously built one shapely Point per grid
-    # cell and called prepared.contains() on it -- the nominal batching was
-    # cosmetic, since the inner loop still ran per-point in Python. A single
-    # test (test_empty_board_infinite_capacity, 20 Hypothesis examples) spent
-    # ~90s making 14,024,826 such calls, and this function was ~90% of the
-    # runtime of the four slowest tests in the invariant suite.
-    #
-    # shapely.contains_xy is the same `contains` predicate evaluated in C over
-    # arrays, so the boundary semantics the docstring's proof relies on are
-    # unchanged: contains excludes the boundary, boundary cells stay False, and
-    # the EDT keeps them as distance-zero sources. Verified bit-identical to
-    # the old implementation across plain, multi-cutout, boundary-aligned and
-    # fine-cell grids (80-104x faster on those cases).
-    mask = shapely.contains_xy(available_area, xx.ravel(), yy.ravel())
-
-    return np.asarray(mask, dtype=bool).reshape(h, w)
 
 
 def _edt_width_lookup_batch(
@@ -366,6 +307,25 @@ def _exact_edt(mask: np.ndarray) -> np.ndarray:
     return np.frombuffer(out_bytes, dtype="<f8").reshape(h, w)
 
 
+def _area_rings(available_area) -> tuple[list[list[float]], list[list[list[float]]]]:
+    """Marshal Shapely polygon rings for the Rust EDT preparation kernel.
+
+    Geometry objects and WKB/fingerprint handling remain Python-owned.  This
+    adapter deliberately emits plain lists only; no NumPy coordinate grid or
+    point predicate is constructed on the Python side.
+    """
+    from shapely.geometry import MultiPolygon
+
+    polygons = list(available_area.geoms) if isinstance(available_area, MultiPolygon) else [available_area]
+
+    def flatten(ring) -> list[float]:
+        return [coord for x, y in ring.coords for coord in (float(x), float(y))]
+
+    outer_rings = [flatten(polygon.exterior) for polygon in polygons]
+    holes = [[flatten(interior) for interior in polygon.interiors] for polygon in polygons]
+    return outer_rings, holes
+
+
 def _build_edt(
     routing_space: RoutingSpace,
     cell_size: float,
@@ -398,8 +358,18 @@ def _build_edt(
             # read failure into a computation failure.
             pass
 
-    mask = _rasterize_boundary_mask(routing_space.available_area, bounds, cell_size)
-    edt = _exact_edt(mask.astype(np.uint8))
+    outer_rings, holes = _area_rings(routing_space.available_area)
+    edt_bytes, mask_bytes, height, width = _tg.prepare_channel_widths_edt(
+        outer_rings,
+        holes,
+        bounds,
+        cell_size,
+    )
+    # The numerical preparation is Rust-owned. These two views are only the
+    # Python cache/FFI adaptation, preserving the historical ndarray return
+    # contract for callers and the npz cache format.
+    edt = np.frombuffer(edt_bytes, dtype="<f8").reshape(height, width)
+    mask = np.frombuffer(mask_bytes, dtype=np.uint8).reshape(height, width).astype(bool)
 
     if use_cache:
         _atomic_write_npz(cache_path, edt=edt, mask=mask)
