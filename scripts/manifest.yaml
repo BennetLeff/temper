@@ -422,7 +422,7 @@ scripts:
   - __future__
   - argparse
   - collections
-  - hashlib
+  - json
   - os
   - pathlib
   - re
@@ -2589,6 +2589,7 @@ scripts:
   - itertools
   - json
   - math
+  - measure_uncapped_drc
   - os
   - pathlib
   - route_board
@@ -3146,7 +3147,6 @@ scripts:
   disposition: utility
   imports:
   - __future__
-  - contextlib
   - dataclasses
   - fnmatch
   - json
@@ -3154,8 +3154,6 @@ scripts:
   - pathlib
   - re
   - shutil
-  - subprocess
-  - tempfile
 - path: _stage_subprocess.py
   purpose: 'Single-stage subprocess for the temper Rust driver (Option E): materializes a deterministic
     BoardState from the state_ser.rs wire JSON on stdin, runs one temper_orchestration.run_<stage> pyfunction,

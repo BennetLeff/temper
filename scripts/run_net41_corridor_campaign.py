@@ -36,14 +36,12 @@ VIA_SIZE_MM = 0.9
 VIA_DRILL_MM = 0.3
 VIA_SPAN = ["In3.Cu", "F.Cu"]
 ROUTE_NET_NAME = "discharge.r_snub1-p2"
-MOVABLE_REFS = ("J1", "R45", "R58", "R66", "SW1", "U22")
-AFFECTED_REFS = frozenset((*MOVABLE_REFS, "R14"))
-
 SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import check_drc_determinism as drc_determinism  # noqa: E402
+import measure_uncapped_drc as uncapped_drc  # noqa: E402
 import route_board  # noqa: E402
 import temper_design_bundle_python as design_bundle  # noqa: E402
 import temper_drc_rs  # noqa: E402
@@ -63,6 +61,10 @@ from temper_placer.validation.netlist_reconciliation import (  # noqa: E402
     extract_board_netlist,
     parse_design_netlist,
     reconcile,
+)
+
+RUST_FOOTPRINT_SCOPE = json.loads(
+    temper_quality_oracle.corridor_footprint_scope_json_py()
 )
 
 
@@ -132,7 +134,41 @@ def instrument_row(
     }
 
 
-def preflight(board_sha256: str) -> tuple[list[dict[str, object]], dict[str, object]]:
+def semantic_samples(runs: list[dict[str, list[dict]]]) -> list[list[dict]]:
+    """Flatten grouped raw runs without changing Rust-owned category identity."""
+    return [
+        [finding for category in sorted(run) for finding in run[category]]
+        for run in runs
+    ]
+
+
+def drc_admission_comparison(
+    *,
+    baseline_samples: list[list[dict]],
+    candidate_samples: list[list[dict]],
+    baseline_capped: list[str],
+    candidate_capped: list[str],
+    baseline_silk: dict | None,
+    candidate_silk: dict | None,
+) -> dict:
+    request = {
+        "baseline_samples": baseline_samples,
+        "candidate_samples": candidate_samples,
+        "baseline_capped_categories": baseline_capped,
+        "candidate_capped_categories": candidate_capped,
+        "baseline_silk_receipt": baseline_silk,
+        "candidate_silk_receipt": candidate_silk,
+    }
+    return json.loads(
+        temper_drc_rs.drc_admission_comparison_json(
+            json.dumps(request, separators=(",", ":"))
+        )
+    )
+
+
+def preflight(
+    board_sha256: str, scratch: Path
+) -> tuple[list[dict[str, object]], dict[str, object]]:
     instruments: list[dict[str, object]] = []
     try:
         output = run_checked(["make", "extensions-check"])
@@ -209,30 +245,53 @@ def preflight(board_sha256: str) -> tuple[list[dict[str, object]], dict[str, obj
             for row in raw_drc_analysis
         ]
         capped = [row["category"] for row in drc_analysis if row["at_cap"]]
-        unstable = [
-            row["category"]
-            for row in drc_analysis
-            if not row["count_stable"] or not row["set_stable"]
-        ]
+        samples = semantic_samples(drc_runs)
+        silk_receipt = None
+        if any(category.removeprefix("W:") == "silk_overlap" for category in capped):
+            silk_receipt = uncapped_drc.measure_silk_mutation_cone(
+                source_board=BOARD,
+                subject_board=BOARD,
+                declared_refs=list(RUST_FOOTPRINT_SCOPE["affected_refs"]),
+                use_declared_scope=True,
+                scratch_dir=scratch / "baseline-silk-scope",
+            )
+        comparison = drc_admission_comparison(
+            baseline_samples=samples,
+            candidate_samples=samples,
+            baseline_capped=capped,
+            candidate_capped=capped,
+            baseline_silk=silk_receipt,
+            candidate_silk=silk_receipt,
+        )
+        unresolved = comparison["unresolved_cap_categories"]
         failures = [
-            *(f"reporting cap {category}" for category in capped),
-            *(f"repeated-set disagreement {category}" for category in unstable),
+            *(f"unresolved reporting cap {category}" for category in unresolved),
+            *(
+                []
+                if comparison["semantic_repeats_agree"]
+                else ["semantic repeat disagreement"]
+            ),
         ]
         drc_receipt = {
-            "schema_version": "temper-net41-baseline-drc-preflight/v1",
+            "schema_version": "temper-net41-baseline-drc-preflight/v2",
             "board_sha256": board_sha256,
             "kicad_cli_version": version,
             "sample_count": len(drc_runs),
             "categories": drc_analysis,
             "capped_categories": capped,
-            "unstable_categories": unstable,
+            "semantic_samples": samples,
+            "silk_scope_receipt": silk_receipt,
+            "admission_comparison": comparison,
             "trusted_for_candidate_admission": not failures,
         }
         detail = (
-            f"version {version}; 3 repeated normalized runs are untrusted: "
+            f"version {version}; DRC admission evidence is untrusted: "
             + "; ".join(failures)
             if failures
-            else f"version {version}; 3 repeated normalized sets are uncapped and agree"
+            else (
+                f"version {version}; 3 semantic repeats agree; raw caps retained "
+                "with complete scoped silk coverage"
+            )
         )
         instruments.append(
             instrument_row(
@@ -289,7 +348,9 @@ def exact_placement_board(
     placements: dict[str, list[float]],
     endpoint_x_mm: float,
 ) -> str:
-    declared = [(ref, *placements[ref]) for ref in MOVABLE_REFS]
+    declared = [
+        (ref, *placements[ref]) for ref in RUST_FOOTPRINT_SCOPE["movable_refs"]
+    ]
     declared.append(("R14", endpoint_x_mm, 249.56, 270.0))
     return design_bundle.parse_engine.update_declared_footprint_positions_exact_py(
         source, declared
@@ -461,7 +522,7 @@ def safety_measure(board_path: Path) -> tuple[dict, dict[tuple[str, ...], float]
 def containment_failures(geometries, positions, outline) -> list[str]:
     board = Polygon(outline)
     failures = []
-    for reference in AFFECTED_REFS:
+    for reference in RUST_FOOTPRINT_SCOPE["affected_refs"]:
         if reference not in geometries or reference not in positions:
             failures.append(f"{reference}:missing-geometry")
         elif not board.covers(
@@ -481,7 +542,9 @@ def topology_snapshot(board_text: str) -> dict[str, object]:
     )
 
 
-def repeated_drc_receipt(board_path: Path, baseline: dict[str, object]) -> tuple[dict, bool, int]:
+def repeated_drc_receipt(
+    board_path: Path, baseline: dict[str, object]
+) -> tuple[dict, bool, dict]:
     runs = drc_determinism.measure(board_path, 3)
     raw = drc_determinism.analyse(runs)
     categories = [
@@ -492,43 +555,41 @@ def repeated_drc_receipt(board_path: Path, baseline: dict[str, object]) -> tuple
         for row in raw
     ]
     capped = [row["category"] for row in categories if row["at_cap"]]
-    unstable = [
-        row["category"]
-        for row in categories
-        if not row["count_stable"] or not row["set_stable"]
-    ]
-    baseline_max = {
-        row["category"]: max(int(value) for value in row["counts"])
-        for row in baseline.get("categories", [])
-    }
-    hard_rules = {
-        "shorting_items",
-        "clearance",
-        "creepage",
-        "hole_clearance",
-        "copper_edge_clearance",
-    }
-    hard_regressions = []
-    for row in categories:
-        rule = str(row["category"]).split(":", 1)[-1]
-        observed = max(int(value) for value in row["counts"])
-        if rule in hard_rules and observed > baseline_max.get(row["category"], observed):
-            hard_regressions.append(
-                {
-                    "category": row["category"],
-                    "baseline_max": baseline_max.get(row["category"]),
-                    "candidate_max": observed,
-                }
-            )
+    samples = semantic_samples(runs)
+    silk_receipt = None
+    if any(category.removeprefix("W:") == "silk_overlap" for category in capped):
+        silk_receipt = uncapped_drc.measure_silk_mutation_cone(
+            source_board=BOARD,
+            subject_board=board_path,
+            declared_refs=list(RUST_FOOTPRINT_SCOPE["affected_refs"]),
+            scratch_dir=board_path.parent / "silk-scope",
+        )
+    comparison = drc_admission_comparison(
+        baseline_samples=baseline["semantic_samples"],
+        candidate_samples=samples,
+        baseline_capped=baseline["capped_categories"],
+        candidate_capped=capped,
+        baseline_silk=baseline.get("silk_scope_receipt"),
+        candidate_silk=silk_receipt,
+    )
+    trusted = (
+        comparison["semantic_repeats_agree"]
+        and not comparison["unresolved_cap_categories"]
+        and comparison["new_hard_observation_count"] == 0
+        and comparison["worsened_hard_observation_count"] == 0
+        and comparison["indeterminate_hard_comparison_count"] == 0
+        and comparison["new_scoped_silk_finding_count"] == 0
+    )
     payload = {
         "board_sha256": sha256(board_path),
         "sample_count": len(runs),
         "categories": categories,
         "capped_categories": capped,
-        "unstable_categories": unstable,
-        "hard_rule_regressions": hard_regressions,
+        "semantic_samples": samples,
+        "silk_scope_receipt": silk_receipt,
+        "admission_comparison": comparison,
     }
-    return payload, not capped and not unstable, len(hard_regressions)
+    return payload, trusted, comparison
 
 
 def inspect_materialized_candidate(
@@ -660,7 +721,7 @@ def inspect_materialized_candidate(
             "validated": mutation_scope_valid,
         },
     )
-    drc_payload, drc_trusted, hard_regression_count = repeated_drc_receipt(
+    drc_payload, drc_trusted, drc_comparison = repeated_drc_receipt(
         candidate_path, baseline_drc
     )
     record(
@@ -694,9 +755,22 @@ def inspect_materialized_candidate(
             "new_courtyard_overlap_count": len(new_courtyard),
             "worsened_courtyard_overlap_count": len(worsened_courtyard),
             "mutation_scope_valid": mutation_scope_valid,
-            "drc_capped": bool(drc_payload["capped_categories"]),
-            "drc_repeated_sets_agree": drc_trusted,
-            "drc_hard_rule_regression_count": hard_regression_count,
+            "drc_category_states": drc_comparison["category_states"],
+            "drc_semantic_repeats_agree": drc_comparison[
+                "semantic_repeats_agree"
+            ],
+            "drc_new_hard_observation_count": drc_comparison[
+                "new_hard_observation_count"
+            ],
+            "drc_worsened_hard_observation_count": drc_comparison[
+                "worsened_hard_observation_count"
+            ],
+            "drc_indeterminate_hard_comparison_count": drc_comparison[
+                "indeterminate_hard_comparison_count"
+            ],
+            "drc_new_scoped_silk_finding_count": drc_comparison[
+                "new_scoped_silk_finding_count"
+            ],
             "netlist_reconciled": False,
         },
     }
@@ -750,9 +824,12 @@ def unavailable_materialization_evidence(
         "new_courtyard_overlap_count": 0,
         "worsened_courtyard_overlap_count": 0,
         "mutation_scope_valid": False,
-        "drc_capped": False,
-        "drc_repeated_sets_agree": False,
-        "drc_hard_rule_regression_count": 0,
+        "drc_category_states": {},
+        "drc_semantic_repeats_agree": False,
+        "drc_new_hard_observation_count": 0,
+        "drc_worsened_hard_observation_count": 0,
+        "drc_indeterminate_hard_comparison_count": 1,
+        "drc_new_scoped_silk_finding_count": 0,
         "netlist_reconciled": False,
     }
     return (
@@ -789,9 +866,12 @@ def unavailable_route_evidence(
         "new_courtyard_overlap_count": 0,
         "worsened_courtyard_overlap_count": 0,
         "mutation_scope_valid": False,
-        "drc_capped": False,
-        "drc_repeated_sets_agree": False,
-        "drc_hard_rule_regression_count": 0,
+        "drc_category_states": {},
+        "drc_semantic_repeats_agree": False,
+        "drc_new_hard_observation_count": 0,
+        "drc_worsened_hard_observation_count": 0,
+        "drc_indeterminate_hard_comparison_count": 1,
+        "drc_new_scoped_silk_finding_count": 0,
         "netlist_reconciled": False,
     }
     return (
@@ -966,7 +1046,7 @@ def route_and_inspect_candidate(
 def run(scratch: Path) -> tuple[dict, str, dict]:
     board_before = sha256(BOARD)
     ceiling_before = sha256(DRC_CEILING)
-    instruments, baseline_drc = preflight(board_before)
+    instruments, baseline_drc = preflight(board_before, scratch)
     inputs = evidence_kwargs()
     candidate_set = json.loads(
         temper_quality_oracle.declare_corridor_candidates_from_evidence_json_py(

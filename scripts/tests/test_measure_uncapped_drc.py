@@ -89,6 +89,16 @@ def test_mutation_cone_splits_saturated_cell_and_covers_each_pair_once(tmp_path:
     assert receipt["kicad_invocation_count"] == 9
     assert set(receipt["findings_by_pair"]) == {"R1|R2", "R2|R3"}
 
+    replay = mud.measure_silk_mutation_cone(
+        source_board=source,
+        subject_board=subject,
+        declared_refs=["R2"],
+        use_declared_scope=True,
+        scratch_dir=tmp_path / "scratch",
+        measurement_fn=lambda _board: pytest.fail("completed receipt must be reused"),
+    )
+    assert replay == receipt
+
 
 def test_undeclared_actual_footprint_mutation_fails_before_measurement(tmp_path: Path) -> None:
     source = _stage(tmp_path / "source", _board())

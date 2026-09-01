@@ -960,6 +960,22 @@ def measure_silk_mutation_cone(
         "leaves": [],
     }
     bootstrap = _rust_silk_scope_receipt(bootstrap_payload)
+    cache_path = scratch_dir / "completed-receipt.json"
+    if cache_path.is_file():
+        cached = json.loads(cache_path.read_text(encoding="utf-8"))
+        binding_keys = (
+            "schema",
+            "source_sha256",
+            "subject_sha256",
+            "silk_projection_sha256",
+            "declared_refs",
+            "actual_mutated_refs",
+            "measurement_scope_refs",
+        )
+        if cached.get("complete") and all(
+            cached.get(key) == bootstrap.get(key) for key in binding_keys
+        ):
+            return cached
     scope = list(bootstrap["measurement_scope_refs"])
     all_refs = all_footprint_refs(subject_text)
     static_refs = sorted(set(all_refs) - set(scope))
@@ -1004,6 +1020,11 @@ def measure_silk_mutation_cone(
                 "resolved": resolved,
                 "scratch_subject_sha256": sha256_text(filtered),
                 "selected_finding_count": sum(len(value) for value in selected.values()),
+                "findings": [
+                    finding
+                    for pair_key in sorted(selected)
+                    for finding in selected[pair_key]
+                ],
             }
         )
 
@@ -1016,13 +1037,22 @@ def measure_silk_mutation_cone(
 
     final_payload = dict(bootstrap_payload)
     final_payload["leaves"] = [
-        {"pairs": leaf["pairs"], "sample_counts": leaf["sample_counts"]}
+        {
+            "pairs": leaf["pairs"],
+            "sample_counts": leaf["sample_counts"],
+            "findings": leaf["findings"],
+        }
         for leaf in leaves
     ]
     receipt = _rust_silk_scope_receipt(final_payload)
     receipt["leaves"] = leaves
     receipt["findings_by_pair"] = findings_by_pair
     receipt["kicad_invocation_count"] = cell_counter * 3
+    if receipt["complete"]:
+        scratch_dir.mkdir(parents=True, exist_ok=True)
+        temporary = cache_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        temporary.replace(cache_path)
     return receipt
 
 
@@ -1158,6 +1188,32 @@ def _cli_saturating_pair(args) -> None:
         json.dump(result, Path(args.json).open("w"), indent=2)
 
 
+def _cli_silk_mutation_cone(args) -> None:
+    declared_refs = list(args.declared_ref)
+    if not declared_refs:
+        import temper_quality_oracle  # type: ignore[import-untyped]
+
+        declared_refs = json.loads(
+            temper_quality_oracle.corridor_footprint_scope_json_py()
+        )["affected_refs"]
+    result = measure_silk_mutation_cone(
+        source_board=Path(args.source_board),
+        subject_board=Path(args.subject_board),
+        declared_refs=declared_refs,
+        use_declared_scope=args.use_declared_scope,
+        scratch_dir=Path(args.scratch_dir),
+    )
+    print(
+        f"silk mutation cone: {result['category_state']}; "
+        f"pairs={result['covered_pair_count']}/{result['expected_pair_count']}; "
+        f"invocations={result['kicad_invocation_count']}"
+    )
+    if args.json:
+        Path(args.json).write_text(
+            json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+
+
 def main() -> None:
     import argparse
 
@@ -1189,6 +1245,18 @@ def main() -> None:
     p3.add_argument("--scratch-dir", required=True)
     p3.add_argument("--json", help="write full recursive cell tree to this path")
     p3.set_defaults(func=_cli_saturating_pair)
+
+    p4 = sub.add_parser(
+        "silk-mutation-cone",
+        help="exact, repeated silk evidence for every pair incident to a mutation scope",
+    )
+    p4.add_argument("--source-board", default=str(PCB_DIR / "temper.kicad_pcb"))
+    p4.add_argument("--subject-board", default=str(PCB_DIR / "temper.kicad_pcb"))
+    p4.add_argument("--declared-ref", action="append", default=[])
+    p4.add_argument("--use-declared-scope", action="store_true")
+    p4.add_argument("--scratch-dir", required=True)
+    p4.add_argument("--json", help="write the content-bound completed receipt")
+    p4.set_defaults(func=_cli_silk_mutation_cone)
 
     args = p.parse_args()
     args.func(args)

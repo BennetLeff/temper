@@ -39,6 +39,24 @@ def _envelope(samples: list[list[dict]]) -> dict:
     return json.loads(encoded)
 
 
+def _compare(baseline: list[list[dict]], candidate: list[list[dict]]) -> dict:
+    return json.loads(
+        temper_drc_rs.drc_admission_comparison_json(
+            json.dumps(
+                {
+                    "baseline_samples": baseline,
+                    "candidate_samples": candidate,
+                    "baseline_capped_categories": [],
+                    "candidate_capped_categories": [],
+                    "baseline_silk_receipt": None,
+                    "candidate_silk_receipt": None,
+                },
+                separators=(",", ":"),
+            )
+        )
+    )
+
+
 def test_provider_item_churn_is_raw_fringe_not_semantic_change() -> None:
     result = _envelope(
         [
@@ -95,3 +113,20 @@ def test_malformed_report_fails_with_typed_evidence_code() -> None:
     malformed = [[{"type": "creepage", "description": "actual nope", "items": []}]]
     with pytest.raises(ValueError, match="DRC_EVIDENCE_MALFORMED_DISTANCE"):
         temper_drc_rs.drc_evidence_envelope_json(json.dumps(malformed))
+
+
+def test_cross_subject_comparison_uses_same_semantic_family_and_ranked_distance() -> None:
+    baseline = [
+        [_creepage(actual="10.2", track_length=provider)]
+        for provider in ("0.8", "11.9", "0.8")
+    ]
+    candidate = [
+        [_creepage(actual="10.1", track_length=provider)]
+        for provider in ("11.9", "0.8", "11.9")
+    ]
+
+    receipt = _compare(baseline, candidate)
+
+    assert receipt["semantic_repeats_agree"] is True
+    assert receipt["worsened_hard_observation_count"] == 1
+    assert receipt["new_hard_observation_count"] == 0

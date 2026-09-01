@@ -1086,6 +1086,16 @@ fn execute_corridor_campaign_json_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
+fn corridor_footprint_scope_json_py() -> PyResult<String> {
+    serde_json::to_string(&serde_json::json!({
+        "movable_refs": corridor_campaign::CORRIDOR_MOVABLE_REFS,
+        "affected_refs": corridor_campaign::CORRIDOR_AFFECTED_REFS,
+    }))
+    .map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
 #[pyo3(signature = (*, declaration_bytes, basis_bytes, board_bytes, predecessor_receipt_bytes, predecessor_manifest_bytes, domain_manifest_bytes, netlist_bytes, kicad_dru_bytes, candidate_id))]
 #[allow(clippy::too_many_arguments)]
 fn corridor_materialization_instruction_json_py(
@@ -1189,6 +1199,7 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(execute_corridor_campaign_json_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_footprint_scope_json_py, m)?)?;
     m.add_function(wrap_pyfunction!(corridor_materialization_instruction_json_py, m)?)?;
     m.add_function(wrap_pyfunction!(
         validate_corridor_materialization_instruction_json_py,

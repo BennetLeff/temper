@@ -94,9 +94,15 @@ def _admission() -> dict:
         "new_courtyard_overlap_count": 0,
         "worsened_courtyard_overlap_count": 0,
         "mutation_scope_valid": True,
-        "drc_capped": False,
-        "drc_repeated_sets_agree": True,
-        "drc_hard_rule_regression_count": 0,
+        "drc_category_states": {
+            "clearance": "uncapped-exact",
+            "W:silk_overlap": "raw-saturated-scoped-complete",
+        },
+        "drc_semantic_repeats_agree": True,
+        "drc_new_hard_observation_count": 0,
+        "drc_worsened_hard_observation_count": 0,
+        "drc_indeterminate_hard_comparison_count": 0,
+        "drc_new_scoped_silk_finding_count": 0,
         "netlist_reconciled": True,
     }
 
@@ -199,7 +205,7 @@ def test_materialized_row_requires_every_independent_check() -> None:
     inputs, candidate_set, candidates = _inputs()
     request = _request(candidate_set, candidates, survivors=1)
     admission = _admission()
-    admission.pop("drc_capped")
+    admission.pop("drc_category_states")
     request["materialized"] = [
         {
             "candidate_id": candidates[0]["candidate_id"],
@@ -211,7 +217,7 @@ def test_materialized_row_requires_every_independent_check() -> None:
         }
     ]
 
-    with pytest.raises(ValueError, match="drc_capped"):
+    with pytest.raises(ValueError, match="drc_category_states"):
         _execute(inputs, request)
 
 

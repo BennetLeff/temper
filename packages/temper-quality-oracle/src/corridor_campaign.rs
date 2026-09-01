@@ -12,8 +12,9 @@ use std::collections::{BTreeMap, BTreeSet};
 
 pub const CORRIDOR_CAMPAIGN_REQUEST_SCHEMA: &str = "temper-corridor-campaign-request/v1";
 pub const CORRIDOR_CAMPAIGN_RECEIPT_SCHEMA: &str = "temper-corridor-campaign-receipt/v1";
-pub const CORRIDOR_MATERIALIZATION_SCHEMA: &str =
-    "temper-corridor-materialization-instruction/v1";
+pub const CORRIDOR_MATERIALIZATION_SCHEMA: &str = "temper-corridor-materialization-instruction/v1";
+pub const CORRIDOR_MOVABLE_REFS: &[&str] = &["J1", "R45", "R58", "R66", "SW1", "U22"];
+pub const CORRIDOR_AFFECTED_REFS: &[&str] = &["J1", "R14", "R45", "R58", "R66", "SW1", "U22"];
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -115,9 +116,8 @@ pub fn corridor_materialization_instruction(
         [] => return Err("candidate predecessor placement is absent".into()),
         _ => return Err("candidate predecessor placement is ambiguous".into()),
     };
-    const MOVABLE_REFS: &[&str] = &["J1", "R45", "R58", "R66", "SW1", "U22"];
-    let mut footprint_positions = Vec::with_capacity(MOVABLE_REFS.len() + 1);
-    for reference in MOVABLE_REFS {
+    let mut footprint_positions = Vec::with_capacity(CORRIDOR_MOVABLE_REFS.len() + 1);
+    for reference in CORRIDOR_MOVABLE_REFS {
         let [x_mm, y_mm, rotation_deg] = parent
             .placements
             .get(*reference)
@@ -189,6 +189,14 @@ pub struct InstrumentEvidence {
     pub receipt_sha256: String,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum DrcCategoryState {
+    UncappedExact,
+    RawSaturatedScopedComplete,
+    RawSaturatedUnresolved,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AdmissionEvidence {
@@ -204,9 +212,12 @@ pub struct AdmissionEvidence {
     pub new_courtyard_overlap_count: usize,
     pub worsened_courtyard_overlap_count: usize,
     pub mutation_scope_valid: bool,
-    pub drc_capped: bool,
-    pub drc_repeated_sets_agree: bool,
-    pub drc_hard_rule_regression_count: usize,
+    pub drc_category_states: BTreeMap<String, DrcCategoryState>,
+    pub drc_semantic_repeats_agree: bool,
+    pub drc_new_hard_observation_count: usize,
+    pub drc_worsened_hard_observation_count: usize,
+    pub drc_indeterminate_hard_comparison_count: usize,
+    pub drc_new_scoped_silk_finding_count: usize,
     pub netlist_reconciled: bool,
 }
 
@@ -426,14 +437,31 @@ fn admission_vetoes(input: &AdmissionEvidence, require_netlist: bool) -> Vec<Str
     if !input.mutation_scope_valid {
         reasons.push("mutation_scope".into());
     }
-    if input.drc_capped {
+    if input.drc_category_states.is_empty()
+        || input
+            .drc_category_states
+            .values()
+            .any(|state| *state == DrcCategoryState::RawSaturatedUnresolved)
+    {
         reasons.push("drc_cap".into());
     }
-    if !input.drc_repeated_sets_agree {
+    if input.drc_category_states.iter().any(|(category, state)| {
+        *state == DrcCategoryState::RawSaturatedScopedComplete
+            && category.strip_prefix("W:").unwrap_or(category) != "silk_overlap"
+    }) {
+        reasons.push("drc_scope".into());
+    }
+    if !input.drc_semantic_repeats_agree {
         reasons.push("drc_repeat_disagreement".into());
     }
-    if input.drc_hard_rule_regression_count > 0 {
+    if input.drc_new_hard_observation_count > 0 || input.drc_worsened_hard_observation_count > 0 {
         reasons.push("drc_hard_rule".into());
+    }
+    if input.drc_indeterminate_hard_comparison_count > 0 {
+        reasons.push("drc_hard_indeterminate".into());
+    }
+    if input.drc_new_scoped_silk_finding_count > 0 {
+        reasons.push("drc_scoped_silk".into());
     }
     if require_netlist && !input.netlist_reconciled {
         reasons.push("netlist_reconciliation".into());
@@ -709,9 +737,15 @@ pub(crate) mod tests {
             new_courtyard_overlap_count: 0,
             worsened_courtyard_overlap_count: 0,
             mutation_scope_valid: pass,
-            drc_capped: false,
-            drc_repeated_sets_agree: pass,
-            drc_hard_rule_regression_count: 0,
+            drc_category_states: BTreeMap::from([(
+                "clearance".into(),
+                DrcCategoryState::UncappedExact,
+            )]),
+            drc_semantic_repeats_agree: pass,
+            drc_new_hard_observation_count: 0,
+            drc_worsened_hard_observation_count: 0,
+            drc_indeterminate_hard_comparison_count: 0,
+            drc_new_scoped_silk_finding_count: 0,
             netlist_reconciled: pass,
         }
     }
@@ -732,9 +766,18 @@ pub(crate) mod tests {
                 new_courtyard_overlap_count: 1,
                 worsened_courtyard_overlap_count: 0,
                 mutation_scope_valid: false,
-                drc_capped: true,
-                drc_repeated_sets_agree: false,
-                drc_hard_rule_regression_count: 1,
+                drc_category_states: BTreeMap::from([
+                    ("clearance".into(), DrcCategoryState::RawSaturatedUnresolved),
+                    (
+                        "creepage".into(),
+                        DrcCategoryState::RawSaturatedScopedComplete,
+                    ),
+                ]),
+                drc_semantic_repeats_agree: false,
+                drc_new_hard_observation_count: 1,
+                drc_worsened_hard_observation_count: 1,
+                drc_indeterminate_hard_comparison_count: 1,
+                drc_new_scoped_silk_finding_count: 1,
                 netlist_reconciled: false,
             },
             true,
@@ -753,8 +796,11 @@ pub(crate) mod tests {
                 "courtyard_overlap",
                 "mutation_scope",
                 "drc_cap",
+                "drc_scope",
                 "drc_repeat_disagreement",
                 "drc_hard_rule",
+                "drc_hard_indeterminate",
+                "drc_scoped_silk",
                 "netlist_reconciliation",
             ]
         );
@@ -771,8 +817,14 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        ("corridor_campaign::tests::admission_veto_order_is_canonical", admission_veto_order_is_canonical),
-        ("corridor_campaign::tests::passing_admission_has_no_vetoes", passing_admission_has_no_vetoes),
+        (
+            "corridor_campaign::tests::admission_veto_order_is_canonical",
+            admission_veto_order_is_canonical,
+        ),
+        (
+            "corridor_campaign::tests::passing_admission_has_no_vetoes",
+            passing_admission_has_no_vetoes,
+        ),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

@@ -50,7 +50,7 @@ impl RawPosition {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Ord, PartialOrd, Serialize)]
 pub struct FamilyKey {
     pub category: String,
     pub message_semantics: String,
@@ -62,20 +62,20 @@ pub struct FamilyKey {
     pub items: Vec<RawItemKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Ord, PartialOrd, Serialize)]
 pub struct ObservationKey {
     pub family: FamilyKey,
     pub actual_distance_mm: Option<String>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Ord, PartialOrd, Serialize)]
 pub struct RawProviderKey {
     pub category: String,
     pub description: String,
     pub items: Vec<RawItemKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Ord, PartialOrd, Serialize)]
 pub struct RawItemKey {
     pub description: String,
     pub x: String,
@@ -90,7 +90,7 @@ pub struct SampleDigest {
     pub raw_digest: String,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BagEntry<K> {
     pub key: K,
     pub count: usize,
@@ -157,6 +157,8 @@ pub enum EvidenceError {
         "DRC_SILK_SCOPE_AMBIGUOUS_PAIR: expected two footprint references, found {references:?}"
     )]
     AmbiguousSilkPair { references: Vec<String> },
+    #[error("DRC_ADMISSION_COMPARISON: {0}")]
+    InvalidComparison(String),
 }
 
 const SILK_SAFE_MARGIN: u32 = 20;
@@ -177,11 +179,19 @@ struct SilkScopeRequest {
 struct SilkLeaf {
     pairs: Vec<[String; 2]>,
     sample_counts: Vec<u32>,
+    #[serde(default)]
+    findings: Vec<RawFinding>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Ord, PartialOrd, Serialize)]
+struct ScopedSilkFinding {
+    pair: [String; 2],
+    observation: ObservationKey,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 struct SilkScopeReceipt {
-    schema: &'static str,
+    schema: String,
     source_sha256: String,
     subject_sha256: String,
     silk_projection_sha256: String,
@@ -195,8 +205,43 @@ struct SilkScopeReceipt {
     duplicate_pairs: Vec<[String; 2]>,
     foreign_pairs: Vec<[String; 2]>,
     unresolved_leaf_count: usize,
+    finding_count: usize,
+    findings: Vec<BagEntry<ScopedSilkFinding>>,
     complete: bool,
-    category_state: &'static str,
+    category_state: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct ComparisonRequest {
+    baseline_samples: Vec<Vec<RawFinding>>,
+    candidate_samples: Vec<Vec<RawFinding>>,
+    #[serde(default)]
+    baseline_capped_categories: Vec<String>,
+    #[serde(default)]
+    candidate_capped_categories: Vec<String>,
+    baseline_silk_receipt: Option<SilkScopeReceipt>,
+    candidate_silk_receipt: Option<SilkScopeReceipt>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+enum CategoryState {
+    UncappedExact,
+    RawSaturatedScopedComplete,
+    RawSaturatedUnresolved,
+}
+
+#[derive(Debug, Serialize)]
+struct ComparisonReceipt {
+    schema: &'static str,
+    semantic_repeats_agree: bool,
+    category_states: BTreeMap<String, CategoryState>,
+    raw_global_capped_categories: Vec<String>,
+    unresolved_cap_categories: Vec<String>,
+    new_hard_observation_count: usize,
+    worsened_hard_observation_count: usize,
+    indeterminate_hard_comparison_count: usize,
+    new_scoped_silk_finding_count: usize,
 }
 
 fn net_re() -> &'static Regex {
@@ -462,6 +507,200 @@ pub fn evidence_envelope_json(samples_json: &str) -> Result<String, EvidenceErro
     serde_json::to_string(&envelope).map_err(EvidenceError::Serialization)
 }
 
+fn bare_category(category: &str) -> &str {
+    category.strip_prefix("W:").unwrap_or(category)
+}
+
+fn is_hard_category(category: &str) -> bool {
+    matches!(
+        bare_category(category),
+        "shorting_items" | "clearance" | "creepage" | "hole_clearance" | "copper_edge_clearance"
+    )
+}
+
+fn observations_by_family(
+    sample: &[RawFinding],
+) -> Result<BTreeMap<FamilyKey, Vec<Option<String>>>, EvidenceError> {
+    let mut observations: BTreeMap<FamilyKey, Vec<Option<String>>> = BTreeMap::new();
+    for (finding_index, finding) in sample.iter().enumerate() {
+        let (_family, observation, _raw) = identities(finding, 0, finding_index)?;
+        observations
+            .entry(observation.family)
+            .or_default()
+            .push(observation.actual_distance_mm);
+    }
+    for values in observations.values_mut() {
+        values.sort_by(|left, right| match (left, right) {
+            (Some(left), Some(right)) => left
+                .parse::<f64>()
+                .unwrap_or(f64::NAN)
+                .total_cmp(&right.parse::<f64>().unwrap_or(f64::NAN)),
+            (None, Some(_)) => std::cmp::Ordering::Less,
+            (Some(_), None) => std::cmp::Ordering::Greater,
+            (None, None) => std::cmp::Ordering::Equal,
+        });
+    }
+    Ok(observations)
+}
+
+fn receipt_completes_silk(receipt: Option<&SilkScopeReceipt>) -> bool {
+    receipt.is_some_and(|receipt| {
+        receipt.schema == "temper.silk-mutation-scope/v2"
+            && receipt.complete
+            && receipt.category_state == "raw-saturated-scoped-complete"
+            && receipt.expected_pair_count == receipt.covered_pair_count
+            && receipt.missing_pairs.is_empty()
+            && receipt.duplicate_pairs.is_empty()
+            && receipt.foreign_pairs.is_empty()
+            && receipt.unresolved_leaf_count == 0
+    })
+}
+
+fn scoped_silk_pair_bag(
+    receipt: &SilkScopeReceipt,
+    scope: &BTreeSet<String>,
+) -> BTreeMap<[String; 2], usize> {
+    let mut pairs = BTreeMap::new();
+    for entry in &receipt.findings {
+        if entry
+            .key
+            .pair
+            .iter()
+            .any(|reference| scope.contains(reference))
+        {
+            *pairs.entry(entry.key.pair.clone()).or_insert(0) += entry.count;
+        }
+    }
+    pairs
+}
+
+/// Compare two immutable subjects using the same semantic identity used for
+/// repeatability. Reporting caps remain explicit typed states; only a complete
+/// Rust-issued silk mutation-cone receipt can resolve a saturated category.
+pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceError> {
+    let request: ComparisonRequest = serde_json::from_str(request_json)?;
+    let baseline_envelope = evidence_envelope(&request.baseline_samples)?;
+    let candidate_envelope = evidence_envelope(&request.candidate_samples)?;
+    let semantic_repeats_agree =
+        baseline_envelope.observation.stable && candidate_envelope.observation.stable;
+
+    let baseline_caps: BTreeSet<String> = request.baseline_capped_categories.into_iter().collect();
+    let candidate_caps: BTreeSet<String> =
+        request.candidate_capped_categories.into_iter().collect();
+    let all_caps: BTreeSet<String> = baseline_caps.union(&candidate_caps).cloned().collect();
+    let mut categories = BTreeSet::new();
+    for sample in request
+        .baseline_samples
+        .iter()
+        .chain(&request.candidate_samples)
+    {
+        categories.extend(sample.iter().map(|finding| finding.category.clone()));
+    }
+    categories.extend(all_caps.iter().cloned());
+
+    let baseline_silk_complete = receipt_completes_silk(request.baseline_silk_receipt.as_ref());
+    let candidate_silk_complete = receipt_completes_silk(request.candidate_silk_receipt.as_ref());
+    let mut category_states = BTreeMap::new();
+    let mut unresolved_cap_categories = Vec::new();
+    for category in categories {
+        let baseline_capped = baseline_caps.contains(&category);
+        let candidate_capped = candidate_caps.contains(&category);
+        let state = if !baseline_capped && !candidate_capped {
+            CategoryState::UncappedExact
+        } else if bare_category(&category) == "silk_overlap"
+            && (!baseline_capped || baseline_silk_complete)
+            && (!candidate_capped || candidate_silk_complete)
+        {
+            CategoryState::RawSaturatedScopedComplete
+        } else {
+            unresolved_cap_categories.push(category.clone());
+            CategoryState::RawSaturatedUnresolved
+        };
+        category_states.insert(category, state);
+    }
+
+    let mut new_hard_observation_count = 0usize;
+    let mut worsened_hard_observation_count = 0usize;
+    let mut indeterminate_hard_comparison_count = 0usize;
+    if semantic_repeats_agree {
+        let baseline = observations_by_family(&request.baseline_samples[0])?;
+        let candidate = observations_by_family(&request.candidate_samples[0])?;
+        let families: BTreeSet<FamilyKey> = baseline
+            .keys()
+            .chain(candidate.keys())
+            .filter(|family| is_hard_category(&family.category))
+            .cloned()
+            .collect();
+        for family in families {
+            let baseline_values = baseline.get(&family).map(Vec::as_slice).unwrap_or(&[]);
+            let candidate_values = candidate.get(&family).map(Vec::as_slice).unwrap_or(&[]);
+            new_hard_observation_count +=
+                candidate_values.len().saturating_sub(baseline_values.len());
+            for (baseline_value, candidate_value) in
+                baseline_values.iter().zip(candidate_values.iter())
+            {
+                match (baseline_value, candidate_value) {
+                    (Some(baseline), Some(candidate)) => {
+                        let baseline = baseline.parse::<f64>().map_err(|_| {
+                            EvidenceError::InvalidComparison(
+                                "validated baseline distance no longer parses".to_string(),
+                            )
+                        })?;
+                        let candidate = candidate.parse::<f64>().map_err(|_| {
+                            EvidenceError::InvalidComparison(
+                                "validated candidate distance no longer parses".to_string(),
+                            )
+                        })?;
+                        if candidate < baseline {
+                            worsened_hard_observation_count += 1;
+                        }
+                    }
+                    (None, None) => {}
+                    _ => indeterminate_hard_comparison_count += 1,
+                }
+            }
+        }
+    } else {
+        indeterminate_hard_comparison_count = 1;
+    }
+
+    let mut new_scoped_silk_finding_count = 0usize;
+    if receipt_completes_silk(request.baseline_silk_receipt.as_ref())
+        && receipt_completes_silk(request.candidate_silk_receipt.as_ref())
+    {
+        let candidate_receipt = request.candidate_silk_receipt.as_ref().ok_or_else(|| {
+            EvidenceError::InvalidComparison("candidate silk receipt vanished".into())
+        })?;
+        let baseline_receipt = request.baseline_silk_receipt.as_ref().ok_or_else(|| {
+            EvidenceError::InvalidComparison("baseline silk receipt vanished".into())
+        })?;
+        let scope: BTreeSet<String> = candidate_receipt
+            .measurement_scope_refs
+            .iter()
+            .cloned()
+            .collect();
+        let baseline_silk = scoped_silk_pair_bag(baseline_receipt, &scope);
+        let candidate_silk = scoped_silk_pair_bag(candidate_receipt, &scope);
+        for (pair, candidate_count) in candidate_silk {
+            new_scoped_silk_finding_count +=
+                candidate_count.saturating_sub(baseline_silk.get(&pair).copied().unwrap_or(0));
+        }
+    }
+
+    let receipt = ComparisonReceipt {
+        schema: "temper.drc-admission-comparison/v1",
+        semantic_repeats_agree,
+        category_states,
+        raw_global_capped_categories: all_caps.into_iter().collect(),
+        unresolved_cap_categories,
+        new_hard_observation_count,
+        worsened_hard_observation_count,
+        indeterminate_hard_comparison_count,
+        new_scoped_silk_finding_count,
+    };
+    serde_json::to_string(&receipt).map_err(EvidenceError::Serialization)
+}
+
 fn sha256_hex(bytes: &[u8]) -> String {
     Sha256::digest(bytes)
         .iter()
@@ -633,6 +872,7 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
         .saturating_sub(SILK_SAFE_MARGIN);
 
     let mut coverage: BTreeMap<[String; 2], usize> = BTreeMap::new();
+    let mut scoped_findings: BTreeMap<ScopedSilkFinding, usize> = BTreeMap::new();
     let mut unresolved_leaf_count = 0usize;
     for leaf in &request.leaves {
         let samples_agree = leaf.sample_counts.len() == 3
@@ -647,6 +887,29 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
         for pair in &leaf.pairs {
             *coverage
                 .entry(normalized_pair(&pair[0], &pair[1]))
+                .or_insert(0) += 1;
+        }
+        let leaf_pairs: BTreeSet<[String; 2]> = leaf
+            .pairs
+            .iter()
+            .map(|pair| normalized_pair(&pair[0], &pair[1]))
+            .collect();
+        for (finding_index, finding) in leaf.findings.iter().enumerate() {
+            if bare_category(&finding.category) != "silk_overlap" {
+                return Err(EvidenceError::InvalidComparison(format!(
+                    "scoped silk leaf contains {}",
+                    finding.category
+                )));
+            }
+            let pair = silk_finding_pair(finding)?;
+            if !leaf_pairs.contains(&pair) {
+                return Err(EvidenceError::InvalidComparison(format!(
+                    "scoped silk finding pair {pair:?} is outside its leaf"
+                )));
+            }
+            let (_family, observation, _raw) = identities(finding, 0, finding_index)?;
+            *scoped_findings
+                .entry(ScopedSilkFinding { pair, observation })
                 .or_insert(0) += 1;
         }
     }
@@ -670,7 +933,7 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
         "raw-saturated-unresolved"
     };
     let receipt = SilkScopeReceipt {
-        schema: "temper.silk-mutation-scope/v1",
+        schema: "temper.silk-mutation-scope/v2".to_string(),
         source_sha256: sha256_hex(request.source_board.as_bytes()),
         subject_sha256: sha256_hex(request.subject_board.as_bytes()),
         silk_projection_sha256: silk_projection_digest(&subject),
@@ -684,8 +947,13 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
         duplicate_pairs,
         foreign_pairs,
         unresolved_leaf_count,
+        finding_count: scoped_findings.values().sum(),
+        findings: scoped_findings
+            .into_iter()
+            .map(|(key, count)| BagEntry { key, count })
+            .collect(),
         complete,
-        category_state,
+        category_state: category_state.to_string(),
     };
     serde_json::to_string(&receipt).map_err(EvidenceError::Serialization)
 }
@@ -693,8 +961,7 @@ pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceErr
 /// Extract the canonical footprint pair from one raw `silk_overlap` record.
 /// The raw item descriptions remain KiCad's oracle; Rust owns the parsing and
 /// rejects ambiguous records rather than letting Python invent a pair.
-pub fn silk_finding_pair_json(finding_json: &str) -> Result<String, EvidenceError> {
-    let finding: RawFinding = serde_json::from_str(finding_json)?;
+fn silk_finding_pair(finding: &RawFinding) -> Result<[String; 2], EvidenceError> {
     let mut references = BTreeSet::new();
     for item in &finding.items {
         if let Some(reference) = component_re()
@@ -708,8 +975,12 @@ pub fn silk_finding_pair_json(finding_json: &str) -> Result<String, EvidenceErro
     if references.len() != 2 {
         return Err(EvidenceError::AmbiguousSilkPair { references });
     }
-    serde_json::to_string(&normalized_pair(&references[0], &references[1]))
-        .map_err(EvidenceError::Serialization)
+    Ok(normalized_pair(&references[0], &references[1]))
+}
+
+pub fn silk_finding_pair_json(finding_json: &str) -> Result<String, EvidenceError> {
+    let finding: RawFinding = serde_json::from_str(finding_json)?;
+    serde_json::to_string(&silk_finding_pair(&finding)?).map_err(EvidenceError::Serialization)
 }
 
 #[cfg(feature = "python")]
@@ -734,11 +1005,19 @@ fn silk_finding_pair_json_py(finding_json: &str) -> pyo3::PyResult<String> {
 }
 
 #[cfg(feature = "python")]
+#[pyo3::pyfunction(name = "drc_admission_comparison_json")]
+fn comparison_receipt_json_py(request_json: &str) -> pyo3::PyResult<String> {
+    comparison_receipt_json(request_json)
+        .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
 pub fn register(module: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
     use pyo3::prelude::PyModuleMethods;
     module.add_function(pyo3::wrap_pyfunction!(evidence_envelope_json_py, module)?)?;
     module.add_function(pyo3::wrap_pyfunction!(silk_scope_receipt_json_py, module)?)?;
     module.add_function(pyo3::wrap_pyfunction!(silk_finding_pair_json_py, module)?)?;
+    module.add_function(pyo3::wrap_pyfunction!(comparison_receipt_json_py, module)?)?;
     Ok(())
 }
 
@@ -970,5 +1249,133 @@ mod tests {
             silk_finding_pair_json(&ambiguous).expect_err("same-ref record is ambiguous"),
             EvidenceError::AmbiguousSilkPair { .. }
         ));
+    }
+
+    fn creepage_value(actual: &str, provider: &str) -> serde_json::Value {
+        serde_json::json!({
+            "type": "creepage",
+            "description": format!("Creepage violation (rule 'HV to LV' creepage 12.6000 mm; actual {actual} mm)"),
+            "items": [
+                {"description": "Pad 2 [HV] of R14 on F.Cu", "pos": {"x": 1, "y": 2}},
+                {"description": format!("Track [LV] on F.Cu, length {provider} mm"), "pos": {"x": 3, "y": 4}}
+            ]
+        })
+    }
+
+    #[test]
+    fn admission_comparison_ranks_hard_distances_after_provider_normalization() {
+        let baseline =
+            ["0.8", "11.9", "0.8"].map(|provider| vec![creepage_value("10.2", provider)]);
+        let candidate =
+            ["11.9", "0.8", "11.9"].map(|provider| vec![creepage_value("10.1", provider)]);
+        let request = serde_json::json!({
+            "baseline_samples": baseline,
+            "candidate_samples": candidate,
+            "baseline_capped_categories": [],
+            "candidate_capped_categories": [],
+            "baseline_silk_receipt": null,
+            "candidate_silk_receipt": null
+        });
+        let receipt: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_json(&request.to_string()).expect("comparable evidence"),
+        )
+        .expect("valid receipt");
+        assert_eq!(receipt["semantic_repeats_agree"], true);
+        assert_eq!(receipt["new_hard_observation_count"], 0);
+        assert_eq!(receipt["worsened_hard_observation_count"], 1);
+        assert_eq!(receipt["indeterminate_hard_comparison_count"], 0);
+    }
+
+    #[test]
+    fn admission_comparison_allows_only_complete_silk_scope_to_resolve_a_cap() {
+        let scope_request = serde_json::json!({
+            "source_board": board("10 0"),
+            "subject_board": board("10 0"),
+            "declared_refs": ["R2"],
+            "use_declared_scope": true,
+            "raw_global_capped": true,
+            "leaves": [
+                {"pairs": [["R1", "R2"]], "sample_counts": [1, 1, 1]},
+                {"pairs": [["R2", "R3"]], "sample_counts": [0, 0, 0]}
+            ]
+        });
+        let silk_receipt: serde_json::Value = serde_json::from_str(
+            &silk_scope_receipt_json(&scope_request.to_string()).expect("complete silk scope"),
+        )
+        .expect("valid silk receipt");
+        let request = serde_json::json!({
+            "baseline_samples": [[], [], []],
+            "candidate_samples": [[], [], []],
+            "baseline_capped_categories": ["W:silk_overlap", "clearance"],
+            "candidate_capped_categories": ["W:silk_overlap"],
+            "baseline_silk_receipt": silk_receipt,
+            "candidate_silk_receipt": silk_receipt
+        });
+        let receipt: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_json(&request.to_string()).expect("typed cap states"),
+        )
+        .expect("valid comparison receipt");
+        assert_eq!(
+            receipt["category_states"]["W:silk_overlap"],
+            "raw-saturated-scoped-complete"
+        );
+        assert_eq!(
+            receipt["category_states"]["clearance"],
+            "raw-saturated-unresolved"
+        );
+        assert_eq!(
+            receipt["unresolved_cap_categories"],
+            serde_json::json!(["clearance"])
+        );
+    }
+
+    #[test]
+    fn scoped_silk_comparison_uses_exact_pair_multiplicity_not_moved_coordinates() {
+        let finding = |x: i32| {
+            serde_json::json!({
+                "type": "silk_overlap",
+                "description": "Silkscreen overlap",
+                "items": [
+                    {"description": "Text REF of R1 on F.Silkscreen", "pos": {"x": x, "y": 0}},
+                    {"description": "Arc of R2 on F.Silkscreen", "pos": {"x": 1, "y": 1}}
+                ]
+            })
+        };
+        let scope_receipt = |findings: Vec<serde_json::Value>| {
+            let request = serde_json::json!({
+                "source_board": board("10 0"),
+                "subject_board": board("10 0"),
+                "declared_refs": ["R2"],
+                "use_declared_scope": true,
+                "raw_global_capped": true,
+                "leaves": [
+                    {"pairs": [["R1", "R2"]], "sample_counts": [1, 1, 1], "findings": findings},
+                    {"pairs": [["R2", "R3"]], "sample_counts": [0, 0, 0]}
+                ]
+            });
+            serde_json::from_str::<serde_json::Value>(
+                &silk_scope_receipt_json(&request.to_string()).expect("complete silk receipt"),
+            )
+            .expect("valid receipt")
+        };
+        let baseline = scope_receipt(vec![finding(0)]);
+        let moved = scope_receipt(vec![finding(99)]);
+        let added = scope_receipt(vec![finding(99), finding(100)]);
+        let compare = |candidate: serde_json::Value| {
+            let request = serde_json::json!({
+                "baseline_samples": [[], [], []],
+                "candidate_samples": [[], [], []],
+                "baseline_capped_categories": ["W:silk_overlap"],
+                "candidate_capped_categories": ["W:silk_overlap"],
+                "baseline_silk_receipt": baseline.clone(),
+                "candidate_silk_receipt": candidate
+            });
+            serde_json::from_str::<serde_json::Value>(
+                &comparison_receipt_json(&request.to_string()).expect("silk comparison"),
+            )
+            .expect("valid comparison")
+        };
+        assert_eq!(compare(moved)["new_scoped_silk_finding_count"], 0);
+        assert_eq!(compare(added)["new_scoped_silk_finding_count"], 1);
     }
 }
