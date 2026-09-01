@@ -145,7 +145,15 @@ type RouteEmission = (
 /// (`io/_parse_nets.py::_extract_design_rules`'s `default_via_diameter`/
 /// `default_via_drill`, root-caused and fixed separately). See
 /// `docs/evidence/2026-08-17-blind-via-annular-floor-fix.md`.
-const MIN_ANNULAR_RING_MM: f64 = 0.254;
+///
+/// Exported to Python as `temper_orchestration.MIN_ANNULAR_RING_MM` (see
+/// `lib.rs`'s `#[pymodule]`) so no Python-side caller or test has to
+/// restate it. PR #1316 changed this crate's behaviour and left eight
+/// Python `router_v6` tests carrying the pre-floor 0.6mm pad literal —
+/// they failed or passed purely according to when the reader last ran
+/// `maturin develop`. A Python test that hardcodes a number Rust owns
+/// will always rot; deriving it from this export is what stops that.
+pub const MIN_ANNULAR_RING_MM: f64 = 0.254;
 
 /// The ring width `Via::new` enlarges a sub-floor pad TO, not the bare
 /// `MIN_ANNULAR_RING_MM` floor itself — floating-point-exact compliance at
@@ -154,7 +162,12 @@ const MIN_ANNULAR_RING_MM: f64 = 0.254;
 /// convention (drill unchanged, pad = drill + 2 x 0.3mm). Matching it here
 /// means a via `Via::new` has to correct looks identical to one the
 /// project's own netclass tables would have produced directly.
-const ANNULAR_RING_TARGET_MM: f64 = 0.3;
+///
+/// Exported to Python as `temper_orchestration.ANNULAR_RING_TARGET_MM`
+/// for the same reason as [`MIN_ANNULAR_RING_MM`]: the corrected pad a
+/// sub-floor via is enlarged TO is this crate's decision, so Python-side
+/// expectations must read it rather than restate it.
+pub const ANNULAR_RING_TARGET_MM: f64 = 0.3;
 
 pub struct Via {
     x: f64,

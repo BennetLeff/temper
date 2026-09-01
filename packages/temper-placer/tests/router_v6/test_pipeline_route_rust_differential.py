@@ -42,7 +42,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 import temper_orchestration as _to
 
 from temper_placer.router_v6._adapter_convert import (
@@ -65,6 +64,7 @@ from temper_placer.router_v6._pipeline_route import (
 )
 from tests.router_v6 import _adapter_convert_py_oracle as _adapter_oracle
 from tests.router_v6 import _pipeline_route_py_oracle as _route_oracle
+from tests.router_v6._via_annular_floor import floor_compliant_via
 
 # ---------------------------------------------------------------------------
 # The oracle must stay verbatim
@@ -196,7 +196,27 @@ def _constraint(name, **attrs):
 # --- routing-result fakes for the write-routes core ---
 
 
-def _via(x, y, diameter=0.9, drill=0.3, from_layer="F.Cu", to_layer="B.Cu"):
+def _via(x, y, diameter=None, drill=None, from_layer="F.Cu", to_layer="B.Cu"):
+    """A via whose pad is DERIVED from the crate's own annular-ring floor.
+
+    968d1a33d (PR #1316) made `Via::new` enlarge any pad below the board's
+    0.254mm annular-ring fab floor. `_adapter_convert_py_oracle`, the
+    pinned pre-migration arm of this differential, predates that and must
+    stay verbatim -- so a sub-floor default here makes every write-routes
+    test in this file assert a divergence the crate creates deliberately.
+    That is exactly what the old `diameter=0.6, drill=0.3` default did
+    (a 0.15mm ring): `test_write_routes_staircase_collapse_and_vias` and
+    `test_write_routes_many_randomized_routes` failed for anyone whose
+    extension was current and passed for anyone whose extension predated
+    #1316. Deriving the pad means this default cannot fall behind the
+    crate again; `test_via_annular_floor_guard.py` pins the clamp itself.
+    """
+    if drill is None:
+        diameter_default, drill = floor_compliant_via()
+    else:
+        diameter_default, _ = floor_compliant_via(drill=drill)
+    if diameter is None:
+        diameter = diameter_default
     return SimpleNamespace(
         position=(x, y),
         diameter=diameter,

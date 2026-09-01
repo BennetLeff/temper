@@ -533,6 +533,44 @@ class TestRealRegistryExtendedFamilies:
             assert r.error is None, f"{r.fact}/{r.site.file}: {r.error}"
             assert r.matches is True, f"{r.fact}/{r.site.file} diverged: {r.found_value}"
 
+    def test_min_via_annular_ring_floor_is_clean_across_both_homes(self):
+        """The annular-ring FAB FLOOR itself (registered 2026-08-18).
+
+        968d1a33d (PR #1316) gave this fact a second home: `Via::new`
+        (temper-orchestration) started enforcing the floor at
+        construction, so the crate now carries its own copy of a number
+        `pcb/temper.kicad_pro` already declared. That change is also what
+        left eight `router_v6` tests holding the pre-floor 0.6mm pad --
+        Rust moved, Python did not, and nothing connected them. This
+        entry is the mechanical half of the connection; the behavioural
+        half is packages/temper-placer/tests/router_v6/
+        test_via_annular_floor_guard.py.
+
+        Expected CLEAN in both homes. A DIFF here means someone edited
+        one side alone -- and because this is a fabricator constraint,
+        the fix is to correct whichever home moved, never to reconcile by
+        lowering the floor.
+        """
+        repo_root = find_repo_root()
+        results = check.run(repo_root)
+        floor_results = [r for r in results if r.fact == "min_via_annular_ring_mm"]
+        assert len(floor_results) == 2, (
+            "expected exactly two homes (the board project file and "
+            "Via::new); a missing one means the pattern stopped matching, "
+            "which is a tool error, not a pass"
+        )
+        assert {r.site.file for r in floor_results} == {
+            "pcb/temper.kicad_pro",
+            "packages/temper-orchestration/src/pipeline_route.rs",
+        }
+        for r in floor_results:
+            assert r.error is None, f"{r.fact}/{r.site.file}: {r.error}"
+            assert r.matches is True, (
+                f"{r.site.file} no longer declares the 0.254mm annular-ring "
+                f"fab floor: {r.found_value}"
+            )
+            assert r.found_value == pytest.approx(0.254)
+
     def test_highvoltagesignal_via_facts_specifically_agree(self):
         """The exact fact family (HighVoltageSignal via_diameter/via_drill)
         that bit this project on 2026-08-13 (0.8/0.4 in netclass_rules.yaml
