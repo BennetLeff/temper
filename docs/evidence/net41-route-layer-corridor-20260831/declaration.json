@@ -5,8 +5,8 @@
   "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
   "design_basis_sha256": "a731959bebf8d41b3f8dcb56e2bfd45a0013ee66fd56ef36659da01e959054f0",
   "topology_authority_digest": "98a1bce1bb615213c6de07df066fb50bc6f06b65bee68f1690c44fabdeb13c43",
-  "declaration_authority_digest": "325b9e6869217acfa775619625e88776ef97c5a92c85aba068eb07a953c1f025",
-  "candidate_set_digest": "214d4cb08bfdfd35df0da941fdd2cd06f1824c44dabd7cd949617f9b33a67c3b",
+  "declaration_authority_digest": "58b6df887ff880f82a7aa07cfbd8f23ea6dde5e4a5c217f18c1f19efffdf0e61",
+  "candidate_set_digest": "2f7befb395b4e07c0713b5b33f923c360195c0d41cd503d81779ddfcaad4cb11",
   "predecessor": {
     "relation": "new-design-hypothesis",
     "accepted_status": "stopped-indeterminate",
@@ -16,7 +16,7 @@
   },
   "generated_inputs": {
     "domain_manifest_sha256": "f1899c87a61f579e2a92dbd673c1ad29036aed463b2f3fcc4ff7cca7f034bae3",
-    "netlist_sha256": "f83d8284c8e95c2512e85f568b0809430031cb08cff1ac1a0e799843fbead5f4",
+    "netlist_sha256": "0a15ce9d3a9c9fa2f9ae300d73af88754ce9b92022c6700f035392e1ca9be2b6",
     "kicad_dru_sha256": "488a01a81ea29dd6b4ed3106d3f5c0b036a9d07bf9a545a60b1ca6fbc74a0fdb"
   },
   "route": {

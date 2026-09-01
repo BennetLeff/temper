@@ -35,8 +35,6 @@ def evaluate_quality(netlist, placement, spec, metrics):
 
 
 class TestOracleModule:
-<<<<<<< HEAD
-=======
     @staticmethod
     def _corridor_evidence():
         root = Path(__file__).resolve().parents[4]
@@ -92,7 +90,6 @@ class TestOracleModule:
             temper_quality_oracle.validate_and_screen_corridor_evidence_json_py(**kwargs)
         )
 
->>>>>>> ce342efeb (fix(ci): generate DRU in corridor integration test)
     def test_module_imports(self):
         require_oracle()
         assert callable(temper_quality_oracle.prepare_quality_py)

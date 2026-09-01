@@ -7,7 +7,7 @@
 #[cfg(feature = "python")]
 use pyo3::types::PyModuleMethods;
 use serde::Serialize;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub const DECLARATION_SCHEMA: &str = "temper-regional-topology-declaration/v2";
@@ -20,6 +20,46 @@ pub fn candidate_digest<T: Serialize>(identity: &T) -> Result<String, String> {
     let bytes = serde_json::to_vec(&canonical)
         .map_err(|error| format!("failed to serialize topology identity: {error}"))?;
     Ok(crate::sha256(&bytes))
+}
+
+/// Hash an Atopile-generated netlist after removing checkout-root noise from
+/// component sheet paths. Atopile writes the absolute build path into every
+/// `(sheetpath (names "..."))` record, so hashing the raw file makes identical
+/// electrical sources disagree between a developer worktree and CI.
+pub fn netlist_identity_sha256(netlist_text: &str) -> Result<String, String> {
+    const SHEETPATH_PREFIX: &str = "(sheetpath (names \"";
+    const SOURCE_MARKER: &str = "/elec/src/";
+
+    let normalized = netlist_text.replace("\r\n", "\n");
+    let mut canonical = String::with_capacity(normalized.len());
+    let mut cursor = 0;
+    let mut sheetpath_count = 0;
+    while let Some(relative_start) = normalized[cursor..].find(SHEETPATH_PREFIX) {
+        let value_start = cursor + relative_start + SHEETPATH_PREFIX.len();
+        let value_end = normalized[value_start..]
+            .find('"')
+            .map(|offset| value_start + offset)
+            .ok_or_else(|| "Atopile netlist has an unterminated sheetpath name".to_string())?;
+        canonical.push_str(&normalized[cursor..value_start]);
+        let sheetpath = normalized[value_start..value_end].replace('\\', "/");
+        let source_relative = if let Some(marker) = sheetpath.rfind(SOURCE_MARKER) {
+            &sheetpath[marker + 1..]
+        } else if sheetpath.starts_with("elec/src/") {
+            sheetpath.as_str()
+        } else {
+            return Err(format!(
+                "Atopile sheetpath is not rooted at elec/src: {sheetpath}"
+            ));
+        };
+        canonical.push_str(source_relative);
+        cursor = value_end;
+        sheetpath_count += 1;
+    }
+    if sheetpath_count == 0 {
+        return Err("Atopile netlist has no sheetpath identities".into());
+    }
+    canonical.push_str(&normalized[cursor..]);
+    Ok(crate::sha256(canonical.as_bytes()))
 }
 
 #[derive(Debug, Serialize)]
@@ -504,7 +544,7 @@ pub fn validate_declaration(inputs: &DeclarationInputs<'_>) -> Result<Value, Str
     let receipt_sha256 = crate::sha256(inputs.predecessor_receipt_json.as_bytes());
     let manifest_sha256 = crate::sha256(inputs.predecessor_manifest_json.as_bytes());
     let domain_sha256 = crate::sha256(inputs.domain_manifest_text.as_bytes());
-    let netlist_sha256 = crate::sha256(inputs.netlist_text.as_bytes());
+    let netlist_sha256 = netlist_identity_sha256(inputs.netlist_text)?;
     let kicad_dru_sha256 = crate::sha256(inputs.kicad_dru_text.as_bytes());
     for (pointer, actual) in [
         ("/production_board_sha256", board_sha256.as_str()),
@@ -1045,6 +1085,23 @@ pub(crate) mod tests {
     }
 
     #[cfg_attr(test, test)]
+    fn netlist_identity_ignores_checkout_root_but_not_source_identity() {
+        let local = "(export\r\n  (sheetpath (names \"/home/dev/worktree/elec/src/main.ato:Top::C1\") (tstamps \"a\"))\r\n)";
+        let ci = "(export\n  (sheetpath (names \"/__w/temper/temper/elec/src/main.ato:Top::C1\") (tstamps \"a\"))\n)";
+        let changed = "(export\n  (sheetpath (names \"/__w/temper/temper/elec/src/main.ato:Top::C2\") (tstamps \"a\"))\n)";
+
+        assert_eq!(
+            netlist_identity_sha256(local).unwrap(),
+            netlist_identity_sha256(ci).unwrap()
+        );
+        assert_ne!(
+            netlist_identity_sha256(ci).unwrap(),
+            netlist_identity_sha256(changed).unwrap()
+        );
+        assert!(netlist_identity_sha256("(export)").is_err());
+    }
+
+    #[cfg_attr(test, test)]
     fn necessary_bound_cannot_be_inflated_after_repinning() {
         let mut basis: Value = serde_json::from_str(include_str!(
             "../../../docs/evidence/net41-route-layer-corridor-20260831/design-basis.json"
@@ -1090,6 +1147,7 @@ pub(crate) mod tests {
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("regional_topology::tests::candidate_digest_is_content_sensitive", candidate_digest_is_content_sensitive),
+        ("regional_topology::tests::netlist_identity_ignores_checkout_root_but_not_source_identity", netlist_identity_ignores_checkout_root_but_not_source_identity),
         ("regional_topology::tests::necessary_bound_cannot_be_inflated_after_repinning", necessary_bound_cannot_be_inflated_after_repinning),
         ("regional_topology::tests::production_authorization_is_always_denied", production_authorization_is_always_denied),
     ];
