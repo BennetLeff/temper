@@ -111,6 +111,9 @@ pub mod ipc_pyo3;
 // survives a --no-default-features wasm32 build; drc_count_pyo3.rs is the
 // thin pyo3 surface).
 pub mod drc_count;
+// Net-41 DRC instrument reliability U1 — portable semantic identity and
+// duplicate-preserving repeatability envelopes for raw KiCad findings.
+pub mod drc_evidence;
 #[cfg(feature = "python")]
 pub mod drc_count_pyo3;
 // Wave 4 — validation-glue kernels (port-inventory entry-5 cluster):
@@ -527,6 +530,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Crate-fold 3 (2026-08-15) — DrcCount cap-classification kernels
     // (drc_count.rs pure logic; this pyo3 surface).
     crate::drc_count_pyo3::register(m)?;
+    // One transport-only boundary for the Rust-owned DRC evidence kernel.
+    crate::drc_evidence::register(m)?;
     // Wave 4 — validation-glue kernels (port-inventory entry-5 cluster):
     // _drc_api.py parsing, scheduler.py decisions, validation_gates.py gates.
     crate::validation_glue::register(m)?;
