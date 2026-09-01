@@ -13,7 +13,7 @@ use crate::body_collision::{
     AREA_TOLERANCE_MM2, fab_body_relations_batch_py, fab_body_validate_py,
 };
 use crate::audit::{bbox_from_center_py, chebyshev_gap_py, dist_py};
-use crate::channel_widths::edt_width_lookup_batch;
+use crate::channel_widths::{edt_width_lookup_batch, prepare_channel_widths_edt};
 use crate::connected_components::connected_components_8_transform;
 use crate::edt::exact_edt_transform;
 use crate::radius_pairs::radius_pairs_transform;
@@ -463,6 +463,10 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // build_occupancy_grid rasterisation (2026-08-15): strict-interior
     // point-in-polygon scanline replacing shapely.contains(check_area, ...)
     m.add_function(wrap_pyfunction!(rasterize_area_polygons_py, m)?)?;
+
+    // Channel-width EDT preparation: Python supplies Shapely ring
+    // coordinates; rasterisation and the exact transform remain Rust-owned.
+    m.add_function(wrap_pyfunction!(prepare_channel_widths_edt, m)?)?;
 
     // organizational heuristics (Wave 4: heuristics/organizational.py's
     // five _place_* position kernels)

@@ -1058,6 +1058,7 @@ dependencies = [
  "sha2",
  "temper-geometry",
  "temper-pcl-ir",
+ "temper-rust-router-core",
  "thiserror 2.0.20",
 ]
 
@@ -1089,6 +1090,16 @@ dependencies = [
  "regex",
  "rstar 0.12.2",
  "spade",
+ "temper-io-types",
+]
+
+[[package]]
+name = "temper-io-types"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -1114,6 +1125,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.118",
+]
+
+[[package]]
+name = "temper-rust-router-core"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
 ]
 
 [[package]]

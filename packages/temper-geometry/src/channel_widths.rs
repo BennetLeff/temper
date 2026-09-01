@@ -10,7 +10,183 @@
 // reference.
 
 #[cfg(feature = "python")]
+use numpy::{IntoPyArray, PyArray2, PyArrayMethods};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+
+#[cfg(feature = "python")]
+type ChannelWidthsEdtPyResult<'py> = (Bound<'py, PyArray2<f64>>, Vec<u8>, usize, usize);
+
+type ChannelWidthsPolygon = (Vec<(f64, f64)>, Vec<Vec<(f64, f64)>>);
+
+/// Build the raster mask used by the channel-width EDT and run the exact
+/// transform in one Rust-owned operation.  Shapely remains the owner of
+/// geometry objects; the Python boundary supplies only flattened outer and
+/// hole rings (`[x0, y0, x1, y1, ...]`).
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (outer_rings, holes, bounds, cell_size))]
+pub fn prepare_channel_widths_edt(
+    py: Python<'_>,
+    outer_rings: Vec<Vec<f64>>,
+    holes: Vec<Vec<Vec<f64>>>,
+    bounds: (f64, f64, f64, f64),
+    cell_size: f64,
+) -> PyResult<ChannelWidthsEdtPyResult<'_>> {
+    if outer_rings.len() != holes.len() {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "outer_rings and holes must have the same length",
+        ));
+    }
+    if !cell_size.is_finite() || cell_size <= 0.0 {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "cell_size must be positive and finite",
+        ));
+    }
+    if !bounds.0.is_finite()
+        || !bounds.1.is_finite()
+        || !bounds.2.is_finite()
+        || !bounds.3.is_finite()
+    {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "bounds must be finite",
+        ));
+    }
+    let (edt, mask, height, width) =
+        prepare_channel_widths_edt_kernel(&outer_rings, &holes, bounds, cell_size);
+    // Consume the kernel's Vec directly into NumPy-owned storage.  The
+    // resulting 1-D array owns the Vec allocation through numpy's
+    // PySliceContainer; reshape only changes its view metadata and keeps the
+    // owning base alive.  This avoids the old equal-sized Vec<u8>
+    // serialization at the FFI boundary while preserving a C-contiguous,
+    // float64 2-D ndarray for Python callers.
+    let edt = edt.into_pyarray(py).reshape((height, width))?;
+    Ok((edt, mask, height, width))
+}
+
+/// Pure-Rust owner of channel-width raster preparation.
+pub fn prepare_channel_widths_edt_kernel(
+    outer_rings: &[Vec<f64>],
+    holes: &[Vec<Vec<f64>>],
+    bounds: (f64, f64, f64, f64),
+    cell_size: f64,
+) -> (Vec<f64>, Vec<u8>, usize, usize) {
+    let (min_x, min_y, max_x, max_y) = bounds;
+    // Same operation order as int(np.ceil((max - min) / cell_size)) + 1.
+    let width = ((max_x - min_x) / cell_size).ceil() as usize + 1;
+    let height = ((max_y - min_y) / cell_size).ceil() as usize + 1;
+    let mut mask = vec![0u8; height * width];
+    let polygons: Vec<ChannelWidthsPolygon> = outer_rings
+        .iter()
+        .zip(holes.iter())
+        .map(|(outer, holes)| {
+            (ring_points(outer), holes.iter().map(|hole| ring_points(hole)).collect())
+        })
+        .collect();
+
+    // Scanlines make the production multi-million-cell grid proportional to
+    // rows plus ring edges, rather than checking every edge for every cell.
+    for row in 0..height {
+        let y = min_y + row as f64 * cell_size;
+        for (outer, holes) in &polygons {
+            let mut intervals = pair_intervals(&ring_crossings(outer, y));
+            for hole in holes {
+                intervals = subtract_intervals(&intervals, &pair_intervals(&ring_crossings(hole, y)));
+            }
+            for (lo, hi) in intervals {
+                let first = (((lo - min_x) / cell_size).floor() as i64 + 1).max(0);
+                let last = (((hi - min_x) / cell_size).ceil() as i64 - 1).min(width as i64 - 1);
+                if first <= last {
+                    for col in first as usize..=last as usize {
+                        mask[row * width + col] = 1;
+                    }
+                }
+            }
+        }
+        for (outer, holes) in &polygons {
+            clear_horizontal_boundary(&mut mask, row, width, min_x, y, cell_size, outer);
+            clear_grid_edge_boundary(&mut mask, row, width, min_x, y, cell_size, outer);
+            for hole in holes {
+                clear_horizontal_boundary(&mut mask, row, width, min_x, y, cell_size, hole);
+                clear_grid_edge_boundary(&mut mask, row, width, min_x, y, cell_size, hole);
+            }
+        }
+    }
+    let edt = crate::edt::exact_edt(&mask, height, width);
+    (edt, mask, height, width)
+}
+
+fn ring_points(ring: &[f64]) -> Vec<(f64, f64)> {
+    ring.chunks_exact(2).map(|pair| (pair[0], pair[1])).collect()
+}
+
+fn ring_crossings(ring: &[(f64, f64)], y: f64) -> Vec<f64> {
+    let mut crossings = Vec::new();
+    for i in 0..ring.len() {
+        let (x1, y1) = ring[i];
+        let (x2, y2) = ring[(i + 1) % ring.len()];
+        if y1 != y2 && ((y1 <= y && y < y2) || (y2 <= y && y < y1)) {
+            crossings.push(x1 + (y - y1) / (y2 - y1) * (x2 - x1));
+        }
+    }
+    crossings.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    crossings
+}
+
+fn pair_intervals(crossings: &[f64]) -> Vec<(f64, f64)> {
+    crossings.chunks_exact(2).filter_map(|pair| {
+        (pair[1] > pair[0]).then_some((pair[0], pair[1]))
+    }).collect()
+}
+
+fn subtract_intervals(outer: &[(f64, f64)], holes: &[(f64, f64)]) -> Vec<(f64, f64)> {
+    let mut result = Vec::new();
+    for &(lo, hi) in outer {
+        let mut cursor = lo;
+        for &(hole_lo, hole_hi) in holes {
+            if hole_hi <= cursor { continue; }
+            if hole_lo >= hi { break; }
+            if hole_lo > cursor { result.push((cursor, hole_lo.min(hi))); }
+            cursor = cursor.max(hole_hi);
+            if cursor >= hi { break; }
+        }
+        if cursor < hi { result.push((cursor, hi)); }
+    }
+    result
+}
+
+fn clear_horizontal_boundary(
+    mask: &mut [u8], row: usize, width: usize, min_x: f64, y: f64,
+    cell_size: f64, ring: &[(f64, f64)],
+) {
+    for i in 0..ring.len() {
+        let (x1, y1) = ring[i];
+        let (x2, y2) = ring[(i + 1) % ring.len()];
+        if y1 != y2 || y1 != y { continue; }
+        let first = (((x1.min(x2) - min_x) / cell_size).ceil() as i64).max(0);
+        let last = (((x1.max(x2) - min_x) / cell_size).floor() as i64).min(width as i64 - 1);
+        if first <= last {
+            for col in first as usize..=last as usize { mask[row * width + col] = 0; }
+        }
+    }
+}
+
+fn clear_grid_edge_boundary(
+    mask: &mut [u8], row: usize, width: usize, min_x: f64, y: f64,
+    cell_size: f64, ring: &[(f64, f64)],
+) {
+    for i in 0..ring.len() {
+        let (x1, y1) = ring[i];
+        let (x2, y2) = ring[(i + 1) % ring.len()];
+        if y1 == y2 || !((y1 <= y && y <= y2) || (y2 <= y && y <= y1)) { continue; }
+        let x = x1 + (y - y1) / (y2 - y1) * (x2 - x1);
+        let grid_x = (x - min_x) / cell_size;
+        let col = grid_x.round();
+        if col == grid_x && (0.0..width as f64).contains(&col) {
+            mask[row * width + col as usize] = 0;
+        }
+    }
+}
 
 #[cfg(feature = "python")]
 #[pyfunction]
@@ -245,6 +421,31 @@ pub(crate) mod tests {
         assert_eq!(got[0], expect);
     }
 
+    #[cfg_attr(test, test)]
+    fn test_channel_width_raster_strict_boundary_and_hole() {
+        let outer = vec![vec![0.0, 0.0, 6.0, 0.0, 6.0, 6.0, 0.0, 6.0, 0.0, 0.0]];
+        let holes = vec![vec![2.0, 2.0, 4.0, 2.0, 4.0, 4.0, 2.0, 4.0, 2.0, 2.0]];
+        let (_, mask, h, w) = prepare_channel_widths_edt_kernel(
+            &outer, &[holes], (0.0, 0.0, 6.0, 6.0), 1.0,
+        );
+        assert_eq!((h, w), (7, 7));
+        assert_eq!(mask[0], 0);
+        assert_eq!(mask[2 * w + 2], 0); // hole boundary
+        assert_eq!(mask[3 * w + 3], 0); // hole interior
+        assert_eq!(mask[w + 1], 1);
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_channel_width_raster_asymmetric_polygon() {
+        let outer = vec![vec![0.0, 0.0, 5.0, 1.0, 2.0, 7.0, 0.0, 0.0]];
+        let (_, mask, h, w) = prepare_channel_widths_edt_kernel(
+            &outer, &[Vec::new()], (0.0, 0.0, 5.0, 7.0), 0.5,
+        );
+        assert_eq!((h, w), (15, 11));
+        assert!(mask.iter().any(|&cell| cell != 0));
+        assert_eq!(mask[0], 0);
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -255,6 +456,8 @@ pub(crate) mod tests {
         ("channel_widths::tests::test_batch_matches_reference_with_offset_and_cell_size", test_batch_matches_reference_with_offset_and_cell_size),
         ("channel_widths::tests::test_out_of_bounds_samples_return_zero", test_out_of_bounds_samples_return_zero),
         ("channel_widths::tests::test_masked_out_cells_contribute_zero", test_masked_out_cells_contribute_zero),
+        ("channel_widths::tests::test_channel_width_raster_strict_boundary_and_hole", test_channel_width_raster_strict_boundary_and_hole),
+        ("channel_widths::tests::test_channel_width_raster_asymmetric_polygon", test_channel_width_raster_asymmetric_polygon),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

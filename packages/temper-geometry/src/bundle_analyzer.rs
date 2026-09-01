@@ -72,6 +72,7 @@
 #![allow(clippy::approx_constant, clippy::excessive_precision)]
 
 use std::cmp::Ordering;
+use std::collections::{HashMap, HashSet};
 
 /// GEOS `constants.h` `MATH_PI` at its declared precision (bit-exactness
 /// class B7 — the constant expression shape, not `f64::consts::PI`).
@@ -653,6 +654,268 @@ fn strictly_inside_convex(ring: &[(f64, f64)], p: (f64, f64)) -> bool {
 }
 
 // ---------------------------------------------------------------------------
+// BundleAnalyzer orchestration
+// ---------------------------------------------------------------------------
+
+/// Stable deterministic BundleAnalyzer output. Python keeps its public
+/// dataclasses (and the dead shapely footprint field) as an API adapter; all
+/// decisions affecting the routing model live in this Rust record.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct BundleRecord {
+    pub bundle_id: usize,
+    pub net_indices: Vec<usize>,
+    pub safety_category: Option<String>,
+    pub net_class: String,
+    /// The TypeSignature's diff-pair bit.  This is intentionally separate
+    /// from `is_diff_pair`: unmatched diff nets can cluster in the ordinary
+    /// pool while retaining this signature bit.
+    pub signature_has_diff_pair: bool,
+    pub is_diff_pair: bool,
+    pub constraint_types: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct BundleManifestRecords {
+    pub bundles: Vec<BundleRecord>,
+    pub bundle_id_for_net: Vec<(usize, usize)>,
+    pub unbundled_net_indices: Vec<usize>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+struct BundleSignature {
+    safety_category: Option<String>,
+    net_class: String,
+    has_diff_pair: bool,
+}
+
+fn bundle_jaccard(a: &HashSet<usize>, b: &HashSet<usize>) -> f64 {
+    if a.is_empty() && b.is_empty() {
+        return 1.0;
+    }
+    let intersection = if a.len() <= b.len() {
+        a.intersection(b).count()
+    } else {
+        b.intersection(a).count()
+    };
+    let union = a.len() + b.len() - intersection;
+    if union == 0 {
+        0.0
+    } else {
+        intersection as f64 / union as f64
+    }
+}
+
+/// BundleAnalyzer's deterministic control flow and manifest records.
+///
+/// The Python adapter supplies already-resolved pad footprint rings, safety
+/// tags, and skeleton midpoint coordinates. Rust computes the v6 type
+/// signature, edge covers, strict `jac > threshold` graph, diff-pair
+/// handling, connected components, and stable IDs. Group traversal is
+/// explicitly first-seen by net index; no hash-map iteration contributes to
+/// output ordering.
+#[allow(clippy::too_many_arguments)]
+pub fn analyze_bundle_manifest(
+    net_names: &[String],
+    safety_categories: &[Option<String>],
+    diff_pairs: &[(String, String, String)],
+    footprint_rings: &[Vec<(f64, f64)>],
+    edge_ids: &[String],
+    mids_x: &[f64],
+    mids_y: &[f64],
+    jaccard_threshold: f64,
+    single_layer_mode: bool,
+) -> Result<BundleManifestRecords, &'static str> {
+    let n = net_names.len();
+    if safety_categories.len() != n || footprint_rings.len() != n {
+        return Err("net metadata and footprint arrays must have equal length");
+    }
+    if edge_ids.len() != mids_x.len() || edge_ids.len() != mids_y.len() {
+        return Err("edge ids and midpoint arrays must have equal length");
+    }
+    if n == 0 {
+        return Ok(BundleManifestRecords {
+            bundles: Vec::new(),
+            bundle_id_for_net: Vec::new(),
+            unbundled_net_indices: Vec::new(),
+        });
+    }
+
+    let diff_pair_names: HashSet<&str> = diff_pairs
+        .iter()
+        .flat_map(|(p, q, _)| [p.as_str(), q.as_str()])
+        .collect();
+    let signatures: Vec<BundleSignature> = net_names
+        .iter()
+        .enumerate()
+        .map(|(i, name)| BundleSignature {
+            safety_category: safety_categories[i].clone(),
+            net_class: if single_layer_mode {
+                "signal".to_string()
+            } else {
+                temper_io_types::placer_core::netclass::classify_net_type_v6(name).to_string()
+            },
+            has_diff_pair: diff_pair_names.contains(name.as_str()),
+        })
+        .collect();
+    // Canonicalize IDs once.  This both preserves Python's frozenset(edge
+    // ID) semantics when IDs are duplicated and avoids cloning a potentially
+    // large edge-ID string for every net's cover.
+    let mut edge_id_index: HashMap<&str, usize> = HashMap::new();
+    let edge_id_keys: Vec<usize> = edge_ids
+        .iter()
+        .map(|edge_id| {
+            let next = edge_id_index.len();
+            *edge_id_index.entry(edge_id.as_str()).or_insert(next)
+        })
+        .collect();
+    let edge_covers: Vec<HashSet<usize>> = footprint_rings
+        .iter()
+        .map(|ring| {
+            covered_edge_indices(ring, mids_x, mids_y)
+                .into_iter()
+                .filter_map(|index| edge_id_keys.get(index).copied())
+                .collect()
+        })
+        .collect();
+
+    // The map indexes groups, but groups are consumed in first-seen order,
+    // matching insertion-ordered Python dict semantics.
+    let mut group_index: HashMap<BundleSignature, usize> = HashMap::new();
+    let mut groups: Vec<(BundleSignature, Vec<usize>)> = Vec::new();
+    for (i, signature) in signatures.iter().cloned().enumerate() {
+        if let Some(&group) = group_index.get(&signature) {
+            groups[group].1.push(i);
+        } else {
+            group_index.insert(signature.clone(), groups.len());
+            groups.push((signature, vec![i]));
+        }
+    }
+
+    // Python's name-to-index lookup also selects the last duplicate name.
+    let net_to_idx: HashMap<&str, usize> = net_names
+        .iter()
+        .enumerate()
+        .map(|(i, name)| (name.as_str(), i))
+        .collect();
+    let mut bundles = Vec::new();
+    let mut bundle_id_for_net = Vec::new();
+    let mut unbundled_net_indices = Vec::new();
+
+    for (signature, net_indices) in groups {
+        if net_indices.len() == 1 {
+            unbundled_net_indices.push(net_indices[0]);
+            continue;
+        }
+        let mut remaining_diff: HashSet<usize> = net_indices
+            .iter()
+            .copied()
+            .filter(|&i| signatures[i].has_diff_pair)
+            .collect();
+        let mut remaining_non_diff: Vec<usize> = net_indices
+            .iter()
+            .copied()
+            .filter(|&i| !signatures[i].has_diff_pair)
+            .collect();
+
+        // Match pairs in caller order, preserving base-name de-duplication.
+        let mut matched_bases: HashSet<&str> = HashSet::new();
+        for (p_name, n_name, base_name) in diff_pairs {
+            if matched_bases.contains(base_name.as_str()) {
+                continue;
+            }
+            let Some(&p_idx) = net_to_idx.get(p_name.as_str()) else { continue };
+            let Some(&n_idx) = net_to_idx.get(n_name.as_str()) else { continue };
+            if remaining_diff.contains(&p_idx) && remaining_diff.contains(&n_idx) {
+                let mut pair = vec![p_idx, n_idx];
+                pair.sort_unstable();
+                let id = bundles.len();
+                bundles.push(BundleRecord {
+                    bundle_id: id,
+                    net_indices: pair.clone(),
+                    safety_category: signature.safety_category.clone(),
+                    net_class: signature.net_class.clone(),
+                    signature_has_diff_pair: true,
+                    is_diff_pair: true,
+                    constraint_types: vec!["safety".to_string(), "performance".to_string()],
+                });
+                bundle_id_for_net.extend(pair.into_iter().map(|i| (i, id)));
+                remaining_diff.remove(&p_idx);
+                remaining_diff.remove(&n_idx);
+                matched_bases.insert(base_name.as_str());
+            }
+        }
+
+        remaining_non_diff.extend(remaining_diff);
+        remaining_non_diff.sort_unstable();
+        if remaining_non_diff.is_empty() {
+            continue;
+        }
+        let mut adjacency: HashMap<usize, Vec<usize>> = remaining_non_diff
+            .iter()
+            .copied()
+            .map(|i| (i, Vec::new()))
+            .collect();
+        for left in 0..remaining_non_diff.len() {
+            for right in (left + 1)..remaining_non_diff.len() {
+                let a = remaining_non_diff[left];
+                let b = remaining_non_diff[right];
+                if bundle_jaccard(&edge_covers[a], &edge_covers[b]) > jaccard_threshold {
+                    let Some(neighbors) = adjacency.get_mut(&a) else {
+                        return Err("bundle adjacency is missing a known net");
+                    };
+                    neighbors.push(b);
+                    let Some(neighbors) = adjacency.get_mut(&b) else {
+                        return Err("bundle adjacency is missing a known net");
+                    };
+                    neighbors.push(a);
+                }
+            }
+        }
+        let mut visited = HashSet::new();
+        for start in remaining_non_diff {
+            if visited.contains(&start) {
+                continue;
+            }
+            let mut component = Vec::new();
+            let mut stack = vec![start];
+            while let Some(node) = stack.pop() {
+                if !visited.insert(node) {
+                    continue;
+                }
+                component.push(node);
+                if let Some(neighbors) = adjacency.get(&node) {
+                    stack.extend(neighbors.iter().rev().copied());
+                }
+            }
+            component.sort_unstable();
+            if component.len() == 1 {
+                unbundled_net_indices.push(component[0]);
+                continue;
+            }
+            let id = bundles.len();
+            bundles.push(BundleRecord {
+                bundle_id: id,
+                net_indices: component.clone(),
+                safety_category: signature.safety_category.clone(),
+                net_class: signature.net_class.clone(),
+                signature_has_diff_pair: signature.has_diff_pair,
+                is_diff_pair: false,
+                constraint_types: Vec::new(),
+            });
+            bundle_id_for_net.extend(component.into_iter().map(|i| (i, id)));
+        }
+    }
+
+    unbundled_net_indices.sort_unstable();
+    bundle_id_for_net.sort_unstable_by_key(|(net, _)| *net);
+    Ok(BundleManifestRecords {
+        bundles,
+        bundle_id_for_net,
+        unbundled_net_indices,
+    })
+}
+
+// ---------------------------------------------------------------------------
 // pyo3 surface
 // ---------------------------------------------------------------------------
 
@@ -700,11 +963,98 @@ pub fn covered_edge_indices_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+/// Rust-owned BundleAnalyzer orchestration.  The tuple records are
+/// intentionally plain Python values so the placer shim can preserve its
+/// existing dataclass API without reimplementing any decisions.
+#[cfg(feature = "python")]
+type BundleManifestPyResult = (
+    Vec<(usize, Vec<usize>, Option<String>, String, bool, bool, Vec<String>)>,
+    Vec<(usize, usize)>,
+    Vec<usize>,
+);
+
+/// Rust-owned BundleAnalyzer orchestration.  The tuple records are
+/// intentionally plain Python values so the placer shim can preserve its
+/// existing dataclass API without reimplementing any decisions.
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (net_names, safety_categories, diff_pairs, footprint_rings, edge_ids, mids_x, mids_y, jaccard_threshold=0.5, single_layer_mode=false))]
+#[allow(clippy::too_many_arguments)]
+pub fn analyze_bundle_manifest_py(
+    net_names: Vec<String>,
+    safety_categories: Vec<Option<String>>,
+    diff_pairs: Vec<(String, String, String)>,
+    footprint_rings: Vec<Vec<(f64, f64)>>,
+    edge_ids: Vec<String>,
+    mids_x: Vec<f64>,
+    mids_y: Vec<f64>,
+    jaccard_threshold: f64,
+    single_layer_mode: bool,
+) -> PyResult<BundleManifestPyResult> {
+    temper_py_bridge::catch_unwind(move || {
+        let result = analyze_bundle_manifest(
+            &net_names,
+            &safety_categories,
+            &diff_pairs,
+            &footprint_rings,
+            &edge_ids,
+            &mids_x,
+            &mids_y,
+            jaccard_threshold,
+            single_layer_mode,
+        )
+        .map_err(pyo3::exceptions::PyValueError::new_err)?;
+        let bundles = result
+            .bundles
+            .into_iter()
+            .map(|bundle| {
+                (
+                    bundle.bundle_id,
+                    bundle.net_indices,
+                    bundle.safety_category,
+                    bundle.net_class,
+                    bundle.signature_has_diff_pair,
+                    bundle.is_diff_pair,
+                    bundle.constraint_types,
+                )
+            })
+            .collect();
+        Ok((bundles, result.bundle_id_for_net, result.unbundled_net_indices))
+    })
+    .map_err(temper_py_bridge::panic_to_err)?
+}
+
+/// Compatibility seam for callers that inspect one TypeSignature directly.
+/// Production analysis uses the batched path above.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn bundle_type_signature_py(
+    net_name: String,
+    safety_category: Option<String>,
+    has_diff_pair: bool,
+    single_layer_mode: bool,
+) -> PyResult<(Option<String>, String, bool)> {
+    temper_py_bridge::catch_unwind(move || {
+        (
+            safety_category,
+            if single_layer_mode {
+                "signal".to_string()
+            } else {
+                temper_io_types::placer_core::netclass::classify_net_type_v6(&net_name).to_string()
+            },
+            has_diff_pair,
+        )
+    })
+    .map_err(temper_py_bridge::panic_to_err)
+}
+
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(convex_hull_ring_py, m)?)?;
     m.add_function(wrap_pyfunction!(hull_buffer_ring_py, m)?)?;
     m.add_function(wrap_pyfunction!(covered_edge_indices_py, m)?)?;
+    m.add_function(wrap_pyfunction!(analyze_bundle_manifest_py, m)?)?;
+    m.add_function(wrap_pyfunction!(bundle_type_signature_py, m)?)?;
     Ok(())
 }
 
@@ -851,6 +1201,142 @@ pub(crate) mod tests {
         assert_eq!(covered_edge_indices(&ccw, &xs, &ys), vec![0]);
     }
 
+    fn rect(min_x: f64, max_x: f64) -> Vec<(f64, f64)> {
+        vec![
+            (min_x, -1.0),
+            (max_x, -1.0),
+            (max_x, 1.0),
+            (min_x, 1.0),
+            (min_x, -1.0),
+        ]
+    }
+
+    fn analyze_fixture(
+        names: &[&str],
+        rings: Vec<Vec<(f64, f64)>>,
+        threshold: f64,
+    ) -> BundleManifestRecords {
+        let names = names.iter().map(|s| (*s).to_string()).collect::<Vec<_>>();
+        let safety = vec![None; names.len()];
+        let xs = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
+        let ys = vec![0.0; xs.len()];
+        let ids = (0..xs.len()).map(|i| format!("E{i}")).collect::<Vec<_>>();
+        analyze_bundle_manifest(
+            &names,
+            &safety,
+            &[],
+            &rings,
+            &ids,
+            &xs,
+            &ys,
+            threshold,
+            false,
+        )
+        .unwrap()
+    }
+
+    #[cfg_attr(test, test)]
+    fn analyze_empty_and_singleton_are_unbundled() {
+        let empty = analyze_fixture(&[], Vec::new(), 0.5);
+        assert!(empty.bundles.is_empty());
+        assert!(empty.unbundled_net_indices.is_empty());
+        let one = analyze_fixture(&["SIG"], vec![rect(-1.0, 1.0)], 0.5);
+        assert!(one.bundles.is_empty());
+        assert_eq!(one.unbundled_net_indices, vec![0]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn analyze_threshold_is_strict() {
+        let rings = vec![rect(-1.0, 1.1), rect(0.9, 1.1)];
+        let at_boundary = analyze_fixture(&["SIG_A", "SIG_B"], rings.clone(), 0.5);
+        assert!(at_boundary.bundles.is_empty());
+        assert_eq!(at_boundary.unbundled_net_indices, vec![0, 1]);
+        let above_boundary = analyze_fixture(&["SIG_A", "SIG_B"], rings, 0.499);
+        assert_eq!(above_boundary.bundles[0].net_indices, vec![0, 1]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn analyze_uses_edge_id_set_semantics_for_duplicate_ids() {
+        let names = vec!["SIG_A".to_string(), "SIG_B".to_string()];
+        let rings = vec![rect(-1.0, 2.1), rect(0.9, 3.1)];
+        // Index sets overlap 2/4, but duplicate E1 means ID sets overlap
+        // only 1/3.  The former would bundle at .4; the latter correctly
+        // preserves Python's frozenset(edge_id) semantics and does not.
+        let result = analyze_bundle_manifest(
+            &names,
+            &[None, None],
+            &[],
+            &rings,
+            &[
+                "E0".to_string(),
+                "E1".to_string(),
+                "E1".to_string(),
+                "E2".to_string(),
+            ],
+            &[0.0, 1.0, 2.0, 3.0],
+            &[0.0, 0.0, 0.0, 0.0],
+            0.4,
+            false,
+        )
+        .unwrap();
+        assert!(result.bundles.is_empty());
+        assert_eq!(result.unbundled_net_indices, vec![0, 1]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn analyze_incompatible_signatures_do_not_bundle() {
+        let names = vec!["AC_L".to_string(), "SIG_A".to_string()];
+        let rings = vec![rect(-1.0, 2.1), rect(-1.0, 2.1)];
+        let result = analyze_bundle_manifest(
+            &names,
+            &[None, None],
+            &[],
+            &rings,
+            &["E0".to_string()],
+            &[0.0],
+            &[0.0],
+            0.5,
+            false,
+        )
+        .unwrap();
+        assert!(result.bundles.is_empty());
+        assert_eq!(result.unbundled_net_indices, vec![0, 1]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn analyze_unmatched_diff_nets_keep_signature_bit_without_pair_flag() {
+        let names = vec!["USB_DP".to_string(), "USB_DN".to_string()];
+        let rings = vec![rect(-1.0, 2.1), rect(-1.0, 2.1)];
+        let result = analyze_bundle_manifest(
+            &names,
+            &[None, None],
+            &[
+                ("USB_DP".to_string(), "MISSING_P".to_string(), "DP".to_string()),
+                ("USB_DN".to_string(), "MISSING_N".to_string(), "DN".to_string()),
+            ],
+            &rings,
+            &["E0".to_string()],
+            &[0.0],
+            &[0.0],
+            0.5,
+            false,
+        )
+        .unwrap();
+        assert_eq!(result.bundles.len(), 1);
+        assert!(result.bundles[0].signature_has_diff_pair);
+        assert!(!result.bundles[0].is_diff_pair);
+    }
+
+    #[cfg_attr(test, test)]
+    fn analyze_transitive_grouping_and_order_are_stable() {
+        let rings = vec![rect(-1.0, 3.1), rect(0.9, 4.1), rect(1.9, 5.1)];
+        let result = analyze_fixture(&["SIG_A", "SIG_B", "SIG_C"], rings, 0.5);
+        assert_eq!(result.bundles.len(), 1);
+        assert_eq!(result.bundles[0].bundle_id, 0);
+        assert_eq!(result.bundles[0].net_indices, vec![0, 1, 2]);
+        assert_eq!(result.bundle_id_for_net, vec![(0, 0), (1, 0), (2, 0)]);
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -867,6 +1353,12 @@ pub(crate) mod tests {
         ("bundle_analyzer::tests::buffer_zero_distance_returns_input_ring", buffer_zero_distance_returns_input_ring),
         ("bundle_analyzer::tests::covered_edge_indices_basic_and_boundary", covered_edge_indices_basic_and_boundary),
         ("bundle_analyzer::tests::covered_edge_indices_handles_cw_and_ccw", covered_edge_indices_handles_cw_and_ccw),
+        ("bundle_analyzer::tests::analyze_empty_and_singleton_are_unbundled", analyze_empty_and_singleton_are_unbundled),
+        ("bundle_analyzer::tests::analyze_threshold_is_strict", analyze_threshold_is_strict),
+        ("bundle_analyzer::tests::analyze_uses_edge_id_set_semantics_for_duplicate_ids", analyze_uses_edge_id_set_semantics_for_duplicate_ids),
+        ("bundle_analyzer::tests::analyze_incompatible_signatures_do_not_bundle", analyze_incompatible_signatures_do_not_bundle),
+        ("bundle_analyzer::tests::analyze_unmatched_diff_nets_keep_signature_bit_without_pair_flag", analyze_unmatched_diff_nets_keep_signature_bit_without_pair_flag),
+        ("bundle_analyzer::tests::analyze_transitive_grouping_and_order_are_stable", analyze_transitive_grouping_and_order_are_stable),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

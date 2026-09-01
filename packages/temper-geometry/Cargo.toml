@@ -10,6 +10,10 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 temper-py-bridge = { path = "../temper-py-bridge", optional = true }
+# BundleAnalyzer uses the canonical router-v6 net classification kernel.
+# Keep this dependency pure-Rust so the deterministic core remains available
+# to the wasm/unit-test tiers.
+temper-io-types = { path = "../temper-io-types", default-features = false }
 rand = "0.8"
 # `extension-module` is deliberately NOT a Cargo feature here -- it is
 # supplied by the maturin build alone (`[tool.maturin] features = ["python",
@@ -29,6 +33,7 @@ rand = "0.8"
 # Python extension build at all -- verified via `uv run maturin develop`
 # after this change.
 pyo3 = { version = "0.29", optional = true }
+numpy = { version = "0.29", optional = true }
 # layer_identity.rs: parses the board's own `(layers ...)` / `(setup
 # (stackup ...))` S-expression blocks directly (same narrow, dependency-
 # light approach `board_layer_roles.py` and
@@ -91,7 +96,7 @@ kodama = "0.3"
 # `[tool.maturin] features` in pyproject.toml -- default features are not
 # the mechanism that build relies on.
 default = []
-python = ["dep:pyo3", "dep:temper-py-bridge"]
+python = ["dep:pyo3", "dep:temper-py-bridge", "dep:numpy"]
 # Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
 # call each test function by index -- `cargo test`'s libtest harness cannot

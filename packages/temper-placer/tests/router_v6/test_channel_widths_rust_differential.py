@@ -13,16 +13,23 @@ rebuild.
 from __future__ import annotations
 
 import random
+from pathlib import Path
 
 import numpy as np
-from shapely.geometry import MultiPolygon, box
+from shapely.geometry import MultiPolygon, Polygon, box
 
 from temper_placer.router_v6.channel_skeleton import extract_channel_skeleton
 from temper_placer.router_v6.channel_widths import (
+    _build_edt,
     _edt_width_lookup_batch,
     compute_channel_widths,
 )
 from temper_placer.router_v6.routing_space import RoutingSpace
+from tests.router_v6 import _channel_ops_py_oracle as _oracle
+
+_GEOMETRY_CHANNEL_WIDTHS_RS = (
+    Path(__file__).resolve().parents[3] / "temper-geometry" / "src" / "channel_widths.rs"
+)
 
 # ---------------------------------------------------------------------------
 # Oracle: the pre-migration per-point EDT width lookup, pinned verbatim.
@@ -143,6 +150,39 @@ def test_batch_masked_cells_contribute_zero() -> None:
     ys = np.asarray([0.5, 5.5, 2.2])
     batch = _edt_width_lookup_batch(xs, ys, edt, mask, (0.0, 0.0, 10.0, 10.0), 1.0)
     np.testing.assert_array_equal(batch, np.zeros(3))
+
+
+def test_prepare_edt_transfers_owned_ndarray_without_edt_byte_serialization() -> None:
+    """The pyo3 boundary must transfer the Rust EDT Vec directly to NumPy.
+
+    The source assertion is deliberate allocation-shape coverage: an API
+    representation assertion alone could still pass if Rust first built and
+    discarded a second full-grid byte buffer. The focused boundary body must
+    contain the consuming ``into_pyarray`` transfer and no EDT byte buffer or
+    per-value byte serialization.
+    """
+    source = _GEOMETRY_CHANNEL_WIDTHS_RS.read_text()
+    boundary = source.split("pub fn prepare_channel_widths_edt(", 1)[1].split(
+        "/// Pure-Rust owner of channel-width raster preparation.", 1
+    )[0]
+    assert "edt.into_pyarray(py).reshape((height, width))?" in boundary
+    assert "edt_bytes" not in boundary
+    assert "value.to_le_bytes()" not in boundary
+
+
+def test_prepare_edt_returns_c_contiguous_float64_ndarray() -> None:
+    """The direct pyo3 result keeps the public ndarray representation."""
+    import temper_geometry as _tg
+
+    outer = [[0.0, 0.0, 4.0, 0.0, 4.0, 4.0, 0.0, 4.0, 0.0, 0.0]]
+    edt, mask_bytes, height, width = _tg.prepare_channel_widths_edt(
+        outer, [[]], (0.0, 0.0, 4.0, 4.0), 1.0
+    )
+    assert isinstance(edt, np.ndarray)
+    assert edt.shape == (height, width)
+    assert edt.dtype == np.dtype("<f8")
+    assert edt.flags.c_contiguous
+    assert len(mask_bytes) == height * width
 
 
 # ---------------------------------------------------------------------------
@@ -349,20 +389,34 @@ def test_exact_edt_matches_scipy_bit_exact_random() -> None:
 def test_build_edt_end_to_end_matches_scipy_oracle() -> None:
     """`_build_edt` (the real call site, uncached) matches an independent
     scipy rebuild of the same rasterized mask, end to end."""
-    from temper_placer.router_v6.channel_widths import (
-        _build_edt,
-        _rasterize_boundary_mask,
-    )
+    from temper_placer.router_v6.channel_widths import _build_edt
 
     geom = MultiPolygon([box(0, 0, 20, 15), box(30, 5, 45, 25)])
     routing_space = _routing_space(geom)
     edt, mask, bounds = _build_edt(routing_space, 1.0, use_cache=False)
 
-    expected_mask = _rasterize_boundary_mask(routing_space.available_area, bounds, 1.0)
+    expected_mask = _oracle._rasterize_boundary_mask(routing_space.available_area, bounds, 1.0)
     expected_edt = _scipy_edt(expected_mask)
 
     np.testing.assert_array_equal(mask, expected_mask)
     np.testing.assert_array_equal(edt, expected_edt)
+
+
+def test_build_edt_raster_matches_oracle_on_asymmetric_hole_boundaries() -> None:
+    """The migrated mask path keeps strict GEOS boundary semantics.
+
+    This deliberately uses a non-axis-symmetric exterior and a hole whose
+    edges land on grid samples; rectangular production fixtures alone would
+    not exercise the slanted crossing and hole-boundary cases.
+    """
+    geom = Polygon(
+        [(0.0, 0.0), (7.0, 1.0), (5.0, 8.0), (1.0, 6.0)],
+        holes=[[(2.0, 2.0), (4.0, 2.5), (3.5, 4.5), (2.0, 4.0)]],
+    )
+    routing_space = _routing_space(MultiPolygon([geom]))
+    _, got_mask, got_bounds = _build_edt(routing_space, 0.5, use_cache=False)
+    want_mask = _oracle._rasterize_boundary_mask(geom, got_bounds, 0.5)
+    np.testing.assert_array_equal(got_mask, want_mask)
 
 
 def test_rasterize_boundary_mask_always_has_background_cell() -> None:
@@ -384,8 +438,6 @@ def test_rasterize_boundary_mask_always_has_background_cell() -> None:
     bounds, multi-part geometry, geometry touching the bounds on one edge
     only).
     """
-    from temper_placer.router_v6.channel_widths import _rasterize_boundary_mask
-
     geoms = [
         MultiPolygon([box(0, 0, 10, 10)]),  # exactly fills its own bbox
         MultiPolygon([box(0, 0, 10, 10), box(20, 0, 30, 10)]),  # multi-part
@@ -394,9 +446,17 @@ def test_rasterize_boundary_mask_always_has_background_cell() -> None:
     ]
     for geom in geoms:
         bounds = geom.bounds
-        mask = _rasterize_boundary_mask(geom, bounds, 1.0)
-        assert not mask.all(), f"all-foreground mask reachable for geom bounds={bounds}"
-        assert not mask[0, 0], "bounding-box min corner must be background"
+        routing_space = _routing_space(geom)
+        _, production_mask, production_bounds = _build_edt(
+            routing_space, 1.0, use_cache=False
+        )
+        oracle_mask = _oracle._rasterize_boundary_mask(geom, bounds, 1.0)
+        np.testing.assert_array_equal(production_mask, oracle_mask)
+        assert not production_mask.all(), (
+            f"all-foreground mask reachable for geom bounds={bounds}"
+        )
+        assert not production_mask[0, 0], "bounding-box min corner must be background"
+        assert production_bounds == bounds
 
 
 def test_compute_channel_widths_empty_space_still_empty() -> None:
