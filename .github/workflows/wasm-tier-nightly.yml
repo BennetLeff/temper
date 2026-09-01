@@ -664,24 +664,66 @@ jobs:
             import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, tierFlagSuffix }) => {
               for (const t of loadTopology().tiers) {
                 if (t.crate !== process.env.ROTATED_CRATE) continue;
-                console.log([t.crate, tierFlagSuffix(t.crate), t.expected_failures].join("\t"));
+                console.log([
+                  t.crate,
+                  tierFlagSuffix(t.crate),
+                  t.expected_failures,
+                  t.staged_module,
+                  JSON.stringify(t.native_test_args),
+                ].join("\t"));
               }
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/r19_arms.tsv
           test -s /tmp/r19_arms.tsv
           disagreed=""
           ran=0
-          while IFS=$'\t' read -r crate suffix manifest; do
+          while IFS=$'\t' read -r crate suffix manifest staged native_args_json; do
             echo "::group::R19 ${crate}"
+            matrix="/tmp/r19_local_${suffix}_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json"
             if ! python3 tools/wasm/r19_compare.py \
                  --native-file "/tmp/native_${suffix}.txt" \
                  --wasm-json "/tmp/wasm_local_${suffix}.json" \
                  --expected-failures "${manifest}" \
                  --commit "${COMMIT_SHA}" \
                  --board-sha256 "${BOARD_SHA256}" \
-                 --output "/tmp/r19_local_${suffix}_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
+                 --output "${matrix}" \
                  --fail-on-disagree < /dev/null; then
               disagreed="${disagreed} ${crate}"
+            fi
+            # U2's future-compatible producer hook.  The reconciler treats this
+            # artifact as untrusted and derives every ledger field itself.  It
+            # is deliberately local-node and therefore diagnostic-only: U7,
+            # not this hook, supplies immutable Worker identity before a row
+            # can qualify.
+            observed_at="$(jq -r '.timestamp' "${matrix}" | sed 's/+00:00$/Z/')"
+            if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
+              expected_slot="${observed_at%%T*}T04:40:00Z"
+            else
+              expected_slot="${observed_at}"
+            fi
+            if jq -e --arg crate "${crate}" \
+                '(.promotion_candidates // []) | map(if type == "string" then . else .crate end) | index($crate) != null' \
+                tools/wasm/wasm_tier_topology.json >/dev/null; then
+              python3 tools/wasm/r19_agreement_ledger.py candidate-from-r19 \
+                --matrix "${matrix}" \
+                --wasm-json "/tmp/wasm_local_${suffix}.json" \
+                --wasm-file "/tmp/${staged}" \
+                --expected-failures "${manifest}" \
+                --topology tools/wasm/wasm_tier_topology.json \
+                --comparator tools/wasm/r19_compare.py \
+                --candidate "${crate}" \
+                --runtime-arm local-node \
+                --expected-slot "${expected_slot}" \
+                --observed-at "${observed_at}" \
+                --source-commit "${COMMIT_SHA}" \
+                --run-id "${GITHUB_RUN_ID}" \
+                --run-attempt "${GITHUB_RUN_ATTEMPT}" \
+                --event-name "${GITHUB_EVENT_NAME}" \
+                --native-args-json "${native_args_json}" \
+                --abi local-node-r19-v1 \
+                --output "/tmp/r19-ledger-candidate-${suffix}.json"
+            else
+              echo "${crate}: diagnostic comparison is not a promotion candidate; no ledger artifact emitted"
             fi
             ran=$((ran + 1))
             echo "::endgroup::"
@@ -764,6 +806,15 @@ jobs:
             /tmp/r19_arms.tsv
           retention-days: 30
           if-no-files-found: error
+
+      - name: Upload untrusted R19 ledger candidate
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: r19-ledger-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/r19-ledger-candidate-*.json
+          retention-days: 30
+          if-no-files-found: warn
 
   worker-dispatch-r19:
     name: Deployed-Worker sweep vs native (R19, requires Cloudflare secrets)
