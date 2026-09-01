@@ -10,6 +10,8 @@ This module handles all input/output operations:
 The IO layer converts between external formats and internal data structures.
 """
 
+from temper_io_types import is_dsn_normalized, normalize_dsn, strip_control_chars
+
 from temper_placer._constraint_types import (
     ClearanceRule,
     ComponentGroup,
@@ -25,7 +27,6 @@ from temper_placer.io.config_loader import (
 
 # DSN/SES universal seam
 from temper_placer.io.dsn_exporter import DSNExporter
-from temper_io_types import is_dsn_normalized, normalize_dsn, strip_control_chars
 from temper_placer.io.dsn_schema import (
     compute_dsn_schema_hash,
     embed_schema_header,

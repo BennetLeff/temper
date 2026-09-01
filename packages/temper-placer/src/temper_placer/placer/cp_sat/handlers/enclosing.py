@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
-from temper_placer.pcl.constraints import ConstraintType, EnclosingConstraint
+from temper_placer.pcl.constraints import EnclosingConstraint
+from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
 from temper_placer.placer.cp_sat.handlers._protocol import AssumptionLiteral
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
@@ -16,10 +15,6 @@ if TYPE_CHECKING:
         ModelProtocol,
     )
 
-logger = logging.getLogger(__name__)
-
-
-@register_handler(ConstraintType.ENCLOSING)
 def encode_enclosing(
     constraint: EnclosingConstraint,
     components: dict[str, ComponentVarsProtocol],
@@ -30,8 +25,17 @@ def encode_enclosing(
     labels: list[AssumptionLiteral] = []
     zone = ctx.zones.get(constraint.outer)
     if zone is None:
-        logger.warning("Enclosing %s: zone '%s' not found", constraint.id, constraint.outer)
-        return labels
+        raise UnresolvedConstraintRefsError(
+            f"Enclosing constraint {constraint.id!r} references missing zone "
+            f"{constraint.outer!r}"
+        )
+
+    missing = [ref for ref in constraint.inner if ref not in components]
+    if missing:
+        raise UnresolvedConstraintRefsError(
+            f"Enclosing constraint {constraint.id!r} references missing component(s): "
+            + ", ".join(repr(ref) for ref in missing)
+        )
 
     zx_min, zy_min, zx_max, zy_max = zone
     zx_min_u = model.mm_to_units(zx_min)
@@ -41,10 +45,7 @@ def encode_enclosing(
     margin_u = model.mm_to_units(constraint.margin_mm)
 
     for ref in constraint.inner:
-        v = components.get(ref)
-        if v is None:
-            logger.warning("Enclosing %s: comp '%s' not found", constraint.id, ref)
-            continue
+        v = components[ref]
         label = f"enc_{constraint.id}_{ref}"
         assumption = model.new_assumption(label)
 
@@ -64,5 +65,5 @@ def encode_enclosing(
             v.y_end <= zy_max_u - margin_u,
             assumption,
         )
-        labels.append(assumption)
+        labels.append(cast(AssumptionLiteral, assumption))
     return labels

@@ -5,11 +5,13 @@
 // The three D1 stages (`ConfigAttachStage`, `NetOrderingStage`,
 // `DrcOracleSetupStage` + `NetClassSetupStage`) are `Stage<BoardState>`
 // implementors operating on the Rust phased `BoardState`. Their Python
-// shims (`deterministic/stages/{config_attach,net_ordering,setup}.py`) stay
-// thin: `run(state)` crosses the FFI once per stage through a pyfunction,
-// which builds the Rust `BoardState` from the Python dataclass here, runs
-// the stage, and writes only the changed fields back via
-// `dataclasses.replace`.
+// shims were collapsed onto the generic `RustFunctionStage` adapter
+// (shim-debt cleanup 2026-08-20: `deterministic/stages/{net_ordering,
+// setup}.py` deleted; `config_attach.py` kept only as an import-path
+// re-export for the pinned pipeline oracle): `run(state)` crosses the FFI
+// once per stage through a pyfunction, which builds the Rust `BoardState`
+// from the Python dataclass here, runs the stage, and writes only the
+// changed fields back via `dataclasses.replace`.
 //
 // The conversion is a pure Py<PyAny> pass-through (D2: fields are NOT
 // tightened speculatively); the owned fields are `net_order`
@@ -86,18 +88,17 @@ pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult
     bs.component_domain_map = attr_opt(state, "component_domain_map")?;
     bs.routing_corridors = attr_opt(state, "routing_corridors")?;
     bs.domain_regions = attr_opt(state, "domain_regions")?;
-    bs.routes =
-        crate::marshal::to_owned::<Option<HashSet<RouteEntry>>>(&state.getattr("routes")?)?;
-    bs.vias =
-        crate::marshal::to_owned::<Option<HashSet<ViaEntry>>>(&state.getattr("vias")?)?;
+    bs.routes = crate::marshal::to_owned::<Option<HashSet<RouteEntry>>>(&state.getattr("routes")?)?;
+    bs.vias = crate::marshal::to_owned::<Option<HashSet<ViaEntry>>>(&state.getattr("vias")?)?;
     bs.violations = attr_opt(state, "violations")?;
     bs.zones = crate::marshal::to_owned::<Option<ZoneSet>>(&state.getattr("zones")?)?;
     bs.component_zone_map =
         crate::marshal::to_owned::<Option<StrPairSet>>(&state.getattr("component_zone_map")?)?;
     bs.zone_slots =
         crate::marshal::to_owned::<Option<ZoneSlotsSet>>(&state.getattr("zone_slots")?)?;
-    bs.layer_assignments =
-        crate::marshal::to_owned::<Option<LayerAssignmentSet>>(&state.getattr("layer_assignments")?)?;
+    bs.layer_assignments = crate::marshal::to_owned::<Option<LayerAssignmentSet>>(
+        &state.getattr("layer_assignments")?,
+    )?;
     bs.reclaim_by_pin_pair = attr_opt(state, "reclaim_by_pin_pair")?;
     bs.net_order = state.getattr("net_order")?.extract::<Vec<String>>()?;
     Ok(bs)
@@ -127,9 +128,11 @@ pub(crate) fn to_python(
             // owned — the change test marshals the ORIGINAL Python value to
             // the same owned type and compares (the shared generic helper).
             "zones" => owned_opt_changed::<ZoneSet>(orig, "zones", &out.zones)?,
-            "component_zone_map" => {
-                owned_opt_changed::<StrPairSet>(orig, "component_zone_map", &out.component_zone_map)?
-            }
+            "component_zone_map" => owned_opt_changed::<StrPairSet>(
+                orig,
+                "component_zone_map",
+                &out.component_zone_map,
+            )?,
             "zone_slots" => owned_opt_changed::<ZoneSlotsSet>(orig, "zone_slots", &out.zone_slots)?,
             "placements" => owned_opt_changed::<PlacementSet>(orig, "placements", &out.placements)?,
             // U1 (O-C3): the first typed candidate — the change test
@@ -147,7 +150,9 @@ pub(crate) fn to_python(
             // U6 (O-C3): the violation lists are owned — the change test
             // marshals the ORIGINAL Python value to the same owned type and
             // compares (the U1 pattern, via the shared generic helper).
-            "drc_violations" => owned_opt_changed::<ViolationList>(orig, "drc_violations", &out.drc_violations)?,
+            "drc_violations" => {
+                owned_opt_changed::<ViolationList>(orig, "drc_violations", &out.drc_violations)?
+            }
             "placement_violations" => owned_opt_changed::<PlacementViolationList>(
                 orig,
                 "placement_violations",
@@ -160,9 +165,11 @@ pub(crate) fn to_python(
             )?,
             // D7 (routing-adjacent stages): the domain/assignment/netlist
             // fields the D7 stages write back.
-            "layer_assignments" => {
-                owned_opt_changed::<LayerAssignmentSet>(orig, "layer_assignments", &out.layer_assignments)?
-            }
+            "layer_assignments" => owned_opt_changed::<LayerAssignmentSet>(
+                orig,
+                "layer_assignments",
+                &out.layer_assignments,
+            )?,
             "netlist" => py_opt_changed(orig, out, "netlist")?,
             "component_domain_map" => py_opt_changed(orig, out, "component_domain_map")?,
             "routing_corridors" => py_opt_changed(orig, out, "routing_corridors")?,
@@ -175,7 +182,7 @@ pub(crate) fn to_python(
             other => {
                 return Err(PyValueError::new_err(format!(
                     "d1 write-back does not know field {other:?}"
-                )))
+                )));
             }
         };
         if !changed {
@@ -191,7 +198,9 @@ pub(crate) fn to_python(
             }
             "zone_slots" => crate::marshal::to_python::<Option<ZoneSlotsSet>>(py, &out.zone_slots)?,
             "placements" => crate::marshal::to_python::<Option<PlacementSet>>(py, &out.placements)?,
-            "used_slots" => crate::marshal::to_python::<Option<HashSet<SlotId>>>(py, &out.used_slots)?,
+            "used_slots" => {
+                crate::marshal::to_python::<Option<HashSet<SlotId>>>(py, &out.used_slots)?
+            }
             "design_rules" => opt_value(py, &out.design_rules),
             "reclaim_by_pin_pair" => opt_value(py, &out.reclaim_by_pin_pair),
             "routes" => crate::marshal::to_python::<Option<HashSet<RouteEntry>>>(py, &out.routes)?,
@@ -199,18 +208,13 @@ pub(crate) fn to_python(
             "drc_violations" => {
                 crate::marshal::to_python::<Option<ViolationList>>(py, &out.drc_violations)?
             }
-            "placement_violations" => {
-                crate::marshal::to_python::<Option<PlacementViolationList>>(
-                    py,
-                    &out.placement_violations,
-                )?
-            }
-            "connectivity_violations" => {
-                crate::marshal::to_python::<Option<ConnectivityViolationList>>(
-                    py,
-                    &out.connectivity_violations,
-                )?
-            }
+            "placement_violations" => crate::marshal::to_python::<Option<PlacementViolationList>>(
+                py,
+                &out.placement_violations,
+            )?,
+            "connectivity_violations" => crate::marshal::to_python::<
+                Option<ConnectivityViolationList>,
+            >(py, &out.connectivity_violations)?,
             "layer_assignments" => {
                 crate::marshal::to_python::<Option<LayerAssignmentSet>>(py, &out.layer_assignments)?
             }
@@ -224,7 +228,7 @@ pub(crate) fn to_python(
             other => {
                 return Err(PyValueError::new_err(format!(
                     "d1 write-back does not know field {other:?}"
-                )))
+                )));
             }
         };
         kwargs.set_item(*name, value)?;
@@ -261,11 +265,7 @@ fn opt_value(py: Python<'_>, opt: &Option<Py<PyAny>>) -> Py<PyAny> {
 /// Whether the Rust output value for an `Option<Py>` field differs from the
 /// original Python attribute value. `None` in either position counts as
 /// different (a stage populating a previously-empty field must write it).
-fn py_opt_changed(
-    orig: &Bound<'_, PyAny>,
-    out: &BoardState,
-    name: &str,
-) -> PyResult<bool> {
+fn py_opt_changed(orig: &Bound<'_, PyAny>, out: &BoardState, name: &str) -> PyResult<bool> {
     let orig_val = orig.getattr(name)?;
     let out_val: Option<&Py<PyAny>> = match name {
         "config" => out.config.as_ref(),
@@ -298,9 +298,8 @@ fn py_opt_changed(
 /// matching the Python stages' `return state` paths) — without ever holding
 /// a `Py<PyAny>` copy of the field.
 fn used_slots_changed(orig: &Bound<'_, PyAny>, out: &BoardState) -> PyResult<bool> {
-    let orig_owned = crate::marshal::to_owned::<Option<HashSet<SlotId>>>(
-        &orig.getattr("used_slots")?,
-    )?;
+    let orig_owned =
+        crate::marshal::to_owned::<Option<HashSet<SlotId>>>(&orig.getattr("used_slots")?)?;
     Ok(orig_owned != out.used_slots)
 }
 

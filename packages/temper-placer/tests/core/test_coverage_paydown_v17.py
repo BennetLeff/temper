@@ -35,10 +35,6 @@ from temper_placer.router_v6.astar_monitor import (
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_geometry import is_hard_blocked
 from temper_placer.router_v6.bundle_analyzer import BundleAnalyzer, BundleManifest
-from temper_placer.router_v6.capacity_check import (
-    build_capacity_demand_report,
-    compute_capacity_demand_ratios,
-)
 from temper_placer.router_v6.channel_mapping import (
     ChannelMapping,
     ChannelPath,
@@ -50,10 +46,6 @@ from temper_placer.router_v6.clearance_check import (
     ClearanceReport,
     ClearanceViolation,
     verify_clearance,
-)
-from temper_placer.router_v6.congestion_analysis import (
-    CongestionSeverity,
-    identify_congested_regions,
 )
 from temper_placer.router_v6.connectivity import (
     CopperPad,
@@ -126,11 +118,6 @@ from temper_placer.router_v6.occupancy_grid import (
     OccupancyGridStage,
     build_occupancy_grid,
     mark_path_blocked_3d,
-)
-from temper_placer.router_v6.path_simplify import (
-    estimate_segment_count,
-    is_collinear,
-    simplify_path,
 )
 from temper_placer.router_v6.resource_bound import (
     demand_budget_summary,
@@ -257,50 +244,6 @@ class TestConstraintsGeometry:
         rect = RotatedRect(Point(0, 0), (2.0, 2.0), 0.0)
         seg = LineSegment(Point(3, -1), Point(3, 1))
         assert segment_to_rotated_rect_distance(seg, rect) == pytest.approx(2.0)
-
-
-# ---------------------------------------------------------------------------
-# grid_converter
-# ---------------------------------------------------------------------------
-
-
-class TestGridConverter:
-    def test_grid_to_world(self):
-        assert _tg.grid_to_world_py(10, 20, 0, 0, 0.5) == (5.25, 10.25)
-
-    def test_extract_vias(self):
-        cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 0, 1), GridCell(2, 0, 1)]
-        assert list(_tg.extract_vias_py([c.layer for c in cells])) == [2]
-
-    def test_compute_path_length(self):
-        cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-        assert _tg.compute_path_length_py([c.x for c in cells], [c.y for c in cells], 0.5) == pytest.approx(1.0)
-
-    def test_count_vias_in_path(self):
-        cells = [GridCell(0, 0, 0), GridCell(1, 0, 1), GridCell(2, 0, 1), GridCell(3, 0, 0)]
-        assert _tg.count_vias_in_path_py([c.layer for c in cells]) == 2
-
-
-# ---------------------------------------------------------------------------
-# path_simplify
-# ---------------------------------------------------------------------------
-
-
-class TestPathSimplify:
-    def test_is_collinear_horizontal(self):
-        assert is_collinear(GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0))
-
-    def test_is_collinear_corner(self):
-        assert not is_collinear(GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 1, 0))
-
-    def test_simplify_path_straight(self):
-        cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-        simplified = simplify_path(cells)
-        assert simplified == [GridCell(0, 0, 0), GridCell(2, 0, 0)]
-
-    def test_estimate_segment_count(self):
-        cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 1, 0)]
-        assert estimate_segment_count(cells) == 2
 
 
 # ---------------------------------------------------------------------------
@@ -794,7 +737,7 @@ class TestManufacturingReport:
 
 
 # ---------------------------------------------------------------------------
-# routing_demand / capacity_check
+# routing_demand
 # ---------------------------------------------------------------------------
 
 
@@ -817,41 +760,6 @@ class TestRoutingDemand:
         demand = estimate_routing_demand(pcb)
         assert demand.total_nets == 1
         assert demand.total_pins == 2
-
-
-class TestCapacityCheck:
-    def _stage2_output(self) -> object:
-        class _Stage2Output:
-            def __init__(self):
-                area = ShapelyPolygon([(0, 0), (20, 0), (20, 20), (0, 20)])
-                self.routing_spaces = {
-                    "F.Cu": RoutingSpace("F.Cu", area, 400.0, 0.0, 400.0)
-                }
-
-        return _Stage2Output()
-
-    def _pcb(self) -> ParsedPCB:
-        comp = _make_component("U1")
-        comp.pins = [Pin("A", "1", (1.0, 1.0), net="N1"), Pin("B", "2", (5.0, 5.0), net="N1")]
-        return ParsedPCB(
-            components=[comp],
-            nets=[Net(name="N1", pins=[("U1", "1"), ("U1", "2")])],
-            zones=[],
-            board=Board(width=100, height=100),
-            design_rules=DesignRules(),
-            stackup=StackupInfo([LayerInfo(0, "F.Cu", "signal", 35)], 1.6, 1),
-            source_path=None,
-        )
-
-    def test_compute_capacity_demand_ratios(self):
-        ratios = compute_capacity_demand_ratios(self._stage2_output(), self._pcb())
-        assert "N1" in ratios
-        assert ratios["N1"] > 0
-
-    def test_build_capacity_demand_report(self):
-        report = build_capacity_demand_report(self._stage2_output(), self._pcb())
-        assert report.ratios["N1"] > 1.0
-        assert "N1" in report.safe_nets
 
 
 # ---------------------------------------------------------------------------
@@ -996,19 +904,6 @@ class TestNetRouteResultPreflightCoverage:
         results = net_route_result_preflight(self._MINIMAL_JOINED)
         assert "N" in results
         assert results["N"].disposition == "connected"
-
-
-# ---------------------------------------------------------------------------
-# congestion_analysis
-# ---------------------------------------------------------------------------
-
-
-class TestCongestionAnalysis:
-    def test_identify_congested_regions_empty(self):
-        result = identify_congested_regions(RoutingResults({}, []), 100, 100)
-        assert result.congested_region_count == 0
-        assert result.critical_region_count == 0
-        assert result.get_regions_by_severity(CongestionSeverity.HIGH) == []
 
 
 # ---------------------------------------------------------------------------

@@ -65,7 +65,6 @@ from .constraints import (
     BaseConstraint,
     BoardSide,
     CompilationContext,
-    CompilationTarget,
     # Enums
     ConstraintTier,
     ConstraintType,
@@ -75,7 +74,6 @@ from .constraints import (
     KeepoutConstraint,
     LoopAreaConstraint,
     OnSideConstraint,
-    SemanticTag,
     SeparatedConstraint,
 )
 from .parser import (
@@ -145,8 +143,6 @@ __all__ = [
     "tag_resolve",
     "tag_components",
     # Enums
-    "CompilationTarget",
-    "SemanticTag",
     "ConstraintTier",
     "ConstraintType",
     "DistanceMetric",

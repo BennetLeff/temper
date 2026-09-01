@@ -1,7 +1,6 @@
 """Coverage paydown tests — Wave 3 easy wins (Batch C).
 
-Covers: layer_assignment simple functions, capacity_check report
-properties, acid_trap_detection properties, routing_results,
+Covers: layer_assignment simple functions, acid_trap_detection properties, routing_results,
 connectivity data structures, manufacturing_report, via_placement.
 """
 
@@ -11,7 +10,6 @@ import pytest
 
 from temper_placer.router_v6.acid_trap_detection import AcidTrapReport
 from temper_placer.router_v6.astar_pathfinding import RoutePath
-from temper_placer.router_v6.capacity_check import CapacityDemandReport
 from temper_placer.router_v6.connectivity import (
     ConnectivityComponent,
     CopperPad,
@@ -69,29 +67,6 @@ def test_get_signal_only_layers():
     from temper_placer.router_v6.layer_assignment import Layer
     assert Layer.L1_TOP in layers
     assert Layer.L4_BOT in layers
-
-
-# ── capacity_check report properties ───────────────────────────────
-
-
-def test_capacity_demand_report_properties():
-    report = CapacityDemandReport(
-        ratios={"N1": 0.5, "N2": 2.0},
-        at_risk_nets=["N1"],
-        safe_nets=["N2"],
-    )
-    assert report.at_risk_count == 1
-    assert report.safe_count == 1
-
-
-def test_capacity_demand_report_empty():
-    report = CapacityDemandReport(
-        ratios={},
-        at_risk_nets=[],
-        safe_nets=[],
-    )
-    assert report.at_risk_count == 0
-    assert report.safe_count == 0
 
 
 # ── acid_trap_detection report properties ──────────────────────────

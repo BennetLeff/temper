@@ -3,8 +3,8 @@
 Wave 4, Phase 4 — the analysis-surface migration (plan
 ``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``
 R1c/R1d).  These properties exercise the migrated ``temper_geometry``
-pyfunctions (``area_sufficiency_compute``, ``top_courtyards``,
-``py_sum``) and the ``temper_placer.analysis._area_sufficiency``
+pyfunctions (``area_sufficiency_compute``, ``top_courtyards``) and the
+``temper_placer.analysis._area_sufficiency``
 delegation shim; bit-identical parity against the pinned pre-migration
 Python is asserted separately by
 ``test_area_sufficiency_rust_differential.py``.
@@ -12,7 +12,7 @@ Python is asserted separately by
 Properties (all non-vacuously guarded):
 
 - P1. Kernel linkage: ``area_sufficiency_compute(...)[0]`` (the total)
-  equals ``py_sum(areas)`` equals CPython's builtin ``sum(areas)``,
+  equals CPython's builtin ``sum(areas)``,
   bit-exact via ``float.hex()`` with the concrete leaf type carried
   (``sum([])`` is ``int 0``, not ``float 0.0``).
 - P2. Usable-area arithmetic: ``usable == (w - 2m) * (h - 2m)`` bit-exact.
@@ -20,8 +20,8 @@ Properties (all non-vacuously guarded):
   message is byte-identical to the oracle's own f-string construction.
 - P4. Empty-input semantics: empty areas give ``int 0`` total and
   ``0.0`` ratio; empty pairs give ``[]`` from ``top_courtyards``.
-- P5. ``py_sum`` special-value parity: NaN / ±inf / -0.0 / subnormals
-  reproduce the builtin bit-exactly.
+- P5. Live aggregate special-value parity: NaN / ±inf / -0.0 / subnormals
+  reproduce the builtin sum bit-exactly.
 - P6. ``top_courtyards`` order/slice contract: non-increasing areas,
   stable ties, and Python ``list[:n]`` slice semantics for positive,
   oversized, zero and negative ``n``.
@@ -29,13 +29,13 @@ Properties (all non-vacuously guarded):
 Metamorphic relations:
 
 - MR1. Power-of-two scaling: multiplying every area by ``2**k`` scales
-  the sum by ``2**k`` bit-exactly (IEEE-exact).
+  the live aggregate by ``2**k`` bit-exactly (IEEE-exact).
 - MR2. Margin monotonicity: ``usable(m1) > usable(m2)`` iff ``m1 < m2``,
   and the raw ratio is monotone non-increasing in the margin.
 - MR3. Top-N prefix: for ``0 <= n1 <= n2``, ``top(pairs, n1)`` is a
   prefix of ``top(pairs, n2)``.
 - MR4. Zero-padding: appending ``+0.0`` entries to a list of non-zero
-  finite areas leaves ``py_sum`` bit-identical (bounded: a running sum
+  finite areas leaves the live aggregate bit-identical (bounded: a running sum
   of non-zero finite operands never lands on ``-0.0``).
 """
 
@@ -65,6 +65,11 @@ _AREA_LISTS = st.lists(_FINITE, min_size=0, max_size=40)
 _SPECIAL_LISTS = st.lists(_SPECIAL, min_size=0, max_size=40)
 
 
+def _aggregate_total(areas):
+    """Exercise the private compensated kernel through its live API."""
+    return _tg.area_sufficiency_compute(100.0, 100.0, 5.0, areas)[0]
+
+
 def _key(v):
     if isinstance(v, int):
         return ("int", v)
@@ -90,7 +95,7 @@ def _expected_message(w, h, m):
 def test_p1_kernel_linkage(w, h, areas):
     m = min(w, h) / 4.0
     total, _usable, _ratio, _w, _h, n = _tg.area_sufficiency_compute(w, h, m, areas)
-    assert _key(total) == _key(_tg.py_sum(areas)) == _key(sum(areas))
+    assert _key(total) == _key(sum(areas))
     assert n == len(areas)
 
 
@@ -140,8 +145,8 @@ def test_p4_empty_pairs_top_courtyards_empty():
 
 @given(_SPECIAL_LISTS)
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
-def test_p5_py_sum_special_values(areas):
-    assert _key(_tg.py_sum(areas)) == _key(sum(areas))
+def test_p5_aggregate_special_values(areas):
+    assert _key(_aggregate_total(areas)) == _key(sum(areas))
 
 
 # --- P6: top_courtyards contract -------------------------------------------
@@ -190,7 +195,7 @@ def test_mr1_power_of_two_scaling(areas, k):
         return
     factor = 2.0**k
     scaled = [a * factor for a in areas]
-    assert _key(_tg.py_sum(scaled)) == _key(_tg.py_sum(areas) * factor)
+    assert _key(_aggregate_total(scaled)) == _key(_aggregate_total(areas) * factor)
 
 
 # --- MR2: margin monotonicity ----------------------------------------------
@@ -237,4 +242,4 @@ def test_mr3_top_n_prefix(pairs, n1, n2):
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_mr4_appending_zeros_unchanged(areas):
     padded = areas + [0.0, 0.0, 0.0]
-    assert _key(_tg.py_sum(padded)) == _key(_tg.py_sum(areas))
+    assert _key(_aggregate_total(padded)) == _key(_aggregate_total(areas))

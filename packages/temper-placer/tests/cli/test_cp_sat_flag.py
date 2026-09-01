@@ -19,6 +19,13 @@ from click.testing import CliRunner
 from temper_placer.cli import main
 
 
+def assert_unknown_placer_option(output: str) -> None:
+    """Pin the rejection semantics without depending on Click punctuation."""
+    assert "No such option" in output and "--placer" in output, (
+        f"Expected an unknown-option error naming --placer:\n{output}"
+    )
+
+
 class TestCpSatFlag:
     """Unit tests for the --placer CLI flag and CP-SAT options."""
 
@@ -50,11 +57,12 @@ class TestCpSatFlag:
             "unconditional placer; if the option was restored on purpose, "
             "replace this test with a positive existence check."
         )
-        # Scoped to placer *choices*, not any mention of JAX: `--profile-dir`
-        # is still advertised as "Save JAX profiler trace to this directory"
-        # and is accepted-but-never-read in the command body (a dead flag
-        # tracked separately).  Asserting on the whole help text would make
-        # this test fail for that unrelated reason.
+        assert "--profile-dir" not in result.output, (
+            "--profile-dir is retired with the JAX optimizer and must not "
+            "reappear as an inert optimize option."
+        )
+        # Scope this check to placer choices rather than unrelated historical
+        # prose elsewhere in the CLI.
         for choice in ("jax-deprecated", "--placer jax", "[jax|"):
             assert choice not in result.output, (
                 f"A JAX placer choice ({choice!r}) reappeared in "
@@ -74,9 +82,7 @@ class TestCpSatFlag:
             f"Expected a Click usage error (exit 2) for the removed --placer "
             f"option, got exit {result.exit_code}:\n{result.output}"
         )
-        assert "No such option: --placer" in result.output, (
-            f"Expected an unknown-option error naming --placer:\n{result.output}"
-        )
+        assert_unknown_placer_option(result.output)
 
     def test_cp_sat_tuning_flags_not_currently_exposed(self, runner: CliRunner) -> None:
         """--cp-sat-timeout/-workers/-grid-scale do not exist on `optimize`.
@@ -128,9 +134,7 @@ class TestCpSatFlag:
             f"Expected a usage error for the removed --placer option, "
             f"got exit {result.exit_code}:\n{result.output}"
         )
-        assert "No such option: --placer" in result.output, (
-            f"Expected an unknown-option error naming --placer:\n{result.output}"
-        )
+        assert_unknown_placer_option(result.output)
 
     def test_cp_sat_default_placer(self, runner: CliRunner) -> None:
         """Verify CP-SAT runs by default (no --placer flag needed)."""
@@ -164,9 +168,7 @@ class TestCpSatFlag:
             ],
         )
         assert result.exit_code == 2
-        assert "No such option: --placer" in result.output, (
-            f"Expected rejection at the option, not the value:\n{result.output}"
-        )
+        assert_unknown_placer_option(result.output)
 
     # test_cp_sat_timeout_default_value and test_cp_sat_workers_default_value
     # removed 2026-07-18: both asserted default values for flags that no

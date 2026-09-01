@@ -1,4 +1,4 @@
-<!-- provenance: commit=0a3cfcb55 (branch fix/netclass-classifier-and-creepage-gate,
+<!-- provenance: commit=fbc5ce517fec9bbefcbaf632efa6b0ee4062d047 dirty=UNKNOWN -->
 PR #1322, checked out as agent/netclass-class-pairs-derive), worktree
 agent-ad6ce2de93095575d. pcb/temper.kicad_pcb sha256
 6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1 verified

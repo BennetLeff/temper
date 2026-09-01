@@ -1,4 +1,4 @@
-<!-- provenance: branch fix/netclass-current-scoping, worktree
+<!-- provenance: commit=ee427a147e50f8b2724467c9d184ec26ca6c3968 dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-netclass-current-scoping, base origin/main @
 a3e117347. pcb/temper.kicad_pcb is UNCHANGED throughout this task
 (`git status --porcelain pcb/temper.kicad_pcb` empty at every commit) --

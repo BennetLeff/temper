@@ -59,10 +59,7 @@ from temper_placer.core.netlist import Netlist
 from temper_placer.core.pad_identity import net_pin_occurrence_indices, nth_matching_pin
 from temper_placer.core.pin_geometry import pin_world_position_at
 from temper_placer.core.state import PlacementState
-from temper_placer.geometry import (
-    compute_pairwise_distances,
-)
-from temper_placer.geometry.transform import get_rotated_bounds
+from temper_geometry import compute_pairwise_distances, get_rotated_bounds
 
 
 @dataclass

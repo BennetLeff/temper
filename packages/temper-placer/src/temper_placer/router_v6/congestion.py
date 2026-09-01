@@ -67,8 +67,7 @@ pin-position resolution (``pin_world_position_at`` already calls
 bottom-side components). The remaining Python is orchestration -- layer
 promotion, the per-net loop, and dataclass assembly -- exactly the seams the
 established migration pattern keeps on this side of the boundary
-(``congestion_analysis.py`` keeps its duck-typed route extraction,
-``routing_demand.py`` its dict/list marshalling).
+(``routing_demand.py`` keeps its dict/list marshalling).
 """
 
 from dataclasses import dataclass, field

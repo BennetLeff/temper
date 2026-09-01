@@ -242,9 +242,37 @@ def route_once(
     # This is the check that makes net_batching's "N/110 nets fell back"
     # trace line (topology-only) unable to read fully green while nets
     # silently emit no copper: the two are now reported side by side.
+    #
+    # MUST report unconditionally -- either the real audit or an explicit
+    # skip line -- never silence. The old gate here was
+    # `if content and result.topology_solved_nets:`, which reads identically
+    # to "audited, no gaps" whether the audit ran at all. Since the
+    # 2026-08-16 SAT-vacuity fix (docs/evidence/2026-08-16-sat-vacuity-noop-
+    # vs-direct-solver.md), the default, non-batched Stage 3 is a structural
+    # no-op and ALWAYS reports `topology_solved_nets == []`, so that gate
+    # made the audit run zero times on the default recipe -- the same
+    # recipe `make route` (Makefile) and
+    # `.github/workflows/board-regeneration.yml` both use -- with nothing in
+    # the output distinguishing "audited, found nothing wrong" from "never
+    # ran". See docs/evidence/2026-08-18-no-rust-ledger-clearance-floor-and-
+    # topology-copper-audit.md Sec 2.
     copper_audit_report = ""
     unexplained_copper_gap: list[str] = []
-    if content and result.topology_solved_nets:
+    if not content:
+        copper_audit_report = (
+            "[copper-audit] skipped: no routed content was emitted -- "
+            "nothing to cross-check topology against"
+        )
+    elif not result.topology_solved_nets:
+        copper_audit_report = (
+            "[copper-audit] skipped: Stage 3 reported no topology-solved "
+            "nets. This is the default recipe's normal state post-2026-08-16 "
+            "SAT-vacuity fix (the default, non-batched Stage 3 driver is a "
+            "structural no-op and always claims zero topology) -- pass "
+            "--net-batching to exercise Stage 3's topology claim and this "
+            "audit against it."
+        )
+    else:
         from temper_placer.router_v6.topology_copper_audit import audit_topology_vs_copper
 
         net_pins = {n.name: list(n.pins) for n in netlist.nets}
@@ -415,10 +443,18 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
         # by "A* found a grid path". Printed unconditionally when present;
         # None (preflight failed to run) prints nothing rather than a
         # fabricated number.
-        connected = sorted(n for n, v in nrr.items() if v.disposition == "connected")
-        partial = sorted(n for n, v in nrr.items() if v.disposition == "partial")
-        zone_dep = sorted(n for n, v in nrr.items() if v.disposition == "zone_dependent")
-        failed = sorted(n for n, v in nrr.items() if v.disposition == "failed")
+        def disposition(verdict: Any) -> str:
+            # Worker reports cross a JSON boundary and carry a compact
+            # ``{"disposition": ...}`` summary; direct route_once() callers
+            # retain the Rust PyNetRouteResult object.
+            if isinstance(verdict, dict):
+                return verdict["disposition"]
+            return verdict.disposition
+
+        connected = sorted(n for n, v in nrr.items() if disposition(v) == "connected")
+        partial = sorted(n for n, v in nrr.items() if disposition(v) == "partial")
+        zone_dep = sorted(n for n, v in nrr.items() if disposition(v) == "zone_dependent")
+        failed = sorted(n for n, v in nrr.items() if disposition(v) == "failed")
         line += (
             f"\n{label} (verified copper, NetRouteResult): "
             f"{len(connected)} connected, {len(zone_dep)} zone-dependent, "
@@ -430,6 +466,26 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
         if zone_dep:
             line += f"\n  zone-dependent (outline only, no fill): {', '.join(zone_dep)}"
     return line
+
+
+def _prepare_worker_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Make a ``route_once`` report safe to send through JSON.
+
+    ``route_once`` intentionally returns the Rust-verified
+    ``NetRouteResult`` objects to in-process callers.  The ``--runs`` mode
+    launches it in a child process, however, and only needs each verdict's
+    disposition for its report.  Reduce that Rust boundary object here rather
+    than changing the router API or silently dropping the verified summary.
+    """
+    worker_report = dict(report)
+    worker_report.pop("routed_pcb_content", None)
+    net_route_results = worker_report.get("net_route_results")
+    if net_route_results is not None:
+        worker_report["net_route_results"] = {
+            str(net): {"disposition": verdict.disposition}
+            for net, verdict in net_route_results.items()
+        }
+    return worker_report
 
 
 def run_single(
@@ -758,8 +814,9 @@ def main(argv: list[str] | None = None) -> int:
             max_sat_nets=args.max_sat_nets,
             enable_nlayer_astar_spike=args.nlayer_astar_spike,
         )
-        r.pop("routed_pcb_content", None)
-        args._worker_output.write_text(json.dumps(r), encoding="utf-8")
+        args._worker_output.write_text(
+            json.dumps(_prepare_worker_report(r)), encoding="utf-8"
+        )
         return 0
 
     if args.runs is not None:

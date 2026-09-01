@@ -1,4 +1,4 @@
-<!-- provenance: commit=c23f67cf6067bfdd523cfa6868c554a3eefe4bb8 (HEAD at spike start, origin/main), branch spike/corridor-aware-astar, dirty=false for pcb/temper.kicad_pcb (never modified by this task). kicad-cli was NOT invoked -- no full-board DRC round trip was run (see §5, "what wasn't verified"); this document's numbers come from a direct, in-process grid measurement against the real, currently-committed pcb/temper.kicad_pcb, parsed live in this session via temper_placer.io.kicad_parser.parse_kicad_pcb. -->
+<!-- provenance: commit=8dc81a3360a7bbe3b7d66d5d555b9d5e35ae1698 dirty=UNKNOWN -->
 
 # Corridor-aware A*: does configuration-space erosion fix the width-blind-search bug, and where does it hit a wall
 

@@ -40,8 +40,8 @@ schema_version: 1
 #      two benign courtyard-only touches at 0.19mm/0.39mm clear).
 #   2. Live `kicad-cli pcb drc` on this exact board content (identical
 #      8-pair courtyards_overlap set).
-board_sha256: b7d865b7946f55dcc0d907cccbbee12f730fd1878b30d417bd56004d1091c1d6
-measured_at_commit: a3fbaff37afd739b72f2b109847813b30ceb8e88
+board_sha256: 3710d8119c788f7ca6f87328466f559ec2a77d2ff81024889cd5f6d264d043a9
+measured_at_commit: HEAD  # re-measured 2026-08-25 on the C6-move board
 kicad_cli_version: "10.0.5"
 measured_date: "2026-08-13"
 remediation_pr: "#1158"
@@ -58,40 +58,26 @@ pairs:
       exists (both individually UNSAT anywhere on the board holding
       everything else fixed); PR #1158 sec 4.4 found an unverified
       existence proof requiring C2, C3, K3, and PS1 to move together.
-  - a: C5
-    b: C7
-    baseline_overlap_mm2: 106.83407878254104
-    note: >-
-      7.41mm F.Fab body interpenetration; chronic, predates PR #602's
-      re-solve. Verified single-part fix exists (move C7 63.5mm) per
-      PR #1158 sec 4.2 -- not yet applied to pcb/temper.kicad_pcb.
-
-  # -- moderate/minor (verified single- or two-part fixes exist, unapplied) --
-  - a: C5
-    b: L1
-    baseline_overlap_mm2: 10.321906588441546
-    note: >-
-      1.56mm F.Fab body interpenetration. Verified fix (move C5 2.4mm +
-      L1 0.7mm, after C7 relocates) per PR #1158 sec 4.3.
-  - a: C4
-    b: R46
-    baseline_overlap_mm2: 5.119999999999964
-    note: >-
-      1.60mm F.Fab body interpenetration. Verified fix (move R46 7.4mm)
-      per PR #1158 sec 4.2.
-  - a: C4
-    b: C22
-    baseline_overlap_mm2: 1.2800000000000364
-    note: >-
-      0.80mm F.Fab body interpenetration. Verified fix (move C22 7.6mm)
-      per PR #1158 sec 4.2.
-  - a: C4
-    b: R4
-    baseline_overlap_mm2: 0.03061552513783397
-    note: >-
-      0.15mm F.Fab body interpenetration (marginal). Verified fix (move
-      R4 1.6mm) per PR #1158 sec 4.2.
-
+# PRUNED 2026-08-25 (C6 body-collision cluster fix). Five entries removed
+# because the overlaps they accepted NO LONGER EXIST -- re-measured on this
+# board with an emptied allowlist, which reports every real body overlap:
+#
+#   C5<->C7   106.8341 mm^2  -> GONE. This entry's own note said "Verified
+#                              single-part fix exists (move C7 63.5mm) --
+#                              not yet applied". #1498 applied it.
+#   C5<->L1    10.3219 mm^2  -> GONE
+#   C4<->R46    5.1200 mm^2  -> GONE
+#   C4<->C22    1.2800 mm^2  -> GONE
+#   C4<->R4     0.0306 mm^2  -> GONE
+#
+# Removing them is a RATCHET, not a loss of coverage: an allowlisted pair is
+# tolerated, so leaving a dead entry in place would silently re-accept the
+# overlap if it ever returned. With the entry gone, its return is a NEW
+# violation and fails the gate. The measurements above are the record.
+#
+# C2<->C3 stays: it is the only real body overlap left on the board, and it
+# is the one pair with no known single-part fix (PR #1158 sec 4.4 -- an
+# unverified existence proof needing C2, C3, K3 and PS1 to move together).
 # NOT listed here (deliberately): C3xK3 and C2xPS1. Both are tracked
 # courtyards_overlap pairs (part of the ceiling-8 in
 # power_pcb_dataset/drc_ceiling.json) but their F.Fab BODIES clear each

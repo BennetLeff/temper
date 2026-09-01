@@ -16,6 +16,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -29,6 +30,34 @@ class DrcRunnerError(Exception):
     """Error running DRC."""
 
     pass
+
+
+class DrcReportSchemaError(DrcRunnerError):
+    """kicad-cli's DRC JSON carried a top-level key this parser does not
+    know about.
+
+    This exists because of a defect that survived the entire life of the
+    project: :func:`_parse_drc_json` read exactly ONE of kicad-cli's
+    top-level arrays (``violations``) and silently dropped the rest.  The
+    dropped ``unconnected_items`` array holds **339 entries** on the
+    committed board (``pcb/temper.kicad_pcb`` sha256 ``26981fea...``,
+    kicad-cli 10.0.5) -- so every DRC number this project has ever recorded,
+    including every ``power_pcb_dataset/drc_ceiling.json`` ceiling, was
+    blind to connectivity failures on a board whose entire purpose is to be
+    connected.  Nothing failed; the number was simply smaller than the
+    truth, which is indistinguishable from a good result.
+
+    A parser that reads *some* sections and drops the rest cannot be fixed
+    once and stay fixed: the next kicad-cli release adds an array and the
+    silence resumes.  So the key set is an explicit, committed registry
+    (:data:`_VIOLATION_ARRAY_KEYS` / :data:`_METADATA_KEYS`) and an
+    unrecognized key is a hard error rather than a shrug.  If kicad-cli
+    grows a key, classify it deliberately -- violation-shaped arrays go in
+    ``_VIOLATION_ARRAY_KEYS`` so they reach the ratchet, metadata goes in
+    ``_METADATA_KEYS`` -- and record the measured count in the PR.  Do NOT
+    make this pass by adding the key to ``_METADATA_KEYS`` without looking
+    at what is inside it.
+    """
 
 
 class DrcProjectContextError(DrcRunnerError):
@@ -194,12 +223,26 @@ class DrcResult:
         warning_count: Total number of warnings.
         errors: List of DrcError objects.
         warnings: List of DrcWarning objects.
+        ignored_checks: Keys of the DRC checks kicad-cli did NOT run for
+            this report (its top-level ``ignored_checks`` array). An empty
+            category in a report that ignored that category's check is
+            "not measured", NOT "clean" -- carrying this through is what
+            lets a consumer tell the two apart. Measured on this repo's
+            board with kicad-cli 10.0.5: four checks are ignored
+            (``track_not_centered_on_via``, ``tuning_profile_track_geometries``,
+            ``footprint_filters_mismatch``, ``footprint_type_mismatch``).
+        included_severities: The severities kicad-cli was asked to report
+            (its top-level ``included_severities`` array, normally
+            ``["error", "warning"]``). A report that excluded a severity
+            is likewise not an all-clear for it.
     """
 
     error_count: int
     warning_count: int
     errors: list[DrcError] = field(default_factory=list)
     warnings: list[DrcWarning] = field(default_factory=list)
+    ignored_checks: list[str] = field(default_factory=list)
+    included_severities: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -508,18 +551,189 @@ def _extract_net_from_item_description(description: str) -> str | None:
     return _tdrc.drc_extract_net(description)
 
 
+# --- kicad-cli DRC JSON: the complete top-level key registry ---------------
+#
+# Audited 2026-08-19 against a real report from the committed board
+# (pcb/temper.kicad_pcb sha256 26981fea..., kicad-cli 10.0.5,
+# --all-track-errors, single-thread pin, pcb/temper.kicad_dru regenerated,
+# pcb/fp-lib-table present).  kicad-cli emits EXACTLY these ten top-level
+# keys, schema https://schemas.kicad.org/drc.v1.json:
+#
+#   key                    kind    on this board  consumed by this parser
+#   ---------------------  ------  -------------  -----------------------
+#   violations             array   776 entries    yes (always was)
+#   unconnected_items      array   339 entries    yes -- ADDED 2026-08-19
+#   schematic_parity       array   0 entries      yes -- ADDED 2026-08-19
+#   ignored_checks         array   4 entries      yes -- ADDED 2026-08-19
+#                                                 (surfaced on DrcResult)
+#   included_severities    array   2 entries      yes -- ADDED 2026-08-19
+#                                                 (surfaced on DrcResult)
+#   $schema                scalar  -              recognized, not surfaced
+#   coordinate_units       scalar  "mm"           recognized, not surfaced
+#   date                   scalar  -              recognized, not surfaced
+#   kicad_version          scalar  "10.0.5"       recognized, not surfaced
+#   source                 scalar  -              recognized, not surfaced
+#
+# Until 2026-08-19 the parser read `violations` and nothing else, so 339
+# real connectivity errors -- 47% of the board's true error count -- were
+# invisible to every ratchet, every evidence document and every DRC
+# comparison this project has ever produced.  See DrcReportSchemaError.
+#
+# ORDER IS PART OF THE CONTRACT.  `violations` first, then
+# `unconnected_items`, matching the order already used by every OTHER
+# reader of this JSON in the repo (`deterministic/feedback/drc_parser.py`,
+# `placer/cp_sat/gates.py::_map_violation_type` call site, and
+# `temper-drc-rs/src/violation_contracts.rs`'s `DrcReport`, whose docstring
+# pins "the merged `violations` + `unconnected_items` parse in order").
+# `_parse_drc_json` was the one reader that never got the merge.
+#
+# Entries in these arrays are structurally identical -- `{type, severity,
+# description, items:[{description, pos:{x,y}, uuid}]}` -- so they go
+# through the same kernel and land in the same severity buckets.  On this
+# board all 339 `unconnected_items` carry `severity: "error"` and
+# `type: "unconnected_items"`, a type that appears in NO other array, so
+# merging cannot alter any pre-existing category's count.  That is asserted
+# per-category, on real reports, in
+# tests/validation/test_drc_json_top_level_keys.py.
+#
+# `schematic_parity` is empty in every report this repo produces, and NOT
+# because the board is clean: `run_drc` does not pass kicad-cli's
+# `--schematic-parity` flag, so the check never runs and the array is
+# emitted empty regardless.  Reading it is therefore a no-op TODAY and a
+# guard against the day someone adds the flag -- and `DrcResult` carries
+# `ignored_checks` so "not measured" can never again be read as "clean".
+_VIOLATION_ARRAY_KEYS: tuple[str, ...] = (
+    "violations",
+    "unconnected_items",
+    "schematic_parity",
+)
+
+_METADATA_KEYS: frozenset[str] = frozenset(
+    {
+        "$schema",
+        "coordinate_units",
+        "date",
+        "kicad_version",
+        "source",
+        "ignored_checks",
+        "included_severities",
+    }
+)
+
+_KNOWN_TOP_LEVEL_KEYS: frozenset[str] = frozenset(_VIOLATION_ARRAY_KEYS) | _METADATA_KEYS
+
+
+# kicad-cli renders a shorting_items violation's net pair in whichever order
+# the connectivity search reached the two nets, so the SAME short reads as
+# "(nets gnd and rtd_sense_p)" in one run and "(nets rtd_sense_p and gnd)" in
+# the next.  AGENTS.md records this as a trap ("normalize before diffing or
+# you will 'find' changes that are not there"); this is that normalization,
+# committed rather than re-derived per session.
+_NET_PAIR_RE = re.compile(r"\(nets (.+) and (.+)\)\Z")
+
+
+def _normalize_violation_description(description: str) -> str:
+    """Order-normalize the net pair kicad-cli renders in a shorting_items
+    description, so the same physical short compares equal across runs."""
+    match = _NET_PAIR_RE.search(description)
+    if match is None:
+        return description
+    first, second = sorted((match.group(1), match.group(2)))
+    return f"{description[: match.start()]}(nets {first} and {second})"
+
+
+def drc_violation_key(violation: dict) -> tuple:
+    """A stable, uuid-free identity for one raw kicad-cli DRC violation.
+
+    **Use this, never the item ``uuid``, to diff violation SETS between two
+    DRC runs.**  kicad-cli SYNTHESIZES item uuids for objects the board file
+    does not name: ``pcb/temper.kicad_pcb`` carries exactly **10** ``(uuid
+    ...)`` tokens of its own, while a single DRC report references **825**
+    distinct item uuids -- and only **291** of those repeat across three
+    consecutive runs of the byte-identical board.  Keying on uuid therefore
+    manufactures nondeterminism out of a deterministic measurement.
+    Measured on the committed board, three runs intersected:
+
+        key                          stable   unstable
+        ---------------------------  -------  --------
+        violations, by uuid             310      1398
+        violations, by (desc, x, y)     774         4
+        unconnected_items, by uuid       49       870
+        unconnected_items, by (d,x,y)   339         0
+
+    i.e. a board whose per-category counts are identical across all three
+    runs reads as almost entirely unstable under uuid keying, and as
+    essentially fully stable under this key.
+
+    The key is ``(type, normalized description, sorted((item description,
+    x, y), ...))``.  Both normalizations are load-bearing on this board:
+
+    * sorting the items absorbs the run-to-run item order inside a violation;
+    * ``_normalize_violation_description`` sorts the net-name pair in the
+      documented ``shorting_items`` swap ("nets A and B" vs "nets B and A")
+      that AGENTS.md warns will otherwise make you "find" changes that are
+      not there -- 39 of this board's 776 violations carry such a pair, and
+      4 of them actually swap across three runs.
+
+    With both applied, the committed board reads **776/776 violations and
+    339/339 unconnected_items stable across three consecutive runs, zero
+    unstable** -- i.e. fully deterministic.  Without the net-pair
+    normalization it reads 774/4; keyed on uuid it reads 310/1398.  Same
+    board, same three reports.
+    """
+    items = tuple(
+        sorted(
+            (
+                item.get("description", ""),
+                item.get("pos", {}).get("x"),
+                item.get("pos", {}).get("y"),
+            )
+            for item in violation.get("items", [])
+        )
+    )
+    return (
+        violation.get("type", "unknown"),
+        _normalize_violation_description(violation.get("description", "")),
+        items,
+    )
+
+
 def _parse_drc_json(json_path: Path) -> DrcResult:
     """
     Parse kicad-cli DRC JSON output.
+
+    Reads EVERY violation-shaped top-level array kicad-cli emits -- see the
+    key registry above -- not just ``violations``.  Raises
+    :class:`DrcReportSchemaError` on an unrecognized top-level key rather
+    than dropping it silently.
 
     Args:
         json_path: Path to JSON report file.
 
     Returns:
         DrcResult with parsed errors and warnings.
+
+    Raises:
+        DrcReportSchemaError: If the report carries a top-level key that is
+            in neither ``_VIOLATION_ARRAY_KEYS`` nor ``_METADATA_KEYS`` --
+            i.e. a section this parser would otherwise silently drop.
     """
     with open(json_path) as f:
         data = json.load(f)
+
+    unknown = sorted(set(data) - _KNOWN_TOP_LEVEL_KEYS)
+    if unknown:
+        raise DrcReportSchemaError(
+            f"{json_path}: kicad-cli DRC JSON carries top-level key(s) this "
+            f"parser does not recognize: {unknown}. Refusing to parse a "
+            f"report with sections that would be silently dropped -- that is "
+            f"exactly the defect that hid 339 unconnected_items from every "
+            f"DRC ratchet this project has ever recorded. Classify each key "
+            f"deliberately in _drc_api's top-level key registry: "
+            f"violation-shaped arrays belong in _VIOLATION_ARRAY_KEYS so they "
+            f"reach the ratchet, metadata belongs in _METADATA_KEYS. Record "
+            f"the measured count of any new array in the PR."
+        )
 
     # Wave 4 entry-5: the per-violation parsing/aggregation loop (ref/net
     # extraction, component/net dedup, the first-ref-position preference,
@@ -529,7 +743,11 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
     # lengths, exactly as the pre-migration body computed them.
     import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
 
-    error_records, warning_records = _tdrc.drc_parse_violations(data.get("violations", []))
+    raw_violations: list = []
+    for key in _VIOLATION_ARRAY_KEYS:
+        raw_violations.extend(data.get(key, []))
+
+    error_records, warning_records = _tdrc.drc_parse_violations(raw_violations)
 
     errors: list[DrcError] = []
     for r in error_records:
@@ -563,6 +781,14 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
         warning_count=len(warnings),
         errors=errors,
         warnings=warnings,
+        # Metadata arrays: not violations, but not droppable either -- an
+        # ignored check reports an EMPTY category, indistinguishable from a
+        # clean one unless the consumer can see it was never run.
+        ignored_checks=[
+            c.get("key", "") if isinstance(c, dict) else str(c)
+            for c in data.get("ignored_checks", [])
+        ],
+        included_severities=list(data.get("included_severities", [])),
     )
 
 

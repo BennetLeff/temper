@@ -492,16 +492,40 @@ def _find_via_drop_point(
     small local ring search around it.
 
     ``pour_region`` (optional): the union of this run's OWN zone-fill
-    outlines (exterior minus holes). When given, pour-INSIDE points are
-    preferred (pass 1: pad_pos then ring, requiring the via footprint to
-    sit inside the filled region, so the via's barrel actually touches the
-    plane copper after fill -- measured 2026-08-16: vias placed against
-    the ~9.5mm keepout alone land up to 12.6mm from HV copper, i.e.
-    OUTSIDE the creepage-carved fill, and touch no plane at all). If no
-    pour-inside point exists, pass 2 falls back to the keepout-clear-only
-    behaviour (a via outside the pour can still be joined by the F.Cu MST
-    backbone, so connectivity never regresses -- the plane just does not
-    add to it).
+    outlines (exterior minus holes). When given, the via footprint MUST
+    sit inside the filled region (pad_pos then ring), so the via's barrel
+    actually touches the plane copper after fill -- measured 2026-08-16:
+    vias placed against the ~9.5mm keepout alone land up to 12.6mm from
+    HV copper, i.e. OUTSIDE the creepage-carved fill, and touch no plane
+    at all. If no pour-inside point exists, the via is SKIPPED
+    (``(None, False)``), the same fail-closed answer this function
+    already gives when no clear point exists at all.
+
+    FIXED 2026-08-18 (docs/evidence/2026-08-18-via-dangling-111-plane-
+    stitch-fallback.md): this used to fall back to a second,
+    pour-unconstrained search ("pass 2"), justified by the claim that "a
+    via outside the pour can still be joined by the F.Cu MST backbone, so
+    connectivity never regresses -- the plane just does not add to it."
+    That claim is measurably false on this board. A stitching via's ONLY
+    purpose is to join the net's F.Cu copper to its inner plane; outside
+    the pour it reaches no plane copper by construction, and the F.Cu
+    backbone it was assumed to fall back on is not guaranteed to exist --
+    ``mst_edges`` reports dropping 72 backbone edges for the four
+    ``_power_islands`` rails alone on the committed board (48 ``+3V3``,
+    12 ``vcc``, 9 ``+15V``, 3 ``V_BUS_SENSE``), because they crossed the
+    HV keepout and could not be detoured. The result is a hole drilled
+    through the finished board that connects to nothing: of the 28
+    ``via_dangling`` findings that survive ``--refill-zones`` on
+    ``pcb/temper.kicad_pcb``, an independent geometric reconstruction
+    puts 10 in contact with NO copper of their own net on any layer and
+    the other 18 in contact on exactly one. This is the same shape of
+    defect as the ``via_layer_pair`` ``("F.Cu","B.Cu")`` fallback fixed in
+    #1307 (docs/evidence/2026-08-17-via-dangling-25-real-defects.md): a
+    fallback that emits a via it has no geometric basis for, rather than
+    declining to emit one. Dropping these is connectivity-neutral --
+    measured on a scratch copy of the committed board, removing all 28
+    leaves ``unconnected_items`` at 0 and ``track_dangling`` at 0 (no
+    category shift) while clearing 64 DRC violations in total.
 
     Returns ``(point, needs_stub)``: ``needs_stub`` is True when the
     returned point is not *pad_pos* itself, telling the caller to emit a
@@ -546,9 +570,10 @@ def _find_via_drop_point(
         return None, False
 
     if pour_region is not None:
-        found = _search(require_pour=True)
-        if found[0] is not None:
-            return found
+        # Fail closed: no pour-inside point means no via. See the
+        # docstring's 2026-08-18 note -- the removed pass-2 fallback
+        # emitted a via that could not reach the plane it exists to stitch.
+        return _search(require_pour=True)
     return _search(require_pour=False)
 
 

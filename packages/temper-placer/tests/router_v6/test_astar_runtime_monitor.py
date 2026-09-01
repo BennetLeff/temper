@@ -15,7 +15,12 @@ import time
 import numpy as np
 import pytest
 
-from temper_placer.router_v6.astar_core import _astar_search
+# The monitor hook is a per-pop callback inside the *Python* search. That
+# search moved to Rust on 2026-08-18 and the Rust kernel does not call
+# back into Python per expansion (that callback was the cost the port
+# existed to remove), so these tests run against the pinned pre-port
+# oracle -- the only implementation the monitor can still observe.
+from tests.router_v6._astar_core_py_oracle import _astar_search
 from temper_placer.router_v6.astar_monitor import astar_monitor, get_monitor_state
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
@@ -63,7 +68,13 @@ def test_monitor_detects_broken_heuristic():
     are detected and the monitor fails via pytest.fail in CI mode."""
     grid = _make_grid(10, 10)
 
-    import temper_placer.router_v6.astar_core as ac
+    # The search under test moved to the pinned oracle when `_astar_search`
+    # was ported to Rust, and `_heuristic` moved with it -- so the monkeypatch
+    # surface is the oracle module, not `astar_core`. (See
+    # docs/solutions/best-practices/moved-function-relocates-monkeypatch-
+    # surface-2026-07-29.md: patching the module a function USED to live in
+    # silently patches nothing.)
+    from tests.router_v6 import _astar_core_py_oracle as ac
 
     _original_heuristic = ac._heuristic
 

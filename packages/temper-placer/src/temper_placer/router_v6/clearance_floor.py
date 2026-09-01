@@ -36,8 +36,10 @@ edge-to-edge gap two same-width traces actually end up with is
     gap = (ceil((w/2 + c) / cell) + 1) * cell - w
 
 which is a **step function of c**, not ``c`` itself. Measured against the
-real kernel (``tests/router_v6/test_clearance_floor.py`` probes it, it is
-not asserted from this docstring):
+real kernel (there is no ``tests/router_v6/test_clearance_floor.py`` --
+that file has never existed on any branch, ``git log --all --diff-filter=A``
+for it is empty -- these five rows are pinned nowhere else, so treat them
+as illustrative, not asserted):
 
     w=0.25 c=0.15 -> expansion 3 -> pitch 0.40mm -> gap 0.1500  (FAILS 0.2)
     w=0.25 c=0.20 -> expansion 4 -> pitch 0.50mm -> gap 0.2500
@@ -67,6 +69,42 @@ What this module provides
 rasteriser so the emitted geometry clears ``DEFAULT_ROUTING_CLEARANCE_MM``
 with the fewest lattice steps, never below the net class's own declared
 clearance where that is stricter.
+
+Reachability, and why ``rasterised_pitch_mm`` / ``rasterised_gap_mm`` are
+gone (2026-08-19)
+-------------------------------------------------------------------------
+MEASURED (full production route, ``pcb/temper.kicad_pcb``, default
+recipe -- see docs/evidence/2026-08-18-no-rust-ledger-clearance-floor-and-
+topology-copper-audit.md): every function this module defines records
+**zero** calls on that route. The board declares four routable signal
+layers, so ``_pipeline_route.py``'s ``use_nlayer`` gate always takes
+``_astar_nlayer.run_astar_pathfinding_nlayer`` and never
+``_astar_reconstruct.run_astar_pathfinding`` (the legacy 2-layer driver
+that is this module's only caller) -- the production route never reaches
+this module's code at all, only its constant.
+
+That measurement does **not** mean every function here is dead, and
+deleting on that measurement alone would have been wrong: re-checked with
+call-site instrumentation over ``_astar_reconstruct.py``'s own direct unit
+tests (``packages/temper-placer/tests/router_v6/test_all_pad_tree_routing.py``
+and eight sibling files that call ``run_astar_pathfinding`` directly,
+bypassing the nlayer gate), ``blocking_clearance_mm`` /
+``effective_blocking_clearance`` are called 14 times, all from
+``_astar_reconstruct.py``'s tree-route branch (``planned_tree_active``,
+reached via ``enforce_all_pad_tree=True`` with a populated
+``terminal_tree`` -- e.g.
+``test_opt_in_terminal_plan_dispatches_branch_geometry_without_serial_bridge``).
+That call site is unconditional, not gated by ``profile_grids is None`` --
+unlike the two ``_astar_reconstruct`` sites that were deleted alongside
+``rasterised_pitch_mm``/``rasterised_gap_mm`` here, which really were both
+dead (``profile_grids`` is built unconditionally whenever
+``enable_pair_clearance`` -- default ``True`` -- is set, and no caller in
+the repo ever passes ``enable_pair_clearance=False``). So
+``blocking_clearance_mm`` and ``effective_blocking_clearance`` stay: they
+are unreached in production but are live, tested code for the
+all-pad-tree experimental path. ``rasterised_pitch_mm`` and
+``rasterised_gap_mm`` had no callers anywhere -- not this module, not
+``_astar_reconstruct.py``, not any test -- and were deleted.
 """
 
 from __future__ import annotations
@@ -82,39 +120,6 @@ DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 #: ``create_occupancy_grid(cell_size=0.1)``), which is what the production
 #: pipeline builds its layer grids at.
 ROUTING_GRID_CELL_MM = 0.1
-
-
-def rasterised_pitch_mm(
-    trace_width_mm: float,
-    clearance_mm: float,
-    cell_size_mm: float = ROUTING_GRID_CELL_MM,
-) -> float:
-    """Centre-to-centre distance of the first cell the rasteriser leaves
-    free, for a trace blocked at ``(trace_width_mm, clearance_mm)``.
-
-    Mirrors ``temper_geometry::mark_segment_rect``'s
-    ``ceil((w/2 + c) / cell)`` expansion, plus the one cell to the first
-    unblocked centre.
-    """
-    radius = trace_width_mm / 2.0 + clearance_mm
-    expansion = math.ceil(radius / cell_size_mm)
-    return (expansion + 1) * cell_size_mm
-
-
-def rasterised_gap_mm(
-    trace_width_mm: float,
-    clearance_mm: float,
-    cell_size_mm: float = ROUTING_GRID_CELL_MM,
-    other_width_mm: float | None = None,
-) -> float:
-    """Edge-to-edge gap the rasterised reservation actually yields.
-
-    ``other_width_mm`` defaults to ``trace_width_mm`` (two traces of the
-    same class, the case the lattice pitch is set by).
-    """
-    other = trace_width_mm if other_width_mm is None else other_width_mm
-    pitch = rasterised_pitch_mm(trace_width_mm, clearance_mm, cell_size_mm)
-    return pitch - trace_width_mm / 2.0 - other / 2.0
 
 
 def blocking_clearance_mm(
@@ -165,9 +170,19 @@ def effective_blocking_clearance(
 ) -> float:
     """``blocking_clearance_mm`` for a ``NetClassRules``-shaped object.
 
-    Every site that stamps a routed net into the occupancy grid must use
-    this, and every site that *unstamps* one must use it too -- mark and
-    unmark have to agree or ripup leaves a stale footprint behind.
+    As of 2026-08-19 this has one caller: ``_astar_reconstruct.py``'s
+    tree-route branch (``execute_terminal_tree``'s ``clearance=`` kwarg),
+    unreached by the production route (see this module's docstring) but
+    exercised directly by ``test_all_pad_tree_routing.py`` and siblings.
+    The corresponding rip-up unmark call and the plain-path mark call both
+    used to call this too, gated behind a ``profile_grids is None`` branch
+    that was always dead (``profile_grids`` is built unconditionally
+    whenever ``enable_pair_clearance`` -- default ``True`` -- is set, and
+    no caller passes ``False``); those two branches were deleted, and
+    ``ProfileGrids.mark_route``/``unmark_route`` (``profile_grids.py``) --
+    which add the missing neighbour half-width directly rather than
+    inverting this step function -- are what marks/unmarks the plain-path
+    tree-route's own copper in every other case.
     """
     width = float(getattr(net_rule, "trace_width_mm", 0.0) or 0.0)
     declared = float(getattr(net_rule, "clearance_mm", 0.0) or 0.0)

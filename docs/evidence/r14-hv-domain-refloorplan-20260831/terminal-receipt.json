@@ -1,0 +1,57 @@
+{
+  "classification_reason": "The complete declared pre-route family has no survivor, but required live-oracle evidence is unavailable and the baseline DRC contains a capped category. The result therefore narrows the next design step without certifying topology impossibility.",
+  "coverage": {
+    "authorized_expansions": 0,
+    "declared_candidates": 240,
+    "evaluated_candidates": 240,
+    "placement_survivors": 0,
+    "routed_candidates": 0
+  },
+  "declaration_sha256": "a2c60ebf87999ba734dcda411fc5e1e25ef9abcfa93c7736ca21d85cecd8bc90",
+  "expansion_decision": {
+    "authorized": false,
+    "reason": "The shared route-to-SELV pad-copper veto involves already-movable J1 and the declared net-41 chain; the safety veto set also contains multiple distinct relationships. No one canonical fixed object satisfied the expansion contract."
+  },
+  "instrument_state": {
+    "baseline_drc_errors_each": 406,
+    "baseline_drc_runs": 3,
+    "baseline_drc_saturated_category": "silk_overlap=199",
+    "baseline_drc_warnings_each": 402,
+    "extensions": "10/10 fresh immediately before the campaign",
+    "kicad_cli_version": "10.0.5",
+    "live_rotation_oracle": "TOOL ERROR: no interpreter with pcbnew bindings was available",
+    "pinned_rotation_oracle": "PASS: 10 registered sites, 16 probes, pcbnew 10.0.5 corpus"
+  },
+  "measurements": {
+    "k1_j1_gap_mm": {
+      "maximum": 13.77882654659717,
+      "minimum": 13.304745870407777,
+      "passing_candidates": 240,
+      "required_minimum": 13.1
+    },
+    "net41_to_selv_pad_clearance_mm": {
+      "denominator": "LV_CONTROL pad copper intersecting the declared route layers",
+      "maximum": 11.545158055694412,
+      "minimum": 9.55333347008141,
+      "passing_candidates": 0,
+      "required_minimum": 12.6,
+      "shared_closest_pair": "J1.1<->net41.segment[6]"
+    },
+    "rejection_counts": {
+      "affected_safety": 240,
+      "courtyard_overlap": 60,
+      "route_to_selv": 240,
+      "safety_regression": 240
+    }
+  },
+  "pre_route_manifest_sha256": "3f817f26da0f075f9a0354d73e360676f51519ad10806955278ad45ad5c1e8a9",
+  "production_authorities": {
+    "board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "changed": false,
+    "drc_ceiling_sha256": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2",
+    "j1_library_footprint_sha256": "aa0df7dde7a78aa2ea851aa9998f6806b92eb8a117d0dd73f6862ee444c784b8"
+  },
+  "scope": "R14/high-voltage first-family pre-route campaign",
+  "semantic_replay_sha256": "99d444bf75797b4b82e91549e9ae0d0f0d8dddb198fa8c2bfc967b6563665325",
+  "status": "stopped-indeterminate"
+}

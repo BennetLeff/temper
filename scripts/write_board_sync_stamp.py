@@ -71,6 +71,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib.freshness import write_stamp  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
+
+def _netlist_content_normalizer(root: Path):
+    """Build a content normalizer for netlist digesting (#1445 follow-up).
+
+    atopile 0.2.69 embeds the ABSOLUTE build directory in every component's
+    sheetpath (e.g. ``/tmp/opencode/.../elec/src/main.ato:Top::power_in.fuse``),
+    so the raw netlist bytes differ between this checkout and CI's
+    /__w/temper/temper even when the design is identical -- which made the
+    board-sync stamp unreproducible across environments (digest 695d3a98...
+    locally vs 4addacd7... in CI, #1457's version pin notwithstanding).
+    Normalising the repo-root prefix to a canonical form makes the digest
+    portable while preserving every design-meaningful byte.
+    """
+    prefix = str(root.resolve()).encode() + b"/"
+
+    def normalize(path: Path, data: bytes) -> bytes:
+        if path.name.endswith(".net"):
+            data = data.replace(prefix, b"")
+        return data
+
+    return normalize
+
+
 REPO_ROOT = find_repo_root()
 DEFAULT_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 DEFAULT_NETLIST = REPO_ROOT / "elec" / "build" / "default.net"
@@ -138,7 +161,12 @@ def main(argv: list[str] | None = None) -> int:
     # `compute_inputs_digest` supports directly (it only ever reads the
     # listed files' current content; it never reads the `.source-digest`
     # stamp file itself).
-    digest = write_stamp(args.board, [args.board, args.netlist], args.repo_root)
+    digest = write_stamp(
+        args.board,
+        [args.board, args.netlist],
+        args.repo_root,
+        content_normalizer=_netlist_content_normalizer(args.repo_root),
+    )
     print(
         f"[write-board-sync-stamp] {args.board}: reconciled against "
         f"{args.netlist} -- digest {digest[:12]}…"

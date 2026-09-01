@@ -19,6 +19,24 @@ from temper_placer.placer.cp_sat.feedback import (
     UnclassifiedFailure,
 )
 
+
+def test_heuristic_position_is_rust_owned():
+    """The deterministic unrouted-pin position bias lives in orchestration."""
+    import temper_orchestration
+
+    assert temper_orchestration.compute_heuristic_position("Q1", (10.0, 20.0), "GATE") == (
+        10.0,
+        15.0,
+    )
+    assert temper_orchestration.compute_heuristic_position("U_MCU", (10.0, 20.0), "SPI") == (
+        10.0,
+        20.0,
+    )
+    assert temper_orchestration.compute_heuristic_position("J1", (10.0, 20.0), "OTHER") == (
+        10.0,
+        25.0,
+    )
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -152,6 +170,29 @@ def test_congestion_with_bbox_produces_keepout(classifier, basic_placement):
     deltas = [d for d in result.deltas if "General congestion" in d.reason]
     assert len(deltas) >= 1
     assert deltas[0].priority == 20
+
+
+def test_congestion_classifier_path_does_not_call_python_handler(monkeypatch, basic_placement):
+    """The production classifier dispatches congestion directly to Rust.
+
+    Keep the public method as a compatibility adapter, but make a mutated
+    callback unable to alter the normal classifier path.  This is the
+    migration boundary proof that a Python implementation cannot quietly
+    become the computational source of truth again.
+    """
+    def fail_if_called(self, region, placed_refs):  # noqa: ARG001
+        raise AssertionError("production congestion handler must be Rust-owned")
+
+    monkeypatch.setattr(FeedbackClassifier, "_handle_congestion", fail_if_called)
+    rr = MockRoutingResult(
+        completion_rate=0.8,
+        congestion_regions=[
+            MockCongestionRegion(comp_a="Q1", comp_b="Q2", current_distance_mm=3.0)
+        ],
+    )
+    result = FeedbackClassifier().classify(rr, basic_placement)
+    assert len(result.deltas) == 1
+    assert result.deltas[0].constraint.min_distance_mm == 4.5
 
 
 # ---------------------------------------------------------------------------
@@ -336,3 +377,112 @@ def test_deltas_sorted_by_priority(classifier, basic_placement):
     result = classifier.classify(rr, basic_placement, round_number=4)
     priorities = [d.priority for d in result.deltas]
     assert priorities == sorted(priorities), f"Deltas not sorted: {priorities}"
+
+
+# ---------------------------------------------------------------------------
+# Class 2, authoritative net classification
+#
+# ADDED 2026-08-19 (docs/evidence/2026-08-19-is-hv-net-blast-radius.md).
+# `_handle_clearance_violation` used to classify the violating nets by NAME
+# via `core.net_classification.classify_net_type()`, whose HV keyword set
+# ({"AC_L","AC_N","PE","DC_BUS+","DC_BUS-","SW_NODE"}) matches none of the
+# spellings this board actually uses for its DC bus, half-bridge return or
+# resonant tank. The separation it then injected in response to a DRC
+# clearance violation was therefore the unclassified-signal default rather
+# than the net's real net-class figure.
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class MockDrcViolationWithNets(MockDrcViolation):
+    """A DRC clearance violation that carries the two NET names.
+
+    `_handle_clearance_violation` only consults net classification when the
+    violation exposes `net_a`/`net_b`; the base `MockDrcViolation` above
+    (and the one in `test_feedback_rust_differential.py`) does not, which is
+    why that whole branch was untested.
+    """
+
+    net_a: str | None = None
+    net_b: str | None = None
+
+
+def _clearance_distance_for(net_a: str, net_b: str) -> float:
+    """Run one clearance violation between *net_a*/*net_b* through the real
+    classifier with the real Temper design rules, and return the separation
+    it injects."""
+    from temper_placer.core.design_rules import create_temper_design_rules
+
+    classifier = FeedbackClassifier(design_rules=create_temper_design_rules())
+    placement = MockPlacement(
+        positions=np.array([[10.0, 20.0], [30.0, 40.0]]),
+        placed_refs=["U_A", "U_B"],
+    )
+    routing = MockRoutingResult(
+        completion_rate=0.9,
+        drc_violations=[
+            MockDrcViolationWithNets(
+                comp_a="U_A", comp_b="U_B", required_mm=0.1, net_a=net_a, net_b=net_b
+            )
+        ],
+    )
+    result = classifier.classify(routing, placement, round_number=0)
+    deltas = [d for d in result.deltas if "Clearance violation" in d.reason]
+    assert len(deltas) == 1, f"expected exactly one clearance delta, got {deltas}"
+    return deltas[0].constraint.min_distance_mm
+
+
+@pytest.mark.parametrize(
+    ("net", "min_expected_mm", "why"),
+    [
+        ("+170V_BUS", 2.0, "rectified 170V DC bus -- netclass HighVoltage"),
+        ("DC_BUS_RTN", 2.0, "DC bus return -- netclass HighVoltage"),
+        ("hb-gnd", 2.0, "half-bridge low-side return -- netclass HighVoltage"),
+        ("tank-out", 2.0, "resonant tank coil node -- netclass HighVoltage"),
+        ("tank.c_tank1-p2", 2.0, "resonant tank cap<->coil -- netclass HighVoltageTank"),
+        ("ac_l", 6.0, "mains line -- netclass ACMains"),
+        ("ac_n", 6.0, "mains neutral -- netclass ACMains"),
+    ],
+)
+def test_clearance_feedback_uses_authoritative_netclass_for_hv_nets(net, min_expected_mm, why):
+    """A clearance violation naming a mains/HV conductor must be remediated
+    at that conductor's own net-class separation, not at the LV default.
+
+    Pre-fix measurements (same venv, same design rules): ``+170V_BUS``,
+    ``DC_BUS_RTN``, ``tank-out`` and ``tank.c_tank1-p2`` all resolved to the
+    non-existent "Signal" class and injected 0.15mm; ``hb-gnd`` resolved to
+    "GND" and injected 0.3mm; ``ac_l``/``ac_n`` resolved to "HighVoltage"
+    and injected 2.0mm instead of ACMains' 6.0mm.
+
+    The expected figures are NOT written here as new constants -- each is
+    read back below from ``TEMPER_NET_CLASSES`` via the same
+    ``get_rules_for_net`` the production path now uses, so this test cannot
+    pin a number the SSOT does not hold.
+    """
+    from temper_placer.core.design_rules import create_temper_design_rules
+
+    dr = create_temper_design_rules()
+    authoritative = dr.get_rules_for_net(net).clearance
+    assert authoritative == min_expected_mm, (
+        f"SSOT drift: {net} ({why}) now resolves to {authoritative}mm, "
+        f"not the {min_expected_mm}mm this test was written against"
+    )
+
+    got = _clearance_distance_for(net, "WDT_KICK")
+    assert got >= authoritative, (
+        f"{net} ({why}) remediated at {got}mm, below its own net class's {authoritative}mm"
+    )
+
+
+def test_clearance_feedback_still_uses_the_lv_figure_for_two_lv_nets():
+    """Anti-vacuity: the fix must not simply raise every separation.
+
+    Two unclassified SELV signal nets must still be remediated at the LV
+    default, not at an HV figure.
+    """
+    from temper_placer.core.design_rules import create_temper_design_rules
+
+    dr = create_temper_design_rules()
+    lv = dr.get_rules_for_net("WDT_KICK").clearance
+    assert lv < 2.0, "premise stale: the LV default is no longer below the HV figure"
+    assert _clearance_distance_for("WDT_KICK", "BTN_UP") == lv

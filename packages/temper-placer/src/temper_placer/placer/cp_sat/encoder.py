@@ -1,7 +1,7 @@
 """PCL-to-CP-SAT constraint encoder.
 
-Maps all PCL constraint types to CP-SAT model constraints using a
-HANDLER_REGISTRY dispatch pattern mirroring sat_bridge.py.
+Maps all PCL constraint types to CP-SAT model constraints using the explicit,
+validated handler table owned by ``cp_sat.handlers``.
 
 Each handler returns a list of assumption literals for UNSAT-core extraction.
 
@@ -36,10 +36,12 @@ from temper_placer.placer.cp_sat._encoder_solve import (
     _resolve_loop_components,
     solve_placement,
 )
+from temper_placer.placer.cp_sat.errors import CpSatConstraintCompilationError
 
 __all__ = [
     "AssumptionLiteral",
     "CpSatPlacementResult",
+    "CpSatConstraintCompilationError",
     "EncoderContext",
     "LoopReferenceReconciliation",
     "ReferenceReconciliation",

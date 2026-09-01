@@ -1,15 +1,15 @@
 _meta:
-  last_audit_date: '2026-08-05'
-  total_scripts: 119
+  last_audit_date: '2026-08-19'
+  total_scripts: 174
   counts:
-    keep: 115
-    ticket: 0
-  ticket_scripts_deleted: 40
+    keep: 161
+    ticket: 13
+  ticket_scripts_deleted: 43
 scripts:
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
   owner: unassigned
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -17,6 +17,25 @@ scripts:
   - re
   - sys
   - uuid
+- path: build_extensions.py
+  purpose: 'Build and verify every first-party pyo3/maturin extension in deterministic dependents-first
+    order: clear package outputs from the shared Cargo target, explicitly enable the Python feature, then
+    require fresh artifacts and successful imports (closes the poisoned cdylib incident).'
+  owner: pipeline
+  last_run: '2026-08-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - check_stale_extensions
+  - heapq
+  - importlib
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tomllib
 - path: batch_pipeline_validate.py
   purpose: Batch pipeline validation — feed corpus boards through parse→placement→route and quarantine
     failures
@@ -35,7 +54,7 @@ scripts:
   purpose: 'A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb'
   owner: router-v6-closure-rate
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -46,8 +65,8 @@ scripts:
   - time
   - typing
 - path: bench_rust_constraints.py
-  purpose: Benchmark gate for Rust constraint engine extraction — compares Rust vs Python loss computation
-    wall-clock performance
+  purpose: Benchmark temper_constraints Rust loss functions (compute_*_loss_py) with N-run mean/median/stdev
+    statistics; --ci is warn-only (no workflow caller)
   owner: bennet
   last_run: '2026-07-23'
   category: keep
@@ -61,7 +80,8 @@ scripts:
   - sys
   - time
 - path: bench_rust_geometry.py
-  purpose: Benchmark Rust-backed geometry functions vs pure-Python equivalents
+  purpose: Benchmark temper_geometry Rust functions vs inline pure-Python equivalents, with numerical-agreement
+    verification (no workflow caller)
   owner: bennet
   last_run: '2026-07-23'
   category: keep
@@ -71,31 +91,6 @@ scripts:
   - statistics
   - temper_geometry
   - time
-- path: bless_baselines.py
-  purpose: Re-extract baseline metrics after intentional quality improvements (requires Ceiling-Approval)
-  owner: pipeline
-  last_run: '2026-06-22'
-  category: keep
-  disposition: utility
-  imports:
-  - argparse
-  - json
-  - pathlib
-  - subprocess
-  - sys
-  - typing
-  - yaml
-- path: bmc_adoption_gate.py
-  purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - ast
-  - pathlib
-  - sys
 - path: board_defect_mutator.py
   purpose: 'Board-defect mutation corpus (R38, plan 2026-08-02-024): deterministic seeded transforms that
     produce a mutated copy of pcb/temper.kicad_pcb for each defect class (component off-board, pad short,
@@ -119,7 +114,7 @@ scripts:
   purpose: Calibrate DRC violation ceiling for Rust DRC engine
   owner: pipeline
   last_run: '2026-06-30'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - argparse
@@ -127,6 +122,29 @@ scripts:
   - json
   - pathlib
   - sys
+- path: evaluate_regional_layout.py
+  purpose: 'Read-only regional PCB candidate evaluator: compares exact HV-SELV pair sets, all KiCad DRC
+    categories, F.Fab body collisions, and routed-pad endpoint connectivity; the Pareto verdict is owned
+    by temper-quality-oracle Rust.'
+  owner: bennet
+  last_run: '2026-08-26'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - check_stale_extensions
+  - collections
+  - generate_kicad_dru
+  - json
+  - measure_cross_domain_creepage
+  - pathlib
+  - sys
+  - temper_design_bundle_python
+  - temper_placer.io.fab_body_extraction
+  - temper_placer.placer.cp_sat.body_collision
+  - temper_placer.validation._drc_api
+  - temper_quality_oracle
 - path: capacity_budget_gate.py
   purpose: 'CI gate: design-capacity budget check over the fault-tree''s SN74HC4075 fan-in -- reachability
     over elec/build/default.net, not pin-occupancy counting; fails closed on missing/empty netlist or
@@ -145,6 +163,28 @@ scripts:
   - pathlib
   - sys
   - yaml
+- path: check_ato_assertion_vacuity.py
+  purpose: 'CI gate: find electrical assertions in elec/**/*.ato that cannot fail. Parses the .ato sources
+    directly (no atopile install needed), elaborates each assertion''s dependency closure, classifies every
+    terminal quantity as CIRCUIT (a part value that drives behaviour) / RATING (a datasheet limit) / SPEC
+    (a hand-typed constant), then perturbs each leaf across 1e-6..1e6 and reports the assertions whose
+    outcome never changes. Catches the 2026-08-17 defect class: PowerInput checking fuse/CMC current
+    ratings against the DECLARED 15A rather than the ~27A the doubler draws, and main.ato''s p_output_max
+    pinned to the unreachable end of its own within-band. Shrink-only ledger in .ato-assertion-vacuity-inventory;
+    fails closed on scope evaporation, an unclassifiable component attribute, or an unresolvable reference.'
+  owner: bennet
+  last_run: '2026-08-19'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.ato_model
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - sys
+  - typing
 - path: check_board_containment.py
   purpose: 'Board-containment gate (R26 invariant, owning gate of the board-defect corpus''s off-board
     class): every footprint''s pad copper must lie inside the Edge.Cuts outline. Closes the class no gate
@@ -182,8 +222,8 @@ scripts:
   - tempfile
   - typing
 - path: check_board_sync_stamp.py
-  purpose: 'Board-sync-stamp freshness CI gate (2026-08-13 board/netlist desync postmortem, gap C):
-    fails closed unless the committed pcb/temper.kicad_pcb.source-digest stamp -- written by write_board_sync_stamp.py,
+  purpose: 'Board-sync-stamp freshness CI gate (2026-08-13 board/netlist desync postmortem, gap C): fails
+    closed unless the committed pcb/temper.kicad_pcb.source-digest stamp -- written by write_board_sync_stamp.py,
     which itself refuses to run unless check_netlist_board_reconciliation.py currently passes -- matches
     the board''s and netlist''s CURRENT content. Complements the reconciliation gate with a cheap, git-diff-visible
     provenance claim rather than re-deriving its verdict; also requires the netlist itself be proven fresh
@@ -198,7 +238,6 @@ scripts:
   - _lib.github_summary
   - _lib.repo
   - argparse
-  - check_domain_partition
   - pathlib
   - sys
 - path: check_bom_source_reconciliation.py
@@ -258,7 +297,7 @@ scripts:
 - path: check_coverage_gate.py
   purpose: 'Coverage gate: fail CI on zero-coverage public functions'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -326,10 +365,10 @@ scripts:
   - yaml
 - path: check_doc_path_citations.py
   purpose: 'Doc-path citation gate (spike proof, docs/brainstorms/2026-08-12-referential-integrity-options.md):
-    fail when a docs/plans/*.md or docs/evidence/*.md path cited in a comment/docstring/doc does not
-    resolve. Measured 47 dangling citations (27 never-existed, 20 deleted) on origin/main at spike time.
-    Built and proven failing on the real repo; deliberately NOT wired into any workflow yet -- see the
-    spike doc for the advisory-landing recommendation before this disposition is changed to ci-gate.'
+    fail when a docs/plans/*.md or docs/evidence/*.md path cited in a comment/docstring/doc does not resolve.
+    Measured 47 dangling citations (27 never-existed, 20 deleted) on origin/main at spike time. Built
+    and proven failing on the real repo; deliberately NOT wired into any workflow yet -- see the spike
+    doc for the advisory-landing recommendation before this disposition is changed to ci-gate.'
   owner: bennet
   last_run: '2026-08-12'
   category: keep
@@ -343,7 +382,6 @@ scripts:
   - re
   - subprocess
   - sys
-  - yaml
 - path: check_domain_partition.py
   purpose: 'Netlist domain-partition CI gate: verify the compiled netlist''s HV/SELV domains are actually
     disjoint (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) against elec/domain_manifest.yaml;
@@ -381,6 +419,7 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.drc_ceiling
   - _lib.repo
   - argparse
   - json
@@ -408,23 +447,82 @@ scripts:
   - re
   - sys
 - path: check_duplicate_predicates.py
-  purpose: 'CI gate: fail when a NEW independent copy of a registered-as-consolidated predicate
-    (scripts/duplicate_predicate_registry.py''s CONSOLIDATED_FAMILIES) appears in its family''s
-    scan_paths. Closes the 2026-08-13 defect-multiplier finding that the same logic (pad resolution,
-    net-name boundary matching, footprint bounds, rotation units) was independently reimplemented
-    in several places, turning one defect into N. AST-scans for a definition of any family''s
-    def_names whose body does not call the family''s delegate_call_name -- a brand-new copy or a
-    regression back to an inline reimplementation, either way a hard failure.'
+  purpose: 'CI gate: fail when a NEW independent copy of a registered-as-consolidated predicate (scripts/duplicate_predicate_registry.py''s
+    CONSOLIDATED_FAMILIES) appears in its family''s scan_paths. Closes the 2026-08-13 defect-multiplier
+    finding that the same logic (pad resolution, net-name boundary matching, footprint bounds, rotation
+    units) was independently reimplemented in several places, turning one defect into N. AST-scans for
+    a definition of any family''s def_names whose body does not call the family''s delegate_call_name
+    -- a brand-new copy or a regression back to an inline reimplementation, either way a hard failure.'
   owner: pipeline
   last_run: '2026-08-13'
   category: keep
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.github_summary
+  - _lib.repo
   - argparse
   - duplicate_predicate_registry
   - pathlib
   - sys
+- path: check_clone_drift.py
+  purpose: 'CI gate: fail when a registered clone-function PAIR''s live normalized-AST similarity
+    falls below its registered floor (scripts/clone_drift_registry.py''s PAIRED_FUNCTIONS). Closes
+    the 2026-08-17 stitch-congestion finding that _power_islands.py was cloned from a pre-fix
+    _ground_plane.py and never received a foreign-copper collision-check fix (+77 shorting_items,
+    PR #1329, fixed by PR #1332) -- distinct from check_duplicate_predicates.py (a NEW copy of an
+    ALREADY-consolidated predicate) and check_fact_registry_drift.py (a scalar fact disagreeing
+    across homes): this catches two functions that WERE clones drifting apart structurally because
+    a fix landed in one twin and not the other.'
+  owner: pipeline
+  last_run: '2026-08-18'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - clone_drift_registry
+  - pathlib
+  - sys
+  - _lib.github_summary
+  - _lib.repo
+- path: clone_drift_registry.py
+  purpose: 'SSOT for function PAIRS known to have been cloned from one another (scanned by
+    check_clone_drift.py). Normalized-AST structural similarity (Name/Constant/arg leaves
+    collapsed to placeholders, Call TARGETS and control-flow shape preserved) via
+    difflib.SequenceMatcher, compared against a registered per-pair floor. Mirrors
+    duplicate_predicate_registry.py''s explicit hand-reviewed-registry rationale, applied to
+    clone-then-diverge rather than new-independent-copy. See docs/evidence/2026-08-18-clone-drift-gate.md.'
+  owner: pipeline
+  last_run: '2026-08-18'
+  category: keep
+  disposition: library
+  imports:
+  - __future__
+  - ast
+  - dataclasses
+  - difflib
+  - pathlib
+  - sys
+- path: find_clone_pairs.py
+  purpose: 'Discovery sweep (NOT wired into CI, human-run audit tool): directory-scoped pairwise
+    normalized-AST-similarity scan across scripts/packages/elec/firmware Python files, ranking
+    candidate clone-pair functions for a human to review and, if genuine, register in
+    scripts/clone_drift_registry.py. Reuses clone_drift_registry''s own normalize_function_ast/
+    similarity so a reported candidate score is directly comparable to a registered floor.'
+  owner: pipeline
+  last_run: '2026-08-18'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - clone_drift_registry
+  - collections
+  - pathlib
+  - sys
+  - _lib.repo
 - path: check_erc_off_grid_consequence.py
   purpose: 'Classify ERC endpoint_off_grid warnings (163 of 498 on pcb/temper.kicad_sch as of 2026-08-07)
     by electrical consequence: cross-checks each off-grid pin''s actual schematic net (kicadxml export,
@@ -468,15 +566,12 @@ scripts:
   - subprocess
   - sys
 - path: check_fact_registry_drift.py
-  purpose: 'Scalar fact-drift gate (2026-08-17 fact-deduplication audit): an explicit
-    registry of non-creepage/clearance facts (currently SafetySpec mains_voltage_v /
-    pollution_degree) declared in more than one place must agree across homes, or the
-    gate fails closed. Currently RED BY DESIGN on origin/main: the correct values
-    (120.0 / PD3) are unambiguous, but two homes are pinned-oracle-entangled
-    (tests/core/_design_rules_py_oracle.py, tests/core/_specification_py_oracle.py) --
-    fixing requires one coordinated PR with a deliberate oracle re-pin, not a
-    mechanical edit here. See the module docstring for the full investigation and
-    docs/evidence/2026-08-17-fact-dedup-inventory-and-gate.md.'
+  purpose: 'Scalar fact-drift gate (2026-08-17 fact-deduplication audit): an explicit registry of non-creepage/clearance
+    facts (currently SafetySpec mains_voltage_v / pollution_degree) declared in more than one place must
+    agree across homes, or the gate fails closed. Currently RED BY DESIGN on origin/main: the correct
+    values (120.0 / PD3) are unambiguous, but two homes are pinned-oracle-entangled (tests/core/_design_rules_py_oracle.py,
+    tests/core/_specification_py_oracle.py) -- fixing requires one coordinated PR with a deliberate oracle
+    re-pin, not a mechanical edit here. See the module docstring for the full investigation and docs/evidence/2026-08-17-fact-dedup-inventory-and-gate.md.'
   owner: bennet
   last_run: '2026-08-17'
   category: keep
@@ -491,18 +586,15 @@ scripts:
   - re
   - sys
 - path: check_fab_capability_floor.py
-  purpose: 'CI gate: board via geometry and the "Via hole clearance" DRU rule must
-    never fall below JLCPCB''s published 2oz-multilayer manufacturability floor
-    (docs/hardware/FAB_CAPABILITY.md sec.5, the sole numeric source -- this script
-    hardcodes no fab figure). docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md
-    measured every via on the board (44/44) below JLCPCB''s 0.254mm PTH annular-ring
-    floor, and the repo''s own "Via hole clearance" DRU rule (0.25mm) below JLCPCB''s
-    0.28mm PTH-to-track absolute minimum independent of copper weight -- the repo''s
-    own rule could never have caught this. Five properties: P1 real board via
-    geometry, P2 TEMPER_NET_CLASSES via templates, P3 router_v6 generator constants
-    (_ground_plane.py/_power_islands.py VIA_SIZE_MM/VIA_DRILL_MM), P4/P5 the DRU
-    rule constant and its emitted text. Mutation-verified against the exact pre-fix
-    shapes (scripts/tests/test_check_fab_capability_floor.py).'
+  purpose: 'CI gate: board via geometry and the "Via hole clearance" DRU rule must never fall below JLCPCB''s
+    published 2oz-multilayer manufacturability floor (docs/hardware/FAB_CAPABILITY.md sec.5, the sole
+    numeric source -- this script hardcodes no fab figure). docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md
+    measured every via on the board (44/44) below JLCPCB''s 0.254mm PTH annular-ring floor, and the repo''s
+    own "Via hole clearance" DRU rule (0.25mm) below JLCPCB''s 0.28mm PTH-to-track absolute minimum independent
+    of copper weight -- the repo''s own rule could never have caught this. Five properties: P1 real board
+    via geometry, P2 TEMPER_NET_CLASSES via templates, P3 router_v6 generator constants (_ground_plane.py/_power_islands.py
+    VIA_SIZE_MM/VIA_DRILL_MM), P4/P5 the DRU rule constant and its emitted text. Mutation-verified against
+    the exact pre-fix shapes (scripts/tests/test_check_fab_capability_floor.py).'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -513,11 +605,10 @@ scripts:
   - pathlib
   - re
   - sys
-  - yaml
 - path: check_fault_list_consistency.py
   purpose: 'CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST'
   owner: firmware
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -617,12 +708,12 @@ scripts:
   - yaml
 - path: check_geometry_primitive_duplication.py
   purpose: 'CI gate: fail when a Rust crate carries its own body of a point-to-segment-distance-shaped
-    kernel (degenerate-length branch + [0,1] clamp + Euclidean close) that is not recorded in
-    .geometry-primitive-duplication-allowlist with a reason. Closes the 2026-08-13 finding that
-    point_to_segment_distance had 5 independent Rust bodies, each pinned to its own Python oracle
-    with its own degenerate-length epsilon (1e-12, 1e-10, exact-zero, exact-zero-or-non-finite), one
-    on the HV creepage safety path. Detection is structural, not name-based, so a renamed copy (as
-    fixed_copper.rs''s was) still matches. NEW_COPY and STALE_ENTRY both fail closed.'
+    kernel (degenerate-length branch + [0,1] clamp + Euclidean close) that is not recorded in .geometry-primitive-duplication-allowlist
+    with a reason. Closes the 2026-08-13 finding that point_to_segment_distance had 5 independent Rust
+    bodies, each pinned to its own Python oracle with its own degenerate-length epsilon (1e-12, 1e-10,
+    exact-zero, exact-zero-or-non-finite), one on the HV creepage safety path. Detection is structural,
+    not name-based, so a renamed copy (as fixed_copper.rs''s was) still matches. NEW_COPY and STALE_ENTRY
+    both fail closed.'
   owner: pipeline
   last_run: '2026-08-13'
   category: keep
@@ -716,13 +807,13 @@ scripts:
   - re
   - sys
 - path: check_layer_utilization_gate.py
-  purpose: 'CI gate: compute declared signal-layer count (temper_placer.core.board_layer_roles,
-    read from pcb/temper.kicad_pcb''s (layers ...) block) against live routing demand (bbox/fill-factor
-    geometry from the real board+netlist, resource_bound.py''s method) and fail closed above a
-    utilization threshold. Reproduces the 1.31-utilization infeasibility PR #1172 measured after a
-    real router failure (40/139 nets, zero legal path) and would have caught it before any router ran
-    -- docs/evidence/2026-08-13-layer-architecture-decision.md. Blocking from introduction (2026-08-13):
-    the real board''s 6-layer declaration (landed the same PR) passes at 0.657.'
+  purpose: 'CI gate: compute declared signal-layer count (temper_placer.core.board_layer_roles, read from
+    pcb/temper.kicad_pcb''s (layers ...) block) against live routing demand (bbox/fill-factor geometry
+    from the real board+netlist, resource_bound.py''s method) and fail closed above a utilization threshold.
+    Reproduces the 1.31-utilization infeasibility PR #1172 measured after a real router failure (40/139
+    nets, zero legal path) and would have caught it before any router ran -- docs/evidence/2026-08-13-layer-architecture-decision.md.
+    Blocking from introduction (2026-08-13): the real board''s 6-layer declaration (landed the same PR)
+    passes at 0.657.'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -738,7 +829,7 @@ scripts:
 - path: check_manifest_gate.py
   purpose: 'CI gate: enforce scripts/manifest.yaml <-> filesystem consistency'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -758,6 +849,7 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.drc_ceiling
   - _lib.gate_allowlist
   - _lib.github_summary
   - _lib.measurement_provenance
@@ -810,19 +902,15 @@ scripts:
   - pathlib
   - sys
 - path: check_net_pin_identity_pad_correspondence.py
-  purpose: 'CI gate: catch a net whose (component_ref, pad_number) pin-identity
-    view silently collapses a real, multi-pad net into a trivial "nothing to
-    connect" one. Root-caused a task investigating discharge.k_dis1-no/
-    discharge.k_dis2-no looking absent from the router accounting under
-    --net-batching: both nets pin-identity-collapse to 1 distinct tuple
-    (K2/K3''s manufacturer-duplicated relay contact pads, two physical solder
-    holes sharing one pad number) while the real board carries 2 distinct
-    physical pads -- the mistake _pipeline_grid._net_pad_positions and
-    topology_copper_audit.is_self_referential_net both made (now fixed). This
-    gate is the standing, self-contained (no compiled extension needed)
-    invariant that would have caught the underlying shape. Human-reviewed
-    allowlist (KNOWN_DUPLICATE_PAD_NUMBER_NETS) for the two known-and-fixed
-    cases; any other net hitting this shape fails closed.'
+  purpose: 'CI gate: catch a net whose (component_ref, pad_number) pin-identity view silently collapses
+    a real, multi-pad net into a trivial "nothing to connect" one. Root-caused a task investigating discharge.k_dis1-no/
+    discharge.k_dis2-no looking absent from the router accounting under --net-batching: both nets pin-identity-collapse
+    to 1 distinct tuple (K2/K3''s manufacturer-duplicated relay contact pads, two physical solder holes
+    sharing one pad number) while the real board carries 2 distinct physical pads -- the mistake _pipeline_grid._net_pad_positions
+    and topology_copper_audit.is_self_referential_net both made (now fixed). This gate is the standing,
+    self-contained (no compiled extension needed) invariant that would have caught the underlying shape.
+    Human-reviewed allowlist (KNOWN_DUPLICATE_PAD_NUMBER_NETS) for the two known-and-fixed cases; any
+    other net hitting this shape fails closed.'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -837,17 +925,14 @@ scripts:
   - re
   - sys
 - path: check_router_clearance_floor.py
-  purpose: 'CI gate: the clearance the router reserves for an unclassified net must
-    never be below the clearance kicad-cli DRC grades that net against. Between
-    051152e7c (2026-07-12) and 2026-08-12 router_v6/_pipeline_core.py lowered
-    design_rules.default_clearance_mm to 0.15 while generate_kicad_dru.py RULE 10
-    "Default routing" emitted 0.2mm -- Stage 4 A* reserves trace_width + clearance,
-    so two 0.25mm Default tracks landed 0.40mm centre-to-centre, an edge gap of
-    exactly 0.1500mm against a 0.2000mm rule. 285 of the heatsink candidate board''s
-    505 clearance errors were that defect (docs/evidence/
-    2026-08-12-clearance-congestion-band.md). Five properties, P4 checked by AST so a
-    reformatted reintroduction is still caught. Mutation-verified: P4 fails on
-    the pre-fix _pipeline_core.py (c87492f38:84).'
+  purpose: 'CI gate: the clearance the router reserves for an unclassified net must never be below the
+    clearance kicad-cli DRC grades that net against. Between 051152e7c (2026-07-12) and 2026-08-12 router_v6/_pipeline_core.py
+    lowered design_rules.default_clearance_mm to 0.15 while generate_kicad_dru.py RULE 10 "Default routing"
+    emitted 0.2mm -- Stage 4 A* reserves trace_width + clearance, so two 0.25mm Default tracks landed
+    0.40mm centre-to-centre, an edge gap of exactly 0.1500mm against a 0.2000mm rule. 285 of the heatsink
+    candidate board''s 505 clearance errors were that defect (docs/evidence/ 2026-08-12-clearance-congestion-band.md).
+    Five properties, P4 checked by AST so a reformatted reintroduction is still caught. Mutation-verified:
+    P4 fails on the pre-fix _pipeline_core.py (c87492f38:84).'
   owner: bennet
   last_run: '2026-08-12'
   category: keep
@@ -857,18 +942,15 @@ scripts:
   - ast
   - json
   - pathlib
-  - re
   - sys
-  - yaml
 - path: check_netclass_class_param_correspondence.py
   purpose: 'CI gate: assert every netclass declared in BOTH pcb/temper.kicad_pro''s net_settings.classes
     and design_rules.py''s TEMPER_NET_CLASSES agrees on all four scalar routing fields (clearance, trace_width/track_width,
     via_diameter, via_drill) -- the dimension PR #1023/#1025 (both titled as syncing kicad_pro against
     design_rules.py) and sync_kicad_netclass_assignments.py never checked: all three only ever compare/write
     netclass_assignments (which net maps to which class), never a class''s own parameter values. Reconciled
-    2026-08-12: HighVoltage.clearance and 4 Power-class field mismatches were resolved
-    (docs/evidence/2026-08-12-netclass-param-reconciliation.md). BLOCKING as of 2026-08-12
-    (continue-on-error removed from the CI step once the gate went clean).'
+    2026-08-12: HighVoltage.clearance and 4 Power-class field mismatches were resolved (docs/evidence/2026-08-12-netclass-param-reconciliation.md).
+    BLOCKING as of 2026-08-12 (continue-on-error removed from the CI step once the gate went clean).'
   owner: bennet
   last_run: '2026-08-12'
   category: keep
@@ -964,11 +1046,46 @@ scripts:
   - pathlib
   - sys
   - tempfile
+- path: check_pad_world_position_oracle.py
+  purpose: 'CI gate: resolve every registered pad-world-position implementation by import and call it,
+    requiring each to agree with scripts/kicad_pad_rotation_oracle.py (pcbnew, KiCad''s own placement
+    engine) on a pinned, provably-discriminating probe corpus. The behavioural counterpart to check_no_raw_rotation_trig.py,
+    which is syntactic and so cannot distinguish a correctly-typed R(+theta) from a correctly-typed R(-theta)
+    -- the gap measure_cross_domain_creepage.py fell through for three weeks while reporting the wrong
+    violation SET'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.path_setup
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - enum
+  - hashlib
+  - importlib
+  - json
+  - math
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
 - path: check_no_raw_rotation_trig.py
-  purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta)
-    footprint-child rotation sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md)
-    contains a raw math.cos/math.sin/np.cos/np.sin call instead of importing temper_placer.geometry.kicad_transform,
-    the single sanctioned implementation those 12 sites were consolidated into'
+  purpose: 'CI gate: fail if any of the files that have already carried KiCad''s R(+theta)/R(-theta) footprint-child
+    rotation sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md) contains
+    a raw trig call instead of delegating to kicad_transform, the single sanctioned implementation those
+    sites were consolidated into. TWO HALVES since 2026-08-18: (a) the original AST scan of 15 guarded
+    Python files for math/np cos/sin; (b) a textual scan of 13 guarded RUST files for every trig spelling
+    this repo uses (.cos()/.sin()/.sin_cos(), f64::cos/sin, the host_math and pad_geometry::math_cos_sin
+    dlsym shims, the injected cos_sin callback) with per-function exemptions, plus a duplicate-quadrant-table
+    check that compares both copies of project_onto_barrier_axis against a STATED R(-theta) expectation
+    rather than only against each other. The Rust half was added because the same bug had already crossed
+    the FFI boundary: clearance_geometry.rs::shapely_rotation_cos_sin rotated every pad polygon R(+theta),
+    invisible only because all 527 pads on this board sit at multiples of 90 degrees'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
@@ -981,15 +1098,16 @@ scripts:
   - ast
   - dataclasses
   - pathlib
+  - re
   - sys
 - path: check_no_worktree_target_dirs.py
-  purpose: 'CI gate: fails if any git worktree of this repo (in-tree under .claude/worktrees or an
-    out-of-tree sibling/temp dir) has its own private target-shared/ instead of the shared main-checkout
-    one -- the recurring incident (51 GB, then 36.6 GB, then ~74 GB across 99 worktrees on 2026-08-11/12)
-    caused by .cargo/config.toml''s relative target-dir resolving per-worktree. `--clean` also deletes
-    violations that pass a CACHEDIR.TAG safety predicate. Trivially clean on a CI runner (single checkout);
-    meaningful on the dev workstation where the incident occurs. See install_cargo_target_dir_guard.py
-    for the structural fix this backstops.'
+  purpose: 'CI gate: fails if any git worktree of this repo (in-tree under .claude/worktrees or an out-of-tree
+    sibling/temp dir) has its own private target-shared/ instead of the shared main-checkout one -- the
+    recurring incident (51 GB, then 36.6 GB, then ~74 GB across 99 worktrees on 2026-08-11/12) caused
+    by .cargo/config.toml''s relative target-dir resolving per-worktree. `--clean` also deletes violations
+    that pass a CACHEDIR.TAG safety predicate. Trivially clean on a CI runner (single checkout); meaningful
+    on the dev workstation where the incident occurs. See install_cargo_target_dir_guard.py for the structural
+    fix this backstops.'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -1033,14 +1151,14 @@ scripts:
     (a 2D kernel, the _3d inherited from a retired JIT kernel) read as covering the N-layer Python; courtyard_check_stage.rs
     read as covering core/courtyard.py when it ports deterministic/stages/courtyard_check.py; hypergraph_factory.rs
     read as covering core/hypergraph.py when it ports extraction/hypergraph_factory.py; net_ordering.rs
-    read as covering the router''s ordering when the live A* path runs pure-Python _astar_ordering.py. This
-    gate asks about the PAIRING and decides it by call-path reachability -- a Rust file implements a Python
-    module only if that module references, in code, a symbol the Rust file owns (ownership followed through
-    pub fn definitions and the <name>_py boundary convention, not through the wrap_pyfunction! site, which
-    would collapse every crate onto its lib.rs). Name overlap is used only to choose what to report on.
-    Shrink-only ledger in .rust-coverage-illusion-inventory; NEW_ILLUSION and STALE_ENTRY both fail. --self-test
-    asserts all four motivating incidents are still flagged, against the ANALYSIS rather than the ledger,
-    so parking them in the ledger cannot silence the demonstration.'
+    read as covering the router''s ordering when the live A* path runs pure-Python _astar_ordering.py.
+    This gate asks about the PAIRING and decides it by call-path reachability -- a Rust file implements
+    a Python module only if that module references, in code, a symbol the Rust file owns (ownership followed
+    through pub fn definitions and the <name>_py boundary convention, not through the wrap_pyfunction!
+    site, which would collapse every crate onto its lib.rs). Name overlap is used only to choose what
+    to report on. Shrink-only ledger in .rust-coverage-illusion-inventory; NEW_ILLUSION and STALE_ENTRY
+    both fail. --self-test asserts all four motivating incidents are still flagged, against the ANALYSIS
+    rather than the ledger, so parking them in the ledger cannot silence the demonstration.'
   owner: pipeline
   last_run: '2026-08-18'
   category: keep
@@ -1056,17 +1174,16 @@ scripts:
   - sys
   - tomllib
 - path: check_orphaned_python_modules.py
-  purpose: 'CI gate: mirror image of check_unwired_kernels.py. That gate fails when a Rust kernel is
-    registered but no Python code calls it; this one fails when a whole Python module under packages/*/src
-    has zero importers anywhere -- Python (absolute/relative import, importlib.import_module) or Rust
-    (py.import/PyModule::import runtime calls, invisible to a Python-only scan) or a [project.scripts]
-    console-script target. 2026-08-17: docs/evidence/2026-08-17-python-deprecation-spike.md (PR #1302)
-    found this shape by hand across several package trees (metrics/physics.py orphaned since its sole
-    caller was deleted 2026-07-10; a 1,984 LOC router_v6/constraints_* mutually-referencing dead cluster;
-    more) with nothing gating it. Shrink-only ledger in .orphaned-python-module-inventory; NEW_ORPHANED
-    and STALE_ENTRY both fail. Documents its own blind spots (mutually-referencing dead clusters invisible
-    by construction; computed/dynamic import targets; getattr-with-a-computed-name) rather than claiming
-    completeness.'
+  purpose: 'CI gate: mirror image of check_unwired_kernels.py. That gate fails when a Rust kernel is registered
+    but no Python code calls it; this one fails when a whole Python module under packages/*/src has zero
+    importers anywhere -- Python (absolute/relative import, importlib.import_module) or Rust (py.import/PyModule::import
+    runtime calls, invisible to a Python-only scan) or a [project.scripts] console-script target. 2026-08-17:
+    docs/evidence/2026-08-17-python-deprecation-spike.md (PR #1302) found this shape by hand across several
+    package trees (metrics/physics.py orphaned since its sole caller was deleted 2026-07-10; a 1,984 LOC
+    router_v6/constraints_* mutually-referencing dead cluster; more) with nothing gating it. Shrink-only
+    ledger in .orphaned-python-module-inventory; NEW_ORPHANED and STALE_ENTRY both fail. Documents its
+    own blind spots (mutually-referencing dead clusters invisible by construction; computed/dynamic import
+    targets; getattr-with-a-computed-name) rather than claiming completeness.'
   owner: pipeline
   last_run: '2026-08-17'
   category: keep
@@ -1079,18 +1196,37 @@ scripts:
   - re
   - sys
   - tomllib
+- path: check_placement_pair_creepage.py
+  purpose: 'Placement-time pad-pair creepage measurement (standalone prototype): for every HV/SELV pad
+    pair, compare the placement''s pad-to-pad distance against the pair''s DRU-resolved requirement, before
+    any copper exists. Uses production SSOT tables and geometry helpers; skips same-net and same-component
+    pairs; its circle model is conservative. NOT wired into CI: it currently reports 242 violating pad-pairs
+    (232 against the 12.6mm PD3 barrier) on the committed board, which is a known open design state --
+    the placer enforces PD3 nowhere by default. Promoting it to a gate is a board-owner decision; the
+    only ways to make it green today are continue-on-error or a fresh ratchet ceiling, both of which rebuild
+    the defect. Known gap: no layer comparison, inert here because all 523 pads are F.Cu or PTH.'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: manual-tool
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - pathlib
+  - sys
 - path: check_pad_identity_ambiguity.py
   purpose: 'CI gate: structural, component-level complement to check_net_pin_identity_pad_correspondence.py
     (PR #1177''s net-accounting gate). Fails when a footprint IN USE on the board declares more than one
-    physical pad under the same pad number (K1/K2/K3 today -- K2/K3''s manufacturer-duplicated relay
-    contact pads "1"/"3"/"4", K1''s four duplicate NPTH mechanical mounting holes) AND a production
-    Component.get_pin( call site outside a small, reasoned allowlist (core/loop_extractor.py::get_pin_net,
-    which only needs pin existence/net-membership) resolves a pin as if (ref, pin_name) were a unique key.
-    Closes the net-level gate''s blind spot: a duplicated pad sitting inside an otherwise multi-pin net
-    (K2/K3''s pad "1" -> PWR_RTN/DC_BUS_RTN, pad "4" -> discharge.k_dis1-nc/k_dis2-nc) never collapses the
-    WHOLE net to <=1 distinct tuple, so the net-level gate is silent for it even though a first-match
-    consumer still mis-resolves the duplicated pad. Self-contained: paren-balanced regex board parse (no
-    compiled extension) + ast source scan (no import of the scanned modules).'
+    physical pad under the same pad number (K1/K2/K3 today -- K2/K3''s manufacturer-duplicated relay contact
+    pads "1"/"3"/"4", K1''s four duplicate NPTH mechanical mounting holes) AND a production Component.get_pin(
+    call site outside a small, reasoned allowlist (core/loop_extractor.py::get_pin_net, which only needs
+    pin existence/net-membership) resolves a pin as if (ref, pin_name) were a unique key. Closes the net-level
+    gate''s blind spot: a duplicated pad sitting inside an otherwise multi-pin net (K2/K3''s pad "1" ->
+    PWR_RTN/DC_BUS_RTN, pad "4" -> discharge.k_dis1-nc/k_dis2-nc) never collapses the WHOLE net to <=1
+    distinct tuple, so the net-level gate is silent for it even though a first-match consumer still mis-resolves
+    the duplicated pad. Self-contained: paren-balanced regex board parse (no compiled extension) + ast
+    source scan (no import of the scanned modules).'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -1106,6 +1242,39 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_pad_core_polygon_oracle.py
+  purpose: 'CI gate: every implementation that orients a pad''s copper RECTANGLE must agree with pcbnew,
+    at angles that are not multiples of 90 degrees. Sibling of check_pad_world_position_oracle.py (which
+    covers where a pad''s CENTRE lands); this one covers the independent second half -- the orientation
+    of the copper about that centre. core/pad_geometry.py::pad_core_polygon / ::pad_polygon and their
+    bit-exact Rust twin clearance_geometry.rs::pad_core rotated with shapely.affinity.rotate(+degrees)
+    -- R(+theta) -- while check_board_containment.py::_pad_polygons rotated the identical object at R(-theta).
+    Invisible because all 527 pads on pcb/temper.kicad_pcb sit at multiples of 90, where the two conventions
+    give the same corner SET. Resolves 5 sites BY IMPORT and CALLS them against corners pinned from scripts/kicad_pad_polygon_oracle.py;
+    the corpus proves it discriminates before any verdict is trusted (90-degree rows are a hard error,
+    >=4 asymmetric rows required, pinned to the oracle''s sha256 and failing closed with "regenerate",
+    never "re-pin"). Exit 0 clean / 3 violation / 5 tool_error.'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.path_setup
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - enum
+  - hashlib
+  - importlib
+  - json
+  - math
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
 - path: check_pad_orientation.py
   purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a
     footprint rotated by a non-multiple of 180 deg whose pads ALL carry absolute angle 0 is the signature
@@ -1170,6 +1339,7 @@ scripts:
   - _lib.repo
   - argparse
   - dataclasses
+  - importlib.util
   - pathlib
   - re
   - sys
@@ -1240,15 +1410,14 @@ scripts:
   - re
   - sys
 - path: check_pyo3_duplicate_registration.py
-  purpose: 'CI gate: fail closed when two different Rust functions register the same Python-visible
-    pyo3 name into the same #[pymodule]. pyo3''s PyModule::add_function is a plain setattr -- it never
-    raises, warns, or prints when a name is bound twice, so the later registration silently wins and
-    the earlier implementation becomes permanently unreachable dead code with its own passing unit
-    tests. Closes the 2026-08-13 finding that temper-geometry had two independent kw_boundary_match_py
-    definitions (via_clearance.rs, trace_width_assignment.rs) both wrap_pyfunction!''d into the same
-    module -- invisible to cargo build/test, check_stale_extensions.py, and check_unwired_kernels.py
-    (whose registered_symbols() scan uses dict.setdefault() and so never notices a second registration
-    exists).'
+  purpose: 'CI gate: fail closed when two different Rust functions register the same Python-visible pyo3
+    name into the same #[pymodule]. pyo3''s PyModule::add_function is a plain setattr -- it never raises,
+    warns, or prints when a name is bound twice, so the later registration silently wins and the earlier
+    implementation becomes permanently unreachable dead code with its own passing unit tests. Closes the
+    2026-08-13 finding that temper-geometry had two independent kw_boundary_match_py definitions (via_clearance.rs,
+    trace_width_assignment.rs) both wrap_pyfunction!''d into the same module -- invisible to cargo build/test,
+    check_stale_extensions.py, and check_unwired_kernels.py (whose registered_symbols() scan uses dict.setdefault()
+    and so never notices a second registration exists).'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -1286,7 +1455,7 @@ scripts:
 - path: check_regression.py
   purpose: Functional regression check (called by Makefile)
   owner: unassigned
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: shell-invoked
   imports:
@@ -1319,9 +1488,8 @@ scripts:
   purpose: 'CI gate: fail when Component.initial_rotation_quadrant (a 0-3 quarter-turn INDEX, renamed
     2026-08-13 from initial_rotation) is divided by a number, or passed directly to math.radians()/.to_radians()
     with no prior "* 90", the exact shapes behind three independent wrong safety-geometry answers in one
-    day plus a fourth live bug this change fixed in router_v6/_pipeline_verify.py. See
-    scripts/tests/test_check_rotation_quadrant_arithmetic.py for the proof it fires on those shapes and
-    not on the many correct call sites.'
+    day plus a fourth live bug this change fixed in router_v6/_pipeline_verify.py. See scripts/tests/test_check_rotation_quadrant_arithmetic.py
+    for the proof it fires on those shapes and not on the many correct call sites.'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -1348,9 +1516,10 @@ scripts:
   - re
   - sys
 - path: check_script_sunset.py
-  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock'
+  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock; skips keep-WARNING for scripts
+    referenced by .github/workflows/ jobs (stale invocation graph cannot manufacture false positives)'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1358,6 +1527,7 @@ scripts:
   - datetime
   - json
   - pathlib
+  - re
   - sys
 - path: check_sil_coverage.py
   purpose: 'CI gate: SIL fault-injection coverage over (fault class, origin state) -- fails on any pair
@@ -1377,10 +1547,10 @@ scripts:
   purpose: 'CI gate: assert pcb/temper.kicad_pcb''s (setup (stackup ...)) block declares the same per-role
     copper weight (2oz outer / 1oz inner) that docs/hardware/TRACE_WIDTH_CALCULATIONS.md''s §1 design
     parameters assume, for both F.Cu/B.Cu (outer) and In1.Cu/In2.Cu (inner). Closes the gap where the
-    board declared no stackup at all (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md) --
-    every IPC-2221B current-capacity derivation in that doc was contingent on a fab order-form note
-    nothing in the repo enforced. Blocking from introduction (2026-08-13): both inputs were reconciled
-    in the same change that added the gate.'
+    board declared no stackup at all (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md) -- every
+    IPC-2221B current-capacity derivation in that doc was contingent on a fab order-form note nothing
+    in the repo enforced. Blocking from introduction (2026-08-13): both inputs were reconciled in the
+    same change that added the gate.'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -1424,9 +1594,9 @@ scripts:
     venv''s site-packages resolves under the expected repo root, and not into a different git worktree
     or an unrelated checkout -- catches the shared venv identity being silently hijacked (2026-08-11 incident:
     `maturin develop --active` run from an agent worktree rewrote the SHARED venv''s editable pointers
-    to that worktree, so every measurement in that window ran against the wrong code; see AGENTS.md "Worktree
-    .venv: shared vs. isolated"). Complements, and runs before, check_stale_extensions.py -- freshness
-    is only a coherent question once the venv''s identity is trusted.'
+    to that worktree, so every measurement in that window ran against the wrong code; see docs/evidence/2026-08-11-worktree-poisons-shared-venv.md).
+    Complements, and runs before, check_stale_extensions.py -- freshness is only a coherent question once
+    the venv''s identity is trusted.'
   owner: bennet
   last_run: '2026-08-11'
   category: keep
@@ -1438,6 +1608,7 @@ scripts:
   - argparse
   - dataclasses
   - json
+  - os
   - pathlib
   - subprocess
   - sys
@@ -1536,7 +1707,7 @@ scripts:
 - path: check_typecheck_gate.py
   purpose: Type-check gate with per-file monotonic-shrink allowlist baseline
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1648,7 +1819,7 @@ scripts:
 - path: ci_check_drc.py
   purpose: 'CI entry point: DRC ratchet check'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1677,7 +1848,7 @@ scripts:
 - path: ci_closure_test.py
   purpose: 'CI entry point: closure test (Benders -> Router -> DRC)'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1689,7 +1860,7 @@ scripts:
   purpose: 'CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined
     fixture, verifies the production board once it exists'
   owner: bennet
-  last_run: '2026-07-15'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1716,7 +1887,7 @@ scripts:
   purpose: Compare DRC reports across runs (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - dataclasses
@@ -1732,7 +1903,6 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
-  - ast
   - importlib
   - pathlib
   - sys
@@ -1766,7 +1936,7 @@ scripts:
   purpose: Debug differential pair path (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - pathlib
@@ -1774,34 +1944,26 @@ scripts:
   - temper_placer.io.kicad_parser
 - path: duplicate_predicate_registry.py
   purpose: 'SSOT for which cross-file duplication is accidental (consolidated, must not regrow a copy,
-    scanned by check_duplicate_predicates.py) vs. deliberate (a pinned oracle or an intentional
-    independent cross-check, must stay duplicated). Two registries kept apart: CONSOLIDATED_FAMILIES
-    (accidental duplication already fixed onto one SSOT implementation) and OPEN_FINDINGS (duplication
-    identified but not yet consolidated). Closes the 2026-08-13 defect-multiplier-duplication finding
-    (docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md).'
+    scanned by check_duplicate_predicates.py) vs. deliberate (a pinned oracle or an intentional independent
+    cross-check, must stay duplicated). Two registries kept apart: CONSOLIDATED_FAMILIES (accidental duplication
+    already fixed onto one SSOT implementation) and OPEN_FINDINGS (duplication identified but not yet
+    consolidated). Closes the 2026-08-13 defect-multiplier-duplication finding (docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md).'
   owner: pipeline
   last_run: '2026-08-13'
   category: keep
   disposition: library
   imports:
   - __future__
+  - _lib.repo
   - ast
   - dataclasses
   - pathlib
-  - sys
-- path: extract_corpus_baselines.py
-  purpose: Extract baseline metrics for a single corpus board (subprocess-called by bless_baselines.py)
-  owner: pipeline
-  last_run: '2026-06-22'
-  category: keep
-  disposition: utility
-  imports:
   - sys
 - path: full_pipeline_profile.py
   purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
   owner: router-v6-closure-rate
   last_run: '2026-06-23'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -1839,7 +2001,7 @@ scripts:
 - path: gen_architecture_poster.py
   purpose: Generate a deterministic SVG architecture poster from monorepo build manifests
   owner: pipeline
-  last_run: '2026-07-13'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -1898,6 +2060,7 @@ scripts:
   - dataclasses
   - hashlib
   - json
+  - os
   - pathlib
   - re
   - subprocess
@@ -1922,7 +2085,7 @@ scripts:
     from default.csv (default.net's libsource is footprint-aliased); --check is the schematic-drift CI
     gate
   owner: bennet
-  last_run: '2026-07-15'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1952,22 +2115,28 @@ scripts:
   - __future__
   - argparse
   - dataclasses
+  - functools
   - pathlib
   - re
   - sys
 - path: generate_kicad_dru.py
   purpose: Generate KiCad design rules from config (used by temper-drc tests)
   owner: unassigned
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
+  - collections.abc
+  - dataclasses
+  - itertools
   - pathlib
+  - re
+  - temper_design_bundle_python
   - temper_placer.core.design_rules
 - path: human_reference_compare.py
   purpose: Generate human-reference PR comment comparing optimizer metrics to human placement
   owner: pipeline
-  last_run: '2026-07-01'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1978,7 +2147,7 @@ scripts:
 - path: import_linter_gate.py
   purpose: Import boundary enforcement CI gate wrapper
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1991,20 +2160,19 @@ scripts:
   - subprocess
   - sys
 - path: install_cargo_target_dir_guard.py
-  purpose: 'Install a `cargo` PATH-shadow wrapper at ~/.local/bin/cargo (ahead of ~/.cargo/bin) that
-    sets CARGO_TARGET_DIR to the shared main-checkout target-shared for every cargo/maturin invocation
-    on this host, from any worktree, regardless of shell state -- closes the gap left by `source
-    scripts/cargo_shared_env.sh` (only protects invocations in the same shell process as the source,
-    which does not hold for agent tool-calling harnesses that start a fresh shell per command; the
-    mechanism behind the ~74 GB / 99-worktree 2026-08-11/12 recurrence). Scoped to this repo only via
-    `git rev-parse --git-common-dir`; run via `make cargo-target-dir-guard`.'
+  purpose: Install a `cargo` PATH-shadow wrapper at ~/.local/bin/cargo (ahead of ~/.cargo/bin) that sets
+    CARGO_TARGET_DIR to the shared main-checkout target-shared for every cargo/maturin invocation on this
+    host, from any worktree, regardless of shell state -- closes the gap left by `source scripts/cargo_shared_env.sh`
+    (only protects invocations in the same shell process as the source, which does not hold for agent
+    tool-calling harnesses that start a fresh shell per command; the mechanism behind the ~74 GB / 99-worktree
+    2026-08-11/12 recurrence). Scoped to this repo only via `git rev-parse --git-common-dir`; run via
+    `make cargo-target-dir-guard`.
   owner: bennet
   last_run: '2026-08-13'
   category: keep
   disposition: utility
   imports:
   - argparse
-  - os
   - pathlib
   - shutil
   - subprocess
@@ -2031,6 +2199,23 @@ scripts:
   category: keep
   disposition: utility
   imports:
+  - sys
+- path: kicad_pad_polygon_oracle.py
+  purpose: 'Ground-truth oracle for check_pad_core_polygon_oracle.py: builds a rectangular pad of a given
+    size, centre and orientation in pcbnew (KiCad''s own placement engine) and reads back the corners
+    of the polygon KiCad fills with copper. Rectangular only, deliberately -- for a rect pad the copper
+    outline IS pad_core_polygon''s core (corner radius 0), so the comparison is exact with no arc approximation
+    on either side. MUST run under an interpreter that has the pcbnew bindings, which is normally NOT
+    the project''s uv venv; no interpreter path is hardcoded (a /usr/bin/python3 that exists but lacks
+    pcbnew is how a whole test family silently skipped for a week here). Not CI-wired itself: CI consumes
+    the pinned corpus it generates. Exit 0 / 2 no-pcbnew / 3 bad input.'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: oracle
+  imports:
+  - __future__
+  - json
   - sys
 - path: kicad_pad_rotation_oracle.py
   purpose: 'Oracle for the rotation-convention differential tests (packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py):
@@ -2069,7 +2254,7 @@ scripts:
   purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the
     repo'
   owner: unassigned
-  last_run: '2026-07-20'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -2100,6 +2285,7 @@ scripts:
   - sys
   - temper_placer.core.isolation_constants
   - temper_placer.core.pad_geometry
+  - temper_placer.geometry.kicad_transform
 - path: measure_router_output_baseline.py
   purpose: Measure the router-output DRC constants in the environment that enforces them. PRODUCTION_ROUTER_OUTPUT_*
     in test_regression_drc.py is a ratchet whose provenance records macOS arm64 measurements, while the
@@ -2287,9 +2473,10 @@ scripts:
   - typing
   - yaml
 - path: pipeline_metrics.py
-  purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
+  purpose: pipeline_metrics.jsonl time-series recorder/analyzer (record/trend/list subcommands); CI-invoked
+    by metrics-record, firmware-perf-record, health-digest, metrics-trend-check
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2300,9 +2487,10 @@ scripts:
   - pathlib
   - sys
 - path: pipeline_report.py
-  purpose: Generate self-contained static HTML pipeline report (R7, R8)
+  purpose: Render a self-contained static HTML report from pipeline_metrics.jsonl + pipeline_execution.json
+    (R7, R8); CI-invoked by metrics-record.yml
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -2311,9 +2499,10 @@ scripts:
   - pathlib
   - sys
 - path: pr_perf_compare.py
-  purpose: Compare PR performance metrics against main-branch JSONL baseline
+  purpose: 'Wave-4 performance A/B HARD GATE over perf_ab benchmark NDJSON: per-benchmark noise margins,
+    fails closed on regression (pr-perf-check.yml)'
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2326,9 +2515,10 @@ scripts:
   - sys
   - typing
 - path: pr_scorecard.py
-  purpose: 'PR pipeline scorecard: compare pipeline_metrics.jsonl files, produce markdown delta table'
+  purpose: Informational per-stage scorecard comparing two pipeline_metrics.jsonl files (wall-time delta
+    + DRC drift); always exit 0 (pr-pipeline-scorecard.yml)
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2342,7 +2532,7 @@ scripts:
   purpose: Profile router_v6 on a small subset of nets for sampling analysis
   owner: router-v6-closure-rate
   last_run: '2026-06-23'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2357,7 +2547,7 @@ scripts:
   purpose: Compare Rust vs Python SAT solver backend performance on closure test
   owner: unassigned
   last_run: '2026-06-28'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2385,7 +2575,7 @@ scripts:
 - path: quarantine_report.py
   purpose: Report on dead-letter quarantine status and taxonomy distribution (CI gate)
   owner: pipeline
-  last_run: '2026-06-30'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2395,9 +2585,10 @@ scripts:
   - pathlib
   - sys
 - path: reconcile_metrics.py
-  purpose: Reconcile pipeline metrics across multiple runs
+  purpose: Merge artifact .ndjson metrics into the committed pipeline_metrics.jsonl, dedup by (git_commit,
+    module, stage); CI-invoked by metrics-reconcile.yml
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -2438,6 +2629,15 @@ scripts:
   - kiutils.items.zones
   - pathlib
   - sys
+- path: capture_astar_backbone_corpus.py
+  purpose: Records every corridor-backbone A* search one full route performs, as the fixture the
+    Rust port's differential replays. Those grids exist nowhere on disk -- they are rasterized
+    mid-run from the board polygon, the HV keepout, other nets' clearance polygons AND the F.Cu
+    copper the same run already emitted -- so a differential for that search cannot be fed from
+    pcb/temper.kicad_pcb alone. --verify-digest re-checks that the recording shim left the routed
+    board byte-identical, which is what makes the corpus a record of production rather than of an
+    instrumented variant of it. Reads the board; never writes it.
+  owner: bennet
 - path: route_board.py
   purpose: The routing entry point, and what `make route` invokes; supersedes internal_route.py, which
     was deleted 2026-08-04 as import-dead (see module docstring). --output is mandatory and refuses to
@@ -2463,7 +2663,7 @@ scripts:
   purpose: Run iterative feedback loop (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - argparse
@@ -2482,7 +2682,7 @@ scripts:
 - path: scan_external_corpus.py
   purpose: Scan downloads_digital_iot/ for .kicad_pcb files, profile parse success and difficulty tiers
   owner: pipeline
-  last_run: '2026-06-30'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -2496,7 +2696,7 @@ scripts:
   purpose: SLO definition schema and evaluation engine
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2507,7 +2707,7 @@ scripts:
   purpose: Western Electric SPC rules — pure Python, no external stats dependency
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2544,7 +2744,7 @@ scripts:
 - path: test_root_hygiene.py
   purpose: 'CI gate: reject root-level artifact files that should live in subdirectories'
   owner: pipeline
-  last_run: '2026-07-13'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2553,7 +2753,7 @@ scripts:
 - path: trace_invocations.py
   purpose: Build scripts/invocation_graph.json from CI/shell/Makefile/top-level .py/packages/ references
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2610,7 +2810,7 @@ scripts:
   purpose: Update .regression-cache.json from regression reports for incremental corpus regression
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: ci-gate
   imports:
   - __future__
@@ -2619,11 +2819,34 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: validate_perf_capture.py
+  purpose: Fail-closed aggregation of five immutable-SHA performance captures into review-only manifest
+    and append patch artifacts
+  owner: pipeline
+  last_run: '2026-08-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - collections.abc
+  - dataclasses
+  - hashlib
+  - importlib.util
+  - json
+  - math
+  - pathlib
+  - pr_perf_compare
+  - re
+  - subprocess
+  - sys
+  - typing
 - path: validate_footprints.py
   purpose: Validate footprint assignments (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - argparse
@@ -2634,7 +2857,7 @@ scripts:
   purpose: Verify PROOFS.toml completeness — CI gate
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: ci-gate
   imports:
   - __future__
@@ -2661,7 +2884,7 @@ scripts:
 - path: vulture_gate.py
   purpose: 'Vulture dead-code CI gate: diff wrapper with baseline allowlist'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2694,9 +2917,8 @@ scripts:
 - path: write_board_sync_stamp.py
   purpose: 'Write-side of the board-sync-stamp mechanism (2026-08-13 board/netlist desync postmortem,
     gap C): records a content digest of pcb/temper.kicad_pcb + elec/build/default.net beside the board,
-    so check_board_sync_stamp.py can later prove neither side changed since. Refuses to write unless
-    check_netlist_board_reconciliation.py currently passes (0 findings) -- a stamp on a desynced board
-    would be worse than no stamp.'
+    so check_board_sync_stamp.py can later prove neither side changed since. Refuses to write unless check_netlist_board_reconciliation.py
+    currently passes (0 findings) -- a stamp on a desynced board would be worse than no stamp.'
   owner: bennet
   last_run: '2026-08-13'
   category: keep
@@ -2704,8 +2926,8 @@ scripts:
   imports:
   - __future__
   - _lib.freshness
+  - _lib.repo
   - argparse
-  - check_netlist_board_reconciliation
   - pathlib
   - sys
 - path: write_build_stamp.py
@@ -2752,6 +2974,8 @@ scripts:
   - copy
   - hashlib
   - pathlib
+  - re
+  - subprocess
   - sys
   - typing
 - path: check_component_defect_corpus.py
@@ -2890,11 +3114,10 @@ scripts:
   - sys
   - time
 - path: generate_power_islands.py
-  purpose: 'Generate the In2.Cu power-island pours (+3V3/vcc/+15V/V_BUS_SENSE) and
-    write the result to a new file -- CLI wrapper around router_v6._power_islands.generate_power_islands_content
-    (the In2.Cu counterpart to generate_ground_plane.py''s In1.Cu/gnd); never writes
-    --pcb in place, does not itself run DRC/zone-fill verification on the output.
-    Unregistered since #1047 (2026-08-12 hygiene paydown).'
+  purpose: 'Generate the In2.Cu power-island pours (+3V3/vcc/+15V/V_BUS_SENSE) and write the result to
+    a new file -- CLI wrapper around router_v6._power_islands.generate_power_islands_content (the In2.Cu
+    counterpart to generate_ground_plane.py''s In1.Cu/gnd); never writes --pcb in place, does not itself
+    run DRC/zone-fill verification on the output. Unregistered since #1047 (2026-08-12 hygiene paydown).'
   owner: bennet
   last_run: '2026-08-12'
   category: keep
@@ -2904,15 +3127,14 @@ scripts:
   - argparse
   - pathlib
 - path: check_landed_board_shape.py
-  purpose: 'Hard gate on a placed-and-routed board before it may be landed as pcb/temper.kicad_pcb
-    -- anti-#1049 invariant (segments > 0 AND zones > 0 AND footprints == 168, absolute)
-    plus a tolerance-bounded baseline-agreement check against the verified recipe
-    baseline, loaded from scripts/board_shape_baseline.json (2,514/22/76/168,
-    pinned-engine + corrected-write-path re-measurement -- see that file''s _march
-    log; the previously hardcoded 3,349/56/70 baseline, and four other values before
-    it, were all void). Not currently invoked by any workflow step -- a manual/CLI
-    check run as part of the board-landing review, not (yet) CI-wired; board-landing
-    track, not this PR''s cluster (2026-08-12 hygiene paydown: manifest entry only).'
+  purpose: 'Hard gate on a placed-and-routed board before it may be landed as pcb/temper.kicad_pcb --
+    anti-#1049 invariant (segments > 0 AND zones > 0 AND footprints == 168, absolute) plus a tolerance-bounded
+    baseline-agreement check against the verified recipe baseline, loaded from scripts/board_shape_baseline.json
+    (2,514/22/76/168, pinned-engine + corrected-write-path re-measurement -- see that file''s _march log;
+    the previously hardcoded 3,349/56/70 baseline, and four other values before it, were all void). Not
+    currently invoked by any workflow step -- a manual/CLI check run as part of the board-landing review,
+    not (yet) CI-wired; board-landing track, not this PR''s cluster (2026-08-12 hygiene paydown: manifest
+    entry only).'
   owner: board-landing
   last_run: '2026-08-12'
   category: keep
@@ -2926,13 +3148,13 @@ scripts:
   - sys
 - path: check_wasm_covered.py
   purpose: 'Resolve `wasm-covered:` workflow annotations against the wasm registry at the current commit
-    (the `wasm_test_registry.rs` corpus, computed with gen_wasm_test_registry.py''s own collection -- NOT the
-    deployed Workers'' census). Dual role: CLI resolver (exit 0 = every claimed mirror is registered and every
-    Python test it would reduce still exists; exit 1 = stale annotation, fail-closed) and a pytest plugin
-    (`-p check_wasm_covered`) that drops an annotated cluster''s hypothesis tests to a token max_examples when
-    the workflow sets WASM_COVERED_<CLUSTER> after a successful resolution. First cluster: timing T1-T4
-    (p7-p10 x 20 seeds + compare_stage_guards_zero_baseline mirror Python test_t1..test_t4). See
-    docs/solutions/workflow-issues/wasm-covered-annotation-resolver-2026-08-12.md.'
+    (the `wasm_test_registry.rs` corpus, computed with gen_wasm_test_registry.py''s own collection --
+    NOT the deployed Workers'' census). Dual role: CLI resolver (exit 0 = every claimed mirror is registered
+    and every Python test it would reduce still exists; exit 1 = stale annotation, fail-closed) and a
+    pytest plugin (`-p check_wasm_covered`) that drops an annotated cluster''s hypothesis tests to a token
+    max_examples when the workflow sets WASM_COVERED_<CLUSTER> after a successful resolution. First cluster:
+    timing T1-T4 (p7-p10 x 20 seeds + compare_stage_guards_zero_baseline mirror Python test_t1..test_t4).
+    See docs/solutions/workflow-issues/wasm-covered-annotation-resolver-2026-08-12.md.'
   owner: pipeline
   last_run: '2026-08-12'
   category: keep
@@ -2946,14 +3168,13 @@ scripts:
   - re
   - sys
 - path: verify_pumpkin_engine.py
-  purpose: 'Pumpkin-engine binary identity gate: the resolved pumpkin_engine CP solver
-    (target-shared/release/pumpkin_engine, gitignored and untracked) must match a pinned
-    sha256, or the pipeline must refuse to proceed -- catches six regenerations of the
-    "same" recipe producing boards differing by hundreds to thousands of routed segments
-    because an unpinned binary silently picked up an unmerged branch''s build (docs/evidence/2026-08-12-engine-binary-pinning.md,
-    2026-08-12-candidate-board-not-landed-engine-provenance.md). Not currently invoked
-    by any workflow step; board-landing track, not this PR''s cluster (2026-08-12 hygiene
-    paydown: manifest entry only, added after a rebase picked up #1060).'
+  purpose: 'Pumpkin-engine binary identity gate: the resolved pumpkin_engine CP solver (target-shared/release/pumpkin_engine,
+    gitignored and untracked) must match a pinned sha256, or the pipeline must refuse to proceed -- catches
+    six regenerations of the "same" recipe producing boards differing by hundreds to thousands of routed
+    segments because an unpinned binary silently picked up an unmerged branch''s build (docs/evidence/2026-08-12-engine-binary-pinning.md,
+    2026-08-12-candidate-board-not-landed-engine-provenance.md). Not currently invoked by any workflow
+    step; board-landing track, not this PR''s cluster (2026-08-12 hygiene paydown: manifest entry only,
+    added after a rebase picked up #1060).'
   owner: board-landing
   last_run: '2026-08-12'
   category: keep
@@ -2970,9 +3191,72 @@ scripts:
   - subprocess
   - sys
 - path: measure_uncapped_drc.py
-  purpose: "Uncapped DRC violation counting for kicad-cli-saturated categories"
+  purpose: Uncapped DRC violation counting for kicad-cli-saturated categories
   owner: bennet
-  last_run: "2026-08-13"
+  last_run: '2026-08-13'
   category: keep
   disposition: utility
-  imports: []
+  imports:
+  - __future__
+  - contextlib
+  - dataclasses
+  - fnmatch
+  - json
+  - os
+  - pathlib
+  - re
+  - shutil
+  - subprocess
+  - tempfile
+- path: _stage_subprocess.py
+  purpose: 'Single-stage subprocess for the temper Rust driver (Option E): materializes a deterministic
+    BoardState from the state_ser.rs wire JSON on stdin, runs one temper_orchestration.run_<stage> pyfunction,
+    serializes the mutated state to stdout'
+  owner: rust-driver
+  last_run: '2026-08-21'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - json
+  - sys
+- path: _placement_subprocess.py
+  purpose: 'CP-SAT placement subprocess for the temper Rust driver (Option E): parses the board, loads
+    constraints, calls solve_placement(), writes the result JSON -- the irreducible-Python solver boundary
+    the binary orchestrates'
+  owner: rust-driver
+  last_run: '2026-08-20'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - sys
+- path: validate_perf_capture.py
+  purpose: Fail-closed aggregation of five immutable-SHA performance captures into review-only manifest
+    and append patch artifacts
+  owner: pipeline
+  last_run: '2026-08-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - collections.abc
+  - dataclasses
+  - hashlib
+  - importlib.util
+  - json
+  - math
+  - pathlib
+  - pr_perf_compare
+  - re
+  - subprocess
+  - sys
+  - typing

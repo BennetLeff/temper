@@ -151,3 +151,22 @@ allowlist:
 #     members) -- it is caught by the decode check instead. RESOLVED
 #     2026-07-27: corrected to RC0603FR-07100KL (see
 #     docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md).
+
+  - file: elec/src/modules.ato
+    ref: y_cap_pe
+    mpn: B81123C1562M000
+    checks: [eseries]
+    reason: >
+      TDK B81123C1562M000 -- DigiKey exact-match product page confirmed
+      2026-08-21: 5600 pF (5.6 nF), +/-20%, 500 VAC, safety class Y1,
+      Active, 630 estimated in stock 22-Jan-2027, 22-week manufacturer
+      lead time. The gate's derivation is CORRECT and the part still
+      exists: 'M' is +/-20%, series_for_tolerance() rightly demands E6,
+      and 5.6 is an E12 value (E6 = 1.0/1.5/2.2/3.3/4.7/6.8). The
+      manufacturer simply offers this E12 decade at M tolerance, which the
+      tolerance->series rule does not model. Value/MPN are NOT changed:
+      the nearest E6 neighbours the gate suggests (4.7 nF / 6.8 nF) would
+      change the mains-to-PE leakage current this cap sets, and it is a
+      Y1-rated safety part chosen for that role.
+      PROCUREMENT RISK, recorded not hidden: 22-week lead time and stock
+      dated 2027-01-22 -- this is a long-lead part, not an off-the-shelf one.

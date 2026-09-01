@@ -42,7 +42,7 @@ OFF_BOARD_PARAMS = {"ref": "C26", "position_mm": [59.38, 256.0]}
 PAD_SHORT_PARAMS = {"ref": "C28", "pad_a": "1", "pad_b": "2"}
 CLEARANCE_PARAMS = {
     "ref": "R67", "position_mm": [134.66, 140.1],
-    "pad": "1", "anchor_ref": "R64", "anchor_pad": "1",
+    "pad": "1", "anchor_ref": "R59", "anchor_pad": "1",
 }
 COURTYARD_PARAMS = {
     "ref": "C38", "position_mm": [41.54, 189.55], "anchor_ref": "R48",
@@ -173,7 +173,7 @@ class TestEvaluateClass:
             ),
         )
         assert verdict.ok and not verdict.gate_error
-        assert "R67" in verdict.message and "R64" in verdict.message
+        assert "R67" in verdict.message and "R59" in verdict.message
 
     def test_uncovered_clearance(self):
         verdict = corpus.evaluate_class(
@@ -453,31 +453,20 @@ class TestSeedManifest:
     reason="REQ-SAFE-01 inputs (compiled netlist / domain manifest) missing",
 )
 class TestCorpusEndToEnd:
-    # ``clearance`` is now the DELIBERATE, verified-uncovered class (was
-    # ``missing-courtyard`` from 2026-08-07 through 2026-08-13; see
-    # scripts/board_defect_corpus.yaml's ``missing-courtyard.uncovered_finding``
-    # addendum and ``clearance.uncovered_finding`` for the full history).
-    # Fixing ``check_board_defect_corpus.run_corpus()`` on 2026-08-13 to
-    # give its scratch clean/mutated board copies a sibling ``.kicad_pro``
-    # (via ``copy_kicad_project_sidecar`` -- the corpus's own measurements
-    # were themselves running context-blind, per
-    # ``_drc_api.DrcProjectContextError``) closed ``missing-courtyard``'s
-    # gap, but revealed that the ``clearance`` class's seeded R64/R67 pad
-    # pair no longer registers a clearance violation under the corrected,
-    # project-aware measurement -- verified across several positions
-    # including full pad overlap (METHODOLOGY.md Sec. 5: "if a gate turns
-    # out not to catch its own defect class, that is a finding -- report
-    # it, do not weaken the class").
-    _EXPECTED_UNCOVERED = {"clearance"}
+    # All seven classes must be covered by their owning gates.  The clearance
+    # seed is derived from the current board's geometry; its anchor was
+    # refreshed from R64 to R59 after the board placement moved R59, leaving
+    # the old pair outside the DRC violation set.
+    _EXPECTED_UNCOVERED = set()
 
-    def test_full_corpus_covers_six_of_seven_classes(self, tmp_path):
+    def test_full_corpus_covers_all_seven_classes(self, tmp_path):
         report = corpus.run_corpus(
             REPO_ROOT,
             manifest_path=MANIFEST,
             workdir=tmp_path / "work",
         )
-        assert not report.ok, [v.message for v in report.class_verdicts]
-        assert report.exit_code == corpus.EXIT_CORPUS_FAIL
+        assert report.ok, [v.message for v in report.class_verdicts]
+        assert report.exit_code == corpus.EXIT_PASS
         assert report.anti_vacuity_violations == []
         covered = {v.name for v in report.class_verdicts if v.ok}
         uncovered = {v.name for v in report.class_verdicts if not v.ok}
@@ -485,16 +474,9 @@ class TestCorpusEndToEnd:
             (v.name, v.ok, v.gate_error, v.message) for v in report.class_verdicts
         ]
         assert covered == {
-            "off-board", "pad-short", "creepage", "courtyard",
+            "off-board", "pad-short", "creepage", "clearance", "courtyard",
             "hole-to-hole", "missing-courtyard",
         }
-        # The one uncovered class is a genuine gate gap, not an
-        # infrastructure/measurement failure -- gate_error is reserved for
-        # "the measurement itself broke" (KTD2), which this is not.
-        clearance_verdict = next(
-            v for v in report.class_verdicts if v.name == "clearance"
-        )
-        assert not clearance_verdict.gate_error
         assert report.board_matches_manifest
 
     def test_board_change_detected_and_corpus_revalidates(self, tmp_path):
@@ -515,9 +497,8 @@ class TestCorpusEndToEnd:
             workdir=tmp_path / "work2",
         )
         assert not report.board_matches_manifest
-        # The run itself IS the re-validation -- every class except the
-        # deliberately-uncovered one still passes against the re-derived
-        # mutations.
+        # The run itself IS the re-validation -- every class passes against
+        # the re-derived mutations despite the intentionally stale hash.
         covered = {v.name for v in report.class_verdicts if v.ok}
         uncovered = {v.name for v in report.class_verdicts if not v.ok}
         assert uncovered == self._EXPECTED_UNCOVERED

@@ -1,4 +1,4 @@
-<!-- provenance: own worktree .claude/worktrees/layer-identity-type, branch
+<!-- provenance: commit=c70dde923e2793dd2687df03694829a1aa55e7a8 dirty=UNKNOWN -->
 agent/layer-identity-type-v2, based on origin/fix/router-nlayer-routing @ f870bc966 (the branch
 carrying PR #1178's 6-layer stackup declaration, board_layer_roles.py, and the 2026-08-13
 ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED unfreeze fix, commit 1d6aa4020). pcb/temper.kicad_pcb

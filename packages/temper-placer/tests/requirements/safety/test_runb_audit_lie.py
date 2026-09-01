@@ -65,6 +65,7 @@ from temper_placer.placer.cp_sat.domain_clearance import (
 from temper_placer.requirements.validators.clearance import verify_iec60335_compliance
 
 from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
+from ._req_safe_01_baseline import assert_req_safe_01_at_baseline
 
 # Documented run-B targets (board-file "at x y" frame).
 RUNB_K3 = (63.52, 51.97)  # rot 90 (unchanged from committed board)
@@ -181,9 +182,17 @@ def test_runb_validator_fires_headline_pair(
     result = verify_iec60335_compliance(
         written, {n: written["nets"][n]["domain"] for n in written["nets"]}
     )
-    assert result.error_count == 0, (
-        f"wave-2 written board must be REQ-SAFE-01 clean (0/0), got "
-        f"{result.error_count}:\n{result.report()}"
+    # RE-PINNED 2026-08-25. This line asserted the written board was
+    # REQ-SAFE-01 clean (0/0) -- a wave-2 baseline measured under the PD2
+    # 8.0mm target. #1229 restored PD3/12.6mm and #1226 raised functional
+    # creepage 1.0 -> 1.8mm, so the board now measures 69 without a pad
+    # having moved. Pinned per insulation class instead; see
+    # _req_safe_01_baseline.py for why one number would be the wrong
+    # instrument. This test's OWN subject -- that the historical run-B
+    # C27/U24 0.320mm headline must not reproduce -- is asserted below and
+    # is unaffected.
+    assert_req_safe_01_at_baseline(
+        result, context="test_runb_validator_fires_headline_pair (written board)"
     )
     # The historical run-B overlay is no longer a valid reproduction: it was
     # solved against the pre-write board. On the written board it is not
@@ -247,8 +256,12 @@ def test_runb_validator_total_exceeds_documented(
         written, _vd, _stats = load_real_board_placement()
     except RealBoardUnavailable as exc:
         pytest.skip(f"{exc} (run `make netlist` first)")
-    distances = _pair_distances(written)
-    assert len(distances) == 0, (
-        f"wave-2 written board must be REQ-SAFE-01 clean (0 violating "
-        f"pairs); got {len(distances)}: {sorted(distances)}"
+    # RE-PINNED 2026-08-25, same reason as the sibling test above: the
+    # "0 violating pairs" figure was a PD2-era wave-2 baseline. Pinned per
+    # insulation class rather than as a pair count, so a FUNCTIONAL 1.8mm
+    # regression cannot hide inside REINFORCED headroom or vice versa.
+    voltage_domains = {n: written["nets"][n]["domain"] for n in written["nets"]}
+    assert_req_safe_01_at_baseline(
+        verify_iec60335_compliance(written, voltage_domains),
+        context="test_runb_validator_total_exceeds_documented (written board)",
     )

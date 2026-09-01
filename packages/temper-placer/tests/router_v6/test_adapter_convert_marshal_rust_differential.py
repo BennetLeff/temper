@@ -57,6 +57,25 @@ from temper_placer.router_v6._adapter_convert import (
 )
 from temper_placer.router_v6._adapter_types import CongestionRegion, DrcViolation
 from temper_placer.router_v6._zone_pour_stitch import _chamfer_path_points
+from tests.router_v6._via_annular_floor import floor_compliant_via
+
+# Via geometry for every fixture below is DERIVED, never written out.
+#
+# 968d1a33d (PR #1316) made `Via::new` enforce the board's annular-ring fab
+# floor at construction, so the Rust arm of this differential corrects a
+# sub-floor pad while the pinned pre-migration oracle -- which predates the
+# floor and is not allowed to grow behaviour -- does not. Feeding a
+# sub-floor pad therefore makes this file assert a divergence the crate
+# creates ON PURPOSE, which is not what a marshalling differential is for:
+# the payload/wire-format shape is the subject, the fab floor is not.
+#
+# The five tests that carried the pre-floor 0.6mm/0.3mm literal (a 0.15mm
+# ring) failed only for readers whose extension was current, and passed for
+# readers whose extension predated #1316. `floor_compliant_via()` reads the
+# floor from the crate, so this file cannot drift out of step with it
+# again. The clamp itself is pinned, deliberately and separately, by
+# `test_via_annular_floor_guard.py`.
+_VIA_DIAMETER, _VIA_DRILL = floor_compliant_via()
 
 # ---------------------------------------------------------------------------
 # The oracles must stay verbatim
@@ -522,7 +541,7 @@ def test_collect_pad_positions_applies_component_rotation():
 
 def test_build_route_payload_zero_length_path():
     path = SimpleNamespace(path_length=0.0, segments=[(0.0, 0.0, "F.Cu"), (1.0, 1.0, "F.Cu")])
-    route = _route(path, vias=[SimpleNamespace(position=(5.0, 6.0), diameter=0.6, drill=0.3, from_layer="F.Cu", to_layer="B.Cu")])
+    route = _route(path, vias=[SimpleNamespace(position=(5.0, 6.0), diameter=_VIA_DIAMETER, drill=_VIA_DRILL, from_layer="F.Cu", to_layer="B.Cu")])
     _assert_payload_same(path, route, "NET1", 2, [(0.0, 0.0), (1.0, 1.0)], "zero-length")
     got = _to.run_build_route_payload(path, route, "NET1", 2, 2)
     assert got[2] == [], "zero-length path must carry no path points"
@@ -586,17 +605,25 @@ def test_build_route_payload_width_snap():
 
 
 def test_build_route_payload_vias_extraction_order():
+    # Two DIFFERENT drills, so the assertion below would catch a payload
+    # that mixed the two vias' geometry up as well as one that reordered
+    # them. Both pads are derived, not written out: the pre-#1316 pair
+    # here was 0.6/0.3 and 0.8/0.4 -- 0.15mm and 0.2mm rings, BOTH under
+    # the fab floor, so the Rust arm corrected both and the pinned oracle
+    # corrected neither.
+    dia_a, drill_a = floor_compliant_via()
+    dia_b, drill_b = floor_compliant_via(drill=0.4)
     vias = [
-        SimpleNamespace(position=(1.0, 2.0), diameter=0.6, drill=0.3, from_layer="F.Cu", to_layer="B.Cu"),
-        SimpleNamespace(position=(3.0, 4.0), diameter=0.8, drill=0.4, from_layer="In1.Cu", to_layer="In2.Cu"),
+        SimpleNamespace(position=(1.0, 2.0), diameter=dia_a, drill=drill_a, from_layer="F.Cu", to_layer="B.Cu"),
+        SimpleNamespace(position=(3.0, 4.0), diameter=dia_b, drill=drill_b, from_layer="In1.Cu", to_layer="In2.Cu"),
     ]
     path = SimpleNamespace(path_length=0.0, coordinates=[])
     route = _route(path, vias=vias)
     _assert_payload_same(path, route, "NET1", 7, [], "via order")
     got = _to.run_build_route_payload(path, route, "NET1", 7, 0)
     assert got[5] == [
-        (1.0, 2.0, 0.6, 0.3, "F.Cu", "B.Cu"),
-        (3.0, 4.0, 0.8, 0.4, "In1.Cu", "In2.Cu"),
+        (1.0, 2.0, dia_a, drill_a, "F.Cu", "B.Cu"),
+        (3.0, 4.0, dia_b, drill_b, "In1.Cu", "In2.Cu"),
     ]
 
 
@@ -607,7 +634,7 @@ def test_build_route_payload_many_randomized():
         pts = [(rng.uniform(0, 5), rng.uniform(0, 5), "F.Cu") for _ in range(n)]
         path = SimpleNamespace(path_length=rng.choice([0.0, 0.5, 2.0]), segments=pts)
         vias = [
-            SimpleNamespace(position=(rng.uniform(0, 5), rng.uniform(0, 5)), diameter=0.6, drill=0.3, from_layer="F.Cu", to_layer="B.Cu")
+            SimpleNamespace(position=(rng.uniform(0, 5), rng.uniform(0, 5)), diameter=_VIA_DIAMETER, drill=_VIA_DRILL, from_layer="F.Cu", to_layer="B.Cu")
             for _ in range(rng.randint(0, 3))
         ]
         route = _route(path, width=rng.choice([0.2, 0.5, 0.0, -1.0]), vias=vias)
@@ -875,7 +902,7 @@ def test_write_routes_full_shim_with_payload_marshalling():
         coordinates=[(0.0, 0.0), (2.0, 0.0)],
         layer_name="B.Cu",
     )
-    via = SimpleNamespace(position=(1.0, 0.5), diameter=0.6, drill=0.3, from_layer="F.Cu", to_layer="B.Cu")
+    via = SimpleNamespace(position=(1.0, 0.5), diameter=_VIA_DIAMETER, drill=_VIA_DRILL, from_layer="F.Cu", to_layer="B.Cu")
     compiled = {
         "NET1": SimpleNamespace(path=path1, width_mm=0.25, vias=[via]),
         "NET2": SimpleNamespace(path=path2, width_mm=0.3, vias=[]),
@@ -908,7 +935,7 @@ def test_write_routes_full_shim_randomized_payloads():
             pts = [(rng.uniform(0, 4), rng.uniform(0, 4), "F.Cu") for _ in range(npts)]
             path = SimpleNamespace(path_length=rng.choice([0.0, 1.0, 3.0]), segments=pts)
             vias = [
-                SimpleNamespace(position=(rng.uniform(0, 4), rng.uniform(0, 4)), diameter=0.6, drill=0.3, from_layer="F.Cu", to_layer="B.Cu")
+                SimpleNamespace(position=(rng.uniform(0, 4), rng.uniform(0, 4)), diameter=_VIA_DIAMETER, drill=_VIA_DRILL, from_layer="F.Cu", to_layer="B.Cu")
                 for _ in range(rng.randint(0, 2))
             ]
             compiled[name] = SimpleNamespace(path=path, width_mm=rng.choice([0.2, 0.4, 0.0]), vias=vias)
