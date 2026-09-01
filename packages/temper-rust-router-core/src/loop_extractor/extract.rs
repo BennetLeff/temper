@@ -11,8 +11,7 @@ use crate::loop_extractor::types::ExtractionError;
 // Component + Net model (simplified for extraction)
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Component {
     pub ref_des: String,
     pub footprint: String,
@@ -22,8 +21,7 @@ pub struct Component {
     pub classification: Classification,
 }
 
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Pin {
     pub name: String,
     pub net: Option<String>,
@@ -199,8 +197,8 @@ fn find_capacitor_chain(
     for &cap_idx in &dc_plus_caps {
         for pin in &components[cap_idx].pins {
             #[allow(clippy::collapsible_if)]
-        if let Some(ref net_name) = pin.net {
-            if net_name != dc_plus && net_name != dc_minus {
+            if let Some(ref net_name) = pin.net {
+                if net_name != dc_plus && net_name != dc_minus {
                     intermediate_nets.insert(net_name.as_str());
                 }
             }
@@ -212,15 +210,13 @@ fn find_capacitor_chain(
     for &cap_idx in &dc_minus_caps {
         for pin in &components[cap_idx].pins {
             #[allow(clippy::collapsible_if)]
-        if let Some(ref net_name) = pin.net {
-            if intermediate_nets.contains(net_name.as_str()) {
+            if let Some(ref net_name) = pin.net {
+                if intermediate_nets.contains(net_name.as_str()) {
                     // Found! Add caps from DC+ side and DC- side that share this net
                     for &dcp_idx in &dc_plus_caps {
-                        let has_net = components[dcp_idx]
-                            .pins
-                            .iter()
-                            .any(|p| p.net.as_deref() == Some(net_name)
-                                  || p.net.as_deref() == Some(dc_plus));
+                        let has_net = components[dcp_idx].pins.iter().any(|p| {
+                            p.net.as_deref() == Some(net_name) || p.net.as_deref() == Some(dc_plus)
+                        });
                         if has_net && !found_caps.contains(&components[dcp_idx].ref_des) {
                             found_caps.push(components[dcp_idx].ref_des.clone());
                         }
@@ -266,8 +262,12 @@ pub fn trace_commutation_loop(
     let (dc_plus, dc_minus) = match (dc_plus, dc_minus) {
         (Some(p), Some(m)) => (p, m),
         (None, _) => {
-            let found: Vec<String> = hb.switch_high.pins.iter()
-                .filter_map(|p| p.net.clone()).collect();
+            let found: Vec<String> = hb
+                .switch_high
+                .pins
+                .iter()
+                .filter_map(|p| p.net.clone())
+                .collect();
             return Err(ExtractionError::MissingNet {
                 component_ref: hb.switch_high.ref_des.clone(),
                 expected: vec!["COLLECTOR/DRAIN/2".into()],
@@ -275,8 +275,12 @@ pub fn trace_commutation_loop(
             });
         }
         (_, None) => {
-            let found: Vec<String> = hb.switch_low.pins.iter()
-                .filter_map(|p| p.net.clone()).collect();
+            let found: Vec<String> = hb
+                .switch_low
+                .pins
+                .iter()
+                .filter_map(|p| p.net.clone())
+                .collect();
             return Err(ExtractionError::MissingNet {
                 component_ref: hb.switch_low.ref_des.clone(),
                 expected: vec!["EMITTER/SOURCE/3".into()],
@@ -309,8 +313,7 @@ pub fn trace_gate_drive_loop(
     let gate_net = match gate_net {
         Some(n) => n,
         None => {
-            let found: Vec<String> = switch.pins.iter()
-                .filter_map(|p| p.net.clone()).collect();
+            let found: Vec<String> = switch.pins.iter().filter_map(|p| p.net.clone()).collect();
             return Err(ExtractionError::MissingNet {
                 component_ref: switch.ref_des.clone(),
                 expected: vec!["GATE/1".into()],
@@ -324,7 +327,10 @@ pub fn trace_gate_drive_loop(
     // Find gate resistor on the gate net
     for comp in components {
         if comp.ref_des.starts_with('R') {
-            let has_gate_net = comp.pins.iter().any(|p| p.net.as_deref() == Some(&gate_net));
+            let has_gate_net = comp
+                .pins
+                .iter()
+                .any(|p| p.net.as_deref() == Some(&gate_net));
             if has_gate_net {
                 comp_refs.insert(0, comp.ref_des.clone());
                 break;
@@ -351,19 +357,23 @@ pub fn trace_gate_drive_loop(
     })
 }
 
-pub fn trace_bootstrap_loop(
-    components: &[Component],
-) -> Option<Loop> {
+pub fn trace_bootstrap_loop(components: &[Component]) -> Option<Loop> {
     // Find bootstrap capacitor
-    let boot_cap = components.iter().find(|c| {
-        c.ref_des.starts_with('C') && c.ref_des.to_uppercase().contains("BOOT")
-    })?;
+    let boot_cap = components
+        .iter()
+        .find(|c| c.ref_des.starts_with('C') && c.ref_des.to_uppercase().contains("BOOT"))?;
 
     // Find diode sharing a net with the bootstrap cap
-    let cap_nets: HashSet<&str> = boot_cap.pins.iter().filter_map(|p| p.net.as_deref()).collect();
+    let cap_nets: HashSet<&str> = boot_cap
+        .pins
+        .iter()
+        .filter_map(|p| p.net.as_deref())
+        .collect();
     let boot_diode = components.iter().find(|c| {
         c.ref_des.starts_with('D')
-            && c.pins.iter().any(|p| p.net.as_deref().is_some_and(|n| cap_nets.contains(n)))
+            && c.pins
+                .iter()
+                .any(|p| p.net.as_deref().is_some_and(|n| cap_nets.contains(n)))
     });
 
     let mut comp_refs = Vec::new();
@@ -395,7 +405,9 @@ pub fn auto_extract_loops(
     let hb = detect_half_bridge(components, &classifications)?;
 
     // Find gate driver (matches Python oracle's find_gate_drivers + drivers[0]).
-    let driver_idx = classifications.iter().position(|c| c.category == "gate_driver");
+    let driver_idx = classifications
+        .iter()
+        .position(|c| c.category == "gate_driver");
     let driver: Option<&Component> = driver_idx.map(|i| &components[i]);
 
     let mut loops = Vec::new();
@@ -427,10 +439,11 @@ pub fn auto_extract_loops(
 
     let mut merged: Vec<Loop> = manual_loops.to_vec();
     for auto_loop in &loops {
-        let base = auto_loop.name.strip_prefix("auto_").unwrap_or(&auto_loop.name);
-        if !manual_names.contains(auto_loop.name.as_str())
-            && !manual_base_names.contains(base)
-        {
+        let base = auto_loop
+            .name
+            .strip_prefix("auto_")
+            .unwrap_or(&auto_loop.name);
+        if !manual_names.contains(auto_loop.name.as_str()) && !manual_base_names.contains(base) {
             merged.push(auto_loop.clone());
         }
     }
@@ -443,17 +456,25 @@ pub fn auto_extract_loops(
 pub(crate) mod tests {
     use super::*;
 
-    fn make_comp(ref_des: &str, footprint: &str, mpn: &str, value: &str,
-                 pins: Vec<(&str, Option<&str>)>) -> Component {
+    fn make_comp(
+        ref_des: &str,
+        footprint: &str,
+        mpn: &str,
+        value: &str,
+        pins: Vec<(&str, Option<&str>)>,
+    ) -> Component {
         Component {
             ref_des: ref_des.into(),
             footprint: footprint.into(),
             mpn: mpn.into(),
             value: value.into(),
-            pins: pins.iter().map(|(n, net)| Pin {
-                name: n.to_string(),
-                net: net.map(String::from),
-            }).collect(),
+            pins: pins
+                .iter()
+                .map(|(n, net)| Pin {
+                    name: n.to_string(),
+                    net: net.map(String::from),
+                })
+                .collect(),
             classification: Classification {
                 component_ref: ref_des.into(),
                 category: String::new(),
@@ -466,12 +487,28 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn test_detect_half_bridge_minimal() {
         let comps = vec![
-            make_comp("Q1", "TO-247-3", "", "", vec![
-                ("1", Some("GATE_H")), ("2", Some("DC_BUS+")), ("3", Some("SW_NODE")),
-            ]),
-            make_comp("Q2", "TO-247-3", "", "", vec![
-                ("1", Some("GATE_L")), ("2", Some("SW_NODE")), ("3", Some("DC_BUS-")),
-            ]),
+            make_comp(
+                "Q1",
+                "TO-247-3",
+                "",
+                "",
+                vec![
+                    ("1", Some("GATE_H")),
+                    ("2", Some("DC_BUS+")),
+                    ("3", Some("SW_NODE")),
+                ],
+            ),
+            make_comp(
+                "Q2",
+                "TO-247-3",
+                "",
+                "",
+                vec![
+                    ("1", Some("GATE_L")),
+                    ("2", Some("SW_NODE")),
+                    ("3", Some("DC_BUS-")),
+                ],
+            ),
         ];
         let classifications = classify_all(&comps);
         let hb = detect_half_bridge(&comps, &classifications).unwrap();
@@ -482,9 +519,13 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn test_detect_half_bridge_no_switches() {
-        let comps = vec![
-            make_comp("R1", "R_0805", "", "", vec![("1", Some("GND")), ("2", None)]),
-        ];
+        let comps = vec![make_comp(
+            "R1",
+            "R_0805",
+            "",
+            "",
+            vec![("1", Some("GND")), ("2", None)],
+        )];
         let classifications = classify_all(&comps);
         let err = detect_half_bridge(&comps, &classifications).unwrap_err();
         match err {
@@ -497,15 +538,35 @@ pub(crate) mod tests {
     fn test_auto_extract_loops_minimal_works() {
         // Covers AE4: minimal half-bridge with single bus cap
         let comps = vec![
-            make_comp("Q1", "TO-247-3", "", "", vec![
-                ("1", Some("GATE_H")), ("2", Some("DC_BUS+")), ("3", Some("SW_NODE")),
-            ]),
-            make_comp("Q2", "TO-247-3", "", "", vec![
-                ("1", Some("GATE_L")), ("2", Some("SW_NODE")), ("3", Some("DC_BUS-")),
-            ]),
-            make_comp("C_BUS", "CP_Radial_D10.0mm", "", "1000uF", vec![
-                ("1", Some("DC_BUS+")), ("2", Some("DC_BUS-")),
-            ]),
+            make_comp(
+                "Q1",
+                "TO-247-3",
+                "",
+                "",
+                vec![
+                    ("1", Some("GATE_H")),
+                    ("2", Some("DC_BUS+")),
+                    ("3", Some("SW_NODE")),
+                ],
+            ),
+            make_comp(
+                "Q2",
+                "TO-247-3",
+                "",
+                "",
+                vec![
+                    ("1", Some("GATE_L")),
+                    ("2", Some("SW_NODE")),
+                    ("3", Some("DC_BUS-")),
+                ],
+            ),
+            make_comp(
+                "C_BUS",
+                "CP_Radial_D10.0mm",
+                "",
+                "1000uF",
+                vec![("1", Some("DC_BUS+")), ("2", Some("DC_BUS-"))],
+            ),
         ];
         let nets = vec![];
         let loops = auto_extract_loops(&comps, &nets, &[]).unwrap();
@@ -520,15 +581,35 @@ pub(crate) mod tests {
     fn test_merge_manual_overrides_auto() {
         // Covers AE6
         let comps = vec![
-            make_comp("Q1", "TO-247-3", "", "", vec![
-                ("1", Some("GATE_H")), ("2", Some("DC_BUS+")), ("3", Some("SW_NODE")),
-            ]),
-            make_comp("Q2", "TO-247-3", "", "", vec![
-                ("1", Some("GATE_L")), ("2", Some("SW_NODE")), ("3", Some("DC_BUS-")),
-            ]),
-            make_comp("C_BUS", "CP_Radial_D10.0mm", "", "1000uF", vec![
-                ("1", Some("DC_BUS+")), ("2", Some("DC_BUS-")),
-            ]),
+            make_comp(
+                "Q1",
+                "TO-247-3",
+                "",
+                "",
+                vec![
+                    ("1", Some("GATE_H")),
+                    ("2", Some("DC_BUS+")),
+                    ("3", Some("SW_NODE")),
+                ],
+            ),
+            make_comp(
+                "Q2",
+                "TO-247-3",
+                "",
+                "",
+                vec![
+                    ("1", Some("GATE_L")),
+                    ("2", Some("SW_NODE")),
+                    ("3", Some("DC_BUS-")),
+                ],
+            ),
+            make_comp(
+                "C_BUS",
+                "CP_Radial_D10.0mm",
+                "",
+                "1000uF",
+                vec![("1", Some("DC_BUS+")), ("2", Some("DC_BUS-"))],
+            ),
         ];
         let manual = vec![Loop {
             name: "commutation".into(),
@@ -539,7 +620,11 @@ pub(crate) mod tests {
         }];
         let loops = auto_extract_loops(&comps, &[], &manual).unwrap();
         // Manual "commutation" overrides "auto_commutation"
-        assert!(loops.iter().any(|l| l.name == "commutation" && l.max_area_mm2 == 300.0));
+        assert!(
+            loops
+                .iter()
+                .any(|l| l.name == "commutation" && l.max_area_mm2 == 300.0)
+        );
         assert!(!loops.iter().any(|l| l.name == "auto_commutation"));
     }
 

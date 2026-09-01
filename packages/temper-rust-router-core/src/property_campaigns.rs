@@ -135,8 +135,8 @@ fn sub_rng(seed: u64, salt: u64) -> SplitMix64 {
 // ===========================================================================
 
 use crate::pruning::{
-    dist_min_edge_to_pins, euclidean_dist, is_candidate_edge, pin_span, Edge2D, NetPins, Point2D,
-    PruningParams,
+    Edge2D, NetPins, Point2D, PruningParams, dist_min_edge_to_pins, euclidean_dist,
+    is_candidate_edge, pin_span,
 };
 
 const PR_SALT_PARAMS: u64 = 0xE1;
@@ -146,7 +146,9 @@ const PR_SALT_ENDPOINTS: u64 = 0xE2;
 /// property_tests`'s `point_2d`/`net_pins` proptest strategies use.
 fn pr_gen_net_from(rng: &mut SplitMix64) -> NetPins {
     let n = 1 + rng.index(6); // 1..=6
-    let positions = (0..n).map(|_| (rng.range(0.0, 200.0), rng.range(0.0, 200.0))).collect();
+    let positions = (0..n)
+        .map(|_| (rng.range(0.0, 200.0), rng.range(0.0, 200.0)))
+        .collect();
     NetPins { positions }
 }
 
@@ -155,7 +157,10 @@ fn pr_gen_point_from(rng: &mut SplitMix64) -> Point2D {
 }
 
 fn pr_gen_edge_from(rng: &mut SplitMix64) -> Edge2D {
-    Edge2D { start: pr_gen_point_from(rng), end: pr_gen_point_from(rng) }
+    Edge2D {
+        start: pr_gen_point_from(rng),
+        end: pr_gen_point_from(rng),
+    }
 }
 
 /// Loosening the pruning parameters (`k_factor` and/or `m_min`) never turns
@@ -177,8 +182,14 @@ pub(crate) fn pr_monotonic_params_impl(seed: u64) {
     let mut prng = sub_rng(seed, PR_SALT_PARAMS);
     let k = prng.range(1.0, 5.0);
     let m = prng.range(0.1, 100.0);
-    let tight = PruningParams { k_factor: k, m_min: m };
-    let loose = PruningParams { k_factor: k + 1.0, m_min: m + 10.0 };
+    let tight = PruningParams {
+        k_factor: k,
+        m_min: m,
+    };
+    let loose = PruningParams {
+        k_factor: k + 1.0,
+        m_min: m + 10.0,
+    };
 
     let tight_result = is_candidate_edge(&net, &edge, &tight);
     let loose_result = is_candidate_edge(&net, &edge, &loose);
@@ -211,7 +222,10 @@ pub(crate) fn pr_symmetric_endpoints_impl(seed: u64) {
     let params = PruningParams::default();
 
     let forward = Edge2D { start, end };
-    let backward = Edge2D { start: end, end: start };
+    let backward = Edge2D {
+        start: end,
+        end: start,
+    };
     let r_forward = is_candidate_edge(&net, &forward, &params);
     let r_backward = is_candidate_edge(&net, &backward, &params);
 
@@ -290,12 +304,17 @@ pub(crate) fn pr_emst_soundness_impl(seed: u64) {
     let mut rng = SplitMix64::new(seed);
     let n = 2 + rng.index(7); // 2..=8
     let pins: Vec<Point2D> = (0..n).map(|_| pr_gen_point_from(&mut rng)).collect();
-    let net = NetPins { positions: pins.clone() };
+    let net = NetPins {
+        positions: pins.clone(),
+    };
     let params = PruningParams::default();
     let mst_edges = pr_euclidean_mst(&pins);
 
     for &(i, j) in &mst_edges {
-        let edge = Edge2D { start: pins[i], end: pins[j] };
+        let edge = Edge2D {
+            start: pins[i],
+            end: pins[j],
+        };
         let dist = dist_min_edge_to_pins(&edge, &net.positions);
         assert!(
             is_candidate_edge(&net, &edge, &params),
@@ -310,7 +329,7 @@ pub(crate) fn pr_emst_soundness_impl(seed: u64) {
 // simplifier over `InternalConstraintModel`.
 // ===========================================================================
 
-use crate::combinator::rewrite::{rewrite, RewriteError};
+use crate::combinator::rewrite::{RewriteError, rewrite};
 use crate::types::{InternalConstraint, InternalConstraintModel};
 
 /// Fisher-Yates partial shuffle: `k` distinct indices from `0..n`, order
@@ -347,18 +366,35 @@ fn rw_choose_subset(rng: &mut SplitMix64, n: usize, k: usize) -> Vec<usize> {
 /// (sorted) form does not.
 fn canon_constraint(c: &InternalConstraint) -> String {
     match c {
-        InternalConstraint::Capacity { channel_id, capacity, slack_factor, terms } => {
+        InternalConstraint::Capacity {
+            channel_id,
+            capacity,
+            slack_factor,
+            terms,
+        } => {
             let mut t: Vec<String> = terms.iter().map(|(n, w)| format!("{n}:{w:.6}")).collect();
             t.sort();
-            format!("Capacity({channel_id},{capacity:.6},{slack_factor:.6},[{}])", t.join(","))
+            format!(
+                "Capacity({channel_id},{capacity:.6},{slack_factor:.6},[{}])",
+                t.join(",")
+            )
         }
-        InternalConstraint::DiffPair { channel_id, p_var_name, n_var_name } => {
+        InternalConstraint::DiffPair {
+            channel_id,
+            p_var_name,
+            n_var_name,
+        } => {
             format!("DiffPair({channel_id},{p_var_name},{n_var_name})")
         }
         InternalConstraint::LayerRestriction { var_name, allowed } => {
             format!("LayerRestriction({var_name},{allowed})")
         }
-        InternalConstraint::ChannelSeparation { group_a, group_b, min_slots, channel_id } => {
+        InternalConstraint::ChannelSeparation {
+            group_a,
+            group_b,
+            min_slots,
+            channel_id,
+        } => {
             format!("ChannelSeparation({channel_id},{min_slots},{group_a:?},{group_b:?})")
         }
     }
@@ -398,8 +434,10 @@ fn rw_gen_model(seed: u64) -> InternalConstraintModel {
         for _ in 0..n_caps {
             let k_terms = 1 + rng.index(n_vars.min(4));
             let sel = rw_choose_subset(&mut rng, n_vars, k_terms);
-            let terms: Vec<(String, f64)> =
-                sel.iter().map(|&i| (vars[i].clone(), rng.range(0.5, 5.0))).collect();
+            let terms: Vec<(String, f64)> = sel
+                .iter()
+                .map(|&i| (vars[i].clone(), rng.range(0.5, 5.0)))
+                .collect();
             constraints.push(InternalConstraint::Capacity {
                 channel_id: channel.clone(),
                 capacity: rng.range(1.0, 50.0),
@@ -411,7 +449,10 @@ fn rw_gen_model(seed: u64) -> InternalConstraintModel {
         for v in &vars {
             if rng.next_f64() < 0.4 {
                 let allowed = rng.next_f64() < 0.5;
-                constraints.push(InternalConstraint::LayerRestriction { var_name: v.clone(), allowed });
+                constraints.push(InternalConstraint::LayerRestriction {
+                    var_name: v.clone(),
+                    allowed,
+                });
             }
         }
 
@@ -434,7 +475,10 @@ fn rw_gen_model(seed: u64) -> InternalConstraintModel {
         }
     }
 
-    InternalConstraintModel { variables: Vec::new(), constraints }
+    InternalConstraintModel {
+        variables: Vec::new(),
+        constraints,
+    }
 }
 
 /// `rewrite()` is a fixpoint simplifier (module doc: "Applies simplification
@@ -522,8 +566,10 @@ fn rw_gen_model_for_dup(seed: u64) -> (InternalConstraintModel, InternalConstrai
     for _ in 0..n_caps {
         let k_terms = 1 + rng.index(n_vars.min(4));
         let sel = rw_choose_subset(&mut rng, n_vars, k_terms);
-        let terms: Vec<(String, f64)> =
-            sel.iter().map(|&i| (vars[i].clone(), rng.range(0.5, 5.0))).collect();
+        let terms: Vec<(String, f64)> = sel
+            .iter()
+            .map(|&i| (vars[i].clone(), rng.range(0.5, 5.0)))
+            .collect();
         constraints.push(InternalConstraint::Capacity {
             channel_id: channel.clone(),
             capacity: rng.range(1.0, 50.0),
@@ -532,8 +578,15 @@ fn rw_gen_model_for_dup(seed: u64) -> (InternalConstraintModel, InternalConstrai
         });
     }
 
-    let model = InternalConstraintModel { variables: Vec::new(), constraints };
-    let dup_target = if rng.next_f64() < 0.5 { layer_restriction } else { diff_pair };
+    let model = InternalConstraintModel {
+        variables: Vec::new(),
+        constraints,
+    };
+    let dup_target = if rng.next_f64() < 0.5 {
+        layer_restriction
+    } else {
+        diff_pair
+    };
     (model, dup_target)
 }
 
@@ -591,8 +644,14 @@ pub(crate) fn rw_duplicate_invariant_impl(seed: u64) {
 fn rw_gen_conflict_model(seed: u64) -> InternalConstraintModel {
     let mut rng = SplitMix64::new(seed);
     let mut constraints = vec![
-        InternalConstraint::LayerRestriction { var_name: "conflict_var".into(), allowed: true },
-        InternalConstraint::LayerRestriction { var_name: "conflict_var".into(), allowed: false },
+        InternalConstraint::LayerRestriction {
+            var_name: "conflict_var".into(),
+            allowed: true,
+        },
+        InternalConstraint::LayerRestriction {
+            var_name: "conflict_var".into(),
+            allowed: false,
+        },
     ];
 
     let n_filler = rng.index(6); // 0..=5
@@ -623,7 +682,10 @@ fn rw_gen_conflict_model(seed: u64) -> InternalConstraintModel {
         constraints.swap(i, j);
     }
 
-    InternalConstraintModel { variables: Vec::new(), constraints }
+    InternalConstraintModel {
+        variables: Vec::new(),
+        constraints,
+    }
 }
 
 /// `rewrite()` must detect an RW7 `LayerRestriction` conflict regardless of
@@ -666,7 +728,7 @@ pub(crate) fn rw_conflict_order_independent_impl(seed: u64) {
 // congestion/thermal-aware routing.
 // ===========================================================================
 
-use crate::astar::{astar_kernel_3d, AstarInput};
+use crate::astar::{AstarInput, astar_kernel_3d};
 
 /// Generous relative to any grid this module generates (<=10x10=100 cells),
 /// so no property below can be confounded by hitting the iteration cap --
@@ -708,7 +770,13 @@ fn as_gen_base(seed: u64) -> (usize, usize, Vec<u8>, i64, i64, Vec<usize>) {
     (rows, cols, validity, start as i64, goal as i64, blocked)
 }
 
-fn as_input<'a>(rows: usize, cols: usize, validity: &'a [u8], start: i64, goal: i64) -> AstarInput<'a> {
+fn as_input<'a>(
+    rows: usize,
+    cols: usize,
+    validity: &'a [u8],
+    start: i64,
+    goal: i64,
+) -> AstarInput<'a> {
     AstarInput {
         start_idx: start,
         goal_idx: goal,
@@ -795,7 +863,10 @@ pub(crate) fn as_path_validity_impl(seed: u64) {
         return;
     }
 
-    assert_eq!(out.path[0], start as i32, "path does not start at start_idx: seed={seed}");
+    assert_eq!(
+        out.path[0], start as i32,
+        "path does not start at start_idx: seed={seed}"
+    );
     assert_eq!(
         out.path[out.path.len() - 1],
         goal as i32,
@@ -930,9 +1001,15 @@ pub(crate) fn pr_predicate_consistent_impl(seed: u64) {
     let result = is_candidate_edge(&net, &edge, &params);
 
     if dist <= margin {
-        assert!(result, "seed={seed}: dist={dist:.3} <= margin={margin:.3}, expected candidate=true");
+        assert!(
+            result,
+            "seed={seed}: dist={dist:.3} <= margin={margin:.3}, expected candidate=true"
+        );
     } else {
-        assert!(!result, "seed={seed}: dist={dist:.3} > margin={margin:.3}, expected candidate=false");
+        assert!(
+            !result,
+            "seed={seed}: dist={dist:.3} > margin={margin:.3}, expected candidate=false"
+        );
     }
 }
 
@@ -950,7 +1027,10 @@ pub(crate) fn pr_idempotent_impl(seed: u64) {
     let params = PruningParams::default();
     let r1 = is_candidate_edge(&net, &edge, &params);
     let r2 = is_candidate_edge(&net, &edge, &params);
-    assert_eq!(r1, r2, "seed={seed}: repeated calls on identical input disagreed");
+    assert_eq!(
+        r1, r2,
+        "seed={seed}: repeated calls on identical input disagreed"
+    );
 }
 
 /// A net of collinear pins (all lying on one horizontal line) must not break
@@ -974,7 +1054,10 @@ pub(crate) fn pr_collinear_consistent_impl(seed: u64) {
     let edge_y = rng.range(0.0, 200.0);
     let edge_dx = rng.range(-50.0, 50.0);
     let edge_dy = rng.range(-50.0, 50.0);
-    let edge = Edge2D { start: (edge_x, edge_y), end: (edge_x + edge_dx, edge_y + edge_dy) };
+    let edge = Edge2D {
+        start: (edge_x, edge_y),
+        end: (edge_x + edge_dx, edge_y + edge_dy),
+    };
 
     let params = PruningParams::default();
     let span = pin_span(&net.positions);
@@ -1002,13 +1085,23 @@ pub(crate) fn pr_duplicate_pins_impl(seed: u64) {
     let x = rng.range(0.0, 100.0);
     let y = rng.range(0.0, 100.0);
     let params = PruningParams::default();
-    let single = NetPins { positions: vec![(x, y)] };
-    let duplicate = NetPins { positions: vec![(x, y), (x, y), (x, y)] };
-    let edge = Edge2D { start: (50.0, 50.0), end: (150.0, 150.0) };
+    let single = NetPins {
+        positions: vec![(x, y)],
+    };
+    let duplicate = NetPins {
+        positions: vec![(x, y), (x, y), (x, y)],
+    };
+    let edge = Edge2D {
+        start: (50.0, 50.0),
+        end: (150.0, 150.0),
+    };
 
     let r1 = is_candidate_edge(&single, &edge, &params);
     let r2 = is_candidate_edge(&duplicate, &edge, &params);
-    assert_eq!(r1, r2, "seed={seed}: duplicate pins changed the candidate result: single={r1}, duplicate={r2}");
+    assert_eq!(
+        r1, r2,
+        "seed={seed}: duplicate pins changed the candidate result: single={r1}, duplicate={r2}"
+    );
     assert_eq!(
         pin_span(&single.positions),
         pin_span(&duplicate.positions),
@@ -1025,7 +1118,10 @@ pub(crate) fn pr_span_non_negative_impl(seed: u64) {
     let mut rng = SplitMix64::new(seed);
     let net = pr_gen_net_from(&mut rng);
     let span = pin_span(&net.positions);
-    assert!(span >= 0.0, "seed={seed}: pin_span must be non-negative, got {span}");
+    assert!(
+        span >= 0.0,
+        "seed={seed}: pin_span must be non-negative, got {span}"
+    );
 }
 
 /// `dist_min_edge_to_pins` must return exactly `0.0` when one of the edge's
@@ -1043,8 +1139,13 @@ pub(crate) fn pr_dist_zero_at_pin_impl(seed: u64) {
     if ox == 0.0 && oy == 0.0 {
         ox = 1.0; // avoid a degenerate zero-length edge (proptest used prop_assume here)
     }
-    let edge = Edge2D { start: pin, end: (pin.0 + ox, pin.1 + oy) };
-    let net = NetPins { positions: vec![pin] };
+    let edge = Edge2D {
+        start: pin,
+        end: (pin.0 + ox, pin.1 + oy),
+    };
+    let net = NetPins {
+        positions: vec![pin],
+    };
     let d = dist_min_edge_to_pins(&edge, &net.positions);
     assert!(
         (d - 0.0).abs() < f64::EPSILON,
@@ -1071,7 +1172,10 @@ fn enc_model_net_channels(count: usize) -> InternalConstraintModel {
             channel_id: "ch0".to_string(),
         })
         .collect();
-    InternalConstraintModel { variables, constraints: vec![] }
+    InternalConstraintModel {
+        variables,
+        constraints: vec![],
+    }
 }
 
 /// A model with `count` `NetLayer` variables, each with its own
@@ -1093,7 +1197,10 @@ fn enc_model_layer_restrictions(count: usize) -> InternalConstraintModel {
             allowed: i % 2 == 0,
         })
         .collect();
-    InternalConstraintModel { variables, constraints }
+    InternalConstraintModel {
+        variables,
+        constraints,
+    }
 }
 
 /// `encode_to_cnf`'s three output sizes must always agree:
@@ -1150,7 +1257,10 @@ pub(crate) fn enc_no_empty_clauses_impl(seed: u64) {
     let model = enc_model_layer_restrictions(n);
     let (cnf, _) = encode_to_cnf(&model);
     for clause in cnf.clauses() {
-        assert!(!clause.is_empty(), "seed={seed} n={n}: encoded CNF contains an empty clause");
+        assert!(
+            !clause.is_empty(),
+            "seed={seed} n={n}: encoded CNF contains an empty clause"
+        );
     }
 }
 
@@ -1188,7 +1298,10 @@ pub(crate) fn enc_empty_constraints_no_clauses_impl(seed: u64) {
     let n = rng.index(11); // 0..=10
     let model = enc_model_net_channels(n);
     let (cnf, _) = encode_to_cnf(&model);
-    assert!(cnf.clauses_is_empty(), "seed={seed} n={n}: expected no clauses for an unconstrained model");
+    assert!(
+        cnf.clauses_is_empty(),
+        "seed={seed} n={n}: expected no clauses for an unconstrained model"
+    );
     assert_eq!(cnf.num_vars, n, "seed={seed} n={n}");
 }
 
@@ -1230,7 +1343,6 @@ pub(crate) fn cls_unit_multiplier_impl(seed: u64) {
     );
 }
 
-
 #[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
@@ -1270,7 +1382,13 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn pr_euclidean_mst_has_n_minus_one_edges() {
-        let pts = vec![(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0), (5.0, 5.0)];
+        let pts = vec![
+            (0.0, 0.0),
+            (10.0, 0.0),
+            (10.0, 10.0),
+            (0.0, 10.0),
+            (5.0, 5.0),
+        ];
         let edges = pr_euclidean_mst(&pts);
         assert_eq!(edges.len(), pts.len() - 1);
     }
@@ -1290,7 +1408,10 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn canon_constraints_is_order_independent() {
         let a = vec![
-            InternalConstraint::LayerRestriction { var_name: "x".into(), allowed: true },
+            InternalConstraint::LayerRestriction {
+                var_name: "x".into(),
+                allowed: true,
+            },
             InternalConstraint::DiffPair {
                 channel_id: "ch0".into(),
                 p_var_name: "x".into(),
@@ -1355,6635 +1476,13235 @@ pub(crate) mod tests {
 
     // --- pr_monotonic_params: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000000() { pr_monotonic_params_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000001() { pr_monotonic_params_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000002() { pr_monotonic_params_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000003() { pr_monotonic_params_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000004() { pr_monotonic_params_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000005() { pr_monotonic_params_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000006() { pr_monotonic_params_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000007() { pr_monotonic_params_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000008() { pr_monotonic_params_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000009() { pr_monotonic_params_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000010() { pr_monotonic_params_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000011() { pr_monotonic_params_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000012() { pr_monotonic_params_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000013() { pr_monotonic_params_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000014() { pr_monotonic_params_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000015() { pr_monotonic_params_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000016() { pr_monotonic_params_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000017() { pr_monotonic_params_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000018() { pr_monotonic_params_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000019() { pr_monotonic_params_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000020() { pr_monotonic_params_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000021() { pr_monotonic_params_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000022() { pr_monotonic_params_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000023() { pr_monotonic_params_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000024() { pr_monotonic_params_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000025() { pr_monotonic_params_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000026() { pr_monotonic_params_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000027() { pr_monotonic_params_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000028() { pr_monotonic_params_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000029() { pr_monotonic_params_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000030() { pr_monotonic_params_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000031() { pr_monotonic_params_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000032() { pr_monotonic_params_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000033() { pr_monotonic_params_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000034() { pr_monotonic_params_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000035() { pr_monotonic_params_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000036() { pr_monotonic_params_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000037() { pr_monotonic_params_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000038() { pr_monotonic_params_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000039() { pr_monotonic_params_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000040() { pr_monotonic_params_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000041() { pr_monotonic_params_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000042() { pr_monotonic_params_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000043() { pr_monotonic_params_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000044() { pr_monotonic_params_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000045() { pr_monotonic_params_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000046() { pr_monotonic_params_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000047() { pr_monotonic_params_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000048() { pr_monotonic_params_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000049() { pr_monotonic_params_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000050() { pr_monotonic_params_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000051() { pr_monotonic_params_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000052() { pr_monotonic_params_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000053() { pr_monotonic_params_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000054() { pr_monotonic_params_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000055() { pr_monotonic_params_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000056() { pr_monotonic_params_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000057() { pr_monotonic_params_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000058() { pr_monotonic_params_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000059() { pr_monotonic_params_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000060() { pr_monotonic_params_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000061() { pr_monotonic_params_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000062() { pr_monotonic_params_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000063() { pr_monotonic_params_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000064() { pr_monotonic_params_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000065() { pr_monotonic_params_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000066() { pr_monotonic_params_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000067() { pr_monotonic_params_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000068() { pr_monotonic_params_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000069() { pr_monotonic_params_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000070() { pr_monotonic_params_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000071() { pr_monotonic_params_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000072() { pr_monotonic_params_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000073() { pr_monotonic_params_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000074() { pr_monotonic_params_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000075() { pr_monotonic_params_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000076() { pr_monotonic_params_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000077() { pr_monotonic_params_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000078() { pr_monotonic_params_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000079() { pr_monotonic_params_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000080() { pr_monotonic_params_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000081() { pr_monotonic_params_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000082() { pr_monotonic_params_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000083() { pr_monotonic_params_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000084() { pr_monotonic_params_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000085() { pr_monotonic_params_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000086() { pr_monotonic_params_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000087() { pr_monotonic_params_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000088() { pr_monotonic_params_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000089() { pr_monotonic_params_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000090() { pr_monotonic_params_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000091() { pr_monotonic_params_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000092() { pr_monotonic_params_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000093() { pr_monotonic_params_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000094() { pr_monotonic_params_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000095() { pr_monotonic_params_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000096() { pr_monotonic_params_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000097() { pr_monotonic_params_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000098() { pr_monotonic_params_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000099() { pr_monotonic_params_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000100() { pr_monotonic_params_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000101() { pr_monotonic_params_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000102() { pr_monotonic_params_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000103() { pr_monotonic_params_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000104() { pr_monotonic_params_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000105() { pr_monotonic_params_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000106() { pr_monotonic_params_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000107() { pr_monotonic_params_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000108() { pr_monotonic_params_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000109() { pr_monotonic_params_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000110() { pr_monotonic_params_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000111() { pr_monotonic_params_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000112() { pr_monotonic_params_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000113() { pr_monotonic_params_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000114() { pr_monotonic_params_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000115() { pr_monotonic_params_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000116() { pr_monotonic_params_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000117() { pr_monotonic_params_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000118() { pr_monotonic_params_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000119() { pr_monotonic_params_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000120() { pr_monotonic_params_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000121() { pr_monotonic_params_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000122() { pr_monotonic_params_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000123() { pr_monotonic_params_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000124() { pr_monotonic_params_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000125() { pr_monotonic_params_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000126() { pr_monotonic_params_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000127() { pr_monotonic_params_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000128() { pr_monotonic_params_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000129() { pr_monotonic_params_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000130() { pr_monotonic_params_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000131() { pr_monotonic_params_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000132() { pr_monotonic_params_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000133() { pr_monotonic_params_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000134() { pr_monotonic_params_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000135() { pr_monotonic_params_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000136() { pr_monotonic_params_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000137() { pr_monotonic_params_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000138() { pr_monotonic_params_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000139() { pr_monotonic_params_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000140() { pr_monotonic_params_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000141() { pr_monotonic_params_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000142() { pr_monotonic_params_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000143() { pr_monotonic_params_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000144() { pr_monotonic_params_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000145() { pr_monotonic_params_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000146() { pr_monotonic_params_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000147() { pr_monotonic_params_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000148() { pr_monotonic_params_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_monotonic_params_seed_000149() { pr_monotonic_params_impl(149); }
+    fn pr_monotonic_params_seed_000000() {
+        pr_monotonic_params_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000001() {
+        pr_monotonic_params_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000002() {
+        pr_monotonic_params_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000003() {
+        pr_monotonic_params_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000004() {
+        pr_monotonic_params_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000005() {
+        pr_monotonic_params_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000006() {
+        pr_monotonic_params_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000007() {
+        pr_monotonic_params_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000008() {
+        pr_monotonic_params_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000009() {
+        pr_monotonic_params_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000010() {
+        pr_monotonic_params_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000011() {
+        pr_monotonic_params_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000012() {
+        pr_monotonic_params_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000013() {
+        pr_monotonic_params_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000014() {
+        pr_monotonic_params_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000015() {
+        pr_monotonic_params_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000016() {
+        pr_monotonic_params_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000017() {
+        pr_monotonic_params_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000018() {
+        pr_monotonic_params_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000019() {
+        pr_monotonic_params_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000020() {
+        pr_monotonic_params_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000021() {
+        pr_monotonic_params_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000022() {
+        pr_monotonic_params_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000023() {
+        pr_monotonic_params_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000024() {
+        pr_monotonic_params_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000025() {
+        pr_monotonic_params_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000026() {
+        pr_monotonic_params_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000027() {
+        pr_monotonic_params_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000028() {
+        pr_monotonic_params_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000029() {
+        pr_monotonic_params_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000030() {
+        pr_monotonic_params_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000031() {
+        pr_monotonic_params_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000032() {
+        pr_monotonic_params_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000033() {
+        pr_monotonic_params_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000034() {
+        pr_monotonic_params_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000035() {
+        pr_monotonic_params_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000036() {
+        pr_monotonic_params_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000037() {
+        pr_monotonic_params_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000038() {
+        pr_monotonic_params_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000039() {
+        pr_monotonic_params_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000040() {
+        pr_monotonic_params_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000041() {
+        pr_monotonic_params_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000042() {
+        pr_monotonic_params_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000043() {
+        pr_monotonic_params_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000044() {
+        pr_monotonic_params_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000045() {
+        pr_monotonic_params_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000046() {
+        pr_monotonic_params_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000047() {
+        pr_monotonic_params_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000048() {
+        pr_monotonic_params_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000049() {
+        pr_monotonic_params_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000050() {
+        pr_monotonic_params_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000051() {
+        pr_monotonic_params_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000052() {
+        pr_monotonic_params_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000053() {
+        pr_monotonic_params_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000054() {
+        pr_monotonic_params_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000055() {
+        pr_monotonic_params_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000056() {
+        pr_monotonic_params_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000057() {
+        pr_monotonic_params_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000058() {
+        pr_monotonic_params_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000059() {
+        pr_monotonic_params_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000060() {
+        pr_monotonic_params_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000061() {
+        pr_monotonic_params_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000062() {
+        pr_monotonic_params_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000063() {
+        pr_monotonic_params_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000064() {
+        pr_monotonic_params_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000065() {
+        pr_monotonic_params_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000066() {
+        pr_monotonic_params_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000067() {
+        pr_monotonic_params_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000068() {
+        pr_monotonic_params_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000069() {
+        pr_monotonic_params_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000070() {
+        pr_monotonic_params_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000071() {
+        pr_monotonic_params_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000072() {
+        pr_monotonic_params_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000073() {
+        pr_monotonic_params_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000074() {
+        pr_monotonic_params_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000075() {
+        pr_monotonic_params_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000076() {
+        pr_monotonic_params_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000077() {
+        pr_monotonic_params_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000078() {
+        pr_monotonic_params_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000079() {
+        pr_monotonic_params_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000080() {
+        pr_monotonic_params_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000081() {
+        pr_monotonic_params_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000082() {
+        pr_monotonic_params_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000083() {
+        pr_monotonic_params_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000084() {
+        pr_monotonic_params_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000085() {
+        pr_monotonic_params_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000086() {
+        pr_monotonic_params_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000087() {
+        pr_monotonic_params_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000088() {
+        pr_monotonic_params_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000089() {
+        pr_monotonic_params_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000090() {
+        pr_monotonic_params_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000091() {
+        pr_monotonic_params_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000092() {
+        pr_monotonic_params_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000093() {
+        pr_monotonic_params_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000094() {
+        pr_monotonic_params_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000095() {
+        pr_monotonic_params_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000096() {
+        pr_monotonic_params_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000097() {
+        pr_monotonic_params_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000098() {
+        pr_monotonic_params_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000099() {
+        pr_monotonic_params_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000100() {
+        pr_monotonic_params_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000101() {
+        pr_monotonic_params_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000102() {
+        pr_monotonic_params_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000103() {
+        pr_monotonic_params_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000104() {
+        pr_monotonic_params_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000105() {
+        pr_monotonic_params_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000106() {
+        pr_monotonic_params_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000107() {
+        pr_monotonic_params_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000108() {
+        pr_monotonic_params_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000109() {
+        pr_monotonic_params_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000110() {
+        pr_monotonic_params_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000111() {
+        pr_monotonic_params_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000112() {
+        pr_monotonic_params_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000113() {
+        pr_monotonic_params_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000114() {
+        pr_monotonic_params_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000115() {
+        pr_monotonic_params_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000116() {
+        pr_monotonic_params_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000117() {
+        pr_monotonic_params_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000118() {
+        pr_monotonic_params_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000119() {
+        pr_monotonic_params_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000120() {
+        pr_monotonic_params_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000121() {
+        pr_monotonic_params_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000122() {
+        pr_monotonic_params_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000123() {
+        pr_monotonic_params_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000124() {
+        pr_monotonic_params_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000125() {
+        pr_monotonic_params_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000126() {
+        pr_monotonic_params_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000127() {
+        pr_monotonic_params_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000128() {
+        pr_monotonic_params_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000129() {
+        pr_monotonic_params_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000130() {
+        pr_monotonic_params_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000131() {
+        pr_monotonic_params_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000132() {
+        pr_monotonic_params_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000133() {
+        pr_monotonic_params_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000134() {
+        pr_monotonic_params_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000135() {
+        pr_monotonic_params_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000136() {
+        pr_monotonic_params_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000137() {
+        pr_monotonic_params_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000138() {
+        pr_monotonic_params_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000139() {
+        pr_monotonic_params_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000140() {
+        pr_monotonic_params_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000141() {
+        pr_monotonic_params_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000142() {
+        pr_monotonic_params_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000143() {
+        pr_monotonic_params_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000144() {
+        pr_monotonic_params_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000145() {
+        pr_monotonic_params_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000146() {
+        pr_monotonic_params_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000147() {
+        pr_monotonic_params_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000148() {
+        pr_monotonic_params_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_monotonic_params_seed_000149() {
+        pr_monotonic_params_impl(149);
+    }
 
     // --- pr_symmetric_endpoints: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000000() { pr_symmetric_endpoints_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000001() { pr_symmetric_endpoints_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000002() { pr_symmetric_endpoints_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000003() { pr_symmetric_endpoints_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000004() { pr_symmetric_endpoints_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000005() { pr_symmetric_endpoints_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000006() { pr_symmetric_endpoints_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000007() { pr_symmetric_endpoints_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000008() { pr_symmetric_endpoints_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000009() { pr_symmetric_endpoints_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000010() { pr_symmetric_endpoints_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000011() { pr_symmetric_endpoints_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000012() { pr_symmetric_endpoints_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000013() { pr_symmetric_endpoints_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000014() { pr_symmetric_endpoints_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000015() { pr_symmetric_endpoints_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000016() { pr_symmetric_endpoints_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000017() { pr_symmetric_endpoints_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000018() { pr_symmetric_endpoints_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000019() { pr_symmetric_endpoints_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000020() { pr_symmetric_endpoints_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000021() { pr_symmetric_endpoints_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000022() { pr_symmetric_endpoints_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000023() { pr_symmetric_endpoints_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000024() { pr_symmetric_endpoints_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000025() { pr_symmetric_endpoints_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000026() { pr_symmetric_endpoints_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000027() { pr_symmetric_endpoints_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000028() { pr_symmetric_endpoints_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000029() { pr_symmetric_endpoints_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000030() { pr_symmetric_endpoints_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000031() { pr_symmetric_endpoints_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000032() { pr_symmetric_endpoints_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000033() { pr_symmetric_endpoints_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000034() { pr_symmetric_endpoints_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000035() { pr_symmetric_endpoints_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000036() { pr_symmetric_endpoints_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000037() { pr_symmetric_endpoints_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000038() { pr_symmetric_endpoints_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000039() { pr_symmetric_endpoints_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000040() { pr_symmetric_endpoints_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000041() { pr_symmetric_endpoints_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000042() { pr_symmetric_endpoints_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000043() { pr_symmetric_endpoints_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000044() { pr_symmetric_endpoints_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000045() { pr_symmetric_endpoints_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000046() { pr_symmetric_endpoints_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000047() { pr_symmetric_endpoints_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000048() { pr_symmetric_endpoints_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000049() { pr_symmetric_endpoints_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000050() { pr_symmetric_endpoints_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000051() { pr_symmetric_endpoints_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000052() { pr_symmetric_endpoints_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000053() { pr_symmetric_endpoints_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000054() { pr_symmetric_endpoints_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000055() { pr_symmetric_endpoints_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000056() { pr_symmetric_endpoints_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000057() { pr_symmetric_endpoints_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000058() { pr_symmetric_endpoints_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000059() { pr_symmetric_endpoints_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000060() { pr_symmetric_endpoints_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000061() { pr_symmetric_endpoints_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000062() { pr_symmetric_endpoints_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000063() { pr_symmetric_endpoints_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000064() { pr_symmetric_endpoints_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000065() { pr_symmetric_endpoints_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000066() { pr_symmetric_endpoints_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000067() { pr_symmetric_endpoints_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000068() { pr_symmetric_endpoints_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000069() { pr_symmetric_endpoints_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000070() { pr_symmetric_endpoints_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000071() { pr_symmetric_endpoints_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000072() { pr_symmetric_endpoints_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000073() { pr_symmetric_endpoints_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000074() { pr_symmetric_endpoints_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000075() { pr_symmetric_endpoints_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000076() { pr_symmetric_endpoints_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000077() { pr_symmetric_endpoints_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000078() { pr_symmetric_endpoints_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000079() { pr_symmetric_endpoints_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000080() { pr_symmetric_endpoints_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000081() { pr_symmetric_endpoints_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000082() { pr_symmetric_endpoints_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000083() { pr_symmetric_endpoints_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000084() { pr_symmetric_endpoints_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000085() { pr_symmetric_endpoints_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000086() { pr_symmetric_endpoints_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000087() { pr_symmetric_endpoints_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000088() { pr_symmetric_endpoints_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000089() { pr_symmetric_endpoints_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000090() { pr_symmetric_endpoints_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000091() { pr_symmetric_endpoints_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000092() { pr_symmetric_endpoints_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000093() { pr_symmetric_endpoints_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000094() { pr_symmetric_endpoints_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000095() { pr_symmetric_endpoints_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000096() { pr_symmetric_endpoints_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000097() { pr_symmetric_endpoints_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000098() { pr_symmetric_endpoints_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000099() { pr_symmetric_endpoints_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000100() { pr_symmetric_endpoints_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000101() { pr_symmetric_endpoints_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000102() { pr_symmetric_endpoints_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000103() { pr_symmetric_endpoints_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000104() { pr_symmetric_endpoints_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000105() { pr_symmetric_endpoints_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000106() { pr_symmetric_endpoints_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000107() { pr_symmetric_endpoints_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000108() { pr_symmetric_endpoints_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000109() { pr_symmetric_endpoints_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000110() { pr_symmetric_endpoints_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000111() { pr_symmetric_endpoints_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000112() { pr_symmetric_endpoints_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000113() { pr_symmetric_endpoints_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000114() { pr_symmetric_endpoints_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000115() { pr_symmetric_endpoints_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000116() { pr_symmetric_endpoints_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000117() { pr_symmetric_endpoints_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000118() { pr_symmetric_endpoints_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000119() { pr_symmetric_endpoints_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000120() { pr_symmetric_endpoints_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000121() { pr_symmetric_endpoints_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000122() { pr_symmetric_endpoints_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000123() { pr_symmetric_endpoints_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000124() { pr_symmetric_endpoints_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000125() { pr_symmetric_endpoints_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000126() { pr_symmetric_endpoints_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000127() { pr_symmetric_endpoints_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000128() { pr_symmetric_endpoints_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000129() { pr_symmetric_endpoints_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000130() { pr_symmetric_endpoints_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000131() { pr_symmetric_endpoints_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000132() { pr_symmetric_endpoints_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000133() { pr_symmetric_endpoints_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000134() { pr_symmetric_endpoints_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000135() { pr_symmetric_endpoints_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000136() { pr_symmetric_endpoints_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000137() { pr_symmetric_endpoints_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000138() { pr_symmetric_endpoints_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000139() { pr_symmetric_endpoints_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000140() { pr_symmetric_endpoints_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000141() { pr_symmetric_endpoints_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000142() { pr_symmetric_endpoints_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000143() { pr_symmetric_endpoints_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000144() { pr_symmetric_endpoints_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000145() { pr_symmetric_endpoints_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000146() { pr_symmetric_endpoints_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000147() { pr_symmetric_endpoints_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000148() { pr_symmetric_endpoints_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_symmetric_endpoints_seed_000149() { pr_symmetric_endpoints_impl(149); }
+    fn pr_symmetric_endpoints_seed_000000() {
+        pr_symmetric_endpoints_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000001() {
+        pr_symmetric_endpoints_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000002() {
+        pr_symmetric_endpoints_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000003() {
+        pr_symmetric_endpoints_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000004() {
+        pr_symmetric_endpoints_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000005() {
+        pr_symmetric_endpoints_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000006() {
+        pr_symmetric_endpoints_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000007() {
+        pr_symmetric_endpoints_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000008() {
+        pr_symmetric_endpoints_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000009() {
+        pr_symmetric_endpoints_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000010() {
+        pr_symmetric_endpoints_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000011() {
+        pr_symmetric_endpoints_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000012() {
+        pr_symmetric_endpoints_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000013() {
+        pr_symmetric_endpoints_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000014() {
+        pr_symmetric_endpoints_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000015() {
+        pr_symmetric_endpoints_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000016() {
+        pr_symmetric_endpoints_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000017() {
+        pr_symmetric_endpoints_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000018() {
+        pr_symmetric_endpoints_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000019() {
+        pr_symmetric_endpoints_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000020() {
+        pr_symmetric_endpoints_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000021() {
+        pr_symmetric_endpoints_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000022() {
+        pr_symmetric_endpoints_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000023() {
+        pr_symmetric_endpoints_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000024() {
+        pr_symmetric_endpoints_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000025() {
+        pr_symmetric_endpoints_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000026() {
+        pr_symmetric_endpoints_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000027() {
+        pr_symmetric_endpoints_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000028() {
+        pr_symmetric_endpoints_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000029() {
+        pr_symmetric_endpoints_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000030() {
+        pr_symmetric_endpoints_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000031() {
+        pr_symmetric_endpoints_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000032() {
+        pr_symmetric_endpoints_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000033() {
+        pr_symmetric_endpoints_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000034() {
+        pr_symmetric_endpoints_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000035() {
+        pr_symmetric_endpoints_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000036() {
+        pr_symmetric_endpoints_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000037() {
+        pr_symmetric_endpoints_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000038() {
+        pr_symmetric_endpoints_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000039() {
+        pr_symmetric_endpoints_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000040() {
+        pr_symmetric_endpoints_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000041() {
+        pr_symmetric_endpoints_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000042() {
+        pr_symmetric_endpoints_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000043() {
+        pr_symmetric_endpoints_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000044() {
+        pr_symmetric_endpoints_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000045() {
+        pr_symmetric_endpoints_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000046() {
+        pr_symmetric_endpoints_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000047() {
+        pr_symmetric_endpoints_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000048() {
+        pr_symmetric_endpoints_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000049() {
+        pr_symmetric_endpoints_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000050() {
+        pr_symmetric_endpoints_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000051() {
+        pr_symmetric_endpoints_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000052() {
+        pr_symmetric_endpoints_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000053() {
+        pr_symmetric_endpoints_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000054() {
+        pr_symmetric_endpoints_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000055() {
+        pr_symmetric_endpoints_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000056() {
+        pr_symmetric_endpoints_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000057() {
+        pr_symmetric_endpoints_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000058() {
+        pr_symmetric_endpoints_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000059() {
+        pr_symmetric_endpoints_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000060() {
+        pr_symmetric_endpoints_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000061() {
+        pr_symmetric_endpoints_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000062() {
+        pr_symmetric_endpoints_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000063() {
+        pr_symmetric_endpoints_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000064() {
+        pr_symmetric_endpoints_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000065() {
+        pr_symmetric_endpoints_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000066() {
+        pr_symmetric_endpoints_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000067() {
+        pr_symmetric_endpoints_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000068() {
+        pr_symmetric_endpoints_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000069() {
+        pr_symmetric_endpoints_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000070() {
+        pr_symmetric_endpoints_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000071() {
+        pr_symmetric_endpoints_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000072() {
+        pr_symmetric_endpoints_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000073() {
+        pr_symmetric_endpoints_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000074() {
+        pr_symmetric_endpoints_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000075() {
+        pr_symmetric_endpoints_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000076() {
+        pr_symmetric_endpoints_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000077() {
+        pr_symmetric_endpoints_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000078() {
+        pr_symmetric_endpoints_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000079() {
+        pr_symmetric_endpoints_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000080() {
+        pr_symmetric_endpoints_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000081() {
+        pr_symmetric_endpoints_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000082() {
+        pr_symmetric_endpoints_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000083() {
+        pr_symmetric_endpoints_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000084() {
+        pr_symmetric_endpoints_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000085() {
+        pr_symmetric_endpoints_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000086() {
+        pr_symmetric_endpoints_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000087() {
+        pr_symmetric_endpoints_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000088() {
+        pr_symmetric_endpoints_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000089() {
+        pr_symmetric_endpoints_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000090() {
+        pr_symmetric_endpoints_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000091() {
+        pr_symmetric_endpoints_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000092() {
+        pr_symmetric_endpoints_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000093() {
+        pr_symmetric_endpoints_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000094() {
+        pr_symmetric_endpoints_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000095() {
+        pr_symmetric_endpoints_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000096() {
+        pr_symmetric_endpoints_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000097() {
+        pr_symmetric_endpoints_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000098() {
+        pr_symmetric_endpoints_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000099() {
+        pr_symmetric_endpoints_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000100() {
+        pr_symmetric_endpoints_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000101() {
+        pr_symmetric_endpoints_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000102() {
+        pr_symmetric_endpoints_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000103() {
+        pr_symmetric_endpoints_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000104() {
+        pr_symmetric_endpoints_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000105() {
+        pr_symmetric_endpoints_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000106() {
+        pr_symmetric_endpoints_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000107() {
+        pr_symmetric_endpoints_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000108() {
+        pr_symmetric_endpoints_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000109() {
+        pr_symmetric_endpoints_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000110() {
+        pr_symmetric_endpoints_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000111() {
+        pr_symmetric_endpoints_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000112() {
+        pr_symmetric_endpoints_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000113() {
+        pr_symmetric_endpoints_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000114() {
+        pr_symmetric_endpoints_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000115() {
+        pr_symmetric_endpoints_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000116() {
+        pr_symmetric_endpoints_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000117() {
+        pr_symmetric_endpoints_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000118() {
+        pr_symmetric_endpoints_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000119() {
+        pr_symmetric_endpoints_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000120() {
+        pr_symmetric_endpoints_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000121() {
+        pr_symmetric_endpoints_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000122() {
+        pr_symmetric_endpoints_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000123() {
+        pr_symmetric_endpoints_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000124() {
+        pr_symmetric_endpoints_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000125() {
+        pr_symmetric_endpoints_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000126() {
+        pr_symmetric_endpoints_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000127() {
+        pr_symmetric_endpoints_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000128() {
+        pr_symmetric_endpoints_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000129() {
+        pr_symmetric_endpoints_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000130() {
+        pr_symmetric_endpoints_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000131() {
+        pr_symmetric_endpoints_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000132() {
+        pr_symmetric_endpoints_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000133() {
+        pr_symmetric_endpoints_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000134() {
+        pr_symmetric_endpoints_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000135() {
+        pr_symmetric_endpoints_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000136() {
+        pr_symmetric_endpoints_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000137() {
+        pr_symmetric_endpoints_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000138() {
+        pr_symmetric_endpoints_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000139() {
+        pr_symmetric_endpoints_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000140() {
+        pr_symmetric_endpoints_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000141() {
+        pr_symmetric_endpoints_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000142() {
+        pr_symmetric_endpoints_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000143() {
+        pr_symmetric_endpoints_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000144() {
+        pr_symmetric_endpoints_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000145() {
+        pr_symmetric_endpoints_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000146() {
+        pr_symmetric_endpoints_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000147() {
+        pr_symmetric_endpoints_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000148() {
+        pr_symmetric_endpoints_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_symmetric_endpoints_seed_000149() {
+        pr_symmetric_endpoints_impl(149);
+    }
 
     // --- pr_emst_soundness: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000000() { pr_emst_soundness_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000001() { pr_emst_soundness_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000002() { pr_emst_soundness_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000003() { pr_emst_soundness_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000004() { pr_emst_soundness_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000005() { pr_emst_soundness_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000006() { pr_emst_soundness_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000007() { pr_emst_soundness_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000008() { pr_emst_soundness_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000009() { pr_emst_soundness_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000010() { pr_emst_soundness_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000011() { pr_emst_soundness_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000012() { pr_emst_soundness_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000013() { pr_emst_soundness_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000014() { pr_emst_soundness_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000015() { pr_emst_soundness_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000016() { pr_emst_soundness_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000017() { pr_emst_soundness_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000018() { pr_emst_soundness_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000019() { pr_emst_soundness_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000020() { pr_emst_soundness_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000021() { pr_emst_soundness_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000022() { pr_emst_soundness_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000023() { pr_emst_soundness_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000024() { pr_emst_soundness_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000025() { pr_emst_soundness_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000026() { pr_emst_soundness_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000027() { pr_emst_soundness_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000028() { pr_emst_soundness_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000029() { pr_emst_soundness_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000030() { pr_emst_soundness_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000031() { pr_emst_soundness_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000032() { pr_emst_soundness_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000033() { pr_emst_soundness_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000034() { pr_emst_soundness_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000035() { pr_emst_soundness_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000036() { pr_emst_soundness_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000037() { pr_emst_soundness_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000038() { pr_emst_soundness_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000039() { pr_emst_soundness_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000040() { pr_emst_soundness_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000041() { pr_emst_soundness_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000042() { pr_emst_soundness_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000043() { pr_emst_soundness_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000044() { pr_emst_soundness_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000045() { pr_emst_soundness_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000046() { pr_emst_soundness_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000047() { pr_emst_soundness_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000048() { pr_emst_soundness_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000049() { pr_emst_soundness_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000050() { pr_emst_soundness_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000051() { pr_emst_soundness_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000052() { pr_emst_soundness_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000053() { pr_emst_soundness_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000054() { pr_emst_soundness_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000055() { pr_emst_soundness_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000056() { pr_emst_soundness_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000057() { pr_emst_soundness_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000058() { pr_emst_soundness_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000059() { pr_emst_soundness_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000060() { pr_emst_soundness_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000061() { pr_emst_soundness_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000062() { pr_emst_soundness_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000063() { pr_emst_soundness_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000064() { pr_emst_soundness_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000065() { pr_emst_soundness_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000066() { pr_emst_soundness_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000067() { pr_emst_soundness_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000068() { pr_emst_soundness_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000069() { pr_emst_soundness_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000070() { pr_emst_soundness_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000071() { pr_emst_soundness_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000072() { pr_emst_soundness_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000073() { pr_emst_soundness_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000074() { pr_emst_soundness_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000075() { pr_emst_soundness_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000076() { pr_emst_soundness_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000077() { pr_emst_soundness_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000078() { pr_emst_soundness_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000079() { pr_emst_soundness_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000080() { pr_emst_soundness_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000081() { pr_emst_soundness_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000082() { pr_emst_soundness_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000083() { pr_emst_soundness_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000084() { pr_emst_soundness_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000085() { pr_emst_soundness_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000086() { pr_emst_soundness_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000087() { pr_emst_soundness_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000088() { pr_emst_soundness_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000089() { pr_emst_soundness_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000090() { pr_emst_soundness_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000091() { pr_emst_soundness_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000092() { pr_emst_soundness_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000093() { pr_emst_soundness_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000094() { pr_emst_soundness_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000095() { pr_emst_soundness_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000096() { pr_emst_soundness_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000097() { pr_emst_soundness_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000098() { pr_emst_soundness_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000099() { pr_emst_soundness_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000100() { pr_emst_soundness_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000101() { pr_emst_soundness_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000102() { pr_emst_soundness_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000103() { pr_emst_soundness_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000104() { pr_emst_soundness_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000105() { pr_emst_soundness_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000106() { pr_emst_soundness_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000107() { pr_emst_soundness_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000108() { pr_emst_soundness_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000109() { pr_emst_soundness_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000110() { pr_emst_soundness_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000111() { pr_emst_soundness_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000112() { pr_emst_soundness_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000113() { pr_emst_soundness_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000114() { pr_emst_soundness_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000115() { pr_emst_soundness_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000116() { pr_emst_soundness_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000117() { pr_emst_soundness_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000118() { pr_emst_soundness_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000119() { pr_emst_soundness_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000120() { pr_emst_soundness_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000121() { pr_emst_soundness_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000122() { pr_emst_soundness_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000123() { pr_emst_soundness_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000124() { pr_emst_soundness_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000125() { pr_emst_soundness_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000126() { pr_emst_soundness_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000127() { pr_emst_soundness_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000128() { pr_emst_soundness_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000129() { pr_emst_soundness_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000130() { pr_emst_soundness_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000131() { pr_emst_soundness_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000132() { pr_emst_soundness_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000133() { pr_emst_soundness_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000134() { pr_emst_soundness_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000135() { pr_emst_soundness_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000136() { pr_emst_soundness_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000137() { pr_emst_soundness_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000138() { pr_emst_soundness_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000139() { pr_emst_soundness_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000140() { pr_emst_soundness_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000141() { pr_emst_soundness_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000142() { pr_emst_soundness_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000143() { pr_emst_soundness_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000144() { pr_emst_soundness_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000145() { pr_emst_soundness_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000146() { pr_emst_soundness_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000147() { pr_emst_soundness_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000148() { pr_emst_soundness_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_emst_soundness_seed_000149() { pr_emst_soundness_impl(149); }
+    fn pr_emst_soundness_seed_000000() {
+        pr_emst_soundness_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000001() {
+        pr_emst_soundness_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000002() {
+        pr_emst_soundness_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000003() {
+        pr_emst_soundness_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000004() {
+        pr_emst_soundness_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000005() {
+        pr_emst_soundness_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000006() {
+        pr_emst_soundness_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000007() {
+        pr_emst_soundness_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000008() {
+        pr_emst_soundness_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000009() {
+        pr_emst_soundness_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000010() {
+        pr_emst_soundness_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000011() {
+        pr_emst_soundness_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000012() {
+        pr_emst_soundness_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000013() {
+        pr_emst_soundness_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000014() {
+        pr_emst_soundness_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000015() {
+        pr_emst_soundness_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000016() {
+        pr_emst_soundness_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000017() {
+        pr_emst_soundness_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000018() {
+        pr_emst_soundness_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000019() {
+        pr_emst_soundness_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000020() {
+        pr_emst_soundness_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000021() {
+        pr_emst_soundness_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000022() {
+        pr_emst_soundness_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000023() {
+        pr_emst_soundness_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000024() {
+        pr_emst_soundness_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000025() {
+        pr_emst_soundness_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000026() {
+        pr_emst_soundness_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000027() {
+        pr_emst_soundness_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000028() {
+        pr_emst_soundness_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000029() {
+        pr_emst_soundness_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000030() {
+        pr_emst_soundness_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000031() {
+        pr_emst_soundness_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000032() {
+        pr_emst_soundness_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000033() {
+        pr_emst_soundness_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000034() {
+        pr_emst_soundness_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000035() {
+        pr_emst_soundness_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000036() {
+        pr_emst_soundness_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000037() {
+        pr_emst_soundness_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000038() {
+        pr_emst_soundness_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000039() {
+        pr_emst_soundness_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000040() {
+        pr_emst_soundness_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000041() {
+        pr_emst_soundness_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000042() {
+        pr_emst_soundness_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000043() {
+        pr_emst_soundness_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000044() {
+        pr_emst_soundness_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000045() {
+        pr_emst_soundness_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000046() {
+        pr_emst_soundness_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000047() {
+        pr_emst_soundness_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000048() {
+        pr_emst_soundness_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000049() {
+        pr_emst_soundness_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000050() {
+        pr_emst_soundness_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000051() {
+        pr_emst_soundness_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000052() {
+        pr_emst_soundness_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000053() {
+        pr_emst_soundness_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000054() {
+        pr_emst_soundness_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000055() {
+        pr_emst_soundness_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000056() {
+        pr_emst_soundness_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000057() {
+        pr_emst_soundness_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000058() {
+        pr_emst_soundness_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000059() {
+        pr_emst_soundness_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000060() {
+        pr_emst_soundness_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000061() {
+        pr_emst_soundness_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000062() {
+        pr_emst_soundness_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000063() {
+        pr_emst_soundness_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000064() {
+        pr_emst_soundness_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000065() {
+        pr_emst_soundness_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000066() {
+        pr_emst_soundness_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000067() {
+        pr_emst_soundness_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000068() {
+        pr_emst_soundness_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000069() {
+        pr_emst_soundness_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000070() {
+        pr_emst_soundness_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000071() {
+        pr_emst_soundness_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000072() {
+        pr_emst_soundness_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000073() {
+        pr_emst_soundness_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000074() {
+        pr_emst_soundness_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000075() {
+        pr_emst_soundness_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000076() {
+        pr_emst_soundness_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000077() {
+        pr_emst_soundness_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000078() {
+        pr_emst_soundness_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000079() {
+        pr_emst_soundness_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000080() {
+        pr_emst_soundness_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000081() {
+        pr_emst_soundness_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000082() {
+        pr_emst_soundness_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000083() {
+        pr_emst_soundness_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000084() {
+        pr_emst_soundness_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000085() {
+        pr_emst_soundness_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000086() {
+        pr_emst_soundness_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000087() {
+        pr_emst_soundness_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000088() {
+        pr_emst_soundness_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000089() {
+        pr_emst_soundness_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000090() {
+        pr_emst_soundness_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000091() {
+        pr_emst_soundness_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000092() {
+        pr_emst_soundness_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000093() {
+        pr_emst_soundness_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000094() {
+        pr_emst_soundness_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000095() {
+        pr_emst_soundness_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000096() {
+        pr_emst_soundness_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000097() {
+        pr_emst_soundness_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000098() {
+        pr_emst_soundness_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000099() {
+        pr_emst_soundness_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000100() {
+        pr_emst_soundness_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000101() {
+        pr_emst_soundness_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000102() {
+        pr_emst_soundness_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000103() {
+        pr_emst_soundness_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000104() {
+        pr_emst_soundness_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000105() {
+        pr_emst_soundness_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000106() {
+        pr_emst_soundness_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000107() {
+        pr_emst_soundness_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000108() {
+        pr_emst_soundness_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000109() {
+        pr_emst_soundness_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000110() {
+        pr_emst_soundness_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000111() {
+        pr_emst_soundness_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000112() {
+        pr_emst_soundness_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000113() {
+        pr_emst_soundness_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000114() {
+        pr_emst_soundness_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000115() {
+        pr_emst_soundness_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000116() {
+        pr_emst_soundness_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000117() {
+        pr_emst_soundness_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000118() {
+        pr_emst_soundness_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000119() {
+        pr_emst_soundness_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000120() {
+        pr_emst_soundness_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000121() {
+        pr_emst_soundness_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000122() {
+        pr_emst_soundness_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000123() {
+        pr_emst_soundness_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000124() {
+        pr_emst_soundness_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000125() {
+        pr_emst_soundness_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000126() {
+        pr_emst_soundness_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000127() {
+        pr_emst_soundness_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000128() {
+        pr_emst_soundness_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000129() {
+        pr_emst_soundness_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000130() {
+        pr_emst_soundness_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000131() {
+        pr_emst_soundness_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000132() {
+        pr_emst_soundness_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000133() {
+        pr_emst_soundness_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000134() {
+        pr_emst_soundness_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000135() {
+        pr_emst_soundness_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000136() {
+        pr_emst_soundness_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000137() {
+        pr_emst_soundness_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000138() {
+        pr_emst_soundness_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000139() {
+        pr_emst_soundness_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000140() {
+        pr_emst_soundness_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000141() {
+        pr_emst_soundness_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000142() {
+        pr_emst_soundness_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000143() {
+        pr_emst_soundness_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000144() {
+        pr_emst_soundness_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000145() {
+        pr_emst_soundness_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000146() {
+        pr_emst_soundness_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000147() {
+        pr_emst_soundness_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000148() {
+        pr_emst_soundness_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_emst_soundness_seed_000149() {
+        pr_emst_soundness_impl(149);
+    }
 
     // --- rw_idempotent: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000000() { rw_idempotent_impl(0); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000001() { rw_idempotent_impl(1); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000002() { rw_idempotent_impl(2); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000003() { rw_idempotent_impl(3); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000004() { rw_idempotent_impl(4); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000005() { rw_idempotent_impl(5); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000006() { rw_idempotent_impl(6); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000007() { rw_idempotent_impl(7); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000008() { rw_idempotent_impl(8); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000009() { rw_idempotent_impl(9); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000010() { rw_idempotent_impl(10); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000011() { rw_idempotent_impl(11); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000012() { rw_idempotent_impl(12); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000013() { rw_idempotent_impl(13); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000014() { rw_idempotent_impl(14); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000015() { rw_idempotent_impl(15); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000016() { rw_idempotent_impl(16); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000017() { rw_idempotent_impl(17); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000018() { rw_idempotent_impl(18); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000019() { rw_idempotent_impl(19); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000020() { rw_idempotent_impl(20); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000021() { rw_idempotent_impl(21); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000022() { rw_idempotent_impl(22); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000023() { rw_idempotent_impl(23); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000024() { rw_idempotent_impl(24); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000025() { rw_idempotent_impl(25); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000026() { rw_idempotent_impl(26); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000027() { rw_idempotent_impl(27); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000028() { rw_idempotent_impl(28); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000029() { rw_idempotent_impl(29); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000030() { rw_idempotent_impl(30); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000031() { rw_idempotent_impl(31); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000032() { rw_idempotent_impl(32); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000033() { rw_idempotent_impl(33); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000034() { rw_idempotent_impl(34); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000035() { rw_idempotent_impl(35); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000036() { rw_idempotent_impl(36); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000037() { rw_idempotent_impl(37); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000038() { rw_idempotent_impl(38); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000039() { rw_idempotent_impl(39); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000040() { rw_idempotent_impl(40); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000041() { rw_idempotent_impl(41); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000042() { rw_idempotent_impl(42); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000043() { rw_idempotent_impl(43); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000044() { rw_idempotent_impl(44); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000045() { rw_idempotent_impl(45); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000046() { rw_idempotent_impl(46); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000047() { rw_idempotent_impl(47); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000048() { rw_idempotent_impl(48); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000049() { rw_idempotent_impl(49); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000050() { rw_idempotent_impl(50); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000051() { rw_idempotent_impl(51); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000052() { rw_idempotent_impl(52); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000053() { rw_idempotent_impl(53); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000054() { rw_idempotent_impl(54); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000055() { rw_idempotent_impl(55); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000056() { rw_idempotent_impl(56); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000057() { rw_idempotent_impl(57); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000058() { rw_idempotent_impl(58); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000059() { rw_idempotent_impl(59); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000060() { rw_idempotent_impl(60); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000061() { rw_idempotent_impl(61); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000062() { rw_idempotent_impl(62); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000063() { rw_idempotent_impl(63); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000064() { rw_idempotent_impl(64); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000065() { rw_idempotent_impl(65); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000066() { rw_idempotent_impl(66); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000067() { rw_idempotent_impl(67); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000068() { rw_idempotent_impl(68); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000069() { rw_idempotent_impl(69); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000070() { rw_idempotent_impl(70); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000071() { rw_idempotent_impl(71); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000072() { rw_idempotent_impl(72); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000073() { rw_idempotent_impl(73); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000074() { rw_idempotent_impl(74); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000075() { rw_idempotent_impl(75); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000076() { rw_idempotent_impl(76); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000077() { rw_idempotent_impl(77); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000078() { rw_idempotent_impl(78); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000079() { rw_idempotent_impl(79); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000080() { rw_idempotent_impl(80); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000081() { rw_idempotent_impl(81); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000082() { rw_idempotent_impl(82); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000083() { rw_idempotent_impl(83); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000084() { rw_idempotent_impl(84); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000085() { rw_idempotent_impl(85); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000086() { rw_idempotent_impl(86); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000087() { rw_idempotent_impl(87); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000088() { rw_idempotent_impl(88); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000089() { rw_idempotent_impl(89); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000090() { rw_idempotent_impl(90); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000091() { rw_idempotent_impl(91); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000092() { rw_idempotent_impl(92); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000093() { rw_idempotent_impl(93); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000094() { rw_idempotent_impl(94); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000095() { rw_idempotent_impl(95); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000096() { rw_idempotent_impl(96); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000097() { rw_idempotent_impl(97); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000098() { rw_idempotent_impl(98); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000099() { rw_idempotent_impl(99); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000100() { rw_idempotent_impl(100); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000101() { rw_idempotent_impl(101); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000102() { rw_idempotent_impl(102); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000103() { rw_idempotent_impl(103); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000104() { rw_idempotent_impl(104); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000105() { rw_idempotent_impl(105); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000106() { rw_idempotent_impl(106); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000107() { rw_idempotent_impl(107); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000108() { rw_idempotent_impl(108); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000109() { rw_idempotent_impl(109); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000110() { rw_idempotent_impl(110); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000111() { rw_idempotent_impl(111); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000112() { rw_idempotent_impl(112); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000113() { rw_idempotent_impl(113); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000114() { rw_idempotent_impl(114); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000115() { rw_idempotent_impl(115); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000116() { rw_idempotent_impl(116); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000117() { rw_idempotent_impl(117); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000118() { rw_idempotent_impl(118); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000119() { rw_idempotent_impl(119); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000120() { rw_idempotent_impl(120); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000121() { rw_idempotent_impl(121); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000122() { rw_idempotent_impl(122); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000123() { rw_idempotent_impl(123); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000124() { rw_idempotent_impl(124); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000125() { rw_idempotent_impl(125); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000126() { rw_idempotent_impl(126); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000127() { rw_idempotent_impl(127); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000128() { rw_idempotent_impl(128); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000129() { rw_idempotent_impl(129); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000130() { rw_idempotent_impl(130); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000131() { rw_idempotent_impl(131); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000132() { rw_idempotent_impl(132); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000133() { rw_idempotent_impl(133); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000134() { rw_idempotent_impl(134); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000135() { rw_idempotent_impl(135); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000136() { rw_idempotent_impl(136); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000137() { rw_idempotent_impl(137); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000138() { rw_idempotent_impl(138); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000139() { rw_idempotent_impl(139); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000140() { rw_idempotent_impl(140); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000141() { rw_idempotent_impl(141); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000142() { rw_idempotent_impl(142); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000143() { rw_idempotent_impl(143); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000144() { rw_idempotent_impl(144); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000145() { rw_idempotent_impl(145); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000146() { rw_idempotent_impl(146); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000147() { rw_idempotent_impl(147); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000148() { rw_idempotent_impl(148); }
-    #[cfg_attr(test, test)]
-    fn rw_idempotent_seed_000149() { rw_idempotent_impl(149); }
+    fn rw_idempotent_seed_000000() {
+        rw_idempotent_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000001() {
+        rw_idempotent_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000002() {
+        rw_idempotent_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000003() {
+        rw_idempotent_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000004() {
+        rw_idempotent_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000005() {
+        rw_idempotent_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000006() {
+        rw_idempotent_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000007() {
+        rw_idempotent_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000008() {
+        rw_idempotent_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000009() {
+        rw_idempotent_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000010() {
+        rw_idempotent_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000011() {
+        rw_idempotent_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000012() {
+        rw_idempotent_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000013() {
+        rw_idempotent_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000014() {
+        rw_idempotent_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000015() {
+        rw_idempotent_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000016() {
+        rw_idempotent_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000017() {
+        rw_idempotent_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000018() {
+        rw_idempotent_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000019() {
+        rw_idempotent_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000020() {
+        rw_idempotent_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000021() {
+        rw_idempotent_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000022() {
+        rw_idempotent_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000023() {
+        rw_idempotent_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000024() {
+        rw_idempotent_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000025() {
+        rw_idempotent_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000026() {
+        rw_idempotent_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000027() {
+        rw_idempotent_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000028() {
+        rw_idempotent_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000029() {
+        rw_idempotent_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000030() {
+        rw_idempotent_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000031() {
+        rw_idempotent_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000032() {
+        rw_idempotent_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000033() {
+        rw_idempotent_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000034() {
+        rw_idempotent_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000035() {
+        rw_idempotent_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000036() {
+        rw_idempotent_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000037() {
+        rw_idempotent_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000038() {
+        rw_idempotent_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000039() {
+        rw_idempotent_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000040() {
+        rw_idempotent_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000041() {
+        rw_idempotent_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000042() {
+        rw_idempotent_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000043() {
+        rw_idempotent_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000044() {
+        rw_idempotent_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000045() {
+        rw_idempotent_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000046() {
+        rw_idempotent_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000047() {
+        rw_idempotent_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000048() {
+        rw_idempotent_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000049() {
+        rw_idempotent_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000050() {
+        rw_idempotent_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000051() {
+        rw_idempotent_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000052() {
+        rw_idempotent_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000053() {
+        rw_idempotent_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000054() {
+        rw_idempotent_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000055() {
+        rw_idempotent_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000056() {
+        rw_idempotent_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000057() {
+        rw_idempotent_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000058() {
+        rw_idempotent_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000059() {
+        rw_idempotent_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000060() {
+        rw_idempotent_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000061() {
+        rw_idempotent_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000062() {
+        rw_idempotent_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000063() {
+        rw_idempotent_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000064() {
+        rw_idempotent_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000065() {
+        rw_idempotent_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000066() {
+        rw_idempotent_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000067() {
+        rw_idempotent_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000068() {
+        rw_idempotent_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000069() {
+        rw_idempotent_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000070() {
+        rw_idempotent_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000071() {
+        rw_idempotent_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000072() {
+        rw_idempotent_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000073() {
+        rw_idempotent_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000074() {
+        rw_idempotent_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000075() {
+        rw_idempotent_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000076() {
+        rw_idempotent_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000077() {
+        rw_idempotent_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000078() {
+        rw_idempotent_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000079() {
+        rw_idempotent_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000080() {
+        rw_idempotent_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000081() {
+        rw_idempotent_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000082() {
+        rw_idempotent_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000083() {
+        rw_idempotent_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000084() {
+        rw_idempotent_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000085() {
+        rw_idempotent_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000086() {
+        rw_idempotent_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000087() {
+        rw_idempotent_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000088() {
+        rw_idempotent_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000089() {
+        rw_idempotent_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000090() {
+        rw_idempotent_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000091() {
+        rw_idempotent_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000092() {
+        rw_idempotent_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000093() {
+        rw_idempotent_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000094() {
+        rw_idempotent_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000095() {
+        rw_idempotent_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000096() {
+        rw_idempotent_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000097() {
+        rw_idempotent_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000098() {
+        rw_idempotent_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000099() {
+        rw_idempotent_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000100() {
+        rw_idempotent_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000101() {
+        rw_idempotent_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000102() {
+        rw_idempotent_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000103() {
+        rw_idempotent_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000104() {
+        rw_idempotent_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000105() {
+        rw_idempotent_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000106() {
+        rw_idempotent_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000107() {
+        rw_idempotent_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000108() {
+        rw_idempotent_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000109() {
+        rw_idempotent_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000110() {
+        rw_idempotent_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000111() {
+        rw_idempotent_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000112() {
+        rw_idempotent_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000113() {
+        rw_idempotent_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000114() {
+        rw_idempotent_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000115() {
+        rw_idempotent_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000116() {
+        rw_idempotent_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000117() {
+        rw_idempotent_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000118() {
+        rw_idempotent_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000119() {
+        rw_idempotent_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000120() {
+        rw_idempotent_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000121() {
+        rw_idempotent_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000122() {
+        rw_idempotent_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000123() {
+        rw_idempotent_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000124() {
+        rw_idempotent_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000125() {
+        rw_idempotent_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000126() {
+        rw_idempotent_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000127() {
+        rw_idempotent_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000128() {
+        rw_idempotent_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000129() {
+        rw_idempotent_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000130() {
+        rw_idempotent_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000131() {
+        rw_idempotent_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000132() {
+        rw_idempotent_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000133() {
+        rw_idempotent_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000134() {
+        rw_idempotent_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000135() {
+        rw_idempotent_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000136() {
+        rw_idempotent_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000137() {
+        rw_idempotent_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000138() {
+        rw_idempotent_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000139() {
+        rw_idempotent_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000140() {
+        rw_idempotent_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000141() {
+        rw_idempotent_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000142() {
+        rw_idempotent_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000143() {
+        rw_idempotent_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000144() {
+        rw_idempotent_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000145() {
+        rw_idempotent_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000146() {
+        rw_idempotent_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000147() {
+        rw_idempotent_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000148() {
+        rw_idempotent_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_idempotent_seed_000149() {
+        rw_idempotent_impl(149);
+    }
 
     // --- rw_duplicate_invariant: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000000() { rw_duplicate_invariant_impl(0); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000001() { rw_duplicate_invariant_impl(1); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000002() { rw_duplicate_invariant_impl(2); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000003() { rw_duplicate_invariant_impl(3); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000004() { rw_duplicate_invariant_impl(4); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000005() { rw_duplicate_invariant_impl(5); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000006() { rw_duplicate_invariant_impl(6); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000007() { rw_duplicate_invariant_impl(7); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000008() { rw_duplicate_invariant_impl(8); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000009() { rw_duplicate_invariant_impl(9); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000010() { rw_duplicate_invariant_impl(10); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000011() { rw_duplicate_invariant_impl(11); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000012() { rw_duplicate_invariant_impl(12); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000013() { rw_duplicate_invariant_impl(13); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000014() { rw_duplicate_invariant_impl(14); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000015() { rw_duplicate_invariant_impl(15); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000016() { rw_duplicate_invariant_impl(16); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000017() { rw_duplicate_invariant_impl(17); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000018() { rw_duplicate_invariant_impl(18); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000019() { rw_duplicate_invariant_impl(19); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000020() { rw_duplicate_invariant_impl(20); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000021() { rw_duplicate_invariant_impl(21); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000022() { rw_duplicate_invariant_impl(22); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000023() { rw_duplicate_invariant_impl(23); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000024() { rw_duplicate_invariant_impl(24); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000025() { rw_duplicate_invariant_impl(25); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000026() { rw_duplicate_invariant_impl(26); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000027() { rw_duplicate_invariant_impl(27); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000028() { rw_duplicate_invariant_impl(28); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000029() { rw_duplicate_invariant_impl(29); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000030() { rw_duplicate_invariant_impl(30); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000031() { rw_duplicate_invariant_impl(31); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000032() { rw_duplicate_invariant_impl(32); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000033() { rw_duplicate_invariant_impl(33); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000034() { rw_duplicate_invariant_impl(34); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000035() { rw_duplicate_invariant_impl(35); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000036() { rw_duplicate_invariant_impl(36); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000037() { rw_duplicate_invariant_impl(37); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000038() { rw_duplicate_invariant_impl(38); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000039() { rw_duplicate_invariant_impl(39); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000040() { rw_duplicate_invariant_impl(40); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000041() { rw_duplicate_invariant_impl(41); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000042() { rw_duplicate_invariant_impl(42); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000043() { rw_duplicate_invariant_impl(43); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000044() { rw_duplicate_invariant_impl(44); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000045() { rw_duplicate_invariant_impl(45); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000046() { rw_duplicate_invariant_impl(46); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000047() { rw_duplicate_invariant_impl(47); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000048() { rw_duplicate_invariant_impl(48); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000049() { rw_duplicate_invariant_impl(49); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000050() { rw_duplicate_invariant_impl(50); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000051() { rw_duplicate_invariant_impl(51); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000052() { rw_duplicate_invariant_impl(52); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000053() { rw_duplicate_invariant_impl(53); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000054() { rw_duplicate_invariant_impl(54); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000055() { rw_duplicate_invariant_impl(55); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000056() { rw_duplicate_invariant_impl(56); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000057() { rw_duplicate_invariant_impl(57); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000058() { rw_duplicate_invariant_impl(58); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000059() { rw_duplicate_invariant_impl(59); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000060() { rw_duplicate_invariant_impl(60); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000061() { rw_duplicate_invariant_impl(61); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000062() { rw_duplicate_invariant_impl(62); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000063() { rw_duplicate_invariant_impl(63); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000064() { rw_duplicate_invariant_impl(64); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000065() { rw_duplicate_invariant_impl(65); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000066() { rw_duplicate_invariant_impl(66); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000067() { rw_duplicate_invariant_impl(67); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000068() { rw_duplicate_invariant_impl(68); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000069() { rw_duplicate_invariant_impl(69); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000070() { rw_duplicate_invariant_impl(70); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000071() { rw_duplicate_invariant_impl(71); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000072() { rw_duplicate_invariant_impl(72); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000073() { rw_duplicate_invariant_impl(73); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000074() { rw_duplicate_invariant_impl(74); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000075() { rw_duplicate_invariant_impl(75); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000076() { rw_duplicate_invariant_impl(76); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000077() { rw_duplicate_invariant_impl(77); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000078() { rw_duplicate_invariant_impl(78); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000079() { rw_duplicate_invariant_impl(79); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000080() { rw_duplicate_invariant_impl(80); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000081() { rw_duplicate_invariant_impl(81); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000082() { rw_duplicate_invariant_impl(82); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000083() { rw_duplicate_invariant_impl(83); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000084() { rw_duplicate_invariant_impl(84); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000085() { rw_duplicate_invariant_impl(85); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000086() { rw_duplicate_invariant_impl(86); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000087() { rw_duplicate_invariant_impl(87); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000088() { rw_duplicate_invariant_impl(88); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000089() { rw_duplicate_invariant_impl(89); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000090() { rw_duplicate_invariant_impl(90); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000091() { rw_duplicate_invariant_impl(91); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000092() { rw_duplicate_invariant_impl(92); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000093() { rw_duplicate_invariant_impl(93); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000094() { rw_duplicate_invariant_impl(94); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000095() { rw_duplicate_invariant_impl(95); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000096() { rw_duplicate_invariant_impl(96); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000097() { rw_duplicate_invariant_impl(97); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000098() { rw_duplicate_invariant_impl(98); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000099() { rw_duplicate_invariant_impl(99); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000100() { rw_duplicate_invariant_impl(100); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000101() { rw_duplicate_invariant_impl(101); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000102() { rw_duplicate_invariant_impl(102); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000103() { rw_duplicate_invariant_impl(103); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000104() { rw_duplicate_invariant_impl(104); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000105() { rw_duplicate_invariant_impl(105); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000106() { rw_duplicate_invariant_impl(106); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000107() { rw_duplicate_invariant_impl(107); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000108() { rw_duplicate_invariant_impl(108); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000109() { rw_duplicate_invariant_impl(109); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000110() { rw_duplicate_invariant_impl(110); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000111() { rw_duplicate_invariant_impl(111); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000112() { rw_duplicate_invariant_impl(112); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000113() { rw_duplicate_invariant_impl(113); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000114() { rw_duplicate_invariant_impl(114); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000115() { rw_duplicate_invariant_impl(115); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000116() { rw_duplicate_invariant_impl(116); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000117() { rw_duplicate_invariant_impl(117); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000118() { rw_duplicate_invariant_impl(118); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000119() { rw_duplicate_invariant_impl(119); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000120() { rw_duplicate_invariant_impl(120); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000121() { rw_duplicate_invariant_impl(121); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000122() { rw_duplicate_invariant_impl(122); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000123() { rw_duplicate_invariant_impl(123); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000124() { rw_duplicate_invariant_impl(124); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000125() { rw_duplicate_invariant_impl(125); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000126() { rw_duplicate_invariant_impl(126); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000127() { rw_duplicate_invariant_impl(127); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000128() { rw_duplicate_invariant_impl(128); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000129() { rw_duplicate_invariant_impl(129); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000130() { rw_duplicate_invariant_impl(130); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000131() { rw_duplicate_invariant_impl(131); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000132() { rw_duplicate_invariant_impl(132); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000133() { rw_duplicate_invariant_impl(133); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000134() { rw_duplicate_invariant_impl(134); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000135() { rw_duplicate_invariant_impl(135); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000136() { rw_duplicate_invariant_impl(136); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000137() { rw_duplicate_invariant_impl(137); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000138() { rw_duplicate_invariant_impl(138); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000139() { rw_duplicate_invariant_impl(139); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000140() { rw_duplicate_invariant_impl(140); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000141() { rw_duplicate_invariant_impl(141); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000142() { rw_duplicate_invariant_impl(142); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000143() { rw_duplicate_invariant_impl(143); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000144() { rw_duplicate_invariant_impl(144); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000145() { rw_duplicate_invariant_impl(145); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000146() { rw_duplicate_invariant_impl(146); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000147() { rw_duplicate_invariant_impl(147); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000148() { rw_duplicate_invariant_impl(148); }
-    #[cfg_attr(test, test)]
-    fn rw_duplicate_invariant_seed_000149() { rw_duplicate_invariant_impl(149); }
+    fn rw_duplicate_invariant_seed_000000() {
+        rw_duplicate_invariant_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000001() {
+        rw_duplicate_invariant_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000002() {
+        rw_duplicate_invariant_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000003() {
+        rw_duplicate_invariant_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000004() {
+        rw_duplicate_invariant_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000005() {
+        rw_duplicate_invariant_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000006() {
+        rw_duplicate_invariant_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000007() {
+        rw_duplicate_invariant_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000008() {
+        rw_duplicate_invariant_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000009() {
+        rw_duplicate_invariant_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000010() {
+        rw_duplicate_invariant_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000011() {
+        rw_duplicate_invariant_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000012() {
+        rw_duplicate_invariant_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000013() {
+        rw_duplicate_invariant_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000014() {
+        rw_duplicate_invariant_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000015() {
+        rw_duplicate_invariant_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000016() {
+        rw_duplicate_invariant_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000017() {
+        rw_duplicate_invariant_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000018() {
+        rw_duplicate_invariant_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000019() {
+        rw_duplicate_invariant_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000020() {
+        rw_duplicate_invariant_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000021() {
+        rw_duplicate_invariant_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000022() {
+        rw_duplicate_invariant_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000023() {
+        rw_duplicate_invariant_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000024() {
+        rw_duplicate_invariant_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000025() {
+        rw_duplicate_invariant_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000026() {
+        rw_duplicate_invariant_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000027() {
+        rw_duplicate_invariant_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000028() {
+        rw_duplicate_invariant_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000029() {
+        rw_duplicate_invariant_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000030() {
+        rw_duplicate_invariant_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000031() {
+        rw_duplicate_invariant_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000032() {
+        rw_duplicate_invariant_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000033() {
+        rw_duplicate_invariant_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000034() {
+        rw_duplicate_invariant_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000035() {
+        rw_duplicate_invariant_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000036() {
+        rw_duplicate_invariant_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000037() {
+        rw_duplicate_invariant_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000038() {
+        rw_duplicate_invariant_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000039() {
+        rw_duplicate_invariant_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000040() {
+        rw_duplicate_invariant_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000041() {
+        rw_duplicate_invariant_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000042() {
+        rw_duplicate_invariant_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000043() {
+        rw_duplicate_invariant_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000044() {
+        rw_duplicate_invariant_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000045() {
+        rw_duplicate_invariant_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000046() {
+        rw_duplicate_invariant_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000047() {
+        rw_duplicate_invariant_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000048() {
+        rw_duplicate_invariant_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000049() {
+        rw_duplicate_invariant_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000050() {
+        rw_duplicate_invariant_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000051() {
+        rw_duplicate_invariant_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000052() {
+        rw_duplicate_invariant_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000053() {
+        rw_duplicate_invariant_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000054() {
+        rw_duplicate_invariant_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000055() {
+        rw_duplicate_invariant_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000056() {
+        rw_duplicate_invariant_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000057() {
+        rw_duplicate_invariant_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000058() {
+        rw_duplicate_invariant_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000059() {
+        rw_duplicate_invariant_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000060() {
+        rw_duplicate_invariant_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000061() {
+        rw_duplicate_invariant_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000062() {
+        rw_duplicate_invariant_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000063() {
+        rw_duplicate_invariant_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000064() {
+        rw_duplicate_invariant_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000065() {
+        rw_duplicate_invariant_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000066() {
+        rw_duplicate_invariant_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000067() {
+        rw_duplicate_invariant_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000068() {
+        rw_duplicate_invariant_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000069() {
+        rw_duplicate_invariant_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000070() {
+        rw_duplicate_invariant_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000071() {
+        rw_duplicate_invariant_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000072() {
+        rw_duplicate_invariant_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000073() {
+        rw_duplicate_invariant_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000074() {
+        rw_duplicate_invariant_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000075() {
+        rw_duplicate_invariant_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000076() {
+        rw_duplicate_invariant_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000077() {
+        rw_duplicate_invariant_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000078() {
+        rw_duplicate_invariant_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000079() {
+        rw_duplicate_invariant_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000080() {
+        rw_duplicate_invariant_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000081() {
+        rw_duplicate_invariant_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000082() {
+        rw_duplicate_invariant_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000083() {
+        rw_duplicate_invariant_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000084() {
+        rw_duplicate_invariant_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000085() {
+        rw_duplicate_invariant_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000086() {
+        rw_duplicate_invariant_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000087() {
+        rw_duplicate_invariant_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000088() {
+        rw_duplicate_invariant_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000089() {
+        rw_duplicate_invariant_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000090() {
+        rw_duplicate_invariant_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000091() {
+        rw_duplicate_invariant_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000092() {
+        rw_duplicate_invariant_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000093() {
+        rw_duplicate_invariant_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000094() {
+        rw_duplicate_invariant_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000095() {
+        rw_duplicate_invariant_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000096() {
+        rw_duplicate_invariant_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000097() {
+        rw_duplicate_invariant_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000098() {
+        rw_duplicate_invariant_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000099() {
+        rw_duplicate_invariant_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000100() {
+        rw_duplicate_invariant_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000101() {
+        rw_duplicate_invariant_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000102() {
+        rw_duplicate_invariant_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000103() {
+        rw_duplicate_invariant_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000104() {
+        rw_duplicate_invariant_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000105() {
+        rw_duplicate_invariant_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000106() {
+        rw_duplicate_invariant_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000107() {
+        rw_duplicate_invariant_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000108() {
+        rw_duplicate_invariant_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000109() {
+        rw_duplicate_invariant_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000110() {
+        rw_duplicate_invariant_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000111() {
+        rw_duplicate_invariant_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000112() {
+        rw_duplicate_invariant_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000113() {
+        rw_duplicate_invariant_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000114() {
+        rw_duplicate_invariant_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000115() {
+        rw_duplicate_invariant_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000116() {
+        rw_duplicate_invariant_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000117() {
+        rw_duplicate_invariant_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000118() {
+        rw_duplicate_invariant_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000119() {
+        rw_duplicate_invariant_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000120() {
+        rw_duplicate_invariant_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000121() {
+        rw_duplicate_invariant_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000122() {
+        rw_duplicate_invariant_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000123() {
+        rw_duplicate_invariant_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000124() {
+        rw_duplicate_invariant_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000125() {
+        rw_duplicate_invariant_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000126() {
+        rw_duplicate_invariant_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000127() {
+        rw_duplicate_invariant_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000128() {
+        rw_duplicate_invariant_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000129() {
+        rw_duplicate_invariant_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000130() {
+        rw_duplicate_invariant_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000131() {
+        rw_duplicate_invariant_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000132() {
+        rw_duplicate_invariant_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000133() {
+        rw_duplicate_invariant_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000134() {
+        rw_duplicate_invariant_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000135() {
+        rw_duplicate_invariant_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000136() {
+        rw_duplicate_invariant_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000137() {
+        rw_duplicate_invariant_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000138() {
+        rw_duplicate_invariant_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000139() {
+        rw_duplicate_invariant_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000140() {
+        rw_duplicate_invariant_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000141() {
+        rw_duplicate_invariant_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000142() {
+        rw_duplicate_invariant_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000143() {
+        rw_duplicate_invariant_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000144() {
+        rw_duplicate_invariant_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000145() {
+        rw_duplicate_invariant_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000146() {
+        rw_duplicate_invariant_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000147() {
+        rw_duplicate_invariant_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000148() {
+        rw_duplicate_invariant_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_duplicate_invariant_seed_000149() {
+        rw_duplicate_invariant_impl(149);
+    }
 
     // --- rw_conflict_order_independent: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000000() { rw_conflict_order_independent_impl(0); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000001() { rw_conflict_order_independent_impl(1); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000002() { rw_conflict_order_independent_impl(2); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000003() { rw_conflict_order_independent_impl(3); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000004() { rw_conflict_order_independent_impl(4); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000005() { rw_conflict_order_independent_impl(5); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000006() { rw_conflict_order_independent_impl(6); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000007() { rw_conflict_order_independent_impl(7); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000008() { rw_conflict_order_independent_impl(8); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000009() { rw_conflict_order_independent_impl(9); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000010() { rw_conflict_order_independent_impl(10); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000011() { rw_conflict_order_independent_impl(11); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000012() { rw_conflict_order_independent_impl(12); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000013() { rw_conflict_order_independent_impl(13); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000014() { rw_conflict_order_independent_impl(14); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000015() { rw_conflict_order_independent_impl(15); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000016() { rw_conflict_order_independent_impl(16); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000017() { rw_conflict_order_independent_impl(17); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000018() { rw_conflict_order_independent_impl(18); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000019() { rw_conflict_order_independent_impl(19); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000020() { rw_conflict_order_independent_impl(20); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000021() { rw_conflict_order_independent_impl(21); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000022() { rw_conflict_order_independent_impl(22); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000023() { rw_conflict_order_independent_impl(23); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000024() { rw_conflict_order_independent_impl(24); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000025() { rw_conflict_order_independent_impl(25); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000026() { rw_conflict_order_independent_impl(26); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000027() { rw_conflict_order_independent_impl(27); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000028() { rw_conflict_order_independent_impl(28); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000029() { rw_conflict_order_independent_impl(29); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000030() { rw_conflict_order_independent_impl(30); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000031() { rw_conflict_order_independent_impl(31); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000032() { rw_conflict_order_independent_impl(32); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000033() { rw_conflict_order_independent_impl(33); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000034() { rw_conflict_order_independent_impl(34); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000035() { rw_conflict_order_independent_impl(35); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000036() { rw_conflict_order_independent_impl(36); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000037() { rw_conflict_order_independent_impl(37); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000038() { rw_conflict_order_independent_impl(38); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000039() { rw_conflict_order_independent_impl(39); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000040() { rw_conflict_order_independent_impl(40); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000041() { rw_conflict_order_independent_impl(41); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000042() { rw_conflict_order_independent_impl(42); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000043() { rw_conflict_order_independent_impl(43); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000044() { rw_conflict_order_independent_impl(44); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000045() { rw_conflict_order_independent_impl(45); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000046() { rw_conflict_order_independent_impl(46); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000047() { rw_conflict_order_independent_impl(47); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000048() { rw_conflict_order_independent_impl(48); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000049() { rw_conflict_order_independent_impl(49); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000050() { rw_conflict_order_independent_impl(50); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000051() { rw_conflict_order_independent_impl(51); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000052() { rw_conflict_order_independent_impl(52); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000053() { rw_conflict_order_independent_impl(53); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000054() { rw_conflict_order_independent_impl(54); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000055() { rw_conflict_order_independent_impl(55); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000056() { rw_conflict_order_independent_impl(56); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000057() { rw_conflict_order_independent_impl(57); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000058() { rw_conflict_order_independent_impl(58); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000059() { rw_conflict_order_independent_impl(59); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000060() { rw_conflict_order_independent_impl(60); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000061() { rw_conflict_order_independent_impl(61); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000062() { rw_conflict_order_independent_impl(62); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000063() { rw_conflict_order_independent_impl(63); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000064() { rw_conflict_order_independent_impl(64); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000065() { rw_conflict_order_independent_impl(65); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000066() { rw_conflict_order_independent_impl(66); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000067() { rw_conflict_order_independent_impl(67); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000068() { rw_conflict_order_independent_impl(68); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000069() { rw_conflict_order_independent_impl(69); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000070() { rw_conflict_order_independent_impl(70); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000071() { rw_conflict_order_independent_impl(71); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000072() { rw_conflict_order_independent_impl(72); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000073() { rw_conflict_order_independent_impl(73); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000074() { rw_conflict_order_independent_impl(74); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000075() { rw_conflict_order_independent_impl(75); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000076() { rw_conflict_order_independent_impl(76); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000077() { rw_conflict_order_independent_impl(77); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000078() { rw_conflict_order_independent_impl(78); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000079() { rw_conflict_order_independent_impl(79); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000080() { rw_conflict_order_independent_impl(80); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000081() { rw_conflict_order_independent_impl(81); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000082() { rw_conflict_order_independent_impl(82); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000083() { rw_conflict_order_independent_impl(83); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000084() { rw_conflict_order_independent_impl(84); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000085() { rw_conflict_order_independent_impl(85); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000086() { rw_conflict_order_independent_impl(86); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000087() { rw_conflict_order_independent_impl(87); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000088() { rw_conflict_order_independent_impl(88); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000089() { rw_conflict_order_independent_impl(89); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000090() { rw_conflict_order_independent_impl(90); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000091() { rw_conflict_order_independent_impl(91); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000092() { rw_conflict_order_independent_impl(92); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000093() { rw_conflict_order_independent_impl(93); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000094() { rw_conflict_order_independent_impl(94); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000095() { rw_conflict_order_independent_impl(95); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000096() { rw_conflict_order_independent_impl(96); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000097() { rw_conflict_order_independent_impl(97); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000098() { rw_conflict_order_independent_impl(98); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000099() { rw_conflict_order_independent_impl(99); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000100() { rw_conflict_order_independent_impl(100); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000101() { rw_conflict_order_independent_impl(101); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000102() { rw_conflict_order_independent_impl(102); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000103() { rw_conflict_order_independent_impl(103); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000104() { rw_conflict_order_independent_impl(104); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000105() { rw_conflict_order_independent_impl(105); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000106() { rw_conflict_order_independent_impl(106); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000107() { rw_conflict_order_independent_impl(107); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000108() { rw_conflict_order_independent_impl(108); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000109() { rw_conflict_order_independent_impl(109); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000110() { rw_conflict_order_independent_impl(110); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000111() { rw_conflict_order_independent_impl(111); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000112() { rw_conflict_order_independent_impl(112); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000113() { rw_conflict_order_independent_impl(113); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000114() { rw_conflict_order_independent_impl(114); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000115() { rw_conflict_order_independent_impl(115); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000116() { rw_conflict_order_independent_impl(116); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000117() { rw_conflict_order_independent_impl(117); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000118() { rw_conflict_order_independent_impl(118); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000119() { rw_conflict_order_independent_impl(119); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000120() { rw_conflict_order_independent_impl(120); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000121() { rw_conflict_order_independent_impl(121); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000122() { rw_conflict_order_independent_impl(122); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000123() { rw_conflict_order_independent_impl(123); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000124() { rw_conflict_order_independent_impl(124); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000125() { rw_conflict_order_independent_impl(125); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000126() { rw_conflict_order_independent_impl(126); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000127() { rw_conflict_order_independent_impl(127); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000128() { rw_conflict_order_independent_impl(128); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000129() { rw_conflict_order_independent_impl(129); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000130() { rw_conflict_order_independent_impl(130); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000131() { rw_conflict_order_independent_impl(131); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000132() { rw_conflict_order_independent_impl(132); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000133() { rw_conflict_order_independent_impl(133); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000134() { rw_conflict_order_independent_impl(134); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000135() { rw_conflict_order_independent_impl(135); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000136() { rw_conflict_order_independent_impl(136); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000137() { rw_conflict_order_independent_impl(137); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000138() { rw_conflict_order_independent_impl(138); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000139() { rw_conflict_order_independent_impl(139); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000140() { rw_conflict_order_independent_impl(140); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000141() { rw_conflict_order_independent_impl(141); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000142() { rw_conflict_order_independent_impl(142); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000143() { rw_conflict_order_independent_impl(143); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000144() { rw_conflict_order_independent_impl(144); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000145() { rw_conflict_order_independent_impl(145); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000146() { rw_conflict_order_independent_impl(146); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000147() { rw_conflict_order_independent_impl(147); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000148() { rw_conflict_order_independent_impl(148); }
-    #[cfg_attr(test, test)]
-    fn rw_conflict_order_independent_seed_000149() { rw_conflict_order_independent_impl(149); }
+    fn rw_conflict_order_independent_seed_000000() {
+        rw_conflict_order_independent_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000001() {
+        rw_conflict_order_independent_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000002() {
+        rw_conflict_order_independent_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000003() {
+        rw_conflict_order_independent_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000004() {
+        rw_conflict_order_independent_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000005() {
+        rw_conflict_order_independent_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000006() {
+        rw_conflict_order_independent_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000007() {
+        rw_conflict_order_independent_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000008() {
+        rw_conflict_order_independent_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000009() {
+        rw_conflict_order_independent_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000010() {
+        rw_conflict_order_independent_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000011() {
+        rw_conflict_order_independent_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000012() {
+        rw_conflict_order_independent_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000013() {
+        rw_conflict_order_independent_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000014() {
+        rw_conflict_order_independent_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000015() {
+        rw_conflict_order_independent_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000016() {
+        rw_conflict_order_independent_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000017() {
+        rw_conflict_order_independent_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000018() {
+        rw_conflict_order_independent_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000019() {
+        rw_conflict_order_independent_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000020() {
+        rw_conflict_order_independent_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000021() {
+        rw_conflict_order_independent_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000022() {
+        rw_conflict_order_independent_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000023() {
+        rw_conflict_order_independent_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000024() {
+        rw_conflict_order_independent_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000025() {
+        rw_conflict_order_independent_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000026() {
+        rw_conflict_order_independent_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000027() {
+        rw_conflict_order_independent_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000028() {
+        rw_conflict_order_independent_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000029() {
+        rw_conflict_order_independent_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000030() {
+        rw_conflict_order_independent_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000031() {
+        rw_conflict_order_independent_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000032() {
+        rw_conflict_order_independent_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000033() {
+        rw_conflict_order_independent_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000034() {
+        rw_conflict_order_independent_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000035() {
+        rw_conflict_order_independent_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000036() {
+        rw_conflict_order_independent_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000037() {
+        rw_conflict_order_independent_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000038() {
+        rw_conflict_order_independent_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000039() {
+        rw_conflict_order_independent_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000040() {
+        rw_conflict_order_independent_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000041() {
+        rw_conflict_order_independent_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000042() {
+        rw_conflict_order_independent_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000043() {
+        rw_conflict_order_independent_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000044() {
+        rw_conflict_order_independent_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000045() {
+        rw_conflict_order_independent_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000046() {
+        rw_conflict_order_independent_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000047() {
+        rw_conflict_order_independent_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000048() {
+        rw_conflict_order_independent_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000049() {
+        rw_conflict_order_independent_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000050() {
+        rw_conflict_order_independent_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000051() {
+        rw_conflict_order_independent_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000052() {
+        rw_conflict_order_independent_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000053() {
+        rw_conflict_order_independent_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000054() {
+        rw_conflict_order_independent_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000055() {
+        rw_conflict_order_independent_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000056() {
+        rw_conflict_order_independent_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000057() {
+        rw_conflict_order_independent_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000058() {
+        rw_conflict_order_independent_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000059() {
+        rw_conflict_order_independent_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000060() {
+        rw_conflict_order_independent_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000061() {
+        rw_conflict_order_independent_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000062() {
+        rw_conflict_order_independent_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000063() {
+        rw_conflict_order_independent_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000064() {
+        rw_conflict_order_independent_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000065() {
+        rw_conflict_order_independent_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000066() {
+        rw_conflict_order_independent_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000067() {
+        rw_conflict_order_independent_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000068() {
+        rw_conflict_order_independent_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000069() {
+        rw_conflict_order_independent_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000070() {
+        rw_conflict_order_independent_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000071() {
+        rw_conflict_order_independent_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000072() {
+        rw_conflict_order_independent_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000073() {
+        rw_conflict_order_independent_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000074() {
+        rw_conflict_order_independent_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000075() {
+        rw_conflict_order_independent_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000076() {
+        rw_conflict_order_independent_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000077() {
+        rw_conflict_order_independent_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000078() {
+        rw_conflict_order_independent_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000079() {
+        rw_conflict_order_independent_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000080() {
+        rw_conflict_order_independent_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000081() {
+        rw_conflict_order_independent_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000082() {
+        rw_conflict_order_independent_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000083() {
+        rw_conflict_order_independent_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000084() {
+        rw_conflict_order_independent_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000085() {
+        rw_conflict_order_independent_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000086() {
+        rw_conflict_order_independent_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000087() {
+        rw_conflict_order_independent_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000088() {
+        rw_conflict_order_independent_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000089() {
+        rw_conflict_order_independent_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000090() {
+        rw_conflict_order_independent_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000091() {
+        rw_conflict_order_independent_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000092() {
+        rw_conflict_order_independent_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000093() {
+        rw_conflict_order_independent_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000094() {
+        rw_conflict_order_independent_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000095() {
+        rw_conflict_order_independent_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000096() {
+        rw_conflict_order_independent_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000097() {
+        rw_conflict_order_independent_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000098() {
+        rw_conflict_order_independent_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000099() {
+        rw_conflict_order_independent_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000100() {
+        rw_conflict_order_independent_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000101() {
+        rw_conflict_order_independent_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000102() {
+        rw_conflict_order_independent_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000103() {
+        rw_conflict_order_independent_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000104() {
+        rw_conflict_order_independent_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000105() {
+        rw_conflict_order_independent_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000106() {
+        rw_conflict_order_independent_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000107() {
+        rw_conflict_order_independent_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000108() {
+        rw_conflict_order_independent_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000109() {
+        rw_conflict_order_independent_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000110() {
+        rw_conflict_order_independent_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000111() {
+        rw_conflict_order_independent_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000112() {
+        rw_conflict_order_independent_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000113() {
+        rw_conflict_order_independent_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000114() {
+        rw_conflict_order_independent_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000115() {
+        rw_conflict_order_independent_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000116() {
+        rw_conflict_order_independent_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000117() {
+        rw_conflict_order_independent_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000118() {
+        rw_conflict_order_independent_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000119() {
+        rw_conflict_order_independent_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000120() {
+        rw_conflict_order_independent_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000121() {
+        rw_conflict_order_independent_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000122() {
+        rw_conflict_order_independent_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000123() {
+        rw_conflict_order_independent_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000124() {
+        rw_conflict_order_independent_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000125() {
+        rw_conflict_order_independent_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000126() {
+        rw_conflict_order_independent_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000127() {
+        rw_conflict_order_independent_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000128() {
+        rw_conflict_order_independent_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000129() {
+        rw_conflict_order_independent_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000130() {
+        rw_conflict_order_independent_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000131() {
+        rw_conflict_order_independent_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000132() {
+        rw_conflict_order_independent_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000133() {
+        rw_conflict_order_independent_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000134() {
+        rw_conflict_order_independent_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000135() {
+        rw_conflict_order_independent_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000136() {
+        rw_conflict_order_independent_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000137() {
+        rw_conflict_order_independent_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000138() {
+        rw_conflict_order_independent_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000139() {
+        rw_conflict_order_independent_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000140() {
+        rw_conflict_order_independent_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000141() {
+        rw_conflict_order_independent_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000142() {
+        rw_conflict_order_independent_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000143() {
+        rw_conflict_order_independent_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000144() {
+        rw_conflict_order_independent_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000145() {
+        rw_conflict_order_independent_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000146() {
+        rw_conflict_order_independent_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000147() {
+        rw_conflict_order_independent_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000148() {
+        rw_conflict_order_independent_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn rw_conflict_order_independent_seed_000149() {
+        rw_conflict_order_independent_impl(149);
+    }
 
     // --- as_determinism: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn as_determinism_seed_000000() { as_determinism_impl(0); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000001() { as_determinism_impl(1); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000002() { as_determinism_impl(2); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000003() { as_determinism_impl(3); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000004() { as_determinism_impl(4); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000005() { as_determinism_impl(5); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000006() { as_determinism_impl(6); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000007() { as_determinism_impl(7); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000008() { as_determinism_impl(8); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000009() { as_determinism_impl(9); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000010() { as_determinism_impl(10); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000011() { as_determinism_impl(11); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000012() { as_determinism_impl(12); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000013() { as_determinism_impl(13); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000014() { as_determinism_impl(14); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000015() { as_determinism_impl(15); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000016() { as_determinism_impl(16); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000017() { as_determinism_impl(17); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000018() { as_determinism_impl(18); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000019() { as_determinism_impl(19); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000020() { as_determinism_impl(20); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000021() { as_determinism_impl(21); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000022() { as_determinism_impl(22); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000023() { as_determinism_impl(23); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000024() { as_determinism_impl(24); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000025() { as_determinism_impl(25); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000026() { as_determinism_impl(26); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000027() { as_determinism_impl(27); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000028() { as_determinism_impl(28); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000029() { as_determinism_impl(29); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000030() { as_determinism_impl(30); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000031() { as_determinism_impl(31); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000032() { as_determinism_impl(32); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000033() { as_determinism_impl(33); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000034() { as_determinism_impl(34); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000035() { as_determinism_impl(35); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000036() { as_determinism_impl(36); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000037() { as_determinism_impl(37); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000038() { as_determinism_impl(38); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000039() { as_determinism_impl(39); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000040() { as_determinism_impl(40); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000041() { as_determinism_impl(41); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000042() { as_determinism_impl(42); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000043() { as_determinism_impl(43); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000044() { as_determinism_impl(44); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000045() { as_determinism_impl(45); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000046() { as_determinism_impl(46); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000047() { as_determinism_impl(47); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000048() { as_determinism_impl(48); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000049() { as_determinism_impl(49); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000050() { as_determinism_impl(50); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000051() { as_determinism_impl(51); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000052() { as_determinism_impl(52); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000053() { as_determinism_impl(53); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000054() { as_determinism_impl(54); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000055() { as_determinism_impl(55); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000056() { as_determinism_impl(56); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000057() { as_determinism_impl(57); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000058() { as_determinism_impl(58); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000059() { as_determinism_impl(59); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000060() { as_determinism_impl(60); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000061() { as_determinism_impl(61); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000062() { as_determinism_impl(62); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000063() { as_determinism_impl(63); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000064() { as_determinism_impl(64); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000065() { as_determinism_impl(65); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000066() { as_determinism_impl(66); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000067() { as_determinism_impl(67); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000068() { as_determinism_impl(68); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000069() { as_determinism_impl(69); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000070() { as_determinism_impl(70); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000071() { as_determinism_impl(71); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000072() { as_determinism_impl(72); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000073() { as_determinism_impl(73); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000074() { as_determinism_impl(74); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000075() { as_determinism_impl(75); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000076() { as_determinism_impl(76); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000077() { as_determinism_impl(77); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000078() { as_determinism_impl(78); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000079() { as_determinism_impl(79); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000080() { as_determinism_impl(80); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000081() { as_determinism_impl(81); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000082() { as_determinism_impl(82); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000083() { as_determinism_impl(83); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000084() { as_determinism_impl(84); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000085() { as_determinism_impl(85); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000086() { as_determinism_impl(86); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000087() { as_determinism_impl(87); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000088() { as_determinism_impl(88); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000089() { as_determinism_impl(89); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000090() { as_determinism_impl(90); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000091() { as_determinism_impl(91); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000092() { as_determinism_impl(92); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000093() { as_determinism_impl(93); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000094() { as_determinism_impl(94); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000095() { as_determinism_impl(95); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000096() { as_determinism_impl(96); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000097() { as_determinism_impl(97); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000098() { as_determinism_impl(98); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000099() { as_determinism_impl(99); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000100() { as_determinism_impl(100); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000101() { as_determinism_impl(101); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000102() { as_determinism_impl(102); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000103() { as_determinism_impl(103); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000104() { as_determinism_impl(104); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000105() { as_determinism_impl(105); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000106() { as_determinism_impl(106); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000107() { as_determinism_impl(107); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000108() { as_determinism_impl(108); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000109() { as_determinism_impl(109); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000110() { as_determinism_impl(110); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000111() { as_determinism_impl(111); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000112() { as_determinism_impl(112); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000113() { as_determinism_impl(113); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000114() { as_determinism_impl(114); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000115() { as_determinism_impl(115); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000116() { as_determinism_impl(116); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000117() { as_determinism_impl(117); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000118() { as_determinism_impl(118); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000119() { as_determinism_impl(119); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000120() { as_determinism_impl(120); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000121() { as_determinism_impl(121); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000122() { as_determinism_impl(122); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000123() { as_determinism_impl(123); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000124() { as_determinism_impl(124); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000125() { as_determinism_impl(125); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000126() { as_determinism_impl(126); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000127() { as_determinism_impl(127); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000128() { as_determinism_impl(128); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000129() { as_determinism_impl(129); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000130() { as_determinism_impl(130); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000131() { as_determinism_impl(131); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000132() { as_determinism_impl(132); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000133() { as_determinism_impl(133); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000134() { as_determinism_impl(134); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000135() { as_determinism_impl(135); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000136() { as_determinism_impl(136); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000137() { as_determinism_impl(137); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000138() { as_determinism_impl(138); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000139() { as_determinism_impl(139); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000140() { as_determinism_impl(140); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000141() { as_determinism_impl(141); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000142() { as_determinism_impl(142); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000143() { as_determinism_impl(143); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000144() { as_determinism_impl(144); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000145() { as_determinism_impl(145); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000146() { as_determinism_impl(146); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000147() { as_determinism_impl(147); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000148() { as_determinism_impl(148); }
-    #[cfg_attr(test, test)]
-    fn as_determinism_seed_000149() { as_determinism_impl(149); }
+    fn as_determinism_seed_000000() {
+        as_determinism_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000001() {
+        as_determinism_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000002() {
+        as_determinism_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000003() {
+        as_determinism_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000004() {
+        as_determinism_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000005() {
+        as_determinism_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000006() {
+        as_determinism_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000007() {
+        as_determinism_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000008() {
+        as_determinism_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000009() {
+        as_determinism_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000010() {
+        as_determinism_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000011() {
+        as_determinism_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000012() {
+        as_determinism_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000013() {
+        as_determinism_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000014() {
+        as_determinism_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000015() {
+        as_determinism_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000016() {
+        as_determinism_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000017() {
+        as_determinism_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000018() {
+        as_determinism_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000019() {
+        as_determinism_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000020() {
+        as_determinism_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000021() {
+        as_determinism_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000022() {
+        as_determinism_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000023() {
+        as_determinism_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000024() {
+        as_determinism_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000025() {
+        as_determinism_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000026() {
+        as_determinism_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000027() {
+        as_determinism_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000028() {
+        as_determinism_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000029() {
+        as_determinism_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000030() {
+        as_determinism_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000031() {
+        as_determinism_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000032() {
+        as_determinism_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000033() {
+        as_determinism_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000034() {
+        as_determinism_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000035() {
+        as_determinism_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000036() {
+        as_determinism_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000037() {
+        as_determinism_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000038() {
+        as_determinism_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000039() {
+        as_determinism_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000040() {
+        as_determinism_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000041() {
+        as_determinism_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000042() {
+        as_determinism_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000043() {
+        as_determinism_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000044() {
+        as_determinism_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000045() {
+        as_determinism_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000046() {
+        as_determinism_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000047() {
+        as_determinism_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000048() {
+        as_determinism_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000049() {
+        as_determinism_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000050() {
+        as_determinism_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000051() {
+        as_determinism_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000052() {
+        as_determinism_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000053() {
+        as_determinism_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000054() {
+        as_determinism_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000055() {
+        as_determinism_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000056() {
+        as_determinism_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000057() {
+        as_determinism_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000058() {
+        as_determinism_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000059() {
+        as_determinism_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000060() {
+        as_determinism_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000061() {
+        as_determinism_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000062() {
+        as_determinism_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000063() {
+        as_determinism_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000064() {
+        as_determinism_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000065() {
+        as_determinism_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000066() {
+        as_determinism_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000067() {
+        as_determinism_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000068() {
+        as_determinism_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000069() {
+        as_determinism_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000070() {
+        as_determinism_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000071() {
+        as_determinism_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000072() {
+        as_determinism_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000073() {
+        as_determinism_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000074() {
+        as_determinism_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000075() {
+        as_determinism_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000076() {
+        as_determinism_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000077() {
+        as_determinism_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000078() {
+        as_determinism_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000079() {
+        as_determinism_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000080() {
+        as_determinism_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000081() {
+        as_determinism_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000082() {
+        as_determinism_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000083() {
+        as_determinism_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000084() {
+        as_determinism_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000085() {
+        as_determinism_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000086() {
+        as_determinism_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000087() {
+        as_determinism_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000088() {
+        as_determinism_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000089() {
+        as_determinism_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000090() {
+        as_determinism_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000091() {
+        as_determinism_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000092() {
+        as_determinism_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000093() {
+        as_determinism_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000094() {
+        as_determinism_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000095() {
+        as_determinism_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000096() {
+        as_determinism_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000097() {
+        as_determinism_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000098() {
+        as_determinism_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000099() {
+        as_determinism_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000100() {
+        as_determinism_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000101() {
+        as_determinism_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000102() {
+        as_determinism_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000103() {
+        as_determinism_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000104() {
+        as_determinism_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000105() {
+        as_determinism_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000106() {
+        as_determinism_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000107() {
+        as_determinism_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000108() {
+        as_determinism_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000109() {
+        as_determinism_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000110() {
+        as_determinism_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000111() {
+        as_determinism_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000112() {
+        as_determinism_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000113() {
+        as_determinism_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000114() {
+        as_determinism_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000115() {
+        as_determinism_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000116() {
+        as_determinism_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000117() {
+        as_determinism_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000118() {
+        as_determinism_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000119() {
+        as_determinism_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000120() {
+        as_determinism_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000121() {
+        as_determinism_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000122() {
+        as_determinism_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000123() {
+        as_determinism_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000124() {
+        as_determinism_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000125() {
+        as_determinism_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000126() {
+        as_determinism_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000127() {
+        as_determinism_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000128() {
+        as_determinism_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000129() {
+        as_determinism_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000130() {
+        as_determinism_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000131() {
+        as_determinism_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000132() {
+        as_determinism_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000133() {
+        as_determinism_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000134() {
+        as_determinism_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000135() {
+        as_determinism_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000136() {
+        as_determinism_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000137() {
+        as_determinism_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000138() {
+        as_determinism_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000139() {
+        as_determinism_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000140() {
+        as_determinism_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000141() {
+        as_determinism_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000142() {
+        as_determinism_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000143() {
+        as_determinism_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000144() {
+        as_determinism_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000145() {
+        as_determinism_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000146() {
+        as_determinism_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000147() {
+        as_determinism_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000148() {
+        as_determinism_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn as_determinism_seed_000149() {
+        as_determinism_impl(149);
+    }
 
     // --- as_path_validity: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000000() { as_path_validity_impl(0); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000001() { as_path_validity_impl(1); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000002() { as_path_validity_impl(2); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000003() { as_path_validity_impl(3); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000004() { as_path_validity_impl(4); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000005() { as_path_validity_impl(5); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000006() { as_path_validity_impl(6); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000007() { as_path_validity_impl(7); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000008() { as_path_validity_impl(8); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000009() { as_path_validity_impl(9); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000010() { as_path_validity_impl(10); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000011() { as_path_validity_impl(11); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000012() { as_path_validity_impl(12); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000013() { as_path_validity_impl(13); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000014() { as_path_validity_impl(14); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000015() { as_path_validity_impl(15); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000016() { as_path_validity_impl(16); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000017() { as_path_validity_impl(17); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000018() { as_path_validity_impl(18); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000019() { as_path_validity_impl(19); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000020() { as_path_validity_impl(20); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000021() { as_path_validity_impl(21); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000022() { as_path_validity_impl(22); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000023() { as_path_validity_impl(23); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000024() { as_path_validity_impl(24); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000025() { as_path_validity_impl(25); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000026() { as_path_validity_impl(26); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000027() { as_path_validity_impl(27); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000028() { as_path_validity_impl(28); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000029() { as_path_validity_impl(29); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000030() { as_path_validity_impl(30); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000031() { as_path_validity_impl(31); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000032() { as_path_validity_impl(32); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000033() { as_path_validity_impl(33); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000034() { as_path_validity_impl(34); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000035() { as_path_validity_impl(35); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000036() { as_path_validity_impl(36); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000037() { as_path_validity_impl(37); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000038() { as_path_validity_impl(38); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000039() { as_path_validity_impl(39); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000040() { as_path_validity_impl(40); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000041() { as_path_validity_impl(41); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000042() { as_path_validity_impl(42); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000043() { as_path_validity_impl(43); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000044() { as_path_validity_impl(44); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000045() { as_path_validity_impl(45); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000046() { as_path_validity_impl(46); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000047() { as_path_validity_impl(47); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000048() { as_path_validity_impl(48); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000049() { as_path_validity_impl(49); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000050() { as_path_validity_impl(50); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000051() { as_path_validity_impl(51); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000052() { as_path_validity_impl(52); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000053() { as_path_validity_impl(53); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000054() { as_path_validity_impl(54); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000055() { as_path_validity_impl(55); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000056() { as_path_validity_impl(56); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000057() { as_path_validity_impl(57); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000058() { as_path_validity_impl(58); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000059() { as_path_validity_impl(59); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000060() { as_path_validity_impl(60); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000061() { as_path_validity_impl(61); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000062() { as_path_validity_impl(62); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000063() { as_path_validity_impl(63); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000064() { as_path_validity_impl(64); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000065() { as_path_validity_impl(65); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000066() { as_path_validity_impl(66); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000067() { as_path_validity_impl(67); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000068() { as_path_validity_impl(68); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000069() { as_path_validity_impl(69); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000070() { as_path_validity_impl(70); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000071() { as_path_validity_impl(71); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000072() { as_path_validity_impl(72); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000073() { as_path_validity_impl(73); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000074() { as_path_validity_impl(74); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000075() { as_path_validity_impl(75); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000076() { as_path_validity_impl(76); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000077() { as_path_validity_impl(77); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000078() { as_path_validity_impl(78); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000079() { as_path_validity_impl(79); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000080() { as_path_validity_impl(80); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000081() { as_path_validity_impl(81); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000082() { as_path_validity_impl(82); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000083() { as_path_validity_impl(83); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000084() { as_path_validity_impl(84); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000085() { as_path_validity_impl(85); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000086() { as_path_validity_impl(86); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000087() { as_path_validity_impl(87); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000088() { as_path_validity_impl(88); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000089() { as_path_validity_impl(89); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000090() { as_path_validity_impl(90); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000091() { as_path_validity_impl(91); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000092() { as_path_validity_impl(92); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000093() { as_path_validity_impl(93); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000094() { as_path_validity_impl(94); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000095() { as_path_validity_impl(95); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000096() { as_path_validity_impl(96); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000097() { as_path_validity_impl(97); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000098() { as_path_validity_impl(98); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000099() { as_path_validity_impl(99); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000100() { as_path_validity_impl(100); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000101() { as_path_validity_impl(101); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000102() { as_path_validity_impl(102); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000103() { as_path_validity_impl(103); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000104() { as_path_validity_impl(104); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000105() { as_path_validity_impl(105); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000106() { as_path_validity_impl(106); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000107() { as_path_validity_impl(107); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000108() { as_path_validity_impl(108); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000109() { as_path_validity_impl(109); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000110() { as_path_validity_impl(110); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000111() { as_path_validity_impl(111); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000112() { as_path_validity_impl(112); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000113() { as_path_validity_impl(113); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000114() { as_path_validity_impl(114); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000115() { as_path_validity_impl(115); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000116() { as_path_validity_impl(116); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000117() { as_path_validity_impl(117); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000118() { as_path_validity_impl(118); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000119() { as_path_validity_impl(119); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000120() { as_path_validity_impl(120); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000121() { as_path_validity_impl(121); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000122() { as_path_validity_impl(122); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000123() { as_path_validity_impl(123); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000124() { as_path_validity_impl(124); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000125() { as_path_validity_impl(125); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000126() { as_path_validity_impl(126); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000127() { as_path_validity_impl(127); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000128() { as_path_validity_impl(128); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000129() { as_path_validity_impl(129); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000130() { as_path_validity_impl(130); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000131() { as_path_validity_impl(131); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000132() { as_path_validity_impl(132); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000133() { as_path_validity_impl(133); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000134() { as_path_validity_impl(134); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000135() { as_path_validity_impl(135); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000136() { as_path_validity_impl(136); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000137() { as_path_validity_impl(137); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000138() { as_path_validity_impl(138); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000139() { as_path_validity_impl(139); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000140() { as_path_validity_impl(140); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000141() { as_path_validity_impl(141); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000142() { as_path_validity_impl(142); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000143() { as_path_validity_impl(143); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000144() { as_path_validity_impl(144); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000145() { as_path_validity_impl(145); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000146() { as_path_validity_impl(146); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000147() { as_path_validity_impl(147); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000148() { as_path_validity_impl(148); }
-    #[cfg_attr(test, test)]
-    fn as_path_validity_seed_000149() { as_path_validity_impl(149); }
+    fn as_path_validity_seed_000000() {
+        as_path_validity_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000001() {
+        as_path_validity_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000002() {
+        as_path_validity_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000003() {
+        as_path_validity_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000004() {
+        as_path_validity_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000005() {
+        as_path_validity_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000006() {
+        as_path_validity_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000007() {
+        as_path_validity_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000008() {
+        as_path_validity_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000009() {
+        as_path_validity_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000010() {
+        as_path_validity_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000011() {
+        as_path_validity_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000012() {
+        as_path_validity_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000013() {
+        as_path_validity_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000014() {
+        as_path_validity_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000015() {
+        as_path_validity_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000016() {
+        as_path_validity_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000017() {
+        as_path_validity_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000018() {
+        as_path_validity_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000019() {
+        as_path_validity_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000020() {
+        as_path_validity_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000021() {
+        as_path_validity_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000022() {
+        as_path_validity_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000023() {
+        as_path_validity_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000024() {
+        as_path_validity_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000025() {
+        as_path_validity_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000026() {
+        as_path_validity_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000027() {
+        as_path_validity_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000028() {
+        as_path_validity_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000029() {
+        as_path_validity_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000030() {
+        as_path_validity_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000031() {
+        as_path_validity_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000032() {
+        as_path_validity_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000033() {
+        as_path_validity_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000034() {
+        as_path_validity_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000035() {
+        as_path_validity_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000036() {
+        as_path_validity_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000037() {
+        as_path_validity_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000038() {
+        as_path_validity_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000039() {
+        as_path_validity_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000040() {
+        as_path_validity_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000041() {
+        as_path_validity_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000042() {
+        as_path_validity_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000043() {
+        as_path_validity_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000044() {
+        as_path_validity_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000045() {
+        as_path_validity_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000046() {
+        as_path_validity_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000047() {
+        as_path_validity_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000048() {
+        as_path_validity_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000049() {
+        as_path_validity_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000050() {
+        as_path_validity_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000051() {
+        as_path_validity_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000052() {
+        as_path_validity_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000053() {
+        as_path_validity_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000054() {
+        as_path_validity_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000055() {
+        as_path_validity_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000056() {
+        as_path_validity_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000057() {
+        as_path_validity_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000058() {
+        as_path_validity_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000059() {
+        as_path_validity_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000060() {
+        as_path_validity_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000061() {
+        as_path_validity_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000062() {
+        as_path_validity_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000063() {
+        as_path_validity_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000064() {
+        as_path_validity_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000065() {
+        as_path_validity_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000066() {
+        as_path_validity_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000067() {
+        as_path_validity_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000068() {
+        as_path_validity_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000069() {
+        as_path_validity_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000070() {
+        as_path_validity_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000071() {
+        as_path_validity_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000072() {
+        as_path_validity_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000073() {
+        as_path_validity_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000074() {
+        as_path_validity_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000075() {
+        as_path_validity_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000076() {
+        as_path_validity_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000077() {
+        as_path_validity_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000078() {
+        as_path_validity_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000079() {
+        as_path_validity_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000080() {
+        as_path_validity_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000081() {
+        as_path_validity_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000082() {
+        as_path_validity_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000083() {
+        as_path_validity_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000084() {
+        as_path_validity_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000085() {
+        as_path_validity_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000086() {
+        as_path_validity_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000087() {
+        as_path_validity_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000088() {
+        as_path_validity_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000089() {
+        as_path_validity_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000090() {
+        as_path_validity_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000091() {
+        as_path_validity_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000092() {
+        as_path_validity_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000093() {
+        as_path_validity_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000094() {
+        as_path_validity_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000095() {
+        as_path_validity_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000096() {
+        as_path_validity_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000097() {
+        as_path_validity_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000098() {
+        as_path_validity_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000099() {
+        as_path_validity_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000100() {
+        as_path_validity_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000101() {
+        as_path_validity_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000102() {
+        as_path_validity_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000103() {
+        as_path_validity_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000104() {
+        as_path_validity_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000105() {
+        as_path_validity_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000106() {
+        as_path_validity_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000107() {
+        as_path_validity_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000108() {
+        as_path_validity_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000109() {
+        as_path_validity_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000110() {
+        as_path_validity_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000111() {
+        as_path_validity_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000112() {
+        as_path_validity_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000113() {
+        as_path_validity_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000114() {
+        as_path_validity_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000115() {
+        as_path_validity_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000116() {
+        as_path_validity_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000117() {
+        as_path_validity_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000118() {
+        as_path_validity_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000119() {
+        as_path_validity_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000120() {
+        as_path_validity_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000121() {
+        as_path_validity_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000122() {
+        as_path_validity_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000123() {
+        as_path_validity_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000124() {
+        as_path_validity_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000125() {
+        as_path_validity_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000126() {
+        as_path_validity_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000127() {
+        as_path_validity_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000128() {
+        as_path_validity_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000129() {
+        as_path_validity_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000130() {
+        as_path_validity_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000131() {
+        as_path_validity_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000132() {
+        as_path_validity_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000133() {
+        as_path_validity_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000134() {
+        as_path_validity_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000135() {
+        as_path_validity_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000136() {
+        as_path_validity_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000137() {
+        as_path_validity_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000138() {
+        as_path_validity_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000139() {
+        as_path_validity_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000140() {
+        as_path_validity_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000141() {
+        as_path_validity_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000142() {
+        as_path_validity_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000143() {
+        as_path_validity_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000144() {
+        as_path_validity_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000145() {
+        as_path_validity_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000146() {
+        as_path_validity_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000147() {
+        as_path_validity_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000148() {
+        as_path_validity_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn as_path_validity_seed_000149() {
+        as_path_validity_impl(149);
+    }
 
     // --- as_monotonic_reachability: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000000() { as_monotonic_reachability_impl(0); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000001() { as_monotonic_reachability_impl(1); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000002() { as_monotonic_reachability_impl(2); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000003() { as_monotonic_reachability_impl(3); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000004() { as_monotonic_reachability_impl(4); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000005() { as_monotonic_reachability_impl(5); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000006() { as_monotonic_reachability_impl(6); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000007() { as_monotonic_reachability_impl(7); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000008() { as_monotonic_reachability_impl(8); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000009() { as_monotonic_reachability_impl(9); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000010() { as_monotonic_reachability_impl(10); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000011() { as_monotonic_reachability_impl(11); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000012() { as_monotonic_reachability_impl(12); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000013() { as_monotonic_reachability_impl(13); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000014() { as_monotonic_reachability_impl(14); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000015() { as_monotonic_reachability_impl(15); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000016() { as_monotonic_reachability_impl(16); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000017() { as_monotonic_reachability_impl(17); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000018() { as_monotonic_reachability_impl(18); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000019() { as_monotonic_reachability_impl(19); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000020() { as_monotonic_reachability_impl(20); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000021() { as_monotonic_reachability_impl(21); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000022() { as_monotonic_reachability_impl(22); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000023() { as_monotonic_reachability_impl(23); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000024() { as_monotonic_reachability_impl(24); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000025() { as_monotonic_reachability_impl(25); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000026() { as_monotonic_reachability_impl(26); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000027() { as_monotonic_reachability_impl(27); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000028() { as_monotonic_reachability_impl(28); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000029() { as_monotonic_reachability_impl(29); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000030() { as_monotonic_reachability_impl(30); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000031() { as_monotonic_reachability_impl(31); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000032() { as_monotonic_reachability_impl(32); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000033() { as_monotonic_reachability_impl(33); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000034() { as_monotonic_reachability_impl(34); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000035() { as_monotonic_reachability_impl(35); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000036() { as_monotonic_reachability_impl(36); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000037() { as_monotonic_reachability_impl(37); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000038() { as_monotonic_reachability_impl(38); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000039() { as_monotonic_reachability_impl(39); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000040() { as_monotonic_reachability_impl(40); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000041() { as_monotonic_reachability_impl(41); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000042() { as_monotonic_reachability_impl(42); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000043() { as_monotonic_reachability_impl(43); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000044() { as_monotonic_reachability_impl(44); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000045() { as_monotonic_reachability_impl(45); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000046() { as_monotonic_reachability_impl(46); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000047() { as_monotonic_reachability_impl(47); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000048() { as_monotonic_reachability_impl(48); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000049() { as_monotonic_reachability_impl(49); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000050() { as_monotonic_reachability_impl(50); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000051() { as_monotonic_reachability_impl(51); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000052() { as_monotonic_reachability_impl(52); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000053() { as_monotonic_reachability_impl(53); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000054() { as_monotonic_reachability_impl(54); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000055() { as_monotonic_reachability_impl(55); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000056() { as_monotonic_reachability_impl(56); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000057() { as_monotonic_reachability_impl(57); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000058() { as_monotonic_reachability_impl(58); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000059() { as_monotonic_reachability_impl(59); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000060() { as_monotonic_reachability_impl(60); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000061() { as_monotonic_reachability_impl(61); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000062() { as_monotonic_reachability_impl(62); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000063() { as_monotonic_reachability_impl(63); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000064() { as_monotonic_reachability_impl(64); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000065() { as_monotonic_reachability_impl(65); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000066() { as_monotonic_reachability_impl(66); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000067() { as_monotonic_reachability_impl(67); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000068() { as_monotonic_reachability_impl(68); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000069() { as_monotonic_reachability_impl(69); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000070() { as_monotonic_reachability_impl(70); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000071() { as_monotonic_reachability_impl(71); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000072() { as_monotonic_reachability_impl(72); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000073() { as_monotonic_reachability_impl(73); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000074() { as_monotonic_reachability_impl(74); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000075() { as_monotonic_reachability_impl(75); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000076() { as_monotonic_reachability_impl(76); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000077() { as_monotonic_reachability_impl(77); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000078() { as_monotonic_reachability_impl(78); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000079() { as_monotonic_reachability_impl(79); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000080() { as_monotonic_reachability_impl(80); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000081() { as_monotonic_reachability_impl(81); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000082() { as_monotonic_reachability_impl(82); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000083() { as_monotonic_reachability_impl(83); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000084() { as_monotonic_reachability_impl(84); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000085() { as_monotonic_reachability_impl(85); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000086() { as_monotonic_reachability_impl(86); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000087() { as_monotonic_reachability_impl(87); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000088() { as_monotonic_reachability_impl(88); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000089() { as_monotonic_reachability_impl(89); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000090() { as_monotonic_reachability_impl(90); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000091() { as_monotonic_reachability_impl(91); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000092() { as_monotonic_reachability_impl(92); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000093() { as_monotonic_reachability_impl(93); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000094() { as_monotonic_reachability_impl(94); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000095() { as_monotonic_reachability_impl(95); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000096() { as_monotonic_reachability_impl(96); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000097() { as_monotonic_reachability_impl(97); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000098() { as_monotonic_reachability_impl(98); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000099() { as_monotonic_reachability_impl(99); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000100() { as_monotonic_reachability_impl(100); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000101() { as_monotonic_reachability_impl(101); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000102() { as_monotonic_reachability_impl(102); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000103() { as_monotonic_reachability_impl(103); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000104() { as_monotonic_reachability_impl(104); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000105() { as_monotonic_reachability_impl(105); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000106() { as_monotonic_reachability_impl(106); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000107() { as_monotonic_reachability_impl(107); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000108() { as_monotonic_reachability_impl(108); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000109() { as_monotonic_reachability_impl(109); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000110() { as_monotonic_reachability_impl(110); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000111() { as_monotonic_reachability_impl(111); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000112() { as_monotonic_reachability_impl(112); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000113() { as_monotonic_reachability_impl(113); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000114() { as_monotonic_reachability_impl(114); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000115() { as_monotonic_reachability_impl(115); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000116() { as_monotonic_reachability_impl(116); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000117() { as_monotonic_reachability_impl(117); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000118() { as_monotonic_reachability_impl(118); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000119() { as_monotonic_reachability_impl(119); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000120() { as_monotonic_reachability_impl(120); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000121() { as_monotonic_reachability_impl(121); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000122() { as_monotonic_reachability_impl(122); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000123() { as_monotonic_reachability_impl(123); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000124() { as_monotonic_reachability_impl(124); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000125() { as_monotonic_reachability_impl(125); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000126() { as_monotonic_reachability_impl(126); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000127() { as_monotonic_reachability_impl(127); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000128() { as_monotonic_reachability_impl(128); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000129() { as_monotonic_reachability_impl(129); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000130() { as_monotonic_reachability_impl(130); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000131() { as_monotonic_reachability_impl(131); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000132() { as_monotonic_reachability_impl(132); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000133() { as_monotonic_reachability_impl(133); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000134() { as_monotonic_reachability_impl(134); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000135() { as_monotonic_reachability_impl(135); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000136() { as_monotonic_reachability_impl(136); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000137() { as_monotonic_reachability_impl(137); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000138() { as_monotonic_reachability_impl(138); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000139() { as_monotonic_reachability_impl(139); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000140() { as_monotonic_reachability_impl(140); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000141() { as_monotonic_reachability_impl(141); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000142() { as_monotonic_reachability_impl(142); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000143() { as_monotonic_reachability_impl(143); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000144() { as_monotonic_reachability_impl(144); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000145() { as_monotonic_reachability_impl(145); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000146() { as_monotonic_reachability_impl(146); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000147() { as_monotonic_reachability_impl(147); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000148() { as_monotonic_reachability_impl(148); }
-    #[cfg_attr(test, test)]
-    fn as_monotonic_reachability_seed_000149() { as_monotonic_reachability_impl(149); }
+    fn as_monotonic_reachability_seed_000000() {
+        as_monotonic_reachability_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000001() {
+        as_monotonic_reachability_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000002() {
+        as_monotonic_reachability_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000003() {
+        as_monotonic_reachability_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000004() {
+        as_monotonic_reachability_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000005() {
+        as_monotonic_reachability_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000006() {
+        as_monotonic_reachability_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000007() {
+        as_monotonic_reachability_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000008() {
+        as_monotonic_reachability_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000009() {
+        as_monotonic_reachability_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000010() {
+        as_monotonic_reachability_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000011() {
+        as_monotonic_reachability_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000012() {
+        as_monotonic_reachability_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000013() {
+        as_monotonic_reachability_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000014() {
+        as_monotonic_reachability_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000015() {
+        as_monotonic_reachability_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000016() {
+        as_monotonic_reachability_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000017() {
+        as_monotonic_reachability_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000018() {
+        as_monotonic_reachability_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000019() {
+        as_monotonic_reachability_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000020() {
+        as_monotonic_reachability_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000021() {
+        as_monotonic_reachability_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000022() {
+        as_monotonic_reachability_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000023() {
+        as_monotonic_reachability_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000024() {
+        as_monotonic_reachability_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000025() {
+        as_monotonic_reachability_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000026() {
+        as_monotonic_reachability_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000027() {
+        as_monotonic_reachability_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000028() {
+        as_monotonic_reachability_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000029() {
+        as_monotonic_reachability_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000030() {
+        as_monotonic_reachability_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000031() {
+        as_monotonic_reachability_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000032() {
+        as_monotonic_reachability_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000033() {
+        as_monotonic_reachability_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000034() {
+        as_monotonic_reachability_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000035() {
+        as_monotonic_reachability_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000036() {
+        as_monotonic_reachability_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000037() {
+        as_monotonic_reachability_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000038() {
+        as_monotonic_reachability_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000039() {
+        as_monotonic_reachability_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000040() {
+        as_monotonic_reachability_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000041() {
+        as_monotonic_reachability_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000042() {
+        as_monotonic_reachability_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000043() {
+        as_monotonic_reachability_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000044() {
+        as_monotonic_reachability_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000045() {
+        as_monotonic_reachability_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000046() {
+        as_monotonic_reachability_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000047() {
+        as_monotonic_reachability_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000048() {
+        as_monotonic_reachability_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000049() {
+        as_monotonic_reachability_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000050() {
+        as_monotonic_reachability_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000051() {
+        as_monotonic_reachability_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000052() {
+        as_monotonic_reachability_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000053() {
+        as_monotonic_reachability_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000054() {
+        as_monotonic_reachability_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000055() {
+        as_monotonic_reachability_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000056() {
+        as_monotonic_reachability_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000057() {
+        as_monotonic_reachability_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000058() {
+        as_monotonic_reachability_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000059() {
+        as_monotonic_reachability_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000060() {
+        as_monotonic_reachability_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000061() {
+        as_monotonic_reachability_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000062() {
+        as_monotonic_reachability_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000063() {
+        as_monotonic_reachability_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000064() {
+        as_monotonic_reachability_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000065() {
+        as_monotonic_reachability_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000066() {
+        as_monotonic_reachability_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000067() {
+        as_monotonic_reachability_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000068() {
+        as_monotonic_reachability_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000069() {
+        as_monotonic_reachability_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000070() {
+        as_monotonic_reachability_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000071() {
+        as_monotonic_reachability_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000072() {
+        as_monotonic_reachability_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000073() {
+        as_monotonic_reachability_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000074() {
+        as_monotonic_reachability_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000075() {
+        as_monotonic_reachability_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000076() {
+        as_monotonic_reachability_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000077() {
+        as_monotonic_reachability_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000078() {
+        as_monotonic_reachability_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000079() {
+        as_monotonic_reachability_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000080() {
+        as_monotonic_reachability_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000081() {
+        as_monotonic_reachability_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000082() {
+        as_monotonic_reachability_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000083() {
+        as_monotonic_reachability_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000084() {
+        as_monotonic_reachability_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000085() {
+        as_monotonic_reachability_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000086() {
+        as_monotonic_reachability_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000087() {
+        as_monotonic_reachability_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000088() {
+        as_monotonic_reachability_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000089() {
+        as_monotonic_reachability_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000090() {
+        as_monotonic_reachability_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000091() {
+        as_monotonic_reachability_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000092() {
+        as_monotonic_reachability_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000093() {
+        as_monotonic_reachability_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000094() {
+        as_monotonic_reachability_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000095() {
+        as_monotonic_reachability_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000096() {
+        as_monotonic_reachability_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000097() {
+        as_monotonic_reachability_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000098() {
+        as_monotonic_reachability_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000099() {
+        as_monotonic_reachability_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000100() {
+        as_monotonic_reachability_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000101() {
+        as_monotonic_reachability_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000102() {
+        as_monotonic_reachability_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000103() {
+        as_monotonic_reachability_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000104() {
+        as_monotonic_reachability_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000105() {
+        as_monotonic_reachability_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000106() {
+        as_monotonic_reachability_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000107() {
+        as_monotonic_reachability_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000108() {
+        as_monotonic_reachability_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000109() {
+        as_monotonic_reachability_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000110() {
+        as_monotonic_reachability_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000111() {
+        as_monotonic_reachability_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000112() {
+        as_monotonic_reachability_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000113() {
+        as_monotonic_reachability_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000114() {
+        as_monotonic_reachability_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000115() {
+        as_monotonic_reachability_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000116() {
+        as_monotonic_reachability_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000117() {
+        as_monotonic_reachability_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000118() {
+        as_monotonic_reachability_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000119() {
+        as_monotonic_reachability_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000120() {
+        as_monotonic_reachability_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000121() {
+        as_monotonic_reachability_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000122() {
+        as_monotonic_reachability_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000123() {
+        as_monotonic_reachability_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000124() {
+        as_monotonic_reachability_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000125() {
+        as_monotonic_reachability_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000126() {
+        as_monotonic_reachability_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000127() {
+        as_monotonic_reachability_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000128() {
+        as_monotonic_reachability_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000129() {
+        as_monotonic_reachability_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000130() {
+        as_monotonic_reachability_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000131() {
+        as_monotonic_reachability_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000132() {
+        as_monotonic_reachability_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000133() {
+        as_monotonic_reachability_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000134() {
+        as_monotonic_reachability_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000135() {
+        as_monotonic_reachability_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000136() {
+        as_monotonic_reachability_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000137() {
+        as_monotonic_reachability_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000138() {
+        as_monotonic_reachability_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000139() {
+        as_monotonic_reachability_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000140() {
+        as_monotonic_reachability_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000141() {
+        as_monotonic_reachability_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000142() {
+        as_monotonic_reachability_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000143() {
+        as_monotonic_reachability_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000144() {
+        as_monotonic_reachability_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000145() {
+        as_monotonic_reachability_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000146() {
+        as_monotonic_reachability_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000147() {
+        as_monotonic_reachability_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000148() {
+        as_monotonic_reachability_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn as_monotonic_reachability_seed_000149() {
+        as_monotonic_reachability_impl(149);
+    }
 
     // --- pr_edge_within_span: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000000() { pr_edge_within_span_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000001() { pr_edge_within_span_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000002() { pr_edge_within_span_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000003() { pr_edge_within_span_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000004() { pr_edge_within_span_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000005() { pr_edge_within_span_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000006() { pr_edge_within_span_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000007() { pr_edge_within_span_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000008() { pr_edge_within_span_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000009() { pr_edge_within_span_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000010() { pr_edge_within_span_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000011() { pr_edge_within_span_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000012() { pr_edge_within_span_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000013() { pr_edge_within_span_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000014() { pr_edge_within_span_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000015() { pr_edge_within_span_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000016() { pr_edge_within_span_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000017() { pr_edge_within_span_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000018() { pr_edge_within_span_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000019() { pr_edge_within_span_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000020() { pr_edge_within_span_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000021() { pr_edge_within_span_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000022() { pr_edge_within_span_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000023() { pr_edge_within_span_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000024() { pr_edge_within_span_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000025() { pr_edge_within_span_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000026() { pr_edge_within_span_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000027() { pr_edge_within_span_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000028() { pr_edge_within_span_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000029() { pr_edge_within_span_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000030() { pr_edge_within_span_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000031() { pr_edge_within_span_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000032() { pr_edge_within_span_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000033() { pr_edge_within_span_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000034() { pr_edge_within_span_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000035() { pr_edge_within_span_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000036() { pr_edge_within_span_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000037() { pr_edge_within_span_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000038() { pr_edge_within_span_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000039() { pr_edge_within_span_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000040() { pr_edge_within_span_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000041() { pr_edge_within_span_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000042() { pr_edge_within_span_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000043() { pr_edge_within_span_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000044() { pr_edge_within_span_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000045() { pr_edge_within_span_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000046() { pr_edge_within_span_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000047() { pr_edge_within_span_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000048() { pr_edge_within_span_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000049() { pr_edge_within_span_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000050() { pr_edge_within_span_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000051() { pr_edge_within_span_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000052() { pr_edge_within_span_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000053() { pr_edge_within_span_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000054() { pr_edge_within_span_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000055() { pr_edge_within_span_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000056() { pr_edge_within_span_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000057() { pr_edge_within_span_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000058() { pr_edge_within_span_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000059() { pr_edge_within_span_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000060() { pr_edge_within_span_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000061() { pr_edge_within_span_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000062() { pr_edge_within_span_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000063() { pr_edge_within_span_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000064() { pr_edge_within_span_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000065() { pr_edge_within_span_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000066() { pr_edge_within_span_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000067() { pr_edge_within_span_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000068() { pr_edge_within_span_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000069() { pr_edge_within_span_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000070() { pr_edge_within_span_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000071() { pr_edge_within_span_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000072() { pr_edge_within_span_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000073() { pr_edge_within_span_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000074() { pr_edge_within_span_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000075() { pr_edge_within_span_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000076() { pr_edge_within_span_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000077() { pr_edge_within_span_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000078() { pr_edge_within_span_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000079() { pr_edge_within_span_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000080() { pr_edge_within_span_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000081() { pr_edge_within_span_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000082() { pr_edge_within_span_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000083() { pr_edge_within_span_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000084() { pr_edge_within_span_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000085() { pr_edge_within_span_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000086() { pr_edge_within_span_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000087() { pr_edge_within_span_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000088() { pr_edge_within_span_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000089() { pr_edge_within_span_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000090() { pr_edge_within_span_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000091() { pr_edge_within_span_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000092() { pr_edge_within_span_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000093() { pr_edge_within_span_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000094() { pr_edge_within_span_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000095() { pr_edge_within_span_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000096() { pr_edge_within_span_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000097() { pr_edge_within_span_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000098() { pr_edge_within_span_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000099() { pr_edge_within_span_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000100() { pr_edge_within_span_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000101() { pr_edge_within_span_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000102() { pr_edge_within_span_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000103() { pr_edge_within_span_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000104() { pr_edge_within_span_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000105() { pr_edge_within_span_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000106() { pr_edge_within_span_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000107() { pr_edge_within_span_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000108() { pr_edge_within_span_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000109() { pr_edge_within_span_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000110() { pr_edge_within_span_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000111() { pr_edge_within_span_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000112() { pr_edge_within_span_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000113() { pr_edge_within_span_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000114() { pr_edge_within_span_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000115() { pr_edge_within_span_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000116() { pr_edge_within_span_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000117() { pr_edge_within_span_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000118() { pr_edge_within_span_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000119() { pr_edge_within_span_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000120() { pr_edge_within_span_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000121() { pr_edge_within_span_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000122() { pr_edge_within_span_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000123() { pr_edge_within_span_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000124() { pr_edge_within_span_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000125() { pr_edge_within_span_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000126() { pr_edge_within_span_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000127() { pr_edge_within_span_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000128() { pr_edge_within_span_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000129() { pr_edge_within_span_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000130() { pr_edge_within_span_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000131() { pr_edge_within_span_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000132() { pr_edge_within_span_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000133() { pr_edge_within_span_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000134() { pr_edge_within_span_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000135() { pr_edge_within_span_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000136() { pr_edge_within_span_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000137() { pr_edge_within_span_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000138() { pr_edge_within_span_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000139() { pr_edge_within_span_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000140() { pr_edge_within_span_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000141() { pr_edge_within_span_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000142() { pr_edge_within_span_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000143() { pr_edge_within_span_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000144() { pr_edge_within_span_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000145() { pr_edge_within_span_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000146() { pr_edge_within_span_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000147() { pr_edge_within_span_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000148() { pr_edge_within_span_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_edge_within_span_seed_000149() { pr_edge_within_span_impl(149); }
+    fn pr_edge_within_span_seed_000000() {
+        pr_edge_within_span_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000001() {
+        pr_edge_within_span_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000002() {
+        pr_edge_within_span_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000003() {
+        pr_edge_within_span_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000004() {
+        pr_edge_within_span_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000005() {
+        pr_edge_within_span_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000006() {
+        pr_edge_within_span_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000007() {
+        pr_edge_within_span_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000008() {
+        pr_edge_within_span_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000009() {
+        pr_edge_within_span_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000010() {
+        pr_edge_within_span_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000011() {
+        pr_edge_within_span_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000012() {
+        pr_edge_within_span_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000013() {
+        pr_edge_within_span_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000014() {
+        pr_edge_within_span_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000015() {
+        pr_edge_within_span_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000016() {
+        pr_edge_within_span_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000017() {
+        pr_edge_within_span_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000018() {
+        pr_edge_within_span_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000019() {
+        pr_edge_within_span_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000020() {
+        pr_edge_within_span_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000021() {
+        pr_edge_within_span_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000022() {
+        pr_edge_within_span_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000023() {
+        pr_edge_within_span_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000024() {
+        pr_edge_within_span_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000025() {
+        pr_edge_within_span_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000026() {
+        pr_edge_within_span_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000027() {
+        pr_edge_within_span_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000028() {
+        pr_edge_within_span_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000029() {
+        pr_edge_within_span_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000030() {
+        pr_edge_within_span_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000031() {
+        pr_edge_within_span_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000032() {
+        pr_edge_within_span_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000033() {
+        pr_edge_within_span_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000034() {
+        pr_edge_within_span_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000035() {
+        pr_edge_within_span_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000036() {
+        pr_edge_within_span_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000037() {
+        pr_edge_within_span_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000038() {
+        pr_edge_within_span_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000039() {
+        pr_edge_within_span_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000040() {
+        pr_edge_within_span_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000041() {
+        pr_edge_within_span_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000042() {
+        pr_edge_within_span_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000043() {
+        pr_edge_within_span_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000044() {
+        pr_edge_within_span_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000045() {
+        pr_edge_within_span_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000046() {
+        pr_edge_within_span_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000047() {
+        pr_edge_within_span_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000048() {
+        pr_edge_within_span_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000049() {
+        pr_edge_within_span_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000050() {
+        pr_edge_within_span_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000051() {
+        pr_edge_within_span_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000052() {
+        pr_edge_within_span_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000053() {
+        pr_edge_within_span_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000054() {
+        pr_edge_within_span_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000055() {
+        pr_edge_within_span_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000056() {
+        pr_edge_within_span_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000057() {
+        pr_edge_within_span_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000058() {
+        pr_edge_within_span_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000059() {
+        pr_edge_within_span_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000060() {
+        pr_edge_within_span_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000061() {
+        pr_edge_within_span_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000062() {
+        pr_edge_within_span_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000063() {
+        pr_edge_within_span_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000064() {
+        pr_edge_within_span_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000065() {
+        pr_edge_within_span_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000066() {
+        pr_edge_within_span_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000067() {
+        pr_edge_within_span_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000068() {
+        pr_edge_within_span_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000069() {
+        pr_edge_within_span_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000070() {
+        pr_edge_within_span_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000071() {
+        pr_edge_within_span_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000072() {
+        pr_edge_within_span_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000073() {
+        pr_edge_within_span_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000074() {
+        pr_edge_within_span_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000075() {
+        pr_edge_within_span_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000076() {
+        pr_edge_within_span_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000077() {
+        pr_edge_within_span_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000078() {
+        pr_edge_within_span_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000079() {
+        pr_edge_within_span_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000080() {
+        pr_edge_within_span_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000081() {
+        pr_edge_within_span_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000082() {
+        pr_edge_within_span_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000083() {
+        pr_edge_within_span_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000084() {
+        pr_edge_within_span_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000085() {
+        pr_edge_within_span_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000086() {
+        pr_edge_within_span_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000087() {
+        pr_edge_within_span_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000088() {
+        pr_edge_within_span_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000089() {
+        pr_edge_within_span_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000090() {
+        pr_edge_within_span_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000091() {
+        pr_edge_within_span_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000092() {
+        pr_edge_within_span_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000093() {
+        pr_edge_within_span_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000094() {
+        pr_edge_within_span_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000095() {
+        pr_edge_within_span_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000096() {
+        pr_edge_within_span_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000097() {
+        pr_edge_within_span_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000098() {
+        pr_edge_within_span_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000099() {
+        pr_edge_within_span_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000100() {
+        pr_edge_within_span_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000101() {
+        pr_edge_within_span_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000102() {
+        pr_edge_within_span_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000103() {
+        pr_edge_within_span_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000104() {
+        pr_edge_within_span_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000105() {
+        pr_edge_within_span_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000106() {
+        pr_edge_within_span_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000107() {
+        pr_edge_within_span_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000108() {
+        pr_edge_within_span_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000109() {
+        pr_edge_within_span_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000110() {
+        pr_edge_within_span_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000111() {
+        pr_edge_within_span_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000112() {
+        pr_edge_within_span_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000113() {
+        pr_edge_within_span_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000114() {
+        pr_edge_within_span_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000115() {
+        pr_edge_within_span_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000116() {
+        pr_edge_within_span_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000117() {
+        pr_edge_within_span_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000118() {
+        pr_edge_within_span_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000119() {
+        pr_edge_within_span_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000120() {
+        pr_edge_within_span_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000121() {
+        pr_edge_within_span_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000122() {
+        pr_edge_within_span_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000123() {
+        pr_edge_within_span_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000124() {
+        pr_edge_within_span_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000125() {
+        pr_edge_within_span_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000126() {
+        pr_edge_within_span_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000127() {
+        pr_edge_within_span_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000128() {
+        pr_edge_within_span_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000129() {
+        pr_edge_within_span_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000130() {
+        pr_edge_within_span_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000131() {
+        pr_edge_within_span_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000132() {
+        pr_edge_within_span_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000133() {
+        pr_edge_within_span_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000134() {
+        pr_edge_within_span_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000135() {
+        pr_edge_within_span_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000136() {
+        pr_edge_within_span_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000137() {
+        pr_edge_within_span_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000138() {
+        pr_edge_within_span_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000139() {
+        pr_edge_within_span_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000140() {
+        pr_edge_within_span_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000141() {
+        pr_edge_within_span_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000142() {
+        pr_edge_within_span_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000143() {
+        pr_edge_within_span_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000144() {
+        pr_edge_within_span_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000145() {
+        pr_edge_within_span_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000146() {
+        pr_edge_within_span_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000147() {
+        pr_edge_within_span_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000148() {
+        pr_edge_within_span_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_edge_within_span_seed_000149() {
+        pr_edge_within_span_impl(149);
+    }
     // --- pr_predicate_consistent: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000000() { pr_predicate_consistent_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000001() { pr_predicate_consistent_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000002() { pr_predicate_consistent_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000003() { pr_predicate_consistent_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000004() { pr_predicate_consistent_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000005() { pr_predicate_consistent_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000006() { pr_predicate_consistent_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000007() { pr_predicate_consistent_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000008() { pr_predicate_consistent_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000009() { pr_predicate_consistent_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000010() { pr_predicate_consistent_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000011() { pr_predicate_consistent_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000012() { pr_predicate_consistent_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000013() { pr_predicate_consistent_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000014() { pr_predicate_consistent_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000015() { pr_predicate_consistent_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000016() { pr_predicate_consistent_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000017() { pr_predicate_consistent_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000018() { pr_predicate_consistent_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000019() { pr_predicate_consistent_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000020() { pr_predicate_consistent_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000021() { pr_predicate_consistent_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000022() { pr_predicate_consistent_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000023() { pr_predicate_consistent_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000024() { pr_predicate_consistent_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000025() { pr_predicate_consistent_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000026() { pr_predicate_consistent_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000027() { pr_predicate_consistent_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000028() { pr_predicate_consistent_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000029() { pr_predicate_consistent_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000030() { pr_predicate_consistent_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000031() { pr_predicate_consistent_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000032() { pr_predicate_consistent_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000033() { pr_predicate_consistent_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000034() { pr_predicate_consistent_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000035() { pr_predicate_consistent_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000036() { pr_predicate_consistent_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000037() { pr_predicate_consistent_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000038() { pr_predicate_consistent_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000039() { pr_predicate_consistent_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000040() { pr_predicate_consistent_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000041() { pr_predicate_consistent_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000042() { pr_predicate_consistent_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000043() { pr_predicate_consistent_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000044() { pr_predicate_consistent_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000045() { pr_predicate_consistent_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000046() { pr_predicate_consistent_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000047() { pr_predicate_consistent_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000048() { pr_predicate_consistent_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000049() { pr_predicate_consistent_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000050() { pr_predicate_consistent_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000051() { pr_predicate_consistent_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000052() { pr_predicate_consistent_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000053() { pr_predicate_consistent_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000054() { pr_predicate_consistent_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000055() { pr_predicate_consistent_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000056() { pr_predicate_consistent_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000057() { pr_predicate_consistent_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000058() { pr_predicate_consistent_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000059() { pr_predicate_consistent_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000060() { pr_predicate_consistent_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000061() { pr_predicate_consistent_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000062() { pr_predicate_consistent_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000063() { pr_predicate_consistent_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000064() { pr_predicate_consistent_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000065() { pr_predicate_consistent_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000066() { pr_predicate_consistent_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000067() { pr_predicate_consistent_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000068() { pr_predicate_consistent_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000069() { pr_predicate_consistent_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000070() { pr_predicate_consistent_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000071() { pr_predicate_consistent_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000072() { pr_predicate_consistent_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000073() { pr_predicate_consistent_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000074() { pr_predicate_consistent_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000075() { pr_predicate_consistent_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000076() { pr_predicate_consistent_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000077() { pr_predicate_consistent_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000078() { pr_predicate_consistent_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000079() { pr_predicate_consistent_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000080() { pr_predicate_consistent_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000081() { pr_predicate_consistent_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000082() { pr_predicate_consistent_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000083() { pr_predicate_consistent_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000084() { pr_predicate_consistent_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000085() { pr_predicate_consistent_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000086() { pr_predicate_consistent_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000087() { pr_predicate_consistent_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000088() { pr_predicate_consistent_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000089() { pr_predicate_consistent_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000090() { pr_predicate_consistent_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000091() { pr_predicate_consistent_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000092() { pr_predicate_consistent_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000093() { pr_predicate_consistent_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000094() { pr_predicate_consistent_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000095() { pr_predicate_consistent_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000096() { pr_predicate_consistent_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000097() { pr_predicate_consistent_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000098() { pr_predicate_consistent_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000099() { pr_predicate_consistent_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000100() { pr_predicate_consistent_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000101() { pr_predicate_consistent_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000102() { pr_predicate_consistent_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000103() { pr_predicate_consistent_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000104() { pr_predicate_consistent_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000105() { pr_predicate_consistent_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000106() { pr_predicate_consistent_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000107() { pr_predicate_consistent_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000108() { pr_predicate_consistent_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000109() { pr_predicate_consistent_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000110() { pr_predicate_consistent_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000111() { pr_predicate_consistent_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000112() { pr_predicate_consistent_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000113() { pr_predicate_consistent_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000114() { pr_predicate_consistent_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000115() { pr_predicate_consistent_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000116() { pr_predicate_consistent_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000117() { pr_predicate_consistent_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000118() { pr_predicate_consistent_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000119() { pr_predicate_consistent_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000120() { pr_predicate_consistent_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000121() { pr_predicate_consistent_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000122() { pr_predicate_consistent_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000123() { pr_predicate_consistent_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000124() { pr_predicate_consistent_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000125() { pr_predicate_consistent_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000126() { pr_predicate_consistent_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000127() { pr_predicate_consistent_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000128() { pr_predicate_consistent_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000129() { pr_predicate_consistent_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000130() { pr_predicate_consistent_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000131() { pr_predicate_consistent_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000132() { pr_predicate_consistent_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000133() { pr_predicate_consistent_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000134() { pr_predicate_consistent_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000135() { pr_predicate_consistent_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000136() { pr_predicate_consistent_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000137() { pr_predicate_consistent_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000138() { pr_predicate_consistent_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000139() { pr_predicate_consistent_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000140() { pr_predicate_consistent_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000141() { pr_predicate_consistent_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000142() { pr_predicate_consistent_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000143() { pr_predicate_consistent_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000144() { pr_predicate_consistent_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000145() { pr_predicate_consistent_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000146() { pr_predicate_consistent_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000147() { pr_predicate_consistent_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000148() { pr_predicate_consistent_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_predicate_consistent_seed_000149() { pr_predicate_consistent_impl(149); }
+    fn pr_predicate_consistent_seed_000000() {
+        pr_predicate_consistent_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000001() {
+        pr_predicate_consistent_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000002() {
+        pr_predicate_consistent_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000003() {
+        pr_predicate_consistent_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000004() {
+        pr_predicate_consistent_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000005() {
+        pr_predicate_consistent_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000006() {
+        pr_predicate_consistent_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000007() {
+        pr_predicate_consistent_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000008() {
+        pr_predicate_consistent_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000009() {
+        pr_predicate_consistent_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000010() {
+        pr_predicate_consistent_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000011() {
+        pr_predicate_consistent_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000012() {
+        pr_predicate_consistent_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000013() {
+        pr_predicate_consistent_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000014() {
+        pr_predicate_consistent_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000015() {
+        pr_predicate_consistent_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000016() {
+        pr_predicate_consistent_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000017() {
+        pr_predicate_consistent_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000018() {
+        pr_predicate_consistent_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000019() {
+        pr_predicate_consistent_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000020() {
+        pr_predicate_consistent_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000021() {
+        pr_predicate_consistent_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000022() {
+        pr_predicate_consistent_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000023() {
+        pr_predicate_consistent_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000024() {
+        pr_predicate_consistent_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000025() {
+        pr_predicate_consistent_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000026() {
+        pr_predicate_consistent_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000027() {
+        pr_predicate_consistent_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000028() {
+        pr_predicate_consistent_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000029() {
+        pr_predicate_consistent_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000030() {
+        pr_predicate_consistent_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000031() {
+        pr_predicate_consistent_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000032() {
+        pr_predicate_consistent_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000033() {
+        pr_predicate_consistent_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000034() {
+        pr_predicate_consistent_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000035() {
+        pr_predicate_consistent_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000036() {
+        pr_predicate_consistent_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000037() {
+        pr_predicate_consistent_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000038() {
+        pr_predicate_consistent_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000039() {
+        pr_predicate_consistent_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000040() {
+        pr_predicate_consistent_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000041() {
+        pr_predicate_consistent_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000042() {
+        pr_predicate_consistent_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000043() {
+        pr_predicate_consistent_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000044() {
+        pr_predicate_consistent_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000045() {
+        pr_predicate_consistent_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000046() {
+        pr_predicate_consistent_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000047() {
+        pr_predicate_consistent_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000048() {
+        pr_predicate_consistent_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000049() {
+        pr_predicate_consistent_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000050() {
+        pr_predicate_consistent_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000051() {
+        pr_predicate_consistent_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000052() {
+        pr_predicate_consistent_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000053() {
+        pr_predicate_consistent_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000054() {
+        pr_predicate_consistent_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000055() {
+        pr_predicate_consistent_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000056() {
+        pr_predicate_consistent_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000057() {
+        pr_predicate_consistent_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000058() {
+        pr_predicate_consistent_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000059() {
+        pr_predicate_consistent_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000060() {
+        pr_predicate_consistent_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000061() {
+        pr_predicate_consistent_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000062() {
+        pr_predicate_consistent_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000063() {
+        pr_predicate_consistent_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000064() {
+        pr_predicate_consistent_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000065() {
+        pr_predicate_consistent_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000066() {
+        pr_predicate_consistent_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000067() {
+        pr_predicate_consistent_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000068() {
+        pr_predicate_consistent_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000069() {
+        pr_predicate_consistent_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000070() {
+        pr_predicate_consistent_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000071() {
+        pr_predicate_consistent_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000072() {
+        pr_predicate_consistent_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000073() {
+        pr_predicate_consistent_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000074() {
+        pr_predicate_consistent_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000075() {
+        pr_predicate_consistent_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000076() {
+        pr_predicate_consistent_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000077() {
+        pr_predicate_consistent_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000078() {
+        pr_predicate_consistent_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000079() {
+        pr_predicate_consistent_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000080() {
+        pr_predicate_consistent_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000081() {
+        pr_predicate_consistent_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000082() {
+        pr_predicate_consistent_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000083() {
+        pr_predicate_consistent_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000084() {
+        pr_predicate_consistent_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000085() {
+        pr_predicate_consistent_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000086() {
+        pr_predicate_consistent_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000087() {
+        pr_predicate_consistent_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000088() {
+        pr_predicate_consistent_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000089() {
+        pr_predicate_consistent_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000090() {
+        pr_predicate_consistent_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000091() {
+        pr_predicate_consistent_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000092() {
+        pr_predicate_consistent_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000093() {
+        pr_predicate_consistent_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000094() {
+        pr_predicate_consistent_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000095() {
+        pr_predicate_consistent_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000096() {
+        pr_predicate_consistent_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000097() {
+        pr_predicate_consistent_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000098() {
+        pr_predicate_consistent_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000099() {
+        pr_predicate_consistent_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000100() {
+        pr_predicate_consistent_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000101() {
+        pr_predicate_consistent_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000102() {
+        pr_predicate_consistent_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000103() {
+        pr_predicate_consistent_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000104() {
+        pr_predicate_consistent_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000105() {
+        pr_predicate_consistent_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000106() {
+        pr_predicate_consistent_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000107() {
+        pr_predicate_consistent_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000108() {
+        pr_predicate_consistent_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000109() {
+        pr_predicate_consistent_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000110() {
+        pr_predicate_consistent_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000111() {
+        pr_predicate_consistent_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000112() {
+        pr_predicate_consistent_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000113() {
+        pr_predicate_consistent_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000114() {
+        pr_predicate_consistent_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000115() {
+        pr_predicate_consistent_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000116() {
+        pr_predicate_consistent_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000117() {
+        pr_predicate_consistent_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000118() {
+        pr_predicate_consistent_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000119() {
+        pr_predicate_consistent_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000120() {
+        pr_predicate_consistent_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000121() {
+        pr_predicate_consistent_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000122() {
+        pr_predicate_consistent_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000123() {
+        pr_predicate_consistent_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000124() {
+        pr_predicate_consistent_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000125() {
+        pr_predicate_consistent_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000126() {
+        pr_predicate_consistent_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000127() {
+        pr_predicate_consistent_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000128() {
+        pr_predicate_consistent_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000129() {
+        pr_predicate_consistent_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000130() {
+        pr_predicate_consistent_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000131() {
+        pr_predicate_consistent_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000132() {
+        pr_predicate_consistent_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000133() {
+        pr_predicate_consistent_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000134() {
+        pr_predicate_consistent_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000135() {
+        pr_predicate_consistent_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000136() {
+        pr_predicate_consistent_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000137() {
+        pr_predicate_consistent_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000138() {
+        pr_predicate_consistent_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000139() {
+        pr_predicate_consistent_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000140() {
+        pr_predicate_consistent_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000141() {
+        pr_predicate_consistent_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000142() {
+        pr_predicate_consistent_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000143() {
+        pr_predicate_consistent_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000144() {
+        pr_predicate_consistent_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000145() {
+        pr_predicate_consistent_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000146() {
+        pr_predicate_consistent_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000147() {
+        pr_predicate_consistent_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000148() {
+        pr_predicate_consistent_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_predicate_consistent_seed_000149() {
+        pr_predicate_consistent_impl(149);
+    }
     // --- pr_idempotent: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000000() { pr_idempotent_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000001() { pr_idempotent_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000002() { pr_idempotent_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000003() { pr_idempotent_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000004() { pr_idempotent_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000005() { pr_idempotent_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000006() { pr_idempotent_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000007() { pr_idempotent_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000008() { pr_idempotent_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000009() { pr_idempotent_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000010() { pr_idempotent_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000011() { pr_idempotent_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000012() { pr_idempotent_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000013() { pr_idempotent_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000014() { pr_idempotent_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000015() { pr_idempotent_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000016() { pr_idempotent_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000017() { pr_idempotent_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000018() { pr_idempotent_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000019() { pr_idempotent_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000020() { pr_idempotent_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000021() { pr_idempotent_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000022() { pr_idempotent_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000023() { pr_idempotent_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000024() { pr_idempotent_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000025() { pr_idempotent_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000026() { pr_idempotent_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000027() { pr_idempotent_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000028() { pr_idempotent_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000029() { pr_idempotent_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000030() { pr_idempotent_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000031() { pr_idempotent_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000032() { pr_idempotent_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000033() { pr_idempotent_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000034() { pr_idempotent_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000035() { pr_idempotent_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000036() { pr_idempotent_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000037() { pr_idempotent_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000038() { pr_idempotent_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000039() { pr_idempotent_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000040() { pr_idempotent_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000041() { pr_idempotent_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000042() { pr_idempotent_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000043() { pr_idempotent_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000044() { pr_idempotent_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000045() { pr_idempotent_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000046() { pr_idempotent_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000047() { pr_idempotent_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000048() { pr_idempotent_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000049() { pr_idempotent_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000050() { pr_idempotent_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000051() { pr_idempotent_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000052() { pr_idempotent_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000053() { pr_idempotent_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000054() { pr_idempotent_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000055() { pr_idempotent_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000056() { pr_idempotent_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000057() { pr_idempotent_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000058() { pr_idempotent_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000059() { pr_idempotent_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000060() { pr_idempotent_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000061() { pr_idempotent_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000062() { pr_idempotent_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000063() { pr_idempotent_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000064() { pr_idempotent_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000065() { pr_idempotent_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000066() { pr_idempotent_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000067() { pr_idempotent_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000068() { pr_idempotent_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000069() { pr_idempotent_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000070() { pr_idempotent_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000071() { pr_idempotent_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000072() { pr_idempotent_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000073() { pr_idempotent_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000074() { pr_idempotent_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000075() { pr_idempotent_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000076() { pr_idempotent_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000077() { pr_idempotent_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000078() { pr_idempotent_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000079() { pr_idempotent_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000080() { pr_idempotent_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000081() { pr_idempotent_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000082() { pr_idempotent_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000083() { pr_idempotent_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000084() { pr_idempotent_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000085() { pr_idempotent_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000086() { pr_idempotent_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000087() { pr_idempotent_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000088() { pr_idempotent_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000089() { pr_idempotent_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000090() { pr_idempotent_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000091() { pr_idempotent_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000092() { pr_idempotent_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000093() { pr_idempotent_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000094() { pr_idempotent_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000095() { pr_idempotent_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000096() { pr_idempotent_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000097() { pr_idempotent_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000098() { pr_idempotent_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000099() { pr_idempotent_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000100() { pr_idempotent_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000101() { pr_idempotent_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000102() { pr_idempotent_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000103() { pr_idempotent_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000104() { pr_idempotent_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000105() { pr_idempotent_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000106() { pr_idempotent_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000107() { pr_idempotent_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000108() { pr_idempotent_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000109() { pr_idempotent_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000110() { pr_idempotent_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000111() { pr_idempotent_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000112() { pr_idempotent_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000113() { pr_idempotent_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000114() { pr_idempotent_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000115() { pr_idempotent_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000116() { pr_idempotent_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000117() { pr_idempotent_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000118() { pr_idempotent_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000119() { pr_idempotent_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000120() { pr_idempotent_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000121() { pr_idempotent_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000122() { pr_idempotent_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000123() { pr_idempotent_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000124() { pr_idempotent_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000125() { pr_idempotent_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000126() { pr_idempotent_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000127() { pr_idempotent_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000128() { pr_idempotent_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000129() { pr_idempotent_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000130() { pr_idempotent_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000131() { pr_idempotent_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000132() { pr_idempotent_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000133() { pr_idempotent_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000134() { pr_idempotent_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000135() { pr_idempotent_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000136() { pr_idempotent_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000137() { pr_idempotent_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000138() { pr_idempotent_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000139() { pr_idempotent_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000140() { pr_idempotent_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000141() { pr_idempotent_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000142() { pr_idempotent_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000143() { pr_idempotent_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000144() { pr_idempotent_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000145() { pr_idempotent_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000146() { pr_idempotent_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000147() { pr_idempotent_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000148() { pr_idempotent_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_idempotent_seed_000149() { pr_idempotent_impl(149); }
+    fn pr_idempotent_seed_000000() {
+        pr_idempotent_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000001() {
+        pr_idempotent_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000002() {
+        pr_idempotent_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000003() {
+        pr_idempotent_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000004() {
+        pr_idempotent_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000005() {
+        pr_idempotent_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000006() {
+        pr_idempotent_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000007() {
+        pr_idempotent_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000008() {
+        pr_idempotent_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000009() {
+        pr_idempotent_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000010() {
+        pr_idempotent_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000011() {
+        pr_idempotent_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000012() {
+        pr_idempotent_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000013() {
+        pr_idempotent_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000014() {
+        pr_idempotent_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000015() {
+        pr_idempotent_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000016() {
+        pr_idempotent_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000017() {
+        pr_idempotent_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000018() {
+        pr_idempotent_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000019() {
+        pr_idempotent_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000020() {
+        pr_idempotent_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000021() {
+        pr_idempotent_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000022() {
+        pr_idempotent_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000023() {
+        pr_idempotent_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000024() {
+        pr_idempotent_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000025() {
+        pr_idempotent_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000026() {
+        pr_idempotent_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000027() {
+        pr_idempotent_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000028() {
+        pr_idempotent_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000029() {
+        pr_idempotent_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000030() {
+        pr_idempotent_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000031() {
+        pr_idempotent_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000032() {
+        pr_idempotent_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000033() {
+        pr_idempotent_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000034() {
+        pr_idempotent_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000035() {
+        pr_idempotent_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000036() {
+        pr_idempotent_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000037() {
+        pr_idempotent_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000038() {
+        pr_idempotent_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000039() {
+        pr_idempotent_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000040() {
+        pr_idempotent_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000041() {
+        pr_idempotent_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000042() {
+        pr_idempotent_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000043() {
+        pr_idempotent_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000044() {
+        pr_idempotent_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000045() {
+        pr_idempotent_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000046() {
+        pr_idempotent_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000047() {
+        pr_idempotent_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000048() {
+        pr_idempotent_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000049() {
+        pr_idempotent_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000050() {
+        pr_idempotent_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000051() {
+        pr_idempotent_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000052() {
+        pr_idempotent_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000053() {
+        pr_idempotent_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000054() {
+        pr_idempotent_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000055() {
+        pr_idempotent_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000056() {
+        pr_idempotent_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000057() {
+        pr_idempotent_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000058() {
+        pr_idempotent_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000059() {
+        pr_idempotent_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000060() {
+        pr_idempotent_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000061() {
+        pr_idempotent_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000062() {
+        pr_idempotent_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000063() {
+        pr_idempotent_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000064() {
+        pr_idempotent_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000065() {
+        pr_idempotent_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000066() {
+        pr_idempotent_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000067() {
+        pr_idempotent_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000068() {
+        pr_idempotent_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000069() {
+        pr_idempotent_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000070() {
+        pr_idempotent_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000071() {
+        pr_idempotent_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000072() {
+        pr_idempotent_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000073() {
+        pr_idempotent_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000074() {
+        pr_idempotent_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000075() {
+        pr_idempotent_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000076() {
+        pr_idempotent_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000077() {
+        pr_idempotent_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000078() {
+        pr_idempotent_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000079() {
+        pr_idempotent_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000080() {
+        pr_idempotent_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000081() {
+        pr_idempotent_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000082() {
+        pr_idempotent_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000083() {
+        pr_idempotent_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000084() {
+        pr_idempotent_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000085() {
+        pr_idempotent_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000086() {
+        pr_idempotent_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000087() {
+        pr_idempotent_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000088() {
+        pr_idempotent_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000089() {
+        pr_idempotent_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000090() {
+        pr_idempotent_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000091() {
+        pr_idempotent_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000092() {
+        pr_idempotent_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000093() {
+        pr_idempotent_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000094() {
+        pr_idempotent_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000095() {
+        pr_idempotent_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000096() {
+        pr_idempotent_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000097() {
+        pr_idempotent_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000098() {
+        pr_idempotent_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000099() {
+        pr_idempotent_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000100() {
+        pr_idempotent_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000101() {
+        pr_idempotent_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000102() {
+        pr_idempotent_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000103() {
+        pr_idempotent_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000104() {
+        pr_idempotent_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000105() {
+        pr_idempotent_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000106() {
+        pr_idempotent_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000107() {
+        pr_idempotent_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000108() {
+        pr_idempotent_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000109() {
+        pr_idempotent_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000110() {
+        pr_idempotent_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000111() {
+        pr_idempotent_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000112() {
+        pr_idempotent_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000113() {
+        pr_idempotent_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000114() {
+        pr_idempotent_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000115() {
+        pr_idempotent_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000116() {
+        pr_idempotent_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000117() {
+        pr_idempotent_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000118() {
+        pr_idempotent_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000119() {
+        pr_idempotent_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000120() {
+        pr_idempotent_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000121() {
+        pr_idempotent_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000122() {
+        pr_idempotent_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000123() {
+        pr_idempotent_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000124() {
+        pr_idempotent_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000125() {
+        pr_idempotent_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000126() {
+        pr_idempotent_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000127() {
+        pr_idempotent_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000128() {
+        pr_idempotent_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000129() {
+        pr_idempotent_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000130() {
+        pr_idempotent_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000131() {
+        pr_idempotent_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000132() {
+        pr_idempotent_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000133() {
+        pr_idempotent_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000134() {
+        pr_idempotent_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000135() {
+        pr_idempotent_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000136() {
+        pr_idempotent_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000137() {
+        pr_idempotent_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000138() {
+        pr_idempotent_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000139() {
+        pr_idempotent_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000140() {
+        pr_idempotent_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000141() {
+        pr_idempotent_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000142() {
+        pr_idempotent_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000143() {
+        pr_idempotent_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000144() {
+        pr_idempotent_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000145() {
+        pr_idempotent_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000146() {
+        pr_idempotent_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000147() {
+        pr_idempotent_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000148() {
+        pr_idempotent_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_idempotent_seed_000149() {
+        pr_idempotent_impl(149);
+    }
     // --- pr_collinear_consistent: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000000() { pr_collinear_consistent_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000001() { pr_collinear_consistent_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000002() { pr_collinear_consistent_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000003() { pr_collinear_consistent_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000004() { pr_collinear_consistent_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000005() { pr_collinear_consistent_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000006() { pr_collinear_consistent_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000007() { pr_collinear_consistent_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000008() { pr_collinear_consistent_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000009() { pr_collinear_consistent_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000010() { pr_collinear_consistent_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000011() { pr_collinear_consistent_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000012() { pr_collinear_consistent_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000013() { pr_collinear_consistent_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000014() { pr_collinear_consistent_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000015() { pr_collinear_consistent_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000016() { pr_collinear_consistent_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000017() { pr_collinear_consistent_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000018() { pr_collinear_consistent_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000019() { pr_collinear_consistent_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000020() { pr_collinear_consistent_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000021() { pr_collinear_consistent_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000022() { pr_collinear_consistent_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000023() { pr_collinear_consistent_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000024() { pr_collinear_consistent_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000025() { pr_collinear_consistent_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000026() { pr_collinear_consistent_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000027() { pr_collinear_consistent_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000028() { pr_collinear_consistent_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000029() { pr_collinear_consistent_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000030() { pr_collinear_consistent_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000031() { pr_collinear_consistent_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000032() { pr_collinear_consistent_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000033() { pr_collinear_consistent_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000034() { pr_collinear_consistent_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000035() { pr_collinear_consistent_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000036() { pr_collinear_consistent_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000037() { pr_collinear_consistent_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000038() { pr_collinear_consistent_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000039() { pr_collinear_consistent_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000040() { pr_collinear_consistent_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000041() { pr_collinear_consistent_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000042() { pr_collinear_consistent_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000043() { pr_collinear_consistent_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000044() { pr_collinear_consistent_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000045() { pr_collinear_consistent_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000046() { pr_collinear_consistent_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000047() { pr_collinear_consistent_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000048() { pr_collinear_consistent_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000049() { pr_collinear_consistent_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000050() { pr_collinear_consistent_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000051() { pr_collinear_consistent_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000052() { pr_collinear_consistent_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000053() { pr_collinear_consistent_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000054() { pr_collinear_consistent_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000055() { pr_collinear_consistent_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000056() { pr_collinear_consistent_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000057() { pr_collinear_consistent_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000058() { pr_collinear_consistent_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000059() { pr_collinear_consistent_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000060() { pr_collinear_consistent_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000061() { pr_collinear_consistent_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000062() { pr_collinear_consistent_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000063() { pr_collinear_consistent_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000064() { pr_collinear_consistent_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000065() { pr_collinear_consistent_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000066() { pr_collinear_consistent_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000067() { pr_collinear_consistent_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000068() { pr_collinear_consistent_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000069() { pr_collinear_consistent_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000070() { pr_collinear_consistent_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000071() { pr_collinear_consistent_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000072() { pr_collinear_consistent_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000073() { pr_collinear_consistent_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000074() { pr_collinear_consistent_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000075() { pr_collinear_consistent_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000076() { pr_collinear_consistent_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000077() { pr_collinear_consistent_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000078() { pr_collinear_consistent_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000079() { pr_collinear_consistent_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000080() { pr_collinear_consistent_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000081() { pr_collinear_consistent_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000082() { pr_collinear_consistent_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000083() { pr_collinear_consistent_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000084() { pr_collinear_consistent_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000085() { pr_collinear_consistent_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000086() { pr_collinear_consistent_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000087() { pr_collinear_consistent_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000088() { pr_collinear_consistent_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000089() { pr_collinear_consistent_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000090() { pr_collinear_consistent_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000091() { pr_collinear_consistent_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000092() { pr_collinear_consistent_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000093() { pr_collinear_consistent_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000094() { pr_collinear_consistent_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000095() { pr_collinear_consistent_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000096() { pr_collinear_consistent_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000097() { pr_collinear_consistent_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000098() { pr_collinear_consistent_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000099() { pr_collinear_consistent_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000100() { pr_collinear_consistent_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000101() { pr_collinear_consistent_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000102() { pr_collinear_consistent_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000103() { pr_collinear_consistent_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000104() { pr_collinear_consistent_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000105() { pr_collinear_consistent_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000106() { pr_collinear_consistent_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000107() { pr_collinear_consistent_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000108() { pr_collinear_consistent_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000109() { pr_collinear_consistent_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000110() { pr_collinear_consistent_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000111() { pr_collinear_consistent_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000112() { pr_collinear_consistent_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000113() { pr_collinear_consistent_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000114() { pr_collinear_consistent_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000115() { pr_collinear_consistent_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000116() { pr_collinear_consistent_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000117() { pr_collinear_consistent_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000118() { pr_collinear_consistent_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000119() { pr_collinear_consistent_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000120() { pr_collinear_consistent_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000121() { pr_collinear_consistent_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000122() { pr_collinear_consistent_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000123() { pr_collinear_consistent_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000124() { pr_collinear_consistent_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000125() { pr_collinear_consistent_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000126() { pr_collinear_consistent_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000127() { pr_collinear_consistent_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000128() { pr_collinear_consistent_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000129() { pr_collinear_consistent_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000130() { pr_collinear_consistent_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000131() { pr_collinear_consistent_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000132() { pr_collinear_consistent_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000133() { pr_collinear_consistent_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000134() { pr_collinear_consistent_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000135() { pr_collinear_consistent_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000136() { pr_collinear_consistent_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000137() { pr_collinear_consistent_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000138() { pr_collinear_consistent_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000139() { pr_collinear_consistent_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000140() { pr_collinear_consistent_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000141() { pr_collinear_consistent_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000142() { pr_collinear_consistent_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000143() { pr_collinear_consistent_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000144() { pr_collinear_consistent_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000145() { pr_collinear_consistent_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000146() { pr_collinear_consistent_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000147() { pr_collinear_consistent_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000148() { pr_collinear_consistent_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_collinear_consistent_seed_000149() { pr_collinear_consistent_impl(149); }
+    fn pr_collinear_consistent_seed_000000() {
+        pr_collinear_consistent_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000001() {
+        pr_collinear_consistent_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000002() {
+        pr_collinear_consistent_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000003() {
+        pr_collinear_consistent_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000004() {
+        pr_collinear_consistent_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000005() {
+        pr_collinear_consistent_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000006() {
+        pr_collinear_consistent_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000007() {
+        pr_collinear_consistent_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000008() {
+        pr_collinear_consistent_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000009() {
+        pr_collinear_consistent_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000010() {
+        pr_collinear_consistent_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000011() {
+        pr_collinear_consistent_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000012() {
+        pr_collinear_consistent_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000013() {
+        pr_collinear_consistent_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000014() {
+        pr_collinear_consistent_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000015() {
+        pr_collinear_consistent_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000016() {
+        pr_collinear_consistent_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000017() {
+        pr_collinear_consistent_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000018() {
+        pr_collinear_consistent_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000019() {
+        pr_collinear_consistent_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000020() {
+        pr_collinear_consistent_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000021() {
+        pr_collinear_consistent_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000022() {
+        pr_collinear_consistent_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000023() {
+        pr_collinear_consistent_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000024() {
+        pr_collinear_consistent_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000025() {
+        pr_collinear_consistent_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000026() {
+        pr_collinear_consistent_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000027() {
+        pr_collinear_consistent_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000028() {
+        pr_collinear_consistent_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000029() {
+        pr_collinear_consistent_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000030() {
+        pr_collinear_consistent_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000031() {
+        pr_collinear_consistent_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000032() {
+        pr_collinear_consistent_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000033() {
+        pr_collinear_consistent_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000034() {
+        pr_collinear_consistent_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000035() {
+        pr_collinear_consistent_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000036() {
+        pr_collinear_consistent_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000037() {
+        pr_collinear_consistent_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000038() {
+        pr_collinear_consistent_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000039() {
+        pr_collinear_consistent_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000040() {
+        pr_collinear_consistent_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000041() {
+        pr_collinear_consistent_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000042() {
+        pr_collinear_consistent_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000043() {
+        pr_collinear_consistent_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000044() {
+        pr_collinear_consistent_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000045() {
+        pr_collinear_consistent_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000046() {
+        pr_collinear_consistent_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000047() {
+        pr_collinear_consistent_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000048() {
+        pr_collinear_consistent_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000049() {
+        pr_collinear_consistent_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000050() {
+        pr_collinear_consistent_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000051() {
+        pr_collinear_consistent_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000052() {
+        pr_collinear_consistent_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000053() {
+        pr_collinear_consistent_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000054() {
+        pr_collinear_consistent_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000055() {
+        pr_collinear_consistent_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000056() {
+        pr_collinear_consistent_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000057() {
+        pr_collinear_consistent_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000058() {
+        pr_collinear_consistent_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000059() {
+        pr_collinear_consistent_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000060() {
+        pr_collinear_consistent_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000061() {
+        pr_collinear_consistent_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000062() {
+        pr_collinear_consistent_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000063() {
+        pr_collinear_consistent_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000064() {
+        pr_collinear_consistent_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000065() {
+        pr_collinear_consistent_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000066() {
+        pr_collinear_consistent_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000067() {
+        pr_collinear_consistent_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000068() {
+        pr_collinear_consistent_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000069() {
+        pr_collinear_consistent_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000070() {
+        pr_collinear_consistent_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000071() {
+        pr_collinear_consistent_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000072() {
+        pr_collinear_consistent_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000073() {
+        pr_collinear_consistent_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000074() {
+        pr_collinear_consistent_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000075() {
+        pr_collinear_consistent_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000076() {
+        pr_collinear_consistent_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000077() {
+        pr_collinear_consistent_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000078() {
+        pr_collinear_consistent_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000079() {
+        pr_collinear_consistent_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000080() {
+        pr_collinear_consistent_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000081() {
+        pr_collinear_consistent_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000082() {
+        pr_collinear_consistent_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000083() {
+        pr_collinear_consistent_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000084() {
+        pr_collinear_consistent_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000085() {
+        pr_collinear_consistent_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000086() {
+        pr_collinear_consistent_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000087() {
+        pr_collinear_consistent_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000088() {
+        pr_collinear_consistent_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000089() {
+        pr_collinear_consistent_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000090() {
+        pr_collinear_consistent_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000091() {
+        pr_collinear_consistent_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000092() {
+        pr_collinear_consistent_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000093() {
+        pr_collinear_consistent_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000094() {
+        pr_collinear_consistent_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000095() {
+        pr_collinear_consistent_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000096() {
+        pr_collinear_consistent_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000097() {
+        pr_collinear_consistent_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000098() {
+        pr_collinear_consistent_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000099() {
+        pr_collinear_consistent_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000100() {
+        pr_collinear_consistent_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000101() {
+        pr_collinear_consistent_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000102() {
+        pr_collinear_consistent_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000103() {
+        pr_collinear_consistent_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000104() {
+        pr_collinear_consistent_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000105() {
+        pr_collinear_consistent_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000106() {
+        pr_collinear_consistent_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000107() {
+        pr_collinear_consistent_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000108() {
+        pr_collinear_consistent_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000109() {
+        pr_collinear_consistent_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000110() {
+        pr_collinear_consistent_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000111() {
+        pr_collinear_consistent_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000112() {
+        pr_collinear_consistent_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000113() {
+        pr_collinear_consistent_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000114() {
+        pr_collinear_consistent_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000115() {
+        pr_collinear_consistent_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000116() {
+        pr_collinear_consistent_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000117() {
+        pr_collinear_consistent_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000118() {
+        pr_collinear_consistent_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000119() {
+        pr_collinear_consistent_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000120() {
+        pr_collinear_consistent_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000121() {
+        pr_collinear_consistent_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000122() {
+        pr_collinear_consistent_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000123() {
+        pr_collinear_consistent_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000124() {
+        pr_collinear_consistent_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000125() {
+        pr_collinear_consistent_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000126() {
+        pr_collinear_consistent_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000127() {
+        pr_collinear_consistent_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000128() {
+        pr_collinear_consistent_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000129() {
+        pr_collinear_consistent_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000130() {
+        pr_collinear_consistent_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000131() {
+        pr_collinear_consistent_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000132() {
+        pr_collinear_consistent_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000133() {
+        pr_collinear_consistent_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000134() {
+        pr_collinear_consistent_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000135() {
+        pr_collinear_consistent_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000136() {
+        pr_collinear_consistent_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000137() {
+        pr_collinear_consistent_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000138() {
+        pr_collinear_consistent_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000139() {
+        pr_collinear_consistent_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000140() {
+        pr_collinear_consistent_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000141() {
+        pr_collinear_consistent_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000142() {
+        pr_collinear_consistent_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000143() {
+        pr_collinear_consistent_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000144() {
+        pr_collinear_consistent_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000145() {
+        pr_collinear_consistent_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000146() {
+        pr_collinear_consistent_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000147() {
+        pr_collinear_consistent_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000148() {
+        pr_collinear_consistent_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_collinear_consistent_seed_000149() {
+        pr_collinear_consistent_impl(149);
+    }
     // --- pr_duplicate_pins: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000000() { pr_duplicate_pins_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000001() { pr_duplicate_pins_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000002() { pr_duplicate_pins_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000003() { pr_duplicate_pins_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000004() { pr_duplicate_pins_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000005() { pr_duplicate_pins_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000006() { pr_duplicate_pins_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000007() { pr_duplicate_pins_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000008() { pr_duplicate_pins_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000009() { pr_duplicate_pins_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000010() { pr_duplicate_pins_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000011() { pr_duplicate_pins_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000012() { pr_duplicate_pins_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000013() { pr_duplicate_pins_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000014() { pr_duplicate_pins_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000015() { pr_duplicate_pins_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000016() { pr_duplicate_pins_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000017() { pr_duplicate_pins_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000018() { pr_duplicate_pins_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000019() { pr_duplicate_pins_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000020() { pr_duplicate_pins_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000021() { pr_duplicate_pins_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000022() { pr_duplicate_pins_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000023() { pr_duplicate_pins_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000024() { pr_duplicate_pins_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000025() { pr_duplicate_pins_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000026() { pr_duplicate_pins_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000027() { pr_duplicate_pins_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000028() { pr_duplicate_pins_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000029() { pr_duplicate_pins_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000030() { pr_duplicate_pins_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000031() { pr_duplicate_pins_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000032() { pr_duplicate_pins_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000033() { pr_duplicate_pins_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000034() { pr_duplicate_pins_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000035() { pr_duplicate_pins_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000036() { pr_duplicate_pins_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000037() { pr_duplicate_pins_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000038() { pr_duplicate_pins_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000039() { pr_duplicate_pins_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000040() { pr_duplicate_pins_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000041() { pr_duplicate_pins_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000042() { pr_duplicate_pins_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000043() { pr_duplicate_pins_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000044() { pr_duplicate_pins_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000045() { pr_duplicate_pins_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000046() { pr_duplicate_pins_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000047() { pr_duplicate_pins_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000048() { pr_duplicate_pins_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000049() { pr_duplicate_pins_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000050() { pr_duplicate_pins_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000051() { pr_duplicate_pins_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000052() { pr_duplicate_pins_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000053() { pr_duplicate_pins_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000054() { pr_duplicate_pins_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000055() { pr_duplicate_pins_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000056() { pr_duplicate_pins_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000057() { pr_duplicate_pins_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000058() { pr_duplicate_pins_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000059() { pr_duplicate_pins_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000060() { pr_duplicate_pins_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000061() { pr_duplicate_pins_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000062() { pr_duplicate_pins_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000063() { pr_duplicate_pins_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000064() { pr_duplicate_pins_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000065() { pr_duplicate_pins_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000066() { pr_duplicate_pins_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000067() { pr_duplicate_pins_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000068() { pr_duplicate_pins_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000069() { pr_duplicate_pins_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000070() { pr_duplicate_pins_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000071() { pr_duplicate_pins_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000072() { pr_duplicate_pins_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000073() { pr_duplicate_pins_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000074() { pr_duplicate_pins_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000075() { pr_duplicate_pins_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000076() { pr_duplicate_pins_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000077() { pr_duplicate_pins_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000078() { pr_duplicate_pins_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000079() { pr_duplicate_pins_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000080() { pr_duplicate_pins_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000081() { pr_duplicate_pins_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000082() { pr_duplicate_pins_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000083() { pr_duplicate_pins_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000084() { pr_duplicate_pins_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000085() { pr_duplicate_pins_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000086() { pr_duplicate_pins_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000087() { pr_duplicate_pins_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000088() { pr_duplicate_pins_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000089() { pr_duplicate_pins_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000090() { pr_duplicate_pins_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000091() { pr_duplicate_pins_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000092() { pr_duplicate_pins_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000093() { pr_duplicate_pins_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000094() { pr_duplicate_pins_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000095() { pr_duplicate_pins_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000096() { pr_duplicate_pins_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000097() { pr_duplicate_pins_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000098() { pr_duplicate_pins_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000099() { pr_duplicate_pins_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000100() { pr_duplicate_pins_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000101() { pr_duplicate_pins_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000102() { pr_duplicate_pins_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000103() { pr_duplicate_pins_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000104() { pr_duplicate_pins_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000105() { pr_duplicate_pins_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000106() { pr_duplicate_pins_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000107() { pr_duplicate_pins_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000108() { pr_duplicate_pins_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000109() { pr_duplicate_pins_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000110() { pr_duplicate_pins_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000111() { pr_duplicate_pins_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000112() { pr_duplicate_pins_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000113() { pr_duplicate_pins_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000114() { pr_duplicate_pins_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000115() { pr_duplicate_pins_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000116() { pr_duplicate_pins_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000117() { pr_duplicate_pins_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000118() { pr_duplicate_pins_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000119() { pr_duplicate_pins_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000120() { pr_duplicate_pins_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000121() { pr_duplicate_pins_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000122() { pr_duplicate_pins_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000123() { pr_duplicate_pins_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000124() { pr_duplicate_pins_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000125() { pr_duplicate_pins_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000126() { pr_duplicate_pins_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000127() { pr_duplicate_pins_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000128() { pr_duplicate_pins_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000129() { pr_duplicate_pins_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000130() { pr_duplicate_pins_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000131() { pr_duplicate_pins_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000132() { pr_duplicate_pins_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000133() { pr_duplicate_pins_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000134() { pr_duplicate_pins_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000135() { pr_duplicate_pins_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000136() { pr_duplicate_pins_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000137() { pr_duplicate_pins_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000138() { pr_duplicate_pins_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000139() { pr_duplicate_pins_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000140() { pr_duplicate_pins_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000141() { pr_duplicate_pins_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000142() { pr_duplicate_pins_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000143() { pr_duplicate_pins_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000144() { pr_duplicate_pins_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000145() { pr_duplicate_pins_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000146() { pr_duplicate_pins_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000147() { pr_duplicate_pins_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000148() { pr_duplicate_pins_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_duplicate_pins_seed_000149() { pr_duplicate_pins_impl(149); }
+    fn pr_duplicate_pins_seed_000000() {
+        pr_duplicate_pins_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000001() {
+        pr_duplicate_pins_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000002() {
+        pr_duplicate_pins_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000003() {
+        pr_duplicate_pins_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000004() {
+        pr_duplicate_pins_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000005() {
+        pr_duplicate_pins_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000006() {
+        pr_duplicate_pins_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000007() {
+        pr_duplicate_pins_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000008() {
+        pr_duplicate_pins_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000009() {
+        pr_duplicate_pins_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000010() {
+        pr_duplicate_pins_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000011() {
+        pr_duplicate_pins_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000012() {
+        pr_duplicate_pins_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000013() {
+        pr_duplicate_pins_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000014() {
+        pr_duplicate_pins_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000015() {
+        pr_duplicate_pins_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000016() {
+        pr_duplicate_pins_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000017() {
+        pr_duplicate_pins_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000018() {
+        pr_duplicate_pins_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000019() {
+        pr_duplicate_pins_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000020() {
+        pr_duplicate_pins_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000021() {
+        pr_duplicate_pins_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000022() {
+        pr_duplicate_pins_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000023() {
+        pr_duplicate_pins_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000024() {
+        pr_duplicate_pins_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000025() {
+        pr_duplicate_pins_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000026() {
+        pr_duplicate_pins_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000027() {
+        pr_duplicate_pins_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000028() {
+        pr_duplicate_pins_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000029() {
+        pr_duplicate_pins_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000030() {
+        pr_duplicate_pins_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000031() {
+        pr_duplicate_pins_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000032() {
+        pr_duplicate_pins_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000033() {
+        pr_duplicate_pins_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000034() {
+        pr_duplicate_pins_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000035() {
+        pr_duplicate_pins_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000036() {
+        pr_duplicate_pins_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000037() {
+        pr_duplicate_pins_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000038() {
+        pr_duplicate_pins_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000039() {
+        pr_duplicate_pins_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000040() {
+        pr_duplicate_pins_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000041() {
+        pr_duplicate_pins_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000042() {
+        pr_duplicate_pins_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000043() {
+        pr_duplicate_pins_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000044() {
+        pr_duplicate_pins_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000045() {
+        pr_duplicate_pins_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000046() {
+        pr_duplicate_pins_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000047() {
+        pr_duplicate_pins_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000048() {
+        pr_duplicate_pins_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000049() {
+        pr_duplicate_pins_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000050() {
+        pr_duplicate_pins_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000051() {
+        pr_duplicate_pins_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000052() {
+        pr_duplicate_pins_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000053() {
+        pr_duplicate_pins_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000054() {
+        pr_duplicate_pins_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000055() {
+        pr_duplicate_pins_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000056() {
+        pr_duplicate_pins_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000057() {
+        pr_duplicate_pins_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000058() {
+        pr_duplicate_pins_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000059() {
+        pr_duplicate_pins_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000060() {
+        pr_duplicate_pins_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000061() {
+        pr_duplicate_pins_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000062() {
+        pr_duplicate_pins_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000063() {
+        pr_duplicate_pins_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000064() {
+        pr_duplicate_pins_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000065() {
+        pr_duplicate_pins_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000066() {
+        pr_duplicate_pins_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000067() {
+        pr_duplicate_pins_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000068() {
+        pr_duplicate_pins_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000069() {
+        pr_duplicate_pins_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000070() {
+        pr_duplicate_pins_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000071() {
+        pr_duplicate_pins_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000072() {
+        pr_duplicate_pins_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000073() {
+        pr_duplicate_pins_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000074() {
+        pr_duplicate_pins_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000075() {
+        pr_duplicate_pins_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000076() {
+        pr_duplicate_pins_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000077() {
+        pr_duplicate_pins_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000078() {
+        pr_duplicate_pins_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000079() {
+        pr_duplicate_pins_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000080() {
+        pr_duplicate_pins_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000081() {
+        pr_duplicate_pins_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000082() {
+        pr_duplicate_pins_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000083() {
+        pr_duplicate_pins_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000084() {
+        pr_duplicate_pins_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000085() {
+        pr_duplicate_pins_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000086() {
+        pr_duplicate_pins_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000087() {
+        pr_duplicate_pins_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000088() {
+        pr_duplicate_pins_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000089() {
+        pr_duplicate_pins_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000090() {
+        pr_duplicate_pins_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000091() {
+        pr_duplicate_pins_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000092() {
+        pr_duplicate_pins_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000093() {
+        pr_duplicate_pins_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000094() {
+        pr_duplicate_pins_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000095() {
+        pr_duplicate_pins_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000096() {
+        pr_duplicate_pins_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000097() {
+        pr_duplicate_pins_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000098() {
+        pr_duplicate_pins_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000099() {
+        pr_duplicate_pins_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000100() {
+        pr_duplicate_pins_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000101() {
+        pr_duplicate_pins_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000102() {
+        pr_duplicate_pins_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000103() {
+        pr_duplicate_pins_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000104() {
+        pr_duplicate_pins_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000105() {
+        pr_duplicate_pins_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000106() {
+        pr_duplicate_pins_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000107() {
+        pr_duplicate_pins_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000108() {
+        pr_duplicate_pins_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000109() {
+        pr_duplicate_pins_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000110() {
+        pr_duplicate_pins_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000111() {
+        pr_duplicate_pins_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000112() {
+        pr_duplicate_pins_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000113() {
+        pr_duplicate_pins_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000114() {
+        pr_duplicate_pins_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000115() {
+        pr_duplicate_pins_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000116() {
+        pr_duplicate_pins_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000117() {
+        pr_duplicate_pins_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000118() {
+        pr_duplicate_pins_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000119() {
+        pr_duplicate_pins_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000120() {
+        pr_duplicate_pins_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000121() {
+        pr_duplicate_pins_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000122() {
+        pr_duplicate_pins_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000123() {
+        pr_duplicate_pins_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000124() {
+        pr_duplicate_pins_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000125() {
+        pr_duplicate_pins_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000126() {
+        pr_duplicate_pins_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000127() {
+        pr_duplicate_pins_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000128() {
+        pr_duplicate_pins_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000129() {
+        pr_duplicate_pins_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000130() {
+        pr_duplicate_pins_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000131() {
+        pr_duplicate_pins_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000132() {
+        pr_duplicate_pins_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000133() {
+        pr_duplicate_pins_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000134() {
+        pr_duplicate_pins_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000135() {
+        pr_duplicate_pins_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000136() {
+        pr_duplicate_pins_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000137() {
+        pr_duplicate_pins_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000138() {
+        pr_duplicate_pins_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000139() {
+        pr_duplicate_pins_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000140() {
+        pr_duplicate_pins_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000141() {
+        pr_duplicate_pins_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000142() {
+        pr_duplicate_pins_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000143() {
+        pr_duplicate_pins_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000144() {
+        pr_duplicate_pins_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000145() {
+        pr_duplicate_pins_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000146() {
+        pr_duplicate_pins_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000147() {
+        pr_duplicate_pins_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000148() {
+        pr_duplicate_pins_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_duplicate_pins_seed_000149() {
+        pr_duplicate_pins_impl(149);
+    }
     // --- pr_span_non_negative: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000000() { pr_span_non_negative_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000001() { pr_span_non_negative_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000002() { pr_span_non_negative_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000003() { pr_span_non_negative_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000004() { pr_span_non_negative_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000005() { pr_span_non_negative_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000006() { pr_span_non_negative_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000007() { pr_span_non_negative_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000008() { pr_span_non_negative_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000009() { pr_span_non_negative_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000010() { pr_span_non_negative_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000011() { pr_span_non_negative_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000012() { pr_span_non_negative_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000013() { pr_span_non_negative_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000014() { pr_span_non_negative_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000015() { pr_span_non_negative_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000016() { pr_span_non_negative_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000017() { pr_span_non_negative_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000018() { pr_span_non_negative_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000019() { pr_span_non_negative_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000020() { pr_span_non_negative_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000021() { pr_span_non_negative_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000022() { pr_span_non_negative_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000023() { pr_span_non_negative_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000024() { pr_span_non_negative_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000025() { pr_span_non_negative_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000026() { pr_span_non_negative_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000027() { pr_span_non_negative_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000028() { pr_span_non_negative_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000029() { pr_span_non_negative_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000030() { pr_span_non_negative_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000031() { pr_span_non_negative_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000032() { pr_span_non_negative_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000033() { pr_span_non_negative_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000034() { pr_span_non_negative_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000035() { pr_span_non_negative_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000036() { pr_span_non_negative_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000037() { pr_span_non_negative_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000038() { pr_span_non_negative_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000039() { pr_span_non_negative_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000040() { pr_span_non_negative_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000041() { pr_span_non_negative_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000042() { pr_span_non_negative_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000043() { pr_span_non_negative_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000044() { pr_span_non_negative_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000045() { pr_span_non_negative_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000046() { pr_span_non_negative_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000047() { pr_span_non_negative_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000048() { pr_span_non_negative_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000049() { pr_span_non_negative_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000050() { pr_span_non_negative_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000051() { pr_span_non_negative_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000052() { pr_span_non_negative_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000053() { pr_span_non_negative_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000054() { pr_span_non_negative_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000055() { pr_span_non_negative_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000056() { pr_span_non_negative_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000057() { pr_span_non_negative_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000058() { pr_span_non_negative_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000059() { pr_span_non_negative_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000060() { pr_span_non_negative_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000061() { pr_span_non_negative_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000062() { pr_span_non_negative_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000063() { pr_span_non_negative_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000064() { pr_span_non_negative_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000065() { pr_span_non_negative_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000066() { pr_span_non_negative_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000067() { pr_span_non_negative_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000068() { pr_span_non_negative_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000069() { pr_span_non_negative_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000070() { pr_span_non_negative_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000071() { pr_span_non_negative_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000072() { pr_span_non_negative_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000073() { pr_span_non_negative_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000074() { pr_span_non_negative_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000075() { pr_span_non_negative_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000076() { pr_span_non_negative_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000077() { pr_span_non_negative_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000078() { pr_span_non_negative_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000079() { pr_span_non_negative_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000080() { pr_span_non_negative_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000081() { pr_span_non_negative_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000082() { pr_span_non_negative_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000083() { pr_span_non_negative_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000084() { pr_span_non_negative_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000085() { pr_span_non_negative_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000086() { pr_span_non_negative_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000087() { pr_span_non_negative_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000088() { pr_span_non_negative_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000089() { pr_span_non_negative_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000090() { pr_span_non_negative_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000091() { pr_span_non_negative_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000092() { pr_span_non_negative_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000093() { pr_span_non_negative_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000094() { pr_span_non_negative_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000095() { pr_span_non_negative_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000096() { pr_span_non_negative_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000097() { pr_span_non_negative_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000098() { pr_span_non_negative_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000099() { pr_span_non_negative_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000100() { pr_span_non_negative_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000101() { pr_span_non_negative_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000102() { pr_span_non_negative_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000103() { pr_span_non_negative_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000104() { pr_span_non_negative_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000105() { pr_span_non_negative_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000106() { pr_span_non_negative_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000107() { pr_span_non_negative_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000108() { pr_span_non_negative_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000109() { pr_span_non_negative_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000110() { pr_span_non_negative_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000111() { pr_span_non_negative_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000112() { pr_span_non_negative_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000113() { pr_span_non_negative_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000114() { pr_span_non_negative_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000115() { pr_span_non_negative_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000116() { pr_span_non_negative_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000117() { pr_span_non_negative_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000118() { pr_span_non_negative_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000119() { pr_span_non_negative_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000120() { pr_span_non_negative_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000121() { pr_span_non_negative_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000122() { pr_span_non_negative_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000123() { pr_span_non_negative_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000124() { pr_span_non_negative_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000125() { pr_span_non_negative_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000126() { pr_span_non_negative_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000127() { pr_span_non_negative_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000128() { pr_span_non_negative_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000129() { pr_span_non_negative_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000130() { pr_span_non_negative_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000131() { pr_span_non_negative_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000132() { pr_span_non_negative_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000133() { pr_span_non_negative_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000134() { pr_span_non_negative_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000135() { pr_span_non_negative_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000136() { pr_span_non_negative_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000137() { pr_span_non_negative_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000138() { pr_span_non_negative_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000139() { pr_span_non_negative_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000140() { pr_span_non_negative_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000141() { pr_span_non_negative_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000142() { pr_span_non_negative_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000143() { pr_span_non_negative_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000144() { pr_span_non_negative_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000145() { pr_span_non_negative_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000146() { pr_span_non_negative_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000147() { pr_span_non_negative_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000148() { pr_span_non_negative_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_span_non_negative_seed_000149() { pr_span_non_negative_impl(149); }
+    fn pr_span_non_negative_seed_000000() {
+        pr_span_non_negative_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000001() {
+        pr_span_non_negative_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000002() {
+        pr_span_non_negative_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000003() {
+        pr_span_non_negative_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000004() {
+        pr_span_non_negative_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000005() {
+        pr_span_non_negative_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000006() {
+        pr_span_non_negative_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000007() {
+        pr_span_non_negative_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000008() {
+        pr_span_non_negative_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000009() {
+        pr_span_non_negative_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000010() {
+        pr_span_non_negative_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000011() {
+        pr_span_non_negative_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000012() {
+        pr_span_non_negative_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000013() {
+        pr_span_non_negative_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000014() {
+        pr_span_non_negative_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000015() {
+        pr_span_non_negative_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000016() {
+        pr_span_non_negative_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000017() {
+        pr_span_non_negative_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000018() {
+        pr_span_non_negative_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000019() {
+        pr_span_non_negative_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000020() {
+        pr_span_non_negative_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000021() {
+        pr_span_non_negative_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000022() {
+        pr_span_non_negative_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000023() {
+        pr_span_non_negative_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000024() {
+        pr_span_non_negative_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000025() {
+        pr_span_non_negative_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000026() {
+        pr_span_non_negative_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000027() {
+        pr_span_non_negative_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000028() {
+        pr_span_non_negative_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000029() {
+        pr_span_non_negative_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000030() {
+        pr_span_non_negative_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000031() {
+        pr_span_non_negative_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000032() {
+        pr_span_non_negative_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000033() {
+        pr_span_non_negative_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000034() {
+        pr_span_non_negative_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000035() {
+        pr_span_non_negative_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000036() {
+        pr_span_non_negative_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000037() {
+        pr_span_non_negative_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000038() {
+        pr_span_non_negative_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000039() {
+        pr_span_non_negative_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000040() {
+        pr_span_non_negative_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000041() {
+        pr_span_non_negative_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000042() {
+        pr_span_non_negative_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000043() {
+        pr_span_non_negative_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000044() {
+        pr_span_non_negative_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000045() {
+        pr_span_non_negative_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000046() {
+        pr_span_non_negative_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000047() {
+        pr_span_non_negative_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000048() {
+        pr_span_non_negative_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000049() {
+        pr_span_non_negative_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000050() {
+        pr_span_non_negative_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000051() {
+        pr_span_non_negative_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000052() {
+        pr_span_non_negative_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000053() {
+        pr_span_non_negative_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000054() {
+        pr_span_non_negative_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000055() {
+        pr_span_non_negative_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000056() {
+        pr_span_non_negative_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000057() {
+        pr_span_non_negative_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000058() {
+        pr_span_non_negative_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000059() {
+        pr_span_non_negative_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000060() {
+        pr_span_non_negative_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000061() {
+        pr_span_non_negative_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000062() {
+        pr_span_non_negative_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000063() {
+        pr_span_non_negative_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000064() {
+        pr_span_non_negative_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000065() {
+        pr_span_non_negative_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000066() {
+        pr_span_non_negative_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000067() {
+        pr_span_non_negative_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000068() {
+        pr_span_non_negative_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000069() {
+        pr_span_non_negative_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000070() {
+        pr_span_non_negative_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000071() {
+        pr_span_non_negative_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000072() {
+        pr_span_non_negative_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000073() {
+        pr_span_non_negative_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000074() {
+        pr_span_non_negative_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000075() {
+        pr_span_non_negative_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000076() {
+        pr_span_non_negative_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000077() {
+        pr_span_non_negative_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000078() {
+        pr_span_non_negative_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000079() {
+        pr_span_non_negative_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000080() {
+        pr_span_non_negative_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000081() {
+        pr_span_non_negative_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000082() {
+        pr_span_non_negative_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000083() {
+        pr_span_non_negative_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000084() {
+        pr_span_non_negative_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000085() {
+        pr_span_non_negative_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000086() {
+        pr_span_non_negative_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000087() {
+        pr_span_non_negative_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000088() {
+        pr_span_non_negative_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000089() {
+        pr_span_non_negative_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000090() {
+        pr_span_non_negative_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000091() {
+        pr_span_non_negative_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000092() {
+        pr_span_non_negative_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000093() {
+        pr_span_non_negative_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000094() {
+        pr_span_non_negative_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000095() {
+        pr_span_non_negative_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000096() {
+        pr_span_non_negative_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000097() {
+        pr_span_non_negative_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000098() {
+        pr_span_non_negative_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000099() {
+        pr_span_non_negative_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000100() {
+        pr_span_non_negative_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000101() {
+        pr_span_non_negative_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000102() {
+        pr_span_non_negative_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000103() {
+        pr_span_non_negative_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000104() {
+        pr_span_non_negative_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000105() {
+        pr_span_non_negative_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000106() {
+        pr_span_non_negative_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000107() {
+        pr_span_non_negative_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000108() {
+        pr_span_non_negative_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000109() {
+        pr_span_non_negative_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000110() {
+        pr_span_non_negative_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000111() {
+        pr_span_non_negative_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000112() {
+        pr_span_non_negative_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000113() {
+        pr_span_non_negative_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000114() {
+        pr_span_non_negative_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000115() {
+        pr_span_non_negative_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000116() {
+        pr_span_non_negative_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000117() {
+        pr_span_non_negative_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000118() {
+        pr_span_non_negative_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000119() {
+        pr_span_non_negative_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000120() {
+        pr_span_non_negative_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000121() {
+        pr_span_non_negative_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000122() {
+        pr_span_non_negative_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000123() {
+        pr_span_non_negative_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000124() {
+        pr_span_non_negative_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000125() {
+        pr_span_non_negative_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000126() {
+        pr_span_non_negative_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000127() {
+        pr_span_non_negative_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000128() {
+        pr_span_non_negative_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000129() {
+        pr_span_non_negative_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000130() {
+        pr_span_non_negative_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000131() {
+        pr_span_non_negative_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000132() {
+        pr_span_non_negative_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000133() {
+        pr_span_non_negative_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000134() {
+        pr_span_non_negative_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000135() {
+        pr_span_non_negative_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000136() {
+        pr_span_non_negative_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000137() {
+        pr_span_non_negative_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000138() {
+        pr_span_non_negative_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000139() {
+        pr_span_non_negative_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000140() {
+        pr_span_non_negative_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000141() {
+        pr_span_non_negative_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000142() {
+        pr_span_non_negative_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000143() {
+        pr_span_non_negative_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000144() {
+        pr_span_non_negative_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000145() {
+        pr_span_non_negative_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000146() {
+        pr_span_non_negative_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000147() {
+        pr_span_non_negative_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000148() {
+        pr_span_non_negative_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_span_non_negative_seed_000149() {
+        pr_span_non_negative_impl(149);
+    }
     // --- pr_dist_zero_at_pin: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000000() { pr_dist_zero_at_pin_impl(0); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000001() { pr_dist_zero_at_pin_impl(1); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000002() { pr_dist_zero_at_pin_impl(2); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000003() { pr_dist_zero_at_pin_impl(3); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000004() { pr_dist_zero_at_pin_impl(4); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000005() { pr_dist_zero_at_pin_impl(5); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000006() { pr_dist_zero_at_pin_impl(6); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000007() { pr_dist_zero_at_pin_impl(7); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000008() { pr_dist_zero_at_pin_impl(8); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000009() { pr_dist_zero_at_pin_impl(9); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000010() { pr_dist_zero_at_pin_impl(10); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000011() { pr_dist_zero_at_pin_impl(11); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000012() { pr_dist_zero_at_pin_impl(12); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000013() { pr_dist_zero_at_pin_impl(13); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000014() { pr_dist_zero_at_pin_impl(14); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000015() { pr_dist_zero_at_pin_impl(15); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000016() { pr_dist_zero_at_pin_impl(16); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000017() { pr_dist_zero_at_pin_impl(17); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000018() { pr_dist_zero_at_pin_impl(18); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000019() { pr_dist_zero_at_pin_impl(19); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000020() { pr_dist_zero_at_pin_impl(20); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000021() { pr_dist_zero_at_pin_impl(21); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000022() { pr_dist_zero_at_pin_impl(22); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000023() { pr_dist_zero_at_pin_impl(23); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000024() { pr_dist_zero_at_pin_impl(24); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000025() { pr_dist_zero_at_pin_impl(25); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000026() { pr_dist_zero_at_pin_impl(26); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000027() { pr_dist_zero_at_pin_impl(27); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000028() { pr_dist_zero_at_pin_impl(28); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000029() { pr_dist_zero_at_pin_impl(29); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000030() { pr_dist_zero_at_pin_impl(30); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000031() { pr_dist_zero_at_pin_impl(31); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000032() { pr_dist_zero_at_pin_impl(32); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000033() { pr_dist_zero_at_pin_impl(33); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000034() { pr_dist_zero_at_pin_impl(34); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000035() { pr_dist_zero_at_pin_impl(35); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000036() { pr_dist_zero_at_pin_impl(36); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000037() { pr_dist_zero_at_pin_impl(37); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000038() { pr_dist_zero_at_pin_impl(38); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000039() { pr_dist_zero_at_pin_impl(39); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000040() { pr_dist_zero_at_pin_impl(40); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000041() { pr_dist_zero_at_pin_impl(41); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000042() { pr_dist_zero_at_pin_impl(42); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000043() { pr_dist_zero_at_pin_impl(43); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000044() { pr_dist_zero_at_pin_impl(44); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000045() { pr_dist_zero_at_pin_impl(45); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000046() { pr_dist_zero_at_pin_impl(46); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000047() { pr_dist_zero_at_pin_impl(47); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000048() { pr_dist_zero_at_pin_impl(48); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000049() { pr_dist_zero_at_pin_impl(49); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000050() { pr_dist_zero_at_pin_impl(50); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000051() { pr_dist_zero_at_pin_impl(51); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000052() { pr_dist_zero_at_pin_impl(52); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000053() { pr_dist_zero_at_pin_impl(53); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000054() { pr_dist_zero_at_pin_impl(54); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000055() { pr_dist_zero_at_pin_impl(55); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000056() { pr_dist_zero_at_pin_impl(56); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000057() { pr_dist_zero_at_pin_impl(57); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000058() { pr_dist_zero_at_pin_impl(58); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000059() { pr_dist_zero_at_pin_impl(59); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000060() { pr_dist_zero_at_pin_impl(60); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000061() { pr_dist_zero_at_pin_impl(61); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000062() { pr_dist_zero_at_pin_impl(62); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000063() { pr_dist_zero_at_pin_impl(63); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000064() { pr_dist_zero_at_pin_impl(64); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000065() { pr_dist_zero_at_pin_impl(65); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000066() { pr_dist_zero_at_pin_impl(66); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000067() { pr_dist_zero_at_pin_impl(67); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000068() { pr_dist_zero_at_pin_impl(68); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000069() { pr_dist_zero_at_pin_impl(69); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000070() { pr_dist_zero_at_pin_impl(70); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000071() { pr_dist_zero_at_pin_impl(71); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000072() { pr_dist_zero_at_pin_impl(72); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000073() { pr_dist_zero_at_pin_impl(73); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000074() { pr_dist_zero_at_pin_impl(74); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000075() { pr_dist_zero_at_pin_impl(75); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000076() { pr_dist_zero_at_pin_impl(76); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000077() { pr_dist_zero_at_pin_impl(77); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000078() { pr_dist_zero_at_pin_impl(78); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000079() { pr_dist_zero_at_pin_impl(79); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000080() { pr_dist_zero_at_pin_impl(80); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000081() { pr_dist_zero_at_pin_impl(81); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000082() { pr_dist_zero_at_pin_impl(82); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000083() { pr_dist_zero_at_pin_impl(83); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000084() { pr_dist_zero_at_pin_impl(84); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000085() { pr_dist_zero_at_pin_impl(85); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000086() { pr_dist_zero_at_pin_impl(86); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000087() { pr_dist_zero_at_pin_impl(87); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000088() { pr_dist_zero_at_pin_impl(88); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000089() { pr_dist_zero_at_pin_impl(89); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000090() { pr_dist_zero_at_pin_impl(90); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000091() { pr_dist_zero_at_pin_impl(91); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000092() { pr_dist_zero_at_pin_impl(92); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000093() { pr_dist_zero_at_pin_impl(93); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000094() { pr_dist_zero_at_pin_impl(94); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000095() { pr_dist_zero_at_pin_impl(95); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000096() { pr_dist_zero_at_pin_impl(96); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000097() { pr_dist_zero_at_pin_impl(97); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000098() { pr_dist_zero_at_pin_impl(98); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000099() { pr_dist_zero_at_pin_impl(99); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000100() { pr_dist_zero_at_pin_impl(100); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000101() { pr_dist_zero_at_pin_impl(101); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000102() { pr_dist_zero_at_pin_impl(102); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000103() { pr_dist_zero_at_pin_impl(103); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000104() { pr_dist_zero_at_pin_impl(104); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000105() { pr_dist_zero_at_pin_impl(105); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000106() { pr_dist_zero_at_pin_impl(106); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000107() { pr_dist_zero_at_pin_impl(107); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000108() { pr_dist_zero_at_pin_impl(108); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000109() { pr_dist_zero_at_pin_impl(109); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000110() { pr_dist_zero_at_pin_impl(110); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000111() { pr_dist_zero_at_pin_impl(111); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000112() { pr_dist_zero_at_pin_impl(112); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000113() { pr_dist_zero_at_pin_impl(113); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000114() { pr_dist_zero_at_pin_impl(114); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000115() { pr_dist_zero_at_pin_impl(115); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000116() { pr_dist_zero_at_pin_impl(116); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000117() { pr_dist_zero_at_pin_impl(117); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000118() { pr_dist_zero_at_pin_impl(118); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000119() { pr_dist_zero_at_pin_impl(119); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000120() { pr_dist_zero_at_pin_impl(120); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000121() { pr_dist_zero_at_pin_impl(121); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000122() { pr_dist_zero_at_pin_impl(122); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000123() { pr_dist_zero_at_pin_impl(123); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000124() { pr_dist_zero_at_pin_impl(124); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000125() { pr_dist_zero_at_pin_impl(125); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000126() { pr_dist_zero_at_pin_impl(126); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000127() { pr_dist_zero_at_pin_impl(127); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000128() { pr_dist_zero_at_pin_impl(128); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000129() { pr_dist_zero_at_pin_impl(129); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000130() { pr_dist_zero_at_pin_impl(130); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000131() { pr_dist_zero_at_pin_impl(131); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000132() { pr_dist_zero_at_pin_impl(132); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000133() { pr_dist_zero_at_pin_impl(133); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000134() { pr_dist_zero_at_pin_impl(134); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000135() { pr_dist_zero_at_pin_impl(135); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000136() { pr_dist_zero_at_pin_impl(136); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000137() { pr_dist_zero_at_pin_impl(137); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000138() { pr_dist_zero_at_pin_impl(138); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000139() { pr_dist_zero_at_pin_impl(139); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000140() { pr_dist_zero_at_pin_impl(140); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000141() { pr_dist_zero_at_pin_impl(141); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000142() { pr_dist_zero_at_pin_impl(142); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000143() { pr_dist_zero_at_pin_impl(143); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000144() { pr_dist_zero_at_pin_impl(144); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000145() { pr_dist_zero_at_pin_impl(145); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000146() { pr_dist_zero_at_pin_impl(146); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000147() { pr_dist_zero_at_pin_impl(147); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000148() { pr_dist_zero_at_pin_impl(148); }
-    #[cfg_attr(test, test)]
-    fn pr_dist_zero_at_pin_seed_000149() { pr_dist_zero_at_pin_impl(149); }
+    fn pr_dist_zero_at_pin_seed_000000() {
+        pr_dist_zero_at_pin_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000001() {
+        pr_dist_zero_at_pin_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000002() {
+        pr_dist_zero_at_pin_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000003() {
+        pr_dist_zero_at_pin_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000004() {
+        pr_dist_zero_at_pin_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000005() {
+        pr_dist_zero_at_pin_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000006() {
+        pr_dist_zero_at_pin_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000007() {
+        pr_dist_zero_at_pin_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000008() {
+        pr_dist_zero_at_pin_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000009() {
+        pr_dist_zero_at_pin_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000010() {
+        pr_dist_zero_at_pin_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000011() {
+        pr_dist_zero_at_pin_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000012() {
+        pr_dist_zero_at_pin_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000013() {
+        pr_dist_zero_at_pin_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000014() {
+        pr_dist_zero_at_pin_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000015() {
+        pr_dist_zero_at_pin_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000016() {
+        pr_dist_zero_at_pin_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000017() {
+        pr_dist_zero_at_pin_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000018() {
+        pr_dist_zero_at_pin_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000019() {
+        pr_dist_zero_at_pin_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000020() {
+        pr_dist_zero_at_pin_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000021() {
+        pr_dist_zero_at_pin_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000022() {
+        pr_dist_zero_at_pin_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000023() {
+        pr_dist_zero_at_pin_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000024() {
+        pr_dist_zero_at_pin_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000025() {
+        pr_dist_zero_at_pin_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000026() {
+        pr_dist_zero_at_pin_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000027() {
+        pr_dist_zero_at_pin_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000028() {
+        pr_dist_zero_at_pin_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000029() {
+        pr_dist_zero_at_pin_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000030() {
+        pr_dist_zero_at_pin_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000031() {
+        pr_dist_zero_at_pin_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000032() {
+        pr_dist_zero_at_pin_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000033() {
+        pr_dist_zero_at_pin_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000034() {
+        pr_dist_zero_at_pin_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000035() {
+        pr_dist_zero_at_pin_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000036() {
+        pr_dist_zero_at_pin_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000037() {
+        pr_dist_zero_at_pin_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000038() {
+        pr_dist_zero_at_pin_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000039() {
+        pr_dist_zero_at_pin_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000040() {
+        pr_dist_zero_at_pin_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000041() {
+        pr_dist_zero_at_pin_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000042() {
+        pr_dist_zero_at_pin_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000043() {
+        pr_dist_zero_at_pin_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000044() {
+        pr_dist_zero_at_pin_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000045() {
+        pr_dist_zero_at_pin_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000046() {
+        pr_dist_zero_at_pin_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000047() {
+        pr_dist_zero_at_pin_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000048() {
+        pr_dist_zero_at_pin_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000049() {
+        pr_dist_zero_at_pin_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000050() {
+        pr_dist_zero_at_pin_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000051() {
+        pr_dist_zero_at_pin_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000052() {
+        pr_dist_zero_at_pin_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000053() {
+        pr_dist_zero_at_pin_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000054() {
+        pr_dist_zero_at_pin_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000055() {
+        pr_dist_zero_at_pin_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000056() {
+        pr_dist_zero_at_pin_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000057() {
+        pr_dist_zero_at_pin_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000058() {
+        pr_dist_zero_at_pin_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000059() {
+        pr_dist_zero_at_pin_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000060() {
+        pr_dist_zero_at_pin_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000061() {
+        pr_dist_zero_at_pin_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000062() {
+        pr_dist_zero_at_pin_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000063() {
+        pr_dist_zero_at_pin_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000064() {
+        pr_dist_zero_at_pin_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000065() {
+        pr_dist_zero_at_pin_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000066() {
+        pr_dist_zero_at_pin_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000067() {
+        pr_dist_zero_at_pin_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000068() {
+        pr_dist_zero_at_pin_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000069() {
+        pr_dist_zero_at_pin_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000070() {
+        pr_dist_zero_at_pin_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000071() {
+        pr_dist_zero_at_pin_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000072() {
+        pr_dist_zero_at_pin_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000073() {
+        pr_dist_zero_at_pin_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000074() {
+        pr_dist_zero_at_pin_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000075() {
+        pr_dist_zero_at_pin_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000076() {
+        pr_dist_zero_at_pin_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000077() {
+        pr_dist_zero_at_pin_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000078() {
+        pr_dist_zero_at_pin_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000079() {
+        pr_dist_zero_at_pin_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000080() {
+        pr_dist_zero_at_pin_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000081() {
+        pr_dist_zero_at_pin_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000082() {
+        pr_dist_zero_at_pin_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000083() {
+        pr_dist_zero_at_pin_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000084() {
+        pr_dist_zero_at_pin_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000085() {
+        pr_dist_zero_at_pin_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000086() {
+        pr_dist_zero_at_pin_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000087() {
+        pr_dist_zero_at_pin_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000088() {
+        pr_dist_zero_at_pin_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000089() {
+        pr_dist_zero_at_pin_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000090() {
+        pr_dist_zero_at_pin_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000091() {
+        pr_dist_zero_at_pin_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000092() {
+        pr_dist_zero_at_pin_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000093() {
+        pr_dist_zero_at_pin_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000094() {
+        pr_dist_zero_at_pin_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000095() {
+        pr_dist_zero_at_pin_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000096() {
+        pr_dist_zero_at_pin_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000097() {
+        pr_dist_zero_at_pin_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000098() {
+        pr_dist_zero_at_pin_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000099() {
+        pr_dist_zero_at_pin_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000100() {
+        pr_dist_zero_at_pin_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000101() {
+        pr_dist_zero_at_pin_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000102() {
+        pr_dist_zero_at_pin_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000103() {
+        pr_dist_zero_at_pin_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000104() {
+        pr_dist_zero_at_pin_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000105() {
+        pr_dist_zero_at_pin_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000106() {
+        pr_dist_zero_at_pin_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000107() {
+        pr_dist_zero_at_pin_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000108() {
+        pr_dist_zero_at_pin_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000109() {
+        pr_dist_zero_at_pin_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000110() {
+        pr_dist_zero_at_pin_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000111() {
+        pr_dist_zero_at_pin_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000112() {
+        pr_dist_zero_at_pin_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000113() {
+        pr_dist_zero_at_pin_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000114() {
+        pr_dist_zero_at_pin_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000115() {
+        pr_dist_zero_at_pin_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000116() {
+        pr_dist_zero_at_pin_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000117() {
+        pr_dist_zero_at_pin_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000118() {
+        pr_dist_zero_at_pin_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000119() {
+        pr_dist_zero_at_pin_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000120() {
+        pr_dist_zero_at_pin_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000121() {
+        pr_dist_zero_at_pin_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000122() {
+        pr_dist_zero_at_pin_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000123() {
+        pr_dist_zero_at_pin_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000124() {
+        pr_dist_zero_at_pin_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000125() {
+        pr_dist_zero_at_pin_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000126() {
+        pr_dist_zero_at_pin_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000127() {
+        pr_dist_zero_at_pin_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000128() {
+        pr_dist_zero_at_pin_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000129() {
+        pr_dist_zero_at_pin_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000130() {
+        pr_dist_zero_at_pin_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000131() {
+        pr_dist_zero_at_pin_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000132() {
+        pr_dist_zero_at_pin_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000133() {
+        pr_dist_zero_at_pin_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000134() {
+        pr_dist_zero_at_pin_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000135() {
+        pr_dist_zero_at_pin_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000136() {
+        pr_dist_zero_at_pin_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000137() {
+        pr_dist_zero_at_pin_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000138() {
+        pr_dist_zero_at_pin_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000139() {
+        pr_dist_zero_at_pin_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000140() {
+        pr_dist_zero_at_pin_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000141() {
+        pr_dist_zero_at_pin_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000142() {
+        pr_dist_zero_at_pin_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000143() {
+        pr_dist_zero_at_pin_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000144() {
+        pr_dist_zero_at_pin_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000145() {
+        pr_dist_zero_at_pin_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000146() {
+        pr_dist_zero_at_pin_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000147() {
+        pr_dist_zero_at_pin_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000148() {
+        pr_dist_zero_at_pin_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn pr_dist_zero_at_pin_seed_000149() {
+        pr_dist_zero_at_pin_impl(149);
+    }
     // --- enc_output_sizes: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000000() { enc_output_sizes_impl(0); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000001() { enc_output_sizes_impl(1); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000002() { enc_output_sizes_impl(2); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000003() { enc_output_sizes_impl(3); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000004() { enc_output_sizes_impl(4); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000005() { enc_output_sizes_impl(5); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000006() { enc_output_sizes_impl(6); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000007() { enc_output_sizes_impl(7); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000008() { enc_output_sizes_impl(8); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000009() { enc_output_sizes_impl(9); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000010() { enc_output_sizes_impl(10); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000011() { enc_output_sizes_impl(11); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000012() { enc_output_sizes_impl(12); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000013() { enc_output_sizes_impl(13); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000014() { enc_output_sizes_impl(14); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000015() { enc_output_sizes_impl(15); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000016() { enc_output_sizes_impl(16); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000017() { enc_output_sizes_impl(17); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000018() { enc_output_sizes_impl(18); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000019() { enc_output_sizes_impl(19); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000020() { enc_output_sizes_impl(20); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000021() { enc_output_sizes_impl(21); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000022() { enc_output_sizes_impl(22); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000023() { enc_output_sizes_impl(23); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000024() { enc_output_sizes_impl(24); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000025() { enc_output_sizes_impl(25); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000026() { enc_output_sizes_impl(26); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000027() { enc_output_sizes_impl(27); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000028() { enc_output_sizes_impl(28); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000029() { enc_output_sizes_impl(29); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000030() { enc_output_sizes_impl(30); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000031() { enc_output_sizes_impl(31); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000032() { enc_output_sizes_impl(32); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000033() { enc_output_sizes_impl(33); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000034() { enc_output_sizes_impl(34); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000035() { enc_output_sizes_impl(35); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000036() { enc_output_sizes_impl(36); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000037() { enc_output_sizes_impl(37); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000038() { enc_output_sizes_impl(38); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000039() { enc_output_sizes_impl(39); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000040() { enc_output_sizes_impl(40); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000041() { enc_output_sizes_impl(41); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000042() { enc_output_sizes_impl(42); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000043() { enc_output_sizes_impl(43); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000044() { enc_output_sizes_impl(44); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000045() { enc_output_sizes_impl(45); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000046() { enc_output_sizes_impl(46); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000047() { enc_output_sizes_impl(47); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000048() { enc_output_sizes_impl(48); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000049() { enc_output_sizes_impl(49); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000050() { enc_output_sizes_impl(50); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000051() { enc_output_sizes_impl(51); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000052() { enc_output_sizes_impl(52); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000053() { enc_output_sizes_impl(53); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000054() { enc_output_sizes_impl(54); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000055() { enc_output_sizes_impl(55); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000056() { enc_output_sizes_impl(56); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000057() { enc_output_sizes_impl(57); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000058() { enc_output_sizes_impl(58); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000059() { enc_output_sizes_impl(59); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000060() { enc_output_sizes_impl(60); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000061() { enc_output_sizes_impl(61); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000062() { enc_output_sizes_impl(62); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000063() { enc_output_sizes_impl(63); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000064() { enc_output_sizes_impl(64); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000065() { enc_output_sizes_impl(65); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000066() { enc_output_sizes_impl(66); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000067() { enc_output_sizes_impl(67); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000068() { enc_output_sizes_impl(68); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000069() { enc_output_sizes_impl(69); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000070() { enc_output_sizes_impl(70); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000071() { enc_output_sizes_impl(71); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000072() { enc_output_sizes_impl(72); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000073() { enc_output_sizes_impl(73); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000074() { enc_output_sizes_impl(74); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000075() { enc_output_sizes_impl(75); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000076() { enc_output_sizes_impl(76); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000077() { enc_output_sizes_impl(77); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000078() { enc_output_sizes_impl(78); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000079() { enc_output_sizes_impl(79); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000080() { enc_output_sizes_impl(80); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000081() { enc_output_sizes_impl(81); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000082() { enc_output_sizes_impl(82); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000083() { enc_output_sizes_impl(83); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000084() { enc_output_sizes_impl(84); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000085() { enc_output_sizes_impl(85); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000086() { enc_output_sizes_impl(86); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000087() { enc_output_sizes_impl(87); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000088() { enc_output_sizes_impl(88); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000089() { enc_output_sizes_impl(89); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000090() { enc_output_sizes_impl(90); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000091() { enc_output_sizes_impl(91); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000092() { enc_output_sizes_impl(92); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000093() { enc_output_sizes_impl(93); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000094() { enc_output_sizes_impl(94); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000095() { enc_output_sizes_impl(95); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000096() { enc_output_sizes_impl(96); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000097() { enc_output_sizes_impl(97); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000098() { enc_output_sizes_impl(98); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000099() { enc_output_sizes_impl(99); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000100() { enc_output_sizes_impl(100); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000101() { enc_output_sizes_impl(101); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000102() { enc_output_sizes_impl(102); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000103() { enc_output_sizes_impl(103); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000104() { enc_output_sizes_impl(104); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000105() { enc_output_sizes_impl(105); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000106() { enc_output_sizes_impl(106); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000107() { enc_output_sizes_impl(107); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000108() { enc_output_sizes_impl(108); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000109() { enc_output_sizes_impl(109); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000110() { enc_output_sizes_impl(110); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000111() { enc_output_sizes_impl(111); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000112() { enc_output_sizes_impl(112); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000113() { enc_output_sizes_impl(113); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000114() { enc_output_sizes_impl(114); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000115() { enc_output_sizes_impl(115); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000116() { enc_output_sizes_impl(116); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000117() { enc_output_sizes_impl(117); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000118() { enc_output_sizes_impl(118); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000119() { enc_output_sizes_impl(119); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000120() { enc_output_sizes_impl(120); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000121() { enc_output_sizes_impl(121); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000122() { enc_output_sizes_impl(122); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000123() { enc_output_sizes_impl(123); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000124() { enc_output_sizes_impl(124); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000125() { enc_output_sizes_impl(125); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000126() { enc_output_sizes_impl(126); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000127() { enc_output_sizes_impl(127); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000128() { enc_output_sizes_impl(128); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000129() { enc_output_sizes_impl(129); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000130() { enc_output_sizes_impl(130); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000131() { enc_output_sizes_impl(131); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000132() { enc_output_sizes_impl(132); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000133() { enc_output_sizes_impl(133); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000134() { enc_output_sizes_impl(134); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000135() { enc_output_sizes_impl(135); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000136() { enc_output_sizes_impl(136); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000137() { enc_output_sizes_impl(137); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000138() { enc_output_sizes_impl(138); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000139() { enc_output_sizes_impl(139); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000140() { enc_output_sizes_impl(140); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000141() { enc_output_sizes_impl(141); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000142() { enc_output_sizes_impl(142); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000143() { enc_output_sizes_impl(143); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000144() { enc_output_sizes_impl(144); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000145() { enc_output_sizes_impl(145); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000146() { enc_output_sizes_impl(146); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000147() { enc_output_sizes_impl(147); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000148() { enc_output_sizes_impl(148); }
-    #[cfg_attr(test, test)]
-    fn enc_output_sizes_seed_000149() { enc_output_sizes_impl(149); }
+    fn enc_output_sizes_seed_000000() {
+        enc_output_sizes_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000001() {
+        enc_output_sizes_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000002() {
+        enc_output_sizes_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000003() {
+        enc_output_sizes_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000004() {
+        enc_output_sizes_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000005() {
+        enc_output_sizes_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000006() {
+        enc_output_sizes_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000007() {
+        enc_output_sizes_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000008() {
+        enc_output_sizes_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000009() {
+        enc_output_sizes_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000010() {
+        enc_output_sizes_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000011() {
+        enc_output_sizes_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000012() {
+        enc_output_sizes_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000013() {
+        enc_output_sizes_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000014() {
+        enc_output_sizes_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000015() {
+        enc_output_sizes_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000016() {
+        enc_output_sizes_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000017() {
+        enc_output_sizes_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000018() {
+        enc_output_sizes_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000019() {
+        enc_output_sizes_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000020() {
+        enc_output_sizes_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000021() {
+        enc_output_sizes_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000022() {
+        enc_output_sizes_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000023() {
+        enc_output_sizes_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000024() {
+        enc_output_sizes_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000025() {
+        enc_output_sizes_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000026() {
+        enc_output_sizes_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000027() {
+        enc_output_sizes_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000028() {
+        enc_output_sizes_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000029() {
+        enc_output_sizes_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000030() {
+        enc_output_sizes_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000031() {
+        enc_output_sizes_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000032() {
+        enc_output_sizes_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000033() {
+        enc_output_sizes_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000034() {
+        enc_output_sizes_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000035() {
+        enc_output_sizes_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000036() {
+        enc_output_sizes_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000037() {
+        enc_output_sizes_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000038() {
+        enc_output_sizes_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000039() {
+        enc_output_sizes_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000040() {
+        enc_output_sizes_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000041() {
+        enc_output_sizes_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000042() {
+        enc_output_sizes_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000043() {
+        enc_output_sizes_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000044() {
+        enc_output_sizes_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000045() {
+        enc_output_sizes_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000046() {
+        enc_output_sizes_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000047() {
+        enc_output_sizes_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000048() {
+        enc_output_sizes_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000049() {
+        enc_output_sizes_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000050() {
+        enc_output_sizes_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000051() {
+        enc_output_sizes_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000052() {
+        enc_output_sizes_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000053() {
+        enc_output_sizes_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000054() {
+        enc_output_sizes_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000055() {
+        enc_output_sizes_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000056() {
+        enc_output_sizes_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000057() {
+        enc_output_sizes_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000058() {
+        enc_output_sizes_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000059() {
+        enc_output_sizes_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000060() {
+        enc_output_sizes_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000061() {
+        enc_output_sizes_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000062() {
+        enc_output_sizes_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000063() {
+        enc_output_sizes_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000064() {
+        enc_output_sizes_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000065() {
+        enc_output_sizes_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000066() {
+        enc_output_sizes_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000067() {
+        enc_output_sizes_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000068() {
+        enc_output_sizes_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000069() {
+        enc_output_sizes_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000070() {
+        enc_output_sizes_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000071() {
+        enc_output_sizes_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000072() {
+        enc_output_sizes_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000073() {
+        enc_output_sizes_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000074() {
+        enc_output_sizes_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000075() {
+        enc_output_sizes_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000076() {
+        enc_output_sizes_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000077() {
+        enc_output_sizes_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000078() {
+        enc_output_sizes_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000079() {
+        enc_output_sizes_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000080() {
+        enc_output_sizes_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000081() {
+        enc_output_sizes_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000082() {
+        enc_output_sizes_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000083() {
+        enc_output_sizes_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000084() {
+        enc_output_sizes_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000085() {
+        enc_output_sizes_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000086() {
+        enc_output_sizes_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000087() {
+        enc_output_sizes_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000088() {
+        enc_output_sizes_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000089() {
+        enc_output_sizes_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000090() {
+        enc_output_sizes_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000091() {
+        enc_output_sizes_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000092() {
+        enc_output_sizes_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000093() {
+        enc_output_sizes_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000094() {
+        enc_output_sizes_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000095() {
+        enc_output_sizes_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000096() {
+        enc_output_sizes_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000097() {
+        enc_output_sizes_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000098() {
+        enc_output_sizes_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000099() {
+        enc_output_sizes_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000100() {
+        enc_output_sizes_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000101() {
+        enc_output_sizes_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000102() {
+        enc_output_sizes_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000103() {
+        enc_output_sizes_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000104() {
+        enc_output_sizes_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000105() {
+        enc_output_sizes_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000106() {
+        enc_output_sizes_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000107() {
+        enc_output_sizes_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000108() {
+        enc_output_sizes_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000109() {
+        enc_output_sizes_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000110() {
+        enc_output_sizes_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000111() {
+        enc_output_sizes_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000112() {
+        enc_output_sizes_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000113() {
+        enc_output_sizes_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000114() {
+        enc_output_sizes_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000115() {
+        enc_output_sizes_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000116() {
+        enc_output_sizes_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000117() {
+        enc_output_sizes_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000118() {
+        enc_output_sizes_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000119() {
+        enc_output_sizes_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000120() {
+        enc_output_sizes_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000121() {
+        enc_output_sizes_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000122() {
+        enc_output_sizes_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000123() {
+        enc_output_sizes_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000124() {
+        enc_output_sizes_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000125() {
+        enc_output_sizes_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000126() {
+        enc_output_sizes_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000127() {
+        enc_output_sizes_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000128() {
+        enc_output_sizes_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000129() {
+        enc_output_sizes_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000130() {
+        enc_output_sizes_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000131() {
+        enc_output_sizes_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000132() {
+        enc_output_sizes_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000133() {
+        enc_output_sizes_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000134() {
+        enc_output_sizes_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000135() {
+        enc_output_sizes_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000136() {
+        enc_output_sizes_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000137() {
+        enc_output_sizes_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000138() {
+        enc_output_sizes_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000139() {
+        enc_output_sizes_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000140() {
+        enc_output_sizes_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000141() {
+        enc_output_sizes_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000142() {
+        enc_output_sizes_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000143() {
+        enc_output_sizes_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000144() {
+        enc_output_sizes_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000145() {
+        enc_output_sizes_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000146() {
+        enc_output_sizes_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000147() {
+        enc_output_sizes_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000148() {
+        enc_output_sizes_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_output_sizes_seed_000149() {
+        enc_output_sizes_impl(149);
+    }
     // --- enc_clause_indices_in_bounds: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000000() { enc_clause_indices_in_bounds_impl(0); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000001() { enc_clause_indices_in_bounds_impl(1); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000002() { enc_clause_indices_in_bounds_impl(2); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000003() { enc_clause_indices_in_bounds_impl(3); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000004() { enc_clause_indices_in_bounds_impl(4); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000005() { enc_clause_indices_in_bounds_impl(5); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000006() { enc_clause_indices_in_bounds_impl(6); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000007() { enc_clause_indices_in_bounds_impl(7); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000008() { enc_clause_indices_in_bounds_impl(8); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000009() { enc_clause_indices_in_bounds_impl(9); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000010() { enc_clause_indices_in_bounds_impl(10); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000011() { enc_clause_indices_in_bounds_impl(11); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000012() { enc_clause_indices_in_bounds_impl(12); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000013() { enc_clause_indices_in_bounds_impl(13); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000014() { enc_clause_indices_in_bounds_impl(14); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000015() { enc_clause_indices_in_bounds_impl(15); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000016() { enc_clause_indices_in_bounds_impl(16); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000017() { enc_clause_indices_in_bounds_impl(17); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000018() { enc_clause_indices_in_bounds_impl(18); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000019() { enc_clause_indices_in_bounds_impl(19); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000020() { enc_clause_indices_in_bounds_impl(20); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000021() { enc_clause_indices_in_bounds_impl(21); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000022() { enc_clause_indices_in_bounds_impl(22); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000023() { enc_clause_indices_in_bounds_impl(23); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000024() { enc_clause_indices_in_bounds_impl(24); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000025() { enc_clause_indices_in_bounds_impl(25); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000026() { enc_clause_indices_in_bounds_impl(26); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000027() { enc_clause_indices_in_bounds_impl(27); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000028() { enc_clause_indices_in_bounds_impl(28); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000029() { enc_clause_indices_in_bounds_impl(29); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000030() { enc_clause_indices_in_bounds_impl(30); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000031() { enc_clause_indices_in_bounds_impl(31); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000032() { enc_clause_indices_in_bounds_impl(32); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000033() { enc_clause_indices_in_bounds_impl(33); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000034() { enc_clause_indices_in_bounds_impl(34); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000035() { enc_clause_indices_in_bounds_impl(35); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000036() { enc_clause_indices_in_bounds_impl(36); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000037() { enc_clause_indices_in_bounds_impl(37); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000038() { enc_clause_indices_in_bounds_impl(38); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000039() { enc_clause_indices_in_bounds_impl(39); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000040() { enc_clause_indices_in_bounds_impl(40); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000041() { enc_clause_indices_in_bounds_impl(41); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000042() { enc_clause_indices_in_bounds_impl(42); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000043() { enc_clause_indices_in_bounds_impl(43); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000044() { enc_clause_indices_in_bounds_impl(44); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000045() { enc_clause_indices_in_bounds_impl(45); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000046() { enc_clause_indices_in_bounds_impl(46); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000047() { enc_clause_indices_in_bounds_impl(47); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000048() { enc_clause_indices_in_bounds_impl(48); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000049() { enc_clause_indices_in_bounds_impl(49); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000050() { enc_clause_indices_in_bounds_impl(50); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000051() { enc_clause_indices_in_bounds_impl(51); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000052() { enc_clause_indices_in_bounds_impl(52); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000053() { enc_clause_indices_in_bounds_impl(53); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000054() { enc_clause_indices_in_bounds_impl(54); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000055() { enc_clause_indices_in_bounds_impl(55); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000056() { enc_clause_indices_in_bounds_impl(56); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000057() { enc_clause_indices_in_bounds_impl(57); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000058() { enc_clause_indices_in_bounds_impl(58); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000059() { enc_clause_indices_in_bounds_impl(59); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000060() { enc_clause_indices_in_bounds_impl(60); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000061() { enc_clause_indices_in_bounds_impl(61); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000062() { enc_clause_indices_in_bounds_impl(62); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000063() { enc_clause_indices_in_bounds_impl(63); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000064() { enc_clause_indices_in_bounds_impl(64); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000065() { enc_clause_indices_in_bounds_impl(65); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000066() { enc_clause_indices_in_bounds_impl(66); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000067() { enc_clause_indices_in_bounds_impl(67); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000068() { enc_clause_indices_in_bounds_impl(68); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000069() { enc_clause_indices_in_bounds_impl(69); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000070() { enc_clause_indices_in_bounds_impl(70); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000071() { enc_clause_indices_in_bounds_impl(71); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000072() { enc_clause_indices_in_bounds_impl(72); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000073() { enc_clause_indices_in_bounds_impl(73); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000074() { enc_clause_indices_in_bounds_impl(74); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000075() { enc_clause_indices_in_bounds_impl(75); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000076() { enc_clause_indices_in_bounds_impl(76); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000077() { enc_clause_indices_in_bounds_impl(77); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000078() { enc_clause_indices_in_bounds_impl(78); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000079() { enc_clause_indices_in_bounds_impl(79); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000080() { enc_clause_indices_in_bounds_impl(80); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000081() { enc_clause_indices_in_bounds_impl(81); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000082() { enc_clause_indices_in_bounds_impl(82); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000083() { enc_clause_indices_in_bounds_impl(83); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000084() { enc_clause_indices_in_bounds_impl(84); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000085() { enc_clause_indices_in_bounds_impl(85); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000086() { enc_clause_indices_in_bounds_impl(86); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000087() { enc_clause_indices_in_bounds_impl(87); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000088() { enc_clause_indices_in_bounds_impl(88); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000089() { enc_clause_indices_in_bounds_impl(89); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000090() { enc_clause_indices_in_bounds_impl(90); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000091() { enc_clause_indices_in_bounds_impl(91); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000092() { enc_clause_indices_in_bounds_impl(92); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000093() { enc_clause_indices_in_bounds_impl(93); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000094() { enc_clause_indices_in_bounds_impl(94); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000095() { enc_clause_indices_in_bounds_impl(95); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000096() { enc_clause_indices_in_bounds_impl(96); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000097() { enc_clause_indices_in_bounds_impl(97); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000098() { enc_clause_indices_in_bounds_impl(98); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000099() { enc_clause_indices_in_bounds_impl(99); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000100() { enc_clause_indices_in_bounds_impl(100); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000101() { enc_clause_indices_in_bounds_impl(101); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000102() { enc_clause_indices_in_bounds_impl(102); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000103() { enc_clause_indices_in_bounds_impl(103); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000104() { enc_clause_indices_in_bounds_impl(104); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000105() { enc_clause_indices_in_bounds_impl(105); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000106() { enc_clause_indices_in_bounds_impl(106); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000107() { enc_clause_indices_in_bounds_impl(107); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000108() { enc_clause_indices_in_bounds_impl(108); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000109() { enc_clause_indices_in_bounds_impl(109); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000110() { enc_clause_indices_in_bounds_impl(110); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000111() { enc_clause_indices_in_bounds_impl(111); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000112() { enc_clause_indices_in_bounds_impl(112); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000113() { enc_clause_indices_in_bounds_impl(113); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000114() { enc_clause_indices_in_bounds_impl(114); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000115() { enc_clause_indices_in_bounds_impl(115); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000116() { enc_clause_indices_in_bounds_impl(116); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000117() { enc_clause_indices_in_bounds_impl(117); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000118() { enc_clause_indices_in_bounds_impl(118); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000119() { enc_clause_indices_in_bounds_impl(119); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000120() { enc_clause_indices_in_bounds_impl(120); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000121() { enc_clause_indices_in_bounds_impl(121); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000122() { enc_clause_indices_in_bounds_impl(122); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000123() { enc_clause_indices_in_bounds_impl(123); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000124() { enc_clause_indices_in_bounds_impl(124); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000125() { enc_clause_indices_in_bounds_impl(125); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000126() { enc_clause_indices_in_bounds_impl(126); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000127() { enc_clause_indices_in_bounds_impl(127); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000128() { enc_clause_indices_in_bounds_impl(128); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000129() { enc_clause_indices_in_bounds_impl(129); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000130() { enc_clause_indices_in_bounds_impl(130); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000131() { enc_clause_indices_in_bounds_impl(131); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000132() { enc_clause_indices_in_bounds_impl(132); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000133() { enc_clause_indices_in_bounds_impl(133); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000134() { enc_clause_indices_in_bounds_impl(134); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000135() { enc_clause_indices_in_bounds_impl(135); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000136() { enc_clause_indices_in_bounds_impl(136); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000137() { enc_clause_indices_in_bounds_impl(137); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000138() { enc_clause_indices_in_bounds_impl(138); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000139() { enc_clause_indices_in_bounds_impl(139); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000140() { enc_clause_indices_in_bounds_impl(140); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000141() { enc_clause_indices_in_bounds_impl(141); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000142() { enc_clause_indices_in_bounds_impl(142); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000143() { enc_clause_indices_in_bounds_impl(143); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000144() { enc_clause_indices_in_bounds_impl(144); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000145() { enc_clause_indices_in_bounds_impl(145); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000146() { enc_clause_indices_in_bounds_impl(146); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000147() { enc_clause_indices_in_bounds_impl(147); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000148() { enc_clause_indices_in_bounds_impl(148); }
-    #[cfg_attr(test, test)]
-    fn enc_clause_indices_in_bounds_seed_000149() { enc_clause_indices_in_bounds_impl(149); }
+    fn enc_clause_indices_in_bounds_seed_000000() {
+        enc_clause_indices_in_bounds_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000001() {
+        enc_clause_indices_in_bounds_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000002() {
+        enc_clause_indices_in_bounds_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000003() {
+        enc_clause_indices_in_bounds_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000004() {
+        enc_clause_indices_in_bounds_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000005() {
+        enc_clause_indices_in_bounds_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000006() {
+        enc_clause_indices_in_bounds_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000007() {
+        enc_clause_indices_in_bounds_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000008() {
+        enc_clause_indices_in_bounds_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000009() {
+        enc_clause_indices_in_bounds_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000010() {
+        enc_clause_indices_in_bounds_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000011() {
+        enc_clause_indices_in_bounds_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000012() {
+        enc_clause_indices_in_bounds_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000013() {
+        enc_clause_indices_in_bounds_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000014() {
+        enc_clause_indices_in_bounds_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000015() {
+        enc_clause_indices_in_bounds_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000016() {
+        enc_clause_indices_in_bounds_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000017() {
+        enc_clause_indices_in_bounds_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000018() {
+        enc_clause_indices_in_bounds_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000019() {
+        enc_clause_indices_in_bounds_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000020() {
+        enc_clause_indices_in_bounds_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000021() {
+        enc_clause_indices_in_bounds_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000022() {
+        enc_clause_indices_in_bounds_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000023() {
+        enc_clause_indices_in_bounds_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000024() {
+        enc_clause_indices_in_bounds_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000025() {
+        enc_clause_indices_in_bounds_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000026() {
+        enc_clause_indices_in_bounds_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000027() {
+        enc_clause_indices_in_bounds_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000028() {
+        enc_clause_indices_in_bounds_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000029() {
+        enc_clause_indices_in_bounds_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000030() {
+        enc_clause_indices_in_bounds_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000031() {
+        enc_clause_indices_in_bounds_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000032() {
+        enc_clause_indices_in_bounds_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000033() {
+        enc_clause_indices_in_bounds_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000034() {
+        enc_clause_indices_in_bounds_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000035() {
+        enc_clause_indices_in_bounds_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000036() {
+        enc_clause_indices_in_bounds_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000037() {
+        enc_clause_indices_in_bounds_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000038() {
+        enc_clause_indices_in_bounds_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000039() {
+        enc_clause_indices_in_bounds_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000040() {
+        enc_clause_indices_in_bounds_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000041() {
+        enc_clause_indices_in_bounds_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000042() {
+        enc_clause_indices_in_bounds_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000043() {
+        enc_clause_indices_in_bounds_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000044() {
+        enc_clause_indices_in_bounds_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000045() {
+        enc_clause_indices_in_bounds_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000046() {
+        enc_clause_indices_in_bounds_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000047() {
+        enc_clause_indices_in_bounds_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000048() {
+        enc_clause_indices_in_bounds_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000049() {
+        enc_clause_indices_in_bounds_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000050() {
+        enc_clause_indices_in_bounds_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000051() {
+        enc_clause_indices_in_bounds_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000052() {
+        enc_clause_indices_in_bounds_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000053() {
+        enc_clause_indices_in_bounds_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000054() {
+        enc_clause_indices_in_bounds_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000055() {
+        enc_clause_indices_in_bounds_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000056() {
+        enc_clause_indices_in_bounds_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000057() {
+        enc_clause_indices_in_bounds_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000058() {
+        enc_clause_indices_in_bounds_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000059() {
+        enc_clause_indices_in_bounds_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000060() {
+        enc_clause_indices_in_bounds_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000061() {
+        enc_clause_indices_in_bounds_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000062() {
+        enc_clause_indices_in_bounds_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000063() {
+        enc_clause_indices_in_bounds_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000064() {
+        enc_clause_indices_in_bounds_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000065() {
+        enc_clause_indices_in_bounds_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000066() {
+        enc_clause_indices_in_bounds_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000067() {
+        enc_clause_indices_in_bounds_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000068() {
+        enc_clause_indices_in_bounds_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000069() {
+        enc_clause_indices_in_bounds_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000070() {
+        enc_clause_indices_in_bounds_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000071() {
+        enc_clause_indices_in_bounds_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000072() {
+        enc_clause_indices_in_bounds_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000073() {
+        enc_clause_indices_in_bounds_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000074() {
+        enc_clause_indices_in_bounds_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000075() {
+        enc_clause_indices_in_bounds_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000076() {
+        enc_clause_indices_in_bounds_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000077() {
+        enc_clause_indices_in_bounds_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000078() {
+        enc_clause_indices_in_bounds_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000079() {
+        enc_clause_indices_in_bounds_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000080() {
+        enc_clause_indices_in_bounds_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000081() {
+        enc_clause_indices_in_bounds_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000082() {
+        enc_clause_indices_in_bounds_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000083() {
+        enc_clause_indices_in_bounds_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000084() {
+        enc_clause_indices_in_bounds_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000085() {
+        enc_clause_indices_in_bounds_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000086() {
+        enc_clause_indices_in_bounds_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000087() {
+        enc_clause_indices_in_bounds_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000088() {
+        enc_clause_indices_in_bounds_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000089() {
+        enc_clause_indices_in_bounds_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000090() {
+        enc_clause_indices_in_bounds_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000091() {
+        enc_clause_indices_in_bounds_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000092() {
+        enc_clause_indices_in_bounds_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000093() {
+        enc_clause_indices_in_bounds_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000094() {
+        enc_clause_indices_in_bounds_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000095() {
+        enc_clause_indices_in_bounds_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000096() {
+        enc_clause_indices_in_bounds_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000097() {
+        enc_clause_indices_in_bounds_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000098() {
+        enc_clause_indices_in_bounds_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000099() {
+        enc_clause_indices_in_bounds_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000100() {
+        enc_clause_indices_in_bounds_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000101() {
+        enc_clause_indices_in_bounds_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000102() {
+        enc_clause_indices_in_bounds_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000103() {
+        enc_clause_indices_in_bounds_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000104() {
+        enc_clause_indices_in_bounds_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000105() {
+        enc_clause_indices_in_bounds_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000106() {
+        enc_clause_indices_in_bounds_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000107() {
+        enc_clause_indices_in_bounds_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000108() {
+        enc_clause_indices_in_bounds_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000109() {
+        enc_clause_indices_in_bounds_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000110() {
+        enc_clause_indices_in_bounds_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000111() {
+        enc_clause_indices_in_bounds_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000112() {
+        enc_clause_indices_in_bounds_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000113() {
+        enc_clause_indices_in_bounds_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000114() {
+        enc_clause_indices_in_bounds_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000115() {
+        enc_clause_indices_in_bounds_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000116() {
+        enc_clause_indices_in_bounds_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000117() {
+        enc_clause_indices_in_bounds_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000118() {
+        enc_clause_indices_in_bounds_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000119() {
+        enc_clause_indices_in_bounds_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000120() {
+        enc_clause_indices_in_bounds_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000121() {
+        enc_clause_indices_in_bounds_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000122() {
+        enc_clause_indices_in_bounds_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000123() {
+        enc_clause_indices_in_bounds_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000124() {
+        enc_clause_indices_in_bounds_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000125() {
+        enc_clause_indices_in_bounds_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000126() {
+        enc_clause_indices_in_bounds_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000127() {
+        enc_clause_indices_in_bounds_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000128() {
+        enc_clause_indices_in_bounds_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000129() {
+        enc_clause_indices_in_bounds_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000130() {
+        enc_clause_indices_in_bounds_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000131() {
+        enc_clause_indices_in_bounds_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000132() {
+        enc_clause_indices_in_bounds_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000133() {
+        enc_clause_indices_in_bounds_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000134() {
+        enc_clause_indices_in_bounds_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000135() {
+        enc_clause_indices_in_bounds_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000136() {
+        enc_clause_indices_in_bounds_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000137() {
+        enc_clause_indices_in_bounds_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000138() {
+        enc_clause_indices_in_bounds_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000139() {
+        enc_clause_indices_in_bounds_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000140() {
+        enc_clause_indices_in_bounds_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000141() {
+        enc_clause_indices_in_bounds_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000142() {
+        enc_clause_indices_in_bounds_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000143() {
+        enc_clause_indices_in_bounds_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000144() {
+        enc_clause_indices_in_bounds_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000145() {
+        enc_clause_indices_in_bounds_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000146() {
+        enc_clause_indices_in_bounds_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000147() {
+        enc_clause_indices_in_bounds_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000148() {
+        enc_clause_indices_in_bounds_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_clause_indices_in_bounds_seed_000149() {
+        enc_clause_indices_in_bounds_impl(149);
+    }
     // --- enc_no_empty_clauses: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000000() { enc_no_empty_clauses_impl(0); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000001() { enc_no_empty_clauses_impl(1); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000002() { enc_no_empty_clauses_impl(2); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000003() { enc_no_empty_clauses_impl(3); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000004() { enc_no_empty_clauses_impl(4); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000005() { enc_no_empty_clauses_impl(5); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000006() { enc_no_empty_clauses_impl(6); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000007() { enc_no_empty_clauses_impl(7); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000008() { enc_no_empty_clauses_impl(8); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000009() { enc_no_empty_clauses_impl(9); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000010() { enc_no_empty_clauses_impl(10); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000011() { enc_no_empty_clauses_impl(11); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000012() { enc_no_empty_clauses_impl(12); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000013() { enc_no_empty_clauses_impl(13); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000014() { enc_no_empty_clauses_impl(14); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000015() { enc_no_empty_clauses_impl(15); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000016() { enc_no_empty_clauses_impl(16); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000017() { enc_no_empty_clauses_impl(17); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000018() { enc_no_empty_clauses_impl(18); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000019() { enc_no_empty_clauses_impl(19); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000020() { enc_no_empty_clauses_impl(20); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000021() { enc_no_empty_clauses_impl(21); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000022() { enc_no_empty_clauses_impl(22); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000023() { enc_no_empty_clauses_impl(23); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000024() { enc_no_empty_clauses_impl(24); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000025() { enc_no_empty_clauses_impl(25); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000026() { enc_no_empty_clauses_impl(26); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000027() { enc_no_empty_clauses_impl(27); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000028() { enc_no_empty_clauses_impl(28); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000029() { enc_no_empty_clauses_impl(29); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000030() { enc_no_empty_clauses_impl(30); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000031() { enc_no_empty_clauses_impl(31); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000032() { enc_no_empty_clauses_impl(32); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000033() { enc_no_empty_clauses_impl(33); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000034() { enc_no_empty_clauses_impl(34); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000035() { enc_no_empty_clauses_impl(35); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000036() { enc_no_empty_clauses_impl(36); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000037() { enc_no_empty_clauses_impl(37); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000038() { enc_no_empty_clauses_impl(38); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000039() { enc_no_empty_clauses_impl(39); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000040() { enc_no_empty_clauses_impl(40); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000041() { enc_no_empty_clauses_impl(41); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000042() { enc_no_empty_clauses_impl(42); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000043() { enc_no_empty_clauses_impl(43); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000044() { enc_no_empty_clauses_impl(44); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000045() { enc_no_empty_clauses_impl(45); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000046() { enc_no_empty_clauses_impl(46); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000047() { enc_no_empty_clauses_impl(47); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000048() { enc_no_empty_clauses_impl(48); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000049() { enc_no_empty_clauses_impl(49); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000050() { enc_no_empty_clauses_impl(50); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000051() { enc_no_empty_clauses_impl(51); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000052() { enc_no_empty_clauses_impl(52); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000053() { enc_no_empty_clauses_impl(53); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000054() { enc_no_empty_clauses_impl(54); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000055() { enc_no_empty_clauses_impl(55); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000056() { enc_no_empty_clauses_impl(56); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000057() { enc_no_empty_clauses_impl(57); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000058() { enc_no_empty_clauses_impl(58); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000059() { enc_no_empty_clauses_impl(59); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000060() { enc_no_empty_clauses_impl(60); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000061() { enc_no_empty_clauses_impl(61); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000062() { enc_no_empty_clauses_impl(62); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000063() { enc_no_empty_clauses_impl(63); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000064() { enc_no_empty_clauses_impl(64); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000065() { enc_no_empty_clauses_impl(65); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000066() { enc_no_empty_clauses_impl(66); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000067() { enc_no_empty_clauses_impl(67); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000068() { enc_no_empty_clauses_impl(68); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000069() { enc_no_empty_clauses_impl(69); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000070() { enc_no_empty_clauses_impl(70); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000071() { enc_no_empty_clauses_impl(71); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000072() { enc_no_empty_clauses_impl(72); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000073() { enc_no_empty_clauses_impl(73); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000074() { enc_no_empty_clauses_impl(74); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000075() { enc_no_empty_clauses_impl(75); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000076() { enc_no_empty_clauses_impl(76); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000077() { enc_no_empty_clauses_impl(77); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000078() { enc_no_empty_clauses_impl(78); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000079() { enc_no_empty_clauses_impl(79); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000080() { enc_no_empty_clauses_impl(80); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000081() { enc_no_empty_clauses_impl(81); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000082() { enc_no_empty_clauses_impl(82); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000083() { enc_no_empty_clauses_impl(83); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000084() { enc_no_empty_clauses_impl(84); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000085() { enc_no_empty_clauses_impl(85); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000086() { enc_no_empty_clauses_impl(86); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000087() { enc_no_empty_clauses_impl(87); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000088() { enc_no_empty_clauses_impl(88); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000089() { enc_no_empty_clauses_impl(89); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000090() { enc_no_empty_clauses_impl(90); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000091() { enc_no_empty_clauses_impl(91); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000092() { enc_no_empty_clauses_impl(92); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000093() { enc_no_empty_clauses_impl(93); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000094() { enc_no_empty_clauses_impl(94); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000095() { enc_no_empty_clauses_impl(95); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000096() { enc_no_empty_clauses_impl(96); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000097() { enc_no_empty_clauses_impl(97); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000098() { enc_no_empty_clauses_impl(98); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000099() { enc_no_empty_clauses_impl(99); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000100() { enc_no_empty_clauses_impl(100); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000101() { enc_no_empty_clauses_impl(101); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000102() { enc_no_empty_clauses_impl(102); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000103() { enc_no_empty_clauses_impl(103); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000104() { enc_no_empty_clauses_impl(104); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000105() { enc_no_empty_clauses_impl(105); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000106() { enc_no_empty_clauses_impl(106); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000107() { enc_no_empty_clauses_impl(107); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000108() { enc_no_empty_clauses_impl(108); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000109() { enc_no_empty_clauses_impl(109); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000110() { enc_no_empty_clauses_impl(110); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000111() { enc_no_empty_clauses_impl(111); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000112() { enc_no_empty_clauses_impl(112); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000113() { enc_no_empty_clauses_impl(113); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000114() { enc_no_empty_clauses_impl(114); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000115() { enc_no_empty_clauses_impl(115); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000116() { enc_no_empty_clauses_impl(116); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000117() { enc_no_empty_clauses_impl(117); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000118() { enc_no_empty_clauses_impl(118); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000119() { enc_no_empty_clauses_impl(119); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000120() { enc_no_empty_clauses_impl(120); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000121() { enc_no_empty_clauses_impl(121); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000122() { enc_no_empty_clauses_impl(122); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000123() { enc_no_empty_clauses_impl(123); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000124() { enc_no_empty_clauses_impl(124); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000125() { enc_no_empty_clauses_impl(125); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000126() { enc_no_empty_clauses_impl(126); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000127() { enc_no_empty_clauses_impl(127); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000128() { enc_no_empty_clauses_impl(128); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000129() { enc_no_empty_clauses_impl(129); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000130() { enc_no_empty_clauses_impl(130); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000131() { enc_no_empty_clauses_impl(131); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000132() { enc_no_empty_clauses_impl(132); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000133() { enc_no_empty_clauses_impl(133); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000134() { enc_no_empty_clauses_impl(134); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000135() { enc_no_empty_clauses_impl(135); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000136() { enc_no_empty_clauses_impl(136); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000137() { enc_no_empty_clauses_impl(137); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000138() { enc_no_empty_clauses_impl(138); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000139() { enc_no_empty_clauses_impl(139); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000140() { enc_no_empty_clauses_impl(140); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000141() { enc_no_empty_clauses_impl(141); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000142() { enc_no_empty_clauses_impl(142); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000143() { enc_no_empty_clauses_impl(143); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000144() { enc_no_empty_clauses_impl(144); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000145() { enc_no_empty_clauses_impl(145); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000146() { enc_no_empty_clauses_impl(146); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000147() { enc_no_empty_clauses_impl(147); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000148() { enc_no_empty_clauses_impl(148); }
-    #[cfg_attr(test, test)]
-    fn enc_no_empty_clauses_seed_000149() { enc_no_empty_clauses_impl(149); }
+    fn enc_no_empty_clauses_seed_000000() {
+        enc_no_empty_clauses_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000001() {
+        enc_no_empty_clauses_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000002() {
+        enc_no_empty_clauses_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000003() {
+        enc_no_empty_clauses_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000004() {
+        enc_no_empty_clauses_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000005() {
+        enc_no_empty_clauses_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000006() {
+        enc_no_empty_clauses_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000007() {
+        enc_no_empty_clauses_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000008() {
+        enc_no_empty_clauses_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000009() {
+        enc_no_empty_clauses_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000010() {
+        enc_no_empty_clauses_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000011() {
+        enc_no_empty_clauses_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000012() {
+        enc_no_empty_clauses_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000013() {
+        enc_no_empty_clauses_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000014() {
+        enc_no_empty_clauses_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000015() {
+        enc_no_empty_clauses_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000016() {
+        enc_no_empty_clauses_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000017() {
+        enc_no_empty_clauses_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000018() {
+        enc_no_empty_clauses_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000019() {
+        enc_no_empty_clauses_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000020() {
+        enc_no_empty_clauses_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000021() {
+        enc_no_empty_clauses_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000022() {
+        enc_no_empty_clauses_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000023() {
+        enc_no_empty_clauses_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000024() {
+        enc_no_empty_clauses_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000025() {
+        enc_no_empty_clauses_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000026() {
+        enc_no_empty_clauses_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000027() {
+        enc_no_empty_clauses_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000028() {
+        enc_no_empty_clauses_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000029() {
+        enc_no_empty_clauses_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000030() {
+        enc_no_empty_clauses_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000031() {
+        enc_no_empty_clauses_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000032() {
+        enc_no_empty_clauses_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000033() {
+        enc_no_empty_clauses_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000034() {
+        enc_no_empty_clauses_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000035() {
+        enc_no_empty_clauses_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000036() {
+        enc_no_empty_clauses_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000037() {
+        enc_no_empty_clauses_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000038() {
+        enc_no_empty_clauses_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000039() {
+        enc_no_empty_clauses_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000040() {
+        enc_no_empty_clauses_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000041() {
+        enc_no_empty_clauses_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000042() {
+        enc_no_empty_clauses_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000043() {
+        enc_no_empty_clauses_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000044() {
+        enc_no_empty_clauses_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000045() {
+        enc_no_empty_clauses_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000046() {
+        enc_no_empty_clauses_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000047() {
+        enc_no_empty_clauses_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000048() {
+        enc_no_empty_clauses_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000049() {
+        enc_no_empty_clauses_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000050() {
+        enc_no_empty_clauses_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000051() {
+        enc_no_empty_clauses_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000052() {
+        enc_no_empty_clauses_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000053() {
+        enc_no_empty_clauses_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000054() {
+        enc_no_empty_clauses_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000055() {
+        enc_no_empty_clauses_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000056() {
+        enc_no_empty_clauses_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000057() {
+        enc_no_empty_clauses_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000058() {
+        enc_no_empty_clauses_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000059() {
+        enc_no_empty_clauses_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000060() {
+        enc_no_empty_clauses_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000061() {
+        enc_no_empty_clauses_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000062() {
+        enc_no_empty_clauses_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000063() {
+        enc_no_empty_clauses_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000064() {
+        enc_no_empty_clauses_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000065() {
+        enc_no_empty_clauses_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000066() {
+        enc_no_empty_clauses_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000067() {
+        enc_no_empty_clauses_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000068() {
+        enc_no_empty_clauses_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000069() {
+        enc_no_empty_clauses_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000070() {
+        enc_no_empty_clauses_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000071() {
+        enc_no_empty_clauses_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000072() {
+        enc_no_empty_clauses_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000073() {
+        enc_no_empty_clauses_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000074() {
+        enc_no_empty_clauses_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000075() {
+        enc_no_empty_clauses_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000076() {
+        enc_no_empty_clauses_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000077() {
+        enc_no_empty_clauses_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000078() {
+        enc_no_empty_clauses_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000079() {
+        enc_no_empty_clauses_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000080() {
+        enc_no_empty_clauses_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000081() {
+        enc_no_empty_clauses_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000082() {
+        enc_no_empty_clauses_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000083() {
+        enc_no_empty_clauses_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000084() {
+        enc_no_empty_clauses_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000085() {
+        enc_no_empty_clauses_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000086() {
+        enc_no_empty_clauses_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000087() {
+        enc_no_empty_clauses_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000088() {
+        enc_no_empty_clauses_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000089() {
+        enc_no_empty_clauses_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000090() {
+        enc_no_empty_clauses_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000091() {
+        enc_no_empty_clauses_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000092() {
+        enc_no_empty_clauses_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000093() {
+        enc_no_empty_clauses_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000094() {
+        enc_no_empty_clauses_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000095() {
+        enc_no_empty_clauses_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000096() {
+        enc_no_empty_clauses_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000097() {
+        enc_no_empty_clauses_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000098() {
+        enc_no_empty_clauses_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000099() {
+        enc_no_empty_clauses_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000100() {
+        enc_no_empty_clauses_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000101() {
+        enc_no_empty_clauses_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000102() {
+        enc_no_empty_clauses_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000103() {
+        enc_no_empty_clauses_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000104() {
+        enc_no_empty_clauses_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000105() {
+        enc_no_empty_clauses_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000106() {
+        enc_no_empty_clauses_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000107() {
+        enc_no_empty_clauses_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000108() {
+        enc_no_empty_clauses_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000109() {
+        enc_no_empty_clauses_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000110() {
+        enc_no_empty_clauses_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000111() {
+        enc_no_empty_clauses_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000112() {
+        enc_no_empty_clauses_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000113() {
+        enc_no_empty_clauses_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000114() {
+        enc_no_empty_clauses_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000115() {
+        enc_no_empty_clauses_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000116() {
+        enc_no_empty_clauses_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000117() {
+        enc_no_empty_clauses_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000118() {
+        enc_no_empty_clauses_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000119() {
+        enc_no_empty_clauses_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000120() {
+        enc_no_empty_clauses_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000121() {
+        enc_no_empty_clauses_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000122() {
+        enc_no_empty_clauses_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000123() {
+        enc_no_empty_clauses_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000124() {
+        enc_no_empty_clauses_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000125() {
+        enc_no_empty_clauses_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000126() {
+        enc_no_empty_clauses_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000127() {
+        enc_no_empty_clauses_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000128() {
+        enc_no_empty_clauses_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000129() {
+        enc_no_empty_clauses_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000130() {
+        enc_no_empty_clauses_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000131() {
+        enc_no_empty_clauses_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000132() {
+        enc_no_empty_clauses_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000133() {
+        enc_no_empty_clauses_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000134() {
+        enc_no_empty_clauses_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000135() {
+        enc_no_empty_clauses_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000136() {
+        enc_no_empty_clauses_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000137() {
+        enc_no_empty_clauses_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000138() {
+        enc_no_empty_clauses_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000139() {
+        enc_no_empty_clauses_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000140() {
+        enc_no_empty_clauses_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000141() {
+        enc_no_empty_clauses_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000142() {
+        enc_no_empty_clauses_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000143() {
+        enc_no_empty_clauses_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000144() {
+        enc_no_empty_clauses_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000145() {
+        enc_no_empty_clauses_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000146() {
+        enc_no_empty_clauses_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000147() {
+        enc_no_empty_clauses_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000148() {
+        enc_no_empty_clauses_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_empty_clauses_seed_000149() {
+        enc_no_empty_clauses_impl(149);
+    }
     // --- enc_no_tautological_clause: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000000() { enc_no_tautological_clause_impl(0); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000001() { enc_no_tautological_clause_impl(1); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000002() { enc_no_tautological_clause_impl(2); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000003() { enc_no_tautological_clause_impl(3); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000004() { enc_no_tautological_clause_impl(4); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000005() { enc_no_tautological_clause_impl(5); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000006() { enc_no_tautological_clause_impl(6); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000007() { enc_no_tautological_clause_impl(7); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000008() { enc_no_tautological_clause_impl(8); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000009() { enc_no_tautological_clause_impl(9); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000010() { enc_no_tautological_clause_impl(10); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000011() { enc_no_tautological_clause_impl(11); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000012() { enc_no_tautological_clause_impl(12); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000013() { enc_no_tautological_clause_impl(13); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000014() { enc_no_tautological_clause_impl(14); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000015() { enc_no_tautological_clause_impl(15); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000016() { enc_no_tautological_clause_impl(16); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000017() { enc_no_tautological_clause_impl(17); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000018() { enc_no_tautological_clause_impl(18); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000019() { enc_no_tautological_clause_impl(19); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000020() { enc_no_tautological_clause_impl(20); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000021() { enc_no_tautological_clause_impl(21); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000022() { enc_no_tautological_clause_impl(22); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000023() { enc_no_tautological_clause_impl(23); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000024() { enc_no_tautological_clause_impl(24); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000025() { enc_no_tautological_clause_impl(25); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000026() { enc_no_tautological_clause_impl(26); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000027() { enc_no_tautological_clause_impl(27); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000028() { enc_no_tautological_clause_impl(28); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000029() { enc_no_tautological_clause_impl(29); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000030() { enc_no_tautological_clause_impl(30); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000031() { enc_no_tautological_clause_impl(31); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000032() { enc_no_tautological_clause_impl(32); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000033() { enc_no_tautological_clause_impl(33); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000034() { enc_no_tautological_clause_impl(34); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000035() { enc_no_tautological_clause_impl(35); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000036() { enc_no_tautological_clause_impl(36); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000037() { enc_no_tautological_clause_impl(37); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000038() { enc_no_tautological_clause_impl(38); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000039() { enc_no_tautological_clause_impl(39); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000040() { enc_no_tautological_clause_impl(40); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000041() { enc_no_tautological_clause_impl(41); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000042() { enc_no_tautological_clause_impl(42); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000043() { enc_no_tautological_clause_impl(43); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000044() { enc_no_tautological_clause_impl(44); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000045() { enc_no_tautological_clause_impl(45); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000046() { enc_no_tautological_clause_impl(46); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000047() { enc_no_tautological_clause_impl(47); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000048() { enc_no_tautological_clause_impl(48); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000049() { enc_no_tautological_clause_impl(49); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000050() { enc_no_tautological_clause_impl(50); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000051() { enc_no_tautological_clause_impl(51); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000052() { enc_no_tautological_clause_impl(52); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000053() { enc_no_tautological_clause_impl(53); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000054() { enc_no_tautological_clause_impl(54); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000055() { enc_no_tautological_clause_impl(55); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000056() { enc_no_tautological_clause_impl(56); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000057() { enc_no_tautological_clause_impl(57); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000058() { enc_no_tautological_clause_impl(58); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000059() { enc_no_tautological_clause_impl(59); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000060() { enc_no_tautological_clause_impl(60); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000061() { enc_no_tautological_clause_impl(61); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000062() { enc_no_tautological_clause_impl(62); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000063() { enc_no_tautological_clause_impl(63); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000064() { enc_no_tautological_clause_impl(64); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000065() { enc_no_tautological_clause_impl(65); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000066() { enc_no_tautological_clause_impl(66); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000067() { enc_no_tautological_clause_impl(67); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000068() { enc_no_tautological_clause_impl(68); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000069() { enc_no_tautological_clause_impl(69); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000070() { enc_no_tautological_clause_impl(70); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000071() { enc_no_tautological_clause_impl(71); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000072() { enc_no_tautological_clause_impl(72); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000073() { enc_no_tautological_clause_impl(73); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000074() { enc_no_tautological_clause_impl(74); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000075() { enc_no_tautological_clause_impl(75); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000076() { enc_no_tautological_clause_impl(76); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000077() { enc_no_tautological_clause_impl(77); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000078() { enc_no_tautological_clause_impl(78); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000079() { enc_no_tautological_clause_impl(79); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000080() { enc_no_tautological_clause_impl(80); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000081() { enc_no_tautological_clause_impl(81); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000082() { enc_no_tautological_clause_impl(82); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000083() { enc_no_tautological_clause_impl(83); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000084() { enc_no_tautological_clause_impl(84); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000085() { enc_no_tautological_clause_impl(85); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000086() { enc_no_tautological_clause_impl(86); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000087() { enc_no_tautological_clause_impl(87); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000088() { enc_no_tautological_clause_impl(88); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000089() { enc_no_tautological_clause_impl(89); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000090() { enc_no_tautological_clause_impl(90); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000091() { enc_no_tautological_clause_impl(91); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000092() { enc_no_tautological_clause_impl(92); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000093() { enc_no_tautological_clause_impl(93); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000094() { enc_no_tautological_clause_impl(94); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000095() { enc_no_tautological_clause_impl(95); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000096() { enc_no_tautological_clause_impl(96); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000097() { enc_no_tautological_clause_impl(97); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000098() { enc_no_tautological_clause_impl(98); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000099() { enc_no_tautological_clause_impl(99); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000100() { enc_no_tautological_clause_impl(100); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000101() { enc_no_tautological_clause_impl(101); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000102() { enc_no_tautological_clause_impl(102); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000103() { enc_no_tautological_clause_impl(103); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000104() { enc_no_tautological_clause_impl(104); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000105() { enc_no_tautological_clause_impl(105); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000106() { enc_no_tautological_clause_impl(106); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000107() { enc_no_tautological_clause_impl(107); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000108() { enc_no_tautological_clause_impl(108); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000109() { enc_no_tautological_clause_impl(109); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000110() { enc_no_tautological_clause_impl(110); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000111() { enc_no_tautological_clause_impl(111); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000112() { enc_no_tautological_clause_impl(112); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000113() { enc_no_tautological_clause_impl(113); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000114() { enc_no_tautological_clause_impl(114); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000115() { enc_no_tautological_clause_impl(115); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000116() { enc_no_tautological_clause_impl(116); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000117() { enc_no_tautological_clause_impl(117); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000118() { enc_no_tautological_clause_impl(118); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000119() { enc_no_tautological_clause_impl(119); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000120() { enc_no_tautological_clause_impl(120); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000121() { enc_no_tautological_clause_impl(121); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000122() { enc_no_tautological_clause_impl(122); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000123() { enc_no_tautological_clause_impl(123); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000124() { enc_no_tautological_clause_impl(124); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000125() { enc_no_tautological_clause_impl(125); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000126() { enc_no_tautological_clause_impl(126); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000127() { enc_no_tautological_clause_impl(127); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000128() { enc_no_tautological_clause_impl(128); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000129() { enc_no_tautological_clause_impl(129); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000130() { enc_no_tautological_clause_impl(130); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000131() { enc_no_tautological_clause_impl(131); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000132() { enc_no_tautological_clause_impl(132); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000133() { enc_no_tautological_clause_impl(133); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000134() { enc_no_tautological_clause_impl(134); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000135() { enc_no_tautological_clause_impl(135); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000136() { enc_no_tautological_clause_impl(136); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000137() { enc_no_tautological_clause_impl(137); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000138() { enc_no_tautological_clause_impl(138); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000139() { enc_no_tautological_clause_impl(139); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000140() { enc_no_tautological_clause_impl(140); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000141() { enc_no_tautological_clause_impl(141); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000142() { enc_no_tautological_clause_impl(142); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000143() { enc_no_tautological_clause_impl(143); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000144() { enc_no_tautological_clause_impl(144); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000145() { enc_no_tautological_clause_impl(145); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000146() { enc_no_tautological_clause_impl(146); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000147() { enc_no_tautological_clause_impl(147); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000148() { enc_no_tautological_clause_impl(148); }
-    #[cfg_attr(test, test)]
-    fn enc_no_tautological_clause_seed_000149() { enc_no_tautological_clause_impl(149); }
+    fn enc_no_tautological_clause_seed_000000() {
+        enc_no_tautological_clause_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000001() {
+        enc_no_tautological_clause_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000002() {
+        enc_no_tautological_clause_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000003() {
+        enc_no_tautological_clause_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000004() {
+        enc_no_tautological_clause_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000005() {
+        enc_no_tautological_clause_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000006() {
+        enc_no_tautological_clause_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000007() {
+        enc_no_tautological_clause_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000008() {
+        enc_no_tautological_clause_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000009() {
+        enc_no_tautological_clause_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000010() {
+        enc_no_tautological_clause_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000011() {
+        enc_no_tautological_clause_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000012() {
+        enc_no_tautological_clause_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000013() {
+        enc_no_tautological_clause_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000014() {
+        enc_no_tautological_clause_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000015() {
+        enc_no_tautological_clause_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000016() {
+        enc_no_tautological_clause_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000017() {
+        enc_no_tautological_clause_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000018() {
+        enc_no_tautological_clause_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000019() {
+        enc_no_tautological_clause_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000020() {
+        enc_no_tautological_clause_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000021() {
+        enc_no_tautological_clause_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000022() {
+        enc_no_tautological_clause_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000023() {
+        enc_no_tautological_clause_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000024() {
+        enc_no_tautological_clause_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000025() {
+        enc_no_tautological_clause_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000026() {
+        enc_no_tautological_clause_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000027() {
+        enc_no_tautological_clause_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000028() {
+        enc_no_tautological_clause_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000029() {
+        enc_no_tautological_clause_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000030() {
+        enc_no_tautological_clause_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000031() {
+        enc_no_tautological_clause_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000032() {
+        enc_no_tautological_clause_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000033() {
+        enc_no_tautological_clause_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000034() {
+        enc_no_tautological_clause_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000035() {
+        enc_no_tautological_clause_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000036() {
+        enc_no_tautological_clause_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000037() {
+        enc_no_tautological_clause_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000038() {
+        enc_no_tautological_clause_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000039() {
+        enc_no_tautological_clause_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000040() {
+        enc_no_tautological_clause_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000041() {
+        enc_no_tautological_clause_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000042() {
+        enc_no_tautological_clause_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000043() {
+        enc_no_tautological_clause_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000044() {
+        enc_no_tautological_clause_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000045() {
+        enc_no_tautological_clause_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000046() {
+        enc_no_tautological_clause_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000047() {
+        enc_no_tautological_clause_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000048() {
+        enc_no_tautological_clause_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000049() {
+        enc_no_tautological_clause_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000050() {
+        enc_no_tautological_clause_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000051() {
+        enc_no_tautological_clause_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000052() {
+        enc_no_tautological_clause_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000053() {
+        enc_no_tautological_clause_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000054() {
+        enc_no_tautological_clause_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000055() {
+        enc_no_tautological_clause_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000056() {
+        enc_no_tautological_clause_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000057() {
+        enc_no_tautological_clause_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000058() {
+        enc_no_tautological_clause_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000059() {
+        enc_no_tautological_clause_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000060() {
+        enc_no_tautological_clause_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000061() {
+        enc_no_tautological_clause_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000062() {
+        enc_no_tautological_clause_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000063() {
+        enc_no_tautological_clause_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000064() {
+        enc_no_tautological_clause_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000065() {
+        enc_no_tautological_clause_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000066() {
+        enc_no_tautological_clause_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000067() {
+        enc_no_tautological_clause_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000068() {
+        enc_no_tautological_clause_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000069() {
+        enc_no_tautological_clause_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000070() {
+        enc_no_tautological_clause_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000071() {
+        enc_no_tautological_clause_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000072() {
+        enc_no_tautological_clause_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000073() {
+        enc_no_tautological_clause_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000074() {
+        enc_no_tautological_clause_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000075() {
+        enc_no_tautological_clause_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000076() {
+        enc_no_tautological_clause_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000077() {
+        enc_no_tautological_clause_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000078() {
+        enc_no_tautological_clause_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000079() {
+        enc_no_tautological_clause_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000080() {
+        enc_no_tautological_clause_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000081() {
+        enc_no_tautological_clause_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000082() {
+        enc_no_tautological_clause_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000083() {
+        enc_no_tautological_clause_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000084() {
+        enc_no_tautological_clause_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000085() {
+        enc_no_tautological_clause_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000086() {
+        enc_no_tautological_clause_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000087() {
+        enc_no_tautological_clause_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000088() {
+        enc_no_tautological_clause_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000089() {
+        enc_no_tautological_clause_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000090() {
+        enc_no_tautological_clause_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000091() {
+        enc_no_tautological_clause_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000092() {
+        enc_no_tautological_clause_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000093() {
+        enc_no_tautological_clause_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000094() {
+        enc_no_tautological_clause_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000095() {
+        enc_no_tautological_clause_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000096() {
+        enc_no_tautological_clause_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000097() {
+        enc_no_tautological_clause_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000098() {
+        enc_no_tautological_clause_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000099() {
+        enc_no_tautological_clause_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000100() {
+        enc_no_tautological_clause_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000101() {
+        enc_no_tautological_clause_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000102() {
+        enc_no_tautological_clause_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000103() {
+        enc_no_tautological_clause_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000104() {
+        enc_no_tautological_clause_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000105() {
+        enc_no_tautological_clause_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000106() {
+        enc_no_tautological_clause_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000107() {
+        enc_no_tautological_clause_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000108() {
+        enc_no_tautological_clause_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000109() {
+        enc_no_tautological_clause_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000110() {
+        enc_no_tautological_clause_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000111() {
+        enc_no_tautological_clause_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000112() {
+        enc_no_tautological_clause_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000113() {
+        enc_no_tautological_clause_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000114() {
+        enc_no_tautological_clause_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000115() {
+        enc_no_tautological_clause_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000116() {
+        enc_no_tautological_clause_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000117() {
+        enc_no_tautological_clause_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000118() {
+        enc_no_tautological_clause_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000119() {
+        enc_no_tautological_clause_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000120() {
+        enc_no_tautological_clause_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000121() {
+        enc_no_tautological_clause_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000122() {
+        enc_no_tautological_clause_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000123() {
+        enc_no_tautological_clause_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000124() {
+        enc_no_tautological_clause_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000125() {
+        enc_no_tautological_clause_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000126() {
+        enc_no_tautological_clause_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000127() {
+        enc_no_tautological_clause_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000128() {
+        enc_no_tautological_clause_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000129() {
+        enc_no_tautological_clause_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000130() {
+        enc_no_tautological_clause_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000131() {
+        enc_no_tautological_clause_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000132() {
+        enc_no_tautological_clause_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000133() {
+        enc_no_tautological_clause_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000134() {
+        enc_no_tautological_clause_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000135() {
+        enc_no_tautological_clause_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000136() {
+        enc_no_tautological_clause_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000137() {
+        enc_no_tautological_clause_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000138() {
+        enc_no_tautological_clause_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000139() {
+        enc_no_tautological_clause_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000140() {
+        enc_no_tautological_clause_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000141() {
+        enc_no_tautological_clause_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000142() {
+        enc_no_tautological_clause_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000143() {
+        enc_no_tautological_clause_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000144() {
+        enc_no_tautological_clause_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000145() {
+        enc_no_tautological_clause_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000146() {
+        enc_no_tautological_clause_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000147() {
+        enc_no_tautological_clause_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000148() {
+        enc_no_tautological_clause_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_no_tautological_clause_seed_000149() {
+        enc_no_tautological_clause_impl(149);
+    }
     // --- enc_empty_constraints_no_clauses: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000000() { enc_empty_constraints_no_clauses_impl(0); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000001() { enc_empty_constraints_no_clauses_impl(1); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000002() { enc_empty_constraints_no_clauses_impl(2); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000003() { enc_empty_constraints_no_clauses_impl(3); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000004() { enc_empty_constraints_no_clauses_impl(4); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000005() { enc_empty_constraints_no_clauses_impl(5); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000006() { enc_empty_constraints_no_clauses_impl(6); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000007() { enc_empty_constraints_no_clauses_impl(7); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000008() { enc_empty_constraints_no_clauses_impl(8); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000009() { enc_empty_constraints_no_clauses_impl(9); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000010() { enc_empty_constraints_no_clauses_impl(10); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000011() { enc_empty_constraints_no_clauses_impl(11); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000012() { enc_empty_constraints_no_clauses_impl(12); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000013() { enc_empty_constraints_no_clauses_impl(13); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000014() { enc_empty_constraints_no_clauses_impl(14); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000015() { enc_empty_constraints_no_clauses_impl(15); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000016() { enc_empty_constraints_no_clauses_impl(16); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000017() { enc_empty_constraints_no_clauses_impl(17); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000018() { enc_empty_constraints_no_clauses_impl(18); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000019() { enc_empty_constraints_no_clauses_impl(19); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000020() { enc_empty_constraints_no_clauses_impl(20); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000021() { enc_empty_constraints_no_clauses_impl(21); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000022() { enc_empty_constraints_no_clauses_impl(22); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000023() { enc_empty_constraints_no_clauses_impl(23); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000024() { enc_empty_constraints_no_clauses_impl(24); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000025() { enc_empty_constraints_no_clauses_impl(25); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000026() { enc_empty_constraints_no_clauses_impl(26); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000027() { enc_empty_constraints_no_clauses_impl(27); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000028() { enc_empty_constraints_no_clauses_impl(28); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000029() { enc_empty_constraints_no_clauses_impl(29); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000030() { enc_empty_constraints_no_clauses_impl(30); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000031() { enc_empty_constraints_no_clauses_impl(31); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000032() { enc_empty_constraints_no_clauses_impl(32); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000033() { enc_empty_constraints_no_clauses_impl(33); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000034() { enc_empty_constraints_no_clauses_impl(34); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000035() { enc_empty_constraints_no_clauses_impl(35); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000036() { enc_empty_constraints_no_clauses_impl(36); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000037() { enc_empty_constraints_no_clauses_impl(37); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000038() { enc_empty_constraints_no_clauses_impl(38); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000039() { enc_empty_constraints_no_clauses_impl(39); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000040() { enc_empty_constraints_no_clauses_impl(40); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000041() { enc_empty_constraints_no_clauses_impl(41); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000042() { enc_empty_constraints_no_clauses_impl(42); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000043() { enc_empty_constraints_no_clauses_impl(43); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000044() { enc_empty_constraints_no_clauses_impl(44); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000045() { enc_empty_constraints_no_clauses_impl(45); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000046() { enc_empty_constraints_no_clauses_impl(46); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000047() { enc_empty_constraints_no_clauses_impl(47); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000048() { enc_empty_constraints_no_clauses_impl(48); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000049() { enc_empty_constraints_no_clauses_impl(49); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000050() { enc_empty_constraints_no_clauses_impl(50); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000051() { enc_empty_constraints_no_clauses_impl(51); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000052() { enc_empty_constraints_no_clauses_impl(52); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000053() { enc_empty_constraints_no_clauses_impl(53); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000054() { enc_empty_constraints_no_clauses_impl(54); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000055() { enc_empty_constraints_no_clauses_impl(55); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000056() { enc_empty_constraints_no_clauses_impl(56); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000057() { enc_empty_constraints_no_clauses_impl(57); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000058() { enc_empty_constraints_no_clauses_impl(58); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000059() { enc_empty_constraints_no_clauses_impl(59); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000060() { enc_empty_constraints_no_clauses_impl(60); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000061() { enc_empty_constraints_no_clauses_impl(61); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000062() { enc_empty_constraints_no_clauses_impl(62); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000063() { enc_empty_constraints_no_clauses_impl(63); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000064() { enc_empty_constraints_no_clauses_impl(64); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000065() { enc_empty_constraints_no_clauses_impl(65); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000066() { enc_empty_constraints_no_clauses_impl(66); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000067() { enc_empty_constraints_no_clauses_impl(67); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000068() { enc_empty_constraints_no_clauses_impl(68); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000069() { enc_empty_constraints_no_clauses_impl(69); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000070() { enc_empty_constraints_no_clauses_impl(70); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000071() { enc_empty_constraints_no_clauses_impl(71); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000072() { enc_empty_constraints_no_clauses_impl(72); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000073() { enc_empty_constraints_no_clauses_impl(73); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000074() { enc_empty_constraints_no_clauses_impl(74); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000075() { enc_empty_constraints_no_clauses_impl(75); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000076() { enc_empty_constraints_no_clauses_impl(76); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000077() { enc_empty_constraints_no_clauses_impl(77); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000078() { enc_empty_constraints_no_clauses_impl(78); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000079() { enc_empty_constraints_no_clauses_impl(79); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000080() { enc_empty_constraints_no_clauses_impl(80); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000081() { enc_empty_constraints_no_clauses_impl(81); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000082() { enc_empty_constraints_no_clauses_impl(82); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000083() { enc_empty_constraints_no_clauses_impl(83); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000084() { enc_empty_constraints_no_clauses_impl(84); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000085() { enc_empty_constraints_no_clauses_impl(85); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000086() { enc_empty_constraints_no_clauses_impl(86); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000087() { enc_empty_constraints_no_clauses_impl(87); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000088() { enc_empty_constraints_no_clauses_impl(88); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000089() { enc_empty_constraints_no_clauses_impl(89); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000090() { enc_empty_constraints_no_clauses_impl(90); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000091() { enc_empty_constraints_no_clauses_impl(91); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000092() { enc_empty_constraints_no_clauses_impl(92); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000093() { enc_empty_constraints_no_clauses_impl(93); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000094() { enc_empty_constraints_no_clauses_impl(94); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000095() { enc_empty_constraints_no_clauses_impl(95); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000096() { enc_empty_constraints_no_clauses_impl(96); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000097() { enc_empty_constraints_no_clauses_impl(97); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000098() { enc_empty_constraints_no_clauses_impl(98); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000099() { enc_empty_constraints_no_clauses_impl(99); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000100() { enc_empty_constraints_no_clauses_impl(100); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000101() { enc_empty_constraints_no_clauses_impl(101); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000102() { enc_empty_constraints_no_clauses_impl(102); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000103() { enc_empty_constraints_no_clauses_impl(103); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000104() { enc_empty_constraints_no_clauses_impl(104); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000105() { enc_empty_constraints_no_clauses_impl(105); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000106() { enc_empty_constraints_no_clauses_impl(106); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000107() { enc_empty_constraints_no_clauses_impl(107); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000108() { enc_empty_constraints_no_clauses_impl(108); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000109() { enc_empty_constraints_no_clauses_impl(109); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000110() { enc_empty_constraints_no_clauses_impl(110); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000111() { enc_empty_constraints_no_clauses_impl(111); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000112() { enc_empty_constraints_no_clauses_impl(112); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000113() { enc_empty_constraints_no_clauses_impl(113); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000114() { enc_empty_constraints_no_clauses_impl(114); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000115() { enc_empty_constraints_no_clauses_impl(115); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000116() { enc_empty_constraints_no_clauses_impl(116); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000117() { enc_empty_constraints_no_clauses_impl(117); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000118() { enc_empty_constraints_no_clauses_impl(118); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000119() { enc_empty_constraints_no_clauses_impl(119); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000120() { enc_empty_constraints_no_clauses_impl(120); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000121() { enc_empty_constraints_no_clauses_impl(121); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000122() { enc_empty_constraints_no_clauses_impl(122); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000123() { enc_empty_constraints_no_clauses_impl(123); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000124() { enc_empty_constraints_no_clauses_impl(124); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000125() { enc_empty_constraints_no_clauses_impl(125); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000126() { enc_empty_constraints_no_clauses_impl(126); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000127() { enc_empty_constraints_no_clauses_impl(127); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000128() { enc_empty_constraints_no_clauses_impl(128); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000129() { enc_empty_constraints_no_clauses_impl(129); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000130() { enc_empty_constraints_no_clauses_impl(130); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000131() { enc_empty_constraints_no_clauses_impl(131); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000132() { enc_empty_constraints_no_clauses_impl(132); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000133() { enc_empty_constraints_no_clauses_impl(133); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000134() { enc_empty_constraints_no_clauses_impl(134); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000135() { enc_empty_constraints_no_clauses_impl(135); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000136() { enc_empty_constraints_no_clauses_impl(136); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000137() { enc_empty_constraints_no_clauses_impl(137); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000138() { enc_empty_constraints_no_clauses_impl(138); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000139() { enc_empty_constraints_no_clauses_impl(139); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000140() { enc_empty_constraints_no_clauses_impl(140); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000141() { enc_empty_constraints_no_clauses_impl(141); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000142() { enc_empty_constraints_no_clauses_impl(142); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000143() { enc_empty_constraints_no_clauses_impl(143); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000144() { enc_empty_constraints_no_clauses_impl(144); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000145() { enc_empty_constraints_no_clauses_impl(145); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000146() { enc_empty_constraints_no_clauses_impl(146); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000147() { enc_empty_constraints_no_clauses_impl(147); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000148() { enc_empty_constraints_no_clauses_impl(148); }
-    #[cfg_attr(test, test)]
-    fn enc_empty_constraints_no_clauses_seed_000149() { enc_empty_constraints_no_clauses_impl(149); }
+    fn enc_empty_constraints_no_clauses_seed_000000() {
+        enc_empty_constraints_no_clauses_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000001() {
+        enc_empty_constraints_no_clauses_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000002() {
+        enc_empty_constraints_no_clauses_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000003() {
+        enc_empty_constraints_no_clauses_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000004() {
+        enc_empty_constraints_no_clauses_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000005() {
+        enc_empty_constraints_no_clauses_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000006() {
+        enc_empty_constraints_no_clauses_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000007() {
+        enc_empty_constraints_no_clauses_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000008() {
+        enc_empty_constraints_no_clauses_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000009() {
+        enc_empty_constraints_no_clauses_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000010() {
+        enc_empty_constraints_no_clauses_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000011() {
+        enc_empty_constraints_no_clauses_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000012() {
+        enc_empty_constraints_no_clauses_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000013() {
+        enc_empty_constraints_no_clauses_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000014() {
+        enc_empty_constraints_no_clauses_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000015() {
+        enc_empty_constraints_no_clauses_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000016() {
+        enc_empty_constraints_no_clauses_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000017() {
+        enc_empty_constraints_no_clauses_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000018() {
+        enc_empty_constraints_no_clauses_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000019() {
+        enc_empty_constraints_no_clauses_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000020() {
+        enc_empty_constraints_no_clauses_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000021() {
+        enc_empty_constraints_no_clauses_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000022() {
+        enc_empty_constraints_no_clauses_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000023() {
+        enc_empty_constraints_no_clauses_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000024() {
+        enc_empty_constraints_no_clauses_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000025() {
+        enc_empty_constraints_no_clauses_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000026() {
+        enc_empty_constraints_no_clauses_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000027() {
+        enc_empty_constraints_no_clauses_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000028() {
+        enc_empty_constraints_no_clauses_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000029() {
+        enc_empty_constraints_no_clauses_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000030() {
+        enc_empty_constraints_no_clauses_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000031() {
+        enc_empty_constraints_no_clauses_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000032() {
+        enc_empty_constraints_no_clauses_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000033() {
+        enc_empty_constraints_no_clauses_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000034() {
+        enc_empty_constraints_no_clauses_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000035() {
+        enc_empty_constraints_no_clauses_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000036() {
+        enc_empty_constraints_no_clauses_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000037() {
+        enc_empty_constraints_no_clauses_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000038() {
+        enc_empty_constraints_no_clauses_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000039() {
+        enc_empty_constraints_no_clauses_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000040() {
+        enc_empty_constraints_no_clauses_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000041() {
+        enc_empty_constraints_no_clauses_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000042() {
+        enc_empty_constraints_no_clauses_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000043() {
+        enc_empty_constraints_no_clauses_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000044() {
+        enc_empty_constraints_no_clauses_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000045() {
+        enc_empty_constraints_no_clauses_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000046() {
+        enc_empty_constraints_no_clauses_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000047() {
+        enc_empty_constraints_no_clauses_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000048() {
+        enc_empty_constraints_no_clauses_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000049() {
+        enc_empty_constraints_no_clauses_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000050() {
+        enc_empty_constraints_no_clauses_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000051() {
+        enc_empty_constraints_no_clauses_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000052() {
+        enc_empty_constraints_no_clauses_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000053() {
+        enc_empty_constraints_no_clauses_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000054() {
+        enc_empty_constraints_no_clauses_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000055() {
+        enc_empty_constraints_no_clauses_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000056() {
+        enc_empty_constraints_no_clauses_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000057() {
+        enc_empty_constraints_no_clauses_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000058() {
+        enc_empty_constraints_no_clauses_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000059() {
+        enc_empty_constraints_no_clauses_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000060() {
+        enc_empty_constraints_no_clauses_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000061() {
+        enc_empty_constraints_no_clauses_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000062() {
+        enc_empty_constraints_no_clauses_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000063() {
+        enc_empty_constraints_no_clauses_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000064() {
+        enc_empty_constraints_no_clauses_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000065() {
+        enc_empty_constraints_no_clauses_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000066() {
+        enc_empty_constraints_no_clauses_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000067() {
+        enc_empty_constraints_no_clauses_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000068() {
+        enc_empty_constraints_no_clauses_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000069() {
+        enc_empty_constraints_no_clauses_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000070() {
+        enc_empty_constraints_no_clauses_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000071() {
+        enc_empty_constraints_no_clauses_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000072() {
+        enc_empty_constraints_no_clauses_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000073() {
+        enc_empty_constraints_no_clauses_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000074() {
+        enc_empty_constraints_no_clauses_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000075() {
+        enc_empty_constraints_no_clauses_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000076() {
+        enc_empty_constraints_no_clauses_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000077() {
+        enc_empty_constraints_no_clauses_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000078() {
+        enc_empty_constraints_no_clauses_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000079() {
+        enc_empty_constraints_no_clauses_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000080() {
+        enc_empty_constraints_no_clauses_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000081() {
+        enc_empty_constraints_no_clauses_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000082() {
+        enc_empty_constraints_no_clauses_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000083() {
+        enc_empty_constraints_no_clauses_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000084() {
+        enc_empty_constraints_no_clauses_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000085() {
+        enc_empty_constraints_no_clauses_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000086() {
+        enc_empty_constraints_no_clauses_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000087() {
+        enc_empty_constraints_no_clauses_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000088() {
+        enc_empty_constraints_no_clauses_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000089() {
+        enc_empty_constraints_no_clauses_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000090() {
+        enc_empty_constraints_no_clauses_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000091() {
+        enc_empty_constraints_no_clauses_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000092() {
+        enc_empty_constraints_no_clauses_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000093() {
+        enc_empty_constraints_no_clauses_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000094() {
+        enc_empty_constraints_no_clauses_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000095() {
+        enc_empty_constraints_no_clauses_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000096() {
+        enc_empty_constraints_no_clauses_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000097() {
+        enc_empty_constraints_no_clauses_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000098() {
+        enc_empty_constraints_no_clauses_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000099() {
+        enc_empty_constraints_no_clauses_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000100() {
+        enc_empty_constraints_no_clauses_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000101() {
+        enc_empty_constraints_no_clauses_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000102() {
+        enc_empty_constraints_no_clauses_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000103() {
+        enc_empty_constraints_no_clauses_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000104() {
+        enc_empty_constraints_no_clauses_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000105() {
+        enc_empty_constraints_no_clauses_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000106() {
+        enc_empty_constraints_no_clauses_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000107() {
+        enc_empty_constraints_no_clauses_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000108() {
+        enc_empty_constraints_no_clauses_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000109() {
+        enc_empty_constraints_no_clauses_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000110() {
+        enc_empty_constraints_no_clauses_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000111() {
+        enc_empty_constraints_no_clauses_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000112() {
+        enc_empty_constraints_no_clauses_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000113() {
+        enc_empty_constraints_no_clauses_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000114() {
+        enc_empty_constraints_no_clauses_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000115() {
+        enc_empty_constraints_no_clauses_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000116() {
+        enc_empty_constraints_no_clauses_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000117() {
+        enc_empty_constraints_no_clauses_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000118() {
+        enc_empty_constraints_no_clauses_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000119() {
+        enc_empty_constraints_no_clauses_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000120() {
+        enc_empty_constraints_no_clauses_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000121() {
+        enc_empty_constraints_no_clauses_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000122() {
+        enc_empty_constraints_no_clauses_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000123() {
+        enc_empty_constraints_no_clauses_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000124() {
+        enc_empty_constraints_no_clauses_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000125() {
+        enc_empty_constraints_no_clauses_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000126() {
+        enc_empty_constraints_no_clauses_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000127() {
+        enc_empty_constraints_no_clauses_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000128() {
+        enc_empty_constraints_no_clauses_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000129() {
+        enc_empty_constraints_no_clauses_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000130() {
+        enc_empty_constraints_no_clauses_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000131() {
+        enc_empty_constraints_no_clauses_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000132() {
+        enc_empty_constraints_no_clauses_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000133() {
+        enc_empty_constraints_no_clauses_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000134() {
+        enc_empty_constraints_no_clauses_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000135() {
+        enc_empty_constraints_no_clauses_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000136() {
+        enc_empty_constraints_no_clauses_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000137() {
+        enc_empty_constraints_no_clauses_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000138() {
+        enc_empty_constraints_no_clauses_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000139() {
+        enc_empty_constraints_no_clauses_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000140() {
+        enc_empty_constraints_no_clauses_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000141() {
+        enc_empty_constraints_no_clauses_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000142() {
+        enc_empty_constraints_no_clauses_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000143() {
+        enc_empty_constraints_no_clauses_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000144() {
+        enc_empty_constraints_no_clauses_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000145() {
+        enc_empty_constraints_no_clauses_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000146() {
+        enc_empty_constraints_no_clauses_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000147() {
+        enc_empty_constraints_no_clauses_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000148() {
+        enc_empty_constraints_no_clauses_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn enc_empty_constraints_no_clauses_seed_000149() {
+        enc_empty_constraints_no_clauses_impl(149);
+    }
     // --- cls_unit_multiplier: 150 generated seeds ---
     #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000000() { cls_unit_multiplier_impl(0); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000001() { cls_unit_multiplier_impl(1); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000002() { cls_unit_multiplier_impl(2); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000003() { cls_unit_multiplier_impl(3); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000004() { cls_unit_multiplier_impl(4); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000005() { cls_unit_multiplier_impl(5); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000006() { cls_unit_multiplier_impl(6); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000007() { cls_unit_multiplier_impl(7); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000008() { cls_unit_multiplier_impl(8); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000009() { cls_unit_multiplier_impl(9); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000010() { cls_unit_multiplier_impl(10); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000011() { cls_unit_multiplier_impl(11); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000012() { cls_unit_multiplier_impl(12); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000013() { cls_unit_multiplier_impl(13); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000014() { cls_unit_multiplier_impl(14); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000015() { cls_unit_multiplier_impl(15); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000016() { cls_unit_multiplier_impl(16); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000017() { cls_unit_multiplier_impl(17); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000018() { cls_unit_multiplier_impl(18); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000019() { cls_unit_multiplier_impl(19); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000020() { cls_unit_multiplier_impl(20); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000021() { cls_unit_multiplier_impl(21); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000022() { cls_unit_multiplier_impl(22); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000023() { cls_unit_multiplier_impl(23); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000024() { cls_unit_multiplier_impl(24); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000025() { cls_unit_multiplier_impl(25); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000026() { cls_unit_multiplier_impl(26); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000027() { cls_unit_multiplier_impl(27); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000028() { cls_unit_multiplier_impl(28); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000029() { cls_unit_multiplier_impl(29); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000030() { cls_unit_multiplier_impl(30); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000031() { cls_unit_multiplier_impl(31); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000032() { cls_unit_multiplier_impl(32); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000033() { cls_unit_multiplier_impl(33); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000034() { cls_unit_multiplier_impl(34); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000035() { cls_unit_multiplier_impl(35); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000036() { cls_unit_multiplier_impl(36); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000037() { cls_unit_multiplier_impl(37); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000038() { cls_unit_multiplier_impl(38); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000039() { cls_unit_multiplier_impl(39); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000040() { cls_unit_multiplier_impl(40); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000041() { cls_unit_multiplier_impl(41); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000042() { cls_unit_multiplier_impl(42); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000043() { cls_unit_multiplier_impl(43); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000044() { cls_unit_multiplier_impl(44); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000045() { cls_unit_multiplier_impl(45); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000046() { cls_unit_multiplier_impl(46); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000047() { cls_unit_multiplier_impl(47); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000048() { cls_unit_multiplier_impl(48); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000049() { cls_unit_multiplier_impl(49); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000050() { cls_unit_multiplier_impl(50); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000051() { cls_unit_multiplier_impl(51); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000052() { cls_unit_multiplier_impl(52); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000053() { cls_unit_multiplier_impl(53); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000054() { cls_unit_multiplier_impl(54); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000055() { cls_unit_multiplier_impl(55); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000056() { cls_unit_multiplier_impl(56); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000057() { cls_unit_multiplier_impl(57); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000058() { cls_unit_multiplier_impl(58); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000059() { cls_unit_multiplier_impl(59); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000060() { cls_unit_multiplier_impl(60); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000061() { cls_unit_multiplier_impl(61); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000062() { cls_unit_multiplier_impl(62); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000063() { cls_unit_multiplier_impl(63); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000064() { cls_unit_multiplier_impl(64); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000065() { cls_unit_multiplier_impl(65); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000066() { cls_unit_multiplier_impl(66); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000067() { cls_unit_multiplier_impl(67); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000068() { cls_unit_multiplier_impl(68); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000069() { cls_unit_multiplier_impl(69); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000070() { cls_unit_multiplier_impl(70); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000071() { cls_unit_multiplier_impl(71); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000072() { cls_unit_multiplier_impl(72); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000073() { cls_unit_multiplier_impl(73); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000074() { cls_unit_multiplier_impl(74); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000075() { cls_unit_multiplier_impl(75); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000076() { cls_unit_multiplier_impl(76); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000077() { cls_unit_multiplier_impl(77); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000078() { cls_unit_multiplier_impl(78); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000079() { cls_unit_multiplier_impl(79); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000080() { cls_unit_multiplier_impl(80); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000081() { cls_unit_multiplier_impl(81); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000082() { cls_unit_multiplier_impl(82); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000083() { cls_unit_multiplier_impl(83); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000084() { cls_unit_multiplier_impl(84); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000085() { cls_unit_multiplier_impl(85); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000086() { cls_unit_multiplier_impl(86); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000087() { cls_unit_multiplier_impl(87); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000088() { cls_unit_multiplier_impl(88); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000089() { cls_unit_multiplier_impl(89); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000090() { cls_unit_multiplier_impl(90); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000091() { cls_unit_multiplier_impl(91); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000092() { cls_unit_multiplier_impl(92); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000093() { cls_unit_multiplier_impl(93); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000094() { cls_unit_multiplier_impl(94); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000095() { cls_unit_multiplier_impl(95); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000096() { cls_unit_multiplier_impl(96); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000097() { cls_unit_multiplier_impl(97); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000098() { cls_unit_multiplier_impl(98); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000099() { cls_unit_multiplier_impl(99); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000100() { cls_unit_multiplier_impl(100); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000101() { cls_unit_multiplier_impl(101); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000102() { cls_unit_multiplier_impl(102); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000103() { cls_unit_multiplier_impl(103); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000104() { cls_unit_multiplier_impl(104); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000105() { cls_unit_multiplier_impl(105); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000106() { cls_unit_multiplier_impl(106); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000107() { cls_unit_multiplier_impl(107); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000108() { cls_unit_multiplier_impl(108); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000109() { cls_unit_multiplier_impl(109); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000110() { cls_unit_multiplier_impl(110); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000111() { cls_unit_multiplier_impl(111); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000112() { cls_unit_multiplier_impl(112); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000113() { cls_unit_multiplier_impl(113); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000114() { cls_unit_multiplier_impl(114); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000115() { cls_unit_multiplier_impl(115); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000116() { cls_unit_multiplier_impl(116); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000117() { cls_unit_multiplier_impl(117); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000118() { cls_unit_multiplier_impl(118); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000119() { cls_unit_multiplier_impl(119); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000120() { cls_unit_multiplier_impl(120); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000121() { cls_unit_multiplier_impl(121); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000122() { cls_unit_multiplier_impl(122); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000123() { cls_unit_multiplier_impl(123); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000124() { cls_unit_multiplier_impl(124); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000125() { cls_unit_multiplier_impl(125); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000126() { cls_unit_multiplier_impl(126); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000127() { cls_unit_multiplier_impl(127); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000128() { cls_unit_multiplier_impl(128); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000129() { cls_unit_multiplier_impl(129); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000130() { cls_unit_multiplier_impl(130); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000131() { cls_unit_multiplier_impl(131); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000132() { cls_unit_multiplier_impl(132); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000133() { cls_unit_multiplier_impl(133); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000134() { cls_unit_multiplier_impl(134); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000135() { cls_unit_multiplier_impl(135); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000136() { cls_unit_multiplier_impl(136); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000137() { cls_unit_multiplier_impl(137); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000138() { cls_unit_multiplier_impl(138); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000139() { cls_unit_multiplier_impl(139); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000140() { cls_unit_multiplier_impl(140); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000141() { cls_unit_multiplier_impl(141); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000142() { cls_unit_multiplier_impl(142); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000143() { cls_unit_multiplier_impl(143); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000144() { cls_unit_multiplier_impl(144); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000145() { cls_unit_multiplier_impl(145); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000146() { cls_unit_multiplier_impl(146); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000147() { cls_unit_multiplier_impl(147); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000148() { cls_unit_multiplier_impl(148); }
-    #[cfg_attr(test, test)]
-    fn cls_unit_multiplier_seed_000149() { cls_unit_multiplier_impl(149); }
+    fn cls_unit_multiplier_seed_000000() {
+        cls_unit_multiplier_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000001() {
+        cls_unit_multiplier_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000002() {
+        cls_unit_multiplier_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000003() {
+        cls_unit_multiplier_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000004() {
+        cls_unit_multiplier_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000005() {
+        cls_unit_multiplier_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000006() {
+        cls_unit_multiplier_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000007() {
+        cls_unit_multiplier_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000008() {
+        cls_unit_multiplier_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000009() {
+        cls_unit_multiplier_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000010() {
+        cls_unit_multiplier_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000011() {
+        cls_unit_multiplier_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000012() {
+        cls_unit_multiplier_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000013() {
+        cls_unit_multiplier_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000014() {
+        cls_unit_multiplier_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000015() {
+        cls_unit_multiplier_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000016() {
+        cls_unit_multiplier_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000017() {
+        cls_unit_multiplier_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000018() {
+        cls_unit_multiplier_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000019() {
+        cls_unit_multiplier_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000020() {
+        cls_unit_multiplier_impl(20);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000021() {
+        cls_unit_multiplier_impl(21);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000022() {
+        cls_unit_multiplier_impl(22);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000023() {
+        cls_unit_multiplier_impl(23);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000024() {
+        cls_unit_multiplier_impl(24);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000025() {
+        cls_unit_multiplier_impl(25);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000026() {
+        cls_unit_multiplier_impl(26);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000027() {
+        cls_unit_multiplier_impl(27);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000028() {
+        cls_unit_multiplier_impl(28);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000029() {
+        cls_unit_multiplier_impl(29);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000030() {
+        cls_unit_multiplier_impl(30);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000031() {
+        cls_unit_multiplier_impl(31);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000032() {
+        cls_unit_multiplier_impl(32);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000033() {
+        cls_unit_multiplier_impl(33);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000034() {
+        cls_unit_multiplier_impl(34);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000035() {
+        cls_unit_multiplier_impl(35);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000036() {
+        cls_unit_multiplier_impl(36);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000037() {
+        cls_unit_multiplier_impl(37);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000038() {
+        cls_unit_multiplier_impl(38);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000039() {
+        cls_unit_multiplier_impl(39);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000040() {
+        cls_unit_multiplier_impl(40);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000041() {
+        cls_unit_multiplier_impl(41);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000042() {
+        cls_unit_multiplier_impl(42);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000043() {
+        cls_unit_multiplier_impl(43);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000044() {
+        cls_unit_multiplier_impl(44);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000045() {
+        cls_unit_multiplier_impl(45);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000046() {
+        cls_unit_multiplier_impl(46);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000047() {
+        cls_unit_multiplier_impl(47);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000048() {
+        cls_unit_multiplier_impl(48);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000049() {
+        cls_unit_multiplier_impl(49);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000050() {
+        cls_unit_multiplier_impl(50);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000051() {
+        cls_unit_multiplier_impl(51);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000052() {
+        cls_unit_multiplier_impl(52);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000053() {
+        cls_unit_multiplier_impl(53);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000054() {
+        cls_unit_multiplier_impl(54);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000055() {
+        cls_unit_multiplier_impl(55);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000056() {
+        cls_unit_multiplier_impl(56);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000057() {
+        cls_unit_multiplier_impl(57);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000058() {
+        cls_unit_multiplier_impl(58);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000059() {
+        cls_unit_multiplier_impl(59);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000060() {
+        cls_unit_multiplier_impl(60);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000061() {
+        cls_unit_multiplier_impl(61);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000062() {
+        cls_unit_multiplier_impl(62);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000063() {
+        cls_unit_multiplier_impl(63);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000064() {
+        cls_unit_multiplier_impl(64);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000065() {
+        cls_unit_multiplier_impl(65);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000066() {
+        cls_unit_multiplier_impl(66);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000067() {
+        cls_unit_multiplier_impl(67);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000068() {
+        cls_unit_multiplier_impl(68);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000069() {
+        cls_unit_multiplier_impl(69);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000070() {
+        cls_unit_multiplier_impl(70);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000071() {
+        cls_unit_multiplier_impl(71);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000072() {
+        cls_unit_multiplier_impl(72);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000073() {
+        cls_unit_multiplier_impl(73);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000074() {
+        cls_unit_multiplier_impl(74);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000075() {
+        cls_unit_multiplier_impl(75);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000076() {
+        cls_unit_multiplier_impl(76);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000077() {
+        cls_unit_multiplier_impl(77);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000078() {
+        cls_unit_multiplier_impl(78);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000079() {
+        cls_unit_multiplier_impl(79);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000080() {
+        cls_unit_multiplier_impl(80);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000081() {
+        cls_unit_multiplier_impl(81);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000082() {
+        cls_unit_multiplier_impl(82);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000083() {
+        cls_unit_multiplier_impl(83);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000084() {
+        cls_unit_multiplier_impl(84);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000085() {
+        cls_unit_multiplier_impl(85);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000086() {
+        cls_unit_multiplier_impl(86);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000087() {
+        cls_unit_multiplier_impl(87);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000088() {
+        cls_unit_multiplier_impl(88);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000089() {
+        cls_unit_multiplier_impl(89);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000090() {
+        cls_unit_multiplier_impl(90);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000091() {
+        cls_unit_multiplier_impl(91);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000092() {
+        cls_unit_multiplier_impl(92);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000093() {
+        cls_unit_multiplier_impl(93);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000094() {
+        cls_unit_multiplier_impl(94);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000095() {
+        cls_unit_multiplier_impl(95);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000096() {
+        cls_unit_multiplier_impl(96);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000097() {
+        cls_unit_multiplier_impl(97);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000098() {
+        cls_unit_multiplier_impl(98);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000099() {
+        cls_unit_multiplier_impl(99);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000100() {
+        cls_unit_multiplier_impl(100);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000101() {
+        cls_unit_multiplier_impl(101);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000102() {
+        cls_unit_multiplier_impl(102);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000103() {
+        cls_unit_multiplier_impl(103);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000104() {
+        cls_unit_multiplier_impl(104);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000105() {
+        cls_unit_multiplier_impl(105);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000106() {
+        cls_unit_multiplier_impl(106);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000107() {
+        cls_unit_multiplier_impl(107);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000108() {
+        cls_unit_multiplier_impl(108);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000109() {
+        cls_unit_multiplier_impl(109);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000110() {
+        cls_unit_multiplier_impl(110);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000111() {
+        cls_unit_multiplier_impl(111);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000112() {
+        cls_unit_multiplier_impl(112);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000113() {
+        cls_unit_multiplier_impl(113);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000114() {
+        cls_unit_multiplier_impl(114);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000115() {
+        cls_unit_multiplier_impl(115);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000116() {
+        cls_unit_multiplier_impl(116);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000117() {
+        cls_unit_multiplier_impl(117);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000118() {
+        cls_unit_multiplier_impl(118);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000119() {
+        cls_unit_multiplier_impl(119);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000120() {
+        cls_unit_multiplier_impl(120);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000121() {
+        cls_unit_multiplier_impl(121);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000122() {
+        cls_unit_multiplier_impl(122);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000123() {
+        cls_unit_multiplier_impl(123);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000124() {
+        cls_unit_multiplier_impl(124);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000125() {
+        cls_unit_multiplier_impl(125);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000126() {
+        cls_unit_multiplier_impl(126);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000127() {
+        cls_unit_multiplier_impl(127);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000128() {
+        cls_unit_multiplier_impl(128);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000129() {
+        cls_unit_multiplier_impl(129);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000130() {
+        cls_unit_multiplier_impl(130);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000131() {
+        cls_unit_multiplier_impl(131);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000132() {
+        cls_unit_multiplier_impl(132);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000133() {
+        cls_unit_multiplier_impl(133);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000134() {
+        cls_unit_multiplier_impl(134);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000135() {
+        cls_unit_multiplier_impl(135);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000136() {
+        cls_unit_multiplier_impl(136);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000137() {
+        cls_unit_multiplier_impl(137);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000138() {
+        cls_unit_multiplier_impl(138);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000139() {
+        cls_unit_multiplier_impl(139);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000140() {
+        cls_unit_multiplier_impl(140);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000141() {
+        cls_unit_multiplier_impl(141);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000142() {
+        cls_unit_multiplier_impl(142);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000143() {
+        cls_unit_multiplier_impl(143);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000144() {
+        cls_unit_multiplier_impl(144);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000145() {
+        cls_unit_multiplier_impl(145);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000146() {
+        cls_unit_multiplier_impl(146);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000147() {
+        cls_unit_multiplier_impl(147);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000148() {
+        cls_unit_multiplier_impl(148);
+    }
+    #[cfg_attr(test, test)]
+    fn cls_unit_multiplier_seed_000149() {
+        cls_unit_multiplier_impl(149);
+    }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`

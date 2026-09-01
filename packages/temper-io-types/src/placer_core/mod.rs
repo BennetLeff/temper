@@ -3,9 +3,12 @@
 //! Phase 2 is the program's pivot: downstream Python (`io/`, `pipeline/`,
 //! `router_v6/`, `validation/`) should stop marshalling contract objects
 //! across the pyo3 boundary on every call. The deliverable is therefore
-//! `#[pyclass]` types (`Rect`, `PinInfo`, `PlacementViolation`,
-//! `FabPreset`) plus the pure kernels their modules own, not a bag of
-//! free functions.
+//! `#[pyclass]` types (`Rect`, `FabPreset`) plus the pure kernels their
+//! modules own, not a bag of free functions. (The `PinInfo` /
+//! `PlacementViolation` pyclasses were deleted 2026-08-20 with the
+//! orphaned placement-DRC kernel cluster; the pure
+//! [`placement_drc`] module remains, exercised by the crate's mutation
+//! campaigns.)
 //!
 //! Layout follows the crate's existing split: each module is pure Rust
 //! (compiles for `wasm32-unknown-unknown`, no pyo3), and

@@ -1,4 +1,4 @@
-<!-- provenance: commit=a3fbaff37afd739b72f2b109847813b30ceb8e88 (origin/fix/board-schematic-resync, worktree
+<!-- provenance: commit=65981cc2e739794f5868917a980f45f420db6f6e dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-t1-isolator-safety, branch investigate/t1-isolator-hv-lv-creepage), dirty=false
 for pcb/** throughout (git status --porcelain clean at every measurement below; pcb/temper.kicad_pcb
 sha256=b7d865b7946f55dcc0d907cccbbee12f730fd1878b30d417bd56004d1091c1d6, pcb/temper.kicad_pro

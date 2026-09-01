@@ -1,0 +1,65 @@
+{
+  "authority_board_sha256": "5ef29bfda80ac96cd490bed0b8881835f807eba3fa60b2b126eefc16eaf26e8a",
+  "board_ready_j1_footprint_sha256": "6d49417262e4fb5957601c3d1c50aecd24071ca2623053e2310e7590097ab04d",
+  "canonical_j1_footprint_sha256": "050fe934d6208d5bd0e8d73da760c525c11185ac838b9c44b09b9cdf20f86a76",
+  "cardinality": 240,
+  "east_shifts_mm": [
+    4.0,
+    4.5,
+    5.0,
+    5.5
+  ],
+  "family": "first",
+  "generated_inputs": {
+    "domain_manifest": "f1899c87a61f579e2a92dbd673c1ad29036aed463b2f3fcc4ff7cca7f034bae3",
+    "kicad_dru": "488a01a81ea29dd6b4ed3106d3f5c0b036a9d07bf9a545a60b1ca6fbc74a0fdb",
+    "netlist": "b6f96ea9d30344758c43f65daa9ce7e101853da27a4a8818def13998bd9e2563"
+  },
+  "ordering": "placement_id lexical, east_shift_mm ascending",
+  "placement_screen_budget": 240,
+  "predecessor_commit": "6b89c315468b658b26eb6b68abf1442964792537",
+  "predecessor_hashes": {
+    "build_authority.py": "add550df27ce87608ceac15b369c61bd308e3c549e1eb3b47ae111712b259e0d",
+    "declaration.json": "3edeb18206004e98d07903860c5ff1bf377e96c9b97b845d1ae2c98cce1a833f",
+    "manifest.json": "f7a56e454007eebf342357b5fad6892a681f8a41d0be5d0702540cce81e9e95b",
+    "negative-certificate.md": "3a72b4bb740687a52221e8efa449ba689b5e475e520846c5f646ef6c370e063e",
+    "search.py": "1cbf2fe7eeabb959134000c654c39ef858fdfb2a11db35a3c55d83d8b99267b2",
+    "search_v2.py": "6674b24e2b634f698daadf218d3c70c3c06116556c0058d44c3d0ae11fd01d17"
+  },
+  "predecessor_placement_count": 60,
+  "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "route": {
+    "fixed_endpoint": [
+      112.0,
+      218.0
+    ],
+    "layer": "In3.Cu",
+    "moving_pad_number": "2",
+    "moving_via_drill_mm": 0.3,
+    "moving_via_size_mm": 0.9,
+    "moving_via_tstamp": "80dc97ff-4224-5905-925a-d96851a93537",
+    "net_index": 41,
+    "net_name": "discharge.r_snub1-p2",
+    "segment_tstamps": [
+      "6f0fc0cf-21f3-5002-9a69-56e731267c8b",
+      "6cafd89e-ca83-57ec-851d-d155c9d0b3b2",
+      "550d69a3-4b61-50f5-835d-36d0a3ed4d4b",
+      "048519f5-d649-5114-98f6-60724a55aada",
+      "267034c2-04fd-54e2-a5de-91f83f88e089",
+      "951c86e1-1293-542d-b329-e84b974e7b78",
+      "8177ba34-5cc4-5224-9e26-550776d71d3d",
+      "4db32563-63fa-505b-a69d-47be9cfdd1e2",
+      "69ea8cbb-c6cb-5c53-8c15-24a24f25c4ba",
+      "8eb327f7-4a2b-5805-a4c9-dcf2d58c3d08",
+      "9282fe61-caff-564e-b085-478bcc27b15f",
+      "b1bd3aea-e461-5343-8750-23146ea08f18",
+      "9f8ea5c7-cd34-5c39-9394-f618be359f8e",
+      "91582a5b-645a-5caa-80b2-f6272ef47f6f",
+      "7b5bff49-d260-58c8-b8f0-0691a7e84809"
+    ],
+    "transform": "x += east_shift_mm * clamp((y - 218)/(252.5225 - 218), 0, 1)",
+    "width_mm": 0.5
+  },
+  "routed_promotion_budget": 8,
+  "status": "executed"
+}

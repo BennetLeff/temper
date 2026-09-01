@@ -5,8 +5,7 @@
 use std::collections::{BTreeSet, HashSet};
 
 use crate::types::{
-    ClauseOrigin, ConflictReport, InternalConstraint, InternalConstraintModel,
-    SatVariable,
+    ClauseOrigin, ConflictReport, InternalConstraint, InternalConstraintModel, SatVariable,
 };
 
 /// The maximum nets a Capacity constraint permits —
@@ -96,10 +95,7 @@ fn constraint_label(idx: usize, c: &InternalConstraint) -> String {
             let ch = parse_channel_id(var_name).unwrap_or("?");
             format!("LayerRestriction[{idx}]:{ch}:{allowed}")
         }
-        InternalConstraint::ChannelSeparation {
-            channel_id,
-            ..
-        } => {
+        InternalConstraint::ChannelSeparation { channel_id, .. } => {
             format!("ChannelSeparation[{idx}]:{channel_id}")
         }
     }
@@ -113,10 +109,7 @@ fn constraint_channel(c: &InternalConstraint) -> String {
         InternalConstraint::LayerRestriction { var_name, .. } => {
             parse_channel_id(var_name).unwrap_or("?").to_string()
         }
-        InternalConstraint::ChannelSeparation {
-            channel_id,
-            ..
-        } => channel_id.to_string(),
+        InternalConstraint::ChannelSeparation { channel_id, .. } => channel_id.to_string(),
     }
 }
 
@@ -126,7 +119,9 @@ fn parse_channel_id(var_name: &str) -> Option<&str> {
         return None;
     }
     let after_uses_n = &var_name[5..];
-    after_uses_n.find('_').map(|uscore_pos| &after_uses_n[uscore_pos + 1..])
+    after_uses_n
+        .find('_')
+        .map(|uscore_pos| &after_uses_n[uscore_pos + 1..])
 }
 
 /// Number of distinct non-empty channels among the core's constraints.
@@ -147,10 +142,7 @@ fn unique_channel_count(
 }
 
 /// Generate a human-readable explanation from the set of conflicting constraints.
-fn explain_core(
-    unique_constraints: &BTreeSet<usize>,
-    model: &InternalConstraintModel,
-) -> String {
+fn explain_core(unique_constraints: &BTreeSet<usize>, model: &InternalConstraintModel) -> String {
     if unique_constraints.is_empty() {
         return "UNSAT core contains no recognized constraints".to_string();
     }
@@ -205,13 +197,16 @@ fn explain_core(
             );
         }
         return String::from(
-            "Diff pair requires both nets on the same channel, but channel capacity is insufficient"
+            "Diff pair requires both nets on the same channel, but channel capacity is insufficient",
         );
     }
 
     if has_capacity && has_layer {
         if let Some(InternalConstraint::Capacity {
-            channel_id, capacity, slack_factor, terms,
+            channel_id,
+            capacity,
+            slack_factor,
+            terms,
         }) = capacity_constraints.first()
         {
             let max_nets = max_nets_for(*capacity, *slack_factor, terms);
@@ -224,7 +219,10 @@ fn explain_core(
 
     if has_capacity {
         if let Some(InternalConstraint::Capacity {
-            channel_id, capacity, slack_factor, terms,
+            channel_id,
+            capacity,
+            slack_factor,
+            terms,
         }) = capacity_constraints.first()
         {
             let max_nets = max_nets_for(*capacity, *slack_factor, terms);
@@ -234,7 +232,10 @@ fn explain_core(
                 unique_constraints.len()
             );
         }
-        return format!("Capacity exceeded (core contains {} clauses)", unique_constraints.len());
+        return format!(
+            "Capacity exceeded (core contains {} clauses)",
+            unique_constraints.len()
+        );
     }
 
     if has_diffpair && unique_constraints.len() == 1 {
@@ -253,7 +254,10 @@ fn explain_core(
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
     use super::*;
-    use crate::types::{ClauseOrigin, ClauseRole, InternalConstraint, InternalConstraintModel, InternalVariable, SatVariable};
+    use crate::types::{
+        ClauseOrigin, ClauseRole, InternalConstraint, InternalConstraintModel, InternalVariable,
+        SatVariable,
+    };
 
     fn make_model(
         vars: Vec<InternalVariable>,
@@ -310,10 +314,7 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn core_spanning_capacity_and_diffpair() {
-        let vars = vec![
-            make_var("p_CH1", 0, "CH1"),
-            make_var("n_CH1", 1, "CH1"),
-        ];
+        let vars = vec![make_var("p_CH1", 0, "CH1"), make_var("n_CH1", 1, "CH1")];
         let cons = vec![
             InternalConstraint::DiffPair {
                 channel_id: "CH1".into(),
@@ -328,10 +329,7 @@ pub(crate) mod tests {
             },
         ];
         let model = make_model(vars, cons);
-        let var_map = vec![
-            SatVariable::new("p_CH1", ""),
-            SatVariable::new("n_CH1", ""),
-        ];
+        let var_map = vec![SatVariable::new("p_CH1", ""), SatVariable::new("n_CH1", "")];
         let provenance = vec![
             ClauseOrigin::new(0, ClauseRole::ConstraintLiteral, 255),
             ClauseOrigin::new(0, ClauseRole::ConstraintLiteral, 255),

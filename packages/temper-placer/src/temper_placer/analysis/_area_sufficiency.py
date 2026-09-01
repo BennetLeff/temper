@@ -8,9 +8,8 @@ Wave 4, Phase 4 migration (plan
 ``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
 the aggregation compute lives in the ``temper-geometry`` crate, exposed
 as ``temper_geometry.area_sufficiency_compute`` /
-``temper_geometry.top_courtyards`` (and the ``temper_geometry.py_sum``
-kernel, which reproduces CPython 3.12's Neumaier-compensated builtin
-``sum()``).  This module is a delegation shim: the pre-migration
+``temper_geometry.top_courtyards``.  The aggregate's compensated summation
+kernel remains private to ``area_sufficiency_compute``.  This module is a delegation shim: the pre-migration
 implementation is pinned verbatim as the differential oracle
 (``tests/analysis/_area_sufficiency_py_oracle.py``), and bit-exact parity
 is asserted by ``tests/analysis/test_area_sufficiency_rust_differential.py``.

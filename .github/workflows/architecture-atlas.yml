@@ -1,0 +1,39 @@
+name: Architecture Atlas
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/required-checks.json'
+      - '.github/workflows/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'Makefile'
+      - 'components/**'
+      - 'crates/**'
+      - 'dashboard/architecture/**'
+      - 'docs/hardware/**'
+      - 'elec/**'
+      - 'firmware/**'
+      - 'packages/**'
+      - 'pcb/**'
+      - 'power_pcb_dataset/**'
+      - 'scripts/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate architecture atlas
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate graph and repository citations
+        run: node dashboard/architecture/validate.mjs

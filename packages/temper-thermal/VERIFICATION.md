@@ -503,54 +503,6 @@ bound explicitly:
 
 ---
 
-# RTD Safety Model — Verification by Induction
-
-Wave 2 slice of the Python→Rust migration roadmap
-(docs/plans/2026-07-23-003): the deterministic PT100/MAX31865
-safety-threshold model from `temper_placer/validation/rtd_safety.py`
-(the THM-adjacent thermal protection chain), ported to
-`temper_thermal.rtd`.
-
-## Base Case
-
-`resistance_to_code(0.0, rref)` returns 0 and
-`resistance_to_code(R, rref)` for R small is
-`floor(32768·R/rref)` — the Rust core and the pinned Python oracle
-agree bit-for-bit. For a zero-width valid window the derivation
-reports an overlap (status 1 or 2) exactly as the reference raises.
-
-## Inductive Step
-
-All ported functions are scalar evaluations: each output is a pure
-function of its inputs with the exact f64 operation order of the
-reference (e.g. `max31865_rtd_voltage_v = r * (vbias / (rref + r))` —
-two operations, not `(r·vbias)/(rref+r)`; the derivation's
-`(nom_min + nom_max) / 2.0` midpoint). The floor/ceil integer
-conversions and the clamped 15-bit code mirror Python's `min`,
-`floor`, and `ceil` semantics exactly. The overlap status codes
-(0=ok, 1=low overlap, 2=high overlap) let the Python wrapper raise the
-reference ValueError messages verbatim.
-
-## Empirical Verification
-
-The differential suite
-(`packages/temper-placer/tests/validation/test_rtd_safety_rust_differential.py`)
-pins all nine ported functions bit-exactly against the pre-migration
-implementations (1000 resistance-code samples, 500 threshold-code
-samples, 500 voltage/divider/SPI samples, and 300 random corner
-derivations per window type with overlap agreement). The pre-existing
-property suites (`test_rtd_safety_pbt.py`, `test_rtd_window_comparator_pbt.py`,
-`test_rtd_fault_latch_pbt.py`, 28 tests) now exercise the Rust core
-through the wrappers.
-
-**Kept in Python deliberately:** the corner dataclasses, the
-ValueError validation guards (interface contract), and the digital
-state machines (`SimulatedDigitalRtdService`, `VirtualRtdBoard`,
-latch settling) — protocol logic, not math; migrating them would
-churn the consumer surface without a compute or safety win.
-
----
-
 # Independent Thermal Scorer (U7) — Verification by Induction
 
 Wave 3 candidate #6 (`docs/plans/2026-07-31-001-feat-wave3-rust-migration-roadmap-plan.md`):
@@ -1076,12 +1028,12 @@ claiming a strict monotonicity the arithmetic does not deliver.
   `test_operating_point_monotonicity.py` — the pre-existing U6/U2
   batteries, unchanged and still green.
 
-# Phase 4 continuation: emi / safety / heat_removal / copper_coverage / tj_cross_check / parameter_bounds
+# Phase 4 continuation: emi / safety / heat_removal / copper_coverage / tj_cross_check
 
 Added 2026-08-04 (Wave 4 Phase 4, second slice — the sibling #713 landed
-`thermal_potential` + `operating_point`; this slice migrates the six
-remaining physics modules' compute).  The Python modules keep their public
-APIs and delegate; bit-identical parity is pinned by the differential suites
+`thermal_potential` + `operating_point`; this slice migrates the five
+remaining physics modules' compute).  The remaining Python modules keep
+their public APIs and delegate; bit-identical parity is pinned by the differential suites
 listed per module below.  `hostmath` was extended with `log`/`log10` (the
 emi/safety kernels need them; `sqrt` deliberately stays `f64::sqrt` per
 hostmath's documented reasoning — IEEE correctly-rounded, bit-identical to
@@ -1096,8 +1048,7 @@ as `_oracle_*` functions (`test_emi_rust_differential.py`,
 `test_safety_rust_differential.py`,
 `test_heat_removal_rust_differential.py`,
 `test_copper_coverage_phase4_rust_differential.py`,
-`test_tj_cross_check_rust_differential.py`,
-`test_parameter_bounds_rust_differential.py`).  The oracle content is
+`test_tj_cross_check_rust_differential.py`).  The oracle content is
 verbatim (semantically identical to the pre-migration implementation,
 pinning the same bit-exact behaviour) — only the file SHAPE differs
 from the documented convention, so the differential suites double as
@@ -1347,8 +1298,8 @@ applicable**; structural argument recorded.
   distance pins (incl. unknown-edge zero), known values, 8 randomized
   device-check pins with NaN in every argument position, the
   conservative-max NaN pin, module-level delegation.
-- PBT: `test_tj_parameter_bounds_rust_pbt.py` (shared with
-  parameter_bounds) — **5 properties + 3 metamorphic relations for
+- PBT: `test_tj_parameter_bounds_rust_pbt.py` — **5 properties + 3
+  metamorphic relations for
   tj_cross_check** (P1 conservative ≥ both estimates, P2 delta/exceeds
   exact with the strict-`>` boundary, P3 distance geometry, P6 margin
   definitional, P7 exceeds gated only on (delta, tau); M1 zero-power
@@ -1385,11 +1336,12 @@ recorded.
    repo's surface).
 2. **Worst-case selection.** `mono < 0 → min, else max` (0 is
    conservatively max — not a guarantee, per the module's own docs).
-3. **Kept-Python boundaries.** `build_thermal_parameter_bounds` keeps the
-   prereg/FDM-config introspection and the literal ambient_C / h_sink_min
-   bounds; `compute_thermal_soundness` stays Python (drives the FDM corner
-   solve — the solver boundary); `monotonicity_proof()` returns the
-   docstring.
+3. **Retired Python surface.** The former
+   `build_thermal_parameter_bounds` / `compute_thermal_soundness` Python
+   module had no production callers and was deleted. Its binding-only Rust
+   adapters, result classes, and proof-text export were deleted with it;
+   only the two pure Rust kernels above remain, together with their Rust
+   unit/WASM tests.
 4. **R24.** This module IS the L2 soundness-gate surface.  Its
    Chebyshev-style soundness claim: the worst-case corner bounds every
    interior configuration for provably-monotone parameters, via the
@@ -1399,21 +1351,11 @@ recorded.
 
 ### Empirical verification
 
-- Differential: `test_parameter_bounds_rust_differential.py` — 15 fixed-
-  name classification pins (incl. the P_LOSS dead-code case, precedence
-  cases, empty names), 6 randomized-seed pins (100 samples each,
-  string-exact), worst-case-value pins, module-level pins with a real
-  prereg.
-- PBT: `test_tj_parameter_bounds_rust_pbt.py` — **5 properties + 3
-  metamorphic relations for parameter_bounds** (P4 classification
-  totality + family consistency, P5 worst-case corner selection +
-  dominance, P8 citation fidelity with the original-case name, P9
-  mirror dominance for −1, P10 family-precedence stability; M3 ASCII
-  case-folding invariance, M5 substring-match semantics, M6
-  permutation equivariance of worst_case_values), **each property and
-  relation vacuity-guarded by a real mutant** — pass 2 added the
-  missing M3 guard (`test_m3_fails_for_case_sensitive`), completing the
-  file's guard inventory.
+- Rust unit/WASM tests in `parameter_bounds.rs` cover the three parameter
+  families, precedence, unknown parameters, citations, and element-wise
+  worst-case selection. The former Python differential/PBT files were
+  binding-only compatibility tests and were retired with the deleted
+  PyO3 surface.
 
 ## Anti-vacuity summary (this slice's kernels)
 
@@ -1438,7 +1380,6 @@ is-mul / float-`** 2`-is-pow trap.)
 | heat_removal | 5 | R_vert-skip pin, randomized pins, slice-wrap pin, off-by-one | pow→mul in h_bg → closed by the 1-ulp discriminator pin (cs=66.24771326355554; the cs is now SEARCHED on the loaded libm, issue #927) |
 | copper_coverage | 5 | rect axis, trace min-cap, NaN-discard | pow-for-offsets → closed by the mul-vs-pow offset discriminator; kr·kr-for-radius → closed by the radius pow-vs-mul discriminator (the kr is now SEARCHED on the loaded libm, issue #927) |
 | tj_cross_check | 2 | NaN conservative-max pin, distance abs pin | — |
-| parameter_bounds | 2 | case-folding pin (P_LOSS dead code), worst-case selection pin | — |
 
 (No operating_point flag-bit-swap entry: that module landed via #713.)
 

@@ -4,8 +4,8 @@ docs/evidence/2026-08-11-corridor-aware-astar-spike.md.
 Covers the two things the Rust kernel's own unit tests can't reach:
 1. The Python shim (``corridor_erosion.corridor_mask_for_net``) actually
    round-trips a real ``OccupancyGrid`` through the pyo3 boundary correctly.
-2. ``astar_core._astar_search``'s new ``corridor_mask`` parameter is
-   actually consulted by the ``net_id >= 0`` (real, net-aware) search path
+2. The corridor search's ``corridor_mask`` parameter is actually
+   consulted by the ``net_id >= 0`` (real, net-aware) search path
    -- the path production routing uses, and the one the spike's own root
    cause note (docs/evidence/2026-08-11-track-width-shorting-root-cause.md)
    identified as never receiving a corridor constraint before this change.
@@ -15,7 +15,14 @@ from __future__ import annotations
 
 import numpy as np
 
-from temper_placer.router_v6.astar_core import _astar_search
+# `_astar_search` moved to Rust on 2026-08-18
+# (`temper_rust_router_core::astar_search2d`). This suite holds the RUST
+# kernel -- the live implementation -- to its properties; the pre-port
+# Python is pinned at `_astar_core_py_oracle.py` and is what
+# `test_astar_search2d_rust_differential.py` compares against.
+from temper_placer.router_v6.astar_search2d_rust import (
+    _astar_search_2d_rust as _astar_search,
+)
 from temper_placer.router_v6.corridor_erosion import corridor_mask_for_net
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 

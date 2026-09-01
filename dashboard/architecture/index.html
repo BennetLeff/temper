@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive isometric system map of the Temper induction cooker repository.">
+  <title>Temper / System Atlas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="https://github.com/BennetLeff/temper" aria-label="Temper repository overview">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>TEMPER</span>
+      <span class="brand-muted">/ SYSTEM ATLAS</span>
+      <span class="build-status" id="build-status">WORKTREE</span>
+    </a>
+
+    <div class="focus-readout" aria-live="polite">
+      <span class="readout-label">FOCUS</span>
+      <strong id="focus-name">full system</strong>
+      <span id="focus-detail"></span>
+    </div>
+
+    <div class="top-actions">
+      <button class="action-button primary" id="trace-flow" type="button">
+        <span class="play-icon" aria-hidden="true">▶</span>
+        TRACE FLOW
+      </button>
+      <button class="action-button" id="reset-view" type="button">RESET VIEW</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="map-panel" aria-label="Interactive isometric architecture map">
+      <nav class="flow-nav" aria-label="Architecture flow filters">
+        <span class="flow-nav-label">PATHS</span>
+        <button class="flow-filter active" data-flow="all" type="button">All systems</button>
+        <button class="flow-filter" data-flow="design" type="button"><i class="flow-dot design" aria-hidden="true"></i>Design</button>
+        <button class="flow-filter" data-flow="place" type="button"><i class="flow-dot place" aria-hidden="true"></i>Placement</button>
+        <button class="flow-filter" data-flow="route" type="button"><i class="flow-dot route" aria-hidden="true"></i>Routing</button>
+        <button class="flow-filter" data-flow="verify" type="button"><i class="flow-dot verify" aria-hidden="true"></i>Verification</button>
+        <button class="flow-filter" data-flow="runtime" type="button"><i class="flow-dot runtime" aria-hidden="true"></i>Runtime</button>
+      </nav>
+
+      <svg id="system-map" role="group" aria-labelledby="map-title map-description" viewBox="0 0 1320 860" preserveAspectRatio="xMidYMid meet">
+        <title id="map-title">Temper repository isometric system architecture</title>
+        <desc id="map-description">Interactive map of electrical authoring, the Rust and Python placement toolchain, verification infrastructure, firmware, and the physical cooker.</desc>
+        <defs>
+          <pattern id="micro-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+            <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(79,66,48,.085)" stroke-width="1"/>
+          </pattern>
+          <filter id="node-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="soft-shadow" x="-30%" y="-30%" width="180%" height="180%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="7"/>
+            <feOffset dx="0" dy="8" result="offsetblur"/>
+            <feComponentTransfer><feFuncA type="linear" slope=".18"/></feComponentTransfer>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="paper-shadow" x="-20%" y="-20%" width="150%" height="160%">
+            <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#6d5538" flood-opacity=".09"/>
+          </filter>
+          <marker id="arrow-design" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"/></marker>
+          <marker id="arrow-place" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"/></marker>
+          <marker id="arrow-route" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"/></marker>
+          <marker id="arrow-verify" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"/></marker>
+          <marker id="arrow-runtime" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"/></marker>
+        </defs>
+        <rect class="canvas-grid" width="1320" height="860" fill="url(#micro-grid)"/>
+        <g id="viewport">
+          <g id="district-layer"></g>
+          <g id="edge-layer"></g>
+          <g id="node-layer"></g>
+          <g id="label-layer"></g>
+        </g>
+      </svg>
+
+      <div class="map-controls" aria-label="Map controls">
+        <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+        <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+      </div>
+
+      <aside class="path-key" aria-labelledby="path-key-title">
+        <p id="path-key-title">HOW TO READ A PATH</p>
+        <div class="path-key-row">
+          <span class="path-sample dependency" aria-hidden="true"><i></i></span>
+          <span><strong>Dependency + direction</strong><small>solid line · arrow points to the receiver</small></span>
+        </div>
+        <div class="path-key-row">
+          <span class="path-sample selected" aria-hidden="true"><i></i></span>
+          <span><strong>Selected neighborhood</strong><small>translucent wash · payloads live in the Flows tab</small></span>
+        </div>
+        <div class="path-key-row">
+          <span class="path-sample tracing" aria-hidden="true"><i></i></span>
+          <span><strong>Current trace step</strong><small>moving bead · numbered in the header</small></span>
+        </div>
+        <p class="path-key-note">Colors identify flow families, not path states.</p>
+        <div class="trace-speed-control">
+          <div class="trace-speed-heading">
+            <label for="trace-speed">TRACE SPEED</label>
+            <output id="trace-speed-value" for="trace-speed">3.6s / step</output>
+          </div>
+          <div class="trace-speed-row">
+            <span>SLOW</span>
+            <input id="trace-speed" type="range" min="1" max="5" step="1" value="2" aria-label="Trace speed">
+            <span>FAST</span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="legend" aria-label="Map legend">
+        <span><i class="legend-swatch rust"></i> RUST OWNER</span>
+        <span><i class="legend-swatch seam"></i> PYTHON / PROCESS SEAM</span>
+        <span><i class="legend-swatch physical"></i> PHYSICAL SYSTEM</span>
+        <span class="legend-hint">SCROLL TO ZOOM · DRAG TO PAN · CLICK A STRUCTURE</span>
+      </div>
+    </section>
+
+    <aside class="inspector" aria-label="Architecture explainer">
+      <div class="inspector-tabs" role="tablist" aria-label="Inspector views">
+        <button class="tab active" id="tab-details" data-tab="details" role="tab" aria-controls="inspector-content" aria-selected="true" type="button">WHAT IT DOES</button>
+        <button class="tab" id="tab-flows" data-tab="flows" role="tab" aria-controls="inspector-content" aria-selected="false" type="button">FLOWS</button>
+        <button class="tab" id="tab-sources" data-tab="sources" role="tab" aria-controls="inspector-content" aria-selected="false" type="button">SOURCES</button>
+      </div>
+      <div id="inspector-content" class="inspector-content" role="tabpanel" aria-labelledby="tab-details" tabindex="0"></div>
+    </aside>
+  </main>
+
+  <noscript>This system map requires JavaScript for its source citations and interactive dependency tracing.</noscript>
+  <script src="build-info.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

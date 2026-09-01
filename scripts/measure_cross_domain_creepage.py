@@ -76,26 +76,48 @@ footprint angle to the pad angle instead reproduces neither (T1 comes out
 7.800mm).
 
 Pad *position* (local offset -> world), by contrast, needs the footprint's
-own rotation applied: ``world = footprint_position + R(+theta) *
-local_offset``, using the SAME sign convention ``check_isolation_keepout.py``
-and ``temper_placer.io._parse_modules.py`` both already use (confirmed by
-reading ``_parse_modules.py``'s own ``rotated_cx``/``rotated_cy``
-computation). This is a genuinely open question elsewhere in this repo's own
-history: docs/evidence/2026-07-28-req-safe-01-rederivation.md's "Rotation-
-convention caveat" section found this repo's own parser/writer use
-``R(+theta)`` while KiCad's own internal convention is ``R(-theta)``, that
-the two conventions agree everywhere except pairs involving a 90/270-degree-
-rotated footprint's position relative to ANOTHER footprint, and left which
-one is "real" as an open question (weak evidence favoured ``R(+theta)``).
-This script therefore does not silently pick a side and stay quiet about it:
-by default (disable with ``--no-rotation-sensitivity-check``) it recomputes
-every violating pair under BOTH conventions and flags any pair whose
-PASS/FAIL verdict differs between them, instead of reporting a number that
-might depend on an unresolved convention question without saying so. As it
-happens,
+own rotation applied: ``world = footprint_position + R(-theta) *
+local_offset``. That is KiCad's real convention, and this script gets it by
+importing ``temper_placer.geometry.kicad_transform`` -- the repo's single
+sanctioned implementation -- rather than typing the formula out again.
+
+-- the convention bug this script shipped with (fixed 2026-08-18) --
+Until this fix, the paragraph above said ``R(+theta)`` and this script
+computed it, on the stated grounds that the question was "genuinely open"
+(docs/evidence/2026-07-28-req-safe-01-rederivation.md's "Rotation-convention
+caveat", which left the sign unresolved with "weak evidence favouring
+R(+theta)"). The question was NOT open: it had already been closed against
+real ``pcbnew`` ground truth by the 2026-07-29 sweep that corrected 12 sites
+and created ``kicad_transform`` (docs/evidence/2026-07-29-rotation-
+convention-sign-fix-cpsat-rerun.md). This script was written from the
+superseded evidence doc and inherited the bug the sweep had just removed
+everywhere else. Re-verified here against
+``scripts/kicad_pad_rotation_oracle.py`` (which asks pcbnew's own placement
+engine, not a reimplementation): 10/10 real rotated cross-domain pad rows
+from ``pcb/temper.kicad_pcb`` disagree with R(+theta) and agree with
+R(-theta) exactly, as does an asymmetric 45-degree case -- (10, 4) at 45 deg
+places at (9.899495, -4.242641), where R(+theta) says (4.242641, 9.899495).
+The asymmetric case matters: at 90/270 degrees the two conventions differ
+only in WHICH of x/y is negated, so a symmetric probe cannot tell them apart.
+
+The cost was not a wrong number but a wrong SET. The script filtered its
+violation list by the R(+theta) column and only then cross-checked the
+survivors, so a pair violating under KiCad's real convention but not under
+R(+theta) was never examined at all. Measured on a real evaluation, a K1/C6
+footprint swap read 155 -> 235 violations under R(+theta) and 122 -> 92
+(zero new, 30 resolved) under the real convention -- the broken tool argued
+against a correct change.
+
+The cross-check is kept, repaired and inverted in meaning: both conventions
+are now measured over the FULL denominator (see ``measure_all_pairs``), so
+the report can state both directions -- reported violations R(+theta) would
+have missed, and phantom violations R(+theta) would have invented. Disable
+with ``--no-rotation-sensitivity-check``; the primary measurement is
+unaffected either way, because it is always R(-theta).
+
 ``pcb/temper.kicad_pcb`` has zero back-side (B.Cu) footprints as of this
-writing, so the position-mirroring half of this ambiguity (see ``_rotate``
-usage below) never triggers either way on this board; this is checked at
+writing, so the position-mirroring half of the flip ambiguity (see
+``_rotate`` usage below) never triggers on this board; this is checked at
 runtime, not assumed, and reported in ``Report.back_side_pads_found``.
 
 Body-free vs body-crossing
@@ -218,6 +240,15 @@ from temper_placer.core.pad_geometry import (  # noqa: E402
     pad_pair_distance,
 )
 
+# The single sanctioned implementation of KiCad's footprint-child rotation
+# convention. Imported, never re-typed -- see that module's docstring for why
+# (12 independently-typed copies, one of them silently wrong) and
+# scripts/check_no_raw_rotation_trig.py for the lint that enforces it.
+from temper_placer.geometry.kicad_transform import (  # noqa: E402
+    rotate_local_to_world_deg,
+    rotate_world_to_local_deg,
+)
+
 DEFAULT_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 DEFAULT_MANIFEST = REPO_ROOT / "elec" / "domain_manifest.yaml"
 
@@ -307,25 +338,34 @@ def load_manifest(path: Path) -> Manifest:
 # ---------------------------------------------------------------------------
 
 
-def _rotate_plus_theta(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
-    """R(+theta): the sign convention this repo's own parser/writer
-    (temper_placer.io._parse_modules.py / _write_modules.py) and
-    check_isolation_keepout.py both use for local-offset -> world-position.
-    See module docstring's "How pad geometry is measured" section for the
-    ground-truth verification and the open-question caveat this is NOT the
-    only convention seen in this repo's history."""
-    a = math.radians(angle_deg or 0.0)
-    return (x * math.cos(a) - y * math.sin(a), x * math.sin(a) + y * math.cos(a))
+def _rotate(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
+    """KiCad's real footprint-child rotation, R(-theta) -- THE primary and
+    only correct convention for local-offset -> world-position here.
+
+    Delegates to ``temper_placer.geometry.kicad_transform``, the single
+    sanctioned implementation, rather than re-typing the two-line formula
+    (which is exactly how this repo grew 12 independently-wrong copies; see
+    that module's docstring and ``scripts/check_no_raw_rotation_trig.py``).
+    Ground truth is ``scripts/kicad_pad_rotation_oracle.py`` (pcbnew's own
+    placement engine), and this file is pinned against it by
+    ``scripts/check_pad_world_position_oracle.py``.
+    """
+    return rotate_local_to_world_deg(x, y, angle_deg or 0.0)
 
 
-def _rotate_minus_theta(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
-    """R(-theta): KiCad's own internal footprint-rotation convention per
-    docs/evidence/2026-07-28-req-safe-01-rederivation.md's "Rotation-
-    convention caveat" and scripts/check_pad_orientation.py's documented
-    y-down-frame formula. Used only by the sensitivity check, never as the
-    primary measurement."""
-    a = math.radians(angle_deg or 0.0)
-    return (x * math.cos(a) + y * math.sin(a), -x * math.sin(a) + y * math.cos(a))
+def _rotate_legacy_ccw(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
+    """R(+theta), the standard-math CCW convention -- **known wrong** for
+    KiCad footprint children, retained ONLY to quantify the error this
+    script itself shipped with (see module docstring "How pad geometry is
+    measured"). Never the primary measurement and never what the violation
+    list is filtered by.
+
+    R(+theta) is the transpose (= inverse) of R(-theta), so this is exactly
+    ``kicad_transform.rotate_world_to_local_deg`` -- reused rather than
+    hand-typed, so this file contains no raw rotation trig at all and can
+    be guarded by ``scripts/check_no_raw_rotation_trig.py``.
+    """
+    return rotate_world_to_local_deg(x, y, angle_deg or 0.0)
 
 
 @dataclass(frozen=True)
@@ -338,10 +378,10 @@ class PadInfo:
     height: float
     shape: str
     roundrect_ratio: float
-    cx: float
+    cx: float  # world position under R(-theta) -- KiCad's real convention
     cy: float
-    cx_alt: float  # position under R(-theta), for the sensitivity check
-    cy_alt: float
+    cx_legacy: float  # position under the known-wrong R(+theta), diagnostic only
+    cy_legacy: float
     rotation_rad: float
     is_back_side: bool
 
@@ -349,10 +389,12 @@ class PadInfo:
     def label(self) -> str:
         return f"{self.ref}.{self.number}({self.net_name})"
 
-    def spec(self, *, alt: bool = False) -> tuple[float, float, str, float, float, float, float]:
-        """``pad_geometry.pad_pair_distance``'s pad tuple."""
-        cx = self.cx_alt if alt else self.cx
-        cy = self.cy_alt if alt else self.cy
+    def spec(self, *, legacy: bool = False) -> tuple[float, float, str, float, float, float, float]:
+        """``pad_geometry.pad_pair_distance``'s pad tuple. ``legacy=True``
+        substitutes the known-wrong R(+theta) position -- used only to
+        quantify the error, never to decide a verdict."""
+        cx = self.cx_legacy if legacy else self.cx
+        cy = self.cy_legacy if legacy else self.cy
         return (self.width, self.height, self.shape, cx, cy, self.rotation_rad, self.roundrect_ratio)
 
 
@@ -417,7 +459,7 @@ def _footprint_body_polygon(fp) -> FootprintBody:
             for lx, ly in _local_points_of_graphic_item(item):
                 if flipped:
                     lx = -lx
-                dx, dy = _rotate_plus_theta(lx, ly, fangle)
+                dx, dy = _rotate(lx, ly, fangle)
                 pts.append((fx + dx, fy + dy))
         return pts
 
@@ -474,10 +516,10 @@ def load_board(board_path: Path, manifest: Manifest) -> BoardData:
             lx, ly = pad.position.X, pad.position.Y
             if flipped:
                 lx = -lx
-            dx, dy = _rotate_plus_theta(lx, ly, fangle)
+            dx, dy = _rotate(lx, ly, fangle)
             cx, cy = fx + dx, fy + dy
-            adx, ady = _rotate_minus_theta(lx, ly, fangle)
-            cx_alt, cy_alt = fx + adx, fy + ady
+            ldx, ldy = _rotate_legacy_ccw(lx, ly, fangle)
+            cx_legacy, cy_legacy = fx + ldx, fy + ldy
 
             if flipped:
                 back_side_pads_found += 1
@@ -509,8 +551,8 @@ def load_board(board_path: Path, manifest: Manifest) -> BoardData:
                 roundrect_ratio=roundrect_ratio,
                 cx=cx,
                 cy=cy,
-                cx_alt=cx_alt,
-                cy_alt=cy_alt,
+                cx_legacy=cx_legacy,
+                cy_legacy=cy_legacy,
                 rotation_rad=rotation_rad,
                 is_back_side=flipped,
             )
@@ -554,7 +596,7 @@ class PairFinding:
     body_class: str = "unclassified"  # "body_free" | "body_crossing" | "unknown" | "unclassified"
     crossed_by: tuple[str, ...] = ()
     convention_sensitive: bool | None = None  # None = not checked
-    distance_mm_alt: float | None = None  # under R(-theta), if checked
+    distance_mm_legacy: float | None = None  # under the known-wrong R(+theta), if checked
 
     @property
     def label(self) -> str:
@@ -593,15 +635,39 @@ def _classify_body(hv: PadInfo, selv: PadInfo, bodies: dict[str, FootprintBody])
     return "body_free", ()
 
 
-def measure_all_pairs(hv_pads: list[PadInfo], selv_pads: list[PadInfo]) -> list[PairFinding]:
+def measure_all_pairs(
+    hv_pads: list[PadInfo],
+    selv_pads: list[PadInfo],
+    *,
+    check_rotation_sensitivity: bool = True,
+) -> list[PairFinding]:
     """Exact pad-edge-to-pad-edge distance for EVERY cross-domain pair --
     this is the full denominator, not a pre-filtered subset. Cheap enough to
-    brute-force: ~21k pairs on the real board measure in ~1.3s."""
+    brute-force: ~26k pairs on the real board measure in ~1.3s.
+
+    The legacy-R(+theta) distance, when requested, is computed here over the
+    SAME full denominator rather than later over the already-filtered
+    violation subset. That ordering is load-bearing and is the actual bug
+    this script shipped with: filtering first by one convention and only
+    then cross-checking the survivors can, by construction, only ever find
+    pairs the WRONG convention already flagged. Pairs that violate under
+    KiCad's real convention but not under R(+theta) were never examined at
+    all -- so the tool reported the wrong violation SET, not merely a wrong
+    number. Measuring both over the full denominator makes the cross-check
+    two-sided and non-vacuous.
+    """
     findings: list[PairFinding] = []
     for hv in hv_pads:
+        hv_spec = hv.spec()
+        hv_spec_legacy = hv.spec(legacy=True) if check_rotation_sensitivity else None
         for selv in selv_pads:
-            d = pad_pair_distance(hv.spec(), selv.spec())
-            findings.append(PairFinding(hv=hv, selv=selv, distance_mm=d))
+            d = pad_pair_distance(hv_spec, selv.spec())
+            d_legacy = (
+                pad_pair_distance(hv_spec_legacy, selv.spec(legacy=True))
+                if hv_spec_legacy is not None
+                else None
+            )
+            findings.append(PairFinding(hv=hv, selv=selv, distance_mm=d, distance_mm_legacy=d_legacy))
     return findings
 
 
@@ -635,11 +701,9 @@ def classify_violations(
         if f.distance_mm >= threshold_mm:
             continue
         body_class, crossed_by = _classify_body(f.hv, f.selv, bodies)
-        distance_mm_alt: float | None = None
         convention_sensitive: bool | None = None
-        if check_rotation_sensitivity:
-            distance_mm_alt = pad_pair_distance(f.hv.spec(alt=True), f.selv.spec(alt=True))
-            convention_sensitive = (distance_mm_alt < threshold_mm) != (f.distance_mm < threshold_mm)
+        if check_rotation_sensitivity and f.distance_mm_legacy is not None:
+            convention_sensitive = (f.distance_mm_legacy < threshold_mm) != (f.distance_mm < threshold_mm)
         violating.append(
             PairFinding(
                 hv=f.hv,
@@ -648,11 +712,25 @@ def classify_violations(
                 body_class=body_class,
                 crossed_by=crossed_by,
                 convention_sensitive=convention_sensitive,
-                distance_mm_alt=distance_mm_alt,
+                distance_mm_legacy=f.distance_mm_legacy,
             )
         )
     violating.sort(key=lambda f: f.distance_mm)
     return violating
+
+
+def count_legacy_only_violations(findings: list[PairFinding], threshold_mm: float) -> int:
+    """Pairs the known-wrong R(+theta) convention would have reported as
+    violations and KiCad's real R(-theta) does not -- i.e. phantom
+    violations the pre-fix script invented. Counted over the full
+    denominator; returns 0 when the legacy distances were not computed
+    (``--no-rotation-sensitivity-check``), which is why the report prints
+    this line only when the cross-check actually ran."""
+    return sum(
+        1
+        for f in findings
+        if f.distance_mm_legacy is not None and f.distance_mm_legacy < threshold_mm <= f.distance_mm
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -673,6 +751,10 @@ class Report:
     back_side_pads_found: int
     footprints_with_body_outline: int
     violations: list[PairFinding] = field(default_factory=list)
+    # Phantom violations the pre-fix R(+theta) convention would have
+    # invented at this threshold, counted over the FULL denominator.
+    # None when the cross-check was disabled -- never conflated with 0.
+    legacy_only_violations: int | None = None
 
 
 def measure(
@@ -689,10 +771,13 @@ def measure(
     manifest = load_manifest(manifest_path)
     board = load_board(board_path, manifest)
 
-    all_findings = measure_all_pairs(board.hv_pads, board.selv_pads)
+    all_findings = measure_all_pairs(
+        board.hv_pads, board.selv_pads, check_rotation_sensitivity=check_rotation_sensitivity
+    )
     violations = classify_violations(
         all_findings, threshold_mm, board.bodies, check_rotation_sensitivity=check_rotation_sensitivity
     )
+    legacy_only = count_legacy_only_violations(all_findings, threshold_mm) if check_rotation_sensitivity else None
 
     report = Report(
         board_path=board_path,
@@ -706,6 +791,7 @@ def measure(
         back_side_pads_found=board.back_side_pads_found,
         footprints_with_body_outline=sum(1 for b in board.bodies.values() if b.polygon is not None),
         violations=violations,
+        legacy_only_violations=legacy_only,
     )
     return report, all_findings, board.bodies
 
@@ -727,6 +813,7 @@ def measure_at_second_threshold(
     violations = classify_violations(
         all_findings, threshold_mm, bodies, check_rotation_sensitivity=check_rotation_sensitivity
     )
+    legacy_only = count_legacy_only_violations(all_findings, threshold_mm) if check_rotation_sensitivity else None
     return Report(
         board_path=base_report.board_path,
         manifest_path=base_report.manifest_path,
@@ -739,6 +826,7 @@ def measure_at_second_threshold(
         back_side_pads_found=base_report.back_side_pads_found,
         footprints_with_body_outline=base_report.footprints_with_body_outline,
         violations=violations,
+        legacy_only_violations=legacy_only,
     )
 
 
@@ -790,10 +878,18 @@ def format_report(report: Report, *, limit: int = 50) -> str:
         f"island-slot detour UNRESOLVED, see docstring): {body_crossing}"
     )
     lines.append(f"  unknown (no body outline data):           {unknown}")
-    if sensitive:
+    if sensitive or report.legacy_only_violations:
+        lines.append("")
         lines.append(
-            f"  rotation-convention-sensitive (verdict flips under R(-theta)): {sensitive} "
-            "-- see module docstring's open-question caveat."
+            "Rotation-convention cross-check (primary = KiCad's real R(-theta), verified "
+            "against pcbnew via scripts/kicad_pad_rotation_oracle.py):"
+        )
+        lines.append(
+            f"  reported violations the pre-fix R(+theta) convention would have MISSED: {sensitive}"
+        )
+        lines.append(
+            "  phantom violations R(+theta) would have INVENTED (not reported here): "
+            f"{report.legacy_only_violations}"
         )
 
     if report.violations:
@@ -801,7 +897,7 @@ def format_report(report: Report, *, limit: int = 50) -> str:
         lines.append("Worst pairs (smallest gap first):")
         for f in report.violations[:limit]:
             tag = {"body_free": "FREE", "body_crossing": "BODY", "unknown": "UNK "}[f.body_class]
-            sens = " [CONVENTION-SENSITIVE]" if f.convention_sensitive else ""
+            sens = " [MISSED-BY-LEGACY-R(+theta)]" if f.convention_sensitive else ""
             crossed = f" (crosses: {', '.join(f.crossed_by)})" if f.crossed_by else ""
             lines.append(f"  [{tag}] {f.distance_mm:7.3f}mm  {f.label}{crossed}{sens}")
         if n > limit:
@@ -864,12 +960,15 @@ def report_to_dict(report: Report) -> dict:
         "pairs_examined": report.pairs_examined,
         "back_side_pads_found": report.back_side_pads_found,
         "violation_count": len(report.violations),
+        "rotation_convention": "R(-theta)",
+        "rotation_convention_oracle": "scripts/kicad_pad_rotation_oracle.py (pcbnew)",
+        "legacy_r_plus_theta_only_violations": report.legacy_only_violations,
         "violations": [
             {
                 "hv": f.hv.label,
                 "selv": f.selv.label,
                 "distance_mm": f.distance_mm,
-                "distance_mm_alt_rotation_convention": f.distance_mm_alt,
+                "distance_mm_legacy_r_plus_theta": f.distance_mm_legacy,
                 "convention_sensitive": f.convention_sensitive,
                 "body_class": f.body_class,
                 "crossed_by": list(f.crossed_by),
@@ -901,7 +1000,8 @@ def main() -> None:
     parser.add_argument(
         "--no-rotation-sensitivity-check",
         action="store_true",
-        help="Skip the R(+theta)/R(-theta) convention cross-check (faster, less rigorous)",
+        help="Skip the legacy-R(+theta) cross-check (faster; the primary measurement "
+        "is unaffected -- it is always KiCad's real R(-theta))",
     )
     parser.add_argument("--json", type=Path, default=None, help="Write the full structured result as JSON")
     args = parser.parse_args()

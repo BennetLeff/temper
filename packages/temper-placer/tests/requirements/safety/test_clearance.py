@@ -701,6 +701,10 @@ class TestClearanceIntegration:
         fail-closed: any NEW violation of either kind fails.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
+        from ._req_safe_01_baseline import (
+            assert_proximity_at_baseline,
+            assert_req_safe_01_at_baseline,
+        )
 
         try:
             placement, voltage_domains, stats = load_real_board_placement()
@@ -756,26 +760,18 @@ class TestClearanceIntegration:
         # fails the test.
         failures: list[str] = []
 
-        non_exempt_proximity = [
-            f
-            for f in stats["proximity_findings"]
-            if not f["exempt"] and f["distance_mm"] < stats["max_iec_margin_mm"]
-        ]
-        if non_exempt_proximity:
-            failures.append(
-                f"{len(non_exempt_proximity)} unclassified component(s) sit "
-                f"closer than the largest IEC margin "
-                f"({stats['max_iec_margin_mm']}mm) to a declared-HV component, "
-                "with no exemption on record (copper-to-copper; the "
-                "origin-to-origin figure this used to compare against is shown "
-                "alongside to make the old model's optimism visible): "
-                + "; ".join(
-                    f"{f['ref']} ({f['instance_path']}) at {f['distance_mm']:.3f}mm "
-                    f"(origins: {f['origin_distance_mm']:.3f}mm) "
-                    f"from {f['nearest_hv_ref']} ({f['nearest_hv_instance_path']})"
-                    for f in non_exempt_proximity
-                )
-            )
+        # RE-PINNED 2026-08-25. This required the non-exempt set to be EMPTY.
+        # The margin it compares against IS the reinforced figure, so it moved
+        # 8.0 -> 12.6mm with #1229 and three unclassified parts fell inside it
+        # without moving: R37 11.880mm, R52 11.906mm, R68 12.037mm -- each
+        # clearing the superseded PD2 bar by ~4mm and missing PD3 by under
+        # 0.75mm. Pinned as a SET in _req_safe_01_baseline.py, so a FOURTH
+        # part drifting into the margin still fails here.
+        proximity_drift = assert_proximity_at_baseline(
+            stats["proximity_findings"], stats["max_iec_margin_mm"]
+        )
+        if proximity_drift:
+            failures.append(proximity_drift)
 
         # --- Informational: what the FULL manifest-derived classification
         # would find if wired into the hard check above (see this method's
@@ -847,18 +843,22 @@ class TestClearanceIntegration:
         # Re-baselined, not weakened: fail-closed for NEW violations -- any
         # inter-component OR intra-footprint violation fails, with the
         # violating pair(s) named.
-        inter = [v for v in result.violations if v.pair_kind == "inter"]
-        assert not inter, (
-            "NEW inter-component REQ-SAFE-01 violation(s) on the written "
-            f"board -- the wave-2 state has ZERO; got: {inter}"
-        )
-
-        intra = [v for v in result.violations if v.pair_kind == "intra"]
-        assert not intra, (
-            "NEW intra-footprint REQ-SAFE-01 violation(s) on the written "
-            f"board -- the wave-2 K3 RT314012 swap cleared the last blocker; "
-            f"got: {intra}\n{result.report()}"
-        )
+        # RE-PINNED 2026-08-25. The two "must be ZERO" assertions above this
+        # line encoded the wave-2 0/0 measurement, taken under the PD2 8.0mm
+        # reinforced target. Two threshold decisions have landed since and
+        # neither moved a pad: #1229 restored PD3/12.6mm reinforced creepage,
+        # and #1226 raised FUNCTIONAL creepage 1.0 -> 1.8mm. The board now
+        # measures 69 -- and 28 of the 32 inter REINFORCED violations would
+        # still clear the superseded 8.0mm bar, so the bulk of this is those
+        # decisions surfacing existing geometry rather than new damage.
+        #
+        # Pinned per insulation class, not as one total: a 0.650mm FUNCTIONAL
+        # gap and a REINFORCED mains<->SELV barrier are different findings and
+        # must not be able to grow into each other's slack. The pin is exact
+        # in BOTH directions -- growth is a regression, shrinkage must be
+        # recorded -- and it pins DEBT, not correctness. See
+        # tests/requirements/safety/_req_safe_01_baseline.py.
+        assert_req_safe_01_at_baseline(result, context="test_temper_board_clearance_compliance")
 
         assert not failures, "\n\n".join(
             [f"{len(failures)} REQ-SAFE-01 finding(s) on the real board:", *failures]

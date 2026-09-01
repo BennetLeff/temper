@@ -58,11 +58,6 @@ from temper_placer.geometry.kicad_transform import (
     rotate_local_to_world_deg,
     rotate_world_to_local,
 )
-from temper_placer.geometry.transform import (
-    onehot_to_rotation_degrees,
-    rotation_degrees_to_onehot,
-)
-
 # The solver's finite angle set (ROTATION_ANGLES_DEG in transform.rs; the
 # only rotations the CP-SAT solver emits today).
 FINITE_ANGLE_SET_DEG = (0.0, 90.0, 180.0, 270.0)
@@ -203,26 +198,7 @@ def test_convention_anchor_at_non_quadrant_angle_captured_from_pcbnew():
 
 
 # =============================================================================
-# 4. One-hot encoding round-trip -- all 4 angles
-# =============================================================================
-
-
-@pytest.mark.parametrize("theta_deg", FINITE_ANGLE_SET_DEG)
-def test_onehot_round_trip_is_identity_on_finite_set(theta_deg):
-    """degree -> one-hot -> degree is the identity on the finite set, and
-    each encoding is a genuine one-hot (exactly one 1.0). Exercises the
-    solver's rotation-encoding surface (``rotation_degrees_to_onehot`` /
-    ``onehot_to_rotation_degrees``, Rust-backed via ``temper_geometry``).
-    """
-    onehot = rotation_degrees_to_onehot(theta_deg)
-    assert sum(onehot) == pytest.approx(1.0, abs=1e-15)
-    assert len([v for v in onehot if v == 1.0]) == 1, onehot
-    deg_back = onehot_to_rotation_degrees(onehot)
-    assert deg_back == pytest.approx(theta_deg, abs=1e-9)
-
-
-# =============================================================================
-# 5. Property tests -- random non-multiple angles
+# 4. Property tests -- random non-multiple angles
 # =============================================================================
 
 
@@ -252,7 +228,7 @@ def test_property_composition_and_inverse_laws_at_random_angles(seed):
 
 
 # =============================================================================
-# 6. Falsifier -- convention flip (R(+theta)) must fail this suite
+# 5. Falsifier -- convention flip (R(+theta)) must fail this suite
 # =============================================================================
 
 # Composition discriminates a sign flip only when the angle sum is NOT in

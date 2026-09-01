@@ -57,26 +57,3 @@ class TestStackupCorrectness:
         )
         with pytest.raises(ValueError, match="6 layers"):
             Board(width=100, height=100, layer_stackup=stackup)
-
-
-class TestKiCadExportLayerValidation:
-    """The KiCad exporter validates 4 copper layers before writing (R4)."""
-
-    def test_validation_passes_for_4_layers(self):
-        """_validate_4_layer_output succeeds for a valid 4-layer board."""
-        from kiutils.board import Board as KiBoard
-
-        from temper_placer.io.kicad_exporter import _validate_4_layer_output
-
-        board = KiBoard.from_file(str(_TEMPER_PCB))
-        _validate_4_layer_output(board)
-
-    def test_validation_raises_for_no_layers_attribute(self):
-        """_validate_4_layer_output raises RuntimeError on missing layers."""
-        from temper_placer.io.kicad_exporter import _validate_4_layer_output
-
-        class FakeBoard:
-            pass
-
-        with pytest.raises(RuntimeError, match="no layers attribute"):
-            _validate_4_layer_output(FakeBoard())

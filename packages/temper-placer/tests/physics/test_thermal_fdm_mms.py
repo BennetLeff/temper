@@ -27,76 +27,67 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-import sympy as sp
 
 from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
 
 # ============================================================================
-# Symbolic derivation of manufactured solutions
+# Manufactured solutions — source terms pre-computed, no sympy
 # ============================================================================
-
-# Symbolic variables
-x, y = sp.symbols("x y", real=True)
-Lx, Ly = sp.symbols("Lx Ly", positive=True)
-A = sp.symbols("A", positive=True)  # temperature scale factor (°C)
-T_amb_s = sp.symbols("T_amb")
-k0, k1 = sp.symbols("k0 k1", positive=True)
-
-# Wave numbers matching the BCs
-ax = sp.pi / Lx  # alpha_x: ensures dT/dx = 0 at x=0, Lx
-ay = sp.pi / (2 * Ly)  # alpha_y: ensures dT/dy = 0 at y=0, T*=T_amb at y=Ly
-
-# ------------------------------------------------------------------
-# Manufactured temperature (shared by both cases)
-# T*(x,y) = T_amb + A * cos(ax * x) * cos(ay * y)
 #
-# BC checks:
-#   y = Ly: cos(ay*Ly) = cos(pi/2) = 0  => T* = T_amb (Dirichlet TOP)
-#   y = 0:  dT/dy ∝ sin(ay*0) = 0       => adiabatic BOTTOM
-#   x = 0:  dT/dx ∝ sin(ax*0) = 0       => adiabatic LEFT
-#   x = Lx: dT/dx ∝ sin(ax*Lx) = sin(pi)=0 => adiabatic RIGHT
-# ------------------------------------------------------------------
-T_star = T_amb_s + A * sp.cos(ax * x) * sp.cos(ay * y)
-
-# ------------------------------------------------------------------
-# Case 1: Uniform k
-# Q* = -k0 * laplacian(T*) = k0 * A * (ax^2 + ay^2) * cos(ax*x) * cos(ay*y)
-# ------------------------------------------------------------------
-lap_T = sp.diff(T_star, x, 2) + sp.diff(T_star, y, 2)
-Q1 = -k0 * lap_T
-
-# Simplify: Q1 = k0 * A * (ax^2 + ay^2) * cos(ax*x) * cos(ay*y)
-Q1_simplified = sp.simplify(Q1)
-
-# ------------------------------------------------------------------
-# Case 2: Spatially-varying k
-# k(x,y) = k0 + k1 * sin(ax * x) * sin(ay * y)
+# The source terms below were derived symbolically and then hardcoded
+# (sympy was removed from dev dependencies on 2026-08-20; the hardcoded
+# forms were verified byte-for-byte equal to sympy 1.14's simplification
+# of the same derivation). The derivation, for auditability:
 #
-# k varies in [k0 - k1, k0 + k1].  With k1 < k0, k stays positive.
-# The sin*sin form satisfies dk/dx = 0 at x=0,Lx and dk/dy = 0 at y=0
-# (no special BC on k needed, but smoothness helps convergence).
+#   ax = pi/Lx, ay = pi/(2*Ly)   (wave numbers matching the BCs)
+#   T*(x,y) = T_amb + A*cos(ax*x)*cos(ay*y)
+#     y = Ly: cos(ay*Ly) = cos(pi/2) = 0  => T* = T_amb (Dirichlet TOP)
+#     y = 0:  dT/dy ∝ sin(ay*0) = 0       => adiabatic BOTTOM
+#     x = 0:  dT/dx ∝ sin(ax*0) = 0       => adiabatic LEFT
+#     x = Lx: dT/dx ∝ sin(ax*Lx) = 0      => adiabatic RIGHT
 #
-# Q* = -div(k grad T) = -(k * laplacian(T) + grad(k) . grad(T))
-# ------------------------------------------------------------------
-k_star = k0 + k1 * sp.sin(ax * x) * sp.sin(ay * y)
+#   Case 1 (uniform k): Q* = -k0 * laplacian(T*)
+#     = k0 * A * (ax^2 + ay^2) * cos(ax*x) * cos(ay*y)
+#
+#   Case 2 (spatially-varying k): k(x,y) = k0 + k1*sin(ax*x)*sin(ay*y)
+#     Q* = -div(k grad T) = -(k*laplacian(T) + grad(k).grad(T))
+#     = A*(ax^2+ay^2) * ( k0*cos(ax*x)*cos(ay*y)
+#                         + 2*k1*sin(ax*x)*cos(ax*x)*sin(ay*y)*cos(ay*y) )
+#
+# Each is written as a plain numpy expression with the same call signature
+# the lambdified versions had, so the call sites below are unchanged.
 
-grad_k_x = sp.diff(k_star, x)
-grad_k_y = sp.diff(k_star, y)
-grad_T_x = sp.diff(T_star, x)
-grad_T_y = sp.diff(T_star, y)
 
-k_lap_T = k_star * lap_T
-grad_k_dot_grad_T = grad_k_x * grad_T_x + grad_k_y * grad_T_y
-Q2 = -(k_lap_T + grad_k_dot_grad_T)
+def _T_np(x, y, Lx, Ly, A, T_amb):
+    """T*(x,y) = T_amb + A*cos(pi*x/Lx)*cos(pi*y/(2*Ly))."""
+    return T_amb + A * np.cos(np.pi * x / Lx) * np.cos(np.pi * y / (2 * Ly))
 
-Q2_simplified = sp.simplify(Q2)
 
-# Lambdify for numpy evaluation (use 'numpy' backend for speed)
-# Q1 and Q2 don't depend on T_amb (it cancels in the derivatives), but
-# we include it in the signature so all args match.
-_Q1_np = sp.lambdify((x, y, Lx, Ly, A, T_amb_s, k0), Q1_simplified, "numpy")
-_Q2_np = sp.lambdify((x, y, Lx, Ly, A, T_amb_s, k0, k1), Q2_simplified, "numpy")
-_T_np = sp.lambdify((x, y, Lx, Ly, A, T_amb_s), T_star, "numpy")
+def _Q1_np(x, y, Lx, Ly, A, T_amb, k0):
+    """Q* = k0*A*(pi^2/Lx^2 + pi^2/(4*Ly^2))*cos(pi*x/Lx)*cos(pi*y/(2*Ly))."""
+    return (
+        k0
+        * A
+        * (np.pi**2 / Lx**2 + np.pi**2 / (4 * Ly**2))
+        * np.cos(np.pi * x / Lx)
+        * np.cos(np.pi * y / (2 * Ly))
+    )
+
+
+def _Q2_np(x, y, Lx, Ly, A, T_amb, k0, k1):
+    """Q* = A*(ax^2+ay^2)*(k0*cos(ax*x)*cos(ay*y)
+    + 2*k1*sin(ax*x)*cos(ax*x)*sin(ay*y)*cos(ay*y)), ax=pi/Lx, ay=pi/(2*Ly)."""
+    ax = np.pi / Lx
+    ay = np.pi / (2 * Ly)
+    return A * (ax**2 + ay**2) * (
+        k0 * np.cos(ax * x) * np.cos(ay * y)
+        + 2
+        * k1
+        * np.sin(ax * x)
+        * np.cos(ax * x)
+        * np.sin(ay * y)
+        * np.cos(ay * y)
+    )
 
 # ============================================================================
 # Helpers
@@ -258,8 +249,9 @@ def test_mms_varying_k_convergence():
 
     Q*(x,y) = -div(k grad T) = -(k * laplacian(T) + grad(k) . grad(T))
 
-    derived symbolically via sympy (conductivity varies between cells,
-    exercising the harmonic-mean interface treatment).
+    pre-computed and hardcoded above (see the module header for the
+    derivation; conductivity varies between cells, exercising the
+    harmonic-mean interface treatment).
 
     Grid ladder: same as Case 1 (h=2.0, 1.0, 0.5 mm).
     """

@@ -323,6 +323,34 @@ def test_map_layer_constraints_enum_layer_matches_oracle():
     _assert_mappings_same(want, got, "enum layer")
 
 
+def test_map_layer_heuristic_does_not_call_python_net_predicates(monkeypatch):
+    """The Rust orchestration owns net classification; Python only owns mode.
+
+    This fence is deliberately production-shaped: route a real mapped net
+    through the public shim while replacing the Python predicates with
+    failures.  It catches an accidental regression to per-net Python FFI
+    even when the Rust/Python differential remains green.
+    """
+    from temper_placer.router_v6 import net_classification
+
+    net_classification.set_single_layer_mode(False)
+    for name in ("is_power_net", "is_ground_net", "is_hv_net"):
+        monkeypatch.setattr(
+            net_classification,
+            name,
+            lambda _net_name: (_ for _ in ()).throw(
+                AssertionError("channel mapping called Python net predicate")
+            ),
+        )
+
+    sk = make_skeleton([(0.0, 0.0), (10.0, 0.0)])
+    got = shim_map(
+        topology({"GND": net_topo("GND", ["(0.0, 0.0)", "(10.0, 0.0)"])}),
+        sk,
+    )
+    assert got.channel_paths["GND"].preferred_layer == "B.Cu"
+
+
 def _rng_net_id(rng):
     kind = rng.choice(["coords", "edge", "plain", "underscore"])
     if kind == "coords":

@@ -294,8 +294,14 @@ mod tests {
         // actually needs, rather than hard-coding a number that could
         // silently stop testing anything if the solver version changes.
         let baseline = solve_with_cadical(&cnf, SolveLimits::default());
-        let needed = baseline.solver_stats.expect("stats must be present").conflicts;
-        assert!(needed > 0, "test precondition: instance must need real search");
+        let needed = baseline
+            .solver_stats
+            .expect("stats must be present")
+            .conflicts;
+        assert!(
+            needed > 0,
+            "test precondition: instance must need real search"
+        );
 
         // A conflict budget of 0 must be exhausted by the first conflict,
         // well before reaching a verdict on an instance that needs > 0.
@@ -355,4 +361,3 @@ mod tests {
         assert_eq!(result.status, SolverStatus::Satisfiable);
     }
 }
-

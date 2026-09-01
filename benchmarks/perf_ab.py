@@ -113,6 +113,7 @@ Capture SEVERAL runs of the SAME commit -- the margins depend on it:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import math
@@ -136,6 +137,84 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # (module, board, stage); "synthetic" keeps these rows from colliding with the
 # board-corpus rows produced by the closure pipeline.
 SYNTHETIC_BOARD = "synthetic"
+
+def _canonical_json(value: Any) -> str:
+    """Serialize regime metadata independently of host and dict ordering."""
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def build_measurement_regime(
+    declaration: dict[str, Any],
+    *,
+    repo_root: Path = REPO_ROOT,
+) -> dict[str, Any]:
+    """Materialize auditable file digests and a deterministic regime hash.
+
+    ``declaration`` is intentionally small and explicit: ``arms`` maps arm
+    names to source path lists, while ``harness`` carries result-affecting
+    fixture/timing parameters.  Paths are stored repository-relative so the
+    same checkout at different absolute locations hashes identically.
+    """
+    root = repo_root.resolve()
+    arms = declaration.get("arms", {})
+    if not arms:
+        arms = {
+            arm_name: declaration.get(f"{arm_name}_sources", [])
+            for arm_name in ("rust", "oracle")
+            if f"{arm_name}_sources" in declaration
+        }
+    if not isinstance(arms, dict):
+        raise TypeError("measurement regime arms must be a mapping")
+    materialized_arms: dict[str, dict[str, list[dict[str, str]]]] = {}
+    digest_cache: dict[Path, str] = {}
+    for arm_name in sorted(arms):
+        paths = arms[arm_name]
+        if isinstance(paths, dict):
+            paths = paths.get(
+                "source_paths",
+                paths.get(
+                    "paths",
+                    [source.get("path") for source in paths.get("sources", [])],
+                ),
+            )
+        if not isinstance(paths, (list, tuple)):
+            raise TypeError(f"measurement regime {arm_name!r} paths must be a list")
+        sources: list[dict[str, str]] = []
+        for raw_path in sorted(str(path) for path in paths):
+            path = Path(raw_path)
+            if not path.is_absolute():
+                path = root / path
+            resolved = path.resolve()
+            try:
+                relative = resolved.relative_to(root)
+            except ValueError as err:
+                raise ValueError(
+                    f"measurement regime source is outside repository: {raw_path}"
+                ) from err
+            if not resolved.is_file():
+                raise FileNotFoundError(f"measurement regime source not found: {relative}")
+            digest = digest_cache.get(resolved)
+            if digest is None:
+                digest = hashlib.sha256(resolved.read_bytes()).hexdigest()
+                digest_cache[resolved] = digest
+            sources.append({"path": relative.as_posix(), "sha256": digest})
+        materialized_arms[str(arm_name)] = {"sources": sources}
+
+    canonical = {
+        "algorithm": "sha256-canonical-json-v1",
+        "arms": materialized_arms,
+        "harness": declaration.get("harness", {}),
+    }
+    fingerprint = hashlib.sha256(_canonical_json(canonical).encode("utf-8")).hexdigest()
+    return {"fingerprint": fingerprint, "metadata": canonical}
+
+
+def measurement_regime_fingerprint(
+    declaration: dict[str, Any], *, repo_root: Path = REPO_ROOT
+) -> str:
+    """Return only the stable SHA-256 identity for a regime declaration."""
+    return build_measurement_regime(declaration, repo_root=repo_root)["fingerprint"]
+
 
 DEFAULT_WARMUP = 3
 DEFAULT_REPEATS = 9
@@ -244,68 +323,6 @@ def _hubs_bottleneck_fixture() -> tuple[dict[str, Any], list[tuple[float, float]
     return payload, probes
 
 
-def bench_deterministic_hubs_score_at() -> tuple[float, float] | None:
-    """A/B ``BottleneckMap.score_at`` (Rust kernel + per-call O(n) scores
-    marshalling) vs the verbatim oracle.
-
-    Returns None (harness skips) while ``deterministic_hubs`` is absent from
-    the installed ``temper-design-bundle`` extension -- i.e. before the
-    deterministic-hubs slice merges.
-    """
-    import temper_design_bundle_python as _tdb
-
-    dh = getattr(_tdb, "deterministic_hubs", None)
-    if dh is None:
-        return None
-
-    oracle = _load_module_from_path(
-        "_perf_ab_hubs_bottleneck_oracle",
-        _DETERMINISTIC_HUBS_ORACLE_DIR / "_bottleneck_map_py_oracle.py",
-    )
-    payload, probes = _hubs_bottleneck_fixture()
-    cell_size_mm = payload["cell_size_mm"]
-    width = payload["width"]
-    height = payload["height"]
-    origin_xy = payload["origin_xy"]
-    scores = payload["scores"]
-    oracle_map = oracle.BottleneckMap(
-        cell_size_mm=cell_size_mm,
-        width=width,
-        height=height,
-        origin_xy=tuple(origin_xy),
-        scores=tuple(scores),
-    )
-
-    def run_rust() -> list[tuple[str, Any]]:
-        # Replicates the shim's score_at call shape exactly -- the list()
-        # marshalling copy happens per call, inside the timed region.
-        return [
-            _scalar_hex(
-                dh.bottleneck_score_at(
-                    cell_size_mm, width, height, origin_xy[0], origin_xy[1],
-                    list(scores), x, y,
-                )
-            )
-            for x, y in probes
-        ]
-
-    def run_oracle() -> list[tuple[str, Any]]:
-        return [_scalar_hex(oracle_map.score_at(x, y)) for x, y in probes]
-
-    # Parity sanity inside the perf harness (the full A/B is the differential
-    # suite): a perf number for an implementation that no longer agrees with
-    # its oracle is meaningless.
-    if run_rust() != run_oracle():
-        raise AssertionError(
-            "perf A/B arms disagree for deterministic-hubs score_at -- the "
-            "behavioral A/B (test_bottleneck_map_rust_differential.py) "
-            "should be failing too"
-        )
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
 # ---------------------------------------------------------------------------
 # Wave 4 Phase 4: physics kernels (temper_placer/physics/* -> temper-thermal)
 # ---------------------------------------------------------------------------
@@ -323,46 +340,35 @@ def _physics_oracle(path_name: str, file_name: str) -> ModuleType:
     )
 
 
-def bench_physics_emi() -> tuple[float, float]:
-    """A/B predict_radiated_emissions (Rust) vs the verbatim oracle."""
-    import temper_thermal as _tt
-
-    oracle = _physics_oracle("emi", "test_emi_rust_differential.py")._oracle_predict_radiated_emissions
-    args = (100.0, 10.0, 1.0, 3.0)
-
-    def run_rust() -> float:
-        # Scalar kernel: batch 500 calls so the ratio is not timer noise.
-        return [_tt.predict_radiated_emissions_py(*args) for _ in range(500)][-1]
-
-    def run_oracle() -> float:
-        return [oracle(*args) for _ in range(500)][-1]
-
-    if run_rust() != run_oracle():
-        raise AssertionError("perf A/B arms disagree for physics-emi")
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
-def bench_physics_safety() -> tuple[float, float]:
-    """A/B estimate_filter_delay (Rust) vs the verbatim oracle."""
-    import temper_thermal as _tt
-
-    oracle = _physics_oracle("safety", "test_safety_rust_differential.py")._oracle_estimate_filter_delay
-    args = (1000.0, 1e-6, 0.632)
-
-    def run_rust() -> float:
-        return [_tt.estimate_filter_delay_py(*args) for _ in range(500)][-1]
-
-    def run_oracle() -> float:
-        return [oracle(*args) for _ in range(500)][-1]
-
-    if run_rust() != run_oracle():
-        raise AssertionError("perf A/B arms disagree for physics-safety")
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
+# REMOVED 2026-08-24: bench_physics_emi and bench_physics_safety.
+#
+# #1411 deleted BOTH arms of each A/B -- the temper-thermal pyfunction
+# bridges (`predict_radiated_emissions_py` and `estimate_filter_delay_py`,
+# two of the 8 it removed from emi.rs/safety.rs) and the paired oracles
+# (`tests/physics/test_emi_rust_differential.py` and
+# `test_safety_rust_differential.py`).  This file was missed in that sweep,
+# so it kept benchmarking two implementations that no longer exist, and died
+# on the first of them:
+#
+#   FileNotFoundError: oracle module not found:
+#     packages/temper-placer/tests/physics/test_emi_rust_differential.py
+#
+# That crash is why `PR Performance Comparison` -- and through it the
+# `Required Python Tests` aggregator, the only required check on main -- has
+# been red on every PR since.  `bench_physics_safety` never ran at all:
+# `run_benchmarks` iterates `sorted(_BENCHMARKS)` and emi comes first, so its
+# own identically-dead oracle stayed invisible behind the traceback.
+#
+# Their rows in power_pcb_dataset/metrics/perf_ab_baseline.jsonl are
+# deliberately NOT deleted, and neither are their entries in
+# pr_perf_compare.py's PER_BENCHMARK_TIMING_MARGIN / UNGATEABLE_BENCHMARKS.
+# That file is an append-only measurement history ("nothing writes this file
+# automatically, by design"); the gate fails on a PR record with no baseline
+# row, never on a baseline row with no PR record, so the orphaned history is
+# inert.  The comparator's two tables are keyed against that history --
+# `test_no_benchmark_is_gated_tighter_than_its_measured_noise` derives its
+# keys from the baseline records themselves -- so dropping the entries while
+# the rows remain would break that invariant, not tidy it.
 
 def _heat_removal_fixture():
     mod = _physics_oracle("heat_removal", "test_heat_removal_rust_differential.py")
@@ -456,27 +462,6 @@ def bench_physics_device_check() -> tuple[float, float]:
     return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
         run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
     )
-
-
-def bench_physics_classify() -> tuple[float, float]:
-    """A/B classify_parameter (Rust string classification) vs the oracle."""
-    import temper_thermal as _tt
-
-    oracle = _physics_oracle("parameter_bounds", "test_parameter_bounds_rust_differential.py")._oracle_classify
-    args = ("junction_to_case_c_per_w", "R_theta sweep")
-
-    def run_rust() -> Any:
-        return [_tt.classify_parameter_py(*args) for _ in range(500)][-1]
-
-    def run_oracle() -> Any:
-        return [oracle(*args) for _ in range(500)][-1]
-
-    if run_rust() != run_oracle():
-        raise AssertionError("perf A/B arms disagree for physics-classify")
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
 
 
 _OCCUPANCY_VALUES = (0, 1, 2, 3, 7, 11, -1, -2)
@@ -780,93 +765,6 @@ def bench_topological_force_refinement() -> tuple[float, float]:
             "behavioral A/B should be failing too "
             "(test_apply_force_refinement_identical_at_benchmark_parameters "
             "runs this exact fixture at these exact parameters)"
-        )
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
-# ---------------------------------------------------------------------------
-# Wave 4 Phase 4: geometry/drc_inflate.py DRC-proxy kernels
-# ---------------------------------------------------------------------------
-
-# Fixed shape and seed, same reason as the bottleneck fixture above. 40
-# components is 780 pairs, past numpy's 128-element pairwise blocksize, so both
-# arms exercise the blocked reduction rather than its small-input shortcut.
-_DRC_COMPONENTS = 40
-_DRC_SEED = 20260804
-_SMOOTH_RELU_SAMPLES = 4096
-
-
-def _drc_inflate_oracle() -> ModuleType:
-    return _load_module_from_path(
-        "_perf_ab_drc_inflate_oracle",
-        REPO_ROOT / "packages/temper-placer/tests/geometry/_drc_inflate_py_oracle.py",
-    )
-
-
-def _drc_fixture() -> tuple[Any, Any, Any]:
-    """Deterministic float32 placement — the dtype every shipped call site uses."""
-    import numpy as np
-
-    rng = np.random.default_rng(_DRC_SEED)
-    positions = rng.uniform(-40.0, 40.0, size=(_DRC_COMPONENTS, 2)).astype(np.float32)
-    hw = rng.uniform(0.5, 6.0, size=(_DRC_COMPONENTS,)).astype(np.float32)
-    hh = rng.uniform(0.5, 6.0, size=(_DRC_COMPONENTS,)).astype(np.float32)
-    return positions, hw, hh
-
-
-def bench_drc_proxy_score() -> tuple[float, float]:
-    """A/B ``compute_drc_proxy_score`` (Rust) vs the verbatim oracle."""
-    from temper_placer.geometry.drc_inflate import compute_drc_proxy_score
-
-    oracle_fn = _drc_inflate_oracle().compute_drc_proxy_score
-    positions, hw, hh = _drc_fixture()
-
-    def run_rust() -> Any:
-        return compute_drc_proxy_score(positions, hw, hh, clearance_mm=0.2, beta=10.0)
-
-    def run_oracle() -> Any:
-        return oracle_fn(positions, hw, hh, clearance_mm=0.2, beta=10.0)
-
-    # The behavioural gate is bit-exact, so this parity check is too: a
-    # performance number for an arm that no longer agrees is meaningless.
-    if float(run_rust()).hex() != float(run_oracle()).hex():
-        raise AssertionError(
-            "perf A/B arms disagree for drc_proxy_score -- the behavioral A/B "
-            "(test_drc_inflate_rust_differential.py) should be failing too"
-        )
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
-def bench_smooth_relu_array() -> tuple[float, float]:
-    """A/B the vectorised softplus (Rust) vs the verbatim numpy oracle.
-
-    Registered separately from ``drc_proxy_score`` because it is the arm most
-    likely to regress: numpy's elementwise loop is already vectorised, so this
-    is the honest place for the ratio to be visible rather than buried inside
-    an O(n^2) caller.
-    """
-    import numpy as np
-
-    from temper_placer.geometry.drc_inflate import _smooth_relu_array
-
-    oracle_fn = _drc_inflate_oracle()._smooth_relu_array
-    xs = np.random.default_rng(_DRC_SEED).uniform(-8.0, 8.0, size=_SMOOTH_RELU_SAMPLES)
-
-    def run_rust() -> Any:
-        return _smooth_relu_array(xs, alpha=10.0)
-
-    def run_oracle() -> Any:
-        return oracle_fn(xs, alpha=10.0)
-
-    got, want = run_rust(), run_oracle()
-    if [float(v).hex() for v in got] != [float(v).hex() for v in want]:
-        raise AssertionError(
-            "perf A/B arms disagree for smooth_relu_array -- the behavioral "
-            "A/B should be failing too"
         )
     return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
         run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
@@ -1750,6 +1648,51 @@ def bench_drc_geometry_segment_rect() -> tuple[float, float]:
     return _drc_geometry_ab(build, "drc-geometry-segment-rect")
 
 
+_BENCHMARK_REGIME_METADATA: dict[tuple[str, str], dict[str, Any]] = {
+    # The Rust arm includes its Python API shim because that shim chooses the
+    # boundary and still performs numpy/pin geometry work.  The oracle arm
+    # includes its frozen exporter plus the same Rust-backed DSN primitive
+    # surface it imports today.  The harness source is covered on both sides:
+    # fixture construction, timing parameters, and arm call shape all affect
+    # what the ratio means.
+    ("dsn-exporter", "export_pcb"): {
+        "arms": {
+            "rust": [
+                "benchmarks/perf_ab.py",
+                "packages/temper-placer/src/temper_placer/io/dsn_exporter.py",
+                "packages/temper-io-types/src/dsn_exporter.rs",
+                "packages/temper-placer/src/temper_placer/io/dsn.py",
+                "packages/temper-io-types/src/dsn_types.rs",
+                "packages/temper-io-types/src/dsn.rs",
+                "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
+            ],
+            "oracle": [
+                "benchmarks/perf_ab.py",
+                "packages/temper-placer/tests/io/_dsn_exporter_py_oracle.py",
+                "packages/temper-placer/src/temper_placer/io/dsn.py",
+                "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
+                "packages/temper-io-types/src/dsn_types.rs",
+                "packages/temper-io-types/src/dsn.rs",
+            ],
+        },
+        "harness": {
+            "fixture": {
+                "seed": _DSN_SEED,
+                "components": _DSN_COMPONENTS,
+                "pins_per_component": _DSN_PINS_PER_COMPONENT,
+            },
+            "timing": {
+                "warmup": DEFAULT_WARMUP,
+                "repeats": DEFAULT_REPEATS,
+                "statistic": "median",
+                "unit": "microseconds",
+            },
+            "entrypoint": "bench_dsn_export_pcb",
+        },
+    },
+}
+
+
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     # NOTE (net-ordering): these two entries have NO row yet in
@@ -1765,8 +1708,6 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
     ("topological", "constraint_propagation"): bench_topological_propagation,
     ("topological", "force_refinement"): bench_topological_force_refinement,
-    ("drc-inflate", "drc_proxy_score"): bench_drc_proxy_score,
-    ("drc-inflate", "smooth_relu_array"): bench_smooth_relu_array,
     ("dsn-exporter", "export_pcb"): bench_dsn_export_pcb,
     ("loaders", "loaders"): bench_loaders,
     # Wave 4 Phase 2. NOTE: these two keys have no row in
@@ -1778,12 +1719,9 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     # would make the gate miss every regression between +20% and +35%.
     ("pcl-tag-dispatch", "tag_resolve_sweep"): bench_pcl_tag_resolve_sweep,
     ("pcl-parse-utils", "parse_distance_batch"): bench_pcl_parse_distance_batch,
-    ("physics-emi", "predict"): bench_physics_emi,
-    ("physics-safety", "filter_delay"): bench_physics_safety,
     ("physics-heat_removal", "build_h_field"): bench_physics_heat_removal,
     ("physics-copper_coverage", "copper_masks"): bench_physics_copper_masks,
     ("physics-tj_cross_check", "device_cross_check"): bench_physics_device_check,
-    ("physics-parameter_bounds", "classify"): bench_physics_classify,
     ("config-loader", "preprocess_config"): bench_config_loader_preprocess,
     ("footprint-library", "from_yaml_string"): bench_footprint_library_load,
     ("parse-engine", "parse_kicad_pcb"): bench_parse_kicad_pcb,
@@ -1792,7 +1730,6 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("drc-geometry", "segment_segment"): bench_drc_geometry_segment_segment,
     ("drc-geometry", "point_rect"): bench_drc_geometry_point_rect,
     ("drc-geometry", "segment_rect"): bench_drc_geometry_segment_rect,
-    ("deterministic-hubs", "score_at"): bench_deterministic_hubs_score_at,
 }
 
 
@@ -1836,6 +1773,15 @@ def run_benchmarks(commit: str = "") -> list[dict[str, Any]]:
                     "rust_wall_us": round(rust_us, 3),
                     "oracle_wall_us": round(oracle_us, 3),
                 },
+                **(
+                    {
+                        "measurement_regime": build_measurement_regime(
+                            _BENCHMARK_REGIME_METADATA[(module, stage)]
+                        )
+                    }
+                    if (module, stage) in _BENCHMARK_REGIME_METADATA
+                    else {}
+                ),
             }
         )
     return records

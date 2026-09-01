@@ -172,7 +172,12 @@ impl BottleneckNetEntry {
         failure_reason: String,
         pin_positions: Py<PyAny>,
     ) -> Self {
-        Self { net_name, net_class, failure_reason, pin_positions }
+        Self {
+            net_name,
+            net_class,
+            failure_reason,
+            pin_positions,
+        }
     }
 
     /// `to_dict()` — `pin_positions` is transformed to `[[x, y], ...]`.
@@ -193,11 +198,7 @@ impl BottleneckNetEntry {
 
     /// `from_dict(d)` — classmethod; `d["..."]` subscripts raise KeyError.
     #[classmethod]
-    fn from_dict(
-        _cls: &Bound<'_, PyType>,
-        py: Python<'_>,
-        d: &Bound<'_, PyAny>,
-    ) -> PyResult<Self> {
+    fn from_dict(_cls: &Bound<'_, PyType>, py: Python<'_>, d: &Bound<'_, PyAny>) -> PyResult<Self> {
         net_entry_from_dict(py, d)
     }
 
@@ -231,7 +232,9 @@ impl BottleneckNetEntry {
 
     /// Dataclasses are unhashable (`eq=True`, `frozen=False`).
     fn __hash__(&self) -> PyResult<isize> {
-        Err(PyTypeError::new_err("unhashable type: 'BottleneckNetEntry'"))
+        Err(PyTypeError::new_err(
+            "unhashable type: 'BottleneckNetEntry'",
+        ))
     }
 }
 
@@ -281,7 +284,13 @@ impl BottleneckRegion {
         y_max: Py<PyAny>,
         affected_components: Py<PyAny>,
     ) -> Self {
-        Self { x_min, y_min, x_max, y_max, affected_components }
+        Self {
+            x_min,
+            y_min,
+            x_max,
+            y_max,
+            affected_components,
+        }
     }
 
     /// `to_dict()`.
@@ -297,11 +306,7 @@ impl BottleneckRegion {
 
     /// `from_dict(d)` — classmethod.
     #[classmethod]
-    fn from_dict(
-        _cls: &Bound<'_, PyType>,
-        py: Python<'_>,
-        d: &Bound<'_, PyAny>,
-    ) -> PyResult<Self> {
+    fn from_dict(_cls: &Bound<'_, PyType>, py: Python<'_>, d: &Bound<'_, PyAny>) -> PyResult<Self> {
         region_from_dict(py, d)
     }
 
@@ -337,7 +342,9 @@ impl BottleneckRegion {
         if !lhs.y_max.bind(py).eq(rhs.y_max.bind(py))? {
             return Ok(false);
         }
-        lhs.affected_components.bind(py).eq(rhs.affected_components.bind(py))
+        lhs.affected_components
+            .bind(py)
+            .eq(rhs.affected_components.bind(py))
     }
 
     /// Dataclasses are unhashable (`eq=True`, `frozen=False`).
@@ -379,7 +386,11 @@ impl CongestionHeatmapData {
     #[new]
     #[pyo3(signature = (net_class, grid, cell_size))]
     fn new(net_class: String, grid: Py<PyAny>, cell_size: Py<PyAny>) -> Self {
-        Self { net_class, grid, cell_size }
+        Self {
+            net_class,
+            grid,
+            cell_size,
+        }
     }
 
     /// `to_dict()`.
@@ -393,11 +404,7 @@ impl CongestionHeatmapData {
 
     /// `from_dict(d)` — classmethod.
     #[classmethod]
-    fn from_dict(
-        _cls: &Bound<'_, PyType>,
-        py: Python<'_>,
-        d: &Bound<'_, PyAny>,
-    ) -> PyResult<Self> {
+    fn from_dict(_cls: &Bound<'_, PyType>, py: Python<'_>, d: &Bound<'_, PyAny>) -> PyResult<Self> {
         heatmap_from_dict(py, d)
     }
 
@@ -430,7 +437,9 @@ impl CongestionHeatmapData {
 
     /// Dataclasses are unhashable (`eq=True`, `frozen=False`).
     fn __hash__(&self) -> PyResult<isize> {
-        Err(PyTypeError::new_err("unhashable type: 'CongestionHeatmapData'"))
+        Err(PyTypeError::new_err(
+            "unhashable type: 'CongestionHeatmapData'",
+        ))
     }
 }
 
@@ -480,14 +489,28 @@ fn report_from_dict(py: Python<'_>, d: &Bound<'_, PyAny>) -> PyResult<Bottleneck
         regions.append(Py::new(py, region_from_dict(py, &r)?)?)?;
     }
     Ok(BottleneckReport {
-        schema_version: dict_get(d, "schema_version", PyString::new(py, "1.0.0").into_any().unbind())?
-            .unbind(),
+        schema_version: dict_get(
+            d,
+            "schema_version",
+            PyString::new(py, "1.0.0").into_any().unbind(),
+        )?
+        .unbind(),
         failed_nets: failed.into_any().unbind(),
         routed_nets: routed,
         congestion_heatmaps: heatmaps.into_any().unbind(),
         bottleneck_regions: regions.into_any().unbind(),
-        routability_ratio: to_f64(py, &dict_get(d, "routability_ratio", PyFloat::new(py, 0.0).into_any().unbind())?)?,
-        total_nets: to_py_int(py, &dict_get(d, "total_nets", PyInt::new(py, 0).into_any().unbind())?)?,
+        routability_ratio: to_f64(
+            py,
+            &dict_get(
+                d,
+                "routability_ratio",
+                PyFloat::new(py, 0.0).into_any().unbind(),
+            )?,
+        )?,
+        total_nets: to_py_int(
+            py,
+            &dict_get(d, "total_nets", PyInt::new(py, 0).into_any().unbind())?,
+        )?,
     })
 }
 
@@ -592,21 +615,13 @@ impl BottleneckReport {
     /// `from_dict(d)` — classmethod. `.get(key, default)` for every key;
     /// `routability_ratio`/`total_nets` coerce through `float()`/`int()`.
     #[classmethod]
-    fn from_dict(
-        _cls: &Bound<'_, PyType>,
-        py: Python<'_>,
-        d: &Bound<'_, PyAny>,
-    ) -> PyResult<Self> {
+    fn from_dict(_cls: &Bound<'_, PyType>, py: Python<'_>, d: &Bound<'_, PyAny>) -> PyResult<Self> {
         report_from_dict(py, d)
     }
 
     /// `from_json(s)` — classmethod. `json.loads` then `from_dict`.
     #[classmethod]
-    fn from_json(
-        _cls: &Bound<'_, PyType>,
-        py: Python<'_>,
-        json_str: String,
-    ) -> PyResult<Self> {
+    fn from_json(_cls: &Bound<'_, PyType>, py: Python<'_>, json_str: String) -> PyResult<Self> {
         let json_mod = PyModule::import(py, "json")?;
         let loads = json_mod.getattr("loads")?;
         let d = loads.call1((json_str,))?;
@@ -643,7 +658,11 @@ impl BottleneckReport {
         let lhs = slf.borrow();
         let rhs = other.cast::<Self>()?.borrow();
         let py = slf.py();
-        if !lhs.schema_version.bind(py).eq(rhs.schema_version.bind(py))? {
+        if !lhs
+            .schema_version
+            .bind(py)
+            .eq(rhs.schema_version.bind(py))?
+        {
             return Ok(false);
         }
         if !lhs.failed_nets.bind(py).eq(rhs.failed_nets.bind(py))? {
@@ -652,13 +671,25 @@ impl BottleneckReport {
         if !lhs.routed_nets.bind(py).eq(rhs.routed_nets.bind(py))? {
             return Ok(false);
         }
-        if !lhs.congestion_heatmaps.bind(py).eq(rhs.congestion_heatmaps.bind(py))? {
+        if !lhs
+            .congestion_heatmaps
+            .bind(py)
+            .eq(rhs.congestion_heatmaps.bind(py))?
+        {
             return Ok(false);
         }
-        if !lhs.bottleneck_regions.bind(py).eq(rhs.bottleneck_regions.bind(py))? {
+        if !lhs
+            .bottleneck_regions
+            .bind(py)
+            .eq(rhs.bottleneck_regions.bind(py))?
+        {
             return Ok(false);
         }
-        if !lhs.routability_ratio.bind(py).eq(rhs.routability_ratio.bind(py))? {
+        if !lhs
+            .routability_ratio
+            .bind(py)
+            .eq(rhs.routability_ratio.bind(py))?
+        {
             return Ok(false);
         }
         lhs.total_nets.bind(py).eq(rhs.total_nets.bind(py))
@@ -695,12 +726,7 @@ impl DeclaredArtifact {
     /// Dataclass constructor.
     #[new]
     #[pyo3(signature = (name, output_path, description="", schema_version="1.0.0"))]
-    fn new(
-        name: String,
-        output_path: String,
-        description: &str,
-        schema_version: &str,
-    ) -> Self {
+    fn new(name: String, output_path: String, description: &str, schema_version: &str) -> Self {
         Self {
             name,
             output_path,

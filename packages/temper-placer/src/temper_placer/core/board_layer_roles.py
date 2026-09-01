@@ -24,7 +24,7 @@ mechanism to propagate itself to any of them.
 
 This module is a narrow, direct, dependency-light reader of the *declaration*
 only -- it does not go through ``_extract_stackup``'s zone-content heuristic
-or the Rust parse engine at all (deliberately: that machinery answers a
+or the Rust *full-stackup* parser (deliberately: that machinery answers a
 different question, "what should THIS PARSED BOARD's existing copper be
 classified as for obstacle-map purposes", and is mid-migration with a
 documented, tested danger zone around flipping its own
@@ -73,7 +73,6 @@ string that happens to read "power" this week.
 
 from __future__ import annotations
 
-import re
 from enum import Enum
 from pathlib import Path
 
@@ -199,44 +198,10 @@ ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED: tuple[str, ...] = tuple(
 )
 ENGINE_SUPPORTED_SIGNAL_LAYERS: frozenset[str] = frozenset(ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED)
 
-# Matches one `(layers ...)` entry: an ordinal, a quoted KiCad layer name,
-# and a bareword role token (optionally followed by a quoted display name,
-# e.g. `(32 "B.Adhes" user "B.Adhesive")` -- the display name is not
-# captured, this module has no use for it).
-_LAYER_ENTRY_RE = re.compile(r'\(\s*\d+\s+"([A-Za-z0-9_.]+)"\s+(\w+)')
-
-_COPPER_ROLE_NAMES = {r.value for r in LayerRole}
-
-
-def _extract_balanced(text: str, marker: str) -> str:
-    """Return the balanced-parenthesis span starting at the first
-    occurrence of ``marker`` in ``text``. Mirrors
-    ``check_stackup_copper_weight_gate.py``'s identically-named helper
-    (small enough, and specific enough to this exact S-expression
-    slicing task, that sharing it would need a new shared module for one
-    ~15-line function used by two callers -- not worth the indirection).
-    """
-    start = text.find(marker)
-    if start == -1:
-        raise ValueError(f"no {marker!r} block found")
-    depth = 0
-    end = None
-    for i in range(start, len(text)):
-        if text[i] == "(":
-            depth += 1
-        elif text[i] == ")":
-            depth -= 1
-            if depth == 0:
-                end = i + 1
-                break
-    if end is None:
-        raise ValueError(f"{marker!r} block is not balanced")
-    return text[start:end]
-
-
 def parse_declared_layer_roles(pcb_content: str) -> dict[str, LayerRole]:
     """Parse ``pcb/temper.kicad_pcb``'s top-level ``(layers ...)`` block
-    directly and return ``{layer_name: LayerRole}`` for every ``.Cu``
+    directly through the Rust layer-identity parser and return
+    ``{layer_name: LayerRole}`` for every ``.Cu``
     layer whose role is one of :class:`LayerRole`'s members, in declared
     order (``dict`` insertion order, Python 3.7+ guarantee).
 
@@ -252,22 +217,10 @@ def parse_declared_layer_roles(pcb_content: str) -> dict[str, LayerRole]:
             structurally wrong with the input, not an empty-but-valid
             board).
     """
-    block = _extract_balanced(pcb_content, "(layers")
-
-    roles: dict[str, LayerRole] = {}
-    for name, role_token in _LAYER_ENTRY_RE.findall(block):
-        if not name.endswith(".Cu"):
-            continue
-        if role_token not in _COPPER_ROLE_NAMES:
-            continue
-        roles[name] = LayerRole(role_token)
-
-    if not roles:
-        raise ValueError(
-            "no '.Cu' layer with a recognized role (signal/power/mixed/jumper) "
-            "found in the board's (layers ...) block"
-        )
-    return roles
+    return {
+        name: LayerRole(role)
+        for name, role in _tg.parse_declared_layer_roles(pcb_content)
+    }
 
 
 def parse_declared_layer_roles_from_path(board_path: Path) -> dict[str, LayerRole]:

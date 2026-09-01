@@ -2,19 +2,18 @@
 
 Wave 4, **Phase 5, first slice** (deterministic leaf stages). The pure
 compute of ``temper_placer/deterministic/stages/zone_assignment.py`` moves
-to the ``temper-design-bundle`` crate
-(``temper_design_bundle_python.deterministic_stages``); the Python module
-becomes a delegation shim. The pre-migration implementation is pinned
-VERBATIM as the oracle (``_zone_assignment_py_oracle.py``).
+to the Rust orchestration stage, which calls a shared pyo3-free data-model
+kernel. The pre-migration implementation is pinned VERBATIM as the oracle
+(``_zone_assignment_py_oracle.py``).
 
-Both arms consume the SAME Netlist pyclass: the Rust pyfunction reads
+Both arms consume the SAME Netlist pyclass: the Rust stage reads
 ``nets`` / ``components`` / ``net.name`` / ``net.net_class`` / ``net.pins``
-via the pyclass attribute surface, so inputs are identical by construction.
+at its object-adaptation boundary, so inputs are identical by construction.
 
 Numerical/order traps pinned here:
-- the zone-map DICT insertion order follows ``netlist.components`` order
-  (a list — deterministic); the Rust returns ``(ref, zone)`` pairs in the
-  same order and the shim rebuilds the dict, so insertion order is pinned;
+- the oracle's zone-map DICT insertion order follows ``netlist.components``
+  order, while the stage's owned ``frozenset`` intentionally exposes only
+  mapping content; the differential compares those contents as a set;
 - ``net_class_map`` falls back to ``"Signal"`` for a missing/None
   ``net_class`` via the oracle's ``getattr(net, "net_class", "Signal")``
   (the pyclass default is ``"Signal"`` — pinned by construction);
@@ -27,15 +26,12 @@ from __future__ import annotations
 
 import random
 
-import temper_design_bundle_python as _tdb
+import temper_orchestration as _to
 import tests.deterministic.stages._zone_assignment_py_oracle as _oracle
 from tests.core._contract_canon import canon
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-
-_RS = _tdb.deterministic_stages
-RS_ASSIGN = _RS.assign_component_zones
-
+from temper_placer.deterministic.state import BoardState
 
 def _netlist(components, nets):
     return Netlist(components=components, nets=nets)
@@ -50,8 +46,13 @@ def _comp(ref, net_names=None):
 
 def _assert_assign_equal(netlist):
     exp = _oracle.assign_components_to_zones(netlist)
-    got = dict(RS_ASSIGN(netlist))
-    assert canon(exp) == canon(got), f"zone mismatch for {netlist!r}"
+    got = dict(_to.run_zone_assignment(BoardState(netlist=netlist)).component_zone_map)
+    # The stage contract writes a frozenset, so its iteration order is not
+    # observable. Compare mapping content as a set while retaining the
+    # oracle's dict computation for its duplicate-key semantics.
+    assert canon(frozenset(exp.items())) == canon(frozenset(got.items())), (
+        f"zone mismatch for {netlist!r}"
+    )
 
 
 def test_hv_net_class():
@@ -107,7 +108,10 @@ def test_empty_semantics():
     # No components -> empty map.
     empty = _netlist([], [Net("N", [("X", "1")])])
     assert _oracle.assign_components_to_zones(empty) == {}
-    assert dict(RS_ASSIGN(empty)) == {}
+    assert (
+        dict(_to.run_zone_assignment(BoardState(netlist=empty)).component_zone_map)
+        == {}
+    )
 
 
 def test_net_class_none_falls_through_to_signal():

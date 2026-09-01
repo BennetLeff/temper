@@ -321,8 +321,14 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     grid_hv.add("ConfigError", ns.getattr("ConfigError")?)?;
     let grid_fence = PyModule::new(py, "_grid_fence")?;
     grid_fence.add("_EXPANSION_LOG", ns.getattr("_EXPANSION_LOG")?)?;
-    grid_fence.add("check_clearance_grid_conservatism", ns.getattr("check_clearance_grid_conservatism")?)?;
-    grid_fence.add("check_clearance_grid_perf_budget", ns.getattr("check_clearance_grid_perf_budget")?)?;
+    grid_fence.add(
+        "check_clearance_grid_conservatism",
+        ns.getattr("check_clearance_grid_conservatism")?,
+    )?;
+    grid_fence.add(
+        "check_clearance_grid_perf_budget",
+        ns.getattr("check_clearance_grid_perf_budget")?,
+    )?;
     grid_fence.add("FenceViolation", ns.getattr("FenceViolation")?)?;
     stages.add("_grid_core", &grid_core)?;
     stages.add("_grid_hv", &grid_hv)?;
@@ -341,9 +347,18 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     // faked here like the _grid_* modules so the embedded interpreter needs no
     // numpy/venv -- this suite proves sequencing, not the kernels).
     let temper_geometry = PyModule::new(py, "temper_geometry")?;
-    temper_geometry.add("count_blocked_cells_py", ns.getattr("count_blocked_cells_py")?)?;
-    temper_geometry.add("grid_cell_available_py", ns.getattr("grid_cell_available_py")?)?;
-    temper_geometry.add("block_exclusion_zone_into_grid_py", ns.getattr("block_exclusion_zone_into_grid_py")?)?;
+    temper_geometry.add(
+        "count_blocked_cells_py",
+        ns.getattr("count_blocked_cells_py")?,
+    )?;
+    temper_geometry.add(
+        "grid_cell_available_py",
+        ns.getattr("grid_cell_available_py")?,
+    )?;
+    temper_geometry.add(
+        "block_exclusion_zone_into_grid_py",
+        ns.getattr("block_exclusion_zone_into_grid_py")?,
+    )?;
     modules.set_item("temper_geometry", &temper_geometry)?;
 
     // temper_placer.deterministic.stages.zone_geometry (for the chain test)
@@ -366,7 +381,10 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     modules.set_item("temper_placer.deterministic.stages", &stages)?;
     modules.set_item("temper_placer.deterministic.stages._grid_core", &grid_core)?;
     modules.set_item("temper_placer.deterministic.stages._grid_hv", &grid_hv)?;
-    modules.set_item("temper_placer.deterministic.stages._grid_fence", &grid_fence)?;
+    modules.set_item(
+        "temper_placer.deterministic.stages._grid_fence",
+        &grid_fence,
+    )?;
     modules.set_item("temper_placer.core", &core)?;
     modules.set_item("temper_placer.core.pin_geometry", &pin_geometry)?;
     modules.set_item("temper_placer.deterministic.stages.zone_geometry", &zg)?;
@@ -418,9 +436,9 @@ fn clearance_grid_single_stage_end_to_end() {
         let ns = install_fakes(py).unwrap();
         let board = ns.getattr("FakeBoard")?.call1((50.0, 50.0))?;
         let pin = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0))?;
-        let comp = ns
-            .getattr("FakeComponent")?
-            .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
+        let comp =
+            ns.getattr("FakeComponent")?
+                .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
         let net = ns.getattr("FakeNet")?.call1(("NET_A",))?;
         let netlist = ns
             .getattr("FakeNetlist")?
@@ -473,16 +491,16 @@ fn clearance_grid_hv_expansion_fence() {
         let ns = install_fakes(py).unwrap();
         let board = ns.getattr("FakeBoard")?.call1((50.0, 50.0))?;
         let pin = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0))?;
-        let comp = ns
-            .getattr("FakeComponent")?
-            .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
+        let comp =
+            ns.getattr("FakeComponent")?
+                .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
         let net = ns.getattr("FakeNet")?.call1(("HV", "HighVoltage"))?;
         let netlist = ns
             .getattr("FakeNetlist")?
             .call1((py_list(py, vec![&comp])?, py_list(py, vec![&net])?))?;
-        let zone = ns
-            .getattr("FakeHVZone")?
-            .call1(("q1_zone", (25.0, 25.0), (10.0, 10.0), "Q1"))?;
+        let zone =
+            ns.getattr("FakeHVZone")?
+                .call1(("q1_zone", (25.0, 25.0), (10.0, 10.0), "Q1"))?;
         let zones = py_list(py, vec![&zone])?;
 
         let mut state = BoardState::new();
@@ -525,9 +543,9 @@ fn clearance_grid_exclusion_zone_writes() {
         let ns = install_fakes(py).unwrap();
         let board = ns.getattr("FakeBoard")?.call1((50.0, 50.0))?;
         let pin = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0))?;
-        let comp = ns
-            .getattr("FakeComponent")?
-            .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
+        let comp =
+            ns.getattr("FakeComponent")?
+                .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
         let net = ns.getattr("FakeNet")?.call1(("NET_A",))?;
         let netlist = ns
             .getattr("FakeNetlist")?
@@ -538,7 +556,8 @@ fn clearance_grid_exclusion_zone_writes() {
             ("hv_z", (10.0, 10.0), (8.0, 6.0), Option::<String>::None),
             None,
         )?;
-        zone.getattr("excluded_nets")?.call_method1("append", ("GATE_H",))?;
+        zone.getattr("excluded_nets")?
+            .call_method1("append", ("GATE_H",))?;
         let zones = py_list(py, vec![&zone])?;
 
         let mut state = BoardState::new();
@@ -564,10 +583,14 @@ fn clearance_grid_exclusion_zone_writes() {
         let grid = out.grid.as_ref().expect("grid attached");
         let net_ids = grid.bind(py).getattr("_net_to_id")?;
         assert_eq!(net_ids.len()?, 2, "NET_A + GATE_H registered");
-        let center_cell = grid.bind(py).call_method1("is_available", (10.0, 10.0, 0))?;
+        let center_cell = grid
+            .bind(py)
+            .call_method1("is_available", (10.0, 10.0, 0))?;
         let center_cell: bool = center_cell.extract()?;
         assert!(!center_cell, "zone center must be blocked");
-        let far = grid.bind(py).call_method1("is_available", (40.0, 40.0, 0))?;
+        let far = grid
+            .bind(py)
+            .call_method1("is_available", (40.0, 40.0, 0))?;
         let far: bool = far.extract()?;
         assert!(far, "far cell must stay free");
         Ok::<(), PyErr>(())
@@ -608,9 +631,15 @@ fn clearance_grid_zone_pipeline_chain() {
             .map(|r| r.name.to_string())
             .collect();
         assert_eq!(names, vec!["zone_geometry", "clearance_grid"]);
-        let zones = out.zones.as_ref().expect("zones attached from zone_geometry");
+        let zones = out
+            .zones
+            .as_ref()
+            .expect("zones attached from zone_geometry");
         assert_eq!(zones.len(), 4);
-        let grid = out.grid.as_ref().expect("grid attached from clearance_grid");
+        let grid = out
+            .grid
+            .as_ref()
+            .expect("grid attached from clearance_grid");
         assert_eq!(grid.bind(py).getattr("cols")?.extract::<i64>()?, 200);
         Ok::<(), PyErr>(())
     })

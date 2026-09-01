@@ -47,7 +47,7 @@ import temper_geometry as _tg
 import temper_orchestration as _to
 
 from ..state import BoardState
-from .slot_generation import SlotGenerationStage
+from . import SlotGenerationStage
 
 logger = logging.getLogger(__name__)
 

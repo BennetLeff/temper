@@ -129,8 +129,8 @@ dependency. Real `InternalConstraintModel`, real `encode_to_cnf`, real
 `solver.rs:70-88`'s loop), real `/proc/self/status` `VmRSS`. All five probe
 source files are committed at
 `docs/evidence/2026-08-12-cnf-repr-probe-{common,lumped,isolated}.rs`,
-`docs/evidence/2026-08-12-cadical-memory-probe.rs`,
-`docs/evidence/2026-08-12-varnames-waste-probe.rs`, reproducible the same
+`docs/evidence/scripts/2026-08-12-cadical-memory-probe.rs`,
+`docs/evidence/scripts/2026-08-12-varnames-waste-probe.rs`, reproducible the same
 way plan `2026-08-12-002`'s probe scripts are.
 
 | layer | today | packed/fixed | ratio | full-scale (≈770.3M clauses) today → packed |
@@ -216,7 +216,7 @@ Requirement IDs are stable and become `@req(2026-08-12-004, Rn)`.
   auxiliary variable it creates (Sinz sequential-counter variables,
   `encoding.rs:41-48`, `sc_r{i}_{j}`). Primary-variable names (those
   registered via `add_var_with_net`, `encoding.rs:91-106`) are unaffected.
-  **Check:** a repeat of `docs/evidence/2026-08-12-varnames-waste-probe.rs`
+  **Check:** a repeat of `docs/evidence/scripts/2026-08-12-varnames-waste-probe.rs`
   reports **0.00 bytes/aux-var** against the fixed code path (today: 56.00);
   `rg 'SatVariable::new\(format!\("sc_r' packages/temper-rust-router-core/src/encoding.rs`
   still finds the aux-var construction site but the resulting `var_names`
@@ -224,7 +224,7 @@ Requirement IDs are stable and become `@req(2026-08-12-004, Rn)`.
 - **R2.** `CnfFormula.clauses: Vec<Vec<i32>>` is replaced by a flat
   `literals: Vec<i32>` + `clause_offsets: Vec<u32>` pair (or equivalent
   CSR-style representation). **Check:** a repeat of
-  `docs/evidence/2026-08-12-cnf-repr-probe-isolated.rs`'s arm-C
+  `docs/evidence/scripts/2026-08-12-cnf-repr-probe-isolated.rs`'s arm-C
   methodology against the real (not synthetic) post-change `CnfFormula`
   reports **≤ 15 bytes/clause** (against 56.00 today); `rg 'Vec<Vec<i32>>'
   packages/temper-rust-router-core/src/encoding.rs` returns no hit in the
@@ -483,11 +483,11 @@ total, since it is gated on a different, unlanded plan's decision.
 ## Sources / Research
 
 - MEASURED this task:
-  `docs/evidence/2026-08-12-cnf-repr-probe-common.rs`,
-  `docs/evidence/2026-08-12-cnf-repr-probe-lumped.rs`,
-  `docs/evidence/2026-08-12-cnf-repr-probe-isolated.rs`,
-  `docs/evidence/2026-08-12-cadical-memory-probe.rs`,
-  `docs/evidence/2026-08-12-varnames-waste-probe.rs`,
+  `docs/evidence/scripts/2026-08-12-cnf-repr-probe-common.rs`,
+  `docs/evidence/scripts/2026-08-12-cnf-repr-probe-lumped.rs`,
+  `docs/evidence/scripts/2026-08-12-cnf-repr-probe-isolated.rs`,
+  `docs/evidence/scripts/2026-08-12-cadical-memory-probe.rs`,
+  `docs/evidence/scripts/2026-08-12-varnames-waste-probe.rs`,
   `docs/evidence/2026-08-12-cnf-probe-Cargo.toml.txt`
 - `docs/brainstorms/2026-08-12-cnf-representation-options.md` — full
   measurement methodology, the confound-found-and-corrected writeup, the

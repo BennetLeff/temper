@@ -1,3 +1,4 @@
+<!-- provenance: commit=fa91792af084ae4b6faebc4e8999375d0065bb8c dirty=UNKNOWN -->
 ---
 date: 2026-08-15
 type: evidence

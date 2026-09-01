@@ -491,10 +491,16 @@ pub(crate) mod tests {
         // it (pre-migration oracle behaviour).
         let input = input_for(10, 10, &[], 0, 99);
         let out = lazy_theta_star_search(&input).unwrap();
-        assert!(!out.contains(&0), "lazy path must not contain the start cell");
+        assert!(
+            !out.contains(&0),
+            "lazy path must not contain the start cell"
+        );
         let input_std = input_for(10, 10, &[], 0, 99);
         let out_std = theta_star_search(&input_std).unwrap();
-        assert!(out_std.contains(&0), "standard path must contain the start cell");
+        assert!(
+            out_std.contains(&0),
+            "standard path must contain the start cell"
+        );
     }
 
     #[cfg_attr(test, test)]

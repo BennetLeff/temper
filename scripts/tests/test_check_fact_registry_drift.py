@@ -533,6 +533,44 @@ class TestRealRegistryExtendedFamilies:
             assert r.error is None, f"{r.fact}/{r.site.file}: {r.error}"
             assert r.matches is True, f"{r.fact}/{r.site.file} diverged: {r.found_value}"
 
+    def test_min_via_annular_ring_floor_is_clean_across_both_homes(self):
+        """The annular-ring FAB FLOOR itself (registered 2026-08-18).
+
+        968d1a33d (PR #1316) gave this fact a second home: `Via::new`
+        (temper-orchestration) started enforcing the floor at
+        construction, so the crate now carries its own copy of a number
+        `pcb/temper.kicad_pro` already declared. That change is also what
+        left eight `router_v6` tests holding the pre-floor 0.6mm pad --
+        Rust moved, Python did not, and nothing connected them. This
+        entry is the mechanical half of the connection; the behavioural
+        half is packages/temper-placer/tests/router_v6/
+        test_via_annular_floor_guard.py.
+
+        Expected CLEAN in both homes. A DIFF here means someone edited
+        one side alone -- and because this is a fabricator constraint,
+        the fix is to correct whichever home moved, never to reconcile by
+        lowering the floor.
+        """
+        repo_root = find_repo_root()
+        results = check.run(repo_root)
+        floor_results = [r for r in results if r.fact == "min_via_annular_ring_mm"]
+        assert len(floor_results) == 2, (
+            "expected exactly two homes (the board project file and "
+            "Via::new); a missing one means the pattern stopped matching, "
+            "which is a tool error, not a pass"
+        )
+        assert {r.site.file for r in floor_results} == {
+            "pcb/temper.kicad_pro",
+            "packages/temper-orchestration/src/pipeline_route.rs",
+        }
+        for r in floor_results:
+            assert r.error is None, f"{r.fact}/{r.site.file}: {r.error}"
+            assert r.matches is True, (
+                f"{r.site.file} no longer declares the 0.254mm annular-ring "
+                f"fab floor: {r.found_value}"
+            )
+            assert r.found_value == pytest.approx(0.254)
+
     def test_highvoltagesignal_via_facts_specifically_agree(self):
         """The exact fact family (HighVoltageSignal via_diameter/via_drill)
         that bit this project on 2026-08-13 (0.8/0.4 in netclass_rules.yaml
@@ -659,20 +697,40 @@ class TestRealRegistryExtendedFamilies:
             assert r.matches is True
             assert r.found_value == "hb-gnd"
 
-    def test_hb_gnd_temper_net_assignment_is_fixed_but_kicad_pro_sync_is_known_red(
+    def test_hb_gnd_is_now_classified_HV_on_both_enforced_surfaces(
         self,
     ):
-        """This changeset added the missing 'hb-gnd': 'HighVoltage' entry
-        to core.design_rules.TEMPER_NET_ASSIGNMENTS (previously absent --
-        scripts/check_hv_netclass_coverage.py PROPERTY 1 flagged it as a
-        currently-red, CI-blocking violation). pcb/temper.kicad_pro's
-        net_settings.netclass_assignments -- the file kicad-cli's DRC
-        actually reads (PROPERTY 3) -- is deliberately NOT synced here:
-        the evidence doc measures a 28-violation/18-net propagation
-        impact that needs an owner decision plus routing remediation, not
-        a mechanical sync. This test pins BOTH halves: the fix that
-        landed, and the honest red that didn't, so neither can silently
-        change without this test being updated."""
+        """Both enforced surfaces now classify `hb-gnd` as HighVoltage.
+
+        RE-DERIVED 2026-08-24, and this test did exactly what it was built
+        to do. Its previous name was
+        `..._is_fixed_but_kicad_pro_sync_is_known_red`, pinning two halves:
+        the TEMPER_NET_ASSIGNMENTS entry that had landed, and the
+        pcb/temper.kicad_pro sync that deliberately had not --
+
+            "This test pins BOTH halves: the fix that landed, and the
+            honest red that didn't, so neither can silently change without
+            this test being updated."
+
+        The red half changed. #1328 (2cc9eeb1e, "sync hb-gnd HighVoltage
+        into kicad_pro -- DRC now enforces HV rules on a -170V conductor")
+        performed the sync the old docstring said would need "an owner
+        decision plus routing remediation". pcb/temper.kicad_pro now
+        carries `"hb-gnd": "HighVoltage"`, so the site resolves clean:
+        found_value='HighVoltage', matches=True, error=None.
+
+        The rename is part of the re-derivation. A test named
+        `..._kicad_pro_sync_is_known_red` that asserts the sync is GREEN is
+        a trap for the next reader, the same way
+        `test_dru_rule_currently_selects_pd2` was once the DRU moved to
+        PD3.
+
+        Both halves are now pinned green, so a REGRESSION on either --
+        someone dropping the assignment, or the kicad_pro sync being
+        reverted to unblock DRC counts -- still fails here. That is the
+        property worth keeping: this is a -170V conductor, and the whole
+        point of the original test was that its classification must not
+        move silently in either direction."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         by_key = {(r.fact, r.site.file): r for r in results}
@@ -687,8 +745,9 @@ class TestRealRegistryExtendedFamilies:
         assert fixed.matches is True
         assert fixed.found_value == "HighVoltage"
 
-        still_red = by_key[
+        synced = by_key[
             ("hb_gnd_temper_net_assignment_class", "pcb/temper.kicad_pro")
         ]
-        assert still_red.error is not None
-        assert "did not match" in still_red.error
+        assert synced.error is None
+        assert synced.matches is True
+        assert synced.found_value == "HighVoltage"

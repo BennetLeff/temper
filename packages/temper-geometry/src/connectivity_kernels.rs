@@ -73,13 +73,17 @@ pub struct ViaData {
 /// `_to_pad_coordinates`: world point -> pad-local frame via
 /// `rotate_world_to_local_deg` (R(+theta), the inverse of KiCad's
 /// R(-theta)).
+///
+/// Delegates to `kicad_transform::rotate_world_to_local_deg`, which is
+/// bit-identical by construction: its `radians()` is the same
+/// `deg * (PI / 180.0)` shape, its cos/sin come from
+/// `pad_geometry::math_cos_sin` -- the same `dlsym(RTLD_DEFAULT,
+/// "cos"/"sin")` pointer `host_math` resolves -- and its expression is the
+/// same `(x*c - y*s, x*s + y*c)` in the same order.
 fn to_pad_coordinates(px: f64, py: f64, pad: &PadData) -> (f64, f64) {
     let dx = px - pad.x;
     let dy = py - pad.y;
-    let theta = pad.rotation * (std::f64::consts::PI / 180.0);
-    let c = crate::host_math::cos(theta);
-    let s = crate::host_math::sin(theta);
-    (dx * c - dy * s, dx * s + dy * c)
+    crate::kicad_transform::rotate_world_to_local_deg(dx, dy, pad.rotation)
 }
 
 /// `_point_in_pad(point, pad, radius)`.

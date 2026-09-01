@@ -1,7 +1,9 @@
 """
 U6: physics-U8 A* Dijkstra same-cost oracle + cost additivity (R13, R14).
 
-Cross-validates :func:`temper_placer.router_v6.astar_core._astar_search`
+Cross-validates the corridor A* --
+:func:`temper_placer.router_v6.astar_search2d_rust._astar_search_2d_rust`
+since the 2026-08-18 Rust port, `astar_core._astar_search` before it --
 against a reference Dijkstra that uses the **same** weighted grid, the
 **same** neighbor-validity model, the **same** diagonal-cost arithmetic,
 and the **same** per-cell thermal cost summation as the A* kernel.
@@ -47,7 +49,14 @@ from hypothesis import strategies as st
 from temper_placer.router_v6.astar_core import (
     _DIRS_8,
     DIAGONAL_COST_FACTOR,
-    _astar_search,
+)
+# `_astar_search` moved to Rust on 2026-08-18
+# (`temper_rust_router_core::astar_search2d`). This suite holds the RUST
+# kernel -- the live implementation -- to its properties; the pre-port
+# Python is pinned at `_astar_core_py_oracle.py` and is what
+# `test_astar_search2d_rust_differential.py` compares against.
+from temper_placer.router_v6.astar_search2d_rust import (
+    _astar_search_2d_rust as _astar_search,
 )
 from temper_placer.router_v6.astar_core_rust import _astar_search_rust
 from temper_placer.router_v6.neighbor_validity import (

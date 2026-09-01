@@ -44,9 +44,7 @@ call-back targets migrate.
 | `cli/watch_commands.py` | `_watch_replay` is marshalling over `pipeline/dag_observability.StageEvent` + `pipeline/terminal_dashboard.TerminalDashboardObserver` (the Phase-5 `pipeline/` slice owns both). The only non-call-back logic is JSON field defaulting (`e.get("name", "")` etc.) whose semantics are Python dict-`.get` — the same boundary the migrated `trace_filter` keeps Python-side. Zero standalone compute. |
 | `cli/andon_commands.py` | The module's entire behavior is a documented `raise NotImplementedError` ("Andon board not yet migrated to DAG engine"). Migrating a stub is vacuous; the R1 battery has nothing to pin. The command's click surface stays as-is. |
 | `cli/version.py` | Prints a version string + a one-line notice through the rich console. Zero compute; consumers rely on the click wiring in `cli/__init__.py`. |
-| `adapters/router_v6_stage_adapter.py` | All five stage `run()` bodies are 100% call-backs into `io/kicad_parser` (Phase 3) and `router_v6/pipeline` (Phase 5 `router_v6` slice) — the task brief explicitly directs keeping those call-backs Python-side. The stage classes are data (`name`/`requires`/`provides`/`contract`) plus dispatch; the registration side-effect calls `strategy_registry` (Phase 5, other slice). Zero standalone compute. |
 | `adapters/register_strategies.py` | `PlacementStage`/`RoutingStage` are `@dataclass` `PipelineStage` subclasses whose `run()` bodies call `strategy_registry.register` and `router_v6.route_pcb` (Python call-backs). `PipelineStage` is a `@runtime_checkable` Protocol with no pyclass mapping (the `protocol.py` R3 record, already decided); `dataclasses.replace()`-style surface is relied on by consumers. Zero standalone compute. |
-| `adapters/deterministic_adapter.py` | `_WrappedDeterministicStage` is a protocol-compat wrapper whose `run()` calls the wrapped `deterministic.stages.Stage` (the `deterministic/` slice owns the stages). Zero standalone compute; the wrapper is data + one call-back. |
 | `adapters/placement_adapter.py` | A deprecated stub whose `run()` raises `NotImplementedError` (JAX retirement) plus a registration side-effect. Nothing to migrate. |
 | `temper_workflow/metrics/aesthetic_turing_test.py` | A standalone study script whose compute is one-hot rotation encoding (6 lines) plus call-backs into `io/kicad_parser` (Phase 3), `core/state.PlacementState` (Phase 2), `metrics/aesthetic` (Phase 4) and the retired JAX stack (`jax.numpy` — the module already carries a documented undeclared-import finding; `scripts/check_undeclared_imports.py` reports it as needing an owner decision). Migrating 6 lines of logit-encoding behind a JAX boundary is net-negative marshalling. |
 | `temper_workflow/metrics/compare_refinement.py` | Study-script glue: `losses`/`optimizer` (Phase 4) call-backs plus a `time.time()` wall-clock study loop. Zero standalone compute beyond the retired-JAX `PlacementState` construction. |
@@ -2031,15 +2029,16 @@ With D7 landed, **Phase D is complete** per the plan: all seven batches
 (D1 setup → D7 routing-adjacent) are migrated, and the plan's Phase D table
 rows (27 stage files, ~7,800 LOC) are exhausted.
 
-## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
+## Rust orchestration engine — U8 (explainability data contracts)
 
 The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit
-here: the `explainability/{decision,trace,serialization,markdown_report}.py`
-row (886 LOC) — the explainability **data contracts** migrate to
+here: the `explainability/{decision,trace,serialization}.py` row — the
+explainability **data contracts** migrate to
 `explainability.rs` pyclasses (`Decision`, `Alternative`, `DecisionTrace`,
-`Entry`, `Trace`) and the **markdown report generation** becomes the
-`MarkdownReport` pyfunctions (`render_markdown_report` /
-`render_component_report`). The three Python shims collapse to re-exports.
+`Entry`, `Trace`). The former MarkdownReport renderer exports were
+differential-only and are no longer part of the Python API; the Rust
+renderer implementation is retained for native reuse and its pinned oracle
+is retained as migration evidence.
 `DecisionPhase` / `DecisionType` stay Python `Enum` classes; the
 NL-generation kernels (`why` / `why_not` / `history` / `summary`) stay
 single-source in `temper-io-types` and are called back from the pyclasses.
@@ -2055,10 +2054,10 @@ single-source in `temper-io-types` and are called back from the pyclasses.
 - `trace.py` — the `Entry` / `Trace` frozen dataclasses become pyclasses
   (the immutable monoid: `empty` / `add` / `__add__` / `for_subject` /
   `__len__` / `__bool__` / `__eq__` / `__hash__` / `__repr__`).
-- `markdown_report.py` — the renderers are the `MarkdownReport` deliverable
-  ported into `explainability.rs` (byte-pinned against the verbatim oracle);
-  the shim keeps only the `strftime` timestamp pre-formatting, the
-  `duration` datetime arithmetic and `save_markdown_report` file I/O.
+- `markdown_report.py` — the former renderer binding was differential-only
+  and has been retired; the Rust implementation remains in
+  `explainability.rs` for native reuse, with the verbatim oracle retained as
+  historical migration evidence.
 - `logger.py`, `pipeline.py`, `traced_loss.py`, `serialization.py` stay
   Python unchanged (orchestration over Python callables / stdlib file-I/O /
   numpy; the logger's `explain_log_*`, `explain_should_log`,
@@ -2082,9 +2081,9 @@ single-source in `temper-io-types` and are called back from the pyclasses.
   back across the boundary (the pyclass instances expose the exact attribute
   surface those kernels read). The five io-types kernels are ledgered as
   wired-but-invisible-to-the-Python-AST-scan (the gate cannot see
-  cross-extension Rust→Python `PyModule::import` calls). The two markdown
-  renderers ARE ported (the plan's `MarkdownReport` deliverable) and are
-  ledgered as orphaned/superseded.
+  cross-extension Rust→Python `PyModule::import` calls). The former markdown
+  renderer bindings were differential-only and are ledgered as
+  orphaned/superseded; their Rust implementation remains unexported.
 - **Per-instance default factories.** `constraint_refs` / `alternatives` /
   `config_snapshot` / `decisions` / `final_positions` / `final_metrics` get a
   FRESH `PyList`/`PyDict` per construction (the dataclass
@@ -2100,7 +2099,8 @@ single-source in `temper-io-types` and are called back from the pyclasses.
 ### G1 — differential oracle before Rust (TDD)
 
 The U8 differential `test_explainability_contracts_rust_differential.py`
-(23 tests) and its RED arm were committed first (`4a603144` — the
+(18 retained data-contract tests) and its RED arm were committed first
+(`4a603144` — the
 `__module__ == "temper_orchestration"` assertions failed, the shims were not
 collapsed), then the implementation landed GREEN (`438352c1`). The oracle is
 the verbatim pre-migration module copies in
@@ -2109,15 +2109,15 @@ suites).
 
 ### G2 — behavioural A/B (bit-exact)
 
-The 23-test differential drives BOTH arms with identical inputs and compares
+The retained differential drives BOTH arms with identical inputs and compares
 every observable bit-exact: construction defaults (uuid/datetime shapes),
 `to_dict` shapes (repr-compared), `query_*` results (Decision reprs),
 `finalize`, `summary`/`why`/`why_not`/`history` (via the delegated kernels),
-the Trace monoid (`empty`/`add`/`+`/`for_subject`/`why`/repr) and the
-markdown reports byte-identical across 15 randomized fixtures × the
-include_config/include_positions matrix. The pre-existing Wave-4 suites
+and the Trace monoid (`empty`/`add`/`+`/`for_subject`/`why`/repr). The retired
+markdown binding has no production caller and is not included in this
+contract suite. The pre-existing Wave-4 suites
 (`test_decision_rust_differential.py`, `test_trace_rust_differential.py`,
-`test_serialization_rust_differential.py`, `test_markdown_rust_differential.py`,
+`test_serialization_rust_differential.py`,
 `test_logger_rust_differential.py`, `test_traced_loss_pipeline_rust_differential.py`,
 `test_explainability_pbt.py`, `test_*_extra.py`) now drive the **pyclasses**
 through the collapsed shims and stay green — 138 explainability tests.
@@ -2125,20 +2125,20 @@ through the collapsed shims and stay green — 138 explainability tests.
 ### G3 — performance
 
 Pure-delegation carve-out: the data contracts are constructed once per
-decision, the renderers run once per report; the only overhead added is the
-pyclass construction / FFI crossing. No regression beyond noise is possible
-or claimed.
+decision; the only overhead added is the pyclass construction / FFI crossing.
+The retired renderer export had no production path and makes no performance
+claim here.
 
 ### G4 / G5 — PBT + metamorphic (`test_explainability_contracts_pbt.py`)
 
-Six non-vacuous properties (P1 Trace monoid identity, P2 `add` appends
+Five non-vacuous properties (P1 Trace monoid identity, P2 `add` appends
 exactly one entry, P3 `Decision.to_dict`→`deserialize_decision` round-trip,
 P4 `summary` aggregation consistency, P5 `query_subject` chronological
-filter, P6 markdown determinism), each with a degenerate-kernel mutation
-guard via `hypothesis.inner_test`. Four metamorphic relations (MR1
-composition order-preservation, MR2 monoid identity invisible to `why` output,
-MR3 component report monotone in the appended final value, MR4 summary scale
-invariance under decision duplication), each mutation-guarded. 20/20 green.
+filter), each with a degenerate-kernel mutation guard via
+`hypothesis.inner_test`. Three metamorphic relations (MR1 composition
+order-preservation, MR2 monoid identity invisible to `why` output, MR4 summary
+scale invariance under decision duplication), each mutation-guarded. 18/18
+retained property and mutation tests are collected.
 
 ### G6 — induction
 
@@ -2163,8 +2163,8 @@ Not applicable — the explainability surface gates on no physics quantity
 
 ### Structural proof
 
-**Claim (bit-identical parity).** For every constructor, field, method and
-renderer of the migrated pyclasses, the Rust behaviour is bit-identical to
+**Claim (bit-identical parity).** For every constructor, field and method of
+the migrated pyclasses, the Rust behaviour is bit-identical to
 the pinned pre-migration Python for every input in the differential suites'
 domains, with the documented boundary choices above.
 
@@ -2184,11 +2184,12 @@ domains, with the documented boundary choices above.
    tuple / entries tuple).
 4. **Per-instance default factories.** Fresh `PyList`/`PyDict` per
    construction, pinned by the differential's independence test.
-5. **Markdown float/truncation seams.** The renderers go through the ported
-   `py_float_fmt` seam (NaN/inf lowercase, round-half-even) and `truncate`
-   (CPython negative-stop slicing clamp for max_len < 3) — the same seams
-   io-types pins, re-pinned here by unit tests and the byte-identical
-   differential (incl. the deterministic-string golden test).
+5. **Retained renderer seams.** The unexported Rust renderer implementation
+   still uses the ported `py_float_fmt` and `truncate` seams (NaN/inf
+   lowercase, round-half-even, and CPython negative-stop slicing clamp).
+   Its former Python binding was differential-only and is no longer part of
+   the public parity claim; the pinned oracle remains available as migration
+   evidence.
 6. **`finalize` truthiness.** `if positions:` / `if metrics:` skip empty
    (`falsy`) dicts exactly like the oracle (pinned by the differential).
 7. **Delegated NL-generation by single-source.** `why` / `why_not` /
@@ -2213,8 +2214,8 @@ argued in-source and above):
 
 | Suite | Location | Count |
 |---|---|---|
-| U8 contracts differential (oracle: `explain_oracle/{decision,trace,markdown_report}_oracle.py`) | `packages/temper-placer/tests/explainability/test_explainability_contracts_rust_differential.py` | 23 |
-| U8 PBT + metamorphic (P1..P6, MR1..MR4, mutation-guarded) | `packages/temper-placer/tests/explainability/test_explainability_contracts_pbt.py` | 20 |
+| U8 contracts differential (oracles: `explain_oracle/{decision,trace}_oracle.py`) | `packages/temper-placer/tests/explainability/test_explainability_contracts_rust_differential.py` | current suite |
+| U8 PBT + metamorphic (data-contract properties, mutation-guarded) | `packages/temper-placer/tests/explainability/test_explainability_contracts_pbt.py` | current suite |
 | pre-existing explainability suites (Wave-4 differentials/PBT/extra, now driving the pyclasses) | `packages/temper-placer/tests/explainability/` | 138 |
 
 ## Rust orchestration engine — Phase E batch E3 (clearance-family stages)
@@ -2818,6 +2819,34 @@ s-expression injection, the tree-route branch, the zone pours, the chamfer
 source and the `connectivity_preflight` call-back stay Python; the
 `DrcViolation` / `CongestionRegion` dataclass construction stays Python (the
 kernel returns plain tuples — the D4 `StageDRCFailure` precedent).
+
+**DELIBERATE DIVERGENCE — the via annular-ring fab floor (PR #1316,
+968d1a33d).** The bit-identical parity claimed above holds for every
+observable EXCEPT one: `Via::new` enlarges a via pad whose annular ring
+`(diameter - drill) / 2` falls below the board's 0.254mm fabrication floor
+(`MIN_ANNULAR_RING_MM`, `pcb/temper.kicad_pro`'s
+`board.design_settings.rules.min_via_annular_width` at DRC severity
+`error`). The pre-migration oracles predate that floor and must stay
+verbatim, so they do not clamp. This is behaviour the port ADDS on
+purpose — the "make bad states unrepresentable" guard that closed PR
+#1312's 56 sub-floor vias — not a porting defect.
+
+The consequence for anyone reading a via-shaped diff between the two arms:
+**a differential fixture must feed a floor-COMPLIANT pad**, or it will
+report the crate's deliberate correction as a divergence. Eight
+`router_v6` tests did exactly that for a day (five here, two in
+`test_pipeline_route_rust_differential.py`, one in
+`test_via_output_writer.py`), and because the constant lives in a compiled
+extension they passed or failed according to when the reader last ran
+`maturin develop` rather than according to the code. They now DERIVE their
+pad geometry from the crate via
+`tests/router_v6/_via_annular_floor.py::floor_compliant_via()`, reading
+the floor through the `temper_orchestration.MIN_ANNULAR_RING_MM` /
+`ANNULAR_RING_TARGET_MM` exports added for that purpose. The clamp itself
+is pinned separately, Python-side, by
+`tests/router_v6/test_via_annular_floor_guard.py`, and the Rust constant
+is pinned to the board's own DRC setting by
+`scripts/check_fact_registry_drift.py`'s `min_via_annular_ring_mm` fact.
 
 ### Empirical verification (U-H)
 
@@ -3674,7 +3703,7 @@ Python module keeps its public API and delegates.
 | Python surface | Rust surface | Notes |
 |---|---|---|
 | `_loop_core.py` `run()` (legacy classifier loop) + `_run_with_gates()` (gate-driven loop) + `_solve_with_delta()` + `_solve_phase2()` | `cpsat_loop.rs`: `cpsat_run_legacy_loop` / `cpsat_run_gated_loop` / `cpsat_solve_with_delta` / `cpsat_solve_phase2` | the loop SEQUENCING (round budget, solve-timeout selection, UNSAT early exit, oscillation check, convergence decisions, delta backtracking), the gate checks (PLACEMENT/ROUTING-stage passes, `_check_unmeasured_exit`), the SC1a/SC1b stability counters, the thermal-field preparation and the unsat_core assembly — the CP-SAT solve (`_call_solver`), routing, the classifier, the gate implementations and the other-mixin leaf helpers stay Python call-backs in oracle order; wall-clock stays `_loop_core.time.monotonic` (the mockable clock) |
-| `feedback.py` `FeedbackClassifier.classify()` | `feedback.rs`: `classify_feedback` | the routing-field extraction, the clean early-return, the four-class DISPATCH loops in oracle order, the unclassified-failure collection and the priority sort (`operator.attrgetter("priority")` stable sort); the four `_handle_*` constraint-building handlers and the leaf helpers stay Python call-backs |
+| `feedback.py` `FeedbackClassifier.classify()` | `feedback.rs`: `classify_feedback` | the routing-field extraction, the clean early-return, the four-class DISPATCH loops in oracle order, the unclassified-failure collection and the priority sort (`operator.attrgetter("priority")` stable sort); congestion branch selection, widening arithmetic, IDs, and `ConstraintDelta` construction are Rust-owned via `handle_congestion`; clearance and the remaining handlers retain Python-object seams |
 | `validator_audit.py` `audit_domain_clearance_validator()` | `validator_audit.rs`: `audit_domain_clearance_validator` | the R24 post-solve audit SEQUENCING: the two `ValueError` guards (zero components / disjoint solved refs), the `build_validator_placement` call, the `verify_iec60335_compliance` re-run, the `stats` extraction, the geometry-trust computation (`components_without_pads` / `pairs_origin_modelled`) + the degraded-geometry `logger.error`, the `covered_pairs` frozenset build, the per-violation bucket dispatch (`classify_violation`: intra / hard / gap, reasons formatted through CPython) + `DomainClearanceValidatorViolation` construction, and the `DomainClearanceValidatorAuditResult` assembly |
 
 ### What stays Python (the U-I boundary, argued in the shim headers and here)
@@ -3689,10 +3718,15 @@ Python module keeps its public API and delegates.
   invoked as call-backs in oracle order; the numpy thermal-field
   rasterization; the wall clock (`time.monotonic` on `_loop_core` — the
   field-feedback test mocks that exact target).
-- **`feedback`**: the four `_handle_*` handlers — they CONSTRUCT the real
-  PCL `SeparatedConstraint` / `KeepoutConstraint` / `AnchoredConstraint`
-  objects and do the design-rules marshalling (U-E "Python-object
-  marshalling"); the leaf helpers `_find_critical_components` /
+- **`feedback`**: congestion handling (`_handle_congestion`) is a Rust-owned
+  kernel; its Python method is a compatibility adapter for direct callers,
+  while `classify_feedback` dispatches the production classifier directly to
+  Rust.  CPython still owns the PCL object construction at the boundary, so
+  custom classifier subclasses and the pinned oracle retain their callback
+  behavior.  The clearance, critical-pin, and rotation handlers construct the
+  real PCL `SeparatedConstraint` / `KeepoutConstraint` / `AnchoredConstraint`
+  objects and do the remaining Python-object/design-rules marshalling; the
+  leaf helpers `_find_critical_components` /
   `_detect_persistent_ics` / `_compute_heuristic_position`; the
   `ConstraintDelta` / `UnclassifiedFailure` / `ClassificationResult`
   dataclasses (constructed by the Rust sequencing via keyword args).
@@ -4747,6 +4781,54 @@ collapse them to the Python-first element on rebuild. Recorded bound.
   1-corner `Zone.bounds`, a list for a frozenset field, a list for a
   violation tuple, a tuple `checks`, a str `total_time_ms` and a str
   clearance are all REJECTED loudly.
+
+## Deterministic coarse placement partition planner (2026-08-27)
+
+`partition_planner.rs` owns the first decomposition boundary for the
+production CP-SAT placement model.  Its plain-data
+`plan_component_partitions_py` entry accepts complete
+`(pin_name, net_name, pin_class)` records and `(component_ref, pin_name)` net
+terminals, validates every cross-reference exactly once, and returns stable
+`(partition_id, component_refs, net_names, pin_classes)` tuples.
+
+Electrical connectivity is unioned only within an identical complete sorted
+pin-class signature.  This is deliberate: a shared global `GND` rail cannot
+collapse `HighVoltage+Ground`, `Signal+Ground`, and `Ground` components into
+one solver envelope, while same-signature connected components still form a
+cluster.  Mixed gate-drive signatures remain intact for the generated
+cross-class creepage requirements.  Unknown, duplicate, mismatched, or
+unresolved component/pin/net records fail closed with `ValueError` at the
+Python boundary.
+
+Focused native tests cover deterministic input-order independence, malformed
+input rejection, same-signature clustering, mixed signatures, and shared
+ground domain separation using production net names (`DC_BUS+`, `SPI_CLK`,
+`GATE_H`, `PWM_HS`, `tank.c_tank1-p2`).
+
+The companion `compact_partition_envelopes_py` kernel sizes each returned
+partition with deterministic descending max-dimension/area/reference shelf
+packing.  Its initial target shelf width follows the board aspect ratio and
+partition area; an over-tall compact arrangement is repacked at board width
+before the final strict fit check.  It validates exact dimension/reference
+coverage and rejects non-finite, non-positive, duplicate, unresolved, or
+unfittable inputs.  Envelope dimensions are measured from the emitted shelf
+arrangement, so the CP-SAT adapter receives sufficient bounds by construction.
+
+`partition_creepage_requirements_py` owns the generated class-pair reduction
+for this boundary.  It returns deterministic unordered partition-pair maxima
+and one internal gap per partition (including zero), canonicalizing `GND` and
+`Ground` together and reducing symmetric matrix rows by maximum.  Thus a 12.6 mm
+`GateDriveHV`/`Signal` requirement widens only envelopes carrying both
+classes; unrelated partitions retain the smaller base shelf gap.
+
+`internal_component_creepage_requirements_py` is the exact local refinement
+boundary.  It accepts complete `(component_ref, pin_records)` data and emits
+only non-zero `(partition_id, ref_a, ref_b, required_mm)` rows for unordered
+component pairs inside each partition.  It max-reduces every distinct class
+cross-product using the same `GND`/`Ground` normalization and same-class skip
+as `netclass.rs`, with strict partition/ref/pin/matrix validation.  This keeps
+a mixed partition from applying one restrictive class-pair gap to all of its
+members.
 
 ### Gates (U5)
 

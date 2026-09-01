@@ -22,6 +22,13 @@ Four groups:
    and shows a clean pass. Also covers the "entirely unrelated checkout"
    shape (a sibling directory, not nested under repo root at all) and the
    anti-vacuity backstop (empty site-packages is a GATE ERROR, not a PASS).
+5. `TestFindCwdWorktree` / `TestMode5Warning` -- the mode-5 advisory (the
+   2026-08-17 shape: a *healthy* shared venv serving main's code to a
+   worktree agent). `find_cwd_worktree` resolves cwd to the most specific
+   registered worktree (nested worktrees win over the main-checkout
+   prefix); `mode5_warning` returns the advisory string exactly when cwd
+   is a worktree and the venv (or `VIRTUAL_ENV`) resolves under the main
+   checkout but not under that worktree, and None otherwise.
 """
 
 from __future__ import annotations
@@ -41,8 +48,10 @@ from check_venv_integrity import (  # noqa: E402
     classify_path,
     decide_exit_code,
     direct_url_local_path,
+    find_cwd_worktree,
     find_site_packages,
     iter_pth_path_entries,
+    mode5_warning,
     run,
 )
 
@@ -307,3 +316,99 @@ class TestAntiVacuity:
         repo_root.mkdir()
         with pytest.raises(GateError):
             run(tmp_path / "no-such-venv", repo_root, other_worktrees=[repo_root])
+
+
+class TestFindCwdWorktree:
+    def test_cwd_in_main_checkout_resolves_to_main(self, tmp_path: Path) -> None:
+        main_root = (tmp_path / "temper").resolve()
+        main_root.mkdir()
+        cwd = main_root / "packages"
+        cwd.mkdir()
+        assert find_cwd_worktree(cwd, [main_root]) == main_root
+
+    def test_cwd_in_nested_worktree_wins_over_main_prefix(self, tmp_path: Path) -> None:
+        main_root = (tmp_path / "temper").resolve()
+        wt = main_root / ".claude" / "worktrees" / "agent-x"
+        wt.mkdir(parents=True)
+        cwd = wt / "scripts"
+        cwd.mkdir()
+        assert find_cwd_worktree(cwd, [main_root, wt]) == wt
+
+    def test_cwd_in_sibling_worktree(self, tmp_path: Path) -> None:
+        main_root = (tmp_path / "temper").resolve()
+        main_root.mkdir()
+        wt = (tmp_path / "temper-wt").resolve()
+        wt.mkdir()
+        assert find_cwd_worktree(wt, [main_root, wt]) == wt
+
+    def test_cwd_outside_any_worktree(self, tmp_path: Path) -> None:
+        main_root = (tmp_path / "temper").resolve()
+        main_root.mkdir()
+        elsewhere = (tmp_path / "elsewhere").resolve()
+        elsewhere.mkdir()
+        assert find_cwd_worktree(elsewhere, [main_root]) is None
+
+
+class TestMode5Warning:
+    """The 2026-08-17 shape: a *healthy* shared venv serving main's code."""
+
+    def _make(self, tmp_path: Path):
+        main_root = (tmp_path / "temper").resolve()
+        main_root.mkdir()
+        shared_venv = main_root / ".venv"
+        wt = (tmp_path / "temper-wt").resolve()
+        wt.mkdir()
+        return main_root, shared_venv, wt
+
+    def test_main_checkout_with_shared_venv_is_fine(self, tmp_path: Path) -> None:
+        main_root, shared_venv, wt = self._make(tmp_path)
+        assert mode5_warning(shared_venv, main_root, main_root) is None
+
+    def test_worktree_with_shared_venv_warns(self, tmp_path: Path) -> None:
+        main_root, shared_venv, wt = self._make(tmp_path)
+        warning = mode5_warning(shared_venv, main_root, wt)
+        assert warning is not None
+        assert "make venv-isolate" in warning
+        assert str(shared_venv) in warning
+
+    def test_worktree_with_its_own_venv_is_fine(self, tmp_path: Path) -> None:
+        main_root, shared_venv, wt = self._make(tmp_path)
+        own_venv = wt / ".venv"
+        assert mode5_warning(own_venv, main_root, wt) is None
+
+    def test_worktree_with_venv_outside_repo_is_fine(self, tmp_path: Path) -> None:
+        main_root, shared_venv, wt = self._make(tmp_path)
+        outside = (tmp_path / "unrelated" / ".venv").resolve()
+        assert mode5_warning(outside, main_root, wt) is None
+
+    def test_cwd_outside_any_worktree_is_fine(self, tmp_path: Path) -> None:
+        main_root, shared_venv, wt = self._make(tmp_path)
+        assert mode5_warning(shared_venv, main_root, None) is None
+
+    def test_nested_worktree_with_shared_venv_warns(self, tmp_path: Path) -> None:
+        main_root, shared_venv, wt = self._make(tmp_path)
+        nested_wt = main_root / ".claude" / "worktrees" / "agent-x"
+        nested_wt.mkdir(parents=True)
+        warning = mode5_warning(shared_venv, main_root, nested_wt)
+        assert warning is not None
+        assert "make venv-isolate" in warning
+
+    def test_active_venv_env_var_triggers_warning(self, tmp_path: Path) -> None:
+        main_root, shared_venv, wt = self._make(tmp_path)
+        # the interpreter itself is fine (e.g. system python), but
+        # VIRTUAL_ENV points at the shared venv -- still mode 5.
+        system_python = (tmp_path / "usr" / "bin").resolve()
+        system_python.mkdir(parents=True)
+        warning = mode5_warning(system_python, main_root, wt, active_venv=shared_venv)
+        assert warning is not None
+        assert "make venv-isolate" in warning
+
+    def test_checked_venv_is_shared_warns_even_if_virtual_env_points_elsewhere(self, tmp_path: Path) -> None:
+        # The venv being *checked* (sys.prefix of the interpreter) is
+        # authoritative: if it is the shared venv, imports resolve to main
+        # regardless of what VIRTUAL_ENV claims.
+        main_root, shared_venv, wt = self._make(tmp_path)
+        own_venv = wt / ".venv"
+        warning = mode5_warning(shared_venv, main_root, wt, active_venv=own_venv)
+        assert warning is not None
+        assert "make venv-isolate" in warning

@@ -82,7 +82,16 @@ class TestNetclassLoader:
         cp = self.dr.class_pairs
         assert ("ACMains", "Signal") in cp
         assert cp[("ACMains", "Signal")]["clearance"] == 6.0
-        assert "IEC 60335-1" in cp[("ACMains", "Signal")]["because"]
+        # Provenance pin updated 2026-08-22: the pair's `because` field
+        # used to claim "IEC 60335-1 Table 16 working isolation at 400V" --
+        # a citation the safety-figure work DEBUNKED (Table 16 is keyed to
+        # rated impulse voltage, has no 400V row, and 6.0mm is not among
+        # its values). The field now honestly reads UNSOURCED; this test
+        # asserts that honest provenance is present rather than asserting
+        # the fabricated citation back into existence.
+        because = cp[("ACMains", "Signal")]["because"]
+        assert "UNSOURCED" in because
+        assert "debunked" in because
 
     def test_class_pairs_are_direction_agnostic(self):
         """Class pair keys are sorted tuples."""
@@ -175,25 +184,37 @@ class TestGateDriveSplit:
             assert b != "GateDrive"
 
     def test_every_class_pairs_entry_for_one_half_has_an_equivalent_for_the_other(self):
-        """Any class_pairs entry that existed for GateDrive must be
-        duplicated for BOTH new classes, so neither half silently loses a
-        rule the other keeps.
+        """Neither half of the GateDrive split may silently lose a rule the
+        other keeps: for every LV sibling class, both halves either carry a
+        class_pair row or neither does -- and the figures must match.
 
-        Symmetric by construction today: GateDrive had zero class_pairs
-        entries in configs/netclass_rules.yaml before the split (verified
-        by grep), so there is nothing to duplicate -- this test guards the
-        invariant going forward rather than merely documenting today's
-        empty case.
+        Rewritten 2026-08-22 (#1445 item 4): the original pairwise-twin walk
+        demanded a 'twin' for EVERY entry naming a gate-drive half, which
+        produced nonsense keys -- ('GateDriveSELV','GateDriveSELV') for the
+        cross-half pair itself, and ('ACMains','GateDriveHV') for
+        ACMains-GateDriveSELV even though same-broader-HV-domain rows are
+        deliberately absent from this table (see netclass_rules.yaml's own
+        block comment: 'the same-domain figure is the DRU's business').
+        The invariant this test actually guards is per-LV-sibling symmetry,
+        stated directly below.
         """
         cp = self.dr.class_pairs
-        other = {"GateDriveHV": "GateDriveSELV", "GateDriveSELV": "GateDriveHV"}
-        for (a, b), value in cp.items():
-            for name, twin in other.items():
-                if name not in (a, b):
-                    continue
-                twin_key = tuple(sorted((twin, b if a == name else a)))
-                assert twin_key in cp, (
-                    f"class_pairs has {(a, b)} but no equivalent {twin_key} "
-                    f"for the other half of the GateDrive split"
+        lv_siblings = ["FinePitch", "GND", "Power", "Signal"]
+        for lv in lv_siblings:
+            hv_half = ("GateDriveHV", lv) in cp
+            selv_half = ("GateDriveSELV", lv) in cp
+            assert hv_half == selv_half, (
+                f"GateDrive split asymmetry on {lv!r}: "
+                f"GateDriveHV row={hv_half}, GateDriveSELV row={selv_half} -- "
+                "one half silently lost (or gained) a rule the other keeps"
+            )
+            if hv_half:
+                hv_figure = cp[("GateDriveHV", lv)]["clearance"]
+                selv_figure = cp[("GateDriveSELV", lv)]["clearance"]
+                assert hv_figure == selv_figure, (
+                    f"GateDrive {lv!r} figures diverge: {hv_figure} vs {selv_figure}"
                 )
-                assert cp[twin_key]["clearance"] == value["clearance"]
+        # The cross-half pair itself must exist: GateDriveHV is the HV/
+        # secondary side of U7's reinforced barrier, GateDriveSELV the
+        # SELV/primary side -- a genuine cross-barrier pair.
+        assert ("GateDriveHV", "GateDriveSELV") in cp

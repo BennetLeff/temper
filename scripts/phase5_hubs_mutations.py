@@ -27,8 +27,6 @@ SUITES = [
     "tests/deterministic/test_zone_adjuster_rust_differential.py",
     "tests/deterministic/test_drc_parser_rust_differential.py",
     "tests/deterministic/test_channels_pbt.py",
-    "tests/deterministic/test_bottleneck_map_pbt.py",
-    "tests/deterministic/test_seed_filter_pbt.py",
     "tests/deterministic/test_violation_mapper_pbt.py",
     "tests/deterministic/test_zone_adjuster_pbt.py",
     "tests/deterministic/test_drc_parser_pbt.py",

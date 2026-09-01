@@ -70,7 +70,12 @@ pub fn result_status(skipped: bool, passed: bool) -> &'static str {
 
 #[cfg(feature = "python")]
 /// Mirror of Python `regression.reporter.BatteryVerdictReport` (dataclass).
-#[pyclass(dict, skip_from_py_object, module = "temper_orchestration", name = "BatteryVerdictReport")]
+#[pyclass(
+    dict,
+    skip_from_py_object,
+    module = "temper_orchestration",
+    name = "BatteryVerdictReport"
+)]
 #[derive(Clone, Debug, Default)]
 pub struct BatteryVerdictReport {
     #[pyo3(get, set)]
@@ -150,7 +155,12 @@ impl BatteryVerdictReport {
 
 #[cfg(feature = "python")]
 /// Mirror of Python `regression.reporter.MetricDelta` (dataclass).
-#[pyclass(dict, skip_from_py_object, module = "temper_orchestration", name = "MetricDelta")]
+#[pyclass(
+    dict,
+    skip_from_py_object,
+    module = "temper_orchestration",
+    name = "MetricDelta"
+)]
 #[derive(Clone, Debug, Default)]
 pub struct MetricDelta {
     #[pyo3(get, set)]
@@ -170,13 +180,7 @@ pub struct MetricDelta {
 impl MetricDelta {
     #[new]
     #[pyo3(signature = (name, baseline, current, delta, regression=false))]
-    fn new(
-        name: String,
-        baseline: f64,
-        current: f64,
-        delta: f64,
-        regression: bool,
-    ) -> Self {
+    fn new(name: String, baseline: f64, current: f64, delta: f64, regression: bool) -> Self {
         Self {
             name,
             baseline,
@@ -189,7 +193,11 @@ impl MetricDelta {
     /// Python property `delta_display`: `f"{'+' if delta > 0 else ''}{delta}"`.
     #[getter]
     fn delta_display(&self, py: Python<'_>) -> PyResult<String> {
-        Ok(format!("{}{}", delta_sign(self.delta), py_str_float(py, self.delta)?))
+        Ok(format!(
+            "{}{}",
+            delta_sign(self.delta),
+            py_str_float(py, self.delta)?
+        ))
     }
 
     /// Python `message()`: `f"{name}: {current} vs baseline {baseline} ({delta_display})"`.
@@ -243,7 +251,12 @@ impl MetricDelta {
 /// container fields (`metrics`, `baseline_metrics`, `deltas`, `warnings`,
 /// `errors`, `board_shape`) are stored as `Py<PyAny>` (a Python dict/list)
 /// so repr/eq parity is by identity with CPython's own container semantics.
-#[pyclass(dict, skip_from_py_object, module = "temper_orchestration", name = "BoardResult")]
+#[pyclass(
+    dict,
+    skip_from_py_object,
+    module = "temper_orchestration",
+    name = "BoardResult"
+)]
 #[derive(Clone, Debug)]
 pub struct BoardResult {
     #[pyo3(get, set)]
@@ -337,7 +350,9 @@ impl BoardResult {
         Ok(a.board_id == b.board_id
             && a.passed == b.passed
             && a.metrics.bind(py).eq(b.metrics.bind(py))?
-            && a.baseline_metrics.bind(py).eq(b.baseline_metrics.bind(py))?
+            && a.baseline_metrics
+                .bind(py)
+                .eq(b.baseline_metrics.bind(py))?
             && a.deltas.bind(py).eq(b.deltas.bind(py))?
             && a.warnings.bind(py).eq(b.warnings.bind(py))?
             && a.errors.bind(py).eq(b.errors.bind(py))?
@@ -353,7 +368,12 @@ impl BoardResult {
 
 #[cfg(feature = "python")]
 /// Mirror of Python `regression.reporter.RegressionReporter` (dataclass).
-#[pyclass(dict, skip_from_py_object, module = "temper_orchestration", name = "RegressionReporter")]
+#[pyclass(
+    dict,
+    skip_from_py_object,
+    module = "temper_orchestration",
+    name = "RegressionReporter"
+)]
 #[derive(Clone, Debug)]
 pub struct RegressionReporter {
     #[pyo3(get, set)]
@@ -488,12 +508,15 @@ impl RegressionReporter {
                 lines.push(format!("  [{verdict_upper}] {field_name}"));
                 let cost: f64 = b.getattr("cost_seconds")?.extract()?;
                 let budget_exceeded: bool = b.getattr("budget_exceeded")?.extract()?;
-                let cost_line: String =
-                    py_format(py, "         cost={:.1f}s, budget_exceeded={}", &[
+                let cost_line: String = py_format(
+                    py,
+                    "         cost={:.1f}s, budget_exceeded={}",
+                    &[
                         PyFloat::new(py, cost).into_any(),
                         PyBool::new(py, budget_exceeded).to_owned().into_any(),
-                    ])?
-                    .extract()?;
+                    ],
+                )?
+                .extract()?;
                 lines.push(cost_line);
                 let details: String = b.getattr("verdict_details")?.extract()?;
                 lines.push(format!("         details: {details}"));
@@ -519,12 +542,15 @@ impl RegressionReporter {
             lines.push(format!("    {details}"));
             let cost: f64 = b.getattr("cost_seconds")?.extract()?;
             let budget_exceeded: bool = b.getattr("budget_exceeded")?.extract()?;
-            let cost_line: String =
-                py_format(py, "    cost={:.1f}s, budget_exceeded={}", &[
+            let cost_line: String = py_format(
+                py,
+                "    cost={:.1f}s, budget_exceeded={}",
+                &[
                     PyFloat::new(py, cost).into_any(),
                     PyBool::new(py, budget_exceeded).to_owned().into_any(),
-                ])?
-                .extract()?;
+                ],
+            )?
+            .extract()?;
             lines.push(cost_line);
         }
         Ok(lines.join("\n"))
@@ -553,7 +579,9 @@ impl RegressionReporter {
         let a = slf.borrow();
         let b = other.cast::<Self>()?.borrow();
         Ok(a.results.bind(py).eq(b.results.bind(py))?
-            && a.battery_verdicts.bind(py).eq(b.battery_verdicts.bind(py))?)
+            && a.battery_verdicts
+                .bind(py)
+                .eq(b.battery_verdicts.bind(py))?)
     }
 }
 
@@ -712,7 +740,12 @@ mod tests {
                 "MetricDelta(name='drc_errors', baseline=10.0, current=15.0, \
                  delta=5.0, regression=True)"
             );
-            let delta_display: String = m.bind(py).getattr("delta_display").unwrap().extract().unwrap();
+            let delta_display: String = m
+                .bind(py)
+                .getattr("delta_display")
+                .unwrap()
+                .extract()
+                .unwrap();
             assert_eq!(delta_display, "+5.0");
         });
     }
@@ -761,17 +794,38 @@ mod tests {
                 },
             )
             .unwrap();
-            reporter
-                .bind(py)
-                .call_method1("add_result", (br,))
-                .unwrap();
+            reporter.bind(py).call_method1("add_result", (br,)).unwrap();
             reporter
                 .bind(py)
                 .call_method1("add_result", (br2,))
                 .unwrap();
-            assert_eq!(reporter.bind(py).getattr("total").unwrap().extract::<usize>().unwrap(), 2);
-            assert_eq!(reporter.bind(py).getattr("passed").unwrap().extract::<usize>().unwrap(), 1);
-            assert_eq!(reporter.bind(py).getattr("failed").unwrap().extract::<usize>().unwrap(), 1);
+            assert_eq!(
+                reporter
+                    .bind(py)
+                    .getattr("total")
+                    .unwrap()
+                    .extract::<usize>()
+                    .unwrap(),
+                2
+            );
+            assert_eq!(
+                reporter
+                    .bind(py)
+                    .getattr("passed")
+                    .unwrap()
+                    .extract::<usize>()
+                    .unwrap(),
+                1
+            );
+            assert_eq!(
+                reporter
+                    .bind(py)
+                    .getattr("failed")
+                    .unwrap()
+                    .extract::<usize>()
+                    .unwrap(),
+                1
+            );
             let summary: String = reporter
                 .bind(py)
                 .call_method0("summary")

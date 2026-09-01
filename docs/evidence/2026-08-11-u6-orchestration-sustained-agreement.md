@@ -1,3 +1,4 @@
+<!-- provenance: commit=1bdfd7b6a82ec86fc3953e0c6c44e6a0c9494e42 dirty=UNKNOWN -->
 # U6 — R19 Sustained Agreement for `temper-orchestration`
 
 **Date:** 2026-08-11

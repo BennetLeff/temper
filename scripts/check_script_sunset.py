@@ -3,9 +3,24 @@
 
 Per the script-triage-sunset plan (U5), every script's `last_run` date in
 scripts/manifest.yaml is checked against the invocation graph:
-  - keep: WARNING if last_run >30 days ago AND zero callers
+  - keep: WARNING if last_run >30 days ago AND zero callers AND not
+    referenced by any .github/workflows/ job (a workflow reference means
+    the script runs on every PR/push, so an aging last_run is not evidence
+    of staleness -- see the false-positive fix below)
   - ticket: WARNING if last_run >30 days ago
   - ticket: ESCALATE (priority = delete) if last_run >60 days ago
+
+False-positive fix (2026-08-19, script-sprawl cleanup phase 2.4): CI gates
+that run on every PR used to surface as WARNINGs once their manifest
+last_run aged past 30 days. The invocation graph records workflow callers,
+but it is a committed artifact that goes stale between regenerations --
+measured 2026-08-19: 20 scripts referenced in .github/workflows/*.yml were
+absent from the graph, so the gates' staleness was invisible to the graph
+check. The sunset clock therefore scans .github/workflows/ directly and
+skips the keep-WARNING for any script referenced there (matched by script
+basename, so nested entries like packages/temper-placer/scripts/*.py are
+covered too). Ticket scripts are NOT skipped: a ticketed script that is
+also referenced by a workflow still needs its ticket resolved.
 
 Exit codes:
   0 - always (warnings only; never blocks PR merge)
@@ -20,6 +35,7 @@ main pushes). Run via CI bot or manually.
 import argparse
 import datetime
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -27,9 +43,41 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 MANIFEST = SCRIPTS_DIR / "manifest.yaml"
 GRAPH = SCRIPTS_DIR / "invocation_graph.json"
+WORKFLOWS_DIR = REPO_ROOT / ".github" / "workflows"
 
 WARN_DAYS = 30
 ESCALATE_DAYS = 60
+
+# Matches "scripts/<name>.py" references in workflow files. Also matches the
+# nested form "packages/temper-placer/scripts/<name>.py" (the substring
+# "scripts/<name>.py" appears in it).
+_WORKFLOW_SCRIPT_RE = re.compile(r"scripts/([a-zA-Z0-9_]+\.py)\b")
+
+
+def workflow_referenced_scripts() -> set[str]:
+    """Basenames of scripts referenced as scripts/<name>.py in workflows.
+
+    A script referenced by a workflow runs on PRs/pushes, so its manifest
+    last_run aging past 30 days is not evidence of staleness. Checked
+    directly against the workflow files rather than the invocation graph,
+    because the graph is a committed artifact that goes stale between
+    regenerations (20 scripts referenced in workflows were absent from it
+    on 2026-08-19).
+    """
+    refs: set[str] = set()
+    if not WORKFLOWS_DIR.is_dir():
+        return refs
+    files = sorted(WORKFLOWS_DIR.glob("*.yml")) + sorted(
+        WORKFLOWS_DIR.glob("*.yaml")
+    )
+    for f in files:
+        try:
+            text = f.read_text(errors="ignore")
+        except OSError:
+            continue
+        for match in _WORKFLOW_SCRIPT_RE.finditer(text):
+            refs.add(match.group(1))
+    return refs
 
 
 def parse_manifest(path: Path) -> list[dict]:
@@ -148,6 +196,7 @@ def main():
     warnings: list[str] = []
     escalations: list[str] = []
     updated = False
+    workflow_refs = workflow_referenced_scripts()
 
     for entry in entries:
         path = entry["path"]
@@ -174,6 +223,13 @@ def main():
         days_since = (today - last_run).days
 
         if category == "keep" and not has_caller and days_since > WARN_DAYS:
+            # A keep script referenced by a workflow runs on every PR/push;
+            # its aging last_run is not staleness evidence. Skip the warning
+            # (basename match covers nested entries such as
+            # packages/temper-placer/scripts/gen_config_reference.py, whose
+            # workflow reference uses the full relative path).
+            if Path(path).name in workflow_refs:
+                continue
             warnings.append(
                 f"Script '{path}' is 'keep' but has no tracked invocation in "
                 f"{days_since} days. Verify it is still needed or reclassify as 'ticket'."

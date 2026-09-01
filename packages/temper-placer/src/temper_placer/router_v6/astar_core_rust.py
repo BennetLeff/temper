@@ -19,11 +19,13 @@ Public API
 ----------
 - :func:`_astar_search_rust` is the Python-callable dispatch entry.
   It resolves the backend via :func:`_select_astar_backend` and runs
-  the Rust kernel through :func:`_astar_search_rust_kernel`, falling
-  back to the pure-Python
-  :func:`temper_placer.router_v6.astar_core._astar_search` only when
-  ``temper_rust_router`` cannot be imported (broken/stale extension
-  environment).  The path is returned as a list of ``(col, row)``
+  the Rust kernel through :func:`_astar_search_rust_kernel`.  It used to
+  fall back to the pure-Python
+  ``temper_placer.router_v6.astar_core._astar_search`` when
+  ``temper_rust_router`` could not be imported; that function no longer
+  exists (ported to ``temper_rust_router_core::astar_search2d``,
+  2026-08-18), so a missing/stale extension now raises instead of
+  silently degrading.  The path is returned as a list of ``(col, row)``
   tuples matching the ``astar_core`` return shape.
 
 - :func:`_line_of_sight_rust` is the Rust-backed Bresenham LOS check
@@ -253,10 +255,9 @@ def _astar_search_rust(
 
     The Rust kernel (``temper-rust-router``) is the sole A* backend
     since cleanup C1 (2026-07-31); the JIT kernel and the
-    ``TEMPER_ASTAR_BACKEND`` override were removed.  Falls through to
-    the pure-Python :func:`temper_placer.router_v6.astar_core._astar_search`
-    only if the extension cannot be imported.  No caller sees an
-    ImportError.
+    ``TEMPER_ASTAR_BACKEND`` override were removed.  Raises if the
+    extension cannot be imported -- the pure-Python fallback was deleted
+    with ``astar_core._astar_search`` (2026-08-18).
 
     S8 (same-net wiring): ``net_id`` and ``corridor_mask`` are forwarded
     to the Rust kernel.  When ``net_id >= 0``, the raw occupancy grid
@@ -300,13 +301,17 @@ def _astar_search_rust(
         _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
         return result
 
-    # Graceful degrade: temper_rust_router missing/stale.  The pure-Python
-    # reference cannot honor congestion/thermal fields; that matches the
-    # pre-cleanup JIT-missing fallback contract.
-    t0 = time.perf_counter()
-    from temper_placer.router_v6.astar_core import _astar_search
-
-    result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor, net_id=net_id, corridor_mask=corridor_mask)
-    _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
-    _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
-    return result
+    # FAIL CLOSED. This used to degrade to the pure-Python
+    # ``astar_core._astar_search``; that function was deleted when it was
+    # ported to Rust (``temper_rust_router_core::astar_search2d``, 2026-08-18)
+    # and its pre-port text now lives only as a pinned test oracle. There is
+    # no second implementation left to fall back to, and silently returning
+    # ``None`` here would read to every caller as "no route exists" rather
+    # than "the extension is missing" -- on a board where "no route" means
+    # copper does not get placed.
+    raise RuntimeError(
+        "temper_rust_router did not resolve to the Rust A* kernel "
+        f"(_select_astar_backend() == {_select_astar_backend()!r}); the "
+        "pure-Python fallback no longer exists. Run `make extensions` "
+        "(see scripts/check_stale_extensions.py)."
+    )

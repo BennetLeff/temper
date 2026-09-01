@@ -1,9 +1,9 @@
-"""
-PlacementState: Core state representation for PCB placement optimization.
+"""Core NumPy state representation for PCB placement.
 
-This module defines the central state object that holds component positions
-and rotation parameters during optimization. The state is designed to be
-JAX-compatible for automatic differentiation.
+``PlacementState`` is the data-transfer object shared by placement, I/O and
+validation. The active placer is discrete (heuristics plus CP-SAT/Rust
+kernels), so this module deliberately contains no autodiff or framework
+backend state.
 """
 
 from __future__ import annotations
@@ -23,27 +23,26 @@ if TYPE_CHECKING:
 @dataclass
 class PlacementState:
     """
-    JAX-compatible state holding component positions and rotation logits.
+    NumPy state holding component positions and rotation preference scores.
 
     Attributes:
         positions: (N, 2) array of component center (x, y) positions in mm.
-        rotation_logits: (N, 4) array of rotation preference logits.
+        rotation_logits: (N, 4) array of rotation preference scores.
             Index 0=0°, 1=90°, 2=180°, 3=270°.
 
-    The rotation_logits are used with Gumbel-Softmax to sample discrete
-    rotations differentiably during training.
+    The historical ``rotation_logits`` name is retained because it is part of
+    the placement contract. Consumers select a discrete rotation with
+    ``argmax``; the scores are not sampled by an autodiff optimizer.
     """
 
     positions: NDArray  # (N, 2) float32
     rotation_logits: NDArray  # (N, 4) float32
-    net_virtual_nodes: NDArray | None = None  # (M, 2) float32, optional for backward compat
 
     @classmethod
     def from_positions(
         cls,
         positions: NDArray,
         rotation_logits: NDArray | None = None,
-        net_virtual_nodes: NDArray | None = None,
     ) -> PlacementState:
         """
         Create a PlacementState from positions, with optional initial rotation logits.
@@ -52,7 +51,6 @@ class PlacementState:
             positions: (N, 2) array of component positions.
             rotation_logits: Optional (N, 4) array. If None, initialized to zeros
                 (uniform distribution over rotations).
-            net_virtual_nodes: Optional (M, 2) array of net virtual nodes.
 
         Returns:
             New PlacementState instance.
@@ -63,7 +61,6 @@ class PlacementState:
         return cls(
             positions=positions,
             rotation_logits=rotation_logits,
-            net_virtual_nodes=net_virtual_nodes,
         )
 
     @classmethod
@@ -73,14 +70,13 @@ class PlacementState:
         netlist: Netlist | None = None,
         component_order: list[str] | None = None,
         *,
-        rotation_logits: Array | None = None,
-        net_virtual_nodes: Array | None = None,
+        rotation_logits: NDArray | None = None,
     ) -> PlacementState:
         """
         Create a PlacementState from a dict of ``{component_ref: (x_mm, y_mm)}``.
 
         This factory wraps numpy/Python data into numpy arrays internally so
-        the caller does **not** need to import JAX.  Either *netlist* or
+        the caller does **not** need to import a numerical framework. Either *netlist* or
         *component_order* must be provided to define the component ordering.
 
         Args:
@@ -94,7 +90,6 @@ class PlacementState:
                 *component_order* must be given.
             rotation_logits: Optional ``(N, 4)`` array.  If ``None``, initialized
                 to zeros (uniform distribution over rotations).
-            net_virtual_nodes: Optional ``(M, 2)`` array of net virtual nodes.
 
         Returns:
             New ``PlacementState`` instance.
@@ -103,7 +98,7 @@ class PlacementState:
             ValueError: If neither *netlist* nor *component_order* is provided.
         """
         # @req(2026-07-03-001, R7): score_placement constructs PlacementState
-        # from raw positions without JAX import by the caller
+        # from raw positions without requiring a framework import by the caller
         if netlist is None and component_order is None:
             raise ValueError(
                 "Either netlist or component_order must be provided to define component ordering"
@@ -130,7 +125,6 @@ class PlacementState:
         return cls(
             positions=positions_arr,
             rotation_logits=rot,
-            net_virtual_nodes=net_virtual_nodes,
         )
 
     @classmethod
@@ -174,19 +168,9 @@ class PlacementState:
         positions = np.array(positions_list, dtype=np.float32)
         rotation_logits = np.array(rotation_logits_list, dtype=np.float32)
 
-        # Initialize virtual nodes for nets
-        n_nets = netlist.n_nets
-        net_virtual_nodes = None
-        if n_nets > 0:
-            # Initialize to board center
-            net_virtual_nodes = np.full(
-                (n_nets, 2), np.array([board.width / 2.0, board.height / 2.0]), dtype=np.float32
-            )
-
         return cls(
             positions=positions,
             rotation_logits=rotation_logits,
-            net_virtual_nodes=net_virtual_nodes,
         )
 
     def to_discrete(self) -> tuple[NDArray, NDArray]:
