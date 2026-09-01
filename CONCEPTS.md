@@ -45,7 +45,10 @@ debt below the limit is acceptable.
 
 A repeated-measurement record that preserves both an external checker's raw
 provider identity and the engineering-semantic multiset used to decide whether
-the observed physical conditions are stable.
+the observed physical conditions are stable. Campaign checkpoints retain the
+typed engineering identity and a cryptographic commitment to the full
+transient payload rather than duplicating every raw sample into every manifest
+row.
 
 ### Mutation-scoped uncapping
 

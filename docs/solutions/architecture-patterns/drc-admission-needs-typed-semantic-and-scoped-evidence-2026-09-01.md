@@ -1,6 +1,7 @@
 ---
 title: "DRC admission needs typed semantic, saturation, and mutation-scope evidence"
 date: "2026-09-01"
+last_updated: "2026-09-01"
 category: architecture-patterns
 module: temper-drc-rs
 problem_type: architecture_pattern
@@ -159,11 +160,37 @@ reusable.
 
 The campaign therefore materializes all survivors while sharing one completed
 silk receipt per identical placement projection. Candidate checkpoints bind
-the exact materialization instruction, board content, and current baseline DRC
-receipt (which carries the strict instrument identity). Interrupted,
+the exact materialization instruction, board content, and Rust-owned semantic
+identity of the current baseline DRC receipt. Provider-only raw churn in the
+normalized baseline categories therefore does not invalidate equivalent work,
+while a changed engineering observation, cap set, scoped-silk receipt, tool
+version, or board does. Interrupted,
 indeterminate, or prior-schema checkpoints remain diagnostic artifacts and are
 recomputed. Failure to persist a checkpoint does not rewrite already-complete
 instrument evidence as a candidate failure.
+
+### Persist an evidence index, not every repeated sample
+
+The three full KiCad finding arrays are needed transiently to build the Rust
+comparison receipt. They are not needed again by terminal campaign admission,
+which consumes the typed evidence summary. Copying those arrays into every
+candidate checkpoint and then into the final manifest is both redundant and a
+reliability defect: during the live replay, one checkpoint reached 2,698,748
+bytes, of which 1,279,304 compact bytes were `semantic_samples`. At that size,
+2,880 checkpoints plus their 1.5 MB scratch boards would require roughly 12 GB
+before the final manifest is assembled.
+
+The v4 checkpoint instead persists the small admission evidence and a typed
+payload index. Each index entry records the canonical byte count and SHA-256 of
+the complete transient payload. The DRC entry additionally retains its
+category/cap summary, comparison receipt, compact Rust family/observation
+identity, and scoped-silk receipt identity. On the production-shaped sample,
+that reduced one checkpoint from 2,698,748 to 21,111 bytes (127.8x smaller)
+while preserving a cryptographic commitment to every omitted byte. This
+discards transient diagnostic detail while retaining all admission evidence
+and a proof index. A candidate can be remeasured from the bound board and
+instruction under the same baseline and tool context; the stored digest then
+reveals whether the resulting canonical payload is byte-identical.
 
 ## Why This Matters
 

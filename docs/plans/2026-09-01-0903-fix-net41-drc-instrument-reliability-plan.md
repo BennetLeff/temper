@@ -338,11 +338,13 @@ stateDiagram-v2
 - **Requirements:** R13-R14; KTD5; F3; AE6.
 - **Depends on:** U1-U4.
 - **Files:** `docs/evidence/net41-corridor-execution-20260901/`, `docs/solutions/`, generated indexes/counts if required, and no production board or ceiling files.
-- **Approach:** Rebuild all extensions, verify freshness immediately before measurement, run the live pad-position oracle and three-run DRC preflight, then replay the exact 2,880-candidate campaign. Update the content-addressed execution evidence and add a compound document explaining provider-aware identity, scoped cap resolution, and the limits of the result.
+- **Approach:** Rebuild all extensions, verify freshness immediately before measurement, run the live pad-position oracle and three-run DRC preflight, then replay the exact 2,880-candidate campaign. Persist compact cryptographic payload commitments rather than duplicating full repeated finding arrays in every checkpoint and manifest row. Bind resume identity to the Rust engineering-semantic baseline plus the strict instrument context so allowlisted provider-only churn can reuse evidence but a physical or tool change cannot. Update the content-addressed execution evidence and add a compound document explaining provider-aware identity, scoped cap resolution, and the limits of the result.
 - **Test scenarios:**
   - Pre/post hashes prove the production board and DRC ceiling are byte-identical.
   - Pre/post authority hashes also prove the safety-value sources and 12-route budget unchanged, while the validated candidate declaration retains its exact 2,880-identity content hash despite edits to its containing runner.
   - The terminal receipt declares exactly 2,880 candidate identities and accurately reports measured, materialized, routed, and admitted denominators.
+  - A production-shaped diagnostic payload compacts to a bounded checkpoint index that retains the full-payload digest and changes when any omitted byte changes.
+  - Equivalent provider-only baseline churn preserves the resume identity; an engineering-observation change invalidates it.
   - A run that still stops does so for newly captured truthful instrument or candidate evidence, never by silently bypassing a cap or disagreement.
 - **Verification:** Full focused suite, import boundary gate, generated-artifact check, extension freshness check, and committed evidence validation pass.
 

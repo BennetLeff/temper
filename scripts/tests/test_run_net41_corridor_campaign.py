@@ -9,6 +9,28 @@ from concurrent.futures import ThreadPoolExecutor
 from scripts import run_net41_corridor_campaign as campaign
 
 
+def _creepage_finding(*, actual: str = "10.2975", track_length: str = "0.8485") -> dict:
+    return {
+        "type": "creepage",
+        "description": (
+            "Creepage violation (rule 'HighVoltageSignal to LV' creepage "
+            f"12.6000 mm; actual {actual} mm)"
+        ),
+        "items": [
+            {
+                "description": "Pad 2 [discharge.r_snub1-p2] of R14 on F.Cu",
+                "pos": {"x": 130.0, "y": 87.5},
+                "uuid": "provider-pad",
+            },
+            {
+                "description": f"Track [V_BUS_SENSE] on F.Cu, length {track_length} mm",
+                "pos": {"x": 139.1, "y": 87.5},
+                "uuid": "provider-track",
+            },
+        ],
+    }
+
+
 def test_measure_candidate_walks_adjacent_route_segments(monkeypatch) -> None:
     candidate = {
         "candidate_id": "NET41-CORRIDOR-" + "b" * 64,
@@ -43,13 +65,16 @@ def test_materialization_checkpoint_is_atomic_and_content_bound(tmp_path) -> Non
     board_hash = "d" * 64
     context_hash = "f" * 64
     checkpoint = {
-        "schema": "temper-net41-materialization-checkpoint/v3",
+        "schema": "temper-net41-materialization-checkpoint/v4",
         "candidate_id": candidate_id,
         "scratch_board_sha256": board_hash,
         "instrument_context_sha256": context_hash,
         "instruction": {"candidate_id": candidate_id},
         "evidence": {"instrument_state": "trusted"},
-        "instrument_payloads": {},
+        "instrument_payload_index": {
+            "schema": "temper-net41-instrument-payload-index/v1",
+            "instruments": {},
+        },
     }
 
     campaign._write_materialization_checkpoint(path, checkpoint)
@@ -82,6 +107,21 @@ def test_materialization_checkpoint_is_atomic_and_content_bound(tmp_path) -> Non
         )
         is None
     )
+    checkpoint["instrument_payload_index"] = {}
+    campaign._write_materialization_checkpoint(path, checkpoint)
+    assert (
+        campaign._load_materialization_checkpoint(
+            path,
+            candidate_id=candidate_id,
+            board_sha256=board_hash,
+            instrument_context_sha256=context_hash,
+        )
+        is None
+    )
+    checkpoint["instrument_payload_index"] = {
+        "schema": "temper-net41-instrument-payload-index/v1",
+        "instruments": {},
+    }
     checkpoint["evidence"]["instrument_state"] = "indeterminate"
     campaign._write_materialization_checkpoint(path, checkpoint)
     assert (
@@ -92,6 +132,97 @@ def test_materialization_checkpoint_is_atomic_and_content_bound(tmp_path) -> Non
             instrument_context_sha256=context_hash,
         )
         is None
+    )
+
+
+def test_instrument_payload_index_bounds_checkpoint_size_and_binds_full_payload() -> None:
+    findings = [_creepage_finding(track_length=f"{index}.0000") for index in range(400)]
+    payloads = {
+        "connectivity": {"net41_component_count": 1},
+        "normalized-kicad-drc": {
+            "board_sha256": "b" * 64,
+            "sample_count": 3,
+            "categories": [{"category": "creepage", "at_cap": False}],
+            "capped_categories": ["W:silk_overlap"],
+            "semantic_samples": [findings, findings, findings],
+            "silk_scope_receipt": {
+                "schema": "temper.silk-mutation-scope/v4",
+                "source_sha256": "a" * 64,
+                "subject_sha256": "b" * 64,
+                "silk_projection_sha256": "c" * 64,
+                "instrument_context_sha256": "d" * 64,
+                "partition_manifest_sha256": "e" * 64,
+                "leaf_hashes": ["f" * 64],
+                "expected_pair_count": 1148,
+                "covered_pair_count": 1148,
+                "complete": True,
+            },
+            "admission_comparison": {
+                "instrument_conclusive": True,
+                "semantic_repeats_agree": True,
+            },
+        },
+    }
+
+    index = campaign._instrument_payload_index(payloads)
+    encoded = campaign.canonical_bytes(index)
+
+    assert b"semantic_samples" not in encoded
+    assert b"raw_digests" not in encoded
+    assert b"unstable_fringe" not in encoded
+    assert len(encoded) < 10_000
+    drc = index["instruments"]["normalized-kicad-drc"]
+    assert drc["payload_bytes"] > 100_000
+    assert drc["payload_sha256"] == campaign.sha256_bytes(
+        campaign.canonical_bytes(payloads["normalized-kicad-drc"])
+    )
+    payloads["normalized-kicad-drc"]["semantic_samples"][0][0]["items"][1][
+        "uuid"
+    ] = "changed-provider-track"
+    changed = campaign._instrument_payload_index(payloads)
+    assert changed["instruments"]["normalized-kicad-drc"]["payload_sha256"] != drc[
+        "payload_sha256"
+    ]
+
+
+def test_baseline_context_ignores_provider_churn_but_binds_engineering_change() -> None:
+    def receipt(*, actual: str, track_lengths: tuple[str, str, str]) -> dict:
+        return {
+            "schema_version": "temper-net41-baseline-drc-preflight/v2",
+            "board_sha256": "b" * 64,
+            "kicad_cli_version": "10.0.5",
+            "sample_count": 3,
+            "capped_categories": ["W:silk_overlap"],
+            "semantic_samples": [
+                [_creepage_finding(actual=actual, track_length=length)]
+                for length in track_lengths
+            ],
+            "silk_scope_receipt": {
+                "schema": "temper.silk-mutation-scope/v4",
+                "source_sha256": "a" * 64,
+                "subject_sha256": "b" * 64,
+                "silk_projection_sha256": "c" * 64,
+                "instrument_context_sha256": "d" * 64,
+                "partition_manifest_sha256": "e" * 64,
+                "leaf_hashes": ["f" * 64],
+                "complete": True,
+            },
+            "trusted_for_candidate_admission": True,
+        }
+
+    first = receipt(actual="10.2975", track_lengths=("0.8485", "11.9000", "0.8485"))
+    provider_churn = receipt(
+        actual="10.2975", track_lengths=("3.0000", "4.0000", "5.0000")
+    )
+    engineering_change = receipt(
+        actual="10.4000", track_lengths=("3.0000", "4.0000", "5.0000")
+    )
+
+    assert campaign._baseline_admission_context_sha256(first) == campaign._baseline_admission_context_sha256(
+        provider_churn
+    )
+    assert campaign._baseline_admission_context_sha256(first) != campaign._baseline_admission_context_sha256(
+        engineering_change
     )
 
 

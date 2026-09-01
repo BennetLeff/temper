@@ -87,6 +87,121 @@ def canonical_bytes(value: object) -> bytes:
     return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode()
 
 
+def _semantic_envelope_identity(samples: list[list[dict]]) -> dict[str, object]:
+    """Return the compact Rust-owned identity needed to bind reusable evidence."""
+    envelope = json.loads(
+        temper_drc_rs.drc_evidence_envelope_json(json.dumps(samples, separators=(",", ":")))
+    )
+    identity: dict[str, object] = {
+        "schema": envelope["schema"],
+        "sample_count": envelope["sample_count"],
+    }
+    for level in ("family", "observation"):
+        bag = envelope[level]
+        identity[level] = {
+            "stable": bag["stable"],
+            "sample_digests": sorted(set(bag["sample_digests"])),
+            "intersection_size": bag["intersection_size"],
+            "union_size": bag["union_size"],
+        }
+    return identity
+
+
+def _silk_scope_index(receipt: object) -> dict[str, object] | None:
+    if not isinstance(receipt, dict):
+        return None
+    keys = (
+        "schema",
+        "source_sha256",
+        "subject_sha256",
+        "silk_projection_sha256",
+        "instrument_context_sha256",
+        "partition_manifest_sha256",
+        "leaf_hashes",
+        "expected_pair_count",
+        "covered_pair_count",
+        "complete",
+    )
+    return {
+        "receipt_sha256": sha256_bytes(canonical_bytes(receipt)),
+        **{key: receipt[key] for key in keys if key in receipt},
+    }
+
+
+def _instrument_payload_index(payloads: dict[str, object]) -> dict[str, object]:
+    """Content-bind full transient payloads without duplicating them per candidate."""
+    instruments: dict[str, object] = {}
+    for name, payload in sorted(payloads.items()):
+        payload_bytes = canonical_bytes(payload)
+        entry: dict[str, object] = {
+            "payload_sha256": sha256_bytes(payload_bytes),
+            "payload_bytes": len(payload_bytes),
+        }
+        if name == "normalized-kicad-drc" and isinstance(payload, dict):
+            samples = payload.get("semantic_samples")
+            categories = payload.get("categories")
+            entry["summary"] = {
+                key: payload[key]
+                for key in (
+                    "board_sha256",
+                    "sample_count",
+                    "capped_categories",
+                    "admission_comparison",
+                )
+                if key in payload
+            }
+            if isinstance(categories, list):
+                category_keys = (
+                    "category",
+                    "at_cap",
+                    "counts",
+                    "count_stable",
+                    "distinct_set_count_at_least",
+                    "set_stable",
+                    "intersection_size",
+                    "union_size",
+                    "raw_set_stable",
+                    "raw_intersection_size",
+                    "raw_union_size",
+                )
+                entry["summary"]["category_index"] = [
+                    {key: category[key] for key in category_keys if key in category}
+                    for category in categories
+                    if isinstance(category, dict)
+                ]
+            if isinstance(samples, list):
+                entry["summary"]["engineering_identity"] = _semantic_envelope_identity(samples)
+            entry["summary"]["silk_scope"] = _silk_scope_index(
+                payload.get("silk_scope_receipt")
+            )
+        instruments[name] = entry
+    return {
+        "schema": "temper-net41-instrument-payload-index/v1",
+        "instruments": instruments,
+    }
+
+
+def _baseline_admission_context_sha256(baseline_drc: dict[str, object]) -> str:
+    """Bind resume to engineering evidence while excluding provider-only churn."""
+    samples = baseline_drc.get("semantic_samples")
+    if not isinstance(samples, list):
+        return sha256_bytes(canonical_bytes(baseline_drc))
+    context = {
+        "schema": "temper-net41-baseline-admission-context/v1",
+        "receipt_schema": baseline_drc.get("schema_version"),
+        "board_sha256": baseline_drc.get("board_sha256"),
+        "kicad_cli_version": baseline_drc.get("kicad_cli_version"),
+        "sample_count": baseline_drc.get("sample_count"),
+        "capped_categories": baseline_drc.get("capped_categories"),
+        "engineering_identity": _semantic_envelope_identity(samples),
+        "silk_scope": _silk_scope_index(baseline_drc.get("silk_scope_receipt")),
+        "trusted_for_candidate_admission": baseline_drc.get(
+            "trusted_for_candidate_admission"
+        ),
+    }
+    return sha256_bytes(canonical_bytes(context))
+
+
 def _load_materialization_checkpoint(
     path: Path, *, candidate_id: str, board_sha256: str, instrument_context_sha256: str
 ) -> dict | None:
@@ -98,11 +213,13 @@ def _load_materialization_checkpoint(
     except (OSError, json.JSONDecodeError):
         return None
     if (
-        checkpoint.get("schema") != "temper-net41-materialization-checkpoint/v3"
+        checkpoint.get("schema") != "temper-net41-materialization-checkpoint/v4"
         or checkpoint.get("candidate_id") != candidate_id
         or checkpoint.get("scratch_board_sha256") != board_sha256
         or checkpoint.get("instrument_context_sha256") != instrument_context_sha256
         or checkpoint.get("evidence", {}).get("instrument_state") != "trusted"
+        or checkpoint.get("instrument_payload_index", {}).get("schema")
+        != "temper-net41-instrument-payload-index/v1"
     ):
         return None
     return checkpoint
@@ -1221,6 +1338,7 @@ def run_trusted_campaign(
 
     candidate_root = scratch / "candidates"
     candidate_root.mkdir(parents=True, exist_ok=True)
+    baseline_admission_context_sha256 = _baseline_admission_context_sha256(baseline_drc)
 
     def materialize_one(candidate_id: str) -> tuple[str, Path, dict, dict, dict | None]:
         candidate_dir = candidate_root / candidate_id
@@ -1248,8 +1366,8 @@ def run_trusted_campaign(
             instrument_context_sha256 = sha256_bytes(
                 canonical_bytes(
                     {
-                        "schema": "temper-net41-materialization-instrument/v3",
-                        "baseline_drc": baseline_drc,
+                        "schema": "temper-net41-materialization-instrument/v4",
+                        "baseline_admission_context_sha256": baseline_admission_context_sha256,
                         "instruction": instruction,
                     }
                 )
@@ -1263,24 +1381,25 @@ def run_trusted_campaign(
             )
             if checkpoint is not None:
                 evidence = checkpoint["evidence"]
-                payloads = checkpoint["instrument_payloads"]
+                payload_index = checkpoint["instrument_payload_index"]
                 instruction = checkpoint["instruction"]
             else:
                 evidence, payloads = inspect_materialized_candidate(
                     candidate_path, instruction, baseline, baseline_drc
                 )
+                payload_index = _instrument_payload_index(payloads)
                 # Persist every completed diagnostic atomically, but the
                 # loader above reuses only Rust-conclusive trusted evidence.
                 persistence_error = _try_write_materialization_checkpoint(
                     checkpoint_path,
                     {
-                        "schema": "temper-net41-materialization-checkpoint/v3",
+                        "schema": "temper-net41-materialization-checkpoint/v4",
                         "candidate_id": candidate_id,
                         "scratch_board_sha256": board_hash,
                         "instrument_context_sha256": instrument_context_sha256,
                         "instruction": instruction,
                         "evidence": evidence,
-                        "instrument_payloads": payloads,
+                        "instrument_payload_index": payload_index,
                     },
                 )
                 if persistence_error:
@@ -1295,11 +1414,12 @@ def run_trusted_campaign(
             evidence, payloads = unavailable_materialization_evidence(
                 candidate_id, board_hash, error
             )
+            payload_index = _instrument_payload_index(payloads)
             unavailable_context_sha256 = sha256_bytes(
                 canonical_bytes(
                     {
-                        "schema": "temper-net41-materialization-instrument/v3",
-                        "baseline_drc": baseline_drc,
+                        "schema": "temper-net41-materialization-instrument/v4",
+                        "baseline_admission_context_sha256": baseline_admission_context_sha256,
                         "instruction": instruction,
                     }
                 )
@@ -1307,13 +1427,13 @@ def run_trusted_campaign(
             persistence_error = _try_write_materialization_checkpoint(
                 candidate_dir / "pre-route-checkpoint.json",
                 {
-                    "schema": "temper-net41-materialization-checkpoint/v3",
+                    "schema": "temper-net41-materialization-checkpoint/v4",
                     "candidate_id": candidate_id,
                     "scratch_board_sha256": board_hash,
                     "instrument_context_sha256": unavailable_context_sha256,
                     "instruction": instruction,
                     "evidence": evidence,
-                    "instrument_payloads": payloads,
+                    "instrument_payload_index": payload_index,
                 },
             )
             if persistence_error:
@@ -1322,7 +1442,7 @@ def run_trusted_campaign(
                     flush=True,
                 )
             print(f"materialization unavailable {candidate_id}: {error}", flush=True)
-        return candidate_id, candidate_path, evidence, payloads, instruction
+        return candidate_id, candidate_path, evidence, payload_index, instruction
 
     # Eight concurrent single-threaded KiCad processes are stable on the
     # production host. Twenty exhausted the version/config preflight and
@@ -1340,7 +1460,7 @@ def run_trusted_campaign(
     )
     with ThreadPoolExecutor(max_workers=worker_count) as executor:
         results = executor.map(materialize_one, survivors)
-        for index, (candidate_id, candidate_path, evidence, payloads, instruction) in enumerate(
+        for index, (candidate_id, candidate_path, evidence, payload_index, instruction) in enumerate(
             results, 1
         ):
             if instruction is not None:
@@ -1352,7 +1472,7 @@ def run_trusted_campaign(
                     "candidate_id": candidate_id,
                     "scratch_board": str(candidate_path.relative_to(scratch)),
                     "scratch_board_sha256": sha256(candidate_path),
-                    "instrument_payloads": payloads,
+                    "instrument_payload_index": payload_index,
                 }
             )
             if index % 20 == 0 or index == 1:
@@ -1396,7 +1516,7 @@ def run_trusted_campaign(
                     "routed_board": (
                         str(routed_path.relative_to(scratch)) if routed_path else None
                     ),
-                    "instrument_payloads": payloads,
+                    "instrument_payload_index": _instrument_payload_index(payloads),
                 }
             )
             campaign_request["routed"] = routed
