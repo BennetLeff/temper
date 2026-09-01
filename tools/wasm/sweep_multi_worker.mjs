@@ -59,6 +59,7 @@
  */
 
 import { loadTopology, tierByCrate, workerUrl } from "./tier_topology.mjs";
+import { PREVIEW_LIMITS, validateImmutablePreviewUrl } from "./preview_version.mjs";
 import {
   workKey,
   ResultLedger,
@@ -79,6 +80,8 @@ const topology = TOPOLOGY_ARG ? loadTopology(TOPOLOGY_ARG) : loadTopology();
 const BASE_DOMAIN = topology.base_domain;
 const TIER_ARG = arg("--tier", null);
 const SELECTED_TIERS = TIER_ARG ? [tierByCrate(topology, TIER_ARG)] : topology.tiers;
+const PREVIEW_URL_ARG = arg("--preview-url", null);
+const PREVIEW_CAPABILITY = PREVIEW_URL_ARG ? process.env.TEMPER_PREVIEW_CAPABILITY : null;
 // Shards, deduplicated by family across the selected tiers. A family name is
 // unique across the topology (validated in tier_topology.mjs), so the family
 // remains a usable key in the per-family breakdown below.
@@ -86,7 +89,7 @@ const SHARDS = SELECTED_TIERS.flatMap((t) =>
   t.shards.map((s) => ({ ...s, crate: t.crate })),
 );
 const FAMILIES = SHARDS.map((s) => s.family);
-const CONCURRENCY = Math.max(1, parseInt(arg("--concurrency", "64"), 10));
+const CONCURRENCY = parseInt(arg("--concurrency", "64"), 10);
 const JSON_OUT = arg("--json", null);
 const WARMUP = process.argv.includes("--warmup");
 // R5 (goal-set plan): every finding names the exact artifact it came from by
@@ -102,7 +105,7 @@ const BOARD_SHA256 = arg("--board-sha256", null);
 
 // --- R22/R23 durability knobs -----------------------------------------
 const REQUEST_TIMEOUT_MS = parseInt(arg("--request-timeout-ms", "20000"), 10);
-const MAX_RETRIES = Math.max(0, parseInt(arg("--max-retries", "2"), 10));
+const MAX_RETRIES = parseInt(arg("--max-retries", "2"), 10);
 const RETRY_BACKOFF_MS = Math.max(0, parseInt(arg("--retry-backoff-ms", "200"), 10));
 const REPLICA_FLUSH_EVERY = Math.max(1, parseInt(arg("--replica-flush-every", "25"), 10));
 // Defaults derived from --json so the two existing CI callers (which only
@@ -124,10 +127,44 @@ const REPLICA_LOG = arg("--replica-log", JSON_OUT ? `${JSON_OUT}.replica.ndjson`
 const ONLY_ARG = arg("--only", null);
 const ONLY_KEYS = ONLY_ARG ? new Set(ONLY_ARG.split(",").map((s) => s.trim()).filter(Boolean)) : null;
 
+function usageError(message) {
+  console.error(`::error::${message}`);
+  process.exit(2);
+}
+
+if (!Number.isSafeInteger(CONCURRENCY) || CONCURRENCY < 1 || CONCURRENCY > PREVIEW_LIMITS.concurrency) {
+  usageError(`concurrency must be in [1, ${PREVIEW_LIMITS.concurrency}]`);
+}
+if (!Number.isSafeInteger(REQUEST_TIMEOUT_MS) || REQUEST_TIMEOUT_MS < 1 || REQUEST_TIMEOUT_MS > PREVIEW_LIMITS.requestTimeoutMs) {
+  usageError(`request timeout must be in [1, ${PREVIEW_LIMITS.requestTimeoutMs}]ms`);
+}
+if (!Number.isSafeInteger(MAX_RETRIES) || MAX_RETRIES < 0 || MAX_RETRIES > PREVIEW_LIMITS.maxRetries) {
+  usageError(`max retries must be in [0, ${PREVIEW_LIMITS.maxRetries}]`);
+}
+if (PREVIEW_URL_ARG) {
+  if (!TIER_ARG || SELECTED_TIERS.length !== 1) usageError("--preview-url requires exactly one explicit --tier");
+  const tier = SELECTED_TIERS[0];
+  if (tier.shards.length !== 1 || tier.shards[0].worker !== tier.full_corpus_worker) {
+    usageError("--preview-url is only valid for a single-Worker tier");
+  }
+  try { validateImmutablePreviewUrl(PREVIEW_URL_ARG, tier.full_corpus_worker); } catch (error) {
+    usageError(error.message);
+  }
+  if (!PREVIEW_CAPABILITY) usageError("TEMPER_PREVIEW_CAPABILITY is required with --preview-url");
+}
+
+function previewHeaders() {
+  return PREVIEW_URL_ARG ? { "x-temper-preview-capability": PREVIEW_CAPABILITY } : {};
+}
+
+function authenticatedFetch(url, init = {}) {
+  return fetch(url, { ...init, headers: { ...(init.headers ?? {}), ...previewHeaders() } });
+}
+
 async function run() {
   const workerUrls = {};
   for (const shard of SHARDS) {
-    workerUrls[shard.family] = workerUrl(topology, shard.worker);
+    workerUrls[shard.family] = PREVIEW_URL_ARG ?? workerUrl(topology, shard.worker);
   }
 
   // Phase 1: fetch health from each family to discover test counts.
@@ -138,7 +175,11 @@ async function run() {
   );
   for (const fam of FAMILIES) {
     try {
-      const r = await (await fetch(`${workerUrls[fam]}/health`)).json();
+      const response = await authenticatedFetch(`${workerUrls[fam]}/health`, {
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const r = await response.json();
       const count = r.test_count ?? 0;
       families[fam] = { url: workerUrls[fam], count, abi_version: r.abi_version };
       console.error(`  ${fam}: ${count} tests (abi=${r.abi_version})`);
@@ -175,12 +216,22 @@ async function run() {
     );
     process.exit(2);
   }
+  if (PREVIEW_URL_ARG && total > PREVIEW_LIMITS.maxTests) {
+    console.error(`::error::census ${total} exceeds the ${PREVIEW_LIMITS.maxTests}-test preview budget`);
+    process.exit(2);
+  }
+  if (PREVIEW_URL_ARG && total * (MAX_RETRIES + 1) > PREVIEW_LIMITS.maxTests * (PREVIEW_LIMITS.maxRetries + 1)) {
+    console.error("::error::the declared request and retry budget exceeds the preview maximum");
+    process.exit(2);
+  }
 
   if (WARMUP) {
     // One warm-up request per family to amortize cold-start.
     console.error("=== Warm-up (one request per family) ===");
     for (const fam of FAMILIES) {
-      const r = await fetch(`${workerUrls[fam]}/health`);
+      const r = await authenticatedFetch(`${workerUrls[fam]}/health`, {
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
       console.error(`  ${fam}: ${r.status}`);
     }
   }
@@ -236,7 +287,7 @@ async function run() {
       const delivered = await fetchJsonWithRetry(
         `${task.url}/run-test`,
         BOARD_SHA256 ? { index: task.index, boardSha256: BOARD_SHA256 } : { index: task.index },
-        { timeoutMs: REQUEST_TIMEOUT_MS, maxRetries: MAX_RETRIES, backoffMs: RETRY_BACKOFF_MS },
+        { fetchImpl: authenticatedFetch, timeoutMs: REQUEST_TIMEOUT_MS, maxRetries: MAX_RETRIES, backoffMs: RETRY_BACKOFF_MS },
       );
       attempts = delivered.attempts;
       if (delivered.ok) {
@@ -416,6 +467,7 @@ async function run() {
     results: fullResults,
     failures,
     worker_urls: workerUrls,
+    preview_url: PREVIEW_URL_ARG,
     // R22/R23 durability report.
     durability: {
       dispatched: dispatchedKeys.length,

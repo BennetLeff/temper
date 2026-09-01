@@ -1,10 +1,9 @@
 name: WASM candidate preview artifact
 
-# Security boundary: pull_request_target makes this workflow definition come
-# from the base revision. The only job that executes PR code has read-only
-# repository permission, no environment, no secret, no cache write, and no
-# persisted checkout credential. U7 will consume this untrusted artifact on a
-# fresh privileged runner and validate it again before any Cloudflare action.
+# Security boundary: pull_request_target makes this definition base-owned.
+# The initializer only creates a pending check. The build job is credential-
+# free and uploads an untrusted artifact; the separate workflow_run publisher
+# in wasm-tier-preview-status.yml runs on a fresh runner and revalidates it.
 on:
   pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -17,8 +16,60 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  initialize-check:
+    name: Initialize exact-head Cloudflare check
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+      checks: write
+    steps:
+      - name: Create a pending check on the immutable PR head
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const fs = require("node:fs");
+            const pr = context.payload.pull_request;
+            if (!pr || pr.state !== "open" || pr.draft) throw new Error("initializer requires an open, non-draft PR");
+            const externalId = ["temper-wasm-preview-v1", context.runId, process.env.GITHUB_RUN_ATTEMPT, pr.number, pr.head.sha].join(":");
+            fs.writeFileSync("/tmp/preview-source-identity.json", JSON.stringify({
+              schema: "temper-wasm-preview-source-v1",
+              repository: `${context.repo.owner}/${context.repo.repo}`,
+              pull_request_number: pr.number,
+              head_repository: pr.head.repo.full_name,
+              head_sha: pr.head.sha,
+              run_id: context.runId,
+              run_attempt: Number(process.env.GITHUB_RUN_ATTEMPT),
+              external_id: externalId,
+            }) + "\n");
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "Cloudflare exact-head WASM preview",
+              head_sha: pr.head.sha,
+              status: "in_progress",
+              external_id: externalId,
+              details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              output: {
+                title: "Waiting for credential-free build and trusted publisher",
+                summary: pr.head.repo.fork
+                  ? "A maintainer may need to approve the credential-free fork build. No Cloudflare credential is exposed to it."
+                  : "The PR head is building without credentials; a fresh protected-environment publisher will validate and sweep its artifact.",
+              },
+            });
+
+      - name: Upload base-owned source identity for failure reconciliation
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: wasm-preview-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/preview-source-identity.json
+          if-no-files-found: error
+          retention-days: 14
+
   build-candidate:
     name: Build exact PR-head WASM candidate (credential-free)
+    needs: initialize-check
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 45

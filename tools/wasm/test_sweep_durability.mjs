@@ -374,9 +374,13 @@ writeFileSync(
   STUB,
   `const CENSUS = JSON.parse(process.env.FAKE_CENSUS);
 const FAULTS = JSON.parse(process.env.FAKE_FAULTS || "{}");
+const REQUIRED_CAPABILITY = process.env.REQUIRE_CAPABILITY || null;
 const attempts = new Map();
 
 globalThis.fetch = async (url, init) => {
+  if (REQUIRED_CAPABILITY && init?.headers?.["x-temper-preview-capability"] !== REQUIRED_CAPABILITY) {
+    return new Response(JSON.stringify({ error: "capability denied" }), { status: 403 });
+  }
   const u = new URL(url);
   const script = u.hostname.split(".")[0];
   const entry = CENSUS[script];
@@ -425,12 +429,15 @@ globalThis.fetch = async (url, init) => {
 `,
 );
 
-function runSweep(extraArgs, { census = FIXTURE_CENSUS, faults = {} } = {}) {
+function runSweep(extraArgs, { census = FIXTURE_CENSUS, faults = {}, env = {} } = {}) {
+  const args = ["--import", STUB, SWEEPER, "--topology", TOPOLOGY_PATH];
+  if (!extraArgs.includes("--concurrency")) args.push("--concurrency", "8");
+  args.push(...extraArgs);
   const res = spawnSync(
     process.execPath,
-    ["--import", STUB, SWEEPER, "--topology", TOPOLOGY_PATH, "--concurrency", "8", ...extraArgs],
+    args,
     {
-      env: { ...process.env, FAKE_CENSUS: JSON.stringify(census), FAKE_FAULTS: JSON.stringify(faults) },
+      env: { ...process.env, FAKE_CENSUS: JSON.stringify(census), FAKE_FAULTS: JSON.stringify(faults), ...env },
       encoding: "utf8",
       timeout: 30000,
     },
@@ -444,6 +451,34 @@ function runSweep(extraArgs, { census = FIXTURE_CENSUS, faults = {} } = {}) {
     // assertions on res.status/res.stderr carry it.
   }
   return { code: res.status, out: `${res.stdout}\n${res.stderr}`, summary };
+}
+
+console.log("\nPREVIEW: explicit immutable URL, capability, and budgets");
+{
+  const previewService = "fixture-worker-beta1";
+  const previewUrl = `https://12345678-${previewService}.fixture.workers.dev`;
+  const previewCensus = {
+    [`12345678-${previewService}`]: FIXTURE_CENSUS[previewService],
+  };
+  const ok = runSweep(
+    ["--tier", "fixture-beta", "--preview-url", previewUrl, "--warmup", "--json", join(TMP, "preview.json")],
+    { census: previewCensus, env: { TEMPER_PREVIEW_CAPABILITY: "cap", REQUIRE_CAPABILITY: "cap" } },
+  );
+  expect("immutable preview sweep exits 0", ok.code, 0);
+  expect("preview URL is recorded", ok.summary?.preview_url, previewUrl);
+  const missing = runSweep(
+    ["--tier", "fixture-beta", "--preview-url", previewUrl],
+    { census: previewCensus },
+  );
+  expectTrue("missing capability fails closed", missing.code !== 0);
+  const alias = runSweep(["--tier", "fixture-beta", "--preview-url", `https://${previewService}.fixture.workers.dev`]);
+  expectTrue("mutable production URL is rejected", alias.code !== 0);
+  const overConcurrency = runSweep(["--tier", "fixture-beta", "--concurrency", "65"]);
+  expectTrue("concurrency over budget is rejected", overConcurrency.code !== 0);
+  const largeProduction = runSweep(["--tier", "fixture-beta"], {
+    census: { [previewService]: { ...FIXTURE_CENSUS[previewService], count: 10_001 } },
+  });
+  expect("the preview census ceiling does not regress deployed mode", largeProduction.code, 0);
 }
 
 // ---------------------------------------------------------------------------

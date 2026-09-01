@@ -42,10 +42,10 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #   worker-dispatch-r19           -- requires the deployed Workers to answer
 #                                     /health. If any does not, this job FAILS
 #                                     with an explicit error naming which --
-#                                     it does not skip. (It formerly required
-#                                     CLOUDFLARE_API_TOKEN/ACCOUNT_ID secrets,
-#                                     which nothing it runs ever read; see the
-#                                     preflight step's comment.) Checks the
+#                                     it does not skip. It also uses the
+#                                     dedicated preview-only token to upload
+#                                     the candidate as a non-deployed immutable
+#                                     version. Checks the
 #                                     deployed corpus is not STALE (R5.1, see
 #                                     below), then dispatches every deployed
 #                                     shard Worker in the topology -- 12 today,
@@ -141,10 +141,11 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #
 # What this workflow deliberately does NOT do (mirrors board-regeneration.yml
 # §"Hard prohibitions" and this task's own constraints):
-# - Never deploys a Worker, never invokes `wrangler`. Deploying is
+# - Never changes an active Worker deployment. It invokes the exact-pinned
+#   `wrangler versions upload` for a non-deployed candidate preview; production
+#   deployment remains
 #   .github/workflows/wasm-tier-deploy.yml, and it lives in its own file
-#   precisely so this prohibition stays literally true and no trigger here can
-#   ever reach a `wrangler deploy`. (This used to say that file was
+#   precisely so no trigger here can ever reach a `wrangler deploy`. (This used to say that file was
 #   `workflow_dispatch`-only. It stopped being so in #975, which added the
 #   automatic `push: branches: [main]` deploy; it now carries push + schedule +
 #   dispatch. The prohibition above is unaffected -- it is about what THIS file
@@ -248,9 +249,8 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #
 # ANTI-VACUITY, CANDIDATE-SPECIFIC. `inject_disagreement` targets the explicit
 # Phase 6 promotion candidate, never whichever tier happens to rotate. This is
-# still a pre-U7 LOCAL diagnostic fixture: U7 moves the same deterministic flip
-# seam after the real immutable Worker sweep. Until that live proof exists,
-# candidate rows remain diagnostic and cannot qualify.
+# is applied only after the candidate's immutable Worker sweep, so the raw
+# failure row exercises the same path whose scheduled successes may qualify.
 on:
   schedule:
     # Nightly at 04:40 UTC -- clear of python-tests' 03:00, r9-evidence's
@@ -260,7 +260,7 @@ on:
   workflow_dispatch:
     inputs:
       inject_disagreement:
-        description: 'Pre-U7 diagnostic: flip one temper-io-types local wasm32 verdict before R19 comparison'
+        description: 'Anti-vacuity: flip one temper-io-types immutable Worker verdict after the sweep'
         required: false
         type: choice
         default: 'none'
@@ -306,7 +306,7 @@ jobs:
       commit_sha: ${{ steps.identity.outputs.commit_sha }}
       board_sha256: ${{ steps.identity.outputs.board_sha256 }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Compute artifact identity (R5 — commit + board content hash)
         id: identity
@@ -324,7 +324,7 @@ jobs:
       - name: Install wasm32 target
         run: rustup target add wasm32-unknown-unknown
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '20'
 
@@ -517,10 +517,6 @@ jobs:
             echo "SELECTED_COMPARISON_COUNT=${SELECTED_COMPARISON_COUNT}"
             echo "ROTATION_NATIVE_SECONDS=${rotation_native_seconds}"
             echo "CANDIDATE_NATIVE_SECONDS=${candidate_native_seconds}"
-            # U7 owns the immutable-version upload. Keeping the metric explicit
-            # at zero makes this pre-U7 diagnostic state visible rather than
-            # letting an absent step masquerade as unmeasured success.
-            echo "VERSION_UPLOAD_SECONDS=0"
           } > /tmp/r19_cadence_metrics.env
           if [ -n "${failed}" ]; then
             echo "::error::Native cargo test failed for:${failed}. A native regression is not something the R19 comparison needs to explain, so this job stops before building the wasm32 side."
@@ -633,12 +629,9 @@ jobs:
           # Historical path, kept for the same reason /tmp/native.txt is.
           cp /tmp/wasm_local_drc-rs.json /tmp/wasm_local.json
 
-      # PRE-U7 DIAGNOSTIC ONLY. Resolve the explicit promotion candidate through
-      # the topology, then flip exactly one verdict in that candidate's local
-      # census. This does not claim the live anti-vacuity acceptance: U7 must
-      # apply the same helper to the completed immutable-preview result before
-      # R19 comparison. Keeping target selection independent of the rotation
-      # makes this seam reusable on every night, including another tier's turn.
+      # Resolve the explicit promotion candidate here without mutating its
+      # local census. The deterministic flip is applied later, after the real
+      # immutable-preview sweep, so native and local Node remain green.
       - name: Anti-vacuity — inject a disagreement (workflow_dispatch only)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_disagreement == 'flip_one_verdict' }}
         env:
@@ -654,25 +647,8 @@ jobs:
             }
             process.stdout.write(tierFlagSuffix(candidate));
           ')"
-          result_path="/tmp/wasm_local_${target_suffix}.json"
-          python3 - "${result_path}" <<'PY'
-          import json
-          import sys
-
-          from tools.wasm.r19_compare import inject_one_disagreement
-
-          path = sys.argv[1]
-          with open(path) as source:
-              data = json.load(source)
-          data["results"], injected_name = inject_one_disagreement(data["results"])
-          print(
-              f"diagnostic injection for temper-io-types: "
-              f"flipping {injected_name} pass -> fail ({path})"
-          )
-          with open(path, "w") as destination:
-              json.dump(data, destination, indent=2)
-              destination.write("\n")
-          PY
+          test -f "/tmp/wasm_local_${target_suffix}.json"
+          echo "candidate resolved; U7 applies the deterministic flip only after the immutable Worker sweep"
 
       # ONE COMPARISON PER SELECTED TIER: tonight's rotated tier plus the
       # topology's promotion candidate, deduplicated on a collision night.
@@ -724,11 +700,11 @@ jobs:
                  --fail-on-disagree < /dev/null; then
               disagreed="${disagreed} ${crate}"
             fi
-            # U2's future-compatible producer hook.  The reconciler treats this
-            # artifact as untrusted and derives every ledger field itself.  It
-            # is deliberately local-node and therefore diagnostic-only: U7,
-            # not this hook, supplies immutable Worker identity before a row
-            # can qualify.
+            # LOCAL NODE ROW: diagnostic/non-qualifying. It is retained beside
+            # the local matrix for inspection but is no longer uploaded to the
+            # ledger reconciler. Only the later immutable-worker row can
+            # qualify; keeping these runtime arms distinct prevents local V8
+            # from silently licensing the Cloudflare promotion bar.
             observed_at="$(jq -r '.timestamp' "${matrix}" | sed 's/+00:00$/Z/')"
             if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
               expected_slot="${observed_at%%T*}T04:40:00Z"
@@ -812,7 +788,7 @@ jobs:
             echo "- promotion candidates configured: ${PROMOTION_CANDIDATE_COUNT:-unresolved}"
             echo "- rotated-tier native seconds: ${ROTATION_NATIVE_SECONDS:-unresolved}"
             echo "- promotion-candidate native seconds: ${CANDIDATE_NATIVE_SECONDS:-unresolved}"
-            echo "- immutable-version upload seconds: ${VERSION_UPLOAD_SECONDS:-0} (U7 not live; candidate rows remain diagnostic/non-qualifying)"
+            echo "- immutable-version upload seconds: not measured in this credential-free job (see the immutable Worker job)"
             echo ""
             while IFS=$'\t' read -r crate suffix; do
               echo "#### ${crate}"
@@ -837,7 +813,7 @@ jobs:
       # there as "temper-X has no built count", exit 2.
       - name: Upload local sweep artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: wasm-tier-nightly-local-${{ github.run_id }}
           path: |
@@ -850,17 +826,9 @@ jobs:
             /tmp/wasm_arms.tsv
             /tmp/r19_arms.tsv
             /tmp/r19_cadence_metrics.env
+            /tmp/temper_wasm_test_runner_io_types.wasm
           retention-days: 30
           if-no-files-found: error
-
-      - name: Upload untrusted R19 ledger candidate
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: r19-ledger-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: /tmp/r19-ledger-candidate-*.json
-          retention-days: 30
-          if-no-files-found: warn
 
   worker-dispatch-r19:
     name: Deployed-Worker sweep vs native (R19, requires Cloudflare secrets)
@@ -876,16 +844,17 @@ jobs:
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment: cloudflare-wasm-preview
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       # Before the preflight, not after: the preflight now reads the Worker list
       # from tools/wasm/wasm_tier_topology.json with `node`, and relying on
       # whatever node the runner image happens to ship is how a job starts
       # depending on the image instead of on its own setup.
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '22'
 
@@ -899,11 +868,12 @@ jobs:
       # on exactly that pair). The intent was sound and is preserved below;
       # the instrument was not.
       #
-      # The deployed Workers are unauthenticated public HTTPS endpoints
+      # The production-deployed Workers are unauthenticated public HTTPS endpoints
       # (packages/temper-worker/src/worker_core.js's /run-test handler takes no
-      # credential) and tools/wasm/sweep_multi_worker.mjs contains zero
-      # `process.env` references — so nothing this job runs ever read either
-      # secret. The gate was a proxy that is neither necessary nor sufficient:
+      # credential), so their preflight never needed either old secret. The
+      # immutable candidate added later uses a different, dedicated preview
+      # token and reads its per-version capability from the environment. The
+      # old production-token gate was a proxy that is neither necessary nor sufficient:
       # a secret can be present while every Worker is deleted, and every Worker
       # can be live while the secret is absent. The consequence was not
       # theoretical — this job failed on every run from the day it landed
@@ -918,10 +888,8 @@ jobs:
       # wrangler-authenticated dispatch, the credential check belongs back —
       # on the step that consumes the credential.
       #
-      # Separately, `wrangler` itself (not invoked by this workflow — see the
-      # header's hard prohibitions) additionally needs Node >=22; this job
-      # pins Node 22 below so that if a future change needs `wrangler` for a
-      # deploy-verification step, the runner is already correctly provisioned.
+      # The exact-pinned Wrangler preview protocol below requires Node >=22,
+      # so this job pins Node 22 before either preflight or upload.
       # ------------------------------------------------------------------
 
       - name: Preflight — the deployed Workers answer (provisioning signal)
@@ -932,10 +900,10 @@ jobs:
           # here: the job must not report a clean result for a path that was
           # never actually exercised, so it fails loudly rather than skipping.
           # Its INSTRUMENT was wrong. As the comment above already conceded,
-          # neither secret is consumed by anything this job runs --
-          # tools/wasm/sweep_multi_worker.mjs contains zero `process.env`
-          # references and calls unauthenticated public `*.workers.dev`
-          # endpoints -- so the pair was a proxy for "provisioned", and one
+          # neither old production secret was consumed by the public deployed-
+          # Worker sweep. The later immutable-preview arm uses a dedicated
+          # preview token and an expiring environment capability. The old pair
+          # was a proxy for "provisioned", and one
           # that is neither necessary nor sufficient: a secret can be present
           # while every Worker is deleted, and every Worker can be live while
           # the secret is absent. The job stayed red from the day it landed on
@@ -990,10 +958,142 @@ jobs:
           echo "board sha256:  ${BOARD_SHA256}  (pcb/temper.kicad_pcb)"
 
       - name: Download native results from local-sweep-r19
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: wasm-tier-nightly-local-${{ github.run_id }}
           path: /tmp/local-artifact
+
+      - name: Upload and sweep the candidate as an immutable non-deployed version
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WASM_PREVIEW_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          stage=/tmp/nightly-preview-stage
+          diag=/tmp/nightly-preview-diagnostics
+          mkdir -p "${stage}" "${diag}"
+          production_guard=0
+          finalize() {
+            rc=$?
+            trap - EXIT
+            rm -f "${stage}/secrets.json"
+            if [ "${production_guard}" = 1 ]; then
+              if ! "${WRANGLER}" deployments list --config "${stage}/wrangler.toml" --json > "${diag}/production-after.json" \
+                || ! node tools/wasm/preview_version.mjs production-invariant --before "${diag}/production-before.json" --after "${diag}/production-after.json"; then
+                rc=1
+              fi
+            fi
+            rm -rf "${stage}"
+            exit "${rc}"
+          }
+          trap finalize EXIT
+
+          CANDIDATE_JSON="$(node tools/wasm/tier_topology.mjs preview-candidate --topology tools/wasm/wasm_tier_topology.json)"
+          MODULE_NAME="$(jq -r .module_file <<<"${CANDIDATE_JSON}")"
+          test -f "/tmp/local-artifact/${MODULE_NAME}"
+          cp "/tmp/local-artifact/${MODULE_NAME}" "${stage}/candidate.wasm"
+          cp tools/wasm/wasm_expected_failures_io_types.json "${stage}/expected-failures.json"
+          cp packages/temper-worker/src/worker_core.js "${stage}/worker_core.js"
+          cp packages/temper-worker/src/preview_worker_core.js "${stage}/preview_worker_core.js"
+          WASM_SHA256="$(sha256sum "${stage}/candidate.wasm" | cut -d' ' -f1)"
+          TEST_COUNT="$(jq -r .summary.registered /tmp/local-artifact/wasm_local_io-types.json)"
+          test "$(jq -r '.summary.imports | length' /tmp/local-artifact/wasm_local_io-types.json)" = 0
+          CONTRACT_SHA256="$(node tools/wasm/preview_version.mjs contract-digest \
+            --candidate temper-io-types --census /tmp/local-artifact/wasm_local_io-types.json \
+            --expected-failures tools/wasm/wasm_expected_failures_io_types.json \
+            --topology tools/wasm/wasm_tier_topology.json \
+            --comparator-sha256 "$(sha256sum tools/wasm/r19_compare.py | cut -d' ' -f1)" \
+            --abi immutable-worker-v1)"
+          printf '{"sha256":"%s"}\n' "${WASM_SHA256}" > "${stage}/module-digest.json"
+          cat > "${stage}/index.js" <<'EOF'
+          import CANDIDATE from "./candidate.wasm";
+          import EXPECTED from "./expected-failures.json";
+          import DIGEST from "./module-digest.json";
+          import { createWorker } from "./worker_core.js";
+          import { createPreviewWorker } from "./preview_worker_core.js";
+          export default createPreviewWorker(createWorker(CANDIDATE, EXPECTED, DIGEST.sha256));
+          EOF
+          CAPABILITY="$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=\n')"
+          EXPIRES_AT="$(( $(date +%s) + 1800 ))"
+          cat > "${stage}/wrangler.toml" <<EOF
+          name = "temper-wasm-io-types"
+          main = "index.js"
+          compatibility_date = "2026-08-01"
+          account_id = "03f642afe070f05b727f7cd31f02ef48"
+          preview_urls = true
+          [limits]
+          cpu_ms = 1000
+          [version_metadata]
+          binding = "CF_VERSION_METADATA"
+          [vars]
+          ABI_VERSION = "1"
+          PREVIEW_EXPIRES_AT = "${EXPIRES_AT}"
+          PREVIEW_MAX_TESTS = "10000"
+          PREVIEW_HEAD_SHA = "${COMMIT_SHA}"
+          PREVIEW_MODULE_SHA256 = "${WASM_SHA256}"
+          PREVIEW_COMPARISON_CONTRACT_SHA256 = "${CONTRACT_SHA256}"
+          PREVIEW_SERVICE = "temper-wasm-io-types"
+          EOF
+          umask 077
+          printf '{"PREVIEW_CAPABILITY":"%s"}\n' "${CAPABILITY}" > "${stage}/secrets.json"
+          WRANGLER_RUNTIME=tools/wasm/wrangler-preview-runtime
+          test "$(jq -r '.packages["node_modules/wrangler"].integrity' "${WRANGLER_RUNTIME}/package-lock.json")" = \
+            'sha512-jNXy9e8/pbx8iqTzXPiuflnitKJZoAfEUSUUDLW87bwyeMvJ7kb3yQMSbxEcfNdfHqJW38KRcKaLljOYV4N/4w=='
+          npm ci --prefix "${WRANGLER_RUNTIME}" --ignore-scripts --no-audit --no-fund
+          WRANGLER="${GITHUB_WORKSPACE}/${WRANGLER_RUNTIME}/node_modules/.bin/wrangler"
+          test "$(node -p 'require("./tools/wasm/wrangler-preview-runtime/node_modules/wrangler/package.json").version')" = 4.128.0
+          "${WRANGLER}" deployments list --config "${stage}/wrangler.toml" --json > "${diag}/production-before.json"
+          production_guard=1
+          TAG="$(node --input-type=module -e '
+            import { makeScheduledUploadTag } from "./tools/wasm/preview_version.mjs";
+            process.stdout.write(makeScheduledUploadTag({ repository: process.env.GITHUB_REPOSITORY, headSha: process.env.COMMIT_SHA, runId: Number(process.env.GITHUB_RUN_ID), runAttempt: Number(process.env.GITHUB_RUN_ATTEMPT) }));
+          ')"
+          upload_started_at="$(date +%s)"
+          # Preserve and scrub failed-upload diagnostics before honoring the
+          # exit status; `set -e` must not skip the capability-leak guard.
+          set +e
+          "${WRANGLER}" versions upload "${stage}/index.js" --config "${stage}/wrangler.toml" \
+            --secrets-file "${stage}/secrets.json" --tag "${TAG}" \
+            --message "${GITHUB_REPOSITORY} nightly head ${COMMIT_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT}" \
+            > "${diag}/upload.txt" 2>&1
+          upload_rc=$?
+          set -e
+          if grep -Fq "${CAPABILITY}" "${diag}/upload.txt"; then
+            sed -i "s/${CAPABILITY}/[REDACTED]/g" "${diag}/upload.txt"
+            exit 1
+          fi
+          if [ "${upload_rc}" -ne 0 ]; then
+            cat "${diag}/upload.txt"
+            echo "::error::Wrangler version upload failed with exit ${upload_rc} after sanitized diagnostics were preserved"
+            exit 1
+          fi
+          rm -f "${stage}/secrets.json"
+          node tools/wasm/preview_version.mjs parse-upload --upload-output "${diag}/upload.txt" \
+            --service temper-wasm-io-types --output "${diag}/upload-identity.json"
+          "${WRANGLER}" versions list --config "${stage}/wrangler.toml" --json > "${diag}/versions.json"
+          node tools/wasm/preview_version.mjs resolve-version --versions "${diag}/versions.json" \
+            --tag "${TAG}" --service temper-wasm-io-types --output "${diag}/resolved-version.json"
+          VERSION_ID="$(jq -r .id "${diag}/upload-identity.json")"
+          PREVIEW_URL="$(jq -r .preview_url "${diag}/upload-identity.json")"
+          test "$(jq -r .id "${diag}/resolved-version.json")" = "${VERSION_ID}"
+          VERSION_UPLOAD_SECONDS="$(( $(date +%s) - upload_started_at ))"
+          for delay in 2 4 8 16 30 30 30 30; do
+            code="$(curl -sS --max-time 20 -H "x-temper-preview-capability: ${CAPABILITY}" -o "${diag}/health.json" -w '%{http_code}' "${PREVIEW_URL}/health" || true)"
+            [ "${code}" = 200 ] && break
+            sleep "${delay}"
+          done
+          test "${code}" = 200
+          node tools/wasm/preview_version.mjs validate-health --health "${diag}/health.json" \
+            --head-sha "${COMMIT_SHA}" --wasm-sha256 "${WASM_SHA256}" --contract-sha256 "${CONTRACT_SHA256}" \
+            --service temper-wasm-io-types --version-id "${VERSION_ID}" --test-count "${TEST_COUNT}" --abi-version 1
+          sweep_started_at="$(date +%s)"
+          TEMPER_PREVIEW_CAPABILITY="${CAPABILITY}" node tools/wasm/sweep_multi_worker.mjs \
+            --tier temper-io-types --preview-url "${PREVIEW_URL}" --concurrency 64 \
+            --request-timeout-ms 20000 --max-retries 2 --json /tmp/worker_sweep_io-types.json
+          CANDIDATE_WORKER_SWEEP_SECONDS="$(( $(date +%s) - sweep_started_at ))"
+          if grep -R -Fq "${CAPABILITY}" "${diag}"; then rm -rf "${diag}"; exit 1; fi
+          printf 'VERSION_UPLOAD_SECONDS=%s\nCANDIDATE_WORKER_SWEEP_SECONDS=%s\nIMMUTABLE_VERSION_ID=%s\nIMMUTABLE_PREVIEW_URL=%s\n' \
+            "${VERSION_UPLOAD_SECONDS}" "${CANDIDATE_WORKER_SWEEP_SECONDS}" "${VERSION_ID}" "${PREVIEW_URL}" \
+            > /tmp/immutable_candidate.env
 
       # ------------------------------------------------------------------
       # R5.1 — the deployed corpus is the commit's corpus, or this job fails.
@@ -1093,21 +1193,25 @@ jobs:
             }).catch((e) => { console.error(e.message); process.exit(1); });
           ' > /tmp/sweep_tiers.tsv
           test -s /tmp/sweep_tiers.tsv
+          test -s /tmp/immutable_candidate.env
+          # shellcheck disable=SC1091
+          source /tmp/immutable_candidate.env
           failed=""
           ran=0
-          candidate_worker_sweep_seconds=0
+          candidate_worker_sweep_seconds="${CANDIDATE_WORKER_SWEEP_SECONDS}"
           while IFS=$'\t' read -r crate suffix candidate; do
             echo "::group::sweep ${crate}"
-            started_at="$(date +%s)"
-            node tools/wasm/sweep_multi_worker.mjs \
-              --tier "${crate}" \
-              --concurrency 64 \
-              --board-sha256 "${BOARD_SHA256}" \
-              --json "/tmp/worker_sweep_${suffix}.json" < /dev/null \
-              || failed="${failed} ${crate}"
-            elapsed="$(( $(date +%s) - started_at ))"
             if [ "${candidate}" = "1" ]; then
-              candidate_worker_sweep_seconds="$((candidate_worker_sweep_seconds + elapsed))"
+              test -s "/tmp/worker_sweep_${suffix}.json" \
+                || failed="${failed} ${crate}(missing-immutable-preview)"
+              echo "${crate}: reusing the capability-gated immutable-version sweep"
+            else
+              node tools/wasm/sweep_multi_worker.mjs \
+                --tier "${crate}" \
+                --concurrency 64 \
+                --board-sha256 "${BOARD_SHA256}" \
+                --json "/tmp/worker_sweep_${suffix}.json" < /dev/null \
+                || failed="${failed} ${crate}"
             fi
             ran=$((ran + 1))
             echo "::endgroup::"
@@ -1139,6 +1243,25 @@ jobs:
             exit 1
           fi
           echo "all ${ran} tiers swept"
+
+      - name: Anti-vacuity — flip one completed immutable Worker verdict
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_disagreement == 'flip_one_verdict' }}
+        run: |
+          set -euo pipefail
+          python3 - /tmp/worker_sweep_io-types.json <<'PY'
+          import json
+          import sys
+          from tools.wasm.r19_compare import inject_one_disagreement
+          path = sys.argv[1]
+          with open(path) as source:
+              data = json.load(source)
+          data["results"], name = inject_one_disagreement(data["results"])
+          data["anti_vacuity_injection"] = {"candidate": "temper-io-types", "test": name, "from": "pass", "to": "fail", "stage": "post-immutable-sweep"}
+          with open(path, "w") as destination:
+              json.dump(data, destination, indent=2)
+              destination.write("\n")
+          print(f"post-immutable-sweep anti-vacuity injection: {name} pass -> fail")
+          PY
 
       # ONE COMPARISON PER SELECTED TIER. This mirrors local-sweep-r19 and reads
       # the exact rotation-plus-candidate set from local-sweep-r19's uploaded
@@ -1220,6 +1343,48 @@ jobs:
           fi
           echo "selected tiers (${SELECTED_CRATES_D}) agree with native; ${skipped} tier(s) not sampled tonight"
 
+      - name: Derive immutable candidate ledger row (including disagreement failures)
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          matrix="/tmp/r19_worker_io-types_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json"
+          test -s "${matrix}"
+          test -s /tmp/immutable_candidate.env
+          # shellcheck disable=SC1091
+          source /tmp/immutable_candidate.env
+          native_args_json="$(node --input-type=module -e '
+            import { loadTopology, tierByCrate } from "./tools/wasm/tier_topology.mjs";
+            process.stdout.write(JSON.stringify(tierByCrate(loadTopology(), "temper-io-types").native_test_args));
+          ')"
+          observed_at="$(jq -r .timestamp "${matrix}" | sed 's/+00:00$/Z/')"
+          if [ "${GITHUB_EVENT_NAME}" = schedule ]; then
+            expected_slot="${observed_at%%T*}T04:40:00Z"
+          else
+            expected_slot="${observed_at}"
+          fi
+          python3 tools/wasm/r19_agreement_ledger.py candidate-from-r19 \
+            --matrix "${matrix}" --wasm-json /tmp/worker_sweep_io-types.json \
+            --wasm-file /tmp/local-artifact/temper_wasm_test_runner_io_types.wasm \
+            --expected-failures tools/wasm/wasm_expected_failures_io_types.json \
+            --topology tools/wasm/wasm_tier_topology.json --comparator tools/wasm/r19_compare.py \
+            --candidate temper-io-types --runtime-arm immutable-worker \
+            --expected-slot "${expected_slot}" --observed-at "${observed_at}" \
+            --source-commit "${COMMIT_SHA}" --run-id "${GITHUB_RUN_ID}" \
+            --run-attempt "${GITHUB_RUN_ATTEMPT}" --event-name "${GITHUB_EVENT_NAME}" \
+            --native-args-json "${native_args_json}" --abi immutable-worker-v1 \
+            --worker-service temper-wasm-io-types --worker-version-id "${IMMUTABLE_VERSION_ID}" \
+            --immutable-url "${IMMUTABLE_PREVIEW_URL}" --infrastructure-outcome success \
+            --output /tmp/r19-ledger-candidate-io-types.json
+
+      - name: Upload immutable R19 ledger candidate
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: r19-ledger-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/r19-ledger-candidate-io-types.json
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Write job summary
         if: ${{ !cancelled() }}
         run: |
@@ -1236,6 +1401,8 @@ jobs:
           source /tmp/local-artifact/r19_cadence_metrics.env 2>/dev/null || true
           # shellcheck disable=SC1091
           source /tmp/worker_cadence_metrics.env 2>/dev/null || true
+          # shellcheck disable=SC1091
+          source /tmp/immutable_candidate.env 2>/dev/null || true
           {
             echo "### Deployed Workers vs native — R19 agreement"
             echo ""
@@ -1245,7 +1412,7 @@ jobs:
             echo "- promotion candidates configured: ${PROMOTION_CANDIDATE_COUNT:-unresolved}"
             echo "- rotated-tier native seconds: ${ROTATION_NATIVE_SECONDS:-unresolved}"
             echo "- promotion-candidate native seconds: ${CANDIDATE_NATIVE_SECONDS:-unresolved}"
-            echo "- promotion-candidate immutable-version upload seconds: ${VERSION_UPLOAD_SECONDS:-0} (U7 not live; diagnostic/non-qualifying)"
+            echo "- promotion-candidate immutable-version upload seconds: ${VERSION_UPLOAD_SECONDS:-0} (non-deployed version; production identity checked before/after)"
             echo "- promotion-candidate Worker sweep seconds: ${CANDIDATE_WORKER_SWEEP_SECONDS:-unresolved}"
             echo ""
             echo "#### Deployed-corpus freshness (R5.1, per tier)"
@@ -1271,7 +1438,7 @@ jobs:
 
       - name: Upload deployed-Worker sweep artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: wasm-tier-nightly-worker-${{ github.run_id }}
           path: |
@@ -1280,6 +1447,7 @@ jobs:
             /tmp/worker_sweep*.json
             /tmp/r19_worker_*.json
             /tmp/worker_cadence_metrics.env
+            /tmp/nightly-preview-diagnostics
           retention-days: 30
           if-no-files-found: warn
 
