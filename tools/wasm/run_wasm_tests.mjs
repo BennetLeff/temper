@@ -135,6 +135,14 @@ function testName(inst, i) {
 const names = [];
 for (let i = 0; i < registered; i++) names.push(testName(instance, i));
 
+// Content identity for the registry itself. The module digest proves the bytes
+// and `registered` proves only a count; this digest proves the exact unordered
+// test-name set so a preview artifact remains inspectable without loading or
+// executing its untrusted Wasm module in the later privileged job.
+const testNameSetSha256 = createHash("sha256")
+  .update(`${[...names].sort().join("\n")}\n`)
+  .digest("hex");
+
 // A registry that reports N tests but whose names are empty or duplicated is
 // not actually N distinct tests. Check before trusting the count.
 const distinctNames = new Set(names.filter((n) => n.length > 0)).size;
@@ -311,6 +319,7 @@ const summary = {
   registered,
   executed: totalExecuted,
   distinctNames,
+  testNameSetSha256,
   passed,
   failed,
   expectedFail,

@@ -36,9 +36,53 @@
 # is the one point in the pipeline that still has the raw file.
 set -euo pipefail
 
-WASM_DIR="target-shared/wasm32-unknown-unknown/release"
-STAGE_DIR="packages/temper-worker/src"
-CRATE="packages/temper-wasm-test-runner/Cargo.toml"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(pwd)"
+TOPOLOGY="${REPO_ROOT}/tools/wasm/wasm_tier_topology.json"
+TOPOLOGY_LOADER="${SCRIPT_DIR}/../tools/wasm/tier_topology.mjs"
+STAGE_DIR="${REPO_ROOT}/packages/temper-worker/src"
+TARGET_DIR="${REPO_ROOT}/target-shared"
+PREVIEW_CANDIDATE=0
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --preview-candidate)
+            PREVIEW_CANDIDATE=1
+            shift
+            ;;
+        --repo-root|--topology|--output-dir|--target-dir)
+            [ "$#" -ge 2 ] || { echo "error: $1 requires a value" >&2; exit 2; }
+            case "$1" in
+                --repo-root) REPO_ROOT="$2" ;;
+                --topology) TOPOLOGY="$2" ;;
+                --output-dir) STAGE_DIR="$2" ;;
+                --target-dir) TARGET_DIR="$2" ;;
+            esac
+            shift 2
+            ;;
+        *)
+            echo "error: unknown argument $1" >&2
+            exit 2
+            ;;
+    esac
+done
+
+REPO_ROOT="$(cd -- "$REPO_ROOT" && pwd)"
+mkdir -p "$STAGE_DIR" "$TARGET_DIR"
+STAGE_DIR="$(cd -- "$STAGE_DIR" && pwd)"
+TARGET_DIR="$(cd -- "$TARGET_DIR" && pwd)"
+WASM_DIR="${TARGET_DIR}/wasm32-unknown-unknown/release"
+CRATE="${REPO_ROOT}/packages/temper-wasm-test-runner/Cargo.toml"
+
+if [ "$PREVIEW_CANDIDATE" -eq 1 ]; then
+    # The PR preview is a fresh, exact allowlist. Refuse to mix this build with
+    # an earlier attempt or a second module; the trusted attester repeats the
+    # same check after the build.
+    if find "$STAGE_DIR" -mindepth 1 -print -quit | grep -q .; then
+        echo "error: preview output directory must be empty" >&2
+        exit 1
+    fi
+fi
 
 # `node` rather than `jq`: the deploy workflow already provisions Node (wrangler
 # needs it), every other consumer of the topology is a .mjs, and jq is not
@@ -49,10 +93,17 @@ if ! command -v node >/dev/null 2>&1; then
     exit 1
 fi
 
-MATRIX="$(node -e '
-import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, buildTargets }) => {
-  for (const b of buildTargets(loadTopology())) {
-    console.log([b.crate, b.cargo_features, b.staged_module].join("\t"));
+MATRIX="$(TOPOLOGY_LOADER="$TOPOLOGY_LOADER" TOPOLOGY="$TOPOLOGY" PREVIEW_CANDIDATE="$PREVIEW_CANDIDATE" node -e '
+import("node:url").then(({ pathToFileURL }) => import(pathToFileURL(process.env.TOPOLOGY_LOADER).href)).then(({ loadTopology, buildTargets, previewCandidateContract }) => {
+  const topology = loadTopology(process.env.TOPOLOGY);
+  const targets = process.env.PREVIEW_CANDIDATE === "1"
+    ? [previewCandidateContract(topology)]
+    : buildTargets(topology);
+  for (const b of targets) {
+    const crate = b.crate;
+    const cargoFeatures = b.cargo_features;
+    const stagedModule = b.module_file ?? b.staged_module;
+    console.log([crate, cargoFeatures, stagedModule].join("\t"));
   }
 }).catch((e) => { console.error(e.message); process.exit(1); });
 ')"
@@ -65,9 +116,21 @@ fi
 while IFS=$'\t' read -r crate features staged; do
     [ -n "$features" ] || continue
     echo "=== Building ${crate} (--features ${features}) -> ${staged} ==="
-    cargo build --release --target wasm32-unknown-unknown \
-        --no-default-features --features "$features" \
-        --manifest-path "$CRATE"
+    (
+        cd "$REPO_ROOT"
+        # GitHub's file-command paths are removed for the credential-free PR
+        # build so an untrusted build script cannot inject state into the
+        # later fixed-command steps. The preview publisher is a different job;
+        # this one never receives its credentials.
+        env -u GITHUB_ENV -u GITHUB_OUTPUT -u GITHUB_PATH -u GITHUB_STEP_SUMMARY \
+            -u GITHUB_TOKEN -u GH_TOKEN \
+            -u ACTIONS_RUNTIME_TOKEN -u ACTIONS_CACHE_URL -u ACTIONS_RESULTS_URL \
+            -u ACTIONS_ID_TOKEN_REQUEST_TOKEN -u ACTIONS_ID_TOKEN_REQUEST_URL \
+            CARGO_TARGET_DIR="$TARGET_DIR" \
+            cargo build --release --target wasm32-unknown-unknown \
+                --no-default-features --features "$features" \
+                --manifest-path "$CRATE"
+    )
     cp "$WASM_DIR/temper_wasm_test_runner.wasm" "$STAGE_DIR/$staged"
     # sha256 of the exact bytes just staged -- see the header comment above
     # ("Alongside each staged...") for why this happens here rather than in
@@ -78,6 +141,14 @@ while IFS=$'\t' read -r crate features staged; do
 done <<< "$MATRIX"
 
 echo "=== Staged modules ==="
-ls -lh "$STAGE_DIR"/temper_wasm_test_runner*.wasm
+if [ "$PREVIEW_CANDIDATE" -eq 1 ]; then
+    find "$STAGE_DIR" -maxdepth 1 -type f -name '*.wasm' -print
+else
+    ls -lh "$STAGE_DIR"/temper_wasm_test_runner*.wasm
+fi
 echo "=== Staged digests ==="
-ls -lh "$STAGE_DIR"/temper_wasm_test_runner*.wasm.sha256.json
+if [ "$PREVIEW_CANDIDATE" -eq 1 ]; then
+    find "$STAGE_DIR" -maxdepth 1 -type f -name '*.wasm.sha256.json' -print
+else
+    ls -lh "$STAGE_DIR"/temper_wasm_test_runner*.wasm.sha256.json
+fi
