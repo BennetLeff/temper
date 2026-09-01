@@ -1,4 +1,4 @@
-<!-- provenance: commit=68bf5c31f3b98ee05d47ca970cb1ea9eddd55924 (feat/uncapped-drc-measurement, worktree
+<!-- provenance: commit=16f673f712747ee486918aaab4c9d28bbdfb98ad dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-uncapped-drc, based on origin/main cc732df2b), dirty=false for pcb/** throughout
 (git status --porcelain pcb/ clean at every measurement below). pcb/temper.kicad_pcb sha256=
 6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64, pcb/temper.kicad_pro sha256=

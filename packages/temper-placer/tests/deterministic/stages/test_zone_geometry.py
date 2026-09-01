@@ -6,7 +6,7 @@ no overlaps, and full board coverage.
 """
 
 from temper_placer.core.board import Board
-from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
+from temper_placer.deterministic.stages import ZoneGeometryStage
 from temper_placer.deterministic.state import BoardState
 
 

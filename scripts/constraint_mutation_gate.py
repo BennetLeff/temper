@@ -6,8 +6,8 @@ non-empty kill set (the R4 bug-class mutations its own defenses catch), and no
 survivor may be untriaged. This script verifies the two encoder surfaces
 against ``power_pcb_dataset/constraint_kill_sets.yaml``:
 
-  1. PCL handler surfaces (``placer/cp_sat/handlers/*.py``, discovered via the
-     ``@register_handler`` decorator) must have a register entry with a
+  1. PCL handler surfaces (``placer/cp_sat/handlers/*.py``, resolved from the
+     immutable CP-SAT handler catalog) must have a register entry with a
      non-empty ``killed`` list, and every ``survived`` mutation must carry a
      triage status (``benign`` with rationale, or ``test-gap`` with rationale).
   2. Router-V6 constraint classes (``router_v6/constraint_model.py``, resolved
@@ -50,7 +50,6 @@ Exit codes (following the import_linter_gate.py / bmc_adoption_gate.py pattern):
 
 from __future__ import annotations
 
-import ast
 import importlib
 import sys
 from pathlib import Path
@@ -93,25 +92,13 @@ def _die(code: int, msg: str) -> None:
 
 
 def discover_handler_surfaces() -> list[str]:
-    """Return sorted surface ids for every ``@register_handler`` encoder module."""
-    surfaces: list[str] = []
-    for path in sorted(HANDLERS_DIR.glob("*.py")):
-        if path.name.startswith("_") or path.name == "__init__.py":
-            continue
-        tree = ast.parse(path.read_text())
-        registered = False
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                for dec in node.decorator_list:
-                    if (
-                        isinstance(dec, ast.Call)
-                        and isinstance(dec.func, ast.Name)
-                        and dec.func.id == "register_handler"
-                    ):
-                        registered = True
-        if registered:
-            surfaces.append(path.stem)
-    return sorted(surfaces)
+    """Return sorted surface ids resolved from the production catalog."""
+    from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
+
+    return sorted(
+        handler.__module__.rsplit(".", 1)[-1]
+        for handler in CP_SAT_HANDLER_CATALOG.values()
+    )
 
 
 def discover_router_v6_classes() -> list[str]:
@@ -253,7 +240,7 @@ def check_router_v6(doc: dict) -> list[str]:
     return violations
 
 
-def check_live_kill_sets(doc: dict) -> list[str]:
+def check_live_kill_sets(doc: dict, handler_catalog=None) -> list[str]:
     """Re-run the mutation suite live and require it to reproduce the register.
 
     This is the check that closes the 2026-08-11 gate-vacuity finding: checks
@@ -279,7 +266,7 @@ def check_live_kill_sets(doc: dict) -> list[str]:
 
     violations: list[str] = []
     try:
-        live_results = runner.run_suite()
+        live_results = runner.run_suite(handler_catalog)
     except RuntimeError as exc:
         # run_suite()'s own baseline sanity check: every registered defense
         # must pass against the CURRENT, unmutated encoder before any
@@ -323,7 +310,7 @@ def check_live_kill_sets(doc: dict) -> list[str]:
     return violations
 
 
-def main() -> None:
+def main(handler_catalog=None) -> None:
     if not HANDLERS_DIR.exists():
         _die(EXIT_ERROR, f"handlers dir not found: {HANDLERS_DIR}")
     if not CONSTRAINT_MODEL.exists():
@@ -333,7 +320,7 @@ def main() -> None:
 
     handler_violations = check_handler_surfaces(doc)
     router_v6_violations = check_router_v6(doc)
-    live_violations = check_live_kill_sets(doc)
+    live_violations = check_live_kill_sets(doc, handler_catalog)
 
     violations = handler_violations + router_v6_violations + live_violations
     if violations:

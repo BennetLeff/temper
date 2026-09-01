@@ -88,6 +88,7 @@ structural rather than convenient.
 from __future__ import annotations
 
 import argparse
+import functools
 import re
 import sys
 from dataclasses import dataclass, field
@@ -227,6 +228,7 @@ TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
 # crate, and excluding it on that basis would drop real tests from the tier for
 # a spelling.
 PROPTEST_USE = re.compile(r"(?:^|[^A-Za-z0-9_])proptest\s*(?:!|::)")
+STD_PROCESS_USE = re.compile(r"(?:^|[^A-Za-z0-9_])std::process\b")
 FN_NAME = re.compile(r"^\s*(?:pub\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 
 
@@ -308,6 +310,161 @@ def looks_test_gated(lines: list[str], decl_idx: int) -> bool:
     return False
 
 
+_RAW_OPEN = re.compile(r'(?:b?r)(#*)"')
+_CHAR_LIT = re.compile(r"'(?:\\u\{[0-9a-fA-F_]+\}|\\.|[^\\'])'")
+_IDENT_CHAR = re.compile(r"[A-Za-z0-9_]")
+
+
+def brace_deltas(lines: list[str]) -> list[int]:
+    """Per-line ``{`` minus ``}``, counting only braces that are *code*.
+
+    Braces inside line comments, block comments, string literals, byte
+    strings, raw strings and char literals are not block delimiters and must
+    not move the depth.  The scan is stateful across lines because every one
+    of those constructs can span them: Rust block comments nest, plain string
+    literals may contain a raw newline, and ``r#"..."#`` runs until its
+    matching terminator.
+
+    Why this is not ``line.count("{") - line.count("}")`` -- which is what it
+    was until 2026-08-24.  ``temper-orchestration``'s ``state_ser.rs`` tests
+    the loud-error path with a deliberately malformed JSON input::
+
+        let e = native_from_json("{not json").unwrap_err();
+
+    That ``{`` is four characters of test data, not a block.  The naive count
+    read it as an unclosed brace, :func:`module_body` walked to EOF without
+    returning to depth 0, and the gate died with ``unbalanced braces at line
+    814``.  Because the gate exits on the first crate that fails, and
+    ``temper-orchestration`` is 7th of 12, the five crates after it went
+    unchecked -- the step could not have reported their drift either.  It
+    failed ``Fast Gates``, and through it the ``Required Python Tests``
+    aggregator and every PR's merge, from #1434 (2026-08-21) onward.
+
+    The one genuine ambiguity is ``'``: a lifetime (``'a``) opens no char
+    literal.  A ``'`` is therefore treated as a char literal only when a
+    complete literal actually matches at that position, and as a lifetime
+    tick otherwise -- which is also why ``'\\u{1F600}'`` (a char literal that
+    really does contain braces) has to be part of that match.
+    """
+    return list(_brace_deltas_cached(tuple(lines)))
+
+
+@functools.lru_cache(maxsize=64)
+def _brace_deltas_cached(lines: tuple[str, ...]) -> tuple[int, ...]:
+    """:func:`brace_deltas`, memoised on the exact line sequence.
+
+    ``module_body`` and ``find_mod`` each re-scan a whole file per module they
+    resolve, so without this the lexer runs once per (file x module) pair.
+    Measured on this repo before the cache was added: the 12-crate sweep took
+    160s, against 2.3s for the naive count it replaces.  ``temper-geometry``
+    alone has 67 test modules in one crate, and the cost is quadratic in
+    exactly that.
+    """
+    deltas: list[int] = []
+    block_depth = 0  # Rust block comments nest, so this is a depth not a flag
+    raw_hashes: int | None = None  # inside r#"..."#: how many `#` close it
+    in_string = False  # inside a plain/byte "..." that has not closed yet
+    for line in lines:
+        # Fast paths.  Walking every character is ~8x the naive count on a
+        # large crate, and the two cases below cover the overwhelming
+        # majority of lines: whole-line comments (dense here, and they carry
+        # braces in code samples) and lines with nothing that could hide a
+        # brace at all.  Measured on temper-geometry, best of 5: 0.33s naive,
+        # 2.60s walking every character, 0.83s with these paths.  The gate
+        # runs 12 crates, so the remaining cost is a few seconds against a
+        # step that could not report a verdict at all before.
+        if not block_depth and raw_hashes is None and not in_string:
+            if line.lstrip().startswith("//"):
+                # A whole-line comment -- doc comments are dense in this
+                # codebase and they carry braces in code samples.
+                deltas.append(0)
+                continue
+            if '"' not in line and "\'" not in line and "/" not in line:
+                deltas.append(line.count("{") - line.count("}"))
+                continue
+        delta = 0
+        i = 0
+        n = len(line)
+        while i < n:
+            if raw_hashes is not None:
+                end = line.find('"' + "#" * raw_hashes, i)
+                if end < 0:
+                    break
+                i = end + 1 + raw_hashes
+                raw_hashes = None
+                continue
+            if in_string:
+                i = _skip_string_body(line, i)
+                in_string = i < 0
+                if in_string:
+                    break
+                continue
+            if block_depth:
+                if line.startswith("*/", i):
+                    block_depth -= 1
+                    i += 2
+                elif line.startswith("/*", i):
+                    block_depth += 1
+                    i += 2
+                else:
+                    i += 1
+                continue
+            if line.startswith("//", i):
+                break
+            if line.startswith("/*", i):
+                block_depth += 1
+                i += 2
+                continue
+            raw = _RAW_OPEN.match(line, i)
+            if raw and (i == 0 or not _IDENT_CHAR.match(line[i - 1])):
+                raw_hashes = len(raw.group(1))
+                i = raw.end()
+                continue
+            ch = line[i]
+            if ch == "b" and line.startswith('"', i + 1) and (
+                i == 0 or not _IDENT_CHAR.match(line[i - 1])
+            ):
+                i += 1
+                ch = '"'
+            if ch == '"':
+                j = _skip_string_body(line, i + 1)
+                if j < 0:
+                    in_string = True
+                    break
+                i = j
+                continue
+            if ch == "'":
+                lit = _CHAR_LIT.match(line, i)
+                i = lit.end() if lit else i + 1
+                continue
+            if ch == "{":
+                delta += 1
+            elif ch == "}":
+                delta -= 1
+            i += 1
+        deltas.append(delta)
+    return tuple(deltas)
+
+
+def _skip_string_body(line: str, i: int) -> int:
+    """Index just past the closing ``"``, or ``-1`` if the line ends first.
+
+    ``i`` is the first character of the body (the opening quote is already
+    consumed).  ``-1`` means the literal continues on the next line, which is
+    legal Rust -- a string may contain a raw newline.
+    """
+    n = len(line)
+    while i < n:
+        c = line[i]
+        if c == "\\":
+            i += 2
+            continue
+        if c == '"':
+            return i + 1
+        i += 1
+    return -1
+
+
 def nested_gated_mask(body: list[str]) -> list[bool]:
     """Which lines of ``body`` belong to a *nested* test-gated submodule.
 
@@ -349,8 +506,9 @@ def nested_gated_mask(body: list[str]) -> list[bool]:
         ):
             depth = 0
             end = len(body) - 1
+            deltas = brace_deltas(body)
             for j in range(i, len(body)):
-                depth += body[j].count("{") - body[j].count("}")
+                depth += deltas[j]
                 mask[j] = True
                 if depth == 0:
                     end = j
@@ -369,11 +527,53 @@ def own_lines(body: list[str]) -> list[str]:
 def module_body(lines: list[str], decl_idx: int) -> list[str]:
     """The brace-balanced body of the inline module declared at ``decl_idx``."""
     depth = 0
+    deltas = brace_deltas(lines)
     for j in range(decl_idx, len(lines)):
-        depth += lines[j].count("{") - lines[j].count("}")
+        depth += deltas[j]
         if depth == 0:
             return lines[decl_idx : j + 1]
     raise SystemExit(f"unbalanced braces at line {decl_idx + 1}")
+
+
+def in_file_ancestors(lines: list[str], ident: str) -> list[str]:
+    """Inline ``mod`` names whose body lexically contains ``mod <ident>``.
+
+    The census matches ``MOD_DECL`` at ANY indentation, so a test module nested
+    inside another module in the same file is discovered correctly -- but its
+    Rust path is not ``<file>::<ident>``, it is
+    ``<file>::<outer>::...::<ident>``. Without this, the registry emitted
+
+        crate::dsn_types::frozen_dsn_tests::WASM_TESTS
+
+    for a module that actually lives at ``dsn_types::tests::frozen_dsn_tests``
+    (dsn_types.rs:499 declares `mod tests`, :509 declares `mod
+    frozen_dsn_tests` inside it), and `--all-features` builds failed with
+    ``error[E0433]: cannot find `frozen_dsn_tests` in `dsn_types```. The
+    generator's own ``--check`` passed throughout, because it compared its
+    output against itself.
+
+    Returns outermost-first, so callers can ``"::".join(...)``.
+    """
+    target = next(
+        (
+            i
+            for i, ln in enumerate(lines)
+            if (m := MOD_DECL.match(ln)) and m.group(1) == ident and m.group(2) == "{"
+        ),
+        None,
+    )
+    if target is None:
+        return []
+    out: list[tuple[int, str]] = []
+    for i, ln in enumerate(lines):
+        if i >= target:
+            break
+        m = MOD_DECL.match(ln)
+        if not m or m.group(2) != "{" or m.group(1) == ident:
+            continue
+        if i + len(module_body(lines, i)) > target:
+            out.append((i, m.group(1)))
+    return [name for _, name in sorted(out)]
 
 
 def submodule_path(src: Path, rel: str, ident: str) -> Path:
@@ -483,6 +683,31 @@ def discover_eligible(
                 # compiled into.  Same exclusion `temper-drc-rs` makes by
                 # leaving its own `proptests` modules out of ELIGIBLE_DRC_RS.
                 reason = "proptest-dev-dependency"
+            elif any(STD_PROCESS_USE.search(ln.split("//")[0]) for ln in body):
+                # `wasm32-unknown-unknown` has no process model.  That is not
+                # an incidental gap -- it is the premise this whole tier is
+                # built on (see this module's own docstring: "no process
+                # model, no threads, no std::process::exit"), so `std`'s
+                # process support there is a stub whose every entry point
+                # panics: `no pids on this platform`,
+                # std/src/sys/process/unsupported.rs.
+                #
+                # Unlike the `Instant::now()` divergence
+                # `wasm_expected_failures_orchestration.json` records (fixed
+                # in `pipeline.rs` rather than catalogued, because a clock
+                # read was avoidable), this one cannot be fixed in the crate:
+                # a test that spawns a subprocess has nothing to spawn.  It
+                # is a native-only property by construction, so it is
+                # excluded here rather than listed as an expected failure --
+                # that manifest is for divergences worth executing, and these
+                # cannot execute at all.
+                #
+                # Found by registering `temper-orchestration`'s
+                # `subprocess_stage::tests` for the first time (its 7 tests
+                # spawn a Python interpreter); the module had been invisible
+                # to this script while the brace counter could not parse the
+                # file next to it.
+                reason = "std-process-no-wasm32"
             elif not any(is_test_gate(a) for a in attrs):
                 # `looks_test_gated` saw a gate the rewriter cannot reach --
                 # a comment sits between `#[cfg(test)]` and `mod`.  Report it
@@ -778,8 +1003,8 @@ CRATES: dict[str, CrateSpec] = {
             "//! Two exclusion classes apply here, both structural:",
             "//!",
             '//! * `#[cfg(feature = "python")]` modules -- `explain`, `report`,',
-            "//!   `reference_aliases`, `footprint_library`, `dsn_pyo3` and",
-            "//!   `zone_filler`.  Each is a *whole* pyo3 surface: its entry",
+            "//!   `reference_aliases`, `footprint_library` and `dsn_pyo3`.  Each",
+            "//!   is a *whole* pyo3 surface: its entry",
             "//!   points take and return `Bound<'_, PyAny>` and read Python",
             "//!   runtime semantics (`str()`, `yaml.safe_load`, `str.strip`)",
             "//!   back across the boundary, so there is no kernel underneath to",
@@ -895,7 +1120,7 @@ CRATES: dict[str, CrateSpec] = {
             "//!   mod`/`mod` declaration in `lib.rs`), plus every `#[pyfunction]`/",
             "//!   `#[pymodule]` item declared directly in `lib.rs` itself",
             "//!   (`solve_topology_rust`, `audit_result`, `classify_component_rs`,",
-            "//!   `parse_capacitance_rs`, `astar_kernel_3d_py`, `line_of_sight_py`,",
+            "//!   `astar_kernel_3d_py`, `line_of_sight_py`,",
             "//!   the `#[pymodule] fn temper_rust_router`).  None of these have",
             "//!   `#[test]` of their own that exercises anything beyond the pyo3",
             "//!   boundary itself -- the pure kernels underneath",
@@ -1015,8 +1240,9 @@ def find_module_span(lines: list[str], ident: str) -> tuple[int, int, int]:
         if m.group(1) == ";":
             return start, i, -1
         depth = 0
+        deltas = brace_deltas(lines)
         for j in range(i, len(lines)):
-            depth += lines[j].count("{") - lines[j].count("}")
+            depth += deltas[j]
             if depth == 0:
                 return start, i, j
         raise SystemExit(f"unbalanced braces for mod {ident}")
@@ -1133,8 +1359,8 @@ def generated_block(
     return body
 
 
-def render_root(entries: list[tuple[str, str, int]]) -> str:
-    total = sum(n for _, _, n in entries)
+def render_root(entries: list[tuple[str, str, int, str]]) -> str:
+    total = sum(n for _, _, n, _ in entries)
     lines = [
         f"//! The `wasm32` test registry for `{CRATE_SPEC.name}`.",
         "//!",
@@ -1166,11 +1392,12 @@ def render_root(entries: list[tuple[str, str, int]]) -> str:
         "/// all families (`wasm-test-registry`) or individual ones.",
         "pub const ALL: &[&[WasmTest]] = &[",
     ]
-    for mod_path, ident, _ in entries:
+    for mod_path, ident, _, rust_path in entries:
+        # family from the plain ident; the emitted path from the nested one.
         family = FAMILY_BY_ENTRY.get((mod_path, ident), "infra")
         lines.append(
             f"    #[cfg(feature = \"wasm-registry-{family}\")]"
-            f" crate::{qualify(mod_path, ident)}::WASM_TESTS,"
+            f" crate::{qualify(mod_path, rust_path)}::WASM_TESTS,"
         )
     lines += [
         "];",
@@ -1261,7 +1488,37 @@ def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, li
     """
     lines = strip_generated(text.splitlines(), ident)
     attr_start, decl_idx, body_end = find_module_span(lines, ident)
+
+    # A prior generator (scripts/gen_oracle_freeze.py) may have pre-gated the
+    # module with the SAME GATE/ALLOW pair this function re-adds, parked above
+    # the module's doc comments. Keeping both duplicates the attributes
+    # (clippy::duplicated_attributes under -D warnings) -- so consume any
+    # identical pair found walking upward through the item's preamble.
     indent = lines[decl_idx][: len(lines[decl_idx]) - len(lines[decl_idx].lstrip())]
+
+    # gen_oracle_freeze.py pre-gates frozen modules with the SAME GATE/ALLOW
+    # pair this function would re-add, parked above the module's doc comments.
+    # If that pair already exists in the preamble, skip adding another --
+    # duplicated attributes fail clippy under -D warnings (#1445 §5.3).
+    gate_s, allow_s = GATE.strip(), ALLOW.strip()
+    j = attr_start
+    has_pair = False
+    saw_other_attr = False
+    while j > 0:
+        prev = lines[j - 1].strip()
+        if prev == gate_s or prev == allow_s:
+            has_pair = True
+            j -= 1
+            continue
+        if (
+            prev.startswith("#[")
+            or prev.startswith("///")
+            or prev.startswith("//")
+            or prev == ""
+        ):
+            j -= 1
+            continue
+        break
 
     # Rewrite the gate, keeping any hand-written attributes other than the
     # `cfg(test)` being replaced and the allow re-added below.
@@ -1274,7 +1531,7 @@ def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, li
         and "clippy::unwrap_used" not in ln
         and "clippy::expect_used" not in ln
     ]
-    header = [f"{indent}{GATE}", f"{indent}{ALLOW}"] + kept
+    header = ([] if has_pair else [f"{indent}{GATE}", f"{indent}{ALLOW}"]) + kept
     decl = lines[decl_idx]
     if not decl.lstrip().startswith(("pub ", "pub(")):
         decl = f"{indent}pub(crate) {decl.lstrip()}"
@@ -1389,7 +1646,7 @@ def main() -> int:
         return 0
 
     pending: dict[Path, str] = {}
-    entries: list[tuple[str, str, int]] = []
+    entries: list[tuple[str, str, int, str]] = []
 
     for rel, ident in ELIGIBLE:
         path = SRC / rel
@@ -1400,7 +1657,15 @@ def main() -> int:
         pending[path] = new_text
         if body_text is not None:
             pending[submodule_path(SRC, rel, ident)] = body_text
-        entries.append((module_path(rel), ident, len(fns)))
+        # The registry path must include any module the test module is NESTED
+        # INSIDE within the same file, not just the file's own module path --
+        # see in_file_ancestors(). `ident` is kept UNCHANGED alongside it:
+        # FAMILY_BY_ENTRY is keyed on (module_path, ident), so qualifying the
+        # ident here silently drops the entry to the "infra" fallback family.
+        nested_under = in_file_ancestors(new_text.splitlines(), ident)
+        entries.append(
+            (module_path(rel), ident, len(fns), "::".join([*nested_under, ident]))
+        )
 
         for decl_file, mod_ident in ancestor_decls(rel):
             decl_path = SRC / decl_file
@@ -1430,7 +1695,7 @@ def main() -> int:
         if not args.check:
             path.write_text(text)
 
-    total = sum(n for _, _, n in entries)
+    total = sum(n for _, _, n, _ in entries)
     suffix = "" if args.crate == "temper-drc-rs" else f" [{args.crate}]"
 
     # Second gate arm: a module that could register but is not on the list.

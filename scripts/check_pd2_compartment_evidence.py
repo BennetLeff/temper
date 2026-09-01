@@ -108,6 +108,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import re
 import sys
 from dataclasses import dataclass, field
@@ -137,38 +138,108 @@ class GateError(Exception):
 # 1. Which bar does the tree currently claim?
 # ---------------------------------------------------------------------------
 
-_PD2_CONST_RE = re.compile(r"^HV_CREEPAGE_PD2_MM\s*=\s*([0-9]+(?:\.[0-9]+)?)", re.MULTILINE)
-_PD3_CONST_RE = re.compile(r"^HV_CREEPAGE_PD3_MM\s*=\s*([0-9]+(?:\.[0-9]+)?)", re.MULTILINE)
+# Which identifier HV_CREEPAGE_ENFORCED_MM is assigned FROM. This one still
+# reads the source text, deliberately: it captures the generator's stated
+# INTENT ("PD3 governs"), which a numeric comparison cannot recover when the
+# two bars happen to be equal.
 _ENFORCED_RE = re.compile(
     r"^HV_CREEPAGE_ENFORCED_MM\s*=\s*(HV_CREEPAGE_PD[23]_MM)", re.MULTILINE
 )
 
 
-def load_enforced_bar(dru_source_path: Path) -> tuple[str, float, float, float]:
-    """Returns ``(governs, enforced_mm, pd2_mm, pd3_mm)`` read directly from
-    ``dru_source_path`` -- never a hardcoded constant, so this gate cannot
-    drift from the real generator. ``governs`` is ``"PD2"`` or ``"PD3"``.
-    Raises GateError if the file or any of the three assignments cannot be
-    found (the gate cannot determine which bar governs at all).
+def _load_generator_module(dru_source_path: Path):
+    """Import the DRU generator and hand back the live module.
+
+    Imported rather than regex-scraped. The previous implementation matched
+    `^HV_CREEPAGE_PD2_MM\\s*=\\s*([0-9.]+)` -- a NUMERIC LITERAL -- and the
+    generator now derives both bars from the standards table instead:
+
+        HV_CREEPAGE_PD2_MM = _tdb.creepage_table_lookup(
+            2, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0
+
+    so neither regex matched anything, `load_enforced_bar` raised, and the gate
+    exited 5 -- "could not determine governing bar" -- on every run. Single-
+    sourcing the figures from IEC 60664-1 Table 17 silently blinded the gate
+    that checks which pollution degree governs, on a board where PD3 sets every
+    creepage number. An improvement broke its own checker.
+
+    Importing reads whatever the generator actually computes, so this cannot
+    recur the next time the derivation changes shape. The module is import-safe:
+    it guards execution behind `if __name__ == "__main__"`.
     """
     if not dru_source_path.is_file():
         raise GateError(f"DRU source not found: {dru_source_path}")
-    text = dru_source_path.read_text(encoding="utf-8")
-
-    m2 = _PD2_CONST_RE.search(text)
-    m3 = _PD3_CONST_RE.search(text)
-    me = _ENFORCED_RE.search(text)
-    if not (m2 and m3 and me):
+    spec = importlib.util.spec_from_file_location(
+        "_pd2_gate_dru_generator", dru_source_path
+    )
+    if spec is None or spec.loader is None:
+        raise GateError(f"could not load {dru_source_path} as a Python module")
+    module = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(module)
+    except Exception as exc:  # pragma: no cover -- generator import failure
         raise GateError(
-            f"could not locate HV_CREEPAGE_PD2_MM / HV_CREEPAGE_PD3_MM / "
-            f"HV_CREEPAGE_ENFORCED_MM assignments in {dru_source_path} -- "
+            f"importing {dru_source_path} failed: {exc!r} -- cannot determine "
+            "which creepage bar the tree currently claims"
+        ) from exc
+    return module
+
+
+def load_enforced_bar(dru_source_path: Path) -> tuple[str, float, float, float]:
+    """Returns ``(governs, enforced_mm, pd2_mm, pd3_mm)`` read from the live
+    generator -- never a hardcoded constant, so this gate cannot drift from it.
+    ``governs`` is ``"PD2"`` or ``"PD3"``.
+
+    Raises GateError if the module cannot be imported, if any of the three
+    values is missing, or if which bar governs cannot be established (the gate
+    fails closed rather than guessing at a pollution degree).
+    """
+    module = _load_generator_module(dru_source_path)
+
+    missing = [
+        name
+        for name in ("HV_CREEPAGE_PD2_MM", "HV_CREEPAGE_PD3_MM", "HV_CREEPAGE_ENFORCED_MM")
+        if not isinstance(getattr(module, name, None), (int, float))
+    ]
+    if missing:
+        raise GateError(
+            f"{dru_source_path} does not define numeric {', '.join(missing)} -- "
             "cannot determine which creepage bar the tree currently claims"
         )
-    pd2_mm = float(m2.group(1))
-    pd3_mm = float(m3.group(1))
-    which = me.group(1)
-    governs = "PD2" if which == "HV_CREEPAGE_PD2_MM" else "PD3"
-    enforced_mm = pd2_mm if governs == "PD2" else pd3_mm
+    pd2_mm = float(module.HV_CREEPAGE_PD2_MM)
+    pd3_mm = float(module.HV_CREEPAGE_PD3_MM)
+    enforced_mm = float(module.HV_CREEPAGE_ENFORCED_MM)
+
+    # Prefer the generator's declared intent over a value match.
+    m = _ENFORCED_RE.search(dru_source_path.read_text(encoding="utf-8"))
+    if m is not None:
+        governs = "PD2" if m.group(1) == "HV_CREEPAGE_PD2_MM" else "PD3"
+    elif pd2_mm != pd3_mm:
+        # No symbolic assignment (a literal, or computed) -- fall back to which
+        # bar the enforced value equals. Only sound while the bars differ.
+        if enforced_mm == pd2_mm:
+            governs = "PD2"
+        elif enforced_mm == pd3_mm:
+            governs = "PD3"
+        else:
+            raise GateError(
+                f"HV_CREEPAGE_ENFORCED_MM={enforced_mm} matches neither "
+                f"PD2={pd2_mm} nor PD3={pd3_mm} in {dru_source_path}"
+            )
+    else:
+        raise GateError(
+            f"HV_CREEPAGE_ENFORCED_MM is not assigned from HV_CREEPAGE_PD2_MM "
+            f"or HV_CREEPAGE_PD3_MM in {dru_source_path}, and the two bars are "
+            f"numerically equal ({pd2_mm}) -- which one governs is genuinely "
+            "ambiguous, so this fails closed rather than picking one"
+        )
+
+    expected = pd2_mm if governs == "PD2" else pd3_mm
+    if enforced_mm != expected:
+        raise GateError(
+            f"HV_CREEPAGE_ENFORCED_MM={enforced_mm} disagrees with the "
+            f"{governs} bar it is assigned from ({expected}) in {dru_source_path}"
+        )
     return governs, enforced_mm, pd2_mm, pd3_mm
 
 

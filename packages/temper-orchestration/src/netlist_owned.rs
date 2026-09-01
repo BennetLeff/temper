@@ -118,10 +118,10 @@ use pyo3::IntoPyObjectExt;
 
 use temper_data_model::{
     Board, ClearanceCredit, ClearanceGrid, ClearanceMatrix, Component, ConnectivityViolation,
-    ConnectivityViolationList, DrcOracle, LayerAssignment, LayerAssignmentSet, Net, Netlist, OwnedPlain,
-    Placement, PlacementSet, PlacementViolation, PlacementViolationList, Pin, PreflightCheck,
-    PreflightReport, Route, RouteSet, SlotPos, StrPairSet, Val, Via, ViaSet, Violation,
-    ViolationList, Zone, ZoneSet, ZoneSlots, ZoneSlotsSet,
+    ConnectivityViolationList, DrcOracle, LayerAssignment, LayerAssignmentSet, Net, Netlist,
+    OwnedPlain, Pin, Placement, PlacementSet, PlacementViolation, PlacementViolationList,
+    PreflightCheck, PreflightReport, Route, RouteSet, SlotPos, StrPairSet, Val, Via, ViaSet,
+    Violation, ViolationList, Zone, ZoneSet, ZoneSlots, ZoneSlotsSet,
 };
 
 use crate::marshal::{Marshal, Plain, type_err};
@@ -150,9 +150,7 @@ impl Marshal for (f64, f64) {
     }
 
     fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
-        Ok(PyTuple::new(py, [self.0, self.1])?
-            .into_any()
-            .unbind())
+        Ok(PyTuple::new(py, [self.0, self.1])?.into_any().unbind())
     }
 }
 
@@ -262,9 +260,11 @@ fn tags_from_python(obj: &Bound<'_, PyAny>) -> PyResult<Vec<String>> {
 }
 
 fn tags_to_python(py: Python<'_>, tags: &[String]) -> PyResult<Py<PyAny>> {
-    Ok(PyFrozenSet::new(py, tags.iter().map(|t| pyo3::types::PyString::new(py, t)))?
-        .into_any()
-        .unbind())
+    Ok(
+        PyFrozenSet::new(py, tags.iter().map(|t| pyo3::types::PyString::new(py, t)))?
+            .into_any()
+            .unbind(),
+    )
 }
 
 /// The design-bundle pyclass at `temper_design_bundle_python.netlist_contracts.<name>`,
@@ -356,7 +356,10 @@ impl Marshal for Component {
         kwargs.set_item("zone", self.zone.to_python(py)?)?;
         kwargs.set_item("fixed", self.fixed)?;
         kwargs.set_item("initial_position", self.initial_position.to_python(py)?)?;
-        kwargs.set_item("initial_rotation_quadrant", self.initial_rotation_quadrant.to_python(py)?)?;
+        kwargs.set_item(
+            "initial_rotation_quadrant",
+            self.initial_rotation_quadrant.to_python(py)?,
+        )?;
         kwargs.set_item("initial_side", self.initial_side.to_python(py)?)?;
         kwargs.set_item("attributes", attrs_to_python(py, &self.attributes)?)?;
         kwargs.set_item("tags", tags_to_python(py, &self.tags)?)?;
@@ -566,10 +569,19 @@ impl Marshal for OwnedBoard {
         kwargs.set_item("origin", self.board.origin.to_python(py)?)?;
         kwargs.set_item("keepouts", self.board.keepouts.to_python(py)?)?;
         kwargs.set_item("zones", opaque_to_python(py, &self.zones)?)?;
-        kwargs.set_item("mounting_holes", opaque_to_python(py, &self.mounting_holes)?)?;
-        kwargs.set_item("ground_domains", opaque_to_python(py, &self.ground_domains)?)?;
+        kwargs.set_item(
+            "mounting_holes",
+            opaque_to_python(py, &self.mounting_holes)?,
+        )?;
+        kwargs.set_item(
+            "ground_domains",
+            opaque_to_python(py, &self.ground_domains)?,
+        )?;
         kwargs.set_item("layer_stackup", opaque_to_python(py, &self.layer_stackup)?)?;
-        kwargs.set_item("outline_polygon", opaque_to_python(py, &self.outline_polygon)?)?;
+        kwargs.set_item(
+            "outline_polygon",
+            opaque_to_python(py, &self.outline_polygon)?,
+        )?;
         // `_zone_map` is `init=False` — the constructor's `__post_init__`
         // rebuilds it from `zones` (the same objects, by identity).
         cls.call((), Some(&kwargs)).map(Bound::unbind)
@@ -661,8 +673,14 @@ impl Marshal for OwnedClearanceGrid {
             ],
         )?;
         let obj = cls.call1(args)?;
-        obj.setattr("_net_to_id", str_i64_dict_to_python(py, &self.grid.net_to_id)?)?;
-        obj.setattr("_id_to_net", i64_str_dict_to_python(py, &self.grid.id_to_net)?)?;
+        obj.setattr(
+            "_net_to_id",
+            str_i64_dict_to_python(py, &self.grid.net_to_id)?,
+        )?;
+        obj.setattr(
+            "_id_to_net",
+            i64_str_dict_to_python(py, &self.grid.id_to_net)?,
+        )?;
         obj.setattr("_next_net_id", self.grid.next_net_id)?;
         // The cell arrays are KEEPS: overwrite the constructor's fresh arrays
         // with the original objects, by identity (zero-copy, dtype-preserving).
@@ -722,10 +740,22 @@ impl Marshal for OwnedDrcOracle {
             clearances: str_str_f64_dict_from_python(py, &rules.getattr("_clearances")?)?,
             net_to_class: str_str_dict_from_python(&rules.getattr("_net_to_class")?)?,
             differential_pairs: diff_pairs_from_python(py, &rules.getattr("_differential_pairs")?)?,
-            default_clearance: <f64 as Marshal>::from_python(py, &rules.getattr("default_clearance")?)?,
-            default_track_width: <f64 as Marshal>::from_python(py, &rules.getattr("default_track_width")?)?,
-            default_via_diameter: <f64 as Marshal>::from_python(py, &rules.getattr("default_via_diameter")?)?,
-            default_via_drill: <f64 as Marshal>::from_python(py, &rules.getattr("default_via_drill")?)?,
+            default_clearance: <f64 as Marshal>::from_python(
+                py,
+                &rules.getattr("default_clearance")?,
+            )?,
+            default_track_width: <f64 as Marshal>::from_python(
+                py,
+                &rules.getattr("default_track_width")?,
+            )?,
+            default_via_diameter: <f64 as Marshal>::from_python(
+                py,
+                &rules.getattr("default_via_diameter")?,
+            )?,
+            default_via_drill: <f64 as Marshal>::from_python(
+                py,
+                &rules.getattr("default_via_drill")?,
+            )?,
         };
         let pin_owner_obj = obj.getattr("pin_owner")?;
         // `pin_owner` may be a Mapping or a Callable (see
@@ -764,24 +794,51 @@ impl Marshal for OwnedDrcOracle {
         // Rebuild the ClearanceMatrix with the owned tables + the keeps.
         let cm_cls = clearance_matrix_cls(py)?;
         let cm = cm_cls.call0()?;
-        cm.setattr("_clearances", str_str_f64_dict_to_python(py, &self.oracle.rules.clearances)?)?;
-        cm.setattr("_net_to_class", str_str_dict_to_python(py, &self.oracle.rules.net_to_class)?)?;
-        cm.setattr("_differential_pairs", diff_pairs_to_python(py, &self.oracle.rules.differential_pairs)?)?;
+        cm.setattr(
+            "_clearances",
+            str_str_f64_dict_to_python(py, &self.oracle.rules.clearances)?,
+        )?;
+        cm.setattr(
+            "_net_to_class",
+            str_str_dict_to_python(py, &self.oracle.rules.net_to_class)?,
+        )?;
+        cm.setattr(
+            "_differential_pairs",
+            diff_pairs_to_python(py, &self.oracle.rules.differential_pairs)?,
+        )?;
         cm.setattr("default_clearance", self.oracle.rules.default_clearance)?;
         cm.setattr("default_track_width", self.oracle.rules.default_track_width)?;
-        cm.setattr("default_via_diameter", self.oracle.rules.default_via_diameter)?;
+        cm.setattr(
+            "default_via_diameter",
+            self.oracle.rules.default_via_diameter,
+        )?;
         cm.setattr("default_via_drill", self.oracle.rules.default_via_drill)?;
-        cm.setattr("_net_class_rules", opaque_to_python(py, &self.net_class_rules)?)?;
-        cm.setattr("zone_manager", null_or_opaque_to_python(py, &self.zone_manager)?)?;
+        cm.setattr(
+            "_net_class_rules",
+            opaque_to_python(py, &self.net_class_rules)?,
+        )?;
+        cm.setattr(
+            "zone_manager",
+            null_or_opaque_to_python(py, &self.zone_manager)?,
+        )?;
 
         let cls = drc_oracle_cls(py)?;
         let kwargs = PyDict::new(py);
         kwargs.set_item("rules", &cm)?;
         kwargs.set_item("geometry", null_or_opaque_to_python(py, &self.geometry)?)?;
         kwargs.set_item("_search_multiplier", self.oracle.search_multiplier)?;
-        kwargs.set_item("enable_internal_layer_creepage", self.oracle.enable_internal_layer_creepage)?;
-        kwargs.set_item("clearance_credits", credits_to_python(py, &self.oracle.clearance_credits)?)?;
-        kwargs.set_item("pin_owner", pin_owner_to_python(py, &self.oracle.pin_owner, &self.pin_owner_callable)?)?;
+        kwargs.set_item(
+            "enable_internal_layer_creepage",
+            self.oracle.enable_internal_layer_creepage,
+        )?;
+        kwargs.set_item(
+            "clearance_credits",
+            credits_to_python(py, &self.oracle.clearance_credits)?,
+        )?;
+        kwargs.set_item(
+            "pin_owner",
+            pin_owner_to_python(py, &self.oracle.pin_owner, &self.pin_owner_callable)?,
+        )?;
         cls.call((), Some(&kwargs)).map(Bound::unbind)
     }
 }
@@ -928,10 +985,8 @@ fn str_str_f64_dict_from_python(
         if t.len() != 2 {
             return Err(type_err(&k, "_clearances", "expected a 2-tuple key"));
         }
-        let a = t
-            .get_item(0)?;
-        let b = t
-            .get_item(1)?;
+        let a = t.get_item(0)?;
+        let b = t.get_item(1)?;
         let a = a
             .extract::<String>()
             .map_err(|_| type_err(&a, "_clearances", "expected a str"))?;
@@ -946,7 +1001,10 @@ fn str_str_f64_dict_from_python(
     Ok(out)
 }
 
-fn str_str_f64_dict_to_python(py: Python<'_>, rows: &[(String, String, f64)]) -> PyResult<Py<PyAny>> {
+fn str_str_f64_dict_to_python(
+    py: Python<'_>,
+    rows: &[(String, String, f64)],
+) -> PyResult<Py<PyAny>> {
     let d = PyDict::new(py);
     for (a, b, v) in rows {
         let key = PyTuple::new(py, [a.as_str(), b.as_str()])?;
@@ -970,7 +1028,11 @@ fn diff_pairs_from_python(
     let mut out = Vec::with_capacity(d.len());
     for (k, v) in d.iter() {
         if !k.is_instance_of::<PyFrozenSet>() {
-            return Err(type_err(&k, "_differential_pairs", "expected a frozenset key"));
+            return Err(type_err(
+                &k,
+                "_differential_pairs",
+                "expected a frozenset key",
+            ));
         }
         let mut nets: Vec<String> = Vec::with_capacity(2);
         for item in k.try_iter()? {
@@ -981,7 +1043,11 @@ fn diff_pairs_from_python(
             );
         }
         if nets.len() != 2 {
-            return Err(type_err(&k, "_differential_pairs", "expected a 2-net frozenset key"));
+            return Err(type_err(
+                &k,
+                "_differential_pairs",
+                "expected a 2-net frozenset key",
+            ));
         }
         // Strict f64: an int-shaped clearance is a loud error, not a widen.
         let val = <f64 as Marshal>::from_python(py, &v)?;
@@ -1003,18 +1069,19 @@ fn diff_pairs_to_python(py: Python<'_>, rows: &[(String, String, f64)]) -> PyRes
 /// `clearance_credits`-shaped: `dict[(ref, lv, hv), (eff, hw, hl, smx, smy, axis)]`
 /// in insertion order (the order is load-bearing — the oracle iterates
 /// `dict.items()` and the first matching credit wins).
-fn credits_from_python(
-    py: Python<'_>,
-    obj: &Bound<'_, PyAny>,
-) -> PyResult<Vec<ClearanceCredit>> {
+fn credits_from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Vec<ClearanceCredit>> {
     let d = obj
         .cast::<PyDict>()
         .map_err(|_| type_err(obj, "clearance_credits", "expected a dict"))?;
     let mut out = Vec::with_capacity(d.len());
     for (k, v) in d.iter() {
-        let key = k
-            .cast::<PyTuple>()
-            .map_err(|_| type_err(&k, "clearance_credits", "expected a (ref, lv, hv) tuple key"))?;
+        let key = k.cast::<PyTuple>().map_err(|_| {
+            type_err(
+                &k,
+                "clearance_credits",
+                "expected a (ref, lv, hv) tuple key",
+            )
+        })?;
         if key.len() != 3 {
             return Err(type_err(&k, "clearance_credits", "expected a 3-tuple key"));
         }
@@ -1034,7 +1101,11 @@ fn credits_from_python(
             .cast::<PyTuple>()
             .map_err(|_| type_err(&v, "clearance_credits", "expected a 6-tuple value"))?;
         if val.len() != 6 {
-            return Err(type_err(&v, "clearance_credits", "expected a 6-tuple value"));
+            return Err(type_err(
+                &v,
+                "clearance_credits",
+                "expected a 6-tuple value",
+            ));
         }
         let v0 = val.get_item(0)?;
         let v1 = val.get_item(1)?;
@@ -1076,7 +1147,14 @@ fn credits_from_python(
 fn credits_to_python(py: Python<'_>, credits: &[ClearanceCredit]) -> PyResult<Py<PyAny>> {
     let d = PyDict::new(py);
     for c in credits {
-        let key = PyTuple::new(py, [c.component_ref.as_str(), c.lv_pin.as_str(), c.hv_pin.as_str()])?;
+        let key = PyTuple::new(
+            py,
+            [
+                c.component_ref.as_str(),
+                c.lv_pin.as_str(),
+                c.hv_pin.as_str(),
+            ],
+        )?;
         let items: [Py<PyAny>; 6] = [
             c.effective_clearance_mm.into_py_any(py)?,
             c.half_width_mm.into_py_any(py)?,
@@ -1248,9 +1326,13 @@ fn zone_bounds_from_python(
     py: Python<'_>,
     obj: &Bound<'_, PyAny>,
 ) -> PyResult<((Val, Val), (Val, Val))> {
-    let t = obj
-        .cast::<PyTuple>()
-        .map_err(|_| type_err(obj, "Zone.bounds", "expected a ((x_min, y_min), (x_max, y_max)) tuple"))?;
+    let t = obj.cast::<PyTuple>().map_err(|_| {
+        type_err(
+            obj,
+            "Zone.bounds",
+            "expected a ((x_min, y_min), (x_max, y_max)) tuple",
+        )
+    })?;
     if t.len() != 2 {
         return Err(type_err(
             obj,
@@ -1265,10 +1347,7 @@ fn zone_bounds_from_python(
     Ok((lo, hi))
 }
 
-fn zone_bounds_to_python(
-    py: Python<'_>,
-    bounds: &((Val, Val), (Val, Val)),
-) -> PyResult<Py<PyAny>> {
+fn zone_bounds_to_python(py: Python<'_>, bounds: &((Val, Val), (Val, Val))) -> PyResult<Py<PyAny>> {
     let lo = bounds.0.to_python(py)?;
     let hi = bounds.1.to_python(py)?;
     Ok(PyTuple::new(py, [lo.bind(py), hi.bind(py)])?
@@ -1403,7 +1482,9 @@ impl Marshal for crate::board_state::ViaEntry {
     fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
         let via_cls = py.import("temper_placer.core.board")?.getattr("Via")?;
         if obj.is_instance(&via_cls)? {
-            Ok(crate::board_state::ViaEntry::Via(Via::from_python(py, obj)?))
+            Ok(crate::board_state::ViaEntry::Via(Via::from_python(
+                py, obj,
+            )?))
         } else {
             Ok(crate::board_state::ViaEntry::Opaque(obj.clone().unbind()))
         }
@@ -1523,9 +1604,7 @@ impl Marshal for SlotPos {
     }
 
     fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
-        Ok(PyTuple::new(py, [self.0, self.1])?
-            .into_any()
-            .unbind())
+        Ok(PyTuple::new(py, [self.0, self.1])?.into_any().unbind())
     }
 }
 
@@ -1662,12 +1741,21 @@ impl Marshal for ConnectivityViolation {
 impl Marshal for PlacementViolation {
     fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
         Ok(PlacementViolation {
-            constraint_name: <String as Marshal>::from_python(py, &obj.getattr("constraint_name")?)?,
+            constraint_name: <String as Marshal>::from_python(
+                py,
+                &obj.getattr("constraint_name")?,
+            )?,
             violation_type: <String as Marshal>::from_python(py, &obj.getattr("violation_type")?)?,
             message: <String as Marshal>::from_python(py, &obj.getattr("message")?)?,
             severity: <String as Marshal>::from_python(py, &obj.getattr("severity")?)?,
-            component_a: <Option<String> as Marshal>::from_python(py, &obj.getattr("component_a")?)?,
-            component_b: <Option<String> as Marshal>::from_python(py, &obj.getattr("component_b")?)?,
+            component_a: <Option<String> as Marshal>::from_python(
+                py,
+                &obj.getattr("component_a")?,
+            )?,
+            component_b: <Option<String> as Marshal>::from_python(
+                py,
+                &obj.getattr("component_b")?,
+            )?,
             actual_distance_mm: <Option<f64> as Marshal>::from_python(
                 py,
                 &obj.getattr("actual_distance_mm")?,
@@ -1691,7 +1779,10 @@ impl Marshal for PlacementViolation {
         kwargs.set_item("component_a", self.component_a.to_python(py)?)?;
         kwargs.set_item("component_b", self.component_b.to_python(py)?)?;
         kwargs.set_item("actual_distance_mm", self.actual_distance_mm.to_python(py)?)?;
-        kwargs.set_item("required_distance_mm", self.required_distance_mm.to_python(py)?)?;
+        kwargs.set_item(
+            "required_distance_mm",
+            self.required_distance_mm.to_python(py)?,
+        )?;
         cls.call((), Some(&kwargs)).map(Bound::unbind)
     }
 }
@@ -1852,7 +1943,9 @@ impl Marshal for ZoneSlotsSet {
 
 impl Marshal for LayerAssignmentSet {
     fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
-        Ok(LayerAssignmentSet(frozenset_read::<LayerAssignment>(py, obj)?))
+        Ok(LayerAssignmentSet(frozenset_read::<LayerAssignment>(
+            py, obj,
+        )?))
     }
     fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
         frozenset_write(py, &self.0)
@@ -1897,9 +1990,9 @@ impl Marshal for ViolationList {
 
 impl Marshal for ConnectivityViolationList {
     fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
-        Ok(ConnectivityViolationList(tuple_list_read::<ConnectivityViolation>(
-            py, obj,
-        )?))
+        Ok(ConnectivityViolationList(tuple_list_read::<
+            ConnectivityViolation,
+        >(py, obj)?))
     }
     fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
         tuple_list_write(py, &self.0)
@@ -1908,9 +2001,9 @@ impl Marshal for ConnectivityViolationList {
 
 impl Marshal for PlacementViolationList {
     fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
-        Ok(PlacementViolationList(tuple_list_read::<PlacementViolation>(
-            py, obj,
-        )?))
+        Ok(PlacementViolationList(
+            tuple_list_read::<PlacementViolation>(py, obj)?,
+        ))
     }
     fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
         tuple_list_write(py, &self.0)
@@ -2261,7 +2354,8 @@ class PlacementViolation:
             && let Ok(via) = bc.getattr("Via")
             && let Ok(zg) = py.import("temper_placer.deterministic.stages.zone_geometry")
             && let Ok(zone) = zg.getattr("Zone")
-            && let Ok(cv_mod) = py.import("temper_placer.deterministic.stages.connectivity_validation")
+            && let Ok(cv_mod) =
+                py.import("temper_placer.deterministic.stages.connectivity_validation")
             && let Ok(connectivity_violation) = cv_mod.getattr("ConnectivityViolation")
             && let Ok(pv_mod) = py.import("temper_placer.deterministic.stages.placement_validation")
             && let Ok(placement_violation) = pv_mod.getattr("PlacementViolation")
@@ -2271,10 +2365,21 @@ class PlacementViolation:
             && let Ok(violation) = cdo_u5.getattr("Violation")
         {
             for name in ["Pin", "Component", "Net", "Netlist"] {
-                globals.set_item(name, nc.getattr(name).expect("nc class")).expect("set nc class");
+                globals
+                    .set_item(name, nc.getattr(name).expect("nc class"))
+                    .expect("set nc class");
             }
-            for name in ["Layer", "LayerStackup", "MountingHole", "Zone", "GroundDomain", "Board"] {
-                globals.set_item(name, bc.getattr(name).expect("bc class")).expect("set bc class");
+            for name in [
+                "Layer",
+                "LayerStackup",
+                "MountingHole",
+                "Zone",
+                "GroundDomain",
+                "Board",
+            ] {
+                globals
+                    .set_item(name, bc.getattr(name).expect("bc class"))
+                    .expect("set bc class");
             }
             // U4: reuse the temper_placer registrations a previous test made.
             if let Ok(grid_core) = py.import("temper_placer.deterministic.stages._grid_core")
@@ -2282,13 +2387,37 @@ class PlacementViolation:
                 && let Ok(cdo) = py.import("temper_placer.router_v6.constraints_drc_oracle")
             {
                 for (name, src) in [
-                    ("ClearanceGrid", grid_core.getattr("ClearanceGrid").expect("ClearanceGrid class")),
-                    ("ClearanceMatrix", cdr.getattr("ClearanceMatrix").expect("ClearanceMatrix class")),
-                    ("RoutingZone", cdr.getattr("RoutingZone").expect("RoutingZone class")),
-                    ("ZoneManager", cdr.getattr("ZoneManager").expect("ZoneManager class")),
-                    ("NetClassRules", cdr.getattr("NetClassRules").expect("NetClassRules class")),
-                    ("PCBGeometry", cdo.getattr("PCBGeometry").expect("PCBGeometry class")),
-                    ("DRCOracle", cdo.getattr("DRCOracle").expect("DRCOracle class")),
+                    (
+                        "ClearanceGrid",
+                        grid_core
+                            .getattr("ClearanceGrid")
+                            .expect("ClearanceGrid class"),
+                    ),
+                    (
+                        "ClearanceMatrix",
+                        cdr.getattr("ClearanceMatrix")
+                            .expect("ClearanceMatrix class"),
+                    ),
+                    (
+                        "RoutingZone",
+                        cdr.getattr("RoutingZone").expect("RoutingZone class"),
+                    ),
+                    (
+                        "ZoneManager",
+                        cdr.getattr("ZoneManager").expect("ZoneManager class"),
+                    ),
+                    (
+                        "NetClassRules",
+                        cdr.getattr("NetClassRules").expect("NetClassRules class"),
+                    ),
+                    (
+                        "PCBGeometry",
+                        cdo.getattr("PCBGeometry").expect("PCBGeometry class"),
+                    ),
+                    (
+                        "DRCOracle",
+                        cdo.getattr("DRCOracle").expect("DRCOracle class"),
+                    ),
                 ] {
                     globals.set_item(name, src).expect("set u4 class");
                 }
@@ -2321,32 +2450,50 @@ class PlacementViolation:
         let nc = PyModule::new(py, "netlist_contracts").expect("netlist_contracts");
         nc.add("Pin", globals.get_item("Pin").expect("Pin"))
             .expect("register Pin");
-        nc.add("Component", globals.get_item("Component").expect("Component"))
-            .expect("register Component");
+        nc.add(
+            "Component",
+            globals.get_item("Component").expect("Component"),
+        )
+        .expect("register Component");
         nc.add("Net", globals.get_item("Net").expect("Net"))
             .expect("register Net");
         nc.add("Netlist", globals.get_item("Netlist").expect("Netlist"))
             .expect("register Netlist");
-        tdb.add("netlist_contracts", &nc).expect("tdb.netlist_contracts");
+        tdb.add("netlist_contracts", &nc)
+            .expect("tdb.netlist_contracts");
         let bc = PyModule::new(py, "board_contracts").expect("board_contracts");
-        for name in ["Layer", "LayerStackup", "MountingHole", "Zone", "GroundDomain", "Board"] {
-            bc.add(name, globals.get_item(name).unwrap_or_else(|_| panic!("{name}")))
-                .unwrap_or_else(|e| panic!("register {name}: {e}"));
+        for name in [
+            "Layer",
+            "LayerStackup",
+            "MountingHole",
+            "Zone",
+            "GroundDomain",
+            "Board",
+        ] {
+            bc.add(
+                name,
+                globals.get_item(name).unwrap_or_else(|_| panic!("{name}")),
+            )
+            .unwrap_or_else(|e| panic!("register {name}: {e}"));
         }
         // U5: the collection-element classes (from the `_u5` namespace the
         // STANDIN defined — the zone-geometry `Zone` lives there under its
         // REAL name, separate from the board `Zone` above).
-        let u5 = globals
-            .get_item("_u5")
-            .expect("_u5")
-            .expect("_u5 present");
+        let u5 = globals.get_item("_u5").expect("_u5").expect("_u5 present");
         for name in ["Trace", "Via"] {
-            bc.add(name, u5.get_item(name).unwrap_or_else(|_| panic!("u5 {name}")))
-                .unwrap_or_else(|e| panic!("register {name}: {e}"));
+            bc.add(
+                name,
+                u5.get_item(name).unwrap_or_else(|_| panic!("u5 {name}")),
+            )
+            .unwrap_or_else(|e| panic!("register {name}: {e}"));
         }
-        tdb.add("board_contracts", &bc).expect("tdb.board_contracts");
-        tdb.add("LayerAssignment", u5.get_item("LayerAssignment").expect("u5 LayerAssignment"))
-            .expect("register LayerAssignment");
+        tdb.add("board_contracts", &bc)
+            .expect("tdb.board_contracts");
+        tdb.add(
+            "LayerAssignment",
+            u5.get_item("LayerAssignment").expect("u5 LayerAssignment"),
+        )
+        .expect("register LayerAssignment");
         modules
             .set_item("temper_design_bundle_python", &tdb)
             .expect("sys.modules tdb");
@@ -2367,26 +2514,44 @@ class PlacementViolation:
         let stages = PyModule::new(py, "stages").expect("stages");
         let grid_core = PyModule::new(py, "_grid_core").expect("_grid_core");
         grid_core
-            .add("ClearanceGrid", globals.get_item("ClearanceGrid").expect("ClearanceGrid"))
+            .add(
+                "ClearanceGrid",
+                globals.get_item("ClearanceGrid").expect("ClearanceGrid"),
+            )
             .expect("register ClearanceGrid");
-        stages.add("_grid_core", &grid_core).expect("stages._grid_core");
+        stages
+            .add("_grid_core", &grid_core)
+            .expect("stages._grid_core");
         det.add("stages", &stages).expect("det.stages");
         pkg.add("deterministic", &det).expect("pkg.deterministic");
         let rv6 = PyModule::new(py, "router_v6").expect("router_v6");
         let cdr = PyModule::new(py, "constraints_design_rules").expect("constraints_design_rules");
-        for name in ["ClearanceMatrix", "RoutingZone", "ZoneManager", "NetClassRules"] {
-            cdr.add(name, globals.get_item(name).unwrap_or_else(|_| panic!("{name}")))
-                .unwrap_or_else(|e| panic!("register {name}: {e}"));
+        for name in [
+            "ClearanceMatrix",
+            "RoutingZone",
+            "ZoneManager",
+            "NetClassRules",
+        ] {
+            cdr.add(
+                name,
+                globals.get_item(name).unwrap_or_else(|_| panic!("{name}")),
+            )
+            .unwrap_or_else(|e| panic!("register {name}: {e}"));
         }
         let cdo = PyModule::new(py, "constraints_drc_oracle").expect("constraints_drc_oracle");
         for name in ["PCBGeometry", "DRCOracle"] {
-            cdo.add(name, globals.get_item(name).unwrap_or_else(|_| panic!("{name}")))
-                .unwrap_or_else(|e| panic!("register {name}: {e}"));
+            cdo.add(
+                name,
+                globals.get_item(name).unwrap_or_else(|_| panic!("{name}")),
+            )
+            .unwrap_or_else(|e| panic!("register {name}: {e}"));
         }
         cdo.add("Violation", u5.get_item("Violation").expect("u5 Violation"))
             .expect("register Violation");
-        rv6.add("constraints_design_rules", &cdr).expect("rv6.constraints_design_rules");
-        rv6.add("constraints_drc_oracle", &cdo).expect("rv6.constraints_drc_oracle");
+        rv6.add("constraints_design_rules", &cdr)
+            .expect("rv6.constraints_design_rules");
+        rv6.add("constraints_drc_oracle", &cdo)
+            .expect("rv6.constraints_drc_oracle");
         pkg.add("router_v6", &rv6).expect("pkg.router_v6");
         // U5: the remaining collection-element module paths — the stage
         // violation dataclasses + the zone-geometry Zone + the router_v6
@@ -2396,23 +2561,35 @@ class PlacementViolation:
         zone_geometry
             .add("Zone", u5.get_item("Zone").expect("u5 Zone"))
             .expect("register zone_geometry.Zone");
-        stages.add("zone_geometry", &zone_geometry).expect("stages.zone_geometry");
-        let connectivity_validation = PyModule::new(py, "connectivity_validation")
-            .expect("connectivity_validation");
+        stages
+            .add("zone_geometry", &zone_geometry)
+            .expect("stages.zone_geometry");
+        let connectivity_validation =
+            PyModule::new(py, "connectivity_validation").expect("connectivity_validation");
         connectivity_validation
-            .add("ConnectivityViolation", u5.get_item("ConnectivityViolation").expect("u5 ConnectivityViolation"))
+            .add(
+                "ConnectivityViolation",
+                u5.get_item("ConnectivityViolation")
+                    .expect("u5 ConnectivityViolation"),
+            )
             .expect("register connectivity_validation.ConnectivityViolation");
-        stages.add("connectivity_validation", &connectivity_validation)
+        stages
+            .add("connectivity_validation", &connectivity_validation)
             .expect("stages.connectivity_validation");
-        let placement_validation = PyModule::new(py, "placement_validation")
-            .expect("placement_validation");
+        let placement_validation =
+            PyModule::new(py, "placement_validation").expect("placement_validation");
         placement_validation
-            .add("PlacementViolation", u5.get_item("PlacementViolation").expect("u5 PlacementViolation"))
+            .add(
+                "PlacementViolation",
+                u5.get_item("PlacementViolation")
+                    .expect("u5 PlacementViolation"),
+            )
             .expect("register placement_validation.PlacementViolation");
-        stages.add("placement_validation", &placement_validation)
+        stages
+            .add("placement_validation", &placement_validation)
             .expect("stages.placement_validation");
-        let constraints_geometry = PyModule::new(py, "constraints_geometry")
-            .expect("constraints_geometry");
+        let constraints_geometry =
+            PyModule::new(py, "constraints_geometry").expect("constraints_geometry");
         constraints_geometry
             .add("Point", u5.get_item("Point").expect("u5 Point"))
             .expect("register constraints_geometry.Point");
@@ -2423,13 +2600,25 @@ class PlacementViolation:
             ("temper_placer.deterministic", &det),
             ("temper_placer.deterministic.stages", &stages),
             ("temper_placer.deterministic.stages._grid_core", &grid_core),
-            ("temper_placer.deterministic.stages.zone_geometry", &zone_geometry),
-            ("temper_placer.deterministic.stages.connectivity_validation", &connectivity_validation),
-            ("temper_placer.deterministic.stages.placement_validation", &placement_validation),
+            (
+                "temper_placer.deterministic.stages.zone_geometry",
+                &zone_geometry,
+            ),
+            (
+                "temper_placer.deterministic.stages.connectivity_validation",
+                &connectivity_validation,
+            ),
+            (
+                "temper_placer.deterministic.stages.placement_validation",
+                &placement_validation,
+            ),
             ("temper_placer.router_v6", &rv6),
             ("temper_placer.router_v6.constraints_design_rules", &cdr),
             ("temper_placer.router_v6.constraints_drc_oracle", &cdo),
-            ("temper_placer.router_v6.constraints_geometry", &constraints_geometry),
+            (
+                "temper_placer.router_v6.constraints_geometry",
+                &constraints_geometry,
+            ),
         ] {
             modules.set_item(path, module).expect("sys.modules u4/u5");
         }
@@ -2449,8 +2638,8 @@ class PlacementViolation:
             assert_roundtrip_with::<Component>(py, "Component('R1', 'fp', (1, 2))", Some(&g));
             assert_roundtrip_with::<Component>(py, "Component('R1', 'fp', (1.0, 2.0))", Some(&g));
             // Explicitly: the owned bounds preserved int vs float.
-            let owned = to_owned::<Component>(&eval_expr(py, &g, "Component('R1', 'fp', (1, 2))"))
-                .unwrap();
+            let owned =
+                to_owned::<Component>(&eval_expr(py, &g, "Component('R1', 'fp', (1, 2))")).unwrap();
             assert_eq!(owned.bounds, vec![Val::Int(1), Val::Int(2)]);
             let owned =
                 to_owned::<Component>(&eval_expr(py, &g, "Component('R1', 'fp', (1.0, 2.0))"))
@@ -2557,22 +2746,34 @@ class PlacementViolation:
             ] {
                 let orig = eval_expr(py, &g, expr);
                 let owned = to_owned::<Net>(&orig).expect("to_owned");
-                let back = to_python::<Net>(py, &owned).expect("to_python").bind(py).clone();
-                assert!(orig.get_type().is(back.get_type()), "type mismatch for {expr}");
+                let back = to_python::<Net>(py, &owned)
+                    .expect("to_python")
+                    .bind(py)
+                    .clone();
+                assert!(
+                    orig.get_type().is(back.get_type()),
+                    "type mismatch for {expr}"
+                );
                 let rp = orig.repr().unwrap().extract::<String>().unwrap();
                 let rb = back.repr().unwrap().extract::<String>().unwrap();
                 assert_eq!(rp, rb, "repr mismatch for {expr}");
             }
             // Field-level: the NaN in `weight` is still a NaN float after the
             // round-trip (not widened, not mangled).
-            let owned = to_owned::<Net>(&eval_expr(py, &g, "Net('n', [], weight=float('nan'))"))
-                .unwrap();
-            assert!(owned.weight.is_nan(), "weight NaN must survive the round-trip");
+            let owned =
+                to_owned::<Net>(&eval_expr(py, &g, "Net('n', [], weight=float('nan'))")).unwrap();
+            assert!(
+                owned.weight.is_nan(),
+                "weight NaN must survive the round-trip"
+            );
             // A NaN pin position round-trips with repr preserved and the
             // coordinate still NaN.
-            let pin = to_owned::<Pin>(&eval_expr(py, &g, "Pin('1', '1', (float('nan'), 0.0))"))
-                .unwrap();
-            assert!(pin.position.0.is_nan(), "position NaN must survive the round-trip");
+            let pin =
+                to_owned::<Pin>(&eval_expr(py, &g, "Pin('1', '1', (float('nan'), 0.0))")).unwrap();
+            assert!(
+                pin.position.0.is_nan(),
+                "position NaN must survive the round-trip"
+            );
         });
     }
 
@@ -2582,14 +2783,28 @@ class PlacementViolation:
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
-            let err = |expr: &str| -> bool {
-                to_owned::<Component>(&eval_expr(py, &g, expr)).is_err()
-            };
-            assert!(err("Component('R1', 'fp', [1, 2])"), "list bounds must be rejected");
-            assert!(err("Component('R1', 'fp', ('1', 2))"), "str bounds leaf must be rejected");
-            assert!(err("Component('R1', 'fp', (1, True))"), "bool bounds leaf must be rejected");
-            assert!(err("Component('R1', 'fp', (1, 2), fixed=1)"), "int fixed must be rejected");
-            assert!(err("Component('R1', 'fp', (1, 2), zone=3)"), "int zone must be rejected");
+            let err =
+                |expr: &str| -> bool { to_owned::<Component>(&eval_expr(py, &g, expr)).is_err() };
+            assert!(
+                err("Component('R1', 'fp', [1, 2])"),
+                "list bounds must be rejected"
+            );
+            assert!(
+                err("Component('R1', 'fp', ('1', 2))"),
+                "str bounds leaf must be rejected"
+            );
+            assert!(
+                err("Component('R1', 'fp', (1, True))"),
+                "bool bounds leaf must be rejected"
+            );
+            assert!(
+                err("Component('R1', 'fp', (1, 2), fixed=1)"),
+                "int fixed must be rejected"
+            );
+            assert!(
+                err("Component('R1', 'fp', (1, 2), zone=3)"),
+                "int zone must be rejected"
+            );
             // Position is always-float: an int coordinate is rejected, not widened.
             assert!(
                 to_owned::<Pin>(&eval_expr(py, &g, "Pin('1', '1', (1, 2))")).is_err(),
@@ -2643,9 +2858,12 @@ class PlacementViolation:
             // derived, not stored.
             let owned = to_owned::<Netlist>(&eval_expr(py, &g, "Netlist()")).unwrap();
             assert!(owned.components.is_empty() && owned.nets.is_empty());
-            let owned =
-                to_owned::<Netlist>(&eval_expr(py, &g, "Netlist(components=[Component('R1', 'fp', (1, 2))])"))
-                    .unwrap();
+            let owned = to_owned::<Netlist>(&eval_expr(
+                py,
+                &g,
+                "Netlist(components=[Component('R1', 'fp', (1, 2))])",
+            ))
+            .unwrap();
             assert_eq!(owned.components.len(), 1);
             assert_eq!(owned.components[0].bounds, vec![Val::Int(1), Val::Int(2)]);
         });
@@ -2669,15 +2887,24 @@ class PlacementViolation:
             ] {
                 let orig = eval_expr(py, &g, expr);
                 let owned = to_owned::<Netlist>(&orig).expect("to_owned");
-                let back = to_python::<Netlist>(py, &owned).expect("to_python").bind(py).clone();
-                assert!(orig.get_type().is(back.get_type()), "type mismatch for {expr}");
+                let back = to_python::<Netlist>(py, &owned)
+                    .expect("to_python")
+                    .bind(py)
+                    .clone();
+                assert!(
+                    orig.get_type().is(back.get_type()),
+                    "type mismatch for {expr}"
+                );
                 let rp = orig.repr().unwrap().extract::<String>().unwrap();
                 let rb = back.repr().unwrap().extract::<String>().unwrap();
                 assert_eq!(rp, rb, "repr mismatch for {expr}");
             }
-            let owned =
-                to_owned::<Netlist>(&eval_expr(py, &g, "Netlist(nets=[Net('n', [], weight=float('nan'))])"))
-                    .unwrap();
+            let owned = to_owned::<Netlist>(&eval_expr(
+                py,
+                &g,
+                "Netlist(nets=[Net('n', [], weight=float('nan'))])",
+            ))
+            .unwrap();
             assert!(owned.nets[0].weight.is_nan(), "net weight NaN must survive");
             let owned = to_owned::<Netlist>(&eval_expr(
                 py,
@@ -2731,7 +2958,10 @@ class PlacementViolation:
                  outline_polygon=[(0, 0), (100, 0), (100, 150)])",
             );
             let owned = to_owned::<OwnedBoard>(&orig).unwrap();
-            let back = to_python::<OwnedBoard>(py, &owned).unwrap().bind(py).clone();
+            let back = to_python::<OwnedBoard>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .clone();
             for attr in [
                 "zones",
                 "mounting_holes",
@@ -2771,9 +3001,8 @@ class PlacementViolation:
                 Some(&g),
             );
             assert_roundtrip_with::<OwnedBoard>(py, "Board(100.0, 80.0)", Some(&g));
-            let owned =
-                to_owned::<OwnedBoard>(&eval_expr(py, &g, "Board(100, 80, origin=(0, 0))"))
-                    .unwrap();
+            let owned = to_owned::<OwnedBoard>(&eval_expr(py, &g, "Board(100, 80, origin=(0, 0))"))
+                .unwrap();
             assert_eq!(owned.board.width, Val::Int(100));
             assert_eq!(owned.board.height, Val::Int(80));
             assert_eq!(owned.board.origin, (Val::Int(0), Val::Int(0)));
@@ -2809,14 +3038,20 @@ class PlacementViolation:
             ] {
                 let orig = eval_expr(py, &g, expr);
                 let owned = to_owned::<OwnedBoard>(&orig).expect("to_owned");
-                let back = to_python::<OwnedBoard>(py, &owned).expect("to_python").bind(py).clone();
-                assert!(orig.get_type().is(back.get_type()), "type mismatch for {expr}");
+                let back = to_python::<OwnedBoard>(py, &owned)
+                    .expect("to_python")
+                    .bind(py)
+                    .clone();
+                assert!(
+                    orig.get_type().is(back.get_type()),
+                    "type mismatch for {expr}"
+                );
                 let rp = orig.repr().unwrap().extract::<String>().unwrap();
                 let rb = back.repr().unwrap().extract::<String>().unwrap();
                 assert_eq!(rp, rb, "repr mismatch for {expr}");
             }
-            let owned = to_owned::<OwnedBoard>(&eval_expr(py, &g, "Board(float('nan'), 80.0)"))
-                .unwrap();
+            let owned =
+                to_owned::<OwnedBoard>(&eval_expr(py, &g, "Board(float('nan'), 80.0)")).unwrap();
             match owned.board.width {
                 Val::Float(f) => assert!(f.is_nan(), "width NaN must survive"),
                 Val::Int(_) => panic!("width must be Val::Float"),
@@ -2830,19 +3065,36 @@ class PlacementViolation:
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
-            let err = |expr: &str| -> bool {
-                to_owned::<OwnedBoard>(&eval_expr(py, &g, expr)).is_err()
-            };
+            let err =
+                |expr: &str| -> bool { to_owned::<OwnedBoard>(&eval_expr(py, &g, expr)).is_err() };
             // keepouts: the contract is a list of 4-tuples — a tuple-of-tuples,
             // a list-shaped quad, a wrong-arity quad and a bool leaf are all
             // LOUD errors, never coerced.
-            assert!(err("Board(100.0, 80.0, keepouts=((0, 0, 50, 80),))"), "tuple keepouts must be rejected");
-            assert!(err("Board(100.0, 80.0, keepouts=[[0, 0, 50, 80]])"), "list-shaped quad must be rejected");
-            assert!(err("Board(100.0, 80.0, keepouts=[(0, 0, 50)])"), "3-tuple quad must be rejected");
-            assert!(err("Board(100.0, 80.0, keepouts=[(0, 0, 50, True)])"), "bool quad leaf must be rejected");
+            assert!(
+                err("Board(100.0, 80.0, keepouts=((0, 0, 50, 80),))"),
+                "tuple keepouts must be rejected"
+            );
+            assert!(
+                err("Board(100.0, 80.0, keepouts=[[0, 0, 50, 80]])"),
+                "list-shaped quad must be rejected"
+            );
+            assert!(
+                err("Board(100.0, 80.0, keepouts=[(0, 0, 50)])"),
+                "3-tuple quad must be rejected"
+            );
+            assert!(
+                err("Board(100.0, 80.0, keepouts=[(0, 0, 50, True)])"),
+                "bool quad leaf must be rejected"
+            );
             // origin: the contract is a 2-tuple.
-            assert!(err("Board(100.0, 80.0, origin=(0,))"), "1-tuple origin must be rejected");
-            assert!(err("Board(100.0, 80.0, origin=[0, 0])"), "list origin must be rejected");
+            assert!(
+                err("Board(100.0, 80.0, origin=(0,))"),
+                "1-tuple origin must be rejected"
+            );
+            assert!(
+                err("Board(100.0, 80.0, origin=[0, 0])"),
+                "list origin must be rejected"
+            );
             // width/height: a bool is not an int-or-float Val.
             assert!(err("Board(True, 80.0)"), "bool width must be rejected");
             // Netlist: components/nets are lists — a tuple-of-components
@@ -2897,9 +3149,21 @@ class PlacementViolation:
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
-            assert_roundtrip_with::<OwnedClearanceGrid>(py, "ClearanceGrid(100.0, 80.0, 0.5, 2)", Some(&g));
-            assert_roundtrip_with::<OwnedClearanceGrid>(py, "ClearanceGrid(100, 80, 0.5, 2)", Some(&g));
-            assert_roundtrip_with::<OwnedClearanceGrid>(py, "ClearanceGrid(100, 80, 1, 3)", Some(&g));
+            assert_roundtrip_with::<OwnedClearanceGrid>(
+                py,
+                "ClearanceGrid(100.0, 80.0, 0.5, 2)",
+                Some(&g),
+            );
+            assert_roundtrip_with::<OwnedClearanceGrid>(
+                py,
+                "ClearanceGrid(100, 80, 0.5, 2)",
+                Some(&g),
+            );
+            assert_roundtrip_with::<OwnedClearanceGrid>(
+                py,
+                "ClearanceGrid(100, 80, 1, 3)",
+                Some(&g),
+            );
 
             // The cell arrays are KEEPS: the rebuilt grid's `_trace_net_ids` /
             // `_pad_net_ids` ARE the original list objects (identity) — the
@@ -2907,7 +3171,10 @@ class PlacementViolation:
             // is reconstructed (zero-copy passthrough).
             let orig = eval_expr(py, &g, "ClearanceGrid(100.0, 80.0, 0.5, 2)");
             let owned = to_owned::<OwnedClearanceGrid>(&orig).unwrap();
-            let back = to_python::<OwnedClearanceGrid>(py, &owned).unwrap().bind(py).clone();
+            let back = to_python::<OwnedClearanceGrid>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .clone();
             for attr in ["_trace_net_ids", "_pad_net_ids"] {
                 let a = orig.getattr(attr).unwrap();
                 let b = back.getattr(attr).unwrap();
@@ -2915,14 +3182,22 @@ class PlacementViolation:
             }
 
             // The owned dims recorded int vs float (the Val convention).
-            let owned = to_owned::<OwnedClearanceGrid>(&eval_expr(py, &g, "ClearanceGrid(100, 80, 0.5, 2)"))
-                .unwrap();
+            let owned = to_owned::<OwnedClearanceGrid>(&eval_expr(
+                py,
+                &g,
+                "ClearanceGrid(100, 80, 0.5, 2)",
+            ))
+            .unwrap();
             assert_eq!(owned.grid.width_mm, Val::Int(100));
             assert_eq!(owned.grid.height_mm, Val::Int(80));
             assert_eq!(owned.grid.cell_size_mm, Val::Float(0.5));
             assert_eq!(owned.grid.layer_count, 2);
-            let owned = to_owned::<OwnedClearanceGrid>(&eval_expr(py, &g, "ClearanceGrid(100.0, 80.0, 0.5, 2)"))
-                .unwrap();
+            let owned = to_owned::<OwnedClearanceGrid>(&eval_expr(
+                py,
+                &g,
+                "ClearanceGrid(100.0, 80.0, 0.5, 2)",
+            ))
+            .unwrap();
             assert_eq!(owned.grid.width_mm, Val::Float(100.0));
         });
     }
@@ -2937,10 +3212,16 @@ class PlacementViolation:
         Python::attach(|py| {
             let g = setup(py);
             let orig = eval_expr(py, &g, "ClearanceGrid(100.0, 80.0, 0.5, 2)");
-            orig.setattr("_net_to_id", eval_expr(py, &g, "{'VCC': 1, 'GND': 2, 'SIG': 3}"))
-                .unwrap();
-            orig.setattr("_id_to_net", eval_expr(py, &g, "{1: 'VCC', 2: 'GND', 3: 'SIG'}"))
-                .unwrap();
+            orig.setattr(
+                "_net_to_id",
+                eval_expr(py, &g, "{'VCC': 1, 'GND': 2, 'SIG': 3}"),
+            )
+            .unwrap();
+            orig.setattr(
+                "_id_to_net",
+                eval_expr(py, &g, "{1: 'VCC', 2: 'GND', 3: 'SIG'}"),
+            )
+            .unwrap();
             orig.setattr("_next_net_id", 4).unwrap();
             let owned = to_owned::<OwnedClearanceGrid>(&orig).unwrap();
             assert_eq!(
@@ -2953,7 +3234,10 @@ class PlacementViolation:
             );
             assert_eq!(owned.grid.id_to_net[1], (2, "GND".to_string()));
             assert_eq!(owned.grid.next_net_id, 4);
-            let back = to_python::<OwnedClearanceGrid>(py, &owned).unwrap().bind(py).clone();
+            let back = to_python::<OwnedClearanceGrid>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .clone();
             let back_registry = back.getattr("_net_to_id").unwrap();
             assert!(
                 back_registry
@@ -2961,7 +3245,13 @@ class PlacementViolation:
                     .unwrap(),
                 "_net_to_id must round-trip value-identically"
             );
-            assert!(back.getattr("_next_net_id").unwrap().extract::<i64>().unwrap() == 4);
+            assert!(
+                back.getattr("_next_net_id")
+                    .unwrap()
+                    .extract::<i64>()
+                    .unwrap()
+                    == 4
+            );
         });
     }
 
@@ -2978,7 +3268,11 @@ class PlacementViolation:
             let g = setup(py);
             // The default/empty oracle (empty tables, empty credits, empty
             // pin_owner, no zones, no geometry) round-trips bit-identically.
-            assert_roundtrip_with::<OwnedDrcOracle>(py, "DRCOracle(rules=ClearanceMatrix())", Some(&g));
+            assert_roundtrip_with::<OwnedDrcOracle>(
+                py,
+                "DRCOracle(rules=ClearanceMatrix())",
+                Some(&g),
+            );
             // A full single-element oracle: one clearance row, one net->class,
             // one differential pair, one net-class rule, one zone, one credit,
             // one pin_owner entry. The keeps (net_class_rules, zone_manager,
@@ -3008,10 +3302,16 @@ class PlacementViolation:
                  geometry=PCBGeometry())",
             );
             let owned = to_owned::<OwnedDrcOracle>(&orig).unwrap();
-            let back = to_python::<OwnedDrcOracle>(py, &owned).unwrap().bind(py).clone();
+            let back = to_python::<OwnedDrcOracle>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .clone();
             let geo_orig = orig.getattr("geometry").unwrap();
             let geo_back = back.getattr("geometry").unwrap();
-            assert!(geo_orig.is(&geo_back), "geometry must pass through by identity");
+            assert!(
+                geo_orig.is(&geo_back),
+                "geometry must pass through by identity"
+            );
             let rules_orig = orig.getattr("rules").unwrap();
             let rules_back = back.getattr("rules").unwrap();
             for attr in ["_net_class_rules", "zone_manager"] {
@@ -3031,12 +3331,21 @@ class PlacementViolation:
                  pin_owner={'K3-1': 'K3'})",
             ))
             .unwrap();
-            assert_eq!(owned.oracle.rules.clearances, vec![("Power".to_string(), "Signal".to_string(), 0.3)]);
-            assert_eq!(owned.oracle.rules.net_to_class, vec![("VCC".to_string(), "Power".to_string())]);
+            assert_eq!(
+                owned.oracle.rules.clearances,
+                vec![("Power".to_string(), "Signal".to_string(), 0.3)]
+            );
+            assert_eq!(
+                owned.oracle.rules.net_to_class,
+                vec![("VCC".to_string(), "Power".to_string())]
+            );
             assert_eq!(owned.oracle.rules.default_clearance, 0.25);
             assert_eq!(owned.oracle.search_multiplier, 4.0);
             assert!(!owned.oracle.enable_internal_layer_creepage);
-            assert_eq!(owned.oracle.pin_owner, vec![("K3-1".to_string(), "K3".to_string())]);
+            assert_eq!(
+                owned.oracle.pin_owner,
+                vec![("K3-1".to_string(), "K3".to_string())]
+            );
             assert_eq!(owned.oracle.clearance_credits.len(), 1);
             let credit = &owned.oracle.clearance_credits[0];
             assert_eq!(credit.component_ref, "K3");
@@ -3060,18 +3369,40 @@ class PlacementViolation:
                 "DRCOracle(rules=ClearanceMatrix(), pin_owner=lambda pid: 'K3' if pid.startswith('K3') else None)",
             );
             let owned = to_owned::<OwnedDrcOracle>(&orig).unwrap();
-            assert!(owned.oracle.pin_owner.is_empty(), "callable form stores no Mapping rows");
-            assert!(matches!(owned.pin_owner_callable, Plain::Opaque(_)), "callable form is a keep");
-            let back = to_python::<OwnedDrcOracle>(py, &owned).unwrap().bind(py).clone();
+            assert!(
+                owned.oracle.pin_owner.is_empty(),
+                "callable form stores no Mapping rows"
+            );
+            assert!(
+                matches!(owned.pin_owner_callable, Plain::Opaque(_)),
+                "callable form is a keep"
+            );
+            let back = to_python::<OwnedDrcOracle>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .clone();
             let a = orig.getattr("pin_owner").unwrap();
             let b = back.getattr("pin_owner").unwrap();
             assert!(a.is(&b), "callable pin_owner must pass through by identity");
             // The Mapping form (Null keep) rebuilds the dict instead.
-            let orig_map = eval_expr(py, &g, "DRCOracle(rules=ClearanceMatrix(), pin_owner={'K3-1': 'K3'})");
+            let orig_map = eval_expr(
+                py,
+                &g,
+                "DRCOracle(rules=ClearanceMatrix(), pin_owner={'K3-1': 'K3'})",
+            );
             let owned_map = to_owned::<OwnedDrcOracle>(&orig_map).unwrap();
-            assert!(matches!(owned_map.pin_owner_callable, Plain::Null), "Mapping form is not a callable keep");
-            assert_eq!(owned_map.oracle.pin_owner, vec![("K3-1".to_string(), "K3".to_string())]);
-            let back_map = to_python::<OwnedDrcOracle>(py, &owned_map).unwrap().bind(py).clone();
+            assert!(
+                matches!(owned_map.pin_owner_callable, Plain::Null),
+                "Mapping form is not a callable keep"
+            );
+            assert_eq!(
+                owned_map.oracle.pin_owner,
+                vec![("K3-1".to_string(), "K3".to_string())]
+            );
+            let back_map = to_python::<OwnedDrcOracle>(py, &owned_map)
+                .unwrap()
+                .bind(py)
+                .clone();
             assert!(
                 back_map
                     .getattr("pin_owner")
@@ -3094,12 +3425,32 @@ class PlacementViolation:
             let err = |expr: &str| -> bool {
                 to_owned::<OwnedDrcOracle>(&eval_expr(py, &g, expr)).is_err()
             };
-            assert!(err("DRCOracle(rules=ClearanceMatrix(default_clearance='x'))"), "str default_clearance must be rejected");
-            assert!(err("DRCOracle(rules=ClearanceMatrix(default_clearance=1))"), "int default_clearance must be rejected (an int is not a float)");
-            assert!(err("DRCOracle(rules=ClearanceMatrix(_clearances={('Power',): 0.3}))"), "1-tuple clearance key must be rejected");
-            assert!(err("DRCOracle(rules=ClearanceMatrix(_clearances={('Power', 'Signal'): 1}))"), "int clearance value must be rejected");
-            assert!(err("DRCOracle(rules=ClearanceMatrix(), clearance_credits={('K3', '2'): (1.5, 0.75, 4.0, 10.0, 20.0, 'x')})"), "2-tuple credit key must be rejected");
-            assert!(err("DRCOracle(rules=ClearanceMatrix(), pin_owner={'a': 1})"), "int pin_owner value must be rejected");
+            assert!(
+                err("DRCOracle(rules=ClearanceMatrix(default_clearance='x'))"),
+                "str default_clearance must be rejected"
+            );
+            assert!(
+                err("DRCOracle(rules=ClearanceMatrix(default_clearance=1))"),
+                "int default_clearance must be rejected (an int is not a float)"
+            );
+            assert!(
+                err("DRCOracle(rules=ClearanceMatrix(_clearances={('Power',): 0.3}))"),
+                "1-tuple clearance key must be rejected"
+            );
+            assert!(
+                err("DRCOracle(rules=ClearanceMatrix(_clearances={('Power', 'Signal'): 1}))"),
+                "int clearance value must be rejected"
+            );
+            assert!(
+                err(
+                    "DRCOracle(rules=ClearanceMatrix(), clearance_credits={('K3', '2'): (1.5, 0.75, 4.0, 10.0, 20.0, 'x')})"
+                ),
+                "2-tuple credit key must be rejected"
+            );
+            assert!(
+                err("DRCOracle(rules=ClearanceMatrix(), pin_owner={'a': 1})"),
+                "int pin_owner value must be rejected"
+            );
         });
     }
 
@@ -3115,7 +3466,9 @@ class PlacementViolation:
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
-            let Ok(np) = py.import("numpy") else { return; };
+            let Ok(np) = py.import("numpy") else {
+                return;
+            };
             let int32 = np.getattr("int32").expect("np.int32");
             let kw = PyDict::new(py);
             kw.set_item("dtype", &int32).expect("dtype kwarg");
@@ -3126,12 +3479,19 @@ class PlacementViolation:
             trace.append(&arr).expect("append");
             let orig = eval_expr(py, &g, "ClearanceGrid(100.0, 80.0, 0.5, 2)");
             orig.setattr("_trace_net_ids", trace).expect("set trace");
-            orig.setattr("_pad_net_ids", pyo3::types::PyList::empty(py)).expect("set pad");
+            orig.setattr("_pad_net_ids", pyo3::types::PyList::empty(py))
+                .expect("set pad");
             let owned = to_owned::<OwnedClearanceGrid>(&orig).unwrap();
-            let back = to_python::<OwnedClearanceGrid>(py, &owned).unwrap().bind(py).clone();
+            let back = to_python::<OwnedClearanceGrid>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .clone();
             let orig_trace = orig.getattr("_trace_net_ids").unwrap();
             let back_trace = back.getattr("_trace_net_ids").unwrap();
-            assert!(orig_trace.is(&back_trace), "the array list must pass by identity");
+            assert!(
+                orig_trace.is(&back_trace),
+                "the array list must pass by identity"
+            );
             let item = back_trace.get_item(0).unwrap();
             let dtype = item.getattr("dtype").unwrap();
             assert!(
@@ -3219,16 +3579,12 @@ class PlacementViolation:
             // stage writes int `x_min`/`y_min` and board-dims with their
             // original type) round-trips bit-identically — `0` stays `0`.
             assert_roundtrip_with::<Zone>(py, "Zone('HV', ((0, 0), (50, 80)))", Some(&g5));
-            assert_roundtrip_with::<Zone>(
-                py,
-                "Zone('HV', ((0, 0), (50.0, 80.0)))",
-                Some(&g5),
-            );
-            let owned = to_owned::<Zone>(&eval_expr(py, &g5, "Zone('HV', ((0, 0), (50, 80)))"))
-                .unwrap();
+            assert_roundtrip_with::<Zone>(py, "Zone('HV', ((0, 0), (50.0, 80.0)))", Some(&g5));
+            let owned =
+                to_owned::<Zone>(&eval_expr(py, &g5, "Zone('HV', ((0, 0), (50, 80)))")).unwrap();
             assert_eq!(owned.name, "HV");
-            assert_eq!(owned.bounds.0 .0, Val::Int(0));
-            assert_eq!(owned.bounds.1 .0, Val::Int(50));
+            assert_eq!(owned.bounds.0.0, Val::Int(0));
+            assert_eq!(owned.bounds.1.0, Val::Int(50));
             // The zones frozenset: empty + single-element are bit-identical
             // (the guaranteed shapes); multi-element is content-gated.
             assert_roundtrip_with::<ZoneSet>(py, "frozenset()", Some(&g5));
@@ -3255,12 +3611,9 @@ class PlacementViolation:
                 &g5,
                 "frozenset({('HV', ((0.0, 5.0), (5.0, 0.0))), ('LV', ((10.0, 0.0), (0.0, 10.0)))})",
             );
-            let owned = to_owned::<ZoneSlots>(&eval_expr(
-                py,
-                &g5,
-                "('HV', ((0.0, 5.0), (5.0, 0.0)))",
-            ))
-            .unwrap();
+            let owned =
+                to_owned::<ZoneSlots>(&eval_expr(py, &g5, "('HV', ((0.0, 5.0), (5.0, 0.0)))"))
+                    .unwrap();
             assert_eq!(owned.zone, "HV");
             assert_eq!(owned.slots.len(), 2);
             assert_eq!(owned.slots[1], SlotPos(5.0, 0.0));
@@ -3353,13 +3706,19 @@ class PlacementViolation:
                 "LayerAssignment(net_name='SIG', layer=2.0)",
                 Some(&g5),
             );
-            let owned =
-                to_owned::<LayerAssignment>(&eval_expr(py, &g5, "LayerAssignment(net_name='SIG', layer=2)"))
-                    .unwrap();
+            let owned = to_owned::<LayerAssignment>(&eval_expr(
+                py,
+                &g5,
+                "LayerAssignment(net_name='SIG', layer=2)",
+            ))
+            .unwrap();
             assert_eq!(owned.layer, Val::Int(2));
-            let owned =
-                to_owned::<LayerAssignment>(&eval_expr(py, &g5, "LayerAssignment(net_name='SIG', layer=2.0)"))
-                    .unwrap();
+            let owned = to_owned::<LayerAssignment>(&eval_expr(
+                py,
+                &g5,
+                "LayerAssignment(net_name='SIG', layer=2.0)",
+            ))
+            .unwrap();
             assert_eq!(owned.layer, Val::Float(2.0));
             assert_content_roundtrip::<LayerAssignmentSet>(
                 py,
@@ -3392,11 +3751,7 @@ class PlacementViolation:
             );
             // component_zone_map / component_domain_map — both StrPairSet.
             assert_roundtrip_with::<StrPairSet>(py, "frozenset({('U1', 'HV')})", Some(&g5));
-            assert_roundtrip_with::<StrPairSet>(
-                py,
-                "frozenset({('K3', 'HV_edge')})",
-                Some(&g5),
-            );
+            assert_roundtrip_with::<StrPairSet>(py, "frozenset({('K3', 'HV_edge')})", Some(&g5));
             assert_content_roundtrip::<StrPairSet>(
                 py,
                 &g5,
@@ -3565,7 +3920,10 @@ class PlacementViolation:
                 };
                 let orig = eval_expr(py, &g5, expr);
                 let back = back.bind(py).clone();
-                assert!(orig.get_type().is(back.get_type()), "type mismatch for {expr}");
+                assert!(
+                    orig.get_type().is(back.get_type()),
+                    "type mismatch for {expr}"
+                );
                 let rp = orig.repr().unwrap().extract::<String>().unwrap();
                 let rb = back.repr().unwrap().extract::<String>().unwrap();
                 assert_eq!(rp, rb, "repr mismatch for {expr}");
@@ -3580,15 +3938,24 @@ class PlacementViolation:
                  clearance_actual=float('nan'), clearance_required=0.2, location=Point(x=1.0, y=2.0)),)",
             ))
             .unwrap();
-            assert!(owned[0].clearance_actual.is_nan(), "clearance NaN must survive");
+            assert!(
+                owned[0].clearance_actual.is_nan(),
+                "clearance NaN must survive"
+            );
             let orig = eval_expr(
                 py,
                 &g5,
                 "frozenset({Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=float('nan'), layer='F.Cu')})",
             );
             let owned = to_owned::<RouteSet>(&orig).expect("to_owned");
-            let back = to_python::<RouteSet>(py, &owned).expect("to_python").bind(py).clone();
-            assert!(orig.get_type().is(back.get_type()), "NaN Trace type mismatch");
+            let back = to_python::<RouteSet>(py, &owned)
+                .expect("to_python")
+                .bind(py)
+                .clone();
+            assert!(
+                orig.get_type().is(back.get_type()),
+                "NaN Trace type mismatch"
+            );
             let rp = orig.repr().unwrap().extract::<String>().unwrap();
             let rb = back.repr().unwrap().extract::<String>().unwrap();
             assert_eq!(rp, rb, "NaN Trace repr mismatch");
@@ -3662,7 +4029,8 @@ class PlacementViolation:
                 "int Trace width must be rejected"
             );
             assert!(
-                to_owned::<PlacementSet>(&eval_expr(py, &g5, "frozenset({('U1', (10, 20))})")).is_err(),
+                to_owned::<PlacementSet>(&eval_expr(py, &g5, "frozenset({('U1', (10, 20))})"))
+                    .is_err(),
                 "int placement position must be rejected"
             );
             // Wrong-arity tuples.

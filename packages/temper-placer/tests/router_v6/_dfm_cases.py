@@ -57,8 +57,6 @@ __all__ = [
     "SEVERITY_CASES",
     "SPOKE_CASES",
     "TEARDROP_CASES",
-    "THERMAL_VIA_GRIDS",
-    "VIA_INDEX_CASES",
     "random_angle_triples",
     "random_annular_vias",
     "random_segment_runs",
@@ -417,46 +415,6 @@ POUR_CASES: list[tuple[float, float, float, float, int, float]] = [
 ]
 
 # ---------------------------------------------------------------------------
-# power_plane._thermal_via_positions -- (cx, cy, count, pitch_mm)
-#
-# `side = int(round(count ** 0.5))` is libm `pow`, then round-half-EVEN (B3
-# + B7).  Measured: `c ** 0.5 != math.sqrt(c)` for 137 integers in 1..100000.
-# ---------------------------------------------------------------------------
-THERMAL_VIA_GRIDS: list[tuple[float, float, int, float]] = [
-    (0.0, 0.0, 9, 1.2),  # the production default: 3x3 at 1.2mm
-    (25.4, 12.7, 9, 1.2),
-    (0.0, 0.0, 1, 1.2),  # 1x1 -> span is 0.0
-    (0.0, 0.0, 4, 1.2),
-    (0.0, 0.0, 16, 1.2),
-    (0.0, 0.0, 25, 0.8),
-    (0.0, 0.0, 100, 0.5),
-    (0.0, 0.0, 10000, 0.1),  # 100x100; `10000 ** 0.5` round-trips
-    # power-of-two pitch + integer centre -> the grid is EXACTLY centred
-    (0.0, 0.0, 9, 1.0),
-    (8.0, -4.0, 9, 0.5),
-    (16.0, 16.0, 25, 0.25),
-    (0.0, 0.0, 9, 2.0),
-    # non-perfect squares -> ValueError
-    (0.0, 0.0, 2, 1.2),
-    (0.0, 0.0, 3, 1.2),
-    (0.0, 0.0, 8, 1.2),
-    (0.0, 0.0, 0, 1.2),  # 0 IS a perfect square -> empty list
-    (0.0, 0.0, -1, 1.2),  # (-1) ** 0.5 is a complex -> TypeError on round
-    # degenerate pitch
-    (0.0, 0.0, 9, 0.0),  # all nine coincide at the centre
-    (0.0, 0.0, 9, -1.2),  # negative pitch -> mirrored grid
-    (0.0, 0.0, 9, 1e-300),
-    (0.0, 0.0, 9, 1e300),
-    # signed zero / NaN / inf
-    (-0.0, -0.0, 9, 1.2),
-    (NAN, 0.0, 9, 1.2),
-    (0.0, 0.0, 9, NAN),
-    (0.0, 0.0, 9, INF),
-    (1e16, 0.0, 9, 1.0),  # cx - span/2 loses the span
-    (0, 0, 9, 1),  # integers
-]
-
-# ---------------------------------------------------------------------------
 # copper_balance._via_annular_area -- (diameter, drill)
 #
 # `math.pi * (r_pad * r_pad - r_hole * r_hole)` -- here it IS `r * r`, not
@@ -748,50 +706,6 @@ TEARDROP_CASES: list[tuple] = [
         0.5,
     ),
 ]
-
-# ---------------------------------------------------------------------------
-# via_placement._via_segment_index -- (vx, vy, segments)
-#
-# `abs(sx - vx) < 1e-4 and abs(sy - vy) < 1e-4`, first match wins.
-# ---------------------------------------------------------------------------
-_SEGS = (
-    (0.0, 0.0, "F.Cu"),
-    (1.0, 0.0, "F.Cu"),
-    (1.0, 1.0, "In1.Cu"),
-    (2.0, 1.0, "In1.Cu"),
-)
-VIA_INDEX_CASES: list[tuple[float, float, tuple]] = [
-    (0.0, 0.0, _SEGS),  # index 0
-    (1.0, 0.0, _SEGS),  # index 1
-    (2.0, 1.0, _SEGS),  # last index -> vi + 1 == len(segs), no layer pair
-    (5.0, 5.0, _SEGS),  # no match -> None
-    (0.0, 0.0, ()),  # empty segment list -> None
-    # AT the 1e-4 boundary and one ulp either side, on each axis
-    (1e-4, 0.0, _SEGS),
-    (math.nextafter(1e-4, 0.0), 0.0, _SEGS),
-    (math.nextafter(1e-4, 1.0), 0.0, _SEGS),
-    (0.0, 1e-4, _SEGS),
-    (math.nextafter(1e-4, 0.0), math.nextafter(1e-4, 0.0), _SEGS),
-    # one axis inside, the other outside -> no match (the `and`)
-    (0.0, 1.0, _SEGS),
-    (1e-5, 1.0, _SEGS),
-    # FIRST match wins even when a later segment is closer
-    (0.5, 0.0, ((0.50005, 0.0, "F.Cu"), (0.5, 0.0, "In1.Cu"))),
-    # duplicate coordinates -> the earlier index wins
-    (1.0, 0.0, ((1.0, 0.0, "F.Cu"), (1.0, 0.0, "In1.Cu"), (1.0, 0.0, "B.Cu"))),
-    # signed zeros: abs(-0.0 - 0.0) is 0.0 -> matches
-    (-0.0, -0.0, ((0.0, 0.0, "F.Cu"),)),
-    # NaN: abs(nan) < 1e-4 is False -> never matches
-    (NAN, 0.0, _SEGS),
-    (0.0, NAN, _SEGS),
-    (0.0, 0.0, ((NAN, 0.0, "F.Cu"), (0.0, 0.0, "In1.Cu"))),
-    (INF, 0.0, _SEGS),
-    # magnitudes where the subtraction cancels
-    (1e16, 0.0, ((1e16, 0.0, "F.Cu"),)),
-    (1e16, 0.0, ((1e16 + 1.0, 0.0, "F.Cu"),)),  # +1.0 vanishes -> matches
-    (0, 0, ((0, 0, "F.Cu"),)),  # integers
-]
-
 
 # ---------------------------------------------------------------------------
 # Benchmark corpora (R1b).  These are STRICT SUBSETS of the corpora above --

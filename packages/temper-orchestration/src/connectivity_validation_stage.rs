@@ -64,7 +64,9 @@ impl Stage<BoardState> for ConnectivityValidationStage {
     }
 
     fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
-        stage_guard(STAGE_NAME, || Python::attach(|py| self.run_inner(py, state)))
+        stage_guard(STAGE_NAME, || {
+            Python::attach(|py| self.run_inner(py, state))
+        })
     }
 }
 
@@ -164,7 +166,12 @@ impl ConnectivityValidationStage {
                 continue;
             }
             let net_violations = self.validate_net_connectivity(
-                py, &net_str, &net_items, &violation_cls, &point_cls, &drc,
+                py,
+                &net_str,
+                &net_items,
+                &violation_cls,
+                &point_cls,
+                &drc,
             )?;
             violations.call_method1("extend", (&net_violations,))?;
         }
@@ -181,13 +188,16 @@ impl ConnectivityValidationStage {
             ));
         }
 
-        let tuple = py.import("builtins")?.getattr("tuple")?.call1((&violations,))?;
+        let tuple = py
+            .import("builtins")?
+            .getattr("tuple")?
+            .call1((&violations,))?;
         let mut new_state = state;
         // U6 (O-C3): the oracle's tuple construction is kept verbatim, then
         // marshalled INTO the owned `ConnectivityViolationList` field.
-        new_state.connectivity_violations = Some(
-            crate::marshal::to_owned::<ConnectivityViolationList>(&tuple)?,
-        );
+        new_state.connectivity_violations = Some(crate::marshal::to_owned::<
+            ConnectivityViolationList,
+        >(&tuple)?);
         Ok(new_state)
     }
 
@@ -245,7 +255,10 @@ impl ConnectivityValidationStage {
             let center = v.getattr("center")?;
             let row = PyTuple::new(
                 py,
-                [center.getattr("x")?.into_any(), center.getattr("y")?.into_any()],
+                [
+                    center.getattr("x")?.into_any(),
+                    center.getattr("y")?.into_any(),
+                ],
             )?;
             flat_vias.append(row)?;
         }
@@ -276,7 +289,9 @@ impl ConnectivityValidationStage {
                 py,
                 LOGGER_NAME,
                 "info",
-                &"Connectivity validation passed: 0 violations".into_pyobject(py)?.into_any(),
+                &"Connectivity validation passed: 0 violations"
+                    .into_pyobject(py)?
+                    .into_any(),
             )?;
             return Ok(());
         }
@@ -327,9 +342,8 @@ pub fn run_connectivity_validation(
     state: Py<PyAny>,
     fail_on_violations: bool,
 ) -> PyResult<(Py<PyAny>, Option<String>)> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let stage = ConnectivityValidationStage { fail_on_violations };
     let result = stage.run(rust_state);
     crate::d6_util::write_back_or_raise(py, state.bind(py), result, &["connectivity_violations"])

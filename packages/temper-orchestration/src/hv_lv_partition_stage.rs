@@ -60,7 +60,8 @@ impl Stage<BoardState> for HvLvPartitionStage {
     }
 
     fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
-        self.run_guarded(state).map_err(|e| pyerr_stage(STAGE_NAME, e))
+        self.run_guarded(state)
+            .map_err(|e| pyerr_stage(STAGE_NAME, e))
     }
 }
 
@@ -91,9 +92,8 @@ impl HvLvPartitionStage {
             let cfg = module.call_method1("load_guard_config", (config_obj,))?;
             let enabled: bool = cfg.getattr("enabled")?.extract()?;
             let width_mm: Option<f64> = cfg.getattr("width_mm")?.extract()?;
-            let fallback_to_unconstrained: bool = cfg
-                .getattr("fallback_to_unconstrained")?
-                .extract()?;
+            let fallback_to_unconstrained: bool =
+                cfg.getattr("fallback_to_unconstrained")?.extract()?;
 
             // `if not cfg.enabled or state.board is None or state.netlist is
             // None: return state`.
@@ -123,9 +123,17 @@ impl HvLvPartitionStage {
                 let name = item.get_item(0)?;
                 let r = item.get_item(1)?;
                 let cat_raw = r.getattr("safety_category")?;
-                let cat = if cat_raw.is_truthy()? { cat_raw } else { PyString::new(py, "").into_any() };
+                let cat = if cat_raw.is_truthy()? {
+                    cat_raw
+                } else {
+                    PyString::new(py, "").into_any()
+                };
                 let creep_raw = r.getattr("creepage_mm")?;
-                let creep_src = if creep_raw.is_truthy()? { creep_raw } else { 0.0f64.into_pyobject(py)?.into_any() };
+                let creep_src = if creep_raw.is_truthy()? {
+                    creep_raw
+                } else {
+                    0.0f64.into_pyobject(py)?.into_any()
+                };
                 let creep = builtins_float.call1((creep_src,))?;
                 let tup = PyTuple::new(py, [cat, creep])?;
                 rules_marshalled.set_item(&name, tup)?;
@@ -193,7 +201,10 @@ impl HvLvPartitionStage {
                 let msg = d6_util::py_format(
                     py,
                     "hv_lv_guard_strip.width_mm={} below creepage {}, using creepage",
-                    &[w.into_pyobject(py)?.into_any(), creepage.into_pyobject(py)?.into_any()],
+                    &[
+                        w.into_pyobject(py)?.into_any(),
+                        creepage.into_pyobject(py)?.into_any(),
+                    ],
                 )?;
                 d6_util::log_msg(py, LOGGER_NAME, "warning", &msg)?;
             }
@@ -201,8 +212,8 @@ impl HvLvPartitionStage {
             // `outline = _outline(state.board)` -- shapely, called back.
             let outline = module.call_method1("_outline", (&board,))?;
             let exterior = outline.getattr("exterior")?;
-            let bad_outline = exterior.is_none()
-                || !exterior.getattr("is_closed")?.extract::<bool>()?;
+            let bad_outline =
+                exterior.is_none() || !exterior.getattr("is_closed")?.extract::<bool>()?;
             if bad_outline {
                 return Err(partition_geometry_error(&module));
             }
@@ -295,13 +306,19 @@ impl HvLvPartitionStage {
             for r in &hv {
                 domain.append(PyTuple::new(
                     py,
-                    [PyString::new(py, r).into_any(), PyString::new(py, "HV_edge").into_any()],
+                    [
+                        PyString::new(py, r).into_any(),
+                        PyString::new(py, "HV_edge").into_any(),
+                    ],
                 )?)?;
             }
             for r in &lv {
                 domain.append(PyTuple::new(
                     py,
-                    [PyString::new(py, r).into_any(), PyString::new(py, "LV_interior").into_any()],
+                    [
+                        PyString::new(py, r).into_any(),
+                        PyString::new(py, "LV_interior").into_any(),
+                    ],
                 )?)?;
             }
             let frozenset_ = py.import("builtins")?.getattr("frozenset")?;
@@ -336,10 +353,7 @@ fn partition_geometry_error(module: &Bound<'_, PyAny>) -> PyErr {
 /// net-class / net-class-assignment / `get_rules_for_net` resolution over
 /// `state.netlist.nets`. The differential pins this against the Python
 /// method.
-fn rules_by_net<'py>(
-    py: Python<'py>,
-    state: &BoardState,
-) -> PyResult<Bound<'py, PyAny>> {
+fn rules_by_net<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyAny>> {
     let out = PyDict::new(py);
     let dr = match &state.drc_oracle {
         Some(o) => match o.bind(py).getattr("design_rules") {
@@ -402,9 +416,8 @@ fn attr_or_empty<'py>(
 /// FFI entry for the Python shim: `run_hv_lv_partition(state)`.
 #[pyfunction]
 pub fn run_hv_lv_partition(py: Python<'_>, state: Py<PyAny>) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let stage = HvLvPartitionStage;
     // `run_guarded` threads the raw `PyErr`: the `PartitionError` raise
     // paths propagate by TYPE (the D3 pattern); a Rust panic becomes a
@@ -414,6 +427,10 @@ pub fn run_hv_lv_partition(py: Python<'_>, state: Py<PyAny>) -> PyResult<Py<PyAn
         py,
         state.bind(py),
         &out,
-        &["component_domain_map", "routing_corridors", "domain_regions"],
+        &[
+            "component_domain_map",
+            "routing_corridors",
+            "domain_regions",
+        ],
     )
 }

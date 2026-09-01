@@ -26,11 +26,6 @@
 
 use crate::host_math::{pow, py_round};
 
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use temper_py_bridge;
-
 /// `round(pos / grid_size) * grid_size` — CPython `round` is half-to-even
 /// and the `int * float` product normalises `-0.0` away, per the module
 /// doc above. Non-finite division results raise the exact CPython errors:
@@ -64,24 +59,6 @@ pub fn snap_to_grid(px: f64, py: f64, grid_size: f64) -> Result<(f64, f64), Snap
 pub enum SnapError {
     Infinity,
     Nan,
-}
-
-impl SnapError {
-    /// The CPython exception type name for this failure mode.
-    pub fn py_exception_name(&self) -> &'static str {
-        match self {
-            SnapError::Infinity => "OverflowError",
-            SnapError::Nan => "ValueError",
-        }
-    }
-
-    /// The CPython exception message for this failure mode.
-    pub fn py_exception_message(&self) -> &'static str {
-        match self {
-            SnapError::Infinity => "cannot convert float infinity to integer",
-            SnapError::Nan => "cannot convert float NaN to integer",
-        }
-    }
 }
 
 /// `add_endpoint_nudge` — prepend `actual_start` when it is more than
@@ -121,42 +98,6 @@ pub fn add_endpoint_nudge(
     }
 
     result
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(name = "snap_to_grid")]
-#[pyo3(signature = (px, py, grid_size=0.25))]
-pub fn snap_to_grid_py(px: f64, py: f64, grid_size: f64) -> PyResult<(f64, f64)> {
-    temper_py_bridge::catch_unwind(|| crate::grid_utils::snap_to_grid(px, py, grid_size))
-        .map_err(temper_py_bridge::panic_to_err)
-        .and_then(|res| match res {
-            Ok(v) => Ok(v),
-            Err(e) => {
-                let exc = if e == SnapError::Nan {
-                    pyo3::exceptions::PyValueError::new_err(e.py_exception_message())
-                } else {
-                    pyo3::exceptions::PyOverflowError::new_err(e.py_exception_message())
-                };
-                Err(exc)
-            }
-        })
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(name = "add_endpoint_nudge")]
-pub fn add_endpoint_nudge_py(
-    path: Vec<f64>,
-    actual_start_x: f64,
-    actual_start_y: f64,
-    actual_end_x: f64,
-    actual_end_y: f64,
-) -> PyResult<Vec<f64>> {
-    temper_py_bridge::catch_unwind(|| {
-        crate::grid_utils::add_endpoint_nudge(&path, actual_start_x, actual_start_y, actual_end_x, actual_end_y)
-    })
-    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]

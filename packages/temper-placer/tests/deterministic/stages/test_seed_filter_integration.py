@@ -10,11 +10,12 @@
 from __future__ import annotations
 
 import logging
+import math
+from dataclasses import dataclass
 from unittest.mock import Mock
 
 import pytest
 
-from temper_placer.deterministic.bottleneck_map import BottleneckMap
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
@@ -25,9 +26,28 @@ from temper_placer.io.config_loader import (
 )
 
 
-def _make_map(scores: list[float], cell: float = 1.0) -> BottleneckMap:
+@dataclass(frozen=True)
+class _BottleneckMap:
+    cell_size_mm: float
+    width: int
+    height: int
+    origin_xy: tuple[float, float]
+    scores: tuple[float, ...]
+
+    def score_at(self, x: float, y: float) -> float:
+        """Minimal map double for exercising the stage's filtering policy."""
+        if self.width <= 0 or self.height <= 0 or self.cell_size_mm <= 0:
+            return 0.0
+        col = math.floor((x - self.origin_xy[0]) / self.cell_size_mm)
+        row = math.floor((y - self.origin_xy[1]) / self.cell_size_mm)
+        if col < 0 or row < 0 or col >= self.width or row >= self.height:
+            return 0.0
+        return self.scores[row * self.width + col]
+
+
+def _make_map(scores: list[float], cell: float = 1.0) -> _BottleneckMap:
     side = 2
-    return BottleneckMap(
+    return _BottleneckMap(
         cell_size_mm=cell,
         width=side,
         height=side,
@@ -36,7 +56,7 @@ def _make_map(scores: list[float], cell: float = 1.0) -> BottleneckMap:
     )
 
 
-def _make_state(bottleneck_map: BottleneckMap | None = None) -> BoardState:
+def _make_state(bottleneck_map: _BottleneckMap | None = None) -> BoardState:
     netlist = Mock()
     netlist.components = [
         Mock(ref="C1", bounds=(2, 2), pins=[]),

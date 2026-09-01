@@ -1,4 +1,4 @@
-<!-- provenance: commit=HEAD on branch spike/pyclass-removal
+<!-- provenance: commit=66a277d94411154d063ea2894d367600c7d33c3d dirty=UNKNOWN -->
      base=origin/main 2cd88c9b7a10eac7eaabe929a8da9cff16d6adfc
      date=2026-08-12
      method=AST pyclass/import reachability over packages/temper-placer/src +

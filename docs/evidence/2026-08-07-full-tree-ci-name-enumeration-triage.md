@@ -1,6 +1,6 @@
 # The other 169: full-tree triage of the CI name-enumeration gap
 
-<!-- provenance: worktree branched from main 6665aa3c (2026-08-07, after
+<!-- provenance: commit=53053868b759c146a005b1dc6657cb8dc184e254 dirty=UNKNOWN -->
      merging worktree-agent-a83609cb5411455d2's router_v6 audit); adds this
      doc, extends packages/temper-placer/tests/validation/test_ci_test_file_registration.py
      with a reasoned registry for the files this pull actually triaged, and

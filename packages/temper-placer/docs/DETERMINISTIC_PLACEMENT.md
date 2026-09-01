@@ -148,8 +148,8 @@ for iteration in range(max_routability_iterations):
     if routing_result.completion_rate >= 0.90:
         break
 
-    # Feedback: adjust placement based on congestion
-    positions = adjust_for_congestion(positions, routing_result.congestion_map)
+    # Congestion feedback hook (the former test-only adjustment helper was retired).
+    break
 ```
 
 ---

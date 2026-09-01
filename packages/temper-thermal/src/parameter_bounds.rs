@@ -1,60 +1,16 @@
 //! Parameter-bound kernels (Wave 4, Phase 4).
 //!
-//! Ports the classification and corner arithmetic of
-//! `temper_placer/physics/parameter_bounds.py` (the L2 verified-interval
-//! soundness surface: the monotonicity CLASSIFICATION of a swept
-//! parameter name into +1 / −1 / 0 with its `because` citation, and the
-//! per-bound `worst_case_value` selection) to Rust.  The Python module
-//! keeps its public API (`ParameterBound`, `ThermalSoundnessResult`,
-//! `build_thermal_parameter_bounds`'s prereg/FDM-config introspection
-//! and the literal ambient_C / h_sink_min bounds,
-//! `compute_thermal_soundness`'s corner FDM solve and message
-//! building); the classification and the worst-case selection delegate
-//! here.
-//!
-//! ## Bit-exactness discipline
-//!
-//! - The classification is STRING matching (the reference's
-//!   `param_lower = parameter.lower()` with the three keyword
-//!   disjunctions in order: power/dissipation/p_loss → +1,
-//!   junction_to_case/r_theta/thermal_resistance → +1,
-//!   heatspread/spread/copper → −1, else 0).  Rust `to_lowercase` and
-//!   `contains` replicate CPython's `lower()`/`in` for the ASCII
-//!   parameter names the prereg manifests carry (documented divergence:
-//!   CPython's `str.lower` applies Unicode case folding — the repo's
-//!   parameter names are ASCII; a non-ASCII name would classify
-//!   differently and is a standing divergence to re-check).
-//! - `worst_case_value` is the reference's property: mono > 0 → max,
-//!   mono < 0 → min, else max.
-//! - The `because` citation strings are reproduced VERBATIM from the
-//!   reference (including the double spaces after sentence periods),
-//!   with the parameter name interpolated exactly as the reference's
-//!   f-strings.
-//!
-//! R24 (physics-gated): this module IS the soundness-gate surface for
-//! the thermal FDM corner bound (L2).  It is not a CP-SAT constraint
-//! encoder, but its Chebyshev-style soundness claim (the worst-case
-//! corner bounds all interior configurations for provably-monotone
-//! parameters, via the M-matrix monotonicity proof) is documented in
-//! VERIFICATION.md; the kernels pin the classification/selection
-//! arithmetic bit-exactly.
+//! Rust-owned pure kernels for monotonicity classification and worst-case
+//! corner selection. The former Python parameter-bounds module had no
+//! production callers; its PyO3 compatibility surface and binding-only
+//! solver adapters were removed in the deletion campaign. These small
+//! kernels remain available to Rust callers and the WASM property/test tier.
 
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use pyo3::types::{PyAny, PyString};
-#[cfg(feature = "python")]
-use temper_py_bridge;
-
-/// Classify a swept parameter into a monotonicity direction (+1 / −1 /
-/// 0) with its `because` citation.  Mirrors
-/// `build_thermal_parameter_bounds`'s keyword classification verbatim
-/// (order matters: power-family first, then R_θ-family, then
-/// heatspread-family, else unknown).  `unit` is the reference's
-/// `pr.because` passthrough for matched parameters and `"unknown"`
-/// for unmatched.
+/// Classify a swept parameter into a monotonicity direction (+1 / -1 / 0)
+/// with its `because` citation.
 ///
-/// Returns `(monotonicity, unit, because)`.
+/// The family checks intentionally preserve the reference order: power,
+/// junction-to-case/thermal resistance, then heat spreading/copper.
 pub fn classify_parameter(param_name: &str, source_because: &str) -> (i64, String, String) {
     let param_lower = param_name.to_lowercase();
 
@@ -107,66 +63,13 @@ pub fn classify_parameter(param_name: &str, source_because: &str) -> (i64, Strin
     (0, "unknown".to_string(), because)
 }
 
-/// Per-bound worst-case corner values.  Mirrors
-/// `ParameterBound.worst_case_value` verbatim: mono > 0 → max,
-/// mono < 0 → min, mono == 0 → max (conservative, not a guarantee).
-/// `monos` are `f64` — the reference's `b.monotonicity > 0` comparison
-/// accepts ANY comparable (ints, floats, bools, numpy scalars all
-/// coerce; pass 2 P2: the previous `i64` bridge raised TypeError for a
-/// float monotonicity the oracle arithmetic accepted).
+/// Per-bound worst-case corner values.
 pub fn worst_case_values(mins: &[f64], maxs: &[f64], monos: &[f64]) -> Vec<f64> {
     mins.iter()
         .zip(maxs.iter())
         .zip(monos.iter())
         .map(|((&min, &max), &mono)| if mono < 0.0 { min } else { max })
         .collect()
-}
-
-/// pyo3 bridge for [`classify_parameter`].
-///
-/// `param_name` is accepted as any Python object: the reference calls
-/// `parameter.lower()`, which raises `AttributeError("'<type>' object
-/// has no attribute 'lower'")` for ANY non-str — NOT the TypeError a
-/// `String` extraction would produce (pass 2 P2).  The bridge
-/// replicates the reference's class AND message (via the object's
-/// type name, e.g. `'NoneType'`, `'int'`, `'list'`).
-///
-/// `source_because` stays narrowed to `str` (documented deviation):
-/// the reference passes ANY object through as the `unit` for matched
-/// parameters (`None` included); the prereg manifests always carry a
-/// str and the shim always passes one, so this only affects direct
-/// kernel callers — recorded, not widened.
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(signature = (param_name, source_because))]
-pub fn classify_parameter_py(
-    param_name: Bound<'_, PyAny>,
-    source_because: String,
-) -> PyResult<(i64, String, String)> {
-    use pyo3::exceptions::PyAttributeError;
-    use pyo3::types::PyAnyMethods;
-    if !param_name.is_instance_of::<PyString>() {
-        let ty = param_name.get_type().name()?;
-        return Err(PyAttributeError::new_err(format!(
-            "'{ty}' object has no attribute 'lower'"
-        )));
-    }
-    let name: String = param_name.extract()?;
-    temper_py_bridge::catch_unwind(|| classify_parameter(&name, &source_because))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-/// pyo3 bridge for [`worst_case_values`].
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(signature = (mins, maxs, monos))]
-pub fn worst_case_values_py(
-    mins: Vec<f64>,
-    maxs: Vec<f64>,
-    monos: Vec<f64>,
-) -> PyResult<Vec<f64>> {
-    temper_py_bridge::catch_unwind(|| worst_case_values(&mins, &maxs, &monos))
-        .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]
@@ -214,20 +117,16 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn classify_precedence_order() {
-        // "power_heatspread_mm" matches the POWER family first.
         let (m, _, _) = classify_parameter("power_heatspread_mm", "x");
         assert_eq!(m, 1);
-        // "spread" must NOT reclassify a power param already matched.
         let (m, _, _) = classify_parameter("thermal_resistance_spread", "x");
-        assert_eq!(m, 1); // r_theta family checked before heatspread
+        assert_eq!(m, 1);
     }
 
     #[cfg_attr(test, test)]
     fn worst_case_selection() {
         let v = worst_case_values(&[1.0, 2.0, 3.0], &[10.0, 20.0, 30.0], &[1.0, -1.0, 0.0]);
         assert_eq!(v, vec![10.0, 2.0, 30.0]);
-        // f64 monos match the reference's `b.monotonicity > 0` (any
-        // comparable coerces — floats/bools; pass 2 P2).
         let v = worst_case_values(&[1.0], &[10.0], &[1.5]);
         assert_eq!(v, vec![10.0]);
         let v = worst_case_values(&[1.0], &[10.0], &[-0.5]);

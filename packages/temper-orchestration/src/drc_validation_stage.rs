@@ -59,7 +59,9 @@ impl Stage<BoardState> for DRCValidationStage {
     }
 
     fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
-        stage_guard(STAGE_NAME, || Python::attach(|py| self.run_inner(py, state)))
+        stage_guard(STAGE_NAME, || {
+            Python::attach(|py| self.run_inner(py, state))
+        })
     }
 }
 
@@ -74,7 +76,11 @@ impl DRCValidationStage {
                     py,
                     LOGGER_NAME,
                     "warning",
-                    &pyo3::types::PyString::new(py, "No DRCOracle in state, skipping DRC validation").into_any(),
+                    &pyo3::types::PyString::new(
+                        py,
+                        "No DRCOracle in state, skipping DRC validation",
+                    )
+                    .into_any(),
                 )?;
                 return Ok(state);
             }
@@ -89,7 +95,11 @@ impl DRCValidationStage {
         (should_raise, message) = drc
             .call_method1(
                 "threshold_decision_py",
-                (self.fail_on_violations, self.max_violations, violations.len()?),
+                (
+                    self.fail_on_violations,
+                    self.max_violations,
+                    violations.len()?,
+                ),
             )?
             .extract()?;
         if should_raise {
@@ -100,7 +110,10 @@ impl DRCValidationStage {
             ));
         }
 
-        let tuple = py.import("builtins")?.getattr("tuple")?.call1((&violations,))?;
+        let tuple = py
+            .import("builtins")?
+            .getattr("tuple")?
+            .call1((&violations,))?;
         let mut new_state = state;
         // U6 (O-C3): the oracle's tuple construction is kept verbatim, then
         // marshalled INTO the owned `ViolationList` field (the U1 write
@@ -116,7 +129,9 @@ impl DRCValidationStage {
                 py,
                 LOGGER_NAME,
                 "info",
-                &"DRC validation passed: 0 violations".into_pyobject(py)?.into_any(),
+                &"DRC validation passed: 0 violations"
+                    .into_pyobject(py)?
+                    .into_any(),
             )?;
             return Ok(());
         }
@@ -135,11 +150,7 @@ impl DRCValidationStage {
             let row = row?;
             let vtype = row.get_item(0)?;
             let count = row.get_item(1)?;
-            let msg = d6_util::py_format(
-                py,
-                "  {}: {}",
-                &[vtype.into_any(), count.into_any()],
-            )?;
+            let msg = d6_util::py_format(py, "  {}: {}", &[vtype.into_any(), count.into_any()])?;
             d6_util::log_msg(py, LOGGER_NAME, "warning", &msg)?;
         }
         Ok(())
@@ -156,9 +167,8 @@ pub fn run_drc_validation(
     fail_on_violations: bool,
     max_violations: i64,
 ) -> PyResult<(Py<PyAny>, Option<String>)> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let stage = DRCValidationStage {
         fail_on_violations,
         max_violations,

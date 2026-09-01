@@ -4,7 +4,9 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::types::{InternalConstraint, InternalConstraintModel, TensionSeverity, TensionViolation};
+use crate::types::{
+    InternalConstraint, InternalConstraintModel, TensionSeverity, TensionViolation,
+};
 
 /// Detect analytically-incompatible constraint pairs before the SAT solve.
 ///
@@ -18,15 +20,21 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
         .variables
         .iter()
         .map(|v| match v {
-            crate::types::InternalVariable::NetChannel { name, net_idx, channel_id } => {
-                (name.as_str(), (*net_idx, channel_id.as_str()))
-            }
-            crate::types::InternalVariable::NetLayer { name, net_idx, segment_id } => {
-                (name.as_str(), (*net_idx, segment_id.as_str()))
-            }
-            crate::types::InternalVariable::Via { name, net_idx, location_id } => {
-                (name.as_str(), (*net_idx, location_id.as_str()))
-            }
+            crate::types::InternalVariable::NetChannel {
+                name,
+                net_idx,
+                channel_id,
+            } => (name.as_str(), (*net_idx, channel_id.as_str())),
+            crate::types::InternalVariable::NetLayer {
+                name,
+                net_idx,
+                segment_id,
+            } => (name.as_str(), (*net_idx, segment_id.as_str())),
+            crate::types::InternalVariable::Via {
+                name,
+                net_idx,
+                location_id,
+            } => (name.as_str(), (*net_idx, location_id.as_str())),
             crate::types::InternalVariable::Ordering { name, .. } => {
                 (name.as_str(), (usize::MAX, ""))
             }
@@ -75,24 +83,23 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
     for (ci, c) in model.constraints.iter().enumerate() {
         match c {
             InternalConstraint::Capacity {
-                channel_id, capacity, slack_factor, terms,
+                channel_id,
+                capacity,
+                slack_factor,
+                terms,
             } => {
                 if terms.is_empty() {
                     continue;
                 }
                 all_channels.insert(channel_id.as_str());
-                let min_width = terms
-                    .iter()
-                    .map(|(_, w)| *w)
-                    .fold(f64::INFINITY, f64::min);
+                let min_width = terms.iter().map(|(_, w)| *w).fold(f64::INFINITY, f64::min);
                 let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
                 let net_set: HashSet<usize> = terms
                     .iter()
                     .filter_map(|(vn, _)| var_info.get(vn.as_str()).map(|(ni, _)| *ni))
                     .filter(|ni| *ni != usize::MAX)
                     .collect();
-                capacity_by_channel
-                    .insert(channel_id.as_str(), (ci, max_nets, net_set));
+                capacity_by_channel.insert(channel_id.as_str(), (ci, max_nets, net_set));
             }
             InternalConstraint::DiffPair {
                 channel_id,
@@ -109,17 +116,18 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
                     .map(|(ni, _)| *ni)
                     .unwrap_or(usize::MAX);
                 diffpairs.push((
-                    ci, channel_id.as_str(), p_var_name.as_str(), n_var_name.as_str(),
-                    p_net, n_net,
+                    ci,
+                    channel_id.as_str(),
+                    p_var_name.as_str(),
+                    n_var_name.as_str(),
+                    p_net,
+                    n_net,
                 ));
             }
             InternalConstraint::LayerRestriction { .. } => {
                 // Processed above in net_bans loop.
             }
-            InternalConstraint::ChannelSeparation {
-                channel_id,
-                ..
-            } => {
+            InternalConstraint::ChannelSeparation { channel_id, .. } => {
                 all_channels.insert(channel_id.as_str());
             }
         }
@@ -140,18 +148,10 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
         .collect();
 
     // Check 1: Capacity oversubscription.
-    check_capacity_oversubscription(
-        &capacity_by_channel,
-        &must_use_by_channel,
-        &mut violations,
-    );
+    check_capacity_oversubscription(&capacity_by_channel, &must_use_by_channel, &mut violations);
 
     // Check 2: Diff-pair vs. capacity.
-    check_diffpair_vs_capacity(
-        &diffpairs,
-        &capacity_by_channel,
-        &mut violations,
-    );
+    check_diffpair_vs_capacity(&diffpairs, &capacity_by_channel, &mut violations);
 
     // Check 3: Layer-restriction starvation (per net).
     check_layer_restriction_starvation(
@@ -215,16 +215,20 @@ fn count_must_use_nets(
         }
 
         let bans = net_bans.get(&net_idx);
-        let all_alternatives_banned = all_channels.iter().filter(|&&c| c != channel_id).all(|&och| {
-            // Only consider channels the net actually has vars for.
-            if !net_chs.contains(och) {
-                return true; // can't use it anyway, so skip
-            }
-            match bans {
-                Some(bans) => bans.contains(och),
-                None => false,
-            }
-        });
+        let all_alternatives_banned =
+            all_channels
+                .iter()
+                .filter(|&&c| c != channel_id)
+                .all(|&och| {
+                    // Only consider channels the net actually has vars for.
+                    if !net_chs.contains(och) {
+                        return true; // can't use it anyway, so skip
+                    }
+                    match bans {
+                        Some(bans) => bans.contains(och),
+                        None => false,
+                    }
+                });
 
         if all_alternatives_banned {
             must_use.push(net_idx);
@@ -283,15 +287,15 @@ fn check_diffpair_vs_capacity(
         if let Some(&(cap_ci, max_nets, _)) = capacity_by_channel.get(channel_id)
             && max_nets < 2
         {
-                violations.push(TensionViolation {
-                    constraint_pair: (dpi, cap_ci),
-                    channel_id: channel_id.to_string(),
-                    explanation: format!(
-                        "Diff pair requires both {p_var} and {n_var} on channel {channel_id}, \
+            violations.push(TensionViolation {
+                constraint_pair: (dpi, cap_ci),
+                channel_id: channel_id.to_string(),
+                explanation: format!(
+                    "Diff pair requires both {p_var} and {n_var} on channel {channel_id}, \
                          but {channel_id} capacity is {max_nets} (only {max_nets} net allowed)",
-                    ),
-                    severity: TensionSeverity::HardConflict,
-                });
+                ),
+                severity: TensionSeverity::HardConflict,
+            });
         }
     }
 }
@@ -481,7 +485,10 @@ pub(crate) mod tests {
         ];
         let model = make_model(vars, cons);
         let tensions = detect_tensions(&model);
-        assert!(tensions.is_empty(), "expected no tensions but got: {tensions:?}");
+        assert!(
+            tensions.is_empty(),
+            "expected no tensions but got: {tensions:?}"
+        );
     }
 
     #[cfg_attr(test, test)]
@@ -533,12 +540,18 @@ pub(crate) mod tests {
         ];
         let model = make_model(vars, cons);
         let tensions = detect_tensions(&model);
-        assert!(!tensions.is_empty(), "expected tensions on oversubscription, got: {tensions:?}");
+        assert!(
+            !tensions.is_empty(),
+            "expected tensions on oversubscription, got: {tensions:?}"
+        );
         let hard: Vec<_> = tensions
             .iter()
             .filter(|t| t.severity == TensionSeverity::HardConflict)
             .collect();
-        assert!(!hard.is_empty(), "expected HardConflict but got: {tensions:?}");
+        assert!(
+            !hard.is_empty(),
+            "expected HardConflict but got: {tensions:?}"
+        );
     }
 
     #[cfg_attr(test, test)]
@@ -597,7 +610,10 @@ pub(crate) mod tests {
             .iter()
             .filter(|t| t.severity == TensionSeverity::HardConflict)
             .collect();
-        assert!(hard.is_empty(), "expected no HardConflict for diffpair with capacity=2");
+        assert!(
+            hard.is_empty(),
+            "expected no HardConflict for diffpair with capacity=2"
+        );
     }
 
     #[cfg_attr(test, test)]

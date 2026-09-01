@@ -23,11 +23,6 @@
 
 use crate::host_math::{cos, pow, sin};
 
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use temper_py_bridge;
-
 /// Flattened pad fields: `[x0, y0, radius0, mask_expansion0, x1, y1, ...]`.
 pub fn is_via_position_valid(
     pos_x: f64,
@@ -91,56 +86,6 @@ pub fn place_via_with_clearance(
     }
 
     None
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(name = "via_distance")]
-pub fn via_distance_py(x1: f64, y1: f64, x2: f64, y2: f64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| crate::via_placement::distance(x1, y1, x2, y2))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(name = "is_via_position_valid")]
-#[pyo3(signature = (pos_x, pos_y, pads, via_mask_radius, min_clearance=0.1))]
-pub fn is_via_position_valid_py(
-    pos_x: f64,
-    pos_y: f64,
-    pads: Vec<f64>,
-    via_mask_radius: f64,
-    min_clearance: f64,
-) -> PyResult<bool> {
-    temper_py_bridge::catch_unwind(|| {
-        crate::via_placement::is_via_position_valid(pos_x, pos_y, &pads, via_mask_radius, min_clearance)
-    })
-    .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(name = "place_via_with_clearance")]
-#[pyo3(signature = (target_x, target_y, pads, via_mask_radius, min_clearance=0.1, max_search_radius=2.0))]
-pub fn place_via_with_clearance_py(
-    target_x: f64,
-    target_y: f64,
-    pads: Vec<f64>,
-    via_mask_radius: f64,
-    min_clearance: f64,
-    max_search_radius: f64,
-) -> PyResult<Option<(f64, f64)>> {
-    temper_py_bridge::catch_unwind(|| {
-        crate::via_placement::place_via_with_clearance(
-            target_x,
-            target_y,
-            &pads,
-            via_mask_radius,
-            min_clearance,
-            max_search_radius,
-        )
-    })
-    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]

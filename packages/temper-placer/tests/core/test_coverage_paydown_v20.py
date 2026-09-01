@@ -1,8 +1,8 @@
 """Coverage-paydown wave 20: topological force/graph/initial-placement/
 propagation/zone-solver, heuristics (structural/style/organizational) pure
-helpers, io (kicad_exporter, dsn_schema), placer (deterministic/template/
+helpers, io (dsn_schema), placer (deterministic/template/
 adjustment/cp_sat gate), metrics (quality/physics), and validation
-(tht_check/geometric).
+(geometric).
 
 Every target is a pure function, dataclass method, or cheaply-constructed
 observer reachable from ``tests/core/`` without a live ngspice/kicad-cli
@@ -22,10 +22,9 @@ from typing import Any
 
 import numpy as np
 import pytest
-from kiutils.board import Board as KiBoard
 
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.heuristics.organizational import (
     identify_decoupling_caps,
@@ -35,14 +34,6 @@ from temper_placer.heuristics.structural import create_keepout_mask
 from temper_placer.heuristics.style import extract_signal_chains
 from temper_placer.io.config_loader import ComponentGroup, PlacementConstraints
 from temper_placer.io.dsn_schema import embed_schema_header, extract_schema_hash
-from temper_placer.io.export_types import TraceSegment, TraceVia
-from temper_placer.io.kicad_exporter import (
-    add_segments_to_board,
-    add_vias_to_board,
-    path_to_segments,
-    path_to_vias,
-    snap_to_nearest_pad,
-)
 from temper_placer.metrics.quality import (
     congestion_score,
     connectivity_clustering_score,
@@ -53,7 +44,6 @@ from temper_placer.pcl.constraints import (
     SeparatedConstraint,
 )
 from temper_placer.pcl.parser import ConstraintCollection
-from temper_placer.placer.adjustment import adjust_for_congestion
 from temper_placer.placer.cp_sat.audit import Placement
 from temper_placer.placer.cp_sat.gate import AcceptanceGate, GateResult
 from temper_placer.placer.deterministic import (
@@ -66,8 +56,6 @@ from temper_placer.placer.template import (
     HalfBridgeTemplate,
     load_template_from_yaml,
 )
-from temper_placer.router_v6.congestion import CongestionResult
-from temper_placer.router_v6.grid_types import GridCell
 from temper_placer.topological.force_refinement import (
     apply_force_refinement,
     compute_adjacency_force,
@@ -84,7 +72,6 @@ from temper_placer.topological.initial_placement import (
 from temper_placer.topological.propagation import ConstraintPropagator, DistanceBound
 from temper_placer.topological.zone_solver import ZoneAssignment, ZoneSolver
 from temper_placer.validation.geometric import GeometricValidator, validate_placement
-from temper_placer.validation.tht_check import validate_hole_clearance
 
 # ---------------------------------------------------------------------------
 # Shared fixtures / helpers
@@ -128,18 +115,6 @@ def _constraints() -> ConstraintCollection:
             ),
         ]
     )
-
-
-@dataclass
-class RoutePathStub:
-    """Duck-typed RoutePath consumed by kicad_exporter.path_to_segments/vias."""
-
-    net: str
-    cells: list[Any] = field(default_factory=list)
-    cell_size: float = 0.2
-    layer_name: str = "F.Cu"
-    segments: list[Any] = field(default_factory=list)
-    coordinates: list[Any] = field(default_factory=list)
 
 
 @dataclass
@@ -450,7 +425,7 @@ class TestHeuristicPureHelpers:
 
 
 # ---------------------------------------------------------------------------
-# io/dsn_schema.py + io/kicad_exporter.py
+# io/dsn_schema.py
 # ---------------------------------------------------------------------------
 
 
@@ -460,63 +435,6 @@ class TestIoHelpers:
         assert extract_schema_hash(embedded) == "abc123"
         # Text without a schema header returns None.
         assert extract_schema_hash('(net 0 "GND")') is None
-
-    def test_path_to_segments_from_cells(self):
-        path = RoutePathStub(
-            net="GND",
-            cells=[GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)],
-            cell_size=1.0,
-        )
-        segments = path_to_segments(path, origin=(0, 0), cell_size=1.0, trace_width=0.25)
-        assert len(segments) == 1
-        assert segments[0].net == "GND"
-        assert segments[0].layer == "F.Cu"
-
-    def test_path_to_segments_layer_transition_skipped(self):
-        path = RoutePathStub(
-            net="SIG",
-            cells=[
-                GridCell(0, 0, 0),
-                GridCell(1, 0, 0),
-                GridCell(1, 0, 1),
-                GridCell(2, 0, 1),
-            ],
-            cell_size=1.0,
-        )
-        segments = path_to_segments(path, origin=(0, 0), cell_size=1.0, trace_width=0.25)
-        assert len(segments) == 2
-
-    def test_path_to_segments_from_segments_fallback(self):
-        path = RoutePathStub(net="SIG", segments=[(0, 0), (5, 5), (10, 5)])
-        segments = path_to_segments(path, origin=(0, 0), cell_size=1.0, trace_width=0.25)
-        assert len(segments) == 2
-
-    def test_path_to_vias_single_transition(self):
-        path = RoutePathStub(
-            net="CLK", cells=[GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 0, 1)], cell_size=1.0
-        )
-        vias = path_to_vias(path, origin=(0, 0), cell_size=1.0)
-        assert len(vias) == 1
-        assert vias[0].net == "CLK"
-        assert set(vias[0].layers) == {"F.Cu", "In1.Cu"}
-
-    def test_snap_to_nearest_pad_within_tolerance(self):
-        snapped = snap_to_nearest_pad(0.03, 0.02, [(0.0, 0.0), (5.0, 5.0)], tolerance=0.15)
-        assert snapped == (0.0, 0.0)
-
-    def test_add_segments_and_vias_to_board(self):
-        kb = KiBoard()
-        added = add_segments_to_board(
-            kb, [TraceSegment(net="GND", start=(0, 0), end=(1, 1), width=0.25, layer="F.Cu")]
-        )
-        assert added == 1
-        assert len(kb.traceItems) == 1
-        added_vias = add_vias_to_board(
-            kb, [TraceVia(net="GND", position=(1, 1), size=0.8, drill=0.4, layers=["F.Cu", "In1.Cu"])]
-        )
-        assert added_vias == 1
-        assert len(kb.traceItems) == 2
-
 
 # ---------------------------------------------------------------------------
 # placer/deterministic.py + template.py + adjustment.py
@@ -601,19 +519,6 @@ class TestTemplate:
         assert len(template.components) == 2
 
 
-class TestAdjustForCongestion:
-    def test_no_bottlenecks_returns_copy(self):
-        nl = _netlist("Q1", "C1")
-        board = _board()
-        positions = np.array([[10.0, 10.0], [20.0, 20.0]], dtype=np.float32)
-        congestion = CongestionResult(
-            bottlenecks=[], grid=type("Grid", (), {"cell_size_mm": 1.0, "origin": (0.0, 0.0)})()
-        )
-        result = adjust_for_congestion(positions, nl, board, congestion)
-        assert result is not positions
-        np.testing.assert_array_equal(result, positions)
-
-
 # ---------------------------------------------------------------------------
 # placer/cp_sat/gate.py
 # ---------------------------------------------------------------------------
@@ -683,28 +588,11 @@ class TestMetrics:
 
 
 # ---------------------------------------------------------------------------
-# validation/tht_check.py + validation/geometric.py
+# validation/geometric.py
 # ---------------------------------------------------------------------------
 
 
 class TestValidation:
-    def test_validate_hole_clearance_collision(self):
-        q1 = Component(ref="Q1", footprint="TO-247", bounds=(16, 21))
-        q1.pads = [Pin(name="1", number="1", position=(0.0, 0.0), drill=1.0)]  # type: ignore[attr-defined]
-        c1 = Component(ref="C1", footprint="0805", bounds=(2, 1.2))
-        c1.pads = [Pin(name="1", number="1", position=(0.0, 0.0), drill=1.0)]  # type: ignore[attr-defined]
-        nl = Netlist(components=[q1, c1], nets=[])
-        msgs = validate_hole_clearance(nl, [(10.0, 10.0), (10.0, 10.0)], min_clearance=0.25)
-        assert len(msgs) >= 1
-
-    def test_validate_hole_clearance_no_pads(self):
-        q1 = Component(ref="Q1", footprint="TO-247", bounds=(16, 21))
-        q1.pads = []  # type: ignore[attr-defined]
-        c1 = Component(ref="C1", footprint="0805", bounds=(2, 1.2))
-        c1.pads = []  # type: ignore[attr-defined]
-        nl = Netlist(components=[q1, c1], nets=[])
-        assert validate_hole_clearance(nl, [(0.0, 0.0), (50.0, 50.0)]) == []
-
     def test_geometric_validator_name_and_validate(self):
         st = _placement([("Q1", 20.0, 20.0), ("C1", 40.0, 40.0)])
         nl = _netlist("Q1", "C1")

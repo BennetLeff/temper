@@ -47,11 +47,12 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 8389 eligible tests, in a stable order.  Each entry is
+/// All 8307 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-geometry")] crate::audit::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-geometry")] crate::body_collision::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::bottleneck_geometry::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::bottleneck_kernels::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::bundle_analyzer::tests::WASM_TESTS,
@@ -72,7 +73,6 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-geometry")] crate::dense_package_detection::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::diff_pair_inference::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::drc_constraints_geometry::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-geometry")] crate::drc_inflate::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::edt::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::force::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::graph::tests::WASM_TESTS,

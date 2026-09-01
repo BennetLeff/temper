@@ -2,8 +2,8 @@
 
 The report and explainability formatting slice (`report/formatter.py`,
 `report/generator.py`, `report/summary.py`,
-`explainability/{trace,decision,logger,markdown_report,serialization,
-traced_loss,pipeline}.py`) is the Wave 4 Phase 5 migration into the
+`explainability/{trace,decision,logger,markdown_report,traced_loss}.py`) is the
+Wave 4 Phase 5 migration into the
 `temper-io-types` crate (`src/report.rs`, `src/explain.rs`, `src/pyfmt.rs`).
 The Python modules are delegation shims re-exporting the Rust compute; the
 pre-migration implementations are pinned verbatim as the differential
@@ -24,9 +24,9 @@ until the Rust surface landed).
 | `DecisionTrace` why/why_not/history/summary | `decision.py` | migrated; `Decision`/`DecisionTrace`/`Alternative` dataclasses + Enum members stay Python (Enum member identity, uuid/datetime defaults) |
 | logger `should_log` / `significant_change` / `log_*` decision construction | `logger.py` | migrated; the `DecisionLogger` class shell and its `uuid`/`datetime` defaults stay Python |
 | markdown renderers | `markdown_report.py` | migrated |
-| `_serialize_value` recursion + dict shapes | `serialization.py` | migrated; `json.dumps`/`datetime.fromisoformat` stay Python |
+| `_serialize_value` recursion + dict shapes | retired `serialization.py` | superseded by orchestration pyclass `to_dict`; no io-types binding retained |
 | constraint subject/because introspection + threshold gate | `traced_loss.py` | migrated; the `@traced`/`@log_traced_loss` decorators themselves stay Python (they wrap arbitrary Python callables — a Rust decorator cannot wrap a Python closure without re-entrant pyo3 handles), `float()` and `sum()` on the loss stay Python |
-| `compose_traces` monoid fold | `pipeline.py` | migrated |
+| `compose_traces` monoid fold | retired `pipeline.py` | owned by `temper-orchestration.Trace.__add__`; no io-types binding retained |
 | `str(value)` of arbitrary Python objects | all modules | **stays Python** — called back across the boundary; CPython's `str` is a Python runtime semantic (the guide's "library semantics are not reimplementable") |
 | set iteration order (`unique_subjects`) | `markdown_report.py` / `trace.py` | **stays Python** — hash-randomized per process; sorting to stabilise would be a behaviour change no differential could catch (the guide's iteration-order trap). The Rust consumes the Python-ordered list. |
 | `strftime` / `datetime` arithmetic | `markdown_report.py`, `decision.py`, `serialization.py` | **stays Python** — `datetime` is a Python stdlib type; durations are computed Python-side from `datetime` objects |
@@ -36,8 +36,8 @@ until the Rust surface landed).
 **Mathematical induction is not applicable to this slice.** Every migrated
 kernel is a finite transcription: the renderers are fixed templates over
 caller-provided collections (per-element work independent of collection
-size), `_serialize_value` recursion is bounded by the input structure's
-depth (the value domain is closed: tuples/lists/dicts of scalars, `None`,
+size), the retired serialization adapter's recursion was bounded by the input
+structure's depth (the value domain was closed: tuples/lists/dicts of scalars, `None`,
 `float`/`int`/`bool`/`str` — a structural recursion, not a size-parameterized
 one), and `compose_traces`' fold is order-preserving concatenation whose
 correctness is asserted for every composition arity by the monoid laws.
@@ -169,9 +169,7 @@ its fixture exercises it, G4-style).
 | `explainability/decision.py` | 7 (why shape; constraint refs appended; why_not list/tuple matching; loss at 4dp; history chronological subject filter; summary aggregation; duration none/after-finalize) | 3 (history order == insertion order per subject; summary aggregates == underlying decisions; why includes refs iff present) |
 | `explainability/logger.py` | 5 (periodicity; boundary; negative-epoch modulo; zero-interval raises; significant-change commutativity + threshold boundary) | 3 (distance symmetry (a,b)↔(b,a); periodicity `should_log(e+i)==should_log(e)`; threshold monotonicity — exactly-at-threshold flips) |
 | `explainability/markdown_report.py` | 6 (byte-identical render; header lines; duration line; value formatting; truncation pins; table indexing + ordered tables) | 3 (component report contains only subject decisions; 50-cap: 60 decisions ⇒ capped + "earlier decisions omitted" + last present; section order fixed) |
-| `explainability/serialization.py` | 5 (dict shapes; `_serialize_value` recursion on nested tuples/lists/dicts; round-trip stability; ids/metrics preserved; leaf type pins) | 3 (serialize→deserialize→serialize idempotent; recursion mirrors input nesting; re-serialised dict shape == original) |
 | `explainability/traced_loss.py` | 6 (subject/because introspection over 6 constraint shapes; threshold gate; float conversion accepts strings; non-float records raw; defaults; context mode) | 3 (threshold monotonicity — below/at/above gate; wrapper returns same loss value as undecorated callable; context enter/exit restores prior state) |
-| `explainability/pipeline.py` | 5 (monoid associativity; identity/empty compose; order preservation; N-way compose; oracle equality on random trace lists) | 3 (the three monoid laws, per-module) |
 
 ## RED-test corrections
 
@@ -995,14 +993,14 @@ Python-touching boundary), mirroring the crate's other kernels.
 | `place_power_stage_template` compute (zone-center template application + mapping loop) | `deterministic.py` | migrated (`placer_place_power_stage_template`) |
 | `place_by_proximity` spiral (the #763 fix) | `deterministic.py` | migrated (`placer_place_by_proximity`) |
 | `place_in_zone_center` grid distribution | `deterministic.py` | migrated (`placer_place_in_zone_center`) |
-| `adjust_for_congestion` push loop (dtype-aware) | `adjustment.py` | migrated (`placer_adjust_for_congestion`) |
+| `adjust_for_congestion` push loop (dtype-aware) | retired `adjustment.py` | Rust kernel retained as a direct differential surface (`placer_adjust_for_congestion`) |
 | template dataclasses + `create_*` data constructors | `template.py` | **stays Python** — data containers, not compute |
 | `load_template_from_yaml` | `template.py` | **stays Python** — `yaml.safe_load` is a Python library seam (the Phase-3 PyYAML ruling) |
 | `PlacementResult` dataclass | `deterministic.py` | **stays Python** |
 | zone/netlist/bottleneck object navigation (`.zones`, `.bounds`, `.components[].ref/.fixed`, `n_components`, `bottleneck.overflow`, `bottleneck.to_coordinates(...)`) | all three | **stays Python** |
 | `math.cos`/`math.sin` (template rotation, spiral angle) | all three | **stays Python, called back** — CPython's libm bits are the oracle's; Rust `f64::sin` is 1-ULP-divergent on this platform (measured 461/200k, 2026-08-05) |
-| `np.sqrt(dx**2 + dy**2)` (numpy `**2` is libm `pow`, not `x*x`; numpy float32 `sqrt` is correctly-rounded f32) | `adjustment.py` | **stays Python, called back** (`dist` seam) |
-| `np.random.uniform(0, 2*pi)` (the global numpy RNG, drawn in the oracle's iteration order) | `adjustment.py` | **stays Python, called back** (`uniform` seam) |
+| `np.sqrt(dx**2 + dy**2)` (numpy `**2` is libm `pow`, not `x*x`; numpy float32 `sqrt` is correctly-rounded f32) | adjustment differential harness | **test seam, called back** (`dist`) |
+| `np.random.uniform(0, 2*pi)` (the global numpy RNG, drawn in the oracle's iteration order) | adjustment differential harness | **test seam, called back** (`uniform`) |
 | `np.cos`/`np.sin` of the random push angle | `adjustment.py` | **stays Python, called back** |
 | `math.radians` (`x*(pi/180)` ratio form) | `template.py` | reproduced in the kernel as `(r as f64) * (PI/180.0)` — bit-identical (both are the correctly-rounded double product of the same π double and 180.0) |
 | Python `%` (floored) composite rotation | all | reproduced via `py_mod` |

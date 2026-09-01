@@ -1138,23 +1138,6 @@ def test_bundle_manifest_properties():
 
 
 # =============================================================================
-# Capacity check report properties
-# =============================================================================
-
-
-def test_capacity_demand_report_properties():
-    from temper_placer.router_v6.capacity_check import CapacityDemandReport
-
-    cdr = CapacityDemandReport(
-        ratios={"N1": 2.0, "N2": 0.5, "N3": 0.8},
-        at_risk_nets=["N2", "N3"],
-        safe_nets=["N1"],
-    )
-    assert cdr.at_risk_count == 2
-    assert cdr.safe_count == 1
-
-
-# =============================================================================
 # Routing demand
 # =============================================================================
 
@@ -1735,13 +1718,6 @@ def test_stage_drc_failure_fatal():
 # =============================================================================
 # SKIP: emit_zone_s_expr takes a single list of points, not a (name, points) pair.
 # See: needs-heavy-fixture category.
-
-
-# =============================================================================
-# ViaDedup (io/via_dedup.py)
-# =============================================================================
-# SKIP: ViaKey.from_via and deduplicate_vias require Via objects from the
-# routing pipeline. See: needs-heavy-fixture category.
 
 
 # =============================================================================

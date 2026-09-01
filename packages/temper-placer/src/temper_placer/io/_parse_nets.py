@@ -23,17 +23,12 @@ What deliberately stays Python (R3-style boundary, argued in VERIFICATION.md):
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import temper_design_bundle_python as _tdb
 
 from temper_placer.core.design_rules import DesignRules
 from temper_placer.core.netlist import Netlist
 
 _rs = _tdb.parse_engine
-
-if TYPE_CHECKING:
-    from kiutils.board import Board as KiBoard
 
 # Pure-text net-class extraction kernel (Rust; kiutils-free).
 extract_net_classes = _rs.extract_net_classes
@@ -99,7 +94,7 @@ def _class_current_rating(class_name: str):
 
 
 def _extract_design_rules(
-    _ki_board: KiBoard, _warnings: list[str], pcb_content: str | None = None
+    _ki_board: object | None, _warnings: list[str], pcb_content: str | None = None
 ) -> DesignRules:
     """
     Extract KiCad design rules from board setup.

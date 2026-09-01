@@ -9,7 +9,7 @@ Covers still-zero-coverage allowlisted functions:
 import numpy as np
 import pytest
 
-from temper_placer.core.board import Board, Zone
+from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.heuristics.base import (
     ComponentPlacement,
@@ -390,51 +390,6 @@ class TestStyleApply:
 
 
 # ============================================================================
-# power_stage.py — heuristic apply() methods
-# ============================================================================
-
-
-class TestPowerStageApply:
-    """Tests for .apply() methods on power_stage heuristics."""
-
-    def test_driver_proximity_apply(self):
-        from temper_placer.heuristics.power_stage import DriverProximityHeuristic
-        netlist = _make_medium_netlist()
-        ctx = _make_basic_context(netlist=netlist)
-        h = DriverProximityHeuristic()
-        result = h.apply(ctx)
-        assert isinstance(result, HeuristicResult)
-
-    def test_power_stage_template_apply(self):
-        from temper_placer.heuristics.power_stage import PowerStageTemplateHeuristic
-        netlist = _make_medium_netlist()
-        ctx = _make_basic_context(netlist=netlist)
-        h = PowerStageTemplateHeuristic()
-        result = h.apply(ctx)
-        assert isinstance(result, HeuristicResult)
-
-    # Property tests (stale entries)
-    def test_driver_proximity_name(self):
-        from temper_placer.heuristics.power_stage import DriverProximityHeuristic
-        h = DriverProximityHeuristic()
-        assert isinstance(h.name, str)
-
-    def test_driver_proximity_priority(self):
-        from temper_placer.heuristics.power_stage import DriverProximityHeuristic
-        h = DriverProximityHeuristic()
-        assert isinstance(h.priority, HeuristicPriority)
-
-    def test_power_stage_template_name(self):
-        from temper_placer.heuristics.power_stage import PowerStageTemplateHeuristic
-        h = PowerStageTemplateHeuristic()
-        assert isinstance(h.name, str)
-
-    def test_power_stage_template_priority(self):
-        from temper_placer.heuristics.power_stage import PowerStageTemplateHeuristic
-        h = PowerStageTemplateHeuristic()
-        assert isinstance(h.priority, HeuristicPriority)
-
-
 # ============================================================================
 # topological_init.py — heuristic apply() and properties
 # ============================================================================
@@ -465,30 +420,6 @@ class TestTopologicalInitApply:
         from temper_placer.heuristics.topological_init import TopologicalInitializationHeuristic
         h = TopologicalInitializationHeuristic()
         assert isinstance(h.description, str)
-
-
-# ============================================================================
-# mcu_subsystem.py — heuristic apply() method
-# ============================================================================
-
-
-class TestMCUSubsystemApply:
-    """Tests for MCUSubsystemHeuristic.apply."""
-
-    def test_mcu_subsystem_apply_needs_mcu_zone(self):
-        """MCUSubsystemHeuristic.apply takes netlist, board, zone_name."""
-        from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
-        # Create a board with an MCU zone
-        board = Board(
-            width=100.0, height=100.0,
-            zones=[Zone("MCU", (20, 20, 60, 60))],
-        )
-        netlist = _make_small_netlist()
-        h = MCUSubsystemHeuristic()
-        # apply(netlist, board, zone_name) - different from Heuristic base class
-        result = h.apply(netlist, board, zone_name="MCU")
-        # Result is a PlacementResult from deterministic placer
-        assert result is not None
 
 
 # ============================================================================

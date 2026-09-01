@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import math
 import random
+from pathlib import Path
 
 import pytest
 from shapely.geometry import Polygon
@@ -62,7 +63,7 @@ def test_oracle_is_verbatim_copy():
             "show",
             "c10523bb:packages/temper-placer/src/temper_placer/router_v6/zone_emission.py",
         ],
-        cwd="/home/bennet/Desktop/temper/.claude/worktrees/agent-a95a9dc7b333a2c58",
+        cwd=Path(__file__).resolve().parents[4],
         capture_output=True,
         text=True,
         check=True,

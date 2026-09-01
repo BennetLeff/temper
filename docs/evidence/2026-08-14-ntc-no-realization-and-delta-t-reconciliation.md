@@ -1,4 +1,4 @@
-<!-- provenance: branch fix/ntc-no-ampacity-correction, worktree
+<!-- provenance: commit=155df4f5ba562e7bf0a54d26c711d3e86aa63598 dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-worktrees/ntc-ampacity-fix, based on
 docs/evidence/2026-08-14-ntc-no-ampacity-current-fix-and-pour-neck-measurement.md
 @ 1291cdaff (that task's own SS3.3 recommendation is the starting point

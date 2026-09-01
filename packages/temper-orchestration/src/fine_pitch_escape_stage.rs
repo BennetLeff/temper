@@ -113,7 +113,9 @@ impl FinePitchEscapeStage {
             _ => PyList::empty(py).into_any(),
         };
 
-        let leaves = py.import("temper_design_bundle_python")?.getattr("deterministic_leaves")?;
+        let leaves = py
+            .import("temper_design_bundle_python")?
+            .getattr("deterministic_leaves")?;
         let pin_geometry = py.import("temper_placer.core.pin_geometry")?;
         let builtins = py.import("builtins")?;
         let round_ = builtins.getattr("round")?;
@@ -173,29 +175,22 @@ impl FinePitchEscapeStage {
                 }
                 // `if component.ref not in fine_pitch_refs and pin.net not
                 // in fine_pitch_nets: continue`.
-                let in_fp_refs = fine_pitch_refs.call_method1("__contains__", (component.getattr("ref")?,))?;
+                let in_fp_refs =
+                    fine_pitch_refs.call_method1("__contains__", (component.getattr("ref")?,))?;
                 let in_fp_nets = fine_pitch_nets.call_method1("__contains__", (&net,))?;
                 if !in_fp_refs.is_truthy()? && !in_fp_nets.is_truthy()? {
                     continue;
                 }
 
                 // `pin_x, pin_y = pin_world_position_at(pin, component, comp_pos)`.
-                let world = pin_geometry.call_method1(
-                    "pin_world_position_at",
-                    (&pin, &component, &comp_pos),
-                )?;
+                let world = pin_geometry
+                    .call_method1("pin_world_position_at", (&pin, &component, &comp_pos))?;
                 let pin_x: f64 = world.get_item(0)?.extract()?;
                 let pin_y: f64 = world.get_item(1)?.extract()?;
 
                 // `pos_key = (round(pin_x, 3), round(pin_y, 3))` -- CPython
                 // round (round-half-to-even).
-                let key = PyTuple::new(
-                    py,
-                    [
-                        round_.call1((pin_x, 3))?,
-                        round_.call1((pin_y, 3))?,
-                    ],
-                )?;
+                let key = PyTuple::new(py, [round_.call1((pin_x, 3))?, round_.call1((pin_y, 3))?])?;
                 let contains = via_positions.call_method1("__contains__", (&key,))?;
                 if contains.is_truthy()? {
                     continue;
@@ -221,7 +216,10 @@ impl FinePitchEscapeStage {
                 // layers=("F.Cu", escape_layer_name), net=pin.net)`.
                 let layers = PyTuple::new(
                     py,
-                    [PyString::new(py, "F.Cu").into_any(), PyString::new(py, &escape_layer_name).into_any()],
+                    [
+                        PyString::new(py, "F.Cu").into_any(),
+                        PyString::new(py, &escape_layer_name).into_any(),
+                    ],
                 )?;
                 let kwargs = PyDict::new(py);
                 kwargs.set_item("position", PyTuple::new(py, [pin_x, pin_y])?)?;
@@ -295,19 +293,11 @@ impl FinePitchEscapeStage {
             )?;
             if layer2_nets.is_truthy()? {
                 let sorted2 = builtins.getattr("sorted")?.call1((&layer2_nets,))?;
-                py_print_fmt(
-                    py,
-                    "  Layer 2 nets: {}",
-                    &[sorted2],
-                )?;
+                py_print_fmt(py, "  Layer 2 nets: {}", &[sorted2])?;
             }
             if layer3_nets.is_truthy()? {
                 let sorted3 = builtins.getattr("sorted")?.call1((&layer3_nets,))?;
-                py_print_fmt(
-                    py,
-                    "  Layer 3 (B.Cu) nets: {}",
-                    &[sorted3],
-                )?;
+                py_print_fmt(py, "  Layer 3 (B.Cu) nets: {}", &[sorted3])?;
             }
         } else {
             py_print_fmt(
@@ -354,19 +344,12 @@ impl FinePitchEscapeStage {
                     if !net.is_truthy()? {
                         continue; // Skip NC pins
                     }
-                    let world = pin_geometry.call_method1(
-                        "pin_world_position_at",
-                        (&pin, &component, &comp_pos),
-                    )?;
+                    let world = pin_geometry
+                        .call_method1("pin_world_position_at", (&pin, &component, &comp_pos))?;
                     let pin_x: f64 = world.get_item(0)?.extract()?;
                     let pin_y: f64 = world.get_item(1)?.extract()?;
-                    let key = PyTuple::new(
-                        py,
-                        [
-                            round_.call1((pin_x, 3))?,
-                            round_.call1((pin_y, 3))?,
-                        ],
-                    )?;
+                    let key =
+                        PyTuple::new(py, [round_.call1((pin_x, 3))?, round_.call1((pin_y, 3))?])?;
                     let has = current_via_positions.call_method1("__contains__", (&key,))?;
                     if !has.is_truthy()? {
                         let m = PyDict::new(py);
@@ -416,7 +399,10 @@ impl FinePitchEscapeStage {
                     py_print_fmt(
                         py,
                         "    {}: {}",
-                        &[PyString::new(py, &net).into_any(), PyString::new(py, &pin_list).into_any()],
+                        &[
+                            PyString::new(py, &net).into_any(),
+                            PyString::new(py, &pin_list).into_any(),
+                        ],
                     )?;
                 }
 
@@ -456,7 +442,10 @@ impl FinePitchEscapeStage {
                         .extract()?;
                     let layers = PyTuple::new(
                         py,
-                        [PyString::new(py, "F.Cu").into_any(), PyString::new(py, &escape_layer_name).into_any()],
+                        [
+                            PyString::new(py, "F.Cu").into_any(),
+                            PyString::new(py, &escape_layer_name).into_any(),
+                        ],
                     )?;
                     let kwargs = PyDict::new(py);
                     kwargs.set_item("position", &pin_pos)?;
@@ -508,11 +497,7 @@ impl FinePitchEscapeStage {
 /// `print(str.format(template, *args))` -- the only message renderer
 /// (David-Gay `:.2f`, float `str()`, int/str interpolation, `sorted` list
 /// reprs) stays CPython.
-fn py_print_fmt(
-    py: Python<'_>,
-    template: &str,
-    args: &[Bound<'_, PyAny>],
-) -> PyResult<()> {
+fn py_print_fmt(py: Python<'_>, template: &str, args: &[Bound<'_, PyAny>]) -> PyResult<()> {
     let rendered = d6_util::py_format(py, template, args)?;
     d6_util::py_print(py, &[rendered])
 }
@@ -525,9 +510,8 @@ pub fn run_fine_pitch_escape(
     state: Py<PyAny>,
     stage: Py<PyAny>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let rust_stage = FinePitchEscapeStage { stage };
     let out = rust_stage
         .run(rust_state)
