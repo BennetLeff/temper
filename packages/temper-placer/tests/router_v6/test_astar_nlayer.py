@@ -747,8 +747,22 @@ def test_pair_creepage_table_resolves_dru_pairs():
 
 def test_creepage_halos_stamped_around_foreign_pads_only():
     """The LV family's grid gets an HV pad's 12.6mm creepage halo; the
-    halo is stamped around the HV pad for an LV searching net, while the
-    LV net's own pad stays free. The HV family gets the symmetric halo."""
+    halo is stamped around the HV pad for an LV searching net. The HV
+    family gets the symmetric halo.
+
+    2026-08-17 update (per docs/evidence/2026-08-16-via-span-clearance-and-
+    clearance-family.md, "unblock-clipped foreign rings"): every OTHER net's
+    pad -- including same-class pads, whose pair creepage is 0 -- now also
+    gets an entry, at the small RULE 10 clearance floor (0.2mm here) rather
+    than being skipped entirely. Skipping zero-creepage pairs was the exact
+    bug this test used to encode: `_unblock_net_pads` clears a hole around
+    the routing net's own pad regardless of what foreign obstacle falls
+    inside it, and a same-class foreign pad close enough to fall in that
+    hole got NO ring restored at all, letting a later net's track/via
+    route straight through it -- 132 measured clearance DRC violations.
+    `HV_PAD_NET` and `LV_NET` are each a DIFFERENT net than the searching
+    family's net ("NARROW"/"WIDE" are channel names with no pad on this
+    fixture board), so DRC's RULE 10 floor genuinely applies to both."""
     import temper_placer.router_v6._astar_nlayer as _nl
 
     side = 40.0
@@ -764,39 +778,65 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # HV pad at (10,10); LV pad at (16,10). In the LV (Default) family the
     # HV pad's halo carries 12.6mm; in the HV (HighVoltage) family the LV
     # pad's halo carries 12.6mm. Both must be present in the per-family
-    # halo lists.
+    # halo lists -- creepage dominates clearance for this cross-domain pair
+    # (max(12.6, 2.0) == 12.6), so this part of the fixture is unchanged by
+    # the 2026-08-17 fix.
     lv_family = families[(0.2, 0.2, "Default")]
-    hv_family = families[(5.0, 2.0, "HighVoltage")]
-
     lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
     lv_halo_nets = {n for n, _o, _h in lv_halos}
     assert "HV_PAD_NET" in lv_halo_nets, "HV pad must halo an LV searching net"
-    assert "LV_NET" not in lv_halo_nets, "same-class pads must not halo themselves"
+    # LV_NET is class Signal, a DIFFERENT net-class than NARROW's own
+    # Default -- (Default, Signal) grades 0.0mm creepage but 0.2mm
+    # clearance (RULE 10 floor), so it now correctly carries a (small)
+    # halo instead of being skipped.
+    assert "LV_NET" in lv_halo_nets, "Default<->Signal must still carry the 0.2mm clearance floor"
 
     hv_halos = halos[(5.0, 2.0, "HighVoltage")]["F.Cu"]
     hv_halo_nets = {n for n, _o, _h in hv_halos}
     assert "LV_NET" in hv_halo_nets, "LV pad must halo an HV searching net"
-    assert "HV_PAD_NET" not in hv_halo_nets, "own-class pad must not be haloed"
+    # HV_PAD_NET is class HighVoltage, the SAME class as WIDE's own family
+    # -- but a DIFFERENT net. (HighVoltage, HighVoltage) grades 0.0mm
+    # creepage but 0.2mm clearance (RULE 10 floor: same class does not mean
+    # same net), so it now correctly carries a (small) halo too.
+    assert "HV_PAD_NET" in hv_halo_nets, "same-class DIFFERENT net must still carry the clearance floor"
 
     # The halo radius must reach the pair creepage: HV pad (1.0mm square,
-    # half-extent 0.5) + W/2 + C + 12.6. In the LV family W/2+C = 0.3, so a
-    # cell 12.5mm to the right of the pad center is inside the halo but a
-    # cell 13.5mm away is outside. (Buffer uses quad_segs=4, so check with
-    # margin either side of the boundary.)
+    # half-extent 0.5) + the searching net's own half-width (0.1 for the
+    # 0.2mm-wide Default family) + 12.6 creepage (clearance("Default",
+    # "HighVoltage") == 2.0 does not dominate). Boundary at 0.5+0.1+12.6 =
+    # 13.2mm from the pad centre, so a cell 12.5mm out is inside and a cell
+    # 14.5mm out is outside. (Buffer uses quad_segs=4, so check with margin
+    # either side of the boundary.)
     grid = lv_family["F.Cu"]
-    _nl._stamp_foreign_creepage_halos("NARROW", {"F.Cu": grid}, {"F.Cu": lv_halos})
+    _nl._stamp_foreign_pair_halos("NARROW", {"F.Cu": grid}, {"F.Cu": lv_halos})
 
     inside = grid.world_to_grid(10.0 + 12.5, 10.0)
     outside = grid.world_to_grid(10.0 + 14.5, 10.0)
     assert grid.is_blocked(*inside), "cell 12.5mm from HV pad must be blocked in LV family"
     assert grid.is_free(*outside), "cell 14.5mm from HV pad must stay free in LV family"
 
-    # The searching net's OWN pads are not haloed: a cell right beside the
-    # LV pad (own to LV_NET, foreign to NARROW) is... NARROW has no pads on
-    # this board, so check the pad itself is still static (-1) and that the
-    # LV pad's surroundings carry no halo ring beyond the 0.2mm erosion.
-    lv_pad_cell = grid.world_to_grid(16.0, 10.0)
-    assert grid.grid[lv_pad_cell[1], lv_pad_cell[0]] == -1
+    # LV_NET's own halo polygon (inspected directly, NOT via the rasterised
+    # grid -- LV_NET at (16,10) sits only 6mm from HV_PAD_NET at (10,10),
+    # well inside HV_PAD_NET's own 13.2mm creepage halo in this SAME family,
+    # so any raster probe near LV_NET is confounded by HV_PAD_NET's much
+    # larger ring; the un-rasterised polygon isolates LV_NET's own
+    # contribution exactly). Expected half-extent from its centre:
+    # 0.5 half-pad + 0.1 (Default family's own half-width) + 0.2 (the
+    # (Default, Signal) pair clearance) = 0.8mm. The REJECTED naive fix
+    # (restamp at the searching family's own static erosion
+    # `_family_static_inflation` == W/2 + C == 0.3 -- i.e. treating the pair
+    # figure as an ADD-ON to the searching net's own declared clearance
+    # rather than a REPLACEMENT for it) would instead reach 0.5 + 0.3 + 0.2
+    # = 1.0mm from centre -- 0.2mm wider on every side, and NOT what the
+    # code below computes.
+    lv_net_halo = next((o, h) for n, o, h in lv_halos if n == "LV_NET")
+    lv_xs = [x for ring in lv_net_halo[0] for x in ring[0::2]]
+    lv_half_extent = (max(lv_xs) - min(lv_xs)) / 2.0
+    assert lv_half_extent == pytest.approx(0.8, abs=0.02), (
+        f"LV_NET halo half-extent {lv_half_extent:.3f}mm != the pair-figure radius 0.8mm "
+        "-- 1.0mm here would mean the rejected naive (searching family's own clearance) "
+        "radius shipped instead"
+    )
 
 
 def test_creepage_halo_stamp_preserves_holes_across_multipolygon_components():
@@ -824,7 +864,7 @@ def test_creepage_halo_stamp_preserves_holes_across_multipolygon_components():
         16,
     )
 
-    _nl._stamp_foreign_creepage_halos(
+    _nl._stamp_foreign_pair_halos(
         "ROUTING",
         {"F.Cu": grid},
         {"F.Cu": [("FOREIGN", outer_rings, holes)]},
@@ -871,8 +911,9 @@ def test_creepage_halo_blocks_lv_net_from_hv_pad():
     if "SIG" in result.routed_paths:
         # If it routed at all, it must have gone around -- every segment
         # keeps >= 12.6mm edge-to-edge from the HV pad center (pad
-        # half-extent 0.5, plus the family's W/2+C 0.3, plus 12.6 creepage
-        # = 13.4mm centerline).
+        # half-extent 0.5, plus SIG's own half-width 0.1, plus 12.6
+        # creepage -- clearance("Signal", "HighVoltage") does not dominate
+        # -- = 13.2mm centerline).
         for sx, sy, _layer in result.routed_paths["SIG"].segments:
             dist = ((sx - 10.0) ** 2 + (sy - 10.0) ** 2) ** 0.5
             assert dist >= 12.5, f"SIG routed {dist:.2f}mm from HV pad -- inside creepage halo"
