@@ -11,8 +11,9 @@ dispatch, the node/edge-width assembly and the min/max/avg statistics —
 moved to ``temper-orchestration``'s ``channel_mapping.rs``
 (``run_channel_widths_edt``).  The rasterised EDT grid preparation is now
 owned by ``temper-geometry`` as one Rust call; this module only extracts
-Shapely rings and adapts the returned byte buffers for its disk cache, then
-wraps the Rust orchestration results back into ``ChannelWidths`` (unchanged).
+Shapely rings and adapts the returned mask byte buffer for its disk cache,
+then wraps the Rust orchestration results back into ``ChannelWidths``
+(unchanged).
 
 **The shapely-blocked portions stay Python (evidence).** The pieces this
 module still owns have no Rust equivalent, measured in the E4 scoping:
@@ -341,16 +342,17 @@ def _build_edt(
             pass
 
     outer_rings, holes = _area_rings(routing_space.available_area)
-    edt_bytes, mask_bytes, height, width = _tg.prepare_channel_widths_edt(
+    edt, mask_bytes, height, width = _tg.prepare_channel_widths_edt(
         outer_rings,
         holes,
         bounds,
         cell_size,
     )
-    # The numerical preparation is Rust-owned. These two views are only the
-    # Python cache/FFI adaptation, preserving the historical ndarray return
-    # contract for callers and the npz cache format.
-    edt = np.frombuffer(edt_bytes, dtype="<f8").reshape(height, width)
+    # The numerical preparation is Rust-owned. Rust transfers ownership of
+    # the EDT Vec directly to a C-contiguous float64 ndarray; only the mask
+    # remains a byte-buffer adaptation at this boundary. This preserves the
+    # historical ndarray return contract and npz cache format without a
+    # second EDT-sized serialization buffer.
     mask = np.frombuffer(mask_bytes, dtype=np.uint8).reshape(height, width).astype(bool)
 
     if use_cache:

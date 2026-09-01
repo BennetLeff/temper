@@ -13,6 +13,7 @@ rebuild.
 from __future__ import annotations
 
 import random
+from pathlib import Path
 
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon, box
@@ -25,6 +26,10 @@ from temper_placer.router_v6.channel_widths import (
 )
 from temper_placer.router_v6.routing_space import RoutingSpace
 from tests.router_v6 import _channel_ops_py_oracle as _oracle
+
+_GEOMETRY_CHANNEL_WIDTHS_RS = (
+    Path(__file__).resolve().parents[3] / "temper-geometry" / "src" / "channel_widths.rs"
+)
 
 # ---------------------------------------------------------------------------
 # Oracle: the pre-migration per-point EDT width lookup, pinned verbatim.
@@ -145,6 +150,39 @@ def test_batch_masked_cells_contribute_zero() -> None:
     ys = np.asarray([0.5, 5.5, 2.2])
     batch = _edt_width_lookup_batch(xs, ys, edt, mask, (0.0, 0.0, 10.0, 10.0), 1.0)
     np.testing.assert_array_equal(batch, np.zeros(3))
+
+
+def test_prepare_edt_transfers_owned_ndarray_without_edt_byte_serialization() -> None:
+    """The pyo3 boundary must transfer the Rust EDT Vec directly to NumPy.
+
+    The source assertion is deliberate allocation-shape coverage: an API
+    representation assertion alone could still pass if Rust first built and
+    discarded a second full-grid byte buffer. The focused boundary body must
+    contain the consuming ``into_pyarray`` transfer and no EDT byte buffer or
+    per-value byte serialization.
+    """
+    source = _GEOMETRY_CHANNEL_WIDTHS_RS.read_text()
+    boundary = source.split("pub fn prepare_channel_widths_edt(", 1)[1].split(
+        "/// Pure-Rust owner of channel-width raster preparation.", 1
+    )[0]
+    assert "edt.into_pyarray(py).reshape((height, width))?" in boundary
+    assert "edt_bytes" not in boundary
+    assert "value.to_le_bytes()" not in boundary
+
+
+def test_prepare_edt_returns_c_contiguous_float64_ndarray() -> None:
+    """The direct pyo3 result keeps the public ndarray representation."""
+    import temper_geometry as _tg
+
+    outer = [[0.0, 0.0, 4.0, 0.0, 4.0, 4.0, 0.0, 4.0, 0.0, 0.0]]
+    edt, mask_bytes, height, width = _tg.prepare_channel_widths_edt(
+        outer, [[]], (0.0, 0.0, 4.0, 4.0), 1.0
+    )
+    assert isinstance(edt, np.ndarray)
+    assert edt.shape == (height, width)
+    assert edt.dtype == np.dtype("<f8")
+    assert edt.flags.c_contiguous
+    assert len(mask_bytes) == height * width
 
 
 # ---------------------------------------------------------------------------

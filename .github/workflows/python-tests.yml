@@ -904,21 +904,20 @@ jobs:
       # tests/validation/test_ci_test_file_registration.py and
       # docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md).
       # pytest_guard floors the collection at the 1092 tests counted on
-      # 2026-08-09 with this exact 16-file invocation (`-m "not slow"`,
+      # 2026-08-09 with this exact invocation (`-m "not slow"`,
       # all passing), so a silently-shrunk suite fails instead of passing
       # vacuously. The core/ and metrics/ members are also swept by other
       # jobs' directory arguments; they get the pinned floor here regardless.
       #
-      # FLOOR RE-ANCHORED 2026-08-28: 1029 -> 607. The two
-      # tests/requirements/validators geometry suites were retired with their
-      # Python implementations in the Rust migration and removed from this
-      # invocation; 607 is the measured count of the surviving 13-file
-      # invocation under the same `-m "not slow"`.
+      # FLOOR RE-ANCHORED 2026-09-01: 607 -> 643. The three in-scope migrated
+      # router_v6 differential/contract suites below were added to this hard
+      # PR-time invocation; 643 is the exact selected count (with `-m "not slow"`)
+      # measured for the resulting 16-file invocation.
       - name: Run Wave-4 round-2 differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 607 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 643 --
           tests/heuristics/test_heuristics_rust_differential.py
           tests/heuristics/test_heuristics_pbt.py
           tests/router_v6/test_spatial_drc_cluster_rust_differential.py
@@ -928,11 +927,14 @@ jobs:
           tests/router_v6/test_channel_mapping_rust_differential.py
           tests/router_v6/test_channel_skeleton_pad_anchor_rust_differential.py
           tests/router_v6/test_channel_mapping_pbt.py
+          tests/router_v6/test_pad_connectivity_audit_rust_differential.py
+          tests/router_v6/test_stage3_native_handoff.py
+          tests/router_v6/test_channel_widths_rust_differential.py
           tests/core/test_bus_cohort_rust_differential.py
           tests/core/test_bus_cohort_pbt.py
           tests/metrics/test_aesthetic_rust_differential.py
           tests/metrics/test_aesthetic_rust_pbt.py
-          -v --tb=short -p no:cacheprovider --maxfail=10
+          -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1

@@ -10,6 +10,8 @@
 // reference.
 
 #[cfg(feature = "python")]
+use numpy::{IntoPyArray, PyArray2, PyArrayMethods};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 /// Build the raster mask used by the channel-width EDT and run the exact
@@ -20,11 +22,12 @@ use pyo3::prelude::*;
 #[pyfunction]
 #[pyo3(signature = (outer_rings, holes, bounds, cell_size))]
 pub fn prepare_channel_widths_edt(
+    py: Python<'_>,
     outer_rings: Vec<Vec<f64>>,
     holes: Vec<Vec<Vec<f64>>>,
     bounds: (f64, f64, f64, f64),
     cell_size: f64,
-) -> PyResult<(Vec<u8>, Vec<u8>, usize, usize)> {
+) -> PyResult<(Bound<'_, PyArray2<f64>>, Vec<u8>, usize, usize)> {
     if outer_rings.len() != holes.len() {
         return Err(pyo3::exceptions::PyValueError::new_err(
             "outer_rings and holes must have the same length",
@@ -46,11 +49,14 @@ pub fn prepare_channel_widths_edt(
     }
     let (edt, mask, height, width) =
         prepare_channel_widths_edt_kernel(&outer_rings, &holes, bounds, cell_size);
-    let mut edt_bytes = Vec::with_capacity(edt.len() * 8);
-    for value in edt {
-        edt_bytes.extend_from_slice(&value.to_le_bytes());
-    }
-    Ok((edt_bytes, mask, height, width))
+    // Consume the kernel's Vec directly into NumPy-owned storage.  The
+    // resulting 1-D array owns the Vec allocation through numpy's
+    // PySliceContainer; reshape only changes its view metadata and keeps the
+    // owning base alive.  This avoids the old equal-sized Vec<u8>
+    // serialization at the FFI boundary while preserving a C-contiguous,
+    // float64 2-D ndarray for Python callers.
+    let edt = edt.into_pyarray(py).reshape((height, width))?;
+    Ok((edt, mask, height, width))
 }
 
 /// Pure-Rust owner of channel-width raster preparation.

@@ -217,8 +217,12 @@ def check_net_pad_connectivity(
 ) -> NetConnectivityResult:
     """Does this net's copper actually connect all of its own pads?
 
-    A net with 0 or 1 pads is trivially connected (nothing to join). The
-    Rust kernel builds a union-find over (snapped-point, layer) nodes, union
+    A net with 0 or 1 pads is trivially connected (nothing to join). Keep
+    this historical result at the adapter boundary before calling Rust: the
+    FFI validates ``tolerance_mm`` for graph-building inputs, while a
+    trivial net never builds a graph and historically accepted zero and
+    non-finite tolerances. The Rust kernel builds a union-find over
+    (snapped-point, layer) nodes, union
     every segment's two endpoints (same layer only -- a segment never
     changes layer), union every via's position across the layers it spans,
     then union each pad's own node(s) in. The verdict is
@@ -235,6 +239,19 @@ def check_net_pad_connectivity(
     sits on a layer with a zone for this net: see
     ``NetConnectivityResult.category``.
     """
+    if len(pads) <= 1:
+        return NetConnectivityResult(
+            net_name=net_name,
+            pad_count=len(pads),
+            pads_connected=len(pads),
+            fully_connected=True,
+            has_any_copper=bool(segments or vias),
+            # Preserve the historical short-circuit result: zone metadata
+            # was not computed for a net with nothing to connect.
+            zone_layers=(),
+            zone_dependent_unmeasured=False,
+        )
+
     largest, fully_connected, has_any_copper, unreached_indices, graph_zones, zone_dependent_unmeasured = _tg.pad_connectivity_audit_py(
         [pad.position for pad in pads],
         [pad.layer for pad in pads],

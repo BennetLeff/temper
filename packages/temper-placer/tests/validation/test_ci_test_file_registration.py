@@ -213,7 +213,6 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_bottleneck_geometry_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_channel_edge_identity_determinism.py": _PASSING_LOCALLY,
     "router_v6/test_channel_skeleton_rust_differential.py": _PASSING_LOCALLY,
-    "router_v6/test_channel_widths_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_clearance_family_rust_differential.py": (
         "PASSING locally (Phase E E3, plan 2026-08-09-001): the clearance-family "
         "orchestration differential against the verbatim "

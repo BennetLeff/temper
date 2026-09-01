@@ -157,6 +157,48 @@ def test_production_core_calls_rust_graph_once(monkeypatch):
     assert len(calls) == 1
 
 
+@pytest.mark.parametrize("pad_count", (0, 1))
+@pytest.mark.parametrize("tolerance", (0.0, float("nan"), float("inf"), -float("inf")))
+def test_trivial_pad_counts_match_historical_oracle_for_invalid_tolerances(pad_count, tolerance):
+    """Trivial nets short-circuit before Rust's graph-input validation.
+
+    This preserves the pre-migration result exactly, including copper and
+    zone fields. The oracle's early return intentionally characterizes that
+    historical contract rather than attempting to validate an unused
+    tolerance.
+    """
+    pads = [(0.0, 0.0, "F.Cu")] * pad_count
+    segments = [(0.0, 0.0, 1.0, 0.0, "F.Cu")]
+    vias = [(1.0, 0.0, ("F.Cu", "B.Cu"))]
+    expected = oracle.graph_verdict(
+        pads, segments, vias, ("F.Cu", "B.Cu"), tolerance, ("F.Cu",)
+    )
+    result = audit.check_net_pad_connectivity(
+        "TRIVIAL",
+        [audit.NetPad((x, y), layer) for x, y, layer in pads],
+        [audit.CopperSegment((x1, y1), (x2, y2), layer) for x1, y1, x2, y2, layer in segments],
+        [audit.CopperVia((x, y), layers) for x, y, layers in vias],
+        all_layers=("F.Cu", "B.Cu"),
+        tolerance_mm=tolerance,
+        zone_layers=("F.Cu",),
+    )
+    assert (
+        result.pads_connected,
+        result.fully_connected,
+        result.has_any_copper,
+        (),
+        result.zone_layers,
+        result.zone_dependent_unmeasured,
+    ) == expected
+
+
+@pytest.mark.parametrize("tolerance", (0.0, float("nan"), float("inf"), -float("inf")))
+def test_nontrivial_pad_counts_keep_rust_tolerance_validation(tolerance):
+    pads = [audit.NetPad((0.0, 0.0), "F.Cu"), audit.NetPad((1.0, 0.0), "F.Cu")]
+    with pytest.raises(ValueError, match="tolerance_mm must be finite and non-zero"):
+        audit.check_net_pad_connectivity("NONTRIVIAL", pads, [], [], tolerance_mm=tolerance)
+
+
 @pytest.mark.slow
 def test_production_board_net_set_matches_kicad_unconnected_items():
     """Compare only the overlapping net-level verdict, not raw item counts.
