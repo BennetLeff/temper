@@ -72,11 +72,10 @@ name: WASM Tier PR Verdict (advisory)
 #
 # That is acceptable only while the verdict is ADVISORY. It stops being
 # acceptable at exactly the moment a tier verdict is proposed as a required
-# context -- which is the same moment R22/R23 durability comes due (D5.4,
-# restating D10). The two thresholds coincide, and that is tidy rather than
-# coincidental: a verdict nobody can merge past is a verdict that must be able
-# to answer for the commit it is judging, which means the native arm comes back
-# (or the deploy becomes per-commit) in the same change that makes it required.
+# context: a verdict nobody can merge past must answer for the exact commit it
+# is judging and retain a comparison arm. R22/R23 durability has already
+# shipped; the remaining promotion blockers are the sustained R19 evidence
+# and exact-commit execution described in the correction below.
 #
 # ---------------------------------------------------------------------------
 # ADVISORY, DELIBERATELY (D5.4)
@@ -322,8 +321,9 @@ name: WASM Tier PR Verdict (advisory)
 # - Never runs `cargo`. See "why tier-only" above; a build step here is the
 #   reversal of that decision.
 # - Never deploys a Worker, never invokes `wrangler`, never reads CF_TOKEN.
-#   Deploying is .github/workflows/wasm-tier-deploy.yml, `workflow_dispatch`
-#   only.
+#   Deploying is .github/workflows/wasm-tier-deploy.yml, which runs on pushes
+#   to `main`, on its daily schedule, or by manual `workflow_dispatch`; it is
+#   deliberately never triggered by a pull request.
 # - Never becomes a required check (D5.4). Not in .github/required-checks.json.
 # - Never writes to the repository, never opens a PR, never comments.
 # - `contents: read` + `actions: read`, nothing else.
