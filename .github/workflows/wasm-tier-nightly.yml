@@ -246,12 +246,11 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # this task identified as pure duplication of what the tier itself already
 # proves -- is.
 #
-# ANTI-VACUITY, GENERALISED. `inject_disagreement` used to hardcode
-# `temper-drc-rs`'s file, which only worked because temper-drc-rs's native
-# arm ran every night. The pre-U4 fixture below still reads `ROTATED_SUFFIX`
-# and targets the rotated/forced tier; U4 replaces that routing with an
-# explicit candidate and applies it after the immutable Worker sweep. Until
-# then, candidate rows remain diagnostic and cannot qualify.
+# ANTI-VACUITY, CANDIDATE-SPECIFIC. `inject_disagreement` targets the explicit
+# Phase 6 promotion candidate, never whichever tier happens to rotate. This is
+# still a pre-U7 LOCAL diagnostic fixture: U7 moves the same deterministic flip
+# seam after the real immutable Worker sweep. Until that live proof exists,
+# candidate rows remain diagnostic and cannot qualify.
 on:
   schedule:
     # Nightly at 04:40 UTC -- clear of python-tests' 03:00, r9-evidence's
@@ -261,7 +260,7 @@ on:
   workflow_dispatch:
     inputs:
       inject_disagreement:
-        description: 'Anti-vacuity: flip one local wasm32 verdict before comparing, to prove the R19 disagreement gate actually fails the run'
+        description: 'Pre-U7 diagnostic: flip one temper-io-types local wasm32 verdict before R19 comparison'
         required: false
         type: choice
         default: 'none'
@@ -634,42 +633,46 @@ jobs:
           # Historical path, kept for the same reason /tmp/native.txt is.
           cp /tmp/wasm_local_drc-rs.json /tmp/wasm_local.json
 
-      # Flips one verdict in TONIGHT'S ROTATED TIER's CANONICAL suffixed
-      # census, before the comparison loop reads it, so the injected
-      # disagreement travels exactly as a real one would.
-      #
-      # Generalised from a hardcoded temper-drc-rs path (2026-08-11, R19
-      # rotation): only the rotated tier has a native comparison to disagree
-      # with tonight -- flipping any other tier's verdict would be flipped in
-      # a file the R19 comparison step below never reads, and the anti-
-      # vacuity demonstration would silently prove nothing.
+      # PRE-U7 DIAGNOSTIC ONLY. Resolve the explicit promotion candidate through
+      # the topology, then flip exactly one verdict in that candidate's local
+      # census. This does not claim the live anti-vacuity acceptance: U7 must
+      # apply the same helper to the completed immutable-preview result before
+      # R19 comparison. Keeping target selection independent of the rotation
+      # makes this seam reusable on every night, including another tier's turn.
       - name: Anti-vacuity — inject a disagreement (workflow_dispatch only)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_disagreement == 'flip_one_verdict' }}
+        env:
+          INJECT_DISAGREEMENT_CANDIDATE: temper-io-types
         run: |
           set -euo pipefail
-          python3 -c "
+          target_suffix="$(node --input-type=module -e '
+            import { loadTopology, tierFlagSuffix } from "./tools/wasm/tier_topology.mjs";
+            const topology = loadTopology();
+            const candidate = process.env.INJECT_DISAGREEMENT_CANDIDATE;
+            if (!topology.promotion_candidates.includes(candidate)) {
+              throw new Error(`${candidate} is not a topology promotion candidate`);
+            }
+            process.stdout.write(tierFlagSuffix(candidate));
+          ')"
+          result_path="/tmp/wasm_local_${target_suffix}.json"
+          python3 - "${result_path}" <<'PY'
           import json
-          path = '/tmp/wasm_local_${ROTATED_SUFFIX}.json'
-          data = json.load(open(path))
-          flipped = False
-          for r in data['results']:
-              if r['status'] == 'pass':
-                  print(f\"injecting disagreement: flipping {r['name']} pass -> fail ({path})\")
-                  r['status'] = 'fail'
-                  flipped = True
-                  break
-          if not flipped:
-              raise SystemExit('no pass-status result found to flip — cannot demonstrate the gate')
-          json.dump(data, open(path, 'w'))
-          "
-          # Keep the historical alias in step with the canonical file, or the
-          # uploaded artifact would disagree with what was actually compared.
-          # Only meaningful when temper-drc-rs is itself tonight's rotated
-          # tier -- otherwise the alias mirrors drc-rs's un-flipped file, and
-          # leaving it untouched is correct.
-          if [ "${ROTATED_CRATE}" = "temper-drc-rs" ]; then
-            cp /tmp/wasm_local_drc-rs.json /tmp/wasm_local.json
-          fi
+          import sys
+
+          from tools.wasm.r19_compare import inject_one_disagreement
+
+          path = sys.argv[1]
+          with open(path) as source:
+              data = json.load(source)
+          data["results"], injected_name = inject_one_disagreement(data["results"])
+          print(
+              f"diagnostic injection for temper-io-types: "
+              f"flipping {injected_name} pass -> fail ({path})"
+          )
+          with open(path, "w") as destination:
+              json.dump(data, destination, indent=2)
+              destination.write("\n")
+          PY
 
       # ONE COMPARISON PER SELECTED TIER: tonight's rotated tier plus the
       # topology's promotion candidate, deduplicated on a collision night.

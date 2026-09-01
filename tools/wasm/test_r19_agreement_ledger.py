@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import pytest
 from r19_agreement_ledger import (
@@ -17,6 +18,7 @@ from r19_agreement_ledger import (
     validate_append_only,
     validate_ledger,
 )
+from r19_compare import inject_one_disagreement, run_comparison
 
 SLOT = datetime(2026, 9, 1, 4, 40, tzinfo=UTC)
 
@@ -35,6 +37,7 @@ def _components(*, abi: str = "temper-worker-abi-v1") -> dict[str, str]:
 def _candidate(
     n: int = 0,
     *,
+    candidate: str = "temper-io-types",
     event_name: str = "schedule",
     run_attempt: int = 1,
     runtime_arm: str = "immutable-worker",
@@ -48,7 +51,7 @@ def _candidate(
     parts = components or _components()
     row = {
         "schema_version": 1,
-        "candidate": "temper-io-types",
+        "candidate": candidate,
         "runtime_arm": runtime_arm,
         "expected_schedule_slot": slot.isoformat().replace("+00:00", "Z"),
         "observed_at": (slot + timedelta(minutes=17)).isoformat().replace("+00:00", "Z"),
@@ -91,6 +94,95 @@ def _candidate(
         row["worker"] = {"service": None, "version_id": None, "immutable_url": None}
         row["wasm_sha256"] = None
     return row
+
+
+def _apply_matrix(candidate: dict, matrix: dict) -> dict:
+    comparison = matrix["comparison"]
+    candidate["native"] = matrix["native"]
+    candidate["worker_counts"] = matrix["wasm32"]
+    candidate["r19"] = {
+        "agree_pass": comparison["agree_pass"],
+        "agree_fail": comparison["agree_fail"],
+        "expected_fail": comparison["expected_fail"],
+        "unexpected_pass": comparison["unexpected_pass"],
+        "disagreement": comparison["disagree"],
+        "native_only": comparison["native_only"],
+        "wasm_only": comparison["wasm32_only"],
+        "agreement_rate": comparison["agreement_rate"],
+    }
+    return candidate
+
+
+def test_candidate_injection_flips_one_verdict_and_only_resets_candidate_streak() -> None:
+    native = [
+        {"name": "suite::zeta", "status": "pass"},
+        {"name": "suite::alpha", "status": "pass"},
+        {"name": "suite::middle", "status": "pass"},
+        {"name": "suite::omega", "status": "pass"},
+    ]
+    worker = [{"name": result["name"], "status": "pass"} for result in reversed(native)]
+
+    injected, injected_name = inject_one_disagreement(worker)
+    changed = [
+        after["name"] for before, after in zip(worker, injected, strict=True) if before != after
+    ]
+    matrix = run_comparison(native, injected, {}, "a" * 40)
+
+    assert injected_name == "suite::alpha"
+    assert changed == ["suite::alpha"]
+    assert next(result for result in worker if result["name"] == injected_name)["status"] == "pass"
+    assert matrix["comparison"]["disagree"] == 1
+    assert matrix["comparison"]["disagreements"] == [
+        {
+            "name": "suite::alpha",
+            "native_status": "pass",
+            "wasm32_status": "fail",
+        }
+    ]
+
+    # Model a different tier rotating on either side of the explicit candidate
+    # injection. Its independent streak must survive the candidate's reset.
+    injected_row = _apply_matrix(_candidate(2, event_name="workflow_dispatch"), matrix)
+    rows = append_candidates(
+        [],
+        [
+            _candidate(0),
+            _candidate(1, candidate="temper-drc-rs"),
+            injected_row,
+            _candidate(3, candidate="temper-drc-rs"),
+            _candidate(4),
+        ],
+    )
+    by_sequence = {row["sequence"]: row for row in rows}
+    assert by_sequence[3]["candidate"] == "temper-io-types"
+    assert by_sequence[3]["reset_reason"] == "disagreement"
+    assert by_sequence[3]["derived_streak"] == 0
+    assert by_sequence[4]["candidate"] == "temper-drc-rs"
+    assert by_sequence[4]["derived_streak"] == 2
+    assert by_sequence[5]["candidate"] == "temper-io-types"
+    assert by_sequence[5]["derived_streak"] == 1
+
+
+def test_precomparison_failure_is_infrastructure_reset_not_disagreement() -> None:
+    with pytest.raises(ValueError, match="no pass-status result"):
+        inject_one_disagreement([{"name": "suite::failed", "status": "fail"}])
+
+    failed = _candidate(1, infrastructure_outcome="timeout")
+    rows = append_candidates([], [_candidate(0), failed])
+
+    assert rows[-1]["r19"]["disagreement"] == 0
+    assert rows[-1]["reset_reason"] == "timeout"
+    assert rows[-1]["derived_streak"] == 0
+
+
+def test_workflow_routes_diagnostic_injection_to_explicit_candidate() -> None:
+    workflow = Path(".github/workflows/wasm-tier-nightly.yml").read_text()
+    injection_step = workflow.split(
+        "- name: Anti-vacuity — inject a disagreement (workflow_dispatch only)", 1
+    )[1].split("- name: R19 comparison — selected tiers", 1)[0]
+
+    assert "INJECT_DISAGREEMENT_CANDIDATE: temper-io-types" in injection_step
+    assert "ROTATED_SUFFIX" not in injection_step
 
 
 def test_happy_path_derives_streak_and_chain() -> None:
