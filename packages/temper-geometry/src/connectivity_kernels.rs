@@ -393,7 +393,7 @@ pub fn pad_connectivity_audit(
         );
     }
 
-    let mut layer_universe = if all_layers.is_empty() {
+    let layer_universe = if all_layers.is_empty() {
         let mut layers: Vec<String> = segment_layers
             .iter()
             .cloned()
@@ -405,14 +405,6 @@ pub fn pad_connectivity_audit(
     } else {
         all_layers.to_vec()
     };
-    // The Python implementation receives an explicit sequence unchanged.
-    // Preserve that sequence for node construction, but ensure derived data
-    // is deterministic when the caller omitted it.
-    if all_layers.is_empty() {
-        layer_universe.sort();
-        layer_universe.dedup();
-    }
-
     let mut uf = UnionFind::new(0);
     let mut node_ids: HashMap<AuditNode, usize> = HashMap::new();
     for (index, &(x1, y1, x2, y2)) in segment_positions.iter().enumerate() {
@@ -466,17 +458,18 @@ pub fn pad_connectivity_audit(
     // This is the two-pass rule that prevents stale roots in multi-layer THT
     // pads from splitting a genuinely connected component.
     let pad_roots: Vec<usize> = pad_representatives.iter().map(|&node| uf.find(node)).collect();
-    let mut groups: Vec<(usize, usize)> = Vec::new();
-    for root in &pad_roots {
-        if let Some((_, count)) = groups.iter_mut().find(|(candidate, _)| candidate == root) {
-            *count += 1;
-        } else {
-            groups.push((*root, 1));
-        }
+    let mut root_counts: HashMap<usize, usize> = HashMap::new();
+    for &root in &pad_roots {
+        *root_counts.entry(root).or_default() += 1;
     }
-    let largest = groups.iter().map(|(_, count)| *count).max().unwrap_or(0);
+    let largest = root_counts.values().copied().max().unwrap_or(0);
     let majority_root = if largest > 1 {
-        groups.iter().find(|(_, count)| *count == largest).map(|(root, _)| *root)
+        // Scan the original order so equal-count roots retain Python's
+        // first-seen tie break instead of depending on HashMap iteration.
+        pad_roots
+            .iter()
+            .find(|&&root| root_counts.get(&root) == Some(&largest))
+            .copied()
     } else {
         None
     };

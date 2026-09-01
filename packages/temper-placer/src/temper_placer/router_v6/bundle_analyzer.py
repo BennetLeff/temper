@@ -160,8 +160,7 @@ class BundleAnalyzer:
         self.pcb = pcb
         self.jaccard_threshold = jaccard_threshold
 
-        # Build fast lookups
-        self._net_to_idx = {net.name: i for i, net in enumerate(nets)}
+        # Resolve diff-pair names once for the signature calculation.
         self._diff_pair_net_names: set[str] = set()
         for dp in self.diff_pairs:
             self._diff_pair_net_names.add(dp.p_net)

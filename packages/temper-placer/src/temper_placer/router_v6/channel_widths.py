@@ -55,6 +55,7 @@ import temper_orchestration as _to
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
+from temper_placer.router_v6.occupancy_grid import _area_rings
 from temper_placer.router_v6.routing_space import RoutingSpace
 from temper_placer.router_v6.stage_validators import (
     StageDRCFailure,
@@ -305,25 +306,6 @@ def _exact_edt(mask: np.ndarray) -> np.ndarray:
     mask_u8 = np.ascontiguousarray(mask, dtype=np.uint8)
     out_bytes = _tg.exact_edt_transform(mask_u8.tobytes(), h, w)
     return np.frombuffer(out_bytes, dtype="<f8").reshape(h, w)
-
-
-def _area_rings(available_area) -> tuple[list[list[float]], list[list[list[float]]]]:
-    """Marshal Shapely polygon rings for the Rust EDT preparation kernel.
-
-    Geometry objects and WKB/fingerprint handling remain Python-owned.  This
-    adapter deliberately emits plain lists only; no NumPy coordinate grid or
-    point predicate is constructed on the Python side.
-    """
-    from shapely.geometry import MultiPolygon
-
-    polygons = list(available_area.geoms) if isinstance(available_area, MultiPolygon) else [available_area]
-
-    def flatten(ring) -> list[float]:
-        return [coord for x, y in ring.coords for coord in (float(x), float(y))]
-
-    outer_rings = [flatten(polygon.exterior) for polygon in polygons]
-    holes = [[flatten(interior) for interior in polygon.interiors] for polygon in polygons]
-    return outer_rings, holes
 
 
 def _build_edt(

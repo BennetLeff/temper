@@ -718,12 +718,12 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         var_to_net=rust_result.get("var_to_net"),
     )
 
-    clause_origin = _build_clause_origin(constraint_model)
-    _stage3_mem_trace(
-        f"_run_stage3 _build_clause_origin done "
-        f"(origins={len(clause_origin)})"
-    )
     if rust_result["status"] == "unsat":
+        clause_origin = _build_clause_origin(constraint_model)
+        _stage3_mem_trace(
+            f"_run_stage3 _build_clause_origin done "
+            f"(origins={len(clause_origin)})"
+        )
         core_indices = rust_result.get("unsat_core", [])
         unsat_core_names = []
         for idx in core_indices:

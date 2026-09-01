@@ -691,6 +691,20 @@ impl PackedVar {
     }
 }
 
+/// Render the one canonical name for a packed variable.
+///
+/// Keeping this formatting in one place is important: these names cross the
+/// Python adapter and shared solver boundary, where they also determine CNF
+/// numbering and assignment extraction.
+fn canonical_packed_variable_name(packed: PackedVar, key_value: &str) -> Option<String> {
+    match packed.kind() {
+        VarKind::NetChannel => Some(format!("uses_N{}_{}", packed.net_idx, key_value)),
+        VarKind::Bundle => Some(format!("uses_B{}_{}", packed.net_idx, key_value)),
+        VarKind::Via => Some(format!("via_N{}_{}", packed.net_idx, key_value)),
+        VarKind::Foreign => None,
+    }
+}
+
 /// Marks a free slot in a [`VarIndex`]. `u32::MAX` can never be a valid
 /// variable index — [`ConstraintModel::insert_variable`] refuses a model
 /// that large.
@@ -943,9 +957,9 @@ impl ConstraintModel {
             VarKind::NetChannel | VarKind::Bundle => {
                 let bundle = packed.kind() == VarKind::Bundle;
                 let channel_id = self.ids.get(packed.key())?;
-                let prefix = if bundle { 'B' } else { 'N' };
                 let var = NetChannelVar {
-                    name: format!("uses_{prefix}{}_{channel_id}", packed.net_idx),
+                    name: canonical_packed_variable_name(packed, channel_id)
+                        .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: invalid packed variable kind"))?,
                     var_type: if bundle { "bundle" } else { "bool" }.to_string(),
                     net_idx: i64::from(packed.net_idx),
                     channel_id: channel_id.to_string(),
@@ -955,7 +969,8 @@ impl ConstraintModel {
             VarKind::Via => {
                 let location_id = self.ids.get(packed.key())?;
                 let var = ViaVar {
-                    name: format!("via_N{}_{location_id}", packed.net_idx),
+                    name: canonical_packed_variable_name(packed, location_id)
+                        .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: invalid packed variable kind"))?,
                     var_type: "bool".to_string(),
                     net_idx: i64::from(packed.net_idx),
                     location_id: location_id.to_string(),
@@ -1053,16 +1068,14 @@ impl ConstraintModel {
         let Ok(net_idx_u32) = u32::try_from(net_idx) else {
             return Ok(None);
         };
-        let expected_name = match kind {
-            VarKind::NetChannel => format!("uses_N{net_idx_u32}_{key_value}"),
-            VarKind::Bundle => format!("uses_B{net_idx_u32}_{key_value}"),
-            VarKind::Via => format!("via_N{net_idx_u32}_{key_value}"),
-            VarKind::Foreign => return Ok(None),
+        let packed = PackedVar::new(kind, net_idx_u32, key)?;
+        let Some(expected_name) = canonical_packed_variable_name(packed, key_value) else {
+            return Ok(None);
         };
         if name != expected_name {
             return Ok(None);
         }
-        PackedVar::new(kind, net_idx_u32, key).map(Some)
+        Ok(Some(packed))
     }
 
     /// Append a variable and route it into the type-appropriate dict.
@@ -1161,22 +1174,10 @@ impl ConstraintModel {
 
         let mut variables = Vec::with_capacity(self.vars.len());
         for packed in &self.vars {
-            let name = match packed.kind() {
-                VarKind::Foreign => {
-                    return Err(PyRuntimeError::new_err(
-                        "native Stage-3 handoff does not support foreign variables",
-                    ));
-                }
-                VarKind::NetChannel | VarKind::Bundle => {
-                    let prefix = if packed.kind() == VarKind::Bundle { 'B' } else { 'N' };
-                    format!("uses_{prefix}{}_{}", packed.net_idx, self.ids.get(packed.key())?)
-                }
-                VarKind::Via => format!(
-                    "via_N{}_{}",
-                    packed.net_idx,
-                    self.ids.get(packed.key())?
-                ),
-            };
+            let key_value = self.ids.get(packed.key())?;
+            let name = canonical_packed_variable_name(*packed, key_value).ok_or_else(|| {
+                PyRuntimeError::new_err("native Stage-3 handoff does not support foreign variables")
+            })?;
             match packed.kind() {
                 VarKind::NetChannel | VarKind::Bundle => variables.push(InternalVariable::NetChannel {
                     name,
@@ -1514,14 +1515,8 @@ impl ConstraintModel {
 
     fn variable_index_for_name(&self, name: &str) -> Option<u32> {
         self.vars.iter().enumerate().find_map(|(idx, packed)| {
-            let candidate = match packed.kind() {
-                VarKind::NetChannel | VarKind::Bundle => {
-                    let prefix = if packed.kind() == VarKind::Bundle { 'B' } else { 'N' };
-                    format!("uses_{prefix}{}_{}", packed.net_idx, self.ids.get(packed.key()).ok()?)
-                }
-                VarKind::Via => format!("via_N{}_{}", packed.net_idx, self.ids.get(packed.key()).ok()?),
-                VarKind::Foreign => return None,
-            };
+            let key_value = self.ids.get(packed.key()).ok()?;
+            let candidate = canonical_packed_variable_name(*packed, key_value)?;
             (candidate == name).then_some(idx as u32)
         })
     }

@@ -688,17 +688,20 @@ struct BundleSignature {
     has_diff_pair: bool,
 }
 
-fn bundle_jaccard(a: &[usize], b: &[usize]) -> f64 {
+fn bundle_jaccard(a: &HashSet<usize>, b: &HashSet<usize>) -> f64 {
     if a.is_empty() && b.is_empty() {
         return 1.0;
     }
-    let a_set: HashSet<usize> = a.iter().copied().collect();
-    let b_set: HashSet<usize> = b.iter().copied().collect();
-    let union = a_set.union(&b_set).count();
+    let intersection = if a.len() <= b.len() {
+        a.intersection(b).count()
+    } else {
+        b.intersection(a).count()
+    };
+    let union = a.len() + b.len() - intersection;
     if union == 0 {
         0.0
     } else {
-        a_set.intersection(&b_set).count() as f64 / union as f64
+        intersection as f64 / union as f64
     }
 }
 
@@ -764,7 +767,7 @@ pub fn analyze_bundle_manifest(
             *edge_id_index.entry(edge_id.as_str()).or_insert(next)
         })
         .collect();
-    let edge_covers: Vec<Vec<usize>> = footprint_rings
+    let edge_covers: Vec<HashSet<usize>> = footprint_rings
         .iter()
         .map(|ring| {
             covered_edge_indices(ring, mids_x, mids_y)
