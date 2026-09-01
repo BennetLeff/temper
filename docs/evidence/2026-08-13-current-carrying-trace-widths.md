@@ -1,4 +1,4 @@
-<!-- provenance: branch analysis/current-carrying-trace-widths, worktree
+<!-- provenance: commit=8773f0a3211adf8af5472da496a8ac26977e186b dirty=UNKNOWN -->
 /home/bennet/Desktop/temper/.worktrees/current-carrying-trace-widths, base
 origin/main @ 03a7415c8. This task's diff is this document only --
 pcb/temper.kicad_pcb and pcb/temper.kicad_pro are UNCHANGED (verified

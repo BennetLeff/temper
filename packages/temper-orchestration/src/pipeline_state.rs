@@ -54,7 +54,14 @@ use pyo3::types::{PyDict, PyFloat, PyList, PyString};
 /// singletons (the `TerminationReason` precedent). `__eq__` compares by
 /// value; `__hash__` is a stable name hash (equal members must have equal
 /// hashes), so members are usable as dict keys exactly like the Enum.
-#[cfg_attr(feature = "python", pyclass(skip_from_py_object, module = "temper_orchestration", name = "PipelinePhase"))]
+#[cfg_attr(
+    feature = "python",
+    pyclass(
+        skip_from_py_object,
+        module = "temper_orchestration",
+        name = "PipelinePhase"
+    )
+)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PipelinePhase {
     value: &'static str,
@@ -259,7 +266,12 @@ fn repr_float(py: Python<'_>, f: f64) -> PyResult<String> {
 
 #[cfg(feature = "python")]
 /// Mirror of Python `pipeline.state.PipelineConfig` (dataclass).
-#[pyclass(dict, from_py_object, module = "temper_orchestration", name = "PipelineConfig")]
+#[pyclass(
+    dict,
+    from_py_object,
+    module = "temper_orchestration",
+    name = "PipelineConfig"
+)]
 #[derive(Clone, Debug)]
 pub struct PipelineConfig {
     #[pyo3(get, set)]
@@ -377,9 +389,17 @@ impl PipelineConfig {
             repr_opt(py, self.output_pcb.as_ref())?,
             repr_opt(py, self.output_report.as_ref())?,
             repr_opt(py, self.output_trace.as_ref())?,
-            if self.skip_topological { "True" } else { "False" },
+            if self.skip_topological {
+                "True"
+            } else {
+                "False"
+            },
             if self.skip_routing { "True" } else { "False" },
-            if self.skip_local_refinement { "True" } else { "False" },
+            if self.skip_local_refinement {
+                "True"
+            } else {
+                "False"
+            },
             if self.dry_run { "True" } else { "False" },
             self.epochs,
             self.seed,
@@ -401,10 +421,18 @@ impl PipelineConfig {
         }
         let lhs = slf.borrow();
         let rhs = other.cast::<Self>()?.borrow();
-        if !lhs.input_pcb.bind(slf.py()).eq(rhs.input_pcb.bind(slf.py()))? {
+        if !lhs
+            .input_pcb
+            .bind(slf.py())
+            .eq(rhs.input_pcb.bind(slf.py()))?
+        {
             return Ok(false);
         }
-        if !opt_py_eq(slf.py(), lhs.constraints_yaml.as_ref(), rhs.constraints_yaml.as_ref())? {
+        if !opt_py_eq(
+            slf.py(),
+            lhs.constraints_yaml.as_ref(),
+            rhs.constraints_yaml.as_ref(),
+        )? {
             return Ok(false);
         }
         if !opt_py_eq(slf.py(), lhs.loops_yaml.as_ref(), rhs.loops_yaml.as_ref())? {
@@ -413,10 +441,18 @@ impl PipelineConfig {
         if !opt_py_eq(slf.py(), lhs.output_pcb.as_ref(), rhs.output_pcb.as_ref())? {
             return Ok(false);
         }
-        if !opt_py_eq(slf.py(), lhs.output_report.as_ref(), rhs.output_report.as_ref())? {
+        if !opt_py_eq(
+            slf.py(),
+            lhs.output_report.as_ref(),
+            rhs.output_report.as_ref(),
+        )? {
             return Ok(false);
         }
-        if !opt_py_eq(slf.py(), lhs.output_trace.as_ref(), rhs.output_trace.as_ref())? {
+        if !opt_py_eq(
+            slf.py(),
+            lhs.output_trace.as_ref(),
+            rhs.output_trace.as_ref(),
+        )? {
             return Ok(false);
         }
         if lhs.skip_topological != rhs.skip_topological
@@ -463,7 +499,12 @@ impl PipelineConfig {
 /// stay `Py<PyAny>` (the dataclass does not type-enforce them; the
 /// differential exercises them with arbitrary values). The scalar fields are
 /// typed (`i64`/`bool`/`f64`).
-#[pyclass(dict, from_py_object, module = "temper_orchestration", name = "PipelineState")]
+#[pyclass(
+    dict,
+    from_py_object,
+    module = "temper_orchestration",
+    name = "PipelineState"
+)]
 #[derive(Clone, Debug)]
 pub struct PipelineState {
     #[pyo3(get, set)]
@@ -639,7 +680,11 @@ impl PipelineState {
             repr_obj(self.physics_report.bind(py))?,
             repr_obj(self.preflight_report.bind(py))?,
             repr_obj(self.decision_trace.bind(py))?,
-            if self._refinement_complete { "True" } else { "False" },
+            if self._refinement_complete {
+                "True"
+            } else {
+                "False"
+            },
             repr_obj(self._best_routed_nets.bind(py))?,
             repr_opt_float(py, self._best_routability)?,
             self._stall_count,
@@ -653,7 +698,12 @@ impl PipelineState {
         }
         let lhs = slf.borrow();
         let rhs = other.cast::<Self>()?.borrow();
-        if !lhs.config.bind(slf.py()).as_any().eq(rhs.config.bind(slf.py()).as_any())? {
+        if !lhs
+            .config
+            .bind(slf.py())
+            .as_any()
+            .eq(rhs.config.bind(slf.py()).as_any())?
+        {
             return Ok(false);
         }
         if !lhs
@@ -673,13 +723,21 @@ impl PipelineState {
         if lhs.failure_reason != rhs.failure_reason {
             return Ok(false);
         }
-        if !opt_py_eq_phase(slf.py(), lhs.failed_phase.as_ref(), rhs.failed_phase.as_ref())? {
+        if !opt_py_eq_phase(
+            slf.py(),
+            lhs.failed_phase.as_ref(),
+            rhs.failed_phase.as_ref(),
+        )? {
             return Ok(false);
         }
         if lhs.elapsed_time_s != rhs.elapsed_time_s {
             return Ok(false);
         }
-        if !lhs.phase_timings.bind(slf.py()).eq(rhs.phase_timings.bind(slf.py()))? {
+        if !lhs
+            .phase_timings
+            .bind(slf.py())
+            .eq(rhs.phase_timings.bind(slf.py()))?
+        {
             return Ok(false);
         }
         if !lhs.board.bind(slf.py()).eq(rhs.board.bind(slf.py()))? {
@@ -691,31 +749,63 @@ impl PipelineState {
         if !lhs.loops.bind(slf.py()).eq(rhs.loops.bind(slf.py()))? {
             return Ok(false);
         }
-        if !lhs.constraints.bind(slf.py()).eq(rhs.constraints.bind(slf.py()))? {
+        if !lhs
+            .constraints
+            .bind(slf.py())
+            .eq(rhs.constraints.bind(slf.py()))?
+        {
             return Ok(false);
         }
-        if !lhs.deterministic_result.bind(slf.py()).eq(rhs.deterministic_result.bind(slf.py()))? {
+        if !lhs
+            .deterministic_result
+            .bind(slf.py())
+            .eq(rhs.deterministic_result.bind(slf.py()))?
+        {
             return Ok(false);
         }
-        if !lhs.placement_state.bind(slf.py()).eq(rhs.placement_state.bind(slf.py()))? {
+        if !lhs
+            .placement_state
+            .bind(slf.py())
+            .eq(rhs.placement_state.bind(slf.py()))?
+        {
             return Ok(false);
         }
-        if !lhs.routing_result.bind(slf.py()).eq(rhs.routing_result.bind(slf.py()))? {
+        if !lhs
+            .routing_result
+            .bind(slf.py())
+            .eq(rhs.routing_result.bind(slf.py()))?
+        {
             return Ok(false);
         }
-        if !lhs.physics_report.bind(slf.py()).eq(rhs.physics_report.bind(slf.py()))? {
+        if !lhs
+            .physics_report
+            .bind(slf.py())
+            .eq(rhs.physics_report.bind(slf.py()))?
+        {
             return Ok(false);
         }
-        if !lhs.preflight_report.bind(slf.py()).eq(rhs.preflight_report.bind(slf.py()))? {
+        if !lhs
+            .preflight_report
+            .bind(slf.py())
+            .eq(rhs.preflight_report.bind(slf.py()))?
+        {
             return Ok(false);
         }
-        if !lhs.decision_trace.bind(slf.py()).eq(rhs.decision_trace.bind(slf.py()))? {
+        if !lhs
+            .decision_trace
+            .bind(slf.py())
+            .eq(rhs.decision_trace.bind(slf.py()))?
+        {
             return Ok(false);
         }
         if lhs._refinement_complete != rhs._refinement_complete {
             return Ok(false);
         }
-        if !lhs._best_routed_nets.bind(slf.py()).eq(rhs._best_routed_nets.bind(slf.py()))? {
+        if !lhs
+            ._best_routed_nets
+            .bind(slf.py())
+            .eq(rhs._best_routed_nets.bind(slf.py()))?
+        {
             return Ok(false);
         }
         if lhs._best_routability != rhs._best_routability {

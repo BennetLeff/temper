@@ -86,7 +86,8 @@ classes:
   # Only creepage_mm differs, and unlike the legacy 6.0mm figures elsewhere in
   # this file it is a primary-cited number: IEC 60335-1 Table 18 (FUNCTIONAL
   # insulation, cl. 29.2.4), band >500 and <=800 V, material group IIIa/IIIb,
-  # PD2 = 6.3mm. As with every other entry here, this config is the placer-
+  # PD3 = 10.0mm (as-built; the sealed-compartment prerequisite for PD2 is
+  # not present). As with every other entry here, this config is the placer-
   # feasibility model; the fab-authoritative enforcement point is
   # scripts/generate_kicad_dru.py's HV_TANK_CREEPAGE_ENFORCED_MM, which emits
   # the real kicad-cli `creepage` constraint.
@@ -95,11 +96,11 @@ classes:
     trace_width: 5.0
     via_diameter: 1.2
     via_drill: 0.6
-    creepage_mm: 6.3
+    creepage_mm: 10.0
     voltage_v: 923.7
     layer: "F.Cu"
     safety_category: "HV"
-    # This entry's 6.3mm comes from Table 18 and is a FUNCTIONAL-insulation
+    # This entry's 10.0mm comes from Table 18 and is a FUNCTIONAL-insulation
     # figure. It is not comparable with the other creepage numbers in this
     # file, which are cross-barrier figures for a different insulation tier at
     # a different voltage band. Both this comment and the `because` string
@@ -112,7 +113,7 @@ classes:
     # reports a mismatch that is not one. Do not "tidy" the wording without
     # re-running that gate. See docs/evidence/2026-08-12-hv-hv-creepage-
     # enforcement.md.
-    because: "IEC 60335-1 Table 18 (functional insulation, cl. 29.2.4) band vi (>500-800V), material group IIIa/IIIb, PD2 = 6.3mm creepage, indexed by a MEASURED 570.5 Vrms (ngspice, simulation/harness/nets/zvs_margin_sweep.cir, worst OCP-01-passing corner); cl. 3.1.3 Note 2 makes the resonant swing, not the 340V bus, the quantity the table is indexed by. Clearance unchanged from HighVoltage's cited 2.0mm."
+    because: "IEC 60335-1 Table 18 (functional insulation, cl. 29.2.4) band vi (>500-800V), material group IIIa/IIIb, PD3 as-built (the PD2 sealed-compartment prerequisite does not exist, docs/evidence/2026-08-11-pd2-decision-record.md) = 10.0mm creepage, indexed by a MEASURED 570.5 Vrms (ngspice, simulation/harness/nets/zvs_margin_sweep.cir, worst OCP-01-passing corner); cl. 3.1.3 Note 2 makes the resonant swing, not the 340V bus, the quantity the table is indexed by. Clearance unchanged from HighVoltage's cited 2.0mm."
 
   # ADDED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-scoping.md):
   # the mA-scale current tier carved out of HighVoltage above -- same
@@ -423,6 +424,16 @@ class_pairs:
   GateDriveHV-Signal: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Same figure as every other HV-domain-to-LV row in this table; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
   GateDriveHV-GateDriveSELV: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm -- GateDriveHV is the HV/secondary side of U7's reinforced isolation barrier, GateDriveSELV the SELV/primary side (elec/domain_manifest.yaml); same figure as every other HV-domain-to-LV row in this table. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
   ACMains-GateDriveSELV: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Mirrors ACMains's own -Signal/-GND/-Power/-FinePitch rows; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  # Mirrored 2026-08-22 (#1445 item 4): the symmetry guard
+  # test_every_class_pairs_entry_for_one_half_has_an_equivalent_for_the_other
+  # correctly flagged that the block above completed only the GateDriveHV
+  # half. GateDriveSELV is the SELV/primary half; these four rows mirror
+  # GateDriveHV's -{FinePitch,GND,Power,Signal} rows at the same legacy
+  # placer-feasibility figure -- same UNSOURCED status, same convention.
+  GateDriveSELV-FinePitch: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Mirrors GateDriveHV-FinePitch for the split's other half; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveSELV-GND: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Mirrors GateDriveHV-GND for the split's other half; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveSELV-Power: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Mirrors GateDriveHV-Power for the split's other half; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveSELV-Signal: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Mirrors GateDriveHV-Signal for the split's other half; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
   GateDriveSELV-HighVoltage: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-Signal above. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
   GateDriveSELV-HighVoltageTank: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltageTank-Signal above. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
   GateDriveSELV-HighVoltageIsolated: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltageIsolated-Signal above. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}

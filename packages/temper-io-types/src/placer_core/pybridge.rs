@@ -12,9 +12,7 @@ use std::panic::AssertUnwindSafe;
 
 use super::manufacturing;
 use super::netclass::{self, PatternSet};
-use super::placement_drc as drc;
 use super::placer_compute;
-use super::pyrepr::{repr_f64, repr_str};
 use super::units;
 
 // ---------------------------------------------------------------------------
@@ -204,21 +202,11 @@ pub fn classify_net_type(name: &str) -> &'static str {
 // "starts with '+'" prefix heuristic; see netclass.rs). Ground/HV/pin
 // classification is byte-identical to the core module above, so router_v6
 // reuses `is_ground_net`/`is_hv_net`/`is_*_pin` directly and only needs
-// these three additional bindings.
+// this additional binding.
 
 #[pyfunction]
 pub fn is_power_net_v6(name: &str) -> bool {
     netclass::is_power_net_v6(name)
-}
-
-#[pyfunction]
-pub fn is_signal_net_v6(name: &str) -> bool {
-    netclass::is_signal_net_v6(name)
-}
-
-#[pyfunction]
-pub fn classify_net_type_v6(name: &str) -> &'static str {
-    netclass::classify_net_type_v6(name)
 }
 
 // ---------------------------------------------------------------------------
@@ -377,247 +365,6 @@ pub fn get_fab_presets(py: Python<'_>) -> PyResult<Py<PyDict>> {
     dict.set_item("jlcpcb_hdi", PyFabPreset::jlcpcb_hdi())?;
     dict.set_item("oshpark", PyFabPreset::oshpark())?;
     Ok(dict.unbind())
-}
-
-// ---------------------------------------------------------------------------
-// placement DRC
-// ---------------------------------------------------------------------------
-
-/// `temper_placer.core.placement_drc.PinInfo`.
-#[pyclass(name = "PinInfo", module = "temper_io_types", from_py_object)]
-#[derive(Clone)]
-pub struct PyPinInfo {
-    #[pyo3(get, set)]
-    pub x: f64,
-    #[pyo3(get, set)]
-    pub y: f64,
-    #[pyo3(get, set)]
-    pub net_name: String,
-    #[pyo3(get, set)]
-    pub component_name: String,
-    #[pyo3(get, set)]
-    pub pin_name: String,
-    #[pyo3(get, set)]
-    pub diameter_mm: f64,
-}
-
-impl PyPinInfo {
-    fn pure(&self) -> drc::PinInfo {
-        drc::PinInfo {
-            x: self.x,
-            y: self.y,
-            net_name: self.net_name.clone(),
-            component_name: self.component_name.clone(),
-            pin_name: self.pin_name.clone(),
-            diameter_mm: self.diameter_mm,
-        }
-    }
-}
-
-#[pymethods]
-impl PyPinInfo {
-    #[new]
-    #[pyo3(signature = (x, y, net_name, component_name, pin_name, diameter_mm = 1.0))]
-    fn new(
-        x: f64,
-        y: f64,
-        net_name: String,
-        component_name: String,
-        pin_name: String,
-        diameter_mm: f64,
-    ) -> Self {
-        PyPinInfo {
-            x,
-            y,
-            net_name,
-            component_name,
-            pin_name,
-            diameter_mm,
-        }
-    }
-
-    #[getter]
-    fn radius(&self) -> f64 {
-        self.pure().radius()
-    }
-
-    fn __repr__(&self) -> String {
-        format!(
-            "PinInfo(x={}, y={}, net_name={}, component_name={}, pin_name={}, diameter_mm={})",
-            repr_f64(self.x),
-            repr_f64(self.y),
-            repr_str(&self.net_name),
-            repr_str(&self.component_name),
-            repr_str(&self.pin_name),
-            repr_f64(self.diameter_mm),
-        )
-    }
-
-    fn __eq__(&self, other: &Bound<'_, PyAny>) -> PyResult<bool> {
-        match other.cast::<PyPinInfo>() {
-            Ok(o) => Ok(self.pure() == o.borrow().pure()),
-            Err(_) => Ok(false),
-        }
-    }
-
-    fn __hash__(&self) -> PyResult<isize> {
-        Err(unhashable("PinInfo"))
-    }
-
-    /// See the deleted `Rect` pyclass's `__reduce__` — a pyclass is unpicklable by default.
-    fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
-        let py = slf.py();
-        let s = slf.borrow();
-        Ok((
-            slf.get_type().into_any(),
-            PyTuple::new(
-                py,
-                [
-                    s.x.into_pyobject(py)?.into_any(),
-                    s.y.into_pyobject(py)?.into_any(),
-                    s.net_name.clone().into_pyobject(py)?.into_any(),
-                    s.component_name.clone().into_pyobject(py)?.into_any(),
-                    s.pin_name.clone().into_pyobject(py)?.into_any(),
-                    s.diameter_mm.into_pyobject(py)?.into_any(),
-                ],
-            )?,
-        ))
-    }
-}
-
-/// `temper_placer.core.placement_drc.PlacementViolation`.
-#[pyclass(name = "PlacementViolation", module = "temper_io_types")]
-pub struct PyPlacementViolation {
-    #[pyo3(get, set)]
-    pub item_a: Py<PyAny>,
-    #[pyo3(get, set)]
-    pub item_b: Py<PyAny>,
-    #[pyo3(get, set)]
-    pub distance: f64,
-    #[pyo3(get, set)]
-    pub required: f64,
-    #[pyo3(get, set)]
-    pub violation_type: String,
-    #[pyo3(get, set)]
-    pub message: String,
-}
-
-#[pymethods]
-impl PyPlacementViolation {
-    #[new]
-    fn new(
-        item_a: Py<PyAny>,
-        item_b: Py<PyAny>,
-        distance: f64,
-        required: f64,
-        violation_type: String,
-        message: String,
-    ) -> Self {
-        PyPlacementViolation {
-            item_a,
-            item_b,
-            distance,
-            required,
-            violation_type,
-            message,
-        }
-    }
-
-    fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
-        Ok(format!(
-            "PlacementViolation(item_a={}, item_b={}, distance={}, required={}, \
-             violation_type={}, message={})",
-            self.item_a.bind(py).repr()?,
-            self.item_b.bind(py).repr()?,
-            repr_f64(self.distance),
-            repr_f64(self.required),
-            repr_str(&self.violation_type),
-            repr_str(&self.message),
-        ))
-    }
-
-    fn __eq__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<bool> {
-        let Ok(o) = other.cast::<PyPlacementViolation>() else {
-            return Ok(false);
-        };
-        let o = o.borrow();
-        Ok(self.item_a.bind(py).eq(o.item_a.bind(py))?
-            && self.item_b.bind(py).eq(o.item_b.bind(py))?
-            && self.distance == o.distance
-            && self.required == o.required
-            && self.violation_type == o.violation_type
-            && self.message == o.message)
-    }
-
-    fn __hash__(&self) -> PyResult<isize> {
-        Err(unhashable("PlacementViolation"))
-    }
-
-    /// See the deleted `Rect` pyclass's `__reduce__` — a pyclass is unpicklable by default.
-    ///
-    /// `item_a`/`item_b` go through the pickler themselves, so a
-    /// round-tripped violation holds round-tripped pins — the same as
-    /// the dataclass, which also did not preserve identity across a
-    /// pickle.
-    fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
-        let py = slf.py();
-        let s = slf.borrow();
-        Ok((
-            slf.get_type().into_any(),
-            PyTuple::new(
-                py,
-                [
-                    s.item_a.bind(py).clone(),
-                    s.item_b.bind(py).clone(),
-                    s.distance.into_pyobject(py)?.into_any(),
-                    s.required.into_pyobject(py)?.into_any(),
-                    s.violation_type.clone().into_pyobject(py)?.into_any(),
-                    s.message.clone().into_pyobject(py)?.into_any(),
-                ],
-            )?,
-        ))
-    }
-}
-
-#[pyfunction]
-#[pyo3(signature = (pins, min_clearance_mm, _trace_width_mm = 0.25))]
-pub fn validate_placement_drc(
-    py: Python<'_>,
-    pins: Vec<Py<PyAny>>,
-    min_clearance_mm: f64,
-    _trace_width_mm: f64,
-) -> PyResult<Vec<PyPlacementViolation>> {
-    let mut pure_pins = Vec::with_capacity(pins.len());
-    for p in &pins {
-        let bound = p.bind(py);
-        pure_pins.push(match bound.cast::<PyPinInfo>() {
-            // Fast path: no Python attribute lookups at all.
-            Ok(info) => info.borrow().pure(),
-            // A duck-typed stand-in (the reference accepts anything with
-            // the right attributes), read through the boundary once.
-            Err(_) => drc::PinInfo {
-                x: bound.getattr("x")?.extract()?,
-                y: bound.getattr("y")?.extract()?,
-                net_name: bound.getattr("net_name")?.extract()?,
-                component_name: bound.getattr("component_name")?.extract()?,
-                pin_name: bound.getattr("pin_name")?.extract()?,
-                diameter_mm: bound.getattr("diameter_mm")?.extract()?,
-            },
-        });
-    }
-
-    Ok(drc::validate_placement_drc(&pure_pins, min_clearance_mm)
-        .into_iter()
-        .map(|v| PyPlacementViolation {
-            // Re-attach the caller's own objects so identity survives.
-            item_a: pins[v.index_a].clone_ref(py),
-            item_b: pins[v.index_b].clone_ref(py),
-            distance: v.distance,
-            required: v.required,
-            violation_type: v.kind.as_str().to_string(),
-            message: v.message,
-        })
-        .collect())
 }
 
 // ---------------------------------------------------------------------------
@@ -826,54 +573,8 @@ pub fn placer_place_in_zone_center(
     })
 }
 
-/// `adjust_for_congestion` compute: the dtype-aware per-(bottleneck,
-/// component) push loop. `dist_cb(dx, dy)` reproduces
-/// `np.sqrt(dx**2 + dy**2)` in the caller's dtype; `uniform_cb()` is
-/// `np.random.uniform(0, 2*pi)` drawn in the oracle's iteration order;
-/// `cos_sin` applies to the random angle.
-#[pyfunction]
-#[allow(clippy::too_many_arguments)] // mirrors adjust_for_congestion's Python seam surface
-pub fn placer_adjust_for_congestion(
-    positions: Vec<f64>,
-    is_f32: bool,
-    fixed: Vec<bool>,
-    bottlenecks: Vec<(f64, f64)>,
-    push_strength: f64,
-    influence_radius: f64,
-    dist_cb: &Bound<'_, PyAny>,
-    uniform_cb: &Bound<'_, PyAny>,
-    cos_sin: &Bound<'_, PyAny>,
-) -> PyResult<Vec<f64>> {
-    guard(|| {
-        let dist_impl = {
-            let cb = dist_cb;
-            move |dx: f64, dy: f64| -> PyResult<f64> {
-                cb.call1((dx, dy))?.extract()
-            }
-        };
-        let uniform_impl = {
-            let cb = uniform_cb;
-            move || -> PyResult<f64> { cb.call0()?.extract() }
-        };
-        let cos_sin_impl = cos_sin_impl(cos_sin);
-        placer_compute::adjust_for_congestion(
-            &positions,
-            is_f32,
-            &fixed,
-            &bottlenecks,
-            push_strength,
-            influence_radius,
-            &dist_impl,
-            &uniform_impl,
-            &cos_sin_impl,
-        )
-    })
-}
-
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyFabPreset>()?;
-    m.add_class::<PyPinInfo>()?;
-    m.add_class::<PyPlacementViolation>()?;
 
     m.add_function(wrap_pyfunction!(is_plain_python_scalar, m)?)?;
     m.add_function(wrap_pyfunction!(deg_to_rad, m)?)?;
@@ -895,14 +596,10 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(is_hv_pin, m)?)?;
     m.add_function(wrap_pyfunction!(is_clock_pin, m)?)?;
     m.add_function(wrap_pyfunction!(is_power_net_v6, m)?)?;
-    m.add_function(wrap_pyfunction!(is_signal_net_v6, m)?)?;
-    m.add_function(wrap_pyfunction!(classify_net_type_v6, m)?)?;
 
     m.add_function(wrap_pyfunction!(inflated_clearance, m)?)?;
     m.add_function(wrap_pyfunction!(inflated_width, m)?)?;
     m.add_function(wrap_pyfunction!(get_fab_presets, m)?)?;
-
-    m.add_function(wrap_pyfunction!(validate_placement_drc, m)?)?;
 
     // Wave-4 Phase 4: placer non-cp_sat compute kernels.
     m.add_function(wrap_pyfunction!(placer_apply_component_template, m)?)?;
@@ -910,6 +607,5 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(placer_place_power_stage_template, m)?)?;
     m.add_function(wrap_pyfunction!(placer_place_by_proximity, m)?)?;
     m.add_function(wrap_pyfunction!(placer_place_in_zone_center, m)?)?;
-    m.add_function(wrap_pyfunction!(placer_adjust_for_congestion, m)?)?;
     Ok(())
 }

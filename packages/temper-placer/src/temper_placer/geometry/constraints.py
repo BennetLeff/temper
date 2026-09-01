@@ -175,61 +175,10 @@ def is_within_bounds(
     )
 
 
-def compute_zone_distance(
-    position_x: float,
-    position_y: float,
-    zone_x_min: float,
-    zone_y_min: float,
-    zone_x_max: float,
-    zone_y_max: float,
-) -> float:
-    """
-    Compute signed distance from a point to a rectangular zone.
-
-    This is used by zone loss functions during optimization.
-
-    Returns:
-        Negative if inside zone (distance to nearest edge).
-        Positive if outside zone (distance to nearest edge).
-        Zero if exactly on edge.
-    """
-    return temper_geometry.compute_zone_distance(
-        position_x,
-        position_y,
-        zone_x_min,
-        zone_y_min,
-        zone_x_max,
-        zone_y_max,
-    )
-
-
-def point_in_zone(
-    position_x: float,
-    position_y: float,
-    zone_x_min: float,
-    zone_y_min: float,
-    zone_x_max: float,
-    zone_y_max: float,
-) -> bool:
-    """
-    Check if a point is inside a rectangular zone.
-
-    Args:
-        position_x: Point x coordinate.
-        position_y: Point y coordinate.
-        zone_x_min: Zone minimum x.
-        zone_y_min: Zone minimum y.
-        zone_x_max: Zone maximum x.
-        zone_y_max: Zone maximum y.
-
-    Returns:
-        True if point is inside zone.
-    """
-    return temper_geometry.point_in_zone(
-        position_x,
-        position_y,
-        zone_x_min,
-        zone_y_min,
-        zone_x_max,
-        zone_y_max,
-    )
+# These predicates have no Python-side adaptation: their argument and return
+# contracts are already the Rust boundary's contracts.  Keep the names in
+# this compatibility module, but bind them directly so there is no second
+# implementation body to maintain.  (The tuple-returning functions above
+# still need their Python NamedTuple wrappers.)
+compute_zone_distance = temper_geometry.compute_zone_distance
+point_in_zone = temper_geometry.point_in_zone

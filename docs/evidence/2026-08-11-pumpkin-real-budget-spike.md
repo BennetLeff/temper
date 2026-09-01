@@ -5,8 +5,8 @@
 **Scope.** Spike only — no line under
 `packages/temper-placer/src/temper_placer/placer/cp_sat/**` was touched, no
 call site migrated. Companion code: this doc's own driver scripts
-(`docs/evidence/2026-08-11-pumpkin-hpwl-realboard-run.py`,
-`docs/evidence/2026-08-11-pumpkin-hpwl-realboard-clean-run.py`), the HPWL
+(`docs/evidence/scripts/2026-08-11-pumpkin-hpwl-realboard-run.py`,
+`docs/evidence/scripts/2026-08-11-pumpkin-hpwl-realboard-clean-run.py`), the HPWL
 extension to the standalone Rust binary
 (`docs/evidence/2026-08-07-pumpkin-engine/src/main.rs`, +HPWL support only,
 reusing the crate's existing `pumpkin_solver::minimum`/`maximum`), and raw
@@ -303,7 +303,7 @@ Checked directly, not inferred:
 
 All three docs' corpus-size conflation traces to one place: the harness's
 own `build_full_board_corpus()` docstring
-(`docs/evidence/2026-08-07-cpsat-equivalence-harness.py:697`) calling its
+(`docs/evidence/scripts/2026-08-07-cpsat-equivalence-harness.py:697`) calling its
 fixture "The real golden-board corpus" and "the same board
 `test_golden_board_drc_regression` uses" — true of `BOARD_PATH`
 specifically, but `test_golden_board_drc_regression` is itself the *fast*
@@ -358,10 +358,10 @@ cd docs/evidence/2026-08-07-pumpkin-engine && cargo build --release
 # worktree's shared-target cargo config.
 
 # Real-board (169-comp) corpus + full config-drift run:
-uv run --no-sync python docs/evidence/2026-08-11-pumpkin-hpwl-realboard-run.py
+uv run --no-sync python docs/evidence/scripts/2026-08-11-pumpkin-hpwl-realboard-run.py
 
 # Clean (courtyard-only) real-board run — the comparison in §4.2:
-uv run --no-sync python docs/evidence/2026-08-11-pumpkin-hpwl-realboard-clean-run.py
+uv run --no-sync python docs/evidence/scripts/2026-08-11-pumpkin-hpwl-realboard-clean-run.py
 ```
 
 Needs the built Rust pyo3 extensions (`make extensions`) and a working

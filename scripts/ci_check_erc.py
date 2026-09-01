@@ -34,7 +34,7 @@ Runs ``kicad-cli sch erc`` against every schematic recorded in
     anyone re-measures on the new pinned tool, this is the fallback that
     keeps the gate honest instead of silently comparing against a stale
     baseline. ``.github/docker/ci.Dockerfile`` pins
-    ``KICAD_VERSION=10.0.5~ubuntu24.04.1``; a prior DRC ceiling swung by
+    ``KICAD_VERSION=10.0.6~ubuntu24.04.1``; a prior DRC ceiling swung by
     +107 on the exact same 10.0.4->10.0.5 PPA move
     (docs/evidence/2026-08-04-router-output-rebaseline-interim.md) --
     carrying an old warning count over as a new-version ceiling would

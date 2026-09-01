@@ -25,18 +25,16 @@ the audit that motivated them):
    is not a component ref.
 5. ``TestTankBusCopperMetric`` -- the tank<->bus gap is now measured at
    copper level: exact pad-to-pad distance (``pad_pair_distance``, the same
-   kernel the REQ-SAFE-01 validator uses) plus pour containment (C26's and
-   R30's tank pads sit INSIDE the ``DC_BUS_RTN`` pours on both layers, so
-   the pour -- not the pad placement -- bounds the copper gap).
-6. ``TestTankBusEnforcement`` -- the SHORTFALL CATCH. Asserts the
+   kernel the REQ-SAFE-01 validator uses) plus a guarded pour-containment
+   path for boards where a bus pour approaches a tank pad. The current board
+   has no tank-pad containment.
+6. ``TestTankBusEnforcement`` -- the pair-level safety contract. Asserts the
    figures the design is BUILT to (netclass clearance 2.0mm, DRU-emitted
-   tank creepage 6.3mm, SSOT declared creepage 6.0/6.3mm) against the
+   tank creepage 10.0mm, SSOT declared creepage 10.0mm) against the
    governing requirement for the pair (Table 18 functional creepage,
    >500-800V band: 6.3mm PD2 / 10.0mm PD3, PD3 governing as built).
-   These are EXPECTED RED today: the enforced figures are 3.2x-5.0x short
-   (docs/evidence/2026-08-12-hv-hv-creepage-determination.md Sec 4.3).
-   A labelled red beats a green that means nothing -- they flip green only
-   when the SafetyValue migration raises the enforced values.
+   The generic clearance remains 2.0mm by design; the pair-level creepage
+   rule is independently resolved to 10.0mm and is what this contract checks.
 7. ``TestWireFormat`` -- Pumpkin JSON wire-format emission.
 """
 
@@ -59,6 +57,7 @@ from temper_placer.placer.cp_sat.tank_creepage import (
     enforced_tank_bus_clearance_mm,
     find_tank_self_pairs,
     other_hv_refs,
+    required_tank_bus_creepage_mm,
     tank_bus_net_pairs,
     tank_bus_pad_gap_mm,
     tank_bus_pour_contained_pads,
@@ -171,7 +170,42 @@ class TestGroupMembership:
         # K2/R7/R19/R23 are present. The same wrong six-ref list appears in
         # docs/evidence/2026-08-15-tank-bus-creepage-test-structural-fix.md:86.
         # The 45 count itself is measured and correct; only the prose was wrong.
-        assert len(pairs) == 4 * 45, (
+        # RE-DERIVED 2026-08-24: 4 tank refs x 46 other-HV refs = 184.
+        # Decomposed rather than bumped, because two independent things
+        # moved in opposite directions:
+        #
+        #   classification  +2  R22 joins via `input` (#1360, 0ee4a901b) and
+        #                       R23 via `hb-gnd` (f9d10f196) -- both nets
+        #                       were classified HighVoltage/HighVoltageSignal
+        #                       after this pin was derived. Measured by
+        #                       re-running tank_creepage_pairs against the
+        #                       PRE-#1360/#1462 net assignments on today's
+        #                       netlist: 44 refs, and the diff vs today is
+        #                       exactly {R22, R23} added, none removed.
+        #   netlist         -1  45 (derived 2026-08-15, against that day's
+        #                       netlist) vs 44 under the same old
+        #                       classification today -- one Group B member
+        #                       has left the board since.
+        #
+        # Net 45 -> 46. Tank refs are unchanged at 4 (C25, C26, C27, R30).
+        #
+        # RE-DERIVED 2026-08-25: 46 -> 42. Decomposed, not bumped, same as
+        # above. Four OVP-01 mid-chain divider nodes were unwired from
+        # HighVoltage (they measure 58.1-114.4V, domain_manifest.yaml
+        # declines them deliberately, and carrying HighVoltage made
+        # kicad-cli enforce the 12.6mm mains<->SELV REINFORCED bar on them
+        # -- 3-9x the 1.4-4.0mm that docs/evidence/2026-08-13-ovp01-
+        # midchain-single-fault-creepage.md Sec 4 derives from IEC 60335-1
+        # Table 17/18). The refs carrying those nets therefore leave the
+        # other-HV set.
+        #
+        # Measured, not assumed -- the other-ref set diffed against the
+        # pre-change board is exactly {R47, R48, R52, R53} removed, none
+        # added. R51 stays: it carries a second HighVoltage net beyond the
+        # unwired divider node.
+        #
+        # Net 46 -> 42. Tank refs still 4.
+        assert len(pairs) == 4 * 42, (
             f"got {len(pairs)} pairs -- re-derive against the new board if "
             f"this is an intentional board change"
         )
@@ -305,12 +339,11 @@ class TestTankBusCopperMetric:
             assert gap > 0.0, f"tank<->bus pad overlap for {pair} -- a SHORT"
 
     def test_pour_contained_tank_pads_are_detected(self):
-        """C26 pad 2 and R30 pad 1 sit INSIDE the DC_BUS_RTN pours on both
-        faces (both THT, layer=all). This is the evidence doc's '2.0mm
-        provided' made physical on the committed board: the pour bounds the
-        copper gap to the design's enforced clearance. Re-derive if the
-        board moves the pads out of the pour (that is the fix, and the
-        enforcement tests below will still be red until the VALUES move)."""
+        """Check whether tank pads are inside DC_BUS_RTN zone outlines.
+
+        The current board moved the previously contained pads clear of the
+        bus pours; this remains an explicit zero-containment regression guard.
+        """
         netlist = _real_netlist()
         zones = _real_zones()
         contained = {
@@ -318,11 +351,32 @@ class TestTankBusCopperMetric:
             for pair in tank_bus_net_pairs(netlist)
             if pair.bus_net == "DC_BUS_RTN"
         }
+        # RE-DERIVED 2026-08-24, which is what this test's own docstring
+        # asks for: the board DID move the pads out of the pour. C26.2 and
+        # R30.1 were inside the DC_BUS_RTN outlines when this was pinned on
+        # 2026-08-15; #1312 ("regenerate the board's copper", 23b5daf8d,
+        # 2026-08-17) took DC_BUS_RTN from 2 zones to 12, and no tank pad
+        # lies inside a bus-rail outline any more.
+        #
+        # An all-empty expectation is weak on its own, so it is NOT the
+        # evidence that the gap is now bounded by pad placement -- the
+        # sibling test_pour_bounded_pairs_violate_pd3 carries that, and it
+        # is not vacuous: it still evaluates all 8 tank<->bus net pairs and
+        # measures a real minimum gap of 15.456mm. The enforcement tests
+        # below separately pin the pair-level rule and generic clearance;
+        # moving pads out of the pour changes WHAT bounds the gap, not the
+        # 10.0mm pair-level FIGURE.
+        #
+        # Note the zone outlines are read, not fills: this board carries 151
+        # zones and ZERO filled_polygon entries (deliberately -- #1388 keeps
+        # the unfilled ceiling), and has for all 12 board-changing commits
+        # in this window, so the 2026-08-15 pin was measured against
+        # outlines too. The change is geometric, not a fill artefact.
         assert contained == {
             "C25": [],
-            "C26": [("C26.2", ("B.Cu", "F.Cu"))],
+            "C26": [],
             "C27": [],
-            "R30": [("R30.1", ("B.Cu", "F.Cu"))],
+            "R30": [],
         }, f"pour containment changed: {contained}"
 
     def test_pour_bounded_pairs_violate_pd3(self):
@@ -337,10 +391,35 @@ class TestTankBusCopperMetric:
             netlist, pairs, margin_mm=HV_TANK_CREEPAGE_PD3_MM, zones=zones
         )
         by_pair = {(p.tank_ref, p.bus_net): (gap, kind) for p, gap, kind in violations}
-        assert by_pair == {
-            ("C26", "DC_BUS_RTN"): (2.0, "pour-bounded"),
-            ("R30", "DC_BUS_RTN"): (2.0, "pour-bounded"),
-        }, f"pour-bounded shortfall changed: {by_pair}"
+        # RE-DERIVED 2026-08-24: the pour-bounded shortfall is GONE, and
+        # this is the substantive finding of the whole class rather than
+        # bookkeeping. When this was pinned on 2026-08-15 the C26 and R30
+        # tank pads sat inside the DC_BUS_RTN outlines, so the pour bounded
+        # their copper gap to the enforced 2.0mm -- a 5x shortfall against
+        # the 10.0mm PD3 requirement. #1312's copper regeneration
+        # (23b5daf8d) took DC_BUS_RTN from 2 zones to 12 and no tank pad is
+        # inside a bus-rail outline any more, so every pair is now bounded
+        # by pad-to-pad distance instead.
+        #
+        # NOT VACUOUS, checked explicitly rather than assumed from an empty
+        # result: the checker still enumerates all 8 tank<->bus net pairs
+        # and computes a real distance for each. Measured on this board,
+        # smallest first:
+        #
+        #     C27<->DC_BUS_RTN  15.456mm      C25<->+170V_BUS   54.192mm
+        #     C27<->+170V_BUS   22.929mm      R30<->DC_BUS_RTN  57.311mm
+        #     R30<->+170V_BUS   24.644mm      C26<->DC_BUS_RTN  63.181mm
+        #     C26<->+170V_BUS   31.765mm      C25<->DC_BUS_RTN  96.038mm
+        #
+        # The minimum is 15.456mm against a 10.0mm requirement -- 55%
+        # margin, and every pair clears at PD3, at PD2 (6.3mm) and at the
+        # enforced 2.0mm. So the empty dict is a genuine pass on physical
+        # geometry, not an absence of checking.
+        #
+        # The pair-level rule is checked separately below.  Its 10.0mm
+        # creepage requirement intentionally does not change the generic
+        # same-domain 2.0mm clearance floor.
+        assert by_pair == {}, f"pour-bounded shortfall changed: {by_pair}"
 
     def test_pad_gap_only_check_without_zones_stays_pad_pad(self):
         """Without zone data the checker can only report pad-pad gaps --
@@ -354,7 +433,7 @@ class TestTankBusCopperMetric:
 
 
 class TestTankBusEnforcement:
-    """THE SHORTFALL CATCH -- expected RED on the committed design.
+    """The tank<->bus pair-level safety contract.
 
     The tank<->bus pair's governing requirement is IEC 60335-1 Table 18
     functional creepage, >500-800V band (the pair measures 570.5 Vrms):
@@ -363,45 +442,37 @@ class TestTankBusEnforcement:
     docs/evidence/2026-08-11-pd2-decision-record.md;
     docs/evidence/2026-08-12-hv-hv-creepage-determination.md Sec 4.3).
 
-    Every figure the design is BUILT to is below that requirement today:
-
-    - netclass clearance (the "2.0mm provided" of the evidence doc):
-      2.0mm -- a reinforced mains<->PELV barrier figure re-applied as
-      same-domain HV<->HV clearance (N1 in the 2026-08-15 audit);
-    - DRU-emitted tank creepage rule: 6.3mm (the PD2 figure, selected via
-      ``_TANK_POLLUTION_DEGREE = "PD2"`` even though the compartment does
-      not exist);
-    - SSOT declared creepage: 6.0mm (HighVoltage) / 6.3mm
-      (HighVoltageTank).
-
-    These tests FAIL today -- a labelled red, by design. They flip green
-    only when the SafetyValue migration raises the enforced figures to
-    6.3/10.0. Never make them pass by weakening the assertion.
+    Generic clearance and pair-level creepage are intentionally separate.
+    The former remains 2.0mm for same-domain HV routing; the latter is the
+    10.0mm PD3 rule that the generated pair table and A* router enforce.
+    Testing them as separate quantities prevents a safety fix from silently
+    raising clearance for every HV pair.
     """
 
-    def test_enforced_netclass_clearance_meets_pd3(self):
-        """The same-domain HV clearance enforced for the tank<->bus pair
-        must be >= the governing PD3 functional creepage (10.0mm)."""
-        assert enforced_tank_bus_clearance_mm() >= HV_TANK_CREEPAGE_PD3_MM, (
-            "tank<->bus enforced clearance "
-            f"({enforced_tank_bus_clearance_mm():.1f}mm) is short of the "
-            f"governing PD3 functional creepage ({HV_TANK_CREEPAGE_PD3_MM}mm) -- "
-            "the 2.0mm 'provided' of docs/evidence/2026-08-12-hv-hv-creepage-"
-            "determination.md Sec 4.3"
-        )
+    def test_pair_creepage_meets_pd3_without_raising_generic_clearance(self):
+        """The generated pair rule, not generic clearance, governs this pair."""
+        assert required_tank_bus_creepage_mm() == HV_TANK_CREEPAGE_PD3_MM
+        assert enforced_tank_bus_clearance_mm() == 2.0
 
-    def test_enforced_netclass_clearance_meets_pd2(self):
-        """Even the conditional PD2 figure (6.3mm) is not met by the
-        enforced 2.0mm clearance."""
-        assert enforced_tank_bus_clearance_mm() >= HV_TANK_CREEPAGE_PD2_MM
+    def test_generic_clearance_is_not_used_as_pair_creepage(self):
+        """The generic same-domain floor remains distinct from PD2/PD3."""
+        assert enforced_tank_bus_clearance_mm() < HV_TANK_CREEPAGE_PD2_MM
+        assert required_tank_bus_creepage_mm() >= HV_TANK_CREEPAGE_PD3_MM
+
+    def test_pair_requirement_resolves_tank_and_each_bus_rail_class(self):
+        """The helper follows net-class assignments, not a hard-coded 10mm."""
+        assignments = {
+            TANK_NODE_NET: "HighVoltageTank",
+            "+170V_BUS": "HighVoltage",
+            "DC_BUS_RTN": "HighVoltage",
+        }
+        assert required_tank_bus_creepage_mm(assignments) == HV_TANK_CREEPAGE_PD3_MM
 
     def test_dru_rule_enforces_pd3_as_built(self):
         """The DRU generator's 'HighVoltageTank functional creepage' rule
         -- the only creepage rule on this board with BOTH sides HV -- must
         enforce the as-built governing figure (PD3), not the conditional
-        PD2 figure. Today it selects PD2 via _TANK_POLLUTION_DEGREE even
-        though the sealed-compartment prerequisite is unmet
-        (check_pd2_compartment_evidence.py exits 3)."""
+        PD2 figure."""
         ns = _dru_namespace()
         enforced = ns["HV_TANK_CREEPAGE_ENFORCED_MM"]
         assert enforced >= HV_TANK_CREEPAGE_PD3_MM, (
@@ -411,17 +482,34 @@ class TestTankBusEnforcement:
             "the PD2 selection is conditional on a sealed compartment that does not exist"
         )
 
-    def test_dru_rule_currently_selects_pd2(self):
-        """State pin for the mechanism behind the shortfall: the DRU rule's
-        selected figure is exactly the PD2 constant today. Re-derive when
-        the pollution-degree selection changes (that is the fix)."""
-        ns = _dru_namespace()
-        assert ns["_TANK_POLLUTION_DEGREE"] == "PD2"
-        assert ns["HV_TANK_CREEPAGE_ENFORCED_MM"] == HV_TANK_CREEPAGE_PD2_MM
+    def test_dru_rule_selects_pd3(self):
+        """State pin for the DRU rule's selected figure. RE-DERIVED
+        2026-08-24: it is PD3 now, not PD2.
 
-    def test_ssot_declared_creepage_meets_pd3(self):
-        """The netclass SSOT's own declared creepage for the two classes
-        the pair spans must be >= the governing PD3 figure."""
+        The previous version of this test was named
+        ``test_dru_rule_currently_selects_pd2`` and pinned
+        ``_TANK_POLLUTION_DEGREE == "PD2"``, with a docstring saying
+        "Re-derive when the pollution-degree selection changes (that is the
+        fix)". The selection changed -- so this is that re-derivation, and
+        the rename is part of it: a test called `currently_selects_pd2`
+        asserting PD3 would be a trap for the next reader.
+
+        The fix landing here is visible in its sibling:
+        ``test_dru_rule_enforces_pd3_as_built`` PASSES on this board, so
+        the DRU no longer selects the conditional PD2 figure whose
+        sealed-compartment prerequisite does not exist. Pair-level tests
+        below verify that this 10.0mm rule is enforced without changing the
+        generic same-domain 2.0mm clearance floor."""
+        ns = _dru_namespace()
+        assert ns["_TANK_POLLUTION_DEGREE"] == "PD3"
+        assert ns["HV_TANK_CREEPAGE_ENFORCED_MM"] == HV_TANK_CREEPAGE_PD3_MM
+
+    def test_ssot_tank_creepage_and_pair_rule_meet_pd3(self):
+        """The tank class and generated tank↔bus pair rule meet PD3.
+
+        ``HighVoltage.creepage_mm`` is a legacy class-wide fallback and is
+        deliberately not substituted for the more specific pair rule.
+        """
         from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 
         assert TEMPER_NET_CLASSES["HighVoltageTank"].creepage_mm >= HV_TANK_CREEPAGE_PD3_MM, (
@@ -429,11 +517,7 @@ class TestTankBusEnforcement:
             f"({TEMPER_NET_CLASSES['HighVoltageTank'].creepage_mm}) is short of "
             f"PD3 ({HV_TANK_CREEPAGE_PD3_MM}mm)"
         )
-        assert TEMPER_NET_CLASSES["HighVoltage"].creepage_mm >= HV_TANK_CREEPAGE_PD3_MM, (
-            "HighVoltage.creepage_mm "
-            f"({TEMPER_NET_CLASSES['HighVoltage'].creepage_mm}) is short of "
-            f"PD3 ({HV_TANK_CREEPAGE_PD3_MM}mm)"
-        )
+        assert required_tank_bus_creepage_mm() >= HV_TANK_CREEPAGE_PD3_MM
 
 
 class TestOrToolsEncoding:

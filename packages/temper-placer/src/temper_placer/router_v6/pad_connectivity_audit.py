@@ -366,7 +366,12 @@ def check_net_pad_connectivity(
         # a zone on its own specific layer.
         return pad.layer == ALL_LAYERS or pad.layer in zone_layer_set
 
-    zone_dependent_unmeasured = bool(unreached) and all(_zone_could_reach(p) for p in unreached)
+    # Explicit non-empty guard (the anti-vacuity gate's recognized form):
+    # all() over an empty unreached set would be vacuously True.
+    if not unreached:
+        zone_dependent_unmeasured = False
+    else:
+        zone_dependent_unmeasured = all(_zone_could_reach(p) for p in unreached)
 
     return NetConnectivityResult(
         net_name=net_name,

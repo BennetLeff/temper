@@ -1,11 +1,9 @@
 """R1c property-based invariants for the Wave-4 heuristics/ slice, plus the
 R1d metamorphic relations (G5).
 
-Verification unit (G4, owner ruling 2026-08-05): the four-module cluster
+Verification unit (G4, owner ruling 2026-08-05): the two-module cluster
 migrated behind ONE differential and ONE corpus --
-``conflict.py``, ``topological_init.py``, ``power_stage.py``, plus the
-``mcu_subsystem.py`` pure-delegation wrapper (reached structurally, not
-through generated inputs -- see the differential). Every module in the unit
+``conflict.py`` and ``topological_init.py``. Every module in the unit
 is reached by at least one property:
 
 * ``conflict.py``        -- P1 (shipped ``ConflictResolver.check_conflict``),
@@ -14,9 +12,6 @@ is reached by at least one property:
 * ``topological_init.py``-- P4 (shipped ``_check_feasibility`` path: the
                             area totals equal CPython's compensated ``sum()``),
                             P5 (fit-flag monotonicity under size shrink)
-* ``power_stage.py``     -- P6 (shipped ``PowerStageTemplateHeuristic.apply``
-                            clamp band + inverted-band semantics),
-                            P7 (``clamp_position`` idempotence)
 
 Non-vacuity discipline (same as ``test_topological_invariants_pbt.py``):
 every property records a ``hypothesis.event`` for its interesting branch and
@@ -83,16 +78,6 @@ def _context(board, netlist, margin, current_placements=None):
         netlist=netlist,
         constraints=PlacementConstraints(board_margin_mm=margin),
         current_placements=current_placements or {},
-    )
-
-
-def _ctx_with_priority(board, netlist, margin, placement_priority):
-    return PlacementContext(
-        board=board,
-        netlist=netlist,
-        constraints=PlacementConstraints(
-            board_margin_mm=margin, placement_priority=placement_priority
-        ),
     )
 
 
@@ -403,115 +388,6 @@ def test_p5_fails_for_inverted_fit_mutant():
         _rust.feasibility_check = original
 
 
-# ---------------------------------------------------------------------------
-# P6 -- power_stage.py: shipped template apply clamps into the band, and an
-# inverted band (component wider than the board) yields the hi bound, never
-# an error (np.clip semantics, B12).
-# ---------------------------------------------------------------------------
-
-
-def _power_stage_ctx(board_w, board_h, margin, anchor, q_bounds):
-    netlist = Netlist(
-        components=[
-            Component(ref="Q1", footprint="TO-247", bounds=q_bounds),
-            Component(ref="Q2", footprint="TO-247", bounds=q_bounds),
-        ]
-    )
-    return _ctx_with_priority(
-        Board(width=board_w, height=board_h),
-        netlist,
-        margin,
-        {"power": {"anchor": anchor}},
-    )
-
-
-@given(
-    board_w=st.floats(20.0, 200.0, allow_nan=False, allow_infinity=False),
-    board_h=st.floats(20.0, 200.0, allow_nan=False, allow_infinity=False),
-    margin=st.floats(0.0, 10.0, allow_nan=False, allow_infinity=False),
-    anchor=st.tuples(
-        st.floats(-10.0, 210.0, allow_nan=False, allow_infinity=False),
-        st.floats(-10.0, 210.0, allow_nan=False, allow_infinity=False),
-    ),
-    q_w=st.floats(0.5, 40.0, allow_nan=False, allow_infinity=False),
-    q_h=st.floats(0.5, 40.0, allow_nan=False, allow_infinity=False),
-)
-@SETTINGS
-def test_p6_power_stage_clamp_band(board_w, board_h, margin, anchor, q_w, q_h):
-    from temper_placer.heuristics.power_stage import PowerStageTemplateHeuristic
-
-    ctx = _power_stage_ctx(board_w, board_h, margin, anchor, (q_w, q_h))
-    result = PowerStageTemplateHeuristic().apply(ctx)
-    assert result.placements, "the Q1/Q2 fixture must place components"
-    for p in result.placements.values():
-        x, y = p.position
-        half_w, half_h = q_w / 2, q_h / 2
-        lo_x, hi_x = margin + half_w, board_w - margin - half_w
-        lo_y, hi_y = margin + half_h, board_h - margin - half_h
-        if lo_x <= hi_x:
-            assert lo_x <= x <= hi_x
-            _seen("p6_ordered_band")
-        else:
-            assert x == hi_x, "inverted band must resolve to the hi bound"
-            _seen("p6_inverted_band")
-        if lo_y <= hi_y:
-            assert lo_y <= y <= hi_y
-        else:
-            assert y == hi_y
-
-
-def test_p6_fails_for_identity_clamp_mutant():
-    """A clamp kernel that returns its input unchanged lets a placement land
-    outside the board, so P6 discriminates."""
-    from temper_placer.heuristics.power_stage import PowerStageTemplateHeuristic
-
-    ctx = _power_stage_ctx(60.0, 60.0, 5.0, (500.0, 500.0), (6.0, 4.0))
-    real = PowerStageTemplateHeuristic().apply(ctx)
-    assert real.placements, "fixture must place components"
-    assert all(p.position[0] <= 60.0 for p in real.placements.values())
-
-    original = _rust.clamp_position
-    _rust.clamp_position = lambda x, y, *_a: (x, y)
-    try:
-        mutant = PowerStageTemplateHeuristic().apply(ctx)
-        assert any(p.position[0] > 60.0 for p in mutant.placements.values())
-    finally:
-        _rust.clamp_position = original
-
-
-# ---------------------------------------------------------------------------
-# P7 -- power_stage.py: clamp_position is idempotent (kernel-level; exact).
-# ---------------------------------------------------------------------------
-
-
-@given(
-    x=_POS, y=_POS,
-    w=_SIZE, h=_SIZE,
-    board_w=st.floats(20.0, 200.0, allow_nan=False, allow_infinity=False),
-    board_h=st.floats(20.0, 200.0, allow_nan=False, allow_infinity=False),
-    margin=st.floats(0.0, 10.0, allow_nan=False, allow_infinity=False),
-)
-@SETTINGS
-def test_p7_clamp_position_is_idempotent(x, y, w, h, board_w, board_h, margin):
-    once = _rust.clamp_position(x, y, w, h, board_w, board_h, margin)
-    twice = _rust.clamp_position(once[0], once[1], w, h, board_w, board_h, margin)
-    assert once == twice  # np.clip is a projection: clip(clip(x)) == clip(x)
-
-
-def test_p7_fails_for_shift_mutant():
-    """A clamp kernel that translates its input is not idempotent."""
-    once = _rust.clamp_position(500.0, 0.0, 6.0, 4.0, 60.0, 60.0, 5.0)
-    assert once[0] == 52.0, "fixture: 500.0 clamps to hi=60-5-3=52.0"
-
-    original = _rust.clamp_position
-    _rust.clamp_position = lambda x, y, *_a: (x + 1.0, y + 1.0)
-    try:
-        got = _rust.clamp_position(500.0, 0.0, 6.0, 4.0, 60.0, 60.0, 5.0)
-        assert got[0] == 501.0  # a translation is not a fixed point
-    finally:
-        _rust.clamp_position = original
-
-
 def test_no_property_was_vacuous():
     """Every interesting branch above fired at least once in this run."""
     for tag in [
@@ -521,7 +397,6 @@ def test_no_property_was_vacuous():
         "p3_horizontal",
         "p3_vertical",
         "p4_n_ge_8",
-        "p6_ordered_band",
     ]:
         assert _Coverage[tag] > 0, f"branch {tag} never reached -- property is vacuous"
     # p5_shrink_helped needs a size that straddles the zone boundary; the

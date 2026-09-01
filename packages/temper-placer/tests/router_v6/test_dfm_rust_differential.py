@@ -112,8 +112,6 @@ from tests.router_v6._dfm_cases import (
     SEVERITY_CASES,
     SPOKE_CASES,
     TEARDROP_CASES,
-    THERMAL_VIA_GRIDS,
-    VIA_INDEX_CASES,
     random_angle_triples,
     random_annular_vias,
     random_segment_runs,
@@ -148,16 +146,10 @@ REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "dfm_classify_severity_py",
     # power_plane
     "dfm_board_bounds_py",
-    "dfm_rect_polygon_py",
-    "dfm_power_pour_bounds_py",
-    "dfm_thermal_via_positions_py",
     # copper_balance
     "dfm_via_annular_area_py",
     "dfm_layer_is_between_py",
     "dfm_segment_run_copper_area_py",
-    # via_placement  (see the PR body: recommended GLUE, pinned anyway)
-    "dfm_via_segment_index_py",
-    "dfm_adjacent_layer_py",
     # annular_ring_check
     "dfm_check_annular_ring_py",
     # teardrop_generation
@@ -289,10 +281,6 @@ def _both(oracle_fn, oracle_args, rust_name, rust_args, label):
 # --- oracle-side adapters -------------------------------------------------
 # Named module-level functions, not closures: they normalise a kernel's rich
 # return type down to the tuple the Rust arm will hand back.
-
-
-def _oracle_power_pour_bounds(board, domains, gap):
-    return [p.bounds for p in ORACLE.generate_power_pours(board, domains, isolation_gap_mm=gap)]
 
 
 def _oracle_check_annular_ring(via, min_ring, microvia_ring):
@@ -467,31 +455,6 @@ def test_board_bounds_identical(case):
     )
 
 
-@pytest.mark.parametrize("case", POUR_CASES)
-def test_rect_polygon_identical(case):
-    ox, oy, w, h, _n, _gap = case
-    bounds = (ox, oy, ox + w, oy + h)
-    _both(
-        ORACLE._rect_polygon,
-        (bounds,),
-        "dfm_rect_polygon_py",
-        bounds,
-        f"_rect_polygon{bounds!r}",
-    )
-
-
-@pytest.mark.parametrize("case", POUR_CASES)
-def test_power_pour_bounds_identical(case):
-    ox, oy, w, h, n, gap = case
-    _both(
-        _oracle_power_pour_bounds,
-        (_Board(ox, oy, w, h), tuple(f"D{i}" for i in range(n)), gap),
-        "dfm_power_pour_bounds_py",
-        (ox, oy, ox + w, oy + h, n, gap),
-        f"generate_power_pours{case!r}",
-    )
-
-
 def test_power_pours_carry_the_domain_names_and_polygon_in_order():
     """The pours' non-numeric payload is part of the contract too.
 
@@ -509,18 +472,6 @@ def test_power_pours_carry_the_domain_names_and_polygon_in_order():
     # defaults resolve to DEFAULT_POWER_DOMAINS; an empty tuple returns []
     assert [p.net for p in ORACLE.generate_power_pours(board)] == list(ORACLE.DEFAULT_POWER_DOMAINS)
     assert ORACLE.generate_power_pours(board, ()) == []
-
-
-@pytest.mark.parametrize("case", THERMAL_VIA_GRIDS)
-def test_thermal_via_positions_identical(case):
-    cx, cy, count, pitch = case
-    _both(
-        ORACLE._thermal_via_positions,
-        ((cx, cy), count, pitch),
-        "dfm_thermal_via_positions_py",
-        (cx, cy, count, pitch),
-        f"_thermal_via_positions{case!r}",
-    )
 
 
 # ===========================================================================
@@ -619,36 +570,6 @@ def test_oracle_layer_order_matches_production_stackup():
 
     shipped = tuple(str(idx) for idx in STANDARD_LAYER_ORDER)
     assert shipped == ORACLE._LAYER_ORDER_NAMES
-
-
-# ===========================================================================
-# via_placement
-# ===========================================================================
-
-
-@pytest.mark.parametrize("case", VIA_INDEX_CASES)
-def test_via_segment_index_identical(case):
-    vx, vy, segs = case
-    _both(
-        ORACLE._via_segment_index,
-        (vx, vy, list(segs)),
-        "dfm_via_segment_index_py",
-        (vx, vy, [s[0] for s in segs], [s[1] for s in segs]),
-        f"_via_segment_index{case!r}",
-    )
-
-
-@pytest.mark.parametrize(
-    "layer", ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu", "F.SilkS", "", "f.cu", "Edge.Cuts"]
-)
-def test_adjacent_layer_identical(layer):
-    _both(
-        ORACLE._get_adjacent_layer,
-        (layer,),
-        "dfm_adjacent_layer_py",
-        (layer,),
-        f"_get_adjacent_layer({layer!r})",
-    )
 
 
 # ===========================================================================
@@ -1262,20 +1183,15 @@ def test_every_pinned_kernel_has_at_least_one_differential_case():
         "_calculate_angle": len(ANGLE_TRIPLES),
         "_classify_severity": len(SEVERITY_CASES),
         "_board_bounds": len(POUR_CASES),
-        "_rect_polygon": len(POUR_CASES),
-        "generate_power_pours": len(POUR_CASES),
-        "_thermal_via_positions": len(THERMAL_VIA_GRIDS),
         "_via_annular_area": len(ANNULAR_AREAS),
         "_layer_is_between": len(LAYER_TRIPLES),
         "_segment_run_copper_area": len(SEGMENT_RUNS),
-        "_via_segment_index": len(VIA_INDEX_CASES),
         "_check_via": len(ANNULAR_RING_VIAS),
         "_generate_via_teardrop": len(TEARDROP_CASES),
     }
     for name, n in coverage.items():
         assert hasattr(ORACLE, name), f"{name} is not in the pinned oracle"
         assert n >= 12, f"{name} has only {n} corpus rows"
-    # exactly one Rust symbol per pinned kernel, plus `dfm_adjacent_layer_py`
-    # (a pure dict lookup, covered by its own parametrize rather than a corpus)
-    assert len(REQUIRED_RUST_SYMBOLS) == len(coverage) + 1
+    # one Rust symbol per pinned kernel
+    assert len(REQUIRED_RUST_SYMBOLS) == len(coverage)
     assert len(set(REQUIRED_RUST_SYMBOLS)) == len(REQUIRED_RUST_SYMBOLS)

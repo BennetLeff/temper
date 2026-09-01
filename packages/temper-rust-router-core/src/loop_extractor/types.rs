@@ -96,9 +96,7 @@ pub enum ExtractionError {
     NoHalfBridge { switch_count: usize },
 
     /// Two switches found but they don't share a switch node.
-    #[error(
-        "No switch node between {ref_a} and {ref_b}. They have no common net."
-    )]
+    #[error("No switch node between {ref_a} and {ref_b}. They have no common net.")]
     NoSwitchNode { ref_a: String, ref_b: String },
 }
 
@@ -136,8 +134,14 @@ impl PinMapping {
 
         // Common aliases for TO-247
         table.insert(("TO247".to_string(), "1".to_string()), "GATE".to_string());
-        table.insert(("TO247".to_string(), "2".to_string()), "COLLECTOR".to_string());
-        table.insert(("TO247".to_string(), "3".to_string()), "EMITTER".to_string());
+        table.insert(
+            ("TO247".to_string(), "2".to_string()),
+            "COLLECTOR".to_string(),
+        );
+        table.insert(
+            ("TO247".to_string(), "3".to_string()),
+            "EMITTER".to_string(),
+        );
 
         // TO-220-3: MOSFET pinout
         macro_rules! to220 {
@@ -221,19 +225,13 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn test_to247_pin2_is_collector() {
         let mapping = PinMapping::default_mapping();
-        assert_eq!(
-            mapping.resolve("TO-247", "2").unwrap(),
-            "COLLECTOR"
-        );
+        assert_eq!(mapping.resolve("TO-247", "2").unwrap(), "COLLECTOR");
     }
 
     #[cfg_attr(test, test)]
     fn test_to247_pin1_is_gate() {
         let mapping = PinMapping::default_mapping();
-        assert_eq!(
-            mapping.resolve("TO-247", "1").unwrap(),
-            "GATE"
-        );
+        assert_eq!(mapping.resolve("TO-247", "1").unwrap(), "GATE");
     }
 
     #[cfg_attr(test, test)]
@@ -241,7 +239,11 @@ pub(crate) mod tests {
         let mapping = PinMapping::default_mapping();
         let err = mapping.resolve("TO-247", "99").unwrap_err();
         match err {
-            ExtractionError::UnmappedPin { pin_number, known_names, .. } => {
+            ExtractionError::UnmappedPin {
+                pin_number,
+                known_names,
+                ..
+            } => {
                 assert_eq!(pin_number, "99");
                 assert!(known_names.contains(&"GATE".to_string()));
                 assert!(known_names.contains(&"COLLECTOR".to_string()));

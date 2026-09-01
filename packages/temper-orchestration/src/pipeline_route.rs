@@ -81,15 +81,14 @@ use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 #[cfg(feature = "python")]
-use temper_geometry::core_graph_geometry::normalize_rotation_index;
-#[cfg(feature = "python")]
 use temper_geometry::WorldPosition;
+#[cfg(feature = "python")]
+use temper_geometry::core_graph_geometry::normalize_rotation_index;
 
 /// The deterministic KiCad `tstamp` UUIDv5 namespace
 /// (`uuid.UUID("f8b1a2b0-6c4e-4a3a-9b7a-1a2b3c4d5e6f").bytes`).
 const TSTAMP_NAMESPACE: [u8; 16] = [
-    0xf8, 0xb1, 0xa2, 0xb0, 0x6c, 0x4e, 0x4a, 0x3a, 0x9b, 0x7a, 0x1a, 0x2b, 0x3c, 0x4d, 0x5e,
-    0x6f,
+    0xf8, 0xb1, 0xa2, 0xb0, 0x6c, 0x4e, 0x4a, 0x3a, 0x9b, 0x7a, 0x1a, 0x2b, 0x3c, 0x4d, 0x5e, 0x6f,
 ];
 
 /// One marshalled compiled route for the emission core
@@ -259,12 +258,7 @@ impl Via {
     /// byte-for-byte. Floats are rendered via CPython `"{:.4f}"`
     /// (`py_fmt4`), the crate's bit-exactness convention.
     #[cfg(feature = "python")]
-    pub fn emit_s_expr(
-        &self,
-        py: Python<'_>,
-        net_num: i64,
-        tstamp: &str,
-    ) -> PyResult<String> {
+    pub fn emit_s_expr(&self, py: Python<'_>, net_num: i64, tstamp: &str) -> PyResult<String> {
         let token = self.via_type_token();
         let head = match token {
             Some(token) => format!("  (via {token} (at"),
@@ -479,14 +473,10 @@ pub fn run_build_clause_origin(py: Python<'_>, model: Option<Py<PyAny>>) -> PyRe
         let constraints = model.bind(py).getattr("constraints")?;
         for item in constraints.try_iter()? {
             let c = item?;
-            let count: usize = if c.hasattr("terms")?
-                && c.getattr("terms")?.is_truthy()?
-            {
+            let count: usize = if c.hasattr("terms")? && c.getattr("terms")?.is_truthy()? {
                 let n = c.getattr("terms")?.len()?;
                 std::cmp::max(1, n * 3)
-            } else if c.hasattr("group_a_indices")?
-                && c.getattr("group_a_indices")?.is_truthy()?
-            {
+            } else if c.hasattr("group_a_indices")? && c.getattr("group_a_indices")?.is_truthy()? {
                 let a = c.getattr("group_a_indices")?.len()?;
                 let b = c.getattr("group_b_indices")?.len()?;
                 std::cmp::max(1, (a + b) * 3)
@@ -543,17 +533,14 @@ pub fn run_select_routing_grids(
 #[cfg(feature = "python")]
 fn first_dict_value<'py>(grids: &Bound<'py, PyDict>) -> PyResult<Bound<'py, PyAny>> {
     let mut iter = grids.iter();
-    let (_, value) = iter.next().ok_or_else(|| {
-        PyValueError::new_err("No occupancy grid available for A* pathfinding")
-    })?;
+    let (_, value) = iter
+        .next()
+        .ok_or_else(|| PyValueError::new_err("No occupancy grid available for A* pathfinding"))?;
     Ok(value)
 }
 
 #[cfg(feature = "python")]
-fn first_value_with_key_ne(
-    grids: &Bound<'_, PyDict>,
-    layer: &str,
-) -> PyResult<Option<Py<PyAny>>> {
+fn first_value_with_key_ne(grids: &Bound<'_, PyDict>, layer: &str) -> PyResult<Option<Py<PyAny>>> {
     let mut found = None;
     for (name, candidate) in grids.iter() {
         let name: String = name.extract()?;
@@ -695,11 +682,7 @@ pub fn run_to_stage0_netclass_rules(
 /// rendered through CPython `str.format` (`{!r}` of the type name, `{}` of
 /// the alias list) so the text is bit-identical to the pre-migration
 /// f-string.
-fn resolve_attr(
-    py: Python<'_>,
-    rules: &Bound<'_, PyAny>,
-    aliases: &[&str],
-) -> PyResult<Py<PyAny>> {
+fn resolve_attr(py: Python<'_>, rules: &Bound<'_, PyAny>, aliases: &[&str]) -> PyResult<Py<PyAny>> {
     for alias in aliases {
         if rules.hasattr(*alias)? {
             return Ok(rules.getattr(*alias)?.unbind());
@@ -1184,7 +1167,13 @@ pub fn run_collect_pad_positions(
                     // resolved rotation_rad is bit-identical to the kernel's.
                     // `side` is 0 or 1 in practice (KiCad's bottom-side flag);
                     // the i64 read snaps into the type's i32 slot losslessly.
-                    let world = WorldPosition::from_component_pin((cx, cy), rotation_rad, (px, py), 0, side as i32);
+                    let world = WorldPosition::from_component_pin(
+                        (cx, cy),
+                        rotation_rad,
+                        (px, py),
+                        0,
+                        side as i32,
+                    );
                     positions.push((world.x(), world.y()));
                 }
                 _ => positions.push((cx, cy)),
@@ -1323,7 +1312,15 @@ pub fn run_build_route_payload(
         vias.push(Via::new(vx, vy, &from_layer, &to_layer, diameter, drill));
     }
 
-    Ok((net_name, path_length, path_points, width, net_num, vias, pads_len))
+    Ok((
+        net_name,
+        path_length,
+        path_points,
+        width,
+        net_num,
+        vias,
+        pads_len,
+    ))
 }
 
 #[cfg(feature = "python")]
@@ -1368,10 +1365,7 @@ pub fn run_build_routing_result(
         .into_pyobject(py)?
         .into_any();
     let default_zero_pos = (0.0_f64, 0.0_f64).into_pyobject(py)?.into_any();
-    let default_positions = (
-        (0.0_f64, 0.0_f64),
-        (0.0_f64, 0.0_f64),
-    )
+    let default_positions = ((0.0_f64, 0.0_f64), (0.0_f64, 0.0_f64))
         .into_pyobject(py)?
         .into_any();
 
@@ -1412,8 +1406,8 @@ pub fn run_build_routing_result(
     let mut congestion_regions: Vec<(String, String, String, f64, (f64, f64), (f64, f64))> =
         Vec::new();
 
-    for report in getattr_or(py, &routing_results, "net_reports", &default_empty_list)?
-        .try_iter()?
+    for report in
+        getattr_or(py, &routing_results, "net_reports", &default_empty_list)?.try_iter()?
     {
         let report = report?;
 
@@ -1437,14 +1431,12 @@ pub fn run_build_routing_result(
             if is_edge || is_keepout {
                 let net_name: String =
                     getattr_or(py, &report, "net_name", &default_unknown)?.extract()?;
-                let comps =
-                    getattr_or(py, &bottleneck, "component_pair", &default_unknown_pair)?;
+                let comps = getattr_or(py, &bottleneck, "component_pair", &default_unknown_pair)?;
                 let comp_a: String = comps.get_item(0)?.extract()?;
                 let comp_b: String = comps.get_item(1)?.extract()?;
                 let gap: f64 =
                     getattr_or(py, &bottleneck, "current_gap_mm", &default_zero_f)?.extract()?;
-                let positions =
-                    getattr_or(py, &bottleneck, "positions_mm", &default_positions)?;
+                let positions = getattr_or(py, &bottleneck, "positions_mm", &default_positions)?;
                 let pos_a = positions.get_item(0)?;
                 let pos_b = positions.get_item(1)?;
                 let ax: f64 = pos_a.get_item(0)?.extract()?;
@@ -1463,10 +1455,8 @@ pub fn run_build_routing_result(
         for v in getattr_or(py, &mfg, "violations", &default_empty_list)?.try_iter()? {
             let v = v?;
             let v_type: String = getattr_or(py, &v, "type", &default_unknown)?.extract()?;
-            let message: String =
-                getattr_or(py, &v, "message", &default_empty_str)?.extract()?;
-            let net_name: String =
-                getattr_or(py, &v, "net_name", &default_empty_str)?.extract()?;
+            let message: String = getattr_or(py, &v, "message", &default_empty_str)?.extract()?;
+            let net_name: String = getattr_or(py, &v, "net_name", &default_empty_str)?.extract()?;
             let location = getattr_or(py, &v, "location", &default_zero_pos)?;
             let lx: f64 = location.get_item(0)?.extract()?;
             let ly: f64 = location.get_item(1)?.extract()?;
@@ -1522,7 +1512,7 @@ impl Stage<BoardState> for PipelineRouteStage {
     }
     fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
         stage_guard("pipeline_route", || {
-        Python::attach(|py| {
+            Python::attach(|py| {
                 if let Some(p) = &self.payload {
                     let p = p.bind(py);
                     let routes = p.get_item(0)?.extract::<Vec<RouteEmission>>()?;
@@ -1616,7 +1606,12 @@ pub(crate) mod tests {
         assert_eq!(run_select_sat_nets(nets.clone(), Some(5)), None);
         assert_eq!(
             run_select_sat_nets(nets, Some(4)),
-            Some(vec!["B".to_string(), "E".to_string(), "C".to_string(), "A".to_string()])
+            Some(vec![
+                "B".to_string(),
+                "E".to_string(),
+                "C".to_string(),
+                "A".to_string()
+            ])
         );
     }
 
@@ -1635,28 +1630,57 @@ pub(crate) mod tests {
         );
     }
 
-
     #[cfg_attr(test, test)]
     fn via_type_token_full_stack_pair_is_through() {
-        assert_eq!(Via::new(0.0, 0.0, "F.Cu", "B.Cu", 0.6, 0.3).via_type_token(), None);
-        assert_eq!(Via::new(0.0, 0.0, "B.Cu", "F.Cu", 0.6, 0.3).via_type_token(), None);
+        assert_eq!(
+            Via::new(0.0, 0.0, "F.Cu", "B.Cu", 0.6, 0.3).via_type_token(),
+            None
+        );
+        assert_eq!(
+            Via::new(0.0, 0.0, "B.Cu", "F.Cu", 0.6, 0.3).via_type_token(),
+            None
+        );
         // Degenerate same-layer pair keeps the pre-fix (no-token) emission.
-        assert_eq!(Via::new(0.0, 0.0, "F.Cu", "F.Cu", 0.6, 0.3).via_type_token(), None);
-        assert_eq!(Via::new(0.0, 0.0, "In2.Cu", "In2.Cu", 0.6, 0.3).via_type_token(), None);
+        assert_eq!(
+            Via::new(0.0, 0.0, "F.Cu", "F.Cu", 0.6, 0.3).via_type_token(),
+            None
+        );
+        assert_eq!(
+            Via::new(0.0, 0.0, "In2.Cu", "In2.Cu", 0.6, 0.3).via_type_token(),
+            None
+        );
     }
 
     #[cfg_attr(test, test)]
     fn via_type_token_outer_to_inner_is_blind() {
-        assert_eq!(Via::new(0.0, 0.0, "F.Cu", "In3.Cu", 0.6, 0.3).via_type_token(), Some("blind"));
-        assert_eq!(Via::new(0.0, 0.0, "In3.Cu", "F.Cu", 0.6, 0.3).via_type_token(), Some("blind"));
-        assert_eq!(Via::new(0.0, 0.0, "B.Cu", "In4.Cu", 0.6, 0.3).via_type_token(), Some("blind"));
-        assert_eq!(Via::new(0.0, 0.0, "In4.Cu", "B.Cu", 0.6, 0.3).via_type_token(), Some("blind"));
+        assert_eq!(
+            Via::new(0.0, 0.0, "F.Cu", "In3.Cu", 0.6, 0.3).via_type_token(),
+            Some("blind")
+        );
+        assert_eq!(
+            Via::new(0.0, 0.0, "In3.Cu", "F.Cu", 0.6, 0.3).via_type_token(),
+            Some("blind")
+        );
+        assert_eq!(
+            Via::new(0.0, 0.0, "B.Cu", "In4.Cu", 0.6, 0.3).via_type_token(),
+            Some("blind")
+        );
+        assert_eq!(
+            Via::new(0.0, 0.0, "In4.Cu", "B.Cu", 0.6, 0.3).via_type_token(),
+            Some("blind")
+        );
     }
 
     #[cfg_attr(test, test)]
     fn via_type_token_inner_to_inner_is_buried() {
-        assert_eq!(Via::new(0.0, 0.0, "In1.Cu", "In3.Cu", 0.6, 0.3).via_type_token(), Some("buried"));
-        assert_eq!(Via::new(0.0, 0.0, "In3.Cu", "In1.Cu", 0.6, 0.3).via_type_token(), Some("buried"));
+        assert_eq!(
+            Via::new(0.0, 0.0, "In1.Cu", "In3.Cu", 0.6, 0.3).via_type_token(),
+            Some("buried")
+        );
+        assert_eq!(
+            Via::new(0.0, 0.0, "In3.Cu", "In1.Cu", 0.6, 0.3).via_type_token(),
+            Some("buried")
+        );
     }
 
     // Emission-level pins: `Via::emit_s_expr` is python-gated (it renders
@@ -1700,7 +1724,10 @@ pub(crate) mod tests {
                 Ok(s) => s,
                 Err(e) => panic!("emit_s_expr failed: {e}"),
             };
-            assert!(got.starts_with("  (via blind (at 2.5000 0.0000)"), "got: {got}");
+            assert!(
+                got.starts_with("  (via blind (at 2.5000 0.0000)"),
+                "got: {got}"
+            );
             assert!(got.contains("(layers \"F.Cu\" \"In3.Cu\")"));
             assert!(got.ends_with("(tstamp \"tstamp-00000000-0000-5000-8000-000000000000\"))"));
         })
@@ -1716,7 +1743,10 @@ pub(crate) mod tests {
                 Ok(s) => s,
                 Err(e) => panic!("emit_s_expr failed: {e}"),
             };
-            assert!(got.starts_with("  (via buried (at 2.5000 0.0000)"), "got: {got}");
+            assert!(
+                got.starts_with("  (via buried (at 2.5000 0.0000)"),
+                "got: {got}"
+            );
             assert!(got.contains("(layers \"In1.Cu\" \"In3.Cu\")"));
             assert!(got.ends_with("(tstamp \"tstamp-00000000-0000-5000-8000-000000000000\"))"));
         })
@@ -1782,10 +1812,7 @@ pub(crate) mod tests {
                 Ok(s) => s,
                 Err(e) => panic!("emit_s_expr failed: {e}"),
             };
-            assert!(
-                got.contains("(size 1.0000) (drill 0.4000)"),
-                "got: {got}"
-            );
+            assert!(got.contains("(size 1.0000) (drill 0.4000)"), "got: {got}");
         })
     }
 

@@ -305,21 +305,41 @@ class TestAntiVacuity:
 
 
 # ---------------------------------------------------------------------------
-# 4. Real-repo integration -- documents the CURRENT (broken) state
+# 4. Real-repo integration -- PROPERTY 1 fixed, PROPERTY 2 still live
 # ---------------------------------------------------------------------------
 
 
 class TestRealRepoIntegration:
-    def test_real_repo_currently_violates_both_properties(self):
-        """As of this gate's writing, both underlying bugs are still
-        live on origin/main. If either is fixed, update this test to
-        match and reconsider whether the CI step should stop being
-        advisory for that property (see docs/evidence/
-        2026-08-11-correspondence-gates.md)."""
+    def test_real_repo_property1_fixed_property2_still_live(self):
+        """UPDATED 2026-08-21, per the instruction this test carried: "If
+        either is fixed, update this test to match and reconsider whether the
+        CI step should stop being advisory for that property."
+
+        PROPERTY 1 IS NOW FIXED. `raw_board_from_tree`'s `layers` arm reads
+        index 2 -- the role token -- so `parser_captures_role` is True, where
+        this test previously asserted False. Renamed from
+        `test_real_repo_currently_violates_both_properties`, which now
+        describes the opposite of the measured state.
+
+        PROPERTY 2 IS STILL LIVE: In1.Cu and In2.Cu are declared with role
+        'power' in the board yet appear nowhere in `_zone_layers_for_net`'s
+        body, so no path reachable from `route_pcb` can pour copper on either.
+        The gate as a whole therefore still exits non-zero and its CI step
+        stays `continue-on-error: true`.
+
+        ON THE ADVISORY QUESTION: the gate script reports both properties
+        through one exit code, so it cannot go blocking while Property 2 is
+        open. But this test IS blocking (`continue-on-error: false` on the
+        `Declared <-> emitted layer gate tests` step), so asserting
+        `parser_captures_role is True` here is what actually enforces the fix
+        -- a regression fails CI on this file even though the gate itself
+        stays advisory. That is the "stop being advisory for that property"
+        the original note asked for, achieved without splitting the script.
+        """
         state, report = run(REAL_BOARD, REAL_PARSER_SOURCE, REAL_EMITTER_SOURCE)
         assert state == "violation"
         assert report.declared_plane_layers == ["In1.Cu", "In2.Cu"]
-        assert report.parser_captures_role is False
+        assert report.parser_captures_role is True
         assert report.unemittable_planes == ["In1.Cu", "In2.Cu"]
 
     def test_real_repo_gate_exits_violation_not_error(self):

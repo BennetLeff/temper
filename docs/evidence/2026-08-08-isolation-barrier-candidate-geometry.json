@@ -1,4 +1,8 @@
 {
+  "provenance": {
+    "commit": "24b05cf871db90ab180d1c11c2bc3fa38fd6c0d0",
+    "dirty": "UNKNOWN"
+  },
   "_README": [
     "Candidate isolation-barrier geometry for pcb/temper.kicad_pcb, produced by",
     "docs/evidence/2026-08-08-isolation-barrier-geometry-analysis.md.",
@@ -19,41 +23,189 @@
     "this file) -- see the analysis doc Sec 7 for what a true non-vertical",
     "polyline or polygon region would additionally require."
   ],
-
   "single_line_candidate": {
     "_note": "The one documented candidate that predates this analysis (origin/safety/mains-selv-isolation-barrier, commit 645154b7): vertical line at the HV/SELV pad-centroid midpoint. Measured this session at 41.0% pad misclassification (133/324) -- WORSE than the exhaustive axis-aligned best-fit (32.7%, x=21.245 or y=21.223, both degenerate near-edge splits with no real discriminative power). Kept here only as the prior art baseline, not a recommendation.",
     "isolation_barriers": [
       {
         "name": "MAINS_SELV_ISOLATION_BARRIER",
         "x_mm": 94.703,
-        "y_span": [0.0, 274.0],
+        "y_span": [
+          0.0,
+          274.0
+        ],
         "layers": "all",
         "clearance_mm": 8.0
       }
     ]
   },
-
   "stepped_polyline_candidate_16band": {
     "_note": "Best 16-band piecewise-vertical split found by this analysis (per-band exhaustive x search). Expressed as 16 IsolationBarrier entries, one per 14.625mm-tall y-band, each independently supported by today's schema (a Vec<IsolationBarrier>, evaluated independently per zone/trace -- see isolation_barrier.rs). Still misclassifies 73/324 pads (22.5%) -- an improvement over the single line's 32.7-41.0%, but far from compliant, and this is the BEST a vertical-segments-only polyline can do: the topological obstruction (Sec 5 of the analysis doc) is not a curve-complexity problem, it recurs within single y-bands as little as ~3mm tall (R27.2 HV vs U10.2 SELV vs R8.1/R8.2 HV vs K1.A2 SELV, all within y=[220.8, 223.8]), which no function-of-y boundary can resolve.",
-    "board_y_range_mm": [20.0, 254.0],
+    "board_y_range_mm": [
+      20.0,
+      254.0
+    ],
     "band_height_mm": 14.625,
     "isolation_barriers": [
-      {"name": "BARRIER_BAND_00", "x_mm": 21.295, "y_span": [20.000, 34.625], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_01", "x_mm": 21.295, "y_span": [34.625, 49.250], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_02", "x_mm": 21.295, "y_span": [49.250, 63.875], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_03", "x_mm": 21.295, "y_span": [63.875, 78.500], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_04", "x_mm": 105.450, "y_span": [78.500, 93.125], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_05", "x_mm": 105.450, "y_span": [93.125, 107.750], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_06", "x_mm": 105.450, "y_span": [107.750, 122.375], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_07", "x_mm": 105.450, "y_span": [122.375, 137.000], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_08", "x_mm": 24.250, "y_span": [137.000, 151.625], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_09", "x_mm": 24.250, "y_span": [151.625, 166.250], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_10", "x_mm": 24.250, "y_span": [166.250, 180.875], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_11", "x_mm": 24.250, "y_span": [180.875, 195.500], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_12", "x_mm": 21.245, "y_span": [195.500, 210.125], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_13", "x_mm": 21.245, "y_span": [210.125, 224.750], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_14", "x_mm": 21.245, "y_span": [224.750, 239.375], "layers": "all", "clearance_mm": 8.0},
-      {"name": "BARRIER_BAND_15", "x_mm": 21.245, "y_span": [239.375, 254.000], "layers": "all", "clearance_mm": 8.0}
+      {
+        "name": "BARRIER_BAND_00",
+        "x_mm": 21.295,
+        "y_span": [
+          20.0,
+          34.625
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_01",
+        "x_mm": 21.295,
+        "y_span": [
+          34.625,
+          49.25
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_02",
+        "x_mm": 21.295,
+        "y_span": [
+          49.25,
+          63.875
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_03",
+        "x_mm": 21.295,
+        "y_span": [
+          63.875,
+          78.5
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_04",
+        "x_mm": 105.45,
+        "y_span": [
+          78.5,
+          93.125
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_05",
+        "x_mm": 105.45,
+        "y_span": [
+          93.125,
+          107.75
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_06",
+        "x_mm": 105.45,
+        "y_span": [
+          107.75,
+          122.375
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_07",
+        "x_mm": 105.45,
+        "y_span": [
+          122.375,
+          137.0
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_08",
+        "x_mm": 24.25,
+        "y_span": [
+          137.0,
+          151.625
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_09",
+        "x_mm": 24.25,
+        "y_span": [
+          151.625,
+          166.25
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_10",
+        "x_mm": 24.25,
+        "y_span": [
+          166.25,
+          180.875
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_11",
+        "x_mm": 24.25,
+        "y_span": [
+          180.875,
+          195.5
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_12",
+        "x_mm": 21.245,
+        "y_span": [
+          195.5,
+          210.125
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_13",
+        "x_mm": 21.245,
+        "y_span": [
+          210.125,
+          224.75
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_14",
+        "x_mm": 21.245,
+        "y_span": [
+          224.75,
+          239.375
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      },
+      {
+        "name": "BARRIER_BAND_15",
+        "x_mm": 21.245,
+        "y_span": [
+          239.375,
+          254.0
+        ],
+        "layers": "all",
+        "clearance_mm": 8.0
+      }
     ],
     "measured_pad_misclassification": "73/324 (22.5%) -- NOT compliant, provided only to demonstrate the schema's existing multi-barrier capability and its measured ceiling on this placement"
   }

@@ -116,10 +116,7 @@ fn lower_primitive(p: &PrimitiveConstraint) -> (Vec<InternalConstraint>, Vec<Str
             terms,
         } => {
             let vars: Vec<String> = terms.iter().map(|(n, _)| n.clone()).collect();
-            let min_width = terms
-                .iter()
-                .map(|(_, w)| *w)
-                .fold(f64::INFINITY, f64::min);
+            let min_width = terms.iter().map(|(_, w)| *w).fold(f64::INFINITY, f64::min);
             let capacity = (*k as f64) * min_width;
             let constraint = InternalConstraint::Capacity {
                 channel_id: channel_id.clone(),
@@ -185,15 +182,9 @@ fn filter_constraint_vars(
                 None
             }
         }
-        InternalConstraint::LayerRestriction {
-            var_name,
-            allowed,
-        } => {
+        InternalConstraint::LayerRestriction { var_name, allowed } => {
             if var_set.contains(var_name.as_str()) {
-                Some(InternalConstraint::LayerRestriction {
-                    var_name,
-                    allowed,
-                })
+                Some(InternalConstraint::LayerRestriction { var_name, allowed })
             } else {
                 None
             }
@@ -209,21 +200,16 @@ fn filter_constraint_vars(
 #[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
+    use super::super::types::{cardinality_bound_new, compose_conjoin, layer_assignment_new};
     use super::*;
-    use super::super::types::{
-        cardinality_bound_new, compose_conjoin, layer_assignment_new,
-    };
 
     /// AE1 from the plan: lower a Conjoin(P2, P4).
     #[cfg_attr(test, test)]
     fn lower_conjoin_p2_p4() {
         let p2 = cardinality_bound_new(
-            "L1_E5".into(), 3,
-            vec![
-                ("A".into(), 1.0),
-                ("B".into(), 1.0),
-                ("C".into(), 1.0),
-            ],
+            "L1_E5".into(),
+            3,
+            vec![("A".into(), 1.0), ("B".into(), 1.0), ("C".into(), 1.0)],
         );
         let p4 = layer_assignment_new("A".into(), true);
         let composed = compose_conjoin(p2, p4);
@@ -245,18 +231,19 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn lower_p2_capacity_derivation() {
         let p2 = cardinality_bound_new(
-            "CH1".into(), 4,
-            vec![
-                ("X".into(), 2.0),
-                ("Y".into(), 2.0),
-                ("Z".into(), 3.0),
-            ],
+            "CH1".into(),
+            4,
+            vec![("X".into(), 2.0), ("Y".into(), 2.0), ("Z".into(), 3.0)],
         );
         let model = lower_composed(&p2);
         // min_width = 2.0, capacity = k * min_width = 4 * 2.0 = 8.0
         assert_eq!(model.constraints.len(), 1);
         match &model.constraints[0] {
-            InternalConstraint::Capacity { capacity, slack_factor, .. } => {
+            InternalConstraint::Capacity {
+                capacity,
+                slack_factor,
+                ..
+            } => {
                 assert_eq!(*capacity, 8.0);
                 assert_eq!(*slack_factor, 1.0);
             }
@@ -274,7 +261,11 @@ pub(crate) mod tests {
         let model = lower_composed(&p1);
         assert_eq!(model.constraints.len(), 1);
         match &model.constraints[0] {
-            InternalConstraint::DiffPair { p_var_name, n_var_name, .. } => {
+            InternalConstraint::DiffPair {
+                p_var_name,
+                n_var_name,
+                ..
+            } => {
                 assert_eq!(p_var_name, "p_CH1");
                 assert_eq!(n_var_name, "n_CH1");
             }
@@ -285,10 +276,7 @@ pub(crate) mod tests {
     /// Lower a Conditional: antecedent assignments → LayerRestrictions + consequent.
     #[cfg_attr(test, test)]
     fn lower_conditional() {
-        let p2 = cardinality_bound_new(
-            "CH1".into(), 2,
-            vec![("A".into(), 1.0), ("B".into(), 1.0)],
-        );
+        let p2 = cardinality_bound_new("CH1".into(), 2, vec![("A".into(), 1.0), ("B".into(), 1.0)]);
         let cond = ComposedConstraint::Conditional {
             antecedent: vec![("guard".into(), true)],
             consequent: Box::new(p2),
@@ -306,12 +294,9 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn lower_restrict_domain() {
         let p2 = cardinality_bound_new(
-            "CH1".into(), 2,
-            vec![
-                ("A".into(), 1.0),
-                ("B".into(), 1.0),
-                ("C".into(), 1.0),
-            ],
+            "CH1".into(),
+            2,
+            vec![("A".into(), 1.0), ("B".into(), 1.0), ("C".into(), 1.0)],
         );
         let restricted = ComposedConstraint::RestrictDomain {
             inner: Box::new(p2),
@@ -341,7 +326,10 @@ pub(crate) mod tests {
         let c = compose_conjoin(p1, p4);
         let model = lower_composed(&c);
         assert_eq!(model.constraints.len(), 2);
-        let has_diffpair = model.constraints.iter().any(|c| matches!(c, InternalConstraint::DiffPair { .. }));
+        let has_diffpair = model
+            .constraints
+            .iter()
+            .any(|c| matches!(c, InternalConstraint::DiffPair { .. }));
         let has_layer = model.constraints.iter().any(|c| {
             matches!(c, InternalConstraint::LayerRestriction { var_name, .. } if var_name == "x")
         });

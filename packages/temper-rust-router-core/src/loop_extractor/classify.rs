@@ -55,10 +55,11 @@ pub fn classify_component(comp: &CompInfo) -> Classification {
 }
 
 fn classify_by_mpn(_ref_upper: &str, _fp_upper: &str, mpn: &str) -> Option<Classification> {
-    
     // IGBT patterns
-    let igbt_patterns = ["IK", "IHW", "IRG", "STGP", "FGA", "IRGP", "IRG4",
-                          "IXY", "IXG", "IXB", "HGTG", "NGTB", "FGH"];
+    let igbt_patterns = [
+        "IK", "IHW", "IRG", "STGP", "FGA", "IRGP", "IRG4", "IXY", "IXG", "IXB", "HGTG", "NGTB",
+        "FGH",
+    ];
     for pat in &igbt_patterns {
         if mpn.contains(pat) {
             return Some(Classification {
@@ -71,9 +72,10 @@ fn classify_by_mpn(_ref_upper: &str, _fp_upper: &str, mpn: &str) -> Option<Class
     }
 
     // MOSFET patterns
-    let mosfet_patterns = ["FET", "SI", "IRF", "BSC", "IPP", "STP", "IRL",
-                            "FDS", "SIH", "IPA", "IPB", "IPD", "IRFZ", "IRFB",
-                            "IRFP", "STW", "STB", "IPP", "SPW", "FDP"];
+    let mosfet_patterns = [
+        "FET", "SI", "IRF", "BSC", "IPP", "STP", "IRL", "FDS", "SIH", "IPA", "IPB", "IPD", "IRFZ",
+        "IRFB", "IRFP", "STW", "STB", "IPP", "SPW", "FDP",
+    ];
     for pat in &mosfet_patterns {
         if mpn.contains(pat) {
             return Some(Classification {
@@ -86,8 +88,10 @@ fn classify_by_mpn(_ref_upper: &str, _fp_upper: &str, mpn: &str) -> Option<Class
     }
 
     // Gate driver IC patterns
-    let driver_patterns = ["UCC", "ISO", "SI82", "HCPL", "FOD", "SI827", "ACPL",
-                            "IR2", "IRS2", "2ED", "1ED", "ADUM", "BM60"];
+    let driver_patterns = [
+        "UCC", "ISO", "SI82", "HCPL", "FOD", "SI827", "ACPL", "IR2", "IRS2", "2ED", "1ED", "ADUM",
+        "BM60",
+    ];
     for pat in &driver_patterns {
         if mpn.contains(pat) {
             return Some(Classification {
@@ -107,7 +111,9 @@ fn classify_by_footprint(ref_upper: &str, fp: &str, val: &str) -> Option<Classif
     let switch_fps = ["TO-247", "TO-220", "TO-263", "TO247", "TO220", "TO263"];
     for sfp in &switch_fps {
         if fp.contains(sfp) {
-            let sub = if ref_upper.starts_with('Q') && ref_upper.contains('1') || ref_upper.contains('H') {
+            let sub = if ref_upper.starts_with('Q') && ref_upper.contains('1')
+                || ref_upper.contains('H')
+            {
                 Some("igbt".into())
             } else {
                 Some("unknown".into())
@@ -149,7 +155,11 @@ fn classify_by_footprint(ref_upper: &str, fp: &str, val: &str) -> Option<Classif
             component_ref: String::new(),
             category: "capacitor".into(),
             subcategory: sub,
-            confidence: if cap_uf.is_some_and(|v| v > 100.0) { 0.8 } else { 0.7 },
+            confidence: if cap_uf.is_some_and(|v| v > 100.0) {
+                0.8
+            } else {
+                0.7
+            },
         });
     }
 
@@ -170,11 +180,12 @@ fn classify_by_footprint(ref_upper: &str, fp: &str, val: &str) -> Option<Classif
 
     // Resistors
     if ref_upper.starts_with('R') {
-        let sub = if ref_upper.contains("GATE") || ref_upper.contains("_G") || ref_upper.contains("G_") {
-            Some("gate".into())
-        } else {
-            Some("generic".into())
-        };
+        let sub =
+            if ref_upper.contains("GATE") || ref_upper.contains("_G") || ref_upper.contains("G_") {
+                Some("gate".into())
+            } else {
+                Some("generic".into())
+            };
         let is_gate = sub.as_deref() == Some("gate");
         return Some(Classification {
             component_ref: String::new(),
@@ -247,7 +258,12 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn test_q1_to247_no_mpn_is_power_switch() {
         // Covers AE3: Q1 with missing MPN, TO-247-3 footprint
-        let cls = classify("Q1", "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown", "", "");
+        let cls = classify(
+            "Q1",
+            "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown",
+            "",
+            "",
+        );
         assert_eq!(cls.category, "power_switch");
         assert_eq!(cls.subcategory.as_deref(), Some("igbt"));
         assert_eq!(cls.confidence, 0.7);

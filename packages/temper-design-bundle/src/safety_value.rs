@@ -1645,16 +1645,6 @@ fn clearance_table_lookup(impulse_voltage_v: u32) -> PyResult<PySafetyValue> {
     }
 }
 
-/// The legacy `HIGH_VOLTAGE => 14.0` creepage base, labeled `Fabricated`
-/// (origin commit `418fab757`). Exists so the migration can *name* what it
-/// is replacing; production paths must reject `is_fabricated()` values.
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(name = "legacy_creepage_base_high_voltage_14_0")]
-fn legacy_creepage_base_high_voltage_14_0_py() -> PySafetyValue {
-    to_py(&legacy_creepage_base_high_voltage_14_0())
-}
-
 /// Register the safety-value surface on the `temper_design_bundle_python`
 /// module.
 #[cfg(feature = "python")]
@@ -1662,6 +1652,5 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_class::<PySafetyValue>()?;
     module.add_function(wrap_pyfunction!(creepage_table_lookup, module)?)?;
     module.add_function(wrap_pyfunction!(clearance_table_lookup, module)?)?;
-    module.add_function(wrap_pyfunction!(legacy_creepage_base_high_voltage_14_0_py, module)?)?;
     Ok(())
 }

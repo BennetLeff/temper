@@ -29,9 +29,9 @@
 //! **R19-style retained-oracle rule:** the pre-migration Python marshaler
 //! bodies are NOT kept here. They live verbatim in
 //! `tests/validation/test_drc_marshal_rust_differential.py` (`_oracle_*`
-//! blocks) and in the K1-dict kernels under `drc_oracle_marshal.rs` (the
-//! old dict-taking pyfunctions are retained for the existing differential
-//! suite and external dict callers such as `drc_ratchet.py`).
+//! blocks) and in the typed constructors below. The former dict-taking
+//! pyfunctions were binding-only and have been retired; shared Python
+//! attribute helpers remain in `drc_oracle_marshal.rs` for typed conversion.
 
 use std::collections::{BTreeMap, HashSet};
 use std::panic::AssertUnwindSafe;

@@ -1,4 +1,4 @@
-<!-- provenance: commit=ca703e7186e2aca90e36f76c3437e4bcc0e745c8, base=3541512ab4786b8637c69ac592e2a572022d98bc (origin/main, post-rebase), dirty=false, branch fix/traceability-regex-and-dangling-reqs, worktree /home/bennet/Desktop/temper-worktrees/fix-traceability-regex. All commands below were run directly against this commit on this machine (Linux x86_64, Python 3.12.3 via /home/bennet/Desktop/temper/.venv/bin/python). No pcb/** file was modified. Builds on docs/evidence/2026-08-12-dangling-reference-count-verification.md (PR #1093, branch verify/dangling-reference-counts, commit 2c98375b2, not yet merged to main at time of writing) -- that report's hand-verified 15-genuinely-dangling / 28-ambiguous / 103-resolvable breakdown is independently re-confirmed here against this fix's actual output, not re-derived from scratch. -->
+<!-- provenance: commit=a11a6f1310ff50e67f1310d7876a33ea5a8595e5 dirty=UNKNOWN -->
 
 # Traceability gate: fix the `\w+` regex, then triage what it reveals
 

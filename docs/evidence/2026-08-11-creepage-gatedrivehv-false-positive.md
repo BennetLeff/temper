@@ -1,3 +1,4 @@
+<!-- provenance: commit=0490378440b6353283e28c3ae5c5f4dbcb193c95 dirty=UNKNOWN -->
 # Creepage: rule audit, root-cause clustering, and a DRU-generator fix
 
 **Date:** 2026-08-11

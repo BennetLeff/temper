@@ -24,11 +24,8 @@ The two marshalers and the ``CheckRunner`` data surface are now Rust-side
 Python ``RunResult``/``CheckResult``/``Issue`` contract classes
 (``drc_result.py``) and the kicad-cli subprocess path (``_drc_api.run_drc``),
 so the execution is kept here while the marshalling moved to Rust. The old
-dict-taking kernels (``temper_drc_rs.build_board_dict_py`` /
-``build_constraints_dict_py`` / ``constraint_value_to_plain_py``) are retained
-for the existing differential suite and external dict callers such as
-``drc_ratchet.py``; ``run_drc`` accepts both the dict wire format and the new
-typed structs.
+dict-taking kernels were binding-only and have been retired; ``run_drc``
+accepts both the dict wire format and the new typed structs.
 
 The pre-migration marshaler bodies are pinned verbatim as ``_oracle_*`` blocks
 in ``tests/validation/test_drc_marshal_rust_differential.py`` (G1).

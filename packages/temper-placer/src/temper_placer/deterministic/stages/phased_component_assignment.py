@@ -1,10 +1,13 @@
 """Phased component assignment using priority-based placement.
 
-Implementation decomposed across internal mixin modules:
+Implementation is a single internal module ``_phase_core.py`` holding the
+four mixins (collapsed 2026-08-20; previously split across
+``_phase_core`` / ``_phase_zones`` / ``_phase_rotation`` /
+``_phase_validation``):
 - _phase_core.py — orchestration (_PhaseCoreMixin)
-- _phase_zones.py — placement methods (_PhasePlacementMixin)
-- _phase_rotation.py — HV creepage (_PhaseHVMixin)
-- _phase_validation.py — bottleneck validation (_PhaseValidationMixin)
+- placement methods (_PhasePlacementMixin)
+- HV creepage (_PhaseHVMixin)
+- bottleneck validation (_PhaseValidationMixin)
 """
 
 from __future__ import annotations
@@ -13,10 +16,10 @@ from ._phase_core import (
     CRITICAL_BOTTLENECK_INVARIANT,
     PhasedComponentAssignmentError,
     _PhaseCoreMixin,
+    _PhaseHVMixin,
+    _PhasePlacementMixin,
+    _PhaseValidationMixin,
 )
-from ._phase_rotation import _PhaseHVMixin
-from ._phase_validation import _PhaseValidationMixin
-from ._phase_zones import _PhasePlacementMixin
 from .base import Stage
 
 

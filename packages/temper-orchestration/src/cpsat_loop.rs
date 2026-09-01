@@ -72,8 +72,7 @@ use pyo3::types::{PyDict, PyList, PyString, PyTuple};
 const LOGGER_NAME: &str = "temper_placer.placer.cp_sat._loop_core";
 
 #[cfg(feature = "python")]
-const ROUND_MSG_TEMPLATE: &str =
-    "Round {round_num}: completion={completion_rate:.1%}, DRC errors={drc_errors}, \
+const ROUND_MSG_TEMPLATE: &str = "Round {round_num}: completion={completion_rate:.1%}, DRC errors={drc_errors}, \
      solve={solve_time:.0f}ms, route={route_time:.0f}ms";
 
 // ---------------------------------------------------------------------------
@@ -189,7 +188,11 @@ fn build_constraints(
 /// `deltas_applied=list(injected_deltas)`).
 #[cfg(feature = "python")]
 fn list_copy(py: Python<'_>, xs: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
-    Ok(py.import("builtins")?.getattr("list")?.call1((xs,))?.unbind())
+    Ok(py
+        .import("builtins")?
+        .getattr("list")?
+        .call1((xs,))?
+        .unbind())
 }
 
 /// `getattr(obj, name, default)` -- Python's AttributeError-only fallback.
@@ -366,7 +369,9 @@ pub fn cpsat_solve_with_delta(
         let kwargs = PyDict::new(py);
         kwargs.set_item("deltas", new_deltas)?;
         kwargs.set_item("message", message)?;
-        let exc = loop_types_cls(py, "UnsatError")?.bind(py).call((), Some(&kwargs))?;
+        let exc = loop_types_cls(py, "UnsatError")?
+            .bind(py)
+            .call((), Some(&kwargs))?;
         return Err(PyErr::from_value(exc));
     }
     Ok(result.unbind())
@@ -528,10 +533,8 @@ pub fn cpsat_run_legacy_loop(
 
         // ---- Route (legacy) ----
         let t_route = monotonic(py)?;
-        let routed = loop_self.call_method1(
-            "_route_placement",
-            (&placement, netlist, board, seed),
-        )?;
+        let routed =
+            loop_self.call_method1("_route_placement", (&placement, netlist, board, seed))?;
         routing = routed.unbind();
         let route_time = (monotonic(py)? - t_route) * 1000.0;
 
@@ -548,8 +551,7 @@ pub fn cpsat_run_legacy_loop(
         rmsg.set_item("drc_errors", &drc_errors)?;
         rmsg.set_item("solve_time", solve_time)?;
         rmsg.set_item("route_time", route_time)?;
-        let msg = PyString::new(py, ROUND_MSG_TEMPLATE)
-            .call_method("format", (), Some(&rmsg))?;
+        let msg = PyString::new(py, ROUND_MSG_TEMPLATE).call_method("format", (), Some(&rmsg))?;
         log(py, logger, "info", &msg, &[])?;
 
         let deltas_applied = list_copy(py, injected_deltas.bind(py))?;
@@ -611,9 +613,10 @@ pub fn cpsat_run_legacy_loop(
         classify_kwargs.set_item("placement", &placement)?;
         classify_kwargs.set_item("round_number", round_num)?;
         classify_kwargs.set_item("previous_unclassified", &previous_unclassified)?;
-        let classification = loop_self
-            .getattr("classifier")?
-            .call_method("classify", (), Some(&classify_kwargs))?;
+        let classification =
+            loop_self
+                .getattr("classifier")?
+                .call_method("classify", (), Some(&classify_kwargs))?;
         let classification = classification.unbind();
 
         // Check for unclassifiable failures.
@@ -647,27 +650,27 @@ pub fn cpsat_run_legacy_loop(
 
         // Closed-loop backtracking: try deltas in priority order.
         let mut delta_accepted = false;
-        let constraint_objects =
-            build_constraints(py, all_constraints, injected_deltas.bind(py))?;
+        let constraint_objects = build_constraints(py, all_constraints, injected_deltas.bind(py))?;
         for delta in classification.bind(py).getattr("deltas")?.try_iter()? {
             let delta = delta?;
             let single = PyList::new(py, [delta.clone()])?;
             match loop_self.call_method1(
                 "_solve_with_delta",
-                (netlist, board, &constraint_objects, &single, seed, &placement),
+                (
+                    netlist,
+                    board,
+                    &constraint_objects,
+                    &single,
+                    seed,
+                    &placement,
+                ),
             ) {
                 Ok(test_placement) => {
                     injected_deltas.bind(py).call_method1("append", (&delta,))?;
                     placement = test_placement.unbind();
                     delta_accepted = true;
                     let reason = delta.getattr("reason")?;
-                    log_str(
-                        py,
-                        logger,
-                        "info",
-                        "  Accepted delta: {}",
-                        &[reason],
-                    )?;
+                    log_str(py, logger, "info", "  Accepted delta: {}", &[reason])?;
                     break;
                 }
                 Err(err) => {
@@ -689,10 +692,8 @@ pub fn cpsat_run_legacy_loop(
         }
 
         if !delta_accepted {
-            let core = loop_self.call_method1(
-                "_extract_unsat_core",
-                (&injected_deltas, &classification),
-            )?;
+            let core = loop_self
+                .call_method1("_extract_unsat_core", (&injected_deltas, &classification))?;
             let kwargs = PyDict::new(py);
             kwargs.set_item("success", false)?;
             kwargs.set_item("reason", exit_reason_value(py, "ALL_FEEDBACK_UNSAT")?)?;
@@ -789,8 +790,7 @@ pub fn cpsat_run_gated_loop(
 
         // ---- U9: Field round budget check ----
         if field_active {
-            let field_round_counter: i64 =
-                loop_self.getattr("_field_round_counter")?.extract()?;
+            let field_round_counter: i64 = loop_self.getattr("_field_round_counter")?.extract()?;
             if field_round_counter >= field_round_limit {
                 let template = "Field convergence round limit (%d / %d) exceeded; \
                                 exiting with UNMEASURED (never silent zero field).";
@@ -965,7 +965,14 @@ pub fn cpsat_run_gated_loop(
                     let single = PyList::new(py, [delta.clone()])?;
                     match loop_self.call_method1(
                         "_solve_with_delta",
-                        (netlist, board, constraint_objects.bind(py), &single, seed, &placement),
+                        (
+                            netlist,
+                            board,
+                            constraint_objects.bind(py),
+                            &single,
+                            seed,
+                            &placement,
+                        ),
                     ) {
                         Ok(test_placement) => {
                             injected_deltas.bind(py).call_method1("append", (&delta,))?;
@@ -1062,18 +1069,15 @@ pub fn cpsat_run_gated_loop(
         rmsg.set_item("drc_errors", &drc_errors)?;
         rmsg.set_item("solve_time", solve_time)?;
         rmsg.set_item("route_time", route_time)?;
-        let msg = PyString::new(py, ROUND_MSG_TEMPLATE)
-            .call_method("format", (), Some(&rmsg))?;
+        let msg = PyString::new(py, ROUND_MSG_TEMPLATE).call_method("format", (), Some(&rmsg))?;
         log(py, logger, "info", &msg, &[])?;
 
         // ---- U9: Compute post-route thermal field ----
         let mut field_grid: Py<PyAny> = py.None();
         let mut field_status_str: Py<PyAny> = py.None();
         if field_active {
-            let field_result = loop_self.call_method1(
-                "_compute_field",
-                (&placement, &routing, netlist, board),
-            )?;
+            let field_result =
+                loop_self.call_method1("_compute_field", (&placement, &routing, netlist, board))?;
             if !field_result.is_none() {
                 let is_usable = field_result.getattr("is_usable")?.is_truthy()?;
                 if is_usable {
@@ -1083,9 +1087,8 @@ pub fn cpsat_run_gated_loop(
                         .call_method1("_detect_field_cycle", (&field_grid,))?
                         .is_truthy()?
                     {
-                        let window: i64 = loop_self
-                            .getattr("FIELD_OSCILLATION_WINDOW")?
-                            .extract()?;
+                        let window: i64 =
+                            loop_self.getattr("FIELD_OSCILLATION_WINDOW")?.extract()?;
                         log_str(
                             py,
                             logger,
@@ -1098,7 +1101,8 @@ pub fn cpsat_run_gated_loop(
                         )?;
                         let kwargs = PyDict::new(py);
                         kwargs.set_item("success", false)?;
-                        kwargs.set_item("reason", exit_reason_value(py, "OSCILLATION_DETECTED")?)?;
+                        kwargs
+                            .set_item("reason", exit_reason_value(py, "OSCILLATION_DETECTED")?)?;
                         kwargs.set_item("placement", &placement)?;
                         kwargs.set_item("routing", &routing)?;
                         kwargs.set_item("rounds", &rounds)?;
@@ -1109,9 +1113,8 @@ pub fn cpsat_run_gated_loop(
                         .call_method1("_check_field_stability", (&field_grid,))?
                         .is_truthy()?
                     {
-                        let counter: i64 = loop_self
-                            .getattr("_field_stability_counter")?
-                            .extract()?;
+                        let counter: i64 =
+                            loop_self.getattr("_field_stability_counter")?.extract()?;
                         loop_self.setattr("_field_stability_counter", counter + 1)?;
                         let epsilon: f64 = loop_self.getattr("FIELD_EPSILON")?.extract()?;
                         log_str(
@@ -1216,19 +1219,13 @@ pub fn cpsat_run_gated_loop(
             let all_green = loop_self
                 .call_method0("_all_gates_green_results")?
                 .is_truthy()?;
-            let field_stable = !field_active
-                || {
-                    let counter: i64 = loop_self
-                        .getattr("_field_stability_counter")?
-                        .extract()?;
-                    counter >= stability_rounds
-                };
+            let field_stable = !field_active || {
+                let counter: i64 = loop_self.getattr("_field_stability_counter")?.extract()?;
+                counter >= stability_rounds
+            };
             if all_green {
                 let named_set = PyList::new(py, ["drc", "routing"])?;
-                let named_set = py
-                    .import("builtins")?
-                    .getattr("set")?
-                    .call1((named_set,))?;
+                let named_set = py.import("builtins")?.getattr("set")?.call1((named_set,))?;
                 let sc1a_ok = loop_self
                     .call_method1("_are_named_gates_clean", (&named_set,))?
                     .is_truthy()?;
@@ -1265,9 +1262,8 @@ pub fn cpsat_run_gated_loop(
                 let gate_stable =
                     sc1a_green_rounds >= stability_rounds || sc1b_green_rounds >= stability_rounds;
                 if gate_stable && field_stable {
-                    let field_counter: i64 = loop_self
-                        .getattr("_field_stability_counter")?
-                        .extract()?;
+                    let field_counter: i64 =
+                        loop_self.getattr("_field_stability_counter")?.extract()?;
                     log_str(
                         py,
                         logger,
@@ -1302,8 +1298,7 @@ pub fn cpsat_run_gated_loop(
                 sc1b_green_rounds = 0;
             }
 
-            let gate_deltas =
-                loop_self.call_method1("_collect_deltas_from_gates", (gates,))?;
+            let gate_deltas = loop_self.call_method1("_collect_deltas_from_gates", (gates,))?;
             if !gate_deltas.is_truthy()? {
                 log_str(
                     py,
@@ -1319,7 +1314,14 @@ pub fn cpsat_run_gated_loop(
                     let single = PyList::new(py, [delta.clone()])?;
                     match loop_self.call_method1(
                         "_solve_with_delta",
-                        (netlist, board, constraint_objects.bind(py), &single, seed, &placement),
+                        (
+                            netlist,
+                            board,
+                            constraint_objects.bind(py),
+                            &single,
+                            seed,
+                            &placement,
+                        ),
                     ) {
                         Ok(test_placement) => {
                             injected_deltas.bind(py).call_method1("append", (&delta,))?;
@@ -1362,10 +1364,7 @@ pub fn cpsat_run_gated_loop(
                         let name = pair.get_item(0)?;
                         let r = pair.get_item(1)?;
                         let entry = PyDict::new(py);
-                        entry.set_item(
-                            "status",
-                            r.getattr("status")?.getattr("value")?,
-                        )?;
+                        entry.set_item("status", r.getattr("status")?.getattr("value")?)?;
                         entry.set_item("violations", r.getattr("violations")?.len()?)?;
                         entry.set_item("error", r.getattr("error_message")?)?;
                         summary.set_item(name, &entry)?;
@@ -1459,7 +1458,11 @@ mod proptests {
              super().__init__(message)\n",
         )
         .expect("fake source has no NUL");
-        py.run(code.as_c_str(), Some(&loop_types.dict()), Some(&loop_types.dict()))?;
+        py.run(
+            code.as_c_str(),
+            Some(&loop_types.dict()),
+            Some(&loop_types.dict()),
+        )?;
 
         cp_sat.add("_loop_types", &loop_types)?;
         placer.add("cp_sat", &cp_sat)?;
@@ -1508,7 +1511,11 @@ mod proptests {
                 "def solve(**kwargs):\n    return type('P', (), {{'status': {status:?}}})()\n"
             ))
             .expect("no NUL");
-            py.run(code.as_c_str(), Some(&fake_module.dict()), Some(&fake_module.dict()))?;
+            py.run(
+                code.as_c_str(),
+                Some(&fake_module.dict()),
+                Some(&fake_module.dict()),
+            )?;
             let solve_fn = fake_module.getattr("solve")?;
             loop_ns.setattr("_call_solver", &solve_fn)?;
 

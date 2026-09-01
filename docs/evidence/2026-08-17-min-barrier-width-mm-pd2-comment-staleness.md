@@ -1,3 +1,4 @@
+<!-- provenance: commit=41eaa9a3d54b15bb9342dc42357a4bde3f3663d2 dirty=UNKNOWN -->
 # `MIN_BARRIER_WIDTH_MM` "still PD2-pinned" — investigated: stale comment, NOT a live permissive figure
 
 2026-08-17. Board sha256 `33205399398fa053d93c046a460272ede4a728701d6f34c3c2bac6796e953962`

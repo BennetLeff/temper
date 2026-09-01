@@ -79,12 +79,22 @@ class CpSatModel:
         self._components: dict[str, ComponentVars] = {}
         self._assumptions: list[cp_model.IntVar] = []
         self._assumption_labels: dict[int, str] = {}
+        # Displacement bounds may be grouped for hierarchical UNSAT-core
+        # diagnosis.  Keep this cache separate from the general assumption
+        # API: existing callers still get one literal per call, while bounds
+        # explicitly sharing a label get one literal for the whole group.
+        self._displacement_assumptions: dict[str, cp_model.IntVar] = {}
         self.units_per_mm = units_per_mm
         self._objective_terms: list[tuple[cp_model.IntVar, int]] = []
         self._objective_applied = False
         self._rotation_pinned_refs: set[str] = set()
         self._keepout_intervals_x: list[cp_model.IntervalVar] = []
         self._keepout_intervals_y: list[cp_model.IntervalVar] = []
+        # Exact collision-cut keys already projected into this model.  The
+        # adapter owns the key format; keeping the registry on the model
+        # makes duplicate application observable without inspecting the
+        # opaque OR-Tools proto.
+        self._collision_cut_keys: set[tuple[object, ...]] = set()
 
     # ------------------------------------------------------------------
     # Unit conversion helpers (public for encoder use)
@@ -297,6 +307,7 @@ class CpSatModel:
         y_target_units: int,
         weight: int = 1,
         max_units: int | None = None,
+        assumption_label: str | None = None,
     ) -> None:
         """Minimise Manhattan displacement from a reference position.
 
@@ -319,6 +330,12 @@ class CpSatModel:
         caller that needs "move at most B" passes ``max_units`` (and
         usually both).
 
+        When ``max_units`` is supplied, ``assumption_label`` optionally
+        guards that hard envelope with a named assumption literal.  The
+        literal is enabled during ordinary solves and can therefore identify
+        the component bound in an infeasibility core.  This does not alter
+        the displacement objective itself.
+
         Coordinates are in model grid units (callers convert mm via
         :meth:`mm_to_units`) so the objective is exact and deterministic.
         """
@@ -339,7 +356,63 @@ class CpSatModel:
         if max_units is not None:
             if max_units < 0:
                 raise ValueError("displacement bound must be non-negative")
-            self.model_ref.Add(distances["x"] + distances["y"] <= max_units)
+            envelope = distances["x"] + distances["y"] <= max_units
+            if assumption_label is None:
+                self.model_ref.Add(envelope)
+            else:
+                if not isinstance(assumption_label, str) or not assumption_label.strip():
+                    raise ValueError("displacement assumption label must be non-empty")
+                assumption = self._displacement_assumption(assumption_label)
+                self.add_constraint_enforced(envelope, assumption)
+
+    def add_hard_displacement_bound(
+        self,
+        ref: str,
+        x_target_units: int,
+        y_target_units: int,
+        max_units: int,
+        assumption_label: str | None = None,
+        use_assumption: bool = True,
+    ) -> None:
+        """Constrain Manhattan displacement without adding an objective.
+
+        This is the hard-envelope counterpart to
+        :meth:`add_displacement_objective`.  It posts only
+        ``|x - x_target| + |y - y_target| <= max_units``; the solver remains
+        free to choose any feasible point inside that diamond.  Keeping this
+        separate is important for topology-restoration campaigns: a hard
+        radius is a safety/topology restriction, not an optimization request.
+
+        By default the bound is guarded by a named assumption literal.  If
+        ``assumption_label`` is omitted, the stable default
+        ``displacement_bound_<ref>`` is used.  Pass ``use_assumption=False``
+        to post the envelope unconditionally; this is useful for deletion
+        tests, which need the strong propagation of the original hard-bound
+        formulation and deliberately do not collect UNSAT-core labels.  In
+        either mode the absolute-difference definitions are unconditional.
+
+        Coordinates are integer model-grid units.  Callers that start with
+        millimetres must convert both the target and radius through
+        :meth:`mm_to_units` before calling this method.
+        """
+        if max_units < 0:
+            raise ValueError("displacement bound must be non-negative")
+        if not isinstance(use_assumption, bool):
+            raise TypeError("use_assumption must be a bool")
+        component = self.get_component(ref)
+        x_distance = self.model_ref.NewIntVar(0, 1_000_000, f"hard_displacement_x_{ref}")
+        y_distance = self.model_ref.NewIntVar(0, 1_000_000, f"hard_displacement_y_{ref}")
+        self.model_ref.AddAbsEquality(x_distance, component.x_center - x_target_units)
+        self.model_ref.AddAbsEquality(y_distance, component.y_center - y_target_units)
+        envelope = x_distance + y_distance <= max_units
+        if not use_assumption:
+            self.model_ref.Add(envelope)
+            return
+        label = assumption_label or f"displacement_bound_{ref}"
+        if not isinstance(label, str) or not label.strip():
+            raise ValueError("displacement assumption label must be non-empty")
+        assumption = self._displacement_assumption(label)
+        self.add_constraint_enforced(envelope, assumption)
 
     def add_fixed_rotation(self, ref: str, rotation_index: int) -> None:
         """Pin a component's rotation to a fixed 0-3 quadrant index (hard).
@@ -384,6 +457,20 @@ class CpSatModel:
         self._assumptions.append(b)
         self._assumption_labels[b.Index()] = label
         return b
+
+    def _displacement_assumption(self, label: str) -> cp_model.IntVar:
+        """Return the single assumption literal for a displacement group.
+
+        The envelope passed by each caller remains an independent constraint;
+        only their enable/disable switch is shared.  Consequently a grouped
+        label never weakens a component bound: enabling the group enables all
+        of its member envelopes, and a core names the group label once.
+        """
+        assumption = self._displacement_assumptions.get(label)
+        if assumption is None:
+            assumption = self.new_assumption(label)
+            self._displacement_assumptions[label] = assumption
+        return assumption
 
     # ------------------------------------------------------------------
     # Constraint helpers for encoder

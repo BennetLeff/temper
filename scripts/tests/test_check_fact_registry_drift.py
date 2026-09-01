@@ -697,20 +697,40 @@ class TestRealRegistryExtendedFamilies:
             assert r.matches is True
             assert r.found_value == "hb-gnd"
 
-    def test_hb_gnd_temper_net_assignment_is_fixed_but_kicad_pro_sync_is_known_red(
+    def test_hb_gnd_is_now_classified_HV_on_both_enforced_surfaces(
         self,
     ):
-        """This changeset added the missing 'hb-gnd': 'HighVoltage' entry
-        to core.design_rules.TEMPER_NET_ASSIGNMENTS (previously absent --
-        scripts/check_hv_netclass_coverage.py PROPERTY 1 flagged it as a
-        currently-red, CI-blocking violation). pcb/temper.kicad_pro's
-        net_settings.netclass_assignments -- the file kicad-cli's DRC
-        actually reads (PROPERTY 3) -- is deliberately NOT synced here:
-        the evidence doc measures a 28-violation/18-net propagation
-        impact that needs an owner decision plus routing remediation, not
-        a mechanical sync. This test pins BOTH halves: the fix that
-        landed, and the honest red that didn't, so neither can silently
-        change without this test being updated."""
+        """Both enforced surfaces now classify `hb-gnd` as HighVoltage.
+
+        RE-DERIVED 2026-08-24, and this test did exactly what it was built
+        to do. Its previous name was
+        `..._is_fixed_but_kicad_pro_sync_is_known_red`, pinning two halves:
+        the TEMPER_NET_ASSIGNMENTS entry that had landed, and the
+        pcb/temper.kicad_pro sync that deliberately had not --
+
+            "This test pins BOTH halves: the fix that landed, and the
+            honest red that didn't, so neither can silently change without
+            this test being updated."
+
+        The red half changed. #1328 (2cc9eeb1e, "sync hb-gnd HighVoltage
+        into kicad_pro -- DRC now enforces HV rules on a -170V conductor")
+        performed the sync the old docstring said would need "an owner
+        decision plus routing remediation". pcb/temper.kicad_pro now
+        carries `"hb-gnd": "HighVoltage"`, so the site resolves clean:
+        found_value='HighVoltage', matches=True, error=None.
+
+        The rename is part of the re-derivation. A test named
+        `..._kicad_pro_sync_is_known_red` that asserts the sync is GREEN is
+        a trap for the next reader, the same way
+        `test_dru_rule_currently_selects_pd2` was once the DRU moved to
+        PD3.
+
+        Both halves are now pinned green, so a REGRESSION on either --
+        someone dropping the assignment, or the kicad_pro sync being
+        reverted to unblock DRC counts -- still fails here. That is the
+        property worth keeping: this is a -170V conductor, and the whole
+        point of the original test was that its classification must not
+        move silently in either direction."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         by_key = {(r.fact, r.site.file): r for r in results}
@@ -725,8 +745,9 @@ class TestRealRegistryExtendedFamilies:
         assert fixed.matches is True
         assert fixed.found_value == "HighVoltage"
 
-        still_red = by_key[
+        synced = by_key[
             ("hb_gnd_temper_net_assignment_class", "pcb/temper.kicad_pro")
         ]
-        assert still_red.error is not None
-        assert "did not match" in still_red.error
+        assert synced.error is None
+        assert synced.matches is True
+        assert synced.found_value == "HighVoltage"

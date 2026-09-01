@@ -322,12 +322,16 @@ class _UnionFind:
         return True
 
 
+_BRIDGE_VALIDITY_CHUNK_SIZE = 16_384
+
+
 def _bridge_validity_mask(
     available_area: Polygon | MultiPolygon | None,
     coords_a: np.ndarray,
     coords_b: np.ndarray,
 ) -> np.ndarray:
-    """Validate, in one vectorized batch, that every candidate bridge segment
+    """Validate every candidate bridge segment in bounded vectorized chunks.
+
     ``(coords_a[k], coords_b[k])`` lies entirely inside the routable region.
 
     Returns a boolean array aligned with the input rows (all True when
@@ -344,20 +348,29 @@ def _bridge_validity_mask(
     overhead is paid once for the whole batch instead of once per candidate.
     At O(10^6) candidates (2.6M on F.Cu within a 10mm bridging radius) that
     difference is the gap between this stage costing single-digit seconds
-    and costing nearly a minute. A tiny buffer absorbs floating point noise
-    where a skeleton node sits exactly on the routable-region boundary
-    (common -- skeleton nodes are themselves derived from that boundary's
-    medial axis).
+    and costing nearly a minute. The vectorized call is deliberately bounded
+    to ``_BRIDGE_VALIDITY_CHUNK_SIZE`` rows: materializing every candidate's
+    Shapely geometry at once can consume many gigabytes on the production
+    board, even though the predicate itself is linear and exact. A tiny
+    buffer absorbs floating point noise where a skeleton node sits exactly
+    on the routable-region boundary (common -- skeleton nodes are themselves
+    derived from that boundary's medial axis).
     """
     if available_area is None or available_area.is_empty or len(coords_a) == 0:
         return np.ones(len(coords_a), dtype=bool)
 
-    coord_pairs = np.stack([coords_a, coords_b], axis=1)  # (N, 2, 2)
-    line_arr = shapely.linestrings(coord_pairs)
-
     buffered = available_area.buffer(1e-6)
     shapely.prepare(buffered)
-    return shapely.contains(buffered, line_arr)
+    valid = np.empty(len(coords_a), dtype=bool)
+    for start in range(0, len(coords_a), _BRIDGE_VALIDITY_CHUNK_SIZE):
+        stop = min(start + _BRIDGE_VALIDITY_CHUNK_SIZE, len(coords_a))
+        coord_pairs = np.stack([coords_a[start:stop], coords_b[start:stop]], axis=1)
+        line_arr = shapely.linestrings(coord_pairs)
+        chunk_valid = shapely.contains(buffered, line_arr)
+        valid[start:stop] = chunk_valid
+        # Release the GEOS-backed array before constructing the next chunk.
+        del chunk_valid, line_arr, coord_pairs
+    return valid
 
 
 def _radius_pairs(positions: np.ndarray, radius: float) -> np.ndarray:
@@ -457,18 +470,15 @@ def _ensure_skeleton_connectivity(
         pairs originally arrived in, so which spatial-index backend
         produced the set never affects the resulting MST.
       - Every cross-component candidate's geometry is validated against
-        ``available_area`` in **one vectorized batch call**
-        (``_bridge_validity_mask``: ``shapely.linestrings`` to construct
-        all P candidate segments at once, ``shapely.prepare`` +
-        ``shapely.contains`` to test all of them against the routable
-        region in a single C-level loop) rather than one Python-level
-        ``shapely`` call per candidate -- measured ~13x faster per
-        predicate (~1us/candidate vectorized vs ~13us/candidate through an
-        individually-prepared-geometry Python call), because the
-        candidate-pair count in practice is dominated by genuinely
-        obstacle-separated islands where most candidates are invalid (see
-        "Upstream finding" below), so a real fraction of P gets checked
-        either way.
+        ``available_area`` in **bounded vectorized chunks**
+        (``_bridge_validity_mask``: ``shapely.linestrings`` constructs at
+        most 16,384 candidate segments at once, then
+        ``shapely.prepare`` + ``shapely.contains`` tests each chunk in a
+        C-level loop) rather than one Python-level ``shapely`` call per
+        candidate. This retains the measured ~13x per-predicate speedup
+        (~1us/candidate vectorized vs ~13us/candidate through an
+        individually-prepared-geometry Python call) without the multi-GB
+        allocation caused by materializing all P geometries at once.
       - Kruskal via union-find then consumes the sorted candidates using
         the precomputed boolean mask (a cheap array lookup, not a shapely
         call): for each valid candidate that would connect two different
@@ -587,13 +597,13 @@ def _ensure_skeleton_connectivity(
             cross_pairs = cross_pairs[order]
             cand_dist = cand_dist[order]
 
-            # Validate every candidate's geometry in one vectorized batch
-            # up front (see _bridge_validity_mask's docstring for why this
-            # beats a per-candidate check by ~13x) -- the Kruskal loop below
-            # then does a plain boolean-array lookup per candidate instead
-            # of a shapely call, so it stays cheap even at O(10^6)
-            # candidates with no need to bound how many are attempted per
-            # component pair.
+            # Validate every candidate's geometry in bounded vectorized
+            # chunks up front (see _bridge_validity_mask's docstring for why
+            # this beats a per-candidate check by ~13x without materializing
+            # a multi-GB Shapely array) -- the Kruskal loop below then does a
+            # plain boolean-array lookup per candidate instead of a shapely
+            # call, so it stays cheap even at O(10^6) candidates with no need
+            # to bound how many are attempted per component pair.
             valid_mask = _bridge_validity_mask(
                 available_area,
                 positions[cross_pairs[:, 0]],

@@ -23,8 +23,18 @@ Design boundaries, argued in the migrated module and
 from __future__ import annotations
 
 import random
+import sys
+from types import ModuleType
 
 import temper_drc_rs as _tdrc
+
+# The pinned oracle retains the historical registrar import. Production no
+# longer has that side-effect module; provide an inert import sentinel solely
+# while loading the immutable oracle bytes.
+sys.modules.setdefault(
+    "temper_placer.adapters.register_strategies",
+    ModuleType("temper_placer.adapters.register_strategies"),
+)
 
 import tests.regression._closure_test_py_oracle as _oracle
 

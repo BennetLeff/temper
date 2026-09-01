@@ -70,7 +70,7 @@
 //! for the production board, each a `#[pyclass]` instance carrying three
 //! Rust `String`s, and each variable's `channel_id` stored *twice* (once in
 //! the object, once again as a `HashMap<(i64, String), _>` key). MEASURED
-//! with `docs/evidence/2026-08-12-router-model-memory-probe.py`: **326.7
+//! with `docs/evidence/scripts/2026-08-12-router-model-memory-probe.py`: **326.7
 //! bytes per variable, 7.35 GB for the full model.**
 //!
 //! What replaces it:
@@ -656,7 +656,7 @@ const MAX_INTERNED_ID: u32 = (1 << VAR_KIND_SHIFT) - 1;
 ///
 /// Pre-U1 this was a `Py<PyAny>` pointing at a `#[pyclass]` instance holding
 /// three Rust `String`s: 326.7 bytes/variable measured
-/// (`docs/evidence/2026-08-12-router-model-memory-probe.py`), 7.35 GB for
+/// (`docs/evidence/scripts/2026-08-12-router-model-memory-probe.py`), 7.35 GB for
 /// the full 22,493,900-variable model.
 ///
 /// The kind lives in the top two bits of `kind_key` so the record stays at

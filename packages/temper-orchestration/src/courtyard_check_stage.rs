@@ -38,7 +38,7 @@ use crate::host_math;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 #[cfg(feature = "python")]
-use temper_data_model::{PlacementSet};
+use temper_data_model::PlacementSet;
 
 const STAGE_NAME: &str = "courtyard_check";
 
@@ -108,13 +108,13 @@ impl CourtyardCheckStage {
                 let pos1 = placements_dict.get_item(&ref1)?;
                 let pos2 = placements_dict.get_item(&ref2)?;
 
-                let mut dx = pos2.get_item(0)?.extract::<f64>()? - pos1.get_item(0)?.extract::<f64>()?;
-                let mut dy = pos2.get_item(1)?.extract::<f64>()? - pos1.get_item(1)?.extract::<f64>()?;
+                let mut dx =
+                    pos2.get_item(0)?.extract::<f64>()? - pos1.get_item(0)?.extract::<f64>()?;
+                let mut dy =
+                    pos2.get_item(1)?.extract::<f64>()? - pos1.get_item(1)?.extract::<f64>()?;
                 // `dist = (dx**2 + dy**2) ** 0.5` -- libm pow, NOT sqrt.
-                let mut dist = host_math::pow(
-                    host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0),
-                    0.5,
-                );
+                let mut dist =
+                    host_math::pow(host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0), 0.5);
                 if dist < 1e-6 {
                     dx = 1.0;
                     dy = 0.0;
@@ -131,9 +131,21 @@ impl CourtyardCheckStage {
                 let p2x = pos2.get_item(0)?.extract::<f64>()?;
                 let p2y = pos2.get_item(1)?.extract::<f64>()?;
 
-                let npos1 = PyTuple::new(py, [(p1x - fx).into_pyobject(py)?.into_any(), (p1y - fy).into_pyobject(py)?.into_any()])?;
+                let npos1 = PyTuple::new(
+                    py,
+                    [
+                        (p1x - fx).into_pyobject(py)?.into_any(),
+                        (p1y - fy).into_pyobject(py)?.into_any(),
+                    ],
+                )?;
                 placements_dict.set_item(&ref1, npos1)?;
-                let npos2 = PyTuple::new(py, [(p2x + fx).into_pyobject(py)?.into_any(), (p2y + fy).into_pyobject(py)?.into_any()])?;
+                let npos2 = PyTuple::new(
+                    py,
+                    [
+                        (p2x + fx).into_pyobject(py)?.into_any(),
+                        (p2y + fy).into_pyobject(py)?.into_any(),
+                    ],
+                )?;
                 placements_dict.set_item(&ref2, npos2)?;
 
                 let clamped1 = clamp_position.call1((placements_dict.get_item(&ref1)?,))?;
@@ -183,9 +195,8 @@ pub fn run_courtyard_check(
     state: Py<PyAny>,
     stage: Py<PyAny>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let rust_stage = CourtyardCheckStage { stage };
     let out = rust_stage
         .run(rust_state)
