@@ -302,7 +302,7 @@ pub(crate) mod tests {
 // absent from the ordinary (non-test) build the `wasm32` registry compiles
 // into; keeping these apart is what lets the deterministic tests above join
 // the tier instead of being excluded alongside them.
-#[cfg(test)]
+#[cfg(all(test, feature = "python"))]
 mod proptests {
     use super::*;
 
