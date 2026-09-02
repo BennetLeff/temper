@@ -12,6 +12,7 @@ and seeded random cases exercise the bevel-at-mitre-limit and LineString
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import random
@@ -23,6 +24,15 @@ from shapely.geometry import MultiPoint, Polygon
 
 ROOT = Path(__file__).resolve().parents[2]
 BOARD = ROOT / "pcb" / "temper.kicad_pcb"
+EXPECTED_SHAPELY = "2.1.2"
+EXPECTED_GEOS = "3.13.1"
+EXPECTED_BOARD_SHA256 = "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+EXPECTED_ZONE_NETS = {
+    "ac_n", "ac_l", "+170V_BUS", "PWR_RTN", "hb-gnd", "SW_NODE",
+    "tank.c_tank1-p2", "DC_BUS_RTN", "w1_1", "w1_2", "power_in.ntc-no",
+    "tank-out",
+}
+EXPECTED_POWER_NETS = {"+3V3", "vcc", "+15V", "V_BUS_SENSE"}
 
 
 def _line_intersection(a, b, c, d):
@@ -143,6 +153,18 @@ def main():
     sys.path.insert(0, str(ROOT / "packages" / "temper-placer" / "src"))
     import temper_orchestration as _to
 
+    if shapely.__version__ != EXPECTED_SHAPELY or geos_version_string != EXPECTED_GEOS:
+        raise RuntimeError(
+            "unsupported Shapely/GEOS oracle: "
+            f"got {shapely.__version__} / GEOS {geos_version_string}, "
+            f"expected {EXPECTED_SHAPELY} / GEOS {EXPECTED_GEOS}"
+        )
+    board_sha256 = hashlib.sha256(BOARD.read_bytes()).hexdigest()
+    if board_sha256 != EXPECTED_BOARD_SHA256:
+        raise RuntimeError(
+            f"board content changed: got {board_sha256}, expected {EXPECTED_BOARD_SHA256}"
+        )
+
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.router_v6._ground_plane import _dedupe_positions
@@ -180,6 +202,19 @@ def main():
         positions = _dedupe_positions([pad.position for pad in pads])
         production["power_islands"][f"{name}:single:cluster-false"] = _compare(positions, 0.5)
 
+    zone_keys = production["zone_pour_stitch"]
+    zone_nets = {key.split(":", 1)[0] for key in zone_keys}
+    power_keys = production["power_islands"]
+    power_nets = {key.split(":", 1)[0] for key in power_keys}
+    if len(zone_keys) != 35 or zone_nets != EXPECTED_ZONE_NETS:
+        raise RuntimeError(
+            f"production zone corpus drifted: {len(zone_keys)} calls / {sorted(zone_nets)}"
+        )
+    if len(power_keys) != 4 or power_nets != EXPECTED_POWER_NETS:
+        raise RuntimeError(
+            f"production power corpus drifted: {len(power_keys)} calls / {sorted(power_nets)}"
+        )
+
     crafted = {
         "acute_triangle": _compare([(0.0, 0.0), (10.0, 0.0), (0.1, 0.01)], 1.0),
         "obtuse_triangle": _compare([(0.0, 0.0), (10.0, 0.0), (5.0, 1.0)], 1.0),
@@ -208,8 +243,14 @@ def main():
             )
         else:
             random_not_compared_count += 1
+    if random_case_count != 1000 or random_compared_count != 1000:
+        raise RuntimeError(
+            "random corpus drifted: "
+            f"{random_case_count} cases / {random_compared_count} polygon comparisons"
+        )
     result = {
         "board": str(BOARD.relative_to(ROOT)),
+        "board_sha256": board_sha256,
         "shapely_geos": f"{shapely.__version__} / GEOS {geos_version_string}",
         "production_sets": production,
         "crafted": crafted,

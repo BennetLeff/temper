@@ -1,4 +1,6 @@
 ---
+provenance: commit=373688e337f8df75b1d3dfa05a7f9ec2fcb6b00d dirty=true
+
 title: CT07/T2 owner qualification — canonical owner result
 date: 2026-09-01
 status: stopped-indeterminate

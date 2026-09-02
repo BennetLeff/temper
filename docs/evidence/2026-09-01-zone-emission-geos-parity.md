@@ -1,4 +1,4 @@
-<!-- provenance: commit=96baf2dcd8d7d036d38e7cc656709106a6788762 (spike base); dirty=true (evidence in progress) -->
+<!-- provenance: commit=8ff19d6873c4766471b12d3c169810e5dbd741a9 dirty=true (refreshed measurement on current main; script and evidence updated together) -->
 
 # Zone-emission GEOS parity spike (2026-09-01)
 
@@ -18,9 +18,10 @@ vertex count, ring-start order, and formatted points are observable when they
 reach the KiCad zone s-expression. A port would be falsified by a formatted
 point mismatch, a region difference, or a changed degenerate geometry.
 
-The measurement used the dynamically reported Shapely/GEOS installation
-(2.1.2 / GEOS 3.13.1 in this run) and an independent unlimited-mitre offset
-construction. It replayed the checked-in production inputs: 35 exact
+The measurement used a fail-closed, version-pinned Shapely/GEOS installation
+(2.1.2 / GEOS 3.13.1) and an independent unlimited-mitre offset construction.
+It replayed the checked-in production inputs from board sha256
+`00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9`: 35 exact
 `_zone_pour_stitch` groups (the `run_collect_pad_positions` mapping, the
 current clustering and exemption decision, and each emitted group) and 4
 exact `_power_islands` single-hull calls (the `_pads_by_net` collector,
