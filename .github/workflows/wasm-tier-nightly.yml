@@ -850,8 +850,9 @@ jobs:
       # The production-deployed Workers are unauthenticated public HTTPS endpoints
       # (packages/temper-worker/src/worker_core.js's /run-test handler takes no
       # credential), so their preflight never needed either old secret. The
-      # immutable candidate added later uses a different, dedicated preview
-      # token and reads its per-version capability from the environment. The
+      # immutable candidate added later exposes the repository-scoped CF_TOKEN
+      # only to the upload step after the protected preview environment admits
+      # the job, then mints an expiring per-version capability in that step. The
       # old production-token gate was a proxy that is neither necessary nor sufficient:
       # a secret can be present while every Worker is deleted, and every Worker
       # can be live while the secret is absent. The consequence was not
@@ -880,8 +881,9 @@ jobs:
           # never actually exercised, so it fails loudly rather than skipping.
           # Its INSTRUMENT was wrong. As the comment above already conceded,
           # neither old production secret was consumed by the public deployed-
-          # Worker sweep. The later immutable-preview arm uses a dedicated
-          # preview token and an expiring environment capability. The old pair
+          # Worker sweep. The later immutable-preview arm uses the established
+          # CF_TOKEN behind a protected environment plus an expiring runtime
+          # capability. The old pair
           # was a proxy for "provisioned", and one
           # that is neither necessary nor sufficient: a secret can be present
           # while every Worker is deleted, and every Worker can be live while
@@ -944,9 +946,13 @@ jobs:
 
       - name: Upload and sweep the candidate as an immutable non-deployed version
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WASM_PREVIEW_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_TOKEN }}
         run: |
           set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+            echo '::error::CLOUDFLARE_API_TOKEN is empty. This protected step maps it from repository secret CF_TOKEN; Wrangler reads only CLOUDFLARE_API_TOKEN.'
+            exit 1
+          fi
           stage=/tmp/nightly-preview-stage
           diag=/tmp/nightly-preview-diagnostics
           mkdir -p "${stage}" "${diag}"
@@ -1063,7 +1069,12 @@ jobs:
             --tier temper-io-types --preview-url "${PREVIEW_URL}" --concurrency 64 \
             --request-timeout-ms 20000 --max-retries 2 --json /tmp/worker_sweep_io-types.json
           CANDIDATE_WORKER_SWEEP_SECONDS="$(( $(date +%s) - sweep_started_at ))"
-          if grep -R -Fq "${CAPABILITY}" "${diag}"; then rm -rf "${diag}"; exit 1; fi
+          if grep -R -Fq "${CAPABILITY}" "${diag}" \
+            || grep -R -Fq "${CLOUDFLARE_API_TOKEN}" "${diag}"; then
+            echo '::error::preview credential reached diagnostic output; deleting diagnostics rather than publishing it'
+            rm -rf "${diag}"
+            exit 1
+          fi
           printf 'VERSION_UPLOAD_SECONDS=%s\nCANDIDATE_WORKER_SWEEP_SECONDS=%s\nIMMUTABLE_VERSION_ID=%s\nIMMUTABLE_PREVIEW_URL=%s\n' \
             "${VERSION_UPLOAD_SECONDS}" "${CANDIDATE_WORKER_SWEEP_SECONDS}" "${VERSION_ID}" "${PREVIEW_URL}" \
             > /tmp/immutable_candidate.env

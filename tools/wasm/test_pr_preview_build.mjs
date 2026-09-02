@@ -314,7 +314,10 @@ test("the base-owned workflow checks out and attests an exact credential-free he
   assert.ok((workflow.match(/persist-credentials: false/g) ?? []).length >= 2);
   assert.match(workflow, /git -C .* rev-parse HEAD/);
   assert.match(workflow, /refs\/pull\/.*\/merge/);
-  assert.match(workflow, /\/control\/scripts\/stage_wasm_families\.sh/);
+  assert.match(
+    workflow,
+    /bash "\$\{GITHUB_WORKSPACE\}\/control\/scripts\/stage_wasm_families\.sh"/,
+  );
   assert.match(workflow, /\/control\/tools\/wasm\/run_wasm_tests\.mjs/);
   assert.match(workflow, /\/control\/tools\/wasm\/tier_topology\.mjs/);
   assert.match(workflow, /JSON\.stringify\(head\) !== JSON\.stringify\(base\)/);
