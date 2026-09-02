@@ -22,6 +22,9 @@
   "capacity_budget_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "capture_astar_backbone_corpus.py": [
+    "packages/temper-placer/tests/router_v6/test_astar_search2d_rust_differential.py"
+  ],
   "check_ato_assertion_vacuity.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -42,6 +45,9 @@
     "packages/temper-placer/src/temper_placer/regression/_ceiling_raise_evidence.py"
   ],
   "check_ci_survey_advisory_drift.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_clone_drift.py": [
     ".github/workflows/python-tests.yml"
   ],
   "check_component_defect_corpus.py": [],
@@ -101,7 +107,9 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_fact_registry_drift.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/router_v6/_via_annular_floor.py",
+    "packages/temper-placer/tests/router_v6/test_via_annular_floor_guard.py"
   ],
   "check_fault_list_consistency.py": [
     ".github/workflows/firmware-tests.yml"
@@ -136,6 +144,9 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/design_rules.py",
     "packages/temper-placer/tests/core/_design_rules_py_oracle.py"
+  ],
+  "check_import_fallback_hygiene.py": [
+    ".github/workflows/python-tests.yml"
   ],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
@@ -297,7 +308,10 @@
   "check_stale_extensions.py": [
     ".github/workflows/python-tests.yml",
     "Makefile",
-    "packages/temper-placer/tests/router_v6/test_constraints_geometry_rust_differential.py"
+    "packages/temper-placer/src/temper_placer/router_v6/astar_core_rust.py",
+    "packages/temper-placer/tests/router_v6/_via_annular_floor.py",
+    "packages/temper-placer/tests/router_v6/test_constraints_geometry_rust_differential.py",
+    "packages/temper-placer/tests/router_v6/test_via_annular_floor_guard.py"
   ],
   "check_stash_stack_gate.py": [],
   "check_state_machine_model.py": [
@@ -351,7 +365,8 @@
     ".github/workflows/regression.yml",
     "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py",
     "packages/temper-placer/tests/regression/_drc_ratchet_py_oracle.py",
-    "packages/temper-placer/tests/regression/test_drc_ratchet.py"
+    "packages/temper-placer/tests/regression/test_drc_ratchet.py",
+    "packages/temper-placer/tests/validation/test_drc_json_top_level_keys.py"
   ],
   "ci_check_erc.py": [
     ".github/workflows/erc-gate.yml"
@@ -368,6 +383,10 @@
   ],
   "classify_changed_paths.py": [
     ".github/workflows/python-tests.yml"
+  ],
+  "clone_drift_registry.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py"
   ],
   "compare_drc_reports.py": [
     "scripts/sprint1_validation.sh"
@@ -390,7 +409,10 @@
     "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py"
   ],
   "evaluate_regional_layout.py": [],
-  "full_pipeline_profile.py": [],
+  "find_clone_pairs.py": [],
+  "full_pipeline_profile.py": [
+    "packages/temper-placer/src/temper_placer/regression/closure_test.py"
+  ],
   "gate_mutate.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py"
@@ -432,6 +454,7 @@
     "packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/tank_creepage.py",
     "packages/temper-placer/src/temper_placer/requirements/validators/clearance.py",
+    "packages/temper-placer/src/temper_placer/router_v6/_astar_nlayer.py",
     "packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_floor.py",
     "packages/temper-placer/src/temper_placer/router_v6/pair_clearance.py",
@@ -551,11 +574,13 @@
   "route_board.py": [
     ".github/workflows/board-regeneration.yml",
     "Makefile",
+    "packages/temper-placer/src/temper_placer/regression/closure_test.py",
     "packages/temper-placer/src/temper_placer/router_v6/_adapter_types.py",
     "packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py",
     "packages/temper-placer/src/temper_placer/router_v6/net_batching_subprocess.py",
     "packages/temper-placer/tests/placer/cp_sat/test_golden_board_pumpkin_real_board.py",
     "packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py",
+    "packages/temper-placer/tests/router_v6/test_astar_search2d_rust_differential.py",
     "packages/temper-placer/tests/router_v6/test_strip_copper.py",
     "packages/temper-placer/tests/router_v6/test_strip_copper_rust_differential.py",
     "packages/temper-placer/tests/router_v6/test_topology_copper_audit.py",
@@ -594,7 +619,8 @@
     "scripts/sprint1_validation.sh"
   ],
   "validate_perf_capture.py": [
-    ".github/workflows/pr-perf-baseline-capture.yml"
+    ".github/workflows/pr-perf-baseline-capture.yml",
+    ".github/workflows/pr-perf-check.yml"
   ],
   "verify_proofs.py": [],
   "verify_pumpkin_engine.py": [
