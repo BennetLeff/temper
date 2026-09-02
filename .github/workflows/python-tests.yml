@@ -1228,6 +1228,12 @@ jobs:
           test_args=""
           for f in packages/temper-orchestration/tests/*.rs; do
             name=$(basename "$f" .rs)
+            # compile_fail.rs has its own no-default-features invocation below.
+            # Running it here with default features makes rustc's diagnostic
+            # qualify `Via` differently across toolchain patch releases.
+            if [ "$name" = compile_fail ]; then
+              continue
+            fi
             test_args="$test_args --test $name"
           done
           # `-- --nocapture`: this job never installs pyo3 extensions (no
