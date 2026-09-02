@@ -184,7 +184,7 @@ pub(crate) mod tests {
 // ---------------------------------------------------------------------------
 // Property-based tests (proptest)
 // ---------------------------------------------------------------------------
-#[cfg(test)]
+#[cfg(all(test, feature = "python"))]
 mod proptests {
     use super::*;
     use proptest::prelude::*;

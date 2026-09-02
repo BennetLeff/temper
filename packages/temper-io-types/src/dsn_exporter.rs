@@ -2982,7 +2982,7 @@ pub(crate) mod property_campaigns {
 // absent from the ordinary (non-test) build the `wasm32` registry compiles
 // into; keeping these apart is what lets the deterministic tests above join
 // the tier instead of being excluded alongside them.
-#[cfg(test)]
+#[cfg(all(test, feature = "python"))]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod proptests {
     use super::*;
