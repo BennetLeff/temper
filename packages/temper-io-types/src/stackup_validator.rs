@@ -235,7 +235,7 @@ pub(crate) mod helper_tests {
 // ---------------------------------------------------------------------------
 // Property-based tests (proptest)
 // ---------------------------------------------------------------------------
-#[cfg(test)]
+#[cfg(all(test, not(feature = "wasm-test-registry")))]
 #[allow(clippy::unwrap_used)]
 mod proptests {
     use super::{

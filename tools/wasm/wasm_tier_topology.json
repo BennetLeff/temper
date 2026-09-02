@@ -434,7 +434,7 @@
       "full_corpus_worker": "temper-wasm-io-types",
       "wrangler_dir": "packages/temper-worker/families/io-types",
       "expected_failures": "tools/wasm/wasm_expected_failures_io_types.json",
-      "native_test_args": ["--no-default-features", "--manifest-path", "packages/temper-io-types/Cargo.toml"],
+      "native_test_args": ["--no-default-features", "--features", "wasm-test-registry", "--manifest-path", "packages/temper-io-types/Cargo.toml"],
       "shards": [
         { "family": "io-types", "worker": "temper-wasm-io-types", "cargo_features": "io-types-wasm-test-registry", "staged_module": "temper_wasm_test_runner_io_types.wasm", "wrangler_dir": "packages/temper-worker/families/io-types" }
       ]
