@@ -1880,8 +1880,10 @@ reads a cluster label or scipy-internal cluster id, and
 contract.
 
 `docs/evidence/2026-08-07-zone-emission-clustering-kodama-port.md` ported
-`_cluster_positions` to `hierarchical_clustering.rs` (`kodama` crate, Ward
-linkage) after a differential spike, not by assumption:
+the Ward linkage kernel in `_cluster_positions` to
+`hierarchical_clustering.rs` (`kodama` crate) after a differential spike,
+not by assumption. Its Python threshold heuristic remains in
+`zone_emission.py`; only the linkage kernel delegates to Rust:
 
 - `kodama`'s raw Ward dissimilarity values are bit-exact to scipy's own
   `Z[:, 2]` column on every case checked (verified to full `f64` precision
@@ -1905,30 +1907,24 @@ linkage) after a differential spike, not by assumption:
   or feature wiring, verified directly.
 
 See the evidence doc for the full differential, real-board numbers, and the
-port decision. `_convex_hull_from_positions`'s `buffer()` step below is a
-separate, unrelated GEOS boundary and is unaffected by this port.
-
-### JUSTIFIED-KEEP: hull-buffer geometry (not migrated)
-
-`_convex_hull_from_positions`'s `shapely.buffer(margin, join_style=2)` step
-(GEOS mitre-join polygon offsetting) was evaluated and NOT migrated:
-
-- **`_convex_hull_from_positions`'s `buffer()` step**: measured directly
-  (offline, not committed as a test) against an analytic mitre-offset
-  reimplementation (outward-normal edge offset + adjacent-offset-line
-  intersection per vertex, matching GEOS's winding convention once its
-  hull output was observed to be clockwise, not the textbook CCW):
-  agreement to ~1e-13 (float noise, NOT bit-exact) on 181/200 random
-  convex hulls, with the remaining ~10% diverging in VERTEX COUNT
-  (mitre-limit beveling, GEOS's exact rule unconfirmed against the
-  analytic model). Same divergence class as this file's own
-  `drc_inflate.rs`-documented `buffer(r, resolution=16)` JUSTIFIED-KEEP
-  (round join instead of mitre join, same GEOS boundary, same conclusion).
-
-Stays on `_convex_hull_from_positions` in `zone_emission.py`, unchanged,
-calling live `shapely`. Re-decidable per the discipline contract's residual
-procedure: a future spike with a validated from-scratch GEOS-mitre-buffer
-implementation can reopen this boundary.
+port decision. The hull-buffer boundary remains JUSTIFIED-KEEP after the
+2026-09-01 bounded parity spike. The harness replayed 35 exact
+`_zone_pour_stitch` groups and 4 exact `_power_islands` `cluster=False` calls;
+11 calls had polygon comparisons (7 stitch groups plus 4 power calls) and 28
+stitch groups were explicit Point/LineString observations. An independent
+unlimited-mitre model diverged in vertex
+count/region for `ac_n`, `hb-gnd`, and `V_BUS_SENSE`, and on crafted
+acute/obtuse cases. The singleton `ac_l` group used the production
+four-vertex square fallback; two-point/collinear inputs reproduced GEOS's
+66-vertex stadium observation but were not analytic comparisons. Across
+1,000 random cases, all were compared, 29 had formatted mismatches, and the
+guarded maximum symmetric difference was 11,349.720251428833 mm². These
+measurements falsify the independent unlimited-mitre proposal but are not
+exhaustive proof of every GEOS edge case. Re-decision requires a
+GEOS-version-pinned transcription proven on every exact clustered production
+pad set, both power-island and fallback consumers, all degenerate inputs, and
+the adversarial mitre-limit corpus at the emitted `.4f`/downstream board-byte
+contract.
 
 ### PBT / Metamorphic Coverage
 

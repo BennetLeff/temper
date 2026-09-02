@@ -24,25 +24,20 @@
 //!
 //! What does NOT move here (JUSTIFIED-KEEP, see
 //! `packages/temper-geometry/VERIFICATION.md` "Zone Pour Emission Geometry")
-//! --------------------------------------------------------------------------
-//! * `_cluster_positions` -- scipy `linkage`/`fcluster` (Ward hierarchical
-//!   clustering). A scipy library boundary in the same class as KTD8/KTD9:
-//!   the NN-chain / Lance-Williams recurrence is not a closed form to
-//!   transcribe, it is a specific numerical algorithm to reimplement and
-//!   independently validate bit-exact, which was judged out of scope for
-//!   this slice.
+//! ------------------------------------------------------------------------
 //! * `_convex_hull_from_positions`'s `shapely.buffer(margin, join_style=2)`
-//!   step -- GEOS mitre-join polygon offsetting. Measured: an analytic
-//!   mitre-offset reimplementation agrees with GEOS to ~1e-13 (float noise,
-//!   NOT bit-exact) on convex hulls, and diverges in vertex COUNT on ~10% of
-//!   randomly generated hulls (mitre-limit beveling, GEOS's exact rule
-//!   unconfirmed). Same divergence class as `drc_inflate.rs`'s recorded
-//!   `buffer(r, resolution=16)` JUSTIFIED-KEEP (round join instead of mitre,
-//!   same GEOS boundary).
+//!   step -- GEOS mitre-join polygon offsetting. The 2026-09-01 bounded
+//!   spike found an unlimited-mitre model differed in vertex count/region on
+//!   29/1,000 random hulls and did not settle the GEOS mitre-limit or degenerate
+//!   LineString contract; it remains on the Python boundary.
 //! * `_zone_layers_for_net` / `_zone_params_for_net` -- netclass-SSOT
 //!   (`TEMPER_NET_ASSIGNMENTS`/`TEMPER_NET_CLASSES`) lookups. Data-driven
 //!   business logic, not geometry; out of this migration's scope by
 //!   definition.
+//!
+//! `_cluster_positions` remains Python orchestration: its Ward-linkage kernel
+//! delegates to Rust elsewhere while its threshold heuristic remains Python;
+//! it is outside this module's scope rather than a keep decision.
 //!
 //! Known divergence class: nearest-neighbour tie-break
 //! -----------------------------------------------------
