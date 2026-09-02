@@ -1,5 +1,7 @@
 # Silent fail-open on `except ImportError` — measurement, fixes, and a gate
 
+<!-- provenance: commit=56dd23414445467f96d3fdca4154c575ace525f4 dirty=true (persistent main commit for PR #1347 carrying this refreshed evidence and the fail-closed fixes; original authoring worktree state was not retained) -->
+
 Date: 2026-08-18
 Branch: `fix/importerror-fail-closed`
 Board: `pcb/temper.kicad_pcb` @ `26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b`

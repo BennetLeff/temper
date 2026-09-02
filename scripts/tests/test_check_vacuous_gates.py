@@ -27,7 +27,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_vacuous_gates import (  # noqa: E402
     find_all_tautology_violations,
+    find_all_violations,
     find_packages_scope_files,
+    find_scope_files,
     find_tautology_scope_files,
     find_tautology_violations,
     find_violations,
@@ -486,13 +488,66 @@ class TestTautologyScope:
             """,
         )
         packages_dir = tmp_path / "packages"
-        results, files_scanned = find_all_tautology_violations(
-            packages_dir, None, tmp_path
-        )
+        results, files_scanned = find_all_tautology_violations(packages_dir, None, tmp_path)
         assert files_scanned == 1
         assert len(results) == 1
         (lineno, snippet, kind) = next(iter(results.values()))
         assert kind == "bare-literal"
+
+    def test_py_oracle_excluded_only_from_package_test_scope(self, tmp_path):
+        """Only the test-tree snapshot convention is excluded."""
+        tests_dir = tmp_path / "packages" / "demo" / "tests"
+        tests_dir.mkdir(parents=True)
+        source = "def check(items):\n    return all(item.ok for item in items)\n"
+        oracle = tests_dir / "_quality_metrics_py_oracle.py"
+        oracle.write_text(source)
+        ordinary = tests_dir / "quality_metrics_validator.py"
+        ordinary.write_text(source)
+        near_miss_prefix = tests_dir / "quality_metrics_py_oracle.py"
+        near_miss_prefix.write_text(source)
+        near_miss_suffix = tests_dir / "_quality_metrics_oracle.py"
+        near_miss_suffix.write_text(source)
+
+        packages_dir = tmp_path / "packages"
+        results, files_scanned = find_all_violations(packages_dir, None, tmp_path)
+        all_scope = find_packages_scope_files(packages_dir)
+        tautology_scope = find_tautology_scope_files(packages_dir)
+
+        assert files_scanned == 3
+        assert oracle not in all_scope
+        assert ordinary in all_scope
+        assert near_miss_prefix in all_scope
+        assert near_miss_suffix in all_scope
+        assert len(results) == 3
+        assert oracle in tautology_scope
+
+    def test_py_oracle_in_package_src_remains_in_all_scope(self, tmp_path):
+        src_dir = tmp_path / "packages" / "demo" / "src"
+        src_dir.mkdir(parents=True)
+        oracle = src_dir / "_quality_metrics_py_oracle.py"
+        oracle.write_text("def check(items):\n    return all(item.ok for item in items)\n")
+
+        packages_dir = tmp_path / "packages"
+        results, files_scanned = find_all_violations(packages_dir, None, tmp_path)
+
+        assert files_scanned == 1
+        assert results
+        assert oracle in find_packages_scope_files(packages_dir)
+        assert find_violations(oracle)
+
+    def test_py_oracle_in_top_level_scripts_remains_in_all_scope(self, tmp_path):
+        scripts_dir = tmp_path / "scripts"
+        scripts_dir.mkdir()
+        oracle = scripts_dir / "_quality_metrics_py_oracle.py"
+        oracle.write_text("def check(items):\n    return all(item.ok for item in items)\n")
+
+        packages_dir = tmp_path / "packages"
+        results, files_scanned = find_all_violations(packages_dir, scripts_dir, tmp_path)
+
+        assert files_scanned == 1
+        assert results
+        assert oracle in find_scope_files(packages_dir, scripts_dir)
+        assert find_violations(oracle)
 
 
 # ---------------------------------------------------------------------------

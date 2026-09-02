@@ -1,4 +1,4 @@
-<!-- provenance: commit=821ca86071a4259dda1a8a868028acb4be16494d dirty=false
+<!-- provenance: commit=96db2ccde669efa82d85fb494d5d152d8af8848f dirty=false (persistent main merge commit #1134 carrying the exact evidence file from merged PR #1194; the measured board commit remains recorded below)
      (own branch analysis/edge-slot-through-cut-rescue, based on origin/fix/board-schematic-resync.
      git status --porcelain clean apart from this document; git grep -l "^<<<<<<< " empty. Own
      git worktree (/home/bennet/Desktop/temper/.claude/worktrees/agent-a374c69e35366ad12), never

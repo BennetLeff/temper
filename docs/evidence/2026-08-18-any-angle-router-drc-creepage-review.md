@@ -1,3 +1,5 @@
+<!-- provenance: commit=061981dd58ddcc7c06ae03d5a6ef3d88c46d7fc4 dirty=UNKNOWN (measurement-base commit; the Conditions section records a fresh origin/main worktree at this commit, but measurement-time dirty state was not independently recorded) -->
+
 # Any-angle router configuration (Theta*/Lazy-Theta*): DRC + creepage review
 
 **Verdict: REJECT.** The any-angle configuration must not be adopted on

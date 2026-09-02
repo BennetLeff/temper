@@ -1,3 +1,5 @@
+<!-- provenance: commit=11a7e7c52d21ebca3ff8ff06e6e3b941441189fd dirty=UNKNOWN (recorded main pointer associated with measurement worktree agent-a4c2b4fe898ec732f; worktree HEAD and dirty state were not recorded) -->
+
 # `lib_footprint_issues` 13 → 168: measurement artifact, not a board defect
 
 **Status: COMPLETE.**

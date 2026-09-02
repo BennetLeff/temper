@@ -49,6 +49,14 @@ The scope is now a **default-include, narrow documented-exclude** union of:
 3. Every top-level ``.py`` file directly under ``scripts/`` (non-recursive
    -- this naturally excludes ``scripts/_lib/``, ``scripts/tests/``,
    ``scripts/spikes/``, ``scripts/templates/`` without a separate rule).
+4. Files named ``_*_py_oracle.py`` are excluded from the ``packages/*/tests``
+   portion of this aggregation scope. The current convention places pinned
+   differential snapshots in test trees, where they are not gate or
+   validator implementations; this is a filename convention, not a path
+   allowlist. No such exclusion applies to ``packages/*/src`` or top-level
+   ``scripts/`` files, where a same-name file remains in scope. The separate,
+   wider tautology scope below is unchanged and continues to include these
+   files.
 
 **2026-08-07: the ``router_v6`` package exclusion is removed.** It was
 UNVERIFIED as of the 2026-07-27 rewrite above and is resolved here: the
@@ -79,7 +87,8 @@ Rationale for "default-include, narrow exclude" over an allowlist: an
 allowlist (of files, or of filename tokens) requires a maintainer to
 remember to add every new gate/validator module to it -- exactly the
 mechanism that produced the 2-of-13 blind spot in the first place. A
-denylist only has to name known non-validator conventions (test files);
+denylist only has to name known non-validator conventions (test files and
+pinned oracle files in test trees);
 a new validator module added anywhere in scope is scanned automatically,
 with no action required and no PR-invisible omission possible.
 
@@ -241,6 +250,7 @@ AGGREGATORS = {"all"}
 # path substring is wrong: it drops real validator implementations that
 # happen to live under a tests/requirements/validators/ tree).
 _TEST_FILENAME_RE = re.compile(r"^(test_.*|.*_test|conftest)\.py$")
+_PY_ORACLE_FILENAME_RE = re.compile(r"^_.*_py_oracle\.py$")
 
 _GUARD_RE_TEMPLATES = [
     r"if\s+not\s+{expr}\b",
@@ -266,7 +276,7 @@ def find_packages_scope_files(packages_dir: Path) -> list[Path]:
             results.append(py_file)
     for tests_dir in sorted(packages_dir.glob("*/tests")):
         for py_file in sorted(tests_dir.rglob("*.py")):
-            if _TEST_FILENAME_RE.match(py_file.name):
+            if _TEST_FILENAME_RE.match(py_file.name) or _PY_ORACLE_FILENAME_RE.match(py_file.name):
                 continue
             results.append(py_file)
     return results
@@ -277,13 +287,12 @@ def find_scripts_scope_files(scripts_dir: Path) -> list[Path]:
 
     Non-recursive by construction: this naturally excludes ``_lib/``,
     ``tests/``, ``spikes/``, and ``templates/`` subdirectories without a
-    separate exclusion rule.
+    separate exclusion rule. Unlike the package test-tree scope, no
+    filename-based oracle exclusion applies here.
     """
     if not scripts_dir.is_dir():
         return []
-    return sorted(
-        f for f in scripts_dir.glob("*.py") if f.is_file() and f.name != "__init__.py"
-    )
+    return sorted(f for f in scripts_dir.glob("*.py") if f.is_file() and f.name != "__init__.py")
 
 
 def find_scope_files(packages_dir: Path, scripts_dir: Path | None = None) -> list[Path]:
@@ -361,9 +370,7 @@ def _preceding_guard(
     """True if any line in ``[start_line, end_line)`` guards *root*."""
     if not root:
         return False
-    patterns = [
-        re.compile(t.format(expr=re.escape(root))) for t in _GUARD_RE_TEMPLATES
-    ]
+    patterns = [re.compile(t.format(expr=re.escape(root))) for t in _GUARD_RE_TEMPLATES]
     for lineno in range(start_line, end_line):
         if lineno < 1 or lineno > len(scope_source_lines):
             continue
@@ -449,9 +456,7 @@ def find_violations(py_file: Path) -> list[tuple[int, str]]:
 # ---------------------------------------------------------------------------
 
 
-def find_tautology_scope_files(
-    packages_dir: Path, scripts_dir: Path | None = None
-) -> list[Path]:
+def find_tautology_scope_files(packages_dir: Path, scripts_dir: Path | None = None) -> list[Path]:
     """Return every in-scope ``.py`` file for tautological-assertion detection.
 
     Deliberately **wider** than ``find_scope_files`` above: this scope
@@ -541,19 +546,12 @@ def _is_or_true(test: ast.expr) -> bool:
     """True if *test* is ``... or True``-shaped (module docstring #2)."""
     if not (isinstance(test, ast.BoolOp) and isinstance(test.op, ast.Or)):
         return False
-    return any(
-        isinstance(v, ast.Constant) and v.value in _OR_TRUE_VALUES
-        for v in test.values
-    )
+    return any(isinstance(v, ast.Constant) and v.value in _OR_TRUE_VALUES for v in test.values)
 
 
 def _is_or_not_self(test: ast.expr) -> bool:
     """True if *test* is ``X or not X`` / ``not X or X`` (docstring #1)."""
-    if not (
-        isinstance(test, ast.BoolOp)
-        and isinstance(test.op, ast.Or)
-        and len(test.values) == 2
-    ):
+    if not (isinstance(test, ast.BoolOp) and isinstance(test.op, ast.Or) and len(test.values) == 2):
         return False
     a, b = test.values
     a_core, a_neg = _strip_not(a)
@@ -680,9 +678,7 @@ def find_tautology_violations(py_file: Path) -> list[tuple[int, str, str]]:
                 # not a checker blind spot -- written explicitly so
                 # check_vacuous_gates.py's own guard heuristic recognizes it.
                 if not preceding or all(_is_inert_stmt(s) for s in preceding):
-                    violations.append(
-                        (stmt.lineno, snippet_for(stmt.lineno), "bare-literal")
-                    )
+                    violations.append((stmt.lineno, snippet_for(stmt.lineno), "bare-literal"))
 
     return violations
 
