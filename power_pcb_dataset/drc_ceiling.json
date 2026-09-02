@@ -350,6 +350,14 @@
         "creepage": -1,
         "error_ceiling": -1
       }
+    },
+    "2026-09-02-r43-remeasure": {
+      "date": "2026-09-02",
+      "cause": "Re-measurement after rebasing the R43 RTD fault pull-up relocation onto current main. The final board hash is 8ae94bd6d67060dfbc5a1c493b5688bf96b6c429bdeb4ff9af4639add88b9cd0. Required live protocol: regenerated DRU, kicad-cli 10.0.5, run_drc with --all-track-errors, and 10/10 fresh pyo3 extensions immediately before measurement. Across 120 samples, errors were clearance 209, copper_edge_clearance 11, courtyards_overlap 4, creepage 99, drill_out_of_range 6, hole_clearance 33, shorting_items 39, solder_mask_bridge 4; warnings were lib_footprint_issues 13, lib_footprint_mismatch 27, missing_courtyard 5, silk_edge_clearance 1, silk_over_copper 45, silk_overlap 199 (kicad-cli cap), track_dangling 1, via_dangling 111. Creepage violation-set identity was nondeterministic but its reported count was 99 in all 120 samples. The resulting error ceiling is 405 and warning ceiling 13264; no ceiling rises.",
+      "per_type_delta": {
+        "creepage": 0,
+        "error_ceiling": 0
+      }
     }
   },
   "boards": [
@@ -375,13 +383,13 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "06b772f113ac72479dda8fde2aaa24bd079b5c82",
+        "measured_at_commit": "8483519d0203486b00fb820fe94014aa96f63efa",
         "dirty": false,
         "branch": "feat/hv-selv-consumer-relocation",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "f1a8dd503dc3227453609ef343941b503873c8b82c55b865e0c92252787af529"
+            "sha256": "8ae94bd6d67060dfbc5a1c493b5688bf96b6c429bdeb4ff9af4639add88b9cd0"
           }
         ],
         "tool_versions": {
@@ -389,7 +397,7 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 06b772f113ac72479dda8fde2aaa24bd079b5c82 after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. Spread 0 in every error and warning category: errors 405/405, warnings 402/402. Full distributions and candidate attribution are recorded in the 2026-08-26-r43 _march entry."
+        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 8483519d0203486b00fb820fe94014aa96f63efa after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. All reported counts were stable across 120 samples except creepage violation-set identity; creepage count was 99 in all 120 samples. Full distributions and attribution are recorded in the 2026-09-02 _march entry."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,
@@ -402,7 +410,13 @@
         "track_dangling": 1,
         "via_dangling": 111
       },
-      "nondeterministic_error_types": {},
+        "nondeterministic_error_types": {
+          "creepage": {
+            "observed": [99],
+            "samples": 120,
+            "note": "Violation set is nondeterministic across 120 live samples; reported count was 99 in every sample."
+          }
+        },
       "saturation_hazard": {
         "_what_this_is": "kicad-cli caps every DRC category's reported count at a GUI list-widget constant (ERROR_LIMIT=199 or EXTENDED_ERROR_LIMIT=499, drc_engine.cpp) -- NOT a property of the board. A category landing at/near its cap, especially deterministically, may be SATURATED (true count >= the cap, exact value unknown) rather than genuinely equal to the reported number. See docs/evidence/2026-08-12-uncapped-drc-measurement.md and scripts/measure_uncapped_drc.py (the provably-exhaustive DRU-rule / physical-board-content partition-and-sum method that recovers a true count). Read violations_by_type/warnings_by_type above with this table, not blind.",
         "clearance": {
