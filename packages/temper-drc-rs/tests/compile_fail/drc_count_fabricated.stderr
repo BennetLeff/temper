@@ -1,0 +1,9 @@
+error[E0451]: fields `count` and `is_capped` of struct `DrcCount` are private
+  --> tests/compile_fail/drc_count_fabricated.rs:18:9
+   |
+17 |     let _laundered = DrcCount {
+   |                      -------- in this type
+18 |         count: 199,
+   |         ^^^^^ private field
+19 |         is_capped: false,
+   |         ^^^^^^^^^ private field

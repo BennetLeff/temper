@@ -1,0 +1,13 @@
+error[E0451]: fields `name`, `role`, `position` and `copper_thickness_mm` of struct `Layer` are private
+  --> tests/compile_fail/layer_struct_literal.rs:14:9
+   |
+13 |     let _bad = Layer {
+   |                ----- in this type
+14 |         name: "F.Cu".to_string(),
+   |         ^^^^ private field
+15 |         role: LayerRole::Signal,
+   |         ^^^^ private field
+16 |         position: LayerPosition::Outer,
+   |         ^^^^^^^^ private field
+17 |         copper_thickness_mm: 0.070,
+   |         ^^^^^^^^^^^^^^^^^^^ private field

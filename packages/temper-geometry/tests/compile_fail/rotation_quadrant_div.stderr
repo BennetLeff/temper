@@ -1,0 +1,13 @@
+error[E0369]: cannot divide `RotationQuadrant` by `{integer}`
+  --> tests/compile_fail/rotation_quadrant_div.rs:12:26
+   |
+12 |     let _bad_degrees = q / 90;
+   |                        - ^ -- {integer}
+   |                        |
+   |                        RotationQuadrant
+   |
+note: `RotationQuadrant` does not implement `Div<{integer}>`
+  --> src/rotation_quadrant.rs
+   |
+   | pub struct RotationQuadrant(u8);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ `RotationQuadrant` is defined in another crate

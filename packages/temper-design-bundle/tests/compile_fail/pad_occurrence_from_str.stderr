@@ -1,0 +1,7 @@
+error[E0277]: the trait bound `PadOccurrence: From<&str>` is not satisfied
+  --> tests/compile_fail/pad_occurrence_from_str.rs:13:35
+   |
+13 |     let _bad: PadOccurrence = "3".into();
+   |                                   ^^^^ the trait `From<&str>` is not implemented for `PadOccurrence`
+   |
+   = note: required for `&str` to implement `Into<PadOccurrence>`

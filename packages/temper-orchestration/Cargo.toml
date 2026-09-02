@@ -77,6 +77,14 @@ panic = "unwind"
 
 [dev-dependencies]
 proptest = "1"
+# tests/compile_fail.rs: enforces Via's private-field guard (the only
+# sexpr-producing path is `Via::emit_s_expr`, which always computes the
+# blind/buried type token) fails to compile for the stated reason (E0616), by
+# diffing full rustc stderr against a checked-in .stderr expectation. The
+# `compile_fail` doctest it supplements asserts only that the snippet does not
+# compile, never why -- see packages/temper-geometry/tests/compile_fail.rs for
+# the measured evidence. Dev-dependency only; native-only by construction.
+trybuild = "1.0.120"
 
 [lints.clippy]
 unwrap_used = "deny"

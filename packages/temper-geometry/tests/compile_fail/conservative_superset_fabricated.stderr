@@ -1,0 +1,5 @@
+error[E0451]: field `_private` of struct `ConservativeSuperset` is private
+  --> tests/compile_fail/conservative_superset_fabricated.rs:14:42
+   |
+14 |     let _forged = ConservativeSuperset { _private: () };
+   |                                          ^^^^^^^^ private field

@@ -1,0 +1,11 @@
+error[E0451]: fields `pad_ids`, `segment_ids` and `via_ids` of struct `VerifiedRoute` are private
+  --> tests/compile_fail/net_route_result_fabricated.rs:14:9
+   |
+13 |     let _fake = NetRouteResult::Connected(VerifiedRoute {
+   |                                           ------------- in this type
+14 |         pad_ids: vec![0, 1],
+   |         ^^^^^^^ private field
+15 |         segment_ids: vec![],
+   |         ^^^^^^^^^^^ private field
+16 |         via_ids: vec![],
+   |         ^^^^^^^ private field

@@ -432,6 +432,16 @@ def test_workflow_trigger_lists_match_manifest() -> None:
     assert trigger_paths[0] == trigger_paths[1] == configured.trigger_paths
 
 
+def test_orchestration_changes_run_rust_checks() -> None:
+    root = Path(__file__).resolve().parents[2]
+    configured = load_manifest(root / ".github/required-checks.json")
+    assert job_should_run(
+        "Rust Checks (cargo check + clippy)",
+        ("packages/temper-orchestration/tests/compile_fail.rs",),
+        configured,
+    )
+
+
 def test_manifest_validator_rejects_drift(tmp_path: Path) -> None:
     workflow = tmp_path / "python-tests.yml"
     workflow.write_text(
