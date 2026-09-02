@@ -231,18 +231,27 @@ export function previewCandidateContract(topology) {
     throw new Error(`<preview topology>: unsafe expected-failure path ${JSON.stringify(tier.expected_failures)}`);
   }
   const native = tier.native_test_args;
+  const hasFeatureSelection =
+    Array.isArray(native) && native[1] === "--features";
+  const manifestIndex = hasFeatureSelection ? 3 : 1;
+  const featureSelectionValid =
+    !hasFeatureSelection ||
+    (native.length >= 5 && /^[A-Za-z0-9_-]+$/.test(native[2]));
   if (
     !Array.isArray(native) ||
-    ![3, 4].includes(native.length) ||
+    ![3, 4, 5, 6].includes(native.length) ||
     native[0] !== "--no-default-features" ||
-    native[1] !== "--manifest-path" ||
-    typeof native[2] !== "string" ||
-    !/^packages\/[A-Za-z0-9_./-]+\/Cargo\.toml$/.test(native[2]) ||
-    native[2].includes("..") ||
-    (native.length === 4 && native[3] !== "--lib")
+    !featureSelectionValid ||
+    native[manifestIndex] !== "--manifest-path" ||
+    typeof native[manifestIndex + 1] !== "string" ||
+    !/^packages\/[A-Za-z0-9_./-]+\/Cargo\.toml$/.test(native[manifestIndex + 1]) ||
+    native[manifestIndex + 1].includes("..") ||
+    (native.length !== manifestIndex + 2 &&
+      native.length !== manifestIndex + 3) ||
+    (native.length === manifestIndex + 3 && native[manifestIndex + 2] !== "--lib")
   ) {
     throw new Error(
-      `<preview topology>: ${crate} native_test_args must be --no-default-features --manifest-path packages/.../Cargo.toml [--lib]`,
+      `<preview topology>: ${crate} native_test_args must be --no-default-features [--features <safe-feature>] --manifest-path packages/.../Cargo.toml [--lib]`,
     );
   }
   return Object.freeze({
