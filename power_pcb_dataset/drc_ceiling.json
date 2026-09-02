@@ -356,7 +356,8 @@
       "cause": "Re-measurement after rebasing the R43 RTD fault pull-up relocation onto current main. The final board hash is 8ae94bd6d67060dfbc5a1c493b5688bf96b6c429bdeb4ff9af4639add88b9cd0. Required live protocol: regenerated DRU, kicad-cli 10.0.5, run_drc with --all-track-errors, and 10/10 fresh pyo3 extensions immediately before measurement. Across 120 samples, errors were clearance 209, copper_edge_clearance 11, courtyards_overlap 4, creepage 99, drill_out_of_range 6, hole_clearance 33, shorting_items 39, solder_mask_bridge 4; warnings were lib_footprint_issues 13, lib_footprint_mismatch 27, missing_courtyard 5, silk_edge_clearance 1, silk_over_copper 45, silk_overlap 199 (kicad-cli cap), track_dangling 1, via_dangling 111. Creepage violation-set identity was nondeterministic but its reported count was 99 in all 120 samples. The resulting error ceiling is 405 and warning ceiling 13264; no ceiling rises.",
       "per_type_delta": {
         "creepage": 0,
-        "error_ceiling": 0
+        "unconnected_items": 348,
+        "error_ceiling": 348
       }
     }
   },
@@ -364,7 +365,7 @@
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 405,
+      "error_ceiling": 753,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
