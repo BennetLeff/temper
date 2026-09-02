@@ -15,3 +15,4 @@ temper_placer.placer.cp_sat.creepage_repair_frontier	Experimental campaign API r
 temper_placer.placer.cp_sat.creepage_replay_resume	Test-only replay/resume contract retained to validate deterministic experiment recovery; not a production stage.
 temper_placer.placer.cp_sat.displacement_deletion_scheduler	Experimental campaign scheduler retained for focused search-policy tests; not wired into production placement.
 temper_placer.placer.cp_sat.progressive_creepage_cuts	Experimental comparison implementation retained for differential tests while grouped cuts are evaluated; not wired into production placement.
+temper_placer.router_v6.clearance_engine	Test-only compatibility shim retained to exercise the Rust-owned clearance-family API and differential tests; all production callers use the Rust orchestration stage.

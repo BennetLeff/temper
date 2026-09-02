@@ -936,10 +936,8 @@ REGISTRY: tuple[Fact, ...] = (
     # many homes, drifting", on top of the three PR #1322's evidence doc
     # already found in netclass_constraints.py/gates.py):
     #   1. elec/domain_manifest.yaml's HV domain list -- always correct.
-    #   2. router_v6.clearance_check._classify_net_class (Python + Rust
-    #      backends) -- correct since #1145/#1174 both merged (PR #1300
-    #      fixed a STALE TEST asserting the pre-#1145 "GND" answer; the
-    #      code was already right).
+    #   2. router_v6.clearance_check's retained manifest loader feeds the
+    #      Rust-only backend; its consumer test asserts the literal entry.
     #   3. core.design_rules.TEMPER_NET_ASSIGNMENTS -- had NO entry for
     #      hb-gnd at all (confirmed live: scripts/check_hv_netclass_
     #      coverage.py PROPERTY 1 flagged it, a currently-red, CI-blocking
@@ -985,12 +983,8 @@ REGISTRY: tuple[Fact, ...] = (
             "elec/domain_manifest.yaml's HV domain list (PR #1145, "
             "netlist-traced) is the SSOT for domain membership. "
             "packages/temper-placer/tests/router_v6/test_clearance_check.py"
-            "'s corrected assertion (PR #1300) is the primary consumer "
-            "proof that the classifier agrees. Both patterns require the "
-            "literal 'HV' verdict to appear at all for the match to "
-            "succeed -- a regression to a weaker class (e.g. the pre-#1300 "
-            "stale 'GND' assertion) makes the pattern fail to match "
-            "entirely (TOOL ERROR), not silently compare a wrong value."
+            "'s manifest-loader consumer test is the primary production "
+            "proof that the literal entry reaches the Rust adapter."
         ),
         homes=(
             FactSite(
@@ -1003,10 +997,9 @@ REGISTRY: tuple[Fact, ...] = (
             FactSite(
                 file="packages/temper-placer/tests/router_v6/test_clearance_check.py",
                 description=(
-                    "test_hyphenated_hb_gnd_and_vdd_nets_classify_correctly's "
-                    "corrected assertion (PR #1300)"
+                    "retained Rust adapter manifest-loader assertion"
                 ),
-                pattern=r'_classify_net_class\("(hb-gnd)"\)\s*==\s*"HV"',
+                pattern=r'assert\s+"(hb-gnd)"\s+in\s+_load_manifest_hv_net_names\(\)',
             ),
         ),
     ),

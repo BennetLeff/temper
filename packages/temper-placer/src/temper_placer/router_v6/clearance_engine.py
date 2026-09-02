@@ -58,13 +58,13 @@ E3 clearance-family differential.
    left unwidened on purpose, for two independent reasons: (1) this
    module's own callers (:func:`_kw_boundary_match`,
    :func:`_net_class_to_voltage_class`) only ever receive short net-*class*
-   labels (``"HV"``, ``"Signal"``, ...) produced by
-   ``clearance_check._classify_net_class``, never raw hyphenated net names
+   labels (``"HV"``, ``"Signal"``, ...) produced by the router's
+   classification layer, never raw hyphenated net names
    directly -- board-wide simulation of all 162 real net names confirms
    zero live exposure through this module (the one confirmed over-match in
    the Family-C fix, the ``"LINE"``-keyword false positive on 14 real
    ``-line``-suffix SELV nets, is caught and mitigated upstream, in
-   ``_classify_net_class`` itself, before a net class ever reaches this
+   upstream router classification, before a net class ever reaches this
    module); (2) widening it would break
    ``tests/router_v6/test_via_clearance_tier2_rust_differential.py``'s
    ``test_oracle_is_verbatim_copy``, which pins this module's oracle

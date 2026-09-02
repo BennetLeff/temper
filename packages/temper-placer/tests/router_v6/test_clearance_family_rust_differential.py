@@ -21,8 +21,8 @@ Covered orchestrations:
 
 - ``clearance_engine.get_clearance``        vs ``clearance::get_clearance_py``
 - ``creepage_check.verify_creepage``        vs ``clearance::run_creepage_check``
-- ``clearance_check.verify_clearance``      vs ``clearance::run_clearance_check``
-  (the rust path vs the module's pure-Python reference)
+  - ``clearance_check.verify_clearance``      vs ``clearance::run_clearance_check``
+  (the production Rust path vs the immutable pre-migration oracle)
 - ``isolation_barrier.{classify_domain_partition, evaluate_isolator_feasibility,
   _project_onto_barrier_axis}``              vs ``clearance::*_py``
 - ``domain_clearance.{generate_domain_clearance_constraints,
@@ -278,7 +278,7 @@ def test_verify_creepage_default_creepage_override():
 
 
 # ---------------------------------------------------------------------------
-# clearance_check.verify_clearance — rust path vs the pure-Python reference
+# clearance_check.verify_clearance — production rust path vs pinned oracle
 # ---------------------------------------------------------------------------
 
 LAYERS = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]

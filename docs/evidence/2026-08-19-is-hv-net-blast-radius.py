@@ -30,6 +30,7 @@ from temper_placer.router_v6 import clearance_check as cc
 from temper_placer.router_v6._net_policy import _should_route
 from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
 from temper_placer.router_v6.constraints_design_rules import _classify_net
+from temper_placer.router_v6.net_classification import classify_net_type as classify_v6
 from temper_placer.router_v6.net_classification import is_ground_net as g6
 from temper_placer.router_v6.net_classification import is_hv_net as h6
 from temper_placer.router_v6.net_classification import is_power_net as p6
@@ -46,7 +47,7 @@ for n in ALL:
     print(
         f"{n:<20} {int(rs.is_ground_net(n)):>4} {int(rs.is_power_net(n)):>4} "
         f"{int(rs.is_hv_net(n)):>4} {rs.classify_net_type(n):>8} | "
-        f"{int(rs.is_power_net_v6(n)):>7} {rs.classify_net_type_v6(n):>8}"
+        f"{int(rs.is_power_net_v6(n)):>7} {classify_v6(n):>8}"
     )
 
 print()
@@ -104,9 +105,10 @@ print("=" * 78)
 manifest = cc._load_manifest_hv_net_names()
 for n in ALL:
     kw = cc._is_hv_keyword_match(n.upper())
+    hv = kw or n in manifest
     print(
         f"{n:<20} keyword={int(kw)} manifest={int(n in manifest)} "
-        f"-> HV={int(kw or n in manifest)} class={cc._classify_net_class(n)}"
+        f"-> HV={int(hv)}"
     )
 
 print()

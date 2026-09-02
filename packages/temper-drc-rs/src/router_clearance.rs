@@ -203,19 +203,15 @@ fn segment_to_segment_dist(
 }
 
 // ---------------------------------------------------------------------------
-// Net classification -- two DIFFERENT keyword lists, exactly as Python has.
+// Net classification keyword vocabulary, exactly as the current Python has.
 // ---------------------------------------------------------------------------
 
-/// Narrow gate used by `_get_required_clearance` to decide whether HV
-/// escalation applies at all.
-const HV_GATE_KEYWORDS: [&str; 4] = ["AC_", "HV_", "HIGH_VOLTAGE", "MAINS"];
-
-/// Broad keyword list used by `_classify_net_class`, only consulted once
-/// the narrow gate above has already fired for at least one side of the
-/// pair.
-const HV_CLASS_KEYWORDS: [&str; 14] = [
-    "AC_",
-    "HV_",
+/// Keyword list used by the clearance HV gate and net classifier. This is the
+/// current Python `_CLASSIFY_HV_KEYWORDS` vocabulary; the gate and classifier
+/// intentionally use the same matcher on the Rust production path.
+const HV_CLASS_KEYWORDS: [&str; 13] = [
+    "AC",
+    "HV",
     "HIGH_VOLTAGE",
     "MAINS",
     "LINE",
@@ -227,10 +223,28 @@ const HV_CLASS_KEYWORDS: [&str; 14] = [
     "L3",
     "PHASE",
     "VBUS",
-    "B+",
 ];
 const GND_KEYWORDS: [&str; 5] = ["GND", "VSS", "PGND", "CGND", "AGND"];
 const POWER_KEYWORDS: [&str; 7] = ["VCC", "VDD", "+3V3", "+5V", "+12V", "+15V", "POWER"];
+
+// Exact current Python `_SELV_LINE_NET_OVERRIDES`, kept in the Rust owner so
+// the production path cannot silently diverge from the retired classifier.
+const SELV_LINE_NET_OVERRIDES: [&str; 14] = [
+    "SAFETY-LINE",
+    "SAFETY-LINE-1",
+    "SAFETY-LINE-2",
+    "SAFETY-LINE-3",
+    "SAFETY-LINE-4",
+    "SAFETY-LINE-5",
+    "SAFETY-LINE-6",
+    "SAFETY-LINE-7",
+    "SAFETY.OCP-LINE",
+    "SAFETY.OCP2-LINE",
+    "SAFETY.OVP-LINE",
+    "SAFETY.THERMAL-LINE",
+    "SAFETY.COIL_THERMAL-LINE",
+    "SAFETY.UVLO_LOGIC-LINE",
+];
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum NetClass {
@@ -249,8 +263,9 @@ enum NetClass {
 // the "L1"/"L2" substrings -- all confirmed SELV in the domain manifest. This
 // mirrors the Python reference `_is_hv_keyword_match`
 // (`router_v6/clearance_check.py`), which anchors each keyword between a
-// leading start/underscore and a trailing end/digit/underscore, so a keyword
-// must be its own `_`-delimited token to match.
+// leading start/underscore/hyphen and a trailing end/digit/underscore/hyphen,
+// so a keyword must be its own separator-delimited token to match. The
+// explicit SELV override set above is checked before this cascade.
 
 /// True when the keyword ends in an alphanumeric -- i.e. has a trailing
 /// word-boundary to anchor on. A keyword ending in a non-alphanumeric
@@ -267,9 +282,9 @@ fn has_trailing_boundary(kw: &str) -> bool {
 fn compile_keyword(kw: &str) -> Option<Regex> {
     let escaped = regex::escape(kw);
     let src = if has_trailing_boundary(kw) {
-        format!(r"(?:\A|_){}(?:\z|[\d_])", escaped)
+        format!(r"(?:\A|[_-]){}(?:\z|[\d_-])", escaped)
     } else {
-        format!(r"(?:\A|_){}", escaped)
+        format!(r"(?:\A|[_-]){}", escaped)
     };
     Regex::new(&src).ok()
 }
@@ -277,14 +292,13 @@ fn compile_keyword(kw: &str) -> Option<Regex> {
 /// Precompiled boundary regexes for one keyword list (compiled once; compile is
 /// costly and this runs per (pair, net) on the hot verification path).
 fn boundary_regexes(keywords: &[&str]) -> Vec<Regex> {
-    keywords.iter().filter_map(|kw| compile_keyword(kw)).collect()
+    keywords
+        .iter()
+        .filter_map(|kw| compile_keyword(kw))
+        .collect()
 }
 
 fn hv_gate_re() -> &'static [Regex] {
-    static RE: OnceLock<Vec<Regex>> = OnceLock::new();
-    RE.get_or_init(|| boundary_regexes(&HV_GATE_KEYWORDS))
-}
-fn hv_class_re() -> &'static [Regex] {
     static RE: OnceLock<Vec<Regex>> = OnceLock::new();
     RE.get_or_init(|| boundary_regexes(&HV_CLASS_KEYWORDS))
 }
@@ -300,18 +314,28 @@ fn power_re() -> &'static [Regex] {
 /// trailing-boundary form; anchored on the leading side only.
 fn b_plus_re() -> &'static Option<Regex> {
     static RE: OnceLock<Option<Regex>> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"(?:\A|_)B\+").ok())
+    RE.get_or_init(|| Regex::new(r"(?:\A|[_-])B\+").ok())
 }
 
-fn is_hv_gate(net_name: &str) -> bool {
+fn is_selv_line_override(net_name: &str) -> bool {
+    SELV_LINE_NET_OVERRIDES.contains(&net_name)
+}
+
+fn is_hv_keyword_match(net_name: &str) -> bool {
     let upper = net_name.to_uppercase();
+    if is_selv_line_override(&upper) {
+        return false;
+    }
     hv_gate_re().iter().any(|re| re.is_match(&upper))
         || b_plus_re().as_ref().is_some_and(|re| re.is_match(&upper))
 }
 
 fn classify_net_class(net_name: &str) -> NetClass {
     let upper = net_name.to_uppercase();
-    if hv_class_re().iter().any(|re| re.is_match(&upper))
+    if is_selv_line_override(&upper) {
+        return NetClass::Signal;
+    }
+    if hv_gate_re().iter().any(|re| re.is_match(&upper))
         || b_plus_re().as_ref().is_some_and(|re| re.is_match(&upper))
     {
         return NetClass::Hv;
@@ -354,7 +378,7 @@ fn classify_net_class(net_name: &str) -> NetClass {
 // behavior (missing/malformed manifest -> empty set -> falls back to the
 // keyword gates alone, exactly like the Python side degrades).
 fn is_hv_gate_named(net_name: &str, hv_net_names: &std::collections::HashSet<String>) -> bool {
-    is_hv_gate(net_name) || hv_net_names.contains(net_name)
+    is_hv_keyword_match(net_name) || hv_net_names.contains(net_name)
 }
 
 fn classify_net_class_named(
@@ -1625,7 +1649,8 @@ mod tests {
         // The exact nets the substring matcher misclassified as HV -- all
         // declared SELV in `elec/domain_manifest.yaml`. The `-line` / `-coil`
         // nets contain the "LINE"/"L1"/"L2" substrings but not as their own
-        // `_`-delimited token; the word-boundary matcher must not sweep them.
+        // separator-delimited token, or are protected by the exact override;
+        // the word-boundary matcher must not sweep them.
         for net in [
             "safety.ovp-line",
             "safety.uvlo_logic-line",
@@ -1662,7 +1687,7 @@ mod tests {
             );
         }
         for net in ["AC_L", "HV_BUS", "MAINS_LIVE"] {
-            assert!(is_hv_gate(net), "gate must fire for {net}");
+            assert!(is_hv_keyword_match(net), "gate must fire for {net}");
         }
     }
 
@@ -1674,21 +1699,47 @@ mod tests {
         assert_eq!(classify_net_class("VCC_IO"), NetClass::Power);
         assert_eq!(classify_net_class("+5V"), NetClass::Power);
         assert_eq!(classify_net_class("+3V3_aux"), NetClass::Power);
-        // Hyphen is not a token separator; embedded keyword must not match.
-        assert_ne!(classify_net_class("gnd-aux"), NetClass::Gnd);
+        // Hyphens are token separators, just like underscores.
+        assert_eq!(classify_net_class("gnd-aux"), NetClass::Gnd);
         assert_ne!(classify_net_class("x+5v_rail"), NetClass::Power);
-        assert_ne!(classify_net_class("sense_gnd-hs"), NetClass::Gnd);
+        assert_eq!(classify_net_class("sense_gnd-hs"), NetClass::Gnd);
     }
 
     #[test]
     fn embedded_keywords_do_not_match_without_boundary() {
-        assert_ne!(classify_net_class("safety-line"), NetClass::Hv);
         assert_ne!(classify_net_class("myL1net"), NetClass::Hv);
         assert_ne!(classify_net_class("coil2"), NetClass::Hv);
         assert_ne!(classify_net_class("phasey"), NetClass::Hv);
         assert_ne!(classify_net_class("superhot"), NetClass::Hv);
         assert_ne!(classify_net_class("neutralized"), NetClass::Hv);
-        assert!(!is_hv_gate("safety-line"));
+        assert!(!is_hv_keyword_match("safety-line"));
+    }
+
+    #[test]
+    fn hyphenated_hv_keywords_match_at_separator_boundaries() {
+        for net in ["X-AC", "HV-BUS", "MAINS-LINE"] {
+            assert_eq!(
+                classify_net_class(net),
+                NetClass::Hv,
+                "{net} must classify as HV"
+            );
+            assert!(is_hv_keyword_match(net), "{net} must open the HV gate");
+        }
+    }
+
+    #[test]
+    fn exact_selv_line_overrides_win_before_hyphen_keyword_matching() {
+        for net in SELV_LINE_NET_OVERRIDES {
+            assert_eq!(
+                classify_net_class(net),
+                NetClass::Signal,
+                "{net} must remain SELV"
+            );
+            assert!(!is_hv_keyword_match(net), "{net} must not open the HV gate");
+        }
+        // The override is intentionally literal, not a blanket `-line`
+        // exemption: a real mains net with the same suffix remains HV.
+        assert!(is_hv_keyword_match("MAINS-LINE"));
     }
 
     #[test]

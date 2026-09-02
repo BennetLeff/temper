@@ -27,22 +27,14 @@ import math
 import pytest
 
 from temper_placer.router_v6.astar_pathfinding import RoutePath
-from temper_placer.router_v6.clearance_check import (
-    _point_to_segment_dist,
-    _segment_to_segment_dist,
-    verify_clearance,
-)
+from temper_placer.router_v6.clearance_check import verify_clearance
 from temper_placer.router_v6.copper_balance import analyze_copper_balance
 from temper_placer.router_v6.creepage_check import (
-    _point_to_segment_distance,
     _segment_to_segment_info,
     verify_creepage,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
-from tests.router_v6.dfm_boundary_constants import (
-    COORD_BOUNDARY,
-)
 
 # ============================================================================
 # Shared helpers
@@ -92,55 +84,6 @@ class TestNanometerScaleCoordinates:
     well-separated nanometer-scale coordinates."""
 
     NANO = 1e-6  # 1 nm in mm
-
-    @pytest.mark.parametrize(
-        "offset",
-        [
-            0.0,
-            1e-6,
-            1e-5,
-            1e-4,
-        ],
-    )
-    def test_segment_to_segment_nano_separation(self, offset: float):
-        """Two parallel nano-scale segments separated by *offset* mm.
-
-        When offset > 0, distance must be > 0.  With offset = 0 the
-        segments are coincident → distance ≈ 0.
-        """
-        a = (0.0, 0.0)
-        b = (self.NANO, 0.0)  # 1 nm long
-        c = (0.0, offset)
-        d = (self.NANO, offset)
-
-        dist, _, _ = _segment_to_segment_dist(a, b, c, d)
-
-        if offset == 0.0:
-            assert dist == pytest.approx(0.0, abs=1e-15)
-        else:
-            assert dist > 0.0, f"Distance collapsed to {dist} for offset={offset}"
-            assert dist == pytest.approx(offset, rel=1e-9), f"Expected ~{offset}, got {dist}"
-
-    @pytest.mark.parametrize(
-        "offset",
-        [
-            0.0,
-            1e-6,
-            1e-5,
-        ],
-    )
-    def test_point_to_segment_nano_distance(self, offset: float):
-        """Point-to-segment distance at nanometer scale."""
-        a = (0.0, 0.0)
-        b = (self.NANO, 0.0)
-        p = (self.NANO / 2, offset)
-
-        dist, _, _ = _point_to_segment_dist(p, a, b)
-
-        if offset == 0.0:
-            assert dist == pytest.approx(0.0, abs=1e-15)
-        else:
-            assert dist == pytest.approx(offset, rel=1e-9)
 
     def test_clearance_nano_routes_do_not_falsely_violate(self):
         """Two routes at nanometer coordinates but well-separated must
@@ -408,15 +351,6 @@ class TestCumulativeFPError:
 
     # ---- clearance: segment-to-segment distance ----
 
-    def test_segment_to_segment_dist_coarse(self):
-        """Baseline: two coarse single-segment paths at offset."""
-        a = (0.0, 0.0)
-        b = (self.TOTAL_LEN, 0.0)
-        c = (0.0, self.OFFSET)
-        d = (self.TOTAL_LEN, self.OFFSET)
-        dist, _, _ = _segment_to_segment_dist(a, b, c, d)
-        assert dist == pytest.approx(self.OFFSET, rel=1e-12)
-
     def test_clearance_fine_vs_coarse_agree(self):
         """verify_clearance on fine-grained path vs coarse path.
 
@@ -491,23 +425,6 @@ class TestCumulativeFPError:
         )
         assert dist == pytest.approx(self.OFFSET, rel=1e-12)
 
-    def test_point_to_segment_distance_fine_accumulation(self):
-        """Many small colinear segments do not accumulate distance error."""
-        # A point 1 mm above the midpoint of the fine path
-        px, py = self.TOTAL_LEN / 2, 1.0
-        # Distance to the fine path → should be 1.0 (closest to midpoint)
-        fine_coords = self._make_fine_path()
-        # Compute min distance across all segments
-        min_d = float("inf")
-        for i in range(len(fine_coords) - 1):
-            x1, y1 = fine_coords[i]
-            x2, y2 = fine_coords[i + 1]
-            d = _point_to_segment_distance(px, py, x1, y1, x2, y2)
-            if d < min_d:
-                min_d = d
-        assert min_d == pytest.approx(1.0, rel=1e-9), (
-            f"Point-to-segment distance drifted to {min_d}"
-        )
 
 
 # ============================================================================
@@ -671,31 +588,6 @@ class TestCoordinatePrecision:
 
     ROUNDED_COORDS = [(round(x, 4), round(y, 4)) for x, y in HIGH_PRECISION_COORDS]
 
-    def test_segment_dist_precision_insensitive(self):
-        """Segment-to-segment distance should be stable across
-        coordinate rounding at the 4th decimal place."""
-        # High-precision segment
-        a_hi = self.HIGH_PRECISION_COORDS[0]
-        b_hi = self.HIGH_PRECISION_COORDS[1]
-        c_hi = self.HIGH_PRECISION_COORDS[2]
-        d_hi = (c_hi[0] + 0.001, c_hi[1] + 0.001)
-
-        dist_hi, _, _ = _segment_to_segment_dist(a_hi, b_hi, c_hi, d_hi)
-
-        # Rounded segment
-        a_lo = self.ROUNDED_COORDS[0]
-        b_lo = self.ROUNDED_COORDS[1]
-        c_lo = self.ROUNDED_COORDS[2]
-        d_lo = (c_lo[0] + 0.001, c_lo[1] + 0.001)
-
-        dist_lo, _, _ = _segment_to_segment_dist(a_lo, b_lo, c_lo, d_lo)
-
-        # Distances should agree within ~2× the rounding error
-        # Rounding to 4 decimal places → max error ≈ 5e-5 per coordinate
-        assert dist_hi == pytest.approx(dist_lo, abs=1e-3), (
-            f"Precision sensitivity: hi={dist_hi}, lo={dist_lo}"
-        )
-
     def test_clearance_precision_stable(self):
         """verify_clearance must not flip on rounding differences."""
         r1 = _make_route(
@@ -768,26 +660,3 @@ class TestCoordinatePrecision:
         assert dist_hi == pytest.approx(dist_lo, abs=1e-3), (
             f"Precision sensitivity in segment_info: hi={dist_hi}, lo={dist_lo}"
         )
-
-    @pytest.mark.parametrize(
-        "extreme_coord",
-        [
-            *COORD_BOUNDARY,
-        ],
-    )
-    def test_extreme_coordinate_stability(self, extreme_coord):
-        """Extreme coordinates (incl. NaN/Inf) must not crash segment distance."""
-        x, y = extreme_coord
-        a = (0.0, 0.0)
-        b = (x, y)
-        c = (0.0, 1.0)
-        d = (x, y + 1.0)
-
-        # 2026-08-15: parametrize widened from COORD_EXTREME to COORD_BOUNDARY
-        # (adds the NaN/Inf cases the xfail scaffold was written for but never
-        # exercised). NaN/Inf no longer crash (measured) -- a future crash must
-        # fail loudly, not silently xfail. See
-        # docs/evidence/2026-08-15-unsilence-checks-batch-2.md.
-        dist, _, _ = _segment_to_segment_dist(a, b, c, d)
-
-        assert math.isfinite(dist), f"Non-finite distance for coords ({x}, {y}): {dist}"

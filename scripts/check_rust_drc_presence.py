@@ -44,12 +44,10 @@ The "is the accelerator expected here" signal
 -----------------------------------------------
 Controlled by `TEMPER_REQUIRE_RUST_DRC`:
 
-- Unset / "0" / "false" (default -- local dev): the Rust backend is
-  OPTIONAL. A contributor without a Rust toolchain, or who hasn't run
-  `maturin develop` yet, gets a warning and exit 0 -- the Python
-  fallback is a documented, correct (if slower) path, and demanding
-  Rust unconditionally would break local development for anyone not
-  actively working on this crate.
+- Unset / "0" / "false" (default -- local dev): missing Rust symbols produce
+  a warning and exit 0, so contributors can inspect unrelated tooling without
+  building every extension. The production clearance API remains Rust-only
+  and fails closed when either required symbol is missing.
 - "1" / "true" / "yes" (CI sets this): the Rust backend is MANDATORY.
   Any problem below is a hard failure (exit 1), because in CI the
   accelerator itself -- and the differential proof that depends on it
@@ -75,8 +73,16 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-MODULE_NAME = "temper_drc_rs"
-LIB_RS = REPO_ROOT / "packages" / "temper-drc-rs" / "src" / "lib.rs"
+MODULE_SPECS = (
+    (
+        "temper_drc_rs",
+        REPO_ROOT / "packages" / "temper-drc-rs" / "src" / "lib.rs",
+    ),
+    (
+        "temper_orchestration",
+        REPO_ROOT / "packages" / "temper-orchestration" / "src" / "lib.rs",
+    ),
+)
 
 
 def _required() -> bool:
@@ -87,8 +93,8 @@ def _required() -> bool:
     }
 
 
-def _expected_symbols(lib_rs: Path) -> list[str] | None:
-    """Parse the `#[pymodule] fn temper_drc_rs(...)` body of lib.rs for the
+def _expected_symbols(module_name: str, lib_rs: Path) -> list[str] | None:
+    """Parse a module's `#[pymodule] fn ...` body for the
     Python-visible names it registers via `wrap_pyfunction!`.
 
     Returns None if the file is missing or the pymodule block can't be
@@ -102,7 +108,7 @@ def _expected_symbols(lib_rs: Path) -> list[str] | None:
         return None
 
     match = re.search(
-        rf"fn\s+{re.escape(MODULE_NAME)}\s*\([^)]*\)\s*->\s*PyResult<\(\)>\s*\{{(.*?)\n\}}",
+        rf"fn\s+{re.escape(module_name)}\s*\([^)]*\)\s*->\s*PyResult<\(\)>\s*\{{(.*?)\n\}}",
         text,
         re.DOTALL,
     )
@@ -110,64 +116,52 @@ def _expected_symbols(lib_rs: Path) -> list[str] | None:
         return None
 
     body = match.group(1)
-    names = re.findall(r"wrap_pyfunction!\(\s*(?:crate::[\w:]+::)?(\w+)\s*,", body)
+    names = re.findall(r"wrap_pyfunction!\(\s*(?:[\w:]+::)?(\w+)\s*,", body)
     return names or None
+
+
+def _check_module(module_name: str, lib_rs: Path, *, required: bool) -> bool:
+    """Check one extension and return whether its required symbols are present."""
+    label = "FAIL" if required else "WARN"
+
+    try:
+        module = importlib.import_module(module_name)
+    except ImportError as exc:
+        msg = f"{module_name} is not importable ({exc})."
+        print(
+            f"{label}: {msg} Rust symbols are required by production clearance; "
+            "build the extension before running clearance checks.",
+            file=sys.stderr,
+        )
+        return False
+
+    expected = _expected_symbols(module_name, lib_rs)
+    if expected is None:
+        msg = f"could not determine expected symbols by parsing {lib_rs}"
+        print(f"{label}: {msg}. Failing closed under the required Rust gate.", file=sys.stderr)
+        return False
+
+    missing = [name for name in expected if not hasattr(module, name)]
+    if missing:
+        print(
+            f"{label}: {module_name} is importable but is missing symbol(s) "
+            f"{missing} that {lib_rs} currently registers -- the installed "
+            "wheel is STALE. Rebuild the extension with maturin.",
+            file=sys.stderr,
+        )
+        return False
+
+    print(f"OK: {module_name} present and fresh -- symbols {expected} all found.")
+    return True
 
 
 def main() -> int:
     required = _required()
-    label = "FAIL" if required else "WARN"
-
-    try:
-        module = importlib.import_module(MODULE_NAME)
-    except ImportError as exc:
-        msg = f"{MODULE_NAME} is not importable ({exc})."
-        if required:
-            print(
-                f"{label}: {msg} TEMPER_REQUIRE_RUST_DRC=1 -- the Rust "
-                f"backend is mandatory here (this is CI). Build it with "
-                f"`maturin develop --release --manifest-path "
-                f"packages/temper-drc-rs/Cargo.toml`.",
-                file=sys.stderr,
-            )
-            return 1
-        print(
-            f"{label}: {msg} Rust backend is optional here; the Python "
-            f"fallback in verify_clearance() will be used instead.",
-            file=sys.stderr,
-        )
-        return 0
-
-    expected = _expected_symbols(LIB_RS)
-    if expected is None:
-        msg = f"could not determine expected symbols by parsing {LIB_RS}"
-        if required:
-            print(
-                f"{label}: {msg}. Failing closed under "
-                f"TEMPER_REQUIRE_RUST_DRC=1 -- presence cannot be proven.",
-                file=sys.stderr,
-            )
-            return 1
-        print(f"{label}: {msg}. Skipping freshness check (backend optional here).", file=sys.stderr)
-        return 0
-
-    missing = [name for name in expected if not hasattr(module, name)]
-    if missing:
-        msg = (
-            f"{MODULE_NAME} is importable but is missing symbol(s) "
-            f"{missing} that {LIB_RS} currently registers -- the installed "
-            f"wheel is STALE (built from an older revision of this crate). "
-            f"Rebuild with `maturin develop --release --manifest-path "
-            f"packages/temper-drc-rs/Cargo.toml` and reinstall."
-        )
-        if required:
-            print(f"{label}: {msg}", file=sys.stderr)
-            return 1
-        print(f"{label}: {msg}", file=sys.stderr)
-        return 0
-
-    print(f"OK: {MODULE_NAME} present and fresh -- symbols {expected} all found.")
-    return 0
+    results = [
+        _check_module(module_name, lib_rs, required=required)
+        for module_name, lib_rs in MODULE_SPECS
+    ]
+    return 0 if all(results) or not required else 1
 
 
 if __name__ == "__main__":

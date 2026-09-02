@@ -839,8 +839,8 @@ def _is_hv_net(name: str) -> bool:
     if name in _HV_NET_PATTERNS:
         return True
     # Same string-only, manifest-backed classifier
-    # `router_v6.clearance_check._get_required_clearance` already uses to
-    # answer this exact question -- `elec/domain_manifest.yaml` is this
+    # The router_v6 Rust clearance adapter already uses to answer this exact
+    # question -- `elec/domain_manifest.yaml` is this
     # project's canonical, human-reviewed HV/SELV declaration, and
     # `_is_hv_keyword_match` is its audited word-boundary keyword fallback
     # (with the `_SELV_LINE_NET_OVERRIDES` guard against the "LINE"

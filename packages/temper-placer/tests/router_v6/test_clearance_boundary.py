@@ -21,10 +21,6 @@ from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.clearance_check import (
     ClearanceReport,
     ClearanceViolation,
-    _calculate_minimum_clearance,
-    _get_required_clearance,
-    _point_to_segment_dist,
-    _segment_to_segment_dist,
     verify_clearance,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
@@ -199,7 +195,7 @@ def test_clearance_threshold_nonpositive_behavior(min_clearance, expect_pass):
     + [(1e6, 12.00)],  # extreme
 )
 def test_voltage_bracket_transitions(voltage, expected_creepage):
-    """``_get_required_clearance`` bracket transitions for HV nets.
+    """Clearance engine's voltage bracket transitions remain covered.
 
     Each voltage is at or just past a bracket boundary defined by
     ``_calculate_required_creepage``.
@@ -210,43 +206,6 @@ def test_voltage_bracket_transitions(voltage, expected_creepage):
     assert hv_creepage == pytest.approx(expected_creepage), (
         f"Voltage {voltage}V → expected creepage {expected_creepage}, got {hv_creepage}"
     )
-
-    # Now check that _get_required_clearance picks at least the
-    # HV creepage when an HV net is involved.
-    req = _get_required_clearance(
-        "HV_BUS",
-        "SIG1",
-        default_clearance=0.127,
-        voltage_ratings={"HV_BUS": voltage},
-    )
-    assert req >= expected_creepage
-
-
-@pytest.mark.parametrize(
-    "voltage, desc",
-    [
-        *[(v, f"zero_{i}") for i, v in enumerate(VOLTAGE_ZERO)],
-        *[(v, f"negative_{i}") for i, v in enumerate(VOLTAGE_NEGATIVE)],
-        *[(v, f"nan_{i}") for i, v in enumerate(VOLTAGE_NAN)],
-        *[(v, f"inf_{i}") for i, v in enumerate(VOLTAGE_INF)],
-        *[(v, f"extreme_{i}") for i, v in enumerate(VOLTAGE_EXTREME)],
-    ],
-)
-def test_voltage_boundary_values(voltage, desc):
-    """``_get_required_clearance`` with boundary voltage values in the
-    ratings dict.
-
-    The function should not crash; NaN/inf voltages fall back to the
-    230 V default.
-    """
-    req = _get_required_clearance(
-        "HV_BUS",
-        "SIG1",
-        default_clearance=0.127,
-        voltage_ratings={"HV_BUS": voltage},
-    )
-    assert isinstance(req, float)
-
 
 # ============================================================================
 # 3 — Coordinate boundaries
@@ -348,8 +307,8 @@ def test_coordinate_boundary_normal_segments(coords, desc):
 def test_trace_width_boundary(width, desc):
     """Edge-to-edge clearance with boundary trace widths.
 
-    The ``_calculate_minimum_clearance`` function subtracts
-    ``width/2`` from the centreline distance.  Zero width is fine;
+    The live clearance engine subtracts ``width/2`` from the centreline
+    distance.  Zero width is fine;
     negative width effectively *adds* to clearance; NaN/inf width
     may produce anomalous results but should not crash.
     """
@@ -641,232 +600,6 @@ def test_empty_input_pass_rate_zero_checks():
 # ============================================================================
 # 8 — Low-level geometry function boundaries
 # ============================================================================
-
-
-class TestPointToSegmentDist:
-    """Boundary tests for ``_point_to_segment_dist``."""
-
-    def test_degenerate_segment_same_point(self):
-        """Segment a==b — degenerate case, distance to point a."""
-        dist, cp, p = _point_to_segment_dist(
-            (5.0, 0.0),
-            (3.0, 3.0),
-            (3.0, 3.0),
-        )
-        assert dist == pytest.approx(math.hypot(5 - 3, 0 - 3))
-        assert cp == (3.0, 3.0)
-        assert p == (5.0, 0.0)
-
-    def test_point_on_segment(self):
-        """Point lies exactly on the segment."""
-        dist, cp, p = _point_to_segment_dist(
-            (5.0, 5.0),
-            (0.0, 0.0),
-            (10.0, 10.0),
-        )
-        assert dist == pytest.approx(0.0, abs=1e-10)
-        assert cp == pytest.approx((5.0, 5.0))
-
-    def test_point_at_endpoint(self):
-        """Point coincides with segment endpoint."""
-        dist, cp, p = _point_to_segment_dist(
-            (0.0, 0.0),
-            (0.0, 0.0),
-            (10.0, 0.0),
-        )
-        assert dist == pytest.approx(0.0, abs=1e-10)
-        assert cp == (0.0, 0.0)
-
-    @pytest.mark.parametrize(
-        "px, py, desc",
-        [
-            (float("nan"), 0.0, "nan_x"),
-            (0.0, float("nan"), "nan_y"),
-            (float("inf"), 0.0, "inf_x"),
-            (0.0, float("inf"), "inf_y"),
-        ],
-    )
-    def test_nan_inf_point(self, px, py, desc):
-        """Point with NaN/inf coordinate — should not crash.
-
-        Currently the implementation propagates NaN/inf through
-        the arithmetic; this test characterises that behaviour.
-        """
-        try:
-            dist, cp, p = _point_to_segment_dist(
-                (px, py),
-                (0.0, 0.0),
-                (10.0, 0.0),
-            )
-        except Exception:
-            pytest.xfail(f"NaN/inf point ({desc}) crashes _point_to_segment_dist")
-
-        # NaN distances won't compare meaningfully; just check no crash
-        if math.isnan(px) or math.isnan(py):
-            assert math.isnan(dist)
-        # inf distances: may be inf or NaN depending on arithmetic path
-
-
-class TestSegmentToSegmentDist:
-    """Boundary tests for ``_segment_to_segment_dist``."""
-
-    def test_both_degenerate(self):
-        """Both segments are points."""
-        dist, cp1, cp2 = _segment_to_segment_dist(
-            (1.0, 0.0),
-            (1.0, 0.0),
-            (4.0, 0.0),
-            (4.0, 0.0),
-        )
-        assert dist == pytest.approx(3.0)
-        assert cp1 == (1.0, 0.0)
-        assert cp2 == (4.0, 0.0)
-
-    def test_one_degenerate_first(self):
-        """First segment is a point, second is a real segment."""
-        dist, cp1, cp2 = _segment_to_segment_dist(
-            (5.0, 0.0),
-            (5.0, 0.0),
-            (0.0, 3.0),
-            (10.0, 3.0),
-        )
-        assert dist == pytest.approx(3.0)
-        assert cp1 == (5.0, 0.0)
-        assert cp2 == (5.0, 3.0)
-
-    def test_one_degenerate_second(self):
-        """Second segment is a point, first is a real segment."""
-        dist, cp1, cp2 = _segment_to_segment_dist(
-            (0.0, 3.0),
-            (10.0, 3.0),
-            (5.0, 0.0),
-            (5.0, 0.0),
-        )
-        assert dist == pytest.approx(3.0)
-        assert cp1 == (5.0, 3.0)
-        assert cp2 == (5.0, 0.0)
-
-    def test_intersecting(self):
-        """Two segments that cross."""
-        dist, cp1, cp2 = _segment_to_segment_dist(
-            (0.0, 0.0),
-            (10.0, 10.0),
-            (0.0, 10.0),
-            (10.0, 0.0),
-        )
-        assert dist == pytest.approx(0.0, abs=1e-10)
-        assert cp1 == pytest.approx((5.0, 5.0))
-        assert cp2 == pytest.approx((5.0, 5.0))
-
-    def test_parallel_offset(self):
-        """Parallel segments with an offset."""
-        dist, cp1, cp2 = _segment_to_segment_dist(
-            (0.0, 0.0),
-            (10.0, 0.0),
-            (0.0, 3.0),
-            (10.0, 3.0),
-        )
-        assert dist == pytest.approx(3.0)
-
-    def test_collinear_non_overlapping(self):
-        """Collinear, non-overlapping segments."""
-        dist, cp1, cp2 = _segment_to_segment_dist(
-            (0.0, 0.0),
-            (5.0, 0.0),
-            (10.0, 0.0),
-            (15.0, 0.0),
-        )
-        assert dist == pytest.approx(5.0)
-        assert cp1 == (5.0, 0.0)
-        assert cp2 == (10.0, 0.0)
-
-    @pytest.mark.parametrize(
-        "vals, desc",
-        [
-            ((float("nan"), 0.0, 10.0, 0.0, 0.0, 3.0, 10.0, 3.0), "nan_x1"),
-            ((0.0, float("nan"), 10.0, 0.0, 0.0, 3.0, 10.0, 3.0), "nan_y1"),
-            ((0.0, 0.0, float("nan"), 0.0, 0.0, 3.0, 10.0, 3.0), "nan_x2"),
-            ((0.0, 0.0, 0.0, float("nan"), 0.0, 3.0, 10.0, 3.0), "nan_y2"),
-            ((0.0, 0.0, 10.0, 0.0, float("nan"), 3.0, 10.0, 3.0), "nan_x3"),
-            ((0.0, 0.0, 10.0, 0.0, 0.0, float("nan"), 10.0, 3.0), "nan_y3"),
-            ((0.0, 0.0, 10.0, 0.0, 0.0, 3.0, float("nan"), 3.0), "nan_x4"),
-            ((0.0, 0.0, 10.0, 0.0, 0.0, 3.0, 10.0, float("nan")), "nan_y4"),
-            # inf variants
-            ((float("inf"), 0.0, 10.0, 0.0, 0.0, 3.0, 10.0, 3.0), "inf_x1"),
-            ((0.0, 0.0, 10.0, 0.0, 0.0, 3.0, float("inf"), 3.0), "inf_x4"),
-        ],
-    )
-    def test_nan_inf_coords(self, vals, desc):
-        """Segment-to-segment with NaN/inf coordinates.
-
-        Should not crash; distance may be NaN or inf.
-        """
-        try:
-            dist, cp1, cp2 = _segment_to_segment_dist(*vals)
-        except Exception:
-            pytest.xfail(f"NaN/inf in _segment_to_segment_dist ({desc}) crashes")
-
-        assert isinstance(dist, float)
-        # NaN distances are expected when NaN is in the *first* segment.
-        # NaN in the second segment doesn't affect closest-point from first.
-        any(math.isnan(v) for v in vals)
-        any_nan_first = any(math.isnan(v) for v in vals[:4])  # x1,y1,x2,y2
-        any(math.isinf(v) for v in vals)
-        if any_nan_first:
-            assert math.isnan(dist), f"Expected NaN distance with NaN in first segment, got {dist}"
-
-
-class TestCalculateMinimumClearance:
-    """Boundary tests for ``_calculate_minimum_clearance``."""
-
-    def test_no_segments(self):
-        """Routes with no path coordinates → no segments, safe."""
-        r1 = _make_route("NET1", [])
-        r2 = _make_route("NET2", [(0.0, 0.0), (10.0, 0.0)])
-        dist, loc, layer = _calculate_minimum_clearance(r1, r2)
-        assert dist == float("inf")
-        assert loc == (0.0, 0.0)
-        assert layer == "unknown"
-
-    def test_no_segments_both(self):
-        """Both routes have no segments."""
-        r1 = _make_route("NET1", [])
-        r2 = _make_route("NET2", [])
-        dist, loc, layer = _calculate_minimum_clearance(r1, r2)
-        assert dist == float("inf")
-
-    def test_different_layers(self):
-        """Routes on different layers should have infinite clearance.
-
-        Only same-layer segments are compared.
-        """
-        r1 = _make_route("NET1", [(0.0, 0.0), (10.0, 0.0)], layer="F.Cu")
-        r2 = _make_route("NET2", [(0.0, 0.0), (10.0, 0.0)], layer="B.Cu")
-        dist, loc, layer = _calculate_minimum_clearance(r1, r2)
-        assert dist == float("inf")
-        assert layer == "unknown"
-
-    def test_overlap_negative_clearance(self):
-        """Overlapping traces → negative edge distance."""
-        r1 = _make_route("NET1", [(0.0, 0.0), (10.0, 0.0)], width=0.5)
-        r2 = _make_route("NET2", [(0.0, 0.1), (10.0, 0.1)], width=0.5)
-        dist, loc, layer = _calculate_minimum_clearance(r1, r2)
-        assert dist < 0, f"Expected negative clearance for overlap, got {dist}"
-
-    def test_width_default_zero(self):
-        """Routes without ``width_mm`` attribute default to 0.0."""
-
-        # Simulate a route without width_mm via a plain object
-        class _BareRoute:
-            pass
-
-        r = _BareRoute()
-        r.path = RoutePath("X", [(0.0, 0.0), (10.0, 0.0)], "F.Cu", 10.0)
-        # No width_mm attribute
-
-        r2 = _make_route("NET2", [(0.0, 0.5), (10.0, 0.5)], width=0.0)
-        dist, loc, layer = _calculate_minimum_clearance(r, r2)
-        assert dist == pytest.approx(0.5)
 
 
 class TestClearanceViolationProperties:

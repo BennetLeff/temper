@@ -341,9 +341,10 @@ OPEN_FINDINGS: tuple[OpenFinding, ...] = (
     OpenFinding(
         name="hv_keyword_boundary_match (deliberately re-diverged, registry was stale)",
         sites=(
-            "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py:857 "
-            "(_is_hv_keyword_match -- boundary is (?:^|[_-])kw(?:$|[\\d_-]), BOTH "
-            "'_' and '-' are boundary characters)",
+            "packages/temper-drc-rs/src/router_clearance.rs:312 "
+            "(classify_net_class -- Rust-owned replacement for the former "
+            "clearance_check.py classifier; boundary is (?:^|[_-])kw(?:$|[\\d_-]), "
+            "BOTH '_' and '-' are boundary characters)",
             "packages/temper-geometry/src/via_clearance.rs:208 (kw_boundary_match_py, "
             "via word_bounded at :168 -- boundary is (?:^|_)kw(?:$|[\\d_]), '_' ONLY, "
             "'-' is never a boundary character)",
@@ -374,7 +375,7 @@ OPEN_FINDINGS: tuple[OpenFinding, ...] = (
             "URGENT -- audited, deliberately NOT widened' docstring records that this "
             "kernel's only callers (_kw_boundary_match, _net_class_to_voltage_class) "
             "receive already-classified short net-CLASS labels ('HV', 'Signal', ...) "
-            "produced by clearance_check._classify_net_class, never raw hyphenated net "
+            "produced by the Rust-owned Router V6 classifier, never raw hyphenated net "
             "NAMES directly -- board-wide simulation of all 162 real net names "
             "confirmed zero live exposure through this narrower path, and widening it "
             "would break test_via_clearance_tier2_rust_differential.py's byte-verbatim "
