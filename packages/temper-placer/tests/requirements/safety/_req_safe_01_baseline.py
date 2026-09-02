@@ -53,15 +53,16 @@ from __future__ import annotations
 from typing import Any
 
 # (metric, insulation_type, required_mm, pair_kind) -> count.
-# Measured 2026-08-25 on pcb/temper.kicad_pcb via verify_iec60335_compliance.
+# Re-measured 2026-08-26 on pcb/temper.kicad_pcb via
+# verify_iec60335_compliance after the #1521 and #1523 board moves.
 REQ_SAFE_01_BASELINE: dict[tuple[str, str, float, str], int] = {
     # Same-domain functional insulation. #1226 raised this bar 1.0 -> 1.8mm.
-    # 28 -> 27 with the C6 move in this PR.
-    ("creepage", "FUNCTIONAL", 1.8, "inter"): 26,
+    # #1521's U21/R48 move removed one further violation: 26 -> 25.
+    ("creepage", "FUNCTIONAL", 1.8, "inter"): 25,
     # The mains<->SELV reinforced barrier at the PD3 12.6mm figure (#1229).
-    # 32 -> 31: the C6 move alone took this to 34 (it landed C6 nearer R6 at
-    # 7.231mm and R23 at 7.598mm), and the R56 move more than pays that back.
-    ("creepage", "REINFORCED", 12.6, "inter"): 30,
+    # #1521's U21/R48 move removed two violations, then #1523's U13 move
+    # removed one more: 30 -> 28 -> 27.
+    ("creepage", "REINFORCED", 12.6, "inter"): 27,
     # Package-intrinsic straddlers: U6 8.100mm, T1/T2 9.100mm. Placement
     # CANNOT fix these -- a footprint carries its own pads. They are the open
     # Question A of docs/evidence/
@@ -76,7 +77,7 @@ REQ_SAFE_01_BASELINE: dict[tuple[str, str, float, str], int] = {
     ("clearance", "REINFORCED", 6.0, "inter"): 1,
 }
 
-REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 61
+REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 57
 
 
 def req_safe_01_strata(result: Any) -> dict[tuple[str, str, float, str], int]:
