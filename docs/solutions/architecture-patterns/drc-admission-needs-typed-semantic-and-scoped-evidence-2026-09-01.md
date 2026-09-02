@@ -192,6 +192,28 @@ and a proof index. A candidate can be remeasured from the bound board and
 instruction under the same baseline and tool context; the stored digest then
 reveals whether the resulting canonical payload is byte-identical.
 
+### Read the terminal outcome as an engineering result
+
+After the instrument and checkpoint fixes, the unchanged campaign closed all
+2,880 declared candidates without an instrument error or an untested eligible
+candidate. Every candidate reached conclusive pre-route admission; none reached
+routing. The Rust terminal receipt therefore reports `exhausted`, not
+`instrument-error` and not `route-budget-exhausted`.
+
+The uniform veto pattern is more useful than a generic zero-survivor result:
+all 2,880 candidates failed netlist reconciliation, had one containment
+failure, and worsened one safety signature. Courtyard-overlap deltas varied
+(720 candidates added none, 1,680 added one, and 480 added two), but eliminating
+that delta alone cannot admit a candidate. The DRC instrument independently
+reported zero worsened hard observations and zero new scoped-silk findings for
+every candidate. The production board and DRC ceiling hashes were identical
+before and after the campaign.
+
+That outcome moves the next design unit upstream of routing. The next search
+must correct the candidate topology, containment, and safety-signature model by
+construction before spending a route budget; tuning dogleg geometry against
+these same pre-route boards cannot produce an admissible result.
+
 ## Why This Matters
 
 DRC output is an instrument reading, not a self-interpreting truth. Raw
