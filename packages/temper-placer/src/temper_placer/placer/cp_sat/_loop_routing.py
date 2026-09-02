@@ -204,8 +204,17 @@ class _LoopRoutingMixin:
             )
 
             placed = _apply_placements_to_pcb(raw_pcb, placements)
-        except ImportError:
-            placed = raw_pcb
+        except ImportError as e:
+            # Was `placed = raw_pcb`: on import failure this wrote the
+            # *unplaced* board to the temp file and handed it downstream as
+            # though the placements had been applied. Every consumer then
+            # measured the wrong board with no indication anything was off.
+            raise ImportError(
+                "temper_placer.router_v6.adapter is required to apply "
+                "placements to the board and could not be imported. This is "
+                "a broken temper-placer install, not an optional feature -- "
+                "reinstall with: uv sync"
+            ) from e
 
         fd, temp_path = tempfile.mkstemp(suffix=".kicad_pcb")
         with os.fdopen(fd, "w", encoding="utf-8") as f:

@@ -165,10 +165,10 @@ scripts:
   - yaml
 - path: check_ato_assertion_vacuity.py
   purpose: 'CI gate: find electrical assertions in elec/**/*.ato that cannot fail. Parses the .ato sources
-    directly (no atopile install needed), elaborates each assertion''s dependency closure, classifies every
-    terminal quantity as CIRCUIT (a part value that drives behaviour) / RATING (a datasheet limit) / SPEC
-    (a hand-typed constant), then perturbs each leaf across 1e-6..1e6 and reports the assertions whose
-    outcome never changes. Catches the 2026-08-17 defect class: PowerInput checking fuse/CMC current
+    directly (no atopile install needed), elaborates each assertion''s dependency closure, classifies
+    every terminal quantity as CIRCUIT (a part value that drives behaviour) / RATING (a datasheet limit)
+    / SPEC (a hand-typed constant), then perturbs each leaf across 1e-6..1e6 and reports the assertions
+    whose outcome never changes. Catches the 2026-08-17 defect class: PowerInput checking fuse/CMC current
     ratings against the DECLARED 15A rather than the ~27A the doubler draws, and main.ato''s p_output_max
     pinned to the unreachable end of its own within-band. Shrink-only ledger in .ato-assertion-vacuity-inventory;
     fails closed on scope evaporation, an unclassifiable component attribute, or an unresolvable reference.'
@@ -184,7 +184,6 @@ scripts:
   - dataclasses
   - pathlib
   - sys
-  - typing
 - path: check_board_containment.py
   purpose: 'Board-containment gate (R26 invariant, owning gate of the board-defect corpus''s off-board
     class): every footprint''s pad copper must lie inside the Edge.Cuts outline. Closes the class no gate
@@ -466,33 +465,31 @@ scripts:
   - pathlib
   - sys
 - path: check_clone_drift.py
-  purpose: 'CI gate: fail when a registered clone-function PAIR''s live normalized-AST similarity
-    falls below its registered floor (scripts/clone_drift_registry.py''s PAIRED_FUNCTIONS). Closes
-    the 2026-08-17 stitch-congestion finding that _power_islands.py was cloned from a pre-fix
-    _ground_plane.py and never received a foreign-copper collision-check fix (+77 shorting_items,
-    PR #1329, fixed by PR #1332) -- distinct from check_duplicate_predicates.py (a NEW copy of an
-    ALREADY-consolidated predicate) and check_fact_registry_drift.py (a scalar fact disagreeing
-    across homes): this catches two functions that WERE clones drifting apart structurally because
-    a fix landed in one twin and not the other.'
+  purpose: 'CI gate: fail when a registered clone-function PAIR''s live normalized-AST similarity falls
+    below its registered floor (scripts/clone_drift_registry.py''s PAIRED_FUNCTIONS). Closes the 2026-08-17
+    stitch-congestion finding that _power_islands.py was cloned from a pre-fix _ground_plane.py and never
+    received a foreign-copper collision-check fix (+77 shorting_items, PR #1329, fixed by PR #1332) --
+    distinct from check_duplicate_predicates.py (a NEW copy of an ALREADY-consolidated predicate) and
+    check_fact_registry_drift.py (a scalar fact disagreeing across homes): this catches two functions
+    that WERE clones drifting apart structurally because a fix landed in one twin and not the other.'
   owner: pipeline
   last_run: '2026-08-18'
   category: keep
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.github_summary
+  - _lib.repo
   - argparse
   - clone_drift_registry
   - pathlib
   - sys
-  - _lib.github_summary
-  - _lib.repo
 - path: clone_drift_registry.py
-  purpose: 'SSOT for function PAIRS known to have been cloned from one another (scanned by
-    check_clone_drift.py). Normalized-AST structural similarity (Name/Constant/arg leaves
-    collapsed to placeholders, Call TARGETS and control-flow shape preserved) via
-    difflib.SequenceMatcher, compared against a registered per-pair floor. Mirrors
-    duplicate_predicate_registry.py''s explicit hand-reviewed-registry rationale, applied to
-    clone-then-diverge rather than new-independent-copy. See docs/evidence/2026-08-18-clone-drift-gate.md.'
+  purpose: SSOT for function PAIRS known to have been cloned from one another (scanned by check_clone_drift.py).
+    Normalized-AST structural similarity (Name/Constant/arg leaves collapsed to placeholders, Call TARGETS
+    and control-flow shape preserved) via difflib.SequenceMatcher, compared against a registered per-pair
+    floor. Mirrors duplicate_predicate_registry.py's explicit hand-reviewed-registry rationale, applied
+    to clone-then-diverge rather than new-independent-copy. See docs/evidence/2026-08-18-clone-drift-gate.md.
   owner: pipeline
   last_run: '2026-08-18'
   category: keep
@@ -505,24 +502,24 @@ scripts:
   - pathlib
   - sys
 - path: find_clone_pairs.py
-  purpose: 'Discovery sweep (NOT wired into CI, human-run audit tool): directory-scoped pairwise
-    normalized-AST-similarity scan across scripts/packages/elec/firmware Python files, ranking
-    candidate clone-pair functions for a human to review and, if genuine, register in
-    scripts/clone_drift_registry.py. Reuses clone_drift_registry''s own normalize_function_ast/
-    similarity so a reported candidate score is directly comparable to a registered floor.'
+  purpose: 'Discovery sweep (NOT wired into CI, human-run audit tool): directory-scoped pairwise normalized-AST-similarity
+    scan across scripts/packages/elec/firmware Python files, ranking candidate clone-pair functions for
+    a human to review and, if genuine, register in scripts/clone_drift_registry.py. Reuses clone_drift_registry''s
+    own normalize_function_ast/ similarity so a reported candidate score is directly comparable to a registered
+    floor.'
   owner: pipeline
   last_run: '2026-08-18'
   category: keep
   disposition: utility
   imports:
   - __future__
+  - _lib.repo
   - argparse
   - ast
   - clone_drift_registry
   - collections
   - pathlib
   - sys
-  - _lib.repo
 - path: check_erc_off_grid_consequence.py
   purpose: 'Classify ERC endpoint_off_grid warnings (163 of 498 on pcb/temper.kicad_sch as of 2026-08-07)
     by electrical consequence: cross-checks each off-grid pin''s actual schematic net (kicadxml export,
@@ -1737,6 +1734,22 @@ scripts:
   - importlib.util
   - pathlib
   - sys
+- path: check_import_fallback_hygiene.py
+  purpose: Fail closed when first-party ImportError handlers swallow broken installs or silently return
+    passing sentinel values
+  owner: pipeline
+  last_run: '2026-09-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
+  - tomllib
+  - yaml
 - path: check_unwired_kernels.py
   purpose: 'CI gate: fail when a Rust kernel is registered into a Python module but no non-test code calls
     it. Closes the gap that let 4,096 LOC of proven-but-inert kernels merge across PRs #749/#750/#751
@@ -2630,14 +2643,23 @@ scripts:
   - pathlib
   - sys
 - path: capture_astar_backbone_corpus.py
-  purpose: Records every corridor-backbone A* search one full route performs, as the fixture the
-    Rust port's differential replays. Those grids exist nowhere on disk -- they are rasterized
-    mid-run from the board polygon, the HV keepout, other nets' clearance polygons AND the F.Cu
-    copper the same run already emitted -- so a differential for that search cannot be fed from
-    pcb/temper.kicad_pcb alone. --verify-digest re-checks that the recording shim left the routed
-    board byte-identical, which is what makes the corpus a record of production rather than of an
-    instrumented variant of it. Reads the board; never writes it.
+  purpose: Records every corridor-backbone A* search one full route performs, as the fixture the Rust
+    port's differential replays. Those grids exist nowhere on disk -- they are rasterized mid-run from
+    the board polygon, the HV keepout, other nets' clearance polygons AND the F.Cu copper the same run
+    already emitted -- so a differential for that search cannot be fed from pcb/temper.kicad_pcb alone.
+    --verify-digest re-checks that the recording shim left the routed board byte-identical, which is what
+    makes the corpus a record of production rather than of an instrumented variant of it. Reads the board;
+    never writes it.
   owner: bennet
+  imports:
+  - __future__
+  - argparse
+  - hashlib
+  - json
+  - numpy
+  - pathlib
+  - sys
+  - time
 - path: route_board.py
   purpose: The routing entry point, and what `make route` invokes; supersedes internal_route.py, which
     was deleted 2026-08-04 as import-dead (see module docstring). --output is mandatory and refuses to

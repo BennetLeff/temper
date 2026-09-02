@@ -27,6 +27,7 @@ from temper_placer.physics.gate_drive import (
     gate_drive_loop_area,
     gate_drive_spacing,
 )
+from temper_placer.physics.loop_area import MeasurementError
 
 
 @dataclass
@@ -238,12 +239,25 @@ def test_min_spacing_empty_arm_returns_none():
 
 
 def test_gate_drive_loop_area_nonexistent_pcb():
+    """An unparseable board raises rather than returning ``None``.
+
+    Strengthened 2026-08-18. This assertion used to be ``is None``, which
+    made "the board file is missing" indistinguishable from "the loop was
+    measured and there is nothing to flag" -- the exact conflation this
+    module's failure taxonomy now forbids. ``PhysicsGate.check()`` still
+    reports ``UNMEASURED`` either way (it catches ``Exception``), so the
+    gate verdict is unchanged; what changes is that the reason is no
+    longer swallowed.
+    """
     from pathlib import Path
 
-    assert gate_drive_loop_area(Path("/nonexistent/x.kicad_pcb"), "GATE_HS") is None
+    with pytest.raises(MeasurementError, match="could not parse board"):
+        gate_drive_loop_area(Path("/nonexistent/x.kicad_pcb"), "GATE_HS")
 
 
 def test_gate_drive_spacing_nonexistent_pcb():
+    """Spacing shares :func:`gate_drive_loop_area`'s fail-closed contract."""
     from pathlib import Path
 
-    assert gate_drive_spacing(Path("/nonexistent/x.kicad_pcb"), "GATE_HS") is None
+    with pytest.raises(MeasurementError, match="could not parse board"):
+        gate_drive_spacing(Path("/nonexistent/x.kicad_pcb"), "GATE_HS")

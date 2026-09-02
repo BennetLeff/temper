@@ -17,9 +17,33 @@ net-name SSOT correction documented in the evidence doc)::
     gate_drive_loop_area(pcb: Path, gate_net: str) -> float | None
     gate_drive_spacing(pcb: Path, gate_net: str) -> float | None
 
-Both return ``None`` on measurement failure -- fail-closed, never a false
-0.0/"clean" (mirrors ``physics/loop_area.py::commutation_loop_area``'s own
-contract for sub-check 1).
+Failure taxonomy (tightened 2026-08-18)
+---------------------------------------------------------------------
+``None`` used to mean three unrelated things at once: "a dependency is
+missing", "the parse blew up", and "this board's topology genuinely does
+not support the measurement". At the call site those are
+indistinguishable, which is precisely the "silently fails open" hazard --
+a check that reports nothing because an import failed looks identical to
+a check that reports nothing because it found nothing to flag. They are
+now split:
+
+* **Broken install / broken build** -- a missing first-party module or a
+  missing Rust extension (``temper_geometry``, ``temper_drc_rs``) raises
+  ``ImportError`` naming the package and how to build it. A missing
+  extension is a broken build, not a runtime mode.
+* **Measurement precondition failure** -- the board file cannot be parsed
+  -- raises :class:`~temper_placer.physics.loop_area.MeasurementError`.
+  Previously a bare ``except Exception: return None`` swallowed genuine
+  parser bugs here as if they were clean results.
+* **Genuinely unmeasurable topology** -- no switch found, ambiguous
+  return net, or an arm of the loop carries no routed copper -- still
+  returns ``None`` (the caller must report ``UNMEASURED``, never a false
+  0.0), but now logs the *specific* reason at WARNING so the disabled
+  state is observable rather than silent.
+
+``PhysicsGate.check()`` turns all three into ``UNMEASURED``; it never
+turns any of them into ``CLEAN``, so this tightening changes the
+diagnosis, not the verdict.
 
 Design plan intent vs. what is actually reachable on the real board
 ---------------------------------------------------------------------
@@ -93,13 +117,17 @@ approximation is pre-existing production precedent, not introduced here).
 
 from __future__ import annotations
 
+import logging
 import re
-
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
+from temper_placer.physics.loop_area import MeasurementError
+
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Netlist
+
+logger = logging.getLogger(__name__)
 
 _MAX_FORWARD_HOPS = 4
 _SWITCH_FOOTPRINT_MARKERS: tuple[str, ...] = ("TO-247", "TO-220", "TO-263")
@@ -193,28 +221,67 @@ def _resolve_gate_loop(
 ) -> tuple[list[_TraceLike], list[_TraceLike]] | None:
     try:
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-    except ImportError:
-        return None
+    except ImportError as e:  # pragma: no cover - broken install
+        raise ImportError(
+            "temper_placer.io.kicad_parser is required to measure the "
+            "gate-drive loop and could not be imported. This is a broken "
+            "temper-placer install, not an optional feature -- reinstall "
+            "with: uv sync"
+        ) from e
 
     try:
         result = parse_kicad_pcb(routed_pcb_path)
-    except Exception:
-        return None
+    except Exception as e:
+        raise MeasurementError(
+            f"gate-drive: could not parse board {routed_pcb_path}: {e}"
+        ) from e
 
     netlist = result.netlist
     trace_data: list[_TraceLike] = list(result.traces)
 
     walked = _walk_forward(netlist, gate_net)
     if walked is None:
+        logger.warning(
+            "gate-drive %s: UNMEASURED -- no unique power switch reachable "
+            "from this net within %d hops (checked footprint markers %s)",
+            gate_net,
+            _MAX_FORWARD_HOPS,
+            ", ".join(_SWITCH_FOOTPRINT_MARKERS),
+        )
         return None
     forward_nets, switch = walked
 
     return_net = _pick_return_net(switch, forward_nets)
     if return_net is None:
+        logger.warning(
+            "gate-drive %s: UNMEASURED -- return net ambiguous or absent on "
+            "switch %s (remaining nets: %s)",
+            gate_net,
+            switch.ref,
+            sorted({p.net for p in switch.pins if p.net and p.net not in forward_nets}),
+        )
         return None
 
     go_traces = [t for t in trace_data if t.net in forward_nets]
     return_traces = [t for t in trace_data if t.net == return_net]
+
+    # An arm with no routed copper is the dominant real-board outcome and
+    # was previously indistinguishable from "measured, nothing wrong".
+    # Name the offending net(s) so the operator can see *which* conductor
+    # is missing rather than just that the number is absent.
+    if not go_traces or not return_traces:
+        logger.warning(
+            "gate-drive %s: UNMEASURED -- loop arm carries no routed copper "
+            "(go nets %s: %d segments; return net %r: %d segments). The net "
+            "exists in the netlist but nothing routes it, so there is no "
+            "conductor geometry to measure.",
+            gate_net,
+            sorted(forward_nets),
+            len(go_traces),
+            return_net,
+            len(return_traces),
+        )
+
     return go_traces, return_traces
 
 
@@ -328,30 +395,65 @@ def _hull_area(go_traces: list[_TraceLike], return_traces: list[_TraceLike]) -> 
         points.add((round(t.end[0], 3), round(t.end[1], 3)))
 
     if len(points) < 3:
+        logger.warning(
+            "gate-drive: UNMEASURED -- loop has %d unique endpoint(s), need "
+            ">= 3 to form a hull",
+            len(points),
+        )
         return None
 
-    import temper_geometry
+    try:
+        import temper_geometry
+    except ImportError as e:  # pragma: no cover - broken build
+        raise ImportError(
+            "The temper_geometry Rust extension is required for gate-drive "
+            "loop-area measurement and is not built. A missing extension is "
+            "a broken build, not an optional mode -- build it with: "
+            "make extensions"
+        ) from e
 
     flat: list[float] = [c for p in sorted(points) for c in (float(p[0]), float(p[1]))]
+    # A kernel that throws is a defect in the kernel or its inputs, not a
+    # clean board. Surfacing it as MeasurementError keeps it out of the
+    # "measured, nothing wrong" bucket.
     try:
         return float(temper_geometry.convex_hull_area_py(flat))
-    except Exception:
-        return None
+    except Exception as e:
+        raise MeasurementError(
+            f"gate-drive: convex_hull_area_py failed on {len(points)} points: {e}"
+        ) from e
 
 
 def _min_spacing(go_traces: list[_TraceLike], return_traces: list[_TraceLike]) -> float | None:
     if not go_traces or not return_traces:
         return None
 
-    import temper_drc_rs
+    try:
+        import temper_drc_rs
+    except ImportError as e:  # pragma: no cover - broken build
+        raise ImportError(
+            "The temper_drc_rs Rust extension is required for gate-drive "
+            "spacing measurement and is not built. A missing extension is a "
+            "broken build, not an optional mode -- build it with: "
+            "make extensions"
+        ) from e
 
     go = [(float(t.start[0]), float(t.start[1]), float(t.end[0]), float(t.end[1])) for t in go_traces]
     ret = [(float(t.start[0]), float(t.start[1]), float(t.end[0]), float(t.end[1])) for t in return_traces]
     try:
         value = float(temper_drc_rs.min_hv_lv_trace_clearance(go, ret))
-    except Exception:
-        return None
+    except Exception as e:
+        raise MeasurementError(
+            f"gate-drive: min_hv_lv_trace_clearance failed "
+            f"({len(go)} go / {len(ret)} return segments): {e}"
+        ) from e
 
     if value == float("inf"):
+        logger.warning(
+            "gate-drive: UNMEASURED -- spacing kernel returned infinity for "
+            "%d go / %d return segments (no comparable pair)",
+            len(go),
+            len(ret),
+        )
         return None
     return value

@@ -286,10 +286,17 @@ def test_filters_by_net():
 
 
 def test_commutation_loop_area_nonexistent_pcb():
-    """Non-existent file returns None (graceful failure)."""
+    """An unparseable board raises rather than returning ``None``.
+
+    Strengthened 2026-08-18. "Graceful failure" here used to mean the
+    caller could not tell a missing board file apart from a measured,
+    unremarkable loop -- both arrived as ``None``. ``PhysicsGate.check()``
+    reports ``UNMEASURED`` for either, so the gate verdict is unchanged;
+    the reason is simply no longer swallowed.
+    """
     path = Path("/nonexistent/pcb.kicad_pcb")
-    result = commutation_loop_area(path)
-    assert result is None
+    with pytest.raises(MeasurementError, match="could not parse board"):
+        commutation_loop_area(path)
 
 
 # ---------------------------------------------------------------------------

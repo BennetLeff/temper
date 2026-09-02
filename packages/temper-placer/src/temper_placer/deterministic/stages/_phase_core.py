@@ -173,8 +173,15 @@ class _PhaseCoreMixin:
         """The router_v6 DRC-fence call-back (register + run the HV
         validator on the new state). Stays Python: the validator and the
         ``stage_validators`` registry are router_v6 surface (the D4
-        ``StageDRCFailure`` convention). ImportError is swallowed exactly
-        like the pre-migration run() body."""
+        ``StageDRCFailure`` convention).
+
+        Fail-closed since 2026-08-18. This used to end ``except
+        ImportError: pass`` -- "swallowed exactly like the pre-migration
+        run() body" -- which meant that if the HV validator or the
+        validator registry could not be imported, the high-voltage DRC
+        fence simply did not run and the stage returned as though it had
+        passed. Both imports are first-party; failing to import them is a
+        bug, and pass destroyed the evidence of it."""
         logger = logging.getLogger(__name__)
         try:
             from temper_placer.deterministic.stages.phased_component_assignment_validator import (
@@ -188,8 +195,13 @@ class _PhaseCoreMixin:
             if failures:
                 for f in failures:
                     logger.warning(f"DRC fence failure: {f}")
-        except ImportError:
-            pass
+        except ImportError as e:
+            raise ImportError(
+                "The phased-assignment HV validator and the router_v6 "
+                "stage-validator registry are required to run the DRC fence "
+                "and could not be imported. This is a broken temper-placer "
+                "install, not an optional feature -- reinstall with: uv sync"
+            ) from e
 
 class _PhasePlacementMixin:
     """Placement-phase methods for phased component assignment.

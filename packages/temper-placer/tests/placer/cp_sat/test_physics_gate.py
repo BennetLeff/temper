@@ -381,6 +381,21 @@ def test_physics_unmeasured_missing_file():
     assert result.error_message
 
 
+def test_physics_unmeasured_when_one_gate_drive_metric_is_missing(monkeypatch, tmp_path):
+    from temper_placer.physics import gate_drive, loop_area
+
+    monkeypatch.setattr(loop_area, "commutation_loop_area", lambda _path: 1.0)
+    monkeypatch.setattr(gate_drive, "gate_drive_loop_area", lambda _path, _net: None)
+    monkeypatch.setattr(gate_drive, "gate_drive_spacing", lambda _path, _net: 2.0)
+
+    pcb = tmp_path / "board.kicad_pcb"
+    pcb.write_text("")
+    result = PhysicsGate().check(BoardState(routed_pcb_path=pcb))
+
+    assert result.status is GateStatus.UNMEASURED
+    assert "area measurement failed" in (result.error_message or "")
+
+
 # =========================================================================
 # PhysicsGate — metadata
 # =========================================================================

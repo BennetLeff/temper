@@ -166,8 +166,17 @@ def _ensure_checks_loaded(fence, invariants: tuple) -> None:
             TraceClearanceCheck,
             ViaSpacingCheck,
         )
-    except ImportError:
-        return
+    except ImportError as e:
+        # Was a bare `return`, which skipped registering the via-spacing and
+        # trace-clearance DRC checks entirely. The verify stage then passed
+        # with those checks simply absent -- a silently smaller check set is
+        # indistinguishable from a clean board.
+        raise ImportError(
+            "temper_placer.validation.drc_result is required to register the "
+            "via-spacing and trace-clearance checks and could not be "
+            "imported. This is a broken temper-placer install, not an "
+            "optional feature -- reinstall with: uv sync"
+        ) from e
     if "drc_via_spacing" in missing:
         fence._runner.checks.append(ViaSpacingCheck())
     if "drc_trace_clearance" in missing:

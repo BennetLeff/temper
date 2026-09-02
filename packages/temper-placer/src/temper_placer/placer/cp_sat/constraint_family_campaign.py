@@ -420,7 +420,7 @@ def _frontier_add(frontier: object, key: object, result: ConstraintFamilyProbeRe
                 result.diagnostics,
             )
             return add(record)
-        except (ImportError, TypeError, ValueError):
+        except (TypeError, ValueError):
             try:
                 return add(result)
             except TypeError:

@@ -3262,6 +3262,25 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/import_linter_gate.py
 
+      - name: Import-fallback hygiene gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_import_fallback_hygiene.py -v --tb=short
+
+      # Fail-closed from day one, deliberately not soft-launched. This
+      # gate exists because `physics/gate_drive.py` -- the gate-drive
+      # loop-inductance sub-check on a board switching 44-50 kHz -- wrapped
+      # a first-party import in `except ImportError: return None`, and
+      # `PhysicsGate.check()` cannot tell that `None` apart from "measured
+      # the loop, found nothing". The sub-check had never once executed.
+      # `physics/loop_area.py` was worse: its hull kernel answered `0.0` on
+      # failure, which on a loop-AREA check is the most-passing value there
+      # is. Verified non-vacuous: run against the pre-fix tree it reports
+      # 19 violations including both of those files. See
+      # docs/evidence/2026-08-18-import-fallback-fail-open.md.
+      - name: Import-fallback hygiene gate (no silent fail-open on ImportError)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_import_fallback_hygiene.py
+
       - name: Physics soundness-proof register gate (R20)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/physics_soundness_register_gate.py

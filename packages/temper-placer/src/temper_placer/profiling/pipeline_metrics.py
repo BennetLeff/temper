@@ -101,21 +101,17 @@ def profile_loss_functions(
 
     try:
         from temper_placer.deterministic.dispatch import build_placement_loss
-    except ImportError:
-        rec = record_metrics_for_stage(
-            board=board_id,
-            stage="loss-fn",
-            module="loss-fn",
-            commit=commit,
-            metrics={
-                "overlap_ms": 0,
-                "spread_ms": 0,
-                "wirelength_ms": 0,
-                "boundary_ms": 0,
-                "total_step_ms": 0,
-            },
-        )
-        return [rec.to_dict()]
+    except ImportError as e:
+        # Was: record a full metrics row of literal zeros and return it. A
+        # 0 ms timing is not a neutral placeholder -- downstream it reads as
+        # an infinitely fast stage, and nothing distinguished it from a real
+        # measurement.
+        raise ImportError(
+            "temper_placer.deterministic.dispatch is required to profile the "
+            "placement loss functions and could not be imported. This is a "
+            "broken temper-placer install, not an optional feature -- "
+            "reinstall with: uv sync"
+        ) from e
 
     try:
         loss_fn = build_placement_loss(board_id)
@@ -201,8 +197,15 @@ def profile_router_benchmark(
 
     try:
         from temper_placer.router_v6.benchmark import run_benchmark_suite
-    except ImportError:
-        return []
+    except ImportError as e:
+        # Was `return []`, i.e. "the benchmark suite reported no rows" --
+        # identical to a suite that ran and produced nothing.
+        raise ImportError(
+            "temper_placer.router_v6.benchmark is required to profile the "
+            "router and could not be imported. This is a broken "
+            "temper-placer install, not an optional feature -- reinstall "
+            "with: uv sync"
+        ) from e
 
     import tempfile
 
@@ -320,9 +323,15 @@ def profile_loaders(
     try:
         from temper_placer.io.loop_loader import load_loop_collection
         from temper_placer.io.netclass_loader import load_netclass_rules
-    except ImportError:
-        netclass_ms = 0.0
-        loops_ms = 0.0
+    except ImportError as e:
+        # Was: report both loaders as 0.0 ms, indistinguishable from a real
+        # (impossibly fast) measurement.
+        raise ImportError(
+            "temper_placer.io.loop_loader / io.netclass_loader are required "
+            "to profile the loaders and could not be imported. This is a "
+            "broken temper-placer install, not an optional feature -- "
+            "reinstall with: uv sync"
+        ) from e
     else:
         netclass_ms = _time(lambda: load_netclass_rules(netclass_yaml), netclass_yaml.exists())
         loops_ms = _time(lambda: load_loop_collection(loop_dir), loop_dir.is_dir())

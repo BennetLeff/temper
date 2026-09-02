@@ -1,0 +1,107 @@
+# Exemptions for scripts/check_import_fallback_hygiene.py
+#
+# Every entry is a specific, justified decision -- never a blanket
+# suppression, and there is no `# noqa` escape hatch for this gate.
+#
+# Keys are `path::qualname::comma-joined-imports`. That deliberately
+# survives line-number churn but *dies* if the guarded import changes,
+# so an exemption cannot silently outlive the thing it excused. The gate
+# reports allowlisted-but-no-longer-violating entries as STALE and fails,
+# which is what forces these to be revisited.
+#
+# Two kinds of entry live here:
+#   (a) genuinely-correct fallbacks whose degraded state is already
+#       explicit and observable at the call site; and
+#   (b) sites owned by another in-flight change, where the fix belongs to
+#       that change and racing it would cause a conflict.
+
+exemptions:
+  # ---------------------------------------------------------------
+  # (a) explicit, observable degraded state -- correct as written
+  # ---------------------------------------------------------------
+  - key: "packages/temper-placer/src/temper_placer/core/loop_extractor_rs.py::auto_extract_loops_rs::temper_design_bundle_python,temper_rust_router"
+    reason: >-
+      This API deliberately provides the Python loop extractor as its reference
+      backend. A warning makes the substitution observable, and callers retain
+      the documented fallback for runtime extraction failures as well.
+
+  - key: "packages/temper-placer/src/temper_placer/regression/closure_test.py::_run_channel_analysis::temper_placer.deterministic,temper_placer.router_v6.stage2_orchestrator"
+    reason: >-
+      Channel analysis is an optional closure-test stage. The handler logs the
+      missing stage and returns the unchanged stages_exercised count, so the
+      degraded state is explicit in both logs and the closure score.
+
+  - key: "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py::<module>::temper_drc_rs"
+    reason: >-
+      clearance_check exposes explicit python, rust, and auto backends. Missing
+      Rust sets _HAS_RUST_CLEARANCE false so python and auto remain usable; an
+      explicit rust request fails at backend selection.
+
+  - key: "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py::<module>::temper_orchestration"
+    reason: >-
+      The orchestration extension is an optional accelerated backend for this
+      module. Capability state is recorded in _HAS_RUN_CLEARANCE_CHECK and the
+      documented Python implementation remains available.
+
+  - key: "packages/temper-placer/src/temper_placer/validation/drc_oracle.py::<module>::temper_drc_rs"
+    reason: >-
+      drc_oracle intentionally retains the pinned Python oracle for differential
+      and no-extension environments. _HAS_RUST_DRC records which backend is
+      active; explicit Rust-only entry points still raise when unavailable.
+
+  - key: "packages/temper-placer/src/temper_placer/cli/_optimize_audit.py::_maybe_surface_unsat::temper_placer.placer.cp_sat.unsat_surface"
+    reason: >-
+      Interactive CLI audit helper. The handler prints "Failed to import
+      UNSAT surface module." to the console, so the operator sees the
+      degradation at the moment it happens and no downstream artifact
+      records a result. This surfaces an optional diagnostic view; it
+      does not produce or gate a measurement.
+
+  - key: "packages/temper-placer/src/temper_placer/regression/closure_test.py::ClosureTest.run::temper_placer.validation._drc_api"
+    reason: >-
+      Already the shape this gate is trying to produce. The handler
+      records "kicad-cli not available; skipping DRC" into `errors` when
+      `require_all_stages` is set and into `warnings` otherwise, and
+      leaves `drc_measured = False`. "DRC did not run" is therefore
+      distinguishable from "DRC ran and found nothing" at the call site,
+      which is the property R1/R2 exist to protect.
+
+  - key: "packages/temper-placer/src/temper_placer/validation/human_reference_extractor.py::_compute_drc::temper_placer.validation.drc_runner"
+    reason: >-
+      Returns an explicit out-of-band sentinel (-1.0) for the
+      drc_violations feature, commented as "sentinel: KiCad unavailable".
+      Real violation counts are non-negative, so the unavailable state is
+      representable and distinguishable rather than collapsing onto a
+      plausible measurement. Tightening this to a raise would be a
+      behaviour change to the feature-extraction contract and belongs
+      with a review of that contract, not with this gate.
+
+  # ---------------------------------------------------------------
+  # (b) owned by another in-flight change -- do not race it
+  # ---------------------------------------------------------------
+  - key: "packages/temper-placer/src/temper_placer/router_v6/astar_core_rust.py::_select_astar_backend::temper_rust_router"
+    reason: >-
+      Owned by the in-flight change removing the Python 2D router and its
+      ImportError fallback. `return "python"` on a missing extension is
+      exactly what that change deletes; fixing it here would conflict.
+      Re-check this entry when that change lands -- the gate will report
+      it STALE and force the revisit.
+
+  - key: "packages/temper-placer/src/temper_placer/router_v6/_astar_theta_star.py::_astar_search_lazy_theta_star::"
+    reason: >-
+      Same owner as astar_core_rust.py. `except ImportError: pass` falling
+      through to the Python theta* search is part of the Python 2D router
+      being removed. Note this handler guards a *call* into
+      astar_core_rust rather than an import statement, so it will need
+      deleting alongside, not merely re-raising.
+
+  - key: "packages/temper-placer/src/temper_placer/router_v6/_astar_theta_star.py::_astar_search_theta_star::"
+    reason: >-
+      Same owner and same shape as the lazy variant above.
+
+  - key: "packages/temper-placer/src/temper_placer/router_v6/_pipeline_route.py::_augment_with_pcl_constraints::temper_constraint_compiler"
+    reason: >-
+      Owned by the in-flight router change. temper_constraint_compiler is
+      a first-party crate, so this is an R1 violation on the merits; it is
+      exempted only to avoid a conflicting edit in the same file another
+      agent is rewriting.

@@ -1060,11 +1060,12 @@ class PhysicsGate(Gate):
                 area = gate_drive_loop_area(pcb, gate_net)
                 spacing = gate_drive_spacing(pcb, gate_net)
 
-                if area is None and spacing is None:
+                if area is None or spacing is None:
+                    missing = "area" if area is None else "spacing"
                     return GateResult(
                         GateStatus.UNMEASURED,
                         error_message=(
-                            f"gate-drive {loop_label}: measurement failed "
+                            f"gate-drive {loop_label}: {missing} measurement failed "
                             f"(no gate traces or no return path)"
                         ),
                     )
