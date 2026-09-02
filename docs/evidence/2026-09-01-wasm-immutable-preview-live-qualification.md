@@ -1,4 +1,4 @@
-<!-- provenance: commit=1335c3b8f29c569f3b15123ec8464225512d600b dirty=false -->
+<!-- provenance: commit=8254acc827c0b1cf495eb354a3b7d4a2832aeef3 dirty=false -->
 ---
 date: 2026-09-01
 type: evidence
@@ -109,8 +109,33 @@ measurement claim.
 
 ## Corrected live run
 
-Status: **PENDING — the corrected immutable head still requires its own live
-Cloudflare run.**
+Status: **QUALIFIED — every acceptance criterion passed.**
+
+| Identity | Value |
+|---|---|
+| exact head SHA | `8254acc827c0b1cf495eb354a3b7d4a2832aeef3` |
+| producer workflow run / attempt | `33592554528` / `1` |
+| publisher workflow run / attempt | `33593061784` / `1` |
+| protected deployment | `6215835658` in `cloudflare-wasm-preview` |
+| diagnostics artifact | `wasm-preview-verdict-33592554528-1` (`9832482493`) |
+| immutable Cloudflare version ID | `c74d83a2-49e1-4c85-bf77-4c4f1a837f8c` (version 114) |
+| candidate WASM SHA-256 | `3df5e4c937fd9f39dcd1027bd879230ce71b37bcc3290baa5c49f395fbe9edbc` |
+| test-name set SHA-256 | `09daa0db322641cf65da95d01a1ad20947af8709e947477ab5063630bcf899eb` |
+| comparison-contract SHA-256 | `8d99b67f0ee776214cec06010a2b4efe8fc20e1e14f4459b318c908572c6a1bf` |
+| registered / executed / passed | 6,927 / 6,927 / 6,927 |
+| native passed | 6,986 |
+| R19 agreement | 1.0 on 6,927 shared names; 59 native-only; **0 wasm-only** |
+| disagreements / unexpected passes | 0 / 0 |
+| production deployment invariant | unchanged (before/after JSON bit-identical) |
+| exact-head PR check | success: `Exact PR-head Worker agrees with native` |
+
+The producer completed in 1 minute 27 seconds without credentials. The
+protected publisher completed in 44 seconds after approval. Its durable stage
+ledger reached `artifact_validated`, `version_uploaded`, `health_verified`,
+`sweep_and_r19_verified`, and `production_unchanged`. The health response
+matched the exact head, service, version ID, ABI, module digest,
+comparison-contract digest, and test census. The publisher uploaded diagnostics
+only after checking them for both the API token and the expiring capability.
 
 ## Scope after this run
 
