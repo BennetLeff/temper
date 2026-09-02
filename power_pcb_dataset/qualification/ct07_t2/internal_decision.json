@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "construction_id": "ct07-t2-u6-candidate",
+  "construction_digest": "pending-u6-freeze",
+  "internal_stage": "stopped-indeterminate",
+  "stage": "stopped-indeterminate",
+  "reasons": [
+    "r1.ocp02-dnf",
+    "r10.electrical-thermal-rating",
+    "r11.construction-identity",
+    "r12.creepage",
+    "r13.environmental-stress",
+    "r14.production-controls",
+    "r15.identity-sourcing",
+    "r18.protected-artifacts",
+    "r2.independent-coverage",
+    "r3.trip-window-latency",
+    "r4.trip-ordering",
+    "r5.hardware-latch-lifecycle",
+    "r6.single-fault-containment",
+    "r7.transfer-function",
+    "r8.waveform-detection",
+    "r9.saturation-margin"
+  ],
+  "requirements": [
+    {
+      "requirement": "R1",
+      "status": "pending",
+      "implementation_owner": "ct07.board_product_safety",
+      "next_authority": "CT07 board/product safety owner"
+    },
+    {
+      "requirement": "R2",
+      "status": "pending",
+      "implementation_owner": "ct07.electrical",
+      "next_authority": "CT07 electrical owner"
+    },
+    {
+      "requirement": "R3",
+      "status": "pending",
+      "implementation_owner": "ct07.electrical",
+      "next_authority": "CT07 electrical owner"
+    },
+    {
+      "requirement": "R4",
+      "status": "pending",
+      "implementation_owner": "ct07.board_product_safety",
+      "next_authority": "CT07 board/product safety owner"
+    },
+    {
+      "requirement": "R5",
+      "status": "pending",
+      "implementation_owner": "ct07.electrical",
+      "next_authority": "CT07 electrical owner"
+    },
+    {
+      "requirement": "R6",
+      "status": "pending",
+      "implementation_owner": "ct07.board_product_safety",
+      "next_authority": "CT07 board/product safety owner"
+    },
+    {
+      "requirement": "R7",
+      "status": "pending",
+      "implementation_owner": "ct07.electrical",
+      "next_authority": "CT07 electrical owner"
+    },
+    {
+      "requirement": "R8",
+      "status": "pending",
+      "implementation_owner": "ct07.electrical",
+      "next_authority": "CT07 electrical owner"
+    },
+    {
+      "requirement": "R9",
+      "status": "pending",
+      "implementation_owner": "ct07.electrical",
+      "next_authority": "CT07 electrical owner"
+    },
+    {
+      "requirement": "R10",
+      "status": "pending",
+      "implementation_owner": "ct07.electrical",
+      "next_authority": "CT07 electrical owner"
+    },
+    {
+      "requirement": "R11",
+      "status": "pending",
+      "implementation_owner": "ct07.mechanical_assembly",
+      "next_authority": "CT07 mechanical/assembly owner"
+    },
+    {
+      "requirement": "R12",
+      "status": "pending",
+      "implementation_owner": "ct07.pcb_insulation_layout",
+      "next_authority": "CT07 PCB/insulation/layout owner"
+    },
+    {
+      "requirement": "R13",
+      "status": "pending",
+      "implementation_owner": "ct07.mechanical_assembly",
+      "next_authority": "CT07 mechanical/assembly owner"
+    },
+    {
+      "requirement": "R14",
+      "status": "pending",
+      "implementation_owner": "ct07.sourcing_manufacturing",
+      "next_authority": "CT07 sourcing/manufacturing owner"
+    },
+    {
+      "requirement": "R15",
+      "status": "pending",
+      "implementation_owner": "ct07.sourcing_manufacturing",
+      "next_authority": "CT07 sourcing/manufacturing owner"
+    },
+    {
+      "requirement": "R16",
+      "status": "pending",
+      "implementation_owner": "ct07.external_certification",
+      "next_authority": "A7 external certification authority"
+    },
+    {
+      "requirement": "R17",
+      "status": "pending",
+      "implementation_owner": "ct07.verification",
+      "next_authority": "CT07 verification owner, then A7 for any larger sample requirement"
+    },
+    {
+      "requirement": "R18",
+      "status": "pending",
+      "implementation_owner": "ct07.verification",
+      "next_authority": "CT07 verification owner"
+    },
+    {
+      "requirement": "R19",
+      "status": "pending",
+      "implementation_owner": "joint campaign owner",
+      "next_authority": "ISO U9 joint-campaign evaluator"
+    },
+    {
+      "requirement": "R20",
+      "status": "pending",
+      "implementation_owner": "downstream production approval",
+      "next_authority": "final A7 review and separate A1 board-safety authorization"
+    }
+  ],
+  "owner_floor": {
+    "classification": "engineering-screen",
+    "minimum_complete_assemblies": 5,
+    "minimum_independent_lots": 2,
+    "repetitions_per_electrical_corner": 3,
+    "zero_failures_required": true,
+    "larger_a7_sample_requirement": "pending A7 protocol ruling"
+  },
+  "invalid_or_excluded_records": [],
+  "limitations": []
+}

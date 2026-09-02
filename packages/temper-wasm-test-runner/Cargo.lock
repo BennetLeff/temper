@@ -1020,6 +1020,10 @@ name = "temper-quality-oracle"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "serde_json",
+ "sha2",
+ "temper-design-bundle",
+ "temper-geometry",
  "thiserror 1.0.69",
 ]
 

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "contract_id": "isolation-joint-u9-fixture-v1",
+  "status": "stopped-indeterminate",
+  "candidate_id": "isolation-joint-u9-candidate",
+  "board_artifact": {
+    "path": "elec/qualification/isolation_joint/layout/isolation_joint_candidate.kicad_pcb",
+    "status": "not-materialized",
+    "sha256": null
+  },
+  "fixture_artifact": {
+    "path": "elec/qualification/isolation_joint/validation/isolation_joint_fixture.json",
+    "status": "not-materialized",
+    "sha256": null
+  },
+  "required_bindings": [
+    "iso_construction_projection_digest",
+    "ct07_construction_projection_digest",
+    "iso_allowed_transform_policy_digest",
+    "ct07_allowed_transform_policy_digest",
+    "joint_contract_digest",
+    "combined_candidate_digest"
+  ],
+  "allowed_transform_policy": {
+    "status": "pending-domain-handoffs",
+    "allowed": ["translation", "declared-quarter-turn"],
+    "forbidden": ["mirror", "layer-flip", "scale", "local-geometry-drift", "boundary-port-drift"]
+  },
+  "required_endpoints": ["high-side-gate-safe", "low-side-gate-safe"],
+  "required_supply_cases": [
+    "nominal",
+    "primary-barrier-loss",
+    "iso-local-supply-loss",
+    "driver-supply-loss"
+  ],
+  "blocking_reasons": [
+    "domain handoffs are not approved",
+    "candidate-only board is intentionally not materialized",
+    "no real captures or owner sign-offs exist"
+  ]
+}

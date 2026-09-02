@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "candidate_id": "ct07-t2-u4-candidate",
+  "construction_id": "ct07-t2-u6-candidate",
+  "construction_digest": "pending-u6-freeze",
+  "status": "pending",
+  "baseline": "OCP-02 DNF",
+  "rows": [
+    {
+      "id": "sensor.open",
+      "element": "sensor",
+      "fault": "open",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "sensor.short",
+      "element": "sensor",
+      "fault": "short",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "sensor.misassembly",
+      "element": "sensor",
+      "fault": "misassembly",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "sensor.displacement",
+      "element": "sensor",
+      "fault": "displacement",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "sensor.degradation",
+      "element": "sensor",
+      "fault": "degradation",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "conductor.open",
+      "element": "conductor",
+      "fault": "open",
+      "outcome": "pending",
+      "owner_role": "ct07.mechanical_assembly",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "conductor.short",
+      "element": "conductor",
+      "fault": "short",
+      "outcome": "pending",
+      "owner_role": "ct07.mechanical_assembly",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "conductor.misassembly",
+      "element": "conductor",
+      "fault": "misassembly",
+      "outcome": "pending",
+      "owner_role": "ct07.mechanical_assembly",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "conductor.displacement",
+      "element": "conductor",
+      "fault": "displacement",
+      "outcome": "pending",
+      "owner_role": "ct07.mechanical_assembly",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "conductor.degradation",
+      "element": "conductor",
+      "fault": "degradation",
+      "outcome": "pending",
+      "owner_role": "ct07.mechanical_assembly",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "burden.open",
+      "element": "burden",
+      "fault": "open",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "burden.short",
+      "element": "burden",
+      "fault": "short",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "burden.misassembly",
+      "element": "burden",
+      "fault": "misassembly",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "burden.displacement",
+      "element": "burden",
+      "fault": "displacement",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "burden.degradation",
+      "element": "burden",
+      "fault": "degradation",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "comparator.open",
+      "element": "comparator",
+      "fault": "open",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "comparator.short",
+      "element": "comparator",
+      "fault": "short",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "comparator.misassembly",
+      "element": "comparator",
+      "fault": "misassembly",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "comparator.displacement",
+      "element": "comparator",
+      "fault": "displacement",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "comparator.degradation",
+      "element": "comparator",
+      "fault": "degradation",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "supply.open",
+      "element": "supply",
+      "fault": "open",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "supply.short",
+      "element": "supply",
+      "fault": "short",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "supply.misassembly",
+      "element": "supply",
+      "fault": "misassembly",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "supply.displacement",
+      "element": "supply",
+      "fault": "displacement",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "supply.degradation",
+      "element": "supply",
+      "fault": "degradation",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "fault-path.open",
+      "element": "fault-path",
+      "fault": "open",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "fault-path.short",
+      "element": "fault-path",
+      "fault": "short",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "fault-path.misassembly",
+      "element": "fault-path",
+      "fault": "misassembly",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "fault-path.displacement",
+      "element": "fault-path",
+      "fault": "displacement",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    },
+    {
+      "id": "fault-path.degradation",
+      "element": "fault-path",
+      "fault": "degradation",
+      "outcome": "pending",
+      "owner_role": "ct07.electrical",
+      "verifier_role": "ct07.verification",
+      "evidence_ids": [],
+      "reason": "U5/U9 fault evidence and independent owner disposition are pending"
+    }
+  ],
+  "analysis_digest": "341d62441eda20e986d675aa8bb5be62473e55555bafa5b563738457c515749e"
+}

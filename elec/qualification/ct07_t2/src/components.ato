@@ -1,0 +1,90 @@
+# CT07/T2 qualification-only component declarations.
+#
+# These declarations describe the candidate topology and are not production
+# part selections.  Manufacturer pin maps, controlled electrical corners,
+# and the delivered CT07 marking remain pending U7-A/U5 evidence.
+
+component CT07_1000:
+    """ICE CT07-1000 candidate; exact controlled revision remains pending."""
+    footprint = "temper_ct07_t2:CT07-1000-QUALIFICATION"
+    mpn = "CT07-1000"
+    manufacturer = "ICE Components"
+    signal primary_in ~ pin 1
+    signal primary_out ~ pin 2
+    signal secondary_s1 ~ pin 3
+    signal secondary_s2 ~ pin 4
+
+component Resistor1206:
+    designator_prefix = "R"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    mpn: str
+    value: ohm
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Resistor0603:
+    designator_prefix = "R"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    mpn: str
+    value: ohm
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Capacitor:
+    designator_prefix = "C"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    mpn: str
+    value: farad
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component REF2025:
+    """Candidate 2.048 V reference; tolerance is a U4 screening parameter."""
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    mpn = "REF2025AIDBZR"
+    manufacturer = "Texas Instruments"
+    signal out ~ pin 1
+    signal gnd ~ pin 2
+    signal vin ~ pin 3
+
+component TLV3201:
+    """Candidate fast comparator; pin-map and guaranteed delay remain pending."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "TLV3201BIDBVR"
+    manufacturer = "Texas Instruments"
+    signal out ~ pin 1
+    signal vminus ~ pin 2
+    signal vplus ~ pin 3
+    signal vcc ~ pin 4
+    signal gnd ~ pin 5
+
+component SN74LVC1G08:
+    """Candidate active-high latch fan-in gate; exact logic evidence pending."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "SN74LVC1G08QDBVRQ1"
+    manufacturer = "Texas Instruments"
+    signal a ~ pin 1
+    signal b ~ pin 2
+    signal y ~ pin 3
+    signal vcc ~ pin 4
+    signal gnd ~ pin 5
+
+component SN74HC00:
+    """Candidate set-dominant latch primitive; model-only in U4."""
+    footprint = "Package_SO:SOIC-14"
+    mpn = "SN74HC00DR"
+    manufacturer = "Texas Instruments"
+    signal a1 ~ pin 1
+    signal b1 ~ pin 2
+    signal y1 ~ pin 3
+    signal a2 ~ pin 4
+    signal b2 ~ pin 5
+    signal y2 ~ pin 6
+    signal gnd ~ pin 7
+    signal y3 ~ pin 8
+    signal a3 ~ pin 9
+    signal b3 ~ pin 10
+    signal y4 ~ pin 11
+    signal a4 ~ pin 12
+    signal b4 ~ pin 13
+    signal vcc ~ pin 14

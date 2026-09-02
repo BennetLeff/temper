@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "protocol_id": "ct07-t2-u6-mechanical-pre-stress-v1",
+  "construction_id": "ct07-t2-u6-candidate",
+  "construction_digest": "pending-u6-freeze",
+  "protocol_digest": "pending-u9-protocol-freeze",
+  "status": "pending",
+  "construction_release_eligible": false,
+  "scope": "candidate-only pre-stress geometry, dielectric/leakage, structural and inspection record",
+  "sample_floor": {
+    "complete_assemblies": 5,
+    "independent_conductor_retainer_lots": 2,
+    "status": "pending; no samples or lots have been fabricated"
+  },
+  "geometry": {
+    "minimum_installed_path_mm": "12.6",
+    "uncertainty_method": "signed measurement report required; conservative lower bound",
+    "surfaces": ["primary conductor", "CT07 secondary pins", "solder fillets", "PCB copper", "fastener", "shield", "retainer", "service access"],
+    "2d_rust_projection": "candidate screening only",
+    "signed_3d_report": "pending external mechanical authority"
+  },
+  "stress_sequence": [
+    {"id": "vibration", "condition": "10-150 Hz, 1 g, 1 hour per axis"},
+    {"id": "shock", "condition": "15 g, 3 shocks per axis"},
+    {"id": "thermal-cycle", "condition": "10 cycles, -20 to +60 C"},
+    {"id": "damp-heat", "condition": "40 C / 93% RH / 96 hours"}
+  ],
+  "required_axes": [
+    "r2.independent-coverage", "r3.trip-window-latency", "r4.trip-ordering",
+    "r5.hardware-latch-lifecycle", "r6.single-fault-containment", "r7.transfer-function",
+    "r8.waveform-detection", "r9.saturation-margin", "r10.electrical-thermal-rating",
+    "r11.construction-identity", "r12.creepage"
+  ],
+  "checkpoints": [
+    {"id": "pre-stress", "sequence": 0, "condition": "U5 baseline after U6 construction release", "required": true},
+    {"id": "post-vibration", "sequence": 1, "condition": "10-150 Hz, 1 g, 1 hour per axis", "required": true},
+    {"id": "post-shock", "sequence": 2, "condition": "15 g, 3 shocks per axis", "required": true},
+    {"id": "post-thermal-cycle", "sequence": 3, "condition": "10 cycles, -20 to +60 C", "required": true},
+    {"id": "post-damp-heat", "sequence": 4, "condition": "40 C / 93% RH / 96 hours", "required": true},
+    {"id": "post-stress-final", "sequence": 5, "condition": "final post-stress replay and inspection", "required": true}
+  ],
+  "control_challenges": [
+    {"id": "wrong-ct-variant", "expected_outcome": "reject", "record_required": true},
+    {"id": "flipped-ct", "expected_outcome": "reject", "record_required": true},
+    {"id": "wrong-conductor", "expected_outcome": "reject", "record_required": true},
+    {"id": "incomplete-insertion", "expected_outcome": "reject", "record_required": true},
+    {"id": "unlocked-retainer", "expected_outcome": "reject", "record_required": true},
+    {"id": "damaged-insulation", "expected_outcome": "reject", "record_required": true},
+    {"id": "displaced-assembly", "expected_outcome": "reject", "record_required": true},
+    {"id": "independent-pair-replacement", "expected_outcome": "reject", "record_required": true}
+  ],
+  "capture_requirements": {
+    "raw_waveform_retained": true,
+    "post_stress_electrical_replay_required": true,
+    "geometry_and_accessible_surface_report_required": true,
+    "dielectric_leakage_and_structural_checks_required": true,
+    "calibration_identity_required": true,
+    "lot_and_serial_identity_required": true,
+    "construction_digest_required": true
+  },
+  "acceptance": {
+    "complete_sample_checkpoint_axis_matrix_required": true,
+    "zero_false_or_missed_trips": true,
+    "zero_geometry_failures": true,
+    "zero_post_stress_failures": true,
+    "minimum_installed_path_mm": "12.6",
+    "repairs_replacements_or_process_changes_invalidate_reuse": true
+  },
+  "inspection_controls": ["variant", "orientation", "insertion depth", "keyed retainer", "insulation condition", "displacement", "controlled-pair replacement"],
+  "records": [],
+  "blocking_reasons": [
+    "U7-A construction_release_eligible is false",
+    "five complete samples and two independent lots are unavailable",
+    "signed 3D accessible-surface report is unavailable"
+  ]
+}

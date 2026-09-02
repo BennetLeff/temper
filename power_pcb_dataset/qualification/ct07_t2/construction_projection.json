@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "construction_id": "ct07-t2-u6-candidate",
+  "fixture_board_sha256": "58798fee40e80dd2d446e490087748c89eaa31512dfd0de7a386dee2b2a154c3",
+  "construction_projection_digest": "7de97017936541182a44e992de7fdcc89254e38a84d1dfe4d9b4dda7b3eed59a",
+  "allowed_transform_policy": {
+    "anchor_frame": "ct07-footprint-origin",
+    "translations": true,
+    "rotations_deg": [0, 90, 180, 270],
+    "mirror": false,
+    "layer_flip": false,
+    "scale": "1"
+  },
+  "allowed_transform_policy_digest": "9481e02ae5d689b1ff7bcaab3ee445106b1e57f3084872ddaf118232551e7144",
+  "payload": {
+    "schema_version": 1,
+    "construction_id": "ct07-t2-u6-candidate",
+    "anchor_frame": "ct07-footprint-origin",
+    "footprint": "CT07-1000-QUALIFICATION",
+    "pads": [
+      {"kind": "pad", "layer": "F.Cu", "net": "DC_BUS_RTN_IN", "points_mm": [[-2.0, 0.0]], "width_mm": 2.0},
+      {"kind": "pad", "layer": "B.Cu", "net": "DC_BUS_RTN_IN", "points_mm": [[-2.0, 0.0]], "width_mm": 2.0},
+      {"kind": "pad", "layer": "F.Cu", "net": "DC_BUS_RTN_OUT", "points_mm": [[2.0, 0.0]], "width_mm": 2.0},
+      {"kind": "pad", "layer": "B.Cu", "net": "DC_BUS_RTN_OUT", "points_mm": [[2.0, 0.0]], "width_mm": 2.0},
+      {"kind": "pad", "layer": "F.Cu", "net": "CT07_S1", "points_mm": [[0.0, -2.0]], "width_mm": 2.0},
+      {"kind": "pad", "layer": "F.Cu", "net": "CT07_S2", "points_mm": [[0.0, 2.0]], "width_mm": 2.0}
+    ],
+    "copper": [
+      {"kind": "segment", "layer": "B.Cu", "net": "DC_BUS_RTN_IN", "points_mm": [[-15.588457268119896, -8.999999999999998], [-8.660254037844387, -4.999999999999999]], "width_mm": 1.0},
+      {"kind": "segment", "layer": "B.Cu", "net": "DC_BUS_RTN_OUT", "points_mm": [[8.660254037844387, 4.999999999999999], [15.588457268119896, 8.999999999999998]], "width_mm": 1.0},
+      {"kind": "segment", "layer": "F.Cu", "net": "CT07_S1", "points_mm": [[0.9999999999999999, -1.7320508075688774], [3.9999999999999996, -6.92820323027551]], "width_mm": 0.3},
+      {"kind": "segment", "layer": "F.Cu", "net": "CT07_S2", "points_mm": [[-0.9999999999999999, 1.7320508075688774], [-3.9999999999999996, 6.92820323027551]], "width_mm": 0.3}
+    ],
+    "boundary_ports": ["CT07-S1-secondary", "CT07-S2-secondary", "DC_BUS_RTN_IN-primary", "DC_BUS_RTN_OUT-primary"],
+    "mechanical_envelope_report": "external-authority-required; not supplied"
+  },
+  "min_2d_copper_distance_mm": 0.10821804175294468,
+  "geometry_status": "screening-only; signed 3D accessible-surface report pending"
+}

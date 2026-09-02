@@ -80,7 +80,12 @@ use crate::pad_geometry::{bounding_radius, core_half_extents, corner_radius, mat
 /// the same tuple `_CopperModel._spec` and `pad_pair_distance` use, with
 /// the shape as the FFI int enum (see `pad_geometry.rs` `SHAPE_*`; the
 /// Python wrapper maps it once).
-type PadSpec = (f64, f64, i64, f64, f64, f64, f64);
+/// Shape-aware pad tuple used by the pure-Rust clearance adapters.
+///
+/// This is intentionally a small, dependency-free wire type so callers such
+/// as the CT07 qualification oracle can consume the exact same kernel as the
+/// placer without crossing the pyo3 boundary or reimplementing geometry.
+pub type PadSpec = (f64, f64, i64, f64, f64, f64, f64);
 
 // ---------------------------------------------------------------------------
 // Pad-core construction (bit-exact replica of pad_core_polygon's geometry)
@@ -413,6 +418,11 @@ fn pad_pair_distance_spec(a: &PadSpec, b: &PadSpec) -> f64 {
     (gap - ra - rb).max(0.0)
 }
 
+/// Pure-Rust shape-aware distance between two pads.
+pub fn pad_pair_distance(a: PadSpec, b: PadSpec) -> f64 {
+    pad_pair_distance_spec(&a, &b)
+}
+
 /// Exact copper distance from one shape-aware pad to a capsule.
 ///
 /// A routed segment is its centreline Minkowski-summed with a disk whose
@@ -446,6 +456,16 @@ fn pad_to_capsule_distance_spec(
     let gap = core_distance(&pad_core, &capsule_core);
     let pad_radius = corner_radius(*pad_width, *pad_height, *shape, *roundrect_ratio);
     Ok((gap - pad_radius - width / 2.0).max(0.0))
+}
+
+/// Pure-Rust shape-aware distance between a pad and a routed copper capsule.
+pub fn pad_to_capsule_distance(
+    pad: PadSpec,
+    p0: (f64, f64),
+    p1: (f64, f64),
+    width: f64,
+) -> Result<f64, String> {
+    pad_to_capsule_distance_spec(&pad, p0, p1, width)
 }
 
 // ---------------------------------------------------------------------------

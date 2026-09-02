@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "record_type": "schema-placeholder",
+  "capture_id": null,
+  "status": "pending",
+  "checkpoint_id": null,
+  "construction_id": "pending-u6-freeze",
+  "construction_digest": null,
+  "protocol_digest": "pending-u9-protocol-freeze",
+  "lot_id": null,
+  "sample_id": null,
+  "calibration_id": null,
+  "channels": {
+    "primary_current_a": [],
+    "comparator_asserted": [],
+    "latch_asserted": []
+  },
+  "timestamp_units": "ns",
+  "current_units": "A",
+  "invalidity": null,
+  "note": "Template only; raw post-stress waveform data is not present."
+}

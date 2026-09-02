@@ -1,9 +1,10 @@
 ---
 title: "A physical mains-SELV barrier is a floorplan topology, not a keepout annotation"
 date: "2026-07-30"
+last_updated: "2026-09-01"
 category: architecture-patterns
 module: pcb-hardware-design
-problem_type: architecture
+problem_type: architecture_pattern
 component: isolation-barrier
 severity: critical
 applies_when:
@@ -15,7 +16,7 @@ tags:
   - mains-selv-isolation
   - pcb-floorplan
   - keepout
-  - pd2
+  - pd3
   - creepage
   - cp-sat
   - compound-engineering
@@ -26,11 +27,11 @@ tags:
 
 ## Executive decision
 
-The production target is Pollution Degree 2 (PD2), with 8.0 mm reinforced
-creepage for the mains-to-SELV board barrier. PD2 is conditional on a covered,
-gasketed PCB compartment that is separate from the coil/heatsink forced-air
-path. If that mechanical exception is not implemented and verified, the
-fallback is PD3 and 12.6 mm reinforced creepage.
+The production target is Pollution Degree 3 (PD3), with 12.6 mm reinforced
+creepage for the mains-to-SELV board barrier. The previously proposed PD2
+exception depended on a covered, gasketed PCB compartment isolated from the
+coil/heatsink forced-air path. That construction is not present, so its 8.0 mm
+figure is historical context rather than current design authority.
 
 The current PCB cannot be closed by drawing the named
 `MAINS_SELV_ISOLATION_BARRIER` zone onto the existing placement. The HV and
@@ -44,6 +45,51 @@ This document records the diagnosis, the design alternatives, the recommended
 implementation sequence, and the gates that define completion. It deliberately
 does not claim the current board is fabrication-ready.
 
+## 2026-09-01 feasibility update: footprint geometry is the next boundary
+
+A fresh full-board domain-first attempt tested the production straight-corridor
+model at 12.6 mm in both vertical and horizontal orientations. Both models were
+infeasible, and `isolator_straddle_T1` appeared in the reported UNSAT core.
+That core is a diagnostic hint, not a physical-impossibility proof: UNSAT cores
+may be non-minimal and establish only the encoded construction.
+
+The construction proof came from the solver-independent Rust-backed footprint
+geometry calculation used by the barrier model. Under the model's four
+quadrant rotations for rotatable components, the best usable cross-domain
+pad-cluster gaps were:
+
+| Boundary component | Best usable gap | 12.6 mm corridor result |
+|---|---:|---|
+| T1 | 9.1 mm | infeasible; short by 3.5 mm |
+| T2 | 9.1 mm | infeasible; short by 3.5 mm |
+| U6 | 8.1 mm | infeasible; short by 4.5 mm |
+
+The feasibility report marks an isolator feasible exactly when
+`achievable_gap_mm >= corridor_width_mm`. Model wiring then posts the equivalent
+two pad-side inequalities for every isolator, so an undersized footprint makes
+the model UNSAT
+(`packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py`).
+Within this straight-corridor, four-quadrant model, translation, board
+expansion, a different random seed, or a longer timeout cannot enlarge a gap
+internal to a fixed footprint. The run used 10/10 fresh extensions; a current
+reproducible barrier/keepout selection passes 65 tests. It changed no board,
+footprint, source, or DRC-ceiling artifact. Its solve output was a session
+receipt rather than committed evidence, so the next campaign must preserve the
+same geometry report in a replayable artifact.
+
+The next executable unit is therefore an approved component and footprint
+qualification pass for T1, T2, and U6. Each candidate must clear electrical
+function, certified isolation, sourcing, assembly and enclosure constraints,
+pin/net compatibility, and exact land-pattern geometry before another
+floorplan solve begins. A datasheet isolation-voltage headline is not a PCB
+corridor measurement.
+
+This result is deliberately construction-specific. It proves that the current
+T1/T2/U6 footprints cannot straddle the selected straight 12.6 mm copper-free
+corridor. It does not rule out a separately approved slot/groove construction,
+coating or enclosure treatment, different corridor topology, split-board
+architecture, or replacement components.
+
 ## The failure pattern
 
 The project had several correct declarations:
@@ -55,15 +101,15 @@ The project had several correct declarations:
 - the netlist domain-partition gate verifies galvanic connectivity.
 
 Those facts did not imply that a physical board barrier existed. The current
-board measurement examined 169 footprints, 521 pads, 2,482 copper items, and
-four copper layers. It found 99 HV pads and 221 SELV pads, but no named
+2026-07-28 board measurement examined 169 footprints, 521 pads, 2,482 copper
+items, and four copper layers. It found 99 HV pads and 221 SELV pads, but no named
 `MAINS_SELV_ISOLATION_BARRIER` zone. A candidate full-height strip at an
 arbitrary x-coordinate produced both far-side domain crossings and copper
 intrusions; it was correctly discarded.
 
 The earlier placement analysis explains why. The board contains:
 
-| Placement class | Meaning | Current count |
+| Placement class | Meaning | 2026-07-28 historical count |
 |---|---|---:|
 | HV-only | Pads touch HV nets only | 44 historical baseline |
 | SELV-only | Pads touch SELV nets only | 106 historical baseline |
@@ -112,9 +158,13 @@ isolated from the coil/heatsink airflow path, with assembly and inspection
 criteria. The electrical and mechanical decisions are coupled, but neither
 substitutes for the other.
 
-## Component consequences at the PD2 target
+## Historical component consequences at the superseded PD2 target
 
-The current mixed-domain set is `C6`, `K1`, `K2`, `K3`, `PS1`, `T1`, `U3`, and
+The following section records the 2026-07-30, 8.0 mm investigation. It is not
+the current component screen; the 12.6 mm update above supersedes its target
+and blocker set.
+
+At the 2026-07-30 baseline, the mixed-domain set was `C6`, `K1`, `K2`, `K3`, `PS1`, `T1`, `U3`, and
 `U7`. The existing barrier-constrained placement experiment used an 8.5 mm
 working corridor (8.0 mm requirement plus 0.5 mm solver/gate margin) and
 returned infeasible before the domain-only packing problem was reached. Its
@@ -146,7 +196,7 @@ and [`2026-07-28-isolator-sourcing-brief.md`](../../evidence/2026-07-28-isolator
 Rebuild the floorplan around one edge-to-edge barrier:
 
 ```text
-HV island                 8.0 mm barrier                 SELV island
+HV island                12.6 mm barrier                SELV island
 AC/DC bus ─ IGBT ─ tank    | full-layer keepout |          MCU ─ UI ─ sensors
                            | isolators straddle |
 ```
@@ -201,7 +251,11 @@ an HV or unclassified connector net is a gate violation. This closes the
 source-level regression hole while the physical power/control PCB artifacts,
 connector selection, and mechanical partition remain implementation work.
 
-## Implementation sequence
+## Historical PD2 implementation sequence
+
+This sequence records the conditional PD2 proposal from the original learning.
+For current work, replace its 8.0/8.5 mm figures with the governing 12.6 mm
+requirement and qualify T1, T2, and U6 before placement.
 
 ### Phase 1 — freeze the boundary contract
 
@@ -260,7 +314,7 @@ The board change is not complete until all of these are true:
 Any board-changing PR must update `power_pcb_dataset/drc_ceiling.json` in the
 same PR. A red keepout gate is a release blocker, not a baseline to ratchet.
 
-## What PR #506 closes
+## Historical: what PR #506 closed
 
 PR #506 selects the conditional PD2 architecture and aligns the 8.0 mm
 enforcement points:
@@ -277,6 +331,9 @@ fabrication-ready board and does not trigger the board-change DRC-ceiling
 remeasurement rule. The current keepout gate remains red because the physical
 barrier has not yet been designed.
 
+PR #1229 later superseded PR #506's PD2 enforcement because the prerequisite
+protected compartment was not built; PD3 and 12.6 mm are the current authority.
+
 ## Durable lesson
 
 The machine-checkable artifact must be downstream of the physical decision:
@@ -284,7 +341,7 @@ The machine-checkable artifact must be downstream of the physical decision:
 ```text
 environment + enclosure
         ↓
-PD2 requirement (8.0 mm)
+PD3 requirement (12.6 mm)
         ↓
 domain-first floorplan + boundary-part BOM
         ↓

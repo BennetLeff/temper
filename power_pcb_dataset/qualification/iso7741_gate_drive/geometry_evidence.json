@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "status": "pending",
+  "source": "candidate-local-model",
+  "controlled_facts_required": true,
+  "bench_evidence_required": true,
+  "fixture": "elec/qualification/iso7741_gate_drive/layout/iso7741_gate_drive_fixture.kicad_pcb",
+  "fixture_sha256": "2c947eb2215980062cdf2bd438616c96d451ef99c84a1e6cfa1e6f992263af3f",
+  "headline_package_spacing_mm": 14.5,
+  "headline_package_spacing_is_sufficient": false,
+  "requirements": {
+    "straight_corridor_mm": 12.6,
+    "gate_loop_max_mm2": 200.0,
+    "gate_trace_max_mm": 30.0,
+    "driver_resistor_max_mm": 5.0,
+    "bootstrap_loop_max_mm2": 100.0
+  },
+  "measurement_method": {
+    "owner": "temper-quality-oracle Rust geometry plus sanctioned kicad_transform",
+    "corridor": "straight copper/board path between each exact DWW domain boundary",
+    "loops": "conservative Rust convex-hull area over routed trace endpoints",
+    "rotation": "KiCad R(-theta), including asymmetric non-orthogonal oracle probe",
+    "three_dimensional_authority": "external signed mechanical report; not inferred here"
+  },
+  "measured_geometry": null,
+  "rows": [
+    {"row_id": "geometry.high_side.iso_corridor", "status": "pending", "reason": "live pcbnew geometry and controlled footprint facts unavailable"},
+    {"row_id": "geometry.low_side.iso_corridor", "status": "pending", "reason": "live pcbnew geometry and controlled footprint facts unavailable"},
+    {"row_id": "geometry.high_side.gate_loop", "status": "pending", "reason": "fixture is representative only; routed loop measurement is not a bench result"},
+    {"row_id": "geometry.low_side.gate_loop", "status": "pending", "reason": "fixture is representative only; routed loop measurement is not a bench result"},
+    {"row_id": "geometry.high_side.bootstrap_loop", "status": "pending", "reason": "fixture is representative only; routed loop measurement is not a bench result"},
+    {"row_id": "geometry.low_side.bootstrap_loop", "status": "pending", "reason": "fixture is representative only; routed loop measurement is not a bench result"},
+    {"row_id": "geometry.rotation.asymmetric_45deg", "status": "pending", "reason": "pcbnew oracle is not available in this environment"}
+  ]
+}

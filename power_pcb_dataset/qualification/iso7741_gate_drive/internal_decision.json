@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "envelope_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "evidence_root_digest": "b1d302795c9eb39d299fbbcd01dbffa8f9f9c880fcd2c5c9748607c7499765cb",
+  "internal_stage": "rejected",
+  "stage": "rejected",
+  "reasons": [
+    "power.gate_network_and_bias",
+    "timing.non_overlap"
+  ]
+}

@@ -1,0 +1,6 @@
+import CT07T2FrontEnd from "modules.ato"
+
+module CT07T2Candidate:
+    # Candidate-only root.  This deliberately does not import production
+    # sources or instantiate the production Top/SafetyInterlock modules.
+    candidate = new CT07T2FrontEnd

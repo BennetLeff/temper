@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "status": "pending",
+  "source": "candidate-local-model",
+  "controlled_facts_required": true,
+  "bench_evidence_required": true,
+  "fixture": "elec/qualification/iso7741_gate_drive/layout/iso7741_gate_drive_fixture.kicad_pcb",
+  "fixture_sha256": "2c947eb2215980062cdf2bd438616c96d451ef99c84a1e6cfa1e6f992263af3f",
+  "calibration": {"status": "pending", "instrument": null, "probe": null, "calibration_record": null},
+  "captures": null,
+  "raw_data_digest": null,
+  "protocol": {
+    "channels": ["driver_high_side", "driver_low_side", "vge_high_side", "vge_low_side"],
+    "required_faults": ["short_open", "domain_power_loss", "uvlo_ramp", "stuck_pwm", "stale_health", "precharge", "dead_time", "shutdown_latency"],
+    "conditions": "low-energy calibrated fixture before representative switching/fault tests",
+    "uncertainty": "predeclared uncertainty budget required before capture"
+  },
+  "rows": [
+    {"row_id": "bench.waveforms.both_domains", "status": "pending", "reason": "no calibrated low-energy fixture capture is available"},
+    {"row_id": "bench.faults.both_domains", "status": "pending", "reason": "no fault-injection capture is available"},
+    {"row_id": "bench.latency.local_safe", "status": "pending", "reason": "no calibrated timing capture is available"}
+  ]
+}

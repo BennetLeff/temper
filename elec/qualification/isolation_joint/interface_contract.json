@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "contract_id": "isolation-joint-u9-interface-v1",
+  "status": "stopped-indeterminate",
+  "candidate_id": "isolation-joint-u9-candidate",
+  "purpose": "Candidate-only interface between the ISO7741 gate-drive and CT07/T2 sensing constructions.",
+  "production_authorization": false,
+  "domain_interfaces": [
+    {
+      "id": "ct07-threshold-to-system-latch",
+      "producer": "ct07",
+      "consumer": "iso",
+      "signal": "sensor_threshold_assertion",
+      "endpoint": "system_latch_assertion",
+      "status": "pending-ct07-u8-handoff"
+    },
+    {
+      "id": "system-latch-to-gate-safe",
+      "producer": "iso",
+      "consumer": "joint-evaluator",
+      "signal": "system_latch_assertion",
+      "endpoint": "both_gates_safe",
+      "status": "pending-iso-u7-approval"
+    }
+  ],
+  "invariants": {
+    "primary_current_threshold_event": "ct07-signed-calibrated-primary-current-crossing",
+    "gate_safe_endpoints": ["high-side-gate-safe", "low-side-gate-safe"],
+    "timing_unit": "integer-nanoseconds-after-exact-decimal-ceil",
+    "aggregate_owner": "isolation-joint-r24-r25-v1",
+    "aggregate_budget_ns": 5000
+  },
+  "missing_authority": [
+    "iso U7 construction-envelope-approved receipt and joint handoff",
+    "CT07 U8 construction-envelope-approved receipt and joint handoff",
+    "digest-bound combined candidate and physical interface fixture",
+    "synchronized direct captures and complete semantic sign-off matrix"
+  ]
+}

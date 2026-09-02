@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "contract_version": "r24-r25-joint-v1",
+  "evaluator_identity": "isolation-joint-r24-r25-v1",
+  "timing_budget_ns": 5000,
+  "comparison": "inclusive",
+  "nanosecond_conversion": "exact-decimal-ceil",
+  "receipt_domains": ["iso", "ct07"],
+  "required_receipt_stage": "construction-envelope-approved",
+  "receipt_schema": {
+    "timing_fields": {
+      "iso.system_latch_assertion_to_both_gates_safe_max_ns": "canonical-decimal-string",
+      "ct07.sensor_threshold_to_system_latch_assertion_max_ns": "canonical-decimal-string"
+    },
+    "required_byte_bindings": ["receipt-envelope", "combined-candidate", "joint-evidence-row", "threshold-trace", "direct-capture", "channel-map", "signature-artifact", "signed-scope"]
+  },
+  "required_rows": ["corridor", "gate-loop", "bootstrap-loop", "retention", "thermal", "interface", "shutdown.ocp02.set-dominant", "shutdown.ocp02.explicit-reset"],
+  "required_signer_roles": ["iso.board_architecture", "iso.electrical_power", "iso.safety", "iso.pcb_layout", "iso.mechanical_thermal", "iso.sourcing", "iso.verification", "ct07.board_product_safety", "ct07.electrical", "ct07.mechanical_assembly", "ct07.pcb_insulation_layout", "ct07.verification", "ct07.sourcing_manufacturing"],
+  "signer_matrix": "role-by-joint-axis-with-both-domain-verifiers",
+  "joint_axes": ["joint.identity_limitations", "joint.corridor", "joint.loop", "joint.retention", "joint.thermal", "joint.interface", "joint.shutdown_fault", "joint.timing_evidence", "joint.reproducibility_verdict"],
+  "required_supply_cases": ["nominal", "primary-barrier-loss", "iso-local-supply-loss", "driver-supply-loss"],
+  "direct_endpoints": ["high-side-gate-safe", "low-side-gate-safe"],
+  "fixture_corpus": "packages/temper-placer/tests/fixtures/isolation_joint_qualification"
+}

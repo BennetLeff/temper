@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "base_commit": "85b4e400572a77d18f0ee6c644a532ab0a55dd8e",
+  "construction_id": "ct07-t2-u6-candidate",
+  "construction_digest": "pending-u6-freeze",
+  "construction_release_eligible": false,
+  "status": "stopped-indeterminate",
+  "evidence_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "raw_evidence": [],
+  "axes": [
+    {"code": "r1.ocp02-dnf", "status": "pending", "reason": "construction identity is not frozen"},
+    {"code": "r2.independent-coverage", "status": "pending", "reason": "representative fault injection is unavailable"},
+    {"code": "r3.trip-window-latency", "status": "pending", "reason": "representative threshold and latency captures are unavailable"},
+    {"code": "r4.trip-ordering", "status": "pending", "reason": "shared-corner OCP-01 and OCP-02 evidence is unavailable"},
+    {"code": "r5.hardware-latch-lifecycle", "status": "pending", "reason": "representative lifecycle injection is unavailable"},
+    {"code": "r6.single-fault-containment", "status": "pending", "reason": "signed FMEA outcomes and representative injections are unavailable"},
+    {"code": "r7.transfer-function", "status": "pending", "reason": "construction values are not frozen"},
+    {"code": "r8.waveform-detection", "status": "pending", "reason": "representative waveform captures are unavailable"},
+    {"code": "r9.saturation-margin", "status": "pending", "reason": "representative model and bench capture are unavailable"},
+    {"code": "r10.electrical-thermal-rating", "status": "pending", "reason": "thermal and immunity records are unavailable"},
+    {"code": "r11.construction-identity", "status": "pending", "reason": "U6 construction release is blocked by U7-A"},
+    {"code": "r12.creepage", "status": "pending", "reason": "signed installed 3D path report is unavailable"},
+    {"code": "r13.environmental-stress", "status": "pending", "reason": "serialized stress samples and records are unavailable"},
+    {"code": "r14.production-controls", "status": "pending", "reason": "misbuild challenges and control plan evidence are unavailable"},
+    {"code": "r15.identity-sourcing", "status": "pending", "reason": "controlled documents, sourcing, and delivered marking remain unavailable"},
+    {"code": "r18.protected-artifacts", "status": "pending", "reason": "full canonical replay has not closed all upstream evidence"}
+  ],
+  "dispositions": [],
+  "requirements": [
+    {"requirement": "R1", "status": "pending", "implementation_owner": "ct07.board_product_safety", "next_authority": "CT07 board/product safety owner"},
+    {"requirement": "R2", "status": "pending", "implementation_owner": "ct07.electrical", "next_authority": "CT07 electrical owner"},
+    {"requirement": "R3", "status": "pending", "implementation_owner": "ct07.electrical", "next_authority": "CT07 electrical owner"},
+    {"requirement": "R4", "status": "pending", "implementation_owner": "ct07.board_product_safety", "next_authority": "CT07 board/product safety owner"},
+    {"requirement": "R5", "status": "pending", "implementation_owner": "ct07.electrical", "next_authority": "CT07 electrical owner"},
+    {"requirement": "R6", "status": "pending", "implementation_owner": "ct07.board_product_safety", "next_authority": "CT07 board/product safety owner"},
+    {"requirement": "R7", "status": "pending", "implementation_owner": "ct07.electrical", "next_authority": "CT07 electrical owner"},
+    {"requirement": "R8", "status": "pending", "implementation_owner": "ct07.electrical", "next_authority": "CT07 electrical owner"},
+    {"requirement": "R9", "status": "pending", "implementation_owner": "ct07.electrical", "next_authority": "CT07 electrical owner"},
+    {"requirement": "R10", "status": "pending", "implementation_owner": "ct07.electrical", "next_authority": "CT07 electrical owner"},
+    {"requirement": "R11", "status": "pending", "implementation_owner": "ct07.mechanical_assembly", "next_authority": "CT07 mechanical/assembly owner"},
+    {"requirement": "R12", "status": "pending", "implementation_owner": "ct07.pcb_insulation_layout", "next_authority": "CT07 PCB/insulation/layout owner"},
+    {"requirement": "R13", "status": "pending", "implementation_owner": "ct07.mechanical_assembly", "next_authority": "CT07 mechanical/assembly owner"},
+    {"requirement": "R14", "status": "pending", "implementation_owner": "ct07.sourcing_manufacturing", "next_authority": "CT07 sourcing/manufacturing owner"},
+    {"requirement": "R15", "status": "pending", "implementation_owner": "ct07.sourcing_manufacturing", "next_authority": "CT07 sourcing/manufacturing owner"},
+    {"requirement": "R16", "status": "pending", "implementation_owner": "ct07.external_certification", "next_authority": "A7 external certification authority"},
+    {"requirement": "R17", "status": "pending", "implementation_owner": "ct07.verification", "next_authority": "CT07 verification owner, then A7 for any larger sample requirement"},
+    {"requirement": "R18", "status": "pending", "implementation_owner": "ct07.verification", "next_authority": "CT07 verification owner"},
+    {"requirement": "R19", "status": "pending", "implementation_owner": "joint campaign owner", "next_authority": "ISO U9 joint-campaign evaluator"},
+    {"requirement": "R20", "status": "pending", "implementation_owner": "downstream production approval", "next_authority": "final A7 review and separate A1 board-safety authorization"}
+  ],
+  "owner_floor": {
+    "classification": "engineering-screen",
+    "minimum_complete_assemblies": 5,
+    "minimum_independent_lots": 2,
+    "repetitions_per_electrical_corner": 3,
+    "zero_failures_required": true,
+    "larger_a7_sample_requirement": "pending A7 protocol ruling"
+  },
+  "invalid_or_excluded_records": [],
+  "protected_descriptor": {
+    "schema_version": 1,
+    "required_files": ["pcb/temper.kicad_pcb", "power_pcb_dataset/drc_ceiling.json", "elec/domain_manifest.yaml", "docs/ENVIRONMENTAL_SPEC.md", "packages/temper-placer/src/temper_placer/core/isolation_constants.py", "elec/ato.yaml", "docs/hardware/BOM.md"],
+    "inventories": [
+      {"path": "pcb", "pattern": "*.kicad_sch", "kind": "git-visible-exact"},
+      {"path": "elec/src", "pattern": "**", "kind": "git-visible-exact"},
+      {"path": "firmware", "pattern": "**", "kind": "git-visible-exact"}
+    ],
+    "working_tree_only": {"path": "elec/build", "kind": "recursive-snapshot", "required_files": ["default.csv", "default.layouts.json", "default.net", "default.net.source-digest", "manifest.json"], "absent_is_valid": true}
+  },
+  "protected_inputs": [
+    {"path": "pcb/temper.kicad_pcb", "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"},
+    {"path": "power_pcb_dataset/drc_ceiling.json", "sha256": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2"},
+    {"path": "elec/domain_manifest.yaml", "sha256": "f1899c87a61f579e2a92dbd673c1ad29036aed463b2f3fcc4ff7cca7f034bae3"},
+    {"path": "docs/ENVIRONMENTAL_SPEC.md", "sha256": "afa367890d4872cce0033455ded49ea9b5826b9ba3a25229f4ec336d34cbaccf"},
+    {"path": "packages/temper-placer/src/temper_placer/core/isolation_constants.py", "sha256": "486d54267087b467b4148e7eb3c91106f3950fc3784e527d786cf3f346aeae21"},
+    {"path": "elec/ato.yaml", "sha256": "e329edbf21569a5a347c20a4aab83209a02f11d1d29de7a96316097d4eec1a4d"},
+    {"path": "docs/hardware/BOM.md", "sha256": "7bdf2cf163ada5351b462bfb6090921c3a4d4881a28362d73dbdd93ccaa9f66c"}
+  ],
+  "candidate_inputs": {
+    "footprint": "elec/qualification/ct07_t2/footprints/CT07-1000-QUALIFICATION.kicad_mod",
+    "footprint_sha256": "158de06e75c8f3d8a27aca138da8abd92fd39fb7aeb7a18b6975727262c0c2ac",
+    "fixture": "elec/qualification/ct07_t2/fixture/ct07_t2_fixture.kicad_pcb",
+    "fixture_sha256": "58798fee40e80dd2d446e490087748c89eaa31512dfd0de7a386dee2b2a154c3",
+    "projection": "construction_projection.json",
+    "mechanical_protocol": "mechanical_protocol.json",
+    "electrical_protocol": "electrical_protocol.json"
+  },
+  "u9_environment": {
+    "protocol": "mechanical_protocol.json",
+    "status": "pending",
+    "records": [],
+    "control_challenges": [],
+    "required_checkpoints": [
+      "pre-stress",
+      "post-vibration",
+      "post-shock",
+      "post-thermal-cycle",
+      "post-damp-heat",
+      "post-stress-final"
+    ],
+    "blocking_reasons": [
+      "U6 construction digest is pending",
+      "no serialized samples or independently built lots exist",
+      "U5 baseline is unavailable"
+    ]
+  },
+  "records": [],
+  "pre_stress": {
+    "geometry": "pending",
+    "dielectric_leakage": "pending",
+    "structural": "pending",
+    "inspection": "pending",
+    "electrical_baseline": "pending"
+  },
+  "u7_a": {
+    "identity_package": "identity_eligibility.json",
+    "identity_digest": "9600fad8ef01fe81811657b7b56c82671f9d82537b318c3ebea5a4b76e4d4284",
+    "status": "stopped-indeterminate"
+  },
+  "u7_b": {
+    "status": "stopped-indeterminate",
+    "construction_id": "ct07-t2-u6-candidate",
+    "construction_digest": "pending-u6-freeze",
+    "construction_projection_digest": "7de97017936541182a44e992de7fdcc89254e38a84d1dfe4d9b4dda7b3eed59a",
+    "allowed_transform_policy_digest": "9481e02ae5d689b1ff7bcaab3ee445106b1e57f3084872ddaf118232551e7144",
+    "single_fault_analysis": "single_fault_analysis.json",
+    "single_fault_analysis_digest": "f57f40d7701b3f817942b7cc2fc95979454a76e01253d653864c93d4746356e1",
+    "internal_dispositions": "authority/internal_dispositions.json",
+    "internal_dispositions_digest": "e17a53e6a6efe2812ba3d75b47f5cb1e54e67c13a30d86101c18970fa4fc323a",
+    "evidence_index_digest": "pending-file-digest",
+    "dependencies": {
+      "u5": {"status": "pending", "path": "electrical_protocol.json", "construction_id": "ct07-t2-u6-candidate", "construction_digest": "pending-u6-freeze", "evidence_digest": "pending-u5-evidence"},
+      "u6": {"status": "pending", "path": "construction_manifest.json", "construction_id": "ct07-t2-u6-candidate", "construction_digest": "pending-u6-freeze", "evidence_digest": "pending-u6-evidence"},
+      "u9": {"status": "pending", "path": "mechanical_protocol.json", "construction_id": "ct07-t2-u6-candidate", "construction_digest": "pending-u6-freeze", "evidence_digest": "pending-u9-evidence"}
+    },
+    "blocking_reasons": [
+      "U7-A identity/source eligibility remains stopped-indeterminate",
+      "U5 representative evidence is unavailable",
+      "U6 construction digest and serialized samples are pending",
+      "U9 stress/control records are unavailable",
+      "single-fault outcomes and owner signatures are pending"
+    ]
+  },
+  "blocking_reasons": [
+    "U7-A pending/false",
+    "no five-sample/two-lot set",
+    "no signed 3D report",
+    "U5 has no representative captures because U6 is stopped-indeterminate"
+  ]
+}

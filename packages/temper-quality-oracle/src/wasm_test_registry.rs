@@ -43,7 +43,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 2610 eligible tests, in a stable order.  Each entry is
+/// All 2659 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -56,9 +56,14 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::slop_linter::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::via_count::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::config::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")] crate::ct07_t2_qualification::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")] crate::ct07_u8_handoff::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::derivation::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::ipc2221::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")] crate::isolation_qualification::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::oracle::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")] crate::owner_iso7741::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")] crate::owner_joint_candidate::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::placement_metrics::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::property_campaigns::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::quality_score::tests::WASM_TESTS,

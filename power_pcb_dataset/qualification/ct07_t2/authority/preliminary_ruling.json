@@ -1,0 +1,24 @@
+{
+  "ruling_id": "ct07-t2-a7-preliminary-pending",
+  "disposition": "unresolved",
+  "construction_digest": "pending-u6-freeze",
+  "construction_projection_digest": "7de97017936541182a44e992de7fdcc89254e38a84d1dfe4d9b4dda7b3eed59a",
+  "allowed_transform_policy_digest": "9481e02ae5d689b1ff7bcaab3ee445106b1e57f3084872ddaf118232551e7144",
+  "signed_artifact_digest": null,
+  "manual_verification_digest": null,
+  "standard_edition": "pending-authority-review",
+  "clauses": [],
+  "credited_surfaces": [],
+  "shortest_path_mm": null,
+  "scope": "reusable-construction-envelope",
+  "projection_approved": false,
+  "transform_policy_approved": false,
+  "limitations": [
+    {
+      "id": "a7-review-pending",
+      "scope": "ambiguous",
+      "description": "A7 preliminary ruling and signed scope-specific review are unavailable.",
+      "changes_identity": false
+    }
+  ]
+}

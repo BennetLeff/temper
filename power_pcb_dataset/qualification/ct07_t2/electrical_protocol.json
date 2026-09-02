@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "protocol_id": "ct07-t2-u5-electrical-v1",
+  "construction_id": "ct07-t2-u6-candidate",
+  "construction_digest": "pending-u6-freeze",
+  "protocol_digest": "pending-u5-protocol-freeze",
+  "status": "pending",
+  "scope": "candidate-only representative electrical screen; no production authorization",
+  "threshold_policy": {
+    "threshold_a": "60",
+    "direction": "rising",
+    "precondition_samples": 2,
+    "persistence_samples": 1,
+    "interpolation": "linear-between-calibrated-primary-current-samples",
+    "equality": "equal-or-above-counts-at-that-sample",
+    "recrossing": "first-qualifying-crossing-wins",
+    "hysteresis": "none"
+  },
+  "trip_uncertainty_a": "0",
+  "ocp01_conservative_high_a": "50",
+  "ordering_uncertainty_a": "0",
+  "minimum_bandwidth_hz": 350000,
+  "minimum_sample_rate_hz": 1000000,
+  "required_assemblies": 5,
+  "required_lots": 2,
+  "required_repetitions": 3,
+  "sample_floor": {
+    "complete_assemblies": 5,
+    "independent_lots": 2,
+    "repetitions_per_corner": 3,
+    "zero_false_or_missed_trips": true
+  },
+  "required_corners": [
+    "normal-15a-rms",
+    "startup",
+    "operating-35khz",
+    "harmonic-content",
+    "asymmetric-fault",
+    "declared-fault",
+    "overdrive-1.42x",
+    "temperature-low",
+    "temperature-high",
+    "supply-low",
+    "supply-high",
+    "component-low",
+    "component-high",
+    "immunity",
+    "ocp01-unavailable",
+    "power-up",
+    "power-down",
+    "brownout",
+    "persistent-fault"
+  ],
+  "channels": {
+    "primary_current": "calibrated-primary-current-a",
+    "comparator": "ocp02-comparator",
+    "system_latch": "hardware-latch-set"
+  },
+  "uncertainty": {
+    "method": "conservative-adverse-sum-with-k2-coverage",
+    "components": [
+      "ct07-clock",
+      "primary-current-probe",
+      "comparator-probe",
+      "latch-probe",
+      "instrument-timebase"
+    ],
+    "correlation": "each component is declared once; no averaging reduction"
+  },
+  "invalidity_rules": [
+    "clipped channel",
+    "expired or missing calibration",
+    "ambiguous current polarity or fault direction",
+    "missing below-threshold precondition",
+    "insufficient bandwidth or sample rate",
+    "insufficient samples to bracket or qualify crossing",
+    "crossing indistinguishable within timestamp uncertainty",
+    "missing comparator or latch assertion",
+    "construction or protocol digest mismatch",
+    "capture excluded after collection"
+  ],
+  "capture_requirements": {
+    "raw_channels_retained": true,
+    "normalized_channels": ["primary_current_a", "comparator_asserted", "latch_asserted"],
+    "calibration_identity_required": true,
+    "lot_and_serial_identity_required": true,
+    "construction_digest_required": true
+  },
+  "aggregate_timing_owner": "isolation-joint-r24-r25-v1",
+  "blocking_reasons": [
+    "U6 is stopped-indeterminate and has no five-sample/two-lot serialized construction set",
+    "U7-A identity/source eligibility is not approved",
+    "no representative captures are present"
+  ],
+  "notes": [
+    "This protocol is frozen before data collection but remains pending until U6 binds a real construction digest.",
+    "The CT07 result publishes only the measured sensor-to-system-latch bound; the downstream joint owner performs any aggregate timing comparison.",
+    "No representative hardware capture or passing axis is fabricated by this placeholder."
+  ]
+}

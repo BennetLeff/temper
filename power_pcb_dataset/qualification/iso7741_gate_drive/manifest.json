@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "stage": "internal",
+  "evidence_index": "evidence_index.json",
+  "owner_signoffs": "owner_signoffs.json",
+  "internal_decision": "internal_decision.json",
+  "submission_index": "authority/submission_index.json",
+  "preliminary_ruling": "authority/preliminary_ruling.json",
+  "preliminary_decision": "preliminary_decision.json",
+  "base_commit": "85b4e400572a77d18f0ee6c644a532ab0a55dd8e",
+  "protected_inputs": [
+    {"path": "pcb/temper.kicad_pcb", "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"},
+    {"path": "power_pcb_dataset/drc_ceiling.json", "sha256": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2"},
+    {"path": "elec/domain_manifest.yaml", "sha256": "f1899c87a61f579e2a92dbd673c1ad29036aed463b2f3fcc4ff7cca7f034bae3"},
+    {"path": "docs/ENVIRONMENTAL_SPEC.md", "sha256": "afa367890d4872cce0033455ded49ea9b5826b9ba3a25229f4ec336d34cbaccf"},
+    {"path": "packages/temper-placer/src/temper_placer/core/isolation_constants.py", "sha256": "486d54267087b467b4148e7eb3c91106f3950fc3784e527d786cf3f346aeae21"}
+  ],
+  "candidate": {
+    "candidate_id": "iso7741-baseline",
+    "envelope_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+    "isolator_mpn": "ISO7741FQDWWRQ1",
+    "local_driver_mpn": "UCC27517AQDBVRQ1",
+    "domains": ["high-side", "low-side"],
+    "construction_projection_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+    "allowed_transform_policy_digest": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "provenance": {
+    "source_revision": "pending-candidate-build",
+    "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "test_conditions": "pending-candidate-evidence"
+  },
+  "evidence_axes": [],
+  "truth_rows": [],
+  "transition_rows": [],
+  "fault_rows": [],
+  "owner_signoffs": [],
+  "preliminary_ruling": null
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "record_type": "schema-placeholder",
+  "record_id": null,
+  "status": "pending",
+  "checkpoint_id": null,
+  "construction_id": "pending-u6-freeze",
+  "construction_digest": null,
+  "protocol_digest": "pending-u9-protocol-freeze",
+  "lot_id": null,
+  "sample_id": null,
+  "assembly_index": null,
+  "axes": [],
+  "evidence_ids": [],
+  "repaired": false,
+  "replaced": false,
+  "process_changed": false,
+  "note": "Template only; no environmental result, sample, repair, or pass is supplied."
+}

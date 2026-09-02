@@ -17,6 +17,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -103,11 +104,6 @@ class Component:
     # reader will treat as this component's value -- see load_bom_values().
     display_value: str = ""
 
-    @property
-    def sheet_name(self) -> str:
-        return MODULE_TO_SHEET.get(self.sheet_module, "Unknown")
-
-
 @dataclass
 class Net:
     code: str
@@ -119,12 +115,15 @@ class Net:
         return len(self.nodes)
 
     def sheets_for_components(
-        self, components: dict[str, Component]
+        self,
+        components: dict[str, Component],
+        layout: SchematicLayout | None = None,
     ) -> set[str]:
+        resolved_layout = _layout_or_default(layout)
         sheets: set[str] = set()
         for ref, _pin in self.nodes:
             if ref in components:
-                sheets.add(components[ref].sheet_name)
+                sheets.add(_component_sheet(components[ref], resolved_layout))
         return sheets
 
 
@@ -162,6 +161,95 @@ SHEET_FILES: dict[str, str] = {
 }
 
 ROOT_SHEET = "temper.kicad_sch"
+
+
+@dataclass(frozen=True)
+class SchematicLayout:
+    """Names and sheet mapping for one generated schematic envelope.
+
+    The production layout is the default value below.  Qualification
+    candidates may supply a checked JSON layout without changing any
+    production filenames or mappings.
+    """
+
+    root_sheet: str
+    sheets: tuple[str, ...]
+    sheet_files: dict[str, str]
+    module_to_sheet: dict[str, str]
+    title: str
+    sheet_description: str
+
+
+DEFAULT_LAYOUT = SchematicLayout(
+    root_sheet=ROOT_SHEET,
+    sheets=tuple(SHEETS),
+    sheet_files=dict(SHEET_FILES),
+    module_to_sheet=dict(MODULE_TO_SHEET),
+    title="Temper Induction Cooker",
+    sheet_description="TEMPER INDUCTION COOKER\\n\\nGENERATED -- do not hand-edit\\nedit elec/src/*.ato and run make schematics\\n\\n6 Sheets:\\nPower_Input\\nHalf_Bridge\\nPower_Management\\nSafety_Interlock (inc. ct_sense)\\nSensing\\nMCU",
+)
+
+
+def _load_layout_config(path: Path) -> SchematicLayout:
+    """Load a candidate-only layout config and reject ambiguous mappings."""
+
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid schematic layout config {path}: {exc}") from exc
+    if not isinstance(raw, dict) or raw.get("schema_version") != 1:
+        raise ValueError("schematic layout config schema_version must be 1")
+
+    root_sheet = raw.get("root_sheet")
+    sheets = raw.get("sheets")
+    sheet_files = raw.get("sheet_files")
+    module_to_sheet = raw.get("module_to_sheet")
+    title = raw.get("title")
+    sheet_description = raw.get("sheet_description", title)
+    if (
+        not isinstance(root_sheet, str)
+        or Path(root_sheet).name != root_sheet
+        or not root_sheet.endswith(".kicad_sch")
+        or not isinstance(sheets, list)
+        or not sheets
+        or any(not isinstance(item, str) or not item for item in sheets)
+        or len(set(sheets)) != len(sheets)
+        or not isinstance(sheet_files, dict)
+        or set(sheet_files) != set(sheets)
+        or any(
+            not isinstance(value, str)
+            or Path(value).name != value
+            or not value.endswith(".kicad_sch")
+            for value in sheet_files.values()
+        )
+        or not isinstance(module_to_sheet, dict)
+        or any(
+            not isinstance(key, str)
+            or not isinstance(value, str)
+            or value not in sheets
+            for key, value in module_to_sheet.items()
+        )
+        or not isinstance(title, str)
+        or not title.strip()
+        or not isinstance(sheet_description, str)
+    ):
+        raise ValueError("schematic layout config has invalid root/sheet mapping")
+    return SchematicLayout(
+        root_sheet=root_sheet,
+        sheets=tuple(sheets),
+        sheet_files=dict(sheet_files),
+        module_to_sheet=dict(module_to_sheet),
+        title=title,
+        sheet_description=sheet_description,
+    )
+
+
+def _layout_or_default(layout: SchematicLayout | None) -> SchematicLayout:
+    return DEFAULT_LAYOUT if layout is None else layout
+
+
+def _component_sheet(comp: Component, layout: SchematicLayout) -> str:
+    return layout.module_to_sheet.get(comp.sheet_module, "Unknown")
 
 
 def _module_from_sheetpath(sheetpath_node: list[Any]) -> str:
@@ -630,6 +718,7 @@ def _sheet_instance(
     uuid: str,
     pins: list[tuple[str, str, str]],  # (net_name, direction, pin_uuid)
     color: tuple[int, int, int, float] | None = None,
+    sheet_file: str | None = None,
 ) -> str:
     """Emit a sheet instance block for the root schematic."""
     if color is None:
@@ -643,7 +732,8 @@ def _sheet_instance(
         }
         color = colors.get(page_num, (220, 220, 220, 1))
 
-    sheet_file = SHEET_FILES[sheet_name]
+    if sheet_file is None:
+        sheet_file = SHEET_FILES[sheet_name]
     size_w = 50.8
     size_h = max(25.4, len(pins) * 5.08 + 5.08)
 
@@ -711,8 +801,10 @@ def generate_sheet(
     sheet_comps: list[Component],
     netlist: Netlist,
     inter_sheet_nets: set[str],
+    layout: SchematicLayout | None = None,
 ) -> str:
     """Generate a complete .kicad_sch file for one sub-sheet."""
+    layout = _layout_or_default(layout)
     sheet_uuid = _uuid_from_seed(f"sheet:{sheet_name}")
 
     # Collect libparts needed on this sheet
@@ -813,11 +905,13 @@ def generate_root_sheet(
     netlist: Netlist,
     sheet_components: dict[str, list[Component]],
     inter_sheet_nets: set[str],
+    layout: SchematicLayout | None = None,
 ) -> str:
     """Generate the root .kicad_sch with sheet instances."""
+    layout = _layout_or_default(layout)
     parts: list[str] = [
-        _schematic_header("Temper Induction Cooker", ROOT_UUID),
-        '  (text "TEMPER INDUCTION COOKER\\n\\nGENERATED -- do not hand-edit\\nedit elec/src/*.ato and run make schematics\\n\\n6 Sheets:\\nPower_Input\\nHalf_Bridge\\nPower_Management\\nSafety_Interlock (inc. ct_sense)\\nSensing\\nMCU"',
+        _schematic_header(layout.title, ROOT_UUID),
+        f'  (text "{layout.sheet_description}"',
         "    (exclude_from_sim no)",
         "    (at 25.4 38.1 0)",
         "    (effects (font (size 2.54 2.54)) (justify left))",
@@ -841,7 +935,7 @@ def generate_root_sheet(
     for net_name in sorted(inter_sheet_nets):
         for _net_code, net in netlist.nets.items():
             if net.name == net_name:
-                sheets = net.sheets_for_components(netlist.components)
+                sheets = net.sheets_for_components(netlist.components, layout=layout)
                 for s in sheets:
                     if net_name not in sheet_pins[s]:
                         sheet_pins[s].append(net_name)
@@ -853,7 +947,7 @@ def generate_root_sheet(
     y = 101.6
     y_spacing = 20.0  # vertical gap between sheet blocks, in mm
 
-    for i, sheet_name in enumerate(SHEETS):
+    for i, sheet_name in enumerate(layout.sheets):
         page_num = i + 2
 
         pins: list[tuple[str, str, str]] = []
@@ -863,7 +957,10 @@ def generate_root_sheet(
             pins.append((net_name, direction, pin_uuid))
 
         sheet_uuid = _uuid_from_seed(f"rootsheet:{sheet_name}")
-        sheet_block, root_labels = _sheet_instance(sheet_name, x, y, page_num, sheet_uuid, pins)
+        sheet_block, root_labels = _sheet_instance(
+            sheet_name, x, y, page_num, sheet_uuid, pins,
+            sheet_file=layout.sheet_files[sheet_name],
+        )
         parts.append(sheet_block)
         if root_labels:
             parts.append(root_labels)
@@ -873,7 +970,7 @@ def generate_root_sheet(
         y = y + size_h + y_spacing
 
     parts.append("\n  (sheet_instances")
-    for i, sheet_name in enumerate(SHEETS):
+    for i, sheet_name in enumerate(layout.sheets):
         page_num = i + 2
         sheet_uuid = _uuid_from_seed(f"sheet:{sheet_name}")
         parts.append(
@@ -891,46 +988,73 @@ def generate_root_sheet(
 
 
 def _generate_all_sheets(
-    netlist: Netlist, output_dir: Path
+    netlist: Netlist, output_dir: Path, layout: SchematicLayout | None = None
 ) -> dict[str, str]:
     """Generate all schematic files and return {filename: content}."""
+    layout = _layout_or_default(layout)
     # Group components by sheet
     sheet_components: dict[str, list[Component]] = defaultdict(list)
     for comp in netlist.components.values():
-        sheet_components[comp.sheet_name].append(comp)
+        sheet_components[_component_sheet(comp, layout)].append(comp)
 
     # Determine inter-sheet nets
     inter_sheet_nets: set[str] = set()
     for net in netlist.nets.values():
-        if len(net.nodes) >= 2 and len(net.sheets_for_components(netlist.components)) > 1:
+        if (
+            len(net.nodes) >= 2
+            and len(net.sheets_for_components(netlist.components, layout=layout)) > 1
+        ):
             inter_sheet_nets.add(net.name)
 
     files: dict[str, str] = {}
 
     # Generate sub-sheets
-    for sheet_name in SHEETS:
+    for sheet_name in layout.sheets:
         comps = sheet_components.get(sheet_name, [])
-        content = generate_sheet(sheet_name, comps, netlist, inter_sheet_nets)
-        filename = SHEET_FILES[sheet_name]
+        content = generate_sheet(
+            sheet_name, comps, netlist, inter_sheet_nets, layout=layout
+        )
+        filename = layout.sheet_files[sheet_name]
         files[filename] = content
 
     # Generate root sheet
-    root_content = generate_root_sheet(netlist, sheet_components, inter_sheet_nets)
-    files[ROOT_SHEET] = root_content
+    root_content = generate_root_sheet(
+        netlist, sheet_components, inter_sheet_nets, layout=layout
+    )
+    files[layout.root_sheet] = root_content
 
     return files
 
 
 def _write_schematics(files: dict[str, str], output_dir: Path) -> None:
-    """Write schematic files to the output directory."""
+    """Atomically publish generated schematic files to the output directory."""
     output_dir.mkdir(parents=True, exist_ok=True)
     for filename, content in files.items():
-        (output_dir / filename).write_text(content, encoding="utf-8")
+        if Path(filename).name != filename:
+            raise ValueError(f"schematic filename escapes output directory: {filename!r}")
+        target = output_dir / filename
+        temporary: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w", encoding="utf-8", dir=output_dir,
+                prefix=f".{filename}.", suffix=".tmp", delete=False,
+            ) as fh:
+                temporary = Path(fh.name)
+                fh.write(content)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(temporary, target)
+            temporary = None
+        finally:
+            if temporary is not None and temporary.exists():
+                temporary.unlink()
 
 
-def _export_netlist(sch_dir: Path, output_path: Path) -> str:
+def _export_netlist(
+    sch_dir: Path, output_path: Path, layout: SchematicLayout | None = None
+) -> str:
     """Run kicad-cli to export netlist from the schematic."""
-    root_sch = sch_dir / ROOT_SHEET
+    root_sch = sch_dir / _layout_or_default(layout).root_sheet
     if not root_sch.exists():
         raise FileNotFoundError(f"Root schematic not found: {root_sch}")
 
@@ -984,7 +1108,11 @@ def _build_connectivity_partition(netlist_data: str, strip_prefix: bool = False)
     return partition
 
 
-def oracle_verify(source_netlist_path: Path, generated_dir: Path) -> bool:
+def oracle_verify(
+    source_netlist_path: Path,
+    generated_dir: Path,
+    layout: SchematicLayout | None = None,
+) -> bool:
     """Verify generated schematics match source netlist connectivity.
 
     Returns True if connectivity partitions are isomorphic.
@@ -994,7 +1122,7 @@ def oracle_verify(source_netlist_path: Path, generated_dir: Path) -> bool:
         exported_path = Path(f.name)
 
     try:
-        _export_netlist(generated_dir, exported_path)
+        _export_netlist(generated_dir, exported_path, layout=layout)
 
         source_partition = _build_connectivity_partition(
             source_netlist_path.read_text(encoding="utf-8"),
@@ -1112,7 +1240,26 @@ def main() -> None:
             "footprint-aliased and cannot be used)"
         ),
     )
+    parser.add_argument(
+        "--layout-config",
+        type=Path,
+        default=None,
+        help=(
+            "Optional candidate-only JSON layout mapping. When omitted, "
+            "the production root/sheet defaults are unchanged."
+        ),
+    )
     args = parser.parse_args()
+
+    try:
+        layout = (
+            _load_layout_config(args.layout_config)
+            if args.layout_config is not None
+            else DEFAULT_LAYOUT
+        )
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(1)
 
     if not args.netlist.is_file():
         print(f"ERROR: netlist not found: {args.netlist}", file=sys.stderr)
@@ -1140,7 +1287,7 @@ def main() -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_path = Path(tmpdir)
             print(f"Regenerating to temp dir: {tmp_path}")
-            files = _generate_all_sheets(netlist, tmp_path)
+            files = _generate_all_sheets(netlist, tmp_path, layout=layout)
             _write_schematics(files, tmp_path)
 
             # Oracle check
@@ -1148,7 +1295,7 @@ def main() -> None:
                 print("Skipping oracle (--no-oracle)")
             else:
                 print("Running oracle...")
-                ok = oracle_verify(args.netlist, tmp_path)
+                ok = oracle_verify(args.netlist, tmp_path, layout=layout)
                 if not ok:
                     sys.exit(1)
 
@@ -1184,7 +1331,7 @@ def main() -> None:
             print("CHECK PASS: all schematics match netlist")
     else:
         # Generate mode
-        files = _generate_all_sheets(netlist, args.output_dir)
+        files = _generate_all_sheets(netlist, args.output_dir, layout=layout)
         _write_schematics(files, args.output_dir)
         print(f"Generated {len(files)} schematic files in {args.output_dir}")
 
@@ -1193,7 +1340,7 @@ def main() -> None:
             print("Skipping oracle (--no-oracle)")
         else:
             print("Running oracle...")
-            ok = oracle_verify(args.netlist, args.output_dir)
+            ok = oracle_verify(args.netlist, args.output_dir, layout=layout)
             if not ok:
                 sys.exit(1)
 

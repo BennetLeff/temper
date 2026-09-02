@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "production_authority": false,
+  "purpose": "non-production state, timing, UVLO, precharge, and fault fixture contract",
+  "candidate_digest_source": "power_pcb_dataset/qualification/iso7741_gate_drive/manifest.json",
+  "channels": {
+    "primary_inputs": ["pwm_high_side", "pwm_low_side", "run_permit_high_side", "run_permit_low_side", "system_shutdown"],
+    "reverse_health": ["challenge_high_side", "challenge_low_side", "echo_high_side", "echo_low_side"],
+    "supplies": ["barrier_supply", "high_side_driver_supply", "low_side_driver_supply", "high_side_local_3v3", "low_side_local_3v3"],
+    "gate_endpoints": ["high_side_gate", "low_side_gate"],
+    "sample_clock": "single shared clock and trigger for both gate endpoints"
+  },
+  "stimuli": {
+    "supply_orders": ["all-present", "barrier-first", "driver-first", "one-domain-only", "primary-loss-local-present", "all-return-after-cycle"],
+    "control_orders": ["startup", "steady-switching", "shutdown", "reset", "precharge-authorized", "one-channel-late", "fault-then-clear"],
+    "faults": "R12 fault matrix plus common-cause forward-output row"
+  },
+  "limits": {
+    "uvlo_falling_v": 12.0,
+    "uvlo_rising_v": 13.0,
+    "effective_non_overlap_min_ns": 300,
+    "igbt_turn_off_margin_ns": 50,
+    "local_safe_latency_max_ns": 5000
+  },
+  "precharge": {
+    "mode": "precharge-authorized",
+    "low_side_only": true,
+    "high_side_permit": "hard-inhibited",
+    "max_pulses": 8,
+    "timeout_ns": 200000,
+    "max_current_a": 0.25,
+    "cancel_events": ["fault", "timeout", "reset", "supply-loss", "current-violation", "re-entry"]
+  },
+  "calibration": {
+    "status": "pending",
+    "required": ["probe_bandwidth", "probe_skew", "scope_timebase", "current_probe", "voltage_probe", "temperature_sensor"],
+    "artifact": null
+  },
+  "controlled_facts": {
+    "status": "pending",
+    "required": ["manufacturer_pin_maps", "uvlo_corners", "propagation_extrema", "igbt_turn_off_bound", "negative_bias_tolerance"]
+  },
+  "bench_capture": {
+    "status": "pending",
+    "required": ["both_gate_endpoints", "common_trigger", "raw_capture_digest", "supply_loss_cases", "fault_cases"]
+  },
+  "fail_closed": true,
+  "status": "stopped-indeterminate",
+  "blocking_reasons": [
+    "controlled manufacturer and component corner facts are not present",
+    "calibrated synchronized bench captures are not present",
+    "negative-bias, UVLO, dead-time, and local-safe latency bounds cannot be promoted from model-only evidence"
+  ]
+}
