@@ -1,5 +1,7 @@
 # Porting `astar_core._astar_search` to Rust — measured
 
+<!-- provenance: commit=464e1e2bdd6c5a28f6fda316e04a2a2684110210 dirty=true (persistent main commit for PR #1383 carrying this evidence and the described Rust port; original authoring worktree state was not retained) -->
+
 **2026-08-18.** The last live pure-Python search kernel in the router is now
 Rust. The routed board is byte-identical.
 

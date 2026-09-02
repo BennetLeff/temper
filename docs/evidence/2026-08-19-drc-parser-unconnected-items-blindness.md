@@ -1,5 +1,7 @@
 # The DRC parser read one of kicad-cli's ten top-level keys
 
+<!-- provenance: commit=85b4e400572a77d18f0ee6c644a532ab0a55dd8e dirty=true (persistent main commit for PR #1390 carrying this evidence and the parser fix; original authoring worktree state was not retained) -->
+
 **Date:** 2026-08-19
 **Board:** `pcb/temper.kicad_pcb`, sha256 `26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b` (unmodified)
 **Branch:** `fix/drc-parser-unconnected-items`, cut from `origin/main` `e63028ccd`

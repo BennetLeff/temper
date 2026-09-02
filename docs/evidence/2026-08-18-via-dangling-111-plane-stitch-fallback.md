@@ -1,5 +1,4 @@
-<!-- provenance: commit=ce278aa09 (origin/main) + this task's own uncommitted fix to
-_ground_plane.py + test_ground_plane.py, committed alongside this doc.
+<!-- provenance: commit=9085ff1b746db71d9849b594930327d6b03af97f dirty=true (persistent main commit for PR #1378 carrying this evidence and the described fix; the original record states that _ground_plane.py + test_ground_plane.py were uncommitted alongside this doc at measurement time).
 pcb/temper.kicad_pcb was NEVER written by this task -- every kicad-cli run below
 executes against a byte-for-byte scratch copy under a task-owned temp directory;
 sha256 26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b verified
