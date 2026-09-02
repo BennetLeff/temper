@@ -8,9 +8,9 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "scripts"))
 
-import scripts.gen_schematics as generator  # noqa: E402
+import gen_schematics as generator  # noqa: E402
 
 
 CONFIG = ROOT / "elec/qualification/iso7741_gate_drive/validation/schematic_layout.json"

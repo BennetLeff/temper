@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import os
+import sys
 from pathlib import Path
 
 import pytest
-from scripts._lib import qualification_replay
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+from _lib import qualification_replay  # noqa: E402
 
 
 def test_read_once_rejects_symlink_and_hashes_the_same_bytes(tmp_path: Path) -> None:

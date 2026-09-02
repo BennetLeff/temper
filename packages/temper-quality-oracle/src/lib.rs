@@ -22,8 +22,8 @@ pub mod ct07_t2_qualification;
 pub mod ct07_u8_handoff;
 pub mod derivation;
 pub mod ipc2221;
-pub mod iso7741_gate_drive_qualification;
-pub mod isolation_joint_qualification;
+pub mod owner_iso7741;
+pub mod owner_joint_candidate;
 pub mod isolation_qualification;
 pub mod oracle;
 pub mod placement_metrics;
@@ -1019,7 +1019,7 @@ fn evaluate_isolation_qualification_json(manifest_json: &str) -> PyResult<String
 #[pyfunction]
 fn evaluate_isolation_joint_qualification_json(package_json: &str) -> PyResult<String> {
     temper_py_bridge::catch_panic(|| {
-        isolation_joint_qualification::evaluate_joint_json(package_json)
+        owner_joint_candidate::evaluate_joint_json(package_json)
             .map_err(|error| PyValueError::new_err(error.to_string()))
     })
 }
@@ -1030,7 +1030,7 @@ fn evaluate_isolation_joint_qualification_json(package_json: &str) -> PyResult<S
 #[pyfunction]
 fn evaluate_isolation_joint_u9_json(package_json: &str) -> PyResult<String> {
     temper_py_bridge::catch_panic(|| {
-        isolation_joint_qualification::evaluate_u9_json(package_json)
+        owner_joint_candidate::evaluate_u9_json(package_json)
             .map_err(|error| PyValueError::new_err(error.to_string()))
     })
 }
@@ -1041,7 +1041,7 @@ fn evaluate_isolation_joint_u9_json(package_json: &str) -> PyResult<String> {
 #[pyfunction]
 fn evaluate_iso7741_gate_drive_qualification_json(package_json: &str) -> PyResult<String> {
     temper_py_bridge::catch_panic(|| {
-        iso7741_gate_drive_qualification::evaluate_gate_drive_json(package_json)
+        owner_iso7741::evaluate_gate_drive_json(package_json)
             .map_err(|error| PyValueError::new_err(error.to_string()))
     })
 }
