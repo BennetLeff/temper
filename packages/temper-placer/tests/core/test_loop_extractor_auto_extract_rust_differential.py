@@ -1076,16 +1076,17 @@ def test_no_bus_cap_half_bridge_rust_errors_oracle_partial_documented():
     ]
 
 
-def test_rust_missing_fails_closed(monkeypatch):
-    """A missing required Rust extension is a broken build, not a signal to
-    silently substitute the Python oracle."""
+def test_rust_missing_falls_back_to_python(monkeypatch):
+    """The shim returns None (not raising) when temper-rust-router cannot be
+    imported, so auto_extract_loops falls through to the Python compute —
+    the documented R23 fallback, here forced by blocking the import."""
     import sys
 
     import temper_placer.core.loop_extractor as le
 
     monkeypatch.setitem(sys.modules, "temper_rust_router", None)
-    with pytest.raises(ImportError, match="temper_rust_router extension is required"):
-        le.auto_extract_loops(_full_half_bridge())
+    result = le.auto_extract_loops(_full_half_bridge())
+    assert len(result.loops) == 4  # commutation + 2 gate drives + bootstrap
 
 
 # ---------------------------------------------------------------------------

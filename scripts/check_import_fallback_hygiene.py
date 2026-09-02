@@ -54,8 +54,8 @@ from __future__ import annotations
 
 import argparse
 import ast
-import re
 import sys
+import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -125,10 +125,16 @@ class Report:
 def first_party_prefixes(repo_root: Path) -> frozenset[str]:
     """Import prefixes owned by this repo, read from packages/*/pyproject.toml."""
     names: set[str] = set()
-    for pyproject in sorted((repo_root / "packages").glob("*/pyproject.toml")):
-        m = re.search(r"^name\s*=\s*\"([^\"]+)\"", pyproject.read_text(), re.M)
-        if m:
-            names.add(m.group(1).replace("-", "_"))
+    pyprojects = sorted((repo_root / "packages").glob("*/pyproject.toml"))
+    for pyproject in pyprojects:
+        try:
+            project_name = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"]["name"]
+        except (tomllib.TOMLDecodeError, KeyError, TypeError) as exc:
+            raise GateError(f"{pyproject}: missing or invalid [project].name: {exc}") from exc
+        prefix = str(project_name).replace("-", "_")
+        if prefix in names:
+            raise GateError(f"duplicate first-party import prefix {prefix!r} in {pyproject}")
+        names.add(prefix)
     if len(names) < 5:
         raise GateError(
             f"discovered only {len(names)} first-party package name(s) under "
@@ -147,10 +153,19 @@ def _catches_import_error(handler: ast.ExceptHandler) -> bool:
     exc = handler.type
     if exc is None:
         return False  # bare `except:` is a different gate's problem
-    if isinstance(exc, ast.Name):
-        return exc.id == "ImportError"
+    def is_import_error(node: ast.AST) -> bool:
+        return (
+            isinstance(node, ast.Name)
+            and node.id in {"ImportError", "ModuleNotFoundError"}
+        ) or (
+            isinstance(node, ast.Attribute)
+            and node.attr in {"ImportError", "ModuleNotFoundError"}
+        )
+
+    if is_import_error(exc):
+        return True
     if isinstance(exc, ast.Tuple):
-        return any(isinstance(e, ast.Name) and e.id == "ImportError" for e in exc.elts)
+        return any(is_import_error(item) for item in exc.elts)
     return False
 
 
@@ -167,25 +182,48 @@ def _imported_modules(try_body: list[ast.stmt]) -> list[str]:
 
 
 def _handler_raises(handler: ast.ExceptHandler) -> bool:
-    return any(isinstance(n, ast.Raise) for n in ast.walk(handler))
+    def contains_raise(node: ast.AST) -> bool:
+        if isinstance(node, ast.Raise):
+            return True
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            return False
+        return any(contains_raise(child) for child in ast.iter_child_nodes(node))
+
+    return any(contains_raise(stmt) for stmt in handler.body)
 
 
-def _propagates_exception(handler: ast.ExceptHandler) -> bool:
-    """Does the handler bind the exception and carry it into its result?
+def _returns_explicit_nonpassing(handler: ast.ExceptHandler) -> bool:
+    """Does the handler return a GateResult explicitly marked UNMEASURED?
 
     ``except ImportError as exc: return GateResult(UNMEASURED,
     error_message=f"...: {exc}")`` is not fail-open -- ``UNMEASURED`` is a
-    distinct non-passing state and the reason travels with it. That shape
-    (``placer/cp_sat/gates.py``) is the *correct* contract for a gate, so
-    R1/R2 must not forbid it. The detectable invariant is that the caught
-    exception is bound and actually referenced, i.e. the evidence is not
-    destroyed.
+    distinct non-passing state and the reason travels with it. Merely
+    mentioning the exception in a log is insufficient: the returned value
+    itself must be a ``GateResult`` carrying an ``UNMEASURED`` marker and
+    must reference the caught exception.
     """
     if not handler.name:
         return False
-    return any(
-        isinstance(n, ast.Name) and n.id == handler.name for n in ast.walk(handler)
-    )
+    for node in ast.walk(handler):
+        if not isinstance(node, ast.Return) or not isinstance(node.value, ast.Call):
+            continue
+        call = node.value
+        fn = call.func
+        if not (isinstance(fn, ast.Name) and fn.id == "GateResult"):
+            continue
+        values = [*call.args, *(kw.value for kw in call.keywords)]
+        has_unmeasured = any(
+            (isinstance(value, ast.Name) and value.id == "UNMEASURED")
+            or (isinstance(value, ast.Attribute) and value.attr == "UNMEASURED")
+            for value in values
+        )
+        references_error = any(
+            isinstance(child, ast.Name) and child.id == handler.name
+            for child in ast.walk(call)
+        )
+        if has_unmeasured and references_error:
+            return True
+    return False
 
 
 def _handler_is_observable(handler: ast.ExceptHandler) -> bool:
@@ -266,15 +304,9 @@ def analyze_file(path: Path, rel: str, prefixes: frozenset[str]) -> tuple[int, l
             qual = quals.get(handler.lineno, "<module>")
             raises = _handler_raises(handler)
             silent = _silent_exit_detail(handler)
-            observable = _handler_is_observable(handler) or _propagates_exception(
-                handler
-            )
-            # Carrying the caught exception into an explicit non-passing
-            # result is as good as re-raising for R1's purpose: the
-            # evidence survives.
-            raises = raises or _propagates_exception(handler)
-
-            if first and not raises:
+            explicit_nonpassing = _returns_explicit_nonpassing(handler)
+            observable = _handler_is_observable(handler) or explicit_nonpassing
+            if first and not (raises or explicit_nonpassing):
                 findings.append(
                     Finding(
                         rel,

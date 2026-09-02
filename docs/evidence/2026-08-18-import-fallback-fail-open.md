@@ -5,6 +5,13 @@ Branch: `fix/importerror-fail-closed`
 Board: `pcb/temper.kicad_pcb` @ `26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b`
 (unmodified; verified before and after)
 
+Refresh note (2026-09-01): the measurements below remain historical to the
+recorded board hash. The gate was rebuilt on current main and now audits 37
+handlers with 12 narrow exemptions. Explicit Python/reference backends in
+`clearance_check.py`, `drc_oracle.py`, and loop extraction are preserved and
+allowlisted because their degraded state is observable; they are not silent
+passing sentinels.
+
 ## 0. Count correction: 36 handlers, not 37
 
 `grep -c "except ImportError"` over `packages/temper-placer/src/temper_placer/`

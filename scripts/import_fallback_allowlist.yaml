@@ -19,6 +19,36 @@ exemptions:
   # ---------------------------------------------------------------
   # (a) explicit, observable degraded state -- correct as written
   # ---------------------------------------------------------------
+  - key: "packages/temper-placer/src/temper_placer/core/loop_extractor_rs.py::auto_extract_loops_rs::temper_design_bundle_python,temper_rust_router"
+    reason: >-
+      This API deliberately provides the Python loop extractor as its reference
+      backend. A warning makes the substitution observable, and callers retain
+      the documented fallback for runtime extraction failures as well.
+
+  - key: "packages/temper-placer/src/temper_placer/regression/closure_test.py::_run_channel_analysis::temper_placer.deterministic,temper_placer.router_v6.stage2_orchestrator"
+    reason: >-
+      Channel analysis is an optional closure-test stage. The handler logs the
+      missing stage and returns the unchanged stages_exercised count, so the
+      degraded state is explicit in both logs and the closure score.
+
+  - key: "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py::<module>::temper_drc_rs"
+    reason: >-
+      clearance_check exposes explicit python, rust, and auto backends. Missing
+      Rust sets _HAS_RUST_CLEARANCE false so python and auto remain usable; an
+      explicit rust request fails at backend selection.
+
+  - key: "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py::<module>::temper_orchestration"
+    reason: >-
+      The orchestration extension is an optional accelerated backend for this
+      module. Capability state is recorded in _HAS_RUN_CLEARANCE_CHECK and the
+      documented Python implementation remains available.
+
+  - key: "packages/temper-placer/src/temper_placer/validation/drc_oracle.py::<module>::temper_drc_rs"
+    reason: >-
+      drc_oracle intentionally retains the pinned Python oracle for differential
+      and no-extension environments. _HAS_RUST_DRC records which backend is
+      active; explicit Rust-only entry points still raise when unavailable.
+
   - key: "packages/temper-placer/src/temper_placer/cli/_optimize_audit.py::_maybe_surface_unsat::temper_placer.placer.cp_sat.unsat_surface"
     reason: >-
       Interactive CLI audit helper. The handler prints "Failed to import

@@ -36,17 +36,8 @@ try:
     import temper_drc_rs
 
     _HAS_RUST_DRC = True
-except ImportError as e:  # pragma: no cover - broken build
-    # Was: `_HAS_RUST_DRC = False`, which silently routed every DRC
-    # measurement in this module onto the verbatim pre-migration Python
-    # path. A DRC oracle quietly answering from a different implementation
-    # than the one the build is supposed to ship is indistinguishable from
-    # a clean run at every call site below.
-    raise ImportError(
-        "The temper_drc_rs Rust extension is required by the DRC oracle and "
-        "is not built. A missing extension is a broken build, not an "
-        "optional mode -- build it with: make extensions"
-    ) from e
+except ImportError:
+    _HAS_RUST_DRC = False
 
 _RS = None
 

@@ -171,22 +171,12 @@ def auto_extract_loops_rs(
 
         return _dict_to_loop_collection(result)
 
-    except ImportError as e:
-        # Was: warn + `return None`, which routed the caller onto a
-        # different (Python) loop extractor. A missing extension is a
-        # broken build, not a runtime mode -- silently computing loops
-        # with a different implementation than the one under test is
-        # exactly the substitution this repo is trying to eliminate.
-        # NOTE: this is the *ImportError* path only. The RuntimeError path
-        # below is a genuine extraction failure and still falls back; on
-        # the real board that is the path actually taken today (the Rust
-        # extractor raises "No bus capacitor path ..."), which is tracked
-        # separately -- see the evidence doc.
-        raise ImportError(
-            "The temper_rust_router extension is required for Rust loop "
-            "extraction and is not built. A missing extension is a broken "
-            "build, not an optional mode -- build it with: make extensions"
-        ) from e
+    except ImportError:
+        warnings.warn(
+            "temper-rust-router not available — falling back to Python loop extractor",
+            stacklevel=2,
+        )
+        return None
     except (
         RuntimeError,
         json.JSONDecodeError,

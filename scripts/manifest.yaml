@@ -1747,8 +1747,8 @@ scripts:
   - ast
   - dataclasses
   - pathlib
-  - re
   - sys
+  - tomllib
   - yaml
 - path: check_unwired_kernels.py
   purpose: 'CI gate: fail when a Rust kernel is registered into a Python module but no non-test code calls

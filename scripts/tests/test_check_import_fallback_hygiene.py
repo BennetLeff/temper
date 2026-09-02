@@ -59,7 +59,9 @@ def _fake_repo(tmp_path: Path, module_src: str, n_packages: int = 6) -> Path:
     for i in range(n_packages):
         pkg = tmp_path / "packages" / f"temper-pkg{i}"
         pkg.mkdir(parents=True)
-        (pkg / "pyproject.toml").write_text(f'name = "temper-pkg{i}"\n', encoding="utf-8")
+        (pkg / "pyproject.toml").write_text(
+            f'[project]\nname = "temper-pkg{i}"\n', encoding="utf-8"
+        )
     src = tmp_path / "packages" / "temper-pkg0" / "src" / "temper_pkg0"
     src.mkdir(parents=True)
     (src / "mod.py").write_text(textwrap.dedent(module_src), encoding="utf-8")
@@ -146,6 +148,35 @@ class TestDetection:
             )
             == []
         )
+
+    def test_r1_fires_when_exception_is_only_logged(self, tmp_path: Path) -> None:
+        findings = _analyze(
+            tmp_path,
+            """
+            def f():
+                try:
+                    import temper_geometry
+                except ImportError as exc:
+                    logger.warning("missing: %s", exc)
+                    return None
+            """,
+        )
+        assert [f.rule for f in findings] == ["R1"]
+
+    def test_nested_raise_does_not_exempt_handler(self, tmp_path: Path) -> None:
+        findings = _analyze(
+            tmp_path,
+            """
+            def f():
+                try:
+                    import temper_geometry
+                except ImportError:
+                    def unreachable():
+                        raise RuntimeError("not executed")
+                    return None
+            """,
+        )
+        assert [f.rule for f in findings] == ["R1"]
 
     def test_r2_fires_on_silent_third_party_empty_return(self, tmp_path: Path) -> None:
         findings = _analyze(
@@ -309,7 +340,9 @@ class TestAntiVacuity:
         for i in range(3):
             pkg = tmp_path / "packages" / f"p{i}"
             pkg.mkdir(parents=True)
-            (pkg / "pyproject.toml").write_text(f'name = "p{i}"\n', encoding="utf-8")
+            (pkg / "pyproject.toml").write_text(
+                f'[project]\nname = "p{i}"\n', encoding="utf-8"
+            )
         with pytest.raises(GateError, match="only 3 first-party"):
             first_party_prefixes(tmp_path)
 
@@ -318,7 +351,7 @@ class TestAntiVacuity:
             pkg = tmp_path / "packages" / f"temper-pkg{i}"
             pkg.mkdir(parents=True)
             (pkg / "pyproject.toml").write_text(
-                f'name = "temper-pkg{i}"\n', encoding="utf-8"
+                f'[project]\nname = "temper-pkg{i}"\n', encoding="utf-8"
             )
         with pytest.raises(GateError, match="zero Python files"):
             run(tmp_path)

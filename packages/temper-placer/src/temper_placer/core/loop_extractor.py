@@ -510,10 +510,6 @@ def auto_extract_loops(netlist: Netlist, topology_hints: dict | None = None) -> 
         rs_result = auto_extract_loops_rs(netlist, topology_hints)
         if rs_result is not None:
             return rs_result
-    except ImportError:
-        # A missing first-party module or Rust extension is a broken build,
-        # not a reason to silently substitute the Python implementation.
-        raise
     except Exception:
         pass  # Fall through to Python implementation
 
