@@ -1,5 +1,4 @@
-"""Differential test: Rust `verify_clearance(backend="rust")` vs the Python
-reference `verify_clearance(backend="python")`.
+"""Differential test: production Rust clearance vs the pinned Python oracle.
 
 Part of the 2026-07-26 clearance Rust port (see
 docs/evidence/2026-07-26-clearance-rust-port.md). The port must produce
@@ -14,9 +13,9 @@ same actual/required clearance values) across:
     via/width distributions, including the falsifier scenario (all-HV,
     which degrades the Rust accelerator to brute force and must still match).
 
-If ``temper_drc_rs`` is not installed, these tests are skipped rather than
-failed -- the Python backend remains the documented fallback for local
-development without a Rust toolchain.
+The production module no longer contains a Python backend. The immutable
+``_clearance_family_py_oracle`` snapshot is the reference implementation for
+this proof and is never imported through the production module.
 
 **Except in CI.** A skip here is exit-0 and looks identical in a CI summary
 to a genuine pass -- that ambiguity is precisely how this file's proof went
@@ -37,9 +36,14 @@ import random
 import pytest
 
 from temper_placer.router_v6.astar_pathfinding import RoutePath
-from temper_placer.router_v6.clearance_check import _HAS_RUST_CLEARANCE, verify_clearance
+from temper_placer.router_v6.clearance_check import (
+    _HAS_RUN_CLEARANCE_CHECK,
+    _HAS_RUST_CLEARANCE,
+    verify_clearance,
+)
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
+from tests.router_v6 import _clearance_family_py_oracle as _oracle
 
 _RUST_DRC_REQUIRED = os.environ.get("TEMPER_REQUIRE_RUST_DRC", "").strip().lower() in {
     "1",
@@ -47,19 +51,18 @@ _RUST_DRC_REQUIRED = os.environ.get("TEMPER_REQUIRE_RUST_DRC", "").strip().lower
     "yes",
 }
 
-if _RUST_DRC_REQUIRED and not _HAS_RUST_CLEARANCE:
+if _RUST_DRC_REQUIRED and not (_HAS_RUST_CLEARANCE and _HAS_RUN_CLEARANCE_CHECK):
     pytest.fail(
-        "TEMPER_REQUIRE_RUST_DRC=1 but temper_drc_rs.verify_route_clearance is "
-        "not available -- this environment declares the Rust clearance "
-        "backend mandatory (CI), so this differential proof must not "
-        "silently skip. Rebuild with `maturin develop --release "
-        "--manifest-path packages/temper-drc-rs/Cargo.toml`.",
+        "TEMPER_REQUIRE_RUST_DRC=1 but the Rust clearance pair is not "
+        "available -- this environment declares the Rust clearance backend "
+        "mandatory (CI), so this differential proof must not "
+        "silently skip. Rebuild all extensions with `make extensions`.",
         pytrace=False,
     )
 
 pytestmark = pytest.mark.skipif(
-    not _HAS_RUST_CLEARANCE,
-    reason="temper_drc_rs.verify_route_clearance not available "
+    not (_HAS_RUST_CLEARANCE and _HAS_RUN_CLEARANCE_CHECK),
+    reason="Rust clearance pair not available "
     "(set TEMPER_REQUIRE_RUST_DRC=1 to make this fatal instead of a skip)",
 )
 
@@ -149,7 +152,7 @@ def _violation_set(report, tol=1e-6):
 
 
 def _assert_same_results(rr, min_clearance=0.127, voltage_ratings=None, msg=""):
-    py_report = verify_clearance(rr, min_clearance=min_clearance, voltage_ratings=voltage_ratings, backend="python")
+    py_report = _oracle._verify_clearance_python(rr, min_clearance, voltage_ratings)
     rust_report = verify_clearance(rr, min_clearance=min_clearance, voltage_ratings=voltage_ratings, backend="rust")
 
     assert py_report.total_checks == rust_report.total_checks, (

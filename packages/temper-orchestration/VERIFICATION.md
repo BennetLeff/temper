@@ -2248,12 +2248,13 @@ by the differential's own body digest).
   `test_empty_data_edge_cases`). `_find_clearance_violations` and the
   geometry delegations stay (differential-test API).
 - **`clearance_check.verify_clearance`** — `clearance::run_clearance_check`:
-  the production rust path (min-clearance validation with CPython float
+  the production Rust-only path (min-clearance validation with CPython float
   repr, the temper-drc-rs `verify_route_clearance` delegation, the
-  `total_checks` accounting). The pure-Python reference
-  (`_verify_clearance_python` + its geometry helpers) stays Python as the
-  `backend="python"` oracle; `_route_to_rust_tuple`/`_all_routes`
-  marshalling and the report construction stay.
+  `total_checks` accounting). The immutable pre-migration oracle lives only
+  under `tests/router_v6/_clearance_family_py_oracle.py`; production retains
+  `_route_to_rust_tuple`/`_all_routes` marshalling and report construction.
+  Compatibility selectors `backend="auto"` and `backend="rust"` share this
+  path; `backend="python"` is retired and missing Rust symbols fail closed.
 - **`isolation_barrier`** — `clearance::classify_domain_partition_py` /
   `project_onto_barrier_axis_py` / `evaluate_isolator_feasibility_py`: the
   component partition (exact-name pin-net membership, never substring), the
@@ -2306,7 +2307,7 @@ by the differential's own body digest).
   25x40 randomized net-class/voltage/layer/design-rule cases incl. NaN;
   `verify_creepage` field-by-field over deterministic + 15 randomized route
   sets incl. the default-creepage override; `verify_clearance`'s rust path
-  against the pure-Python reference over deterministic + 10 randomized
+  against the immutable pre-migration oracle over deterministic + 10 randomized
   route sets; isolation-barrier partition/feasibility/rotation table
   field-by-field; domain-clearance generator/keep-away/conflicts/audit
   field-by-field incl. the `component_refs` filter, exempt pairs and the

@@ -423,9 +423,9 @@ def _find_clearance_violations(
     thousands that could not be interpreted as a count of real board
     defects (see docs/evidence/2026-07-27-drc-checks-repaired.md).
 
-    This mirrors ``clearance_check._calculate_minimum_clearance_by_layer``,
-    which already aggregates to one violation per (net-pair, layer) via
-    the same reasoning -- the worst-case (minimum) approach distance is
+    The production clearance path likewise aggregates to one violation per
+    (net-pair, layer) via the same reasoning -- the worst-case (minimum)
+    approach distance is
     the number that determines pass/fail against a safety standard;
     every closer segment-pair along the same parallel run is evidence of
     the same defect, not a second one.

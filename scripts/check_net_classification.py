@@ -22,8 +22,10 @@ Motivating defect class -- confirmed three times in this repo, twice on
 3. ``clearance_engine.py`` -- a third, previously-unfixed instance found
    auditing this same class (``_net_class_to_voltage_class`` matched bare
    ``"HV"``/``"AC"`` as substrings), plus a fourth and fifth found the same
-   way (``clearance_check._classify_net_class``, pre-existing since commit
-   ``1e99a151``, reintroduced the exact ``"L1"``/``"L2"``/``"LINE"`` bug
+   way. The former Python Router V6 classifier (pre-existing since commit
+   ``1e99a151`` and now replaced by the Rust classifier in
+   ``temper-drc-rs/src/router_clearance.rs``) reintroduced the exact
+   ``"L1"``/``"L2"``/``"LINE"`` bug
    already fixed once in ``creepage_check.py``; ``core/design_rules.py``'s
    ``_is_high_current_net`` matched bare ``"COIL"``, misclassifying the
    same four SELV relay-coil nets; ``router_v6/net_classification.py`` --

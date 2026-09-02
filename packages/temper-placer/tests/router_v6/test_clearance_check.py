@@ -10,7 +10,6 @@ from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.clearance_check import (
     ClearanceReport,
     ClearanceViolation,
-    _classify_net_class,
     _is_hv_keyword_match,
     verify_clearance,
 )
@@ -32,6 +31,56 @@ def test_verify_no_routes():
 
     assert report.violation_count == 0
     assert report.total_checks == 0
+
+
+@pytest.mark.parametrize(
+    ("backend", "has_rust_clearance", "has_orchestration"),
+    [
+        ("auto", False, True),
+        ("auto", True, False),
+        ("rust", False, True),
+        ("rust", True, False),
+    ],
+)
+def test_verify_clearance_fails_closed_without_complete_rust_backend(
+    monkeypatch, backend, has_rust_clearance, has_orchestration
+):
+    """A missing Rust half must never silently re-enable Python clearance."""
+    import temper_placer.router_v6.clearance_check as clearance_module
+
+    monkeypatch.setattr(clearance_module, "_HAS_RUST_CLEARANCE", has_rust_clearance)
+    monkeypatch.setattr(clearance_module, "_HAS_RUN_CLEARANCE_CHECK", has_orchestration)
+
+    with pytest.raises(RuntimeError, match="Rust clearance engine is required"):
+        verify_clearance(RoutingResults(compiled_routes={}, failed_nets=[]), backend=backend)
+
+
+@pytest.mark.parametrize(
+    ("has_rust_clearance", "has_orchestration"),
+    [(False, True), (True, False)],
+)
+def test_verify_clearance_default_fails_closed_without_complete_rust_backend(
+    monkeypatch, has_rust_clearance, has_orchestration
+):
+    """The default selector has the same fail-closed contract as ``auto``."""
+    import temper_placer.router_v6.clearance_check as clearance_module
+
+    monkeypatch.setattr(clearance_module, "_HAS_RUST_CLEARANCE", has_rust_clearance)
+    monkeypatch.setattr(clearance_module, "_HAS_RUN_CLEARANCE_CHECK", has_orchestration)
+
+    with pytest.raises(RuntimeError, match="Rust clearance engine is required"):
+        verify_clearance(RoutingResults(compiled_routes={}, failed_nets=[]))
+
+
+def test_verify_clearance_python_backend_is_retired(monkeypatch):
+    """The compatibility selector cannot re-enable the deleted Python path."""
+    import temper_placer.router_v6.clearance_check as clearance_module
+
+    monkeypatch.setattr(clearance_module, "_HAS_RUST_CLEARANCE", True)
+    monkeypatch.setattr(clearance_module, "_HAS_RUN_CLEARANCE_CHECK", True)
+
+    with pytest.raises(RuntimeError, match="backend='python' was retired"):
+        verify_clearance(RoutingResults(compiled_routes={}, failed_nets=[]), backend="python")
 
 
 def test_verify_single_route():
@@ -166,7 +215,7 @@ def _make_tree_route(net_name: str, other_x: float, y: float) -> CompiledTreeRou
     return CompiledTreeRoute(net_name=net_name, geometry=geometry, width_mm=0.2, vias=[])
 
 
-@pytest.mark.parametrize("backend", ["python", "rust"])
+@pytest.mark.parametrize("backend", ["rust", "auto"])
 def test_verify_clearance_inspects_tree_routed_nets(backend):
     """Regression: tree-routed nets were invisible to clearance checking.
 
@@ -203,7 +252,7 @@ def test_verify_clearance_inspects_tree_routed_nets(backend):
     assert report.violation_count == 1
 
 
-@pytest.mark.parametrize("backend", ["python", "rust"])
+@pytest.mark.parametrize("backend", ["rust", "auto"])
 def test_verify_clearance_checks_compiled_against_tree_routed(backend):
     """A compiled_routes net and a tree_routes net must be checked against
     each other too, not just within their own dict."""
@@ -223,85 +272,21 @@ def test_verify_clearance_checks_compiled_against_tree_routed(backend):
     assert report.violation_count == 1
 
 
-def test_required_clearance_recognizes_manifest_hv_nets_not_matched_by_keywords():
-    """Regression: _get_required_clearance's HV gate was 4 hardcoded
-    substrings ("AC_", "HV_", "HIGH_VOLTAGE", "MAINS") matched against a
-    net's own spelling. On this project's real board, that matched ONLY
-    ac_l/ac_n -- every other real HV-domain net declared in
-    elec/domain_manifest.yaml (DC_BUS_RTN, +170V_BUS, PWR_RTN, SW_NODE,
-    GATE_HS, GATE_LS, +15V_LS, w1_1, w1_2, zcd, a) silently fell through
-    to the plain 0.127mm default instead of the true IEC 60335 mains
-    requirement -- on a mains-connected board, checked against an SELV
-    net (gnd), that is the single most safety-relevant gap this task
-    found. See docs/evidence/2026-07-27-clearance-copper-balance.md.
-
-    Fails before the fix (required == default_clearance, 0.127mm, for a
-    dc-bus-vs-gnd pair that must be treated as HV/SELV); passes after
-    (required is the multi-standard-max HV clearance, > 1mm).
-
-    This test depends on elec/domain_manifest.yaml existing at the repo
-    root with an 'HV' domain declaring DC_BUS_RTN -- true for this repo
-    checkout; skipped (not xfailed -- the absence is an environment fact,
-    not a code defect) if that file cannot be found, since
-    _load_manifest_hv_net_names() is explicitly designed to degrade
-    gracefully rather than crash when the manifest is absent (e.g. a
-    package built/tested outside this repo checkout).
-    """
-    from temper_placer.router_v6.clearance_check import (
-        _get_required_clearance,
-        _load_manifest_hv_net_names,
-    )
-
-    hv_nets = _load_manifest_hv_net_names()
-    if "DC_BUS_RTN" not in hv_nets:
-        pytest.skip(
-            "elec/domain_manifest.yaml not found or does not declare "
-            "DC_BUS_RTN under HV in this environment"
-        )
-
-    required = _get_required_clearance("DC_BUS_RTN", "gnd", default_clearance=0.127)
-
-    assert required > 1.0, (
-        f"DC_BUS_RTN (real HV net) vs gnd (SELV) should require IEC "
-        f"60335 mains clearance, got {required}mm (looks like the "
-        f"0.127mm default -- the HV gate did not recognize this net)"
-    )
-
-
-def test_required_clearance_default_for_non_manifest_selv_pair():
-    """Sanity check on the fix above: two ordinary SELV nets not declared
-    HV anywhere must still get the plain default clearance, not the HV
-    table -- the fix must not turn every net into an HV net."""
-    from temper_placer.router_v6.clearance_check import _get_required_clearance
-
-    required = _get_required_clearance("gnd", "+3V3", default_clearance=0.127)
-    assert required == 0.127
-
-
 @pytest.mark.parametrize("backend", ["rust", "auto"])
 def test_manifest_hv_fix_reaches_rust_and_auto_backends(backend):
-    """Regression: the manifest-HV fix (test above) was applied ONLY to
-    ``_get_required_clearance``/``_classify_net_class`` (the Python
-    reference path). ``verify_clearance``'s own ``backend="auto"`` default
-    prefers the Rust engine (``temper_drc_rs.verify_route_clearance``)
-    whenever it is importable -- true in every environment this check
-    actually ships to -- and the Rust port's ``is_hv_gate``/
-    ``classify_net_class`` never consulted the manifest, so the fix was
-    DEAD CODE in production: a live re-route of the real board still
-    reported ``DC_BUS_RTN`` vs ``gnd`` at the plain 0.127mm default via
-    ``backend="rust"``/``"auto"``, even after the Python-only fix landed.
+    """The manifest-HV requirement reaches both compatibility selectors.
     See docs/evidence/2026-07-27-clearance-copper-balance.md Part B.2.
 
     Fails before the fix (required == 0.127mm via rust/auto for a
     DC_BUS_RTN-vs-gnd pair); passes after (required == 14.0mm, matching
-    the Python backend -- see ``verify_route_clearance``'s new optional
+    the pinned pre-migration oracle -- see ``verify_route_clearance``'s new optional
     ``hv_net_names`` parameter and ``clearance_check.py``'s
     ``_verify_clearance_rust``, which now passes
     ``_load_manifest_hv_net_names()`` through).
 
     Skipped (not xfailed) if elec/domain_manifest.yaml is unavailable or
     does not declare DC_BUS_RTN under HV, same reasoning as the sibling
-    Python-path test above.
+    same environment assumptions as the test above.
     """
     pytest.importorskip("temper_drc_rs", reason="temper_drc_rs not built")
     from temper_placer.router_v6.clearance_check import _load_manifest_hv_net_names
@@ -332,10 +317,17 @@ def test_manifest_hv_fix_reaches_rust_and_auto_backends(backend):
     )
 
 
+def test_hb_gnd_is_present_in_manifest_hv_nets():
+    """The retained Rust adapter receives the canonical HV manifest entry."""
+    from temper_placer.router_v6.clearance_check import _load_manifest_hv_net_names
+
+    assert "hb-gnd" in _load_manifest_hv_net_names()
+
+
 # -----------------------------------------------------------------------------
 # 2026-08-13: hyphen-boundary net-classification defect ("Family C" -- see
 # PR #1145/#1162's "Family A"/"Family B" fixes elsewhere in this repo).
-# `_is_hv_keyword_match`/`_classify_net_class` anchored word boundaries on
+# The HV keyword matcher anchored word boundaries on
 # "_" and start/end-of-string only, never "-", even though 85 of the 162
 # real net names on the production board contain a hyphen. See
 # docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
@@ -360,6 +352,56 @@ def test_hyphen_boundary_does_not_over_match_hv_keyword():
     assert not _is_hv_keyword_match("XHVX-Y")
 
 
+@pytest.mark.parametrize("net_name", ["X-AC", "HV-BUS", "MAINS-LINE"])
+def test_production_clearance_hyphenated_hv_names_require_hv_spacing(net_name):
+    """The live Rust production path recognizes hyphen-separated HV names."""
+    hv_path = RoutePath(net_name, [(0, 0), (10, 0)], "F.Cu", 10.0)
+    signal_path = RoutePath("SIGNAL", [(0, 1), (10, 1)], "F.Cu", 10.0)
+    results = RoutingResults(
+        compiled_routes={
+            net_name: CompiledRoute(net_name, hv_path, 0.127, [], None),
+            "SIGNAL": CompiledRoute("SIGNAL", signal_path, 0.127, [], None),
+        },
+        failed_nets=[],
+    )
+
+    report = verify_clearance(results, min_clearance=0.127)
+
+    assert report.total_checks == 1
+    assert report.violation_count == 1
+    assert report.violations[0].required_clearance > 1.0
+
+
+@pytest.mark.parametrize(
+    "net_name",
+    [
+        "safety-line",
+        "safety.ocp-line",
+        "safety.ocp2-line",
+        "safety.ovp-line",
+        "safety.thermal-line",
+        "safety.coil_thermal-line",
+        "safety.uvlo_logic-line",
+    ],
+)
+def test_production_clearance_selv_line_overrides_keep_default_spacing(net_name):
+    """The exact confirmed-SELV denylist wins before ``LINE`` matching."""
+    selv_path = RoutePath(net_name, [(0, 0), (10, 0)], "F.Cu", 10.0)
+    signal_path = RoutePath("SIGNAL", [(0, 1), (10, 1)], "F.Cu", 10.0)
+    results = RoutingResults(
+        compiled_routes={
+            net_name: CompiledRoute(net_name, selv_path, 0.127, [], None),
+            "SIGNAL": CompiledRoute("SIGNAL", signal_path, 0.127, [], None),
+        },
+        failed_nets=[],
+    )
+
+    report = verify_clearance(results, min_clearance=0.127)
+
+    assert report.total_checks == 1
+    assert report.violation_count == 0
+
+
 def test_selv_line_nets_stay_selv_after_hyphen_widening():
     """The one confirmed over-match this fix has to guard against: 14
     real, confirmed-SELV nets ending in a hyphenated "-line" suffix must
@@ -377,55 +419,7 @@ def test_selv_line_nets_stay_selv_after_hyphen_widening():
         "safety.uvlo_logic-line",
     ):
         assert not _is_hv_keyword_match(name.upper()), name
-        assert _classify_net_class(name) != "HV", name
     # But a genuinely-HV net that merely happens to end in "-line" must
     # still match -- the override is a literal-name denylist, not a
     # blanket "-line" exemption.
     assert _is_hv_keyword_match("MAINS-LINE")
-
-
-def test_hyphenated_hb_gnd_and_vdd_nets_classify_correctly():
-    """The board-confirmed, intended outcomes for these three hyphenated
-    nets once both the Family C hyphen-boundary fix (PR #1174/#1175) and
-    the manifest HV declaration (PR #1145) are in effect.
-
-    CORRECTED 2026-08-17 (was asserting ``"GND"`` for ``hb-gnd``, failing
-    on main with ``assert 'HV' == 'GND'``). See
-    docs/evidence/2026-08-17-hb-gnd-classification-stale-test.md for the
-    full investigation. Summary: this assertion was written against PR
-    #1174's own branch state, where -- per that PR's own evidence doc
-    (docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md
-    Sec 2, item 1) -- ``hb-gnd`` "is not yet manifest-declared on this base
-    branch (that is PR #1145's own, separate, not-yet-merged change)", so
-    the hyphen-boundary widening alone flipped it ``SIGNAL`` -> ``GND`` via
-    the ``GND`` keyword cascade. PR #1145 (commit ``72d4a083d``) and PR
-    #1174 (commit ``bb3d99d1``) landed on main **10 seconds apart** in the
-    same merge wave; PR #1145 declared ``hb-gnd`` under
-    ``elec/domain_manifest.yaml``'s ``HV`` domain -- a well-sourced, direct
-    trace of the compiled netlist showing it is the half-bridge low-side
-    switch's return conductor, ~-170V relative to signal ground, one CT
-    primary winding (milliohms, not a galvanic isolator) away from the
-    already-declared HV net ``DC_BUS_RTN``. It is genuinely HV despite its
-    GND-shaped name.
-
-    ``_classify_net_class`` checks manifest membership
-    (``_load_manifest_hv_net_names()``) *before* the keyword cascade (see
-    the function body above) -- so once #1145 was merged, ``hb-gnd``
-    unconditionally classifies ``"HV"`` regardless of the hyphen-boundary
-    GND-keyword fix, and has done so on every commit of main since. This
-    is the safety-correct outcome: classifying a net that sits at HV
-    potential as ``GND`` would apply the weak default clearance (0.127mm)
-    instead of the IEC 60335-1 PD3 reinforced figure (12.6mm) to a
-    mains-referenced net -- confirmed live on both the ``python`` and the
-    production ``rust`` (``backend="auto"``) clearance backends, which
-    both correctly flag a close ``hb-gnd``/``gnd`` pair at 12.6mm required
-    clearance, not 0.127mm.
-
-    ``hb.gate_hs-vdd``/``hb.gate_ls-vdd`` are unaffected by this
-    correction: neither is manifest-declared, so both still flip
-    ``SIGNAL`` -> ``POWER`` via the hyphen-boundary VDD-keyword fix exactly
-    as originally measured.
-    """
-    assert _classify_net_class("hb-gnd") == "HV"
-    assert _classify_net_class("hb.gate_hs-vdd") == "POWER"
-    assert _classify_net_class("hb.gate_ls-vdd") == "POWER"

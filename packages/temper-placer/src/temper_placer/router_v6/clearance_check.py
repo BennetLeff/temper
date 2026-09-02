@@ -13,7 +13,7 @@ Part of temper-8vjm (Stage 5 - Manufacturing DRC)
    use ``-`` and ``_`` interchangeably as within-segment word separators
    (``hb-gnd``, ``safety.uvlo_logic-line``, ...) -- 85 of the 162 net names
    on the real production board contain a hyphen, and every one was
-   invisible to ``_is_hv_keyword_match``/``_classify_net_class`` whenever
+   invisible to the HV keyword matcher whenever
    the matching keyword sat on the hyphen side of a boundary. FIXED: ``-``
    is now an equivalent boundary character to ``_`` on both sides.
 
@@ -50,10 +50,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-import temper_geometry as _tg
-
 from temper_placer.router_v6._check_report_base import BaseCheckReport
-from temper_placer.router_v6.clearance_engine import get_clearance
 from temper_placer.router_v6.routing_results import RoutingResults
 
 try:
@@ -124,16 +121,13 @@ def verify_clearance(
         min_clearance: Minimum clearance distance (mm)
         voltage_ratings: Optional dict of net_name -> voltage (V).
             Used to determine voltage-dependent HV clearance.
-        backend: ``"auto"`` (default) uses the Rust engine
-            (``temper_orchestration.run_clearance_check`` — the Phase E E3
-            stage — backed by ``temper_drc_rs.verify_route_clearance``) when
-            the wheels are importable, falling back to the pure-Python
-            implementation otherwise. ``"python"`` forces the reference
-            implementation (used by the differential test and as a
-            documented fallback); ``"rust"`` forces the Rust engine and
-            raises ``RuntimeError`` if it is unavailable.  See
-            docs/evidence/2026-07-26-clearance-rust-port.md for the
-            differential-equivalence evidence backing this switch.
+        backend: Compatibility selector. ``"auto"`` (default) and
+            ``"rust"`` both use the Rust engine
+            (``temper_orchestration.run_clearance_check`` backed by
+            ``temper_drc_rs.verify_route_clearance``). ``"python"`` is
+            retired and raises ``RuntimeError``. Any missing Rust symbol
+            also raises ``RuntimeError`` rather than silently weakening this
+            safety check.
 
     Returns:
         ClearanceReport with violations
@@ -148,91 +142,20 @@ def verify_clearance(
     if backend not in ("auto", "python", "rust"):
         raise ValueError(f"backend must be 'auto', 'python', or 'rust', got {backend!r}")
 
-    if backend == "rust" and not (_HAS_RUST_CLEARANCE and _HAS_RUN_CLEARANCE_CHECK):
+    if backend == "python":
         raise RuntimeError(
-            "backend='rust' requested but the Rust clearance engine is not "
-            "available (needs both temper_drc_rs.verify_route_clearance and "
-            "temper_orchestration.run_clearance_check). Install/build the "
-            "temper-drc-rs / temper-orchestration wheels, or use backend='auto' "
-            "(falls back to Python) / backend='python'."
+            "backend='python' was retired; clearance verification is Rust-only"
         )
 
-    use_rust = backend == "rust" or (
-        backend == "auto" and _HAS_RUST_CLEARANCE and _HAS_RUN_CLEARANCE_CHECK
-    )
-    if use_rust:
-        return _verify_clearance_rust(routing_results, min_clearance, voltage_ratings)
-    return _verify_clearance_python(routing_results, min_clearance, voltage_ratings)
+    if not (_HAS_RUST_CLEARANCE and _HAS_RUN_CLEARANCE_CHECK):
+        raise RuntimeError(
+            "Rust clearance engine is required but unavailable: both "
+            "temper_drc_rs.verify_route_clearance and "
+            "temper_orchestration.run_clearance_check must be present. "
+            "Install/build the temper-drc-rs and temper-orchestration wheels."
+        )
 
-
-def _verify_clearance_python(
-    routing_results: RoutingResults,
-    min_clearance: float = 0.127,
-    voltage_ratings: dict[str, float] | None = None,
-) -> ClearanceReport:
-    """Pure-Python reference implementation of :func:`verify_clearance`.
-
-    Kept as the oracle: the Rust engine (:func:`_verify_clearance_rust`) is
-    differential-tested against this function and must produce identical
-    violation sets. See docs/evidence/2026-07-26-clearance-rust-port.md.
-    """
-    violations = []
-    total_checks = 0
-
-    if voltage_ratings is None:
-        voltage_ratings = {}
-
-    if math.isnan(min_clearance) or not math.isfinite(min_clearance):
-        raise ValueError(f"min_clearance must be a finite number, got {min_clearance!r}")
-
-    # Get all route pairs to check.
-    routes = _all_routes(routing_results)
-
-    for i in range(len(routes)):
-        net1, route1 = routes[i]
-
-        for j in range(i + 1, len(routes)):
-            net2, route2 = routes[j]
-
-            # Skip if same net
-            if net1 == net2:
-                continue
-
-            total_checks += 1
-
-            # Check clearance between routes — per-layer so violations
-            # on multiple layers are independently reported.
-            per_layer = _calculate_minimum_clearance_by_layer(
-                route1,
-                route2,
-            )
-
-            for layer, (min_dist, location) in per_layer.items():
-                # Determine required clearance (unified multi-standard engine)
-                required = _get_required_clearance(
-                    net1,
-                    net2,
-                    min_clearance,
-                    voltage_ratings,
-                    layer=layer,
-                )
-
-                if min_dist < required:
-                    violations.append(
-                        ClearanceViolation(
-                            net1=net1,
-                            net2=net2,
-                            location=location,
-                            actual_clearance=min_dist,
-                            required_clearance=required,
-                            layer=layer,
-                        )
-                    )
-
-    return ClearanceReport(
-        violations=violations,
-        total_checks=total_checks,
-    )
+    return _verify_clearance_rust(routing_results, min_clearance, voltage_ratings)
 
 
 def _all_routes(routing_results: RoutingResults) -> list[tuple[str, object]]:
@@ -274,9 +197,9 @@ def _route_to_rust_tuple(
     """Flatten one route into the plain-tuple shape
     ``temper_drc_rs.verify_route_clearance`` expects.
 
-    Uses the same :func:`_extract_segments` / :func:`_extract_via_points`
-    helpers as the pure-Python implementation so both backends see
-    identical geometry. Explicit ``route.vias`` are flattened to
+    Uses the shared :func:`_extract_segments` / :func:`_extract_via_points`
+    helpers so every Rust invocation sees identical geometry. Explicit
+    ``route.vias`` are flattened to
     ``(x, y, diameter, from_layer, to_layer)`` tuples here (diameter
     resolved on the Python side, matching ``via.diameter`` directly).
     """
@@ -339,112 +262,11 @@ def _verify_clearance_rust(
     return ClearanceReport(violations=violations, total_checks=total_checks)
 
 
-def _calculate_minimum_clearance_by_layer(
-    route1,
-    route2,
-) -> dict[str, tuple[float, tuple[float, float]]]:
-    """Calculate minimum edge-to-edge clearance between two routes, per layer.
-
-    Returns ``{layer: (edge_dist, closest_point)}`` for every layer where
-    the two routes have geometry.  Allows negative clearance for overlaps
-    and reports per-layer independently so violations on multiple layers
-    are never silently dropped.
-    """
-
-    layer_info: dict[str, tuple[float, tuple[float, float]]] = {}
-    # lazy-init: layer -> [min_dist, closest_point]
-
-    # Account for trace widths (with hasattr guard)
-    width1 = getattr(route1, "width_mm", 0.0)
-    width2 = getattr(route2, "width_mm", 0.0)
-    # Guard against NaN / infinite widths
-    if not math.isfinite(width1):
-        width1 = 0.0
-    if not math.isfinite(width2):
-        width2 = 0.0
-
-    # Default via diameter (used when no explicit Via object is available)
-    via_diameter_default = max(width1, 0.6)
-
-    def _update_layer(layer: str, edge_dist: float, point: tuple[float, float]):
-        if layer not in layer_info or edge_dist < layer_info[layer][0]:
-            layer_info[layer] = (edge_dist, point)
-
-    segs1 = _extract_segments(route1)
-    segs2 = _extract_segments(route2)
-
-    # --- Same-layer segment-to-segment checks ---
-    for s1 in segs1:
-        for s2 in segs2:
-            if s1[4] != s2[4]:
-                continue
-
-            seg_dist, cp1, cp2 = _segment_to_segment_dist(
-                (s1[0], s1[1]),
-                (s1[2], s1[3]),
-                (s2[0], s2[1]),
-                (s2[2], s2[3]),
-            )
-
-            # Edge-to-edge distance (allows negative = overlap)
-            edge_dist = seg_dist - (width1 / 2) - (width2 / 2)
-            point = (
-                (cp1[0] + cp2[0]) / 2,
-                (cp1[1] + cp2[1]) / 2,
-            )
-            _update_layer(s1[4], edge_dist, point)
-
-    # --- Via-to-trace checks ---
-    def _check_via_against_segs(via, other_segs, other_width):
-        via_x, via_y = via.position
-        via_radius = via.diameter / 2.0
-        via_layers = {via.from_layer, via.to_layer}
-
-        for seg in other_segs:
-            if seg[4] not in via_layers:
-                continue
-            pt_dist, _cp_on_seg, _ = _point_to_segment_dist(
-                (via_x, via_y),
-                (seg[0], seg[1]),
-                (seg[2], seg[3]),
-            )
-            edge_dist = pt_dist - via_radius - (other_width / 2)
-            _update_layer(seg[4], edge_dist, (via_x, via_y))
-
-    for via in getattr(route1, "vias", []):
-        _check_via_against_segs(via, segs2, width2)
-
-    for via in getattr(route2, "vias", []):
-        _check_via_against_segs(via, segs1, width1)
-
-    # --- Cross-layer segment via points (RoutePath3D fallback) ---
-    def _check_via_point_against_segs(vx, vy, via_diam, layers, other_segs, other_width):
-        via_radius = via_diam / 2.0
-        for seg in other_segs:
-            if seg[4] not in layers:
-                continue
-            pt_dist, _cp_on_seg, _ = _point_to_segment_dist(
-                (vx, vy),
-                (seg[0], seg[1]),
-                (seg[2], seg[3]),
-            )
-            edge_dist = pt_dist - via_radius - (other_width / 2)
-            _update_layer(seg[4], edge_dist, (vx, vy))
-
-    for vx, vy, l1, l2 in _extract_via_points(route1):
-        _check_via_point_against_segs(vx, vy, via_diameter_default, {l1, l2}, segs2, width2)
-
-    for vx, vy, l1, l2 in _extract_via_points(route2):
-        _check_via_point_against_segs(vx, vy, via_diameter_default, {l1, l2}, segs1, width1)
-
-    return layer_info
-
-
 def _extract_segments(route) -> list[tuple[float, float, float, float, str]]:
     """Extract same-layer segments ``(x1, y1, x2, y2, layer)`` from a route.
 
-    Shared by the pure-Python implementation and the Rust-backend adapter
-    (:func:`_route_to_rust_tuple`) so both paths see identical geometry.
+    Shared by the Rust-backend adapter (:func:`_route_to_rust_tuple`) and
+    retained as the route-geometry boundary for the production check.
 
     Handles both ``CompiledRoute`` (``.path``: ``RoutePath``/``RoutePath3D``)
     and ``CompiledTreeRoute`` (``.geometry: TreeRouteGeometry``, no
@@ -483,7 +305,8 @@ def _extract_via_points(route) -> list[tuple[float, float, str, str]]:
     """Extract cross-layer via points ``(x, y, from_layer, to_layer)`` from
     a route's path (``RoutePath3D`` layer-changing segments only).
 
-    Shared by the pure-Python implementation and the Rust-backend adapter.
+    Shared by the Rust-backend adapter and retained as the route-geometry
+    boundary for the production check.
     Deliberately has no finite-value guard, matching the original Python
     behavior exactly (NaN/inf via coordinates propagate rather than being
     filtered here).
@@ -507,152 +330,11 @@ def _extract_via_points(route) -> list[tuple[float, float, str, str]]:
     return points
 
 
-def _calculate_minimum_clearance(
-    route1,
-    route2,
-) -> tuple[float, tuple[float, float], str]:
-    """Backward-compatible wrapper returning the global minimum.
-
-    Prefer ``_calculate_minimum_clearance_by_layer`` for per-layer
-    reporting; this wrapper collapses all layers and returns only the
-    single closest approach.
-    """
-    per_layer = _calculate_minimum_clearance_by_layer(route1, route2)
-    if not per_layer:
-        return float("inf"), (0.0, 0.0), "unknown"
-    # Pick the layer with the smallest edge distance
-    best_layer = min(per_layer, key=lambda k: per_layer[k][0])
-    min_dist, location = per_layer[best_layer]
-    return min_dist, location, best_layer
-
-
-def _point_to_segment_dist(p, a, b):
-    """Closest distance from point p to segment a-b.
-
-    Returns (distance, closest_point_on_segment, point_p).
-    The third element is p itself for interface compatibility with
-    ``_segment_to_segment_dist``.
-    """
-    ab = (b[0] - a[0], b[1] - a[1])
-    ap = (p[0] - a[0], p[1] - a[1])
-    len2 = ab[0] * ab[0] + ab[1] * ab[1]
-
-    if len2 < 1e-12 or not math.isfinite(len2):
-        # Degenerate segment: a and b coincide, or NaN/inf endpoints
-        dx = p[0] - a[0]
-        dy = p[1] - a[1]
-        return (dx * dx + dy * dy) ** 0.5, a, p
-
-    t = (ap[0] * ab[0] + ap[1] * ab[1]) / len2
-    t = max(0.0, min(1.0, t))
-    cp = (a[0] + t * ab[0], a[1] + t * ab[1])
-    dx = p[0] - cp[0]
-    dy = p[1] - cp[1]
-    return (dx * dx + dy * dy) ** 0.5, cp, p
-
-
-def _segment_to_segment_dist(a, b, c, d):
-    """Analytical closest distance between two line segments AB and CD.
-
-    Uses clamped-projection (the standard algorithm from
-    Real-Time Collision Detection, Ericson 2005, §5.1.9).
-    No sampling — exact result up to floating-point precision.
-
-    Returns:
-        (min_distance, closest_point_on_AB, closest_point_on_CD)
-    """
-    # Direction vectors
-    ab = (b[0] - a[0], b[1] - a[1])
-    cd = (d[0] - c[0], d[1] - c[1])
-    # Vector from A to C
-    ac = (c[0] - a[0], c[1] - a[1])
-
-    a_len2 = ab[0] * ab[0] + ab[1] * ab[1]  # |AB|^2
-    c_len2 = cd[0] * cd[0] + cd[1] * cd[1]  # |CD|^2
-    eps = 1e-12
-
-    # --- Degenerate cases: one or both segments are points ---
-    if a_len2 < eps and c_len2 < eps:
-        dx = ac[0]
-        dy = ac[1]
-        return (dx * dx + dy * dy) ** 0.5, a, c
-
-    if a_len2 < eps:
-        # AB is a point; distance from A to segment CD
-        d_pt, cp, _ = _point_to_segment_dist(a, c, d)
-        return d_pt, a, cp
-
-    if c_len2 < eps:
-        # CD is a point; distance from C to segment AB
-        d_pt, cp, _ = _point_to_segment_dist(c, a, b)
-        return d_pt, cp, c
-
-    # --- General case: two non-degenerate segments ---
-    ab_dot_cd = ab[0] * cd[0] + ab[1] * cd[1]
-    ac_dot_ab = ac[0] * ab[0] + ac[1] * ab[1]
-    ac_dot_cd = ac[0] * cd[0] + ac[1] * cd[1]
-
-    # Solve the 2×2 linear system for the unconstrained minimum of
-    #   f(s,t) = |(A + s*AB) - (C + t*CD)|^2
-    #         = |(A-C) + s*AB - t*CD|^2
-    #
-    # ∂f/∂s = 2 AB·(A-C) + 2s|AB|² - 2t(AB·CD) = 0
-    # ∂f/∂t = -2 CD·(A-C) - 2s(AB·CD) + 2t|CD|² = 0
-    #
-    #   |AB|² · s  +  (-AB·CD) · t  =  -AB·(A-C)  =  AB·(C-A)  =  ac_dot_ab
-    #   (-AB·CD) · s  +  |CD|² · t  =  CD·(A-C)   =  -CD·(C-A) =  -ac_dot_cd
-    det = a_len2 * c_len2 - ab_dot_cd * ab_dot_cd
-
-    if det > eps:
-        s = (ac_dot_ab * c_len2 + ab_dot_cd * (-ac_dot_cd)) / det
-        t = (a_len2 * (-ac_dot_cd) + ab_dot_cd * ac_dot_ab) / det
-
-        if 0.0 <= s <= 1.0 and 0.0 <= t <= 1.0:
-            # Interior minimum
-            cp1 = (a[0] + s * ab[0], a[1] + s * ab[1])
-            cp2 = (c[0] + t * cd[0], c[1] + t * cd[1])
-            dx = cp1[0] - cp2[0]
-            dy = cp1[1] - cp2[1]
-            return (dx * dx + dy * dy) ** 0.5, cp1, cp2
-
-    # Minimum is on the boundary of the parameter square [0,1]×[0,1].
-    # Check all four edges (point-to-segment); corner cases are covered
-    # because _point_to_segment_dist clamps its parameter.
-    best_dist = float("inf")
-    best_cp1 = a
-    best_cp2 = c
-
-    def _update(dist, p1, p2):
-        nonlocal best_dist, best_cp1, best_cp2
-        if dist < best_dist:
-            best_dist = dist
-            best_cp1 = p1
-            best_cp2 = p2
-
-    # s = 0: point A to segment CD
-    d0, cp, _ = _point_to_segment_dist(a, c, d)
-    _update(d0, a, cp)
-
-    # s = 1: point B to segment CD
-    d1, cp, _ = _point_to_segment_dist(b, c, d)
-    _update(d1, b, cp)
-
-    # t = 0: point C to segment AB
-    d2, cp, _ = _point_to_segment_dist(c, a, b)
-    _update(d2, cp, c)
-
-    # t = 1: point D to segment AB
-    d3, cp, _ = _point_to_segment_dist(d, a, b)
-    _update(d3, cp, d)
-
-    return best_dist, best_cp1, best_cp2
-
-
 @functools.lru_cache(maxsize=1)
 def _load_manifest_hv_net_names() -> frozenset[str]:
     """Real HV-domain net names from ``elec/domain_manifest.yaml``.
 
-    ``_get_required_clearance`` used to classify a net as HV purely by
+    The retired Python clearance implementation used to classify a net as HV purely by
     matching 4 hardcoded substrings (``"AC_"``, ``"HV_"``,
     ``"HIGH_VOLTAGE"``, ``"MAINS"``) against the net's own spelling. On
     this board's actual net names that matched **only** ``ac_l``/``ac_n``
@@ -713,85 +395,7 @@ def _load_manifest_hv_net_names() -> frozenset[str]:
     return frozenset(str(n) for n in nets)
 
 
-def _get_required_clearance(
-    net1: str,
-    net2: str,
-    default_clearance: float,
-    voltage_ratings: dict[str, float] | None = None,
-    *,
-    layer: str = "F.Cu",
-) -> float:
-    """
-    Get required clearance between two nets.
-
-    For high-voltage nets the clearance is determined by the unified
-    multi-standard clearance engine (IEC 60950-1, 60335-1, 60664-1,
-    62368-1, IPC-2221).  Non-HV nets use the caller-supplied default.
-
-    Args:
-        net1: First net name
-        net2: Second net name
-        default_clearance: Default clearance (mm) for non-HV nets
-        voltage_ratings: Optional dict of net_name -> voltage (V)
-        layer: Layer name (e.g. "F.Cu", "In1.Cu") for
-            internal-layer creepage reduction per IEC 60664-1.
-
-    Returns:
-        Required clearance (mm)
-    """
-    if voltage_ratings is None:
-        voltage_ratings = {}
-
-    # Bug history (2026-07-27): the fix in merge 466c7724 ORed in
-    # `hv_manifest_nets` (below) to close the false-NEGATIVE gap this
-    # function had, but left its own `hv_keywords` substring test
-    # ("AC_"/"HV_"/"HIGH_VOLTAGE"/"MAINS", via plain `kw in net_upper`)
-    # in place unfixed -- the same defect class, still live, found by
-    # scripts/check_net_classification.py auditing this file a second
-    # time. No live false positive proven against this project's current
-    # net names (see docs/evidence/2026-07-27-net-classification-gate.md),
-    # but fixed anyway: now that manifest membership already gives full,
-    # correct HV coverage, the substring test is redundant risk with no
-    # remaining coverage benefit. Reuses _is_hv_keyword_match (below) --
-    # its vocabulary is a superset of this one, so no separate keyword
-    # list needs to be kept in sync.
-    hv_manifest_nets = _load_manifest_hv_net_names()
-
-    net1_upper = net1.upper()
-    net2_upper = net2.upper()
-
-    is_hv1 = _is_hv_keyword_match(net1_upper) or net1 in hv_manifest_nets
-    is_hv2 = _is_hv_keyword_match(net2_upper) or net2 in hv_manifest_nets
-
-    if is_hv1 or is_hv2:
-        # Determine the governing voltage: pick the HV net's voltage
-        # (if both are HV, take the higher voltage).
-        voltage = 0.0
-        if is_hv1:
-            v1 = voltage_ratings.get(net1, 230.0)
-            voltage = max(voltage, v1) if math.isfinite(v1) else max(voltage, 230.0)
-        if is_hv2:
-            v2 = voltage_ratings.get(net2, 230.0)
-            voltage = max(voltage, v2) if math.isfinite(v2) else max(voltage, 230.0)
-
-        # Classify each net for the unified engine
-        class_a = _classify_net_class(net1)
-        class_b = _classify_net_class(net2)
-
-        layer_type = "internal" if _is_internal_layer(layer) else "external"
-
-        hv_required = get_clearance(
-            class_a,
-            class_b,
-            voltage=voltage,
-            layer_type=layer_type,
-        )
-        return max(default_clearance, hv_required)
-
-    return default_clearance
-
-
-# Word-boundary HV keywords for _classify_net_class, delimited by "_"/"-"
+# Word-boundary HV keywords for the HV matcher, delimited by "_"/"-"
 # (widened from "_"-only 2026-08-13, see this module's own top-of-file
 # bug-history note) or start/end of the (uppercased) net name -- "AC_"/"HV_"
 # collapse to bare "AC"/"HV" here because the boundary regex below already
@@ -855,7 +459,7 @@ _SELV_LINE_NET_OVERRIDES = frozenset(
 
 
 def _is_hv_keyword_match(upper: str) -> bool:
-    """Word-boundary HV-keyword match for :func:`_classify_net_class`.
+    """Match HV keywords at word boundaries.
 
     Bug history (2026-07-27): this function's predecessor matched
     ``hv_keywords`` (including ``"L1"``, ``"L2"``, ``"L3"``, ``"LINE"``)
@@ -895,45 +499,3 @@ def _is_hv_keyword_match(upper: str) -> bool:
     # on the leading "_"/"-"/start side only (mirrors
     # creepage_check._is_high_voltage_net's identical special case).
     return bool(re.search(r"(?:^|[_-])B\+", upper))
-
-
-def _classify_net_class(net_name: str) -> str:
-    """Map a net name to a net-class label for the clearance engine.
-
-    FIXED 2026-07-28: the GND/POWER branches below were still a bare
-    ``kw in upper`` substring test even though the HV branch just above
-    (``_is_hv_keyword_match``) had already been anchored for the
-    identical reason on 2026-07-27. Found completing the audit
-    ``scripts/check_net_classification.py``'s 2026-07-28 vocabulary
-    extension prompted -- see
-    docs/evidence/2026-07-28-zone-layer-classification-fix.md.
-
-    FIXED 2026-08-13: the GND/POWER branches' word boundary widened from
-    "_"-only to "_"/"-" alongside the HV branch (see this module's
-    top-of-file bug-history note) -- board-wide simulation of all 162 real
-    net names found zero over-match risk for these two branches (unlike
-    the HV branch's "LINE" keyword): the only flips are ``hb-gnd`` (GND)
-    and ``hb.gate_hs-vdd``/``hb.gate_ls-vdd`` (POWER, both 0-pad phantom
-    nets), all correct/intended per PR #1145's and PR #1162's own findings
-    for the identical net names in the sibling matcher families.
-    """
-    if net_name in _load_manifest_hv_net_names():
-        return "HV"
-    upper = net_name.upper()
-    if _is_hv_keyword_match(upper):
-        return "HV"
-    if any(
-        re.search(rf"(?:^|[_-]){re.escape(kw)}(?:$|[\d_-])", upper)
-        for kw in ("GND", "VSS", "PGND", "CGND", "AGND")
-    ):
-        return "GND"
-    if any(
-        re.search(rf"(?:^|[_-]){re.escape(kw)}(?:$|[\d_-])", upper) for kw in ("VCC", "VDD", "POWER")
-    ) or re.search(r"^\+(?:3V3|5V|12V|15V)(?:$|[_-])", upper):
-        return "POWER"
-    return "SIGNAL"
-
-
-def _is_internal_layer(layer_name: str) -> bool:
-    """Return True if *layer_name* designates an internal copper layer."""
-    return layer_name.startswith("In") or "In" in layer_name

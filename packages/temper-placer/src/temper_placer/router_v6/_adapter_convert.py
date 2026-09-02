@@ -298,10 +298,11 @@ def route_pcb(
             checks (acid_trap, annular_ring, teardrop, thermal_relief,
             power_planes, copper_balance, creepage, clearance) and attach
             a ManufacturingReport to the result. Reporting-only; never
-            raises. Default False -- verify_clearance is O(n^2) pure
-            Python and does not complete on a routed board (27 min,
-            9.2 GB, unfinished). See
-            docs/evidence/2026-07-26-manufacturing-drc-scalability.md.
+            raises. Default False -- 14 of 16 router-instantiating tests
+            assume it is off, and the committed board has 616 critical
+            violations that would trip the critical DFM gate. Clearance is
+            Rust-only and no longer the performance blocker. See
+            docs/STRATEGY.md for the current rationale.
         sat_conflict_limit: Bound the Stage 3 CaDiCaL SAT solve to at
             most this many conflicts (see
             RouterV6Pipeline.__init__'s docstring for the full
@@ -417,20 +418,16 @@ def route_pcb(
         # ManufacturingReport to the result without raising or changing
         # routing behaviour.
         #
-        # DEFAULT IS OFF because the stage does not currently complete on
-        # a real board. Enabling it on the temper board (149 footprints,
-        # ~3,265 emitted segments, 98 zones) ran 27 minutes at 98% CPU and
-        # 9.2 GB RSS without finishing. A stack sample showed pure-Python
-        # interpreter work -- float/tuple allocation and division, no
-        # numpy or Rust -- i.e. an O(n^2) pairwise geometry loop in
-        # verify_clearance. It was never discovered because the stage had
-        # never executed. See
-        # docs/evidence/2026-07-26-manufacturing-drc-scalability.md.
+        # DEFAULT IS OFF because 14 of 16 router-instantiating tests assume
+        # it is off, and the committed board has 616 critical violations
+        # that would trip the critical DFM gate. Clearance is Rust-only;
+        # performance no longer blocks this stage. See docs/STRATEGY.md.
         #
         # Turning it on by default made every route unusable, which is a
         # worse failure than the check being off. It stays off, but is now
-        # switchable and documented rather than silently dead. Restore the
-        # default to True once verify_clearance scales.
+        # switchable and documented rather than silently dead. Revisit the
+        # default after the test assumptions and committed-board violations
+        # are addressed.
         enable_manufacturing_drc=enable_manufacturing_drc,
         dfm_fail_on="none",
         sat_conflict_limit=sat_conflict_limit,

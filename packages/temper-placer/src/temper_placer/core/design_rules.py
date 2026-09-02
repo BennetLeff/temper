@@ -496,9 +496,9 @@ TEMPER_NET_ASSIGNMENTS = {
     # `DC_BUS_RTN`, ~-170V relative to power_return/PWR_RTN -- which
     # elec/src/main.ato's own comment calls "signal ground" -- confirmed
     # independently from the .ato topology, not merely trusted from the
-    # manifest's own trace), and `router_v6.clearance_check.
-    # _classify_net_class` already returns "HV" for it on both the Python
-    # and Rust backends (PR #1300). This table had NO entry for it at
+    # manifest's own trace), and the Rust-owned Router V6 classifier in
+    # `temper-drc-rs/src/router_clearance.rs` already returns "HV" for it
+    # (PR #1300). This table had NO entry for it at
     # all -- confirmed live, `scripts/check_hv_netclass_coverage.py`
     # PROPERTY 1/3 both flagged `hb-gnd` as a currently-red, CI-blocking
     # violation: unclassified here AND absent from pcb/temper.kicad_pro's
@@ -586,8 +586,8 @@ TEMPER_NET_ASSIGNMENTS = {
     # #1134, 96db2ccde, 2026-08-15) -- not an absence case. But it had no entry
     # here AND none in pcb/temper.kicad_pro, so it resolved to Default
     # (0.15/0.2mm) on both enforced surfaces while
-    # router_v6.clearance_check._classify_net_class already returned "HV" for
-    # it. scripts/check_hv_netclass_coverage.py was already failing closed on
+    # Router V6's HV classification already returned "HV" for it.
+    # scripts/check_hv_netclass_coverage.py was already failing closed on
     # this under PROPERTY 1 and BLOCKING PROPERTY 3.
     #
     # HighVoltageSignal, not HighVoltage or GateDriveHV. Matches +15V_LS above

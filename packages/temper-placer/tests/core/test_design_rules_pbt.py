@@ -62,8 +62,8 @@ _NET_ALPHABET = [
     # net "hb-gnd" here (the 2026-08-13 hyphen-boundary fix -> GND). That
     # net now carries an explicit TEMPER_NET_ASSIGNMENTS entry
     # ("HighVoltage" -- elec/domain_manifest.yaml/PR #1145 and
-    # router_v6.clearance_check._classify_net_class/PR #1300 both already
-    # agreed hb-gnd is genuinely HV, ~-170V, one CT-primary-winding from
+    # Router V6's classification/PR #1300 already agreed hb-gnd is genuinely
+    # HV, ~-170V, one CT-primary-winding from
     # DC_BUS_RTN; TEMPER_NET_ASSIGNMENTS was the one home still missing it),
     # so it now legitimately disagrees with `_predict_class`'s
     # pattern-tiers-only prediction -- the exact same shape that moved
