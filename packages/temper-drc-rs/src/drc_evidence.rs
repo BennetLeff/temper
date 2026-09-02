@@ -324,6 +324,59 @@ struct ComparisonReceipt {
     new_scoped_silk_finding_count: usize,
 }
 
+#[derive(Clone, Debug, Serialize)]
+struct WorsenedHardObservation {
+    baseline: ObservationKey,
+    candidate: ObservationKey,
+    count: usize,
+}
+
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+struct IndeterminateHardComparison {
+    reason: &'static str,
+    category: Option<String>,
+    family: Option<FamilyKey>,
+    baseline: Vec<ObservationKey>,
+    candidate: Vec<ObservationKey>,
+    count: usize,
+}
+
+#[derive(Debug, Serialize)]
+struct ComparisonReceiptV3 {
+    schema: &'static str,
+    instrument_conclusive: bool,
+    semantic_repeats_agree: bool,
+    category_states: BTreeMap<String, CategoryState>,
+    raw_global_capped_categories: Vec<String>,
+    unresolved_cap_categories: Vec<String>,
+    new_hard_observations: Vec<BagEntry<ObservationKey>>,
+    removed_hard_observations: Vec<BagEntry<ObservationKey>>,
+    worsened_hard_observations: Vec<WorsenedHardObservation>,
+    indeterminate_hard_comparisons: Vec<IndeterminateHardComparison>,
+    new_scoped_silk_findings: Vec<BagEntry<ScopedSilkFinding>>,
+    new_hard_observation_count: usize,
+    worsened_hard_observation_count: usize,
+    indeterminate_hard_comparison_count: usize,
+    new_scoped_silk_finding_count: usize,
+}
+
+struct ComparisonParts {
+    instrument_conclusive: bool,
+    semantic_repeats_agree: bool,
+    category_states: BTreeMap<String, CategoryState>,
+    raw_global_capped_categories: Vec<String>,
+    unresolved_cap_categories: Vec<String>,
+    new_hard_observations: Vec<BagEntry<ObservationKey>>,
+    removed_hard_observations: Vec<BagEntry<ObservationKey>>,
+    worsened_hard_observations: Vec<WorsenedHardObservation>,
+    indeterminate_hard_comparisons: Vec<IndeterminateHardComparison>,
+    new_scoped_silk_findings: Vec<BagEntry<ScopedSilkFinding>>,
+    v2_new_hard_observation_count: usize,
+    v2_worsened_hard_observation_count: usize,
+    v2_indeterminate_hard_comparison_count: usize,
+    v2_new_scoped_silk_finding_count: usize,
+}
+
 fn net_re() -> &'static Regex {
     static VALUE: OnceLock<Regex> = OnceLock::new();
     VALUE.get_or_init(|| {
@@ -674,16 +727,19 @@ fn scoped_silk_finding_bag(
 /// Compare two immutable subjects using the same semantic identity used for
 /// repeatability. Reporting caps remain explicit typed states; only a complete
 /// Rust-issued silk mutation-cone receipt can resolve a saturated category.
-pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceError> {
-    let request: ComparisonRequest = serde_json::from_str(request_json)?;
+fn comparison_parts(request: &ComparisonRequest) -> Result<ComparisonParts, EvidenceError> {
     let baseline_envelope = evidence_envelope(&request.baseline_samples)?;
     let candidate_envelope = evidence_envelope(&request.candidate_samples)?;
     let semantic_repeats_agree =
         baseline_envelope.observation.stable && candidate_envelope.observation.stable;
 
-    let baseline_caps: BTreeSet<String> = request.baseline_capped_categories.into_iter().collect();
-    let candidate_caps: BTreeSet<String> =
-        request.candidate_capped_categories.into_iter().collect();
+    let baseline_caps: BTreeSet<String> =
+        request.baseline_capped_categories.iter().cloned().collect();
+    let candidate_caps: BTreeSet<String> = request
+        .candidate_capped_categories
+        .iter()
+        .cloned()
+        .collect();
     let all_caps: BTreeSet<String> = baseline_caps.union(&candidate_caps).cloned().collect();
     let mut categories = BTreeSet::new();
     for sample in request
@@ -724,6 +780,10 @@ pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceErr
     let mut new_hard_observation_count = 0usize;
     let mut worsened_hard_observation_count = 0usize;
     let mut indeterminate_hard_comparison_count = 0usize;
+    let mut new_hard_observations = BTreeMap::new();
+    let mut removed_hard_observations = BTreeMap::new();
+    let mut worsened_hard_observations = BTreeMap::new();
+    let mut indeterminate_hard_comparisons = Vec::new();
     if semantic_repeats_agree {
         let baseline = observations_by_family(&request.baseline_samples[0])?;
         let candidate = observations_by_family(&request.candidate_samples[0])?;
@@ -738,6 +798,10 @@ pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceErr
             let candidate_values = candidate.get(&family).map(Vec::as_slice).unwrap_or(&[]);
             new_hard_observation_count +=
                 candidate_values.len().saturating_sub(baseline_values.len());
+            let category_is_unresolved = unresolved_cap_categories
+                .binary_search(&family.category)
+                .is_ok();
+            let mut missing_distance_count = 0;
             for (baseline_value, candidate_value) in
                 baseline_values.iter().zip(candidate_values.iter())
             {
@@ -755,18 +819,139 @@ pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceErr
                         })?;
                         if candidate < baseline {
                             worsened_hard_observation_count += 1;
+                            if !category_is_unresolved {
+                                let baseline_key = ObservationKey {
+                                    family: family.clone(),
+                                    actual_distance_mm: baseline_value.clone(),
+                                };
+                                let candidate_key = ObservationKey {
+                                    family: family.clone(),
+                                    actual_distance_mm: candidate_value.clone(),
+                                };
+                                *worsened_hard_observations
+                                    .entry((baseline_key, candidate_key))
+                                    .or_insert(0) += 1;
+                            }
                         }
                     }
                     (None, None) => {}
-                    _ => indeterminate_hard_comparison_count += 1,
+                    _ => {
+                        indeterminate_hard_comparison_count += 1;
+                        missing_distance_count += 1;
+                    }
+                }
+            }
+            if !category_is_unresolved {
+                if missing_distance_count > 0 {
+                    indeterminate_hard_comparisons.push(IndeterminateHardComparison {
+                        reason: "missing-actual-distance",
+                        category: Some(family.category.clone()),
+                        family: Some(family.clone()),
+                        baseline: baseline_values
+                            .iter()
+                            .map(|value| ObservationKey {
+                                family: family.clone(),
+                                actual_distance_mm: value.clone(),
+                            })
+                            .collect(),
+                        candidate: candidate_values
+                            .iter()
+                            .map(|value| ObservationKey {
+                                family: family.clone(),
+                                actual_distance_mm: value.clone(),
+                            })
+                            .collect(),
+                        count: missing_distance_count,
+                    });
+                }
+                for value in candidate_values.iter().skip(baseline_values.len()) {
+                    let key = ObservationKey {
+                        family: family.clone(),
+                        actual_distance_mm: value.clone(),
+                    };
+                    *new_hard_observations.entry(key).or_insert(0) += 1;
+                }
+                for value in baseline_values.iter().skip(candidate_values.len()) {
+                    let key = ObservationKey {
+                        family: family.clone(),
+                        actual_distance_mm: value.clone(),
+                    };
+                    *removed_hard_observations.entry(key).or_insert(0) += 1;
                 }
             }
         }
     } else {
         indeterminate_hard_comparison_count = 1;
+        let baseline = observations_by_family(&request.baseline_samples[0])?;
+        let candidate = observations_by_family(&request.candidate_samples[0])?;
+        let families: BTreeSet<FamilyKey> = baseline
+            .keys()
+            .chain(candidate.keys())
+            .filter(|family| is_hard_category(&family.category))
+            .cloned()
+            .collect();
+        let mut emitted = false;
+        for family in families {
+            if unresolved_cap_categories
+                .binary_search(&family.category)
+                .is_ok()
+            {
+                continue;
+            }
+            emitted = true;
+            indeterminate_hard_comparisons.push(IndeterminateHardComparison {
+                reason: "semantic-repeats-disagree",
+                category: Some(family.category.clone()),
+                family: Some(family.clone()),
+                baseline: baseline
+                    .get(&family)
+                    .into_iter()
+                    .flatten()
+                    .map(|value| ObservationKey {
+                        family: family.clone(),
+                        actual_distance_mm: value.clone(),
+                    })
+                    .collect(),
+                candidate: candidate
+                    .get(&family)
+                    .into_iter()
+                    .flatten()
+                    .map(|value| ObservationKey {
+                        family: family.clone(),
+                        actual_distance_mm: value.clone(),
+                    })
+                    .collect(),
+                count: 1,
+            });
+        }
+        if !emitted {
+            indeterminate_hard_comparisons.push(IndeterminateHardComparison {
+                reason: "semantic-repeats-disagree",
+                category: None,
+                family: None,
+                baseline: Vec::new(),
+                candidate: Vec::new(),
+                count: 1,
+            });
+        }
     }
 
+    for category in &unresolved_cap_categories {
+        if is_hard_category(category) {
+            indeterminate_hard_comparisons.push(IndeterminateHardComparison {
+                reason: "unresolved-cap",
+                category: Some(category.clone()),
+                family: None,
+                baseline: Vec::new(),
+                candidate: Vec::new(),
+                count: 1,
+            });
+        }
+    }
+    indeterminate_hard_comparisons.sort();
+
     let mut new_scoped_silk_finding_count = 0usize;
+    let mut new_scoped_silk_findings = BTreeMap::new();
     if silk_receipts_comparable {
         let candidate_receipt = request.candidate_silk_receipt.as_ref().ok_or_else(|| {
             EvidenceError::InvalidComparison("candidate silk receipt vanished".into())
@@ -782,25 +967,112 @@ pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceErr
         let baseline_silk = scoped_silk_finding_bag(baseline_receipt, &scope);
         let candidate_silk = scoped_silk_finding_bag(candidate_receipt, &scope);
         for (finding, candidate_count) in candidate_silk {
-            new_scoped_silk_finding_count +=
+            let new_count =
                 candidate_count.saturating_sub(baseline_silk.get(&finding).copied().unwrap_or(0));
+            new_scoped_silk_finding_count += new_count;
+            if new_count > 0 {
+                new_scoped_silk_findings.insert(finding, new_count);
+            }
         }
     }
 
     let instrument_conclusive = semantic_repeats_agree
         && unresolved_cap_categories.is_empty()
         && indeterminate_hard_comparison_count == 0;
-    let receipt = ComparisonReceipt {
-        schema: "temper.drc-admission-comparison/v2",
+    Ok(ComparisonParts {
         instrument_conclusive,
         semantic_repeats_agree,
         category_states,
         raw_global_capped_categories: all_caps.into_iter().collect(),
         unresolved_cap_categories,
-        new_hard_observation_count,
-        worsened_hard_observation_count,
-        indeterminate_hard_comparison_count,
-        new_scoped_silk_finding_count,
+        new_hard_observations: new_hard_observations
+            .into_iter()
+            .map(|(key, count)| BagEntry { key, count })
+            .collect(),
+        removed_hard_observations: removed_hard_observations
+            .into_iter()
+            .map(|(key, count)| BagEntry { key, count })
+            .collect(),
+        worsened_hard_observations: worsened_hard_observations
+            .into_iter()
+            .map(|((baseline, candidate), count)| WorsenedHardObservation {
+                baseline,
+                candidate,
+                count,
+            })
+            .collect(),
+        indeterminate_hard_comparisons,
+        new_scoped_silk_findings: new_scoped_silk_findings
+            .into_iter()
+            .map(|(key, count)| BagEntry { key, count })
+            .collect(),
+        v2_new_hard_observation_count: new_hard_observation_count,
+        v2_worsened_hard_observation_count: worsened_hard_observation_count,
+        v2_indeterminate_hard_comparison_count: indeterminate_hard_comparison_count,
+        v2_new_scoped_silk_finding_count: new_scoped_silk_finding_count,
+    })
+}
+
+pub fn comparison_receipt_json(request_json: &str) -> Result<String, EvidenceError> {
+    let request: ComparisonRequest = serde_json::from_str(request_json)?;
+    let parts = comparison_parts(&request)?;
+    let receipt = ComparisonReceipt {
+        schema: "temper.drc-admission-comparison/v2",
+        instrument_conclusive: parts.instrument_conclusive,
+        semantic_repeats_agree: parts.semantic_repeats_agree,
+        category_states: parts.category_states,
+        raw_global_capped_categories: parts.raw_global_capped_categories,
+        unresolved_cap_categories: parts.unresolved_cap_categories,
+        new_hard_observation_count: parts.v2_new_hard_observation_count,
+        worsened_hard_observation_count: parts.v2_worsened_hard_observation_count,
+        // Keep the v2 count semantics: an unstable semantic repeat contributes
+        // one, while a stable family with a missing distance contributes one
+        // per paired observation. Cap states remain represented separately.
+        indeterminate_hard_comparison_count: parts.v2_indeterminate_hard_comparison_count,
+        new_scoped_silk_finding_count: parts.v2_new_scoped_silk_finding_count,
+    };
+    serde_json::to_string(&receipt).map_err(EvidenceError::Serialization)
+}
+
+/// Versioned exact comparison receipt for feasibility admission. The v2
+/// endpoint above intentionally keeps its historical byte shape; this endpoint
+/// carries canonical multiset deltas and derives every summary count from the
+/// emitted identity entries.
+pub fn comparison_receipt_v3_json(request_json: &str) -> Result<String, EvidenceError> {
+    let request: ComparisonRequest = serde_json::from_str(request_json)?;
+    let parts = comparison_parts(&request)?;
+    let receipt = ComparisonReceiptV3 {
+        schema: "temper.drc-admission-comparison/v3",
+        instrument_conclusive: parts.instrument_conclusive,
+        semantic_repeats_agree: parts.semantic_repeats_agree,
+        category_states: parts.category_states,
+        raw_global_capped_categories: parts.raw_global_capped_categories,
+        unresolved_cap_categories: parts.unresolved_cap_categories,
+        new_hard_observation_count: parts
+            .new_hard_observations
+            .iter()
+            .map(|entry| entry.count)
+            .sum(),
+        worsened_hard_observation_count: parts
+            .worsened_hard_observations
+            .iter()
+            .map(|entry| entry.count)
+            .sum(),
+        indeterminate_hard_comparison_count: parts
+            .indeterminate_hard_comparisons
+            .iter()
+            .map(|entry| entry.count)
+            .sum(),
+        new_scoped_silk_finding_count: parts
+            .new_scoped_silk_findings
+            .iter()
+            .map(|entry| entry.count)
+            .sum(),
+        new_hard_observations: parts.new_hard_observations,
+        removed_hard_observations: parts.removed_hard_observations,
+        worsened_hard_observations: parts.worsened_hard_observations,
+        indeterminate_hard_comparisons: parts.indeterminate_hard_comparisons,
+        new_scoped_silk_findings: parts.new_scoped_silk_findings,
     };
     serde_json::to_string(&receipt).map_err(EvidenceError::Serialization)
 }
@@ -1532,12 +1804,23 @@ fn comparison_receipt_json_py(request_json: &str) -> pyo3::PyResult<String> {
 }
 
 #[cfg(feature = "python")]
+#[pyfunction(name = "drc_admission_comparison_v3_json")]
+fn comparison_receipt_v3_json_py(request_json: &str) -> pyo3::PyResult<String> {
+    comparison_receipt_v3_json(request_json)
+        .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
 pub fn register(module: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
     use pyo3::prelude::PyModuleMethods;
     module.add_function(pyo3::wrap_pyfunction!(evidence_envelope_json_py, module)?)?;
     module.add_function(pyo3::wrap_pyfunction!(silk_scope_receipt_json_py, module)?)?;
     module.add_function(pyo3::wrap_pyfunction!(silk_cell_check_json_py, module)?)?;
     module.add_function(pyo3::wrap_pyfunction!(comparison_receipt_json_py, module)?)?;
+    module.add_function(pyo3::wrap_pyfunction!(
+        comparison_receipt_v3_json_py,
+        module
+    )?)?;
     Ok(())
 }
 
@@ -1996,6 +2279,209 @@ pub(crate) mod tests {
     }
 
     #[cfg_attr(test, test)]
+    fn admission_comparison_v3_empty_delta_is_canonical_and_count_derived() {
+        let request = serde_json::json!({
+            "baseline_samples": [[], [], []],
+            "candidate_samples": [[], [], []],
+            "baseline_capped_categories": [],
+            "candidate_capped_categories": [],
+            "baseline_silk_receipt": null,
+            "candidate_silk_receipt": null
+        });
+        let receipt: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_v3_json(&request.to_string()).expect("empty v3 comparison"),
+        )
+        .expect("valid v3 comparison receipt");
+
+        assert_eq!(receipt["schema"], "temper.drc-admission-comparison/v3");
+        assert_eq!(receipt["new_hard_observations"], serde_json::json!([]));
+        assert_eq!(receipt["removed_hard_observations"], serde_json::json!([]));
+        assert_eq!(receipt["worsened_hard_observations"], serde_json::json!([]));
+        assert_eq!(
+            receipt["indeterminate_hard_comparisons"],
+            serde_json::json!([])
+        );
+        assert_eq!(receipt["new_scoped_silk_findings"], serde_json::json!([]));
+        assert_eq!(receipt["new_hard_observation_count"], 0);
+        assert_eq!(receipt["worsened_hard_observation_count"], 0);
+        assert_eq!(receipt["indeterminate_hard_comparison_count"], 0);
+        assert_eq!(receipt["new_scoped_silk_finding_count"], 0);
+    }
+
+    fn comparison_request(
+        baseline_samples: Vec<Vec<RawFinding>>,
+        candidate_samples: Vec<Vec<RawFinding>>,
+    ) -> serde_json::Value {
+        serde_json::json!({
+            "baseline_samples": baseline_samples,
+            "candidate_samples": candidate_samples,
+            "baseline_capped_categories": [],
+            "candidate_capped_categories": [],
+            "baseline_silk_receipt": null,
+            "candidate_silk_receipt": null
+        })
+    }
+
+    #[cfg_attr(test, test)]
+    fn admission_comparison_v3_preserves_equal_count_identity_substitution() {
+        let baseline = creepage("10.2", "V_BUS_SENSE", "R14", "0.8");
+        let candidate = creepage("10.2", "OTHER_NET", "R14", "0.8");
+        let request = comparison_request(
+            vec![
+                vec![baseline.clone()],
+                vec![baseline.clone()],
+                vec![baseline],
+            ],
+            vec![
+                vec![candidate.clone()],
+                vec![candidate.clone()],
+                vec![candidate],
+            ],
+        );
+        let receipt: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_v3_json(&request.to_string()).expect("v3 substitution"),
+        )
+        .expect("valid v3 substitution receipt");
+
+        assert_eq!(receipt["instrument_conclusive"], true);
+        assert_eq!(receipt["new_hard_observation_count"], 1);
+        assert_eq!(receipt["removed_hard_observations"][0]["count"], 1);
+        assert_eq!(receipt["new_hard_observations"][0]["count"], 1);
+        assert_ne!(
+            receipt["new_hard_observations"][0]["key"]["family"]["nets"],
+            receipt["removed_hard_observations"][0]["key"]["family"]["nets"]
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn admission_comparison_v3_retains_new_multiplicity() {
+        let finding = creepage("10.2", "V_BUS_SENSE", "R14", "0.8");
+        let request = comparison_request(
+            vec![
+                vec![finding.clone()],
+                vec![finding.clone()],
+                vec![finding.clone()],
+            ],
+            vec![
+                vec![finding.clone(), finding.clone()],
+                vec![finding.clone(), finding.clone()],
+                vec![finding.clone(), finding],
+            ],
+        );
+        let receipt: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_v3_json(&request.to_string()).expect("v3 multiplicity"),
+        )
+        .expect("valid v3 multiplicity receipt");
+
+        assert_eq!(receipt["new_hard_observation_count"], 1);
+        assert_eq!(
+            receipt["new_hard_observations"].as_array().unwrap().len(),
+            1
+        );
+        assert_eq!(receipt["new_hard_observations"][0]["count"], 1);
+    }
+
+    #[cfg_attr(test, test)]
+    fn admission_comparison_v3_emits_exact_worsened_distance_pair() {
+        let baseline = creepage("10.2", "V_BUS_SENSE", "R14", "0.8");
+        let candidate = creepage("10.1", "V_BUS_SENSE", "R14", "0.8");
+        let request = comparison_request(
+            vec![
+                vec![baseline.clone()],
+                vec![baseline.clone()],
+                vec![baseline],
+            ],
+            vec![
+                vec![candidate.clone()],
+                vec![candidate.clone()],
+                vec![candidate],
+            ],
+        );
+        let receipt: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_v3_json(&request.to_string()).expect("v3 worsened distance"),
+        )
+        .expect("valid v3 worsened receipt");
+        let worsened = &receipt["worsened_hard_observations"][0];
+
+        assert_eq!(receipt["worsened_hard_observation_count"], 1);
+        assert_eq!(worsened["count"], 1);
+        assert_eq!(worsened["baseline"]["actual_distance_mm"], "10.2");
+        assert_eq!(worsened["candidate"]["actual_distance_mm"], "10.1");
+    }
+
+    #[cfg_attr(test, test)]
+    fn admission_comparison_v3_represents_unstable_and_capped_hard_evidence_as_indeterminate() {
+        let finding = |actual: &str| creepage(actual, "V_BUS_SENSE", "R14", "0.8");
+        let unstable = serde_json::json!({
+            "baseline_samples": [[finding("10.2")], [finding("10.3")], [finding("10.2")]],
+            "candidate_samples": [[finding("10.2")], [finding("10.2")], [finding("10.2")]],
+            "baseline_capped_categories": [],
+            "candidate_capped_categories": [],
+            "baseline_silk_receipt": null,
+            "candidate_silk_receipt": null
+        });
+        let unstable_receipt: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_v3_json(&unstable.to_string()).expect("v3 unstable evidence"),
+        )
+        .expect("valid unstable v3 receipt");
+        assert_eq!(unstable_receipt["instrument_conclusive"], false);
+        assert_eq!(
+            unstable_receipt["new_hard_observations"],
+            serde_json::json!([])
+        );
+        assert_eq!(
+            unstable_receipt["worsened_hard_observations"],
+            serde_json::json!([])
+        );
+        assert_eq!(
+            unstable_receipt["indeterminate_hard_comparisons"][0]["reason"],
+            "semantic-repeats-disagree"
+        );
+        assert_eq!(unstable_receipt["indeterminate_hard_comparison_count"], 1);
+
+        let capped = serde_json::json!({
+            "baseline_samples": [[finding("10.2")], [finding("10.2")], [finding("10.2")]],
+            "candidate_samples": [[finding("10.1")], [finding("10.1")], [finding("10.1")]],
+            "baseline_capped_categories": ["creepage"],
+            "candidate_capped_categories": ["creepage"],
+            "baseline_silk_receipt": null,
+            "candidate_silk_receipt": null
+        });
+        let capped_receipt: serde_json::Value = serde_json::from_str(
+            &comparison_receipt_v3_json(&capped.to_string()).expect("v3 capped evidence"),
+        )
+        .expect("valid capped v3 receipt");
+        assert_eq!(capped_receipt["instrument_conclusive"], false);
+        assert_eq!(
+            capped_receipt["new_hard_observations"],
+            serde_json::json!([])
+        );
+        assert_eq!(
+            capped_receipt["worsened_hard_observations"],
+            serde_json::json!([])
+        );
+        assert_eq!(
+            capped_receipt["indeterminate_hard_comparisons"][0]["reason"],
+            "unresolved-cap"
+        );
+        assert_eq!(
+            capped_receipt["indeterminate_hard_comparisons"][0]["category"],
+            "creepage"
+        );
+        assert_eq!(capped_receipt["indeterminate_hard_comparison_count"], 1);
+    }
+
+    #[cfg_attr(test, test)]
+    fn admission_comparison_v2_empty_request_is_byte_stable() {
+        let request =
+            comparison_request(vec![vec![], vec![], vec![]], vec![vec![], vec![], vec![]]);
+        assert_eq!(
+            comparison_receipt_json(&request.to_string()).expect("v2 comparison"),
+            r#"{"schema":"temper.drc-admission-comparison/v2","instrument_conclusive":true,"semantic_repeats_agree":true,"category_states":{},"raw_global_capped_categories":[],"unresolved_cap_categories":[],"new_hard_observation_count":0,"worsened_hard_observation_count":0,"indeterminate_hard_comparison_count":0,"new_scoped_silk_finding_count":0}"#
+        );
+    }
+
+    #[cfg_attr(test, test)]
     fn admission_comparison_allows_only_complete_silk_scope_to_resolve_a_cap() {
         let scope_request = serde_json::json!({
             "source_board": board("10 0"),
@@ -2105,9 +2591,33 @@ pub(crate) mod tests {
             )
             .expect("valid comparison")
         };
+        let compare_v3 = |candidate: serde_json::Value| {
+            let request = serde_json::json!({
+                "baseline_samples": [[], [], []],
+                "candidate_samples": [[], [], []],
+                "baseline_capped_categories": ["W:silk_overlap"],
+                "candidate_capped_categories": ["W:silk_overlap"],
+                "baseline_silk_receipt": baseline.clone(),
+                "candidate_silk_receipt": candidate
+            });
+            serde_json::from_str::<serde_json::Value>(
+                &comparison_receipt_v3_json(&request.to_string()).expect("v3 silk comparison"),
+            )
+            .expect("valid v3 comparison")
+        };
         assert_eq!(compare(moved)["new_scoped_silk_finding_count"], 0);
         assert_eq!(compare(substituted)["new_scoped_silk_finding_count"], 1);
-        assert_eq!(compare(added)["new_scoped_silk_finding_count"], 1);
+        assert_eq!(compare(added.clone())["new_scoped_silk_finding_count"], 1);
+        let exact_added = compare_v3(added);
+        assert_eq!(exact_added["new_scoped_silk_finding_count"], 1);
+        assert_eq!(exact_added["new_scoped_silk_findings"][0]["count"], 1);
+        assert_eq!(
+            exact_added["new_scoped_silk_findings"]
+                .as_array()
+                .unwrap()
+                .len(),
+            1
+        );
     }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
@@ -2132,6 +2642,12 @@ pub(crate) mod tests {
         ("drc_evidence::tests::silk_scope_reports_missing_and_foreign_pairs_independently", silk_scope_reports_missing_and_foreign_pairs_independently),
         ("drc_evidence::tests::silk_finding_subject_is_rust_owned_and_ambiguous_records_fail", silk_finding_subject_is_rust_owned_and_ambiguous_records_fail),
         ("drc_evidence::tests::admission_comparison_ranks_hard_distances_after_provider_normalization", admission_comparison_ranks_hard_distances_after_provider_normalization),
+        ("drc_evidence::tests::admission_comparison_v3_empty_delta_is_canonical_and_count_derived", admission_comparison_v3_empty_delta_is_canonical_and_count_derived),
+        ("drc_evidence::tests::admission_comparison_v3_preserves_equal_count_identity_substitution", admission_comparison_v3_preserves_equal_count_identity_substitution),
+        ("drc_evidence::tests::admission_comparison_v3_retains_new_multiplicity", admission_comparison_v3_retains_new_multiplicity),
+        ("drc_evidence::tests::admission_comparison_v3_emits_exact_worsened_distance_pair", admission_comparison_v3_emits_exact_worsened_distance_pair),
+        ("drc_evidence::tests::admission_comparison_v3_represents_unstable_and_capped_hard_evidence_as_indeterminate", admission_comparison_v3_represents_unstable_and_capped_hard_evidence_as_indeterminate),
+        ("drc_evidence::tests::admission_comparison_v2_empty_request_is_byte_stable", admission_comparison_v2_empty_request_is_byte_stable),
         ("drc_evidence::tests::admission_comparison_allows_only_complete_silk_scope_to_resolve_a_cap", admission_comparison_allows_only_complete_silk_scope_to_resolve_a_cap),
         ("drc_evidence::tests::scoped_silk_comparison_uses_primitive_identity_not_moved_coordinates", scoped_silk_comparison_uses_primitive_identity_not_moved_coordinates),
     ];

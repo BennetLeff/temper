@@ -1,0 +1,1036 @@
+{
+  "authorities": {
+    "drc_ceiling_sha256": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2",
+    "generated_input_sha256s": [
+      "0a15ce9d3a9c9fa2f9ae300d73af88754ce9b92022c6700f035392e1ca9be2b6",
+      "488a01a81ea29dd6b4ed3106d3f5c0b036a9d07bf9a545a60b1ca6fbc74a0fdb",
+      "f1899c87a61f579e2a92dbd673c1ad29036aed463b2f3fcc4ff7cca7f034bae3"
+    ],
+    "model_source_sha256s": [
+      "050fe934d6208d5bd0e8d73da760c525c11185ac838b9c44b09b9cdf20f86a76"
+    ],
+    "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "tool_context_sha256": "f1075ea2ba28aeb9a9d45278ff6c6ada92141bbc1d91af0626257a12b679b527"
+  },
+  "candidate": "/tmp/compound-engineering-1000/net41-preroute-feasibility-20260902-certified/feasibility-witness/NET41-CORRIDOR-38802d1da8d11c8ae8a342a5c010c8a8603b78e676fa0604353fa0c321afca77/temper.kicad_pcb",
+  "candidate_set_digest": "2f7befb395b4e07c0713b5b33f923c360195c0d41cd503d81779ddfcaad4cb11",
+  "checkpoint_binding_sha256": "a1f87de5a2a443ce7e544ec1abbc4184a9b5471269b3a2c68df4dffd0266a190",
+  "declaration_hash": "58b6df887ff880f82a7aa07cfbd8f23ea6dde5e4a5c217f18c1f19efffdf0e61",
+  "declared_count": 2880,
+  "instrument_payload_index": {
+    "instruments": {
+      "body-courtyard-overlap": {
+        "payload_bytes": 95,
+        "payload_sha256": "7456b3cd70658761c89301c659c74b1026169f57f348035e29301112c8af08c8"
+      },
+      "connectivity": {
+        "payload_bytes": 515,
+        "payload_sha256": "5dd05658a35ac7b41eafb86b66bf4dab7ef15913ca5ebdbf1bb92d514aaaade1"
+      },
+      "containment": {
+        "payload_bytes": 21,
+        "payload_sha256": "796c4c14e96a550c0a864f3ea98bceabdd5dec430e60f965354d02a6da03fcd0"
+      },
+      "mutation-scope": {
+        "payload_bytes": 409,
+        "payload_sha256": "c68c5ecfd2061db93428208cee3e3d47ed880152042b799f55f32341d7fc1709"
+      },
+      "normalized-kicad-drc": {
+        "payload_bytes": 2354553,
+        "payload_sha256": "4a7bfa1c6e799f0cf98241cbddb7d8456a5442a7c886c93e4e1ed20a67218914",
+        "summary": {
+          "admission_comparison": {
+            "category_states": {
+              "W:lib_footprint_issues": "uncapped-exact",
+              "W:lib_footprint_mismatch": "uncapped-exact",
+              "W:missing_courtyard": "uncapped-exact",
+              "W:silk_edge_clearance": "uncapped-exact",
+              "W:silk_over_copper": "uncapped-exact",
+              "W:silk_overlap": "raw-saturated-scoped-complete",
+              "W:track_dangling": "uncapped-exact",
+              "W:via_dangling": "uncapped-exact",
+              "clearance": "uncapped-exact",
+              "copper_edge_clearance": "uncapped-exact",
+              "courtyards_overlap": "uncapped-exact",
+              "creepage": "uncapped-exact",
+              "drill_out_of_range": "uncapped-exact",
+              "hole_clearance": "uncapped-exact",
+              "shorting_items": "uncapped-exact",
+              "solder_mask_bridge": "uncapped-exact",
+              "unconnected_items": "uncapped-exact"
+            },
+            "indeterminate_hard_comparison_count": 0,
+            "indeterminate_hard_comparisons": [],
+            "instrument_conclusive": true,
+            "new_hard_observation_count": 9,
+            "new_hard_observations": [
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.0068",
+                  "family": {
+                    "category": "clearance",
+                    "components": [
+                      "R66"
+                    ],
+                    "items": [
+                      {
+                        "description": "Pad 1 [+3V3] of R66 on F.Cu",
+                        "x": "102.825",
+                        "y": "249.5"
+                      },
+                      {
+                        "description": "Via [V_BUS_SENSE] on F.Cu - B.Cu",
+                        "x": "103.355",
+                        "y": "250.4"
+                      }
+                    ],
+                    "message_semantics": "Clearance violation (netclass 'Power' clearance 0.5000 mm)",
+                    "nets": [
+                      "+3V3",
+                      "V_BUS_SENSE"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.3892",
+                  "family": {
+                    "category": "clearance",
+                    "components": [
+                      "U22"
+                    ],
+                    "items": [
+                      {
+                        "description": "Pad 5 [+3V3] of U22 on F.Cu",
+                        "x": "104.8625",
+                        "y": "249.95"
+                      },
+                      {
+                        "description": "Via [V_BUS_SENSE] on F.Cu - B.Cu",
+                        "x": "103.355",
+                        "y": "250.4"
+                      }
+                    ],
+                    "message_semantics": "Clearance violation (netclass 'Power' clearance 0.5000 mm)",
+                    "nets": [
+                      "+3V3",
+                      "V_BUS_SENSE"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.3500",
+                  "family": {
+                    "category": "clearance",
+                    "components": [
+                      "U22",
+                      "U22"
+                    ],
+                    "items": [
+                      {
+                        "description": "Pad 1 [safety.uvlo_logic.mon-outa] of U22 on F.Cu",
+                        "x": "107.1375",
+                        "y": "249.95"
+                      },
+                      {
+                        "description": "Pad 2 [+3V3] of U22 on F.Cu",
+                        "x": "107.1375",
+                        "y": "249.0"
+                      }
+                    ],
+                    "message_semantics": "Clearance violation (netclass 'Power' clearance 0.5000 mm)",
+                    "nets": [
+                      "+3V3",
+                      "safety.uvlo_logic.mon-outa"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.2481",
+                  "family": {
+                    "category": "clearance",
+                    "components": [
+                      "SW1"
+                    ],
+                    "items": [
+                      {
+                        "description": "Pad 1 [en] of SW1 on F.Cu",
+                        "x": "102.825",
+                        "y": "247.5"
+                      },
+                      {
+                        "description": "Via [gnd] on F.Cu - B.Cu",
+                        "x": "101.895",
+                        "y": "246.62"
+                      }
+                    ],
+                    "message_semantics": "Clearance violation (netclass 'Power' clearance 0.5000 mm)",
+                    "nets": [
+                      "en",
+                      "gnd"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.0852",
+                  "family": {
+                    "category": "clearance",
+                    "components": [
+                      "K1"
+                    ],
+                    "items": [
+                      {
+                        "description": "PTH pad 3 [power_in.ntc-no] of K1",
+                        "x": "115.34",
+                        "y": "220.5"
+                      },
+                      {
+                        "description": "Track [discharge.r_snub1-p2] on In3.Cu, length 29.5677 mm",
+                        "x": "112.0",
+                        "y": "206.0"
+                      }
+                    ],
+                    "message_semantics": "Clearance violation (rule 'Default routing' clearance 0.2000 mm)",
+                    "nets": [
+                      "discharge.r_snub1-p2",
+                      "power_in.ntc-no"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "12.2478",
+                  "family": {
+                    "category": "creepage",
+                    "components": [
+                      "K1"
+                    ],
+                    "items": [],
+                    "message_semantics": "Creepage violation (rule 'HV to LV' creepage 12.6000 mm)",
+                    "nets": [
+                      "rtd_sense_n",
+                      "w1_2"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.2500",
+                  "family": {
+                    "category": "hole_clearance",
+                    "components": [
+                      "J1"
+                    ],
+                    "items": [
+                      {
+                        "description": "PTH pad 4 [rtd_force_n] of J1",
+                        "x": "97.5",
+                        "y": "243.0"
+                      },
+                      {
+                        "description": "Track [rtd_sense_n] on In4.Cu, length 6.2000 mm",
+                        "x": "98.35",
+                        "y": "241.05"
+                      }
+                    ],
+                    "message_semantics": "Hole clearance violation (rule 'Via hole clearance' clearance 0.2800 mm)",
+                    "nets": [
+                      "rtd_force_n",
+                      "rtd_sense_n"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": null,
+                  "family": {
+                    "category": "shorting_items",
+                    "components": [
+                      "J1"
+                    ],
+                    "items": [
+                      {
+                        "description": "PTH pad 4 [rtd_force_n] of J1",
+                        "x": "97.5",
+                        "y": "243.0"
+                      },
+                      {
+                        "description": "Track [rtd_sense_n] on In4.Cu, length 6.2000 mm",
+                        "x": "98.35",
+                        "y": "241.05"
+                      }
+                    ],
+                    "message_semantics": "Items shorting two nets (nets rtd_force_n and rtd_sense_n)",
+                    "nets": [
+                      "rtd_force_n",
+                      "rtd_sense_n"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": null,
+                  "family": {
+                    "category": "shorting_items",
+                    "components": [
+                      "J1"
+                    ],
+                    "items": [
+                      {
+                        "description": "PTH pad 3 [rtd_sense_n] of J1",
+                        "x": "100.0",
+                        "y": "243.0"
+                      },
+                      {
+                        "description": "Track [rtd_sense_p] on In3.Cu, length 8.9000 mm",
+                        "x": "99.05",
+                        "y": "240.25"
+                      }
+                    ],
+                    "message_semantics": "Items shorting two nets (nets rtd_sense_n and rtd_sense_p)",
+                    "nets": [
+                      "rtd_sense_n",
+                      "rtd_sense_p"
+                    ]
+                  }
+                }
+              }
+            ],
+            "new_scoped_silk_finding_count": 0,
+            "new_scoped_silk_findings": [],
+            "raw_global_capped_categories": [
+              "W:silk_overlap"
+            ],
+            "removed_hard_observations": [
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.1483",
+                  "family": {
+                    "category": "clearance",
+                    "components": [
+                      "SW1"
+                    ],
+                    "items": [
+                      {
+                        "description": "Pad 1 [en] of SW1 on F.Cu",
+                        "x": "103.545",
+                        "y": "246.62"
+                      },
+                      {
+                        "description": "Via [+3V3] on F.Cu - B.Cu",
+                        "x": "103.0775",
+                        "y": "245.54"
+                      }
+                    ],
+                    "message_semantics": "Clearance violation (netclass 'Power' clearance 0.5000 mm)",
+                    "nets": [
+                      "+3V3",
+                      "en"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.4500",
+                  "family": {
+                    "category": "clearance",
+                    "components": [
+                      "U22"
+                    ],
+                    "items": [
+                      {
+                        "description": "Pad 1 [safety.uvlo_logic.mon-outa] of U22 on F.Cu",
+                        "x": "103.0775",
+                        "y": "244.29"
+                      },
+                      {
+                        "description": "Via [+3V3] on F.Cu - B.Cu",
+                        "x": "103.0775",
+                        "y": "245.54"
+                      }
+                    ],
+                    "message_semantics": "Clearance violation (netclass 'Power' clearance 0.5000 mm)",
+                    "nets": [
+                      "+3V3",
+                      "safety.uvlo_logic.mon-outa"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "0.3500",
+                  "family": {
+                    "category": "clearance",
+                    "components": [
+                      "U22",
+                      "U22"
+                    ],
+                    "items": [
+                      {
+                        "description": "Pad 1 [safety.uvlo_logic.mon-outa] of U22 on F.Cu",
+                        "x": "103.0775",
+                        "y": "244.29"
+                      },
+                      {
+                        "description": "Pad 2 [+3V3] of U22 on F.Cu",
+                        "x": "103.0775",
+                        "y": "243.34"
+                      }
+                    ],
+                    "message_semantics": "Clearance violation (netclass 'Power' clearance 0.5000 mm)",
+                    "nets": [
+                      "+3V3",
+                      "safety.uvlo_logic.mon-outa"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "9.6865",
+                  "family": {
+                    "category": "creepage",
+                    "components": [
+                      "J1",
+                      "K1"
+                    ],
+                    "items": [],
+                    "message_semantics": "Creepage violation (rule 'HV to LV' creepage 12.6000 mm)",
+                    "nets": [
+                      "rtd_force_n",
+                      "w1_2"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "11.5044",
+                  "family": {
+                    "category": "creepage",
+                    "components": [
+                      "J1",
+                      "K1"
+                    ],
+                    "items": [],
+                    "message_semantics": "Creepage violation (rule 'HV to LV' creepage 12.6000 mm)",
+                    "nets": [
+                      "rtd_sense_n",
+                      "w1_2"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "10.0225",
+                  "family": {
+                    "category": "creepage",
+                    "components": [],
+                    "items": [],
+                    "message_semantics": "Creepage violation (rule 'HighVoltageSignal to LV' creepage 12.6000 mm)",
+                    "nets": [
+                      "+3V3",
+                      "discharge.r_snub1-p2"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "10.2975",
+                  "family": {
+                    "category": "creepage",
+                    "components": [],
+                    "items": [],
+                    "message_semantics": "Creepage violation (rule 'HighVoltageSignal to LV' creepage 12.6000 mm)",
+                    "nets": [
+                      "V_BUS_SENSE",
+                      "discharge.r_snub1-p2"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "11.2050",
+                  "family": {
+                    "category": "creepage",
+                    "components": [],
+                    "items": [],
+                    "message_semantics": "Creepage violation (rule 'HighVoltageSignal to LV' creepage 12.6000 mm)",
+                    "nets": [
+                      "discharge.r_snub1-p2",
+                      "gnd"
+                    ]
+                  }
+                }
+              },
+              {
+                "count": 1,
+                "key": {
+                  "actual_distance_mm": "10.1767",
+                  "family": {
+                    "category": "creepage",
+                    "components": [
+                      "J1"
+                    ],
+                    "items": [],
+                    "message_semantics": "Creepage violation (rule 'HighVoltageSignal to LV' creepage 12.6000 mm)",
+                    "nets": [
+                      "discharge.r_snub1-p2",
+                      "rtd_force_n"
+                    ]
+                  }
+                }
+              }
+            ],
+            "schema": "temper.drc-admission-comparison/v3",
+            "semantic_repeats_agree": true,
+            "unresolved_cap_categories": [],
+            "worsened_hard_observation_count": 0,
+            "worsened_hard_observations": []
+          },
+          "board_sha256": "10af11c950e3e39b24cb540747c7ad3e540507575d545310794a801631b99c76",
+          "capped_categories": [
+            "W:silk_overlap"
+          ],
+          "category_index": [
+            {
+              "at_cap": false,
+              "category": "W:lib_footprint_issues",
+              "count_stable": true,
+              "counts": {
+                "13": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 13,
+              "raw_intersection_size": 13,
+              "raw_set_stable": true,
+              "raw_union_size": 13,
+              "set_stable": true,
+              "union_size": 13
+            },
+            {
+              "at_cap": false,
+              "category": "W:lib_footprint_mismatch",
+              "count_stable": true,
+              "counts": {
+                "27": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 27,
+              "raw_intersection_size": 27,
+              "raw_set_stable": true,
+              "raw_union_size": 27,
+              "set_stable": true,
+              "union_size": 27
+            },
+            {
+              "at_cap": false,
+              "category": "W:missing_courtyard",
+              "count_stable": true,
+              "counts": {
+                "5": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 5,
+              "raw_intersection_size": 5,
+              "raw_set_stable": true,
+              "raw_union_size": 5,
+              "set_stable": true,
+              "union_size": 5
+            },
+            {
+              "at_cap": false,
+              "category": "W:silk_edge_clearance",
+              "count_stable": true,
+              "counts": {
+                "1": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 1,
+              "raw_intersection_size": 1,
+              "raw_set_stable": true,
+              "raw_union_size": 1,
+              "set_stable": true,
+              "union_size": 1
+            },
+            {
+              "at_cap": false,
+              "category": "W:silk_over_copper",
+              "count_stable": true,
+              "counts": {
+                "44": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 44,
+              "raw_intersection_size": 44,
+              "raw_set_stable": true,
+              "raw_union_size": 44,
+              "set_stable": true,
+              "union_size": 44
+            },
+            {
+              "at_cap": true,
+              "category": "W:silk_overlap",
+              "count_stable": true,
+              "counts": {
+                "199": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 199,
+              "raw_intersection_size": 199,
+              "raw_set_stable": true,
+              "raw_union_size": 199,
+              "set_stable": true,
+              "union_size": 199
+            },
+            {
+              "at_cap": false,
+              "category": "W:track_dangling",
+              "count_stable": true,
+              "counts": {
+                "3": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 3,
+              "raw_intersection_size": 3,
+              "raw_set_stable": true,
+              "raw_union_size": 3,
+              "set_stable": true,
+              "union_size": 3
+            },
+            {
+              "at_cap": false,
+              "category": "W:via_dangling",
+              "count_stable": true,
+              "counts": {
+                "111": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 111,
+              "raw_intersection_size": 111,
+              "raw_set_stable": true,
+              "raw_union_size": 111,
+              "set_stable": true,
+              "union_size": 111
+            },
+            {
+              "at_cap": false,
+              "category": "clearance",
+              "count_stable": true,
+              "counts": {
+                "211": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 211,
+              "raw_intersection_size": 211,
+              "raw_set_stable": true,
+              "raw_union_size": 211,
+              "set_stable": true,
+              "union_size": 211
+            },
+            {
+              "at_cap": false,
+              "category": "copper_edge_clearance",
+              "count_stable": true,
+              "counts": {
+                "11": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 11,
+              "raw_intersection_size": 11,
+              "raw_set_stable": true,
+              "raw_union_size": 11,
+              "set_stable": true,
+              "union_size": 11
+            },
+            {
+              "at_cap": false,
+              "category": "courtyards_overlap",
+              "count_stable": true,
+              "counts": {
+                "4": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 4,
+              "raw_intersection_size": 4,
+              "raw_set_stable": true,
+              "raw_union_size": 4,
+              "set_stable": true,
+              "union_size": 4
+            },
+            {
+              "at_cap": false,
+              "category": "creepage",
+              "count_stable": true,
+              "counts": {
+                "95": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 95,
+              "raw_intersection_size": 93,
+              "raw_set_stable": false,
+              "raw_union_size": 97,
+              "set_stable": true,
+              "union_size": 95
+            },
+            {
+              "at_cap": false,
+              "category": "drill_out_of_range",
+              "count_stable": true,
+              "counts": {
+                "6": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 6,
+              "raw_intersection_size": 6,
+              "raw_set_stable": true,
+              "raw_union_size": 6,
+              "set_stable": true,
+              "union_size": 6
+            },
+            {
+              "at_cap": false,
+              "category": "hole_clearance",
+              "count_stable": true,
+              "counts": {
+                "34": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 34,
+              "raw_intersection_size": 34,
+              "raw_set_stable": true,
+              "raw_union_size": 34,
+              "set_stable": true,
+              "union_size": 34
+            },
+            {
+              "at_cap": false,
+              "category": "shorting_items",
+              "count_stable": true,
+              "counts": {
+                "41": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 41,
+              "raw_intersection_size": 41,
+              "raw_set_stable": true,
+              "raw_union_size": 41,
+              "set_stable": true,
+              "union_size": 41
+            },
+            {
+              "at_cap": false,
+              "category": "solder_mask_bridge",
+              "count_stable": true,
+              "counts": {
+                "4": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 4,
+              "raw_intersection_size": 4,
+              "raw_set_stable": true,
+              "raw_union_size": 4,
+              "set_stable": true,
+              "union_size": 4
+            },
+            {
+              "at_cap": false,
+              "category": "unconnected_items",
+              "count_stable": true,
+              "counts": {
+                "351": 3
+              },
+              "distinct_set_count_at_least": 1,
+              "intersection_size": 351,
+              "raw_intersection_size": 350,
+              "raw_set_stable": false,
+              "raw_union_size": 352,
+              "set_stable": true,
+              "union_size": 351
+            }
+          ],
+          "engineering_identity": {
+            "family": {
+              "intersection_size": 1160,
+              "sample_digests": [
+                "b9acb52f84f1fc3cb80acb15ec5ff0a13bf861f8a1c8a3903e2f378706fe2c3c"
+              ],
+              "stable": true,
+              "union_size": 1160
+            },
+            "observation": {
+              "intersection_size": 1160,
+              "sample_digests": [
+                "9d5ccbc88ca0af76cc03f6a759b0d8439949af3c00080928fb9b79d434db5dda"
+              ],
+              "stable": true,
+              "union_size": 1160
+            },
+            "sample_count": 3,
+            "schema": "temper.drc-semantic-envelope/v1"
+          },
+          "sample_count": 3,
+          "silk_scope": {
+            "complete": true,
+            "covered_pair_count": 1148,
+            "expected_pair_count": 1148,
+            "instrument_context_sha256": "8728fdac614eb4d9e60873d41a654234514380618bac1894374fcb53672e8f4a",
+            "leaf_hashes": [
+              "d613aad2743f488ae37f7be7d2eb4e5a75c39ffa4a7311444f3974915fbca820",
+              "0c476db100fcb6d15af540d9cafa3f7c66844f0ba0250f3dd9ba60374cc54cba",
+              "ee6c7118fb404c531270a747464039b4435772d36a624897baf1e6a357edc6b8",
+              "e25389d15e49f87c5a111866399ef78db52e3a18cea01575cb55334f886a27b0",
+              "196470fde2a279db2dbe345bdece2f40c9fb128533b77e932f3851ac35d71840"
+            ],
+            "partition_manifest_sha256": "ae469f55ff0f6484f4b0804003ee175973c6418f205f8cddc7fb830ff3b26bea",
+            "receipt_sha256": "91ca13c188ce3d96760ee55b7c4db63eb7772348a22a92391df3233bb1885fd7",
+            "schema": "temper.silk-mutation-scope/v4",
+            "silk_projection_sha256": "df03a2353b7306da2e8cadab90a61cf70d98eee01032f36b5f61dfd790270814",
+            "source_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+            "subject_sha256": "10af11c950e3e39b24cb540747c7ad3e540507575d545310794a801631b99c76"
+          }
+        }
+      },
+      "route-geometry-current-capacity": {
+        "payload_bytes": 126,
+        "payload_sha256": "989ed2359f928c1b62b75f212c616d631116a9109d0cb21bf486d701f716d970"
+      },
+      "safety-signatures": {
+        "payload_bytes": 13352,
+        "payload_sha256": "81c99b1a4fce169c6213be28c4ee97769a6d503bdce6e493af248365d24b64ca"
+      },
+      "selv-denominator": {
+        "payload_bytes": 208,
+        "payload_sha256": "0df0f21c5adb20a6e30eecf403092f07b5b0873759b632825c69725b10604135"
+      }
+    },
+    "schema": "temper-net41-instrument-payload-index/v1"
+  },
+  "materialized_count": 1,
+  "model_error": null,
+  "model_requirements": [
+    {
+      "body_geometry": true,
+      "complete_selv_denominator": true,
+      "domain": true,
+      "position": true,
+      "reference": "J1"
+    },
+    {
+      "body_geometry": true,
+      "complete_selv_denominator": true,
+      "domain": true,
+      "position": true,
+      "reference": "R14"
+    },
+    {
+      "body_geometry": true,
+      "complete_selv_denominator": true,
+      "domain": true,
+      "position": true,
+      "reference": "R45"
+    },
+    {
+      "body_geometry": true,
+      "complete_selv_denominator": true,
+      "domain": true,
+      "position": true,
+      "reference": "R58"
+    },
+    {
+      "body_geometry": true,
+      "complete_selv_denominator": true,
+      "domain": true,
+      "position": true,
+      "reference": "R66"
+    },
+    {
+      "body_geometry": true,
+      "complete_selv_denominator": true,
+      "domain": true,
+      "position": true,
+      "reference": "SW1"
+    },
+    {
+      "body_geometry": true,
+      "complete_selv_denominator": true,
+      "domain": true,
+      "position": true,
+      "reference": "U22"
+    }
+  ],
+  "preflight": [
+    {
+      "detail": "version 10.0.5; 3 semantic repeats agree; raw caps retained with complete scoped silk coverage",
+      "name": "baseline-kicad-drc",
+      "receipt_sha256": "dfa0d01ba5288f92e76c4d91a99187bb6b3699aa62ff1c2dd5b3fabc794302e1",
+      "state": "trusted",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+    },
+    {
+      "detail": "live pcbnew oracle passed: PASS -- all 10 site(s) agree with pcbnew to 1e-05mm across 16 probe row(s).",
+      "name": "pcbnew-rotation-oracle",
+      "receipt_sha256": "e7211e2fc07957968de2015b5ba9ec074a16d1f20f58ca600a39097e1418ef59",
+      "state": "trusted",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+    },
+    {
+      "detail": "all discovered pyo3 extensions are fresh and importable",
+      "name": "pyo3-extensions",
+      "receipt_sha256": "5a1e97b688a36608022715644e8c9c34fb78a6b82e55901a803bd711274b2a78",
+      "state": "trusted",
+      "subject_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+    }
+  ],
+  "production_authorities": {
+    "board_sha256_after": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "board_sha256_before": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "changed": false,
+    "drc_ceiling_sha256_after": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2",
+    "drc_ceiling_sha256_before": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2"
+  },
+  "reason": "witness has exact pre-route findings",
+  "routed_count": 0,
+  "schema_version": "temper-net41-feasibility-manifest/v1",
+  "screened_count": 2880,
+  "terminal": "witness-rejected",
+  "terminal_receipt_sha256": "431bbb5fb10da7e1623b95f9455a497df40f1b6e4e1e746ec81477325fac446c",
+  "witness": {
+    "candidate_id": "NET41-CORRIDOR-38802d1da8d11c8ae8a342a5c010c8a8603b78e676fa0604353fa0c321afca77",
+    "declaration_ordinal": 2244,
+    "materialization_instruction": {
+      "candidate_id": "NET41-CORRIDOR-38802d1da8d11c8ae8a342a5c010c8a8603b78e676fa0604353fa0c321afca77",
+      "fixed_pad_number": "1",
+      "fixed_ref": "C7",
+      "footprint_positions": [
+        {
+          "reference": "J1",
+          "rotation_deg": 180.0,
+          "x_mm": 105.0,
+          "y_mm": 243.0
+        },
+        {
+          "reference": "R45",
+          "rotation_deg": 270.0,
+          "x_mm": 93.0,
+          "y_mm": 244.0
+        },
+        {
+          "reference": "R58",
+          "rotation_deg": 90.0,
+          "x_mm": 91.5,
+          "y_mm": 242.5
+        },
+        {
+          "reference": "R66",
+          "rotation_deg": 180.0,
+          "x_mm": 102.0,
+          "y_mm": 249.5
+        },
+        {
+          "reference": "SW1",
+          "rotation_deg": 180.0,
+          "x_mm": 102.0,
+          "y_mm": 247.5
+        },
+        {
+          "reference": "U22",
+          "rotation_deg": 180.0,
+          "x_mm": 106.0,
+          "y_mm": 249.0
+        },
+        {
+          "reference": "R14",
+          "rotation_deg": 270.0,
+          "x_mm": 123.64,
+          "y_mm": 249.56
+        }
+      ],
+      "moving_pad_number": "2",
+      "moving_ref": "R14",
+      "old_segment_tstamps": [
+        "6f0fc0cf-21f3-5002-9a69-56e731267c8b",
+        "6cafd89e-ca83-57ec-851d-d155c9d0b3b2",
+        "550d69a3-4b61-50f5-835d-36d0a3ed4d4b",
+        "048519f5-d649-5114-98f6-60724a55aada",
+        "267034c2-04fd-54e2-a5de-91f83f88e089",
+        "951c86e1-1293-542d-b329-e84b974e7b78",
+        "8177ba34-5cc4-5224-9e26-550776d71d3d",
+        "4db32563-63fa-505b-a69d-47be9cfdd1e2",
+        "69ea8cbb-c6cb-5c53-8c15-24a24f25c4ba",
+        "8eb327f7-4a2b-5805-a4c9-dcf2d58c3d08",
+        "9282fe61-caff-564e-b085-478bcc27b15f",
+        "b1bd3aea-e461-5343-8750-23146ea08f18",
+        "9f8ea5c7-cd34-5c39-9394-f618be359f8e",
+        "91582a5b-645a-5caa-80b2-f6272ef47f6f",
+        "7b5bff49-d260-58c8-b8f0-0691a7e84809"
+      ],
+      "old_via_tstamp": "80dc97ff-4224-5905-925a-d96851a93537",
+      "placement_id": "C047",
+      "route_layer": "In3.Cu",
+      "route_net": 41,
+      "route_points": [
+        [
+          112.0,
+          206.0
+        ],
+        [
+          121.5,
+          234.0
+        ],
+        [
+          121.5,
+          250.0
+        ],
+        [
+          123.64,
+          252.5225
+        ]
+      ],
+      "route_width_mm": 0.5,
+      "schema_version": "temper-corridor-materialization-instruction/v1",
+      "via_drill_mm": 0.3,
+      "via_size_mm": 0.9,
+      "via_span": [
+        "In3.Cu",
+        "F.Cu"
+      ]
+    },
+    "materialization_instruction_sha256": "797f87f38ca897553fe647ab097f1e95f71b3f754d4f39bb8e92796d6af125de",
+    "schema_version": "temper-corridor-feasibility-witness/v1",
+    "witness_id": "NET41-WITNESS-193f044fb1efaa9f1a16db15f0922d5d027cbc16a88ccb9ff1e59247db81c468"
+  }
+}

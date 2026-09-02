@@ -327,7 +327,7 @@ pub struct CorridorCampaignReceipt {
     pub selected_board_sha256: Option<String>,
 }
 
-fn valid_digest(value: &str) -> bool {
+pub(crate) fn valid_digest(value: &str) -> bool {
     value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
