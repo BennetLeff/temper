@@ -38,7 +38,7 @@ pub struct RawPosition {
     y: serde_json::Number,
 }
 
-#[cfg(test)]
+#[cfg(any(test, feature = "wasm-registry"))]
 impl RawPosition {
     fn new(x: &str, y: &str) -> Self {
         fn number(value: &str) -> serde_json::Number {
