@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "axis": "timing.non_overlap",
+  "source": "candidate-local-model",
+  "status": "rejected",
+  "controlled_facts_required": true,
+  "bench_evidence_required": true,
+  "row_count": 4,
+  "rows": [
+    {"row_id": "uvlo.all-corners", "status": "pending", "reason": "UCC27517A internal UVLO does not establish the required 12.0/13.0 V supervisor inequalities"},
+    {"row_id": "timing.non-overlap.worst-case", "status": "pending", "reason": "independent isolator/driver/IGBT extrema and routed uncertainty are pending"},
+    {"row_id": "power.gate-network-and-bias", "status": "rejected", "reason": "negative -5.1 V and positive +9.9 V gate levels lack controlled tolerance and turn-on/Miller proof"},
+    {"row_id": "power.bootstrap-precharge", "status": "pending", "reason": "hold-up, duty/frequency, current, and bounded precharge captures are pending"}
+  ],
+  "limits": {"uvlo_falling_v": 12.0, "uvlo_rising_v": 13.0, "non_overlap_min_ns": 300, "turn_off_margin_ns": 50, "gate_off_bias_v": -5.1, "gate_on_level_v": 9.9},
+  "blocking_reasons": ["P2 negative-bias compatibility is not proven", "P3 precharge behavior is model-only", "manufacturer-controlled timing facts are absent"]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "pending",
+  "authority_source": "docs/evidence/2026-09-01-gate-replacement-iso7741-authority-request.md",
+  "facts": {
+    "ISO7741FQDWWRQ1": {
+      "package": "DWW-16",
+      "spacing_mm": 14.5,
+      "spacing_status": "reference-only",
+      "pin_map_status": "pending"
+    },
+    "UCC27517AQDBVRQ1": {
+      "package": "DBV5",
+      "peak_source_sink_a": "4/4 (reference-only)",
+      "propagation_delay_ns": "13 typical (reference-only)",
+      "uvlo_status": "pending; 5 V family claim does not satisfy 12/13 V criterion",
+      "pin_map_status": "pending",
+      "negative_bias_status": "pending"
+    },
+    "TPS7B6933QDBVRQ1": {"pin_map_status": "pending"},
+    "TLV1701QDBVRQ1": {"pin_map_status": "pending"},
+    "TLV431BQDBZRQ1": {"pin_map_status": "pending"},
+    "SN74LVC1G08QDBVRQ1": {"pin_map_status": "pending"},
+    "SN74LVC1G04QDBVRQ1": {"pin_map_status": "pending"}
+  },
+  "blocking_reasons": [
+    "manufacturer-controlled pin maps and recommended land patterns are absent",
+    "local-driver 12/13 V UVLO closure is absent",
+    "negative gate-bias tolerance and complete timing bounds are absent"
+  ]
+}

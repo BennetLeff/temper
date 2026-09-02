@@ -69,6 +69,10 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/tank_creepage.py"
   ],
+  "check_ct07_t2_qualification.py": [],
+  "check_ct07_u7_a_identity.py": [],
+  "check_ct07_u7_b_closure.py": [],
+  "check_ct07_u8_handoff.py": [],
   "check_dead_parameter_inputs.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/validation/test_gate_input_registry.py"
@@ -148,6 +152,9 @@
   "check_import_fallback_hygiene.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_iso7741_gate_drive_qualification.py": [],
+  "check_isolation_architecture_qualification.py": [],
+  "check_isolation_joint_qualification.py": [],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/isolation_constants.py",

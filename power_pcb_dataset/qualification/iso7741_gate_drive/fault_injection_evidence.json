@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "axis": "safety.fault_matrix",
+  "source": "candidate-local-model",
+  "status": "pending",
+  "controlled_facts_required": true,
+  "bench_evidence_required": true,
+  "rust_row_enumerator": "iso7741_gate_drive_qualification::FaultKind::ALL",
+  "row_count": 17,
+  "rows": [
+    {"row_id": "isolator-stuck-high", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "independent safe demand and measured response pending"},
+    {"row_id": "isolator-stuck-low", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "independent safe demand and measured response pending"},
+    {"row_id": "channel-misconfiguration", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "fault injection pending"},
+    {"row_id": "driver-input-fault", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "fault injection pending"},
+    {"row_id": "driver-output-fault", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "fault injection pending"},
+    {"row_id": "isolator-supply-open", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "supply-loss capture pending"},
+    {"row_id": "isolator-supply-short", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "supply-loss capture pending"},
+    {"row_id": "driver-supply-open", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "supply-loss capture pending"},
+    {"row_id": "driver-supply-short", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "supply-loss capture pending"},
+    {"row_id": "uvlo", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "UVLO corner capture pending"},
+    {"row_id": "bootstrap-loss", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "bootstrap-loss capture pending"},
+    {"row_id": "gate-resistor-fault", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "fault injection pending"},
+    {"row_id": "pulldown-fault", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "fault injection pending"},
+    {"row_id": "thermal-shutdown", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "temperature-corner capture pending"},
+    {"row_id": "reset-sequencing", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "explicit reset sequence capture pending"},
+    {"row_id": "cmti-disturbance", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "CMTI disturbance capture pending"},
+    {"row_id": "cross-channel-mismatch", "status": "pending", "safe_endpoint": "both_gates_low", "reason": "mismatch capture pending"}
+  ],
+  "common_cause_row": {"row_id": "common-cause-forward-outputs-high", "status": "rejected", "reason": "no manufacturer FMEDA proof and no independent mechanism yet prevents simultaneous unsafe forward outputs"},
+  "blocking_reasons": ["no controlled component facts", "no calibrated synchronized fault captures", "common-cause row is rejecting"]
+}

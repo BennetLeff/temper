@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "candidate_id": "ct07-t2-u4-candidate",
+  "manufacturer": "ICE Components",
+  "variant": "CT07-1000",
+  "candidate_source": {
+    "candidate_id": "ct07-t2-u4-candidate",
+    "manufacturer": "ICE Components",
+    "variant": "CT07-1000",
+    "status": "stopped-indeterminate",
+    "source_path": "power_pcb_dataset/qualification/ct07_t2/generated/manifest.json",
+    "source_sha256": "05cdd8c8f88a89298fe9a3a72e839250df922d8179eec37040c6049914e292c6"
+  },
+  "controlled_documents": [
+    {
+      "id": "ct07-datasheet",
+      "kind": "datasheet",
+      "revision": "2024-10-31",
+      "source_locator": "docs/evidence/2026-09-01-ct07-t2-authority-request-packet.md#31-current-manufacturer-primary-references",
+      "sha256": null,
+      "controlled": false,
+      "current": false,
+      "status": "pending"
+    },
+    {
+      "id": "ct07-mechanical-drawing",
+      "kind": "drawing",
+      "revision": "unknown",
+      "source_locator": "docs/evidence/2026-09-01-ct07-t2-authority-request-packet.md#5-questions-for-manufacturer-and-sourcing-authority",
+      "sha256": null,
+      "controlled": false,
+      "current": false,
+      "status": "pending"
+    }
+  ],
+  "lifecycle": {
+    "status": "pending",
+    "lifecycle_status": "unknown",
+    "as_of_date": "2026-09-01",
+    "source_locator": "docs/evidence/2026-09-01-ct07-t2-authority-request-packet.md#7-questions-for-manufacturer-and-sourcing-authority",
+    "sha256": null
+  },
+  "approved_source": {
+    "status": "pending",
+    "supplier": "unknown",
+    "part_number": "CT07-1000",
+    "checked_on": "2026-09-01",
+    "source_locator": "docs/evidence/2026-09-01-ct07-t2-authority-request-packet.md#7-questions-for-manufacturer-and-sourcing-authority",
+    "sha256": null
+  },
+  "dated_sourcing": {
+    "status": "pending",
+    "date": "2026-09-01",
+    "source_locator": "docs/evidence/2026-09-01-ct07-t2-authority-request-packet.md#31-current-manufacturer-primary-references",
+    "sha256": null
+  },
+  "delivered_marking": {
+    "status": "pending",
+    "expected_marking": "CT07-1000",
+    "observed_marking": null,
+    "sample_id": null,
+    "source_locator": "docs/evidence/2026-09-01-ct07-t2-authority-request-packet.md#7-questions-for-manufacturer-and-sourcing-authority",
+    "sha256": null
+  },
+  "identity_digest": "9600fad8ef01fe81811657b7b56c82671f9d82537b318c3ebea5a4b76e4d4284"
+}

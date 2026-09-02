@@ -1,0 +1,50 @@
+(kicad_sch
+  (version 20231120)
+  (generator "gen_schematics")
+  (generator_version "1.0")
+  (uuid "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55")
+  (paper "A3")
+  (title_block
+    (title "ISO7741 Gate Drive Qualification Candidate")
+    (date "2026-07-15")
+    (rev "1.0")
+    (company "Temper")
+    (comment 1 "GENERATED -- do not hand-edit")
+    (comment 2 "edit elec/src/*.ato and run make schematics")
+  )
+  (text "ISO7741 GATE DRIVE CANDIDATE\n\nGENERATED -- do not hand-edit\nedit the candidate Atopile sources and regenerate\n\nOne Gate_Drive sheet\n\nSTATUS: candidate facts pending authority review"
+    (exclude_from_sim no)
+    (at 25.4 38.1 0)
+    (effects (font (size 2.54 2.54)) (justify left))
+    (uuid "00000000-0000-0000-0000-000000000001")
+  )
+
+  (lib_symbols)
+
+
+  (sheet
+    (at 25.40 101.60)
+    (size 50.80 25.40)
+    (fields_autoplaced yes)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 255 194 194 1.0))
+    (uuid "be255f35-b0e2-d59d-e713-92470709380b")
+    (property "Sheetname" "Gate_Drive"
+      (at 25.40 100.89 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom)))
+    (property "Sheetfile" "iso7741_gate_drive_stage.kicad_sch"
+      (at 25.40 128.27 0)
+      (effects (font (size 1.27 1.27)) (justify left top)))    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "2")
+        )
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/df54e1b5-1894-57bf-b49e-7d818e5cb0ef" (page "2"))
+  )
+
+)

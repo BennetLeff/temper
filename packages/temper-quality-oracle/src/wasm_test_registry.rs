@@ -43,30 +43,58 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 2610 eligible tests, in a stable order.  Each entry is
+/// All 2651 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::aesthetic::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::classification::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::corridor::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::threshold_tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::netclass::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::pyfloat::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::slop_linter::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::via_count::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::config::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::derivation::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::ipc2221::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::oracle::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::placement_metrics::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::property_campaigns::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::quality_score::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::regional_feasibility::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::routing_quality::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::thresholds::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::types::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-quality-oracle")] crate::validation_metrics::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::aesthetic::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::classification::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::cluster_f::corridor::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::cluster_f::threshold_tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::cluster_f::netclass::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::cluster_f::pyfloat::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::cluster_f::slop_linter::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::cluster_f::via_count::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::config::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::ct07_t2_qualification::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::derivation::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::ipc2221::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::iso7741_gate_drive_qualification::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::isolation_joint_qualification::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::isolation_qualification::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::oracle::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::placement_metrics::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::property_campaigns::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::quality_score::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::regional_feasibility::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::routing_quality::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::thresholds::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::types::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")]
+    crate::validation_metrics::tests::WASM_TESTS,
 ];
 
 /// Total number of registered tests *in the currently-selected families*.

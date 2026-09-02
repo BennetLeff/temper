@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "submission_id": "iso7741-baseline-preliminary-u7",
+  "candidate_id": "iso7741-baseline",
+  "envelope_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "construction_projection_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "allowed_transform_policy_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "fixture_digest": "2c947eb2215980062cdf2bd438616c96d451ef99c84a1e6cfa1e6f992263af3f",
+  "evidence_root_digest": "b1d302795c9eb39d299fbbcd01dbffa8f9f9c880fcd2c5c9748607c7499765cb",
+  "internal_decision_digest": "0420cf5f1f38ce4466c4bb6b7b6359c688086e50f2b5fdf697acb0750762d2b1",
+  "evidence_revision": "u6-internal-2026-09-01",
+  "standard_question": "Does the exact frozen candidate construction satisfy the applicable IEC 60335-1 PD3 isolation construction requirements for preliminary review?",
+  "construction_question": "Is this exact candidate envelope, projection, and declared transform policy acceptable for non-production refloorplan reuse, subject to recorded compatible limitations?",
+  "reproduction_instructions": "Run scripts/check_iso7741_gate_drive_qualification.py --preliminary after rebuilding the temper-quality-oracle extension.",
+  "owner_receipts": [
+    {"role": "iso.board_architecture", "scope_digest": "76446d771efe1377ace56d1a9245b18096b95d1b508be209ed946f4c153c35b9", "signature_artifact_digest": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"role": "iso.electrical_power", "scope_digest": "b8bb959a05b96f1fe02cf5f9cec37ba8bb4c3399b5703f219f31a08f4b8f571f", "signature_artifact_digest": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"role": "iso.safety", "scope_digest": "43a870eff8c9abc0a00a79a89673cb71a6b263d839b09bc6752cfdea8b6cf087", "signature_artifact_digest": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"role": "iso.pcb_layout", "scope_digest": "98db9776ccf7f0c453ad850943d0a6356dcd6e4afdf4eb9987f8c8990141ae90", "signature_artifact_digest": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"role": "iso.mechanical_thermal", "scope_digest": "56282c508db9ecc78cc9daf7e94b0292e64308c2602fa496fdcb0cc85b9bb542", "signature_artifact_digest": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"role": "iso.sourcing", "scope_digest": "a2e2d22dc70077c23a4495aa42e030f352ac3668006a554ebc8a64748c5ebf33", "signature_artifact_digest": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"role": "iso.verification", "scope_digest": "76446d771efe1377ace56d1a9245b18096b95d1b508be209ed946f4c153c35b9", "signature_artifact_digest": "0000000000000000000000000000000000000000000000000000000000000000"}
+  ],
+  "submission_digest": "d196a694e247ef5088bcb434697dea569b13be760a6edad6f94b2cf088de1b03"
+}

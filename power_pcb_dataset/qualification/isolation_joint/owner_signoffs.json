@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "candidate_id": "isolation-joint-u9-candidate",
+  "status": "pending",
+  "signoffs": [],
+  "required_role_matrix": [
+    "iso.board_architecture",
+    "iso.electrical_power",
+    "iso.safety",
+    "iso.pcb_layout",
+    "iso.mechanical_thermal",
+    "iso.sourcing",
+    "iso.verification",
+    "ct07.board_product_safety",
+    "ct07.electrical",
+    "ct07.mechanical_assembly",
+    "ct07.pcb_insulation_layout",
+    "ct07.verification",
+    "ct07.sourcing_manufacturing"
+  ],
+  "blocking_reason": "No combined candidate exists to sign and no domain receipt authorizes joint reuse."
+}

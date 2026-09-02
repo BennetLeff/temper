@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "envelope_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "evidence_root_digest": "b1d302795c9eb39d299fbbcd01dbffa8f9f9c880fcd2c5c9748607c7499765cb",
+  "signoffs": [
+    {"role":"iso.board_architecture","status":"pending","scope_node_id":"scope-board","scope_digest":"d3f89096a629447d4c7a5aa3e7e31c8fdffdb165e111784bfb3724c1a075b9a2","signature_artifact":null},
+    {"role":"iso.electrical_power","status":"pending","scope_node_id":"scope-electrical","scope_digest":"b8bb959a05b96f1fe02cf5f9cec37ba8bb4c3399b5703f219f31a08f4b8f571f","signature_artifact":null},
+    {"role":"iso.safety","status":"pending","scope_node_id":"scope-safety","scope_digest":"43a870eff8c9abc0a00a79a89673cb71a6b263d839b09bc6752cfdea8b6cf087","signature_artifact":null},
+    {"role":"iso.pcb_layout","status":"pending","scope_node_id":"scope-pcb","scope_digest":"98db9776ccf7f0c453ad850943d0a6356dcd6e4afdf4eb9987f8c8990141ae90","signature_artifact":null},
+    {"role":"iso.mechanical_thermal","status":"pending","scope_node_id":"scope-mechanical","scope_digest":"56282c508db9ecc78cc9daf7e94b0292e64308c2602fa496fdcb0cc85b9bb542","signature_artifact":null},
+    {"role":"iso.sourcing","status":"pending","scope_node_id":"scope-sourcing","scope_digest":"a2e2d22dc70077c23a4495aa42e030f352ac3668006a554ebc8a64748c5ebf33","signature_artifact":null},
+    {"role":"iso.verification","status":"pending","scope_node_id":"scope-verification","scope_digest":"76446d771efe1377ace56d1a9245b18096b95d1b508be209ed946f4c153c35b9","signature_artifact":null}
+  ],
+  "note": "No A1-A7 signature bytes are present; replay therefore cannot produce an internally-qualified result."
+}

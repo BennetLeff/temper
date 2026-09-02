@@ -1,0 +1,43 @@
+* ISO7741 gate-drive candidate corner model (U4)
+* Candidate evidence only: controlled component and bench facts are pending.
+* The model intentionally exposes the limits rather than asserting approval.
+.title ISO7741 candidate UVLO timing and precharge corner sweep
+.param V15=15
+.param UVLO_FALLING_LIMIT=12.0
+.param UVLO_RISING_LIMIT=13.0
+.param NON_OVERLAP_MIN_NS=300
+.param NON_OVERLAP_MARGIN_NS=50
+.param GATE_OFF_BIAS_V=-5.1
+.param GATE_ON_LEVEL_V=9.9
+.param PRECHARGE_MAX_PULSES=8
+.param PRECHARGE_TIMEOUT_NS=200000
+.param PRECHARGE_HIGH_SIDE=0
+.param TEMP_C=25
+.param rail_spread=0
+.param delay_spread_ns=0
+
+V15 rail 0 {V15+rail_spread}
+Vpwm pwm 0 PULSE(0 3.3 0 1n 1n 100n 200n)
+Vpermit permit 0 3.3
+Vreset reset 0 0
+* Rail supervisor: hysteresis is explicit; no output is eligible in the band.
+Brail_good rail_good 0 V={if(V(rail) >= UVLO_RISING_LIMIT,3.3,0)}
+Bdriver_enable driver_enable 0 V={if(V(pwm)>1.65 && V(permit)>1.65 && V(rail_good)>1.65 && V(reset)<1.65,3.3,0)}
+Rin driver_enable driver_in 100
+Cinput driver_in 0 10p
+Rgate driver_out gate 10
+Cgate gate 0 1n
+Bdriver driver_out 0 V={if(V(driver_in)>1.65, V15+GATE_OFF_BIAS_V, GATE_OFF_BIAS_V)}
+* Precharge is low-side-only and bounded; high-side permit is hard inhibited.
+Bprecharge_hs precharge_hs 0 V={PRECHARGE_HIGH_SIDE}
+Bprecharge_ls precharge_ls 0 V={if(V(permit)>1.65 && V(reset)<1.65,3.3,0)}
+
+.tran 1n 500n
+.step param TEMP_C list -40 25 70
+.step param rail_spread list -0.5 0 0.5
+.step param delay_spread_ns list 0 25 50
+.meas tran gate_on_max MAX V(gate) FROM=100n TO=300n
+.meas tran gate_off_min MIN V(gate) FROM=300n TO=500n
+.meas tran precharge_high_side MAX V(precharge_hs)
+.meas tran precharge_low_side MAX V(precharge_ls)
+.end

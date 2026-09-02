@@ -1,0 +1,24 @@
+{
+  "policy": {
+    "threshold_a": "60",
+    "direction": "rising",
+    "precondition_samples": 1,
+    "persistence_samples": 2
+  },
+  "capture": {
+    "capture_id": "fixture-ringing",
+    "lot_id": "lot-fixture",
+    "sample_id": "sample-ringing",
+    "corner": "nominal",
+    "calibration_id": "cal-fixture",
+    "samples": [
+      {"timestamp_ns": 0, "current_a": "40", "latch_asserted": false},
+      {"timestamp_ns": 10, "current_a": "60", "latch_asserted": false},
+      {"timestamp_ns": 20, "current_a": "50", "latch_asserted": false},
+      {"timestamp_ns": 30, "current_a": "60", "latch_asserted": false},
+      {"timestamp_ns": 40, "current_a": "70", "latch_asserted": true}
+    ],
+    "clipped": false,
+    "timestamp_uncertainty_ns": "0"
+  }
+}

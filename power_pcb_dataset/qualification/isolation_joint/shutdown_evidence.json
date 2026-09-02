@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "axis": "shutdown",
+  "status": "pending",
+  "candidate_digest": null,
+  "evidence_digest": null,
+  "threshold_event": null,
+  "direct_captures": [],
+  "required_supply_cases": [
+    "nominal",
+    "primary-barrier-loss",
+    "iso-local-supply-loss",
+    "driver-supply-loss"
+  ],
+  "blocking_reason": "No calibrated primary-current threshold event or synchronized gate-safe captures exist."
+}

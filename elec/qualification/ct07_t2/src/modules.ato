@@ -1,0 +1,101 @@
+import CT07_1000 from "components.ato"
+import Resistor1206 from "components.ato"
+import Resistor0603 from "components.ato"
+import Capacitor from "components.ato"
+import REF2025 from "components.ato"
+import TLV3201 from "components.ato"
+import SN74LVC1G08 from "components.ato"
+import SN74HC00 from "components.ato"
+
+module CT07T2FrontEnd:
+    # Explicit external nets make the candidate boundary reviewable.  The
+    # primary is a series element in DC_BUS_RTN, not a tap on OCP-01's path.
+    signal dc_bus_rtn_in
+    signal dc_bus_rtn_out
+    signal dc_bus_rtn_sense
+    signal ocp01_fault_high
+    signal reset_request
+    signal ct_secondary
+    signal ct_reference
+    signal filtered_sense
+    signal threshold_reference
+    signal ocp02_comparator
+    signal ocp02_fault
+    signal hardware_latch_set
+    signal hardware_latch_reset
+    signal hardware_latch_q
+    signal vcc_3v3
+    signal analog_gnd
+
+    ct07 = new CT07_1000
+    r_burden = new Resistor1206
+    r_filter = new Resistor0603
+    c_filter = new Capacitor
+    r_ref_top = new Resistor0603
+    r_ref_bottom = new Resistor0603
+    reference = new REF2025
+    comparator = new TLV3201
+    fan_in = new SN74LVC1G08
+    latch = new SN74HC00
+
+    # Candidate values are screening parameters, not frozen qualification
+    # values.  Re-derive them for the exact delivered CT07 variant in U5.
+    r_burden.value = 4.02ohm +/- 1%
+    r_burden.mpn = "RC1206FR-074R02L"
+    r_filter.value = 100ohm +/- 1%
+    r_filter.mpn = "RC0603FR-07100RL"
+    c_filter.value = 1nF +/- 10%
+    c_filter.mpn = "C0603C102K5RACTU"
+    r_ref_top.value = 10kohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-0710KL"
+    r_ref_bottom.value = 10kohm +/- 1%
+    r_ref_bottom.mpn = "RC0603FR-0710KL"
+
+    # Independent DC_BUS_RTN sensing path: both primary terminals are
+    # exported, and OCP-01 is only an input to the candidate fan-in gate.
+    ct07.primary_in ~ dc_bus_rtn_in
+    ct07.primary_out ~ dc_bus_rtn_out
+    dc_bus_rtn_in ~ dc_bus_rtn_sense
+    ct07.secondary_s1 ~ r_burden.p1
+    ct07.secondary_s2 ~ ct_reference
+    r_burden.p2 ~ ct_reference
+    ct_reference ~ analog_gnd
+
+    # Burden/filter/reference/comparator chain.  The comparator output is an
+    # active-high OCP-02 demand and is never software-mediated.
+    r_burden.p1 ~ r_filter.p1
+    r_filter.p2 ~ filtered_sense
+    filtered_sense ~ c_filter.p1
+    c_filter.p2 ~ analog_gnd
+    reference.vin ~ vcc_3v3
+    reference.gnd ~ analog_gnd
+    reference.out ~ threshold_reference
+    threshold_reference ~ r_ref_top.p1
+    r_ref_top.p2 ~ r_ref_bottom.p1
+    r_ref_bottom.p2 ~ analog_gnd
+    comparator.vplus ~ filtered_sense
+    comparator.vminus ~ threshold_reference
+    comparator.vcc ~ vcc_3v3
+    comparator.gnd ~ analog_gnd
+    comparator.out ~ ocp02_comparator
+
+    # OCP-01 is only a second, independent demand.  Reset cannot clear a
+    # live comparator demand; the set-dominant latch owns the safe state.
+    fan_in.a ~ ocp02_comparator
+    fan_in.b ~ ocp01_fault_high
+    fan_in.y ~ ocp02_fault
+    fan_in.vcc ~ vcc_3v3
+    fan_in.gnd ~ analog_gnd
+    ocp02_fault ~ hardware_latch_set
+    latch.a1 ~ hardware_latch_set
+    latch.b1 ~ latch.y2
+    latch.y1 ~ hardware_latch_q
+    latch.a2 ~ hardware_latch_reset
+    latch.b2 ~ hardware_latch_q
+    latch.y2 ~ hardware_latch_set
+    latch.vcc ~ vcc_3v3
+    latch.gnd ~ analog_gnd
+
+    # Explicit reset authority and named production boundary outputs.  This
+    # remains a candidate-only interface; it does not wire production sources.
+    hardware_latch_reset ~ reset_request

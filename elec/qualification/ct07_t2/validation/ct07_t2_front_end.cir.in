@@ -1,0 +1,54 @@
+* CT07/T2 U4-A early feasibility screen (candidate-only; not U5 evidence).
+* The 1:1000 transfer, burden, SRF, DCR, parasitics, temperature, and
+* waveform knobs are explicit so a failed screen rejects the candidate rather
+* than being hidden by nominal CST3015 arithmetic.
+.title CT07-1000 candidate threshold and bandwidth screen
+.param CT_RATIO=1000
+.param R_BURDEN=4.02
+.param R_TOL=0.01
+.param C_FILTER=1n
+.param R_FILTER=100
+.param L_MAG=1.2m
+.param R_DCR=18
+.param L_LEAK=8u
+.param C_PAR=45p
+.param TEMP_C=25
+.param VCC=3.3
+.param VREF=2.048
+.param R_REF_TOP=75k
+.param R_REF_BOTTOM=10k
+.param THRESHOLD_A=60
+.param SOURCE_RMS_A=15
+.param FAULT_A=60
+.param HARMONIC_FRACTION=0.30
+.param ASYMMETRY_FRACTION=0.08
+.param COMPARATOR_DELAY_NS=80
+.param LATCH_DELAY_NS=120
+.param CLOCK_UNCERTAINTY_NS=25
+
+* Primary current contains 35 kHz content and a deliberately asymmetric
+* component.  The threshold crossing is on the calibrated primary current,
+* not a secondary/comparator node.
+* Behavioral current sources keep the transfer ratio explicit while the
+* inductance/DCR/leakage/parasitic network remains available for screening.
+BFAULT primary 0 I={FAULT_A*(1+HARMONIC_FRACTION*sin(2*pi*35k*time)+ASYMMETRY_FRACTION*sin(2*pi*17.5k*time))}
+LPRIMARY primary 0 {L_MAG}
+BSECOND sense_raw 0 I={FAULT_A*(1+HARMONIC_FRACTION*sin(2*pi*35k*time)+ASYMMETRY_FRACTION*sin(2*pi*17.5k*time))/CT_RATIO}
+R_DCR sense_raw secondary_model {R_DCR}
+LLEAK secondary_model 0 {L_LEAK}
+CPAR secondary_model 0 {C_PAR}
+RBURDEN sense_raw reference {R_BURDEN*(1+R_TOL)}
+RFILTER sense_raw filtered {R_FILTER}
+CFILTER filtered reference {C_FILTER}
+VREF reference 0 {VREF}
+BTRIP comparator 0 V={if(V(filtered)>=V(reference)*R_REF_BOTTOM/(R_REF_TOP+R_REF_BOTTOM),VCC,0)}
+RDELAY comparator latch_in 1
+CDELAY latch_in 0 {COMPARATOR_DELAY_NS*1n/1.65}
+BLATCH latch 0 V={if(V(latch_in)>1.65,VCC,0)}
+
+.tran 1n 100u
+.meas tran sense_max MAX V(filtered)
+.meas tran sense_min MIN V(filtered)
+.meas tran comparator_max MAX V(comparator)
+.meas tran latch_max MAX V(latch)
+.end

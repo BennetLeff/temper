@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "status": "pending",
+  "source": "candidate-local-model",
+  "controlled_facts_required": true,
+  "bench_evidence_required": true,
+  "fixture_sha256": "2c947eb2215980062cdf2bd438616c96d451ef99c84a1e6cfa1e6f992263af3f",
+  "ambient_corner_c": 70.0,
+  "load_corner": "declared switching envelope from U4; component values and thermal model pending",
+  "derating_policy": "manufacturer-controlled junction and package limits with measured board thermal resistance",
+  "measured_results": null,
+  "rows": [
+    {"row_id": "thermal.iso7741.high_side", "part": "ISO7741FQDWWRQ1", "status": "pending", "reason": "controlled thermal limits and calibrated 70 C measurement unavailable"},
+    {"row_id": "thermal.iso7741.low_side", "part": "ISO7741FQDWWRQ1", "status": "pending", "reason": "controlled thermal limits and calibrated 70 C measurement unavailable"},
+    {"row_id": "thermal.driver.high_side", "part": "UCC27517AQDBVRQ1", "status": "pending", "reason": "local-driver UVLO/bias facts and calibrated 70 C measurement unavailable"},
+    {"row_id": "thermal.driver.low_side", "part": "UCC27517AQDBVRQ1", "status": "pending", "reason": "local-driver UVLO/bias facts and calibrated 70 C measurement unavailable"},
+    {"row_id": "thermal.support_components", "part": "reference-comparator-logic-bootstrap-network", "status": "pending", "reason": "support-part derating and board thermal coupling are not measured"}
+  ]
+}

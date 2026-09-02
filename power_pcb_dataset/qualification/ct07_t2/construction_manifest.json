@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "candidate_id": "ct07-t2-u4-candidate",
+  "status": "stopped-indeterminate",
+  "production_authority": false,
+  "ocp02_status": "DNF",
+  "candidate_namespace": "elec/qualification/ct07_t2",
+  "construction_release_eligible": false,
+  "construction_identity": {
+    "construction_id": "ct07-t2-u6-candidate",
+    "status": "stopped-indeterminate",
+    "construction_digest": "pending-u6-freeze",
+    "footprint": "elec/qualification/ct07_t2/footprints/CT07-1000-QUALIFICATION.kicad_mod",
+    "footprint_sha256": "158de06e75c8f3d8a27aca138da8abd92fd39fb7aeb7a18b6975727262c0c2ac",
+    "fixture": "elec/qualification/ct07_t2/fixture/ct07_t2_fixture.kicad_pcb",
+    "fixture_sha256": "58798fee40e80dd2d446e490087748c89eaa31512dfd0de7a386dee2b2a154c3",
+    "construction_projection": "power_pcb_dataset/qualification/ct07_t2/construction_projection.json",
+    "construction_projection_digest": "7de97017936541182a44e992de7fdcc89254e38a84d1dfe4d9b4dda7b3eed59a",
+    "allowed_transform_policy_digest": "9481e02ae5d689b1ff7bcaab3ee445106b1e57f3084872ddaf118232551e7144"
+  },
+  "mechanical_protocol": "power_pcb_dataset/qualification/ct07_t2/mechanical_protocol.json",
+  "u9_environment": {
+    "protocol": "power_pcb_dataset/qualification/ct07_t2/mechanical_protocol.json",
+    "status": "pending",
+    "pre_stress_baseline": "pending",
+    "post_stress_replay": "pending",
+    "production_controls": "pending",
+    "sample_identity_rule": "same serialized U6/U5 assemblies; no repair, replacement, or process change",
+    "result_publication": "no result until full R2-R12 sample/checkpoint matrix and control challenges exist"
+  },
+  "pre_stress_evidence": {
+    "status": "pending",
+    "geometry": null,
+    "dielectric_leakage": null,
+    "structural": null,
+    "inspection": null,
+    "electrical_baseline": null
+  },
+  "source_contract": {
+    "ato_entry": "src/main.ato:CT07T2Candidate",
+    "front_end_model": "validation/ct07_t2_front_end.cir.in",
+    "generated_exports": [
+      "generated/candidate.csv",
+      "generated/candidate.layouts.json",
+      "generated/candidate.net",
+      "generated/manifest.json"
+    ]
+  },
+  "construction": {
+    "ct_variant": "CT07-1000",
+    "turns_ratio": "1:1000 nominal",
+    "primary_path": "DC_BUS_RTN_IN -> CT07 primary -> DC_BUS_RTN_OUT",
+    "secondary_path": "CT07 S1 -> R_BURDEN -> CT07 S2/analog_gnd",
+    "burden_nominal_ohm": "4.02",
+    "filter": {"r_ohm": "100", "c_f": "1nF"},
+    "reference": "REF2025 divided to the comparator threshold; model/bench selection pending",
+    "comparator": "TLV3201 candidate; guaranteed corners pending",
+    "latch_interface": "active-high hardware_latch_set through candidate fan-in"
+  },
+  "u4_a": {
+    "model_status": "screening-only",
+    "waveform": "35 kHz-rich asymmetric current with harmonic injection",
+    "threshold_window_a": ["55", "60", "65"],
+    "overdrive_factor": "1.42",
+    "representative_device_evidence": "pending",
+    "go_no_go": "pending",
+    "blocking_reason": "no controlled representative CT07 device capture or U1 evidence identity is available"
+  },
+  "u4_b": {
+    "status": "stopped-indeterminate",
+    "requires": ["U2 sealed replay helper", "U3 candidate replay identity", "passing U4-A"],
+    "publication": "candidate exports only; no qualification verdict"
+  },
+  "u7_a": {
+    "status": "stopped-indeterminate",
+    "identity_package": "identity_eligibility.json",
+    "identity_digest": "9600fad8ef01fe81811657b7b56c82671f9d82537b318c3ebea5a4b76e4d4284",
+    "construction_release_eligible": false,
+    "reasons": [
+      "identity.approved-source",
+      "identity.dated-sourcing",
+      "identity.delivered-marking",
+      "identity.document.datasheet",
+      "identity.document.drawing",
+      "identity.lifecycle",
+      "u4-b.candidate-indeterminate"
+    ],
+    "blocking_rule": "missing controlled identity/source evidence stops before U6 two-lot fabrication"
+  },
+  "u7_b": {
+    "status": "stopped-indeterminate",
+    "closure_package": "power_pcb_dataset/qualification/ct07_t2/evidence_index.json",
+    "single_fault_analysis": "power_pcb_dataset/qualification/ct07_t2/single_fault_analysis.json",
+    "internal_dispositions": "power_pcb_dataset/qualification/ct07_t2/authority/internal_dispositions.json",
+    "construction_id": "ct07-t2-u6-candidate",
+    "construction_digest": "pending-u6-freeze",
+    "construction_release_eligible": false,
+    "blocking_reasons": [
+      "U7-A identity/source eligibility remains stopped-indeterminate",
+      "U5/U6/U9 dependencies have no complete controlled evidence",
+      "single-fault outcomes remain pending against the OCP-02 DNF baseline",
+      "independent owner dispositions and signatures are pending"
+    ]
+  },
+  "limitations": [
+    "Nominal model agreement is not representative hardware evidence.",
+    "No aggregate 5000 ns decision is made in U4.",
+    "OCP-02 remains DNF and no production source/output is authorized."
+  ]
+}

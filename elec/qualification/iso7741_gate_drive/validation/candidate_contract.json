@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "status": "stopped-indeterminate",
+  "required_parts": {
+    "ISO7741FQDWWRQ1": 2,
+    "UCC27517AQDBVRQ1": 2,
+    "TPS7B6933QDBVRQ1": 2,
+    "TLV1701QDBVRQ1": 2,
+    "TLV431BQDBZRQ1": 2,
+    "SN74LVC1G08QDBVRQ1": 4,
+    "SN74LVC1G04QDBVRQ1": 2
+  },
+  "required_domains": ["high-side", "low-side"],
+  "safe_state": {
+    "independent_demands": ["pwm_suppression", "run_permit_deassertion"],
+    "precharge": "low-side-only and bounded; high-side remains inhibited",
+    "negative_gate_bias": "approximately -5.1 V target; pending compatibility proof"
+  },
+  "fail_closed": {
+    "missing_component_facts": "pending",
+    "unknown_pin_map": "pending",
+    "uvlo_not_12v_13v": "reject",
+    "unproven_negative_bias": "reject"
+  }
+}

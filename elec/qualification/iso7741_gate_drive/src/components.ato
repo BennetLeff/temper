@@ -1,0 +1,125 @@
+# Candidate-only component declarations for ISO7741 gate-drive qualification.
+#
+# The authority packet has not yet supplied manufacturer-controlled pin maps,
+# land patterns, UVLO corners, or negative-bias limits for this candidate.  The
+# declarations below are therefore an isolated, buildable netlist envelope,
+# not a production selection.  validation/schematic_layout.json and the
+# candidate contract test keep the pending boundary explicit.
+
+component ISO7741FQDWWRQ1:
+    """TI ISO7741F-Q1 DWW-16 candidate; pin map pending authority review."""
+    footprint = "temper_iso7741_gate_drive:ISO7741_DWW16"
+    mpn = "ISO7741FQDWWRQ1"
+    manufacturer = "Texas Instruments"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+    signal p15 ~ pin 15
+    signal p16 ~ pin 16
+
+component UCC27517AQDBVRQ1:
+    """TI UCC27517A-Q1 candidate; pin/UVLO contract pending review."""
+    footprint = "temper_iso7741_gate_drive:Package_DBV5"
+    mpn = "UCC27517AQDBVRQ1"
+    manufacturer = "Texas Instruments"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+
+component TPS7B6933QDBVRQ1:
+    """TI TPS7B6933-Q1 candidate local regulator; pin map pending review."""
+    footprint = "temper_iso7741_gate_drive:Package_DBV5"
+    mpn = "TPS7B6933QDBVRQ1"
+    manufacturer = "Texas Instruments"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+
+component TLV1701QDBVRQ1:
+    """TI TLV1701-Q1 candidate rail comparator; pin map pending review."""
+    footprint = "temper_iso7741_gate_drive:Package_DBV5"
+    mpn = "TLV1701QDBVRQ1"
+    manufacturer = "Texas Instruments"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+
+component TLV431BQDBZRQ1:
+    """TI TLV431B-Q1 candidate reference; pin map pending review."""
+    footprint = "temper_iso7741_gate_drive:Package_DBZ3"
+    mpn = "TLV431BQDBZRQ1"
+    manufacturer = "Texas Instruments"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+
+component SN74LVC1G08QDBVRQ1:
+    """Candidate two-input AND gate; contract pending manufacturer review."""
+    footprint = "temper_iso7741_gate_drive:Package_DBV5"
+    mpn = "SN74LVC1G08QDBVRQ1"
+    manufacturer = "Texas Instruments"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+
+component SN74LVC1G04QDBVRQ1:
+    """Candidate inverter; contract pending manufacturer review."""
+    footprint = "temper_iso7741_gate_drive:Package_DBV5"
+    mpn = "SN74LVC1G04QDBVRQ1"
+    manufacturer = "Texas Instruments"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+
+component Resistor:
+    designator_prefix = "R"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    mpn: str
+    value: ohm
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Resistor1206:
+    designator_prefix = "R"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    mpn: str
+    value: ohm
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Capacitor:
+    designator_prefix = "C"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    mpn: str
+    value: farad
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Zener:
+    designator_prefix = "D"
+    footprint = "Diode_SMD:D_SOD-123"
+    mpn: str
+    value: voltage
+    signal k ~ pin 1
+    signal a ~ pin 2

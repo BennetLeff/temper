@@ -2109,6 +2109,7 @@ scripts:
   - dataclasses
   - hashlib
   - json
+  - os
   - pathlib
   - re
   - subprocess
@@ -2862,6 +2863,126 @@ scripts:
   - pr_perf_compare
   - re
   - subprocess
+  - sys
+  - typing
+- path: check_isolation_architecture_qualification.py
+  purpose: Offline replay gate for the bounded isolation component-architecture qualification manifest;
+    hashes the plan-owned protected production inputs and delegates all candidate verdict logic to temper_quality_oracle
+    Rust.
+  owner: temper-quality-oracle
+  last_run: '2026-09-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - hashlib
+  - json
+  - os
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - typing
+- path: check_iso7741_gate_drive_qualification.py
+  purpose: Offline replay gate for the ISO7741 gate-drive qualification package; delegates schema, completeness,
+    lifecycle, and verdict policy to temper_quality_oracle Rust while the sealed helper owns repository
+    I/O and atomic publication.
+  owner: temper-quality-oracle
+  last_run: '2026-09-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections.abc
+  - hashlib
+  - json
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - typing
+- path: check_ct07_t2_qualification.py
+  purpose: Offline replay gate for the CT07/T2 candidate qualification evidence index; delegates schema,
+    completeness, lifecycle, and verdict policy to temper_quality_oracle Rust while the sealed helper
+    owns protected-set I/O, inventory checks, and atomic publication.
+  owner: temper-quality-oracle
+  last_run: '2026-09-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections.abc
+  - hashlib
+  - json
+  - os
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - typing
+- path: check_ct07_u8_handoff.py
+  purpose: Offline sealed replay gate for the CT07 U8 sensing-producer handoff; binds CT07 internal/preliminary
+    identities and the ISO-owned joint contract while forbidding joint aggregation or production authorization.
+  owner: temper-quality-oracle
+  last_run: '2026-09-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - hashlib
+  - json
+  - pathlib
+  - sys
+  - typing
+- path: check_ct07_u7_a_identity.py
+  purpose: Offline replay gate for CT07 U7-A exact identity and source eligibility; verifies the digest-bound
+    U4-B candidate source and delegates pending/rejected/eligible policy to temper_quality_oracle Rust.
+  owner: temper-quality-oracle
+  last_run: '2026-09-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - hashlib
+  - json
+  - pathlib
+  - sys
+  - typing
+- path: check_ct07_u7_b_closure.py
+  purpose: Offline replay gate for CT07 U7-B final owner/FMEA closure; binds the evidence index, single-fault
+    analysis, internal dispositions, and U5/U6/U9 dependencies before delegating fail-closed verdict policy
+    to temper_quality_oracle Rust.
+  owner: temper-quality-oracle
+  last_run: '2026-09-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - hashlib
+  - json
+  - pathlib
+  - sys
+  - typing
+- path: check_isolation_joint_qualification.py
+  purpose: Offline sealed replay shim for the synthetic R24-R25 joint receipt contract and the real U9
+    blocked-state envelope; composes frozen fixtures, preserves missing-authority stops, and delegates
+    joint aggregation to Rust.
+  owner: temper-quality-oracle
+  last_run: '2026-09-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - hashlib
+  - json
+  - pathlib
   - sys
   - typing
 - path: validate_footprints.py

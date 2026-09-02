@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "axis": "state.transition_matrix",
+  "source": "candidate-local-model",
+  "status": "pending",
+  "controlled_facts_required": true,
+  "bench_evidence_required": true,
+  "rust_row_enumerator": "iso7741_gate_drive_qualification::TransitionScenario::ALL",
+  "row_count": 10,
+  "rows": [
+    {"row_id": "startup", "status": "pending", "reason": "all supply-order captures pending"},
+    {"row_id": "steady-switching", "status": "pending", "reason": "propagation and non-overlap corner facts pending"},
+    {"row_id": "shutdown", "status": "pending", "reason": "independent shutdown-path capture pending"},
+    {"row_id": "uvlo-entry", "status": "pending", "reason": "12.0 V falling threshold corner evidence pending"},
+    {"row_id": "uvlo-recovery", "status": "pending", "reason": "13.0 V rising threshold corner evidence pending"},
+    {"row_id": "reset", "status": "pending", "reason": "explicit reset and arm sequence capture pending"},
+    {"row_id": "one-channel-late", "status": "pending", "reason": "independent channel-late capture pending"},
+    {"row_id": "cross-channel-mismatch", "status": "pending", "reason": "mismatch safe-state capture pending"},
+    {"row_id": "fault-assert", "status": "pending", "reason": "fault fanout latency capture pending"},
+    {"row_id": "fault-clear-without-reset", "status": "pending", "reason": "set-dominant no-auto-rearm capture pending"}
+  ],
+  "blocking_reasons": ["no controlled component facts", "no calibrated bench evidence"]
+}

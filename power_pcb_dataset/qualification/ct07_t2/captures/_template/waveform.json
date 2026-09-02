@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "record_type": "schema-placeholder",
+  "capture_id": null,
+  "status": "pending",
+  "channels": {
+    "primary_current_a": [],
+    "comparator_asserted": [],
+    "latch_asserted": []
+  },
+  "timestamp_units": "ns",
+  "current_units": "A",
+  "note": "Template only; no fabricated samples are supplied."
+}

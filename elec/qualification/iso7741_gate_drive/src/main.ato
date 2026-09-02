@@ -1,0 +1,6 @@
+import Iso7741GateDrive from "modules.ato"
+
+module Iso7741GateDriveCandidate:
+    # Candidate-only root.  There is deliberately no import from elec/src or
+    # connection to the production Top module.
+    candidate = new Iso7741GateDrive

@@ -1,0 +1,21 @@
+{
+  "policy": {
+    "threshold_a": "60",
+    "direction": "rising",
+    "precondition_samples": 1,
+    "persistence_samples": 1
+  },
+  "capture": {
+    "capture_id": "fixture-clipped",
+    "lot_id": "lot-fixture",
+    "sample_id": "sample-clipped",
+    "corner": "fault",
+    "calibration_id": "cal-fixture",
+    "samples": [
+      {"timestamp_ns": 0, "current_a": "40", "latch_asserted": false},
+      {"timestamp_ns": 10, "current_a": "1000", "latch_asserted": true}
+    ],
+    "clipped": true,
+    "timestamp_uncertainty_ns": "0"
+  }
+}

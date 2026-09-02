@@ -1,0 +1,37 @@
+* ISO7741 gate-drive candidate fault-injection model (U4)
+* Every injected fault has an independent safe demand and remains pending
+* until controlled component and calibrated bench evidence is attached.
+.title ISO7741 candidate R12 fault matrix
+.param V15=15
+.param FAULT_ACTIVE=0
+Vrail rail 0 {V15}
+Vpermit permit 0 3.3
+Vpwm pwm 0 3.3
+Bsafe_demand_a safe_a 0 V={if(FAULT_ACTIVE>0,0,3.3)}
+Bsafe_demand_b safe_b 0 V={if(FAULT_ACTIVE>0,0,3.3)}
+Bdriver_in driver_in 0 V={if(V(pwm)>1.65 && V(permit)>1.65 && V(safe_a)>1.65 && V(safe_b)>1.65,3.3,0)}
+Rgate driver_out gate 10
+Cgate gate 0 1n
+Bdriver driver_out 0 V={if(V(driver_in)>1.65,9.9,-5.1)}
+.tran 1n 100n
+.step param FAULT_ACTIVE list 0 1
+.meas tran SAFE_ENDPOINT_MAX MAX V(gate) FROM=50n TO=100n
+
+* FAULT=isolator-stuck-high SAFE_ENDPOINT=both_gates_low
+* FAULT=isolator-stuck-low SAFE_ENDPOINT=both_gates_low
+* FAULT=channel-misconfiguration SAFE_ENDPOINT=both_gates_low
+* FAULT=driver-input-fault SAFE_ENDPOINT=both_gates_low
+* FAULT=driver-output-fault SAFE_ENDPOINT=both_gates_low
+* FAULT=isolator-supply-open SAFE_ENDPOINT=both_gates_low
+* FAULT=isolator-supply-short SAFE_ENDPOINT=both_gates_low
+* FAULT=driver-supply-open SAFE_ENDPOINT=both_gates_low
+* FAULT=driver-supply-short SAFE_ENDPOINT=both_gates_low
+* FAULT=uvlo SAFE_ENDPOINT=both_gates_low
+* FAULT=bootstrap-loss SAFE_ENDPOINT=both_gates_low
+* FAULT=gate-resistor-fault SAFE_ENDPOINT=both_gates_low
+* FAULT=pulldown-fault SAFE_ENDPOINT=both_gates_low
+* FAULT=thermal-shutdown SAFE_ENDPOINT=both_gates_low
+* FAULT=reset-sequencing SAFE_ENDPOINT=both_gates_low
+* FAULT=cmti-disturbance SAFE_ENDPOINT=both_gates_low
+* FAULT=cross-channel-mismatch SAFE_ENDPOINT=both_gates_low
+.end

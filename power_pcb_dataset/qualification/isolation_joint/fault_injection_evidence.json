@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "axis": "fault-injection",
+  "status": "pending",
+  "candidate_digest": null,
+  "evidence_digest": null,
+  "rows": [],
+  "blocking_reason": "Combined two-path OCP-02 fault captures require approved domain handoffs and a real fixture."
+}

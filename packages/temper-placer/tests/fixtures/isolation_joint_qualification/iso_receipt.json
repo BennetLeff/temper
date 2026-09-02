@@ -1,0 +1,11 @@
+{
+  "domain": "iso",
+  "stage": "construction-envelope-approved",
+  "envelope_digest": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f",
+  "construction_projection_digest": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f",
+  "allowed_transform_policy_digest": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f",
+  "joint_contract_digest": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f",
+  "system_latch_assertion_to_both_gates_safe_max_ns": "2200.0",
+  "sensor_threshold_to_system_latch_assertion_max_ns": null,
+  "limitations": [{"id":"iso-l1","scope":"compatible","description":"synthetic construction only","changes_identity":false}]
+}

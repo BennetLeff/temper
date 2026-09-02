@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "base_commit": "85b4e400572a77d18f0ee6c644a532ab0a55dd8e",
+  "protected_inputs": [
+    {"path":"pcb/temper.kicad_pcb","sha256":"00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"},
+    {"path":"power_pcb_dataset/drc_ceiling.json","sha256":"c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2"},
+    {"path":"elec/domain_manifest.yaml","sha256":"f1899c87a61f579e2a92dbd673c1ad29036aed463b2f3fcc4ff7cca7f034bae3"},
+    {"path":"docs/ENVIRONMENTAL_SPEC.md","sha256":"afa367890d4872cce0033455ded49ea9b5826b9ba3a25229f4ec336d34cbaccf"},
+    {"path":"packages/temper-placer/src/temper_placer/core/isolation_constants.py","sha256":"486d54267087b467b4148e7eb3c91106f3950fc3784e527d786cf3f346aeae21"}
+  ],
+  "candidate": {"candidate_id":"iso7741-baseline","envelope_digest":"0000000000000000000000000000000000000000000000000000000000000000","isolator_mpn":"ISO7741FQDWWRQ1","local_driver_mpn":"UCC27517AQDBVRQ1","domains":["high-side","low-side"],"construction_projection_digest":"0000000000000000000000000000000000000000000000000000000000000000","allowed_transform_policy_digest":"0000000000000000000000000000000000000000000000000000000000000000"},
+  "provenance": {"source_revision":"candidate-u6-2026-09-01","source_sha256":"fca9667cb231331a78a1223d1e94c92ce5ec42215ca17aa71152cedab36fbcc6","test_conditions":"candidate-local evidence; A1-A7 signatures pending"},
+  "evidence_root_digest":"b1d302795c9eb39d299fbbcd01dbffa8f9f9c880fcd2c5c9748607c7499765cb",
+  "evidence_objects": [{"id":"u5-package","path":"power_pcb_dataset/qualification/iso7741_gate_drive/electrical_evidence.json","axis":"timing.non_overlap","status":"fail","source_revision":"candidate-u5-2026-09-01","source_sha256":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","test_conditions":"candidate-local-model; controlled evidence pending","tool_identity":"temper-quality-oracle-u6","owner":"iso.electrical_power","sha256":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562"}],
+  "evidence_axes": [
+    {"code":"identity.exact_parts","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.board_architecture"},
+    {"code":"identity.manufacturer_sources","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.sourcing"},
+    {"code":"topology.domain_separation","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.board_architecture"},
+    {"code":"topology.channel_contract","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.electrical_power"},
+    {"code":"state.truth_table","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.safety"},
+    {"code":"state.transition_matrix","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.safety"},
+    {"code":"safety.fault_matrix","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.safety"},
+    {"code":"uvlo.all_corner_thresholds","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.electrical_power"},
+    {"code":"timing.non_overlap","status":"fail","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.electrical_power"},
+    {"code":"timing.local_safe_latency","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.electrical_power"},
+    {"code":"power.bootstrap_startup","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.electrical_power"},
+    {"code":"power.gate_network_and_bias","status":"fail","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.electrical_power"},
+    {"code":"layout.isolation_corridors","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.pcb_layout"},
+    {"code":"layout.gate_loops","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.pcb_layout"},
+    {"code":"layout.bootstrap_loop","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.pcb_layout"},
+    {"code":"thermal.environment_corner","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.mechanical_thermal"},
+    {"code":"verification.fixture_calibration","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.verification"},
+    {"code":"reproducibility.protected_inputs","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.verification"},
+    {"code":"owners.internal_signoffs","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.verification"},
+    {"code":"authority.preliminary_ruling","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.verification"},
+    {"code":"handoff.joint_contract","status":"pending","evidence_digest":"c2263f13463de0f7063812498009d01c4620ff666096f8cd0864377698d57562","owner":"iso.verification"}
+  ],
+  "scope_nodes": [
+    {"id":"scope-board","owner_role":"iso.board_architecture","requirement_ids":["R1","R2","R3","R4","R19","R21"],"evidence_ids":["u5-package"],"scope_digest":"d3f89096a629447d4c7a5aa3e7e31c8fdffdb165e111784bfb3724c1a075b9a2"},
+    {"id":"scope-electrical","owner_role":"iso.electrical_power","requirement_ids":["R1","R2","R3","R4","R6","R7","R8","R9","R10","R11","R12","R14","R15","R16","R17","R22","R23"],"evidence_ids":["u5-package"],"scope_digest":"b8bb959a05b96f1fe02cf5f9cec37ba8bb4c3399b5703f219f31a08f4b8f571f"},
+    {"id":"scope-safety","owner_role":"iso.safety","requirement_ids":["R3","R10","R11","R12","R22","R23"],"evidence_ids":["u5-package"],"scope_digest":"43a870eff8c9abc0a00a79a89673cb71a6b263d839b09bc6752cfdea8b6cf087"},
+    {"id":"scope-pcb","owner_role":"iso.pcb_layout","requirement_ids":["R5","R13","R14","R15","R16"],"evidence_ids":["u5-package"],"scope_digest":"98db9776ccf7f0c453ad850943d0a6356dcd6e4afdf4eb9987f8c8990141ae90"},
+    {"id":"scope-mechanical","owner_role":"iso.mechanical_thermal","requirement_ids":["R5","R13","R17"],"evidence_ids":["u5-package"],"scope_digest":"56282c508db9ecc78cc9daf7e94b0292e64308c2602fa496fdcb0cc85b9bb542"},
+    {"id":"scope-sourcing","owner_role":"iso.sourcing","requirement_ids":["R5"],"evidence_ids":["u5-package"],"scope_digest":"a2e2d22dc70077c23a4495aa42e030f352ac3668006a554ebc8a64748c5ebf33"},
+    {"id":"scope-verification","owner_role":"iso.verification","requirement_ids":["R18","R20","R21","R22","R23"],"evidence_ids":["u5-package"],"scope_digest":"76446d771efe1377ace56d1a9245b18096b95d1b508be209ed946f4c153c35b9"}
+  ],
+  "owner_signoffs": [
+    {"role":"iso.board_architecture","signer_id":"pending-board","requirement_ids":["R1","R2","R3","R4","R19","R21"],"envelope_digest":"0000000000000000000000000000000000000000000000000000000000000000","scope_node_id":"scope-board","scope_digest":"d3f89096a629447d4c7a5aa3e7e31c8fdffdb165e111784bfb3724c1a075b9a2","status":"pending","signature_artifact":null},
+    {"role":"iso.electrical_power","signer_id":"pending-electrical","requirement_ids":["R1","R2","R3","R4","R6","R7","R8","R9","R10","R11","R12","R14","R15","R16","R17","R22","R23"],"envelope_digest":"0000000000000000000000000000000000000000000000000000000000000000","scope_node_id":"scope-electrical","scope_digest":"b8bb959a05b96f1fe02cf5f9cec37ba8bb4c3399b5703f219f31a08f4b8f571f","status":"pending","signature_artifact":null},
+    {"role":"iso.safety","signer_id":"pending-safety","requirement_ids":["R3","R10","R11","R12","R22","R23"],"envelope_digest":"0000000000000000000000000000000000000000000000000000000000000000","scope_node_id":"scope-safety","scope_digest":"43a870eff8c9abc0a00a79a89673cb71a6b263d839b09bc6752cfdea8b6cf087","status":"pending","signature_artifact":null},
+    {"role":"iso.pcb_layout","signer_id":"pending-pcb","requirement_ids":["R5","R13","R14","R15","R16"],"envelope_digest":"0000000000000000000000000000000000000000000000000000000000000000","scope_node_id":"scope-pcb","scope_digest":"98db9776ccf7f0c453ad850943d0a6356dcd6e4afdf4eb9987f8c8990141ae90","status":"pending","signature_artifact":null},
+    {"role":"iso.mechanical_thermal","signer_id":"pending-mechanical","requirement_ids":["R5","R13","R17"],"envelope_digest":"0000000000000000000000000000000000000000000000000000000000000000","scope_node_id":"scope-mechanical","scope_digest":"56282c508db9ecc78cc9daf7e94b0292e64308c2602fa496fdcb0cc85b9bb542","status":"pending","signature_artifact":null},
+    {"role":"iso.sourcing","signer_id":"pending-sourcing","requirement_ids":["R5"],"envelope_digest":"0000000000000000000000000000000000000000000000000000000000000000","scope_node_id":"scope-sourcing","scope_digest":"a2e2d22dc70077c23a4495aa42e030f352ac3668006a554ebc8a64748c5ebf33","status":"pending","signature_artifact":null},
+    {"role":"iso.verification","signer_id":"pending-verification","requirement_ids":["R18","R20","R21","R22","R23"],"envelope_digest":"0000000000000000000000000000000000000000000000000000000000000000","scope_node_id":"scope-verification","scope_digest":"76446d771efe1377ace56d1a9245b18096b95d1b508be209ed946f4c153c35b9","status":"pending","signature_artifact":null}
+  ],
+  "signature_artifacts": []
+}

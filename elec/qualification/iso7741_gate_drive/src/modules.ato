@@ -1,0 +1,183 @@
+import ISO7741FQDWWRQ1 from "components.ato"
+import UCC27517AQDBVRQ1 from "components.ato"
+import TPS7B6933QDBVRQ1 from "components.ato"
+import TLV1701QDBVRQ1 from "components.ato"
+import TLV431BQDBZRQ1 from "components.ato"
+import SN74LVC1G08QDBVRQ1 from "components.ato"
+import SN74LVC1G04QDBVRQ1 from "components.ato"
+import Resistor from "components.ato"
+import Resistor1206 from "components.ato"
+import Capacitor from "components.ato"
+import Zener from "components.ato"
+
+module GateDriveDomain:
+    # The signal names are part of the candidate contract.  HS and LS are
+    # instantiated separately at the top level and never share these nets.
+    signal pwm_in
+    signal run_permit
+    signal diagnostic_challenge
+    signal diagnostic_echo
+    signal local_15v
+    signal local_3v3
+    signal local_gnd
+    signal switch_return
+    signal gate_out
+    signal pwm_local
+    signal permit_logic
+    signal inhibit_local
+
+    barrier = new ISO7741FQDWWRQ1
+    driver = new UCC27517AQDBVRQ1
+    local_regulator = new TPS7B6933QDBVRQ1
+    rail_supervisor = new TLV1701QDBVRQ1
+    rail_reference = new TLV431BQDBZRQ1
+    permit_gate = new SN74LVC1G08QDBVRQ1
+    echo_gate = new SN74LVC1G08QDBVRQ1
+    inhibit_inverter = new SN74LVC1G04QDBVRQ1
+
+    pwm_pulldown = new Resistor
+    permit_pullup = new Resistor
+    gate_resistor = new Resistor1206
+    gate_pulldown = new Resistor
+    divider_high = new Resistor
+    divider_low = new Resistor
+    local_bypass = new Capacitor
+    driver_bypass = new Capacitor
+    negative_bias = new Zener
+
+    # Values are candidate targets only.  The exact electrical contract is
+    # pending the authority packet's manufacturer-pin and corner evidence.
+    pwm_pulldown.value = 10kohm
+    pwm_pulldown.mpn = "RC0603FR-0710KL"
+    permit_pullup.value = 10kohm
+    permit_pullup.mpn = "RC0603FR-0710KL"
+    gate_resistor.value = 2.2ohm
+    gate_resistor.mpn = "RC1206FR-072R2L"
+    gate_pulldown.value = 2200ohm
+    gate_pulldown.mpn = "RC0603FR-072K2L"
+    divider_high.value = 100kohm
+    divider_high.mpn = "RC0603FR-07100KL"
+    divider_low.value = 27kohm
+    divider_low.mpn = "RC0603FR-0727KL"
+    local_bypass.value = 100nF
+    local_bypass.mpn = "C0603C104K5RACTU"
+    driver_bypass.value = 1uF
+    driver_bypass.mpn = "GRM188R71C105KA12D"
+    negative_bias.value = 5.1V
+    negative_bias.mpn = "BZT52C5V1-7-F"
+
+    # Primary forward PWM and permit are independently represented.  The
+    # p-number connections intentionally remain pending pin-map authority;
+    # every package pin is nevertheless explicitly connected or tied off.
+    barrier.p1 ~ pwm_in
+    barrier.p2 ~ run_permit
+    barrier.p3 ~ diagnostic_challenge
+    barrier.p4 ~ diagnostic_echo
+    barrier.p5 ~ local_gnd
+    barrier.p6 ~ local_gnd
+    barrier.p7 ~ local_gnd
+    barrier.p8 ~ local_gnd
+    barrier.p9 ~ local_3v3
+    barrier.p10 ~ local_gnd
+    barrier.p11 ~ local_gnd
+    barrier.p12 ~ local_gnd
+    barrier.p13 ~ local_gnd
+    barrier.p14 ~ local_gnd
+    barrier.p15 ~ local_gnd
+    barrier.p16 ~ local_gnd
+
+    # A permit AND rail-good path and a separate inverter make either demand
+    # sufficient to inhibit the candidate driver.  Echo is diagnostic only.
+    permit_gate.p1 ~ run_permit
+    permit_gate.p2 ~ rail_supervisor.p1
+    permit_gate.p3 ~ local_gnd
+    permit_gate.p4 ~ permit_logic
+    permit_gate.p5 ~ local_3v3
+    inhibit_inverter.p1 ~ permit_logic
+    inhibit_inverter.p2 ~ local_3v3
+    inhibit_inverter.p3 ~ local_gnd
+    inhibit_inverter.p4 ~ inhibit_local
+    inhibit_inverter.p5 ~ local_3v3
+    echo_gate.p1 ~ diagnostic_challenge
+    echo_gate.p2 ~ rail_supervisor.p1
+    echo_gate.p3 ~ local_gnd
+    echo_gate.p4 ~ diagnostic_echo
+    echo_gate.p5 ~ local_3v3
+
+    barrier.p9 ~ pwm_local
+    driver.p1 ~ pwm_local
+    driver.p2 ~ inhibit_local
+    driver.p3 ~ local_gnd
+    driver.p4 ~ gate_resistor.p1
+    driver.p5 ~ local_15v
+    gate_resistor.p2 ~ gate_out
+    gate_pulldown.p1 ~ gate_out
+    gate_pulldown.p2 ~ switch_return
+    negative_bias.k ~ switch_return
+    negative_bias.a ~ driver.p3
+
+    local_regulator.p1 ~ local_15v
+    local_regulator.p2 ~ local_gnd
+    local_regulator.p3 ~ local_3v3
+    local_regulator.p4 ~ local_gnd
+    local_regulator.p5 ~ local_gnd
+    rail_supervisor.p1 ~ permit_gate.p2
+    rail_supervisor.p2 ~ local_gnd
+    rail_supervisor.p3 ~ divider_high.p2
+    rail_supervisor.p4 ~ local_gnd
+    rail_supervisor.p5 ~ local_3v3
+    rail_reference.p1 ~ divider_high.p1
+    rail_reference.p2 ~ local_gnd
+    rail_reference.p3 ~ divider_low.p1
+    divider_high.p1 ~ local_15v
+    divider_high.p2 ~ divider_low.p1
+    divider_low.p2 ~ local_gnd
+    local_bypass.p1 ~ local_3v3
+    local_bypass.p2 ~ local_gnd
+    driver_bypass.p1 ~ local_15v
+    driver_bypass.p2 ~ local_gnd
+    pwm_pulldown.p1 ~ pwm_in
+    pwm_pulldown.p2 ~ local_gnd
+    permit_pullup.p1 ~ run_permit
+    permit_pullup.p2 ~ local_3v3
+
+module Iso7741GateDrive:
+    signal pwm_h
+    signal pwm_l
+    signal hs_run_permit
+    signal ls_run_permit
+    signal diagnostic_challenge
+    signal diagnostic_hs_echo
+    signal diagnostic_ls_echo
+    signal hs_15v
+    signal ls_15v
+    signal hs_3v3
+    signal ls_3v3
+    signal hs_gnd
+    signal ls_gnd
+    signal hs_switch_return
+    signal ls_switch_return
+    signal gate_hs
+    signal gate_ls
+
+    high_side = new GateDriveDomain
+    low_side = new GateDriveDomain
+
+    high_side.pwm_in ~ pwm_h
+    low_side.pwm_in ~ pwm_l
+    high_side.run_permit ~ hs_run_permit
+    low_side.run_permit ~ ls_run_permit
+    high_side.diagnostic_challenge ~ diagnostic_challenge
+    low_side.diagnostic_challenge ~ diagnostic_challenge
+    high_side.diagnostic_echo ~ diagnostic_hs_echo
+    low_side.diagnostic_echo ~ diagnostic_ls_echo
+    high_side.local_15v ~ hs_15v
+    low_side.local_15v ~ ls_15v
+    high_side.local_3v3 ~ hs_3v3
+    low_side.local_3v3 ~ ls_3v3
+    high_side.local_gnd ~ hs_gnd
+    low_side.local_gnd ~ ls_gnd
+    high_side.switch_return ~ hs_switch_return
+    low_side.switch_return ~ ls_switch_return
+    high_side.gate_out ~ gate_hs
+    low_side.gate_out ~ gate_ls

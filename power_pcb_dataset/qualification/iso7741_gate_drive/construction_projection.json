@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "candidate_id": "iso7741-baseline",
+  "status": "pending",
+  "projection_digest": "pending",
+  "allowed_transform_policy": {
+    "kind": "translation-plus-quarter-turn",
+    "angles_deg": [0, 90, 180, 270],
+    "translation": true,
+    "mirroring": false,
+    "layer_flip": false,
+    "scaling": false,
+    "local_geometry_mutation": false,
+    "boundary_port_mutation": false,
+    "undeclared_transform": false,
+    "policy_digest": "pending"
+  },
+  "source": {
+    "fixture_path": "elec/qualification/iso7741_gate_drive/layout/iso7741_gate_drive_fixture.kicad_pcb",
+    "fixture_sha256": "2c947eb2215980062cdf2bd438616c96d451ef99c84a1e6cfa1e6f992263af3f",
+    "parser": "temper-design-bundle::parse_kicad_document",
+    "geometry_owner": "temper-geometry Rust kernels",
+    "rotation_owner": "temper_placer.geometry.kicad_transform",
+    "pcbnew_oracle": "pending-live-oracle"
+  },
+  "parts": [
+    {"ref": "U1", "domain": "high-side", "mpn": "ISO7741FQDWWRQ1", "footprint": "ISO7741_DWW16", "footprint_sha256": "14b947deb1a0f139daddc740320b14107750032564d839646af2962aa9471549"},
+    {"ref": "U2", "domain": "low-side", "mpn": "ISO7741FQDWWRQ1", "footprint": "ISO7741_DWW16", "footprint_sha256": "14b947deb1a0f139daddc740320b14107750032564d839646af2962aa9471549"},
+    {"ref": "U3", "domain": "high-side", "mpn": "UCC27517AQDBVRQ1", "footprint": "Package_DBV5", "footprint_sha256": "106a32d25259281c514e69be7b2545caf10221ea520c627507bbfeb81c368150"},
+    {"ref": "U4", "domain": "low-side", "mpn": "UCC27517AQDBVRQ1", "footprint": "Package_DBV5", "footprint_sha256": "106a32d25259281c514e69be7b2545caf10221ea520c627507bbfeb81c368150"}
+  ],
+  "domains": ["high-side", "low-side"],
+  "boundary_ports": [
+    {"domain": "high-side", "input": "CTRL_PWM_HS", "permit": "CTRL_PERMIT_HS", "output": "GATE_HS", "return": "GATE_HS_RETURN"},
+    {"domain": "low-side", "input": "CTRL_PWM_LS", "permit": "CTRL_PERMIT_LS", "output": "GATE_LS", "return": "GATE_LS_RETURN"}
+  ],
+  "local_geometry": {
+    "frame": "domain-local-anchor",
+    "units": "mm",
+    "copper": null,
+    "relative_component_placements": null,
+    "reason": "Rust extraction and live pcbnew cross-check pending"
+  },
+  "external_mechanical_envelope": {"status": "pending", "report": null},
+  "rows": [
+    {"row_id": "projection.identity.exact_parts", "status": "pending", "reason": "manufacturer-controlled package and land-pattern digests unavailable"},
+    {"row_id": "projection.identity.boundary_ports", "status": "pending", "reason": "pin-map authority and generated candidate netlist require review"},
+    {"row_id": "projection.geometry.local_copper", "status": "pending", "reason": "Rust extraction plus pcbnew oracle not run"},
+    {"row_id": "projection.transform_policy", "status": "pending", "reason": "policy is declared but not approval evidence"}
+  ]
+}

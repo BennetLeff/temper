@@ -1,0 +1,28 @@
+{
+  "threshold_event": {
+    "event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "semantic_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "threshold_a":"60.0",
+    "direction":"rising",
+    "sample_clock_id":"synthetic-clock-1",
+    "preprocessing":"none",
+    "interpolation":"linear-ceil",
+    "crossing_timestamp_ns":"100",
+    "primary_current_trace_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "decomposed_uncertainty":[{"id":"joint-clock","value_ns":"1.0","correlation_group":"joint-clock"}],
+  "declared_correlation_groups":["joint-clock"],
+  "required_supply_cases":["nominal","primary-barrier-loss","iso-local-supply-loss","driver-supply-loss"],
+  "direct_captures":[
+    {"capture_id":"nominal-high","endpoint":"high-side-gate-safe","raw_capture_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","channel_map_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","sample_clock_id":"synthetic-clock-1","trigger_event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","max_ns":"4000","uncertainty_ns":"0","supply_case":"nominal","clipped":false},
+    {"capture_id":"nominal-low","endpoint":"low-side-gate-safe","raw_capture_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","channel_map_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","sample_clock_id":"synthetic-clock-1","trigger_event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","max_ns":"4000","uncertainty_ns":"0","supply_case":"nominal","clipped":false},
+    {"capture_id":"barrier-high","endpoint":"high-side-gate-safe","raw_capture_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","channel_map_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","sample_clock_id":"synthetic-clock-1","trigger_event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","max_ns":"4000","uncertainty_ns":"0","supply_case":"primary-barrier-loss","clipped":false},
+    {"capture_id":"barrier-low","endpoint":"low-side-gate-safe","raw_capture_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","channel_map_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","sample_clock_id":"synthetic-clock-1","trigger_event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","max_ns":"4000","uncertainty_ns":"0","supply_case":"primary-barrier-loss","clipped":false},
+    {"capture_id":"iso-high","endpoint":"high-side-gate-safe","raw_capture_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","channel_map_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","sample_clock_id":"synthetic-clock-1","trigger_event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","max_ns":"4000","uncertainty_ns":"0","supply_case":"iso-local-supply-loss","clipped":false},
+    {"capture_id":"iso-low","endpoint":"low-side-gate-safe","raw_capture_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","channel_map_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","sample_clock_id":"synthetic-clock-1","trigger_event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","max_ns":"4000","uncertainty_ns":"0","supply_case":"iso-local-supply-loss","clipped":false},
+    {"capture_id":"driver-high","endpoint":"high-side-gate-safe","raw_capture_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","channel_map_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","sample_clock_id":"synthetic-clock-1","trigger_event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","max_ns":"4000","uncertainty_ns":"0","supply_case":"driver-supply-loss","clipped":false},
+    {"capture_id":"driver-low","endpoint":"low-side-gate-safe","raw_capture_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","channel_map_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","sample_clock_id":"synthetic-clock-1","trigger_event_digest":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","max_ns":"4000","uncertainty_ns":"0","supply_case":"driver-supply-loss","clipped":false}
+  ],
+  "direct_agreement_tolerance_ns":"300",
+  "direct_model_disposition":"agree"
+}
