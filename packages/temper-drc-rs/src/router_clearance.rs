@@ -1699,10 +1699,10 @@ mod tests {
         assert_eq!(classify_net_class("VCC_IO"), NetClass::Power);
         assert_eq!(classify_net_class("+5V"), NetClass::Power);
         assert_eq!(classify_net_class("+3V3_aux"), NetClass::Power);
-        // Embedded keywords must not match without a separator boundary.
-        assert_ne!(classify_net_class("gnd-aux"), NetClass::Gnd);
+        // Hyphens are token separators, just like underscores.
+        assert_eq!(classify_net_class("gnd-aux"), NetClass::Gnd);
         assert_ne!(classify_net_class("x+5v_rail"), NetClass::Power);
-        assert_ne!(classify_net_class("sense_gnd-hs"), NetClass::Gnd);
+        assert_eq!(classify_net_class("sense_gnd-hs"), NetClass::Gnd);
     }
 
     #[test]
