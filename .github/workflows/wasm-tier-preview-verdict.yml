@@ -198,7 +198,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/wasm-preview-stage
-          "${GITHUB_WORKSPACE}/control/scripts/stage_wasm_families.sh" \
+          bash "${GITHUB_WORKSPACE}/control/scripts/stage_wasm_families.sh" \
             --preview-candidate \
             --repo-root "${GITHUB_WORKSPACE}/head" \
             --topology /tmp/preview-topology.json \
