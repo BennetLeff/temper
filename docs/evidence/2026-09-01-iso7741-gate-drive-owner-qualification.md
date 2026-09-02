@@ -1,4 +1,6 @@
 ---
+provenance: commit=373688e337f8df75b1d3dfa05a7f9ec2fcb6b00d dirty=true
+
 title: ISO7741 gate-drive owner qualification — representative construction
 date: 2026-09-01
 status: rejected

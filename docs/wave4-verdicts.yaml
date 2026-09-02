@@ -415,10 +415,29 @@ surfaces:
   - pattern: packages/temper-placer/src/temper_placer/router_v6/**
     verdict: MIGRATE
     phase: 5
+    exclude:
+      - packages/temper-placer/src/temper_placer/router_v6/zone_emission.py
     note: >-
       Largest single surface (~30k). constraint_model and routing_results are
       Phase 2 contracts; channel_skeleton is Phase 4 and spike-gated on the
       shapely Voronoi boundary; the orchestration remainder is Phase 5.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/zone_emission.py
+    verdict: JUSTIFIED-KEEP
+    phase: 5
+    blocker: >-
+      The 2026-09-01 GEOS parity spike found the independent unlimited-mitre
+      model diverged in formatted points/region on 29/1,000 seeded random
+      hulls and crafted mitre-limit cases; a candidate must also account for
+      GEOS's observed 66-vertex LineString round-cap/ring-start obligation.
+      The
+      live consumers feed this geometry through clipping into KiCad zone
+      bytes. This GEOS buffer is the concrete blocker to file-level
+      migration by colocation; the file's clustering, zone-policy, and
+      emission logic remain independently migratable.
+    note: >-
+      See docs/evidence/2026-09-01-zone-emission-geos-parity.md for the
+      corpus, measured results, and re-decision condition.
   - pattern: packages/temper-placer/src/temper_placer/adapters/**
     verdict: MIGRATE
     phase: 5
@@ -889,8 +908,7 @@ surfaces:
 # confidently matched to the current tree at all (not just LOC drift, but
 # missing/renamed files) are recorded as explicit UNDECIDED entries below
 # rather than silently folded into a PORT bucket: `router_v6/zone_emission.py`
-# (a directly-verified GEOS blocker per the doc's own correction, not the
-# clean PORT its parenthetical cluster listing implies), the two SPLIT/UNKNOWN
+# (a GEOS-specific blocker with no dedicated R1 taxonomy value), the two SPLIT/UNKNOWN
 # router_v6 files the doc says neither of its two independent passes
 # resolved, and `temper_workflow/`'s named files, three of which no longer
 # exist. `cp_sat/handlers/{__init__,_protocol,_registry,_shared}.py` (142
@@ -1373,9 +1391,9 @@ removal_surfaces:
     note: >-
       Pour/zone emission geometry: convex hull, clustering, chamfered
       pour-shaping (evidence doc Sec 2.1, "Pour/zone emission geometry"
-      row). zone_emission.py, named in the same row, is carved out below as
-      UNDECIDED -- the doc's own cross-check found it BLOCKED on a GEOS
-      convex-hull boundary, not a clean PORT candidate.
+      row). zone_emission.py, named in the same row, remains an R1
+      UNDECIDED GEOS boundary; its R7 JUSTIFIED-KEEP decision is recorded in
+      the surfaces ledger above.
   - paths:
       - packages/temper-placer/src/temper_placer/router_v6/terminal_extraction.py
       - packages/temper-placer/src/temper_placer/router_v6/terminal_tree.py
@@ -1687,16 +1705,11 @@ removal_surfaces:
       - packages/temper-placer/src/temper_placer/router_v6/zone_emission.py
     verdict: UNDECIDED
     owed: >-
-      The re-triage's own router_v6 table lists this file under a PORT
-      cluster ("Pour/zone emission geometry"), but the same document's
-      cross-check against docs/evidence/2026-08-04-router-v6-migration-
-      survey.md directly verifies a GEOS boundary instead:
-      _convex_hull_from_positions runs on every zone regardless of
-      clustering, with 2,141/3,904 byte flips against identical copper --
-      "reclassified scipy -> GEOS", i.e. BLOCKED, not a clean PORT. Neither
-      taxonomy value (PORT nor a not-yet-defined GEOS-blocker category) is
-      recorded with confidence; owed a file-level decision, not a guess by
-      proximity to _zone_pour_stitch.py.
+      R1's Python-removal taxonomy has no GEOS-specific blocker category.
+      The R7 JUSTIFIED-KEEP decision and measured blocker are recorded on the
+      corresponding surfaces entry above; under R1 this caller remains
+      UNDECIDED until a Rust owner is proven and the Python boundary can be
+      removed. See docs/evidence/2026-09-01-zone-emission-geos-parity.md.
   - paths:
       - packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py
       - packages/temper-placer/src/temper_placer/router_v6/bundle_analyzer.py
