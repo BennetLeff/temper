@@ -267,7 +267,12 @@ fn valid_sha256(value: &str) -> bool {
 fn valid_repo_relative_path(value: &str) -> bool {
     let path = std::path::Path::new(value);
     !value.trim().is_empty()
-        && !path.is_absolute()
+        // `Path::is_absolute()` is target-dependent: on wasm32-unknown-unknown
+        // it accepts `/pcb/...`, even though that is never a repository-
+        // relative path.  Reject both separator-rooted forms explicitly so
+        // qualification provenance has the same meaning on native and WASM.
+        && !value.starts_with(['/', '\\'])
+        && !value.as_bytes().get(1).is_some_and(|byte| *byte == b':')
         && !path
             .components()
             .any(|component| matches!(component, std::path::Component::ParentDir))

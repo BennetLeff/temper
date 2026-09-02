@@ -1,6 +1,8 @@
+#![allow(clippy::expect_used, clippy::unwrap_used)]
+
 use temper_quality_oracle::ct07_t2_qualification::{
-    checked_nanoseconds, compute_u5_electrical, derive_capture, EvidenceStatus, RawCapture,
-    ThresholdCrossingPolicy, U5ElectricalCapture, U5ElectricalProtocol, U5WaveformSample,
+    EvidenceStatus, RawCapture, ThresholdCrossingPolicy, U5ElectricalCapture, U5ElectricalProtocol,
+    U5WaveformSample, checked_nanoseconds, compute_u5_electrical, derive_capture,
 };
 
 fn protocol() -> U5ElectricalProtocol {
@@ -92,9 +94,11 @@ fn committed_u5_protocol_replays_as_pending_until_u6_freezes_identity() {
     let result = compute_u5_electrical(&protocol, &[]).expect("pending protocol replays");
     assert_eq!(result.status, EvidenceStatus::Pending);
     assert_eq!(result.construction_digest, "pending-u6-freeze");
-    assert!(result
-        .sensor_threshold_to_system_latch_assertion_max_ns
-        .is_none());
+    assert!(
+        result
+            .sensor_threshold_to_system_latch_assertion_max_ns
+            .is_none()
+    );
 }
 
 #[test]
@@ -160,10 +164,12 @@ fn clipped_and_construction_mismatch_captures_reject() {
     mismatched.construction_digest = "e".repeat(64);
     let result = compute_u5_electrical(&p, &[mismatched]).expect("invalid identity is a result");
     assert_eq!(result.status, EvidenceStatus::Fail);
-    assert!(result
-        .reasons
-        .iter()
-        .any(|r| r.contains("construction identity")));
+    assert!(
+        result
+            .reasons
+            .iter()
+            .any(|r| r.contains("construction identity"))
+    );
 }
 
 #[test]

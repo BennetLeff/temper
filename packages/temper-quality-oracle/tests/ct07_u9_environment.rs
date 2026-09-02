@@ -1,6 +1,8 @@
+#![allow(clippy::expect_used)]
+
 use temper_quality_oracle::ct07_t2_qualification::{
-    compute_u9_environment, EvidenceStatus, U9ControlChallengeRecord, U9EnvironmentalProtocol,
-    U9EnvironmentRecord, U9ReplayInput, U9_REQUIRED_AXES,
+    EvidenceStatus, U9_REQUIRED_AXES, U9ControlChallengeRecord, U9EnvironmentRecord,
+    U9EnvironmentalProtocol, U9ReplayInput, compute_u9_environment,
 };
 
 fn protocol() -> U9EnvironmentalProtocol {
@@ -23,10 +25,12 @@ fn no_samples_or_controls_stays_pending_without_fabricated_results() {
 
     assert_eq!(result.status, EvidenceStatus::Pending);
     assert_eq!(result.record_count, 0);
-    assert!(result
-        .reasons
-        .iter()
-        .any(|reason| reason.contains("no U9 stress records")));
+    assert!(
+        result
+            .reasons
+            .iter()
+            .any(|reason| reason.contains("no U9 stress records"))
+    );
 }
 
 #[test]
@@ -61,7 +65,12 @@ fn a_record_without_every_checkpoint_and_axis_stays_pending() {
     .expect("incomplete evidence is pending, not fabricated");
 
     assert_eq!(result.status, EvidenceStatus::Pending);
-    assert!(result.reasons.iter().any(|reason| reason.contains("checkpoint")));
+    assert!(
+        result
+            .reasons
+            .iter()
+            .any(|reason| reason.contains("checkpoint"))
+    );
 }
 
 #[test]
@@ -148,12 +157,14 @@ fn only_an_explicit_complete_synthetic_matrix_can_pass() {
                 status: EvidenceStatus::Pass,
                 axes: U9_REQUIRED_AXES
                     .iter()
-                    .map(|code| temper_quality_oracle::ct07_t2_qualification::U9AxisObservation {
-                        code: (*code).to_owned(),
-                        status: EvidenceStatus::Pass,
-                        reason: "synthetic test observation".to_owned(),
-                        evidence_ids: vec!["synthetic".to_owned()],
-                    })
+                    .map(
+                        |code| temper_quality_oracle::ct07_t2_qualification::U9AxisObservation {
+                            code: (*code).to_owned(),
+                            status: EvidenceStatus::Pass,
+                            reason: "synthetic test observation".to_owned(),
+                            evidence_ids: vec!["synthetic".to_owned()],
+                        },
+                    )
                     .collect(),
                 evidence_ids: vec!["synthetic".to_owned()],
                 repaired: false,
