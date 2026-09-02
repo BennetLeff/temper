@@ -14,11 +14,19 @@
 //!
 //! and read the diff before committing.
 
+// One table owns both trybuild registration and error-code verification.
+const CASES: &[(&str, &str, &str)] = &[(
+    "pad_occurrence_from_str",
+    "E0277",
+    "no From<&str> -- a bare pad number cannot stand in for a pad identity",
+)];
+
 #[test]
 fn type_system_guards_fail_to_compile_for_the_stated_reason() {
     let t = trybuild::TestCases::new();
-    // PadOccurrence -- a bare pad number is not a pad identity.
-    t.compile_fail("tests/compile_fail/pad_occurrence_from_str.rs");
+    for (stem, _, _) in CASES {
+        t.compile_fail(format!("tests/compile_fail/{stem}.rs"));
+    }
 }
 
 /// Second enforcement layer: pin the ERROR CODE independently of the message.
@@ -31,16 +39,10 @@ fn type_system_guards_fail_to_compile_for_the_stated_reason() {
 /// If this fails, do NOT edit the table to match. Go read the guard.
 #[test]
 fn each_guard_expectation_still_pins_its_intended_error_code() {
-    const EXPECTED: &[(&str, &str, &str)] = &[(
-        "pad_occurrence_from_str",
-        "E0277",
-        "no From<&str> -- a bare pad number cannot stand in for a pad identity",
-    )];
-
     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/compile_fail");
     let mut problems = Vec::new();
 
-    for (stem, code, protects) in EXPECTED {
+    for (stem, code, protects) in CASES {
         let path = dir.join(format!("{stem}.stderr"));
         let Ok(text) = std::fs::read_to_string(&path) else {
             problems.push(format!(
@@ -77,17 +79,28 @@ fn each_guard_expectation_still_pins_its_intended_error_code() {
          registered and this whole file is vacuous",
         dir.display()
     );
-    let case_count = listing
+    let case_stems: std::collections::BTreeSet<_> = listing
         .into_iter()
         .flatten()
         .filter_map(Result::ok)
         .filter(|e| e.path().extension().is_some_and(|x| x == "rs"))
-        .count();
+        .filter_map(|e| {
+            e.path()
+                .file_stem()
+                .map(|s| s.to_string_lossy().into_owned())
+        })
+        .collect();
+    let expected_stems: std::collections::BTreeSet<_> = CASES
+        .iter()
+        .map(|(stem, _, _)| (*stem).to_owned())
+        .collect();
     assert_eq!(
-        case_count,
-        EXPECTED.len(),
-        "tests/compile_fail has {case_count} .rs cases but the error-code table pins \
-         {}. Every compile_fail case must pin its error code here.",
-        EXPECTED.len()
+        expected_stems.len(),
+        CASES.len(),
+        "the compile-fail case table contains duplicate stems"
+    );
+    assert_eq!(
+        case_stems, expected_stems,
+        "the registered compile-fail cases and error-code table must name the exact same stems"
     );
 }

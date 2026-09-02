@@ -45,22 +45,53 @@
 //! documentation (they render in rustdoc next to the type they protect), and
 //! `cargo test --doc` still runs them. This file is the enforcement.
 
+// One table owns both trybuild registration and error-code verification. This
+// prevents a duplicated stem from preserving the old count while silently
+// dropping a guard case from one of the two enforcement layers.
+const CASES: &[(&str, &str, &str)] = &[
+    (
+        "world_position_struct_literal",
+        "E0451",
+        "WorldPosition fields private -- no raw-coordinate path in",
+    ),
+    (
+        "world_position_from_tuple",
+        "E0277",
+        "no From<(f64, f64)> -- a raw pair cannot skip the rotation kernel",
+    ),
+    (
+        "layer_struct_literal",
+        "E0451",
+        "Layer fields private -- no hardcoded stale copper stackup",
+    ),
+    (
+        "rotation_quadrant_div",
+        "E0369",
+        "no Div -- a 0-3 quadrant index is not degrees",
+    ),
+    (
+        "net_route_result_fabricated",
+        "E0451",
+        "VerifiedRoute fields private -- no fabricated Connected verdict",
+    ),
+    (
+        "clearance_halo_private_polygon",
+        "E0616",
+        "ClearanceHalo.polygon private -- no unverified halo substitution",
+    ),
+    (
+        "conservative_superset_fabricated",
+        "E0451",
+        "ConservativeSuperset cannot be minted outside its module",
+    ),
+];
+
 #[test]
 fn type_system_guards_fail_to_compile_for_the_stated_reason() {
     let t = trybuild::TestCases::new();
-    // WorldPosition -- no raw-coordinate path into the type (the naive
-    // `comp_pos + pin_pos` bug, hit three times).
-    t.compile_fail("tests/compile_fail/world_position_struct_literal.rs");
-    t.compile_fail("tests/compile_fail/world_position_from_tuple.rs");
-    // Layer -- no hardcoded stale copy of a board's copper stackup.
-    t.compile_fail("tests/compile_fail/layer_struct_literal.rs");
-    // RotationQuadrant -- a 0-3 index is not degrees.
-    t.compile_fail("tests/compile_fail/rotation_quadrant_div.rs");
-    // NetRouteResult::Connected -- no fabricated routing completion.
-    t.compile_fail("tests/compile_fail/net_route_result_fabricated.rs");
-    // ClearanceHalo -- the conservative-superset guarantee cannot be forged.
-    t.compile_fail("tests/compile_fail/clearance_halo_private_polygon.rs");
-    t.compile_fail("tests/compile_fail/conservative_superset_fabricated.rs");
+    for (stem, _, _) in CASES {
+        t.compile_fail(format!("tests/compile_fail/{stem}.rs"));
+    }
 }
 
 /// Second enforcement layer: pin the ERROR CODE independently of the message.
@@ -88,49 +119,10 @@ fn type_system_guards_fail_to_compile_for_the_stated_reason() {
 /// means the guard changed shape -- go read the guard.
 #[test]
 fn each_guard_expectation_still_pins_its_intended_error_code() {
-    // (case stem, error code the guard MUST fail with, what it protects)
-    const EXPECTED: &[(&str, &str, &str)] = &[
-        (
-            "world_position_struct_literal",
-            "E0451",
-            "WorldPosition fields private -- no raw-coordinate path in",
-        ),
-        (
-            "world_position_from_tuple",
-            "E0277",
-            "no From<(f64, f64)> -- a raw pair cannot skip the rotation kernel",
-        ),
-        (
-            "layer_struct_literal",
-            "E0451",
-            "Layer fields private -- no hardcoded stale copper stackup",
-        ),
-        (
-            "rotation_quadrant_div",
-            "E0369",
-            "no Div -- a 0-3 quadrant index is not degrees",
-        ),
-        (
-            "net_route_result_fabricated",
-            "E0451",
-            "VerifiedRoute fields private -- no fabricated Connected verdict",
-        ),
-        (
-            "clearance_halo_private_polygon",
-            "E0616",
-            "ClearanceHalo.polygon private -- no unverified halo substitution",
-        ),
-        (
-            "conservative_superset_fabricated",
-            "E0451",
-            "ConservativeSuperset cannot be minted outside its module",
-        ),
-    ];
-
     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/compile_fail");
     let mut problems = Vec::new();
 
-    for (stem, code, protects) in EXPECTED {
+    for (stem, code, protects) in CASES {
         let path = dir.join(format!("{stem}.stderr"));
         let Ok(text) = std::fs::read_to_string(&path) else {
             problems.push(format!(
@@ -169,17 +161,28 @@ fn each_guard_expectation_still_pins_its_intended_error_code() {
          registered and this whole file is vacuous",
         dir.display()
     );
-    let case_count = listing
+    let case_stems: std::collections::BTreeSet<_> = listing
         .into_iter()
         .flatten()
         .filter_map(Result::ok)
         .filter(|e| e.path().extension().is_some_and(|x| x == "rs"))
-        .count();
+        .filter_map(|e| {
+            e.path()
+                .file_stem()
+                .map(|s| s.to_string_lossy().into_owned())
+        })
+        .collect();
+    let expected_stems: std::collections::BTreeSet<_> = CASES
+        .iter()
+        .map(|(stem, _, _)| (*stem).to_owned())
+        .collect();
     assert_eq!(
-        case_count,
-        EXPECTED.len(),
-        "tests/compile_fail has {case_count} .rs cases but the error-code table pins \
-         {}. Every compile_fail case must pin its error code here.",
-        EXPECTED.len()
+        expected_stems.len(),
+        CASES.len(),
+        "the compile-fail case table contains duplicate stems"
+    );
+    assert_eq!(
+        case_stems, expected_stems,
+        "the registered compile-fail cases and error-code table must name the exact same stems"
     );
 }
