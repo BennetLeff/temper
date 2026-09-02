@@ -116,6 +116,7 @@ on:
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
       - 'scripts/check_vacuous_gates.py'
+      - 'scripts/tests/test_check_vacuous_gates.py'
       - 'scripts/check_derived_doc_drift.py'
       - 'scripts/derived_doc_gates.yaml'
       - 'scripts/tests/test_check_derived_doc_drift.py'
@@ -245,6 +246,7 @@ on:
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
       - 'scripts/check_vacuous_gates.py'
+      - 'scripts/tests/test_check_vacuous_gates.py'
       - 'scripts/check_derived_doc_drift.py'
       - 'scripts/derived_doc_gates.yaml'
       - 'scripts/tests/test_check_derived_doc_drift.py'
@@ -1795,6 +1797,10 @@ jobs:
         run: |
           uv run python scripts/check_evidence_provenance.py
           uv run python scripts/check_evidence_provenance.py --check-shrink
+
+      - name: Anti-vacuous-truth gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest -q scripts/tests/test_check_vacuous_gates.py
 
       - name: Anti-vacuous-truth gate (gates/validators)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
