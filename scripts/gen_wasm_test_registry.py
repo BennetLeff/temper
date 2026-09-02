@@ -548,9 +548,13 @@ def in_file_ancestors(lines: list[str], ident: str) -> list[str]:
     for a module that actually lives at ``dsn_types::tests::frozen_dsn_tests``
     (dsn_types.rs:499 declares `mod tests`, :509 declares `mod
     frozen_dsn_tests` inside it), and `--all-features` builds failed with
-    ``error[E0433]: cannot find `frozen_dsn_tests` in `dsn_types```. The
-    generator's own ``--check`` passed throughout, because it compared its
-    output against itself.
+    ``error[E0433]: cannot find `frozen_dsn_tests` in `dsn_types```. The same
+    ancestor path must also qualify the generated test name: otherwise the
+    callable lives at the correct Rust path while R19 compares
+    ``dsn_types::frozen_dsn_tests::*`` against libtest's actual
+    ``dsn_types::tests::frozen_dsn_tests::*`` and reports two false
+    wasm32-only/native-only pairs. The generator's own ``--check`` passed
+    throughout, because it compared its output against itself.
 
     Returns outermost-first, so callers can ``"::".join(...)``.
     """
@@ -1340,10 +1344,15 @@ def strip_generated(lines: list[str], ident: str) -> list[str]:
 
 
 def generated_block(
-    indent: str, mod_path: str, ident: str, fns: list[tuple[str, list[str]]]
+    indent: str,
+    mod_path: str,
+    ident: str,
+    fns: list[tuple[str, list[str]]],
+    *,
+    rust_ident: str | None = None,
 ) -> list[str]:
     """The ``pub const`` that makes private ``#[test]`` fns reachable."""
-    q = qualify(mod_path, ident)
+    q = qualify(mod_path, rust_ident or ident)
     body = [
         f"{indent}{BEGIN.format(ident=ident)}",
         f"{indent}/// Every `#[test]` in this module, as a callable the `wasm32`",
@@ -1562,7 +1571,13 @@ def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, li
     while body and not body[-1].strip():
         body.pop()  # keep regeneration idempotent
     fns = collect_test_fns(own_lines(body))
-    block = generated_block(indent + "    ", module_path(rel), ident, fns)
+    # The test identity must match libtest's fully-qualified name, not merely
+    # point at the right callable. Nested inline modules are part of that
+    # identity just as they are part of the registry Rust path.
+    rust_ident = "::".join([*in_file_ancestors(lines, ident), ident])
+    block = generated_block(
+        indent + "    ", module_path(rel), ident, fns, rust_ident=rust_ident
+    )
     new_lines = (
         lines[:attr_start]
         + header

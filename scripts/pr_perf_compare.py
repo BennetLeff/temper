@@ -154,8 +154,10 @@ MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 # Derived by the procedure above from the committed baseline. Only entries that
 # differ from TIMING_MARGIN are listed; everything else uses the 20% default.
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
-    # worst fixed-commit excursion 15.7% -> 2 x 15.7 = 31.4 -> 32%
-    ("bottleneck-geometry", "hard_blocked_batch"): 0.32,
+    # worst fixed-commit excursion 16.1% -> 2 x 16.1 = 32.2 -> 33%
+    ("bottleneck-geometry", "hard_blocked_batch"): 0.33,
+    # worst fixed-commit excursion 13.0% -> 2 x 13.0 = 26.0 -> 27%
+    ("dsn-exporter", "export_pcb"): 0.27,
     # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.7 -> 22%
     ("loaders", "loaders"): 0.22,
     # worst fixed-commit excursion 15.9% -> 2 x 15.9 = 31.8 -> 32%
@@ -189,6 +191,9 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("board-netlist", "contracts_construction"):
         "fixed-commit excursion 44.8% -> margin 90%, above the 33.8% max "
         "gateable margin",
+    ("bottleneck-geometry", "cell_capacity_batch"):
+        "fixed-commit excursion 80.1% -> margin 161%, above the 33.8% max "
+        "gateable margin",
     ("drc-geometry", "point_rect"):
         "fixed-commit excursion 26.0% -> margin 53%, above the 33.8% max "
         "gateable margin",
@@ -198,11 +203,17 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("drc-inflate", "smooth_relu_array"):
         "fixed-commit excursion 36.8% -> margin 74%, above the 33.8% max "
         "gateable margin",
+    ("pcl-parse-utils", "parse_distance_batch"):
+        "fixed-commit excursion 28.8% -> margin 58%, above the 33.8% max "
+        "gateable margin",
     ("physics-heat_removal", "build_h_field"):
-        "fixed-commit excursion 24.4% -> margin 49%, above the 33.8% max "
-        "gateable margin (and only 1.04x below the 50.7% real-regression floor)",
+        "fixed-commit excursion 75.7% -> margin 152%, above the 33.8% max "
+        "gateable margin",
     ("topological", "constraint_propagation"):
         "fixed-commit excursion 17.9% -> margin 36%, above the 33.8% max "
+        "gateable margin",
+    ("topological", "force_refinement"):
+        "fixed-commit excursion 28.5% -> margin 57%, above the 33.8% max "
         "gateable margin",
 }
 
