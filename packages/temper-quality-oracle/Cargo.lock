@@ -854,6 +854,7 @@ dependencies = [
  "sha2",
  "temper-geometry",
  "temper-pcl-ir",
+ "temper-rust-router-core",
  "thiserror 2.0.20",
 ]
 
@@ -868,6 +869,16 @@ dependencies = [
  "regex",
  "rstar",
  "spade",
+ "temper-io-types",
+]
+
+[[package]]
+name = "temper-io-types"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -907,6 +918,15 @@ dependencies = [
  "temper-design-bundle",
  "temper-geometry",
  "temper-py-bridge",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "temper-rust-router-core"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
  "thiserror 1.0.69",
 ]
 
