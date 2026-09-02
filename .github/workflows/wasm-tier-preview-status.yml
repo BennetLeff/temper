@@ -91,7 +91,7 @@ jobs:
       - name: Validate, upload, sweep, compare, and preserve diagnostics
         id: publish
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WASM_PREVIEW_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_TOKEN }}
           HEAD_SHA: ${{ steps.source.outputs.head_sha }}
           PR_NUMBER: ${{ steps.source.outputs.pr }}
           SOURCE_RUN_ID: ${{ steps.source.outputs.run_id }}
@@ -100,6 +100,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+            echo '::error::CLOUDFLARE_API_TOKEN is empty. This protected step maps it from repository secret CF_TOKEN; Wrangler reads only CLOUDFLARE_API_TOKEN.'
+            exit 1
+          fi
           mkdir -p /tmp/preview-diagnostics /tmp/preview-stage
           printf 'started\n' > /tmp/preview-diagnostics/stages.txt
           production_guard=0
@@ -224,6 +228,11 @@ jobs:
           TEMPER_PREVIEW_CAPABILITY="${CAPABILITY}" node tools/wasm/preview_version.mjs \
             scrub-upload --upload-output /tmp/preview-diagnostics/upload.txt \
             --exit-code "${upload_rc}"
+          if grep -R -Fq "${CLOUDFLARE_API_TOKEN}" /tmp/preview-diagnostics; then
+            echo '::error::Cloudflare API token reached diagnostic output; deleting diagnostics rather than logging or publishing it'
+            rm -rf /tmp/preview-diagnostics
+            exit 1
+          fi
           cat /tmp/preview-diagnostics/upload.txt
           node tools/wasm/preview_version.mjs parse-upload \
             --upload-output /tmp/preview-diagnostics/upload.txt --service temper-wasm-io-types \
@@ -265,8 +274,9 @@ jobs:
             --expected-failures /tmp/untrusted-preview/expected-failures.json \
             --commit "${HEAD_SHA}" --output /tmp/preview-diagnostics/r19.json \
             --fail-on-disagree
-          if grep -R -Fq "${CAPABILITY}" /tmp/preview-diagnostics; then
-            echo '::error::preview capability reached diagnostic output; deleting diagnostics rather than publishing it'
+          if grep -R -Fq "${CAPABILITY}" /tmp/preview-diagnostics \
+            || grep -R -Fq "${CLOUDFLARE_API_TOKEN}" /tmp/preview-diagnostics; then
+            echo '::error::preview credential reached diagnostic output; deleting diagnostics rather than publishing it'
             rm -rf /tmp/preview-diagnostics
             exit 1
           fi
