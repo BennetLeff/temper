@@ -1,0 +1,296 @@
+name: WASM candidate preview artifact
+
+# Security boundary: pull_request_target makes this definition base-owned.
+# The initializer only creates a pending check. The build job is credential-
+# free and uploads an untrusted artifact; the separate workflow_run publisher
+# in wasm-tier-preview-status.yml runs on a fresh runner and revalidates it.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wasm-pr-preview-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: true
+
+jobs:
+  initialize-check:
+    name: Initialize exact-head Cloudflare check
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+      checks: write
+    steps:
+      # Persist the recovery identity before creating any check. If artifact
+      # storage is unavailable, this job fails without leaving a check that no
+      # later workflow can identify or terminalize.
+      - name: Write the base-owned source identity
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const fs = require("node:fs");
+            const pr = context.payload.pull_request;
+            if (!pr || pr.state !== "open" || pr.draft) throw new Error("initializer requires an open, non-draft PR");
+            const externalId = ["temper-wasm-preview-v1", context.runId, process.env.GITHUB_RUN_ATTEMPT, pr.number, pr.head.sha].join(":");
+            fs.writeFileSync("/tmp/preview-source-identity.json", JSON.stringify({
+              schema: "temper-wasm-preview-source-v1",
+              repository: `${context.repo.owner}/${context.repo.repo}`,
+              pull_request_number: pr.number,
+              head_repository: pr.head.repo.full_name,
+              head_sha: pr.head.sha,
+              run_id: context.runId,
+              run_attempt: Number(process.env.GITHUB_RUN_ATTEMPT),
+              external_id: externalId,
+            }) + "\n");
+
+      - name: Upload base-owned source identity for failure reconciliation
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: wasm-preview-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/preview-source-identity.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Create a pending check on the immutable PR head
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const fs = require("node:fs");
+            const identity = JSON.parse(fs.readFileSync("/tmp/preview-source-identity.json", "utf8"));
+            const pr = context.payload.pull_request;
+            if (!pr || pr.state !== "open" || pr.draft) throw new Error("initializer requires an open, non-draft PR");
+            if (identity.head_sha !== pr.head.sha || identity.pull_request_number !== pr.number) {
+              throw new Error("source identity changed before pending-check creation");
+            }
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "Cloudflare exact-head WASM preview",
+              head_sha: identity.head_sha,
+              status: "in_progress",
+              external_id: identity.external_id,
+              details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              output: {
+                title: "Waiting for credential-free build and trusted publisher",
+                summary: pr.head.repo.fork
+                  ? "A maintainer may need to approve the credential-free fork build. No Cloudflare credential is exposed to it."
+                  : "The PR head is building without credentials; a fresh protected-environment publisher will validate and sweep its artifact.",
+              },
+            });
+
+  build-candidate:
+    name: Build exact PR-head WASM candidate (credential-free)
+    needs: initialize-check
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      # Both checkouts use immutable Action revisions. `control` is the base
+      # revision and owns every command/helper; `head` supplies only the Rust
+      # source and expected-failure data being evaluated.
+      - name: Check out base-owned controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ github.event.pull_request.base.repo.full_name }}
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: control
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check out the explicit PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: head
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up fixed Node host
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '20'
+
+      - name: Assert exact source identity and snapshot head topology
+        env:
+          BASE_REPOSITORY: ${{ github.event.pull_request.base.repo.full_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test "${#BASE_SHA}" = 40
+          test "${#HEAD_SHA}" = 40
+          test -n "${BASE_REPOSITORY}"
+          test -n "${HEAD_REPOSITORY}"
+          test "$(git -C "${GITHUB_WORKSPACE}/control" rev-parse HEAD)" = "${BASE_SHA}"
+          test "$(git -C "${GITHUB_WORKSPACE}/head" rev-parse HEAD)" = "${HEAD_SHA}"
+          test "$(git -C "${GITHUB_WORKSPACE}/head" cat-file -t "${HEAD_SHA}")" = commit
+          # A default pull_request checkout creates refs/pull/<n>/merge. This
+          # build must be the immutable head object even for a fork.
+          if git -C "${GITHUB_WORKSPACE}/head" show-ref | grep -Eq 'refs/(remotes/)?pull/[0-9]+/merge$'; then
+            echo "::error::merge-ref checkout detected; expected only the explicit PR head SHA"
+            exit 1
+          fi
+          if git -C "${GITHUB_WORKSPACE}/head" config --get-regexp '^http\..*\.extraheader$'; then
+            echo "::error::checkout credential persisted into the untrusted repository"
+            exit 1
+          fi
+          # Read topology data from the exact head object, not its mutable
+          # worktree. The loader is base-owned and strictly rejects zero/two
+          # candidates, multiple modules, path traversal, or cargo option
+          # injection. Every later step uses this one immutable snapshot.
+          git -C "${GITHUB_WORKSPACE}/head" show \
+            "${HEAD_SHA}:tools/wasm/wasm_tier_topology.json" \
+            > /tmp/preview-topology.json
+          node "${GITHUB_WORKSPACE}/control/tools/wasm/tier_topology.mjs" \
+            preview-candidate \
+            --topology "${GITHUB_WORKSPACE}/control/tools/wasm/wasm_tier_topology.json" \
+            > /tmp/base-preview-candidate.json
+          node "${GITHUB_WORKSPACE}/control/tools/wasm/tier_topology.mjs" \
+            preview-candidate \
+            --topology /tmp/preview-topology.json \
+            > /tmp/preview-candidate.json
+          node -e '
+            const fs = require("node:fs");
+            const base = JSON.parse(fs.readFileSync("/tmp/base-preview-candidate.json", "utf8"));
+            const head = JSON.parse(fs.readFileSync("/tmp/preview-candidate.json", "utf8"));
+            if (JSON.stringify(head) !== JSON.stringify(base)) {
+              throw new Error("head preview control contract differs from the base-owned contract");
+            }
+          '
+
+      - name: Install wasm32 target
+        working-directory: control
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Run the candidate native arm
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/preview-target
+        run: |
+          set -euo pipefail
+          node -e '
+            const candidate = JSON.parse(require("node:fs").readFileSync("/tmp/preview-candidate.json", "utf8"));
+            for (const arg of candidate.native_test_args) process.stdout.write(`${arg}\0`);
+          ' > /tmp/native-args.bin
+          mapfile -d '' -t native_args < /tmp/native-args.bin
+          test "${#native_args[@]}" -gt 0
+          mkdir -p /tmp/wasm-preview-artifact
+          cd "${GITHUB_WORKSPACE}/head"
+          env -u GITHUB_ENV -u GITHUB_OUTPUT -u GITHUB_PATH -u GITHUB_STEP_SUMMARY \
+              -u GITHUB_TOKEN -u GH_TOKEN \
+              -u ACTIONS_RUNTIME_TOKEN -u ACTIONS_CACHE_URL -u ACTIONS_RESULTS_URL \
+              -u ACTIONS_ID_TOKEN_REQUEST_TOKEN -u ACTIONS_ID_TOKEN_REQUEST_URL \
+              CARGO_TARGET_DIR="${CARGO_TARGET_DIR}" \
+              cargo test "${native_args[@]}" < /dev/null 2>&1 \
+            | tee /tmp/wasm-preview-artifact/native_raw.txt
+          grep -Eq '^test .+ \.\.\. (ok|FAILED|ignored)$' /tmp/wasm-preview-artifact/native_raw.txt
+
+      - name: Build exactly one candidate module
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/preview-target
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wasm-preview-stage
+          "${GITHUB_WORKSPACE}/control/scripts/stage_wasm_families.sh" \
+            --preview-candidate \
+            --repo-root "${GITHUB_WORKSPACE}/head" \
+            --topology /tmp/preview-topology.json \
+            --output-dir /tmp/wasm-preview-stage \
+            --target-dir "${CARGO_TARGET_DIR}"
+          test "$(find /tmp/wasm-preview-stage -maxdepth 1 -type f -name '*.wasm' | wc -l)" = 1
+          MODULE_NAME="$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync("/tmp/preview-candidate.json", "utf8")).module_file)')"
+          MAX_WASM_BYTES="$(node -e 'process.stdout.write(String(JSON.parse(require("node:fs").readFileSync("/tmp/preview-candidate.json", "utf8")).max_wasm_bytes))')"
+          test "$(stat -c '%s' "/tmp/wasm-preview-stage/${MODULE_NAME}")" -le "${MAX_WASM_BYTES}" || {
+            echo "::error::candidate Wasm exceeds the base-owned ${MAX_WASM_BYTES}-byte limit"
+            exit 1
+          }
+          mv "/tmp/wasm-preview-stage/${MODULE_NAME}" /tmp/wasm-preview-artifact/
+          mv "/tmp/wasm-preview-stage/${MODULE_NAME}.sha256.json" /tmp/wasm-preview-artifact/
+          rmdir /tmp/wasm-preview-stage
+
+      - name: Census exact Wasm and capture immutable head data
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # Build scripts may generate ignored target files, but must not alter
+          # tracked source or the topology after the identity assertion.
+          git -C "${GITHUB_WORKSPACE}/head" diff --exit-code
+          git -C "${GITHUB_WORKSPACE}/head" diff --cached --exit-code
+          node -e '
+            const candidate = JSON.parse(require("node:fs").readFileSync("/tmp/preview-candidate.json", "utf8"));
+            process.stdout.write(candidate.module_file);
+          ' > /tmp/module-name.txt
+          node -e '
+            const candidate = JSON.parse(require("node:fs").readFileSync("/tmp/preview-candidate.json", "utf8"));
+            process.stdout.write(candidate.expected_failures_source);
+          ' > /tmp/expected-path.txt
+          MODULE_NAME="$(cat /tmp/module-name.txt)"
+          EXPECTED_PATH="$(cat /tmp/expected-path.txt)"
+          git -C "${GITHUB_WORKSPACE}/head" show "${HEAD_SHA}:${EXPECTED_PATH}" \
+            > /tmp/wasm-preview-artifact/expected-failures.json
+          node "${GITHUB_WORKSPACE}/control/tools/wasm/preview_version.mjs" \
+            validate-expected-failures \
+            --candidate /tmp/wasm-preview-artifact/expected-failures.json \
+            --base "${GITHUB_WORKSPACE}/control/${EXPECTED_PATH}"
+          env -u GITHUB_ENV -u GITHUB_OUTPUT -u GITHUB_PATH -u GITHUB_STEP_SUMMARY \
+              -u GITHUB_TOKEN -u GH_TOKEN \
+              -u ACTIONS_RUNTIME_TOKEN -u ACTIONS_CACHE_URL -u ACTIONS_RESULTS_URL \
+              -u ACTIONS_ID_TOKEN_REQUEST_TOKEN -u ACTIONS_ID_TOKEN_REQUEST_URL \
+              node "${GITHUB_WORKSPACE}/control/tools/wasm/run_wasm_tests.mjs" \
+                "/tmp/wasm-preview-artifact/${MODULE_NAME}" \
+                --expected-failures /tmp/wasm-preview-artifact/expected-failures.json \
+                --json /tmp/wasm-preview-artifact/census.json
+
+      - name: Attest and re-validate the bounded artifact
+        env:
+          BASE_REPOSITORY: ${{ github.event.pull_request.base.repo.full_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          node -e '
+            const fs = require("node:fs");
+            const candidate = JSON.parse(fs.readFileSync("/tmp/preview-candidate.json", "utf8"));
+            const identity = {
+              base_repository: process.env.BASE_REPOSITORY,
+              base_sha: process.env.BASE_SHA,
+              candidate: candidate.crate,
+              event_name: "pull_request_target",
+              head_repository: process.env.HEAD_REPOSITORY,
+              head_sha: process.env.HEAD_SHA,
+              pull_request_number: Number(process.env.PR_NUMBER),
+              run_attempt: Number(process.env.RUN_ATTEMPT),
+              run_id: Number(process.env.RUN_ID),
+            };
+            fs.writeFileSync("/tmp/preview-identity.json", JSON.stringify(identity));
+          '
+          node "${GITHUB_WORKSPACE}/control/tools/wasm/tier_topology.mjs" \
+            attest-preview \
+            --topology /tmp/preview-topology.json \
+            --artifact-dir /tmp/wasm-preview-artifact \
+            --identity-json "$(cat /tmp/preview-identity.json)"
+          node "${GITHUB_WORKSPACE}/control/tools/wasm/tier_topology.mjs" \
+            validate-preview \
+            --topology /tmp/preview-topology.json \
+            --artifact-dir /tmp/wasm-preview-artifact
+
+      - name: Upload exact-run untrusted artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: wasm-pr-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/wasm-preview-artifact
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 14
