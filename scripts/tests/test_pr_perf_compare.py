@@ -55,6 +55,9 @@ def _record(ratio: float, *, stage: str = "cell_capacity_batch", ts: str = "2026
     }
 
 
+_GATEABLE_TEST_STAGE = "gateable_test_fixture"
+
+
 def _write(tmp_path: Path, name: str, records: list[dict]) -> Path:
     path = tmp_path / name
     path.write_text("".join(json.dumps(r) + "\n" for r in records))
@@ -130,8 +133,11 @@ def test_missing_baseline_row_fails_the_gate():
 
 
 def test_regression_beyond_margin_fails_the_gate():
-    baselines = load_main_baselines([_record(0.10)])
-    results = compare([_record(0.10 * (1 + TIMING_MARGIN) + 0.001)], baselines)
+    baselines = load_main_baselines([_record(0.10, stage=_GATEABLE_TEST_STAGE)])
+    results = compare(
+        [_record(0.10 * (1 + TIMING_MARGIN) + 0.001, stage=_GATEABLE_TEST_STAGE)],
+        baselines,
+    )
     assert gate_failures(results)
 
 
@@ -142,8 +148,10 @@ def test_regression_within_margin_passes():
 
 
 def test_main_exits_nonzero_on_regression(tmp_path):
-    baseline = _write(tmp_path, "baseline.jsonl", [_record(0.10)])
-    pr = _write(tmp_path, "pr.jsonl", [_record(0.50)])
+    baseline = _write(
+        tmp_path, "baseline.jsonl", [_record(0.10, stage=_GATEABLE_TEST_STAGE)]
+    )
+    pr = _write(tmp_path, "pr.jsonl", [_record(0.50, stage=_GATEABLE_TEST_STAGE)])
     assert main(["--pr-metrics", str(pr), "--baseline-jsonl", str(baseline)]) == 1
 
 
@@ -187,8 +195,10 @@ def test_main_fails_closed_on_corrupt_pr_stream(tmp_path):
 
 
 def test_report_file_is_written_even_when_the_gate_fails(tmp_path):
-    baseline = _write(tmp_path, "baseline.jsonl", [_record(0.10)])
-    pr = _write(tmp_path, "pr.jsonl", [_record(0.50)])
+    baseline = _write(
+        tmp_path, "baseline.jsonl", [_record(0.10, stage=_GATEABLE_TEST_STAGE)]
+    )
+    pr = _write(tmp_path, "pr.jsonl", [_record(0.50, stage=_GATEABLE_TEST_STAGE)])
     report = tmp_path / "report.md"
     assert main([
         "--pr-metrics", str(pr),
@@ -385,8 +395,15 @@ def test_absent_registry_degrades_to_the_strict_behaviour() -> None:
 # ---------------------------------------------------------------------------
 
 
-def _regime_record(ratio: float, regime: str, *, commit: str = "deadbeef", ts: str = "2026-08-04T00:00:00") -> dict:
-    row = _record(ratio, ts=ts)
+def _regime_record(
+    ratio: float,
+    regime: str,
+    *,
+    commit: str = "deadbeef",
+    ts: str = "2026-08-04T00:00:00",
+    stage: str = "cell_capacity_batch",
+) -> dict:
+    row = _record(ratio, stage=stage, ts=ts)
     row["git_commit"] = commit
     row["measurement_regime"] = {
         "fingerprint": regime,
@@ -396,8 +413,10 @@ def _regime_record(ratio: float, regime: str, *, commit: str = "deadbeef", ts: s
 
 
 def test_legacy_rows_have_a_stable_legacy_regime_identity():
-    baseline = load_main_baselines([_record(0.10)])
-    pr = _regime_record(0.105, "legacy-v2")
+    baseline = load_main_baselines(
+        [_record(0.10, stage=_GATEABLE_TEST_STAGE)]
+    )
+    pr = _regime_record(0.105, "legacy-v2", stage=_GATEABLE_TEST_STAGE)
     results = compare([pr], baseline)
     assert results[0]["status"] == "OK"
     assert results[0]["measurement_regime"] == "legacy-v2"
@@ -419,12 +438,20 @@ def test_incompatible_regime_fails_closed_without_using_old_rows():
 
 def test_mixed_regimes_select_only_the_current_regime_window():
     records = [
-        _regime_record(0.90, "old-regime", ts="2026-08-04T00:00:01"),
-        _regime_record(0.91, "old-regime", ts="2026-08-04T00:00:02"),
-        _regime_record(0.50, "new-regime", ts="2026-08-04T00:00:03"),
+        _regime_record(
+            0.90, "old-regime", ts="2026-08-04T00:00:01", stage=_GATEABLE_TEST_STAGE
+        ),
+        _regime_record(
+            0.91, "old-regime", ts="2026-08-04T00:00:02", stage=_GATEABLE_TEST_STAGE
+        ),
+        _regime_record(
+            0.50, "new-regime", ts="2026-08-04T00:00:03", stage=_GATEABLE_TEST_STAGE
+        ),
     ]
     baselines = load_main_baselines(records)
-    result = compare([_regime_record(0.55, "new-regime")], baselines)[0]
+    result = compare(
+        [_regime_record(0.55, "new-regime", stage=_GATEABLE_TEST_STAGE)], baselines
+    )[0]
     assert result["status"] == "OK"
     assert result["deltas"]["rust_over_oracle_ratio"]["main"] == 0.5
 
