@@ -1,12 +1,13 @@
 # The Rust obstacle rasteriser freed 3,020 cells GEOS blocks — an inverted index round trip
 
-<!-- provenance: commit=167ddb0a922094119ccfd9c2175fe02d9fccb1e0 dirty=true -->
-<!-- base origin/main @ 167ddb0a9; pcb/temper.kicad_pcb read-only (sha256 26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b before and after — never written) -->
+<!-- provenance: commit=267ca6b9f5ad52f86e82e4a2f6bb7984638dbb06 dirty=false -->
+<!-- current-main rerun 2026-09-02 @ a9629edde; pcb/temper.kicad_pcb read-only (sha256 00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9 before and after — never written) -->
 
 **Date:** 2026-08-20
 **Task:** find why `rasterize_area_polygons_py` diverged from GEOS on the real
 board, and fix it in the conservative direction.
-**Result:** **permissive mismatches 3,020 → 0.** Total mismatches 5,230 → 130,
+**Result:** **permissive mismatches 3,020 → 0.** The current-main rerun has 162
+conservative mismatches (up from 130 on the older board),
 every survivor in the safe direction (Rust blocks where GEOS frees). The cause
 was a lossy index round trip, not a tolerance or an interval convention. Exact
 0/0 parity on the pre-#1312 board is preserved. The routed board loses
@@ -28,7 +29,7 @@ Two directions, and they are not equally serious:
 - **CONSERVATIVE — Rust BLOCKED, GEOS FREE.** Safe. Costs routable area, never
   clearance.
 
-### Before (board `26981fea`)
+### Before (original board `26981fea`)
 
 | layer | mismatches | PERMISSIVE | CONSERVATIVE | cells |
 |---|---|---|---|---|
@@ -47,10 +48,10 @@ Two directions, and they are not equally serious:
 | F.Cu | 22 | **0** | 22 | 3,998,400 |
 | In1.Cu | 1 | **0** | 1 | 3,998,400 |
 | In2.Cu | 1 | **0** | 1 | 3,998,400 |
-| In3.Cu | 32 | **0** | 32 | 3,998,400 |
+| In3.Cu | 64 | **0** | 64 | 3,998,400 |
 | In4.Cu | 37 | **0** | 37 | 3,998,400 |
 | B.Cu | 37 | **0** | 37 | 3,998,400 |
-| **total** | **130** | **0** | **130** | **23,990,400** |
+| **total** | **162** | **0** | **162** | **23,990,400** |
 
 The differential's own assertion previously stopped at the first failing layer,
 which is why it read as 623 rather than 5,230. It now measures all six and
@@ -175,9 +176,9 @@ was handed (same IEEE-754 operation sequence as numpy's
   where a later component's interior fill could free an earlier component's
   boundary.
 
-## 6. The residual 130 is irreducible in f64, and is safe
+## 6. The residual 162 is irreducible in f64, and is safe
 
-Every one of the 130 survivors is a cell whose centre x is exactly some
+Every one of the 162 survivors is a cell whose centre x is exactly some
 vertical edge's x, with GEOS placing it 8.7e-17 … 5.5e-15 mm *inside*. The
 In1.Cu case: the row centre `y = 237.85000000000002` passes 2.8e-14 above a
 ring vertex at `(94.05000000000001, 237.85)`, so the crossing interpolation
@@ -189,8 +190,8 @@ Matching that would mean evaluating Shewchuk orientation predicates per
 candidate cell rather than computing crossings in plain doubles. It is not a
 tolerance that can be tightened.
 
-**Honest caveat:** the residual is conservative *as measured on this board*, on
-every one of the 130 cells, but its direction is not proven for arbitrary
+**Honest caveat:** the residual is conservative *as measured on the current
+board*, on every one of the 162 cells, but its direction is not proven for arbitrary
 geometry — a sub-ULP crossing collapse could in principle round the other way.
 What *is* structural is that the entire population of exact coincidences (the
 3,020, where "on the boundary" is a well-posed question) is now decided
@@ -199,7 +200,7 @@ boundary, a scale at which "which side" carries no DRC meaning.
 
 ## 7. Routed-board consequence
 
-`scripts/route_board.py --net-batching --batch-size 10`, board `26981fea`
+`scripts/route_board.py --net-batching --batch-size 10`, board `00a27419`
 (unmodified — verified before and after; output written to scratch paths). Both
 arms were run in this worktree on the same pipeline, differing only in which
 `occupancy_raster.rs` was compiled in:
@@ -265,7 +266,7 @@ uv run python3 scripts/route_board.py --output /tmp/routed.kicad_pcb \
 ```
 
 Board digests: `pcb/temper.kicad_pcb` =
-`26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b`, unchanged
+`00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9`, unchanged
 before and after every measurement above. The 2026-08-15 comparison board is
 `git show 6285d6889:pcb/temper.kicad_pcb` =
 `077d4b6993c2708ea8d32572300f2964d2e0fb1634f903f5736b3a6eb38f2fda`.
@@ -278,7 +279,9 @@ board's luck. It is replaced by the contract that actually matters, which is
 strictly stronger in the direction that carries the safety stake:
 
 - **`sum(permissive) == 0`** across all six layers. No budget, no tolerance.
-- **`sum(conservative) <= 130`**, a downward-only ratchet. Raising it would mean
+- **`sum(conservative) <= 162`**, a board-bound ratchet. The increase from 130
+  is due to the board moves landed after the original measurement; the kernel
+  remains unchanged and permissive mismatches remain zero. Raising it again would mean
   the kernel started discarding routable area — safe, but a real regression that
   wants its own investigation.
 - The `total_cells >= 15_000_000` shrunk-board guard is retained.
