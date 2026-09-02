@@ -4169,82 +4169,25 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        (
-            "ct07_t2_qualification::tests::u6_projection_uses_design_bundle_and_kicad_rotation_policy",
-            u6_projection_uses_design_bundle_and_kicad_rotation_policy,
-        ),
-        (
-            "ct07_t2_qualification::tests::u6_projection_rejects_unsupported_copper_shape",
-            u6_projection_rejects_unsupported_copper_shape,
-        ),
-        (
-            "ct07_t2_qualification::tests::u6_rotation_probe_is_asymmetric_and_round_trips",
-            u6_rotation_probe_is_asymmetric_and_round_trips,
-        ),
-        (
-            "ct07_t2_qualification::tests::u6_transform_policy_digest_changes_on_any_policy_change",
-            u6_transform_policy_digest_changes_on_any_policy_change,
-        ),
-        (
-            "ct07_t2_qualification::tests::threshold_crossing_interpolates_and_exact_equality_counts",
-            threshold_crossing_interpolates_and_exact_equality_counts,
-        ),
-        (
-            "ct07_t2_qualification::tests::ringing_before_persistence_is_skipped_and_later_crossing_is_used_once",
-            ringing_before_persistence_is_skipped_and_later_crossing_is_used_once,
-        ),
-        (
-            "ct07_t2_qualification::tests::invalid_capture_conditions_fail_closed",
-            invalid_capture_conditions_fail_closed,
-        ),
-        (
-            "ct07_t2_qualification::tests::independent_axes_use_fail_before_pending_and_require_distinct_verifier",
-            independent_axes_use_fail_before_pending_and_require_distinct_verifier,
-        ),
-        (
-            "ct07_t2_qualification::tests::digest_and_canonical_serialization_are_bound",
-            digest_and_canonical_serialization_are_bound,
-        ),
-        (
-            "ct07_t2_qualification::tests::pre_u6_pending_identity_is_explicit_and_cannot_qualify",
-            pre_u6_pending_identity_is_explicit_and_cannot_qualify,
-        ),
-        (
-            "ct07_t2_qualification::tests::canonical_trace_and_owner_floor_are_fail_closed",
-            canonical_trace_and_owner_floor_are_fail_closed,
-        ),
-        (
-            "ct07_t2_qualification::tests::conservative_numeric_rules_use_adverse_bounds_and_integer_round_up",
-            conservative_numeric_rules_use_adverse_bounds_and_integer_round_up,
-        ),
-        (
-            "ct07_t2_qualification::tests::committed_threshold_fixture_schema_replays_through_rust",
-            committed_threshold_fixture_schema_replays_through_rust,
-        ),
-        (
-            "ct07_t2_qualification::tests::preliminary_stage_preserves_internal_result_and_classifies_limitations",
-            preliminary_stage_preserves_internal_result_and_classifies_limitations,
-        ),
-        (
-            "ct07_t2_qualification::tests::lifecycle_is_closed_and_cannot_publish_production_or_joint_states",
-            lifecycle_is_closed_and_cannot_publish_production_or_joint_states,
-        ),
-        (
-            "ct07_t2_qualification::tests::u7a_missing_identity_source_evidence_stops_before_fabrication",
-            u7a_missing_identity_source_evidence_stops_before_fabrication,
-        ),
-        (
-            "ct07_t2_qualification::tests::u7a_exact_identity_mismatch_rejects",
-            u7a_exact_identity_mismatch_rejects,
-        ),
-        (
-            "ct07_t2_qualification::tests::u7b_committed_closure_stops_before_release",
-            u7b_committed_closure_stops_before_release,
-        ),
-        (
-            "ct07_t2_qualification::tests::u7b_owner_and_verifier_roles_cannot_be_collapsed",
-            u7b_owner_and_verifier_roles_cannot_be_collapsed,
-        ),
+        ("ct07_t2_qualification::tests::u6_projection_uses_design_bundle_and_kicad_rotation_policy", u6_projection_uses_design_bundle_and_kicad_rotation_policy),
+        ("ct07_t2_qualification::tests::u6_projection_rejects_unsupported_copper_shape", u6_projection_rejects_unsupported_copper_shape),
+        ("ct07_t2_qualification::tests::u6_rotation_probe_is_asymmetric_and_round_trips", u6_rotation_probe_is_asymmetric_and_round_trips),
+        ("ct07_t2_qualification::tests::u6_transform_policy_digest_changes_on_any_policy_change", u6_transform_policy_digest_changes_on_any_policy_change),
+        ("ct07_t2_qualification::tests::threshold_crossing_interpolates_and_exact_equality_counts", threshold_crossing_interpolates_and_exact_equality_counts),
+        ("ct07_t2_qualification::tests::ringing_before_persistence_is_skipped_and_later_crossing_is_used_once", ringing_before_persistence_is_skipped_and_later_crossing_is_used_once),
+        ("ct07_t2_qualification::tests::invalid_capture_conditions_fail_closed", invalid_capture_conditions_fail_closed),
+        ("ct07_t2_qualification::tests::independent_axes_use_fail_before_pending_and_require_distinct_verifier", independent_axes_use_fail_before_pending_and_require_distinct_verifier),
+        ("ct07_t2_qualification::tests::digest_and_canonical_serialization_are_bound", digest_and_canonical_serialization_are_bound),
+        ("ct07_t2_qualification::tests::pre_u6_pending_identity_is_explicit_and_cannot_qualify", pre_u6_pending_identity_is_explicit_and_cannot_qualify),
+        ("ct07_t2_qualification::tests::canonical_trace_and_owner_floor_are_fail_closed", canonical_trace_and_owner_floor_are_fail_closed),
+        ("ct07_t2_qualification::tests::conservative_numeric_rules_use_adverse_bounds_and_integer_round_up", conservative_numeric_rules_use_adverse_bounds_and_integer_round_up),
+        ("ct07_t2_qualification::tests::committed_threshold_fixture_schema_replays_through_rust", committed_threshold_fixture_schema_replays_through_rust),
+        ("ct07_t2_qualification::tests::preliminary_stage_preserves_internal_result_and_classifies_limitations", preliminary_stage_preserves_internal_result_and_classifies_limitations),
+        ("ct07_t2_qualification::tests::lifecycle_is_closed_and_cannot_publish_production_or_joint_states", lifecycle_is_closed_and_cannot_publish_production_or_joint_states),
+        ("ct07_t2_qualification::tests::u7a_missing_identity_source_evidence_stops_before_fabrication", u7a_missing_identity_source_evidence_stops_before_fabrication),
+        ("ct07_t2_qualification::tests::u7a_exact_identity_mismatch_rejects", u7a_exact_identity_mismatch_rejects),
+        ("ct07_t2_qualification::tests::u7b_committed_closure_stops_before_release", u7b_committed_closure_stops_before_release),
+        ("ct07_t2_qualification::tests::u7b_owner_and_verifier_roles_cannot_be_collapsed", u7b_owner_and_verifier_roles_cannot_be_collapsed),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
