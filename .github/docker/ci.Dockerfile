@@ -38,15 +38,21 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # behaviour, and it is strictly better than the counts moving silently. To bump:
 # raise the version here, then re-measure the baselines against the new binary
 # and land both together, per AGENTS.md's same-PR re-measurement rule.
-ARG KICAD_VERSION=10.0.5~ubuntu24.04.1
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends software-properties-common \
-    && add-apt-repository -y ppa:kicad/kicad-10.0-releases \
-    && apt-get update && apt-get install -y --no-install-recommends \
-        "kicad=${KICAD_VERSION}" "kicad-footprints=${KICAD_VERSION}" \
+ARG KICAD_VERSION=10.0.5
+ARG KICAD_APPIMAGE_SHA256=af65bb1fd5ee2730df860bc2a8c49f507a64c83c15c2ce13927eec74d38eba8f
+RUN mkdir -p /opt/kicad \
+    && curl -fsSL --retry 3 \
+        "https://github.com/KiCad/kicad-source-mirror/releases/download/${KICAD_VERSION}/kicad-${KICAD_VERSION}-x86_64.AppImage.tar" \
+        -o /tmp/kicad.AppImage.tar \
+    && echo "${KICAD_APPIMAGE_SHA256}  /tmp/kicad.AppImage.tar" | sha256sum -c - \
+    && tar -xf /tmp/kicad.AppImage.tar -C /opt/kicad \
+    && chmod +x "/opt/kicad/kicad-${KICAD_VERSION}-x86_64.AppImage" \
+    && cd /opt/kicad \
+    && "./kicad-${KICAD_VERSION}-x86_64.AppImage" --appimage-extract \
+    && mv squashfs-root root \
+    && ln -s /opt/kicad/root/usr/bin/kicad-cli /usr/local/bin/kicad-cli \
     && kicad-cli version \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -f /tmp/kicad.AppImage.tar "/opt/kicad/kicad-${KICAD_VERSION}-x86_64.AppImage"
 
 # Rust toolchain (pinned, minimal profile). Toolchain bumps are deliberate so
 # new Clippy lints cannot break an unchanged image definition.
