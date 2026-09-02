@@ -1,5 +1,7 @@
 # `compile_fail` doctests proved less than they claimed — trybuild enforcement
 
+provenance: commit=91d72c0a4e8a5d97ced8880eb5df6f5c2a804aad dirty=false
+
 **Date:** 2026-08-18
 **Branch:** `fix/trybuild-compile-fail-enforcement`
 **Board:** `pcb/temper.kicad_pcb` sha256 `26981fea2dbc425f...` — **unmodified** (verified before and after).
