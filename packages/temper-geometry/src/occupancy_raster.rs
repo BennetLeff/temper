@@ -964,11 +964,123 @@ fn subtract_intervals(outer: &[(f64, f64)], holes: &[(f64, f64)]) -> Vec<(f64, f
     out
 }
 
-/// Rasterize a MultiPolygon's strict-interior mask into a pre-filled -1
-/// (blocked) int8 grid: cells whose centers are strictly inside any polygon
-/// component are set to 0 (free).  Boundary cells stay blocked (GEOS
-/// `contains` parity).
-fn rasterize_polygon(
+/// The exact world coordinate of a cell center along one axis.
+///
+/// This is the AUTHORITATIVE definition of where a cell center is: it is the
+/// identical sequence of IEEE-754 double operations the GEOS reference
+/// performs when it builds its probe points (numpy
+/// `origin + (idx + 0.5) * cell_size`), so a comparison against this value is
+/// bit-exact parity with the coordinate `shapely.contains()` was handed.
+///
+/// **Never recover an index by inverting this map.** `(w - origin)/cell_size
+/// - 0.5` is *not* the exact inverse: `cell_size` (0.1) is not representable
+/// in binary, and `w - origin` loses low bits, so the round trip drifts.
+/// Measured on `pcb/temper.kicad_pcb`'s eroded F.Cu geometry the drift
+/// reaches `1.1e-13` index units — thousands of ULPs at index ~880, and
+/// enough for a `floor`/`ceil` to jump a whole cell. That is precisely the
+/// 2026-08-20 parity loss: the inverted `ceil` on an interval's upper bound
+/// resolved one cell too far and freed cells whose centers lie EXACTLY on a
+/// vertical boundary edge, which GEOS `contains` excludes. Use the inversion
+/// only as a starting guess and settle it with `correct_index`.
+#[inline]
+fn cell_center(origin: f64, cell_size: f64, idx: i64) -> f64 {
+    origin + (idx as f64 + 0.5) * cell_size
+}
+
+/// How far `correct_index` may walk from the inverted starting guess.
+///
+/// The round-trip drift is bounded well under one cell (measured max
+/// `1.1e-13` index units, see `cell_center`), so the true index is always
+/// within one step; two is slack.
+const INDEX_CORRECTION_STEPS: u32 = 2;
+
+/// Settle an index recovered by inverting the forward map onto the exact
+/// answer, by testing real `cell_center` values.
+///
+/// Walks from `start` in direction `step` to the first index satisfying `ok`,
+/// having first backed up while the index one step *behind* also satisfies it
+/// (so the result is the FIRST such index, not merely some such index).
+/// `ok` must be monotone along `step`, which it is for all four uses here:
+/// `cell_center` is strictly increasing in `idx` for a positive `cell_size`.
+/// If the bounded window does not settle, `fallback` is returned; every call
+/// site picks a `fallback` that errs toward BLOCKING.
+fn correct_index(start: i64, step: i64, fallback: i64, ok: impl Fn(i64) -> bool) -> i64 {
+    let mut i = start;
+    for _ in 0..INDEX_CORRECTION_STEPS {
+        match i.checked_sub(step) {
+            Some(prev) if ok(prev) => i = prev,
+            _ => break,
+        }
+    }
+    for _ in 0..=INDEX_CORRECTION_STEPS {
+        if ok(i) {
+            return i;
+        }
+        match i.checked_add(step) {
+            Some(next) => i = next,
+            None => return fallback,
+        }
+    }
+    fallback
+}
+
+/// Inverted-map starting guess for an index, or `None` when non-finite.
+#[inline]
+fn index_guess(w: f64, origin: f64, cell_size: f64) -> Option<f64> {
+    let g = ((w - origin) / cell_size) - 0.5;
+    g.is_finite().then_some(g)
+}
+
+/// Smallest index whose exact center is strictly greater than `bound`.
+/// Fallback frees nothing (`i64::MAX`) — the conservative direction.
+fn first_center_after(bound: f64, origin: f64, cell_size: f64) -> i64 {
+    let Some(guess) = index_guess(bound, origin, cell_size) else {
+        return i64::MAX;
+    };
+    correct_index(guess.floor() as i64, 1, i64::MAX, |i| {
+        cell_center(origin, cell_size, i) > bound
+    })
+}
+
+/// Largest index whose exact center is strictly less than `bound`.
+/// Fallback frees nothing (`i64::MIN`) — the conservative direction.
+fn last_center_before(bound: f64, origin: f64, cell_size: f64) -> i64 {
+    let Some(guess) = index_guess(bound, origin, cell_size) else {
+        return i64::MIN;
+    };
+    correct_index(guess.ceil() as i64, -1, i64::MIN, |i| {
+        cell_center(origin, cell_size, i) < bound
+    })
+}
+
+/// Smallest index whose exact center is greater than or equal to `bound`.
+/// Bounds a BLOCKING range, so the fallback keeps the current (inverted)
+/// answer rather than narrowing it.
+fn first_center_at_or_after(bound: f64, origin: f64, cell_size: f64) -> i64 {
+    let Some(guess) = index_guess(bound, origin, cell_size) else {
+        return i64::MAX;
+    };
+    let raw = guess.ceil() as i64;
+    correct_index(raw, 1, raw, |i| cell_center(origin, cell_size, i) >= bound)
+}
+
+/// Largest index whose exact center is less than or equal to `bound`.
+/// Bounds a BLOCKING range, so the fallback keeps the current (inverted)
+/// answer rather than narrowing it.
+fn last_center_at_or_before(bound: f64, origin: f64, cell_size: f64) -> i64 {
+    let Some(guess) = index_guess(bound, origin, cell_size) else {
+        return i64::MIN;
+    };
+    let raw = guess.floor() as i64;
+    correct_index(raw, -1, raw, |i| cell_center(origin, cell_size, i) <= bound)
+}
+
+/// Free the cells whose centers are strictly inside one polygon component.
+///
+/// Boundary cells stay blocked (GEOS `contains` parity) — except for centers
+/// lying exactly on a HORIZONTAL edge, which contributes no crossing and so
+/// cannot be seen here; `block_polygon_horizontal_edges` re-blocks those.
+fn fill_polygon_interior(
     cells: &[Cell<i8>],
     cols: usize,
     rows: usize,
@@ -983,14 +1095,15 @@ fn rasterize_polygon(
     // Row range whose center-y falls within the polygon bbox.  Cells whose
     // centers are on the boundary are excluded by the interval endpoints
     // (and the horizontal-edge pass below); scanning a row whose centers all
-    // lie outside the bbox is pointless.
-    let j0 = ((((poly.min_y - origin_y) / cell_size) - 0.5).ceil() as i64).max(0) as usize;
-    let j1 = ((((poly.max_y - origin_y) / cell_size) - 0.5).floor() as i64).min(rows as i64 - 1);
-    if j0 as i64 > j1 {
+    // lie outside the bbox is pointless.  Inclusive at both ends: a row whose
+    // center sits exactly on the bbox edge can still carry real crossings.
+    let j0 = first_center_at_or_after(poly.min_y, origin_y, cell_size).max(0);
+    let j1 = last_center_at_or_before(poly.max_y, origin_y, cell_size).min(rows as i64 - 1);
+    if j0 > j1 {
         return;
     }
-    for j in j0..=j1 as usize {
-        let row_y = origin_y + (j as f64 + 0.5) * cell_size;
+    for j in j0 as usize..=j1 as usize {
+        let row_y = cell_center(origin_y, cell_size, j as i64);
         let xs = crossings(&poly.outer, row_y);
         let mut intervals = pair_intervals(&xs);
         for hole in &poly.holes {
@@ -1001,9 +1114,10 @@ fn rasterize_polygon(
             }
         }
         for &(lo, hi) in &intervals {
-            // Cells with center strictly in (lo, hi).
-            let i0 = ((((lo - origin_x) / cell_size) - 0.5).floor() as i64 + 1).max(0);
-            let i1 = ((((hi - origin_x) / cell_size) - 0.5).ceil() as i64 - 1).min(cols as i64 - 1);
+            // Cells with center strictly in (lo, hi), decided against the
+            // exact centers rather than an inverted index (see `cell_center`).
+            let i0 = first_center_after(lo, origin_x, cell_size).max(0);
+            let i1 = last_center_before(hi, origin_x, cell_size).min(cols as i64 - 1);
             if i0 <= i1 {
                 for i in i0 as usize..=i1 as usize {
                     cells[j * cols + i].set(0);
@@ -1011,22 +1125,42 @@ fn rasterize_polygon(
             }
         }
     }
-    // Horizontal-edge boundary pass: a cell whose center lies exactly on a
-    // horizontal edge is ON the boundary, hence blocked (GEOS contains
-    // parity) — the interval endpoints above cannot see this case because a
-    // horizontal edge contributes no crossing.
+}
+
+/// Re-block the cells whose centers lie exactly on one polygon component's
+/// horizontal edges.  Such a center is ON the boundary, hence not contained
+/// (GEOS `contains` parity), but the interval endpoints cannot see it because
+/// a horizontal edge contributes no crossing.
+fn block_polygon_horizontal_edges(
+    cells: &[Cell<i8>],
+    cols: usize,
+    rows: usize,
+    origin_x: f64,
+    origin_y: f64,
+    cell_size: f64,
+    poly: &RasterPoly,
+) {
     for &(hy, hx0, hx1) in &poly.horiz {
-        let jf = ((hy - origin_y) / cell_size) - 0.5;
-        let jr = jf.round();
-        if jr == jf {
-            let j = jr as i64;
-            if (0..rows as i64).contains(&j) {
-                let i_lo = ((((hx0 - origin_x) / cell_size) - 0.5).ceil() as i64).max(0);
-                let i_hi = ((((hx1 - origin_x) / cell_size) - 0.5).floor() as i64).min(cols as i64 - 1);
-                if i_lo <= i_hi {
-                    for i in i_lo as usize..=i_hi as usize {
-                        cells[j as usize * cols + i].set(-1);
-                    }
+        let Some(guess) = index_guess(hy, origin_y, cell_size) else {
+            continue;
+        };
+        // "Does a row of cell centers land exactly on this edge?" is an
+        // EXACT-equality question about `cell_center`, not about the inverted
+        // value: the pre-fix test (`jf.round() == jf`) asked whether the
+        // lossy inversion was integral, which real board coordinates
+        // essentially never satisfy — so this pass was dead on the real board
+        // and alive only for the synthetic tests' round origins/cell sizes.
+        let centre = guess.round() as i64;
+        for j in centre.saturating_sub(1)..=centre.saturating_add(1) {
+            if !(0..rows as i64).contains(&j) || cell_center(origin_y, cell_size, j) != hy {
+                continue;
+            }
+            // Inclusive in x: a center on either endpoint is on the boundary.
+            let i_lo = first_center_at_or_after(hx0, origin_x, cell_size).max(0);
+            let i_hi = last_center_at_or_before(hx1, origin_x, cell_size).min(cols as i64 - 1);
+            if i_lo <= i_hi {
+                for i in i_lo as usize..=i_hi as usize {
+                    cells[j as usize * cols + i].set(-1);
                 }
             }
         }
@@ -1034,7 +1168,15 @@ fn rasterize_polygon(
 }
 
 /// Rasterize a set of polygon components (outer rings + per-polygon holes)
-/// into a pre-filled -1 grid (see `rasterize_polygon`).
+/// into a pre-filled -1 grid.
+///
+/// Two ordered phases, not one pass per polygon: every component's interior
+/// is filled first, then every component's horizontal boundary edges are
+/// re-blocked.  For a valid MultiPolygon (disjoint interiors) the two are
+/// equivalent, but interleaving them makes the result depend on component
+/// order if the input is ever self-overlapping, and the order that loses is
+/// the one where a later interior fill frees an earlier component's boundary.
+/// Phasing removes that: boundary always wins.
 #[allow(clippy::too_many_arguments)]
 fn rasterize_area_polygons(
     cells: &[Cell<i8>],
@@ -1049,7 +1191,10 @@ fn rasterize_area_polygons(
         return Err(PyValueError::new_err("cell_size must be positive and finite"));
     }
     for poly in polys {
-        rasterize_polygon(cells, cols, rows, origin_x, origin_y, cell_size, poly);
+        fill_polygon_interior(cells, cols, rows, origin_x, origin_y, cell_size, poly);
+    }
+    for poly in polys {
+        block_polygon_horizontal_edges(cells, cols, rows, origin_x, origin_y, cell_size, poly);
     }
     Ok(())
 }
@@ -1507,5 +1652,147 @@ mod tests {
         assert_eq!(g[1 * 10 + 5], -1);
         // (1.0, 1.0) -> col 1, row 1: inside the left arm -> free
         assert_eq!(g[1 * 10 + 1], 0);
+    }
+
+    // -----------------------------------------------------------------------
+    // Exact index recovery (2026-08-20).  The parity loss on the real board
+    // was an inverted index round trip: `(w - origin)/cell - 0.5` is not the
+    // exact inverse of `origin + (i + 0.5)*cell`, and the drift is large
+    // enough for floor/ceil to resolve a whole cell too far.
+    // -----------------------------------------------------------------------
+
+    /// The In1.Cu geometry that lost parity: origin 6.0, cell 0.1, a vertical
+    /// edge whose x is exactly column 880's center.
+    const DRIFT_ORIGIN: f64 = 6.0;
+    const DRIFT_CELL: f64 = 0.1;
+    const DRIFT_COL: i64 = 880;
+
+    #[test]
+    fn test_index_roundtrip_really_is_lossy() {
+        // Guards the premise of the tests below: if the inversion ever
+        // becomes exact on this platform they stop exercising the bug.
+        let edge = cell_center(DRIFT_ORIGIN, DRIFT_CELL, DRIFT_COL);
+        let inverted = ((edge - DRIFT_ORIGIN) / DRIFT_CELL) - 0.5;
+        assert_ne!(inverted, DRIFT_COL as f64);
+        assert!((inverted - DRIFT_COL as f64).abs() > 1e-14);
+        // ...and that the old arithmetic really did resolve one cell too far.
+        assert_eq!(inverted.ceil() as i64 - 1, DRIFT_COL);
+    }
+
+    #[test]
+    fn test_last_center_before_excludes_a_center_exactly_on_the_bound() {
+        let edge = cell_center(DRIFT_ORIGIN, DRIFT_CELL, DRIFT_COL);
+        // Strictly-less-than: the column whose center IS the bound is excluded
+        // (GEOS `contains` excludes the boundary), despite the lossy guess.
+        assert_eq!(
+            last_center_before(edge, DRIFT_ORIGIN, DRIFT_CELL),
+            DRIFT_COL - 1
+        );
+    }
+
+    #[test]
+    fn test_first_center_after_excludes_a_center_exactly_on_the_bound() {
+        let edge = cell_center(DRIFT_ORIGIN, DRIFT_CELL, DRIFT_COL);
+        assert_eq!(
+            first_center_after(edge, DRIFT_ORIGIN, DRIFT_CELL),
+            DRIFT_COL + 1
+        );
+    }
+
+    #[test]
+    fn test_center_at_or_bounds_include_a_center_exactly_on_the_bound() {
+        let edge = cell_center(DRIFT_ORIGIN, DRIFT_CELL, DRIFT_COL);
+        // The horizontal-edge blocking pass is inclusive: a center sitting on
+        // an endpoint is still on the boundary.
+        assert_eq!(
+            first_center_at_or_after(edge, DRIFT_ORIGIN, DRIFT_CELL),
+            DRIFT_COL
+        );
+        assert_eq!(
+            last_center_at_or_before(edge, DRIFT_ORIGIN, DRIFT_CELL),
+            DRIFT_COL
+        );
+    }
+
+    #[test]
+    fn test_index_helpers_agree_with_brute_force_over_a_lossy_sweep() {
+        // Exhaustive cross-check against the definition, on offsets chosen so
+        // the inversion drifts: bounds landing exactly on centers, one ULP
+        // above, and one ULP below.
+        for col in [0i64, 1, 17, 880, 4001] {
+            let exact = cell_center(DRIFT_ORIGIN, DRIFT_CELL, col);
+            for bound in [exact, next_up(exact), next_down(exact)] {
+                let brute_after = (col - 3..=col + 3)
+                    .find(|&i| cell_center(DRIFT_ORIGIN, DRIFT_CELL, i) > bound)
+                    .unwrap();
+                let brute_before = (col - 3..=col + 3)
+                    .rfind(|&i| cell_center(DRIFT_ORIGIN, DRIFT_CELL, i) < bound)
+                    .unwrap();
+                assert_eq!(
+                    first_center_after(bound, DRIFT_ORIGIN, DRIFT_CELL),
+                    brute_after,
+                    "first_center_after({bound:?})"
+                );
+                assert_eq!(
+                    last_center_before(bound, DRIFT_ORIGIN, DRIFT_CELL),
+                    brute_before,
+                    "last_center_before({bound:?})"
+                );
+            }
+        }
+    }
+
+    fn next_up(x: f64) -> f64 {
+        f64::from_bits(x.to_bits() + 1)
+    }
+
+    fn next_down(x: f64) -> f64 {
+        f64::from_bits(x.to_bits() - 1)
+    }
+
+    #[test]
+    fn test_rasterize_blocks_the_cell_whose_center_is_on_a_vertical_edge() {
+        // End-to-end at the drifting offset: a box whose right edge is
+        // exactly column 880's center.  Before the fix that column was freed.
+        let edge = cell_center(DRIFT_ORIGIN, DRIFT_CELL, DRIFT_COL);
+        let cols = (DRIFT_COL + 4) as usize;
+        let cells = cells_from(&vec![-1i8; cols * 40]);
+        let polys = vec![poly_box(0.0, 0.0, edge, 10.0)];
+        rasterize_area_polygons(&cells, cols, 40, DRIFT_ORIGIN, 0.0, DRIFT_CELL, &polys).unwrap();
+        let g = cells_to(&cells);
+        let row = 20usize;
+        assert_eq!(
+            g[row * cols + DRIFT_COL as usize],
+            -1,
+            "center exactly on the vertical edge must stay blocked"
+        );
+        assert_eq!(
+            g[row * cols + DRIFT_COL as usize - 1],
+            0,
+            "the cell strictly inside must stay free"
+        );
+    }
+
+    #[test]
+    fn test_horizontal_edge_pass_fires_at_a_drifting_offset() {
+        // The pre-fix pass tested `((hy - origin)/cell - 0.5).round() == that
+        // value`, i.e. integrality of the LOSSY inversion -- which real board
+        // offsets essentially never satisfy, so the pass was dead there and
+        // alive only for round origins like -0.5/1.0.  Here the top edge sits
+        // exactly on a row of centers at a drifting offset.
+        // Grid origin (6.0, 6.0), cell 0.1 -> centers at 6.05, 6.15, ...
+        let top = cell_center(DRIFT_ORIGIN, DRIFT_CELL, 13); // 7.35
+        let inverted = ((top - DRIFT_ORIGIN) / DRIFT_CELL) - 0.5;
+        assert_ne!(inverted, inverted.round(), "premise: inversion is lossy");
+
+        let cells = cells_from(&[-1i8; 40 * 40]);
+        let polys = vec![poly_box(6.5, 6.0, 7.5, top)];
+        rasterize_area_polygons(&cells, 40, 40, DRIFT_ORIGIN, DRIFT_ORIGIN, DRIFT_CELL, &polys)
+            .unwrap();
+        let g = cells_to(&cells);
+        // (7.05, 7.35) -> col 10, row 13: exactly on the horizontal top edge.
+        assert_eq!(g[13 * 40 + 10], -1, "center on a horizontal edge stays blocked");
+        // One row down is strictly interior.
+        assert_eq!(g[12 * 40 + 10], 0);
     }
 }

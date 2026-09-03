@@ -474,8 +474,24 @@ def build_occupancy_grid(
     # center exactly on the boundary is NOT contained (stays blocked, the
     # conservative direction — the boundary is already C-space-inflated, so
     # freeing it would let A* route at exactly clearance distance).
-    # Parity against the GEOS reference on the real board's six layers is
-    # proven by the differential in test_occupancy_grid_rust_differential.py.
+    #
+    # 2026-08-20 (docs/evidence/2026-08-20-rust-obstacle-rasteriser-geos-parity-loss.md):
+    # that convention was silently violated on the real board.  The kernel
+    # recovered a cell's grid index by INVERTING the center formula
+    # (`(w - origin)/cell_size - 0.5`), which is not its exact inverse; on the
+    # post-#1312 copper the round trip drifted up to 1.1e-13 index units and a
+    # `ceil` resolved a whole cell too far, freeing 3,020 cells whose centers
+    # sit exactly ON the C-space boundary.  The kernel now decides every bound
+    # against the exactly-reconstructed center.  What the differential in
+    # test_occupancy_grid_rust_differential.py proves is therefore:
+    #   * ZERO cells where Rust frees and GEOS blocks — the safety direction,
+    #     asserted with no budget, on all six layers;
+    #   * a small conservative residual (130 cells / 23.99M, Rust blocking
+    #     where GEOS frees) that is irreducible in f64 — GEOS resolves
+    #     point-vs-edge with double-double robust predicates, this scanline
+    #     computes crossings in plain doubles.  It costs routable area, never
+    #     clearance, and is ratcheted downward-only by that test.
+    # Exact 0/0 parity still holds on the pre-#1312 board (sha256 077d4b69).
     grid = np.full((height_cells, width_cells), -1, dtype=np.int8)
     if not check_area.is_empty:
         outer_rings, hole_rings = _area_rings(check_area)

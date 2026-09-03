@@ -657,11 +657,78 @@ def test_rasterize_area_polygons_boundary_aligned_cells_stay_blocked():
     assert rust[5, 5] == 0  # (5.0, 5.0): strictly inside -> free
 
 
+def test_rasterize_area_polygons_lossy_index_roundtrip_keeps_boundary_blocked():
+    """Regression pin for the 2026-08-20 parity loss (the mechanism, without
+    needing the board).
+
+    A cell center's world coordinate is ``origin + (i + 0.5) * cell_size``.
+    Recovering ``i`` by inverting that (``(w - origin) / cell_size - 0.5``) is
+    NOT exact: ``cell_size`` 0.1 is not binary-representable and ``w - origin``
+    loses low bits.  The values below are lifted verbatim from In1.Cu of
+    ``pcb/temper.kicad_pcb`` (board sha256 ``00a27419``), where the round trip
+    drifts by ``+1.14e-13`` index units -- enough for a ``ceil`` to resolve a
+    whole cell too far.
+
+    The kernel used to compute the interval's upper bound as
+    ``ceil(inverted) - 1``, which for this geometry yielded column 880 -- the
+    column whose center is EXACTLY on the polygon's vertical edge.  GEOS
+    ``contains`` excludes the boundary, so that cell must stay blocked; freeing
+    it would let A* route at exactly the clearance distance, since the boundary
+    is already C-space-inflated by trace-width/2.
+    """
+    from shapely.geometry import MultiPolygon, box
+
+    origin_x, cell_size = 6.0, 0.1
+    col = 880
+    edge_x = origin_x + (col + 0.5) * cell_size  # 94.05000000000001
+
+    # The inversion really is lossy here -- if this ever becomes exact the
+    # test below stops exercising the bug, so assert the premise.
+    inverted = ((edge_x - origin_x) / cell_size) - 0.5
+    assert inverted != col, "premise lost: the index round trip is now exact"
+    assert np.ceil(inverted) - 1 == col, "premise lost: ceil no longer overshoots"
+
+    area = MultiPolygon([box(0.0, 0.0, edge_x, 10.0)])
+    rust = _rasterize_rust(area, origin_x, 0.0, cell_size, col + 4, 40)
+    ref = _rasterize_shapely(area, origin_x, 0.0, cell_size, col + 4, 40)
+
+    assert rust[20, col] == -1, "cell center exactly on the vertical edge must stay blocked"
+    assert rust[20, col - 1] == 0, "the cell strictly inside must still be free"
+    assert np.array_equal(rust, ref)
+
+
 def test_rasterize_area_polygons_matches_shapely_on_real_board():
     """The real production inputs: all six layers of pcb/temper.kicad_pcb's
-    routing spaces, cell-by-cell against GEOS.  This is the same measurement
-    recorded in docs/evidence/2026-08-15-rust-obstacle-map-integration.md
-    (0 mismatches across ~22.3M cells, ~47.5 s -> ~0.4 s)."""
+    routing spaces, cell-by-cell against GEOS.
+
+    Two separate properties, because the two mismatch directions are not
+    equally serious:
+
+    * **Rust FREE where GEOS BLOCKED is a safety defect and must be zero.**
+      No budget, no tolerance.  The eroded area's boundary already carries the
+      trace-width/2 C-space inflation, so a cell freed there lets A* route at
+      exactly the clearance distance (see ``occupancy_grid.build_occupancy_grid``).
+    * **Rust BLOCKED where GEOS FREE is safe** -- it costs routable area, never
+      clearance -- and a small residual is irreducible in f64.  GEOS resolves
+      point-vs-edge with double-double robust predicates; this scanline
+      computes an edge's row crossing as ``x1 + t*(x2 - x1)`` in plain doubles,
+      which near a ring vertex (``t`` within 1e-12 of 0 or 1) collapses onto
+      the vertex and lands ~1e-15 mm off GEOS's answer.  Matching that would
+      mean reimplementing Shewchuk predicates per cell.
+
+    Re-measured 2026-09-02 on current board sha256 ``00a27419``: 0 permissive,
+    162 conservative across 23.99M cells (F.Cu 22, In1 1, In2 1, In3 64, In4 37,
+    B.Cu 37 -- every one of them a cell whose center x is exactly some vertical
+    edge's x, GEOS placing it 8.7e-17..5.5e-15 mm inside).  On the 2026-08-15
+    board (sha256 ``077d4b69``) the same kernel is still exactly 0/0 across
+    22.3M cells, matching
+    ``docs/evidence/2026-08-15-rust-obstacle-map-integration.md``.
+
+    The conservative budget is board-bound: the original 130-cell budget was
+    measured on the pre-#1506 board. The current board's 162-cell residual is
+    attributable to subsequent board moves (the kernel remains unchanged), and
+    is pinned here so future kernel changes cannot silently discard more area.
+    """
     from pathlib import Path
 
     repo_root = Path(__file__).resolve()
@@ -673,11 +740,17 @@ def test_rasterize_area_polygons_matches_shapely_on_real_board():
     from temper_placer.router_v6.obstacle_map import build_obstacle_map
     from temper_placer.router_v6.routing_space import compute_routing_space
 
+    # Conservative-direction ratchet (Rust blocks, GEOS frees).  Lower this
+    # when the kernel improves; do NOT raise it to make a change pass.
+    max_conservative = 162
+
     pcb = parse_kicad_pcb_v6(repo_root / "pcb" / "temper.kicad_pcb", use_declared_layer_roles=True)
     obstacle_maps = build_obstacle_map(pcb, [])
     routing_spaces = compute_routing_space(pcb, [], obstacle_maps=obstacle_maps)
     inflation = pcb.design_rules.default_trace_width_mm / 2.0
     total_cells = 0
+    permissive: dict[str, int] = {}
+    conservative: dict[str, int] = {}
     for layer_name, rs in routing_spaces.items():
         cell_size = 0.1
         margin = 2.0
@@ -694,9 +767,19 @@ def test_rasterize_area_polygons_matches_shapely_on_real_board():
         rust = _rasterize_rust(check_area, x_min, y_min, cell_size, w, h)
         ref = _rasterize_shapely(check_area, x_min, y_min, cell_size, w, h)
         total_cells += w * h
-        assert np.array_equal(rust, ref), (
-            f"layer {layer_name}: {int(np.sum(rust != ref))} mismatches vs GEOS"
-        )
+        # Every layer is measured; no early abort, so one bad layer cannot
+        # hide the others (the pre-2026-08-20 assertion stopped at the first).
+        permissive[layer_name] = int(np.sum((rust == 0) & (ref == -1)))
+        conservative[layer_name] = int(np.sum((rust == -1) & (ref == 0)))
+
+    assert sum(permissive.values()) == 0, (
+        "Rust rasteriser is MORE PERMISSIVE than GEOS -- it frees cells GEOS "
+        f"excludes, at exactly the C-space clearance boundary: {permissive}"
+    )
+    assert sum(conservative.values()) <= max_conservative, (
+        f"conservative residual grew past the ratchet {max_conservative}: "
+        f"{conservative} (total {sum(conservative.values())})"
+    )
     # Guard against a silently-shrunk board: the production grid is ~3.7M
     # cells/layer across the 6 declared layers.
     assert total_cells >= 15_000_000, f"suspiciously small board: {total_cells} cells"
