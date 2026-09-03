@@ -205,9 +205,6 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("drc-inflate", "smooth_relu_array"):
         "fixed-commit excursion 36.8% -> margin 74%, above the 33.8% max "
         "gateable margin",
-    ("drc-geometry", "segment_segment"):
-        "fixed-commit excursion 29.6% -> margin 60%, above the 33.8% max "
-        "gateable margin",
     ("pcl-parse-utils", "parse_distance_batch"):
         "fixed-commit excursion 28.8% -> margin 58%, above the 33.8% max "
         "gateable margin",
