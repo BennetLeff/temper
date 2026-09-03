@@ -286,11 +286,9 @@ def test_single_row_baseline_reports_a_runtime_no_op_as_a_regression():
     assert delta["delta_pct"] == pytest.approx(26.6, abs=0.1)
     # Unsmoothed, it trips the 20% floor -- the original false positive.
     assert _status_for("rust_over_oracle_ratio", delta["delta_pct"]) == "REGRESSION"
-    # The refreshed fixed-commit captures put this arm above the gateable
-    # noise band, so it is reported as advisory rather than gated.
-    assert margin_for(("bottleneck-geometry", "hard_blocked_batch")) == TIMING_MARGIN
-    assert ("bottleneck-geometry", "hard_blocked_batch") in UNGATEABLE_BENCHMARKS
-    assert delta["status"] == "ADVISORY"
+    # hard_blocked_batch's refreshed fixed-commit margin absorbs this reading.
+    assert margin_for(("bottleneck-geometry", "hard_blocked_batch")) >= 0.30
+    assert delta["status"] == "OK"
     assert gate_failures(results) == []
 
 
@@ -307,7 +305,7 @@ def test_five_row_baseline_absorbs_the_same_reading():
     )
     delta = results[0]["deltas"]["rust_over_oracle_ratio"]
     assert delta["delta_pct"] == pytest.approx(15.7, abs=0.1)
-    assert delta["status"] == "ADVISORY"
+    assert delta["status"] == "OK"
     assert gate_failures(results) == []
     # And the fix is the baseline, not a loosened margin.
     assert TIMING_MARGIN == 0.20

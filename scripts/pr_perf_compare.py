@@ -154,14 +154,18 @@ MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 # Derived by the procedure above from the committed baseline. Only entries that
 # differ from TIMING_MARGIN are listed; everything else uses the 20% default.
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
+    # worst fixed-commit excursion 16.1% -> 2 x 16.1 = 32.2 -> 33%
+    ("bottleneck-geometry", "hard_blocked_batch"): 0.33,
+    # worst fixed-commit excursion 15.2% -> 2 x 15.2 = 30.4 -> 31%
+    ("dsn-exporter", "export_pcb"): 0.31,
     # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.7 -> 22%
     ("loaders", "loaders"): 0.22,
+    # worst fixed-commit excursion 10.5% -> 2 x 10.5 = 21.0 -> 21%
+    ("net-ordering", "compute_hpwl"): 0.21,
     # worst fixed-commit excursion 15.9% -> 2 x 15.9 = 31.8 -> 32%
     ("physics-copper_coverage", "copper_masks"): 0.32,
     # worst fixed-commit excursion 14.7% -> 2 x 14.7 = 29.4 -> 30%
     ("physics-safety", "filter_delay"): 0.30,
-    # worst fixed-commit excursion 11.4% -> 2 x 11.4 = 22.8 -> 23%
-    ("physics-tj_cross_check", "device_cross_check"): 0.23,
 }
 
 # Benchmarks whose measured fixed-commit noise leaves no usable band between
@@ -192,9 +196,6 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("bottleneck-geometry", "cell_capacity_batch"):
         "fixed-commit excursion 80.1% -> margin 161%, above the 33.8% max "
         "gateable margin",
-    ("bottleneck-geometry", "hard_blocked_batch"):
-        "fixed-commit excursion 18.1% -> margin 37%, above the 33.8% max "
-        "gateable margin",
     ("drc-geometry", "point_rect"):
         "fixed-commit excursion 26.0% -> margin 53%, above the 33.8% max "
         "gateable margin",
@@ -203,9 +204,6 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
         "gateable margin",
     ("drc-inflate", "smooth_relu_array"):
         "fixed-commit excursion 36.8% -> margin 74%, above the 33.8% max "
-        "gateable margin",
-    ("net-ordering", "order_nets"):
-        "fixed-commit excursion 16.6% -> margin 34%, above the 33.8% max "
         "gateable margin",
     ("pcl-parse-utils", "parse_distance_batch"):
         "fixed-commit excursion 28.8% -> margin 58%, above the 33.8% max "
