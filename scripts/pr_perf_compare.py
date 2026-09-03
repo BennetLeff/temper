@@ -88,13 +88,13 @@ IMPROVEMENT_THRESHOLD = 0.10
 #
 #     physics-emi/predict                    worst excursion 42.8%
 #     parse-engine/parse_kicad_pcb           worst excursion 32.5%
-#     board-netlist/contracts_construction   worst excursion 30.9%
+#     board-netlist/contracts_construction   worst excursion 44.8%
 #     drc-geometry/point_rect                worst excursion 26.0%
-#     physics-heat_removal/build_h_field     worst excursion 24.4%
+#     physics-heat_removal/build_h_field     worst excursion 75.7%
 #     physics-safety/filter_delay            worst excursion 14.7%
-#     bottleneck-geometry/hard_blocked_batch worst excursion 11.5%
+#     bottleneck-geometry/hard_blocked_batch worst excursion 16.9%
 #     loaders/loaders                        worst excursion 10.9%
-#     ... 9 further arms                     worst excursion <= 8.4%
+#     ... 10 further arms                    worst excursion <= 28.8%
 #
 # Seven of those exceed the 20% margin outright, which is why PRs that could
 # not touch the benchmark named were failing on it (#722, #760, and the #778
@@ -154,16 +154,16 @@ MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 # Derived by the procedure above from the committed baseline. Only entries that
 # differ from TIMING_MARGIN are listed; everything else uses the 20% default.
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
-    # worst fixed-commit excursion 16.1% -> 2 x 16.1 = 32.2 -> 33%
-    ("bottleneck-geometry", "hard_blocked_batch"): 0.33,
-    # worst fixed-commit excursion 13.0% -> 2 x 13.0 = 26.0 -> 27%
-    ("dsn-exporter", "export_pcb"): 0.27,
-    # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.7 -> 22%
+    # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.8 -> 22%
     ("loaders", "loaders"): 0.22,
     # worst fixed-commit excursion 15.9% -> 2 x 15.9 = 31.8 -> 32%
     ("physics-copper_coverage", "copper_masks"): 0.32,
     # worst fixed-commit excursion 14.7% -> 2 x 14.7 = 29.4 -> 30%
     ("physics-safety", "filter_delay"): 0.30,
+    # worst fixed-commit excursion 13.4% -> 2 x 13.4 = 26.8 -> 27%
+    ("net-ordering", "order_nets"): 0.27,
+    # worst fixed-commit excursion 11.1% -> 2 x 11.1 = 22.2 -> 23%
+    ("physics-tj_cross_check", "device_cross_check"): 0.23,
 }
 
 # Benchmarks whose measured fixed-commit noise leaves no usable band between
@@ -182,17 +182,14 @@ PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
 # bring them back under MAX_GATEABLE_MARGIN -- at which point the test below
 # fails and forces them back into the gated set.
 UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
-    ("physics-emi", "predict"):
-        "fixed-commit excursion 42.8% -> margin 86%, above the 33.8% max "
-        "gateable margin",
-    ("parse-engine", "parse_kicad_pcb"):
-        "fixed-commit excursion 32.5% -> margin 66%, above the 33.8% max "
-        "gateable margin",
     ("board-netlist", "contracts_construction"):
         "fixed-commit excursion 44.8% -> margin 90%, above the 33.8% max "
         "gateable margin",
     ("bottleneck-geometry", "cell_capacity_batch"):
         "fixed-commit excursion 80.1% -> margin 161%, above the 33.8% max "
+        "gateable margin",
+    ("bottleneck-geometry", "hard_blocked_batch"):
+        "fixed-commit excursion 16.9% -> margin 34%, above the 33.8% max "
         "gateable margin",
     ("drc-geometry", "point_rect"):
         "fixed-commit excursion 26.0% -> margin 53%, above the 33.8% max "
@@ -208,6 +205,15 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
         "gateable margin",
     ("physics-heat_removal", "build_h_field"):
         "fixed-commit excursion 75.7% -> margin 152%, above the 33.8% max "
+        "gateable margin",
+    ("physics-emi", "predict"):
+        "fixed-commit excursion 42.8% -> margin 86%, above the 33.8% max "
+        "gateable margin",
+    ("parse-engine", "parse_kicad_pcb"):
+        "fixed-commit excursion 32.5% -> margin 66%, above the 33.8% max "
+        "gateable margin",
+    ("net-ordering", "compute_hpwl"):
+        "fixed-commit excursion 16.6% -> margin 34%, above the 33.8% max "
         "gateable margin",
     ("topological", "constraint_propagation"):
         "fixed-commit excursion 17.9% -> margin 36%, above the 33.8% max "
