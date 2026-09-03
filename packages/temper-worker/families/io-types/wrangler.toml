@@ -3,6 +3,7 @@
 name = "temper-wasm-io-types"
 main = "index.js"
 compatibility_date = "2026-08-01"
+preview_urls = true
 
 # NOTE the ordering: `account_id` is a TOP-LEVEL key and must appear BEFORE any
 # table header, or TOML puts it inside that table. The seven original

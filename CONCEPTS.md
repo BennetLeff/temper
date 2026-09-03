@@ -41,6 +41,21 @@ A board-content-bound, measured upper limit for each design-rule-check
 category that acts as a regression ratchet, not as evidence that the design
 debt below the limit is acceptable.
 
+### DRC evidence envelope
+
+A repeated-measurement record that preserves both an external checker's raw
+provider identity and the engineering-semantic multiset used to decide whether
+the observed physical conditions are stable. Campaign checkpoints retain the
+typed engineering identity and a cryptographic commitment to the full
+transient payload rather than duplicating every raw sample into every manifest
+row.
+
+### Mutation-scoped uncapping
+
+A design-rule-check measurement that resolves a saturated whole-board
+category only for the complete, mechanically proved set of findings a closed
+candidate mutation can change; it never claims the global total is known.
+
 ### Bounded candidate study
 
 A predeclared staged family of scratch placement variants, with routing only
@@ -57,6 +72,21 @@ Its reported denominator includes only candidates produced by a validated
 family and authoritative measurement instruments; a calibration run that uses
 the wrong coordinate convention or offers no physically admissible option is
 retained as diagnostic evidence but excluded from the design verdict.
+
+### Candidate-invariant blocker
+
+An admission failure whose cause is shared by an entire declared candidate
+family, such as a missing geometry input or a baseline-model inconsistency,
+rather than being changed by a candidate's placement or route dimensions.
+Detecting one before exhaustive materialization turns repeated rejections into
+an early feasibility result.
+
+### Pre-route feasibility witness
+
+A deterministic candidate that has complete, trusted evidence and no veto at
+every gate required before routing. It authorizes spending route budget on the
+declared family; it does not imply that routing will succeed or that other
+candidates are admissible.
 
 ### Instrument receipt
 
@@ -80,3 +110,11 @@ either promotion or a conclusive negative certificate.
 
 It preserves the measured family result while forbidding uncertainty from
 authorizing wider scope or being restated as physical impossibility.
+
+### Exhausted campaign
+
+A bounded candidate study terminal state in which every declared candidate
+has a conclusive outcome, no candidate passed, and no eligible candidate
+remains untested. It is a negative result about the declared family under the
+measured admission contract, not automatically a router verdict or a proof
+that no broader design solution exists.

@@ -7,14 +7,14 @@ with ``--all-track-errors``, after regenerating ``pcb/temper.kicad_dru`` from
 per violation category:
 
 * the observed **count** distribution, and
-* whether the **set** of violations was identical run to run.
+* whether the Rust-owned engineering-semantic **multiset** agrees, and
+* the raw provider-item fringe KiCad changed between samples.
 
-The set check matters independently of the count: two runs can agree on "199
-shorting_items" while disagreeing about which 199, and a ceiling that only watches
-counts calls that stable. Violation identity is compared with net *names* normalised
-away, because KiCad assigns an arbitrary member net to each shorted copper cluster and
-that choice is itself unstable -- a cosmetic difference that would otherwise drown out
-the real ones. ``--show-net-churn`` reports it separately.
+The semantic check matters independently of the count: two runs can agree on
+"199 shorting_items" while disagreeing about which 199.  Identity, multiset
+digests, intersections, unions, and fringes are all computed by
+``temper_drc_rs``; this script only transports raw KiCad records and renders
+the resulting evidence.
 
 Exit codes: 0 = every category reproducible, 1 = at least one category is not,
 2 = the measurement could not be taken (no kicad-cli, no board).
@@ -28,14 +28,13 @@ from __future__ import annotations
 
 import argparse
 import collections
-import hashlib
+import json
 import os
 import re
 import sys
 from pathlib import Path
 
 _NET_IN_BRACKETS = re.compile(r"\[[^\]]*\]")
-_NETS_IN_MESSAGE = re.compile(r"\(nets [^)]*\)")
 
 INJECT_NONE = "none"
 INJECT_UNPIN = "unpin"
@@ -49,40 +48,34 @@ def _repo_root() -> Path:
     return path
 
 
-def violation_identity(rule: str, message: str, items: list[str], *, blind_nets: bool) -> str:
-    """A stable identity for one violation, independent of report order.
+def _evidence_envelope(samples: list[list[dict]]) -> dict:
+    """Thin transport shim to the Rust-owned identity/envelope kernel."""
+    import temper_drc_rs  # type: ignore[import-untyped]
 
-    ``items`` are kicad-cli's raw item descriptions. They are sorted, because the
-    order of the two sides of a pairwise violation is not guaranteed; when nets are
-    blinded they must be blinded *before* sorting, or a renamed net silently reorders
-    the pair and looks like a different violation.
-    """
-    if blind_nets:
-        message = _NETS_IN_MESSAGE.sub("(nets ..)", message)
-        items = [_NET_IN_BRACKETS.sub("[]", item) for item in items]
-    return "|".join([rule, message, *sorted(items)])
+    return json.loads(
+        temper_drc_rs.drc_evidence_envelope_json(json.dumps(samples, separators=(",", ":")))
+    )
 
 
-def set_digest(identities: list[str]) -> str:
-    digest = hashlib.sha256()
-    for identity in sorted(identities):
-        digest.update(identity.encode("utf-8"))
-        digest.update(b"\0")
-    return digest.hexdigest()[:12]
+def _group_raw_findings(raw_findings: list[dict]) -> dict[str, list[dict]]:
+    """Group lossless raw records; severity is part of the category namespace."""
+    grouped: dict[str, list[dict]] = collections.defaultdict(list)
+    for finding in raw_findings:
+        category = str(finding.get("type", "unknown"))
+        if finding.get("severity") == "warning":
+            category = "W:" + category
+        transported = dict(finding)
+        transported["type"] = category
+        grouped[category].append(transported)
+    return grouped
 
 
 def _sample(pcb_path: Path, *, inject: str, sample_index: int) -> dict[str, list[dict]]:
     """One DRC measurement, grouped by category."""
-    from temper_placer.validation._drc_api import run_drc
+    from temper_placer.validation._drc_api import run_drc_measurement
 
-    result = run_drc(pcb_path)
-    by_category: dict[str, list[dict]] = collections.defaultdict(list)
-    for violation in result.errors:
-        by_category[violation.rule].append(
-            {"message": violation.message, "items": list(violation.items)}
-        )
-    for warning in result.warnings:
-        by_category["W:" + warning.rule].append({"message": warning.message, "items": []})
+    measurement = run_drc_measurement(pcb_path, strict=True)
+    by_category = _group_raw_findings(measurement.raw_findings)
 
     if inject == INJECT_SYNTHETIC and sample_index % 2 == 1:
         # Deliberate, obviously-fake variance: drop one violation from a category
@@ -103,21 +96,24 @@ def measure(pcb_path: Path, samples: int, *, inject: str = INJECT_NONE) -> list[
     return runs
 
 
-def analyse(runs: list[dict], *, blind_nets: bool = True) -> list[dict]:
+def analyse(runs: list[dict]) -> list[dict]:
     from temper_placer.validation._drc_api import drc_cap_for
 
     categories = sorted({category for run in runs for category in run})
     report = []
     for category in categories:
         counts = collections.Counter(len(run.get(category, [])) for run in runs)
+        samples = []
+        for run in runs:
+            sample = []
+            for finding in run.get(category, []):
+                transported = dict(finding)
+                transported["type"] = category
+                sample.append(transported)
+            samples.append(sample)
+        envelope = _evidence_envelope(samples)
         digests = collections.Counter(
-            set_digest(
-                [
-                    violation_identity(category, v["message"], v["items"], blind_nets=blind_nets)
-                    for v in run.get(category, [])
-                ]
-            )
-            for run in runs
+            sample["observation_digest"][:12] for sample in envelope["samples"]
         )
         # Cap-saturation annotation: a measured count at exactly its
         # category's KiCad reporting cap (ERROR_LIMIT 199 /
@@ -135,8 +131,16 @@ def analyse(runs: list[dict], *, blind_nets: bool = True) -> list[dict]:
                 "category": category,
                 "counts": dict(sorted(counts.items())),
                 "count_stable": len(counts) == 1,
-                "set_stable": len(digests) == 1,
+                "set_stable": envelope["observation"]["stable"],
                 "digests": dict(digests),
+                "intersection_size": envelope["observation"]["intersection_size"],
+                "union_size": envelope["observation"]["union_size"],
+                "unstable_fringe": envelope["observation"]["unstable_fringe"],
+                "raw_set_stable": envelope["raw"]["stable"],
+                "raw_digests": [sample["raw_digest"] for sample in envelope["samples"]],
+                "raw_intersection_size": envelope["raw"]["intersection_size"],
+                "raw_union_size": envelope["raw"]["union_size"],
+                "raw_unstable_fringe": envelope["raw"]["unstable_fringe"],
                 "at_cap": at_cap,
             }
         )
@@ -151,15 +155,16 @@ def net_churn(runs: list[dict]) -> dict[str, list[str]]:
         for violations in run.values():
             for violation in violations:
                 for item in violation["items"]:
-                    match = _NET_IN_BRACKETS.search(item)
+                    description = item.get("description", "")
+                    match = _NET_IN_BRACKETS.search(description)
                     if match:
-                        seen[_NET_IN_BRACKETS.sub("[]", item)].add(match.group(0)[1:-1])
+                        seen[_NET_IN_BRACKETS.sub("[]", description)].add(match.group(0)[1:-1])
     return {item: sorted(nets) for item, nets in sorted(seen.items()) if len(nets) > 1}
 
 
 def render(report: list[dict], runs: list[dict]) -> bool:
     print(f"\n{len(runs)} samples\n")
-    print(f"{'category':26s} {'counts':30s} {'set':>10s}")
+    print(f"{'category':26s} {'counts':30s} {'semantic':>10s} {'raw':>10s}")
     unstable = []
     for row in report:
         verdict = "stable" if row["set_stable"] else "UNSTABLE"
@@ -168,7 +173,8 @@ def render(report: list[dict], runs: list[dict]) -> bool:
         counts_cell = str(row["counts"])
         if row["at_cap"]:
             counts_cell += "  [at cap — floor, not a count]"
-        print(f"{row['category']:26s} {counts_cell:30s} {verdict:>10s}")
+        raw_verdict = "stable" if row["raw_set_stable"] else "CHURN"
+        print(f"{row['category']:26s} {counts_cell:30s} {verdict:>10s} {raw_verdict:>10s}")
     if unstable:
         print(f"\nNOT REPRODUCIBLE: {', '.join(unstable)}")
     else:

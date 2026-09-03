@@ -54,14 +54,11 @@ caller-supplied directory outside the repo.
 
 from __future__ import annotations
 
-import contextlib
 import fnmatch
 import json
 import os
 import re
 import shutil
-import subprocess
-import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -70,10 +67,6 @@ REPO_ROOT = Path(
 )
 PCB_DIR = REPO_ROOT / "pcb"
 
-# Cap constants, from pcbnew/drc/drc_engine.cpp (10.0 branch) -- see
-# docs/evidence/2026-08-12-dru-rule-precedence.md sec 4.
-ERROR_LIMIT = 199
-EXTENDED_ERROR_LIMIT = 499
 # --all-track-errors is documented (and observed here) to overshoot its
 # nominal limit by a variable amount (0 up to ~14 measured in this session,
 # 0-6 in the precedence doc) because the limit is checked between whole
@@ -82,18 +75,15 @@ EXTENDED_ERROR_LIMIT = 499
 SAFE_MARGIN = 20  # cap-detection threshold. Determinism (see
 # `_verified_count`) is the primary signal; this margin is just a first filter.
 
-# kicad-cli's DRC JSON caps `clearance` and `unconnected_items` at
-# EXTENDED_ERROR_LIMIT; every other category (including track_width,
-# shorting_items, silk_overlap, creepage) at ERROR_LIMIT. Getting this
-# wrong per-category silently under-splits: an isolated band sitting
-# exactly at 199 (track_width's real cap) would sail past a 479 threshold
-# unflagged. See drc_engine.cpp's DRC_ENGINE::RunTests loop quoted in
-# docs/evidence/2026-08-12-dru-rule-precedence.md sec 4.
-_EXTENDED_CATEGORIES = {"clearance", "unconnected_items"}
-
 
 def cap_for(ctype: str) -> int:
-    return EXTENDED_ERROR_LIMIT if ctype in _EXTENDED_CATEGORIES else ERROR_LIMIT
+    """Delegate reporting-cap authority to ``temper-drc-rs``."""
+    import temper_drc_rs  # type: ignore[import-untyped]
+
+    cap = temper_drc_rs.drc_cap_for(ctype)
+    if cap is None:
+        raise ValueError(f"{ctype!r} is not a capped KiCad category")
+    return int(cap)
 
 
 def default_safe_ceiling(ctype: str) -> int:
@@ -116,6 +106,7 @@ def make_scratch_board(dst: Path, pcb_text: str | None = None) -> Path:
     else:
         (dst / "temper.kicad_pcb").write_text(pcb_text)
     shutil.copy(PCB_DIR / "temper.kicad_pro", dst / "temper.kicad_pro")
+    shutil.copy(PCB_DIR / "temper.kicad_dru", dst / "temper.kicad_dru")
     shutil.copy(PCB_DIR / "fp-lib-table", dst / "fp-lib-table")
     libs_dst = dst / "libs"
     if not libs_dst.exists():
@@ -123,52 +114,14 @@ def make_scratch_board(dst: Path, pcb_text: str | None = None) -> Path:
     return dst
 
 
-def _single_thread_env() -> dict:
-    env = os.environ.copy()
-    env["KICAD_CONFIG_HOME"] = str(Path(tempfile.gettempdir()) / "uncapped_drc_kcfg")
-    Path(env["KICAD_CONFIG_HOME"]).mkdir(parents=True, exist_ok=True)
-    return env
-
-
 def run_kicad_drc(board_dir: Path, dru_text: str | None) -> dict:
-    """Write `dru_text` (or delete any existing .kicad_dru if None) into
-    board_dir, run kicad-cli exactly as
-    temper_placer.validation._drc_api.run_drc does, return the parsed JSON
-    dict (raw, with a 'violations' list)."""
+    """Run the canonical strict raw-report seam in a staged scratch project."""
     dru_path = board_dir / "temper.kicad_dru"
-    if dru_text is None:
-        dru_path.unlink(missing_ok=True)
-    else:
+    if dru_text is not None:
         dru_path.write_text(dru_text)
-    out_path = board_dir / "_drc_out.json"
-    env = _single_thread_env()
-    result = subprocess.run(
-        [
-            "kicad-cli",
-            "pcb",
-            "drc",
-            "--all-track-errors",
-            "--format",
-            "json",
-            "--output",
-            str(out_path),
-            str(board_dir / "temper.kicad_pcb"),
-        ],
-        capture_output=True,
-        text=True,
-        timeout=120,
-        env=env,
-    )
-    if result.returncode != 0 or not out_path.exists():
-        raise RuntimeError(
-            f"kicad-cli DRC failed (exit {result.returncode}) in {board_dir}\n"
-            f"stdout: {result.stdout}\nstderr: {result.stderr}"
-        )
-    with open(out_path) as f:
-        data = json.load(f)
-    with contextlib.suppress(OSError):
-        out_path.unlink()
-    return data
+    from temper_placer.validation._drc_api import run_drc_measurement
+
+    return run_drc_measurement(board_dir / "temper.kicad_pcb", strict=True).raw_report
 
 
 # Every violation-shaped top-level array kicad-cli emits, in the repo's
@@ -353,7 +306,9 @@ def netname_disjunction(side: str, names: list[str]) -> str:
     return "(" + " || ".join(f"{side}.NetName == '{n}'" for n in names) + ")"
 
 
-def _verified_count(board_dir: Path, dru_text: str, ctype: str, safe_ceiling: int) -> tuple[int, bool]:
+def _verified_count(
+    board_dir: Path, dru_text: str, ctype: str, safe_ceiling: int
+) -> tuple[int, bool]:
     """Run the isolation DRU; if the result is anywhere near a plausible
     saturation zone, rerun once more. Returns (count, nondeterministic).
     A count that repeats exactly is treated as exact even if the safe
@@ -411,7 +366,11 @@ def _measure_pool(
     if (n < safe_ceiling and not nondeterministic) or len(pool) == 1:
         note = ""
         if n >= safe_ceiling or nondeterministic:
-            det = "non-deterministic across reruns" if nondeterministic else f"n={n} >= safe ceiling {safe_ceiling}"
+            det = (
+                "non-deterministic across reruns"
+                if nondeterministic
+                else f"n={n} >= safe ceiling {safe_ceiling}"
+            )
             note = (
                 f"SATURATION SUSPECTED ({det}) but net {pool[0]!r} is a single "
                 "real net -- cannot split further. Reporting as a LOWER BOUND, "
@@ -529,7 +488,9 @@ def measure_category_exhaustive(
     for r in ranked:
         value = r.constraints[ctype]
         negation_suffix = (
-            "" if not higher_conditions else " && " + " && ".join(f"!({c})" for c in higher_conditions)
+            ""
+            if not higher_conditions
+            else " && " + " && ".join(f"!({c})" for c in higher_conditions)
         )
         result = measure_rule_band(board_dir, ctype, r, value, negation_suffix, netmap)
         bands.append(result)
@@ -718,13 +679,15 @@ def _footprint_span(pcb_text: str, ref: str) -> tuple[int, int]:
         if m and m.group(1) == ref:
             matches.append((fp_s, fp_e))
     if len(matches) != 1:
-        raise ValueError(f"expected exactly one footprint with Reference {ref!r}, found {len(matches)}")
+        raise ValueError(
+            f"expected exactly one footprint with Reference {ref!r}, found {len(matches)}"
+        )
     return matches[0]
 
 
 def _silk_item_spans_in(pcb_text: str, fp_start: int, fp_end: int) -> list[tuple[int, int]]:
     """Spans of every direct-child (fp_line|fp_circle|fp_arc|fp_poly) graphic
-    item within one footprint block, in document order -- the primitives
+    item within one footprint block, in document order -- the rendered primitives
     kicad-cli's silk_overlap check treats as individual items (verified:
     deleting a subset of them via this same span-and-delete mechanism
     board_text_filtered_by_refs already uses for whole footprints changes
@@ -736,7 +699,15 @@ def _silk_item_spans_in(pcb_text: str, fp_start: int, fp_end: int) -> list[tuple
     the partition only needs to be exhaustive+disjoint over the FULL item
     list, not silk-only, for the sum to be correct."""
     spans = []
-    for kind in ("fp_line", "fp_circle", "fp_arc", "fp_poly"):
+    for kind in (
+        "fp_text",
+        "fp_text_box",
+        "fp_line",
+        "fp_rect",
+        "fp_circle",
+        "fp_arc",
+        "fp_poly",
+    ):
         for m in re.finditer(rf"(?m)^    \({kind} ", pcb_text[fp_start:fp_end]):
             s = fp_start + m.start() + 4
             e = _find_balanced(pcb_text, s)
@@ -752,7 +723,7 @@ def board_text_filtered_by_refs_and_items(
 ) -> str:
     """Like board_text_filtered_by_refs (every footprint not in `keep_refs`
     deleted entirely, every track/via/zone dropped), but for any ref that is
-    also a key in `item_subset`: additionally deletes every direct-child
+        also a key in `item_subset`: additionally deletes every rendered direct-child
     graphic item (fp_line/fp_circle/fp_arc/fp_poly, 0-based document order
     per _silk_item_spans_in) whose index is not in that ref's kept set.
     Every other part of a bisected footprint (pads, properties, non-graphic
@@ -827,7 +798,11 @@ def _measure_pair_cell(
     if not saturated or (len(a_group) <= 1 and len(b_group) <= 1):
         note = ""
         if saturated:
-            det = "non-deterministic across reruns" if nondet else f"n={n} >= safe ceiling {safe_ceiling}"
+            det = (
+                "non-deterministic across reruns"
+                if nondet
+                else f"n={n} >= safe ceiling {safe_ceiling}"
+            )
             note = (
                 f"SATURATION SUSPECTED ({det}) but both sides are down to a single "
                 "item each -- cannot split further. Reporting as a LOWER BOUND, "
@@ -845,7 +820,9 @@ def _measure_pair_cell(
     leaves = []
     total = 0
     for ag, bg in halves:
-        leaf = _measure_pair_cell(board_dir, pcb_text, ref_a, ref_b, ag, bg, safe_ceiling, _depth + 1)
+        leaf = _measure_pair_cell(
+            board_dir, pcb_text, ref_a, ref_b, ag, bg, safe_ceiling, _depth + 1
+        )
         leaves.append(leaf)
         total += leaf.count
     return PairCellResult(
@@ -918,6 +895,391 @@ def measure_saturating_footprint_pair(
     }
 
 
+# ---------------------------------------------------------------------------
+# Net-41 admission instrument: exact mutation-cone silk evidence.
+# ---------------------------------------------------------------------------
+
+
+def _rust_silk_scope_receipt(payload: dict) -> dict:
+    """Thin transport shim to the Rust-owned mutation census and pair ledger."""
+    import temper_drc_rs  # type: ignore[import-untyped]
+
+    return json.loads(
+        temper_drc_rs.drc_silk_scope_receipt_json(json.dumps(payload, separators=(",", ":")))
+    )
+
+
+def _rust_silk_cell_check(*, pairs: list[list[str]], safe_ceiling: int, cell: dict) -> dict:
+    """Ask Rust whether three raw cell samples are semantically repeatable."""
+    import temper_drc_rs  # type: ignore[import-untyped]
+
+    return json.loads(
+        temper_drc_rs.drc_silk_cell_check_json(
+            json.dumps(
+                {"pairs": pairs, "safe_ceiling": safe_ceiling, "cell": cell},
+                separators=(",", ":"),
+            )
+        )
+    )
+
+
+def _sha256_file(path: Path) -> str:
+    import hashlib
+
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _sha256_tree(path: Path) -> str:
+    import hashlib
+
+    digest = hashlib.sha256()
+    for child in sorted(item for item in path.rglob("*") if item.is_file()):
+        digest.update(child.relative_to(path).as_posix().encode())
+        digest.update(b"\0")
+        digest.update(child.read_bytes())
+        digest.update(b"\xff")
+    return digest.hexdigest()
+
+
+def silk_instrument_context(board: Path) -> dict:
+    """Content identity for the exact strict KiCad instrument around *board*."""
+    from temper_placer.validation._drc_api import get_kicad_cli_version
+
+    version = get_kicad_cli_version()
+    if not version:
+        raise RuntimeError("kicad-cli version is unavailable")
+    project = board.with_suffix(".kicad_pro")
+    dru = board.with_suffix(".kicad_dru")
+    table = board.parent / "fp-lib-table"
+    libraries = board.parent / "libs"
+    return {
+        "schema": "temper.kicad-drc-instrument/v1",
+        "kicad_cli_version": version,
+        "runner": "temper_placer.validation._drc_api.run_drc_measurement/v1",
+        "runner_flags": ["drc", "--format", "json", "--all-track-errors", "single-thread"],
+        "project_sha256": _sha256_file(project),
+        "dru_sha256": _sha256_file(dru),
+        "fp_lib_table_sha256": _sha256_file(table),
+        "libraries_sha256": _sha256_tree(libraries),
+    }
+
+
+def _stage_strict_project(source_board: Path, destination: Path, pcb_text: str) -> Path:
+    """Stage one complete project around a byte-filtered scratch subject."""
+    destination.mkdir(parents=True, exist_ok=True)
+    board = destination / source_board.name
+    board.write_text(pcb_text, encoding="utf-8")
+    for suffix in (".kicad_pro", ".kicad_dru"):
+        shutil.copy(source_board.with_suffix(suffix), board.with_suffix(suffix))
+    shutil.copy(source_board.parent / "fp-lib-table", destination / "fp-lib-table")
+    shutil.copytree(source_board.parent / "libs", destination / "libs", dirs_exist_ok=True)
+    return board
+
+
+def _silk_findings(raw_report: dict | list[dict]) -> list[dict]:
+    findings = raw_report if isinstance(raw_report, list) else _all_violations(raw_report)
+    return [
+        finding for finding in findings if finding.get("type") == "silk_overlap"
+    ]
+
+
+def _seeded_pair_groups(*, bootstrap: dict, partition_seed: dict | None) -> list[list[list[str]]]:
+    """Return a prior receipt's exhaustive pair partition, or no seed."""
+    if not partition_seed or not partition_seed.get("complete"):
+        return []
+    binding_keys = (
+        "schema",
+        "source_sha256",
+        "declared_refs",
+        "measurement_scope_refs",
+        "instrument_context_sha256",
+    )
+    if any(partition_seed.get(key) != bootstrap.get(key) for key in binding_keys):
+        return []
+    groups = [leaf.get("pairs", []) for leaf in partition_seed.get("leaves", [])]
+    covered = [tuple(pair) for group in groups for pair in group]
+    all_refs = sorted(set(bootstrap["measurement_scope_refs"]))
+    # Rust remains the final ledger authority; this check only avoids seeding
+    # from an obviously empty or duplicated transport shape.
+    if not groups or len(covered) != len(set(covered)) or not all_refs:
+        return []
+    return groups
+
+
+def measure_silk_mutation_cone(
+    *,
+    source_board: Path,
+    subject_board: Path,
+    declared_refs: list[str],
+    scratch_dir: Path,
+    use_declared_scope: bool = False,
+    partition_seed: dict | None = None,
+    instrument_context: dict | None = None,
+    measurement_fn=None,
+) -> dict:
+    """Measure every candidate-changeable ``silk_overlap`` pair exactly once.
+
+    Each root cell keeps one affected footprint plus a deterministic peer
+    bucket. A saturated or disagreeing cell bisects only its peer axis, so
+    its assigned unordered pairs remain exhaustive and disjoint. The raw
+    cell count — including irrelevant peer-to-peer findings — decides whether
+    the report is safely below KiCad's cap; only findings whose Rust-parsed
+    pair belongs to the cell are retained as candidate evidence.
+    """
+    from temper_placer.validation._drc_api import run_drc_measurement
+
+    source_board = Path(source_board)
+    subject_board = Path(subject_board)
+    source_text = source_board.read_text(encoding="utf-8")
+    subject_text = subject_board.read_text(encoding="utf-8")
+    context = instrument_context or silk_instrument_context(source_board)
+    bootstrap_payload = {
+        "source_board": source_text,
+        "subject_board": subject_text,
+        "declared_refs": list(declared_refs),
+        "use_declared_scope": use_declared_scope,
+        "raw_global_capped": True,
+        "instrument_context": context,
+        "leaves": [],
+    }
+    bootstrap = _rust_silk_scope_receipt(bootstrap_payload)
+    cache_path = scratch_dir / "completed-receipt.json"
+    if cache_path.is_file():
+        try:
+            cached = json.loads(cache_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            cached = {}
+        binding_keys = (
+            "schema",
+            "source_sha256",
+            "silk_projection_sha256",
+            "instrument_context_sha256",
+            "declared_refs",
+            "actual_mutated_refs",
+            "rigid_only_mutated_refs",
+            "measurement_scope_refs",
+        )
+        if cached.get("complete") and all(
+            cached.get(key) == bootstrap.get(key) for key in binding_keys
+        ):
+            rebound_payload = dict(bootstrap_payload)
+            rebound_payload["leaves"] = [
+                {
+                    "pairs": leaf["pairs"],
+                    "cells": leaf["cells"],
+                }
+                for leaf in cached["leaves"]
+            ]
+            rebound_payload["execution"] = {
+                "kicad_invocation_count": 0,
+                "reused_projection_receipt_sha256": sha256_text(
+                    json.dumps(cached, sort_keys=True, separators=(",", ":"))
+                ),
+            }
+            rebound = _rust_silk_scope_receipt(rebound_payload)
+            if rebound["complete"]:
+                return rebound
+    scope = list(bootstrap["measurement_scope_refs"])
+    all_refs = all_footprint_refs(subject_text)
+    static_refs = sorted(set(all_refs) - set(scope))
+    safe_ceiling = int(bootstrap["safe_ceiling"])
+    measure = measurement_fn or (lambda board: run_drc_measurement(board, strict=True).raw_findings)
+    measurement_board = _stage_strict_project(
+        subject_board,
+        scratch_dir / "measurement-project",
+        subject_text,
+    )
+    leaves: list[dict] = []
+    cell_counter = 0
+    used_partition_seed = False
+
+    def measure_cell(
+        pairs: list[list[str]],
+        keep_refs: set[str],
+        *,
+        item_region: dict | None = None,
+        first_indices: list[int] | None = None,
+        second_indices: list[int] | None = None,
+    ) -> tuple[dict, str]:
+        nonlocal cell_counter
+        cell_counter += 1
+        if item_region is None:
+            filtered = board_text_filtered_by_refs(subject_text, keep_refs)
+        else:
+            pair = item_region["pair"]
+            filtered = board_text_filtered_by_refs_and_items(
+                subject_text,
+                set(pair),
+                {pair[0]: set(first_indices or []), pair[1]: set(second_indices or [])},
+            )
+        measurement_board.write_text(filtered, encoding="utf-8")
+        reports = [measure(measurement_board) for _ in range(3)]
+        samples = [_silk_findings(report) for report in reports]
+        cell = {
+            "sample_counts": [len(sample) for sample in samples],
+            "sample_findings": samples,
+            "item_region": item_region,
+        }
+        return cell, filtered
+
+    def cell_resolved(pairs: list[list[str]], cell: dict) -> bool:
+        return bool(
+            _rust_silk_cell_check(pairs=pairs, safe_ceiling=safe_ceiling, cell=cell)["resolved"]
+        )
+
+    def item_cells(
+        pair: list[str],
+        first_indices: list[int],
+        second_indices: list[int],
+        first_count: int,
+        second_count: int,
+        prior_cell: dict | None = None,
+    ) -> list[dict]:
+        region = {
+            "pair": pair,
+            "first_item_count": first_count,
+            "second_item_count": second_count,
+            "first_indices": first_indices,
+            "second_indices": second_indices,
+        }
+        cell, _filtered = (
+            (dict(prior_cell, item_region=region), "")
+            if prior_cell is not None
+            else measure_cell(
+                [pair],
+                set(pair),
+                item_region=region,
+                first_indices=first_indices,
+                second_indices=second_indices,
+            )
+        )
+        if cell_resolved([pair], cell):
+            return [cell]
+        if len(first_indices) <= 1 and len(second_indices) <= 1:
+            return [cell]
+        if len(first_indices) >= len(second_indices) and len(first_indices) > 1:
+            midpoint = len(first_indices) // 2
+            halves = [
+                (first_indices[:midpoint], second_indices),
+                (first_indices[midpoint:], second_indices),
+            ]
+        else:
+            midpoint = len(second_indices) // 2
+            halves = [
+                (first_indices, second_indices[:midpoint]),
+                (first_indices, second_indices[midpoint:]),
+            ]
+        return [
+            child
+            for first_half, second_half in halves
+            for child in item_cells(
+                pair,
+                first_half,
+                second_half,
+                first_count,
+                second_count,
+            )
+        ]
+
+    def record_leaf(pairs: list[list[str]], cells: list[dict], filtered: str) -> None:
+        leaves.append(
+            {
+                "pairs": pairs,
+                "cells": cells,
+                "resolved": all(cell_resolved(pairs, child) for child in cells),
+                "scratch_subject_sha256": sha256_text(filtered),
+            }
+        )
+
+    def run_pair_group(pairs: list[list[str]]) -> None:
+        keep_refs = {reference for pair in pairs for reference in pair}
+        cell, filtered = measure_cell(pairs, keep_refs)
+        resolved = cell_resolved(pairs, cell)
+        if not resolved and len(pairs) > 1:
+            midpoint = len(pairs) // 2
+            run_pair_group(pairs[:midpoint])
+            run_pair_group(pairs[midpoint:])
+            return
+        cells = [cell]
+        if not resolved:
+            pair = pairs[0]
+            first_span = _footprint_span(subject_text, pair[0])
+            second_span = _footprint_span(subject_text, pair[1])
+            first_count = len(_silk_item_spans_in(subject_text, *first_span))
+            second_count = len(_silk_item_spans_in(subject_text, *second_span))
+            cells = item_cells(
+                pair,
+                list(range(first_count)),
+                list(range(second_count)),
+                first_count,
+                second_count,
+                prior_cell=cell,
+            )
+        record_leaf(pairs, cells, filtered)
+
+    def run_cross_product(anchors: list[str], peers: list[str]) -> None:
+        pairs = [sorted((anchor, peer)) for anchor in anchors for peer in peers]
+        cell, filtered = measure_cell(pairs, set(anchors) | set(peers))
+        if cell_resolved(pairs, cell):
+            record_leaf(pairs, [cell], filtered)
+            return
+        if len(anchors) > 1 or len(peers) > 1:
+            if len(peers) >= len(anchors) and len(peers) > 1:
+                midpoint = len(peers) // 2
+                run_cross_product(anchors, peers[:midpoint])
+                run_cross_product(anchors, peers[midpoint:])
+            else:
+                midpoint = len(anchors) // 2
+                run_cross_product(anchors[:midpoint], peers)
+                run_cross_product(anchors[midpoint:], peers)
+            return
+        run_pair_group(pairs)
+
+    seeded_groups = _seeded_pair_groups(bootstrap=bootstrap, partition_seed=partition_seed)
+    if seeded_groups:
+        used_partition_seed = True
+        for pairs in seeded_groups:
+            run_pair_group(pairs)
+    else:
+        ordered_scope = sorted(scope)
+        if static_refs:
+            run_cross_product(ordered_scope, static_refs)
+        affected_pairs = [
+            [anchor, peer]
+            for index, anchor in enumerate(ordered_scope)
+            for peer in ordered_scope[index + 1 :]
+        ]
+        if affected_pairs:
+            run_pair_group(affected_pairs)
+
+    final_payload = dict(bootstrap_payload)
+    final_payload["leaves"] = [
+        {
+            "pairs": leaf["pairs"],
+            "cells": leaf["cells"],
+        }
+        for leaf in leaves
+    ]
+    final_payload["execution"] = {"kicad_invocation_count": cell_counter * 3}
+    if used_partition_seed and partition_seed is not None:
+        final_payload["execution"]["partition_seed_receipt_sha256"] = sha256_text(
+            json.dumps(partition_seed, sort_keys=True, separators=(",", ":"))
+        )
+    receipt = _rust_silk_scope_receipt(final_payload)
+    if receipt["complete"]:
+        scratch_dir.mkdir(parents=True, exist_ok=True)
+        temporary = cache_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        temporary.replace(cache_path)
+    return receipt
+
+
+def sha256_text(text: str) -> str:
+    import hashlib
+
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def bucket(items: list, k: int) -> list[list]:
     """Split `items` into k contiguous buckets, as evenly as possible."""
     n = len(items)
@@ -962,7 +1324,9 @@ def measure_by_bucket_pairs(
             n, nondet = _verified_count(board_dir, None, ctype, safe_ceiling)
             saturated = n >= safe_ceiling or nondet
             any_saturated = any_saturated or saturated
-            results.append({"i": i, "j": j, "count": n, "saturated": saturated, "nondeterministic": nondet})
+            results.append(
+                {"i": i, "j": j, "count": n, "saturated": saturated, "nondeterministic": nondet}
+            )
             total += n
     return {
         "ctype": ctype,
@@ -1004,7 +1368,11 @@ def _cli_dru_category(args) -> None:
         _print_band_tree(b)
     if args.json:
         json.dump(
-            {"category": args.category, "total": result["total"], "bands": [band_tree_to_dict(b) for b in result["bands"]]},
+            {
+                "category": args.category,
+                "total": result["total"],
+                "bands": [band_tree_to_dict(b) for b in result["bands"]],
+            },
             Path(args.json).open("w"),
             indent=2,
         )
@@ -1023,7 +1391,9 @@ def _cli_physical_category(args) -> None:
         raise SystemExit(f"no physical partition strategy for {args.category!r}")
     buckets = bucket(items, args.buckets)
     result = measure_by_bucket_pairs(board_dir, args.category, pcb_text, buckets, filter_fn)
-    print(f"raw bucket-pair sum {args.category}: {result['total']} (any_saturated={result['any_saturated']})")
+    print(
+        f"raw bucket-pair sum {args.category}: {result['total']} (any_saturated={result['any_saturated']})"
+    )
     print(
         "NOTE: this raw sum double-counts intra-bucket pairs across every "
         "bucket-pair run that includes that bucket. Apply inclusion-exclusion "
@@ -1044,6 +1414,32 @@ def _cli_saturating_pair(args) -> None:
         json.dump(result, Path(args.json).open("w"), indent=2)
 
 
+def _cli_silk_mutation_cone(args) -> None:
+    declared_refs = list(args.declared_ref)
+    if not declared_refs:
+        import temper_quality_oracle  # type: ignore[import-untyped]
+
+        declared_refs = json.loads(temper_quality_oracle.corridor_footprint_scope_json_py())[
+            "affected_refs"
+        ]
+    result = measure_silk_mutation_cone(
+        source_board=Path(args.source_board),
+        subject_board=Path(args.subject_board),
+        declared_refs=declared_refs,
+        use_declared_scope=args.use_declared_scope,
+        scratch_dir=Path(args.scratch_dir),
+    )
+    print(
+        f"silk mutation cone: {result['category_state']}; "
+        f"pairs={result['covered_pair_count']}/{result['expected_pair_count']}; "
+        f"invocations={result['execution']['kicad_invocation_count']}"
+    )
+    if args.json:
+        Path(args.json).write_text(
+            json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+
+
 def main() -> None:
     import argparse
 
@@ -1051,9 +1447,14 @@ def main() -> None:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     p1 = sub.add_parser("dru-category", help="exhaustive count for clearance/creepage/track_width")
-    p1.add_argument("category", choices=["clearance", "creepage", "track_width", "hole_clearance", "hole_to_hole"])
+    p1.add_argument(
+        "category",
+        choices=["clearance", "creepage", "track_width", "hole_clearance", "hole_to_hole"],
+    )
     p1.add_argument("--dru-file", help="path to a pre-generated .kicad_dru")
-    p1.add_argument("--dru-generator", help="path to a generate_kicad_dru.py exposing generate_dru()")
+    p1.add_argument(
+        "--dru-generator", help="path to a generate_kicad_dru.py exposing generate_dru()"
+    )
     p1.add_argument("--scratch-dir", required=True)
     p1.add_argument("--json", help="write full band tree to this path")
     p1.set_defaults(func=_cli_dru_category)
@@ -1075,6 +1476,18 @@ def main() -> None:
     p3.add_argument("--scratch-dir", required=True)
     p3.add_argument("--json", help="write full recursive cell tree to this path")
     p3.set_defaults(func=_cli_saturating_pair)
+
+    p4 = sub.add_parser(
+        "silk-mutation-cone",
+        help="exact, repeated silk evidence for every pair incident to a mutation scope",
+    )
+    p4.add_argument("--source-board", default=str(PCB_DIR / "temper.kicad_pcb"))
+    p4.add_argument("--subject-board", default=str(PCB_DIR / "temper.kicad_pcb"))
+    p4.add_argument("--declared-ref", action="append", default=[])
+    p4.add_argument("--use-declared-scope", action="store_true")
+    p4.add_argument("--scratch-dir", required=True)
+    p4.add_argument("--json", help="write the content-bound completed receipt")
+    p4.set_defaults(func=_cli_silk_mutation_cone)
 
     args = p.parse_args()
     args.func(args)

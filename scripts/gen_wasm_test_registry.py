@@ -122,6 +122,9 @@ ELIGIBLE_DRC_RS: list[tuple[str, str]] = [
     ("board.rs", "tests"),
     ("board.rs", "board_state_tests"),
     ("dfm.rs", "tests"),
+    # DRC evidence identity and admission are pure Rust under
+    # --no-default-features; the pyo3 transport is feature-gated.
+    ("drc_evidence.rs", "tests"),
     # Added 2026-08-10.  `src/ipc.rs` arrived with the `temper-ipc` crate-fold
     # (840543e4) and was never added here, so the IPC-2221/2152 current-capacity
     # and trace-width kernels -- safety-relevant on this board -- had never run

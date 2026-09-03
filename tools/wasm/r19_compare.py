@@ -85,6 +85,40 @@ def load_expected_failures(path: str) -> dict[str, dict[str, str]]:
     return manifest.get("expected_failures", {})
 
 
+def inject_one_disagreement(
+    wasm_results: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], str]:
+    """Return a copy with exactly one enumerated passing verdict flipped.
+
+    The lexicographically first passing test is selected so the anti-vacuity
+    fixture is stable even if registry enumeration order changes.  This helper
+    is deliberately independent of the result source: the pre-U7 nightly uses
+    it on the local diagnostic census, while U7 can apply the same seam to the
+    completed immutable-preview sweep before R19 comparison.
+    """
+    seen: set[str] = set()
+    passing: list[tuple[str, int]] = []
+    copied: list[dict[str, Any]] = []
+    for index, result in enumerate(wasm_results):
+        if not isinstance(result, dict):
+            raise ValueError(f"wasm result {index} is not an object")
+        name = result.get("name")
+        if not isinstance(name, str) or not name:
+            raise ValueError(f"wasm result {index} has no non-empty name")
+        if name in seen:
+            raise ValueError(f"duplicate wasm result name: {name}")
+        seen.add(name)
+        copied.append(dict(result))
+        if result.get("status") == "pass":
+            passing.append((name, index))
+
+    if not passing:
+        raise ValueError("no pass-status result found to flip")
+    selected_name, selected_index = min(passing)
+    copied[selected_index]["status"] = "fail"
+    return copied, selected_name
+
+
 def run_comparison(
     native_results: list[dict[str, str]],
     wasm_results: list[dict[str, Any]],

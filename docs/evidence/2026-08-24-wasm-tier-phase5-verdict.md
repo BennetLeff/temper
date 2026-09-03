@@ -8,8 +8,9 @@
 **Plan under verdict:** `docs/plans/2026-08-10-001-feat-wasm-tier-phase5-plan.md`
 (itself Phase 5 of `docs/plans/2026-08-03-002-feat-wasm-verification-tier-plan.md`,
 R24–R28, governed by D12–D15)
-**Scope:** this document only. No source, CI, plan or baseline file is touched
-by this change.
+**Original verdict scope:** this document only; no source, CI, plan, or
+baseline file was touched by the verdict change. Phase 6 U1 later corrected
+the stale prose here and at its two source records without changing behavior.
 
 Phase 5 has never had a verdict. This document records one, because the phase
 as framed can no longer be completed: its own plan already found that its
@@ -28,7 +29,7 @@ misdescribes the tier's state to everyone who reads the plan directory.
 | R25 | Pool relief measured per job or step actually removed, not per crate | **SATISFIED; relief = 0** | Measured 2026-08-10, re-confirmed 2026-08-24. See §2.2 |
 | R26 | Python differential/PBT suites remain on GitHub Actions permanently | **SATISFIED** | Never in question; no change proposed or made |
 | R27 | Wasm-incompatible tests self-select via the R19 comparison | **PARTIAL** | The mechanism works and has produced 18 catalogued entries; it samples at a 12-night cadence. See §3 |
-| R28 | The moved suites' tier verdicts become their required PR context | **BLOCKED — but not by what the workflow says** | `required-checks.json` holds zero wasm contexts. The stated blocker (R22/R23 durability) was closed on 2026-08-11 and re-verified for this document. The real blocker is R19 sustained per-crate agreement, which §3 shows is not producible at the current cadence. See §5 |
+| R28 | The moved suites' tier verdicts become their required PR context | **BLOCKED — sustained evidence is missing** | `required-checks.json` holds zero wasm contexts. R22/R23 durability was closed on 2026-08-11 and re-verified for this document. The real blocker is R19 sustained per-crate agreement, which §3 shows is not producible at the current cadence. See §5 |
 
 **Governing decisions:**
 
@@ -48,10 +49,10 @@ misdescribes the tier's state to everyone who reads the plan directory.
 > executed and now has nothing left to execute against — the last Rust suite on
 > the PR path is `temper-orchestration`'s, which is structurally native-only and
 > whose removal would delete coverage rather than duplication. Its gating half
-> (R28) is blocked — but not by the durability machinery every current document
-> names, which has been closed since 2026-08-11. It is blocked by the same
-> 12-night R19 cadence §3 measures. **R24 should be retired; R28 should be
-> re-pulled as a separate phase with the correct premise.**
+> (R28) is blocked — but not by the durability machinery that the original
+> Phase 5 records named, which has been closed since 2026-08-11. It is blocked
+> by the same 12-night R19 cadence §3 measures. **R24 should be retired; R28
+> should be re-pulled as a separate phase with the correct premise.**
 
 ---
 
@@ -187,12 +188,15 @@ to build:
 
 ---
 
-## 5. The gating question (R28) — and the stale premise everyone is reasoning from
+## 5. The gating question (R28) — correcting the original stale premise
 
-`.github/required-checks.json` contains **zero** wasm contexts. Every current
-document explains that with the same reason, and **the reason is out of date.**
+`.github/required-checks.json` contains **zero** wasm contexts. The three
+Phase 5 records corrected by Phase 6 U1 now state the correct reason. At the
+time this verdict was drafted, however, the Phase 5 plan and
+`wasm-tier-pr.yml` still explained that state with a premise that had become
+stale.
 
-`wasm-tier-pr.yml`'s header states it most directly:
+The workflow header then stated (historical quotation):
 
 > Making a tier verdict a required PR context crosses R22/R23 — the
 > dead-letter, idempotency and reconciliation machinery that is unbuilt BY
@@ -204,9 +208,9 @@ handling, idempotent work keys, a `reconcile()` pass, and replication — each
 backed by a fault-injection test rather than by inspection.
 
 That workflow file was created **2026-08-10** in #951, one day before #992
-landed. Its header was true when written and became false the next day, and
-nothing updated it. Phase 5's D5.4 carries the same claim from the same
-pre-#992 moment.
+landed. Its header was true when written and became false the next day. This
+verdict identified that drift; the workflow header and Phase 5's D5.4 now
+carry the correction while retaining this quotation as the incident record.
 
 **Re-verified for this document at `9546f568e`**, rather than taken from the
 2026-08-11 doc at face value:
@@ -340,10 +344,9 @@ cadence.
 2. **Mark `docs/plans/2026-08-10-001-feat-wasm-tier-phase5-plan.md` `status:
    completed`** with this document as its verdict, and record R24 as vacuous and
    R28 as blocked in the parent plan rather than leaving them open.
-3. **Correct the stale R22/R23 prose at its three sources** — `wasm-tier-pr.yml`'s
-   header, Phase 5's D5.4, and any document repeating them — so the next reader
-   does not re-derive the wrong blocker. The durability machinery has been closed
-   since 2026-08-11.
+3. **Correct the stale R22/R23 prose at its three sources — completed.**
+   `wasm-tier-pr.yml`'s header, Phase 5's D5.4, and this verdict now record that
+   the durability machinery has been closed since 2026-08-11.
 4. **Retire R24.** It has no targets and its licensing condition is unproducible.
    It should not be carried forward into any successor phase.
 5. **Pull a new phase for R28 with the correct premise: an R19 sustained

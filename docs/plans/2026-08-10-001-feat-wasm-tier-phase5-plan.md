@@ -123,12 +123,15 @@ closed by redeploying, not by writing tests.**
   tier reported `agreement_rate: 1.0` while carrying 8.4% of the suite, and
   nothing in CI could observe the discrepancy. A tier whose verdicts are
   trusted must be unable to silently answer for a stale corpus. Governs R5.1.
-- **D5.4. R22/R23 durability is the gate on merge authority, and this phase
-  does not cross it.** Restates D10's position under the new context: every
-  unit here keeps tier verdicts advisory or additive-informational, so the
-  dead-letter/idempotency/reconciliation machinery stays deferred. The first
-  unit that would make a tier verdict *required* is out of scope until
-  R22/R23 land. Governs the Scope Boundaries.
+- **D5.4. This phase does not cross into merge authority.** Every unit here
+  keeps tier verdicts advisory or additive-informational. The durability gate
+  named when this plan was written was satisfied on 2026-08-11 by #992:
+  dead-letter handling, idempotent work keys, reconciliation, and replication
+  are implemented and fault-injection tested. Promotion remains out of scope
+  here because it still needs sustained R19 per-crate agreement, plus R10/Q1
+  for the DRC verdict specifically. Governs the Scope Boundaries. See
+  `docs/evidence/2026-08-11-wasm-tier-r22-r23-durability.md` and the correction
+  in the Scope Boundaries below.
 
 ### Requirements
 

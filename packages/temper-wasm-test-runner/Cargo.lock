@@ -969,6 +969,7 @@ dependencies = [
  "rstar 0.12.2",
  "serde",
  "serde_json",
+ "sha2",
  "thiserror 1.0.69",
 ]
 
