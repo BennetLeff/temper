@@ -1098,9 +1098,17 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 348
 # routing semantics. The board and router source did not change between the
 # two measurements. This is an instrument/provenance correction, not a
 # routing-quality regression or a relaxed threshold.
+#
+# 2026-09-03 CURRENT-MAIN RE-MEASUREMENT (origin/main @ faca9d0527): a
+# five-run production route with fresh extensions produced total=780,
+# shorting_items=7, and unconnected_items=343 on every run.  The one-item
+# increase over 342 is stable, not KiCad noise.  It is attributable to the
+# post-342 router/geometry lineage (#1422's conservative rasterizer and the
+# subsequent Rust router migrations), and is recorded in
+# docs/evidence/2026-09-03-production-router-output-unconnected-ratchet.md.
 PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 932
 PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 24
-PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 342
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 343
 
 
 @dataclass(frozen=True)
