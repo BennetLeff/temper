@@ -201,13 +201,16 @@ routing. The Rust terminal receipt therefore reports `exhausted`, not
 `instrument-error` and not `route-budget-exhausted`.
 
 The uniform veto pattern is more useful than a generic zero-survivor result:
-all 2,880 candidates failed netlist reconciliation, had one containment
-failure, and worsened one safety signature. Courtyard-overlap deltas varied
-(720 candidates added none, 1,680 added one, and 480 added two), but eliminating
-that delta alone cannot admit a candidate. The DRC instrument independently
-reported zero worsened hard observations and zero new scoped-silk findings for
-every candidate. The production board and DRC ceiling hashes were identical
-before and after the campaign.
+all 2,880 candidates carried `J1:missing-geometry`, which proves incomplete
+containment input rather than an outside-board body, and worsened one safety
+signature. Netlist reconciliation was post-route-only and therefore not
+evaluated; the historical `netlist_reconciled: false` value did not contribute
+a pre-route veto. Courtyard-overlap deltas varied (720 candidates added none,
+1,680 added one, and 480 added two), but eliminating that delta alone cannot
+admit a candidate. The DRC instrument independently reported zero worsened
+hard observations and zero new scoped-silk findings for every candidate. The
+production board and DRC ceiling hashes were identical before and after the
+campaign.
 
 That outcome moves the next design unit upstream of routing. The next search
 must correct the candidate topology, containment, and safety-signature model by

@@ -17,12 +17,22 @@ from pathlib import Path
 import pytest
 
 from temper_placer.io.fab_body_extraction import (
+    FabBodyCoverage,
     extract_fab_bodies,
     extract_fab_body_coverage,
+    extract_fab_body_coverage_with_j1_supplement,
 )
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _PCB_PATH = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
+_J1_SUPPLEMENT = (
+    _REPO_ROOT
+    / "docs"
+    / "evidence"
+    / "k1-j1-domain-refloorplan-20260831"
+    / "approved-j1-footprint.kicad_mod"
+)
+_J1_SHA256 = "050fe934d6208d5bd0e8d73da760c525c11185ac838b9c44b09b9cdf20f86a76"
 
 pytestmark = pytest.mark.skipif(
     not _PCB_PATH.exists(), reason="real board pcb/temper.kicad_pcb not present"
@@ -75,6 +85,103 @@ class TestExtractFabBodies:
         assert coverage.missing == ("NOT_ON_BOARD",)
         assert coverage.invalid == {}
         assert not coverage.complete
+
+    def test_real_board_reports_j1_missing_without_physical_verdict(self):
+        coverage = extract_fab_body_coverage(_PCB_PATH, ("C2", "J1"))
+        assert "C2" in coverage.present
+        assert coverage.missing == ("J1",)
+        assert "J1" not in coverage.present
+        assert coverage.invalid == {}
+
+    def test_approved_j1_supplement_completes_only_j1_and_binds_digest(self):
+        coverage = extract_fab_body_coverage_with_j1_supplement(
+            _PCB_PATH,
+            ("C2", "J1"),
+            _J1_SUPPLEMENT,
+            _J1_SHA256,
+        )
+        assert tuple(coverage.present) == ("C2", "J1")
+        assert coverage.missing == ()
+        assert coverage.invalid == {}
+        assert coverage.supplement_digests == {"J1": _J1_SHA256}
+
+    @pytest.mark.parametrize(
+        "board_coverage",
+        [
+            FabBodyCoverage(
+                present={"J1": object()}, missing=(), invalid={}
+            ),
+            FabBodyCoverage(
+                present={}, missing=(), invalid={"J1": "malformed F.Fab"}
+            ),
+        ],
+        ids=["present", "invalid"],
+    )
+    def test_supplement_rejects_board_side_j1_coverage(self, monkeypatch, board_coverage):
+        import temper_placer.io.fab_body_extraction as fab_body_extraction
+
+        monkeypatch.setattr(
+            fab_body_extraction,
+            "extract_fab_body_coverage",
+            lambda *_args: board_coverage,
+        )
+        with pytest.raises(ValueError, match="board coverage"):
+            extract_fab_body_coverage_with_j1_supplement(
+                _PCB_PATH,
+                ("J1",),
+                _J1_SUPPLEMENT,
+                _J1_SHA256,
+            )
+
+    def test_supplement_requires_j1_to_be_expected(self, tmp_path):
+        with pytest.raises(ValueError, match="requires J1 in expected_refs"):
+            extract_fab_body_coverage_with_j1_supplement(
+                _PCB_PATH,
+                ("C2",),
+                tmp_path / "missing.kicad_mod",
+                _J1_SHA256,
+            )
+
+    def test_supplement_reports_missing_source_path(self, tmp_path):
+        with pytest.raises(FileNotFoundError, match="J1 supplement not found"):
+            extract_fab_body_coverage_with_j1_supplement(
+                _PCB_PATH,
+                ("J1",),
+                tmp_path / "missing.kicad_mod",
+                _J1_SHA256,
+            )
+
+    @pytest.mark.parametrize(
+        ("content", "message"),
+        [
+            ("", "standalone footprint"),
+            ("(kicad_pcb (version 20240108))", "standalone footprint"),
+            (
+                '(footprint "JST:X" (property "Reference" "J2") '
+                '(fp_rect (start 0 0) (end 1 1) (layer "F.Fab")))',
+                "REF\\*\\*",
+            ),
+            (
+                '(footprint "JST:X" (property "Reference" "REF**") '
+                '(fp_rect (start 0 0) (end 1 1) (layer "F.CrtYd")))',
+                "F.Fab",
+            ),
+        ],
+    )
+    def test_standalone_parser_rejects_invalid_roots_and_fab_contract(self, content, message):
+        import temper_design_bundle_python as _tdb
+
+        with pytest.raises(ValueError, match=message):
+            _tdb.parse_engine.extract_standalone_footprint_raw(content, "J1")
+
+    def test_supplement_rejects_wrong_digest_before_parsing(self):
+        with pytest.raises(ValueError, match="digest"):
+            extract_fab_body_coverage_with_j1_supplement(
+                _PCB_PATH,
+                ("J1",),
+                _J1_SUPPLEMENT,
+                "0" * 64,
+            )
 
 
 class TestMeasuredBodyOverlapMatchesCurrentBoard:

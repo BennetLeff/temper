@@ -1439,6 +1439,113 @@ pub fn parse_kicad_document(content: &str) -> Result<RawBoard, String> {
     Ok(raw)
 }
 
+/// Parse one standalone KiCad footprint (`.kicad_mod`) document.
+///
+/// A library footprint is deliberately not accepted by `parse_kicad_document`:
+/// that entry point is a board parser and requires a `kicad_pcb` root.  This
+/// sibling parser keeps the distinction explicit and returns the same raw
+/// footprint model used by the board parser.  The semantic mapping is
+/// intentionally explicit: an approved unannotated footprint uses the
+/// KiCad placeholder `REF**`, which the caller must bind to its expected
+/// board reference (for example `J1`).
+fn parse_standalone_footprint_document(
+    content: &str,
+    expected_reference: &str,
+) -> Result<(RawFootprint, String), String> {
+    if expected_reference.is_empty() {
+        return Err("expected standalone footprint reference must not be empty".to_string());
+    }
+    let tree = parse_ki_document(content)?;
+    let items: &[KiNode] = match tree.as_slice() {
+        [KiNode::List(inner)] => inner.as_slice(),
+        _ => return Err("standalone footprint must have one footprint root".to_string()),
+    };
+    if !matches!(
+        items.first(),
+        Some(KiNode::Atom(KiAtom::Bare(b))) if b == "footprint"
+    ) {
+        return Err(
+            "standalone footprint must have a footprint root (not a board root)".to_string(),
+        );
+    }
+
+    // A nested footprint is not part of the KiCad footprint grammar and would
+    // make a foreign reference indistinguishable from the approved root.
+    fn contains_nested_footprint(nodes: &[KiNode]) -> bool {
+        nodes.iter().any(|node| {
+            let KiNode::List(items) = node else {
+                return false;
+            };
+            if matches!(
+                items.first(),
+                Some(KiNode::Atom(KiAtom::Bare(b))) if b == "footprint"
+            ) {
+                return true;
+            }
+            contains_nested_footprint(items)
+        })
+    }
+    if contains_nested_footprint(&items[1..]) {
+        return Err("standalone footprint contains a nested foreign footprint".to_string());
+    }
+
+    let reference_values: Vec<String> = items
+        .iter()
+        .filter_map(|node| {
+            let KiNode::List(property) = node else {
+                return None;
+            };
+            if !matches!(
+                property.first(),
+                Some(KiNode::Atom(KiAtom::Bare(b))) if b == "property"
+            ) {
+                return None;
+            }
+            let name = property.get(1).map(|node| match node {
+                KiNode::Atom(atom) => atom_to_string(atom),
+                KiNode::List(_) => String::new(),
+            })?;
+            (name == "Reference").then(|| {
+                property.get(2).map_or_else(String::new, |node| match node {
+                    KiNode::Atom(atom) => atom_to_string(atom),
+                    KiNode::List(_) => String::new(),
+                })
+            })
+        })
+        .collect();
+    if reference_values.len() != 1 {
+        return Err("standalone footprint must contain exactly one Reference property".to_string());
+    }
+    let source_reference = reference_values[0].clone();
+    if source_reference != "REF**" {
+        return Err(format!(
+            "standalone footprint Reference must be REF** for explicit mapping to {expected_reference}, got {source_reference}"
+        ));
+    }
+
+    let mut errors = Vec::new();
+    let footprint = parse_footprint(items, &mut errors)
+        .ok_or_else(|| "standalone footprint could not be parsed".to_string())?;
+    if let Some(error) = errors.first() {
+        return Err(format!("malformed standalone footprint: {error}"));
+    }
+    let has_f_fab = footprint.graphic_items.iter().any(|item| {
+        item.layer() == "F.Fab"
+            && matches!(
+                item,
+                RawFpItem::Poly { .. }
+                    | RawFpItem::Circle { .. }
+                    | RawFpItem::Rect { .. }
+                    | RawFpItem::Line { .. }
+                    | RawFpItem::Arc { .. }
+            )
+    });
+    if !has_f_fab {
+        return Err("standalone footprint is missing F.Fab body geometry".to_string());
+    }
+    Ok((footprint, source_reference))
+}
+
 /// Compact, JSON-serializable parse summary for driver/tooling consumers
 /// (the `temper parse` subcommand): Edge.Cuts board dimensions plus the
 /// component/net/layer counts. Uses the same private Edge.Cuts bounding-box
@@ -3776,6 +3883,37 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     out.into_any().unbind().into_py_any(py)
 }
 
+/// Extract the body inputs from one standalone `.kicad_mod` root.
+///
+/// This boundary intentionally emits only parser-owned `F.Fab` graphics. It
+/// does not expose pads, courtyard/silkscreen graphics, or any synthetic
+/// rectangle fallback. `expected_reference` is required so the placeholder
+/// `REF** -> J1` (or another explicitly named target) mapping is visible at
+/// the Rust/Python seam instead of being inferred by a caller.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn extract_standalone_footprint_raw(
+    py: Python<'_>,
+    content: &str,
+    expected_reference: &str,
+) -> PyResult<Py<PyAny>> {
+    let (footprint, source_reference) =
+        parse_standalone_footprint_document(content, expected_reference)
+            .map_err(PyValueError::new_err)?;
+    let source_shapes = fp_shape_inputs(py, std::slice::from_ref(&footprint), &["F.Fab"])?;
+    let source_shapes = source_shapes.into_bound(py);
+    let shapes = source_shapes
+        .get_item(source_reference.as_str())?
+        .ok_or_else(|| {
+            PyValueError::new_err("standalone footprint is missing F.Fab body geometry")
+        })?;
+    let out = PyDict::new(py);
+    out.set_item("source_reference", source_reference)?;
+    out.set_item("expected_reference", expected_reference)?;
+    out.set_item("fab_body_inputs", shapes)?;
+    out.into_any().unbind().into_py_any(py)
+}
+
 /// Per-footprint graphic-item shapes on the given layers, in the
 /// ``{ref: [{"kind": ..., ...}]}`` schema
 /// ``kicad_metadata._courtyard_points_from_raw`` consumes. One
@@ -3869,6 +4007,7 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(extract_net_classes, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_metadata_raw, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_standalone_footprint_raw, &sub)?)?;
     // Wave 4 Phase 3 (formats/IO): Rust-owned S-expression mutation/writing
     // helpers. The former whole-document `tokenize`/`write_board_sexpr_py`
     // probes were differential-only and are intentionally not exported.
@@ -3913,6 +4052,119 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
     use super::*;
+
+    const STANDALONE_FOOTPRINT: &str = r#"(footprint "JST:X"
+  (property "Reference" "REF**")
+  (fp_rect (start -1 -1) (end 1 1)
+    (stroke (width 0.05) (type solid)) (fill no) (layer "F.Fab"))
+  (pad "1" thru_hole circle (at 0 0) (size 1 1) (drill 0.5)
+    (layers "*.Cu" "*.Mask")))"#;
+
+    #[cfg_attr(test, test)]
+    fn standalone_footprint_parser_is_root_and_fab_bound() {
+        let (footprint, source_reference) =
+            parse_standalone_footprint_document(STANDALONE_FOOTPRINT, "J1")
+                .expect("standalone fixture must parse");
+        assert_eq!(source_reference, "REF**");
+        assert_eq!(
+            footprint.pads.len(),
+            1,
+            "parser may inspect pads but output does not expose them"
+        );
+        assert_eq!(
+            footprint
+                .graphic_items
+                .iter()
+                .filter(|item| item.layer() == "F.Fab")
+                .count(),
+            1
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn approved_j1_footprint_root_is_accepted() {
+        let content = include_str!(
+            "../../../docs/evidence/k1-j1-domain-refloorplan-20260831/approved-j1-footprint.kicad_mod"
+        );
+        let (footprint, source_reference) = parse_standalone_footprint_document(content, "J1")
+            .expect("approved J1 supplement must parse");
+        assert_eq!(source_reference, "REF**");
+        assert!(
+            footprint
+                .graphic_items
+                .iter()
+                .any(|item| item.layer() == "F.Fab")
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn standalone_footprint_parser_rejects_non_footprint_and_foreign_roots() {
+        let board = "(kicad_pcb (version 20240108))";
+        assert!(
+            parse_standalone_footprint_document(board, "J1")
+                .expect_err("board root must be rejected")
+                .contains("footprint root")
+        );
+        let foreign = r#"(footprint "JST:X" (property "Reference" "J2")
+          (fp_rect (start 0 0) (end 1 1) (layer "F.Fab")))"#;
+        assert!(
+            parse_standalone_footprint_document(foreign, "J1")
+                .expect_err("foreign reference must be rejected")
+                .contains("REF**")
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn standalone_footprint_parser_rejects_ambiguous_reference_boundaries() {
+        assert!(
+            parse_standalone_footprint_document(STANDALONE_FOOTPRINT, "")
+                .expect_err("empty destination reference must be rejected")
+                .contains("must not be empty")
+        );
+        let no_reference = r#"(footprint "JST:X"
+          (fp_rect (start 0 0) (end 1 1) (layer "F.Fab")))"#;
+        assert!(
+            parse_standalone_footprint_document(no_reference, "J1")
+                .expect_err("missing Reference must be rejected")
+                .contains("exactly one Reference")
+        );
+        let duplicate_reference = r#"(footprint "JST:X"
+          (property "Reference" "REF**")
+          (property "Reference" "REF**")
+          (fp_rect (start 0 0) (end 1 1) (layer "F.Fab")))"#;
+        assert!(
+            parse_standalone_footprint_document(duplicate_reference, "J1")
+                .expect_err("duplicate Reference must be rejected")
+                .contains("exactly one Reference")
+        );
+        let nested_footprint = r#"(footprint "JST:X"
+          (property "Reference" "REF**")
+          (group "foreign" (footprint "JST:Y"))
+          (fp_rect (start 0 0) (end 1 1) (layer "F.Fab")))"#;
+        assert!(
+            parse_standalone_footprint_document(nested_footprint, "J1")
+                .expect_err("nested footprint must be rejected")
+                .contains("nested foreign footprint")
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn standalone_footprint_parser_rejects_missing_or_malformed_fab() {
+        let no_fab = r#"(footprint "JST:X" (property "Reference" "REF**")
+          (fp_rect (start 0 0) (end 1 1) (layer "F.CrtYd")))"#;
+        assert!(
+            parse_standalone_footprint_document(no_fab, "J1")
+                .expect_err("missing F.Fab must be rejected")
+                .contains("missing F.Fab")
+        );
+        let malformed = r#"(footprint "JST:X" (property "Reference" "REF**")
+          (fp_rect (start 0) (end 1 1) (layer "F.Fab")))"#;
+        assert!(
+            parse_standalone_footprint_document(malformed, "J1")
+                .expect_err("malformed F.Fab must be rejected")
+                .contains("malformed")
+        );
+    }
 
     /// kiutils' num grammar: a decimal token whose float value is integral
     /// becomes an INT (`3.0` -> `3`) -- and the i64 range guard must not
@@ -4166,6 +4418,11 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("parse_engine::tests::standalone_footprint_parser_is_root_and_fab_bound", standalone_footprint_parser_is_root_and_fab_bound),
+        ("parse_engine::tests::approved_j1_footprint_root_is_accepted", approved_j1_footprint_root_is_accepted),
+        ("parse_engine::tests::standalone_footprint_parser_rejects_non_footprint_and_foreign_roots", standalone_footprint_parser_rejects_non_footprint_and_foreign_roots),
+        ("parse_engine::tests::standalone_footprint_parser_rejects_ambiguous_reference_boundaries", standalone_footprint_parser_rejects_ambiguous_reference_boundaries),
+        ("parse_engine::tests::standalone_footprint_parser_rejects_missing_or_malformed_fab", standalone_footprint_parser_rejects_missing_or_malformed_fab),
         ("parse_engine::tests::decimal_integral_token_is_int", decimal_integral_token_is_int),
         ("parse_engine::tests::extract_nets_pure_keeps_single_pad_nets", extract_nets_pure_keeps_single_pad_nets),
         ("parse_engine::tests::circle_only_courtyard_produces_circle_bounds", circle_only_courtyard_produces_circle_bounds),

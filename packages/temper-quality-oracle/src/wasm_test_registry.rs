@@ -43,7 +43,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 2615 eligible tests, in a stable order.  Each entry is
+/// All 2632 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -57,6 +57,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::cluster_f::via_count::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::config::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::corridor_campaign::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-quality-oracle")] crate::corridor_feasibility::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::derivation::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::ipc2221::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-quality-oracle")] crate::oracle::tests::WASM_TESTS,
