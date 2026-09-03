@@ -154,12 +154,16 @@ MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 # Derived by the procedure above from the committed baseline. Only entries that
 # differ from TIMING_MARGIN are listed; everything else uses the 20% default.
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
-    # worst fixed-commit excursion 16.1% -> 2 x 16.1 = 32.2 -> 33%
-    ("bottleneck-geometry", "hard_blocked_batch"): 0.33,
-    # worst fixed-commit excursion 13.0% -> 2 x 13.0 = 26.0 -> 27%
-    ("dsn-exporter", "export_pcb"): 0.27,
-    # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.7 -> 22%
+    # worst fixed-commit excursion 13.6% -> 2 x 13.6 = 27.2 -> 28%
+    ("drc-geometry", "point_segment"): 0.28,
+    # worst fixed-commit excursion 13.8% -> 2 x 13.8 = 27.6 -> 28%
+    ("drc-geometry", "segment_rect"): 0.28,
+    # worst fixed-commit excursion 14.0% -> 2 x 14.0 = 28.0 -> 29%
+    ("dsn-exporter", "export_pcb"): 0.29,
+    # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.8 -> 22%
     ("loaders", "loaders"): 0.22,
+    # worst fixed-commit excursion 15.0% -> 2 x 15.0 = 30.0 -> 31%
+    ("pcl-tag-dispatch", "tag_resolve_sweep"): 0.31,
     # worst fixed-commit excursion 15.9% -> 2 x 15.9 = 31.8 -> 32%
     ("physics-copper_coverage", "copper_masks"): 0.32,
     # worst fixed-commit excursion 14.7% -> 2 x 14.7 = 29.4 -> 30%
@@ -214,6 +218,18 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
         "gateable margin",
     ("topological", "force_refinement"):
         "fixed-commit excursion 28.5% -> margin 57%, above the 33.8% max "
+        "gateable margin",
+    ("net-ordering", "order_nets"):
+        "fixed-commit excursion 47.0% -> margin 95%, above the 33.8% max "
+        "gateable margin",
+    ("physics-tj_cross_check", "device_cross_check"):
+        "fixed-commit excursion 16.6% -> margin 34%, above the 33.8% max "
+        "gateable margin",
+    ("drc-geometry", "segment_segment"):
+        "fixed-commit excursion 23.7% -> margin 48%, above the 33.8% max "
+        "gateable margin",
+    ("bottleneck-geometry", "hard_blocked_batch"):
+        "fixed-commit excursion 22.5% -> margin 46%, above the 33.8% max "
         "gateable margin",
 }
 
