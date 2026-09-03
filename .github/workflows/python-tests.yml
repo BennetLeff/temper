@@ -714,6 +714,13 @@ jobs:
         if: ${{ !cancelled() && steps.setup_env.outcome == 'success' && steps.netlist.outcome != 'failure' }}
         run: echo "netlist available; gates below report independently"
 
+      # The DRC rule file is generated and gitignored.  Core integration
+      # tests read it directly, so generate it in this job as well as in the
+      # router-v6 job that owns the zone-pour staleness checks.
+      - name: Generate pcb/temper.kicad_dru for core integration tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/generate_kicad_dru.py
+
       - name: Run temper-constraints integration tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
