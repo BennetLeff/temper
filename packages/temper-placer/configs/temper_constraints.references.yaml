@@ -11,7 +11,7 @@ authority:
   board: pcb/temper.kicad_pcb
   source_export: elec/exports/temper.design-input.v1.json
   component_identity: board Sheetpath matched to source instance path
-  measured_at_commit: e4b9f970b79701ec686b167e438ac3e184232147
+  measured_at_commit: bdbdf77b3029ba75c7c6fe443c2c14dc27c19b51
 
 # Content-hash freshness identity (scripts/check_measurement_provenance.py),
 # added 2026-08-07. `authority.measured_at_commit` above is advisory (human
@@ -218,7 +218,7 @@ provenance:
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9
+      sha256: 44ae6bd56ea5f68ae6dbf3278c32dd82652d4f9ed81fd7c2dbe69bb601bc97d8
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
