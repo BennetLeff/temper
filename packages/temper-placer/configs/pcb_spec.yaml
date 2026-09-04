@@ -38,5 +38,7 @@ signal_integrity:
     DIFF_N: 2.0
 
 safety:
-  mains_voltage_v: 230.0
-  pollution_degree: 2
+  # The production appliance is a US 120 V design and its unsealed,
+  # forced-air construction is governed by pollution degree 3.
+  mains_voltage_v: 120.0
+  pollution_degree: 3

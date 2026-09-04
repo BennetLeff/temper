@@ -16,8 +16,8 @@ def test_load_pcb_spec_yaml_has_safety():
     """Happy path: PcbSpecification.load('configs/pcb_spec.yaml') reads safety section."""
     spec = PcbSpecification.load(_CONFIGS_DIR / "pcb_spec.yaml")
     assert spec.safety is not None
-    assert spec.safety.mains_voltage_v == pytest.approx(230.0)
-    assert spec.safety.pollution_degree == 2
+    assert spec.safety.mains_voltage_v == pytest.approx(120.0)
+    assert spec.safety.pollution_degree == 3
 
 
 def test_load_pcb_spec_yaml_name():
