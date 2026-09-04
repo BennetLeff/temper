@@ -310,9 +310,7 @@ fn unique_alias<'a>(
     Ok(present.first().map(|(_, value)| *value))
 }
 
-fn family_member_values<'a>(
-    family: &'a Map<String, Value>,
-) -> Result<&'a Vec<Value>, FeasibilityError> {
+fn family_member_values(family: &Map<String, Value>) -> Result<&Vec<Value>, FeasibilityError> {
     let present: Vec<_> = ["members", "declared_members"]
         .into_iter()
         .filter_map(|key| family.get(key).map(|value| (key, value)))
@@ -600,6 +598,11 @@ fn binding_path(key: &str) -> Option<&'static str> {
         .find_map(|(name, path)| (*name == key).then_some(*path))
 }
 
+fn required_binding_path(key: &str) -> Result<&'static str, FeasibilityError> {
+    binding_path(key)
+        .ok_or_else(|| FeasibilityError::InvalidPackage(format!("unknown terminal binding {key}")))
+}
+
 fn terminal_context(root: &Value) -> Result<&Map<String, Value>, FeasibilityError> {
     root.get("terminal_context")
         .and_then(Value::as_object)
@@ -788,12 +791,12 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
             "evaluator_identity must be {EVALUATOR_IDENTITY}"
         )));
     }
-    if let Some(requested_scope) = root.get("requested_scope") {
-        if !matches!(requested_scope.as_str(), Some("candidate" | "architecture")) {
-            return Err(FeasibilityError::InvalidPackage(
-                "requested_scope must be candidate or architecture".to_owned(),
-            ));
-        }
+    if let Some(requested_scope) = root.get("requested_scope")
+        && !matches!(requested_scope.as_str(), Some("candidate" | "architecture"))
+    {
+        return Err(FeasibilityError::InvalidPackage(
+            "requested_scope must be candidate or architecture".to_owned(),
+        ));
     }
     validate_protected_inputs(input)?;
     let upstream = upstream(input)?;
@@ -810,6 +813,8 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
         )));
     }
     let valid_upstream = upstream_status == "eligible-for-refloorplan";
+    let joint_contract_digest =
+        nonempty(root.get("joint_contract_digest"), "joint_contract_digest")?;
 
     let axes = local_axes(input)?;
     let mut local_failure = Vec::new();
@@ -893,7 +898,10 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
     }
 
     let mut output = Map::new();
-    output.insert("candidate_id".to_owned(), Value::String(candidate_id));
+    output.insert(
+        "candidate_id".to_owned(),
+        Value::String(candidate_id.clone()),
+    );
     output.insert(
         "cause_class".to_owned(),
         Value::String(cause_class.to_owned()),
@@ -1024,10 +1032,7 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
                         .to_owned(),
                 ));
             }
-            validate_blocked_combined_candidate(
-                combined,
-                root["joint_contract_digest"].as_str().unwrap(),
-            )?;
+            validate_blocked_combined_candidate(combined, &joint_contract_digest)?;
             reject_upstream_production_claims(upstream)?;
             require_string(
                 upstream,
@@ -1038,7 +1043,7 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
             require_string(
                 upstream,
                 "joint_contract_digest",
-                root["joint_contract_digest"].as_str().unwrap(),
+                &joint_contract_digest,
                 "upstream decision",
             )?;
             require_null(upstream, "partial_result", "upstream decision")?;
@@ -1239,10 +1244,7 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
                     "upstream joint manifest must be an object".to_owned(),
                 )
             })?;
-            validate_blocked_upstream_manifest(
-                upstream_manifest,
-                root["joint_contract_digest"].as_str().unwrap(),
-            )?;
+            validate_blocked_upstream_manifest(upstream_manifest, &joint_contract_digest)?;
             let manifest = parsed_sources
                 .get("manifest")
                 .and_then(Value::as_object)
@@ -1260,7 +1262,7 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
             require_string(
                 manifest,
                 "candidate_id",
-                &output["candidate_id"].as_str().unwrap(),
+                candidate_id.as_str(),
                 "split-board manifest",
             )?;
             require_string(
@@ -1272,13 +1274,13 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
             require_string(
                 manifest,
                 "joint_contract_path",
-                binding_path("upstream_joint_contract").unwrap(),
+                required_binding_path("upstream_joint_contract")?,
                 "split-board manifest",
             )?;
             require_string(
                 manifest,
                 "joint_contract_digest",
-                root["joint_contract_digest"].as_str().unwrap(),
+                &joint_contract_digest,
                 "split-board manifest",
             )?;
             require_field(
@@ -1323,13 +1325,13 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
             require_string(
                 terminal_artifacts,
                 "evidence_index_path",
-                binding_path("evidence_index").unwrap(),
+                required_binding_path("evidence_index")?,
                 "split-board manifest terminal_artifacts",
             )?;
             require_string(
                 terminal_artifacts,
                 "owner_signoffs_path",
-                binding_path("owner_signoffs").unwrap(),
+                required_binding_path("owner_signoffs")?,
                 "split-board manifest terminal_artifacts",
             )?;
             let manifest_upstream = manifest
@@ -1343,13 +1345,13 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
             require_string(
                 manifest_upstream,
                 "decision_path",
-                binding_path("upstream_joint_decision").unwrap(),
+                required_binding_path("upstream_joint_decision")?,
                 "split-board manifest upstream",
             )?;
             require_string(
                 manifest_upstream,
                 "manifest_path",
-                binding_path("upstream_joint_manifest").unwrap(),
+                required_binding_path("upstream_joint_manifest")?,
                 "split-board manifest upstream",
             )?;
             require_string(
@@ -1674,7 +1676,7 @@ pub fn evaluate(input: &Value) -> Result<Value, FeasibilityError> {
             require_string(
                 signoffs,
                 "candidate_id",
-                output["candidate_id"].as_str().unwrap(),
+                candidate_id.as_str(),
                 "owner signoffs",
             )?;
             require_string(
