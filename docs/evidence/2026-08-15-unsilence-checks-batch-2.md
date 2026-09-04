@@ -141,11 +141,12 @@ so the gate now runs to completion.
     non-defects (different requirements sharing a coarse tier label; the
     gate's own docstring and the previous comment block cite the
     2026-07-29 investigation).
-  - `[clearance/reinforced]` + `[creepage/reinforced]`: "DECISION NEEDED"
-    families — likely-stale legacy 6.0mm sites vs the 2.0mm RULE 4/4b
-    enforced figures (and, for creepage, vs the 8.0/12.6mm enforced set).
-    **No clearance/creepage value was changed to make this pass** — the
-    standing repo constraint forbids it.
+  - `[clearance/reinforced]`: reviewed semantic tier-label drift — 2.0mm is
+    intra-class HighVoltage routing clearance, while 6.0mm is the HV-to-LV /
+    isolated-domain barrier figure. The closed set is accepted without
+    changing either safety value; see the 2026-09-03 evidence record.
+  - `[creepage/reinforced]`: accepted 6.0mm legacy vs 12.6mm enforced PD3
+    values, with 8.0mm deliberately rejected as a reappearing PD2 figure.
 - The job (`board-provenance-requirements-gates`) is **not** in
   `required_contexts`, so the red is visible on every PR without wedging
   merges. The step is deliberately **not** `continue-on-error`'d — per this
