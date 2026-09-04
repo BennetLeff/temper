@@ -638,20 +638,37 @@ fn drc(pcb: &Path) -> ExitCode {
     }
 }
 
-/// Parse kicad-cli's DRC JSON (`{"violations": [{type, severity, ...}]}`)
-/// and print per-rule counts grouped by severity.
+/// Parse kicad-cli's DRC JSON (`{"violations": [{type, severity, ...}],
+/// "unconnected_items": [{type, severity, ...}]}`) and print per-rule counts
+/// grouped by severity. KiCad reports connectivity findings in their own
+/// top-level array, so fold them into the same summary as ordinary violations.
 fn report_violations(json: &str) -> Result<(), String> {
     let v: serde_json::Value =
         serde_json::from_str(json).map_err(|e| format!("invalid JSON: {e}"))?;
     let violations = v
         .get("violations")
         .and_then(|x| x.as_array())
-        .cloned()
         .ok_or_else(|| "report has no \"violations\" array".to_string())?;
+    let connectivity = match v.get("unconnected_items") {
+        None => &[] as &[serde_json::Value],
+        Some(value) => {
+            let connectivity = value
+                .as_array()
+                .ok_or_else(|| "report \"unconnected_items\" is not an array".to_string())?;
+            for (index, item) in connectivity.iter().enumerate() {
+                if !item.is_object() {
+                    return Err(format!(
+                        "report \"unconnected_items\" entry {index} is not an object"
+                    ));
+                }
+            }
+            connectivity.as_slice()
+        }
+    };
 
     let mut by_rule: std::collections::BTreeMap<(String, String), usize> =
         std::collections::BTreeMap::new();
-    for item in violations {
+    for item in violations.iter().chain(connectivity.iter()) {
         let rule = item.get("type").and_then(|x| x.as_str()).unwrap_or("<unknown>");
         let severity = item.get("severity").and_then(|x| x.as_str()).unwrap_or("error");
         *by_rule.entry((rule.to_string(), severity.to_string())).or_insert(0) += 1;

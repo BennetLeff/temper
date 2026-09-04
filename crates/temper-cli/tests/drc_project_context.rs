@@ -42,6 +42,42 @@ fn prepend_path(directory: &Path) -> String {
         .into_owned()
 }
 
+fn drc_with_report(name: &str, report: &str) -> std::process::Output {
+    let root = fixture_root(name);
+    let pcb = root.join("sample.kicad_pcb");
+    fs::write(&pcb, "(kicad_pcb (version 20240108))").expect("create board fixture");
+    fs::write(root.join("sample.kicad_pro"), "{}").expect("create project fixture");
+    fs::create_dir_all(root.join("pcb")).expect("create generator output directory");
+    let report_path = root.join("report.json");
+    fs::write(&report_path, report).expect("write report fixture");
+    let bin_dir = root.join("bin");
+    let venv_bin = root.join(".venv/bin");
+    fs::create_dir_all(&bin_dir).expect("create executable directory");
+    fs::create_dir_all(&venv_bin).expect("create python fixture directory");
+    executable(
+        &venv_bin.join("python"),
+        &format!(
+            "#!/bin/sh\nprintf 'generated rules\\n' > '{}'/temper.kicad_dru\n",
+            root.join("pcb").display()
+        ),
+    );
+    executable(
+        &bin_dir.join("kicad-cli"),
+        &format!(
+            "#!/bin/sh\nfor arg in \"$@\"; do\n  if [ \"$previous\" = \"--output\" ]; then cp '{}' \"$arg\"; fi\n  previous=\"$arg\"\ndone\n",
+            report_path.display()
+        ),
+    );
+
+    Command::new(binary())
+        .args(["drc", "--pcb", "sample.kicad_pcb"])
+        .current_dir(&root)
+        .env("PATH", prepend_path(&bin_dir))
+        .env("TEMPER_REPO_ROOT", &root)
+        .output()
+        .expect("spawn temper drc")
+}
+
 #[test]
 fn drc_rejects_board_without_matching_project_before_kicad() {
     let root = fixture_root("missing-project");
@@ -210,6 +246,99 @@ fn drc_refuses_to_replace_unrelated_board_rules() {
         fs::read_to_string(root.join("sample.kicad_dru")).expect("caller rules remain"),
         "caller rules\n"
     );
+}
+
+#[test]
+fn drc_summary_includes_connectivity_and_preserves_existing_findings() {
+    let report = include_str!(
+        "../../../packages/temper-placer/tests/validation/fixtures/kicad_drc_reports/temper_26981fea_run0.json"
+    );
+    let out = drc_with_report("connectivity-summary", report);
+    assert!(
+        out.status.success(),
+        "DRC report should parse: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.lines().any(|line| line == "DRC violations: 1115"), "{stdout}");
+    assert!(stdout.lines().any(|line| line == "  [error] unconnected_items: 339"), "{stdout}");
+    assert!(stdout.lines().any(|line| line == "  [error] clearance: 179"), "{stdout}");
+}
+
+#[test]
+fn drc_summary_reports_connectivity_only_findings() {
+    let out = drc_with_report(
+        "connectivity-only-summary",
+        r#"{"violations":[],"unconnected_items":[{"type":"unconnected_items","severity":"error"}]}"#,
+    );
+    assert!(
+        out.status.success(),
+        "DRC report should parse: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.lines().any(|line| line == "DRC violations: 1"), "{stdout}");
+    assert!(stdout.lines().any(|line| line == "  [error] unconnected_items: 1"), "{stdout}");
+}
+
+#[test]
+fn drc_summary_accepts_missing_or_empty_connectivity_array() {
+    for (name, report, expected_total, expected_line) in [
+        (
+            "connectivity-missing",
+            r#"{"violations":[{"type":"clearance","severity":"warning"}]}"#,
+            1,
+            Some("  [warning] clearance: 1"),
+        ),
+        (
+            "connectivity-empty",
+            r#"{"violations":[],"unconnected_items":[]}"#,
+            0,
+            None,
+        ),
+    ] {
+        let out = drc_with_report(name, report);
+        assert!(
+            out.status.success(),
+            "{name}: {}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        let stdout = String::from_utf8_lossy(&out.stdout);
+        assert!(
+            stdout
+                .lines()
+                .any(|line| line == format!("DRC violations: {expected_total}")),
+            "{stdout}"
+        );
+        if let Some(expected_line) = expected_line {
+            assert!(stdout.lines().any(|line| line == expected_line), "{stdout}");
+        }
+    }
+}
+
+#[test]
+fn drc_summary_rejects_malformed_connectivity_array() {
+    for (name, report) in [
+        (
+            "connectivity-malformed-object",
+            r#"{"violations":[],"unconnected_items":{}}"#,
+        ),
+        (
+            "connectivity-malformed-null",
+            r#"{"violations":[],"unconnected_items":null}"#,
+        ),
+        (
+            "connectivity-malformed-entry",
+            r#"{"violations":[],"unconnected_items":[null]}"#,
+        ),
+    ] {
+        let out = drc_with_report(name, report);
+        assert!(!out.status.success(), "{name} must fail");
+        let stdout = String::from_utf8_lossy(&out.stdout);
+        let stderr = String::from_utf8_lossy(&out.stderr);
+        assert!(stderr.contains("unconnected_items"));
+        assert!(!stdout.contains("DRC violations:"));
+    }
 }
 
 /// The same 0.2 mm track passes the default width check and fails only when
