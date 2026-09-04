@@ -1,4 +1,4 @@
-<!-- provenance: admission-scoped U7 early-terminal evidence; no production artifacts changed -->
+<!-- provenance: commit=DERIVED dirty=UNKNOWN; admission-scoped U7 early-terminal evidence; no production artifacts changed -->
 # Split-board interface feasibility — U7 early terminal record
 
 ## Decision
