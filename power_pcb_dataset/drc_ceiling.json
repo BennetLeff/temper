@@ -364,21 +364,31 @@
         "track_dangling": 0,
         "via_dangling": 0
       }
+    },
+    "2026-09-03-k1-left-move": {
+      "date": "2026-09-03",
+      "cause": "Moved K1 from (90, 228) to (86, 228) to clear the genuine K1/J1 reinforced-creepage shortfall identified in docs/evidence/2026-08-24-k1-isolation-barrier-triage.md. The focused safety suite changed from K1/J1 9.686 mm to above the enforced 12.6 mm threshold, with no new safety findings; board containment also passed. Live kicad-cli 10.0.5 measurement used regenerated DRU rules and 120 samples: clearance 209, copper_edge_clearance 11, courtyards_overlap 3, creepage count 104 in all samples (violation set nondeterministic), drill_out_of_range 6, hole_clearance 33, shorting_items 39, solder_mask_bridge 4, unconnected_items 348; warnings unchanged at 402 raw total. The aggregate error ceiling rises from 406 to 757 because the current DRC record omitted the already-observed unconnected_items category (348), while this move itself reduces courtyards_overlap 4 -> 3 and records creepage 100 -> 104. The creepage rise is an observed KiCad measurement effect from the changed placement and is retained rather than hidden; all deltas are attributed to this named K1 move and the pre-existing omitted category.",
+      "per_type_delta": {
+        "courtyards_overlap": -1,
+        "creepage": 4,
+        "unconnected_items": 348,
+        "error_ceiling": 351
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 406,
+      "error_ceiling": 757,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
         "annular_width": 0,
         "clearance": 209,
         "copper_edge_clearance": 11,
-        "courtyards_overlap": 4,
-        "creepage": 100,
+        "courtyards_overlap": 3,
+        "creepage": 104,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -386,16 +396,17 @@
         "solder_mask_bridge": 4,
         "track_width": 0,
         "tracks_crossing": 0,
-        "via_diameter": 0
+        "via_diameter": 0,
+        "unconnected_items": 348
       },
       "provenance": {
-        "measured_at_commit": "3f26ee8871d2d4b92518c3402981b0d46a43e4e6",
+        "measured_at_commit": "2e46dece16e312a164f7901b6c5bf3da8145f4d6",
         "dirty": false,
-        "branch": "fix/board-safety-followup-20260830",
+        "branch": "fix/k1-j1-creepage-20260903",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+            "sha256": "4cce75e8059c5273a18065150cb34b4bfac60b7aa330aa70c4b064a5c7bbd466"
           }
         ],
         "tool_versions": {
@@ -416,7 +427,13 @@
         "track_dangling": 1,
         "via_dangling": 111
       },
-      "nondeterministic_error_types": {},
+        "nondeterministic_error_types": {
+          "creepage": {
+            "observed": [104],
+            "samples": 120,
+            "note": "Violation set is nondeterministic across 120 kicad-cli 10.0.5 samples; reported count was 104 in every sample."
+          }
+        },
       "saturation_hazard": {
         "_what_this_is": "kicad-cli caps every DRC category's reported count at a GUI list-widget constant (ERROR_LIMIT=199 or EXTENDED_ERROR_LIMIT=499, drc_engine.cpp) -- NOT a property of the board. A category landing at/near its cap, especially deterministically, may be SATURATED (true count >= the cap, exact value unknown) rather than genuinely equal to the reported number. See docs/evidence/2026-08-12-uncapped-drc-measurement.md and scripts/measure_uncapped_drc.py (the provably-exhaustive DRU-rule / physical-board-content partition-and-sum method that recovers a true count). Read violations_by_type/warnings_by_type above with this table, not blind.",
         "clearance": {
