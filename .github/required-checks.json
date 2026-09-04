@@ -4,6 +4,7 @@
   "poll_interval_seconds": 15,
   "trigger_paths": [
     "packages/**",
+    "crates/temper-cli/**",
     "elec/**",
     "tests/**",
     "scripts/**",
@@ -152,6 +153,7 @@
     "Rust Checks (cargo check + clippy)": {
       "id": "rust-checks",
       "paths": [
+        "crates/temper-cli/**",
         "packages/temper-constraint-compiler/**",
         "packages/temper-design-bundle/**",
         "packages/temper-drc-rs/**",

@@ -526,16 +526,78 @@ fn drc(pcb: &Path) -> ExitCode {
         eprintln!("temper: no such file: {}", pcb.display());
         return ExitCode::FAILURE;
     }
+    // `run_in_repo` changes cwd before invoking kicad-cli, so resolve the
+    // caller's path now. KiCad resolves project/rule sidecars by the board's
+    // actual stem and directory, not by the repository's canonical board.
+    let pcb = match std::fs::canonicalize(pcb) {
+        Ok(path) => path,
+        Err(e) => {
+            eprintln!("temper: cannot resolve board path {}: {e}", pcb.display());
+            return ExitCode::FAILURE;
+        }
+    };
+    let project = pcb.with_extension("kicad_pro");
+    if !project.is_file() {
+        eprintln!(
+            "temper: missing KiCad project context; expected regular file {}",
+            project.display()
+        );
+        return ExitCode::FAILURE;
+    }
     let python = python_cmd(&repo);
 
-    // 1. Regenerate pcb/temper.kicad_dru (gitignored, generated). Without it
-    // creepage reads 0 and clearance reads a different count entirely.
+    // 1. Regenerate the canonical DRU (gitignored, generated), then install
+    // that exact generated file beside the requested board. KiCad only loads
+    // <board-stem>.kicad_dru, so leaving the output at pcb/temper.kicad_dru
+    // makes a different basename or directory silently run without these
+    // rules.
     let dru_script = repo.join("scripts").join("generate_kicad_dru.py");
     let dru_script = dru_script.to_string_lossy().into_owned();
     let dru_args = [dru_script.as_str()];
     println!("temper: regenerating pcb/temper.kicad_dru ...");
     if run_in_repo(&repo, &python, &dru_args) != ExitCode::SUCCESS {
         return ExitCode::FAILURE;
+    }
+    let generated_dru = repo.join("pcb").join("temper.kicad_dru");
+    if !generated_dru.is_file() {
+        eprintln!(
+            "temper: DRU generator succeeded but produced no regular file at {}",
+            generated_dru.display()
+        );
+        return ExitCode::FAILURE;
+    }
+    let target_dru = pcb.with_extension("kicad_dru");
+    if target_dru != generated_dru {
+        if target_dru.exists() {
+            let existing = match std::fs::read(&target_dru) {
+                Ok(bytes) => bytes,
+                Err(e) => {
+                    eprintln!("temper: cannot read existing rule file {}: {e}", target_dru.display());
+                    return ExitCode::FAILURE;
+                }
+            };
+            let generated = match std::fs::read(&generated_dru) {
+                Ok(bytes) => bytes,
+                Err(e) => {
+                    eprintln!("temper: cannot read generated rule file {}: {e}", generated_dru.display());
+                    return ExitCode::FAILURE;
+                }
+            };
+            if existing != generated {
+                eprintln!(
+                    "temper: refusing to overwrite existing KiCad rules {}; remove it or make it match {}",
+                    target_dru.display(), generated_dru.display()
+                );
+                return ExitCode::FAILURE;
+            }
+        } else if let Err(e) = std::fs::copy(&generated_dru, &target_dru) {
+            eprintln!(
+                "temper: cannot install generated KiCad rules at {}: {e}",
+                target_dru.display()
+            );
+            return ExitCode::FAILURE;
+        }
+        println!("temper: using generated KiCad rules at {}", target_dru.display());
     }
 
     // 2. kicad-cli DRC into a temp JSON report. `--all-track-errors` is
