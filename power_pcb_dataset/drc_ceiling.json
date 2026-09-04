@@ -367,12 +367,12 @@
     },
     "2026-09-03-k1-left-move": {
       "date": "2026-09-03",
-      "cause": "Moved K1 from (90, 228) to (86, 228) to clear the genuine K1/J1 reinforced-creepage shortfall identified in docs/evidence/2026-08-24-k1-isolation-barrier-triage.md. The focused safety suite changed from K1/J1 9.686 mm to above the enforced 12.6 mm threshold, with no new safety findings; board containment also passed. Live kicad-cli 10.0.5 measurement used regenerated DRU rules and 120 samples: clearance 209, copper_edge_clearance 11, courtyards_overlap 3, creepage count 104 in all samples (violation set nondeterministic), drill_out_of_range 6, hole_clearance 33, shorting_items 39, solder_mask_bridge 4, unconnected_items 348; warnings unchanged at 402 raw total. The aggregate error ceiling rises from 406 to 757 because the current DRC record omitted the already-observed unconnected_items category (348), while this move itself reduces courtyards_overlap 4 -> 3 and records creepage 100 -> 104. The creepage rise is an observed KiCad measurement effect from the changed placement and is retained rather than hidden; all deltas are attributed to this named K1 move and the pre-existing omitted category.",
+      "cause": "Moved K1 from (90, 228) to (90, 224) to clear the genuine K1/J1 reinforced-creepage shortfall identified in docs/evidence/2026-08-24-k1-isolation-barrier-triage.md. Exact pad geometry changed K1/J1 from 9.686 mm to 12.884 mm, above the enforced 12.6 mm threshold, with no new safety findings; board containment also passed. Live kicad-cli 10.0.5 measurement used regenerated DRU rules and 120 samples: clearance 209, copper_edge_clearance 11, courtyards_overlap 3, creepage count 101 in all samples (violation set nondeterministic), drill_out_of_range 6, hole_clearance 33, shorting_items 39, solder_mask_bridge 4, unconnected_items 348; warnings unchanged at 402 raw total. The aggregate error ceiling rises from 406 to 754 because the current DRC record omitted the already-observed unconnected_items category (348), while this move itself reduces courtyards_overlap 4 -> 3 and records creepage 100 -> 101. The creepage rise is an observed KiCad measurement effect from the changed placement and is retained rather than hidden; all deltas are attributed to this named K1 move and the pre-existing omitted category.",
       "per_type_delta": {
         "courtyards_overlap": -1,
-        "creepage": 4,
+        "creepage": 1,
         "unconnected_items": 348,
-        "error_ceiling": 351
+        "error_ceiling": 348
       }
     }
   },
@@ -380,7 +380,7 @@
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 757,
+      "error_ceiling": 754,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -388,7 +388,7 @@
         "clearance": 209,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 3,
-        "creepage": 104,
+        "creepage": 101,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -400,13 +400,13 @@
         "unconnected_items": 348
       },
       "provenance": {
-        "measured_at_commit": "2e46dece16e312a164f7901b6c5bf3da8145f4d6",
+        "measured_at_commit": "ab366b562575c064e38616d6f5999ef089d99095",
         "dirty": false,
         "branch": "fix/k1-j1-creepage-20260903",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "4cce75e8059c5273a18065150cb34b4bfac60b7aa330aa70c4b064a5c7bbd466"
+            "sha256": "44ae6bd56ea5f68ae6dbf3278c32dd82652d4f9ed81fd7c2dbe69bb601bc97d8"
           }
         ],
         "tool_versions": {
@@ -429,7 +429,7 @@
       },
         "nondeterministic_error_types": {
           "creepage": {
-            "observed": [104],
+            "observed": [101],
             "samples": 120,
             "note": "Violation set is nondeterministic across 120 kicad-cli 10.0.5 samples; reported count was 104 in every sample."
           }
