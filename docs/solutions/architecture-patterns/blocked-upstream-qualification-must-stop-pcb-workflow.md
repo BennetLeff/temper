@@ -56,27 +56,28 @@ Model three outcomes separately:
    `stopped-indeterminate`. This is data, not an exception and not an
    architecture verdict. Rust permits terminal evaluation only for an
    admission-scoped U1 stop with no local axes
-   (`packages/temper-quality-oracle/src/split_board_feasibility.rs:801`,
-   `:951`).
+   (`packages/temper-quality-oracle/src/split_board_feasibility.rs:804`,
+   `:959`).
 3. **Physical candidate result.** Geometry, routing, DRC, or rejection evidence
    exists only after admission authorizes those units. It must not be inferred
    from a missing candidate.
 
 Rebind both bytes and meaning. The replay adapter supplies the exact upstream
 decision, contract, manifest, and combined-candidate bytes before constructing
-the terminal package (`scripts/check_split_board_feasibility.py:295`). Rust
+the terminal package (`scripts/check_split_board_feasibility.py:297`, `:313`,
+`:425`). Rust
 checks each digest against the supplied bytes, parses those bytes, compares
 their declared records, and validates the blocked-state fields
 (`packages/temper-quality-oracle/src/split_board_feasibility.rs:150`,
-`:983`, `:1031`). A digest proves which bytes were supplied; it does not prove
+`:991`, `:1035`). A digest proves which bytes were supplied; it does not prove
 that the bytes are the canonical artifact or express the permitted semantics.
 
 Close the terminal binding vocabulary. The evaluator requires the exact U7
 binding set and canonical paths, then requires precisely four local source
 byte sets: manifest, admission decision, evidence index, and owner signoffs
-(`packages/temper-quality-oracle/src/split_board_feasibility.rs:1083`,
-`:1119`). It also verifies that the committed admission bytes equal the fresh
-Rust admission result (`packages/temper-quality-oracle/src/split_board_feasibility.rs:1184`).
+(`packages/temper-quality-oracle/src/split_board_feasibility.rs:1088`,
+`:1124`). It also verifies that the committed admission bytes equal the fresh
+Rust admission result (`packages/temper-quality-oracle/src/split_board_feasibility.rs:1189`).
 This prevents a caller from omitting an unfavorable authority, substituting an
 alternate path, or editing a no-claim artifact and merely rebinding its hash.
 
