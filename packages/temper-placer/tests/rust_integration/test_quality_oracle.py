@@ -22,6 +22,9 @@ try:
 except ImportError:
     HAS_RUST_ORACLE = False
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "scripts"))
+from check_pyo3_duplicate_registration import run as run_pyo3_registration_gate  # noqa: E402
+
 
 def require_oracle():
     if not HAS_RUST_ORACLE:
@@ -755,3 +758,52 @@ class TestPrepareEvaluateSplit:
         result = temper_quality_oracle.evaluate_prepared_py(prepared, placement, bad_metrics)
         assert result["verdict"] == "Fail"
         assert any(v["type"] == "invalid_metric" for v in result["violations"])
+
+
+def test_split_board_admission_registration_is_unique():
+    require_oracle()
+    name = "evaluate_split_board_feasibility_json"
+    assert callable(getattr(temper_quality_oracle, name))
+    report = run_pyo3_registration_gate()
+    assert report.duplicates == {}
+    sites = [
+        site
+        for unit in report.units
+        if unit.crate == "temper-quality-oracle"
+        for site in unit.sites
+        if site.python_name == name
+    ]
+    assert len(sites) == 1
+    assert sites[0].rust_name == name
+
+
+def test_split_board_live_admission_stops_before_geometry():
+    require_oracle()
+    decision = {
+        "verdict": "stopped-indeterminate",
+        "domain_results": {"iso": "rejected", "ct07": "stopped-indeterminate"},
+        "reasons": ["upstream.missing-authority"],
+    }
+    decision_bytes = json.dumps(decision, separators=(",", ":")).encode()
+    contract_bytes = b"split-board-contract"
+    manifest_bytes = b"split-board-manifest"
+    package = {
+        "schema_version": 1,
+        "candidate_id": "split-board-u1",
+        "evaluator_identity": "split-board-feasibility-admission-v1",
+        "joint_contract_digest": hashlib.sha256(contract_bytes).hexdigest(),
+        "joint_contract_bytes": list(contract_bytes),
+        "upstream_manifest_digest": hashlib.sha256(manifest_bytes).hexdigest(),
+        "upstream_manifest_bytes": list(manifest_bytes),
+        "upstream_decision": decision,
+        "replayed_decision": decision,
+        "published_decision": decision,
+        "published_decision_bytes": list(decision_bytes),
+        "published_decision_digest": hashlib.sha256(decision_bytes).hexdigest(),
+        "candidate_family": {"members": [], "exhausted": False},
+    }
+    result = json.loads(
+        temper_quality_oracle.evaluate_split_board_feasibility_json(json.dumps(package))
+    )
+    assert result["verdict"] == "stopped-indeterminate"
+    assert result["geometry_admitted"] is False

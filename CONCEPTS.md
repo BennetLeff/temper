@@ -25,6 +25,11 @@ A board-layout process that partitions voltage domains and reserves their
 isolation corridors before individual component placement and routing are
 optimized.
 
+### Power-board SELV edge strip
+
+The sole SELV region permitted on Temper's high-voltage power board, placed along a board edge and separated from the HV region by one continuous isolation barrier.
+It contains only the SELV-side terminals of approved isolation constructions, local SELV rail generation and signal conditioning, and the SELV-only control-board interface.
+
 ### Safety signature
 
 A documentation-and-evidence identity for one clearance or creepage finding,

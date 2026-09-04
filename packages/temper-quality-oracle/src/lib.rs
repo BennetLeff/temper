@@ -24,6 +24,7 @@ pub mod derivation;
 pub mod ipc2221;
 pub mod owner_iso7741;
 pub mod owner_joint_candidate;
+pub mod split_board_feasibility;
 pub mod isolation_qualification;
 pub mod oracle;
 pub mod placement_metrics;
@@ -1035,6 +1036,17 @@ fn evaluate_isolation_joint_u9_json(package_json: &str) -> PyResult<String> {
     })
 }
 
+/// Evaluate the split-board admission lifecycle through the Rust-owned
+/// schema, identity, and fail-closed verdict kernel.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn evaluate_split_board_feasibility_json(package_json: &str) -> PyResult<String> {
+    temper_py_bridge::catch_panic(|| {
+        split_board_feasibility::evaluate_json(package_json)
+            .map_err(|error| PyValueError::new_err(error.to_string()))
+    })
+}
+
 /// Evaluate the ISO7741 gate-drive package through the Rust-owned kernel.
 /// Repository replay and publication remain in the sealed Python boundary.
 #[cfg(feature = "python")]
@@ -1176,6 +1188,7 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(evaluate_isolation_joint_u9_json, m)?)?;
+    m.add_function(wrap_pyfunction!(evaluate_split_board_feasibility_json, m)?)?;
     m.add_function(wrap_pyfunction!(
         evaluate_iso7741_gate_drive_qualification_json,
         m

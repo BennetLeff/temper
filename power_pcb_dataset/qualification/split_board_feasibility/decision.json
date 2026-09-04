@@ -1,0 +1,120 @@
+{
+  "architecture_no_go": false,
+  "bindings": {
+    "admission_decision": {
+      "path": "power_pcb_dataset/qualification/split_board_feasibility/admission_decision.json",
+      "sha256": "f5c55a33fad9d03287847b7cd2a74135f9bcc569c85d006bdc0d07425944e1af"
+    },
+    "evidence_index": {
+      "path": "power_pcb_dataset/qualification/split_board_feasibility/evidence_index.json",
+      "sha256": "8b56c26314281ea4a65c22f7819150c61133434da6a2c8f2a980a63903edbfe2"
+    },
+    "manifest": {
+      "path": "power_pcb_dataset/qualification/split_board_feasibility/manifest.json",
+      "sha256": "7cf4540bf0bd4f35f21a79f059cf3798f18fdca4f01edf6691c44ed6aee6ac32"
+    },
+    "owner_signoffs": {
+      "path": "power_pcb_dataset/qualification/split_board_feasibility/owner_signoffs.json",
+      "sha256": "41dacd2083c3f570564ed493e5dc140c16db975628ef6162b5f4657cbb63a829"
+    },
+    "upstream_combined_candidate": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/combined_candidate.json",
+      "sha256": "afd893ffb812ae0f1803f8d2ab95e0b1e4ef0e636b1535f072fd9234be0ea9ff"
+    },
+    "upstream_joint_contract": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/contract.json",
+      "sha256": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f"
+    },
+    "upstream_joint_decision": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/decision.json",
+      "sha256": "05de8d00f4fb1a33c4c49048b3bb82ed2c749c2496e6c6da8318203c5f03501c"
+    },
+    "upstream_joint_manifest": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/manifest.json",
+      "sha256": "107fec540404057fd0f4bdf7dc8edab9c593fe33a504f3dc0b372358e3de13df"
+    }
+  },
+  "candidate_id": "split-board-feasibility-u1-admission",
+  "candidate_rejection": false,
+  "cause_class": "missing-authority",
+  "combined_candidate": {
+    "path": "power_pcb_dataset/qualification/isolation_joint/combined_candidate.json",
+    "sha256": "afd893ffb812ae0f1803f8d2ab95e0b1e4ef0e636b1535f072fd9234be0ea9ff",
+    "source_status": "not-materialized",
+    "status": "absent"
+  },
+  "decision_id": "split-board-feasibility-u7-early-terminal",
+  "domain_results": {
+    "ct07": "stopped-indeterminate",
+    "iso": "rejected"
+  },
+  "evaluator_identity": "split-board-feasibility-admission-v1",
+  "geometry_admitted": false,
+  "next_authority": "Upstream ISO and CT07 qualification owners must resolve the admission inputs and publish a materialized, eligible joint candidate before downstream feasibility work begins.",
+  "not_claimed": [
+    "spatial feasibility",
+    "candidate rejection",
+    "architecture no-go",
+    "production readiness",
+    "production authorization"
+  ],
+  "not_reached_requirements": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R5",
+    "R6",
+    "R7",
+    "R8",
+    "R9",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16",
+    "R17",
+    "R18",
+    "R19",
+    "R20",
+    "R21",
+    "R26",
+    "R27"
+  ],
+  "not_reached_units": [
+    "U2",
+    "U3",
+    "U4",
+    "U5",
+    "U6"
+  ],
+  "production_authorization": false,
+  "production_authorized": false,
+  "reached_stop_requirements": [
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R28",
+    "R29",
+    "R30"
+  ],
+  "reasons": [
+    "admission.upstream_joint_not_eligible",
+    "combined.candidate_not_materialized",
+    "ct07.u8_handoff_missing",
+    "evidence.direct_captures_missing",
+    "evidence.rows_incomplete",
+    "iso.u7_approval_missing",
+    "signoffs.combined_matrix_missing"
+  ],
+  "schema_version": 1,
+  "scope": "admission",
+  "stage": "u7-terminal-decision",
+  "stop_witness": "admission.upstream_joint_not_eligible",
+  "terminal_unit": "U1",
+  "upstream_verdict": "stopped-indeterminate",
+  "verdict": "stopped-indeterminate"
+}

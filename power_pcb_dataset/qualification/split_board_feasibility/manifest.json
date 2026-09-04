@@ -1,0 +1,165 @@
+{
+  "candidate_id": "split-board-feasibility-u1-admission",
+  "candidate_family": {
+    "closed": true,
+    "members": []
+  },
+  "evaluator_identity": "split-board-feasibility-admission-v1",
+  "joint_contract_path": "power_pcb_dataset/qualification/isolation_joint/contract.json",
+  "joint_contract_digest": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f",
+  "production_authorization": false,
+  "protected_descriptor": {
+    "required_paths": [
+      "pcb/temper.kicad_pcb",
+      "pcb/temper.kicad_pro",
+      "pcb/fp-lib-table",
+      "power_pcb_dataset/drc_ceiling.json",
+      "elec/domain_manifest.yaml",
+      "elec/ato.yaml",
+      "docs/ENVIRONMENTAL_SPEC.md",
+      "docs/hardware/BOM.md",
+      "packages/temper-placer/src/temper_placer/core/isolation_constants.py",
+      "packages/temper-design-bundle/src/safety_value.rs",
+      "packages/temper-design-bundle/src/safety_value_authority.rs",
+      "packages/temper-thermal/src/safety.rs"
+    ],
+    "recursive_paths": [
+      "pcb/libs",
+      "elec/src",
+      "elec/exports",
+      "elec/build",
+      "firmware",
+      "packages/temper-drc-rs/src/rules/safety",
+      "power_pcb_dataset/qualification/isolation_joint"
+    ],
+    "campaign_base": [
+      {"path": "pcb/temper.kicad_pcb", "kind": "file", "content_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"},
+      {"path": "pcb/temper.kicad_pro", "kind": "file", "content_sha256": "5bc09a679a3d0a1d671d28d6ac9f1186436c56235083baaf4e3addfee19393bb"},
+      {"path": "pcb/fp-lib-table", "kind": "file", "content_sha256": "e2d94e86834940110cb6f852cfd5e13f6facb6eb68a1c6350bb299919c68f2d6"},
+      {"path": "power_pcb_dataset/drc_ceiling.json", "kind": "file", "content_sha256": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2"},
+      {"path": "elec/domain_manifest.yaml", "kind": "file", "content_sha256": "f1899c87a61f579e2a92dbd673c1ad29036aed463b2f3fcc4ff7cca7f034bae3"},
+      {"path": "elec/ato.yaml", "kind": "file", "content_sha256": "e329edbf21569a5a347c20a4aab83209a02f11d1d29de7a96316097d4eec1a4d"},
+      {"path": "docs/ENVIRONMENTAL_SPEC.md", "kind": "file", "content_sha256": "afa367890d4872cce0033455ded49ea9b5826b9ba3a25229f4ec336d34cbaccf"},
+      {"path": "docs/hardware/BOM.md", "kind": "file", "content_sha256": "7bdf2cf163ada5351b462bfb6090921c3a4d4881a28362d73dbdd93ccaa9f66c"},
+      {"path": "packages/temper-placer/src/temper_placer/core/isolation_constants.py", "kind": "file", "content_sha256": "486d54267087b467b4148e7eb3c91106f3950fc3784e527d786cf3f346aeae21"},
+      {"path": "packages/temper-design-bundle/src/safety_value.rs", "kind": "file", "content_sha256": "c8e7c73a868a2b46d6411051495abf7d3f40d2c313da9d9d50f3fba4cf48237c"},
+      {"path": "packages/temper-design-bundle/src/safety_value_authority.rs", "kind": "file", "content_sha256": "8de374c4ffcd9de6d76cdbe5ff7ab55a46c9cd61a440e18a133478ef2ba96793"},
+      {"path": "packages/temper-thermal/src/safety.rs", "kind": "file", "content_sha256": "58a81827d253332316bcfbee7f0983d57bf0b7fc23cd8c86ef1f70879f0d881c"},
+      {"path": "pcb/libs", "kind": "directory", "tree_sha256": "19289b55f3896651a628d937af997dd114963afde0a8bca8f332ae52961cd5d0"},
+      {"path": "elec/src", "kind": "directory", "tree_sha256": "551ac5a8863c6ea2e3dfafc948c758f10f1fadc46ca94d3c569330aee77b0cd1"},
+      {"path": "elec/exports", "kind": "directory", "tree_sha256": "ce83e4d4aa00661577c5ba2987da1b6c66efd70a382cbd6a0e025d38a3a44cb4"},
+      {"path": "elec/build", "kind": "absent"},
+      {"path": "firmware", "kind": "directory", "tree_sha256": "737bde6b5c6cf0323265bde6bce62602380cda7cec30b8a52014e6a13b6f3d62"},
+      {"path": "packages/temper-drc-rs/src/rules/safety", "kind": "directory", "tree_sha256": "6b8b847016a810e87c00402ee3ff3e46840ddc6df53ac25907cd27f9618fb073"},
+      {"path": "power_pcb_dataset/qualification/isolation_joint", "kind": "directory", "tree_sha256": "41788faeb0e3738233f40e88116d5d24c9b6d369ad3b5a7c8dbaf9eef41585fa"}
+    ]
+  },
+  "protected_inputs": [
+    {
+      "path": "docs/ENVIRONMENTAL_SPEC.md",
+      "sha256": "afa367890d4872cce0033455ded49ea9b5826b9ba3a25229f4ec336d34cbaccf"
+    },
+    {
+      "path": "elec/qualification/isolation_joint/interface_contract.json",
+      "sha256": "53638e91ad0956f8ac1e1d3eef593a93ceea7a6e2f956dc4d0fcb06b4a01ce04"
+    },
+    {
+      "path": "elec/qualification/isolation_joint/validation/fixture_contract.json",
+      "sha256": "2e821c247346e5747a281681cd4d6a6d8533d2db0054a1ae21345be22b99b30a"
+    },
+    {
+      "path": "elec/domain_manifest.yaml",
+      "sha256": "f1899c87a61f579e2a92dbd673c1ad29036aed463b2f3fcc4ff7cca7f034bae3"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/ct07_t2/authority/preliminary_decision.json",
+      "sha256": "78c608177ef04b182fb7c309d84047c003b6293db08e30786cd8b41f7881186a"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/ct07_t2/internal_decision.json",
+      "sha256": "ea05c6d0abcd0533d3c467e3b52bc5a8953ea57973bae3f11a7506ff3561311a"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/iso7741_gate_drive/internal_decision.json",
+      "sha256": "0420cf5f1f38ce4466c4bb6b7b6359c688086e50f2b5fdf697acb0750762d2b1"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/iso7741_gate_drive/preliminary_decision.json",
+      "sha256": "e1211d55de5b7292fc81fb490883e5f1f568e593ca44e4e213f92c2d6c76b3c2"
+    },
+    {
+      "path": "power_pcb_dataset/drc_ceiling.json",
+      "sha256": "c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/combined_candidate.json",
+      "sha256": "afd893ffb812ae0f1803f8d2ab95e0b1e4ef0e636b1535f072fd9234be0ea9ff"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/contract.json",
+      "sha256": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/corridor_evidence.json",
+      "sha256": "1c6ed407d57ec80a5b30e0719b96392dc5795e1e4bced03452d9fa47ed8b4122"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/decision.json",
+      "sha256": "05de8d00f4fb1a33c4c49048b3bb82ed2c749c2496e6c6da8318203c5f03501c"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/fault_injection_evidence.json",
+      "sha256": "01ad9560a4ac43f40cad2bb58a4317ba4fced7812971b13fd5cd5afdde27cb1c"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/interface_evidence.json",
+      "sha256": "e89b24a521fd859883cff96082f11deb52ba7b66cd584aa8dbc915a76e4e91e7"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/loop_evidence.json",
+      "sha256": "c50f746c0961d59aa7da27a677bc8cc9c0ef4fedd21ed3e7a526a95183704517"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/manifest.json",
+      "sha256": "107fec540404057fd0f4bdf7dc8edab9c593fe33a504f3dc0b372358e3de13df"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/owner_signoffs.json",
+      "sha256": "1d79f566fcc191736b7f54bc315e2286420b923082c8ef157f068ddc2390a0c5"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/retention_evidence.json",
+      "sha256": "0a02b1bd9f383e2000d7035baa8be4206d8c58c4b11f6dcde590eb1fa0192a03"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/shutdown_evidence.json",
+      "sha256": "35405e67b1923ad6256d93db8a776f74c95ee51dec605780a00ea12eca55ed9d"
+    },
+    {
+      "path": "power_pcb_dataset/qualification/isolation_joint/thermal_evidence.json",
+      "sha256": "486a077ea0080dbdd296441b058632cafb4b9c5950c03eb0ed082354ba1429cb"
+    },
+    {
+      "path": "packages/temper-placer/src/temper_placer/core/isolation_constants.py",
+      "sha256": "486d54267087b467b4148e7eb3c91106f3950fc3784e527d786cf3f346aeae21"
+    },
+    {
+      "path": "pcb/temper.kicad_pcb",
+      "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+    }
+  ],
+  "schema_version": 1,
+  "stage": "u1-admission",
+  "status": "stopped-indeterminate",
+  "terminal_artifacts": {
+    "stage": "u7-early-terminal",
+    "decision_path": "power_pcb_dataset/qualification/split_board_feasibility/decision.json",
+    "evidence_index_path": "power_pcb_dataset/qualification/split_board_feasibility/evidence_index.json",
+    "owner_signoffs_path": "power_pcb_dataset/qualification/split_board_feasibility/owner_signoffs.json"
+  },
+  "upstream": {
+    "decision_path": "power_pcb_dataset/qualification/isolation_joint/decision.json",
+    "manifest_path": "power_pcb_dataset/qualification/isolation_joint/manifest.json",
+    "required_verdict": "eligible-for-refloorplan"
+  }
+}

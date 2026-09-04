@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "campaign": "split-board-interface-feasibility",
+  "stage": "u7-terminal-decision",
+  "status": "stopped-indeterminate",
+  "decision_scope": "admission",
+  "terminal_unit": "U1",
+  "terminal_axis": "admission.identity_and_limitations",
+  "construction_release_eligible": false,
+  "geometry_admitted": false,
+  "production_authorized": false,
+  "production_authorization": false,
+  "evidence_root_digest": null,
+  "signed_scope_digest": null,
+  "raw_evidence": [],
+  "bindings": {
+    "admission_decision": {
+      "path": "power_pcb_dataset/qualification/split_board_feasibility/admission_decision.json",
+      "sha256": "f5c55a33fad9d03287847b7cd2a74135f9bcc569c85d006bdc0d07425944e1af"
+    },
+    "manifest": {
+      "path": "power_pcb_dataset/qualification/split_board_feasibility/manifest.json",
+      "sha256": "7cf4540bf0bd4f35f21a79f059cf3798f18fdca4f01edf6691c44ed6aee6ac32"
+    },
+    "upstream_joint_decision": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/decision.json",
+      "sha256": "05de8d00f4fb1a33c4c49048b3bb82ed2c749c2496e6c6da8318203c5f03501c"
+    },
+    "upstream_joint_contract": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/contract.json",
+      "sha256": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f"
+    },
+    "upstream_joint_manifest": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/manifest.json",
+      "sha256": "107fec540404057fd0f4bdf7dc8edab9c593fe33a504f3dc0b372358e3de13df"
+    },
+    "upstream_combined_candidate": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/combined_candidate.json",
+      "sha256": "afd893ffb812ae0f1803f8d2ab95e0b1e4ef0e636b1535f072fd9234be0ea9ff"
+    }
+  },
+  "upstream": {
+    "verdict": "stopped-indeterminate",
+    "domain_results": {
+      "iso": "rejected",
+      "ct07": "stopped-indeterminate"
+    },
+    "combined_candidate": "absent",
+    "required_verdict_for_admission": "eligible-for-refloorplan"
+  },
+  "evidence_axes": [
+    {
+      "code": "admission.identity_and_limitations",
+      "unit": "U1",
+      "status": "stopped-indeterminate",
+      "reason": "The upstream joint qualification is not eligible for refloorplanning."
+    },
+    {
+      "code": "crossing_inventory_and_domains",
+      "unit": "U2",
+      "status": "not-reached",
+      "reason": "U1 admission stopped before the complete crossing inventory could be evaluated."
+    },
+    {
+      "code": "bulk_power_shutdown_and_fault",
+      "unit": "U3",
+      "status": "not-reached",
+      "reason": "U2 was not reached; no live electrical or safe-state evidence exists."
+    },
+    {
+      "code": "pwm_analog_and_return_integrity",
+      "unit": "U3",
+      "status": "not-reached",
+      "reason": "U2 was not reached; no live signal-budget evidence exists."
+    },
+    {
+      "code": "connector_mating_and_sourcing",
+      "unit": "U4",
+      "status": "not-reached",
+      "reason": "U3 was not reached; no connector or pinout candidate was selected."
+    },
+    {
+      "code": "two_board_candidate_materialization",
+      "unit": "U5",
+      "status": "not-reached",
+      "reason": "Admission did not authorize geometry, so no candidate boards were materialized."
+    },
+    {
+      "code": "topology_geometry_route_capacity_and_drc",
+      "unit": "U6",
+      "status": "not-reached",
+      "reason": "U5 was not reached; no spatial, topology, route-capacity, or DRC evidence exists."
+    },
+    {
+      "code": "terminal_verdict_reproducibility",
+      "unit": "U7",
+      "status": "stopped-indeterminate",
+      "reason": "U7 records the authoritative U1 early stop; candidate and architecture verdicts were not evaluated."
+    }
+  ],
+  "reached_stop_requirements": [
+    {
+      "requirements": ["R22", "R23", "R24", "R25", "R28", "R29", "R30"],
+      "status": "stopped-indeterminate",
+      "stop_witness": "admission.upstream_joint_not_eligible"
+    }
+  ],
+  "requirements": [
+    {
+      "requirement": "R1",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R2",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R3",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R4",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R5",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R6",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R7",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R8",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R9",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R10",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R11",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R12",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R13",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R14",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R15",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R16",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R17",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R18",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R19",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R20",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R21",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R22",
+      "status": "stopped-indeterminate",
+      "reason": "U1 reached the qualification-envelope admission boundary, but the upstream joint stop prevented an approved construction from being admitted.",
+      "stop_witness": "admission.upstream_joint_not_eligible",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R23",
+      "status": "stopped-indeterminate",
+      "reason": "U1 reached the qualification-envelope admission boundary, but the upstream joint stop prevented an approved construction from being admitted.",
+      "stop_witness": "admission.upstream_joint_not_eligible",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R24",
+      "status": "stopped-indeterminate",
+      "reason": "U1 reached the qualification-envelope admission boundary, but the upstream joint stop prevented an approved construction from being admitted.",
+      "stop_witness": "admission.upstream_joint_not_eligible",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R25",
+      "status": "stopped-indeterminate",
+      "reason": "U1 reached the qualification-envelope admission boundary, but the upstream joint stop prevented an approved construction from being admitted.",
+      "stop_witness": "admission.upstream_joint_not_eligible",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R26",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R27",
+      "status": "not-reached",
+      "reason": "No candidate-level requirement was evaluated after the U1 admission stop.",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R28",
+      "status": "stopped-indeterminate",
+      "reason": "U1 reached the reproducibility/evidence identity boundary, but the upstream joint stop prevented a candidate evidence package from being admitted.",
+      "stop_witness": "admission.upstream_joint_not_eligible",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R29",
+      "status": "stopped-indeterminate",
+      "reason": "U1 reached the terminal-verdict admission boundary, but no candidate-level verdict is authorized while the upstream joint result is not eligible.",
+      "stop_witness": "admission.upstream_joint_not_eligible",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    },
+    {
+      "requirement": "R30",
+      "status": "stopped-indeterminate",
+      "reason": "U1 reached the failure/indeterminacy handoff boundary, but the upstream joint stop remains the governing witness.",
+      "stop_witness": "admission.upstream_joint_not_eligible",
+      "next_authority": "Complete the upstream joint qualification and publish an eligible-for-refloorplan admission before U2."
+    }
+  ],
+  "stop_witnesses": [
+    {
+      "code": "admission.upstream_joint_not_eligible",
+      "scope": "admission",
+      "status": "stopped-indeterminate",
+      "evidence": "The upstream decision is stopped-indeterminate with ISO rejected and CT07 stopped-indeterminate."
+    },
+    {
+      "code": "combined.candidate_not_materialized",
+      "scope": "admission",
+      "status": "stopped-indeterminate",
+      "evidence": "The upstream combined_candidate.json explicitly records status not-materialized."
+    }
+  ],
+  "not_claimed": [
+    "No spatial feasibility result was measured or inferred.",
+    "No candidate rejection was issued.",
+    "No architecture no-go was issued.",
+    "No human signature, owner approval, or evidence record is asserted.",
+    "No production authorization is granted."
+  ],
+  "next_step": "The upstream qualification owners must resolve the ISO rejection and CT07 stopped-indeterminate handoff, then materialize and replay the combined candidate before U2-U6 can be reached."
+}

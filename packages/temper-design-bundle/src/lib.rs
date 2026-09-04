@@ -253,8 +253,10 @@ pub use pcl::{PclDocument, PclInputConstraint};
 // faithful kiutils-model shapes, not a stable long-term API (the CLI driver
 // consumes them read-only).
 pub use parse_engine::{
-    parse_board_summary, parse_kicad_document, BoardSummary, Num, RawBoard, RawFootprint,
-    RawPad, RawPos, RawTraceItem, RawZone,
+    // Existing narrow parser facade consumed by the CLI and non-Python
+    // callers, plus the typed keepout/raw types used by quality evaluators.
+    parse_board_summary, parse_kicad_document, BoardSummary, KeepoutSetting, Num, RawBoard,
+    RawFootprint, RawKeepoutSettings, RawPad, RawPos, RawTraceItem, RawZone,
 };
 
 /// Constructs the canonical boundary from already-read source documents.

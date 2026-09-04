@@ -178,6 +178,7 @@ on:
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
+      - 'power_pcb_dataset/qualification/**'
       - 'scripts/gen_domain_models.py'
       - 'scripts/templates/netclass_rules.py.j2'
       - 'scripts/templates/netclass_rules.rs.j2'
@@ -302,6 +303,7 @@ on:
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
+      - 'power_pcb_dataset/qualification/**'
       - 'scripts/gen_domain_models.py'
       - 'scripts/templates/netclass_rules.py.j2'
       - 'scripts/templates/netclass_rules.rs.j2'
@@ -436,23 +438,25 @@ jobs:
   # undeclared-import tests). Each of those was a gate that had been red all
   # along and could not be seen.
   #
-  # Every gate step in the 8 split jobs now carries
-  #     if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-  # An `if:` containing a status-check function suppresses the implicit
-  # `success()` GitHub prepends, so the step runs even though an earlier step in
-  # the job failed -- and because none of these steps is `continue-on-error`, a
-  # failed gate still sets the JOB conclusion to `failure`. Independence here is
-  # about reporting, never about tolerance.
+  # Every gate step in the 8 split jobs now carries an explicit status check,
+  # normally `if: ${{ !cancelled() && steps.setup.outcome == 'success' }}`.
+  # The pre-netlist split-board checks use their own setup barrier because they
+  # must run before elec/build can exist. An `if:` containing a status-check
+  # function suppresses the implicit `success()` GitHub prepends, so a failed
+  # gate does not hide later independent gates -- and because none of these
+  # steps is `continue-on-error`, a failed gate still sets the JOB conclusion to
+  # `failure`. Independence here is about reporting, never about tolerance.
   #
-  # `steps.setup` is an explicit no-op barrier step placed at the end of each
-  # job's setup region, and it deliberately has NO `if:` of its own. That is what
-  # keeps setup fail-fast: if `maturin develop`, `uv sync` or `make netlist`
-  # fails, the barrier never runs, `steps.setup.outcome` is not `success`, and
-  # every gate below is SKIPPED rather than executed against a half-built
-  # environment and reported as a gate verdict. The barrier must assert success
-  # affirmatively -- `outcome != 'failure'` would be wrong, because a step the
-  # runner never reached has an EMPTY outcome, which also satisfies
-  # `!= 'failure'`.
+  # `steps.setup_split_board` is the board job's explicit no-op barrier at the
+  # end of its extension/dependency setup region, and deliberately has NO `if:`
+  # of its own. That keeps setup fail-fast: if `maturin develop` or `uv sync`
+  # fails, the barrier never runs and the pre-netlist checks are skipped rather
+  # than executed against a half-built environment. The later `steps.setup`
+  # barrier has a status-aware condition so a failed split-board gate does not
+  # suppress the remaining board gates, while cache/build failures still do.
+  # Every barrier must assert success affirmatively -- `outcome != 'failure'`
+  # would be wrong, because a step the runner never reached has an EMPTY
+  # outcome, which also satisfies `!= 'failure'`.
   #
   # Consequence for ordering: putting a known-red gate last is no longer
   # load-bearing (it masks nothing wherever it sits). The existing orderings are
@@ -1721,28 +1725,52 @@ jobs:
           --no-install-package temper-drc-rs
           --no-install-package temper-constraints
 
+      # This barrier separates the fail-fast extension/dependency setup from
+      # the split-board gate.  The gate must stay before netlist materializes
+      # elec/build, but a red gate must not suppress the independent board
+      # gates below.
+      - name: Setup barrier -- split-board replay environment ready
+        id: setup_split_board
+        run: echo "extensions and dependencies ready for split-board replay"
+
+      # The split-board replay is deliberately before the netlist cache/build
+      # below. Its campaign-base descriptor pins elec/build as absent, and
+      # the replay is read-only; running it after `make netlist` would turn a
+      # generated output into protected-input drift and make the gate fail for
+      # the wrong reason. This runs after uv and the pyo3 extensions are ready.
+      - name: Split-board feasibility workflow wiring tests
+        if: ${{ !cancelled() && steps.setup_split_board.outcome == 'success' }}
+        run: uv run --no-sync pytest scripts/tests/test_split_board_feasibility_workflow.py -v --tb=short
+
+      - name: Split-board feasibility admission replay gate
+        if: ${{ !cancelled() && steps.setup_split_board.outcome == 'success' }}
+        run: uv run --no-sync python scripts/check_split_board_feasibility.py
+
       - name: Cache netlist
         id: cache-netlist
+        if: ${{ !cancelled() && steps.setup_split_board.outcome == 'success' }}
         uses: actions/cache@v6
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
 
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        id: build-netlist
+        if: ${{ !cancelled() && steps.setup_split_board.outcome == 'success' && steps.cache-netlist.outcome == 'success' && steps.cache-netlist.outputs.cache-hit != 'true' }}
         run: make netlist
 
       # ---- SETUP / GATE BOUNDARY -------------------------------------------
-      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
-      # any of it fails (maturin, uv sync, make netlist) this step never runs,
-      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
-      # rather than run against a half-built environment and reported as a gate
-      # verdict. Everything BELOW is a gate: each carries
-      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
-      # longer deletes the verdict of the gates behind it. None of them is
-      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      # Extension/dependency setup above remains fail-fast. The split-board
+      # checks are gates intentionally placed before netlist materialization;
+      # their status-aware conditions let cache/netlist setup continue after a
+      # red replay so the independent gates below still receive a verdict.
+      # This barrier runs only when that setup really completed: a cache hit is
+      # sufficient (the build step is then skipped), otherwise the actual
+      # netlist build must succeed. Everything BELOW is a gate and each carries
+      # the setup outcome condition.
       - name: Setup barrier -- environment ready
         id: setup
+        if: ${{ !cancelled() && steps.setup_split_board.outcome == 'success' && steps.cache-netlist.outcome == 'success' && (steps.cache-netlist.outputs.cache-hit == 'true' || steps.build-netlist.outcome == 'success') }}
         run: echo "setup complete; gates below report independently"
 
       # ---- from requirements-tests ----
