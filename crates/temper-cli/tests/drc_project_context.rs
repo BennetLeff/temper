@@ -6,6 +6,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
+use sha2::Digest;
 
 fn binary() -> PathBuf {
     PathBuf::from(env!("CARGO_BIN_EXE_temper"))
@@ -100,6 +101,75 @@ fn drc_with_fault(name: &str, report: &str, check: bool, fault: Fault) -> std::p
         .env("TEMPER_REPO_ROOT", &root)
         .output()
         .expect("spawn temper drc")
+}
+
+#[derive(Clone, Copy)]
+enum ReceiptMutation {
+    None,
+    Board,
+    Project,
+    Rules,
+    Table,
+    RemoveTable,
+    MissingReport,
+    KicadFailure,
+    ClaimedOutput,
+}
+
+fn receipt_fixture(
+    name: &str,
+    report: &str,
+    mutation: ReceiptMutation,
+    existing_receipt: Option<&str>,
+) -> (PathBuf, std::process::Output) {
+    let root = fixture_root(name);
+    let pcb = root.join("sample.kicad_pcb");
+    let project = root.join("sample.kicad_pro");
+    let table = root.join("fp-lib-table");
+    fs::write(&pcb, "(kicad_pcb (version 20240108))").expect("create board fixture");
+    fs::write(&project, "{}\n").expect("create project fixture");
+    fs::write(&table, "(fp_lib_table (version 7))\n").expect("create table fixture");
+    fs::create_dir_all(root.join("pcb")).expect("create generator output directory");
+    let report_path = root.join("report.json");
+    fs::write(&report_path, report).expect("write report fixture");
+    let bin_dir = root.join("bin");
+    fs::create_dir_all(&bin_dir).expect("create executable directory");
+    fs::create_dir_all(root.join(".venv/bin")).expect("create python fixture directory");
+    executable(
+        &root.join(".venv/bin/python"),
+        &format!("#!/bin/sh\nprintf 'generated rules\\n' > '{}/temper.kicad_dru'\n", root.join("pcb").display()),
+    );
+    let mutation_script = match mutation {
+        ReceiptMutation::None => String::new(),
+        ReceiptMutation::Board => format!("printf 'changed board\\n' > '{}'\n", pcb.display()),
+        ReceiptMutation::Project => format!("printf 'changed project\\n' > '{}'\n", project.display()),
+        ReceiptMutation::Rules => format!("printf 'changed rules\\n' > '{}/sample.kicad_dru'\n", root.display()),
+        ReceiptMutation::Table => format!("printf 'changed table\\n' > '{}'\n", table.display()),
+        ReceiptMutation::RemoveTable => format!("rm '{}'\n", table.display()),
+        ReceiptMutation::MissingReport => "rm \"$report_output\"\n".to_string(),
+        ReceiptMutation::KicadFailure => "exit 1\n".to_string(),
+        ReceiptMutation::ClaimedOutput => "printf 'other writer\\n' > result.json\n".to_string(),
+    };
+    executable(
+        &bin_dir.join("kicad-cli"),
+        &format!(
+            "#!/bin/sh\nset -eu\nprintf '%s\\n' \"$@\" > kicad-args.txt\nprevious=''\nfor arg in \"$@\"; do\n  if [ \"$previous\" = \"--output\" ]; then cp '{}' \"$arg\"; report_output=\"$arg\"; fi\n  previous=\"$arg\"\ndone\n{}",
+            report_path.display(), mutation_script
+        ),
+    );
+    let receipt = root.join("result.json");
+    if let Some(contents) = existing_receipt {
+        fs::write(&receipt, contents).expect("write existing receipt");
+    }
+    let out = Command::new(binary())
+        .args(["drc", "--check", "--pcb", "sample.kicad_pcb", "--receipt", "result.json"])
+        .current_dir(&root)
+        .env("PATH", prepend_path(&bin_dir))
+        .env("TMPDIR", root.join("tmp"))
+        .env("TEMPER_REPO_ROOT", &root)
+        .output()
+        .expect("spawn temper drc");
+    (root, out)
 }
 
 #[test]
@@ -224,6 +294,157 @@ fn drc_check_reports_errors_in_captured_native_report() {
     ] {
         assert!(stdout.lines().any(|line| line == expected), "{stdout}");
     }
+}
+
+#[test]
+fn drc_check_receipt_binds_raw_report_and_inputs() {
+    let root = fixture_root("receipt");
+    let pcb = root.join("sample.kicad_pcb");
+    let project = root.join("sample.kicad_pro");
+    fs::write(&pcb, "(kicad_pcb (version 20240108))").expect("create board fixture");
+    fs::write(&project, "{}\n").expect("create project fixture");
+    fs::create_dir_all(root.join("pcb")).expect("create generator output directory");
+    let report = root.join("report.json");
+    let raw = r#"{"kicad_version":"10.0.5","violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[]}"#;
+    fs::write(&report, raw).expect("write report fixture");
+    let bin_dir = root.join("bin");
+    fs::create_dir_all(&bin_dir).expect("create executable directory");
+    fs::create_dir_all(root.join(".venv/bin")).expect("create python fixture directory");
+    executable(&root.join(".venv/bin/python"), &format!("#!/bin/sh\nprintf 'generated rules\\n' > '{}/temper.kicad_dru'\n", root.join("pcb").display()));
+    executable(&bin_dir.join("kicad-cli"), &format!("#!/bin/sh\nfor arg in \"$@\"; do\n  if [ \"$previous\" = \"--output\" ]; then cp '{}' \"$arg\"; fi\n  previous=\"$arg\"\ndone\n", report.display()));
+    let receipt = root.join("result.json");
+    let out = Command::new(binary())
+        .args(["drc", "--check", "--pcb", "sample.kicad_pcb", "--receipt", "result.json"])
+        .current_dir(&root).env("PATH", prepend_path(&bin_dir)).env("TMPDIR", root.join("tmp"))
+        .env("TEMPER_REPO_ROOT", &root).output().expect("spawn temper drc");
+    assert_eq!(out.status.code(), Some(0), "{}", String::from_utf8_lossy(&out.stderr));
+    let receipt_json: serde_json::Value = serde_json::from_slice(&fs::read(&receipt).expect("read receipt")).expect("parse receipt");
+    assert_eq!(receipt_json["schema_version"], 1);
+    assert_eq!(receipt_json["report"]["raw"], raw);
+    assert_eq!(receipt_json["report"]["sha256"], format!("{:x}", sha2::Sha256::digest(raw.as_bytes())));
+    assert_eq!(receipt_json["kicad"]["version"], "10.0.5");
+    assert_eq!(receipt_json["summary"]["verdict"], "pass");
+    assert_eq!(receipt_json["inputs"]["fp_lib_table"]["present"], false);
+    assert_eq!(receipt_json["inputs"]["generated_rules"]["sha256"], format!("{:x}", sha2::Sha256::digest(b"generated rules\n")));
+}
+
+#[test]
+fn drc_check_receipt_binds_command_and_all_input_hashes() {
+    let raw = r#"{"kicad_version":"10.0.5","violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[]}"#;
+    let (root, out) = receipt_fixture("receipt-hashes", raw, ReceiptMutation::None, None);
+    assert_eq!(out.status.code(), Some(0), "{}", String::from_utf8_lossy(&out.stderr));
+    let value: serde_json::Value = serde_json::from_slice(&fs::read(root.join("result.json")).expect("read receipt")).expect("parse receipt");
+    let args = value["kicad"]["command"].as_array().expect("command array");
+    let invocation = fs::read_to_string(root.join("kicad-args.txt")).expect("read actual invocation");
+    let expected: Vec<serde_json::Value> = std::iter::once("kicad-cli")
+        .chain(invocation.lines()).map(serde_json::Value::from).collect();
+    assert_eq!(args, &expected);
+    assert_eq!(args.last().expect("board argument"), &fs::canonicalize(root.join("sample.kicad_pcb")).expect("resolve board").display().to_string());
+    assert_eq!(value["inputs"]["board"]["sha256"], format!("{:x}", sha2::Sha256::digest(b"(kicad_pcb (version 20240108))")));
+    assert_eq!(value["inputs"]["project"]["sha256"], format!("{:x}", sha2::Sha256::digest(b"{}\n")));
+    assert_eq!(value["inputs"]["fp_lib_table"]["present"], true);
+    assert_eq!(value["inputs"]["fp_lib_table"]["sha256"], format!("{:x}", sha2::Sha256::digest(b"(fp_lib_table (version 7))\n")));
+}
+
+#[test]
+fn drc_check_receipt_publishes_failed_verdict_for_connectivity_error() {
+    let raw = r#"{"kicad_version":"10.0.5","violations":[],"unconnected_items":[{"type":"unconnected_items","severity":"error"}],"included_severities":["error"],"schematic_parity":[]}"#;
+    let (root, out) = receipt_fixture("receipt-fail", raw, ReceiptMutation::None, None);
+    assert_eq!(out.status.code(), Some(1), "{}", String::from_utf8_lossy(&out.stderr));
+    let value: serde_json::Value = serde_json::from_slice(&fs::read(root.join("result.json")).expect("read receipt")).expect("parse receipt");
+    assert_eq!(value["summary"]["verdict"], "fail");
+    assert_eq!(value["summary"]["errors"], 1);
+    assert_eq!(value["summary"]["counts"]["unconnected_items:error"], 1);
+    assert_eq!(value["report"]["raw"], raw);
+}
+
+#[test]
+fn drc_check_receipt_rejects_changed_inputs_without_receipt() {
+    let raw = r#"{"kicad_version":"10.0.5","violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[]}"#;
+    for (name, mutation) in [("board", ReceiptMutation::Board), ("project", ReceiptMutation::Project), ("rules", ReceiptMutation::Rules), ("table", ReceiptMutation::Table), ("remove-table", ReceiptMutation::RemoveTable)] {
+        let (root, out) = receipt_fixture(&format!("receipt-mutated-{name}"), raw, mutation, None);
+        assert_eq!(out.status.code(), Some(2), "{name}: {}", String::from_utf8_lossy(&out.stderr));
+        assert!(!root.join("result.json").exists(), "{name}: changed input must not publish receipt");
+        assert!(!String::from_utf8_lossy(&out.stdout).contains("DRC check:"), "{name}: receipt failure must not print verdict");
+    }
+}
+
+#[test]
+fn drc_check_receipt_rejects_bad_report_or_version_without_receipt() {
+    for (name, raw) in [
+        ("malformed", "{"),
+        ("missing-version", r#"{"violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[]}"#),
+        ("invalid-version", r#"{"kicad_version":4,"violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[]}"#),
+        ("empty-version", r#"{"kicad_version":" ","violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[]}"#),
+        ("incomplete", r#"{"kicad_version":"10.0.5","violations":[],"included_severities":["error"]}"#),
+    ] {
+        let (root, out) = receipt_fixture(&format!("receipt-{name}"), raw, ReceiptMutation::None, None);
+        assert_eq!(out.status.code(), Some(2), "{name}: {}", String::from_utf8_lossy(&out.stderr));
+        assert!(!root.join("result.json").exists(), "{name}: invalid report must not publish receipt");
+        assert!(!String::from_utf8_lossy(&out.stdout).contains("DRC check:"), "{name}: incomplete receipt must not print verdict");
+    }
+}
+
+#[test]
+fn drc_receipt_does_not_publish_after_runner_failure_or_output_collision() {
+    let raw = r#"{"kicad_version":"10.0.5","violations":[],"unconnected_items":[],"included_severities":["error"]}"#;
+    for (name, fault) in [("missing-output", ReceiptMutation::MissingReport), ("runner-failure", ReceiptMutation::KicadFailure), ("claimed-output", ReceiptMutation::ClaimedOutput)] {
+        let (root, out) = receipt_fixture(name, raw, fault, None);
+        assert_eq!(out.status.code(), Some(2), "{}", String::from_utf8_lossy(&out.stderr));
+        assert!(!String::from_utf8_lossy(&out.stdout).contains("DRC check:"));
+        if matches!(fault, ReceiptMutation::ClaimedOutput) {
+            assert_eq!(fs::read_to_string(root.join("result.json")).expect("other writer's output"), "other writer\n");
+        } else {
+            assert!(!root.join("result.json").exists());
+        }
+    }
+}
+
+#[test]
+fn drc_check_receipt_preserves_existing_output_and_refuses_missing_table_alias() {
+    let raw = r#"{"kicad_version":"10.0.5","violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[]}"#;
+    let (root, out) = receipt_fixture("receipt-existing", raw, ReceiptMutation::None, Some("sentinel\n"));
+    assert_eq!(out.status.code(), Some(2));
+    assert_eq!(fs::read_to_string(root.join("result.json")).expect("read existing receipt"), "sentinel\n");
+
+    let root = fixture_root("receipt-missing-table-alias");
+    fs::write(root.join("sample.kicad_pcb"), "(kicad_pcb (version 20240108))").expect("board");
+    fs::write(root.join("sample.kicad_pro"), "{}\n").expect("project");
+    fs::create_dir_all(root.join("pcb")).expect("generator dir");
+    fs::create_dir_all(root.join(".venv/bin")).expect("python dir");
+    executable(&root.join(".venv/bin/python"), &format!("#!/bin/sh\nprintf 'rules\\n' > '{}/temper.kicad_dru'\n", root.join("pcb").display()));
+    let bin = root.join("bin"); fs::create_dir_all(&bin).expect("bin dir"); executable(&bin.join("kicad-cli"), "#!/bin/sh\nexit 1\n");
+    let out = Command::new(binary()).args(["drc", "--check", "--pcb", "sample.kicad_pcb", "--receipt", "fp-lib-table"]).current_dir(&root).env("PATH", prepend_path(&bin)).env("TEMPER_REPO_ROOT", &root).output().expect("spawn");
+    assert_eq!(out.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&out.stderr).contains("must not alias a DRC input"), "{}", String::from_utf8_lossy(&out.stderr));
+    assert!(!root.join("fp-lib-table").exists(), "missing table alias must not be created");
+}
+
+#[test]
+fn drc_receipt_requires_check() {
+    let out = Command::new(binary()).args(["drc", "--pcb", "missing.kicad_pcb", "--receipt", "result.json"]).output().expect("spawn temper");
+    assert_eq!(out.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&out.stderr).contains("--check"));
+}
+
+#[test]
+#[cfg(target_os = "linux")] // APFS rejects these names before the CLI can read them.
+fn drc_receipt_rejects_non_utf8_input_paths_without_panicking() {
+    use std::os::unix::ffi::OsStringExt;
+    let raw = r#"{"kicad_version":"10.0.5","violations":[],"unconnected_items":[],"included_severities":["error"]}"#;
+    let (root, setup) = receipt_fixture("receipt-non-utf8", raw, ReceiptMutation::None, None);
+    assert!(setup.status.success());
+    let pcb = root.join(std::ffi::OsString::from_vec(b"board-\xff.kicad_pcb".to_vec()));
+    fs::write(&pcb, "(kicad_pcb)").expect("non-UTF8 board");
+    fs::write(pcb.with_extension("kicad_pro"), "{}").expect("project");
+    let receipt = root.join("unicode-check.json");
+    let out = Command::new(binary()).args(["drc", "--check", "--pcb"]).arg(&pcb)
+        .arg("--receipt").arg(&receipt).current_dir(&root)
+        .env("PATH", prepend_path(&root.join("bin"))).env("TEMPER_REPO_ROOT", &root)
+        .output().expect("spawn non-UTF8 check");
+    assert_eq!(out.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&out.stderr).contains("valid UTF-8"));
+    assert!(!receipt.exists());
 }
 
 #[test]
@@ -569,8 +790,10 @@ fn drc_native_enforces_custom_rule_for_renamed_board() {
         &root.join(".venv/bin/python"),
         &format!("#!/bin/sh\ncat > pcb/temper.kicad_dru <<'RULES'\n{permissive_rules}RULES\n"),
     );
+    let permissive_receipt = root.join("permissive-receipt.json");
     let out = Command::new(binary())
-        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
+        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb", "--receipt"])
+        .arg(&permissive_receipt)
         .current_dir(&board_dir)
         .env("TEMPER_REPO_ROOT", &root)
         .output()
@@ -587,13 +810,20 @@ fn drc_native_enforces_custom_rule_for_renamed_board() {
         fs::read_to_string(board_dir.join("renamed.kicad_dru")).expect("read permissive installed rules"),
         permissive_rules
     );
+    assert!(permissive_receipt.is_file(), "passing native check should publish receipt");
+    let permissive_json: serde_json::Value = serde_json::from_slice(&fs::read(&permissive_receipt).expect("read passing receipt")).expect("parse passing receipt");
+    assert_eq!(permissive_json["summary"]["verdict"], "pass");
+    assert_eq!(permissive_json["summary"]["errors"], 0);
+    assert_eq!(permissive_json["inputs"]["generated_rules"]["sha256"], format!("{:x}", sha2::Sha256::digest(permissive_rules.as_bytes())));
     fs::remove_file(board_dir.join("renamed.kicad_dru")).expect("remove installed permissive rules");
     executable(
         &root.join(".venv/bin/python"),
         &format!("#!/bin/sh\ncat > pcb/temper.kicad_dru <<'RULES'\n{strict_rules}RULES\n"),
     );
+    let strict_receipt = root.join("strict-receipt.json");
     let out = Command::new(binary())
-        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
+        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb", "--receipt"])
+        .arg(&strict_receipt)
         .current_dir(&board_dir)
         .env("TEMPER_REPO_ROOT", &root)
         .output()
@@ -607,6 +837,17 @@ fn drc_native_enforces_custom_rule_for_renamed_board() {
         fs::read_to_string(board_dir.join("renamed.kicad_dru")).expect("read strict installed rules"),
         strict_rules
     );
+    assert!(strict_receipt.is_file(), "failing native check should publish receipt");
+    let strict_json: serde_json::Value = serde_json::from_slice(&fs::read(&strict_receipt).expect("read strict receipt")).expect("parse strict receipt");
+    assert_eq!(strict_json["summary"]["verdict"], "fail");
+    assert_eq!(strict_json["summary"]["errors"], 1);
+    assert_eq!(strict_json["summary"]["counts"]["track_width:error"], 1);
+    assert_eq!(strict_json["inputs"]["board"]["sha256"], permissive_json["inputs"]["board"]["sha256"]);
+    assert_eq!(strict_json["inputs"]["generated_rules"]["sha256"], format!("{:x}", sha2::Sha256::digest(strict_rules.as_bytes())));
+    let native_raw = strict_json["report"]["raw"].as_str().expect("native raw report");
+    let native_report: serde_json::Value = serde_json::from_str(native_raw).expect("native report JSON");
+    assert_eq!(strict_json["kicad"]["version"], native_report["kicad_version"]);
+    assert_eq!(strict_json["report"]["sha256"], format!("{:x}", sha2::Sha256::digest(native_raw.as_bytes())));
     fs::remove_file(board_dir.join("renamed.kicad_pro")).expect("remove project context");
     let out = Command::new(binary())
         .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
