@@ -494,8 +494,8 @@ fn drc_summary_rejects_malformed_connectivity_array() {
     }
 }
 
-/// The same 0.2 mm track passes the default width check and fails only when
-/// the CLI installs the generated 0.5 mm custom rule beside the renamed board.
+/// Native KiCad verifies all three check outcomes on the same 0.2 mm track:
+/// permissive rules pass, a 0.5 mm minimum fails, and missing context exits 2.
 #[test]
 #[ignore = "requires native KiCad; run explicitly with --ignored --exact"]
 fn drc_native_enforces_custom_rule_for_renamed_board() {
@@ -555,37 +555,66 @@ fn drc_native_enforces_custom_rule_for_renamed_board() {
         "the witness must not fail the default track-width rule: {violations:?}"
     );
 
-    let rules = "(version 1)\n(rule \"custom-width-witness\"\n  (condition \"A.Type == 'Track'\")\n  (constraint track_width (min 0.5mm)))\n";
+    let permissive_rules = "(version 1)\n(rule \"custom-width-witness\"\n  (condition \"A.Type == 'Track'\")\n  (constraint track_width (min 0.1mm)))\n";
+    let strict_rules = "(version 1)\n(rule \"custom-width-witness\"\n  (condition \"A.Type == 'Track'\")\n  (constraint track_width (min 0.5mm)))\n";
     fs::create_dir_all(root.join("pcb")).expect("create generator output directory");
     fs::create_dir_all(root.join(".venv/bin")).expect("create generator stub directory");
     // Replace only the rule generator. The CLI and KiCad execute normally.
     executable(
         &root.join(".venv/bin/python"),
-        &format!("#!/bin/sh\ncat > pcb/temper.kicad_dru <<'RULES'\n{rules}RULES\n"),
+        &format!("#!/bin/sh\ncat > pcb/temper.kicad_dru <<'RULES'\n{permissive_rules}RULES\n"),
     );
     let out = Command::new(binary())
-        .args(["drc", "--pcb", "renamed.kicad_pcb"])
+        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
         .current_dir(&board_dir)
         .env("TEMPER_REPO_ROOT", &root)
         .output()
         .expect("run CLI with native KiCad");
     assert!(
         out.status.success(),
-        "CLI failed: stdout={} stderr={}",
+        "permissive native check failed: stdout={} stderr={}",
         String::from_utf8_lossy(&out.stdout),
         String::from_utf8_lossy(&out.stderr)
     );
-    assert!(
-        String::from_utf8_lossy(&out.stdout).contains("[error] track_width: 1"),
-        "custom width rule was not enforced: {}",
-        String::from_utf8_lossy(&out.stdout)
-    );
+    assert!(String::from_utf8_lossy(&out.stdout)
+        .lines().any(|line| line == "DRC check: no reported errors"));
     assert_eq!(
-        fs::read_to_string(pcb).expect("read board after DRC"),
-        board
+        fs::read_to_string(board_dir.join("renamed.kicad_dru")).expect("read permissive installed rules"),
+        permissive_rules
     );
+    fs::remove_file(board_dir.join("renamed.kicad_dru")).expect("remove installed permissive rules");
+    executable(
+        &root.join(".venv/bin/python"),
+        &format!("#!/bin/sh\ncat > pcb/temper.kicad_dru <<'RULES'\n{strict_rules}RULES\n"),
+    );
+    let out = Command::new(binary())
+        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
+        .current_dir(&board_dir)
+        .env("TEMPER_REPO_ROOT", &root)
+        .output()
+        .expect("run strict CLI with native KiCad");
+    assert_eq!(out.status.code(), Some(1), "strict native check: stdout={} stderr={}", String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr));
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    for expected in ["  [error] track_width: 1", "DRC check: reported errors (1)"] {
+        assert!(stdout.lines().any(|line| line == expected), "{stdout}");
+    }
+    assert_eq!(
+        fs::read_to_string(board_dir.join("renamed.kicad_dru")).expect("read strict installed rules"),
+        strict_rules
+    );
+    fs::remove_file(board_dir.join("renamed.kicad_pro")).expect("remove project context");
+    let out = Command::new(binary())
+        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
+        .current_dir(&board_dir)
+        .env("TEMPER_REPO_ROOT", &root)
+        .output()
+        .expect("run missing-context CLI");
+    assert_eq!(out.status.code(), Some(2), "missing project must be indeterminate: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(String::from_utf8_lossy(&out.stderr).contains("missing KiCad project context"));
+    assert!(!String::from_utf8_lossy(&out.stdout).contains("DRC check:"));
+    assert_eq!(fs::read_to_string(pcb).expect("read board after DRC"), board);
     assert_eq!(
         fs::read_to_string(board_dir.join("renamed.kicad_dru")).expect("read installed rules"),
-        rules
+        strict_rules
     );
 }
