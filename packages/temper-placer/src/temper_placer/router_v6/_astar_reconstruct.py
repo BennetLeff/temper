@@ -109,6 +109,7 @@ def run_astar_pathfinding(
     enforce_all_pad_tree: bool = False,
     tree_3d_fallback_max_iter: int = _TREE_SEGMENT_3D_FALLBACK_MAX_ITER,
     enable_pair_clearance: bool = True,
+    net_priority_config: dict[str, int] | None = None,
 ) -> PathfindingResult:
     """Run A* or Theta* pathfinding to generate routing paths."""
     if design_rules is None:
@@ -166,7 +167,11 @@ def run_astar_pathfinding(
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
         existing_vias_per_net = _extract_existing_via_centers_per_net(pcb)
 
-    net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
+    net_order = _compute_net_order(
+        channel_mapping,
+        bottleneck_widths=bottleneck_widths,
+        net_priority_config=net_priority_config,
+    )
     routable_nets = [n for n in net_order if _should_route(n)]
 
     if target_nets:

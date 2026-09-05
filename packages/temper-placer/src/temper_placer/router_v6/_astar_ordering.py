@@ -13,6 +13,7 @@ from temper_placer.router_v6.channel_mapping import ChannelMapping
 def _compute_net_order(
     channel_mapping: ChannelMapping,
     bottleneck_widths: dict[str, float] | None = None,
+    net_priority_config: dict[str, int] | None = None,
 ) -> list[str]:
     """
     Compute routing order for nets using spatial conflict awareness.
@@ -30,6 +31,8 @@ def _compute_net_order(
          routing a small net before a large net never makes the large net
          unroutable.
       5. Route isolated clusters first, then largest clusters.
+      6. Stable-partition explicit board-priority nets ahead of unlisted
+         nets. Equal priorities and all unlisted nets retain steps 1-5.
 
     Rationale:
       The rip-up cascade occurs when a large-footprint net consumes
@@ -45,6 +48,8 @@ def _compute_net_order(
         bottleneck_widths: Optional dict mapping net_name to bottleneck
             width in mm.  When provided, nets with narrower bottlenecks
             route earlier within their cluster.
+        net_priority_config: Optional board-level net priorities. Lower
+            values route first; unlisted nets keep their geometric order.
 
     Proof of correctness (induction):
       Base case: Two nets with zero bounding-box overlap.
@@ -159,4 +164,7 @@ def _compute_net_order(
     result = []
     for cluster in clusters:
         result.extend(cluster)
+    if net_priority_config:
+        unlisted_priority = max(net_priority_config.values(), default=0) + 1
+        result.sort(key=lambda name: net_priority_config.get(name, unlisted_priority))
     return result

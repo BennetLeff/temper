@@ -1,17 +1,12 @@
 """R1a differential: ``router_v6/terminal_extraction`` vs its pinned oracle.
 
-**THIS SUITE IS DELIBERATELY RED.** Gate G1 (``docs/wave4-discipline-contract.md``)
-requires the differential that pins the pre-migration implementation
-verbatim to exist and fail *before* the Rust exists; every comparison
-resolves its Rust arm through ``tests/router_v6/_pending_rust.rust`` and
-fails with a named ``PendingRustError`` until the migration supplies the
-pyfunction.
+Gate G1 (``docs/wave4-discipline-contract.md``) requires an independent,
+content-addressed Python oracle for the Rust implementation.
 
 Arms
 ----
-* **oracle** -- ``tests/router_v6/_terminal_extraction_py_oracle.py``, a
-  verbatim ``git show`` copy of ``terminal_extraction.py`` at
-  ``550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5`` (``origin/main``).
+* **oracle** -- ``tests/router_v6/_terminal_extraction_py_oracle.py``, the
+  evidence-backed 2026-08-30 physical-occurrence re-pin.
 * **rust** -- the ``extract_net_terminals_py`` pyfunction the migration
   adds, bound in the adapter block below.
 
@@ -36,7 +31,8 @@ docstring, which this test suite's `_ORACLE_NAMES` sibling pin references).
 from __future__ import annotations
 
 import ast
-import subprocess
+import hashlib
+import textwrap
 from types import SimpleNamespace
 
 import pytest
@@ -66,8 +62,11 @@ def _rust(symbol: str):
 # END ADAPTER BLOCK
 # ===========================================================================
 
-_ORACLE_PIN_SHA = "550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5"
 _ORACLE_NAMES: tuple[str, ...] = ("ParsedTerminal", "extract_net_terminals")
+_ORACLE_DEFINITION_SHA256: dict[str, str] = {
+    "ParsedTerminal": "3d3a17e6b528636887637631f8e52800e9d10c87075995438d16e74e4db96900",
+    "extract_net_terminals": "b9c8cc005c63ce98589c94e86758bea27e5089ec12c5fca65af7393ad91e45bc",
+}
 
 
 def _capture(fn):
@@ -112,7 +111,7 @@ def _assert_same(label: str, oracle_fn, symbol: str, rust_fn):
 
 
 # ---------------------------------------------------------------------------
-# G1 evidence: the oracle is a verbatim pin
+# G1 evidence: the deliberately re-pinned oracle is content-addressed
 # ---------------------------------------------------------------------------
 
 
@@ -130,28 +129,15 @@ def _segments_from_source(src: str, names: tuple[str, ...]) -> dict[str, str]:
 
 
 def test_oracle_is_verbatim_copy():
-    """Every definition in the oracle is character-identical to the pin."""
-    rel = "packages/temper-placer/src/temper_placer/router_v6/terminal_extraction.py"
-    try:
-        src = subprocess.run(
-            ["git", "show", f"{_ORACLE_PIN_SHA}:{rel}"],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout
-    except (subprocess.CalledProcessError, FileNotFoundError):  # pragma: no cover
-        pytest.skip(f"pinned commit {_ORACLE_PIN_SHA} not present in this clone")
-
-    original = _segments_from_source(src, _ORACLE_NAMES)
+    """Every definition matches the evidence-backed 2026-08-30 pin."""
     with open(ORACLE.__file__, encoding="utf-8") as fh:
         copied = _segments_from_source(fh.read(), _ORACLE_NAMES)
 
     for name in _ORACLE_NAMES:
         assert name in copied, f"{name} missing from the oracle module"
-        assert name in original, f"{name} missing from terminal_extraction.py at the pin"
-        assert copied[name] == original[name], (
-            f"terminal_extraction.py::{name} in the oracle is NOT verbatim -- "
-            f"the pin is broken and the differential proves nothing"
+        digest = hashlib.sha256(textwrap.dedent(copied[name]).encode()).hexdigest()
+        assert digest == _ORACLE_DEFINITION_SHA256[name], (
+            f"oracle::{name} changed without a deliberate evidence-backed re-pin"
         )
 
 

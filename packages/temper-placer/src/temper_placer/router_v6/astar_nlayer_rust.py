@@ -42,10 +42,35 @@ import numpy as np
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER
 
-__all__ = ["astar_search_3d_rust", "route_segment_3d_rust"]
+__all__ = [
+    "astar_search_3d_rust",
+    "foreign_obstacle_halo_inflation_rust",
+    "route_segment_3d_diagnostic_rust",
+    "route_segment_3d_rust",
+]
 
 #: Mirrors ``astar_core._ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER``.
 ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER: int = 200_000
+
+
+def foreign_obstacle_halo_inflation_rust(
+    trace_width_mm: float,
+    clearance_mm: float,
+    pair_creepage_mm: float,
+) -> float:
+    """Return Rust's fail-closed foreign-obstacle halo inflation."""
+    import temper_rust_router as _trr
+
+    kernel = getattr(_trr, "foreign_obstacle_halo_inflation_py", None)
+    if kernel is None:
+        raise RuntimeError(
+            "temper_rust_router.foreign_obstacle_halo_inflation_py is unavailable; "
+            "rebuild the router extension"
+        )
+    result = kernel(float(trace_width_mm), float(clearance_mm), float(pair_creepage_mm))
+    if not isinstance(result, (int, float)):
+        raise TypeError("foreign_obstacle_halo_inflation_py must return a number")
+    return float(result)
 
 
 def _available_layers(grids: dict) -> list[str]:
@@ -208,4 +233,68 @@ def route_segment_3d_rust(
     return (
         [(x, y, layer_names[li]) for x, y, li in world_path],
         [(x, y) for x, y in via_world],
+    )
+
+
+def route_segment_3d_diagnostic_rust(
+    start_world: tuple[float, float],
+    goal_world: tuple[float, float],
+    start_layer: str,
+    goal_layer: str,
+    grids: dict,
+    via_cost: float = 10.0,
+    via_diameter: float = 0.6,
+    clearance: float = 0.2,
+    net_id: int = 0,
+    max_iter: int | None = ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
+) -> tuple[
+    tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None,
+    list[tuple[int, int]],
+]:
+    """Route one segment and return ranked dynamic frontier contacts.
+
+    Contacting a routed net while exploring is candidate evidence only. The
+    caller must still remove that net and repeat the search before treating it
+    as a causal blocker or unstamping committed copper.
+    """
+    import temper_rust_router as _trr
+
+    if not grids or start_layer not in grids or goal_layer not in grids:
+        return None, []
+
+    kernel = getattr(_trr, "route_segment_3d_diagnostic_py", None)
+    if kernel is None:
+        raise RuntimeError(
+            "temper_rust_router.route_segment_3d_diagnostic_py is unavailable; "
+            "rebuild the router extension"
+        )
+
+    layer_names, index_of, sample, name_ranks, planes, frames = _marshal(grids)
+    widths, heights, origins, cell_sizes = frames
+    world_path, via_world, via_cells, found, _iters, contacts = kernel(
+        (float(start_world[0]), float(start_world[1])),
+        (float(goal_world[0]), float(goal_world[1])),
+        index_of[start_layer],
+        index_of[goal_layer],
+        planes,
+        name_ranks,
+        widths,
+        heights,
+        origins,
+        cell_sizes,
+        [index_of[n] for n in _available_layers(grids)],
+        float(via_cost),
+        None if max_iter is None else int(max_iter),
+    )
+    ranked_contacts = [(int(owner), int(count)) for owner, count in contacts]
+    if not found:
+        return None, ranked_contacts
+
+    _mark_vias(via_cells, grids, sample, via_diameter, clearance, net_id)
+    return (
+        (
+            [(x, y, layer_names[li]) for x, y, li in world_path],
+            [(x, y) for x, y in via_world],
+        ),
+        ranked_contacts,
     )

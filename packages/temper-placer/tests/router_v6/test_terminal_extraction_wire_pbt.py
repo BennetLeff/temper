@@ -24,7 +24,7 @@ Properties:
 Metamorphic relations (exactness stated per relation):
   MR1 component-order permutation leaves the terminal rows bit-identical.
   MR2 net_pins-order permutation leaves the rows bit-identical.
-  MR3 a stable duplicate (ref, pad) pair inserts a second identical row
+  MR3 an unmatched duplicate (ref, pad) reference is omitted
       immediately after the first (timsort stability on equal keys).
 """
 
@@ -412,19 +412,18 @@ def test_mr2_net_pins_order_permutation_exact(pcb):
 
 
 # ---------------------------------------------------------------------------
-# MR3 — stable duplicate (ref, pad) inserts an identical row after the first
+# MR3 — a duplicate net reference cannot synthesize a physical occurrence
 # ---------------------------------------------------------------------------
 
 
 @given(simple_pcb_strategy())
 @settings(max_examples=30, deadline=60000)
-def test_mr3_stable_duplicate_exact(pcb):
+def test_mr3_unmatched_duplicate_is_omitted(pcb):
     pins = _all_pins(pcb)
     baseline = [_row(t) for t in extract_net_terminals(pcb, "NET", pins)]
     target = pins[0]
     dup = [_row(t) for t in extract_net_terminals(pcb, "NET", list(pins) + [target])]
-    # The duplicate row is bit-identical to its twin and lands immediately
-    # after it (stable sort on equal PadIdentity keys).
-    assert len(dup) == len(baseline) + 1
-    first_idx = next(i for i, r in enumerate(dup) if r[:2] == target)
-    assert dup[first_idx] == dup[first_idx + 1]
+    # Every generated component has one physical pin per number. A repeated
+    # logical reference asks for occurrence 1, which does not exist; it must
+    # not duplicate occurrence 0's coordinate.
+    assert dup == baseline

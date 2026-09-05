@@ -1335,6 +1335,7 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
     _assert_baseline_board_shape()
 
+    from temper_placer.io.config_loader import load_constraints
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
@@ -1342,6 +1343,9 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     from tests.conftest import make_parsed_pcb_stub
 
     rules = load_netclass_rules(RULES_PATH)
+    routing_constraints = load_constraints(
+        TEMPER_PLACER_ROOT / "configs" / "production_routing_constraints.yaml"
+    )
     netlist = parse_kicad_pcb(PRODUCTION_BOARD_PATH).netlist
     clean_input, stripped_count = _make_clean_route_input(PRODUCTION_BOARD_PATH)
     assert stripped_count > 0, "production route input unexpectedly had no copper to strip"
@@ -1359,6 +1363,7 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
             # cosmetic substitute for it.
             enable_net_batching=True,
             net_batch_size=DEFAULT_BATCH_SIZE,
+            net_priority=dict(routing_constraints.net_priority),
         )
     finally:
         clean_input.unlink(missing_ok=True)

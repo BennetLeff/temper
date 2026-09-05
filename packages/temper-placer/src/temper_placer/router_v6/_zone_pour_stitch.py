@@ -21,6 +21,7 @@ import math
 from typing import Any
 
 import temper_geometry as _tg
+import temper_orchestration as _to
 
 logger = logging.getLogger(__name__)
 
@@ -386,6 +387,27 @@ def _stitch_width_for_net(net_name: str) -> float:
     return float(rules.trace_width)
 
 
+def _foreign_obstacle_union(records: list[tuple]) -> Any:
+    """Buffer pairwise obstacle records into one fail-closed C-space union."""
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+
+    geoms: list[Any] = []
+    for kind, x, y, a, b, width, separation in records:
+        if kind == 0:  # Pad
+            geoms.append(Point(x, y).buffer(math.hypot(a, b) + separation, quad_segs=8))
+        elif kind == 1:  # Track
+            geoms.append(
+                LineString([(x, y), (a, b)]).buffer(
+                    width / 2.0 + separation,
+                    quad_segs=8,
+                )
+            )
+        else:  # Via
+            geoms.append(Point(x, y).buffer(a / 2.0 + separation, quad_segs=8))
+    return unary_union(geoms) if geoms else None
+
+
 def _stitch_isolated_pads(
     pad_positions: dict[str, list[tuple[float, float]]],
     segments: list[str],
@@ -439,8 +461,7 @@ def _stitch_isolated_pads(
     eligibility check (``_zone_layers_for_net``) and tstamp/segment
     formatting stay here -- they are not geometry.
     """
-    from shapely.geometry import LineString, Point
-    from shapely.ops import unary_union
+    from shapely.geometry import LineString
 
     from temper_placer.router_v6._adapter_convert import _next_tstamp
     from temper_placer.router_v6.zone_pour_clearance import (
@@ -507,18 +528,7 @@ def _stitch_isolated_pads(
                 clearance_table=clearance_table,
                 creepage_table=creepage_table,
             )
-            geoms: list = []
-            for kind, x, y, a, b, w, separation in records:
-                if kind == 0:  # Pad: x,y centre; a=half_w, b=half_h
-                    geoms.append(Point(x, y).buffer(math.hypot(a, b) + separation, quad_segs=8))
-                elif kind == 1:  # Track: x,y start; a,b end; w width
-                    geoms.append(
-                        LineString([(x, y), (a, b)]).buffer(w / 2.0 + separation, quad_segs=8)
-                    )
-                else:  # Via: x,y centre; a diameter
-                    geoms.append(Point(x, y).buffer(a / 2.0 + separation, quad_segs=8))
-            if geoms:
-                obstacle_union = unary_union(geoms)
+            obstacle_union = _foreign_obstacle_union(records)
 
         skipped = 0
         for px, py, nearest_x, nearest_y in targets:
@@ -704,10 +714,10 @@ def _stitch_pads_to_each_other(
     `power_in.ntc-no` without also checking the evidence doc's own
     explicit ampacity caveat.
     """
+    from shapely.geometry import LineString
+
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
     from temper_placer.router_v6._adapter_convert import _next_tstamp
-    from shapely.geometry import LineString, Point
-    from shapely.ops import unary_union
 
     _STITCH_LAYER = "In3.Cu"
 
@@ -796,18 +806,7 @@ def _stitch_pads_to_each_other(
                 clearance_table=default_table(),
                 creepage_table=default_creepage_table(),
             )
-            geoms: list = []
-            for kind, x, y, a, b, w, separation in records:
-                if kind == 0:  # Pad
-                    geoms.append(Point(x, y).buffer(math.hypot(a, b) + separation, quad_segs=8))
-                elif kind == 1:  # Track
-                    geoms.append(
-                        LineString([(x, y), (a, b)]).buffer(w / 2.0 + separation, quad_segs=8)
-                    )
-                else:  # Via
-                    geoms.append(Point(x, y).buffer(a / 2.0 + separation, quad_segs=8))
-            if geoms:
-                obstacle_union = unary_union(geoms)
+            obstacle_union = _foreign_obstacle_union(records)
 
         skipped = 0
         for i, j in edges:
@@ -858,6 +857,113 @@ def _stitch_pads_to_each_other(
                 _STITCH_LAYER,
                 stitch_width,
             )
+
+
+def _stitch_duplicate_pad_occurrences(
+    segments: list[str],
+    net_name_to_number: dict[str, int],
+    *,
+    design_rules: Any,
+    tstamp_counter: list[int],
+    pcb: Any,
+    existing_zones_will_be_replaced: bool = False,
+) -> int:
+    """Emit locally minimal, collision-checked copper between duplicate pads.
+
+    K2/K3's high-current relay contacts use two physical holes with one
+    logical pad number. Rust owns discovery, occurrence identity, world
+    geometry and MST edge selection. This thin board-text boundary chooses
+    the netclass width, proves each direct edge clear of foreign copper using
+    the same clearance/creepage records as zone carving, and emits only edges
+    that pass. Missing board context fails closed.
+
+    Returns the number of emitted segments (observability/testing only).
+    """
+    from shapely.geometry import LineString
+
+    from temper_placer.router_v6._adapter_convert import _next_tstamp
+    from temper_placer.router_v6.zone_pour_clearance import (
+        collect_zone_obstacle_records,
+        default_table,
+    )
+    from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
+
+    if pcb is None:
+        logger.warning(
+            "_stitch_duplicate_pad_occurrences: no parsed PCB; skipping all "
+            "duplicate-pad edges because foreign-copper clearance cannot be proved"
+        )
+        return 0
+    if not existing_zones_will_be_replaced and (getattr(pcb, "zones", None) or []):
+        logger.warning(
+            "_stitch_duplicate_pad_occurrences: existing zones will be retained; "
+            "skipping all duplicate-pad edges because zone collision clearance "
+            "cannot be proved"
+        )
+        return 0
+
+    emitted = 0
+    net_number_to_name = {number: name for name, number in net_name_to_number.items()}
+    for net_name, component_ref, pin_number, start, end, layer in (
+        _to.run_collect_duplicate_pad_edges(pcb)
+    ):
+        net_num = net_name_to_number.get(net_name, 0)
+        if net_num <= 0:
+            continue
+        rules = design_rules.get_rules_for_net(net_name) if design_rules is not None else None
+        width = getattr(rules, "trace_width", None)
+        if width is None:
+            width = getattr(rules, "trace_width_mm", None)
+        if width is None or width <= 0.0:
+            logger.warning(
+                "_stitch_duplicate_pad_occurrences: %s.%s has no positive "
+                "netclass width; skipping occurrences %d->%d",
+                component_ref,
+                pin_number,
+                start[0],
+                end[0],
+            )
+            continue
+
+        records = collect_zone_obstacle_records(
+            net_name,
+            layer,
+            pcb=pcb,
+            segments=segments,
+            net_number_to_name=net_number_to_name,
+            clearance_table=default_table(),
+            creepage_table=default_creepage_table(),
+        )
+        obstacle_union = _foreign_obstacle_union(records)
+        _, sx, sy = start
+        _, ex, ey = end
+        footprint = LineString([(sx, sy), (ex, ey)]).buffer(width / 2.0, quad_segs=8)
+        if (
+            obstacle_union is not None
+            and not obstacle_union.is_empty
+            and footprint.intersects(obstacle_union)
+        ):
+            logger.warning(
+                "_stitch_duplicate_pad_occurrences: skipped %s.%s "
+                "occurrences %d->%d on %s; the width/clearance/creepage "
+                "footprint intersects foreign copper",
+                component_ref,
+                pin_number,
+                start[0],
+                end[0],
+                layer,
+            )
+            continue
+
+        segments.append(
+            f"  (segment (start {sx:.4f} {sy:.4f})"
+            f" (end {ex:.4f} {ey:.4f})"
+            f' (width {width:.4f}) (layer "{layer}")'
+            f" (net {net_num})"
+            f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
+        )
+        emitted += 1
+    return emitted
 
 
 def _emit_zone_pours(

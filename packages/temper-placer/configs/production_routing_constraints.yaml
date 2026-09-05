@@ -1,0 +1,9 @@
+# Board-level routing intent for the production Temper PCB.
+# Lower values route first; unlisted nets retain the router's deterministic
+# geometric order. These two control nets share the ESP32/safety congestion
+# boundary and have measured legal coexistence only when routed before the
+# general signal field. See docs/evidence/
+# 2026-08-30-duplicate-pad-occurrence-terminal-closure.md.
+net_priority:
+  WDT_RESET_N: 1
+  io0: 1

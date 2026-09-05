@@ -51,6 +51,32 @@ def test_extraction_does_not_guess_unknown_layer_indices():
     assert terminal.identity.layers == ()
 
 
+def test_extraction_keeps_duplicate_numbered_physical_pads_distinct():
+    relay = Component("K2", "relay", (30, 14), initial_position=(100, 50))
+    relay.pins = [
+        Pin("3", "3", (0.0, 0.0), net="RELAY_NO", layer="all", is_pth=True),
+        Pin("3", "3", (7.5, 0.0), net="RELAY_NO", layer="all", is_pth=True),
+    ]
+    pcb = SimpleNamespace(
+        components=[relay],
+        stackup=SimpleNamespace(
+            layers=[
+                SimpleNamespace(name="F.Cu", index=0, layer_type="signal"),
+                SimpleNamespace(name="B.Cu", index=31, layer_type="signal"),
+            ]
+        ),
+    )
+
+    terminals = extract_net_terminals(
+        pcb, "RELAY_NO", [("K2", "3"), ("K2", "3")]
+    )
+
+    assert [(t.identity.x, t.identity.y) for t in terminals] == [
+        (100.0, 50.0),
+        (107.5, 50.0),
+    ]
+
+
 @given(st.permutations([("U1", "1"), ("J1", "2")]))
 @settings(max_examples=10, deadline=30_000)
 def test_extraction_is_deterministic_under_net_pin_permutation(pin_order):

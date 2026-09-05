@@ -255,6 +255,79 @@ def test_two_grid_subset_of_the_same_board_fails_the_same_net_closed():
     assert result.forced_segment_count == 1, "no legal 2-layer path exists; must fail closed"
 
 
+def test_failed_nlayer_search_returns_dynamic_frontier_candidates_from_rust():
+    """Frontier contacts are candidate evidence, not causal attribution."""
+    arr = np.zeros((_SIZE, _SIZE), dtype=np.int8)
+    arr[:, _MID] = 7
+    grid = OccupancyGrid("F.Cu", arr, (0.0, 0.0), _CELL, _SIZE, _SIZE)
+    start = grid.grid_to_world(2, _MID)
+    goal = grid.grid_to_world(_SIZE - 3, _MID)
+    channel_path = ChannelPath(
+        "VICTIM", ["CH1"], [start, goal], 10.0, preferred_layer="F.Cu"
+    )
+    contacts: dict[int, int] = {}
+
+    result, _fb = _astar_route_nlayer(
+        "VICTIM",
+        channel_path,
+        {"F.Cu": grid},
+        net_id=1,
+        allow_forced_segments=False,
+        segment_3d_fallback_max_iter=50_000,
+        frontier_contacts=contacts,
+    )
+
+    assert result is not None
+    assert result.forced_segment_count == 1
+    assert set(contacts) == {7}
+    assert contacts[7] > 0
+
+
+def test_failed_frontier_candidates_exclude_successful_segment_contacts(monkeypatch):
+    """A later failed hop must not inherit contacts from a completed hop."""
+    import temper_placer.router_v6._astar_nlayer as _nl
+
+    grid = _blocked_grid("F.Cu")
+    start = (1.0, 1.0)
+    waypoint = (4.0, 4.0)
+    goal = (8.0, 8.0)
+    channel_path = ChannelPath(
+        "VICTIM",
+        ["CH1"],
+        [start, waypoint, goal],
+        10.0,
+        preferred_layer="F.Cu",
+    )
+    diagnostic_results = iter(
+        [
+            (
+                ([(start[0], start[1], "F.Cu"), (waypoint[0], waypoint[1], "F.Cu")], []),
+                [(7, 10)],
+            ),
+            (None, [(8, 2)]),
+        ]
+    )
+    monkeypatch.setattr(
+        _nl,
+        "_route_segment_3d_diagnostic",
+        lambda *_args, **_kwargs: next(diagnostic_results),
+    )
+    contacts: dict[int, int] = {}
+
+    result, _fb = _astar_route_nlayer(
+        "VICTIM",
+        channel_path,
+        {"F.Cu": grid},
+        net_id=1,
+        allow_forced_segments=False,
+        frontier_contacts=contacts,
+    )
+
+    assert result is not None
+    assert result.forced_segment_count == 1
+    assert contacts == {8: 2}
+
+
 # ---------------------------------------------------------------------------
 # 4. run_astar_pathfinding_nlayer: the per-net driver, end to end.
 # ---------------------------------------------------------------------------
@@ -837,6 +910,36 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
         "-- 1.0mm here would mean the rejected naive (searching family's own clearance) "
         "radius shipped instead"
     )
+
+
+def test_foreign_halo_uses_max_clearance_and_pair_creepage():
+    """A foreign pad halo charges the larger simultaneous spacing rule once."""
+    import temper_placer.router_v6._astar_nlayer as _nl
+
+    routing_space = _make_box_routing_space("F.Cu", 40.0)
+    base = {"F.Cu": build_occupancy_grid(routing_space, inflation_mm=0.1)}
+    rules = _make_creepage_design_rules()
+    pcb = _make_mini_pcb(rules)
+    signature = (0.5, 2.0, "HighVoltageSignal")
+    halos = _nl._family_halo_layers(signature, base, rules, pcb, {})["F.Cu"]
+    # The Signal pad is the production-shaped foreign obstacle: the table
+    # grades HighVoltageSignal<->Signal at 12.6mm.
+    signal_entry = next(entry for entry in halos if entry[0] == "LV_NET")
+
+    probe = OccupancyGrid(
+        "F.Cu",
+        np.zeros_like(base["F.Cu"].grid),
+        base["F.Cu"].origin,
+        base["F.Cu"].cell_size,
+        base["F.Cu"].width_cells,
+        base["F.Cu"].height_cells,
+    )
+    _nl._stamp_foreign_pair_halos("OTHER", {"F.Cu": probe}, {"F.Cu": [signal_entry]})
+
+    # The pad's 0.5mm half-extent plus W/2 + max(C, creepage) = 12.85mm
+    # ends the halo at x=29.35mm. The old additive formula reached 31.35mm.
+    assert probe.is_blocked(*probe.world_to_grid(29.0, 10.0))
+    assert probe.is_free(*probe.world_to_grid(30.0, 10.0))
 
 
 def test_creepage_halo_stamp_preserves_holes_across_multipolygon_components():

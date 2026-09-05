@@ -32,6 +32,7 @@ from temper_placer.router_v6._adapter_types import (
 from temper_placer.router_v6._zone_pour_stitch import (  # noqa: F401
     _chamfer_path_points,
     _emit_zone_pours,
+    _stitch_duplicate_pad_occurrences,
     _stitch_isolated_pads,
     _zone_layers_for_net,
     _zone_params_for_net,
@@ -239,6 +240,7 @@ def route_pcb(
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
+    net_priority: dict[str, int] | None = None,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -340,6 +342,9 @@ def route_pcb(
             the production 2-layer-capped path. Default False -- see
             ``RouterV6Pipeline.__init__``'s docstring for the full
             rationale.
+        net_priority: Optional board-level net priority mapping. Lower values
+            route first; unlisted nets retain the router's deterministic
+            geometric order. This changes order only, never route eligibility.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -436,6 +441,7 @@ def route_pcb(
         net_batch_size=net_batch_size,
         max_sat_nets=max_sat_nets,
         enable_nlayer_astar_spike=enable_nlayer_astar_spike,
+        net_priority=net_priority,
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.
@@ -694,6 +700,21 @@ def _write_routes_to_content(
                 tstamp_counter,
             )
         )
+
+    # Physical duplicate contacts (K2/K3 relay footprints) are separate
+    # copper terminals even though they share one logical pad number. Rust
+    # supplies occurrence-distinct local MST edges; the Python board-text
+    # boundary emits only edges whose full netclass-width + foreign
+    # clearance/creepage footprint is clear. Run before zones so every later
+    # copper generator sees these tracks as obstacles.
+    _stitch_duplicate_pad_occurrences(
+        segments,
+        net_name_to_number,
+        design_rules=design_rules,
+        tstamp_counter=tstamp_counter,
+        pcb=pcb,
+        existing_zones_will_be_replaced=bool(getattr(result, "enable_zone_pours", False)),
+    )
 
     if getattr(result, "enable_zone_pours", False):
         pcb_content, _ = strip_existing_zones(pcb_content)  # R7: replace, don't append

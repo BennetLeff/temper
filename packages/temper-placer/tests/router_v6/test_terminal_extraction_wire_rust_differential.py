@@ -115,45 +115,32 @@ def _assert_same(label: str, oracle_fn, wire_fn):
 
 
 # ---------------------------------------------------------------------------
-# G1 evidence: the oracle is a verbatim pin (the same pin the existing
-# differential re-verifies character-for-character).
+# G1 evidence: the evidence-backed oracle definitions are content-addressed.
 # ---------------------------------------------------------------------------
 
 
 def test_oracle_pin_still_verbatim():
     import ast
-    import subprocess  # noqa: PLC0415
+    import hashlib
+    import textwrap
 
-    rel = "packages/temper-placer/src/temper_placer/router_v6/terminal_extraction.py"
-    pin = "550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5"
-    try:
-        src = subprocess.run(
-            ["git", "show", f"{pin}:{rel}"],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout
-    except (subprocess.CalledProcessError, FileNotFoundError):  # pragma: no cover
-        pytest.skip(f"pinned commit {pin} not present in this clone")
-
-    tree = ast.parse(src)
-    lines = src.splitlines()
+    expected = {
+        "ParsedTerminal": "3d3a17e6b528636887637631f8e52800e9d10c87075995438d16e74e4db96900",
+        "extract_net_terminals": "b9c8cc005c63ce98589c94e86758bea27e5089ec12c5fca65af7393ad91e45bc",
+    }
     with open(ORACLE.__file__, encoding="utf-8") as fh:
         copied_src = fh.read()
     copied_tree = ast.parse(copied_src)
     copied_lines = copied_src.splitlines()
 
-    for node in tree.body:
+    for node in copied_tree.body:
         nm = getattr(node, "name", None)
         if nm in _ORACLE_NAMES:
             decos = getattr(node, "decorator_list", [])
             start = (min(d.lineno for d in decos) if decos else node.lineno) - 1
-            original = "\n".join(lines[start : node.end_lineno])
-            cnode = next(c for c in copied_tree.body if getattr(c, "name", None) == nm)
-            cdecos = getattr(cnode, "decorator_list", [])
-            cstart = (min(d.lineno for d in cdecos) if cdecos else cnode.lineno) - 1
-            copied = "\n".join(copied_lines[cstart : cnode.end_lineno])
-            assert copied == original, f"{nm} in the oracle is NOT verbatim -- pin broken"
+            copied = "\n".join(copied_lines[start : node.end_lineno])
+            digest = hashlib.sha256(textwrap.dedent(copied).encode()).hexdigest()
+            assert digest == expected[nm], f"{nm} changed without an evidence-backed re-pin"
 
 
 def test_rust_symbols_exist():

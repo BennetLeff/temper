@@ -99,6 +99,7 @@ class FakePkg:
     def __init__(self, ref):
         self.component = FakeComp(ref)
         self._ref = ref
+        self.requires_escape = True
 
 class FakeComp:
     def __init__(self, ref):

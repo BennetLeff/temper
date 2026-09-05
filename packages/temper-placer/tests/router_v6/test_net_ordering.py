@@ -57,6 +57,26 @@ def test_permutation_all_present():
     assert set(result) == set(nets.keys())
 
 
+def test_explicit_board_priority_stably_promotes_only_named_nets():
+    nets = {
+        "ordinary_a": [(0, 0), (1, 1)],
+        "WDT_RESET_N": [(10, 0), (12, 2)],
+        "ordinary_b": [(20, 0), (23, 3)],
+        "io0": [(30, 0), (34, 4)],
+        "ordinary_c": [(40, 0), (45, 5)],
+    }
+    mapping = make_mapping(nets)
+    baseline = _compute_net_order(mapping)
+    got = _compute_net_order(
+        mapping,
+        net_priority_config={"WDT_RESET_N": 1, "io0": 1},
+    )
+
+    expected_priority = [name for name in baseline if name in {"WDT_RESET_N", "io0"}]
+    expected_unlisted = [name for name in baseline if name not in {"WDT_RESET_N", "io0"}]
+    assert got == expected_priority + expected_unlisted
+
+
 @given(
     st.lists(
         st.tuples(

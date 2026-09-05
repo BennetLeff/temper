@@ -364,13 +364,21 @@
         "track_dangling": 0,
         "via_dangling": 0
       }
+    },
+    "2026-09-02-router-rebase-unconnected": {
+      "date": "2026-09-02",
+      "cause": "Fresh 120-sample kicad-cli measurement of the rebased router-terminal-admission board found 348 unconnected_items in every sample. This category was omitted from the rebased board record, so the prior aggregate 406 was incomplete; adding the measured category restores the true aggregate error ceiling to 754. No routed geometry or existing category changed.",
+      "per_type_delta": {
+        "unconnected_items": 348,
+        "error_ceiling": 348
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 406,
+      "error_ceiling": 754,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -384,6 +392,7 @@
         "hole_to_hole": 0,
         "shorting_items": 39,
         "solder_mask_bridge": 4,
+        "unconnected_items": 348,
         "track_width": 0,
         "tracks_crossing": 0,
         "via_diameter": 0

@@ -57,3 +57,38 @@ either promotion or a conclusive negative certificate.
 
 It preserves the measured family result while forbidding uncertainty from
 authorizing wider scope or being restated as physical impossibility.
+
+## PCB routing
+
+### Routing Family
+
+A set of nets that shares the trace width, clearance, net class, and resulting
+configuration-space view used by route search.
+
+### Terminal Admission
+
+The fail-closed decision that a routing attempt's required endpoints remain usable
+after the routing family's static and foreign-copper obligations are applied.
+
+### Pad Occurrence
+
+Exactly one physical solder pad, identified by its logical pad number plus its
+zero-based encounter index among same-numbered pads on one component.
+
+### Foreign-Obstacle Halo
+
+The configuration-space region that a routing family must keep clear around
+another net's copper, inflated by half the routed trace width plus the stricter
+applicable edge-to-edge spacing requirement.
+
+### Frontier Candidate
+
+A routed net whose reservation was encountered by an unsuccessful search
+frontier, useful for narrowing counterfactual diagnosis but not sufficient to
+prove that the net caused the route failure.
+
+### Escape Via
+
+A synthetic via generated before ordinary route search to provide layer egress
+from a dense package whose routing policy declares that escape geometry is
+required.

@@ -34,6 +34,7 @@ pyo3 = { version = "0.29", features = ["py-clone"], optional = true }
 # `wasm32-unknown-unknown` tier too; the `Marshal` impls that USE it are
 # the `#[cfg(feature = "python")]`-gated parts (see `netlist_owned.rs`).
 temper-data-model = { path = "../temper-data-model" }
+temper-design-bundle = { path = "../temper-design-bundle", default-features = false }
 # WorldPosition (2026-08-16): the pad world-position type with the
 # kernel-only constructor. `run_collect_pad_positions` uses it instead of
 # calling back into the Python `temper_geometry.pin_world_position_at_py`

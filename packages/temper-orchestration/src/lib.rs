@@ -767,6 +767,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
+        pipeline_route::run_collect_duplicate_pad_edges,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
         pipeline_route::run_build_route_payload,
         m
     )?)?;
