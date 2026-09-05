@@ -152,6 +152,11 @@ fn drc_check_has_three_outcomes_and_requires_native_envelope() {
             2,
         ),
         (
+            "check-unknown-array",
+            r#"{"violations":[],"unconnected_items":[],"included_severities":["error"],"new_findings":[],"schematic_parity":[]}"#,
+            2,
+        ),
+        (
             "check-unknown-severity",
             r#"{"violations":[{"type":"clearance","severity":"notice"}],"unconnected_items":[],"included_severities":["error","warning"],"schematic_parity":[]}"#,
             2,

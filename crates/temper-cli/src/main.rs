@@ -668,6 +668,18 @@ fn drc(pcb: &Path, check: bool) -> ExitCode {
 fn report_violations(json: &str, check: bool) -> Result<usize, String> {
     let v: serde_json::Value =
         serde_json::from_str(json).map_err(|e| format!("invalid JSON: {e}"))?;
+    if check {
+        let object = v.as_object().ok_or_else(|| "report root is not an object".to_string())?;
+        let known_arrays = [
+            "violations", "unconnected_items", "schematic_parity",
+            "included_severities", "ignored_checks",
+        ];
+        if let Some((key, _)) = object.iter().find(|(key, value)| {
+            value.is_array() && !known_arrays.contains(&key.as_str())
+        }) {
+            return Err(format!("report contains unknown array field {key:?}"));
+        }
+    }
     let violations = v
         .get("violations")
         .and_then(|x| x.as_array())
