@@ -1,6 +1,18 @@
+"""Identity-normalization tests for the regional feasibility adapter."""
+
 from __future__ import annotations
 
+import importlib.util
+from pathlib import Path
+
 import temper_quality_oracle as quality
+
+
+_SCRIPT = Path(__file__).parents[1] / "evaluate_regional_layout.py"
+_SPEC = importlib.util.spec_from_file_location("evaluate_regional_layout", _SCRIPT)
+assert _SPEC is not None and _SPEC.loader is not None
+_MODULE = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MODULE)
 
 
 def _evaluate(**overrides):
@@ -44,3 +56,16 @@ def test_binding_fails_closed_on_instrument_error():
     result = _evaluate(instrument_errors=["stale extension"])
     assert result["accepted"] is False
     assert "stale extension" in result["reasons"]
+
+
+def test_pad_identity_survives_reference_renumber() -> None:
+    before = _MODULE._stable_pad_label("R43.2(RTD_HW_FAULT)", {"R43": "rtd.pullup"})
+    after = _MODULE._stable_pad_label("R44.2(RTD_HW_FAULT)", {"R44": "rtd.pullup"})
+    assert before == after == "rtd.pullup.2(RTD_HW_FAULT)"
+
+
+def test_pair_identity_canonicalizes_both_sides() -> None:
+    identities = {"R4": "power.bleed", "U16": "safety.ovp"}
+    assert _MODULE._stable_pair_label("R4.1(+170V)<->U16.5(+3V3)", identities) == (
+        "power.bleed.1(+170V)<->safety.ovp.5(+3V3)"
+    )

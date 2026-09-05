@@ -13,7 +13,7 @@ _meta:
   # current board. The clearance seed now names R59 pad 1, the actual partner
   # KiCad reports at the seeded R67 position after later placement changes
   # moved the former R64 partner.
-  board_sha256: 00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9
+  board_sha256: 8ae94bd6d67060dfbc5a1c493b5688bf96b6c429bdeb4ff9af4639add88b9cd0
   board_commit: c24d03810
   created: 2026-08-02
   reseeded: 2026-08-04

@@ -17,6 +17,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from kiutils.board import Board
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -39,6 +41,27 @@ EXIT_ACCEPTED = 0
 EXIT_REJECTED = 1
 EXIT_TOOL_ERROR = 2
 DEFAULT_MANIFEST = REPO_ROOT / "elec" / "domain_manifest.yaml"
+
+
+def _stable_ref_map(board_path: Path) -> dict[str, str]:
+    """Map volatile designators to schematic-owned component identities."""
+    board = Board.from_file(str(board_path))
+    result: dict[str, str] = {}
+    for footprint in board.footprints:
+        ref = footprint.properties.get("Reference")
+        sheetpath = footprint.properties.get("Sheetpath")
+        if ref and sheetpath:
+            result[str(ref)] = str(sheetpath)
+    return result
+
+
+def _stable_pad_label(label: str, identities: dict[str, str]) -> str:
+    ref, separator, suffix = label.partition(".")
+    return f"{identities.get(ref, ref)}{separator}{suffix}"
+
+
+def _stable_pair_label(label: str, identities: dict[str, str]) -> str:
+    return "<->".join(_stable_pad_label(side, identities) for side in label.split("<->"))
 
 
 def _body_overlaps(board_path: Path) -> dict[str, float]:
@@ -111,11 +134,15 @@ def _instrument_errors(board_path: Path, report, drc) -> list[str]:
 
 
 def _measure(board_path: Path, manifest_path: Path, threshold_mm: float) -> dict:
+    identities = _stable_ref_map(board_path)
     report, _, _ = creepage.measure(board_path, manifest_path, threshold_mm)
     drc = run_drc(board_path)
     pads, endpoints = _routing_observations(board_path)
     return {
-        "pairs": [f"{v.hv.label}<->{v.selv.label}" for v in report.violations],
+        "pairs": [
+            _stable_pair_label(f"{v.hv.label}<->{v.selv.label}", identities)
+            for v in report.violations
+        ],
         "drc": {
             **dict(Counter(item.rule for item in drc.errors)),
             **{
@@ -123,8 +150,13 @@ def _measure(board_path: Path, manifest_path: Path, threshold_mm: float) -> dict
                 for rule, count in Counter(item.rule for item in drc.warnings).items()
             },
         },
-        "body_overlaps": _body_overlaps(board_path),
-        "pads": pads,
+        "body_overlaps": {
+            _stable_pair_label(pair, identities): area
+            for pair, area in _body_overlaps(board_path).items()
+        },
+        "pads": [
+            (_stable_pad_label(label, identities), x, y) for label, x, y in pads
+        ],
         "endpoints": endpoints,
         "instrument_errors": _instrument_errors(board_path, report, drc),
         "pair_count": len(report.violations),
