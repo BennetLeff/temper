@@ -102,6 +102,10 @@ enum Command {
         /// Path to a .kicad_pcb file.
         #[arg(long)]
         pcb: PathBuf,
+        /// Exit 0 for no reported errors, 1 for reported errors, or 2 if
+        /// validation cannot complete. Warnings alone do not fail the check.
+        #[arg(long)]
+        check: bool,
     },
 
     /// Print the D1→D7 deterministic pipeline stage order.
@@ -144,7 +148,7 @@ fn main() -> ExitCode {
         Command::Parse { pcb } => parse(&pcb),
         Command::Route { pcb, output } => route(&pcb, &output),
         Command::Place { pcb, constraints, output_json } => place(&pcb, &constraints, &output_json),
-        Command::Drc { pcb } => drc(&pcb),
+        Command::Drc { pcb, check } => drc(&pcb, check),
         Command::PipelineOrder { zone_aware, phased } => pipeline_order(zone_aware, phased),
         Command::PipelineRun { pcb, zone_aware, phased } => {
             pipeline_run(&pcb, zone_aware, phased)
@@ -517,14 +521,15 @@ fn place(pcb: &Path, constraints: &Path, output_json: &Path) -> ExitCode {
 /// kicad-cli with the same load-bearing flags `_drc_api.run_drc` uses
 /// (`--all-track-errors`; bare kicad-cli is not reproducible), and report
 /// the per-rule violation counts parsed from the JSON report.
-fn drc(pcb: &Path) -> ExitCode {
+fn drc(pcb: &Path, check: bool) -> ExitCode {
+    let validation_failure = if check { ExitCode::from(2) } else { ExitCode::FAILURE };
     let Some(repo) = repo_root() else {
         eprintln!("temper: cannot locate repo root (no scripts/route_board.py above CWD)");
-        return ExitCode::FAILURE;
+        return validation_failure;
     };
     if !pcb.is_file() {
         eprintln!("temper: no such file: {}", pcb.display());
-        return ExitCode::FAILURE;
+        return validation_failure;
     }
     // `run_in_repo` changes cwd before invoking kicad-cli, so resolve the
     // caller's path now. KiCad resolves project/rule sidecars by the board's
@@ -533,7 +538,7 @@ fn drc(pcb: &Path) -> ExitCode {
         Ok(path) => path,
         Err(e) => {
             eprintln!("temper: cannot resolve board path {}: {e}", pcb.display());
-            return ExitCode::FAILURE;
+            return validation_failure;
         }
     };
     let project = pcb.with_extension("kicad_pro");
@@ -542,7 +547,7 @@ fn drc(pcb: &Path) -> ExitCode {
             "temper: missing KiCad project context; expected regular file {}",
             project.display()
         );
-        return ExitCode::FAILURE;
+        return validation_failure;
     }
     let python = python_cmd(&repo);
 
@@ -556,7 +561,7 @@ fn drc(pcb: &Path) -> ExitCode {
     let dru_args = [dru_script.as_str()];
     println!("temper: regenerating pcb/temper.kicad_dru ...");
     if run_in_repo(&repo, &python, &dru_args) != ExitCode::SUCCESS {
-        return ExitCode::FAILURE;
+        return validation_failure;
     }
     let generated_dru = repo.join("pcb").join("temper.kicad_dru");
     if !generated_dru.is_file() {
@@ -564,7 +569,7 @@ fn drc(pcb: &Path) -> ExitCode {
             "temper: DRU generator succeeded but produced no regular file at {}",
             generated_dru.display()
         );
-        return ExitCode::FAILURE;
+        return validation_failure;
     }
     let target_dru = pcb.with_extension("kicad_dru");
     if target_dru != generated_dru {
@@ -573,14 +578,14 @@ fn drc(pcb: &Path) -> ExitCode {
                 Ok(bytes) => bytes,
                 Err(e) => {
                     eprintln!("temper: cannot read existing rule file {}: {e}", target_dru.display());
-                    return ExitCode::FAILURE;
+                    return validation_failure;
                 }
             };
             let generated = match std::fs::read(&generated_dru) {
                 Ok(bytes) => bytes,
                 Err(e) => {
                     eprintln!("temper: cannot read generated rule file {}: {e}", generated_dru.display());
-                    return ExitCode::FAILURE;
+                    return validation_failure;
                 }
             };
             if existing != generated {
@@ -588,14 +593,14 @@ fn drc(pcb: &Path) -> ExitCode {
                     "temper: refusing to overwrite existing KiCad rules {}; remove it or make it match {}",
                     target_dru.display(), generated_dru.display()
                 );
-                return ExitCode::FAILURE;
+                return validation_failure;
             }
         } else if let Err(e) = std::fs::copy(&generated_dru, &target_dru) {
             eprintln!(
                 "temper: cannot install generated KiCad rules at {}: {e}",
                 target_dru.display()
             );
-            return ExitCode::FAILURE;
+            return validation_failure;
         }
         println!("temper: using generated KiCad rules at {}", target_dru.display());
     }
@@ -605,8 +610,18 @@ fn drc(pcb: &Path) -> ExitCode {
     let tmp_dir = match std::env::temp_dir().join(format!("temper-drc-{}", std::process::id())) {
         d => d,
     };
-    std::fs::create_dir_all(&tmp_dir).ok();
+    if let Err(e) = std::fs::create_dir_all(&tmp_dir) {
+        eprintln!("temper: cannot create DRC report directory {}: {e}", tmp_dir.display());
+        return validation_failure;
+    }
     let report = tmp_dir.join("drc.json");
+    // A reused process ID must not let an old report stand in for this run.
+    if let Err(e) = std::fs::remove_file(&report) {
+        if e.kind() != std::io::ErrorKind::NotFound {
+            eprintln!("temper: cannot remove old DRC report {}: {e}", report.display());
+            return validation_failure;
+        }
+    }
     let pcb_s = pcb.to_string_lossy().into_owned();
     let report_s = report.to_string_lossy().into_owned();
     let kicad_args = [
@@ -619,30 +634,38 @@ fn drc(pcb: &Path) -> ExitCode {
     println!("temper: running kicad-cli pcb drc ...");
     let code = run_in_repo(&repo, &["kicad-cli".to_string()], &kicad_args);
     if code != ExitCode::SUCCESS {
-        return code;
+        return validation_failure;
     }
     let json = match std::fs::read_to_string(&report) {
         Ok(j) => j,
         Err(e) => {
             eprintln!("temper: kicad-cli produced no readable report at {}: {e}",
                       report.display());
-            return ExitCode::FAILURE;
+            return validation_failure;
         }
     };
-    match report_violations(&json) {
-        Ok(()) => ExitCode::SUCCESS,
+    match report_violations(&json, check) {
+        Ok(errors) if check && errors > 0 => {
+            println!("DRC check: reported errors ({errors})");
+            ExitCode::from(1)
+        }
+        Ok(_) => {
+            if check {
+                println!("DRC check: no reported errors");
+            }
+            ExitCode::SUCCESS
+        }
         Err(e) => {
             eprintln!("temper: could not parse DRC report: {e}");
-            ExitCode::FAILURE
+            validation_failure
         }
     }
 }
 
-/// Parse kicad-cli's DRC JSON (`{"violations": [{type, severity, ...}],
-/// "unconnected_items": [{type, severity, ...}]}`) and print per-rule counts
-/// grouped by severity. KiCad reports connectivity findings in their own
-/// top-level array, so fold them into the same summary as ordinary violations.
-fn report_violations(json: &str) -> Result<(), String> {
+/// Print the DRC summary and return its error count. Check mode requires
+/// connectivity coverage and error severity, and validates finding fields
+/// before printing any summary. Report mode retains legacy compatibility.
+fn report_violations(json: &str, check: bool) -> Result<usize, String> {
     let v: serde_json::Value =
         serde_json::from_str(json).map_err(|e| format!("invalid JSON: {e}"))?;
     let violations = v
@@ -650,33 +673,69 @@ fn report_violations(json: &str) -> Result<(), String> {
         .and_then(|x| x.as_array())
         .ok_or_else(|| "report has no \"violations\" array".to_string())?;
     let connectivity = match v.get("unconnected_items") {
+        None if check => return Err("report has no \"unconnected_items\" array".to_string()),
         None => &[] as &[serde_json::Value],
         Some(value) => {
             let connectivity = value
                 .as_array()
                 .ok_or_else(|| "report \"unconnected_items\" is not an array".to_string())?;
-            for (index, item) in connectivity.iter().enumerate() {
-                if !item.is_object() {
-                    return Err(format!(
-                        "report \"unconnected_items\" entry {index} is not an object"
-                    ));
-                }
-            }
             connectivity.as_slice()
         }
+    };
+    let parity = if check {
+        let included = v.get("included_severities").and_then(|x| x.as_array())
+            .ok_or_else(|| "report has no \"included_severities\" array".to_string())?;
+        if !included.iter().any(|x| x.as_str() == Some("error")) {
+            return Err("report does not include error severity".to_string());
+        }
+        if included.iter().any(|x| !matches!(x.as_str(), Some("error" | "warning"))) {
+            return Err("report has invalid included severities".to_string());
+        }
+        // This command does not request schematic-parity checking, but any
+        // findings supplied by KiCad must participate in the check outcome.
+        match v.get("schematic_parity") {
+            None => &[] as &[serde_json::Value],
+            Some(value) => value.as_array().map(Vec::as_slice)
+                .ok_or_else(|| "report \"schematic_parity\" is not an array".to_string())?,
+        }
+    } else {
+        &[]
     };
 
     let mut by_rule: std::collections::BTreeMap<(String, String), usize> =
         std::collections::BTreeMap::new();
-    for item in violations.iter().chain(connectivity.iter()) {
-        let rule = item.get("type").and_then(|x| x.as_str()).unwrap_or("<unknown>");
-        let severity = item.get("severity").and_then(|x| x.as_str()).unwrap_or("error");
-        *by_rule.entry((rule.to_string(), severity.to_string())).or_insert(0) += 1;
+    for (group, items) in [
+        ("violations", violations.as_slice()),
+        ("unconnected_items", connectivity),
+        ("schematic_parity", parity),
+    ] {
+        for (index, item) in items.iter().enumerate() {
+            if (check || group == "unconnected_items") && !item.is_object() {
+                return Err(format!("report \"{group}\" entry {index} is not an object"));
+            }
+            let rule = item.get("type").and_then(|x| x.as_str());
+            let severity = item.get("severity").and_then(|x| x.as_str());
+            if check {
+                if !rule.is_some_and(|r| !r.trim().is_empty()) {
+                    return Err(format!("report \"{group}\" entry {index} has no valid type"));
+                }
+                if !matches!(severity, Some("error" | "warning")) {
+                    return Err(format!("report \"{group}\" entry {index} has invalid severity"));
+                }
+            }
+            let rule = rule.unwrap_or("<unknown>");
+            let severity = severity.unwrap_or("error");
+            *by_rule.entry((rule.to_string(), severity.to_string())).or_insert(0) += 1;
+        }
     }
     let total: usize = by_rule.values().sum();
+    let errors = by_rule.iter()
+        .filter(|((_, severity), _)| severity == "error")
+        .map(|(_, count)| count)
+        .sum();
     println!("DRC violations: {total}");
     for ((rule, severity), count) in &by_rule {
         println!("  [{severity}] {rule}: {count}");
     }
-    Ok(())
+    Ok(errors)
 }
