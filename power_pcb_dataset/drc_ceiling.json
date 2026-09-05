@@ -364,13 +364,21 @@
         "track_dangling": 0,
         "via_dangling": 0
       }
+    },
+    "2026-09-03-record-omitted-unconnected": {
+      "date": "2026-09-03",
+      "cause": "Correct the current-main board record: the fresh 120-sample measurement recorded 348 stable unconnected_items findings, but the category was omitted from violations_by_type and therefore from the aggregate error ceiling. This is a metadata correction only; no PCB geometry or existing category is changed. The board input hash remains 00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9.",
+      "per_type_delta": {
+        "unconnected_items": 348,
+        "error_ceiling": 348
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 406,
+      "error_ceiling": 754,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -384,6 +392,7 @@
         "hole_to_hole": 0,
         "shorting_items": 39,
         "solder_mask_bridge": 4,
+        "unconnected_items": 348,
         "track_width": 0,
         "tracks_crossing": 0,
         "via_diameter": 0
@@ -403,7 +412,7 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with sibling fp-lib-table and single-thread KICAD_CONFIG_HOME pin, 120 samples on the clean board commit 392870a58f2d1964c88f68aeac32f078d35a53d0 after regenerating pcb/temper.kicad_dru. The unchanged origin/main control was measured with the same tool, flags, rules, project context, and sample count first. Spread 0 in every error and warning category on both boards: errors 406/406, warnings 402/402. Full attribution is recorded in the 2026-08-30-c6-absolute-pad-orientation _march entry."
+        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with sibling fp-lib-table and single-thread KICAD_CONFIG_HOME pin, 120 samples on the clean board commit 392870a58f2d1964c88f68aeac32f078d35a53d0 after regenerating pcb/temper.kicad_dru. The unchanged origin/main control was measured with the same tool, flags, rules, project context, and sample count first. Spread 0 in every error and warning category on both boards; the original record captured 406 named errors, and the subsequently recovered unconnected_items category adds 348 stable findings, for corrected errors 754/754; warnings 402/402. Full attribution is recorded in the 2026-09-03-record-omitted-unconnected _march entry."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,
