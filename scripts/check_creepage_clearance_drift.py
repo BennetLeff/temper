@@ -395,6 +395,24 @@ class AcceptedDrift:
 # Each entry is the *complete* record of why the family's current spread is
 # acceptable; the values are the closed set the family may carry.
 ACCEPTED_DRIFT: dict[tuple[str, str], AcceptedDrift] = {
+    ("clearance", "reinforced"): AcceptedDrift(
+        metric="clearance",
+        tier="reinforced",
+        accepted_values_mm=frozenset({2.0, 6.0}),
+        justification=(
+            "PERMANENT, INVESTIGATED (2026-09-03): 2.0mm (the placer's "
+            "HighVoltage intra-class routing clearance, enforced by the "
+            "HighVoltage rule family) vs 6.0mm (elec/src/constraints.ato "
+            "HV_to_LV.min_clearance and the HighVoltageIsolated class's "
+            "same-side routing clearance). These declarations share the "
+            "coarse reinforced tier label but describe different requirements: "
+            "the former is intra-class routing spacing while the latter is the "
+            "HV-to-LV barrier / isolated-domain figure. The values must remain "
+            "unchanged; this is reviewed semantic tier-label drift, not a "
+            "safety-value disagreement. See docs/evidence/2026-09-03-"
+            "clearance-reinforced-tier-label-drift.md."
+        ),
+    ),
     ("clearance", "basic"): AcceptedDrift(
         metric="clearance",
         tier="basic",

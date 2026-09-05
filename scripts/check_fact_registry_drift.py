@@ -50,58 +50,13 @@ carried the pre-decision values and had never been updated. As of
     was a latent-trap default, not a live divergence). See
     ``docs/evidence/2026-08-17-safetyspec-default-repin.md``.
 
-  Still open, both left deliberately red:
-
-  - ``packages/temper-placer/configs/pcb_spec.yaml`` -- ``safety:
-    mains_voltage_v: 230.0`` / ``pollution_degree: 2``. Feeds
-    ``pipeline/derivation.py``'s ``hv_lv_isolation_mm`` derivation (consumed
-    by the regression/scoring oracle, NOT the board's enforced DRC gate --
-    see ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 2.1 revision-history
-    entry 1.4 for the prior, deliberately-not-fixed investigation of this
-    exact site).
-  - ``packages/temper-placer/src/temper_placer/core/design_rules.py`` --
-    the ``ACMains`` net-class carries ``voltage_v=240.0``. Consumed by
-    ``temper-drc-rs``'s ``partial_discharge.rs`` (>=60V HV-inner-layer
-    filter -- both 120V and 240V clear the 60V threshold identically, so
-    this specific consumer's *behaviour* does not change) and marshalled
-    verbatim into WASM board-serialization and ``drc_ratchet.py`` reports
-    (cosmetic passthrough). This exact site was already identified stale by
-    the 2026-08-14 correction above and deliberately left unfixed pending an
-    owner ("should be reconciled to 120V by whoever owns that config").
-
-Why this gate does not fix these two itself
-------------------------------------------
-The correct VALUES are not in question (120.0 / PD3) -- this is NOT a
-judgment call like the drift gate's own open ``[clearance/reinforced]``
-family. What blocks a mechanical fix of the remaining two sites:
-
-  - ``design_rules.py``'s ACMains ``voltage_v=240.0`` is differentially
-    compared, field-for-field, against the PINNED oracle
-    ``tests/core/_design_rules_py_oracle.py`` (hash-pinned in
-    ``scripts/oracle_hashes.json``; also carries its own ``voltage_v=240.0``
-    for the matching class). Changing production without the oracle would
-    fail ``test_design_rules_field_parity.py``/``test_design_rules_rust_
-    differential.py``; changing the oracle requires the separate, deliberate
-    re-pin ceremony this repo's own rules reserve for oracle changes -- not
-    yet done for this site (only ``_specification_py_oracle.py`` has been,
-    above).
-  - ``pcb_spec.yaml`` itself is NOT oracle-pinned and could be edited
-    directly, but its value flows into the SAME oracle-compared derivation
-    surface (``_physics_oracle_py_oracle.py`` defaults to loading this exact
-    file when no explicit spec path is given), so fixing it in isolation,
-    without also verifying the physics-oracle differential surface end to
-    end, risks silently breaking a pinned comparison this gate has not
-    exhaustively swept.
-
-So: this is a MECHANIZED, VERIFIED, currently-failing gate, deliberately
-left red for these two remaining sites. Un-redding it fully requires a
-coordinated PR that (1) updates both remaining production sites to
-120.0/3, (2) re-pins ``_design_rules_py_oracle.py`` per the standing oracle
-re-pin ceremony with the required exhaustive-divergence evidence, after
-first sweeping ``pcb_spec.yaml``'s physics-oracle derivation surface, and
-(3) fixes any correspondingly-affected tests. That remains a deliberate,
-attributed, single act -- explicitly NOT something this gate, or the agent
-that wrote it, may do by fiat.
+The formerly divergent sites were reconciled on 2026-09-03 after an
+exhaustive sweep of the specification and physics-oracle consumers. The
+production appliance is 120V RMS / PD3; the ACMains metadata now carries
+the same 120V rating, and the Rust bare DesignRules constructor now uses the
+0.9mm fab-safe default-via diameter. The pinned design-rules oracle was
+updated in the same deliberate act. See
+``docs/evidence/2026-09-03-fact-registry-safety-defaults-reconciliation.md``.
 
 Design
 ------
@@ -289,15 +244,12 @@ REGISTRY: tuple[Fact, ...] = (
             ),
         ),
         notes=(
-            "PARTIALLY FIXED 2026-08-17: specification_contracts.rs's "
-            "SafetySpec default corrected to 120.0/PD3 and its oracle "
-            "(_specification_py_oracle.py) re-pinned -- see "
-            "docs/evidence/2026-08-17-safetyspec-default-repin.md. "
-            "design_rules.py remains pinned-oracle-entangled "
-            "(_design_rules_py_oracle.py) and pcb_spec.yaml's fix was ruled "
-            "out of scope pending a full differential-suite sweep of its "
-            "derivation surface (pipeline/derivation.py's hv_lv_isolation_mm) "
-            "-- both still KNOWN RED, see module docstring."
+            "RECONCILED 2026-09-03: all four homes agree at 120.0V. "
+            "The YAML derivation surface and ACMains metadata were swept "
+            "through their consumers; the paired design-rules oracle was "
+            "re-pinned in the same deliberate change. See "
+            "docs/evidence/2026-09-03-fact-registry-safety-defaults-"
+            "reconciliation.md."
         ),
     ),
     Fact(
@@ -322,12 +274,10 @@ REGISTRY: tuple[Fact, ...] = (
             ),
         ),
         notes=(
-            "PARTIALLY FIXED 2026-08-17: specification_contracts.rs's "
-            "SafetySpec default corrected to 120.0/PD3 and its oracle "
-            "re-pinned -- see docs/evidence/2026-08-17-safetyspec-default-"
-            "repin.md. pcb_spec.yaml remains KNOWN RED, ruled out of scope "
-            "pending a full differential-suite sweep of its derivation "
-            "surface (see module docstring)."
+            "RECONCILED 2026-09-03: the YAML safety declaration and Rust "
+            "SafetySpec default agree at PD3 after the config derivation "
+            "surface was swept. See docs/evidence/2026-09-03-fact-registry-"
+            "safety-defaults-reconciliation.md."
         ),
     ),
     Fact(
@@ -507,28 +457,11 @@ REGISTRY: tuple[Fact, ...] = (
             ),
         ),
         notes=(
-            "NEW DIVERGENCE found by the 2026-08-17 (session 2) sweep, "
-            "KNOWN RED, deliberately not fixed here. design_rules.rs's "
-            "pyo3 #[new] constructor default is 0.6mm, not 0.9mm -- the "
-            "exact pre-2026-08-13 stale figure every OTHER home of this "
-            "fact was raised away from. It is reachable only via a bare "
-            "`DesignRules()` construction (no kwargs), which does not "
-            "occur in production Python (both call sites that bare-"
-            "construct a 'DesignRules' -- router_v6/_astar_nlayer.py:1035, "
-            "router_v6/_astar_reconstruct.py:117 -- import the UNRELATED "
-            "stage0_data.DesignRules Python dataclass, not this Rust "
-            "pyclass, confirmed by import-site grep), so it is currently "
-            "vestigial, same shape as the historical _parse_nets.py "
-            "'vestigial but live' incident this family's own motivation "
-            "cites -- one accidental refactor (e.g. a caller switching "
-            "which DesignRules it imports, or a future bare construction "
-            "of core.design_rules.DesignRules) turns it live. NOT fixed "
-            "here: this exact default is field-for-field pinned by the "
-            "PINNED oracle tests/core/_design_rules_py_oracle.py (its own "
-            "`default_via_diameter: float = 0.6` dataclass field default, "
-            "line ~200), so a mechanical fix requires the standing oracle "
-            "re-pin ceremony -- not an agent fiat action, same rule that "
-            "blocked mains_voltage_v's remaining two sites above."
+            "RECONCILED 2026-09-03: the Rust bare-constructor default now "
+            "matches the 0.9mm fab-safe fallback used by every production "
+            "Python home. The pinned design-rules oracle was re-pinned after "
+            "an exhaustive field-for-field sweep; see docs/evidence/2026-09-03-"
+            "fact-registry-safety-defaults-reconciliation.md."
         ),
     ),
     Fact(
