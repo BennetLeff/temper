@@ -85,6 +85,7 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'crates/temper-cli/**'
       - 'elec/**'
       - 'tests/**'
       - 'scripts/**'
@@ -215,6 +216,7 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'crates/temper-cli/**'
       - 'elec/**'
       - 'tests/**'
       - 'scripts/**'
@@ -1067,6 +1069,18 @@ jobs:
       - name: Setup barrier -- environment ready
         id: setup
         run: echo "setup complete; gates below report independently"
+
+      # The CLI's DRC preflight must be exercised in CI alongside the other
+      # Rust checks. The native witness is selected separately and explicitly;
+      # the default invocation intentionally leaves it ignored for fast,
+      # deterministic coverage when KiCad is unavailable.
+      - name: Test temper-cli DRC project context
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: cargo test --locked --manifest-path crates/temper-cli/Cargo.toml --test drc_project_context
+
+      - name: Test temper-cli native DRC witness
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: cargo test --locked --manifest-path crates/temper-cli/Cargo.toml --test drc_project_context drc_native_enforces_custom_rule_for_renamed_board -- --ignored --exact
 
       - name: Check temper-constraint-compiler compiles
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
