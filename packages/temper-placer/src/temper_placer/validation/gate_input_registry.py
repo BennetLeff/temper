@@ -557,6 +557,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_ato_assertion_vacuity.py", "elec/src/", "electrical assertion falsifiability gate; scans the Ato source tree and has its own perturbation witnesses plus mutation canaries; generic gate-input probe harness deferred"),
     ("check_board_containment.py", "pcb/temper.kicad_pcb", "board-containment invariant (R26); needs the real board; probe harness deferred"),
     ("check_board_defect_corpus.py", "pcb/temper.kicad_pcb", "board-defect mutation corpus (plan 2026-08-02-024 R38); needs the real board; probe harness deferred"),
+    ("check_split_board_feasibility.py", "power_pcb_dataset/qualification/split_board_feasibility/", "split-board feasibility admission replay gate; validates the qualification package and its fail-closed terminal verdict; probe harness deferred"),
     ("check_bom_source_reconciliation.py", "docs/hardware/BOM.md", "BOM<->source reconciliation (goal-set R14); needs the real BOM and elec/src; probe harness deferred"),
     ("check_dead_parameter_inputs.py", "power_pcb_dataset/physics_parameter_map.yaml", "dead-parameter standing check (plan 2026-08-02-019 U3); probe is the check itself"),
     ("check_firmware_board_contract.py", "firmware/tools/board_derivations.yaml", "firmware-board contract oracle (plan 2026-08-02-027); probe harness deferred"),

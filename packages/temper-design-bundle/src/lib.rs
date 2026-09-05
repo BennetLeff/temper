@@ -78,13 +78,13 @@ mod netlist_contracts;
 // Wave C core-contracts migration: net_graph + differential_pair pyclasses
 // (see docs/plans/2026-08-08-001-feat-wavec-core-contracts-migration-plan.md).
 #[cfg(feature = "python")]
-mod net_graph_contracts;
-#[cfg(feature = "python")]
-mod differential_pair_contracts;
-#[cfg(feature = "python")]
 mod bus_cohort_contracts;
 #[cfg(feature = "python")]
 mod decision_contracts;
+#[cfg(feature = "python")]
+mod differential_pair_contracts;
+#[cfg(feature = "python")]
+mod net_graph_contracts;
 
 // Orchestration plan Phase A unit U7: the typed terminal-extraction wire
 // format (router_v6/terminal_extraction.py -> PinWire/ComponentWire/
@@ -92,9 +92,9 @@ mod decision_contracts;
 // hypergraph_coo_matvec kernel (core/hypergraph.py -> hypergraph_contracts::Coo)
 // -- see docs/plans/2026-08-09-001-feat-rust-orchestration-engine-plan.md.
 #[cfg(feature = "python")]
-mod terminal_wire_contracts;
-#[cfg(feature = "python")]
 mod hypergraph_contracts;
+#[cfg(feature = "python")]
+mod terminal_wire_contracts;
 
 // Orchestration plan Phase A unit U9: the typed loop-extraction marshalling
 // boundary (core/loop_extractor_rs.py -> LoopExtractionInput /
@@ -144,11 +144,13 @@ mod config_loader;
 #[cfg(feature = "python")]
 mod reference_loader;
 
-pub(crate) mod parse_engine;
-#[cfg(feature = "python")]
-mod sexpr_writer;
 #[cfg(feature = "python")]
 mod loaders;
+pub(crate) mod parse_engine;
+pub mod regional_topology;
+pub mod safety_value_authority;
+#[cfg(feature = "python")]
+mod sexpr_writer;
 
 #[cfg(feature = "python")]
 mod pcl_parse;
@@ -179,14 +181,14 @@ mod measure_closure;
 #[cfg(feature = "python")]
 mod schema_validator;
 
-#[cfg(feature = "python")]
-mod validation;
 mod atopile;
 pub(crate) mod constraint_merge;
 mod error;
 pub(crate) mod identity;
 pub(crate) mod kicad_pcb;
 mod model;
+#[cfg(feature = "python")]
+mod validation;
 // Not gated on `python`: pure resolve()/format_unresolved() logic, unit
 // tested directly (see the module docstring). netlist_contracts.rs's
 // python-gated `apply_net_class_mapping_strict` is the only pyo3-facing
@@ -251,8 +253,10 @@ pub use pcl::{PclDocument, PclInputConstraint};
 // faithful kiutils-model shapes, not a stable long-term API (the CLI driver
 // consumes them read-only).
 pub use parse_engine::{
-    parse_board_summary, parse_kicad_document, BoardSummary, Num, RawBoard, RawFootprint,
-    RawPad, RawPos, RawTraceItem, RawZone,
+    // Existing narrow parser facade consumed by the CLI and non-Python
+    // callers, plus the typed keepout/raw types used by quality evaluators.
+    parse_board_summary, parse_kicad_document, BoardSummary, KeepoutSetting, Num, RawBoard,
+    RawFootprint, RawKeepoutSettings, RawPad, RawPos, RawTraceItem, RawZone,
 };
 
 /// Constructs the canonical boundary from already-read source documents.
@@ -419,8 +423,14 @@ mod python {
         // preprocess transform, the load chain, and the downstream helpers
         // (see config_loader.rs / reference_loader.rs) — PyYAML + pydantic are
         // called back across the boundary.
-        module.add_function(wrap_pyfunction!(crate::config_loader::preprocess_config, module)?)?;
-        module.add_function(wrap_pyfunction!(crate::config_loader::load_constraints, module)?)?;
+        module.add_function(wrap_pyfunction!(
+            crate::config_loader::preprocess_config,
+            module
+        )?)?;
+        module.add_function(wrap_pyfunction!(
+            crate::config_loader::load_constraints,
+            module
+        )?)?;
         module.add_function(wrap_pyfunction!(crate::config_loader::infer_rjc, module)?)?;
         module.add_function(wrap_pyfunction!(
             crate::config_loader::create_board_from_constraints,
@@ -498,6 +508,8 @@ mod python {
         // Safety-critical values with provenance: the recovered
         // IEC 60335-1 Table 16/17/18 lookups (see safety_value.rs).
         crate::safety_value::register(module)?;
+        crate::safety_value_authority::register(module)?;
+        crate::regional_topology::register(module)?;
         Ok(())
     }
 }

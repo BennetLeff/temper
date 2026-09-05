@@ -45,6 +45,7 @@ on:
       - 'scripts/tests/test_pr_perf_compare.py'
       - 'scripts/tests/test_perf_ab_oracle_paths.py'
       - 'power_pcb_dataset/metrics/perf_ab_baseline.jsonl'
+      - 'power_pcb_dataset/metrics/perf_ab_baseline_refresh/manifest.json'
       - '.github/workflows/pr-perf-check.yml'
 
   # 2026-08-04: the capture path. Until this trigger existed the workflow ran on
@@ -70,6 +71,7 @@ on:
       - 'scripts/tests/test_pr_perf_compare.py'
       - 'scripts/tests/test_perf_ab_oracle_paths.py'
       - 'power_pcb_dataset/metrics/perf_ab_baseline.jsonl'
+      - 'power_pcb_dataset/metrics/perf_ab_baseline_refresh/manifest.json'
       - '.github/workflows/pr-perf-check.yml'
 
   # Manual capture, for topping the baseline up on demand rather than waiting

@@ -55,7 +55,7 @@ mutations:
     axis: condition-invert
     function: run
     match: if-invert
-    index: 3
+    index: 5
     line_hint: "not fam.is_consistent"
     description: >-
       Invert the family-mismatch guard (`if not fam.is_consistent:`) so a
