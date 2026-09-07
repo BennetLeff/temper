@@ -24,7 +24,7 @@ coverage==7.16.0
     # via pytest-cov
 execnet==2.1.2
     # via pytest-xdist
-gherkin-official==29.0.0
+gherkin-official==42.0.1
     # via pytest-bdd
 grimp==3.16
     # via import-linter
