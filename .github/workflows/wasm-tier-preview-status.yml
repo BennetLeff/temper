@@ -64,7 +64,7 @@ jobs:
 
       - name: Resolve artifact source and the exact old-head pending check
         id: source
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require("node:fs");
@@ -285,7 +285,7 @@ jobs:
       - name: Re-read PR head before authoritative completion
         id: revalidate
         if: ${{ always() && !cancelled() }}
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require("node:fs");
@@ -307,7 +307,7 @@ jobs:
 
       - name: Complete producer-bound check
         if: ${{ always() && !cancelled() }}
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require("node:fs");
@@ -354,7 +354,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Fail the exact pending record if it still exists
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require("node:fs");
@@ -392,7 +392,7 @@ jobs:
           done < /tmp/preview-run-ids.txt
 
       - name: Close orphaned or expired pending checks
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require("node:fs");

@@ -466,7 +466,7 @@ jobs:
       # step would hard-error there.
       - name: Post PR comment
         if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const fs = require("fs");

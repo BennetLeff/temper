@@ -34,7 +34,7 @@ jobs:
 
       - name: Collect CI workflow status
         id: ci-status
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const workflows = [
@@ -111,7 +111,7 @@ jobs:
           echo "Import boundaries: gate enforces zero violations directly, $ALLOWLIST allowlist exemption(s)"
 
       - name: Publish health digest issue
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const fs = require("fs");

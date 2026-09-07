@@ -96,7 +96,7 @@ jobs:
 
       - name: Create drift issue
         if: steps.trend.outputs.drift_found == 'true'
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const title = "Metrics drift detected across modules";
@@ -133,7 +133,7 @@ jobs:
 
       - name: Create SPC violation issue
         if: steps.spc.outputs.spc_violation == 'true'
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const fs = require("fs");
@@ -159,7 +159,7 @@ jobs:
 
       - name: Create SLO violation issue
         if: steps.slo.outputs.slo_any_block == 'true'
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const fs = require("fs");
