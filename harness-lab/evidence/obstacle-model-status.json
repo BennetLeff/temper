@@ -1,0 +1,11 @@
+{
+  "status": "not_run",
+  "scored_trials": 0,
+  "requests_sent": 0,
+  "blocked_by": "automatic_approval_review",
+  "reason": "Review treated the synthetic keepout experiment as outside the prior routing-fixture approval. The exec request was rejected before process creation.",
+  "proposed_model": "opencode/muse-spark-1.3-contributor-free",
+  "proposed_run": "One inspection preflight and three fresh five-minute, ten-edit trials.",
+  "new_input": "One synthetic F.Cu track keepout polygon, (7.55,10.5) to (7.95,12.0) mm; unchanged U3/C9 geometry and routing task.",
+  "data_terms": "Same Meta Contributor training terms as the completed Muse routing trials."
+}

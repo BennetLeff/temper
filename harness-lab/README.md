@@ -145,3 +145,12 @@ python3 harness-lab/run_zen_trials.py harness-lab/runs/routing-scored-new \
 
 Use fresh output directories. The routing results and retained evidence are
 reported in [Experiment 00R results](EXPERIMENT-00R-RESULTS.md).
+
+## One-obstacle fixture
+
+Experiment 00R-O adds a protected native track keepout to the same U3/C9
+fixture. Ten obstacle controls and all 23 routing regression controls pass;
+external obstacle trials await explicit payload approval following an
+automatic approval rejection. See [the prepared experiment, diagram and
+results](OBSTACLE-RESULTS.md). Select it with `--routing --routing-fixture
+e00r-obstacle`; the original fixture remains the default.

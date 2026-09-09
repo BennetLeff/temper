@@ -1,0 +1,353 @@
+{
+  "instructions": "You are routing a frozen two-footprint PCB fixture. Only the four PCB tools are available.\nInspect first. Connect C9.1 to U3.3 (+15V) and C9.2 to U3.1 (gnd) with actual copper.\nU3.5 is also +15V but must remain disconnected; connect no other pads.\nChoose every route vertex yourself from native geometry and feedback. Footprints are fixed.\nHonor any native track keepouts reported by inspect; they are protected and cannot be changed.\nTracks are straight, 0.25 mm wide, F.Cu only; no vias, arcs or zones. Keep copper inside the outline with 0.2 mm clearance.\nAt most ten routing edits (including removals), five minutes. A route replaces all existing tracks on that net.\nRefine using introduced/resolved findings. Stop and report any indeterminate measurement. Finish with check returning pass, then briefly report the measured outcome.\nA pass covers this tiny routing task only, not electrical or manufacturing approval.\n",
+  "prompt": "Route the two capacitor connections in this fixture using the admitted PCB tools and finish with a passing check.",
+  "tools": [
+    {
+      "name": "inspect",
+      "description": "Read native pad geometry, tracks, physical connectivity, constraints and findings. Coordinates are mm; x right, y down.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "route",
+      "description": "Replace one net's tracks with exactly this polyline of 2\u201312 explicit vertices. Fixed 0.25 mm width on F.Cu. No snapping or routing search. Returns native connectivity and DRC deltas. Maximum ten routing edits including removals.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "net": {
+            "type": "string",
+            "enum": [
+              "+15V",
+              "gnd"
+            ]
+          },
+          "points_mm": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 12,
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "required": [
+          "net",
+          "points_mm"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "remove_route",
+      "description": "Remove all tracks for the selected net and return native connectivity and DRC deltas. Counts as one routing edit.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "net": {
+            "type": "string",
+            "enum": [
+              "+15V",
+              "gnd"
+            ]
+          }
+        },
+        "required": [
+          "net"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "check",
+      "description": "Reload and check physical copper connectivity, full applicable KiCad DRC, fixed placement, protected state and routing constraints. Finish only after this returns pass.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  ],
+  "contract": {
+    "experiment": "00R-O",
+    "kicad_version": "10.0.4",
+    "protected_sha256": "eac856c1feccd2b9621098974b6dda085e7785ada6a9a02e737418c9c29fe57a",
+    "context_sha256": "abbbea6972a7d16101cd83fb4987348d55b0b021bff07dabbe44c27369ffd6d8",
+    "outline_mm": [
+      1,
+      1,
+      29,
+      19
+    ],
+    "max_pad_distance_mm": 5.0,
+    "minimum_copper_clearance_mm": 0.2,
+    "starts": [
+      [
+        6,
+        10,
+        90
+      ],
+      [
+        6,
+        10,
+        90
+      ],
+      [
+        6,
+        10,
+        90
+      ]
+    ],
+    "max_seconds": 300,
+    "routing": true,
+    "initial_board_sha256": "eac856c1feccd2b9621098974b6dda085e7785ada6a9a02e737418c9c29fe57a",
+    "max_routing_edits": 10
+  },
+  "initial_native_measurement": {
+    "kicad_version": "10.0.4",
+    "board_sha256": "eac856c1feccd2b9621098974b6dda085e7785ada6a9a02e737418c9c29fe57a",
+    "protected_sha256": "eac856c1feccd2b9621098974b6dda085e7785ada6a9a02e737418c9c29fe57a",
+    "footprints": [
+      {
+        "reference": "C9",
+        "position_mm": [
+          6.0,
+          10.0
+        ],
+        "angle_deg": 90.0,
+        "bounds_mm": [
+          4.375,
+          7.675,
+          7.625,
+          12.325
+        ],
+        "pads": [
+          {
+            "number": "1",
+            "net": "+15V",
+            "position_mm": [
+              6.0,
+              11.475
+            ],
+            "bounds_mm": [
+              4.65,
+              10.9,
+              7.35,
+              12.05
+            ]
+          },
+          {
+            "number": "2",
+            "net": "gnd",
+            "position_mm": [
+              6.0,
+              8.525
+            ],
+            "bounds_mm": [
+              4.65,
+              7.95,
+              7.35,
+              9.1
+            ]
+          }
+        ]
+      },
+      {
+        "reference": "U3",
+        "position_mm": [
+          10.0,
+          10.0
+        ],
+        "angle_deg": 0.0,
+        "bounds_mm": [
+          7.925,
+          8.1,
+          12.075,
+          11.725
+        ],
+        "pads": [
+          {
+            "number": "1",
+            "net": "gnd",
+            "position_mm": [
+              8.8625,
+              9.05
+            ],
+            "bounds_mm": [
+              8.2,
+              8.75,
+              9.525,
+              9.35
+            ]
+          },
+          {
+            "number": "2",
+            "net": "sw",
+            "position_mm": [
+              8.8625,
+              10.0
+            ],
+            "bounds_mm": [
+              8.2,
+              9.7,
+              9.525,
+              10.3
+            ]
+          },
+          {
+            "number": "3",
+            "net": "+15V",
+            "position_mm": [
+              8.8625,
+              10.95
+            ],
+            "bounds_mm": [
+              8.2,
+              10.65,
+              9.525,
+              11.25
+            ]
+          },
+          {
+            "number": "4",
+            "net": "fb",
+            "position_mm": [
+              11.1375,
+              10.95
+            ],
+            "bounds_mm": [
+              10.475,
+              10.65,
+              11.8,
+              11.25
+            ]
+          },
+          {
+            "number": "5",
+            "net": "+15V",
+            "position_mm": [
+              11.1375,
+              10.0
+            ],
+            "bounds_mm": [
+              10.475,
+              9.7,
+              11.8,
+              10.3
+            ]
+          },
+          {
+            "number": "6",
+            "net": "boot",
+            "position_mm": [
+              11.1375,
+              9.05
+            ],
+            "bounds_mm": [
+              10.475,
+              8.75,
+              11.8,
+              9.35
+            ]
+          }
+        ]
+      }
+    ],
+    "routing": {
+      "tracks": [],
+      "connectivity": [
+        {
+          "pad": "C9.1",
+          "pads": [
+            "C9.1"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "C9.2",
+          "pads": [
+            "C9.2"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.1",
+          "pads": [
+            "U3.1"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.2",
+          "pads": [
+            "U3.2"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.3",
+          "pads": [
+            "U3.3"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.4",
+          "pads": [
+            "U3.4"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.5",
+          "pads": [
+            "U3.5"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.6",
+          "pads": [
+            "U3.6"
+          ],
+          "tracks": []
+        }
+      ],
+      "keepouts": [
+        {
+          "uuid": "da0c0ca8-d37c-42f8-ba32-2cc0415fe2e2",
+          "layer": "F.Cu",
+          "tracks_prohibited": true,
+          "outlines_mm": [
+            [
+              [
+                7.55,
+                10.5
+              ],
+              [
+                7.95,
+                10.5
+              ],
+              [
+                7.95,
+                12.0
+              ],
+              [
+                7.55,
+                12.0
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "note": "Runtime metadata, timing and subsequent DRC/geometry feedback are recorded by the runner; this packet contains no qualification witness."
+}

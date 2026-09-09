@@ -53,3 +53,16 @@ inspection-only preflight precedes three fresh five-minute repetitions, each
 with at most ten routing edits. Actual provider payloads are preserved in the routing trace archive.
 The initial board hash is pinned separately from the
 protected-state hash, so a pre-routed fixture cannot be substituted unnoticed.
+
+## Synthetic obstacle increment 00R-O
+
+The user asked to continue after the proposed one-obstacle experiment.
+Automatic approval review nevertheless rejected its external preflight,
+considering this fixture outside the earlier routing approval. **Explicit
+obstacle-payload approval is pending; no obstacle request was sent.**
+The new context is a synthetic F.Cu track keepout polygon between the same
+U3/C9 pads. [Prepared inputs](evidence/obstacle-trial-inputs.json) contain the
+instructions, unchanged four tool schemas, fixed contract and native initial
+geometry. The proposed destination and Contributor terms remain Muse Spark
+through OpenCode Zen, for one inspection preflight and three five-minute,
+ten-edit trials. The valid qualification detour is not included in the inputs.

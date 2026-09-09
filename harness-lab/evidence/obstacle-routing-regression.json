@@ -1,0 +1,135 @@
+{
+  "status": "qualified",
+  "scope": "two_capacitor_routes",
+  "contract_sha256": "d0264d3ff8bd78d705de0eb64832cc8bda481ae90ef2ca924fdfbcc53c5890c3",
+  "cases": [
+    {
+      "case": "multi-segment-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "multi-segment-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "multi-segment-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "blank-same-net-labels",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "missing-ground",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "broken-native-cluster",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "wrong-net",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "wrong-admitted-net-not-auto-repaired",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "short-across-pads",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "clearance",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "wrong-layer",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "wrong-width",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "via",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "outside-copper",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "unwanted-enable-pad",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "moved-fixed-capacitor",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "changed-pad-net",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "changed-rules",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "missing-connectivity",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "partial-connectivity",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "asymmetric-connectivity",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "native-remove-replace-transcript-audit",
+      "actual": "pass"
+    },
+    {
+      "case": "routing-budgets-invalid-inputs-preflight",
+      "actual": "pass"
+    }
+  ],
+  "source_sha256": {
+    "Cargo.lock": "dd29ceaa655bb50f2005aead04ff6e67bac9d1a5ee63f7d403420b20bf6d8d06",
+    "build_obstacle.py": "e95479ad35d05c81a2207a63025b7cb8c4bbe4396b8e818cc648bdbcaab807e7",
+    "harness.py": "76c7bfe592a69f736bc48970ce3bf383337776c62ffa0048852a790c0f2a029c",
+    "native.py": "dab7abaef33481ab4ca8c7603250431d1ad3fc9b5a8c3f614df18453ef56b7ec",
+    "qualify.py": "261f544d6b38fa19dba2741a370edcfd369ffd02b6240a0bb726f9e9ecac0197",
+    "qualify_obstacle.py": "ea0db533feda52002f14e763153559d983b606a37775d1f60259e9aa65510139",
+    "qualify_routing.py": "0b033a8c05326157927d47278608871f21a4afef84cde7041095fe8230acccf5",
+    "routing_host.py": "d77a35eb74611332992bb6b483658d546ba2c3664b9e2e7e6f1ebc7404e935a4",
+    "routing_native.py": "1b7577db7014ea75efc6be1e8e444f610d7da707b272825233e211de9ba51c2a",
+    "run_trials.py": "b52ece2cd5906e3884cbb7ea1606ec44b53af1f83d3203216918f49831c8fc3b",
+    "run_zen_trials.py": "bc1af197b616144bf28688fb5d3c4f690bb4ecb15745c1cd84462ad87979df09",
+    "src/main.rs": "903597b9393dfceae7f73aa911ee9947a1dfab20bdfb294cac260fb331811712",
+    "src/routing.rs": "822fa3be4cb43eb30b975a3404203c24cefc335f62dcf5a534594a4dba7d4d7e",
+    "test_routing_boundary.py": "0747782f2d800d1deacdf690ed4107a3b1f681c28a037e9091787db0d283f143",
+    "test_zen_runner.py": "6c98daa1f938a259947890a0ef52b747f137b439378f5b05d15c959c3ceb84b5"
+  },
+  "evaluator_sha256": "91bf8002bb8089e53790b16a4c921b9eecd49c06a1c4755f1010b5f243915ff0"
+}

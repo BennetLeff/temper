@@ -60,6 +60,27 @@ def measure(path: Path) -> dict:
         }
         for t in tracks
     ]
+    keepouts = []
+    for zone in board.Zones():
+        if zone.GetIsRuleArea():
+            shape = zone.Outline()
+            outlines = []
+            for index in range(shape.OutlineCount()):
+                outline = shape.COutline(index)
+                outlines.append(
+                    [
+                        list(pcbnew.ToMM(outline.CPoint(i)))
+                        for i in range(outline.PointCount())
+                    ]
+                )
+            keepouts.append(
+                {
+                    "uuid": zone.m_Uuid.AsString(),
+                    "layer": board.GetLayerName(zone.GetLayer()),
+                    "tracks_prohibited": zone.GetDoNotAllowTracks(),
+                    "outlines_mm": outlines,
+                }
+            )
     # Census raw saved nets BEFORE Build(), which itself propagates track nets.
     connectivity = pcbnew.CONNECTIVITY_DATA()
     if not connectivity.Build(board):
@@ -91,6 +112,7 @@ def measure(path: Path) -> dict:
     result["routing"] = {
         "tracks": sorted(census, key=lambda t: t["uuid"]),
         "connectivity": clusters,
+        "keepouts": sorted(keepouts, key=lambda z: z["uuid"]),
     }
     return result
 

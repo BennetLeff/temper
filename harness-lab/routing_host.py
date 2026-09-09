@@ -14,6 +14,10 @@ import harness
 ROOT = harness.ROOT
 ADAPTER = ROOT / "routing_native.py"
 CONTRACT = ROOT / "fixtures/routing-contract.json"
+CONTRACTS = {
+    "e00r": CONTRACT,
+    "e00r-obstacle": ROOT / "fixtures/obstacle-contract.json",
+}
 NET_SCHEMA = {"type": "string", "enum": ["+15V", "gnd"]}
 TOOLS = [
     {
@@ -64,6 +68,7 @@ INSTRUCTIONS = """You are routing a frozen two-footprint PCB fixture. Only the f
 Inspect first. Connect C9.1 to U3.3 (+15V) and C9.2 to U3.1 (gnd) with actual copper.
 U3.5 is also +15V but must remain disconnected; connect no other pads.
 Choose every route vertex yourself from native geometry and feedback. Footprints are fixed.
+Honor any native track keepouts reported by inspect; they are protected and cannot be changed.
 Tracks are straight, 0.25 mm wide, F.Cu only; no vias, arcs or zones. Keep copper inside the outline with 0.2 mm clearance.
 At most ten routing edits (including removals), five minutes. A route replaces all existing tracks on that net.
 Refine using introduced/resolved findings. Stop and report any indeterminate measurement. Finish with check returning pass, then briefly report the measured outcome.
@@ -72,17 +77,17 @@ A pass covers this tiny routing task only, not electrical or manufacturing appro
 PROMPT = "Route the two capacitor connections in this fixture using the admitted PCB tools and finish with a passing check."
 
 
-def prepare(directory: Path, start: list) -> None:
+def prepare(directory: Path, start: list, *, fixture: str = "e00r") -> None:
     # All three repetitions share geometry; separate sessions test repeatability.
     if start != [6, 10, 90]:
         raise ValueError("Unqualified routing start")
-    contract = json.loads(CONTRACT.read_text())
+    contract = json.loads(CONTRACTS[fixture].read_text())
     if (
-        harness.file_hash(ROOT / "fixtures/e00r/candidate.kicad_pcb")
+        harness.file_hash(ROOT / "fixtures" / fixture / "candidate.kicad_pcb")
         != contract["initial_board_sha256"]
     ):
         raise ValueError("Frozen initial routing board changed")
-    shutil.copytree(ROOT / "fixtures/e00r", directory)
+    shutil.copytree(ROOT / "fixtures" / fixture, directory)
     shutil.copyfile(directory / "candidate.kicad_pcb", directory / "initial.kicad_pcb")
 
 
@@ -156,8 +161,13 @@ if __name__ == "__main__":
     parser.add_argument("directory", type=Path)
     parser.add_argument("--deadline", type=float)
     parser.add_argument("--inspect-only", action="store_true")
+    parser.add_argument("--fixture", choices=sorted(CONTRACTS), default="e00r")
     args = parser.parse_args()
     session_type = InspectionSession if args.inspect_only else Session
     harness.serve(
-        session_type(args.directory, json.loads(CONTRACT.read_text()), args.deadline)
+        session_type(
+            args.directory,
+            json.loads(CONTRACTS[args.fixture].read_text()),
+            args.deadline,
+        )
     )

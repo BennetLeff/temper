@@ -130,12 +130,13 @@ def configuration(
     deadline: float,
     preflight: bool = False,
     routing: bool = False,
+    routing_fixture: str = "e00r",
 ) -> dict:
     model = "opencode/" + MODEL
     tools = routing_host.TOOLS if routing else harness.TOOLS
     host = (
         (
-            [str(routing_host.ROOT / "routing_host.py")]
+            [str(routing_host.ROOT / "routing_host.py"), "--fixture", routing_fixture]
             + (["--inspect-only"] if preflight else [])
         )
         if routing
@@ -332,10 +333,13 @@ def run(
     preflight: bool,
     preflight_receipt: Path | None,
     routing: bool = False,
+    routing_fixture: str = "e00r",
 ) -> None:
     task = routing_host if routing else harness
     contract_path = (
-        routing_host.CONTRACT if routing else harness.ROOT / "fixtures/contract.json"
+        routing_host.CONTRACTS[routing_fixture]
+        if routing
+        else harness.ROOT / "fixtures/contract.json"
     )
     instructions = routing_host.INSTRUCTIONS if routing else INSTRUCTIONS
     prompt = routing_host.PROMPT if routing else PROMPT
@@ -384,7 +388,7 @@ def run(
             [executable, "--version"], text=True
         ).strip(),
         "preflight": preflight,
-        "experiment": "00R" if routing else "00",
+        "experiment": contract["experiment"],
         "instructions": PREFLIGHT_INSTRUCTIONS if preflight else instructions,
         "prompt": PREFLIGHT_PROMPT if preflight else prompt,
         "data_use": "User approved Zen/Meta Contributor training terms on 2026-09-09",
@@ -396,7 +400,10 @@ def run(
         contract["starts"][:1] if preflight else contract["starts"], 1
     ):
         directory = output / f"trial-{index}"
-        task.prepare(directory, start)
+        if routing:
+            task.prepare(directory, start, fixture=routing_fixture)
+        else:
+            task.prepare(directory, start)
         recorder = Recorder(directory, task.TOOLS)
         thread = threading.Thread(target=recorder.serve_forever, daemon=True)
         thread.start()
@@ -411,6 +418,7 @@ def run(
                     time.time() + 300,
                     preflight,
                     routing,
+                    routing_fixture,
                 )
                 (directory / "config.json").write_text(json.dumps(config, indent=2))
                 command = [
@@ -581,12 +589,18 @@ if __name__ == "__main__":
     parser.add_argument("--qualification", type=Path, required=True)
     parser.add_argument("--preflight", action="store_true")
     parser.add_argument("--routing", action="store_true")
+    parser.add_argument(
+        "--routing-fixture", choices=sorted(routing_host.CONTRACTS), default="e00r"
+    )
     parser.add_argument("--preflight-receipt", type=Path)
     args = parser.parse_args()
+    if args.routing_fixture != "e00r" and not args.routing:
+        parser.error("--routing-fixture requires --routing")
     run(
         args.output.resolve(),
         args.qualification.resolve(),
         args.preflight,
         args.preflight_receipt,
         args.routing,
+        args.routing_fixture,
     )

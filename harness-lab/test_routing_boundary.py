@@ -68,3 +68,22 @@ class RoutingBoundaryTests(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             normalize([event])
+
+
+class ObstacleProfileTests(unittest.TestCase):
+    def test_obstacle_profile_selects_only_the_new_fixture(self):
+        config = configuration(
+            harness.ROOT / "unused",
+            1234,
+            9999,
+            preflight=True,
+            routing=True,
+            routing_fixture="e00r-obstacle",
+        )
+        command = config["mcp"]["pcb"]["command"]
+        self.assertEqual(command[command.index("--fixture") + 1], "e00r-obstacle")
+        self.assertIn("--inspect-only", command)
+        self.assertEqual(
+            {name for name in config["permission"] if name != "*"},
+            {"pcb_inspect", "pcb_route", "pcb_remove_route", "pcb_check"},
+        )
