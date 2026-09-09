@@ -64,7 +64,6 @@ on:
       - 'scripts/ci_closure_test.py'
       - 'scripts/ci_check_drc.py'
       - 'scripts/ci_regression.sh'
-      - 'scripts/check_regression.py'
       - 'scripts/quarantine_report.py'
       - '.github/workflows/regression.yml'
   pull_request:
@@ -77,7 +76,6 @@ on:
       - 'scripts/ci_closure_test.py'
       - 'scripts/ci_check_drc.py'
       - 'scripts/ci_regression.sh'
-      - 'scripts/check_regression.py'
       - 'scripts/quarantine_report.py'
       - '.github/workflows/regression.yml'
 

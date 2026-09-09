@@ -16,9 +16,6 @@
   "build_extensions.py": [
     "Makefile"
   ],
-  "calibrate_drc_ceiling.py": [
-    "packages/temper-placer/src/temper_placer/router_v6/_pipeline_verify.py"
-  ],
   "capacity_budget_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -188,7 +185,6 @@
     "packages/temper-placer/src/temper_placer/_constraint_types/config.py",
     "packages/temper-placer/src/temper_placer/core/net_classification.py",
     "packages/temper-placer/src/temper_placer/physics/gate_drive.py",
-    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py",
     "packages/temper-placer/tests/core/_priority_py_oracle.py",
@@ -273,9 +269,6 @@
   ],
   "check_refdes_identity_stability.py": [
     "packages/temper-placer/tests/scripts/test_r2_serialize_board.py"
-  ],
-  "check_regression.py": [
-    ".github/workflows/regression.yml"
   ],
   "check_required_checks.py": [
     ".github/workflows/python-tests.yml",
@@ -406,9 +399,6 @@
     "packages/temper-placer/tests/pcl/test_mutation_register.py"
   ],
   "deadcode-baseline.py": [],
-  "debug_diff_pair_path.py": [
-    "scripts/test_backpath_fix.sh"
-  ],
   "duplicate_predicate_registry.py": [
     "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
     "packages/temper-placer/src/temper_placer/physics/thermal_fdm.py",
@@ -417,9 +407,6 @@
   ],
   "evaluate_regional_layout.py": [],
   "find_clone_pairs.py": [],
-  "full_pipeline_profile.py": [
-    "packages/temper-placer/src/temper_placer/regression/closure_test.py"
-  ],
   "gate_mutate.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py"
@@ -553,8 +540,6 @@
   "pr_scorecard.py": [
     ".github/workflows/pr-pipeline-scorecard.yml"
   ],
-  "profile_router_v6_sampling.py": [],
-  "profile_rust_topology.py": [],
   "pytest_guard.py": [
     ".github/workflows/python-tests.yml",
     ".github/workflows/r9-evidence.yml",
@@ -599,8 +584,6 @@
   "scan_external_corpus.py": [
     ".github/workflows/corpus-batch.yml"
   ],
-  "slo_evaluator.py": [],
-  "spc_rules.py": [],
   "spike_2026_08_11_inprocess_netbatch.py": [],
   "sweep_plan_status.py": [],
   "sync_kicad_netclass_assignments.py": [
@@ -621,7 +604,6 @@
     "packages/temper-placer/tests/router_v6/test_phase1_anti_false_zero.py",
     "packages/temper-placer/tests/router_v6/test_temper_production_board_routing.py"
   ],
-  "update_regression_cache.py": [],
   "validate_footprints.py": [
     "scripts/sprint1_validation.sh"
   ],
