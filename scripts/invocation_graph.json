@@ -7,7 +7,6 @@
   "batch_pipeline_validate.py": [
     ".github/workflows/corpus-batch.yml"
   ],
-  "bench_coarse_to_fine.py": [],
   "bench_rust_constraints.py": [],
   "bench_rust_geometry.py": [
     "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py"
@@ -437,10 +436,6 @@
     ".github/workflows/wasm-tier-deploy.yml",
     ".github/workflows/wasm-tier-pr.yml"
   ],
-  "generate_ground_plane.py": [
-    "packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py",
-    "packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py"
-  ],
   "generate_kicad_dru.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/design_rules.py",
@@ -462,7 +457,6 @@
     "packages/temper-placer/tests/router_v6/test_pair_clearance.py",
     "packages/temper-placer/tests/router_v6/test_phase1_anti_false_zero.py"
   ],
-  "generate_power_islands.py": [],
   "human_reference_compare.py": [],
   "import_linter_gate.py": [
     ".github/workflows/python-tests.yml"
@@ -513,11 +507,6 @@
   "part_stress_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "phase5_batch1_mutations.py": [],
-  "phase5_batch2_mutations.py": [],
-  "phase5_cli_adapters_workflow_mutations.py": [],
-  "phase5_final_leaves_mutations.py": [],
-  "phase5_hubs_mutations.py": [],
   "physics_soundness_register_gate.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"
@@ -551,10 +540,6 @@
     ".github/workflows/placer-regression.yml",
     ".github/workflows/regression.yml"
   ],
-  "rcm_blocking_diag.py": [],
-  "rcm_empty_blocker_diag.py": [],
-  "rcm_pin_positions.py": [],
-  "rcm_spatial_analysis.py": [],
   "reconcile_metrics.py": [
     ".github/workflows/metrics-reconcile.yml"
   ],
