@@ -17,18 +17,20 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import harness
+import routing_host
 from run_trials import INSTRUCTIONS, PREFLIGHT_PROMPT, PROMPT, audit, require
 
 MODEL = "muse-spark-1.3-contributor-free"
 TOOL_NAMES = {"pcb_" + tool["name"] for tool in harness.TOOLS}
-PREFLIGHT_INSTRUCTIONS = """This is an inspection-only runtime preflight, not a placement task.
-Call pcb_inspect exactly once, then list the three available PCB tool names and stop.
-Do not solve the placement task. Do not call place or check. Those operations are
+PREFLIGHT_INSTRUCTIONS = """This is an inspection-only runtime preflight, not a board editing task.
+Call pcb_inspect exactly once, then list the available PCB tool names and stop.
+Do not solve the task. Do not call any other tool. Those operations are
 disabled by the preflight host even though their schemas are visible.
 """
 
 
-def validate_request(packet: dict) -> None:
+def validate_request(packet: dict, tools: list = harness.TOOLS) -> None:
+    tool_names = {"pcb_" + t["name"] for t in tools}
     require(packet.get("model") == MODEL, "Unapproved model")
     require(packet.get("store") is False, "Stateless conversation required")
     require(
@@ -40,8 +42,8 @@ def validate_request(packet: dict) -> None:
     names = []
     for tool in packet.get("tools", []):
         require(tool.get("type") == "function", "Unapproved provider tool")
-        require(tool.get("name") in TOOL_NAMES, "Unapproved function")
-        expected = next(t for t in harness.TOOLS if "pcb_" + t["name"] == tool["name"])
+        require(tool.get("name") in tool_names, "Unapproved function")
+        expected = next(t for t in tools if "pcb_" + t["name"] == tool["name"])
         require(
             tool.get("parameters") == expected["inputSchema"], "Tool schema changed"
         )
@@ -50,7 +52,9 @@ def validate_request(packet: dict) -> None:
             "Tool description changed",
         )
         names.append(tool["name"])
-    require(set(names) == TOOL_NAMES and len(names) == 3, "Tool catalog differs")
+    require(
+        set(names) == tool_names and len(names) == len(tools), "Tool catalog differs"
+    )
 
 
 class Recorder(ThreadingHTTPServer):
@@ -58,9 +62,10 @@ class Recorder(ThreadingHTTPServer):
 
     daemon_threads = True
 
-    def __init__(self, directory: Path):
+    def __init__(self, directory: Path, tools: list = harness.TOOLS):
         super().__init__(("127.0.0.1", 0), Relay)
         self.directory = directory
+        self.tools = tools
         self.sequence = 0
         self.lock = threading.Lock()
 
@@ -83,7 +88,7 @@ class Relay(BaseHTTPRequestHandler):
             body = self.rfile.read(length)
             packet = json.loads(body)
             prefix.with_suffix(".request.json").write_bytes(body)
-            validate_request(packet)
+            validate_request(packet, self.server.tools)
             connection = http.client.HTTPSConnection("opencode.ai", timeout=60)
             headers = {
                 key: value
@@ -120,9 +125,27 @@ class Relay(BaseHTTPRequestHandler):
 
 
 def configuration(
-    directory: Path, port: int, deadline: float, preflight: bool = False
+    directory: Path,
+    port: int,
+    deadline: float,
+    preflight: bool = False,
+    routing: bool = False,
 ) -> dict:
     model = "opencode/" + MODEL
+    tools = routing_host.TOOLS if routing else harness.TOOLS
+    host = (
+        (
+            [str(routing_host.ROOT / "routing_host.py")]
+            + (["--inspect-only"] if preflight else [])
+        )
+        if routing
+        else (
+            [str(Path(__file__).resolve()), "--serve-inspection"]
+            if preflight
+            else [str(harness.ROOT / "harness.py")]
+        )
+    )
+    instructions = routing_host.INSTRUCTIONS if routing else INSTRUCTIONS
     return {
         "model": model,
         "small_model": model,
@@ -133,11 +156,14 @@ def configuration(
         "plugin": [],
         "instructions": [],
         "compaction": {"auto": False},
-        "permission": {"*": "deny", **{name: "allow" for name in sorted(TOOL_NAMES)}},
+        "permission": {
+            "*": "deny",
+            **{name: "allow" for name in sorted("pcb_" + t["name"] for t in tools)},
+        },
         "agent": {
             "pcb": {
                 "mode": "primary",
-                "prompt": PREFLIGHT_INSTRUCTIONS if preflight else INSTRUCTIONS,
+                "prompt": PREFLIGHT_INSTRUCTIONS if preflight else instructions,
                 "model": model,
             },
             "title": {"disable": True},
@@ -162,11 +188,7 @@ def configuration(
                 "type": "local",
                 "command": [
                     sys.executable,
-                    *(
-                        [str(Path(__file__).resolve()), "--serve-inspection"]
-                        if preflight
-                        else [str(harness.ROOT / "harness.py")]
-                    ),
+                    *host,
                     str(directory),
                     "--deadline",
                     str(deadline),
@@ -200,14 +222,15 @@ def environment(private: Path, config: dict) -> dict[str, str]:
     return env
 
 
-def normalize(events: list[dict]) -> list[dict]:
+def normalize(events: list[dict], tools: list = harness.TOOLS) -> list[dict]:
     """Adapt OpenCode events to the existing, qualified action/snapshot audit."""
+    tool_names = {"pcb_" + t["name"] for t in tools}
     result = []
     for event in events:
         kind, part = event["type"], event.get("part", {})
         if kind == "tool_use":
             name, state = part["tool"], part["state"]
-            require(name in TOOL_NAMES, "Unexpected executed tool")
+            require(name in tool_names, "Unexpected executed tool")
             require(state["status"] == "completed", "Uncompleted tool call")
             result.append(
                 {
@@ -233,7 +256,9 @@ def normalize(events: list[dict]) -> list[dict]:
     return result
 
 
-def verify_wire(directory: Path, events: list[dict]) -> dict:
+def verify_wire(
+    directory: Path, events: list[dict], tools: list = harness.TOOLS
+) -> dict:
     requests = sorted(directory.glob("wire-*.request.json"))
     require(bool(requests), "No recorded model requests")
     require(not list(directory.glob("wire-*.error.json")), "Wire boundary error")
@@ -242,7 +267,7 @@ def verify_wire(directory: Path, events: list[dict]) -> dict:
     shown_outputs = {}
     for path in requests:
         packet = json.loads(path.read_text())
-        validate_request(packet)
+        validate_request(packet, tools)
         for item in packet["input"]:
             if item.get("type") == "function_call_output":
                 call_id = item["call_id"]
@@ -297,19 +322,28 @@ def verify_wire(directory: Path, events: list[dict]) -> dict:
     return {
         "request_count": len(requests),
         "served_models": sorted(served),
-        "tool_catalog": sorted(TOOL_NAMES),
+        "tool_catalog": sorted("pcb_" + t["name"] for t in tools),
     }
 
 
 def run(
-    output: Path, qualification: Path, preflight: bool, preflight_receipt: Path | None
+    output: Path,
+    qualification: Path,
+    preflight: bool,
+    preflight_receipt: Path | None,
+    routing: bool = False,
 ) -> None:
+    task = routing_host if routing else harness
+    contract_path = (
+        routing_host.CONTRACT if routing else harness.ROOT / "fixtures/contract.json"
+    )
+    instructions = routing_host.INSTRUCTIONS if routing else INSTRUCTIONS
+    prompt = routing_host.PROMPT if routing else PROMPT
     receipt = json.loads(qualification.read_text())
-    contract = json.loads((harness.ROOT / "fixtures/contract.json").read_text())
+    contract = json.loads(contract_path.read_text())
     require(receipt["status"] == "qualified", "Unqualified apparatus")
     require(
-        receipt["contract_sha256"]
-        == harness.file_hash(harness.ROOT / "fixtures/contract.json"),
+        receipt["contract_sha256"] == harness.file_hash(contract_path),
         "Changed contract",
     )
     for name, digest in receipt["source_sha256"].items():
@@ -350,8 +384,9 @@ def run(
             [executable, "--version"], text=True
         ).strip(),
         "preflight": preflight,
-        "instructions": PREFLIGHT_INSTRUCTIONS if preflight else INSTRUCTIONS,
-        "prompt": PREFLIGHT_PROMPT if preflight else PROMPT,
+        "experiment": "00R" if routing else "00",
+        "instructions": PREFLIGHT_INSTRUCTIONS if preflight else instructions,
+        "prompt": PREFLIGHT_PROMPT if preflight else prompt,
         "data_use": "User approved Zen/Meta Contributor training terms on 2026-09-09",
         "contract": contract,
     }
@@ -361,8 +396,8 @@ def run(
         contract["starts"][:1] if preflight else contract["starts"], 1
     ):
         directory = output / f"trial-{index}"
-        harness.prepare(directory, start)
-        recorder = Recorder(directory)
+        task.prepare(directory, start)
+        recorder = Recorder(directory, task.TOOLS)
         thread = threading.Thread(target=recorder.serve_forever, daemon=True)
         thread.start()
         try:
@@ -371,7 +406,11 @@ def run(
                 empty = private / "workspace"
                 empty.mkdir()
                 config = configuration(
-                    directory, recorder.server_port, time.time() + 300, preflight
+                    directory,
+                    recorder.server_port,
+                    time.time() + 300,
+                    preflight,
+                    routing,
                 )
                 (directory / "config.json").write_text(json.dumps(config, indent=2))
                 command = [
@@ -424,9 +463,18 @@ def run(
                 for line in (directory / "model.jsonl").read_text().splitlines()
                 if line.strip()
             ]
-            normalized = normalize(events)
-            wire = verify_wire(directory, events)
-            checked = audit(directory, normalized, elapsed, returncode, contract)
+            normalized = normalize(events, task.TOOLS)
+            wire = verify_wire(directory, events, task.TOOLS)
+            checked = audit(
+                directory,
+                normalized,
+                elapsed,
+                returncode,
+                contract,
+                edit_operations=("route", "remove_route") if routing else ("place",),
+            )
+            if routing:
+                checked["routing_edits"] = checked.pop("placement_edits")
             if preflight:
                 calls = [e for e in normalized if e["type"] == "item.completed"]
                 require(returncode == 0 and elapsed <= 300, "Preflight runtime failed")
@@ -444,7 +492,7 @@ def run(
                 )
                 checked["status"] = "preflight_pass"
             else:
-                verification = harness.evaluate(
+                verification = task.evaluate(
                     directory, contract, directory / "host-final-check"
                 )
                 checked["independent_host_check"] = verification
@@ -479,7 +527,9 @@ def run(
                     "trial": index,
                     "status": result["status"],
                     "elapsed_s": elapsed,
-                    "placement_edits": result.get("placement_edits"),
+                    "edits": result.get(
+                        "routing_edits" if routing else "placement_edits"
+                    ),
                     "error": result.get("error"),
                 }
             ),
@@ -530,6 +580,7 @@ if __name__ == "__main__":
     parser.add_argument("output", type=Path)
     parser.add_argument("--qualification", type=Path, required=True)
     parser.add_argument("--preflight", action="store_true")
+    parser.add_argument("--routing", action="store_true")
     parser.add_argument("--preflight-receipt", type=Path)
     args = parser.parse_args()
     run(
@@ -537,4 +588,5 @@ if __name__ == "__main__":
         args.qualification.resolve(),
         args.preflight,
         args.preflight_receipt,
+        args.routing,
     )

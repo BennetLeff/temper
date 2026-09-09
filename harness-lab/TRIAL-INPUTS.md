@@ -34,3 +34,21 @@ Automatic approval review first rejected the preflight because it required
 explicit approval for the payload and OpenAI destination. The user chose local
 work only at that point, and no Codex model request ran. The later authorization
 above selects Zen/Meta; it does not authorize the earlier Codex runner.
+
+## Routing increment 00R
+
+The user requested the routing increment. External execution is **pending
+explicit approval**: automatic approval review rejected the proposed Muse
+preflight because it considered this expanded payload outside the earlier
+placement authorization. No routing request was sent to Zen/Meta.
+
+The proposed destination and Contributor terms match the placement trials.
+Each run receives the fixed U3/C9 geometry, net names,
+0.25 mm/F.Cu constraints, native connectivity, tracks, DRC findings and state
+receipts. No routing witness is supplied to the model.
+
+The exact four tools and task instructions are in `routing_host.py`; the
+frozen input identity is in `fixtures/routing-contract.json`. An
+inspection-only preflight precedes three fresh five-minute repetitions, each
+with at most ten routing edits. Future provider payloads will be recorded in a routing trace archive. The initial board hash is pinned separately from the
+protected-state hash, so a pre-routed fixture cannot be substituted unnoticed.

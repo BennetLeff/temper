@@ -1,0 +1,50 @@
+{
+  "status": "complete_local_review",
+  "scope": "Experiment 00R routing adapter, protected Rust policy, shared host hooks and explicit OpenCode routing profile",
+  "review_method": "Sequential inline review by the implementing agent; no independent reviewers or external code review.",
+  "checked": [
+    "Raw copper net census precedes native connectivity propagation",
+    "Only native PCB geometry/connectivity and Rust acceptance; no old optimizer imports",
+    "Atomic edits preserve fixed footprints and sidecars",
+    "Malformed or missing evidence fails closed",
+    "Provider model and exact four-tool catalog remain guarded",
+    "Removal counts toward the audit edit budget",
+    "Fresh initial board and protected state are separately pinned"
+  ],
+  "resolved_findings": [
+    "Native removed-track ownership caused cleanup failures; use Delete and separate canonical board",
+    "High-level KiCad I/O normalized wrong track nets; use raw native I/O and pre-build census",
+    "Initial routing board now pinned independently of mutable copper",
+    "Routing contract uses experiment 00R and routing budget metadata"
+  ],
+  "actionable_code_findings": [],
+  "validation": {
+    "routing_controls": 23,
+    "placement_regression_controls": 19,
+    "rust_unit_tests": 2,
+    "python_boundary_tests": 9,
+    "lint_format_compile": "pass",
+    "model_preflight": "not run: approval review rejected expanded external payload"
+  },
+  "limitations": [
+    "No agent routing trials yet",
+    "One fixed two-footprint geometry; no full circuit or manufacturing claim",
+    "Repository-wide import-linter unavailable in this isolated worktree; no push requested"
+  ],
+  "source_sha256": {
+    "Cargo.lock": "dd29ceaa655bb50f2005aead04ff6e67bac9d1a5ee63f7d403420b20bf6d8d06",
+    "harness.py": "76c7bfe592a69f736bc48970ce3bf383337776c62ffa0048852a790c0f2a029c",
+    "native.py": "dab7abaef33481ab4ca8c7603250431d1ad3fc9b5a8c3f614df18453ef56b7ec",
+    "qualify.py": "261f544d6b38fa19dba2741a370edcfd369ffd02b6240a0bb726f9e9ecac0197",
+    "qualify_routing.py": "0b033a8c05326157927d47278608871f21a4afef84cde7041095fe8230acccf5",
+    "routing_host.py": "eb1e8002c5ed854334e2b8786b1e1116fbef77bd432edf802687afbe53da734c",
+    "routing_native.py": "fc2c9a47817bf00e1e29158e4b0e3f55ff29d4a22520e4f627a7bf87fd9bfdde",
+    "run_trials.py": "b52ece2cd5906e3884cbb7ea1606ec44b53af1f83d3203216918f49831c8fc3b",
+    "run_zen_trials.py": "a1bcaa81b0bcef9d03ebc2913a2bc834c56129a583bfc6ae2976061376550ffe",
+    "src/main.rs": "903597b9393dfceae7f73aa911ee9947a1dfab20bdfb294cac260fb331811712",
+    "src/routing.rs": "822fa3be4cb43eb30b975a3404203c24cefc335f62dcf5a534594a4dba7d4d7e",
+    "test_routing_boundary.py": "1319d56ef479f3020d04e4760b5e2775453eed79bc82571221bd42c44e1dea5e",
+    "test_zen_runner.py": "6c98daa1f938a259947890a0ef52b747f137b439378f5b05d15c959c3ceb84b5"
+  },
+  "evaluator_sha256": "91bf8002bb8089e53790b16a4c921b9eecd49c06a1c4755f1010b5f243915ff0"
+}

@@ -1,0 +1,26 @@
+{
+  "source_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "kicad_version": "10.0.4",
+  "admitted_references": [
+    "U3",
+    "C9"
+  ],
+  "U3_pose_mm_deg": [
+    10,
+    10,
+    0
+  ],
+  "outline_mm": [
+    1,
+    1,
+    29,
+    19
+  ],
+  "copper_layers": 2,
+  "source_net_mapping": {
+    "C9.1": "+15V",
+    "U3.3": "+15V",
+    "C9.2": "gnd",
+    "U3.1": "gnd"
+  }
+}

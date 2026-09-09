@@ -4,6 +4,8 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::io;
 
+mod routing;
+
 #[derive(Deserialize)]
 struct Pad {
     number: String,
@@ -26,6 +28,7 @@ struct Measurement {
     board_sha256: String,
     protected_sha256: String,
     footprints: Vec<Footprint>,
+    routing: Option<routing::Measurement>,
 }
 
 #[derive(Deserialize)]
@@ -34,6 +37,8 @@ struct Contract {
     protected_sha256: String,
     outline_mm: [f64; 4],
     max_pad_distance_mm: f64,
+    #[serde(default)]
+    routing: bool,
 }
 
 #[derive(Deserialize)]
@@ -215,11 +220,24 @@ fn evaluate(input: Input) -> Result<Value> {
             "unexpected open-connection report"
         );
     }
+    if c.routing {
+        routing::evaluate(
+            m.routing
+                .as_ref()
+                .context("missing native connectivity evidence")?,
+            c.outline_mm,
+            &mut findings,
+        )?;
+        if drc.unconnected_items.len() != 1 {
+            findings.push(json!({"id": "unexpected_open_connection_count", "expected": "one remaining U3.5 open connection"}));
+        }
+    }
     Ok(
         json!({"status": if findings.is_empty() {"pass"} else {"fail"},
-        "scope": "placement_only", "board_sha256": m.board_sha256,
+        "scope": if c.routing {"two_capacitor_routes"} else {"placement_only"}, "board_sha256": m.board_sha256,
         "distances": distances, "findings": findings,
-        "open_connections_outside_scope": drc.unconnected_items.len()}),
+        "open_connections_outside_scope": drc.unconnected_items.len(),
+        "open_connection_evidence": drc.unconnected_items}),
     )
 }
 

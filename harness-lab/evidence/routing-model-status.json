@@ -1,0 +1,11 @@
+{
+  "status": "not_run",
+  "scored_trials": 0,
+  "requests_sent": 0,
+  "blocked_by": "automatic_approval_review",
+  "proposed_model": "opencode/muse-spark-1.3-contributor-free",
+  "proposed_run": "one inspection preflight and three five-minute routing trials, ten edits each",
+  "reason": "Review treated the expanded routing payload as outside the earlier placement approval and required explicit approval for sending it to OpenCode Zen/Muse.",
+  "evidence_basis": "The exec request was rejected before process creation; no routing preflight output directory exists.",
+  "approval_scope_needed": "U3/C9 geometry, net names, routing constraints, prompts, exact four tool schemas, native connectivity/DRC feedback and state receipts; Meta Contributor training terms."
+}

@@ -87,9 +87,11 @@ def context_hash(path: Path) -> str:
     ).hexdigest()
 
 
-def native(command: str, path: Path, *args: object) -> dict | None:
+def native(
+    command: str, path: Path, *args: object, adapter: Path = ROOT / "native.py"
+) -> dict | None:
     result = subprocess.run(
-        [KICAD_PYTHON, str(ROOT / "native.py"), command, str(path), *map(str, args)],
+        [KICAD_PYTHON, str(adapter), command, str(path), *map(str, args)],
         capture_output=True,
         text=True,
         timeout=15,
@@ -98,12 +100,18 @@ def native(command: str, path: Path, *args: object) -> dict | None:
     return json.loads(result.stdout) if result.stdout.strip() else None
 
 
-def evaluate(directory: Path, contract: dict, evidence: Path) -> dict:
+def evaluate(
+    directory: Path,
+    contract: dict,
+    evidence: Path,
+    *,
+    adapter: Path = ROOT / "native.py",
+) -> dict:
     if context_hash(directory) != contract["context_sha256"]:
         return {"status": "fail", "findings": [{"id": "protected_context_changed"}]}
     evidence.mkdir(parents=True, exist_ok=False)
     board = directory / "candidate.kicad_pcb"
-    measurement = native("measure", board)
+    measurement = native("measure", board, adapter=adapter)
     (evidence / "measurement.json").write_text(json.dumps(measurement, indent=2) + "\n")
     # Every evaluation gets a fresh output and explicit local library/config
     # context. A crash, timeout, or missing report can never reuse old evidence.
@@ -173,6 +181,9 @@ def prepare(directory: Path, start: list) -> None:
 
 
 class Session:
+    tools = TOOLS
+    adapter = ROOT / "native.py"
+
     def __init__(self, directory: Path, contract: dict, deadline: float | None = None):
         self.directory = directory.resolve()
         self.contract = contract
@@ -189,7 +200,7 @@ class Session:
             {
                 "kind": "session",
                 "contract": contract,
-                "tools": TOOLS,
+                "tools": self.tools,
                 "initial_sha256": self.last_hash,
                 "deadline_unix": self.deadline,
             }
@@ -199,6 +210,39 @@ class Session:
         self.log.write(json.dumps(event, allow_nan=False) + "\n")
         self.log.flush()
         os.fsync(self.log.fileno())
+
+    def apply(self, name: str, arguments: dict) -> None:
+        if name == "place":
+            if set(arguments) != {"x_mm", "y_mm", "angle_deg"}:
+                raise ValueError("place requires exactly x_mm, y_mm, angle_deg")
+            x, y, angle = (arguments[k] for k in ("x_mm", "y_mm", "angle_deg"))
+            if any(type(v) not in (int, float) or not math.isfinite(v) for v in (x, y)):
+                raise ValueError("Coordinates must be finite numbers")
+            if type(angle) is not int or angle not in (0, 90, 180, 270):
+                raise ValueError("Orientation must be 0, 90, 180, or 270")
+            if not (1 <= x <= 29 and 1 <= y <= 19):
+                raise ValueError("Footprint origin must be inside the task outline")
+            if self.edits >= 10:
+                raise ValueError("Ten-placement budget exhausted")
+            self.edits += 1
+            staging = self.directory / "next.kicad_pcb"
+            shutil.copyfile(self.board, staging)
+            native("place", staging, x, y, angle)
+            os.replace(staging, self.board)
+            self.last_hash = file_hash(self.board)
+        elif name not in ("inspect", "check") or arguments:
+            raise ValueError("Unknown operation or unexpected arguments")
+
+    def requirements(self) -> dict:
+        return {
+            "editable": "C9 position and orientation only",
+            "outline_mm": self.contract["outline_mm"],
+            "minimum_copper_clearance_mm": 0.2,
+            "maximum_mapped_pad_distance_mm": self.contract["max_pad_distance_mm"],
+            "mapped_pairs": ["C9.1 (+15V) -> U3.3", "C9.2 (gnd) -> U3.1"],
+            "no_courtyard_overlap": True,
+            "remaining_placement_edits": 10 - self.edits,
+        }
 
     def call(self, name: str, arguments: dict) -> dict:
         self.sequence += 1
@@ -220,46 +264,18 @@ class Session:
                 raise ValueError("Candidate changed outside the operation interface")
             if context_hash(self.directory) != self.contract["context_sha256"]:
                 raise ValueError("Protected context changed")
-            if name == "place":
-                if set(arguments) != {"x_mm", "y_mm", "angle_deg"}:
-                    raise ValueError("place requires exactly x_mm, y_mm, angle_deg")
-                x, y, angle = (arguments[k] for k in ("x_mm", "y_mm", "angle_deg"))
-                if any(
-                    type(v) not in (int, float) or not math.isfinite(v) for v in (x, y)
-                ):
-                    raise ValueError("Coordinates must be finite numbers")
-                if type(angle) is not int or angle not in (0, 90, 180, 270):
-                    raise ValueError("Orientation must be 0, 90, 180, or 270")
-                if not (1 <= x <= 29 and 1 <= y <= 19):
-                    raise ValueError("Footprint origin must be inside the task outline")
-                if self.edits >= 10:
-                    raise ValueError("Ten-placement budget exhausted")
-                self.edits += 1
-                staging = self.directory / "next.kicad_pcb"
-                shutil.copyfile(self.board, staging)
-                native("place", staging, x, y, angle)
-                os.replace(staging, self.board)
-                self.last_hash = file_hash(self.board)
-            elif name not in ("inspect", "check") or arguments:
-                raise ValueError("Unknown operation or unexpected arguments")
+            self.apply(name, arguments)
             result = evaluate(
                 self.directory,
                 self.contract,
                 self.directory / "evidence" / f"{self.sequence:03}",
+                adapter=self.adapter,
             )
             current = {f["id"] for f in result.get("findings", [])}
             result["introduced"] = sorted(current - self.previous_findings)
             result["resolved"] = sorted(self.previous_findings - current)
             self.previous_findings = current
-            result["requirements"] = {
-                "editable": "C9 position and orientation only",
-                "outline_mm": self.contract["outline_mm"],
-                "minimum_copper_clearance_mm": 0.2,
-                "maximum_mapped_pad_distance_mm": self.contract["max_pad_distance_mm"],
-                "mapped_pairs": ["C9.1 (+15V) -> U3.3", "C9.2 (gnd) -> U3.1"],
-                "no_courtyard_overlap": True,
-                "remaining_placement_edits": 10 - self.edits,
-            }
+            result["requirements"] = self.requirements()
             if time.time() >= self.deadline:
                 result["status"] = "fail"
                 result["budget_expired"] = True
@@ -291,7 +307,7 @@ def serve(session: Session) -> None:
                 "serverInfo": {"name": "temper-e00", "version": "0.1.0"},
             }
         elif method == "tools/list":
-            result = {"tools": TOOLS}
+            result = {"tools": session.tools}
         elif method == "tools/call":
             params = request["params"]
             response = session.call(params["name"], params.get("arguments", {}))

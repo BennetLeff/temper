@@ -82,6 +82,8 @@ def audit(
     elapsed: float,
     returncode: int,
     contract: dict,
+    *,
+    edit_operations: tuple[str, ...] = ("place",),
 ) -> dict:
     events = [
         json.loads(line)
@@ -149,7 +151,7 @@ def audit(
         item.get("type") for item in completed if item.get("type") not in allowed_items
     ]
     last = responses[-1]["result"]
-    edits = sum(r["operation"] == "place" for r in requests)
+    edits = sum(r["operation"] in edit_operations for r in requests)
     terminal = any(e.get("type") == "turn.completed" for e in model_events)
     passed = (
         returncode == 0

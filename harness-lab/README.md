@@ -1,8 +1,9 @@
-# Temper harness lab: Experiment 00
+# Temper harness lab: placement and routing
 
-Place C9, the real buck input capacitor, near fixed regulator U3. This is a
-two-footprint placement task. Routing and complete converter construction come
-later. Existing optimizer code is shelved; this directory imports none of it.
+Two small experiments use the real buck input capacitor C9 and regulator U3.
+Experiment 00 places C9; Experiment 00R freezes that placement and routes its
+two mapped connections. Existing optimizer code is shelved; this directory
+imports none of it.
 
 **All three scored placement trials passed using Muse Spark 1.3 Contributor
 Free through OpenCode Zen.** They took 22, 49, and 81 seconds and used 1, 2,
@@ -106,6 +107,36 @@ runtime and build the PCB boundary and experiment recorder.
 traces for a later outer refinement loop. This milestone deliberately stops
 before implementing that loop or claiming learned improvement.
 
-The next experiment, after three actual agent passes, adds only the two
-capacitor connections. The broader plan is
+The routing increment is specified in [Experiment 00R](ROUTING-EXPERIMENT.md).
+The broader plan is
 [here](../docs/plans/2026-09-09-001-feat-buck-harness-experiment-plan.md).
+
+
+## Routing increment 00R
+
+The routing profile offers `inspect`, `route`, `remove_route`, and `check`.
+The agent supplies every vertex; `route` replaces one net's copper with the
+explicit polyline. It performs no snapping, path search, or repair. Width is
+fixed at 0.25 mm on F.Cu. Both footprints stay fixed, and U3.5 must remain
+unconnected. Three fresh repetitions use the same geometry and limits of
+five minutes / ten routing edits each.
+
+The Rust evaluator requires KiCad physical connectivity for both mapped
+pairs, rejects unintended connections and unsupported copper, checks all
+applicable native DRC, and verifies protected state. Raw saved track nets are
+inventoried before KiCad's connectivity builder can propagate them. Empty
+copper and a nominally correct net list cannot pass.
+
+```sh
+python3 harness-lab/qualify_routing.py harness-lab/runs/routing-qualification-new
+python3 harness-lab/run_zen_trials.py harness-lab/runs/routing-preflight-new \
+  --routing --preflight \
+  --qualification harness-lab/runs/routing-qualification-new/qualification.json
+python3 harness-lab/run_zen_trials.py harness-lab/runs/routing-scored-new \
+  --routing \
+  --qualification harness-lab/runs/routing-qualification-new/qualification.json \
+  --preflight-receipt harness-lab/runs/routing-preflight-new/results.json
+```
+
+Use fresh output directories. The routing results and retained evidence are
+reported in [Experiment 00R results](EXPERIMENT-00R-RESULTS.md).
