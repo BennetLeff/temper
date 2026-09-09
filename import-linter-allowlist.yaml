@@ -57,8 +57,6 @@ allowlist:
   - source: temper_placer.pipeline
     target: temper_placer.router_v6.adapter
     contract: router-v6-public-interface-only
-    target: temper_placer.router_v6.adapter
-    contract: router-v6-public-interface-only
   - source: temper_placer.io
     target: temper_placer.router_v6.obstacle_map
     contract: router-v6-public-interface-only
