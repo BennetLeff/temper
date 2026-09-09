@@ -31,10 +31,14 @@ Metamorphic relations (>=3 per module):
 """
 
 import pytest
-from hypothesis import given, settings, strategies as st
+import temper_design_bundle_python as _tdb
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
-from temper_placer.core.net_graph import NetGraph, SubNetEdge
 from temper_placer.core.differential_pair import DifferentialPairConstraint
+
+NetGraph = _tdb.net_graph_contracts.NetGraph
+SubNetEdge = _tdb.net_graph_contracts.SubNetEdge
 
 
 # ---------------------------------------------------------------------------

@@ -8,7 +8,8 @@ empty -- extraction worked, classification silently didn't.
 
 from __future__ import annotations
 
-from temper_placer.core.loop import LoopPriority
+from temper_design_bundle_python import LoopPriority
+
 from temper_placer.core.loop_extractor_rs import _dict_to_loop_collection
 
 

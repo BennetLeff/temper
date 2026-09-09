@@ -10,16 +10,17 @@ pyo3 pyclasses in the ``temper-design-bundle`` crate (the
 "contracts-as-pyo3-pyclasses" pivot
 (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``,
 D5 / Phase B). This module keeps the pre-migration public API unchanged and
-re-exports the Rust pyclasses (the pure-delegation pattern, mirroring
-``core/net_types.py`` and ``core/loop.py``).
+re-exports the Rust pyclasses (the pure-delegation pattern; the former
+``core/net_types.py`` and ``core/loop.py`` shims were deleted 2026-09-09 —
+their names now import directly from ``temper_design_bundle_python``).
 
 What stays Python: the module-level constant tables (``TEMPER_NET_CLASSES``,
 ``TEMPER_NET_ASSIGNMENTS``) construct Pydantic ``NetClassRules`` objects,
 which remain Python; ``SAFETY_CONSTANT_AUTHORITY`` derives from them; and
 ``create_temper_design_rules()`` assembles a ``DesignRules`` pyclass from
 those tables. The pyclasses hold such cross-module objects opaquely
-(``Py<PyDict>``/``Py<PyAny>``), exactly the pattern ``core/net_types.py``
-uses for ``LayerIndex``.
+(``Py<PyDict>``/``Py<PyAny>``), exactly the pattern the extension's
+``net_types.rs`` uses for ``LayerIndex``.
 
 Verification: bit-identical parity against the pinned pre-migration
 implementation is asserted by
