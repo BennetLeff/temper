@@ -1,10 +1,10 @@
 _meta:
-  last_audit_date: '2026-08-19'
-  total_scripts: 174
+  last_audit_date: '2026-09-09'
+  total_scripts: 186
   counts:
-    keep: 161
-    ticket: 13
-  ticket_scripts_deleted: 43
+    keep: 180
+    ticket: 5
+  ticket_scripts_deleted: 52
 scripts:
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
@@ -110,18 +110,6 @@ scripts:
   - shutil
   - sys
   - typing
-- path: calibrate_drc_ceiling.py
-  purpose: Calibrate DRC violation ceiling for Rust DRC engine
-  owner: pipeline
-  last_run: '2026-06-30'
-  category: ticket
-  disposition: utility
-  imports:
-  - argparse
-  - collections
-  - json
-  - pathlib
-  - sys
 - path: evaluate_regional_layout.py
   purpose: 'Read-only regional PCB candidate evaluator: compares exact HV-SELV pair sets, all KiCad DRC
     categories, F.Fab body collisions, and routed-pad endpoint connectivity; the Pareto verdict is owned
@@ -1449,14 +1437,6 @@ scripts:
   - pathlib
   - re
   - sys
-- path: check_regression.py
-  purpose: Functional regression check (called by Makefile)
-  owner: unassigned
-  last_run: '2026-08-19'
-  category: keep
-  disposition: shell-invoked
-  imports:
-  - sys
 - path: check_required_checks.py
   purpose: 'Always-on pull-request aggregator: require the candidate Python Tests contexts when a manifest
     trigger path matches, while treating workflow-level path filtering as an explicit legitimate skip.
@@ -1945,16 +1925,6 @@ scripts:
   category: keep
   disposition: utility
   imports: []
-- path: debug_diff_pair_path.py
-  purpose: Debug differential pair path (shell-invoked)
-  owner: unassigned
-  last_run: '2026-06-22'
-  category: ticket
-  disposition: shell-invoked
-  imports:
-  - pathlib
-  - sys
-  - temper_placer.io.kicad_parser
 - path: duplicate_predicate_registry.py
   purpose: 'SSOT for which cross-file duplication is accidental (consolidated, must not regrow a copy,
     scanned by check_duplicate_predicates.py) vs. deliberate (a pinned oracle or an intentional independent
@@ -1972,25 +1942,6 @@ scripts:
   - dataclasses
   - pathlib
   - sys
-- path: full_pipeline_profile.py
-  purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
-  owner: router-v6-closure-rate
-  last_run: '2026-06-23'
-  category: ticket
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - cProfile
-  - io
-  - json
-  - logging
-  - os
-  - pathlib
-  - pstats
-  - sys
-  - time
-  - typing
 - path: gate_mutate.py
   purpose: 'R42 gate-mutation engine: applies one declarative mutation (guard-strip, condition-invert,
     scope-remove, violation-discard, comparison-flip, threshold-set, return-stub -- chosen to model observed
@@ -2542,35 +2493,6 @@ scripts:
   - pathlib
   - sys
   - typing
-- path: profile_router_v6_sampling.py
-  purpose: Profile router_v6 on a small subset of nets for sampling analysis
-  owner: router-v6-closure-rate
-  last_run: '2026-06-23'
-  category: ticket
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - cProfile
-  - io
-  - pathlib
-  - pstats
-  - sys
-  - time
-- path: profile_rust_topology.py
-  purpose: Compare Rust vs Python SAT solver backend performance on closure test
-  owner: unassigned
-  last_run: '2026-06-28'
-  category: ticket
-  disposition: utility
-  imports:
-  - __future__
-  - json
-  - os
-  - pathlib
-  - subprocess
-  - sys
-  - time
 - path: pytest_guard.py
   purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a suite silently collapsing
     to zero (missing path, mass skip, bad deselect)
@@ -2715,26 +2637,6 @@ scripts:
   - sys
   - time
   - yaml
-- path: slo_evaluator.py
-  purpose: SLO definition schema and evaluation engine
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: ticket
-  disposition: utility
-  imports:
-  - __future__
-  - dataclasses
-  - typing
-  - yaml
-- path: spc_rules.py
-  purpose: Western Electric SPC rules — pure Python, no external stats dependency
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: ticket
-  disposition: utility
-  imports:
-  - __future__
-  - math
 - path: sweep_plan_status.py
   purpose: One-shot supersession sweep of docs/plans/ frontmatter status (2026-07-25); see docs/plans/README.md
   owner: bennet
@@ -2829,19 +2731,6 @@ scripts:
   - subprocess
   - sys
   - tempfile
-- path: update_regression_cache.py
-  purpose: Update .regression-cache.json from regression reports for incremental corpus regression
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: ticket
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - json
-  - pathlib
-  - subprocess
-  - sys
 - path: validate_perf_capture.py
   purpose: Fail-closed aggregation of five immutable-SHA performance captures into review-only manifest
     and append patch artifacts
