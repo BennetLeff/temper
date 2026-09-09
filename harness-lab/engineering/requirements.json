@@ -1,0 +1,30 @@
+{
+  "schema_version": "engineering-requirements/v1",
+  "revision": "temper-buck-requirements-2026-09-09",
+  "source_authority": "elec/src/modules.ato::BuckConverter3V3",
+  "requirements": [
+    {"id":"vin_nominal","label":"Nominal input voltage","value":15.0,"units":"V","source":"Temper source design; BuckConverter3V3","approval":"source-backed","verification":"circuit","stage":"circuit","mandatory":true},
+    {"id":"vin_min","label":"Minimum input voltage","value":null,"units":"V","source":"unresolved Temper product requirement","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"vin_max","label":"Maximum input voltage","value":null,"units":"V","source":"unresolved Temper product requirement","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"vout_nominal","label":"Nominal output voltage","value":3.3,"units":"V","source":"Atopile assertion in BuckConverter3V3","approval":"source-backed","verification":"circuit","stage":"circuit","mandatory":true},
+    {"id":"vout_tolerance","label":"Output voltage tolerance","min":3.135,"max":3.465,"units":"V","source":"Atopile assertion in BuckConverter3V3 (±5%)","approval":"source-backed","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"iout_continuous","label":"Continuous output current","value":null,"units":"A","source":"unresolved Temper load budget","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"iout_peak","label":"Peak output current","value":null,"units":"A","source":"unresolved Temper load budget","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"iout_peak_duration","label":"Peak current duration","value":null,"units":"s","source":"unresolved Temper load profile","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"ripple_amplitude","label":"Output ripple amplitude","value":null,"units":"mVpp","source":"unresolved product requirement","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"ripple_bandwidth","label":"Ripple measurement bandwidth","value":null,"units":"MHz","source":"unresolved measurement procedure","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"startup_ramp","label":"Startup ramp","value":null,"units":"ms","source":"unresolved startup requirement","approval":"unresolved","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"startup_overshoot","label":"Startup overshoot","value":null,"units":"mV","source":"unresolved startup requirement","approval":"unresolved","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"startup_settling","label":"Startup settling time","value":null,"units":"ms","source":"unresolved startup requirement","approval":"unresolved","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"load_step_endpoints","label":"Load-step endpoints","value":null,"units":"A","source":"unresolved load profile","approval":"unresolved","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"load_step_slew","label":"Load-step slew","value":null,"units":"A/us","source":"unresolved load profile","approval":"unresolved","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"load_step_undershoot","label":"Load-step undershoot","value":null,"units":"mV","source":"unresolved transient requirement","approval":"unresolved","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"load_step_overshoot","label":"Load-step overshoot","value":null,"units":"mV","source":"unresolved transient requirement","approval":"unresolved","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"load_step_recovery","label":"Load-step recovery","value":null,"units":"us","source":"unresolved transient requirement","approval":"unresolved","verification":"simulation","stage":"simulation","mandatory":true},
+    {"id":"ambient_temperature","label":"Ambient temperature","value":null,"units":"degC","source":"unresolved product environment","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"thermal_limit","label":"Thermal limit","value":null,"units":"degC","source":"unresolved product thermal requirement","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"efficiency_operating_points","label":"Efficiency operating points","value":null,"units":"V,A","source":"unresolved product requirement","approval":"unresolved","verification":"bench","stage":"physical","mandatory":true},
+    {"id":"capacitor_effective_value","label":"Capacitor effective capacitance under bias/tolerance","value":null,"units":"uF","source":"unresolved component derating evidence","approval":"unresolved","verification":"circuit","stage":"circuit","mandatory":true},
+    {"id":"inductor_current_rating","label":"Inductor current and saturation assumption","value":null,"units":"A","source":"unresolved component rating evidence","approval":"unresolved","verification":"circuit","stage":"circuit","mandatory":true}
+  ]
+}

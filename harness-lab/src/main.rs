@@ -5,7 +5,12 @@ use serde_json::{json, Value};
 use std::io;
 
 mod buck;
+mod circuit_validation;
+mod engineering;
+mod layout_validation;
+mod qualification;
 mod routing;
+mod simulation_validation;
 
 #[derive(Deserialize)]
 struct Pad {
@@ -245,6 +250,14 @@ fn evaluate(input: Input) -> Result<Value> {
 fn run() -> Result<Value> {
     let raw: Value =
         serde_json::from_reader(io::stdin().lock()).context("invalid measurement input")?;
+    match raw.get("profile").and_then(Value::as_str) {
+        Some("engineering-qualification") => return qualification::evaluate(raw),
+        Some("engineering") => return engineering::evaluate(raw),
+        Some("engineering-circuit") => return circuit_validation::evaluate(raw),
+        Some("engineering-simulation") => return simulation_validation::evaluate(raw),
+        Some("engineering-layout") => return layout_validation::evaluate(raw),
+        _ => {}
+    }
     if raw
         .get("contract")
         .and_then(|c| c.get("profile"))

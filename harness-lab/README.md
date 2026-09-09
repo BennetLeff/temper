@@ -1,5 +1,16 @@
 # Temper harness lab: placement and routing
 
+The full buck now has a separate [engineering validation command](BUCK-ENGINEERING.md)
+for requirements, the existing Atopile circuit, qualified simulation, and native
+layout checks. Its report keeps all five stages visible and exits nonzero unless
+stages 1–4 qualify. Hardware remains unverified. Earlier placement/routing scores
+below do not imply engineering qualification.
+
+```sh
+make -C harness-lab build check
+python3 harness-lab/engineering_host.py harness-lab/runs/engineering-new
+```
+
 Two small experiments use the real buck input capacitor C9 and regulator U3.
 Experiment 00 places C9; Experiment 00R freezes that placement and routes its
 two mapped connections. Existing optimizer code is shelved; this directory

@@ -1,0 +1,365 @@
+{
+  "eligible": false,
+  "evidence_directory": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/runs/engineering-20260909-verified-buck-dev-a",
+  "findings": [
+    {
+      "id": "hardware_unverified",
+      "message": "stage 5 remains unverified until reviewed bench evidence exists"
+    }
+  ],
+  "hardware_validated": false,
+  "profile": "engineering",
+  "requirements_revision": "temper-buck-requirements-2026-09-09",
+  "schema_version": "engineering/v1",
+  "stage_results": {
+    "circuit": {
+      "component_count": 9,
+      "findings": [
+        {
+          "id": "component_qualification_missing",
+          "message": "reviewed capacitor DC-bias derating and inductor saturation evidence is required"
+        }
+      ],
+      "hardware_validated": false,
+      "integrity": {
+        "status": "pass"
+      },
+      "stage": "circuit",
+      "status": "blocked"
+    },
+    "layout": {
+      "findings": [
+        {
+          "id": "ground_return",
+          "maximum_mm": 20.0,
+          "path_length_mm": 43.66733586345292
+        },
+        {
+          "id": "labels_missing"
+        }
+      ],
+      "hardware_validated": false,
+      "layout": {
+        "electrical": "fail",
+        "presentation": "fail",
+        "status": "fail"
+      },
+      "measurements": {
+        "copper_path_mm": {
+          "ground_return": {
+            "from": "C9.2",
+            "length_mm": 43.66733586345292,
+            "net": "gnd",
+            "to": "U3.1"
+          },
+          "input_path": {
+            "from": "C9.1",
+            "length_mm": 11.387500000000001,
+            "net": "+15V",
+            "to": "U3.3"
+          }
+        },
+        "power_bottleneck_width_mm": 0.6
+      },
+      "presentation_observations": {
+        "labels": [],
+        "missing_3d_models": [
+          "J1",
+          "J2",
+          "J3",
+          "L2"
+        ],
+        "model_files_resolved": false,
+        "model_paths": {
+          "C10": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+          ],
+          "C11": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "C12": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "C13": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+          ],
+          "C9": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "J1": [],
+          "J2": [],
+          "J3": [],
+          "L2": [],
+          "R16": [
+            "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+          ],
+          "R17": [
+            "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+          ],
+          "U3": [
+            "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-6.step"
+          ]
+        }
+      },
+      "profile": "engineering-layout",
+      "schema_version": "engineering-layout/v1",
+      "stage": "layout",
+      "status": "fail"
+    },
+    "simulation": {
+      "findings": [
+        {
+          "id": "exact_model_missing",
+          "message": "exact LMR51430XDDCR 500 kHz PFM, 0.6 V model identity is required"
+        },
+        {
+          "id": "qualification_not_approved",
+          "message": "exact model receipt is absent from the trusted approval registry"
+        },
+        {
+          "id": "model_not_qualified",
+          "message": "reviewed independent qualification evidence bound to the exact model is required"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "startup"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "input_variation"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "load_variation"
+        },
+        {
+          "id": "identity_missing",
+          "message": "settings_sha256"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "startup"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "input_variation"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "load_variation"
+        }
+      ],
+      "hardware_validated": false,
+      "layout_sensitive": false,
+      "scenarios": [],
+      "stage": "simulation",
+      "status": "blocked"
+    }
+  },
+  "stages": [
+    {
+      "findings": [
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "vin_min"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "vin_max"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "iout_continuous"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "iout_peak"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "iout_peak_duration"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "ripple_amplitude"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "ripple_bandwidth"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "startup_ramp"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "startup_overshoot"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "startup_settling"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "load_step_endpoints"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "load_step_slew"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "load_step_undershoot"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "load_step_overshoot"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "load_step_recovery"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "ambient_temperature"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "thermal_limit"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "efficiency_operating_points"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "capacitor_effective_value"
+        },
+        {
+          "id": "mandatory_limit_unresolved",
+          "message": "mandatory acceptance limit remains unresolved",
+          "requirement": "inductor_current_rating"
+        }
+      ],
+      "stage": "requirements",
+      "status": "blocked"
+    },
+    {
+      "findings": [
+        {
+          "id": "component_qualification_missing",
+          "message": "reviewed capacitor DC-bias derating and inductor saturation evidence is required"
+        },
+        {
+          "id": "unresolved_requirement",
+          "message": "an owning requirement has no approved limit"
+        }
+      ],
+      "stage": "circuit",
+      "status": "blocked"
+    },
+    {
+      "findings": [
+        {
+          "id": "exact_model_missing",
+          "message": "exact LMR51430XDDCR 500 kHz PFM, 0.6 V model identity is required"
+        },
+        {
+          "id": "qualification_not_approved",
+          "message": "exact model receipt is absent from the trusted approval registry"
+        },
+        {
+          "id": "model_not_qualified",
+          "message": "reviewed independent qualification evidence bound to the exact model is required"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "startup"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "input_variation"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "load_variation"
+        },
+        {
+          "id": "identity_missing",
+          "message": "settings_sha256"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "startup"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "input_variation"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "load_variation"
+        },
+        {
+          "id": "circuit_not_qualified",
+          "message": "circuit qualification is required for stage admission"
+        },
+        {
+          "id": "unresolved_requirement",
+          "message": "an owning requirement has no approved limit"
+        }
+      ],
+      "stage": "simulation",
+      "status": "blocked"
+    },
+    {
+      "findings": [
+        {
+          "id": "ground_return",
+          "maximum_mm": 20.0,
+          "path_length_mm": 43.66733586345292
+        },
+        {
+          "id": "labels_missing"
+        },
+        {
+          "id": "circuit_not_qualified",
+          "message": "circuit qualification is required for stage admission"
+        }
+      ],
+      "stage": "layout",
+      "status": "fail"
+    },
+    {
+      "findings": [
+        {
+          "id": "hardware_unverified",
+          "message": "hardware validation is deferred in this milestone"
+        }
+      ],
+      "stage": "physical",
+      "status": "not_run"
+    }
+  ],
+  "status": "blocked",
+  "variant": "buck-dev-a"
+}

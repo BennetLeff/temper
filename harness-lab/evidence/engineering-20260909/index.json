@@ -1,0 +1,155 @@
+{
+  "hardware_validated": false,
+  "implementation_base": "a89ed600b85a4d3210cfe5657bb4bc6be7d53770",
+  "model_trials_run": false,
+  "recorded_at": "2026-09-09T23:34:34.030630+00:00",
+  "review_resolution_sha256": "8cca28483d6db034ece83e24d24354451501b44efc917760975da7ade6ee7a97",
+  "schema_version": "engineering-evidence-summary/v1",
+  "software_checks": {
+    "checks_sha256": "9c67ebdb7a170711d3e035f05e9e96c8fbbf6d91494e8daeeb22f701ccf25cb7",
+    "clippy": "pass",
+    "python_tests_passed": 48,
+    "ruff_format": "pass",
+    "ruff_lint": "pass",
+    "rust_format": "pass",
+    "rust_tests_passed": 16
+  },
+  "variants": [
+    {
+      "circuit_integrity": "pass",
+      "engineering_input_sha256": "4a7469a8f53d812938f1b44cafcc9799a5efe4e9a7beeb08ba8898a8e4ab8e97",
+      "measurements": {
+        "copper_path_mm": {
+          "ground_return": {
+            "from": "C9.2",
+            "length_mm": 43.66733586345292,
+            "net": "gnd",
+            "to": "U3.1"
+          },
+          "input_path": {
+            "from": "C9.1",
+            "length_mm": 11.387500000000001,
+            "net": "+15V",
+            "to": "U3.3"
+          }
+        },
+        "power_bottleneck_width_mm": 0.6
+      },
+      "report_sha256": "b2b384a0f0a5f43dc59bcf5df0184b81038628d408898b17934ead3dee2bd4a6",
+      "run_directory": "harness-lab/runs/engineering-20260909-verified-buck-dev-a",
+      "source_inventory_matches_checkout": true,
+      "source_inventory_sha256": "9298bd60f6b2e5a78e63658661b5fea6648928492b886827c74949cbf43c0068",
+      "stages": {
+        "circuit": "blocked",
+        "layout": "fail",
+        "physical": "not_run",
+        "requirements": "blocked",
+        "simulation": "blocked"
+      },
+      "variant": "buck-dev-a",
+      "verified_artifact_count": 66
+    },
+    {
+      "circuit_integrity": "pass",
+      "engineering_input_sha256": "21a2baa822d17301b1b7f693fe6ae61aa5a7fa2e12d56b56054dd2b813f356aa",
+      "measurements": {
+        "copper_path_mm": {
+          "ground_return": {
+            "from": "C9.2",
+            "length_mm": 43.66733586345292,
+            "net": "gnd",
+            "to": "U3.1"
+          },
+          "input_path": {
+            "from": "C9.1",
+            "length_mm": 11.387500000000001,
+            "net": "+15V",
+            "to": "U3.3"
+          }
+        },
+        "power_bottleneck_width_mm": 0.6
+      },
+      "report_sha256": "2b8a29ee8f180e252771c2296d9d84c2a91b7d8a7f28e14bf85eb35628a21c24",
+      "run_directory": "harness-lab/runs/engineering-20260909-verified-buck-dev-b",
+      "source_inventory_matches_checkout": true,
+      "source_inventory_sha256": "9298bd60f6b2e5a78e63658661b5fea6648928492b886827c74949cbf43c0068",
+      "stages": {
+        "circuit": "blocked",
+        "layout": "fail",
+        "physical": "not_run",
+        "requirements": "blocked",
+        "simulation": "blocked"
+      },
+      "variant": "buck-dev-b",
+      "verified_artifact_count": 66
+    },
+    {
+      "circuit_integrity": "pass",
+      "engineering_input_sha256": "841df3c34bd8b7ed1f96aa5cad6ca37ea09ad5df0d11a9b2bdb32c126b3d0f88",
+      "measurements": {
+        "copper_path_mm": {
+          "ground_return": {
+            "from": "C9.2",
+            "length_mm": 43.66733586345292,
+            "net": "gnd",
+            "to": "U3.1"
+          },
+          "input_path": {
+            "from": "C9.1",
+            "length_mm": 11.387500000000001,
+            "net": "+15V",
+            "to": "U3.3"
+          }
+        },
+        "power_bottleneck_width_mm": 0.6
+      },
+      "report_sha256": "cb37b13b993a96fdf10adc204918a412dcce4d0f150347ddb7da8599102a233e",
+      "run_directory": "harness-lab/runs/engineering-20260909-verified-buck-res-a",
+      "source_inventory_matches_checkout": true,
+      "source_inventory_sha256": "9298bd60f6b2e5a78e63658661b5fea6648928492b886827c74949cbf43c0068",
+      "stages": {
+        "circuit": "blocked",
+        "layout": "fail",
+        "physical": "not_run",
+        "requirements": "blocked",
+        "simulation": "blocked"
+      },
+      "variant": "buck-res-a",
+      "verified_artifact_count": 66
+    },
+    {
+      "circuit_integrity": "pass",
+      "engineering_input_sha256": "54c7c1e2ed40c5c13b2ef3ef253643c925bf726c7e97c07d675daa733c00df39",
+      "measurements": {
+        "copper_path_mm": {
+          "ground_return": {
+            "from": "C9.2",
+            "length_mm": 43.66733586345292,
+            "net": "gnd",
+            "to": "U3.1"
+          },
+          "input_path": {
+            "from": "C9.1",
+            "length_mm": 11.387500000000001,
+            "net": "+15V",
+            "to": "U3.3"
+          }
+        },
+        "power_bottleneck_width_mm": 0.6
+      },
+      "report_sha256": "dd8e725eb9ea67ee6e2416a6e1f8e3d6b0abe18ead819f959ec63af648e447b4",
+      "run_directory": "harness-lab/runs/engineering-20260909-verified-buck-res-b",
+      "source_inventory_matches_checkout": true,
+      "source_inventory_sha256": "9298bd60f6b2e5a78e63658661b5fea6648928492b886827c74949cbf43c0068",
+      "stages": {
+        "circuit": "blocked",
+        "layout": "fail",
+        "physical": "not_run",
+        "requirements": "blocked",
+        "simulation": "blocked"
+      },
+      "variant": "buck-res-b",
+      "verified_artifact_count": 66
+    }
+  ]
+}

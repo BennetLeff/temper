@@ -1,4 +1,4 @@
-.PHONY: build check qualify qualify-buck
+.PHONY: build check qualify qualify-buck engineering
 
 export CARGO_TARGET_DIR := $(abspath $(shell git rev-parse --path-format=absolute --git-common-dir)/../target-shared)
 export TEMPER_E00_JUDGE := $(CARGO_TARGET_DIR)/debug/temper-harness-e00
@@ -22,3 +22,6 @@ qualify: build
 
 qualify-buck: build
 	$(PYTHON) qualify_buck.py $(OUTPUT)
+
+engineering: build
+	$(PYTHON) engineering_host.py $(OUTPUT)

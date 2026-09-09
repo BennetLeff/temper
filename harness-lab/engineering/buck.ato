@@ -1,0 +1,12 @@
+# Isolated circuit entry.  The implementation remains owned by production
+# elec/src; this file only supplies a build root for circuit evidence.
+import BuckConverter3V3 from "elec/src/modules.ato"
+import ElectricPower from "elec/src/generics/interfaces.ato"
+
+module BuckCircuitCandidate:
+    buck = new BuckConverter3V3
+    power_in = new ElectricPower
+    power_out = new ElectricPower
+    buck.power_in ~ power_in
+    buck.enable.line ~ power_in.vcc
+    buck.power_out ~ power_out

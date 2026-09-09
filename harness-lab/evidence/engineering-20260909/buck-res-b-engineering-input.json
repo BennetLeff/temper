@@ -1,0 +1,539 @@
+{
+  "artifact_inventory": {
+    "candidate/candidate.kicad_dru": "e53161ef573ffc1623e5f4751f32a11e23d65479c83230e49e41cf93273cacf5",
+    "candidate/candidate.kicad_pcb": "913a83fd1c1ac8d3631441c7c5791a9a3d7f4c3374b13b60aa8ff78d11059bb7",
+    "candidate/candidate.kicad_prl": "94e008de06328751884a592b98da2b6533a14f8144eefaf93b0002d473a91d75",
+    "candidate/candidate.kicad_pro": "bfb1686aaed1c17c30393cb8679d5dc26c7d8c7774e7700675ecc4c489d1315a",
+    "candidate/fixture.pretty/C10.kicad_mod": "5872c5ffb16cca894ade02ed04dd3007513c023931a1a4c9d475f40e26c23bde",
+    "candidate/fixture.pretty/C11.kicad_mod": "73184d495a5be766387be1ef854d9276711d8a5c023df246db6e91853da4b78c",
+    "candidate/fixture.pretty/C12.kicad_mod": "e5cd84371942d8a0c536d77798919778d3b0d8cbbbe89668807e288bdbe1fb2a",
+    "candidate/fixture.pretty/C13.kicad_mod": "54ce4f823c050d16db560958029543d982f48656008e233b392fd96eadfcfa26",
+    "candidate/fixture.pretty/C9.kicad_mod": "8ceb20c53cf214fbe4f6e23bcd1d291734d5309187badfeb54888e7214b00f64",
+    "candidate/fixture.pretty/J1.kicad_mod": "32b3487844d1d023d45eb693c2be4339d090b561329a2a67a03024cf3ba09c4e",
+    "candidate/fixture.pretty/J2.kicad_mod": "e501a5fa894c389a76794aa28bb9d3f251e51bf971e13fad8b6793bea5544eb0",
+    "candidate/fixture.pretty/J3.kicad_mod": "a2655dbefca8b4ac32e1cb703b36d0e568ceff3294d6b1c31f007b569baf65ae",
+    "candidate/fixture.pretty/L2.kicad_mod": "e53c5a9f9198d7dd65b8688065a92ff5a25d7d51ce012f55764c16aab007da5f",
+    "candidate/fixture.pretty/R16.kicad_mod": "d1828b68160242c72fa1453e392e336fd8bebed10f115cc57384030366cd1f90",
+    "candidate/fixture.pretty/R17.kicad_mod": "17b285046d9e16af18ba508dae0d626b7488ebcd13a27913f1998b665261215a",
+    "candidate/fixture.pretty/U3.kicad_mod": "03820b655df789e5f02a1b266161d166bf73d008d4f72a18529170ea8b852a1c",
+    "candidate/fp-lib-table": "bf24dac31ded69729a088472d6a679bf11b26300f9d5680e36ea3cb7fb210749",
+    "candidate/initial.kicad_pcb": "212905742139f4bfcc2b4d7dd3508f01e9c97d490f521dfd2b68278f59e369c2",
+    "candidate/source.json": "497ff152bbe1024360288db8e67e07a2d4617ec7339d773f0d275f67eba46747",
+    "candidate/start.kicad_pcb": "212905742139f4bfcc2b4d7dd3508f01e9c97d490f521dfd2b68278f59e369c2",
+    "candidate/witness.kicad_pcb": "913a83fd1c1ac8d3631441c7c5791a9a3d7f4c3374b13b60aa8ff78d11059bb7",
+    "circuit-input.json": "f3a85c4fce44f6aa921a6079fc70c83882a6de5b1c89bbe9b850d4a896161fdc",
+    "circuit-result.json": "bf1ccbccb9669bec4e16d8aef2b1612d6d960e3e865520d3dad3e534ece01690",
+    "circuit/workspace/ato.yaml": "0b4a28d17837eafc25b6a1da05a65e377378caa484338faeb448ac8100771ed8",
+    "circuit/workspace/buck.ato": "543bbd96da7c16a17dc2139f5769e4054c38f035970b25cd6169fdbfef0f4339",
+    "circuit/workspace/build/default.csv": "04f07e7d0f1cfd66740a345e455cb6598e6c59bfbd4db732ab61b278479e9cbc",
+    "circuit/workspace/build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "circuit/workspace/build/default.net": "6bfd37a9f1d29052205536c5c1e44c5908ef2e6f35629dbbe091c00da0b1df76",
+    "circuit/workspace/build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
+    "circuit/workspace/elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+    "circuit/workspace/elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "circuit/workspace/elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "circuit/workspace/elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "circuit/workspace/elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "circuit/workspace/elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "circuit/workspace/elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+    "circuit/workspace/elec/src/modules.ato": "b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5",
+    "circuit/workspace/export-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "circuit/workspace/export-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "circuit/workspace/resolved-components.json": "80f79e747ee1e5094cb277c98c48c570c765e9a1a1fcbe8e4e5732d33d428bb3",
+    "circuit/workspace/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "circuit/workspace/stdout.txt": "8fea921461890dfd7f0a3f3006444aee6da4ca1d6062878c9e7196c48158eef3",
+    "layout-input.json": "72b65f21e4cb36e9de0d85f7c80cfad8d013d0a3b418b2df09354db6b46b143e",
+    "layout-result.json": "26a6b7bb0b9f39688d4b3d6facd7a60484555b71e394d45f18a58a90c29e48f3",
+    "layout/input.json": "72b65f21e4cb36e9de0d85f7c80cfad8d013d0a3b418b2df09354db6b46b143e",
+    "layout/measurement.json": "1f25a84bcda6633531f7f3a6859c2acd367a8a81a3481df281cc5b156c203695",
+    "layout/presentation.json": "0dc99e1589281e8b2faf6827ecbe756b10c353dcda1db01e476155b08fe737eb",
+    "native/drc-command.json": "780a14adac4b75c9f4887ed6ba53df69d2efd0a3179be3fb0228bdcb1dbc7dfa",
+    "native/drc.json": "125a0e3ffd9c0aec3b493b8862b713ffee563c3a85f91e05ae9aa06abf7dabca",
+    "native/kicad-config/10.0/3d_viewer.json": "3dc0ebcb073ef8496323d4c2a835532d13e2bc7bf45890f602e6bbef1a3ba56f",
+    "native/kicad-config/10.0/cvpcb.json": "b93174a3b1470f1ce0e43c90268ce83976432c5210d906a3846ee7976ea9d272",
+    "native/kicad-config/10.0/eeschema.json": "380b16f032e527e9dbb104fa3fe473fecdf3ac5877df78935b9f4b174ae7775b",
+    "native/kicad-config/10.0/fpedit.json": "9e940a9a57528403a4e62739f3bd0813a6226c20528540ce0a7843dc5f86d947",
+    "native/kicad-config/10.0/kicad.json": "81182eeb64728ead083f55ccf7a44f2a257ec4328146743fb47425c959188359",
+    "native/kicad-config/10.0/kicad_common.json": "e3cd143a520af6dfe546ee111d3e5b16f832dea3faab96b2746b28f9df1a77cf",
+    "native/kicad-config/10.0/pcbnew.json": "86e6a78eed5b9e9ebddecf9851f39203b0f1716c0b85c4f554d92523c5d04744",
+    "native/kicad-config/10.0/symbol_editor.json": "96002a56c0827f71c82e74cfc24091095ba9fdfc1ffa1995eb6479f4bad576d7",
+    "native/kicad-config/kicad_advanced": "bad2e642ee870969407d373715a255540d0781254b434ba92eaeadadfbe99446",
+    "native/kicad-config/kicad_common.json": "50092d544bfdcae210fc0b769cf1afc00ee0a8e2dcd84008e95ed18b3db8f440",
+    "native/measurement.json": "667b5ef2ba363ef4613845571ed715cef9e7a116d301b2c8fc044845d16036d9",
+    "native/result.json": "f61d5747f7504a72a20c97505d0ecd6dab0d68cc6f245467cadd36d031e0cba8",
+    "requirements.json": "d636aad47c8e24edd83f52495b836e27d0c9e575fa89c840bdc4ff872e868dd3",
+    "simulation-input.json": "f53f7cab08f2a94ac0001f3aa87e47802f17948e1fe84d61217ba9c35ff75623",
+    "simulation-result.json": "3a41b2ef07388080aa680b7df850f54ac2009c0526edb69fec5c69daca28806a",
+    "sources.json": "9298bd60f6b2e5a78e63658661b5fea6648928492b886827c74949cbf43c0068",
+    "toolchain.json": "d4cb4927116ca93b0e167f4af26b03055ebbec3b271630d455f84eabdf959085"
+  },
+  "current_identity": {
+    "board_sha256": "913a83fd1c1ac8d3631441c7c5791a9a3d7f4c3374b13b60aa8ff78d11059bb7",
+    "requirements_sha256": "d636aad47c8e24edd83f52495b836e27d0c9e575fa89c840bdc4ff872e868dd3",
+    "sources_sha256": "35080273d781f2ba9131b468ea76a8694dbce434592ffc877bdd2a56a6420053"
+  },
+  "profile": "engineering",
+  "requirements": {
+    "requirements": [
+      {
+        "approval": "source-backed",
+        "id": "vin_nominal",
+        "label": "Nominal input voltage",
+        "mandatory": true,
+        "source": "Temper source design; BuckConverter3V3",
+        "stage": "circuit",
+        "units": "V",
+        "value": 15.0,
+        "verification": "circuit"
+      },
+      {
+        "approval": "unresolved",
+        "id": "vin_min",
+        "label": "Minimum input voltage",
+        "mandatory": true,
+        "source": "unresolved Temper product requirement",
+        "stage": "physical",
+        "units": "V",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "vin_max",
+        "label": "Maximum input voltage",
+        "mandatory": true,
+        "source": "unresolved Temper product requirement",
+        "stage": "physical",
+        "units": "V",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "source-backed",
+        "id": "vout_nominal",
+        "label": "Nominal output voltage",
+        "mandatory": true,
+        "source": "Atopile assertion in BuckConverter3V3",
+        "stage": "circuit",
+        "units": "V",
+        "value": 3.3,
+        "verification": "circuit"
+      },
+      {
+        "approval": "source-backed",
+        "id": "vout_tolerance",
+        "label": "Output voltage tolerance",
+        "mandatory": true,
+        "max": 3.465,
+        "min": 3.135,
+        "source": "Atopile assertion in BuckConverter3V3 (\u00b15%)",
+        "stage": "simulation",
+        "units": "V",
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "iout_continuous",
+        "label": "Continuous output current",
+        "mandatory": true,
+        "source": "unresolved Temper load budget",
+        "stage": "physical",
+        "units": "A",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "iout_peak",
+        "label": "Peak output current",
+        "mandatory": true,
+        "source": "unresolved Temper load budget",
+        "stage": "physical",
+        "units": "A",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "iout_peak_duration",
+        "label": "Peak current duration",
+        "mandatory": true,
+        "source": "unresolved Temper load profile",
+        "stage": "physical",
+        "units": "s",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "ripple_amplitude",
+        "label": "Output ripple amplitude",
+        "mandatory": true,
+        "source": "unresolved product requirement",
+        "stage": "physical",
+        "units": "mVpp",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "ripple_bandwidth",
+        "label": "Ripple measurement bandwidth",
+        "mandatory": true,
+        "source": "unresolved measurement procedure",
+        "stage": "physical",
+        "units": "MHz",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "startup_ramp",
+        "label": "Startup ramp",
+        "mandatory": true,
+        "source": "unresolved startup requirement",
+        "stage": "simulation",
+        "units": "ms",
+        "value": null,
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "startup_overshoot",
+        "label": "Startup overshoot",
+        "mandatory": true,
+        "source": "unresolved startup requirement",
+        "stage": "simulation",
+        "units": "mV",
+        "value": null,
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "startup_settling",
+        "label": "Startup settling time",
+        "mandatory": true,
+        "source": "unresolved startup requirement",
+        "stage": "simulation",
+        "units": "ms",
+        "value": null,
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "load_step_endpoints",
+        "label": "Load-step endpoints",
+        "mandatory": true,
+        "source": "unresolved load profile",
+        "stage": "simulation",
+        "units": "A",
+        "value": null,
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "load_step_slew",
+        "label": "Load-step slew",
+        "mandatory": true,
+        "source": "unresolved load profile",
+        "stage": "simulation",
+        "units": "A/us",
+        "value": null,
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "load_step_undershoot",
+        "label": "Load-step undershoot",
+        "mandatory": true,
+        "source": "unresolved transient requirement",
+        "stage": "simulation",
+        "units": "mV",
+        "value": null,
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "load_step_overshoot",
+        "label": "Load-step overshoot",
+        "mandatory": true,
+        "source": "unresolved transient requirement",
+        "stage": "simulation",
+        "units": "mV",
+        "value": null,
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "load_step_recovery",
+        "label": "Load-step recovery",
+        "mandatory": true,
+        "source": "unresolved transient requirement",
+        "stage": "simulation",
+        "units": "us",
+        "value": null,
+        "verification": "simulation"
+      },
+      {
+        "approval": "unresolved",
+        "id": "ambient_temperature",
+        "label": "Ambient temperature",
+        "mandatory": true,
+        "source": "unresolved product environment",
+        "stage": "physical",
+        "units": "degC",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "thermal_limit",
+        "label": "Thermal limit",
+        "mandatory": true,
+        "source": "unresolved product thermal requirement",
+        "stage": "physical",
+        "units": "degC",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "efficiency_operating_points",
+        "label": "Efficiency operating points",
+        "mandatory": true,
+        "source": "unresolved product requirement",
+        "stage": "physical",
+        "units": "V,A",
+        "value": null,
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "capacitor_effective_value",
+        "label": "Capacitor effective capacitance under bias/tolerance",
+        "mandatory": true,
+        "source": "unresolved component derating evidence",
+        "stage": "circuit",
+        "units": "uF",
+        "value": null,
+        "verification": "circuit"
+      },
+      {
+        "approval": "unresolved",
+        "id": "inductor_current_rating",
+        "label": "Inductor current and saturation assumption",
+        "mandatory": true,
+        "source": "unresolved component rating evidence",
+        "stage": "circuit",
+        "units": "A",
+        "value": null,
+        "verification": "circuit"
+      }
+    ],
+    "revision": "temper-buck-requirements-2026-09-09",
+    "schema_version": "engineering-requirements/v1",
+    "source_authority": "elec/src/modules.ato::BuckConverter3V3"
+  },
+  "stage_receipts": {
+    "circuit": {
+      "artifacts": [
+        {
+          "path": "circuit-input.json",
+          "sha256": "f3a85c4fce44f6aa921a6079fc70c83882a6de5b1c89bbe9b850d4a896161fdc"
+        },
+        {
+          "path": "circuit-result.json",
+          "sha256": "bf1ccbccb9669bec4e16d8aef2b1612d6d960e3e865520d3dad3e534ece01690"
+        }
+      ],
+      "component_count": 9,
+      "dependencies": {},
+      "findings": [
+        {
+          "id": "component_qualification_missing",
+          "message": "reviewed capacitor DC-bias derating and inductor saturation evidence is required"
+        }
+      ],
+      "hardware_validated": false,
+      "identity": {
+        "board_sha256": "913a83fd1c1ac8d3631441c7c5791a9a3d7f4c3374b13b60aa8ff78d11059bb7",
+        "requirements_sha256": "d636aad47c8e24edd83f52495b836e27d0c9e575fa89c840bdc4ff872e868dd3",
+        "sources_sha256": "35080273d781f2ba9131b468ea76a8694dbce434592ffc877bdd2a56a6420053"
+      },
+      "integrity": {
+        "status": "pass"
+      },
+      "requirements_revision": "temper-buck-requirements-2026-09-09",
+      "schema_version": "engineering/v1",
+      "stage": "circuit",
+      "status": "blocked"
+    },
+    "layout": {
+      "artifacts": [
+        {
+          "path": "layout-input.json",
+          "sha256": "72b65f21e4cb36e9de0d85f7c80cfad8d013d0a3b418b2df09354db6b46b143e"
+        },
+        {
+          "path": "layout-result.json",
+          "sha256": "26a6b7bb0b9f39688d4b3d6facd7a60484555b71e394d45f18a58a90c29e48f3"
+        }
+      ],
+      "dependencies": {
+        "circuit_sha256": "bf1ccbccb9669bec4e16d8aef2b1612d6d960e3e865520d3dad3e534ece01690"
+      },
+      "findings": [
+        {
+          "id": "ground_return",
+          "maximum_mm": 20.0,
+          "path_length_mm": 43.66733586345292
+        },
+        {
+          "id": "labels_missing"
+        }
+      ],
+      "hardware_validated": false,
+      "identity": {
+        "board_sha256": "913a83fd1c1ac8d3631441c7c5791a9a3d7f4c3374b13b60aa8ff78d11059bb7",
+        "requirements_sha256": "d636aad47c8e24edd83f52495b836e27d0c9e575fa89c840bdc4ff872e868dd3",
+        "sources_sha256": "35080273d781f2ba9131b468ea76a8694dbce434592ffc877bdd2a56a6420053"
+      },
+      "layout": {
+        "electrical": "fail",
+        "presentation": "fail",
+        "status": "fail"
+      },
+      "measurements": {
+        "copper_path_mm": {
+          "ground_return": {
+            "from": "C9.2",
+            "length_mm": 43.66733586345292,
+            "net": "gnd",
+            "to": "U3.1"
+          },
+          "input_path": {
+            "from": "C9.1",
+            "length_mm": 11.387500000000001,
+            "net": "+15V",
+            "to": "U3.3"
+          }
+        },
+        "power_bottleneck_width_mm": 0.6
+      },
+      "presentation_observations": {
+        "labels": [],
+        "missing_3d_models": [
+          "J1",
+          "J2",
+          "J3",
+          "L2"
+        ],
+        "model_files_resolved": false,
+        "model_paths": {
+          "C10": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+          ],
+          "C11": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "C12": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "C13": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+          ],
+          "C9": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "J1": [],
+          "J2": [],
+          "J3": [],
+          "L2": [],
+          "R16": [
+            "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+          ],
+          "R17": [
+            "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+          ],
+          "U3": [
+            "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-6.step"
+          ]
+        }
+      },
+      "profile": "engineering-layout",
+      "requirements_revision": "temper-buck-requirements-2026-09-09",
+      "schema_version": "engineering/v1",
+      "stage": "layout",
+      "status": "fail"
+    },
+    "simulation": {
+      "artifacts": [
+        {
+          "path": "simulation-input.json",
+          "sha256": "f53f7cab08f2a94ac0001f3aa87e47802f17948e1fe84d61217ba9c35ff75623"
+        },
+        {
+          "path": "simulation-result.json",
+          "sha256": "3a41b2ef07388080aa680b7df850f54ac2009c0526edb69fec5c69daca28806a"
+        }
+      ],
+      "dependencies": {
+        "circuit_sha256": "bf1ccbccb9669bec4e16d8aef2b1612d6d960e3e865520d3dad3e534ece01690"
+      },
+      "findings": [
+        {
+          "id": "exact_model_missing",
+          "message": "exact LMR51430XDDCR 500 kHz PFM, 0.6 V model identity is required"
+        },
+        {
+          "id": "qualification_not_approved",
+          "message": "exact model receipt is absent from the trusted approval registry"
+        },
+        {
+          "id": "model_not_qualified",
+          "message": "reviewed independent qualification evidence bound to the exact model is required"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "startup"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "input_variation"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "load_variation"
+        },
+        {
+          "id": "identity_missing",
+          "message": "settings_sha256"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "startup"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "input_variation"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "load_variation"
+        }
+      ],
+      "hardware_validated": false,
+      "identity": {
+        "board_sha256": "913a83fd1c1ac8d3631441c7c5791a9a3d7f4c3374b13b60aa8ff78d11059bb7",
+        "requirements_sha256": "d636aad47c8e24edd83f52495b836e27d0c9e575fa89c840bdc4ff872e868dd3",
+        "sources_sha256": "35080273d781f2ba9131b468ea76a8694dbce434592ffc877bdd2a56a6420053"
+      },
+      "layout_sensitive": false,
+      "requirements_revision": "temper-buck-requirements-2026-09-09",
+      "scenarios": [],
+      "schema_version": "engineering/v1",
+      "stage": "simulation",
+      "status": "blocked"
+    }
+  }
+}

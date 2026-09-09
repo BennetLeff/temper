@@ -1,0 +1,123 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "04f07e7d0f1cfd66740a345e455cb6598e6c59bfbd4db732ab61b278479e9cbc",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "6095c2b7d728806d1a3e287ae3b958ebd32577ce2fe6296d8f3458385eee3a25",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.buck",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "i_out_max": "3A",
+        "manufacturer": "Texas Instruments",
+        "mpn": "LMR51430XDDCR",
+        "v_in_max": "36V",
+        "v_out_max": "28V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.c_in",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71E106KA12L",
+        "value": "10uF +/- 20%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.c_boot",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.l_out",
+      "attributes": {
+        "current_rating": "12.5A",
+        "dcr": "0.01ohm",
+        "designator_prefix": "L",
+        "footprint": "Inductor_SMD:L_Bourns_SRP1265A",
+        "mpn": "SRP1265A-5R6M",
+        "value": "5.6uH"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.c_out1",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71E226KE15L",
+        "value": "22uF +/- 20%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.c_out2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71E226KE15L",
+        "value": "22uF +/- 20%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.c_out_hf",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.r_fb_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "power_rating": null,
+        "value": "100kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate::buck.r_fb_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0722K1L",
+        "power_rating": null,
+        "value": "22.1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    }
+  ],
+  "entry": "/private/tmp/temper-u7-probe/buck.ato:BuckCircuitCandidate",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "buck.ato": "543bbd96da7c16a17dc2139f5769e4054c38f035970b25cd6169fdbfef0f4339",
+    "elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+    "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+    "elec/src/modules.ato": "b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5"
+  }
+}

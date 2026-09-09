@@ -1,0 +1,13 @@
+* Synthetic parser control only; never engineering qualification evidence.
+.title RC rawfile parser control
+Vin in 0 PWL(0 0 1m 1 2m 1 3m 1)
+R1 in out 1k
+C1 out 0 1u
+.tran 100u 3m
+.control
+set filetype=ascii
+run
+wrdata rc_control.dat time v(out) v(in) i(Vin)
+write rc_control.raw time v(out) v(in) i(Vin)
+.endc
+.end

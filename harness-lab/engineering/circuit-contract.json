@@ -1,0 +1,16 @@
+{
+  "source_module": "elec/src/modules.ato:BuckConverter3V3",
+  "source_root": "BuckCircuitCandidate::buck",
+  "components": {
+    "buck": {"pcb_reference":"U3","mpn":"LMR51430XDDCR","value":"LMR51430","pins":{"1":"gnd","2":"sw","3":"+15V","4":"fb","5":"+15V","6":"boot"},"rating":{"i_out_max_a":3.0,"v_in_max_v":36.0}},
+    "c_in": {"pcb_reference":"C9","mpn":"GRM32ER71E106KA12L","value":"10uF +/- 20%","pins":{"1":"+15V","2":"gnd"},"rating":{"voltage_v":25.0}},
+    "c_boot": {"pcb_reference":"C10","mpn":"C0603C104K5RACTU","value":"100nF","pins":{"1":"boot","2":"sw"},"rating":{"voltage_v":25.0}},
+    "l_out": {"pcb_reference":"L2","mpn":"SRP1265A-5R6M","value":"5.6uH","pins":{"1":"sw","2":"+3V3"},"rating":{"current_a":12.5}},
+    "c_out1": {"pcb_reference":"C11","mpn":"GRM32ER71E226KE15L","value":"22uF +/- 20%","pins":{"1":"+3V3","2":"gnd"},"rating":{"voltage_v":25.0}},
+    "c_out2": {"pcb_reference":"C12","mpn":"GRM32ER71E226KE15L","value":"22uF +/- 20%","pins":{"1":"+3V3","2":"gnd"},"rating":{"voltage_v":25.0}},
+    "c_out_hf": {"pcb_reference":"C13","mpn":"C0603C104K5RACTU","value":"100nF +/- 10%","pins":{"1":"+3V3","2":"gnd"},"rating":{"voltage_v":10.0}},
+    "r_fb_top": {"pcb_reference":"R16","mpn":"RC0603FR-07100KL","value":"100kohm +/- 1%","pins":{"1":"+3V3","2":"fb"},"rating":{"tolerance_percent":1.0}},
+    "r_fb_bot": {"pcb_reference":"R17","mpn":"RC0603FR-0722K1L","value":"22.1kohm +/- 1%","pins":{"1":"fb","2":"gnd"},"rating":{"tolerance_percent":1.0}}
+  },
+  "required_evidence": ["capacitor_effective_capacitance_dc_bias", "inductor_saturation_assumption"]
+}

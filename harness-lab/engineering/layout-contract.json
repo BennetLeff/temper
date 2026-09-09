@@ -1,0 +1,19 @@
+{
+  "schema_version": "engineering-layout-contract/v1",
+  "source": "TI LMR51430 datasheet rev A sections 9.2 and 9.4; values are layout proxies",
+  "endpoint_tolerance_mm": 1e-06,
+  "checks": {
+    "path_max_mm": 20.0,
+    "min_power_width_mm": 0.5,
+    "fb_sw_separation_min_mm": 1.0
+  },
+  "rationale": {
+    "path_max_mm": "20 mm is an initial experimental locality limit, not a TI numerical requirement. This measures endpoint-connected centerline paths; polygonal pours and EMI/thermal performance need separate validation.",
+    "min_power_width_mm": "0.5 mm is an experimental geometry minimum, not an ampacity guarantee. Product current and copper thickness are unresolved.",
+    "fb_sw_separation_min_mm": "Keeps the feedback sense network away from the switching node; it is a locality proxy, not a noise measurement."
+  },
+  "presentation": {
+    "label_overlap_max": 0,
+    "missing_3d_models": "report-only"
+  }
+}

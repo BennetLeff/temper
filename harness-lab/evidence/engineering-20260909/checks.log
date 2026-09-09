@@ -1,0 +1,43 @@
+cargo build --locked
+   Compiling temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.81s
+cargo test --locked
+   Compiling temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running unittests src/main.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/temper_harness_e00-96e5d11f0b25e276)
+
+running 16 tests
+test buck::tests::asymmetric_oracle_probe_uses_kicad_clockwise_rotation ... ok
+test buck::tests::crossing_tracks_measure_zero ... ok
+test buck::tests::parallel_tracks_never_touch ... ok
+test buck::tests::partial_digest_is_not_a_content_identity ... ok
+test engineering::tests::stale_and_synthetic_receipts_cannot_pass ... ok
+test simulation_validation::tests::native_ngspice_rc_control_matches_analytic_response ... ok
+test simulation_validation::tests::bad_raw_and_missing_limits_are_rejected ... ok
+test tests::partial_digest_is_not_a_content_identity ... ok
+test qualification::tests::only_exact_reviewed_receipt_is_admitted ... ok
+test engineering::tests::missing_receipts_fail_closed_and_hardware_is_unverified ... ok
+test tests::missing_evidence_cannot_deserialize_as_a_pass ... ok
+test simulation_validation::tests::raw_measurements_pass_and_defect_fails ... ok
+test engineering::tests::complete_resolved_chain_passes_stages_one_to_four ... ok
+test engineering::tests::missing_identity_or_inventory_blocks ... ok
+test engineering::tests::malformed_identity_dependencies_and_missing_limits_cannot_pass ... ok
+test simulation_validation::tests::complete_software_chain_and_independent_negative_controls ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+cargo clippy --all-targets --all-features --locked -- -D warnings
+    Checking temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.66s
+cargo fmt -- --check
+ruff check --isolated --select E4,E7,E9,F,I *.py
+All checks passed!
+ruff format --isolated --check *.py
+32 files already formatted
+python3 -m compileall -q .
+python3 -m unittest discover -s . -p 'test_*.py'
+................................................
+----------------------------------------------------------------------
+Ran 48 tests in 68.377s
+
+OK

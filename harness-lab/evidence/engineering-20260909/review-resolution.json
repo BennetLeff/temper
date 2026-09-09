@@ -1,0 +1,54 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "run_id": "20260909-172500-engreview",
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20260909-172500-engreview",
+  "scope": {
+    "base": "a89ed600b85a4d3210cfe5657bb4bc6be7d53770",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "a89ed600b85a4d3210cfe5657bb4bc6be7d53770",
+    "files_changed": 22
+  },
+  "resolved_findings": [
+    {
+      "#": 1,
+      "title": "Component qualification can be promoted by self-attested JSON",
+      "status": "resolved",
+      "resolution": "Added the Rust qualification registry with exact canonical JSON digest pins and required id, synthetic=false, status=pass, and nonempty reviewed_by. Circuit validation now calls the registry; synthetic public qualification remains blocked.",
+      "evidence": ["harness-lab/src/qualification.rs:11-31", "harness-lab/src/circuit_validation.rs:366-370", "harness-lab/test_circuit_validation.py:101-104", "Rust approval unit tests cover exact pins and mutations."]
+    },
+    {
+      "#": 2,
+      "title": "Simulation qualification trusts manifest claims and permits out-of-root artifacts",
+      "status": "resolved",
+      "resolution": "Added registry admission before ngspice, enforced repository containment after resolution for model/evidence/deck artifacts, rejected absolute and traversal paths, and retained hash-checked copies.",
+      "evidence": ["harness-lab/simulation_host.py:56-64", "harness-lab/simulation_host.py:89-118", "harness-lab/src/simulation_validation.rs:267-287", "harness-lab/engineering/approved-evidence.json"]
+    },
+    {
+      "#": 3,
+      "title": "Layout path measurement ignores connected segment intersections",
+      "status": "resolved",
+      "resolution": "Reworked the path graph to split same-layer crossings, T-junctions, pad and via midpoint contacts, and join identical same-layer coordinates; other-layer nonconnection remains covered.",
+      "evidence": ["harness-lab/src/layout_validation.rs:79-169", "harness-lab/test_layout_validation.py:227-242"]
+    }
+  ],
+  "remaining_findings": [],
+  "requirements_completeness": {
+    "R13": "partially addressed by design: unresolved product limits correctly block qualification",
+    "R14": "addressed for software gate; external component evidence remains intentionally absent and blocks the real stage",
+    "R15": "addressed for software gate; no exact-device approved model is supplied and the real stage remains blocked",
+    "R16": "addressed for software controls; the reference remains blocked by its known 74 mm ground-return result against the 20 mm experimental cap",
+    "R17": "deferred under current stages-1-4 scope",
+    "R18": "addressed for the implemented stages and shared admission gate"
+  },
+  "verification": {
+    "focused_python_controls": "17 passed",
+    "rust_tests": "parent reported full suite increased from 15 to 16; no shared cargo invocation performed during this re-review",
+    "cross_model_pass": "not run by explicit user instruction: Luna route only and no other model route/delegation",
+    "production_pcb_or_bench_changes": "none"
+  },
+  "residual_risks": [
+    "Scientific qualification remains intentionally blocked until externally reviewed component and exact-device model receipts are added to the trusted registry.",
+    "Layout measurements remain geometry proxies and do not establish powered thermal, EMI, or physical behavior."
+  ]
+}
