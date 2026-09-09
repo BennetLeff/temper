@@ -1,0 +1,550 @@
+{
+  "destination": "OpenAI via local Codex CLI and existing ChatGPT login",
+  "maximum_sessions": 4,
+  "preflight_sessions": 1,
+  "scored_trials": 3,
+  "maximum_seconds_per_session": 300,
+  "maximum_placement_edits_per_trial": 10,
+  "instructions": "You operate a small PCB placement experiment through the provided PCB tools.\nUse inspect to learn the actual geometry and requirements, place to change the permitted\nfootprint, and check to verify the saved candidate. Choose coordinates yourself from tool\nevidence. Do not claim success without a successful final check. Stop on an indeterminate\nmeasurement and report it. You have five minutes and at most ten placement edits.\nOnly the PCB task tools are admitted. No filesystem, shell, web, other agents, or external\napplications are part of this task. Provide a short factual final result.\n",
+  "preflight_prompt": "Runtime preflight only: call PCB inspect once, do not place anything, then list the tool names available to you.",
+  "trial_prompt": "Place C9 so the two-footprint fixture meets all of its placement requirements. Begin by inspecting the board.",
+  "tool_definitions": [
+    {
+      "name": "inspect",
+      "description": "Read exact saved footprint/pad coordinates in mm, constraints, and current findings. Board x increases right; y increases down.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "place",
+      "description": "Move C9's footprint origin to x_mm/y_mm and set its KiCad orientation. Only C9 moves. Returns reloaded state and introduced/resolved findings. Maximum ten edits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x_mm": {
+            "type": "number"
+          },
+          "y_mm": {
+            "type": "number"
+          },
+          "angle_deg": {
+            "type": "integer",
+            "enum": [
+              0,
+              90,
+              180,
+              270
+            ]
+          }
+        },
+        "required": [
+          "x_mm",
+          "y_mm",
+          "angle_deg"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "check",
+      "description": "Independently reload the saved candidate and run KiCad DRC plus the protected placement evaluator. Only a placement-only pass completes the task.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  ],
+  "contract": {
+    "experiment": "00",
+    "kicad_version": "10.0.4",
+    "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+    "context_sha256": "abbbea6972a7d16101cd83fb4987348d55b0b021bff07dabbe44c27369ffd6d8",
+    "outline_mm": [
+      1,
+      1,
+      29,
+      19
+    ],
+    "max_pad_distance_mm": 5.0,
+    "minimum_copper_clearance_mm": 0.2,
+    "starts": [
+      [
+        22,
+        15,
+        0
+      ],
+      [
+        22,
+        5,
+        180
+      ],
+      [
+        16,
+        16,
+        270
+      ]
+    ],
+    "max_placement_edits": 10,
+    "max_seconds": 300
+  },
+  "initial_geometry_by_trial": [
+    {
+      "kicad_version": "10.0.4",
+      "board_sha256": "d21e7d632a5325facb1e0b77fccb1683997101a2e8bb6f7d65fa3f5881849664",
+      "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+      "footprints": [
+        {
+          "reference": "C9",
+          "position_mm": [
+            22.0,
+            15.0
+          ],
+          "angle_deg": 0.0,
+          "bounds_mm": [
+            19.675,
+            13.375,
+            24.325,
+            16.625
+          ],
+          "pads": [
+            {
+              "number": "1",
+              "net": "+15V",
+              "position_mm": [
+                20.525,
+                15.0
+              ],
+              "bounds_mm": [
+                19.95,
+                13.65,
+                21.1,
+                16.35
+              ]
+            },
+            {
+              "number": "2",
+              "net": "gnd",
+              "position_mm": [
+                23.475,
+                15.0
+              ],
+              "bounds_mm": [
+                22.9,
+                13.65,
+                24.05,
+                16.35
+              ]
+            }
+          ]
+        },
+        {
+          "reference": "U3",
+          "position_mm": [
+            10.0,
+            10.0
+          ],
+          "angle_deg": 0.0,
+          "bounds_mm": [
+            7.925,
+            8.1,
+            12.075,
+            11.725
+          ],
+          "pads": [
+            {
+              "number": "1",
+              "net": "gnd",
+              "position_mm": [
+                8.8625,
+                9.05
+              ],
+              "bounds_mm": [
+                8.2,
+                8.75,
+                9.525,
+                9.35
+              ]
+            },
+            {
+              "number": "2",
+              "net": "sw",
+              "position_mm": [
+                8.8625,
+                10.0
+              ],
+              "bounds_mm": [
+                8.2,
+                9.7,
+                9.525,
+                10.3
+              ]
+            },
+            {
+              "number": "3",
+              "net": "+15V",
+              "position_mm": [
+                8.8625,
+                10.95
+              ],
+              "bounds_mm": [
+                8.2,
+                10.65,
+                9.525,
+                11.25
+              ]
+            },
+            {
+              "number": "4",
+              "net": "fb",
+              "position_mm": [
+                11.1375,
+                10.95
+              ],
+              "bounds_mm": [
+                10.475,
+                10.65,
+                11.8,
+                11.25
+              ]
+            },
+            {
+              "number": "5",
+              "net": "+15V",
+              "position_mm": [
+                11.1375,
+                10.0
+              ],
+              "bounds_mm": [
+                10.475,
+                9.7,
+                11.8,
+                10.3
+              ]
+            },
+            {
+              "number": "6",
+              "net": "boot",
+              "position_mm": [
+                11.1375,
+                9.05
+              ],
+              "bounds_mm": [
+                10.475,
+                8.75,
+                11.8,
+                9.35
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kicad_version": "10.0.4",
+      "board_sha256": "cae1f5ce5592d5b743cab9e035b6576bc537b473cbcfefba470024330f63af17",
+      "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+      "footprints": [
+        {
+          "reference": "C9",
+          "position_mm": [
+            22.0,
+            5.0
+          ],
+          "angle_deg": 180.0,
+          "bounds_mm": [
+            19.675,
+            3.375,
+            24.325,
+            6.625
+          ],
+          "pads": [
+            {
+              "number": "1",
+              "net": "+15V",
+              "position_mm": [
+                23.475,
+                5.0
+              ],
+              "bounds_mm": [
+                22.9,
+                3.65,
+                24.05,
+                6.35
+              ]
+            },
+            {
+              "number": "2",
+              "net": "gnd",
+              "position_mm": [
+                20.525,
+                5.0
+              ],
+              "bounds_mm": [
+                19.95,
+                3.65,
+                21.1,
+                6.35
+              ]
+            }
+          ]
+        },
+        {
+          "reference": "U3",
+          "position_mm": [
+            10.0,
+            10.0
+          ],
+          "angle_deg": 0.0,
+          "bounds_mm": [
+            7.925,
+            8.1,
+            12.075,
+            11.725
+          ],
+          "pads": [
+            {
+              "number": "1",
+              "net": "gnd",
+              "position_mm": [
+                8.8625,
+                9.05
+              ],
+              "bounds_mm": [
+                8.2,
+                8.75,
+                9.525,
+                9.35
+              ]
+            },
+            {
+              "number": "2",
+              "net": "sw",
+              "position_mm": [
+                8.8625,
+                10.0
+              ],
+              "bounds_mm": [
+                8.2,
+                9.7,
+                9.525,
+                10.3
+              ]
+            },
+            {
+              "number": "3",
+              "net": "+15V",
+              "position_mm": [
+                8.8625,
+                10.95
+              ],
+              "bounds_mm": [
+                8.2,
+                10.65,
+                9.525,
+                11.25
+              ]
+            },
+            {
+              "number": "4",
+              "net": "fb",
+              "position_mm": [
+                11.1375,
+                10.95
+              ],
+              "bounds_mm": [
+                10.475,
+                10.65,
+                11.8,
+                11.25
+              ]
+            },
+            {
+              "number": "5",
+              "net": "+15V",
+              "position_mm": [
+                11.1375,
+                10.0
+              ],
+              "bounds_mm": [
+                10.475,
+                9.7,
+                11.8,
+                10.3
+              ]
+            },
+            {
+              "number": "6",
+              "net": "boot",
+              "position_mm": [
+                11.1375,
+                9.05
+              ],
+              "bounds_mm": [
+                10.475,
+                8.75,
+                11.8,
+                9.35
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kicad_version": "10.0.4",
+      "board_sha256": "ef5857b49ea4b53d07a3a62c4d2f5ffe32a5b6942b6206a6bae508436cc1e87d",
+      "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+      "footprints": [
+        {
+          "reference": "C9",
+          "position_mm": [
+            16.0,
+            16.0
+          ],
+          "angle_deg": -90.0,
+          "bounds_mm": [
+            14.375,
+            13.675,
+            17.625,
+            18.325
+          ],
+          "pads": [
+            {
+              "number": "1",
+              "net": "+15V",
+              "position_mm": [
+                16.0,
+                14.525
+              ],
+              "bounds_mm": [
+                14.65,
+                13.95,
+                17.35,
+                15.1
+              ]
+            },
+            {
+              "number": "2",
+              "net": "gnd",
+              "position_mm": [
+                16.0,
+                17.475
+              ],
+              "bounds_mm": [
+                14.65,
+                16.9,
+                17.35,
+                18.05
+              ]
+            }
+          ]
+        },
+        {
+          "reference": "U3",
+          "position_mm": [
+            10.0,
+            10.0
+          ],
+          "angle_deg": 0.0,
+          "bounds_mm": [
+            7.925,
+            8.1,
+            12.075,
+            11.725
+          ],
+          "pads": [
+            {
+              "number": "1",
+              "net": "gnd",
+              "position_mm": [
+                8.8625,
+                9.05
+              ],
+              "bounds_mm": [
+                8.2,
+                8.75,
+                9.525,
+                9.35
+              ]
+            },
+            {
+              "number": "2",
+              "net": "sw",
+              "position_mm": [
+                8.8625,
+                10.0
+              ],
+              "bounds_mm": [
+                8.2,
+                9.7,
+                9.525,
+                10.3
+              ]
+            },
+            {
+              "number": "3",
+              "net": "+15V",
+              "position_mm": [
+                8.8625,
+                10.95
+              ],
+              "bounds_mm": [
+                8.2,
+                10.65,
+                9.525,
+                11.25
+              ]
+            },
+            {
+              "number": "4",
+              "net": "fb",
+              "position_mm": [
+                11.1375,
+                10.95
+              ],
+              "bounds_mm": [
+                10.475,
+                10.65,
+                11.8,
+                11.25
+              ]
+            },
+            {
+              "number": "5",
+              "net": "+15V",
+              "position_mm": [
+                11.1375,
+                10.0
+              ],
+              "bounds_mm": [
+                10.475,
+                9.7,
+                11.8,
+                10.3
+              ]
+            },
+            {
+              "number": "6",
+              "net": "boot",
+              "position_mm": [
+                11.1375,
+                9.05
+              ],
+              "bounds_mm": [
+                10.475,
+                8.75,
+                11.8,
+                9.35
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "subsequent_feedback": "Updated U3/C9 geometry, KiCad DRC findings including pad/net names and UUIDs, board hashes, distance results, action counts, elapsed time. No repository source or full-board geometry is part of the PCB tool payload."
+}

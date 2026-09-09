@@ -113,7 +113,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 21 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 22 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
@@ -129,6 +129,7 @@ For contributors working on architecture, verification, or toolchain internals:
 | `docs/` | Plans, brainstorms, solutions, evidence, specs, and strategy |
 | `elec/` | Atopile electrical source -- the schematic's source of truth |
 | `firmware/` | ESP32-S3 firmware (C), 8-state machine and protection monitoring |
+| `harness-lab/` | Active PCB agent-harness experiments with isolated fixtures and native validation |
 | `max31865/` | KiCad library for the MAX31865 RTD front-end (predates components/) |
 | `metrics/` | Recorded routing/placement metric snapshots (JSON) |
 | `output_gerbers/` | Exported Gerber/drill artifacts from a past routed revision |
