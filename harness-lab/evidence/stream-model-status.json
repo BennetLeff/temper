@@ -1,0 +1,72 @@
+{
+  "status": "pass",
+  "preflight": "preflight_pass",
+  "trials": [
+    {
+      "trial": 1,
+      "status": "pass",
+      "elapsed_s": 68.71427054097876,
+      "routing_edits": 2,
+      "error": null,
+      "independent_host_check": "pass",
+      "local_requests": 5,
+      "upstream_attempts": 5,
+      "wire_errors": 0,
+      "maximum_read_gap_s": 53.385242416057736,
+      "http_statuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "rate_limit_headers": [],
+      "final_board_sha256": "b07105d4bc0af2d997eb7fdc3a8f73b52f0e0277904667a310beab6d15b9468e",
+      "reported_cost_usd": 0
+    },
+    {
+      "trial": 2,
+      "status": "pass",
+      "elapsed_s": 80.4279626669595,
+      "routing_edits": 2,
+      "error": null,
+      "independent_host_check": "pass",
+      "local_requests": 5,
+      "upstream_attempts": 5,
+      "wire_errors": 0,
+      "maximum_read_gap_s": 64.48154479207005,
+      "http_statuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "rate_limit_headers": [],
+      "final_board_sha256": "e2b506140fbfedebc59749e991cc68612d194169cb5632e7682f8b3832ab7587",
+      "reported_cost_usd": 0
+    },
+    {
+      "trial": 3,
+      "status": "pass",
+      "elapsed_s": 93.93902958289254,
+      "routing_edits": 2,
+      "error": null,
+      "independent_host_check": "pass",
+      "local_requests": 5,
+      "upstream_attempts": 5,
+      "wire_errors": 0,
+      "maximum_read_gap_s": 77.0030812920304,
+      "http_statuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "rate_limit_headers": [],
+      "final_board_sha256": "df6a7431b7adf9bcf4547a7ffbb17fddd69cbea2034f9188be54af20bbbd7351",
+      "reported_cost_usd": 0
+    }
+  ]
+}

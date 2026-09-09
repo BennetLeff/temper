@@ -66,3 +66,12 @@ instructions, unchanged four tool schemas, fixed contract and native initial
 geometry. The approved destination and Contributor terms remain Muse Spark
 through OpenCode Zen, for one inspection preflight and three five-minute,
 ten-edit trials. The valid qualification detour is not included in the inputs.
+
+## Stream diagnostic on the same obstacle fixture
+
+On September 9 the user said **“go for it”** to the proposed longer-wait,
+no-immediate-retry diagnostic. [The declared batch](STREAM-DIAGNOSTIC.md)
+uses the same obstacle inputs, model and Contributor terms for one new
+inspection preflight and three sequential five-minute, ten-edit trials.
+The transport policy and recording change; the board task and validators do
+not. Fresh qualification and preflight receipts bind the revised source.

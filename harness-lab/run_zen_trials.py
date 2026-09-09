@@ -8,6 +8,7 @@ import json
 import os
 import shutil
 import signal
+import socket
 import subprocess
 import sys
 import tempfile
@@ -60,7 +61,7 @@ def validate_request(packet: dict, tools: list = harness.TOOLS) -> None:
 class Recorder(ThreadingHTTPServer):
     """Local relay: fixed upstream, no persisted auth headers, complete wire evidence."""
 
-    daemon_threads = True
+    daemon_threads = False
 
     def __init__(self, directory: Path, tools: list = harness.TOOLS):
         super().__init__(("127.0.0.1", 0), Relay)
@@ -68,6 +69,27 @@ class Recorder(ThreadingHTTPServer):
         self.tools = tools
         self.sequence = 0
         self.lock = threading.Lock()
+        self.deadline = time.monotonic() + 300
+        self.busy = False
+        self.failed = False
+        self.upstream_socket = None
+
+    def remaining(self) -> float:
+        remaining = self.deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("Trial deadline reached")
+        return remaining
+
+    def server_close(self) -> None:
+        # Release a silent upstream before joining handlers and auditing files.
+        with self.lock:
+            self.failed = True
+            if self.upstream_socket is not None:
+                try:
+                    self.upstream_socket.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    pass
+        super().server_close()
 
 
 class Relay(BaseHTTPRequestHandler):
@@ -81,46 +103,126 @@ class Relay(BaseHTTPRequestHandler):
             self.server.sequence += 1
             prefix = self.server.directory / f"wire-{self.server.sequence:03}"
         connection = None
+        admitted = False
+        sent_headers = False
+        started = last_chunk = time.monotonic()
+        maximum_gap = 0.0
+        telemetry = {"started_unix_s": time.time(), "upstream_attempted": False}
         try:
             require(self.path == "/responses", "Unexpected endpoint")
+            self.connection.settimeout(self.server.remaining())
             length = int(self.headers.get("Content-Length", "0"))
             require(0 < length <= 2_000_000, "Invalid request size")
             body = self.rfile.read(length)
             packet = json.loads(body)
             prefix.with_suffix(".request.json").write_bytes(body)
             validate_request(packet, self.server.tools)
-            connection = http.client.HTTPSConnection("opencode.ai", timeout=60)
+            with self.server.lock:
+                require(
+                    not self.server.failed,
+                    "Trial transport already failed; retry blocked",
+                )
+                require(not self.server.busy, "Concurrent upstream request blocked")
+                self.server.remaining()
+                self.server.busy = admitted = True
+            connection = http.client.HTTPSConnection(
+                "opencode.ai", timeout=self.server.remaining()
+            )
+            connection.connect()
+            upstream_socket = connection.sock
+            with self.server.lock:
+                require(not self.server.failed, "Trial transport closed")
+                self.server.upstream_socket = upstream_socket
             headers = {
                 key: value
                 for key, value in self.headers.items()
                 if key.lower() not in {"host", "connection", "accept-encoding"}
             }
             headers["Accept-Encoding"] = "identity"
+            upstream_socket.settimeout(self.server.remaining())
+            telemetry["upstream_attempted"] = True
             connection.request("POST", "/zen/v1/responses", body, headers)
+            upstream_socket.settimeout(self.server.remaining())
             response = connection.getresponse()
             prefix.with_suffix(".status.json").write_text(
-                json.dumps({"status": response.status})
+                json.dumps(
+                    {
+                        "status": response.status,
+                        "headers": {
+                            key.lower(): value
+                            for key, value in response.getheaders()
+                            if key.lower()
+                            in {
+                                "content-type",
+                                "date",
+                                "retry-after",
+                                "x-request-id",
+                                "x-ratelimit-limit-requests",
+                                "x-ratelimit-remaining-requests",
+                                "x-ratelimit-reset-requests",
+                                "x-ratelimit-limit-tokens",
+                                "x-ratelimit-remaining-tokens",
+                                "x-ratelimit-reset-tokens",
+                            }
+                        },
+                    }
+                )
             )
             self.send_response(response.status)
             self.send_header("Content-Type", response.getheader("Content-Type"))
             self.send_header("Connection", "close")
             self.end_headers()
+            sent_headers = True
             with prefix.with_suffix(".response.txt").open("wb") as evidence:
-                while chunk := response.read1(65536):
+                while not response.isclosed():
+                    upstream_socket.settimeout(self.server.remaining())
+                    chunk = response.read1(65536)
+                    now = time.monotonic()
+                    maximum_gap = max(maximum_gap, now - last_chunk)
+                    last_chunk = now
+                    if not chunk:
+                        break
                     evidence.write(chunk)
                     evidence.flush()
+                    self.connection.settimeout(self.server.remaining())
                     self.wfile.write(chunk)
                     self.wfile.flush()
+            require(response.status == 200, "Provider request failed")
+            require(
+                any(
+                    json.loads(line[6:]).get("type") == "response.completed"
+                    for line in prefix.with_suffix(".response.txt")
+                    .read_text()
+                    .splitlines()
+                    if line.startswith("data: ") and line != "data: [DONE]"
+                ),
+                "Incomplete provider response; retry blocked",
+            )
         except Exception as error:
+            with self.server.lock:
+                self.server.failed = True
             prefix.with_suffix(".error.json").write_text(
                 json.dumps({"error": f"{type(error).__name__}: {error}"})
             )
             # No upstream request is made if admission fails.
-            if connection is None:
+            if not sent_headers:
                 self.send_error(400, "Request rejected by experiment boundary")
         finally:
             if connection is not None:
                 connection.close()
+            telemetry.update(
+                {
+                    "elapsed_s": time.monotonic() - started,
+                    "maximum_read_gap_s": max(
+                        maximum_gap, time.monotonic() - last_chunk
+                    ),
+                }
+            )
+            prefix.with_suffix(".timing.json").write_text(json.dumps(telemetry))
+            with self.server.lock:
+                if admitted:
+                    self.server.upstream_socket = None
+                    self.server.busy = False
             self.close_connection = True
 
 
@@ -393,6 +495,13 @@ def run(
         "prompt": PREFLIGHT_PROMPT if preflight else prompt,
         "data_use": "User approved Zen/Meta Contributor training terms on 2026-09-09",
         "contract": contract,
+        "transport_policy": {
+            "trial_budget_s": 300,
+            "read_timeout": "remaining trial budget",
+            "max_concurrent_upstream_requests": 1,
+            "after_incomplete_or_failed_response": "block all further upstream requests",
+            "headers": "fixed response-header allowlist; no persisted auth or cookies",
+        },
     }
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     results = []
@@ -412,6 +521,7 @@ def run(
                 private = Path(tmp)
                 empty = private / "workspace"
                 empty.mkdir()
+                recorder.deadline = time.monotonic() + 300
                 config = configuration(
                     directory,
                     recorder.server_port,
@@ -451,7 +561,9 @@ def run(
                         start_new_session=True,
                     )
                     try:
-                        returncode = process.wait(timeout=300)
+                        returncode = process.wait(
+                            timeout=max(0, recorder.deadline - time.monotonic())
+                        )
                     except subprocess.TimeoutExpired:
                         os.killpg(process.pid, signal.SIGTERM)
                         try:

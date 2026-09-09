@@ -122,3 +122,7 @@ injection, keeping wire completeness and board validity distinct. Any policy
 change needs requalification and a new declared batch; do not rescore this
 batch under a relaxed rule. The routing tools themselves produced the
 required detours without a hidden router or an agent refinement policy.
+
+Follow-up: the [separately declared stream diagnostic](STREAM-DIAGNOSTIC.md)
+qualified the revised relay and achieved three clean passes on fresh trials.
+This original batch and its verdicts are preserved.

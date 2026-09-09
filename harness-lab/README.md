@@ -21,6 +21,8 @@ with two copper edits each and independent KiCad verification. They repeat
 one fixed geometry; no obstacle avoidance or routing recovery is demonstrated.
 See [Experiment 00R results and agent render](EXPERIMENT-00R-RESULTS.md).
 
+Read the [plain-English definitions of all 10 obstacle and 23 routing controls](VALIDATOR-CONTROLS.md). The [stream diagnostic](STREAM-DIAGNOSTIC.md) tests the relay timeout separately from PCB validity.
+
 ## What is admitted
 
 - U3 and C9 footprint geometry and pad/net assignments from Temper's PCB.
@@ -149,8 +151,10 @@ reported in [Experiment 00R results](EXPERIMENT-00R-RESULTS.md).
 ## One-obstacle fixture
 
 Experiment 00R-O adds a protected native track keepout to the same U3/C9
-fixture. All three agent-produced boards pass KiCad, but only two runs pass
-the full audit: one remains indeterminate after model-stream read timeouts.
-The strict three-clean-runs criterion was not met. See [the diagrams and
-results](OBSTACLE-RESULTS.md). Select it with `--routing --routing-fixture
-e00r-obstacle`; the original fixture remains the default.
+fixture. The first batch had two clean passes and one indeterminate run
+after stream timeouts; [its results remain unchanged](OBSTACLE-RESULTS.md).
+After the relay fix, **all three fresh trials passed** in 69, 80 and 94 seconds,
+with two routing edits each. Two responses completed after silent intervals
+longer than the former 60-second cutoff. See [the stream diagnostic and
+retained evidence](STREAM-DIAGNOSTIC.md). Select the fixture with
+`--routing --routing-fixture e00r-obstacle`; the original remains the default.

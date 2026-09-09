@@ -1,0 +1,41 @@
+{
+  "scope_base": "6140773a64a5142c682f471f90372a42d10d4289",
+  "pre_fix_tree": "clean",
+  "scope": [
+    "run_zen_trials.py",
+    "test_zen_runner.py"
+  ],
+  "review": "parent-local, sequential; no external code transfer or subagents",
+  "simplification": "reviewed reuse, quality and efficiency; no further changes justified",
+  "correctness_review": [
+    "remaining deadline recalculated per read and process wait",
+    "single upstream admission protected by lock",
+    "incomplete/failed response closes admission",
+    "wire audit remains strict",
+    "handler joining before audit",
+    "request credentials remain memory-only, response header allowlist excludes cookies",
+    "fixture, native adapter and Rust judge unchanged"
+  ],
+  "residuals": [],
+  "limitations": [
+    "upstream reason for original silent streams remains unknown",
+    "OpenCode may retry locally; relay blocks forwarding after failure",
+    "small live batch cannot establish provider reliability"
+  ],
+  "checks": {
+    "pre_fix_stream_tests": {
+      "tests": 5,
+      "failed_assertions": 5,
+      "elapsed_s": 63.687
+    },
+    "post_fix_python_tests": {
+      "tests": 15,
+      "passed": 15,
+      "elapsed_s": 65.674
+    },
+    "rust_tests": 2,
+    "obstacle_controls": 10,
+    "routing_regression_controls": 23,
+    "lint_format_compile_diff": "pass"
+  }
+}
