@@ -1,11 +1,185 @@
 {
-  "status": "not_run",
-  "scored_trials": 0,
-  "requests_sent": 0,
-  "blocked_by": "automatic_approval_review",
-  "reason": "Review treated the synthetic keepout experiment as outside the prior routing-fixture approval. The exec request was rejected before process creation.",
-  "proposed_model": "opencode/muse-spark-1.3-contributor-free",
-  "proposed_run": "One inspection preflight and three fresh five-minute, ten-edit trials.",
-  "new_input": "One synthetic F.Cu track keepout polygon, (7.55,10.5) to (7.95,12.0) mm; unchanged U3/C9 geometry and routing task.",
-  "data_terms": "Same Meta Contributor training terms as the completed Muse routing trials."
+  "status": "completed_criterion_not_met",
+  "experiment": "00R-O",
+  "batch_status": "fail",
+  "clean_scored_passes": 2,
+  "indeterminate_trials": 1,
+  "independently_passing_final_boards": 3,
+  "scored_trials": 3,
+  "requests_sent": 19,
+  "authorization": {
+    "user_reply": "do it",
+    "scope": "Synthetic keepout fixture to Muse/Zen for one preflight and three five-minute, ten-edit trials under the same Contributor training terms"
+  },
+  "prior_blocked_attempt": {
+    "status": "not_run",
+    "scored_trials": 0,
+    "requests_sent": 0,
+    "blocked_by": "automatic_approval_review",
+    "reason": "Review treated the synthetic keepout experiment as outside the prior routing-fixture approval. The exec request was rejected before process creation.",
+    "proposed_model": "opencode/muse-spark-1.3-contributor-free",
+    "proposed_run": "One inspection preflight and three fresh five-minute, ten-edit trials.",
+    "new_input": "One synthetic F.Cu track keepout polygon, (7.55,10.5) to (7.95,12.0) mm; unchanged U3/C9 geometry and routing task.",
+    "data_terms": "Same Meta Contributor training terms as the completed Muse routing trials."
+  },
+  "preflight": {
+    "status": "preflight_pass",
+    "elapsed_s": 6.648237666930072
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "run_status": "pass",
+      "elapsed_s": 76.72082470799796,
+      "observed_routing_edits": 2,
+      "board_check": "pass",
+      "board_check_phase": "scoring host check",
+      "track_count": 4,
+      "board_sha256": "6fea548040cbf49749a624ff4c9b9b98178b251719cd0f1717dfef15ebd79eda",
+      "provider_requests": 5,
+      "provider_errors": {},
+      "routes": [
+        {
+          "net": "+15V",
+          "points_mm": [
+            [
+              6,
+              11.475
+            ],
+            [
+              6,
+              12.5
+            ],
+            [
+              8.8625,
+              12.5
+            ],
+            [
+              8.8625,
+              10.95
+            ]
+          ]
+        },
+        {
+          "net": "gnd",
+          "points_mm": [
+            [
+              6,
+              8.525
+            ],
+            [
+              8.8625,
+              9.05
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "run_status": "indeterminate",
+      "elapsed_s": 184.19671091693453,
+      "observed_routing_edits": 2,
+      "board_check": "pass",
+      "board_check_phase": "post-run supplemental check",
+      "track_count": 4,
+      "board_sha256": "63991a490d783cb09ac6ee127dbf241ad23efe049a52171558c526a3e532595b",
+      "provider_requests": 7,
+      "provider_errors": {
+        "wire-002.error.json": {
+          "error": "TimeoutError: The read operation timed out"
+        },
+        "wire-003.error.json": {
+          "error": "TimeoutError: The read operation timed out"
+        }
+      },
+      "routes": [
+        {
+          "net": "gnd",
+          "points_mm": [
+            [
+              6,
+              8.525
+            ],
+            [
+              8.8625,
+              9.05
+            ]
+          ]
+        },
+        {
+          "net": "+15V",
+          "points_mm": [
+            [
+              6,
+              11.475
+            ],
+            [
+              6,
+              12.5
+            ],
+            [
+              8.8625,
+              12.5
+            ],
+            [
+              8.8625,
+              10.95
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "run_status": "pass",
+      "elapsed_s": 91.02381908299867,
+      "observed_routing_edits": 2,
+      "board_check": "pass",
+      "board_check_phase": "scoring host check",
+      "track_count": 4,
+      "board_sha256": "94ff611753f849641d666fbdfe6370afcaa3afb2e1625c5404d6fd974b51eb36",
+      "provider_requests": 5,
+      "provider_errors": {},
+      "routes": [
+        {
+          "net": "gnd",
+          "points_mm": [
+            [
+              6,
+              8.525
+            ],
+            [
+              8.8625,
+              9.05
+            ]
+          ]
+        },
+        {
+          "net": "+15V",
+          "points_mm": [
+            [
+              6,
+              11.475
+            ],
+            [
+              6,
+              12.5
+            ],
+            [
+              8.8625,
+              12.5
+            ],
+            [
+              8.8625,
+              10.95
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "qualification_sha256": "a50cbd739f6953bf3270aa1b30ee2dac4c3809073debf316054375d9f7221241",
+  "archive_sha256": "6774d23641404ff7c6cf88a64a5b138cfd0289af363cad127230521304194eca",
+  "interpretation": "Every final board is valid for this tiny task. The strict all-three-clean-runs criterion failed because trial 2 had two incomplete provider responses and read timeouts. Its later local board/action checks do not override the original indeterminate verdict."
 }

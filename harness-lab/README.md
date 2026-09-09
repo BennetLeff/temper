@@ -149,8 +149,8 @@ reported in [Experiment 00R results](EXPERIMENT-00R-RESULTS.md).
 ## One-obstacle fixture
 
 Experiment 00R-O adds a protected native track keepout to the same U3/C9
-fixture. Ten obstacle controls and all 23 routing regression controls pass;
-external obstacle trials await explicit payload approval following an
-automatic approval rejection. See [the prepared experiment, diagram and
+fixture. All three agent-produced boards pass KiCad, but only two runs pass
+the full audit: one remains indeterminate after model-stream read timeouts.
+The strict three-clean-runs criterion was not met. See [the diagrams and
 results](OBSTACLE-RESULTS.md). Select it with `--routing --routing-fixture
 e00r-obstacle`; the original fixture remains the default.

@@ -26,10 +26,9 @@ removing or disabling the keepout fails protected-state acceptance; removing
 and replacing a route refreshes native findings. Validate native keepout
 context and exact four-tool admission. Re-run the prior routing qualification.
 
-After explicit obstacle-payload approval, run an inspection-only preflight
-and three Muse Spark Contributor Free trials through the selected OpenCode
-Zen profile. The user requested this continuation, but automatic approval
-review treated the new fixture as outside the earlier authorization. Retain
+Run an inspection-only preflight and three Muse Spark Contributor Free trials
+through the selected OpenCode Zen profile. The user explicitly authorized the
+obstacle payload with “do it,” resolving the earlier approval block. Retain
 the same destination and Contributor terms.
 Freeze source, fixture, contract and evaluator hashes before preflight.
 

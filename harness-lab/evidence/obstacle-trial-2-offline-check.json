@@ -1,0 +1,382 @@
+{
+  "board_sha256": "63991a490d783cb09ac6ee127dbf241ad23efe049a52171558c526a3e532595b",
+  "distances": [
+    {
+      "distance_mm": 2.9102459088537525,
+      "pair": "C9.1:U3.3"
+    },
+    {
+      "distance_mm": 2.9102459088537525,
+      "pair": "C9.2:U3.1"
+    }
+  ],
+  "findings": [],
+  "open_connection_evidence": [
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Pad 5 [+15V] of U3 on F.Cu",
+          "pos": {
+            "x": 11.1375,
+            "y": 10.0
+          },
+          "uuid": "f3b3f82f-0dd0-402d-80f7-50f93ac616fb"
+        },
+        {
+          "description": "Track [+15V] on F.Cu, length 1.5500 mm",
+          "pos": {
+            "x": 8.8625,
+            "y": 12.5
+          },
+          "uuid": "9e302f76-a155-4c46-919b-4adac6e69c41"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    }
+  ],
+  "open_connections_outside_scope": 1,
+  "scope": "two_capacitor_routes",
+  "status": "pass",
+  "measurement": {
+    "kicad_version": "10.0.4",
+    "board_sha256": "63991a490d783cb09ac6ee127dbf241ad23efe049a52171558c526a3e532595b",
+    "protected_sha256": "eac856c1feccd2b9621098974b6dda085e7785ada6a9a02e737418c9c29fe57a",
+    "footprints": [
+      {
+        "reference": "C9",
+        "position_mm": [
+          6.0,
+          10.0
+        ],
+        "angle_deg": 90.0,
+        "bounds_mm": [
+          4.375,
+          7.675,
+          7.625,
+          12.325
+        ],
+        "pads": [
+          {
+            "number": "1",
+            "net": "+15V",
+            "position_mm": [
+              6.0,
+              11.475
+            ],
+            "bounds_mm": [
+              4.65,
+              10.9,
+              7.35,
+              12.05
+            ]
+          },
+          {
+            "number": "2",
+            "net": "gnd",
+            "position_mm": [
+              6.0,
+              8.525
+            ],
+            "bounds_mm": [
+              4.65,
+              7.95,
+              7.35,
+              9.1
+            ]
+          }
+        ]
+      },
+      {
+        "reference": "U3",
+        "position_mm": [
+          10.0,
+          10.0
+        ],
+        "angle_deg": 0.0,
+        "bounds_mm": [
+          7.925,
+          8.1,
+          12.075,
+          11.725
+        ],
+        "pads": [
+          {
+            "number": "1",
+            "net": "gnd",
+            "position_mm": [
+              8.8625,
+              9.05
+            ],
+            "bounds_mm": [
+              8.2,
+              8.75,
+              9.525,
+              9.35
+            ]
+          },
+          {
+            "number": "2",
+            "net": "sw",
+            "position_mm": [
+              8.8625,
+              10.0
+            ],
+            "bounds_mm": [
+              8.2,
+              9.7,
+              9.525,
+              10.3
+            ]
+          },
+          {
+            "number": "3",
+            "net": "+15V",
+            "position_mm": [
+              8.8625,
+              10.95
+            ],
+            "bounds_mm": [
+              8.2,
+              10.65,
+              9.525,
+              11.25
+            ]
+          },
+          {
+            "number": "4",
+            "net": "fb",
+            "position_mm": [
+              11.1375,
+              10.95
+            ],
+            "bounds_mm": [
+              10.475,
+              10.65,
+              11.8,
+              11.25
+            ]
+          },
+          {
+            "number": "5",
+            "net": "+15V",
+            "position_mm": [
+              11.1375,
+              10.0
+            ],
+            "bounds_mm": [
+              10.475,
+              9.7,
+              11.8,
+              10.3
+            ]
+          },
+          {
+            "number": "6",
+            "net": "boot",
+            "position_mm": [
+              11.1375,
+              9.05
+            ],
+            "bounds_mm": [
+              10.475,
+              8.75,
+              11.8,
+              9.35
+            ]
+          }
+        ]
+      }
+    ],
+    "routing": {
+      "tracks": [
+        {
+          "uuid": "58c4a18b-8f3c-4208-ac2c-09191684f97e",
+          "kind": "segment",
+          "net": "+15V",
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "start_mm": [
+            6.0,
+            12.5
+          ],
+          "end_mm": [
+            8.8625,
+            12.5
+          ],
+          "bounds_mm": [
+            5.875,
+            12.375,
+            8.987501,
+            12.625001
+          ]
+        },
+        {
+          "uuid": "7ab64548-d421-4636-8f68-c6bf57c6c1b7",
+          "kind": "segment",
+          "net": "+15V",
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "start_mm": [
+            6.0,
+            11.475
+          ],
+          "end_mm": [
+            6.0,
+            12.5
+          ],
+          "bounds_mm": [
+            5.875,
+            11.35,
+            6.125001,
+            12.625001
+          ]
+        },
+        {
+          "uuid": "7ae52f4b-f140-4060-a2aa-3454e3c0ebeb",
+          "kind": "segment",
+          "net": "gnd",
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "start_mm": [
+            6.0,
+            8.525
+          ],
+          "end_mm": [
+            8.8625,
+            9.05
+          ],
+          "bounds_mm": [
+            5.875,
+            8.4,
+            8.987501,
+            9.175001
+          ]
+        },
+        {
+          "uuid": "9e302f76-a155-4c46-919b-4adac6e69c41",
+          "kind": "segment",
+          "net": "+15V",
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "start_mm": [
+            8.8625,
+            12.5
+          ],
+          "end_mm": [
+            8.8625,
+            10.95
+          ],
+          "bounds_mm": [
+            8.7375,
+            10.825,
+            8.987501,
+            12.625001
+          ]
+        }
+      ],
+      "connectivity": [
+        {
+          "pad": "C9.1",
+          "pads": [
+            "C9.1",
+            "U3.3"
+          ],
+          "tracks": [
+            "58c4a18b-8f3c-4208-ac2c-09191684f97e",
+            "7ab64548-d421-4636-8f68-c6bf57c6c1b7",
+            "9e302f76-a155-4c46-919b-4adac6e69c41"
+          ]
+        },
+        {
+          "pad": "C9.2",
+          "pads": [
+            "C9.2",
+            "U3.1"
+          ],
+          "tracks": [
+            "7ae52f4b-f140-4060-a2aa-3454e3c0ebeb"
+          ]
+        },
+        {
+          "pad": "U3.1",
+          "pads": [
+            "C9.2",
+            "U3.1"
+          ],
+          "tracks": [
+            "7ae52f4b-f140-4060-a2aa-3454e3c0ebeb"
+          ]
+        },
+        {
+          "pad": "U3.2",
+          "pads": [
+            "U3.2"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.3",
+          "pads": [
+            "C9.1",
+            "U3.3"
+          ],
+          "tracks": [
+            "58c4a18b-8f3c-4208-ac2c-09191684f97e",
+            "7ab64548-d421-4636-8f68-c6bf57c6c1b7",
+            "9e302f76-a155-4c46-919b-4adac6e69c41"
+          ]
+        },
+        {
+          "pad": "U3.4",
+          "pads": [
+            "U3.4"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.5",
+          "pads": [
+            "U3.5"
+          ],
+          "tracks": []
+        },
+        {
+          "pad": "U3.6",
+          "pads": [
+            "U3.6"
+          ],
+          "tracks": []
+        }
+      ],
+      "keepouts": [
+        {
+          "uuid": "da0c0ca8-d37c-42f8-ba32-2cc0415fe2e2",
+          "layer": "F.Cu",
+          "tracks_prohibited": true,
+          "outlines_mm": [
+            [
+              [
+                7.55,
+                10.5
+              ],
+              [
+                7.95,
+                10.5
+              ],
+              [
+                7.95,
+                12.0
+              ],
+              [
+                7.55,
+                12.0
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  }
+}
