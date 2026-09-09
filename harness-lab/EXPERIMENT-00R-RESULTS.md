@@ -1,21 +1,45 @@
-# Experiment 00R: routing apparatus qualified; model trials pending
+# Experiment 00R: three agent routing trials passed
 
-The harness can now add, replace, and remove explicit copper routes on the
-fixed U3/C9 fixture. **Local qualification passes 23 controls. The three
-routing trials with Muse have not run.** Automatic approval review blocked
-the proposed external preflight pending explicit approval of the expanded
-routing payload; no routing request was sent to Zen/Meta.
+**All three Muse Spark 1.3 Contributor Free routing trials passed**, including
+independent native KiCad checks of each final board. The user explicitly
+authorized the expanded routing payload with “send it”; the earlier approval
+block was resolved before execution. No code, rules, prompts or budgets changed
+during the scored batch, and no trial was retried or given human routing hints.
+
+| Trial | Elapsed | Routing edits | Final copper | Host check |
+|---|---:|---:|---|---|
+| 1 | 22.30 s | 2 | 2 straight segments | Pass |
+| 2 | 48.64 s | 2 | 2 straight segments | Pass |
+| 3 | 30.34 s | 2 | 2 straight segments | Pass |
+
+An inspection-only preflight passed in 7.93 seconds with zero edits. Each
+trial inspected, added one +15V trace and one ground trace, and finished with
+a passing check. All three independently chose the same direct pad-center
+connections. There were no routing repairs or removals. Every final board
+has both required physical connections, zero applicable DRC findings, and
+one explicitly out-of-scope open connection to U3.5.
+
+OpenCode reported $0 for each trial. This is its reported free-model cost,
+not an independently obtained billing receipt. The wire audit verified the
+served model, exact four-tool catalog, executed arguments, shown observations,
+and native action/snapshot chain. The three final content hashes differ
+because independently created track UUIDs differ; the route geometry matches.
+
+[Agent result rendered by KiCad](evidence/routing-agent-trial-1.svg).
+[Scored results](evidence/routing-zen-results.json).
+[Inspection preflight](evidence/routing-zen-preflight.json).
+[Complete model and native traces](evidence/routing-zen-traces.tar.gz).
 
 ## Implemented task
 
 U3 stays at (10, 10, 0 degrees); C9 stays at the first successful placement,
-(6, 10, 90 degrees). The agent will connect C9.1 to U3.3 (+15V) and C9.2 to
+(6, 10, 90 degrees). The agent connects C9.1 to U3.3 (+15V) and C9.2 to
 U3.1 (gnd). U3.5, also on +15V, deliberately remains disconnected.
 
 The four tools are `inspect`, `route`, `remove_route`, and `check`. The agent
 chooses all polyline vertices. Copper edits use 0.25 mm straight segments on
 F.Cu; no hidden router, snapping, shove, net correction, vias, arcs, zones,
-or footprint moves. Each proposed trial has five minutes and ten edits,
+or footprint moves. Each trial has five minutes and ten edits,
 including removals. Three fresh repetitions use the same geometry.
 
 Rust evaluates physical connectivity measured by KiCad, complete applicable
@@ -67,13 +91,13 @@ the thin-harness and contextual-feedback ideas from the YC and Chase talks.
 The old optimizer remains shelved. Recorded attempts can support a later
 Continual Harness refinement loop; none is implemented or measured here.
 
-This is a tiny routing capability and a qualified apparatus, not demonstrated
-agent routing performance. No unseen geometry, full converter, full-board
-routing, electrical/current-rating assessment, or fabrication approval is
-claimed. The 0.25 mm width is an experiment constraint.
+This demonstrates repeatable agent routing on one deliberately simple, fixed
+fixture. It does not demonstrate routing around obstacles, recovery, unseen
+geometry, a full converter, or a full board. No electrical/current-rating
+assessment or fabrication approval is claimed. The 0.25 mm width is an
+experiment constraint.
 
-After routing-payload approval, run one inspection preflight and the three
-frozen trials through the existing Muse Spark 1.3 Contributor Free profile.
-Preserve all outcomes without retries or hints. The runner requires matching
-qualification, executable and preflight hashes and independently checks each
-final board.
+The next useful experiment would introduce one fixed obstacle that forces a
+detour while keeping the same two connections and small tool surface. Freeze
+that new fixture and its acceptance criteria before running it. That would
+test route planning beyond the direct connections demonstrated here.

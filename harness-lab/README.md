@@ -16,6 +16,11 @@ The user approved the Zen/Meta Contributor data terms on September 9. PCB
 operations and validation run locally; model inference is hosted. The earlier
 Codex/OpenAI proposal remains deferred. See [payload authorization](TRIAL-INPUTS.md).
 
+**The three scored routing trials also passed**, in 22, 49, and 30 seconds,
+with two copper edits each and independent KiCad verification. They repeat
+one fixed geometry; no obstacle avoidance or routing recovery is demonstrated.
+See [Experiment 00R results and agent render](EXPERIMENT-00R-RESULTS.md).
+
 ## What is admitted
 
 - U3 and C9 footprint geometry and pad/net assignments from Temper's PCB.

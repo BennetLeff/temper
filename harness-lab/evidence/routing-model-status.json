@@ -1,11 +1,65 @@
 {
-  "status": "not_run",
-  "scored_trials": 0,
-  "requests_sent": 0,
-  "blocked_by": "automatic_approval_review",
-  "proposed_model": "opencode/muse-spark-1.3-contributor-free",
-  "proposed_run": "one inspection preflight and three five-minute routing trials, ten edits each",
-  "reason": "Review treated the expanded routing payload as outside the earlier placement approval and required explicit approval for sending it to OpenCode Zen/Muse.",
-  "evidence_basis": "The exec request was rejected before process creation; no routing preflight output directory exists.",
-  "approval_scope_needed": "U3/C9 geometry, net names, routing constraints, prompts, exact four tool schemas, native connectivity/DRC feedback and state receipts; Meta Contributor training terms."
+  "status": "completed_pass",
+  "experiment": "00R",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "authorization": {
+    "user_reply": "send it",
+    "scope": "U3/C9 routing inputs and feedback; one inspection preflight and three five-minute, ten-edit trials through OpenCode Zen under Meta Contributor training terms"
+  },
+  "prior_blocked_attempt": {
+    "status": "not_run",
+    "scored_trials": 0,
+    "requests_sent": 0,
+    "blocked_by": "automatic_approval_review",
+    "proposed_model": "opencode/muse-spark-1.3-contributor-free",
+    "proposed_run": "one inspection preflight and three five-minute routing trials, ten edits each",
+    "reason": "Review treated the expanded routing payload as outside the earlier placement approval and required explicit approval for sending it to OpenCode Zen/Muse.",
+    "evidence_basis": "The exec request was rejected before process creation; no routing preflight output directory exists.",
+    "approval_scope_needed": "U3/C9 geometry, net names, routing constraints, prompts, exact four tool schemas, native connectivity/DRC feedback and state receipts; Meta Contributor training terms."
+  },
+  "preflight": {
+    "status": "preflight_pass",
+    "elapsed_s": 7.926105166086927,
+    "wire_requests": 2
+  },
+  "scored_trials": 3,
+  "requests_sent": 16,
+  "trials": [
+    {
+      "trial": 1,
+      "status": "pass",
+      "elapsed_s": 22.299472040962428,
+      "routing_edits": 2,
+      "track_count": 2,
+      "independent_host_check": "pass",
+      "board_sha256": "e21ef22e152207f54034e5bd5281ffbda37bc425626bcacdd264c26cc7f0c61e",
+      "wire_requests": 4,
+      "opencode_reported_cost_usd": 0
+    },
+    {
+      "trial": 2,
+      "status": "pass",
+      "elapsed_s": 48.63725987507496,
+      "routing_edits": 2,
+      "track_count": 2,
+      "independent_host_check": "pass",
+      "board_sha256": "58e82fb568d07f1f92d6415ceb8426ab42e788ef3ab20d15f1ade8efc91a177c",
+      "wire_requests": 5,
+      "opencode_reported_cost_usd": 0
+    },
+    {
+      "trial": 3,
+      "status": "pass",
+      "elapsed_s": 30.341551624936983,
+      "routing_edits": 2,
+      "track_count": 2,
+      "independent_host_check": "pass",
+      "board_sha256": "45e7c0a5738be0ed993ce7529b1d9f382751fe9abb356c07b7e0fffd1fc3ef0b",
+      "wire_requests": 5,
+      "opencode_reported_cost_usd": 0
+    }
+  ],
+  "qualification_sha256": "6d4a7818d878004576726fc774ac385e12cfda69d86b10905314e0479c2f7cad",
+  "archive_sha256": "3680d52df6cfea46b6f540a806db26f640db53bce3f8c56876ced353a7b6c3d4",
+  "scope_limit": "Three fresh repetitions of one fixed two-footprint fixture; no unseen geometry, obstacles, recovery, or manufacturing claim."
 }
