@@ -1,7 +1,12 @@
 """Routing-specific admission checks at the provider boundary."""
 
 import copy
+import json
+import shutil
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 import harness
 import routing_host
@@ -87,3 +92,90 @@ class ObstacleProfileTests(unittest.TestCase):
             {name for name in config["permission"] if name != "*"},
             {"pcb_inspect", "pcb_route", "pcb_remove_route", "pcb_check"},
         )
+
+
+class RepairProfileTests(unittest.TestCase):
+    def test_each_start_copies_only_its_pinned_board(self):
+        contract = json.loads(routing_host.CONTRACTS["e00r-repair"].read_text())
+        with tempfile.TemporaryDirectory() as tmp:
+            for start in contract["starts"]:
+                directory = Path(tmp) / start
+                routing_host.prepare(directory, start, fixture="e00r-repair")
+                self.assertEqual(
+                    harness.file_hash(directory / "candidate.kicad_pcb"),
+                    contract["repair_cases"][start]["initial_board_sha256"],
+                )
+                self.assertEqual(
+                    harness.context_hash(directory), contract["context_sha256"]
+                )
+                self.assertFalse((directory / "a").exists())
+            for invalid in ["../a", "d", [6, 10, 90], None]:
+                with self.subTest(start=invalid), self.assertRaises(ValueError):
+                    routing_host.prepare(
+                        Path(tmp) / "bad", invalid, fixture="e00r-repair"
+                    )
+
+    def test_changed_initial_bytes_are_rejected_before_copy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "fixtures/e00r-repair/a"
+            shutil.copytree(harness.ROOT / "fixtures/e00r-repair/a", source)
+            with (source / "candidate.kicad_pcb").open("a") as stream:
+                stream.write("\n")
+            with (
+                patch.object(routing_host, "ROOT", root),
+                self.assertRaises(ValueError),
+            ):
+                routing_host.prepare(root / "trial", "a", fixture="e00r-repair")
+            self.assertFalse((root / "trial").exists())
+
+    def test_repair_audit_requires_observed_defect_route_and_resolution(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            (directory / "initial.kicad_pcb").write_text("test fixture")
+            contract = {
+                "repair_cases": {
+                    "a": {
+                        "initial_board_sha256": harness.file_hash(
+                            directory / "initial.kicad_pcb"
+                        ),
+                        "required_finding_prefix": "kicad:clearance:",
+                    }
+                }
+            }
+            defect = "kicad:clearance:track:pad"
+            events = [
+                {"kind": "session"},
+                {"operation": "inspect"},
+                {"result": {"status": "fail", "findings": [{"id": defect}]}},
+                {"operation": "route"},
+                {"result": {"resolved": [defect]}},
+            ]
+
+            def write(items):
+                (directory / "actions.jsonl").write_text(
+                    "\n".join(json.dumps(item) for item in items)
+                )
+
+            write(events)
+            self.assertEqual(
+                routing_host.audit_repair(directory, "a", contract)[
+                    "resolved_defect_ids"
+                ],
+                [defect],
+            )
+            for index, replacement in [
+                (1, {"operation": "check"}),
+                (2, {"result": {"status": "pass", "findings": [{"id": defect}]}}),
+                (2, {"result": {"status": "fail", "findings": []}}),
+                (3, {"operation": "remove_route"}),
+                (4, {"result": {"resolved": []}}),
+            ]:
+                changed = copy.deepcopy(events)
+                changed[index] = replacement
+                write(changed)
+                with (
+                    self.subTest(replacement=replacement),
+                    self.assertRaises(ValueError),
+                ):
+                    routing_host.audit_repair(directory, "a", contract)

@@ -616,6 +616,10 @@ def run(
                     directory, contract, directory / "host-final-check"
                 )
                 checked["independent_host_check"] = verification
+                if routing and "repair_cases" in contract:
+                    checked["repair"] = routing_host.audit_repair(
+                        directory, start, contract
+                    )
                 if verification["status"] != "pass":
                     checked["status"] = "fail"
             checked["wire"] = wire

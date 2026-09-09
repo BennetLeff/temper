@@ -75,3 +75,18 @@ uses the same obstacle inputs, model and Contributor terms for one new
 inspection preflight and three sequential five-minute, ten-edit trials.
 The transport policy and recording change; the board task and validators do
 not. Fresh qualification and preflight receipts bind the revised source.
+
+## Seeded repair experiment 00R-R
+
+The user approved the proposed three-case repair experiment with **“ok continue”**
+on September 9, following the completed stream diagnostic. The same Muse Spark
+1.3 Contributor Free / OpenCode Zen destination and accepted Contributor terms
+apply to one inspection preflight and three sequential five-minute, ten-edit
+trials. The new inputs are existing copper with one seeded keepout intrusion,
+clearance violation, or physical gap, plus native inspection/validation feedback.
+
+[Prepared inputs for review](evidence/repair-trial-inputs.json) contain the common
+prompt, tool catalog, frozen contract and all three initial observations.
+[The plan](REPAIR-EXPERIMENT.md) states exact acceptance and limits. The model
+receives only the unchanged prompt and normal tool outputs for its own start;
+case diagnoses, scripted reference repairs and other trials are not supplied.

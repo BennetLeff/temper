@@ -158,3 +158,14 @@ with two routing edits each. Two responses completed after silent intervals
 longer than the former 60-second cutoff. See [the stream diagnostic and
 retained evidence](STREAM-DIAGNOSTIC.md). Select the fixture with
 `--routing --routing-fixture e00r-obstacle`; the original remains the default.
+
+## Repairing seeded defects
+
+Experiment 00R-R begins with a keepout intrusion, insufficient copper clearance,
+or a broken ground route on three frozen starting boards. **All three agent
+trials passed**, in 85, 61 and 26 seconds, with one copper edit each. Each
+changed only the affected net, resolved the initial findings and passed the
+full trace audit plus independent native validation. See [the results and
+before/after diagram](REPAIR-RESULTS.md) and [the predeclared plan](REPAIR-EXPERIMENT.md).
+This demonstrates repair of supplied bad routes on this fixture, not yet
+combined placement/routing or held-out generalization.

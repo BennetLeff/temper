@@ -10,6 +10,7 @@ import shutil
 from pathlib import Path
 
 import harness
+from run_trials import require
 
 ROOT = harness.ROOT
 ADAPTER = ROOT / "routing_native.py"
@@ -17,6 +18,7 @@ CONTRACT = ROOT / "fixtures/routing-contract.json"
 CONTRACTS = {
     "e00r": CONTRACT,
     "e00r-obstacle": ROOT / "fixtures/obstacle-contract.json",
+    "e00r-repair": ROOT / "fixtures/repair-contract.json",
 }
 NET_SCHEMA = {"type": "string", "enum": ["+15V", "gnd"]}
 TOOLS = [
@@ -77,18 +79,60 @@ A pass covers this tiny routing task only, not electrical or manufacturing appro
 PROMPT = "Route the two capacitor connections in this fixture using the admitted PCB tools and finish with a passing check."
 
 
-def prepare(directory: Path, start: list, *, fixture: str = "e00r") -> None:
-    # All three repetitions share geometry; separate sessions test repeatability.
-    if start != [6, 10, 90]:
-        raise ValueError("Unqualified routing start")
+def prepare(directory: Path, start: list | str, *, fixture: str = "e00r") -> None:
     contract = json.loads(CONTRACTS[fixture].read_text())
-    if (
-        harness.file_hash(ROOT / "fixtures" / fixture / "candidate.kicad_pcb")
-        != contract["initial_board_sha256"]
-    ):
+    source = ROOT / "fixtures" / fixture
+    if "repair_cases" in contract:
+        if not isinstance(start, str) or start not in {"a", "b", "c"}:
+            raise ValueError("Unqualified repair start")
+        expected = contract["repair_cases"][start]["initial_board_sha256"]
+        source /= start
+    else:
+        if start != [6, 10, 90]:
+            raise ValueError("Unqualified routing start")
+        expected = contract["initial_board_sha256"]
+    if harness.file_hash(source / "candidate.kicad_pcb") != expected:
         raise ValueError("Frozen initial routing board changed")
-    shutil.copytree(ROOT / "fixtures" / fixture, directory)
+    shutil.copytree(source, directory)
     shutil.copyfile(directory / "candidate.kicad_pcb", directory / "initial.kicad_pcb")
+
+
+def audit_repair(directory: Path, start: str, contract: dict) -> dict:
+    """Check repair-specific trace evidence after the shared action/wire audit."""
+    case = contract["repair_cases"][start]
+    require(
+        harness.file_hash(directory / "initial.kicad_pcb")
+        == case["initial_board_sha256"],
+        "Wrong repair start",
+    )
+    events = [
+        json.loads(line)
+        for line in (directory / "actions.jsonl").read_text().splitlines()
+    ]
+    requests, responses = events[1::2], events[2::2]
+    first = responses[0]["result"]
+    require(
+        requests[0]["operation"] == "inspect" and first["status"] == "fail",
+        "Repair must inspect the invalid start first",
+    )
+    defects = {
+        f["id"]
+        for f in first["findings"]
+        if f["id"].startswith(case["required_finding_prefix"])
+    }
+    require(bool(defects), "Initial repair defect was not observed")
+    require(
+        any(r["operation"] == "route" for r in requests), "No copper repair requested"
+    )
+    resolved = {
+        item for response in responses[1:] for item in response["result"]["resolved"]
+    }
+    require(defects <= resolved, "Initial defect resolution missing from feedback")
+    return {
+        "start": start,
+        "initial_defect_ids": sorted(defects),
+        "resolved_defect_ids": sorted(defects & resolved),
+    }
 
 
 def evaluate(directory: Path, contract: dict, evidence: Path) -> dict:

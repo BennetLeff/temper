@@ -1,0 +1,90 @@
+{
+  "status": "qualified",
+  "scope": "three_seeded_copper_repairs",
+  "cases": [
+    {
+      "start": "a",
+      "initial_status": "fail",
+      "initial_findings": [
+        "kicad:items_not_allowed:1c98771a-50d4-4d65-b828-cf5f12ff523a"
+      ],
+      "repair_audit": {
+        "start": "a",
+        "initial_defect_ids": [
+          "kicad:items_not_allowed:1c98771a-50d4-4d65-b828-cf5f12ff523a"
+        ],
+        "resolved_defect_ids": [
+          "kicad:items_not_allowed:1c98771a-50d4-4d65-b828-cf5f12ff523a"
+        ]
+      },
+      "final_status": "pass",
+      "scripted_edits": 1
+    },
+    {
+      "start": "b",
+      "initial_status": "fail",
+      "initial_findings": [
+        "kicad:clearance:5e481d53-5590-4925-9d99-634442e2774d:e83341c3-6d17-45b6-9c99-ded65c873b7e",
+        "kicad:clearance:707dcc09-7623-4973-8601-a96fd15b0d51:e83341c3-6d17-45b6-9c99-ded65c873b7e"
+      ],
+      "repair_audit": {
+        "start": "b",
+        "initial_defect_ids": [
+          "kicad:clearance:5e481d53-5590-4925-9d99-634442e2774d:e83341c3-6d17-45b6-9c99-ded65c873b7e",
+          "kicad:clearance:707dcc09-7623-4973-8601-a96fd15b0d51:e83341c3-6d17-45b6-9c99-ded65c873b7e"
+        ],
+        "resolved_defect_ids": [
+          "kicad:clearance:5e481d53-5590-4925-9d99-634442e2774d:e83341c3-6d17-45b6-9c99-ded65c873b7e",
+          "kicad:clearance:707dcc09-7623-4973-8601-a96fd15b0d51:e83341c3-6d17-45b6-9c99-ded65c873b7e"
+        ]
+      },
+      "final_status": "pass",
+      "scripted_edits": 1
+    },
+    {
+      "start": "c",
+      "initial_status": "fail",
+      "initial_findings": [
+        "kicad:track_dangling:31698f16-12fb-4012-82a0-b4688a7367f4",
+        "unrouted:C9.2:U3.1",
+        "unrouted:U3.1:C9.2",
+        "extraneous_copper:496f46af-e9c0-4f54-8cfb-cbd14562f1f5",
+        "unexpected_open_connection_count"
+      ],
+      "repair_audit": {
+        "start": "c",
+        "initial_defect_ids": [
+          "unrouted:C9.2:U3.1",
+          "unrouted:U3.1:C9.2"
+        ],
+        "resolved_defect_ids": [
+          "unrouted:C9.2:U3.1",
+          "unrouted:U3.1:C9.2"
+        ]
+      },
+      "final_status": "pass",
+      "scripted_edits": 1
+    }
+  ],
+  "contract_sha256": "ae6bc17d32c25581555e4b30a109c33c4894b73ea22b95f3e55acdfd5f04f931",
+  "source_sha256": {
+    "Cargo.lock": "dd29ceaa655bb50f2005aead04ff6e67bac9d1a5ee63f7d403420b20bf6d8d06",
+    "build_obstacle.py": "e95479ad35d05c81a2207a63025b7cb8c4bbe4396b8e818cc648bdbcaab807e7",
+    "build_repair.py": "84738df471d5761f5559e5acb96ab5237e34a7cc03fbe674420ed7c1dca15c0f",
+    "harness.py": "76c7bfe592a69f736bc48970ce3bf383337776c62ffa0048852a790c0f2a029c",
+    "native.py": "dab7abaef33481ab4ca8c7603250431d1ad3fc9b5a8c3f614df18453ef56b7ec",
+    "qualify.py": "261f544d6b38fa19dba2741a370edcfd369ffd02b6240a0bb726f9e9ecac0197",
+    "qualify_obstacle.py": "ea0db533feda52002f14e763153559d983b606a37775d1f60259e9aa65510139",
+    "qualify_repair.py": "dab57b2c34029e4744259951340c02ad5e76e2b45c2966016ff4c6ed41ff7469",
+    "qualify_routing.py": "0b033a8c05326157927d47278608871f21a4afef84cde7041095fe8230acccf5",
+    "routing_host.py": "122131c7687f6e668ebd3439a7586dc7b4546f1e7eedf48b7c05697a67d4b225",
+    "routing_native.py": "1b7577db7014ea75efc6be1e8e444f610d7da707b272825233e211de9ba51c2a",
+    "run_trials.py": "b52ece2cd5906e3884cbb7ea1606ec44b53af1f83d3203216918f49831c8fc3b",
+    "run_zen_trials.py": "03add094982c7142caa0befad76bb47d760034f1f0e957c2b22959c6a539b205",
+    "src/main.rs": "903597b9393dfceae7f73aa911ee9947a1dfab20bdfb294cac260fb331811712",
+    "src/routing.rs": "822fa3be4cb43eb30b975a3404203c24cefc335f62dcf5a534594a4dba7d4d7e",
+    "test_routing_boundary.py": "8a01856d9e0eeea7f4f7d116857b582bfd3e662096f1a221948aaeb121e3a826",
+    "test_zen_runner.py": "b977d83662bba31f270a6ca5143ccff5d95851ab7f49b15dc4946291cab50e66"
+  },
+  "evaluator_sha256": "91bf8002bb8089e53790b16a4c921b9eecd49c06a1c4755f1010b5f243915ff0"
+}

@@ -1,0 +1,36 @@
+{
+  "experiment": "00R-R",
+  "kicad_version": "10.0.4",
+  "protected_sha256": "eac856c1feccd2b9621098974b6dda085e7785ada6a9a02e737418c9c29fe57a",
+  "context_sha256": "abbbea6972a7d16101cd83fb4987348d55b0b021bff07dabbe44c27369ffd6d8",
+  "outline_mm": [
+    1,
+    1,
+    29,
+    19
+  ],
+  "max_pad_distance_mm": 5.0,
+  "minimum_copper_clearance_mm": 0.2,
+  "starts": [
+    "a",
+    "b",
+    "c"
+  ],
+  "max_seconds": 300,
+  "routing": true,
+  "max_routing_edits": 10,
+  "repair_cases": {
+    "a": {
+      "initial_board_sha256": "71e1e9068ac5bc3e6bd3defdc87fe62f112f1b2677eee38703781ca92dc96513",
+      "required_finding_prefix": "kicad:items_not_allowed:"
+    },
+    "b": {
+      "initial_board_sha256": "d75a8343346f6e14e20d27b031e8b9b998a75933fe22042e73245f9fd57da411",
+      "required_finding_prefix": "kicad:clearance:"
+    },
+    "c": {
+      "initial_board_sha256": "d9296c8c9684f9edb7ada7da9454ff5d0bc51ef9db70c06dfad7ecdd04dd0c6c",
+      "required_finding_prefix": "unrouted:"
+    }
+  }
+}

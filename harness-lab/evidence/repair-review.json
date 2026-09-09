@@ -1,0 +1,43 @@
+{
+  "scope_base": "524059561",
+  "pre_fix_tree": "clean",
+  "review": "parent-local sequential review of the repair experiment; no external code review",
+  "scope": [
+    "build_repair.py",
+    "qualify_repair.py",
+    "routing_host.py",
+    "run_zen_trials.py",
+    "test_routing_boundary.py",
+    "fixtures/repair-contract.json",
+    "fixtures/e00r-repair"
+  ],
+  "findings_resolved": [
+    "Initial clearance draft measured as shorts; retained unscored, replaced with native-confirmed clearance-only seed.",
+    "Fixture selection rejects unknown starts and changed bytes before copying.",
+    "Repair audit is additive to full wire/action audit and independent final board validation.",
+    "Initial defect IDs must be visible and later resolved; merely ending on a valid board cannot satisfy repair audit."
+  ],
+  "residuals": [],
+  "checks": {
+    "python_tests": 18,
+    "rust_tests": 2,
+    "repair_starts_qualified": 3,
+    "obstacle_controls": 10,
+    "routing_regression_controls": 23,
+    "lint_format_compile_diff": "pass"
+  },
+  "limits": [
+    "Three seeded cases, no held-out generalization or feedback ablation.",
+    "An agent may replace both routes; minimal edits are measured, not required.",
+    "Scripted repairs are withheld from model inputs."
+  ],
+  "native_adapter_and_rust_unchanged": true,
+  "post_run_verification": {
+    "three_full_run_passes": true,
+    "three_independent_board_passes": true,
+    "healthy_route_native_census_unchanged_all_trials": true,
+    "qualified_source_hashes_current": true,
+    "evidence_archives_read_back": true,
+    "diagram": "native coordinates and widths, XML checked and Quick Look previews inspected"
+  }
+}

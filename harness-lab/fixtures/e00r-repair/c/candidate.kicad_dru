@@ -1,0 +1,2 @@
+(version 1)
+(rule "E00 copper clearance" (constraint clearance (min 0.2mm)))
