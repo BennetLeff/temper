@@ -169,3 +169,16 @@ full trace audit plus independent native validation. See [the results and
 before/after diagram](REPAIR-RESULTS.md) and [the predeclared plan](REPAIR-EXPERIMENT.md).
 This demonstrates repair of supplied bad routes on this fixture, not yet
 combined placement/routing or held-out generalization.
+
+## Placement and routing together
+
+Experiment 00PR adds C9 placement to the routing interface, with one shared
+five-minute/ten-edit budget. **All three trials passed**, in 133, 74 and 155
+seconds using 3, 4 and 3 edits. The agent found valid placements on both sides
+of U3; one trial corrected its own too-distant placement before routing.
+See [the results and before/after diagram](COMBINED-RESULTS.md).
+
+The Rust evaluator is unchanged. A thin native adapter normalizes only C9
+pose and copper for protected-state checks; placement leaves all tracks fixed.
+That behavior, a shared edit budget and protected-state rejection passed
+13 new qualification controls, alongside all prior experiment regressions.

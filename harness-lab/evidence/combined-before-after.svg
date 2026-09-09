@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="1300" viewBox="0 0 1300 1300">
+<rect width="1300" height="1300" fill="#faf9f5"/>
+<style>text{font-family:Arial,sans-serif;fill:#27353e}</style>
+<text x="30" y="35" font-size="25">U3 / C9: placement and routing in one agent session</text>
+<text x="30" y="61" font-size="15">Gold: +15V · Blue: ground · Red: protected track keepout · Full fixture shown at the same scale</text>
+<text x="30" y="96" font-size="19">Trial 1: initial misplaced C9, no routes</text>
+<rect x="30" y="110" width="600" height="335" fill="#fff" stroke="#d9dfe1" rx="6"/>
+<svg x="38" y="116" width="584" height="325" viewBox="0 0 30 20">
+<rect x="1" y="1" width="28" height="18" fill="none" stroke="#8e9e9a" stroke-width=".04"/>
+<rect x="19.675" y="13.375" width="4.649999999999999" height="3.25" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="19.95" y="13.65" width="1.1500000000000021" height="2.700000000000001" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="22.9" y="13.65" width="1.1500000000000021" height="2.700000000000001" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="7.925" y="8.1" width="4.1499999999999995" height="3.625" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="8.2" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<polygon points="7.55,10.5 7.95,10.5 7.95,12.0 7.55,12.0" fill="#ed6357" fill-opacity=".35" stroke="#a83f37" stroke-width=".05"/>
+<text x="22.0" y="13.025" font-size=".7" text-anchor="middle">C9</text>
+<text x="10.0" y="7.75" font-size=".7" text-anchor="middle">U3</text>
+</svg>
+<text x="665" y="96" font-size="19">Trial 1: final — pass, 3 total edits</text>
+<rect x="665" y="110" width="600" height="335" fill="#fff" stroke="#d9dfe1" rx="6"/>
+<svg x="673" y="116" width="584" height="325" viewBox="0 0 30 20">
+<rect x="1" y="1" width="28" height="18" fill="none" stroke="#8e9e9a" stroke-width=".04"/>
+<rect x="4.175" y="7.675" width="3.25" height="4.6499999999999995" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="4.45" y="10.9" width="2.7" height="1.1500000000000004" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="4.45" y="7.95" width="2.7" height="1.1499999999999995" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="7.925" y="8.1" width="4.1499999999999995" height="3.625" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="8.2" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<polygon points="7.55,10.5 7.95,10.5 7.95,12.0 7.55,12.0" fill="#ed6357" fill-opacity=".35" stroke="#a83f37" stroke-width=".05"/>
+<line x1="5.8" y1="12.5" x2="8.8625" y2="12.5" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="8.8625" y1="12.5" x2="8.8625" y2="10.95" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="5.8" y1="8.525" x2="8.8625" y2="9.05" stroke="#257b98" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="5.8" y1="11.475" x2="5.8" y2="12.5" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<text x="5.8" y="7.325" font-size=".7" text-anchor="middle">C9</text>
+<text x="10.0" y="7.75" font-size=".7" text-anchor="middle">U3</text>
+</svg>
+<text x="30" y="471" font-size="14">133.5 seconds · Run audit: pass · Independent placement/connectivity/DRC check: pass</text>
+<text x="30" y="489" font-size="19">Trial 2: initial misplaced C9, no routes</text>
+<rect x="30" y="503" width="600" height="335" fill="#fff" stroke="#d9dfe1" rx="6"/>
+<svg x="38" y="509" width="584" height="325" viewBox="0 0 30 20">
+<rect x="1" y="1" width="28" height="18" fill="none" stroke="#8e9e9a" stroke-width=".04"/>
+<rect x="19.675" y="3.375" width="4.649999999999999" height="3.25" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="22.9" y="3.65" width="1.1500000000000021" height="2.6999999999999997" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="19.95" y="3.65" width="1.1500000000000021" height="2.6999999999999997" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="7.925" y="8.1" width="4.1499999999999995" height="3.625" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="8.2" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<polygon points="7.55,10.5 7.95,10.5 7.95,12.0 7.55,12.0" fill="#ed6357" fill-opacity=".35" stroke="#a83f37" stroke-width=".05"/>
+<text x="22.0" y="3.025" font-size=".7" text-anchor="middle">C9</text>
+<text x="10.0" y="7.75" font-size=".7" text-anchor="middle">U3</text>
+</svg>
+<text x="665" y="489" font-size="19">Trial 2: final — pass, 4 total edits</text>
+<rect x="665" y="503" width="600" height="335" fill="#fff" stroke="#d9dfe1" rx="6"/>
+<svg x="673" y="509" width="584" height="325" viewBox="0 0 30 20">
+<rect x="1" y="1" width="28" height="18" fill="none" stroke="#8e9e9a" stroke-width=".04"/>
+<rect x="12.175" y="7.675" width="3.25" height="4.6499999999999995" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="12.45" y="10.9" width="2.700000000000001" height="1.1500000000000004" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="12.45" y="7.95" width="2.700000000000001" height="1.1499999999999995" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="7.925" y="8.1" width="4.1499999999999995" height="3.625" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="8.2" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<polygon points="7.55,10.5 7.95,10.5 7.95,12.0 7.55,12.0" fill="#ed6357" fill-opacity=".35" stroke="#a83f37" stroke-width=".05"/>
+<line x1="13.8" y1="11.475" x2="13.8" y2="13.0" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="13.8" y1="13.0" x2="8.8625" y2="13.0" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="8.8625" y1="13.0" x2="8.8625" y2="10.95" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="13.8" y1="7.5" x2="8.8625" y2="7.5" stroke="#257b98" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="8.8625" y1="7.5" x2="8.8625" y2="9.05" stroke="#257b98" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="13.8" y1="8.525" x2="13.8" y2="7.5" stroke="#257b98" stroke-width="0.25" stroke-linecap="round"/>
+<text x="13.8" y="7.325" font-size=".7" text-anchor="middle">C9</text>
+<text x="10.0" y="7.75" font-size=".7" text-anchor="middle">U3</text>
+</svg>
+<text x="30" y="864" font-size="14">73.7 seconds · Run audit: pass · Independent placement/connectivity/DRC check: pass</text>
+<text x="30" y="882" font-size="19">Trial 3: initial misplaced C9, no routes</text>
+<rect x="30" y="896" width="600" height="335" fill="#fff" stroke="#d9dfe1" rx="6"/>
+<svg x="38" y="902" width="584" height="325" viewBox="0 0 30 20">
+<rect x="1" y="1" width="28" height="18" fill="none" stroke="#8e9e9a" stroke-width=".04"/>
+<rect x="14.375" y="13.675" width="3.25" height="4.649999999999999" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="14.65" y="13.95" width="2.700000000000001" height="1.1500000000000004" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="14.65" y="16.9" width="2.700000000000001" height="1.1500000000000021" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="7.925" y="8.1" width="4.1499999999999995" height="3.625" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="8.2" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<polygon points="7.55,10.5 7.95,10.5 7.95,12.0 7.55,12.0" fill="#ed6357" fill-opacity=".35" stroke="#a83f37" stroke-width=".05"/>
+<text x="16.0" y="13.325000000000001" font-size=".7" text-anchor="middle">C9</text>
+<text x="10.0" y="7.75" font-size=".7" text-anchor="middle">U3</text>
+</svg>
+<text x="665" y="882" font-size="19">Trial 3: final — pass, 3 total edits</text>
+<rect x="665" y="896" width="600" height="335" fill="#fff" stroke="#d9dfe1" rx="6"/>
+<svg x="673" y="902" width="584" height="325" viewBox="0 0 30 20">
+<rect x="1" y="1" width="28" height="18" fill="none" stroke="#8e9e9a" stroke-width=".04"/>
+<rect x="3.375" y="7.675" width="3.25" height="4.6499999999999995" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="3.65" y="10.9" width="2.6999999999999997" height="1.1500000000000004" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="3.65" y="7.95" width="2.6999999999999997" height="1.1499999999999995" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="7.925" y="8.1" width="4.1499999999999995" height="3.625" fill="none" stroke="#9ba7ad" stroke-width=".025" stroke-dasharray=".12 .12"/>
+<rect x="8.2" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#b3d7e3" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="8.2" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="10.65" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="9.7" width="1.325000000000001" height="0.6000000000000014" fill="#e6d29f" stroke="#87969d" stroke-width=".02"/>
+<rect x="10.475" y="8.75" width="1.325000000000001" height="0.5999999999999996" fill="#c5cccf" stroke="#87969d" stroke-width=".02"/>
+<polygon points="7.55,10.5 7.95,10.5 7.95,12.0 7.55,12.0" fill="#ed6357" fill-opacity=".35" stroke="#a83f37" stroke-width=".05"/>
+<line x1="5.0" y1="12.5" x2="8.8625" y2="12.5" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="5.0" y1="8.525" x2="8.8625" y2="9.05" stroke="#257b98" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="8.8625" y1="12.5" x2="8.8625" y2="10.95" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<line x1="5.0" y1="11.475" x2="5.0" y2="12.5" stroke="#b27f16" stroke-width="0.25" stroke-linecap="round"/>
+<text x="5.0" y="7.325" font-size=".7" text-anchor="middle">C9</text>
+<text x="10.0" y="7.75" font-size=".7" text-anchor="middle">U3</text>
+</svg>
+<text x="30" y="1257" font-size="14">155.2 seconds · Run audit: pass · Independent placement/connectivity/DRC check: pass</text>
+<text x="30" y="1277" font-size="13">Native coordinates and copper widths. Pads are bounding boxes; dashed boxes show footprint bounds. Illustrative diagram, not a validator.</text>
+</svg>

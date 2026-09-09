@@ -1,0 +1,81 @@
+{
+  "status": "qualified",
+  "scope": "two_routes_one_keepout",
+  "contract_sha256": "d49884701520afd9007cd306d6014726102bfd9a01cc4d400244db64d6f21608",
+  "cases": [
+    {
+      "case": "blank",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "native-keepout-context",
+      "actual": "pass"
+    },
+    {
+      "case": "direct-route-blocked",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "detour-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "detour-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "detour-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "centerline-clear-copper-intrudes",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "deleted-keepout",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "disabled-keepout",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "native-feedback-repair-remove-replace",
+      "actual": "pass"
+    }
+  ],
+  "native_keepout_violation_type": "items_not_allowed",
+  "source_sha256": {
+    "Cargo.lock": "dd29ceaa655bb50f2005aead04ff6e67bac9d1a5ee63f7d403420b20bf6d8d06",
+    "build_combined.py": "60fcdb155dd8a10b2f61b2865a7e1a10a437de0ddc4959b0b879c7e4d5a62716",
+    "build_obstacle.py": "e95479ad35d05c81a2207a63025b7cb8c4bbe4396b8e818cc648bdbcaab807e7",
+    "build_repair.py": "84738df471d5761f5559e5acb96ab5237e34a7cc03fbe674420ed7c1dca15c0f",
+    "combined_host.py": "bac5c68d565e126ba2dac0f312f44d2360d2086826e161170fab4958855d544d",
+    "combined_native.py": "9de339272deb5efca67c03cdaf1adb18965dd100aa6a1550dd94af0ea9282cb6",
+    "harness.py": "f40eae739cf4fdc022d222d7736f7ab2ffc78b7b3fba32a2c75168f3866d3794",
+    "native.py": "dab7abaef33481ab4ca8c7603250431d1ad3fc9b5a8c3f614df18453ef56b7ec",
+    "qualify.py": "261f544d6b38fa19dba2741a370edcfd369ffd02b6240a0bb726f9e9ecac0197",
+    "qualify_combined.py": "3037c367ca9ba60f05bb89cd04d29b8640622424d2482fccc1622e44a151eb19",
+    "qualify_obstacle.py": "ea0db533feda52002f14e763153559d983b606a37775d1f60259e9aa65510139",
+    "qualify_repair.py": "dab57b2c34029e4744259951340c02ad5e76e2b45c2966016ff4c6ed41ff7469",
+    "qualify_routing.py": "0b033a8c05326157927d47278608871f21a4afef84cde7041095fe8230acccf5",
+    "routing_host.py": "122131c7687f6e668ebd3439a7586dc7b4546f1e7eedf48b7c05697a67d4b225",
+    "routing_native.py": "1b7577db7014ea75efc6be1e8e444f610d7da707b272825233e211de9ba51c2a",
+    "run_trials.py": "b52ece2cd5906e3884cbb7ea1606ec44b53af1f83d3203216918f49831c8fc3b",
+    "run_zen_trials.py": "fef09f869ef0a808737987b407e10c61ee82e27f2655048fae9324d6a864718e",
+    "src/main.rs": "903597b9393dfceae7f73aa911ee9947a1dfab20bdfb294cac260fb331811712",
+    "src/routing.rs": "822fa3be4cb43eb30b975a3404203c24cefc335f62dcf5a534594a4dba7d4d7e",
+    "test_combined_boundary.py": "e537e1913c2196b900a933bf8a7b7ac686fbff5ccb992e173fee010d84604a86",
+    "test_routing_boundary.py": "8a01856d9e0eeea7f4f7d116857b582bfd3e662096f1a221948aaeb121e3a826",
+    "test_zen_runner.py": "b977d83662bba31f270a6ca5143ccff5d95851ab7f49b15dc4946291cab50e66"
+  },
+  "evaluator_sha256": "91bf8002bb8089e53790b16a4c921b9eecd49c06a1c4755f1010b5f243915ff0"
+}

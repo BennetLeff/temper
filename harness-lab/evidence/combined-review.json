@@ -1,0 +1,49 @@
+{
+  "scope_base": "69d9542a7",
+  "pre_fix_tree": "clean",
+  "review": "parent-local sequential implementation and evidence review",
+  "scope": [
+    "harness.py",
+    "run_zen_trials.py",
+    "combined_host.py",
+    "combined_native.py",
+    "build_combined.py",
+    "qualify_combined.py",
+    "test_combined_boundary.py",
+    "fixtures/e00pr",
+    "fixtures/combined-contract.json"
+  ],
+  "checks": {
+    "combined_controls": 13,
+    "placement_regression": 19,
+    "routing_regression": 23,
+    "obstacle_regression": 10,
+    "repair_starts": 3,
+    "python_tests": 22,
+    "rust_tests": 2,
+    "lint_format_compile_diff": "pass"
+  },
+  "protected_identity": "Only C9 pose and inventoried copper normalized; native negative controls verify U3, pad geometry/nets, keepout and rules remain protected.",
+  "movement_semantics": "Native census unchanged after placement, including deliberately wrong raw track net; moving away breaks connectivity and moving back restores it.",
+  "shared_budget": "Ten alternating placements/routes exhaust one counter; all three edit types rejected thereafter without mutation.",
+  "probe_note": "Initial qualification probe incorrectly attempted NaN in a strict JSON action log. Corrected the test expectation: non-JSON input raises before mutation, covered by unit test; native controls were not weakened.",
+  "residuals": [],
+  "limits": [
+    "Three known starts on one two-footprint circuit, not held-out generalization.",
+    "No optimality or feedback-causality claim.",
+    "No fabrication/electrical sign-off."
+  ],
+  "rust_judge_unchanged": true,
+  "post_run_verification": {
+    "three_full_run_passes": true,
+    "three_independent_board_passes": true,
+    "total_edits": [
+      3,
+      4,
+      3
+    ],
+    "source_hashes_current": true,
+    "archives_read_back": true,
+    "diagram": "Native coordinates/widths; XML checked and complete square Quick Look preview visually inspected."
+  }
+}

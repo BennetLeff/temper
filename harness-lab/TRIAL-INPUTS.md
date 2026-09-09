@@ -90,3 +90,17 @@ prompt, tool catalog, frozen contract and all three initial observations.
 [The plan](REPAIR-EXPERIMENT.md) states exact acceptance and limits. The model
 receives only the unchanged prompt and normal tool outputs for its own start;
 case diagnoses, scripted reference repairs and other trials are not supplied.
+
+## Combined placement and routing 00PR
+
+The user approved continuing to combined U3/C9 placement and routing with
+**“that all looks great, continue”** on September 9. Use the same Muse Spark
+1.3 Contributor Free model through OpenCode Zen under the accepted Contributor
+terms, for one inspection preflight and three sequential five-minute trials.
+The new tool catalog adds C9 placement to inspect/route/remove/check; all
+edits share one ten-edit budget. Native placement leaves existing copper fixed.
+
+[Prepared inputs](evidence/combined-trial-inputs.json) and [the predeclared
+plan](COMBINED-EXPERIMENT.md) record the exact tools, constraints and three
+initial board observations. Only the trial's current state is shown to the
+model. Scripted witness poses and routes from qualification are withheld.

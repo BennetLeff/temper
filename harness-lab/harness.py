@@ -227,7 +227,7 @@ class Session:
             self.edits += 1
             staging = self.directory / "next.kicad_pcb"
             shutil.copyfile(self.board, staging)
-            native("place", staging, x, y, angle)
+            native("place", staging, x, y, angle, adapter=self.adapter)
             os.replace(staging, self.board)
             self.last_hash = file_hash(self.board)
         elif name not in ("inspect", "check") or arguments:

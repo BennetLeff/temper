@@ -17,6 +17,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import combined_host
 import harness
 import routing_host
 from run_trials import INSTRUCTIONS, PREFLIGHT_PROMPT, PROMPT, audit, require
@@ -233,9 +234,11 @@ def configuration(
     preflight: bool = False,
     routing: bool = False,
     routing_fixture: str = "e00r",
+    combined: bool = False,
 ) -> dict:
     model = "opencode/" + MODEL
-    tools = routing_host.TOOLS if routing else harness.TOOLS
+    task = combined_host if combined else routing_host if routing else harness
+    tools = task.TOOLS
     host = (
         (
             [str(routing_host.ROOT / "routing_host.py"), "--fixture", routing_fixture]
@@ -248,7 +251,11 @@ def configuration(
             else [str(harness.ROOT / "harness.py")]
         )
     )
-    instructions = routing_host.INSTRUCTIONS if routing else INSTRUCTIONS
+    if combined:
+        host = [str(combined_host.ROOT / "combined_host.py")] + (
+            ["--inspect-only"] if preflight else []
+        )
+    instructions = task.INSTRUCTIONS if routing or combined else INSTRUCTIONS
     return {
         "model": model,
         "small_model": model,
@@ -436,15 +443,18 @@ def run(
     preflight_receipt: Path | None,
     routing: bool = False,
     routing_fixture: str = "e00r",
+    combined: bool = False,
 ) -> None:
-    task = routing_host if routing else harness
+    task = combined_host if combined else routing_host if routing else harness
     contract_path = (
         routing_host.CONTRACTS[routing_fixture]
         if routing
         else harness.ROOT / "fixtures/contract.json"
     )
-    instructions = routing_host.INSTRUCTIONS if routing else INSTRUCTIONS
-    prompt = routing_host.PROMPT if routing else PROMPT
+    if combined:
+        contract_path = combined_host.CONTRACT
+    instructions = task.INSTRUCTIONS if routing or combined else INSTRUCTIONS
+    prompt = task.PROMPT if routing or combined else PROMPT
     receipt = json.loads(qualification.read_text())
     contract = json.loads(contract_path.read_text())
     require(receipt["status"] == "qualified", "Unqualified apparatus")
@@ -529,6 +539,7 @@ def run(
                     preflight,
                     routing,
                     routing_fixture,
+                    combined,
                 )
                 (directory / "config.json").write_text(json.dumps(config, indent=2))
                 command = [
@@ -591,9 +602,15 @@ def run(
                 elapsed,
                 returncode,
                 contract,
-                edit_operations=("route", "remove_route") if routing else ("place",),
+                edit_operations=("place", "route", "remove_route")
+                if combined
+                else ("route", "remove_route")
+                if routing
+                else ("place",),
             )
-            if routing:
+            if combined:
+                checked["total_edits"] = checked.pop("placement_edits")
+            elif routing:
                 checked["routing_edits"] = checked.pop("placement_edits")
             if preflight:
                 calls = [e for e in normalized if e["type"] == "item.completed"]
@@ -616,6 +633,10 @@ def run(
                     directory, contract, directory / "host-final-check"
                 )
                 checked["independent_host_check"] = verification
+                if combined:
+                    checked["combined"] = combined_host.audit_combined(
+                        directory, start, contract
+                    )
                 if routing and "repair_cases" in contract:
                     checked["repair"] = routing_host.audit_repair(
                         directory, start, contract
@@ -652,7 +673,11 @@ def run(
                     "status": result["status"],
                     "elapsed_s": elapsed,
                     "edits": result.get(
-                        "routing_edits" if routing else "placement_edits"
+                        "total_edits"
+                        if combined
+                        else "routing_edits"
+                        if routing
+                        else "placement_edits"
                     ),
                     "error": result.get("error"),
                 }
@@ -704,7 +729,9 @@ if __name__ == "__main__":
     parser.add_argument("output", type=Path)
     parser.add_argument("--qualification", type=Path, required=True)
     parser.add_argument("--preflight", action="store_true")
-    parser.add_argument("--routing", action="store_true")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--routing", action="store_true")
+    modes.add_argument("--combined", action="store_true")
     parser.add_argument(
         "--routing-fixture", choices=sorted(routing_host.CONTRACTS), default="e00r"
     )
@@ -719,4 +746,5 @@ if __name__ == "__main__":
         args.preflight_receipt,
         args.routing,
         args.routing_fixture,
+        args.combined,
     )
