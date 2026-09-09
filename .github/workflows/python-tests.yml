@@ -4833,79 +4833,21 @@ jobs:
           --deselect tests/validation/test_ucc21550_contract_pbt.py::test_schematic_keeps_fault_qualified_set_dominant_wiring
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
-  closure:
-    name: Pipeline Closure Test (Truth-Gated)
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/bennetleff/temper-ci:latest
-      options: --user root
-    timeout-minutes: 20
-    # Its sole substantive step carries continue-on-error, so it cannot fail
-    # any build on any trigger. Not in required-checks.json's
-    # required_contexts.
-    #
-    # NARROWED 2026-08-11 (docs/evidence/2026-08-11-python-ci-load-inventory.md):
-    # was `if: github.event_name != 'pull_request'` (every push to main, not
-    # just PRs -- ~159 executing pushes/week x ~11 min, the single most
-    # expensive masked job in this workflow, for a step nothing can act on).
-    # Moved to schedule/workflow_dispatch only; nightly cadence (and the
-    # artifact upload below, still `if: always()`) unchanged.
-    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-    env:
-      VIRTUAL_ENV: /_temper-venv
-      UV_PROJECT_ENVIRONMENT: /_temper-venv
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-          enable-cache: true
-
-      - name: Install dependencies
-        run: uv sync --all-packages
-
-      - name: Cache netlist
-        id: cache-netlist
-        uses: actions/cache@v6
-        with:
-          path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
-
-      - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
-        run: make netlist
-
-      # Still genuinely failing, verified 2026-08-07: `uv run python3
-      # scripts/ci_closure_test.py --pcb pcb/temper.kicad_pcb --output ...`
-      # -> exit 1, "Status: FAIL", "benders_iterations <= 0", "All
-      # strategies exhausted for phase='placement': ['template',
-      # 'template']". The stated reason ("observability merge race") does
-      # not match: the real cause is ci_closure_test.py's PlacementStage
-      # adapter still calling the removed JAX/benders_loop backend
-      # (packages/temper-placer/src/temper_placer/adapters/
-      # register_strategies.py:44, raises NotImplementedError) instead of
-      # the CP-SAT deterministic placer -- same root cause independently
-      # confirmed on the equivalent step in metrics-record.yml. `temper-N6-
-      # U8` is a placeholder ticket id shared across ~27 masks (see
-      # docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md), not a
-      # real reference. Tolerated until that adapter migration lands (same
-      # blocker as metrics-record.yml's "Run closure test" step);
-      # hard-failing now would turn this job red on every push for a known,
-      # unrelated-to-this-PR reason.
-      - name: Run closure test (truth-gated)
-        run: >
-          uv run python3 scripts/ci_closure_test.py
-          --pcb pcb/temper.kicad_pcb
-          --output closure-result.json
-        continue-on-error: true
-
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: closure-result
-          path: closure-result.json
+# RETIRED 2026-09-09: the `closure` job ("Pipeline Closure Test (Truth-Gated)")
+# ran scripts/ci_closure_test.py nightly on schedule/workflow_dispatch. Its sole
+# substantive step carried `continue-on-error: true` (so it could never fail any
+# build), it was never in `.github/required-checks.json`'s required_contexts
+# (removed 2026-08-03), and its `closure-result` artifact had no consumer
+# anywhere in the repo. The step was red on every schedule run (verified
+# 2026-09-09: "Status: FAIL", exit code 1) -- first via the retired
+# JAX/benders_loop adapter, then, after bad5bfa51 (2026-08-28) migrated
+# closure_test.py to the CP-SAT deterministic placer, via the job's env never
+# building the temper-constraints extension. A job that cannot fail a build,
+# is not a required context, and whose output nothing reads is decoration that
+# costs runner slots and buys no safety (same reasoning as the 2026-08-03
+# required-contexts removal note). The closure test itself is not removed: it
+# still runs on every push to main via metrics-record.yml's "Run closure test"
+# step (whose closure-result.json feeds the live pipeline-metrics recorder).
 
 # RETIRED 2026-07-27: the `regression` job ("Performance & Quality Regression")
 # had exactly two gates, `make regression` and `make perf-regression`, and both
