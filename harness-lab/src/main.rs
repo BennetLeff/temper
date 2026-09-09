@@ -4,6 +4,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::io;
 
+mod buck;
 mod routing;
 
 #[derive(Deserialize)]
@@ -242,8 +243,19 @@ fn evaluate(input: Input) -> Result<Value> {
 }
 
 fn run() -> Result<Value> {
-    let input: Input =
+    let raw: Value =
         serde_json::from_reader(io::stdin().lock()).context("invalid measurement input")?;
+    if raw
+        .get("contract")
+        .and_then(|c| c.get("profile"))
+        .and_then(Value::as_str)
+        == Some("buck")
+    {
+        let input: buck::Input =
+            serde_json::from_value(raw).context("invalid buck measurement input")?;
+        return buck::evaluate(input);
+    }
+    let input: Input = serde_json::from_value(raw).context("invalid measurement input")?;
     evaluate(input)
 }
 

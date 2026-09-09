@@ -1,0 +1,456 @@
+{
+  "experiment": "buck-3v3",
+  "profile": "buck",
+  "version": 1,
+  "kicad_version": "10.0.4",
+  "outline_mm": [
+    0.0,
+    0.0,
+    50.0,
+    40.0
+  ],
+  "copper_layers": 2,
+  "supported_layers": [
+    "F.Cu",
+    "B.Cu"
+  ],
+  "allowed_copper_kinds": [
+    "segment",
+    "via",
+    "zone"
+  ],
+  "min_power_width_mm": 0.6,
+  "min_signal_width_mm": 0.3,
+  "power_nets": [
+    "+15V",
+    "gnd",
+    "sw",
+    "+3V3"
+  ],
+  "signal_nets": [
+    "boot",
+    "fb"
+  ],
+  "rules": {
+    "min_clearance_mm": 0.2,
+    "min_copper_edge_clearance_mm": 0.2,
+    "via_diameter_mm": 0.8,
+    "via_drill_mm": 0.4
+  },
+  "source": {
+    "board": "pcb/temper.kicad_pcb",
+    "board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "schematic_module": "elec/src/modules.ato:BuckConverter3V3",
+    "enable_note": "U3 enable (EN/U3.5) is tied to +15V; no separate enable net"
+  },
+  "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "pad_census": {
+    "C10": 2,
+    "C11": 2,
+    "C12": 2,
+    "C13": 2,
+    "C9": 2,
+    "J1": 2,
+    "J2": 2,
+    "J3": 2,
+    "L2": 2,
+    "R16": 2,
+    "R17": 2,
+    "U3": 6
+  },
+  "net_mapping": {
+    "C10.1": "boot",
+    "C10.2": "sw",
+    "C11.1": "+3V3",
+    "C11.2": "gnd",
+    "C12.1": "+3V3",
+    "C12.2": "gnd",
+    "C13.1": "+3V3",
+    "C13.2": "gnd",
+    "C9.1": "+15V",
+    "C9.2": "gnd",
+    "J1.1": "+15V",
+    "J1.2": "+15V",
+    "J2.1": "gnd",
+    "J2.2": "gnd",
+    "J3.1": "+3V3",
+    "J3.2": "+3V3",
+    "L2.1": "sw",
+    "L2.2": "+3V3",
+    "R16.1": "+3V3",
+    "R16.2": "fb",
+    "R17.1": "fb",
+    "R17.2": "gnd",
+    "U3.1": "gnd",
+    "U3.2": "sw",
+    "U3.3": "+15V",
+    "U3.4": "fb",
+    "U3.5": "+15V",
+    "U3.6": "boot"
+  },
+  "obligations": {
+    "+15V": [
+      "C9.1",
+      "U3.3",
+      "U3.5",
+      "J1.1",
+      "J1.2"
+    ],
+    "gnd": [
+      "C9.2",
+      "C11.2",
+      "C12.2",
+      "C13.2",
+      "R17.2",
+      "U3.1",
+      "J2.1",
+      "J2.2"
+    ],
+    "sw": [
+      "U3.2",
+      "C10.2",
+      "L2.1"
+    ],
+    "boot": [
+      "U3.6",
+      "C10.1"
+    ],
+    "fb": [
+      "U3.4",
+      "R16.2",
+      "R17.1"
+    ],
+    "+3V3": [
+      "L2.2",
+      "C11.1",
+      "C12.1",
+      "C13.1",
+      "R16.1",
+      "J3.1",
+      "J3.2"
+    ]
+  },
+  "checks": {
+    "input_locality_max_mm": 8.0,
+    "boot_locality_max_mm": 6.0,
+    "output_locality_max_mm": 14.0,
+    "fb_locality_max_mm": 10.0,
+    "fb_pair_max_mm": 6.0,
+    "fb_sw_separation_min_mm": 1.0,
+    "ground_return_max_mm": 4.0
+  },
+  "variants": [
+    {
+      "id": "buck-dev-a",
+      "split": "development",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            18.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            21.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            18.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          22.0,
+          30.0,
+          0
+        ],
+        "C11": [
+          28.0,
+          30.0,
+          0
+        ],
+        "C12": [
+          10.0,
+          35.0,
+          0
+        ],
+        "C13": [
+          16.0,
+          35.0,
+          0
+        ],
+        "C9": [
+          16.0,
+          30.0,
+          0
+        ],
+        "L2": [
+          42.0,
+          32.0,
+          0
+        ],
+        "R16": [
+          22.0,
+          35.0,
+          0
+        ],
+        "R17": [
+          28.0,
+          35.0,
+          0
+        ],
+        "U3": [
+          10.0,
+          30.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "cdb5fafef061b08d2933f3706ed3be79d3597c1d8b3e0de0cb03cc61a1d59b6c",
+      "witness_board_sha256": "83f754360019ddfbaf01d5be31fe52856669d0354684d29ff17d8064187117d2",
+      "protected_sha256": "e07cf8a38c9066662c222a56ab5304ab0b2659b5b3230561f6c21e3efbc8d2d6",
+      "context_sha256": "44b173bd8fc8789ddbd34530fa612cf80a8ff6d4643fea0c5e01612c49834e04"
+    },
+    {
+      "id": "buck-dev-b",
+      "split": "development",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            10.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            13.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            28.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          24.0,
+          32.0,
+          0
+        ],
+        "C11": [
+          30.0,
+          32.0,
+          0
+        ],
+        "C12": [
+          12.0,
+          37.0,
+          0
+        ],
+        "C13": [
+          18.0,
+          37.0,
+          0
+        ],
+        "C9": [
+          18.0,
+          32.0,
+          0
+        ],
+        "L2": [
+          40.0,
+          30.0,
+          0
+        ],
+        "R16": [
+          24.0,
+          37.0,
+          0
+        ],
+        "R17": [
+          30.0,
+          37.0,
+          0
+        ],
+        "U3": [
+          12.0,
+          32.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "e6e650a143f4b0956f4fe6ae3d409aae071f20511761906f9d705f9282f4a9f2",
+      "witness_board_sha256": "032f1697989b0ae56eb7bfcc2a97a03b196602bd433cc7e032c7d35b1836d59f",
+      "protected_sha256": "a81fa2ad644c03633ce7ebe02492c71aeee03d7b16ff2350b7463599e39cbef5",
+      "context_sha256": "347edda0d54508a2019b9252a84667bc22085d665f6b066b283a45cd3c412aa3"
+    },
+    {
+      "id": "buck-res-a",
+      "split": "reserved",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            26.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            29.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            32.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          22.0,
+          32.0,
+          0
+        ],
+        "C11": [
+          28.0,
+          32.0,
+          0
+        ],
+        "C12": [
+          34.0,
+          32.0,
+          0
+        ],
+        "C13": [
+          16.0,
+          37.0,
+          0
+        ],
+        "C9": [
+          16.0,
+          32.0,
+          0
+        ],
+        "L2": [
+          42.0,
+          30.0,
+          0
+        ],
+        "R16": [
+          22.0,
+          37.0,
+          0
+        ],
+        "R17": [
+          28.0,
+          37.0,
+          0
+        ],
+        "U3": [
+          10.0,
+          32.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "b12f0299090cf0fa10448241d564ffcf1df8cbc811aa475884bbae750f7c3223",
+      "witness_board_sha256": "0e7fd7854170dfffdfce4322ecb8dcfb67d411dd69c363768156b31b8283d939",
+      "protected_sha256": "aacb156a1a2a4802be903302d4afc7a16425f2cbc662533fcc5d573bf8fe094e",
+      "context_sha256": "2f9ffbcf5e820df8b9513cb657b24eb4a5c477e16cd4df29afa384b94dbcb197"
+    },
+    {
+      "id": "buck-res-b",
+      "split": "reserved",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            32.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            35.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            10.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          26.0,
+          30.0,
+          0
+        ],
+        "C11": [
+          32.0,
+          30.0,
+          0
+        ],
+        "C12": [
+          14.0,
+          35.0,
+          0
+        ],
+        "C13": [
+          20.0,
+          35.0,
+          0
+        ],
+        "C9": [
+          20.0,
+          30.0,
+          0
+        ],
+        "L2": [
+          44.0,
+          34.0,
+          0
+        ],
+        "R16": [
+          26.0,
+          35.0,
+          0
+        ],
+        "R17": [
+          32.0,
+          35.0,
+          0
+        ],
+        "U3": [
+          14.0,
+          30.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "212905742139f4bfcc2b4d7dd3508f01e9c97d490f521dfd2b68278f59e369c2",
+      "witness_board_sha256": "913a83fd1c1ac8d3631441c7c5791a9a3d7f4c3374b13b60aa8ff78d11059bb7",
+      "protected_sha256": "7cb1454f058a662dddcb2ecd10ebb49b3ff1573082a1e2086e9a480e1ae9afbc",
+      "context_sha256": "b66b410552843726549d1f72b5fd17ab8a660605e537bd7e6390633e642a62c8"
+    }
+  ]
+}

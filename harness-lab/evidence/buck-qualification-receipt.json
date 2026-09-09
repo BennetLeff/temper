@@ -1,0 +1,556 @@
+{
+  "status": "qualified",
+  "scope": "buck_3v3",
+  "rerun": "python3 harness-lab/qualify_buck.py harness-lab/runs/<fresh-output>",
+  "kicad_version": "10.0.4",
+  "variants": {
+    "buck-dev-a": {
+      "id": "buck-dev-a",
+      "split": "development",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            18.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            21.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            18.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          22.0,
+          30.0,
+          0
+        ],
+        "C11": [
+          28.0,
+          30.0,
+          0
+        ],
+        "C12": [
+          10.0,
+          35.0,
+          0
+        ],
+        "C13": [
+          16.0,
+          35.0,
+          0
+        ],
+        "C9": [
+          16.0,
+          30.0,
+          0
+        ],
+        "L2": [
+          42.0,
+          32.0,
+          0
+        ],
+        "R16": [
+          22.0,
+          35.0,
+          0
+        ],
+        "R17": [
+          28.0,
+          35.0,
+          0
+        ],
+        "U3": [
+          10.0,
+          30.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "cdb5fafef061b08d2933f3706ed3be79d3597c1d8b3e0de0cb03cc61a1d59b6c",
+      "witness_board_sha256": "83f754360019ddfbaf01d5be31fe52856669d0354684d29ff17d8064187117d2",
+      "protected_sha256": "e07cf8a38c9066662c222a56ab5304ab0b2659b5b3230561f6c21e3efbc8d2d6",
+      "context_sha256": "44b173bd8fc8789ddbd34530fa612cf80a8ff6d4643fea0c5e01612c49834e04"
+    },
+    "buck-dev-b": {
+      "id": "buck-dev-b",
+      "split": "development",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            10.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            13.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            28.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          24.0,
+          32.0,
+          0
+        ],
+        "C11": [
+          30.0,
+          32.0,
+          0
+        ],
+        "C12": [
+          12.0,
+          37.0,
+          0
+        ],
+        "C13": [
+          18.0,
+          37.0,
+          0
+        ],
+        "C9": [
+          18.0,
+          32.0,
+          0
+        ],
+        "L2": [
+          40.0,
+          30.0,
+          0
+        ],
+        "R16": [
+          24.0,
+          37.0,
+          0
+        ],
+        "R17": [
+          30.0,
+          37.0,
+          0
+        ],
+        "U3": [
+          12.0,
+          32.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "e6e650a143f4b0956f4fe6ae3d409aae071f20511761906f9d705f9282f4a9f2",
+      "witness_board_sha256": "032f1697989b0ae56eb7bfcc2a97a03b196602bd433cc7e032c7d35b1836d59f",
+      "protected_sha256": "a81fa2ad644c03633ce7ebe02492c71aeee03d7b16ff2350b7463599e39cbef5",
+      "context_sha256": "347edda0d54508a2019b9252a84667bc22085d665f6b066b283a45cd3c412aa3"
+    },
+    "buck-res-a": {
+      "id": "buck-res-a",
+      "split": "reserved",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            26.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            29.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            32.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          22.0,
+          32.0,
+          0
+        ],
+        "C11": [
+          28.0,
+          32.0,
+          0
+        ],
+        "C12": [
+          34.0,
+          32.0,
+          0
+        ],
+        "C13": [
+          16.0,
+          37.0,
+          0
+        ],
+        "C9": [
+          16.0,
+          32.0,
+          0
+        ],
+        "L2": [
+          42.0,
+          30.0,
+          0
+        ],
+        "R16": [
+          22.0,
+          37.0,
+          0
+        ],
+        "R17": [
+          28.0,
+          37.0,
+          0
+        ],
+        "U3": [
+          10.0,
+          32.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "b12f0299090cf0fa10448241d564ffcf1df8cbc811aa475884bbae750f7c3223",
+      "witness_board_sha256": "0e7fd7854170dfffdfce4322ecb8dcfb67d411dd69c363768156b31b8283d939",
+      "protected_sha256": "aacb156a1a2a4802be903302d4afc7a16425f2cbc662533fcc5d573bf8fe094e",
+      "context_sha256": "2f9ffbcf5e820df8b9513cb657b24eb4a5c477e16cd4df29afa384b94dbcb197"
+    },
+    "buck-res-b": {
+      "id": "buck-res-b",
+      "split": "reserved",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            32.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            35.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            10.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          26.0,
+          30.0,
+          0
+        ],
+        "C11": [
+          32.0,
+          30.0,
+          0
+        ],
+        "C12": [
+          14.0,
+          35.0,
+          0
+        ],
+        "C13": [
+          20.0,
+          35.0,
+          0
+        ],
+        "C9": [
+          20.0,
+          30.0,
+          0
+        ],
+        "L2": [
+          44.0,
+          34.0,
+          0
+        ],
+        "R16": [
+          26.0,
+          35.0,
+          0
+        ],
+        "R17": [
+          32.0,
+          35.0,
+          0
+        ],
+        "U3": [
+          14.0,
+          30.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "212905742139f4bfcc2b4d7dd3508f01e9c97d490f521dfd2b68278f59e369c2",
+      "witness_board_sha256": "913a83fd1c1ac8d3631441c7c5791a9a3d7f4c3374b13b60aa8ff78d11059bb7",
+      "protected_sha256": "7cb1454f058a662dddcb2ecd10ebb49b3ff1573082a1e2086e9a480e1ae9afbc",
+      "context_sha256": "b66b410552843726549d1f72b5fd17ab8a660605e537bd7e6390633e642a62c8"
+    }
+  },
+  "witness_passes": {
+    "buck-dev-a": 3,
+    "buck-dev-b": 3,
+    "buck-res-a": 3,
+    "buck-res-b": 3
+  },
+  "cases": [
+    {
+      "case": "buck-dev-a-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-a-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-a-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-b-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-b-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-b-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-a-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-a-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-a-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-b-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-b-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-b-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-a-missing-terminal-connection",
+      "expected": "fail",
+      "required_id": "unrouted:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-wrong-raw-copper-net",
+      "expected": "fail",
+      "required_id": "wrong_net:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-moved-protected-terminal",
+      "expected": "fail",
+      "required_id": "terminal_moved:J1",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-changed-rules",
+      "expected": "fail",
+      "required_id": "protected_context_changed",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-b-missing-terminal-connection",
+      "expected": "fail",
+      "required_id": "unrouted:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-b-wrong-raw-copper-net",
+      "expected": "fail",
+      "required_id": "wrong_net:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-b-moved-protected-terminal",
+      "expected": "fail",
+      "required_id": "terminal_moved:J1",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-b-changed-rules",
+      "expected": "fail",
+      "required_id": "protected_context_changed",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-a-missing-terminal-connection",
+      "expected": "fail",
+      "required_id": "unrouted:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-a-wrong-raw-copper-net",
+      "expected": "fail",
+      "required_id": "wrong_net:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-a-moved-protected-terminal",
+      "expected": "fail",
+      "required_id": "terminal_moved:J1",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-a-changed-rules",
+      "expected": "fail",
+      "required_id": "protected_context_changed",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-b-missing-terminal-connection",
+      "expected": "fail",
+      "required_id": "unrouted:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-b-wrong-raw-copper-net",
+      "expected": "fail",
+      "required_id": "wrong_net:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-b-moved-protected-terminal",
+      "expected": "fail",
+      "required_id": "terminal_moved:J1",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-b-changed-rules",
+      "expected": "fail",
+      "required_id": "protected_context_changed",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-short",
+      "expected": "fail",
+      "required_id": "kicad:shorting_items:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-clearance",
+      "expected": "fail",
+      "required_id": "kicad:clearance:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-outside-footprint",
+      "expected": "fail",
+      "required_id": "outside_outline:C9",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-drc-clean-locality",
+      "expected": "fail",
+      "required_id": "input_locality:",
+      "actual": "fail"
+    },
+    {
+      "case": "missing-buck-evidence",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "truncated-connectivity",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "native-remove-replace-gnd-spine",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-budgets-invalid-inputs-preflight",
+      "actual": "pass"
+    }
+  ],
+  "contract_sha256": "245787268137b99872bebf3c3a33fa2f390625cbf4c5619263d20a7898472d4b",
+  "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "source_sha256": {
+    "Cargo.lock": "dd29ceaa655bb50f2005aead04ff6e67bac9d1a5ee63f7d403420b20bf6d8d06",
+    "buck_native.py": "b28488f6b6cf5ded4b6f5558fd552cf93163595d23c43a2dd532e383d9dbd2f1",
+    "build_buck.py": "e7b8bdd8f45ca71e626d79a21d4e2b49c45f29037e78782fce0c1c656c373508",
+    "build_combined.py": "60fcdb155dd8a10b2f61b2865a7e1a10a437de0ddc4959b0b879c7e4d5a62716",
+    "build_obstacle.py": "e95479ad35d05c81a2207a63025b7cb8c4bbe4396b8e818cc648bdbcaab807e7",
+    "build_repair.py": "84738df471d5761f5559e5acb96ab5237e34a7cc03fbe674420ed7c1dca15c0f",
+    "combined_host.py": "bac5c68d565e126ba2dac0f312f44d2360d2086826e161170fab4958855d544d",
+    "combined_native.py": "9de339272deb5efca67c03cdaf1adb18965dd100aa6a1550dd94af0ea9282cb6",
+    "harness.py": "f40eae739cf4fdc022d222d7736f7ab2ffc78b7b3fba32a2c75168f3866d3794",
+    "native.py": "dab7abaef33481ab4ca8c7603250431d1ad3fc9b5a8c3f614df18453ef56b7ec",
+    "qualify.py": "261f544d6b38fa19dba2741a370edcfd369ffd02b6240a0bb726f9e9ecac0197",
+    "qualify_buck.py": "adc450d5b4a114e6f2008104a43d62ec670b5b055df5bb21e0b915ae87b73f3b",
+    "qualify_combined.py": "3037c367ca9ba60f05bb89cd04d29b8640622424d2482fccc1622e44a151eb19",
+    "qualify_obstacle.py": "ea0db533feda52002f14e763153559d983b606a37775d1f60259e9aa65510139",
+    "qualify_repair.py": "dab57b2c34029e4744259951340c02ad5e76e2b45c2966016ff4c6ed41ff7469",
+    "qualify_routing.py": "0b033a8c05326157927d47278608871f21a4afef84cde7041095fe8230acccf5",
+    "routing_host.py": "122131c7687f6e668ebd3439a7586dc7b4546f1e7eedf48b7c05697a67d4b225",
+    "routing_native.py": "1b7577db7014ea75efc6be1e8e444f610d7da707b272825233e211de9ba51c2a",
+    "run_trials.py": "b52ece2cd5906e3884cbb7ea1606ec44b53af1f83d3203216918f49831c8fc3b",
+    "run_zen_trials.py": "fef09f869ef0a808737987b407e10c61ee82e27f2655048fae9324d6a864718e",
+    "src/buck.rs": "e8df7f1a237166df65c1d8986d463643dff56667d0d97360c93e3db5b7b57152",
+    "src/main.rs": "9b4f008fa32d5eeaf112bbfa75157798228aca43afe95326c0c7f487717c7f7c",
+    "src/routing.rs": "822fa3be4cb43eb30b975a3404203c24cefc335f62dcf5a534594a4dba7d4d7e",
+    "test_buck_boundary.py": "0432e4dc3f6e1a64c7c5fe1caaffdec883e865276b4bba7de7e4b3e8aefae32a",
+    "test_combined_boundary.py": "e537e1913c2196b900a933bf8a7b7ac686fbff5ccb992e173fee010d84604a86",
+    "test_routing_boundary.py": "8a01856d9e0eeea7f4f7d116857b582bfd3e662096f1a221948aaeb121e3a826",
+    "test_zen_runner.py": "b977d83662bba31f270a6ca5143ccff5d95851ab7f49b15dc4946291cab50e66"
+  },
+  "evaluator_sha256": "e8cf172f9f5ea052bcee4dd4274ef23d188eb359d3ecf21ccef36e6f0da5cbf6"
+}
