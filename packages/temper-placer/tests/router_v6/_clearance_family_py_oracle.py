@@ -63,8 +63,8 @@ from pathlib import Path
 
 import temper_constraints as _tc
 import temper_geometry as _tg
+from temper_design_bundle_python import VoltageClass
 
-from temper_placer.core.net_types import VoltageClass
 from temper_placer.core.pad_geometry import shape_code
 from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
 from temper_placer.requirements.validators.clearance import (

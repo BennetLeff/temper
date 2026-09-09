@@ -135,10 +135,13 @@ import numpy as np
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
+import temper_design_bundle_python as _tdb
+
 from temper_placer.core.bus_cohort import BusCohortConstraint
 from temper_placer.core.differential_pair import DifferentialPairConstraint
-from temper_placer.core.net_graph import NetGraph
 from temper_placer.core.netclass_rules_gen import NetClassRules
+
+NetGraph = _tdb.net_graph_contracts.NetGraph
 
 
 def _hv_word_boundary_match(upper: str, patterns: tuple[str, ...]) -> bool:

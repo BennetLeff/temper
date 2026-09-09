@@ -98,7 +98,11 @@ def test_oracle_body_matches_pinned_digest() -> None:
     # reference behavior) and corrected here to match the now-fixed Rust
     # side -- see the oracle module's own docstring "RE-PIN" section for
     # the exhaustive-sweep evidence this was gated on.
-    assert digest == "03508551f7a70d58d0fcf8fd59772d1f4643408058d176bbd04bdbfc10abe145", (
+    # Re-pinned 2026-09-09 (shim deletion, its own commit): the oracle's
+    # `VoltageClass` import moved from the deleted `temper_placer.core.net_types`
+    # shim to `temper_design_bundle_python` -- the SAME pyclass object,
+    # import-path redirect only; no body semantics changed.
+    assert digest == "8c2ab2d4577bdd6164a7618ac9b43595313e08b10192231d6b1d4a91fa51ec9f", (
         "the pinned oracle file changed; it must stay verbatim "
         "(see scripts/oracle_hashes.json for the registered hash)"
     )

@@ -67,7 +67,11 @@ from temper_placer.io._kicad_types import PadData
 
 _PINNED = {
     "_setup_py_oracle.py": "cf5d0fb35213f815c5f15df45cd2aa31d141e96779f00aa315d1bdce0d644985",
-    "_net_ordering_py_oracle.py": "2f2b17055fc2701411044de4c0da56d720f58e5c8a78fbc0046b23e4edd53d96",
+    "_net_ordering_py_oracle.py": "1e5168fb58c132766ed2d30bc568508ce3e46a15b9c16001638f51b659fb356b",
+    # ^ re-pinned 2026-09-09 (shim deletion, its own commit): the oracle's
+    # `LoopCollection` import moved from the deleted `temper_placer.core.loop`
+    # shim to `temper_design_bundle_python` -- the SAME pyclass object,
+    # import-path redirect only; no body semantics changed.
     "_config_attach_py_oracle.py": "b1f63ba15a8d09b2a12d4a1cbaf03c000a016fec5dc7640fdc36d6c6f5c82506",
 }
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"
