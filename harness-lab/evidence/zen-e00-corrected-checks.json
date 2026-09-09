@@ -1,0 +1,52 @@
+{
+  "status": "pass",
+  "scope": "local final-board checks only; no agent reruns",
+  "evaluator_sha256": "1534ba866a4b4883ab370d6c770c67ba75d707c8432aa7f2e73fa30cc402a040",
+  "checks": [
+    {
+      "trial": 1,
+      "status": "pass",
+      "final_board_sha256": "dffdf48cef4a0870d299b91acd9f7ed080559cf08ba1f9fafaf931d0d1109e00",
+      "distances": [
+        {
+          "distance_mm": 2.9102459088537525,
+          "pair": "C9.1:U3.3"
+        },
+        {
+          "distance_mm": 2.9102459088537525,
+          "pair": "C9.2:U3.1"
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "status": "pass",
+      "final_board_sha256": "0c710f2bc40c05192f07fba60ab9cf538eb43936a7666ff8e76e02fdbaee8c33",
+      "distances": [
+        {
+          "distance_mm": 4.965332944526479,
+          "pair": "C9.1:U3.3"
+        },
+        {
+          "distance_mm": 4.965332944526479,
+          "pair": "C9.2:U3.1"
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "status": "pass",
+      "final_board_sha256": "728f63a4bd778c6245eba0dee3f7c6267de2767b3bbabf733763183e398f6bda",
+      "distances": [
+        {
+          "distance_mm": 3.8980163224388895,
+          "pair": "C9.1:U3.3"
+        },
+        {
+          "distance_mm": 3.8980163224388895,
+          "pair": "C9.2:U3.1"
+        }
+      ]
+    }
+  ]
+}

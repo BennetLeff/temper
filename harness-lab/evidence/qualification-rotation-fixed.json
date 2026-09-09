@@ -1,0 +1,110 @@
+{
+  "status": "qualified",
+  "contract_sha256": "e2e9a39b9be8b245431cf794eff9c4974cf71a181beb00d2b80fa0ac7ed7747e",
+  "cases": [
+    {
+      "case": "witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "native-270-degree-placement",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "start-1",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "start-2",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "start-3",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "overlap",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "copper-clearance",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "outside",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "net-reassignment",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "moved-regulator",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "changed-rules",
+      "expected": "fail",
+      "actual": "fail"
+    },
+    {
+      "case": "native-45-degree-pad-position",
+      "actual": "pass"
+    },
+    {
+      "case": "missing-report-after-success",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "invalid-measurement",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "operation-bounds-and-log",
+      "actual": "pass"
+    },
+    {
+      "case": "transcript-mismatch-and-run-budget",
+      "actual": "pass"
+    },
+    {
+      "case": "native-mcp-initialize-list-inspect",
+      "actual": "pass"
+    }
+  ],
+  "scope": "placement_only",
+  "witness_pose_mm_deg": [
+    5,
+    10,
+    90
+  ],
+  "source_sha256": {
+    "harness.py": "183f9842fb178463a079a2d2cdcda95e9edf00fc178effb0d3046d5c096ad269",
+    "native.py": "dab7abaef33481ab4ca8c7603250431d1ad3fc9b5a8c3f614df18453ef56b7ec",
+    "qualify.py": "261f544d6b38fa19dba2741a370edcfd369ffd02b6240a0bb726f9e9ecac0197",
+    "run_trials.py": "19882649a6f85e568ca8de0dba1d3310b04249dadee66e1d05797982c1cf5a49",
+    "src/main.rs": "aff9e96d090f6faa8d73e785af8d17437f6c5cbd1c06e2a003955bd393dbee34",
+    "Cargo.lock": "dd29ceaa655bb50f2005aead04ff6e67bac9d1a5ee63f7d403420b20bf6d8d06"
+  },
+  "evaluator_sha256": "1534ba866a4b4883ab370d6c770c67ba75d707c8432aa7f2e73fa30cc402a040"
+}

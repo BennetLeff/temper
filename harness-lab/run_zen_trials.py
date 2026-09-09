@@ -1,0 +1,540 @@
+"""Run E00 through isolated OpenCode; record and constrain the Zen wire boundary."""
+
+from __future__ import annotations
+
+import argparse
+import http.client
+import json
+import os
+import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
+import harness
+from run_trials import INSTRUCTIONS, PREFLIGHT_PROMPT, PROMPT, audit, require
+
+MODEL = "muse-spark-1.3-contributor-free"
+TOOL_NAMES = {"pcb_" + tool["name"] for tool in harness.TOOLS}
+PREFLIGHT_INSTRUCTIONS = """This is an inspection-only runtime preflight, not a placement task.
+Call pcb_inspect exactly once, then list the three available PCB tool names and stop.
+Do not solve the placement task. Do not call place or check. Those operations are
+disabled by the preflight host even though their schemas are visible.
+"""
+
+
+def validate_request(packet: dict) -> None:
+    require(packet.get("model") == MODEL, "Unapproved model")
+    require(packet.get("store") is False, "Stateless conversation required")
+    require(
+        not any(
+            item.get("type") == "item_reference" for item in packet.get("input", [])
+        ),
+        "Unresolvable server-side reference",
+    )
+    names = []
+    for tool in packet.get("tools", []):
+        require(tool.get("type") == "function", "Unapproved provider tool")
+        require(tool.get("name") in TOOL_NAMES, "Unapproved function")
+        expected = next(t for t in harness.TOOLS if "pcb_" + t["name"] == tool["name"])
+        require(
+            tool.get("parameters") == expected["inputSchema"], "Tool schema changed"
+        )
+        require(
+            tool.get("description") == expected["description"],
+            "Tool description changed",
+        )
+        names.append(tool["name"])
+    require(set(names) == TOOL_NAMES and len(names) == 3, "Tool catalog differs")
+
+
+class Recorder(ThreadingHTTPServer):
+    """Local relay: fixed upstream, no persisted auth headers, complete wire evidence."""
+
+    daemon_threads = True
+
+    def __init__(self, directory: Path):
+        super().__init__(("127.0.0.1", 0), Relay)
+        self.directory = directory
+        self.sequence = 0
+        self.lock = threading.Lock()
+
+
+class Relay(BaseHTTPRequestHandler):
+    server: Recorder
+
+    def log_message(self, *_: object) -> None:
+        pass
+
+    def do_POST(self) -> None:
+        with self.server.lock:
+            self.server.sequence += 1
+            prefix = self.server.directory / f"wire-{self.server.sequence:03}"
+        connection = None
+        try:
+            require(self.path == "/responses", "Unexpected endpoint")
+            length = int(self.headers.get("Content-Length", "0"))
+            require(0 < length <= 2_000_000, "Invalid request size")
+            body = self.rfile.read(length)
+            packet = json.loads(body)
+            prefix.with_suffix(".request.json").write_bytes(body)
+            validate_request(packet)
+            connection = http.client.HTTPSConnection("opencode.ai", timeout=60)
+            headers = {
+                key: value
+                for key, value in self.headers.items()
+                if key.lower() not in {"host", "connection", "accept-encoding"}
+            }
+            headers["Accept-Encoding"] = "identity"
+            connection.request("POST", "/zen/v1/responses", body, headers)
+            response = connection.getresponse()
+            prefix.with_suffix(".status.json").write_text(
+                json.dumps({"status": response.status})
+            )
+            self.send_response(response.status)
+            self.send_header("Content-Type", response.getheader("Content-Type"))
+            self.send_header("Connection", "close")
+            self.end_headers()
+            with prefix.with_suffix(".response.txt").open("wb") as evidence:
+                while chunk := response.read1(65536):
+                    evidence.write(chunk)
+                    evidence.flush()
+                    self.wfile.write(chunk)
+                    self.wfile.flush()
+        except Exception as error:
+            prefix.with_suffix(".error.json").write_text(
+                json.dumps({"error": f"{type(error).__name__}: {error}"})
+            )
+            # No upstream request is made if admission fails.
+            if connection is None:
+                self.send_error(400, "Request rejected by experiment boundary")
+        finally:
+            if connection is not None:
+                connection.close()
+            self.close_connection = True
+
+
+def configuration(
+    directory: Path, port: int, deadline: float, preflight: bool = False
+) -> dict:
+    model = "opencode/" + MODEL
+    return {
+        "model": model,
+        "small_model": model,
+        "enabled_providers": ["opencode"],
+        "share": "disabled",
+        "autoupdate": False,
+        "snapshot": False,
+        "plugin": [],
+        "instructions": [],
+        "compaction": {"auto": False},
+        "permission": {"*": "deny", **{name: "allow" for name in sorted(TOOL_NAMES)}},
+        "agent": {
+            "pcb": {
+                "mode": "primary",
+                "prompt": PREFLIGHT_INSTRUCTIONS if preflight else INSTRUCTIONS,
+                "model": model,
+            },
+            "title": {"disable": True},
+            "summary": {"disable": True},
+        },
+        "provider": {
+            "opencode": {
+                "npm": "@ai-sdk/openai",
+                "options": {"baseURL": f"http://127.0.0.1:{port}", "maxRetries": 0},
+                "models": {
+                    MODEL: {
+                        "name": "Muse Spark 1.3 Contributor Free",
+                        "options": {"store": False},
+                        "limit": {"context": 1048576, "output": 131072},
+                        "cost": {"input": 0, "output": 0},
+                    }
+                },
+            }
+        },
+        "mcp": {
+            "pcb": {
+                "type": "local",
+                "command": [
+                    sys.executable,
+                    *(
+                        [str(Path(__file__).resolve()), "--serve-inspection"]
+                        if preflight
+                        else [str(harness.ROOT / "harness.py")]
+                    ),
+                    str(directory),
+                    "--deadline",
+                    str(deadline),
+                ],
+                "enabled": True,
+                "timeout": 60000,
+            }
+        },
+    }
+
+
+def environment(private: Path, config: dict) -> dict[str, str]:
+    # Preserve HOME's meaning; isolate XDG state and omit unrelated credentials.
+    env = {
+        key: os.environ[key] for key in ("HOME", "PATH", "TMPDIR") if key in os.environ
+    }
+    for kind in ("CONFIG", "DATA", "CACHE", "STATE"):
+        env[f"XDG_{kind}_HOME"] = str(private / kind.lower())
+    for flag in (
+        "CLAUDE_CODE",
+        "EXTERNAL_SKILLS",
+        "DEFAULT_PLUGINS",
+        "PROJECT_CONFIG",
+        "AUTOUPDATE",
+        "SHARE",
+        "AUTOCOMPACT",
+        "LSP_DOWNLOAD",
+    ):
+        env["OPENCODE_DISABLE_" + flag] = "1"
+    env["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
+    return env
+
+
+def normalize(events: list[dict]) -> list[dict]:
+    """Adapt OpenCode events to the existing, qualified action/snapshot audit."""
+    result = []
+    for event in events:
+        kind, part = event["type"], event.get("part", {})
+        if kind == "tool_use":
+            name, state = part["tool"], part["state"]
+            require(name in TOOL_NAMES, "Unexpected executed tool")
+            require(state["status"] == "completed", "Uncompleted tool call")
+            result.append(
+                {
+                    "type": "item.completed",
+                    "item": {
+                        "type": "mcp_tool_call",
+                        "server": "pcb",
+                        "tool": name.removeprefix("pcb_"),
+                        "arguments": state["input"],
+                        "result": {
+                            "content": [{"type": "text", "text": state["output"]}]
+                        },
+                    },
+                }
+            )
+        elif kind == "step_finish" and part.get("reason") == "stop":
+            result.append({"type": "turn.completed", "usage": part.get("tokens")})
+        else:
+            require(
+                kind in {"text", "reasoning", "step_start", "step_finish"},
+                f"Unexpected OpenCode event: {kind}",
+            )
+    return result
+
+
+def verify_wire(directory: Path, events: list[dict]) -> dict:
+    requests = sorted(directory.glob("wire-*.request.json"))
+    require(bool(requests), "No recorded model requests")
+    require(not list(directory.glob("wire-*.error.json")), "Wire boundary error")
+    served = set()
+    provider_calls = []
+    shown_outputs = {}
+    for path in requests:
+        packet = json.loads(path.read_text())
+        validate_request(packet)
+        for item in packet["input"]:
+            if item.get("type") == "function_call_output":
+                call_id = item["call_id"]
+                output = json.loads(item["output"])
+                require(
+                    call_id not in shown_outputs or shown_outputs[call_id] == output,
+                    "Replayed output changed",
+                )
+                shown_outputs[call_id] = output
+        prefix = path.name.removesuffix(".request.json")
+        status = json.loads((directory / f"{prefix}.status.json").read_text())
+        require(status["status"] == 200, "Provider request failed")
+        completed = False
+        for line in (directory / f"{prefix}.response.txt").read_text().splitlines():
+            if not line.startswith("data: ") or line == "data: [DONE]":
+                continue
+            event = json.loads(line[6:])
+            if event.get("type") == "response.completed":
+                completed = True
+                served.add(event["response"]["model"])
+                provider_calls.extend(
+                    item
+                    for item in event["response"]["output"]
+                    if item["type"] == "function_call"
+                )
+        require(completed, "No complete provider response")
+    require(served == {MODEL}, "Provider reported a different model")
+    client_calls = [event["part"] for event in events if event["type"] == "tool_use"]
+    require(
+        len(provider_calls) == len(client_calls),
+        "Provider and client call counts differ",
+    )
+    require(
+        set(shown_outputs) == {part["callID"] for part in client_calls},
+        "Missing or extra model observations",
+    )
+    for requested, executed in zip(provider_calls, client_calls):
+        require(
+            requested["call_id"] == executed["callID"],
+            "Provider/client call ID mismatch",
+        )
+        require(
+            requested["name"] == executed["tool"]
+            and json.loads(requested["arguments"]) == executed["state"]["input"],
+            "Executed call differs from provider request",
+        )
+        require(
+            shown_outputs[executed["callID"]]
+            == json.loads(executed["state"]["output"]),
+            "Wire observation differs from client result",
+        )
+    return {
+        "request_count": len(requests),
+        "served_models": sorted(served),
+        "tool_catalog": sorted(TOOL_NAMES),
+    }
+
+
+def run(
+    output: Path, qualification: Path, preflight: bool, preflight_receipt: Path | None
+) -> None:
+    receipt = json.loads(qualification.read_text())
+    contract = json.loads((harness.ROOT / "fixtures/contract.json").read_text())
+    require(receipt["status"] == "qualified", "Unqualified apparatus")
+    require(
+        receipt["contract_sha256"]
+        == harness.file_hash(harness.ROOT / "fixtures/contract.json"),
+        "Changed contract",
+    )
+    for name, digest in receipt["source_sha256"].items():
+        require(harness.file_hash(harness.ROOT / name) == digest, f"Requalify {name}")
+    require(
+        harness.file_hash(harness.JUDGE) == receipt["evaluator_sha256"],
+        "Changed evaluator",
+    )
+    runner_hash = harness.file_hash(Path(__file__))
+    if not preflight:
+        require(preflight_receipt is not None, "Successful preflight receipt required")
+        previous = json.loads(preflight_receipt.read_text())
+        require(previous["status"] == "preflight_pass", "Preflight did not pass")
+        require(
+            previous["runner_sha256"] == runner_hash, "Runner changed since preflight"
+        )
+    executable = shutil.which("opencode")
+    require(executable is not None, "OpenCode unavailable")
+    if not preflight:
+        prior_manifest = json.loads(
+            (preflight_receipt.parent / "manifest.json").read_text()
+        )
+        require(
+            prior_manifest["opencode_sha256"] == harness.file_hash(Path(executable)),
+            "OpenCode changed since preflight",
+        )
+        require(
+            prior_manifest["qualification_sha256"] == harness.file_hash(qualification),
+            "Qualification changed since preflight",
+        )
+    output.mkdir(parents=True, exist_ok=False)
+    manifest = {
+        "model": "opencode/" + MODEL,
+        "runner_sha256": runner_hash,
+        "qualification_sha256": harness.file_hash(qualification),
+        "opencode_sha256": harness.file_hash(Path(executable)),
+        "opencode_version": subprocess.check_output(
+            [executable, "--version"], text=True
+        ).strip(),
+        "preflight": preflight,
+        "instructions": PREFLIGHT_INSTRUCTIONS if preflight else INSTRUCTIONS,
+        "prompt": PREFLIGHT_PROMPT if preflight else PROMPT,
+        "data_use": "User approved Zen/Meta Contributor training terms on 2026-09-09",
+        "contract": contract,
+    }
+    (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    results = []
+    for index, start in enumerate(
+        contract["starts"][:1] if preflight else contract["starts"], 1
+    ):
+        directory = output / f"trial-{index}"
+        harness.prepare(directory, start)
+        recorder = Recorder(directory)
+        thread = threading.Thread(target=recorder.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory(prefix="temper-e00-zen-") as tmp:
+                private = Path(tmp)
+                empty = private / "workspace"
+                empty.mkdir()
+                config = configuration(
+                    directory, recorder.server_port, time.time() + 300, preflight
+                )
+                (directory / "config.json").write_text(json.dumps(config, indent=2))
+                command = [
+                    executable,
+                    "run",
+                    "--format",
+                    "json",
+                    "--agent",
+                    "pcb",
+                    "--model",
+                    "opencode/" + MODEL,
+                    "--title",
+                    "Temper E00",
+                    manifest["prompt"],
+                ]
+                (directory / "invocation.json").write_text(
+                    json.dumps(command, indent=2)
+                )
+                started = time.monotonic()
+                with (
+                    (directory / "model.jsonl").open("w") as out,
+                    (directory / "model.stderr").open("w") as err,
+                ):
+                    process = subprocess.Popen(
+                        command,
+                        cwd=empty,
+                        env=environment(private, config),
+                        stdout=out,
+                        stderr=err,
+                        start_new_session=True,
+                    )
+                    try:
+                        returncode = process.wait(timeout=300)
+                    except subprocess.TimeoutExpired:
+                        os.killpg(process.pid, signal.SIGTERM)
+                        try:
+                            process.wait(timeout=5)
+                        except subprocess.TimeoutExpired:
+                            os.killpg(process.pid, signal.SIGKILL)
+                            process.wait()
+                        returncode = 124
+                elapsed = time.monotonic() - started
+        finally:
+            recorder.shutdown()
+            recorder.server_close()
+            thread.join(timeout=5)
+        try:
+            events = [
+                json.loads(line)
+                for line in (directory / "model.jsonl").read_text().splitlines()
+                if line.strip()
+            ]
+            normalized = normalize(events)
+            wire = verify_wire(directory, events)
+            checked = audit(directory, normalized, elapsed, returncode, contract)
+            if preflight:
+                calls = [e for e in normalized if e["type"] == "item.completed"]
+                require(returncode == 0 and elapsed <= 300, "Preflight runtime failed")
+                require(
+                    len(calls) == 1 and calls[0]["item"]["tool"] == "inspect",
+                    "Preflight must inspect exactly once",
+                )
+                require(
+                    checked["final_check"]["status"] != "indeterminate",
+                    "Inspection failed",
+                )
+                require(
+                    any(e["type"] == "turn.completed" for e in normalized),
+                    "No final response",
+                )
+                checked["status"] = "preflight_pass"
+            else:
+                verification = harness.evaluate(
+                    directory, contract, directory / "host-final-check"
+                )
+                checked["independent_host_check"] = verification
+                if verification["status"] != "pass":
+                    checked["status"] = "fail"
+            checked["wire"] = wire
+            checked["usage"] = [
+                e["part"].get("tokens") for e in events if e["type"] == "step_finish"
+            ]
+            checked["cost_usd"] = sum(
+                e["part"]["cost"] for e in events if e["type"] == "step_finish"
+            )
+            checked["cost_note"] = (
+                "OpenCode reported cost; free Contributor model, not a billing receipt"
+            )
+            result = checked
+        except Exception as error:
+            result = {
+                "status": "indeterminate",
+                "error": f"{type(error).__name__}: {error}",
+                "returncode": returncode,
+                "elapsed_s": elapsed,
+            }
+        shutil.copyfile(
+            directory / "candidate.kicad_pcb", directory / "final.kicad_pcb"
+        )
+        (directory / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+        results.append(result)
+        print(
+            json.dumps(
+                {
+                    "trial": index,
+                    "status": result["status"],
+                    "elapsed_s": elapsed,
+                    "placement_edits": result.get("placement_edits"),
+                    "error": result.get("error"),
+                }
+            ),
+            flush=True,
+        )
+    expected = "preflight_pass" if preflight else "pass"
+    (output / "results.json").write_text(
+        json.dumps(
+            {
+                "status": expected
+                if all(r["status"] == expected for r in results)
+                else "fail",
+                "runner_sha256": runner_hash,
+                "trials": results,
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--serve-inspection":
+
+        class InspectionSession(harness.Session):
+            def call(self, name: str, arguments: dict) -> dict:
+                # Unknown operations fail closed in the qualified host before editing.
+                return super().call(
+                    name if name == "inspect" else "disabled_in_preflight", arguments
+                )
+
+        inspection_parser = argparse.ArgumentParser()
+        inspection_parser.add_argument("--serve-inspection", type=Path)
+        inspection_parser.add_argument("--deadline", type=float, required=True)
+        inspection_args = inspection_parser.parse_args()
+        inspection_contract = json.loads(
+            (harness.ROOT / "fixtures/contract.json").read_text()
+        )
+        harness.serve(
+            InspectionSession(
+                inspection_args.serve_inspection,
+                inspection_contract,
+                inspection_args.deadline,
+            )
+        )
+        sys.exit(0)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("output", type=Path)
+    parser.add_argument("--qualification", type=Path, required=True)
+    parser.add_argument("--preflight", action="store_true")
+    parser.add_argument("--preflight-receipt", type=Path)
+    args = parser.parse_args()
+    run(
+        args.output.resolve(),
+        args.qualification.resolve(),
+        args.preflight,
+        args.preflight_receipt,
+    )

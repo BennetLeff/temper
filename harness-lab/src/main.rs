@@ -167,7 +167,8 @@ fn evaluate(input: Input) -> Result<Value> {
     if m.protected_sha256 != c.protected_sha256 {
         findings.push(json!({"id": "protected_state_changed"}));
     }
-    if ![0.0, 90.0, 180.0, 270.0].contains(&cap.angle_deg) {
+    // Native KiCad may report the admitted 270-degree pose as -90 degrees.
+    if ![0.0, 90.0, 180.0, 270.0].contains(&cap.angle_deg.rem_euclid(360.0)) {
         findings.push(json!({"id": "unsupported_orientation"}));
     }
     for fp in &m.footprints {

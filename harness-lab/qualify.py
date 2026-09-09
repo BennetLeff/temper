@@ -57,6 +57,7 @@ def qualify(output: Path) -> None:
 
     for i in range(3):
         case(f"witness-{i + 1}", [5, 10, 90], "pass")
+    case("native-270-degree-placement", [5, 10, 270], "pass")
     for i, start in enumerate(contract["starts"], 1):
         case(f"start-{i}", start, "fail", required_id="too_distant:")
     case("overlap", [10, 10, 0], "fail", required_id="kicad:courtyards_overlap")

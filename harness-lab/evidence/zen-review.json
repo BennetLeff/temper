@@ -1,0 +1,71 @@
+{
+  "status": "complete",
+  "verdict": "Ready for local experiment use",
+  "scope": {
+    "base": "57cd7c71f",
+    "branch": "codex/buck-harness-experiment-plan",
+    "paths": [
+      "harness-lab/"
+    ]
+  },
+  "intent": "Integrate the approved free Zen model, preserve three frozen placement trials, and correct the native signed-angle feedback defect.",
+  "reviewers": [
+    "correctness",
+    "testing",
+    "security",
+    "reliability",
+    "maintainability",
+    "project-standards",
+    "adversarial",
+    "agent-native"
+  ],
+  "independent_reviewers": [],
+  "actionable_findings": [],
+  "fixed_findings": [
+    {
+      "title": "KiCad -90-degree report falsely rejected an admitted 270-degree pose",
+      "file": "harness-lab/src/main.rs",
+      "verification": "Native 270-degree case failed before Rust modulo normalization and passed afterward; all three original final boards pass corrected local checks."
+    }
+  ],
+  "coverage": {
+    "execution": "Sequential inline review in the parent context per repository instructions; no independent or external code reviewers.",
+    "simplification": "Reviewed reuse, quality, and efficiency; retained the frozen runner unchanged. Existing qualified audit reused; no optimizer imports or new geometry implementation.",
+    "scope_helper": "review-scope.py inspected tracked diff; new runner and tests were included by explicit file inventory and full reads.",
+    "mechanics": {
+      "findings": [],
+      "malformed_findings": 0,
+      "malformed_returns": 0,
+      "pre_existing_findings": [],
+      "residual_risks": [],
+      "status": "complete",
+      "suppressed_by_confidence": {},
+      "suppressed_findings": [],
+      "testing_gaps": []
+    }
+  },
+  "verification": {
+    "native_qualification_cases": 19,
+    "rust_unit_tests": 2,
+    "runner_boundary_tests": 7,
+    "scored_trials_passed": 3,
+    "corrected_final_board_checks": 3,
+    "native_inspection_guard": "Rejected place with unchanged board hash",
+    "lint_format_compile": "passed"
+  },
+  "residual_risks": [
+    "The original trial 3 received a spurious unsupported_orientation finding before the fix. Preserve this limitation when using its trace for comparisons.",
+    "Only one two-footprint task with three starts was evaluated; no routing, unseen circuit, refinement comparison, or fabrication validation.",
+    "Free hosted availability and Contributor data-use terms can change; cost is OpenCode-reported.",
+    "Repository-wide import-linter was unavailable in this worktree earlier; no push is performed."
+  ],
+  "source_sha256": {
+    "run_zen_trials.py": "35ee76a4577643334290e140f4c004b8b77686611028086fd945234663771be9",
+    "test_zen_runner.py": "6c98daa1f938a259947890a0ef52b747f137b439378f5b05d15c959c3ceb84b5",
+    "src/main.rs": "aff9e96d090f6faa8d73e785af8d17437f6c5cbd1c06e2a003955bd393dbee34",
+    "qualify.py": "261f544d6b38fa19dba2741a370edcfd369ffd02b6240a0bb726f9e9ecac0197",
+    "Makefile": "2f6ad2f45fbb3b05b024ce2a18fee7d25747b70d2867c2648f04f9a66b1da4c5"
+  },
+  "artifact_path": "/private/tmp/temper-zen-code-review",
+  "run_id": "temper-zen-code-review"
+}

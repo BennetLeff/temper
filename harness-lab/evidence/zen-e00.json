@@ -1,0 +1,1278 @@
+{
+  "status": "pass",
+  "runner_sha256": "35ee76a4577643334290e140f4c004b8b77686611028086fd945234663771be9",
+  "trials": [
+    {
+      "status": "pass",
+      "elapsed_s": 22.101842375006527,
+      "placement_edits": 1,
+      "returncode": 0,
+      "unexpected_tools": [],
+      "log_matches_model_transcript": true,
+      "final_board_sha256": "dffdf48cef4a0870d299b91acd9f7ed080559cf08ba1f9fafaf931d0d1109e00",
+      "final_check": {
+        "board_sha256": "dffdf48cef4a0870d299b91acd9f7ed080559cf08ba1f9fafaf931d0d1109e00",
+        "distances": [
+          {
+            "distance_mm": 2.9102459088537525,
+            "pair": "C9.1:U3.3"
+          },
+          {
+            "distance_mm": 2.9102459088537525,
+            "pair": "C9.2:U3.1"
+          }
+        ],
+        "findings": [],
+        "open_connections_outside_scope": 3,
+        "scope": "placement_only",
+        "status": "pass",
+        "measurement": {
+          "kicad_version": "10.0.4",
+          "board_sha256": "dffdf48cef4a0870d299b91acd9f7ed080559cf08ba1f9fafaf931d0d1109e00",
+          "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+          "footprints": [
+            {
+              "reference": "C9",
+              "position_mm": [
+                6.0,
+                10.0
+              ],
+              "angle_deg": 90.0,
+              "bounds_mm": [
+                4.375,
+                7.675,
+                7.625,
+                12.325
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "+15V",
+                  "position_mm": [
+                    6.0,
+                    11.475
+                  ],
+                  "bounds_mm": [
+                    4.65,
+                    10.9,
+                    7.35,
+                    12.05
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "gnd",
+                  "position_mm": [
+                    6.0,
+                    8.525
+                  ],
+                  "bounds_mm": [
+                    4.65,
+                    7.95,
+                    7.35,
+                    9.1
+                  ]
+                }
+              ]
+            },
+            {
+              "reference": "U3",
+              "position_mm": [
+                10.0,
+                10.0
+              ],
+              "angle_deg": 0.0,
+              "bounds_mm": [
+                7.925,
+                8.1,
+                12.075,
+                11.725
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "gnd",
+                  "position_mm": [
+                    8.8625,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    8.75,
+                    9.525,
+                    9.35
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "sw",
+                  "position_mm": [
+                    8.8625,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    9.7,
+                    9.525,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "3",
+                  "net": "+15V",
+                  "position_mm": [
+                    8.8625,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    10.65,
+                    9.525,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "4",
+                  "net": "fb",
+                  "position_mm": [
+                    11.1375,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    10.65,
+                    11.8,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "5",
+                  "net": "+15V",
+                  "position_mm": [
+                    11.1375,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    9.7,
+                    11.8,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "6",
+                  "net": "boot",
+                  "position_mm": [
+                    11.1375,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    8.75,
+                    11.8,
+                    9.35
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "introduced": [],
+        "resolved": [],
+        "requirements": {
+          "editable": "C9 position and orientation only",
+          "outline_mm": [
+            1,
+            1,
+            29,
+            19
+          ],
+          "minimum_copper_clearance_mm": 0.2,
+          "maximum_mapped_pad_distance_mm": 5.0,
+          "mapped_pairs": [
+            "C9.1 (+15V) -> U3.3",
+            "C9.2 (gnd) -> U3.1"
+          ],
+          "no_courtyard_overlap": true,
+          "remaining_placement_edits": 9
+        },
+        "sequence": 3,
+        "after_sha256": "dffdf48cef4a0870d299b91acd9f7ed080559cf08ba1f9fafaf931d0d1109e00",
+        "elapsed_s": 18.9789327919716
+      },
+      "usage": [
+        {
+          "input": 953,
+          "output": 67,
+          "reasoning": 5,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        {
+          "input": 1196,
+          "output": 2257,
+          "reasoning": 2140,
+          "cache": {
+            "read": 881,
+            "write": 0
+          }
+        },
+        {
+          "input": 3282,
+          "output": 212,
+          "reasoning": 150,
+          "cache": {
+            "read": 2033,
+            "write": 0
+          }
+        },
+        {
+          "input": 1252,
+          "output": 85,
+          "reasoning": 9,
+          "cache": {
+            "read": 5233,
+            "write": 0
+          }
+        }
+      ],
+      "cost_usd": 0,
+      "cost_note": "OpenCode reported cost; free Contributor model, not a billing receipt",
+      "independent_host_check": {
+        "board_sha256": "dffdf48cef4a0870d299b91acd9f7ed080559cf08ba1f9fafaf931d0d1109e00",
+        "distances": [
+          {
+            "distance_mm": 2.9102459088537525,
+            "pair": "C9.1:U3.3"
+          },
+          {
+            "distance_mm": 2.9102459088537525,
+            "pair": "C9.2:U3.1"
+          }
+        ],
+        "findings": [],
+        "open_connections_outside_scope": 3,
+        "scope": "placement_only",
+        "status": "pass",
+        "measurement": {
+          "kicad_version": "10.0.4",
+          "board_sha256": "dffdf48cef4a0870d299b91acd9f7ed080559cf08ba1f9fafaf931d0d1109e00",
+          "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+          "footprints": [
+            {
+              "reference": "C9",
+              "position_mm": [
+                6.0,
+                10.0
+              ],
+              "angle_deg": 90.0,
+              "bounds_mm": [
+                4.375,
+                7.675,
+                7.625,
+                12.325
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "+15V",
+                  "position_mm": [
+                    6.0,
+                    11.475
+                  ],
+                  "bounds_mm": [
+                    4.65,
+                    10.9,
+                    7.35,
+                    12.05
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "gnd",
+                  "position_mm": [
+                    6.0,
+                    8.525
+                  ],
+                  "bounds_mm": [
+                    4.65,
+                    7.95,
+                    7.35,
+                    9.1
+                  ]
+                }
+              ]
+            },
+            {
+              "reference": "U3",
+              "position_mm": [
+                10.0,
+                10.0
+              ],
+              "angle_deg": 0.0,
+              "bounds_mm": [
+                7.925,
+                8.1,
+                12.075,
+                11.725
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "gnd",
+                  "position_mm": [
+                    8.8625,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    8.75,
+                    9.525,
+                    9.35
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "sw",
+                  "position_mm": [
+                    8.8625,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    9.7,
+                    9.525,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "3",
+                  "net": "+15V",
+                  "position_mm": [
+                    8.8625,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    10.65,
+                    9.525,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "4",
+                  "net": "fb",
+                  "position_mm": [
+                    11.1375,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    10.65,
+                    11.8,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "5",
+                  "net": "+15V",
+                  "position_mm": [
+                    11.1375,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    9.7,
+                    11.8,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "6",
+                  "net": "boot",
+                  "position_mm": [
+                    11.1375,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    8.75,
+                    11.8,
+                    9.35
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "wire": {
+        "request_count": 4,
+        "served_models": [
+          "muse-spark-1.3-contributor-free"
+        ],
+        "tool_catalog": [
+          "pcb_check",
+          "pcb_inspect",
+          "pcb_place"
+        ]
+      }
+    },
+    {
+      "status": "pass",
+      "elapsed_s": 49.425347292097285,
+      "placement_edits": 2,
+      "returncode": 0,
+      "unexpected_tools": [],
+      "log_matches_model_transcript": true,
+      "final_board_sha256": "0c710f2bc40c05192f07fba60ab9cf538eb43936a7666ff8e76e02fdbaee8c33",
+      "final_check": {
+        "board_sha256": "0c710f2bc40c05192f07fba60ab9cf538eb43936a7666ff8e76e02fdbaee8c33",
+        "distances": [
+          {
+            "distance_mm": 4.965332944526479,
+            "pair": "C9.1:U3.3"
+          },
+          {
+            "distance_mm": 4.965332944526479,
+            "pair": "C9.2:U3.1"
+          }
+        ],
+        "findings": [],
+        "open_connections_outside_scope": 3,
+        "scope": "placement_only",
+        "status": "pass",
+        "measurement": {
+          "kicad_version": "10.0.4",
+          "board_sha256": "0c710f2bc40c05192f07fba60ab9cf538eb43936a7666ff8e76e02fdbaee8c33",
+          "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+          "footprints": [
+            {
+              "reference": "C9",
+              "position_mm": [
+                13.8,
+                10.0
+              ],
+              "angle_deg": 90.0,
+              "bounds_mm": [
+                12.175,
+                7.675,
+                15.425,
+                12.325
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "+15V",
+                  "position_mm": [
+                    13.8,
+                    11.475
+                  ],
+                  "bounds_mm": [
+                    12.45,
+                    10.9,
+                    15.15,
+                    12.05
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "gnd",
+                  "position_mm": [
+                    13.8,
+                    8.525
+                  ],
+                  "bounds_mm": [
+                    12.45,
+                    7.95,
+                    15.15,
+                    9.1
+                  ]
+                }
+              ]
+            },
+            {
+              "reference": "U3",
+              "position_mm": [
+                10.0,
+                10.0
+              ],
+              "angle_deg": 0.0,
+              "bounds_mm": [
+                7.925,
+                8.1,
+                12.075,
+                11.725
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "gnd",
+                  "position_mm": [
+                    8.8625,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    8.75,
+                    9.525,
+                    9.35
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "sw",
+                  "position_mm": [
+                    8.8625,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    9.7,
+                    9.525,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "3",
+                  "net": "+15V",
+                  "position_mm": [
+                    8.8625,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    10.65,
+                    9.525,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "4",
+                  "net": "fb",
+                  "position_mm": [
+                    11.1375,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    10.65,
+                    11.8,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "5",
+                  "net": "+15V",
+                  "position_mm": [
+                    11.1375,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    9.7,
+                    11.8,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "6",
+                  "net": "boot",
+                  "position_mm": [
+                    11.1375,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    8.75,
+                    11.8,
+                    9.35
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "introduced": [],
+        "resolved": [],
+        "requirements": {
+          "editable": "C9 position and orientation only",
+          "outline_mm": [
+            1,
+            1,
+            29,
+            19
+          ],
+          "minimum_copper_clearance_mm": 0.2,
+          "maximum_mapped_pad_distance_mm": 5.0,
+          "mapped_pairs": [
+            "C9.1 (+15V) -> U3.3",
+            "C9.2 (gnd) -> U3.1"
+          ],
+          "no_courtyard_overlap": true,
+          "remaining_placement_edits": 8
+        },
+        "sequence": 4,
+        "after_sha256": "0c710f2bc40c05192f07fba60ab9cf538eb43936a7666ff8e76e02fdbaee8c33",
+        "elapsed_s": 46.019232459017076
+      },
+      "usage": [
+        {
+          "input": 953,
+          "output": 65,
+          "reasoning": 5,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        {
+          "input": 1179,
+          "output": 2124,
+          "reasoning": 2008,
+          "cache": {
+            "read": 881,
+            "write": 0
+          }
+        },
+        {
+          "input": 3394,
+          "output": 1068,
+          "reasoning": 980,
+          "cache": {
+            "read": 2033,
+            "write": 0
+          }
+        },
+        {
+          "input": 2153,
+          "output": 105,
+          "reasoning": 46,
+          "cache": {
+            "read": 5361,
+            "write": 0
+          }
+        },
+        {
+          "input": 1172,
+          "output": 74,
+          "reasoning": 12,
+          "cache": {
+            "read": 7409,
+            "write": 0
+          }
+        }
+      ],
+      "cost_usd": 0,
+      "cost_note": "OpenCode reported cost; free Contributor model, not a billing receipt",
+      "independent_host_check": {
+        "board_sha256": "0c710f2bc40c05192f07fba60ab9cf538eb43936a7666ff8e76e02fdbaee8c33",
+        "distances": [
+          {
+            "distance_mm": 4.965332944526479,
+            "pair": "C9.1:U3.3"
+          },
+          {
+            "distance_mm": 4.965332944526479,
+            "pair": "C9.2:U3.1"
+          }
+        ],
+        "findings": [],
+        "open_connections_outside_scope": 3,
+        "scope": "placement_only",
+        "status": "pass",
+        "measurement": {
+          "kicad_version": "10.0.4",
+          "board_sha256": "0c710f2bc40c05192f07fba60ab9cf538eb43936a7666ff8e76e02fdbaee8c33",
+          "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+          "footprints": [
+            {
+              "reference": "C9",
+              "position_mm": [
+                13.8,
+                10.0
+              ],
+              "angle_deg": 90.0,
+              "bounds_mm": [
+                12.175,
+                7.675,
+                15.425,
+                12.325
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "+15V",
+                  "position_mm": [
+                    13.8,
+                    11.475
+                  ],
+                  "bounds_mm": [
+                    12.45,
+                    10.9,
+                    15.15,
+                    12.05
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "gnd",
+                  "position_mm": [
+                    13.8,
+                    8.525
+                  ],
+                  "bounds_mm": [
+                    12.45,
+                    7.95,
+                    15.15,
+                    9.1
+                  ]
+                }
+              ]
+            },
+            {
+              "reference": "U3",
+              "position_mm": [
+                10.0,
+                10.0
+              ],
+              "angle_deg": 0.0,
+              "bounds_mm": [
+                7.925,
+                8.1,
+                12.075,
+                11.725
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "gnd",
+                  "position_mm": [
+                    8.8625,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    8.75,
+                    9.525,
+                    9.35
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "sw",
+                  "position_mm": [
+                    8.8625,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    9.7,
+                    9.525,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "3",
+                  "net": "+15V",
+                  "position_mm": [
+                    8.8625,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    10.65,
+                    9.525,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "4",
+                  "net": "fb",
+                  "position_mm": [
+                    11.1375,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    10.65,
+                    11.8,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "5",
+                  "net": "+15V",
+                  "position_mm": [
+                    11.1375,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    9.7,
+                    11.8,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "6",
+                  "net": "boot",
+                  "position_mm": [
+                    11.1375,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    8.75,
+                    11.8,
+                    9.35
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "wire": {
+        "request_count": 5,
+        "served_models": [
+          "muse-spark-1.3-contributor-free"
+        ],
+        "tool_catalog": [
+          "pcb_check",
+          "pcb_inspect",
+          "pcb_place"
+        ]
+      }
+    },
+    {
+      "status": "pass",
+      "elapsed_s": 80.75116379198153,
+      "placement_edits": 2,
+      "returncode": 0,
+      "unexpected_tools": [],
+      "log_matches_model_transcript": true,
+      "final_board_sha256": "728f63a4bd778c6245eba0dee3f7c6267de2767b3bbabf733763183e398f6bda",
+      "final_check": {
+        "board_sha256": "728f63a4bd778c6245eba0dee3f7c6267de2767b3bbabf733763183e398f6bda",
+        "distances": [
+          {
+            "distance_mm": 3.8980163224388895,
+            "pair": "C9.1:U3.3"
+          },
+          {
+            "distance_mm": 3.8980163224388895,
+            "pair": "C9.2:U3.1"
+          }
+        ],
+        "findings": [],
+        "open_connections_outside_scope": 3,
+        "scope": "placement_only",
+        "status": "pass",
+        "measurement": {
+          "kicad_version": "10.0.4",
+          "board_sha256": "728f63a4bd778c6245eba0dee3f7c6267de2767b3bbabf733763183e398f6bda",
+          "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+          "footprints": [
+            {
+              "reference": "C9",
+              "position_mm": [
+                5.0,
+                10.0
+              ],
+              "angle_deg": 90.0,
+              "bounds_mm": [
+                3.375,
+                7.675,
+                6.625,
+                12.325
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "+15V",
+                  "position_mm": [
+                    5.0,
+                    11.475
+                  ],
+                  "bounds_mm": [
+                    3.65,
+                    10.9,
+                    6.35,
+                    12.05
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "gnd",
+                  "position_mm": [
+                    5.0,
+                    8.525
+                  ],
+                  "bounds_mm": [
+                    3.65,
+                    7.95,
+                    6.35,
+                    9.1
+                  ]
+                }
+              ]
+            },
+            {
+              "reference": "U3",
+              "position_mm": [
+                10.0,
+                10.0
+              ],
+              "angle_deg": 0.0,
+              "bounds_mm": [
+                7.925,
+                8.1,
+                12.075,
+                11.725
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "gnd",
+                  "position_mm": [
+                    8.8625,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    8.75,
+                    9.525,
+                    9.35
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "sw",
+                  "position_mm": [
+                    8.8625,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    9.7,
+                    9.525,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "3",
+                  "net": "+15V",
+                  "position_mm": [
+                    8.8625,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    10.65,
+                    9.525,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "4",
+                  "net": "fb",
+                  "position_mm": [
+                    11.1375,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    10.65,
+                    11.8,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "5",
+                  "net": "+15V",
+                  "position_mm": [
+                    11.1375,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    9.7,
+                    11.8,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "6",
+                  "net": "boot",
+                  "position_mm": [
+                    11.1375,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    8.75,
+                    11.8,
+                    9.35
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "introduced": [],
+        "resolved": [],
+        "requirements": {
+          "editable": "C9 position and orientation only",
+          "outline_mm": [
+            1,
+            1,
+            29,
+            19
+          ],
+          "minimum_copper_clearance_mm": 0.2,
+          "maximum_mapped_pad_distance_mm": 5.0,
+          "mapped_pairs": [
+            "C9.1 (+15V) -> U3.3",
+            "C9.2 (gnd) -> U3.1"
+          ],
+          "no_courtyard_overlap": true,
+          "remaining_placement_edits": 8
+        },
+        "sequence": 4,
+        "after_sha256": "728f63a4bd778c6245eba0dee3f7c6267de2767b3bbabf733763183e398f6bda",
+        "elapsed_s": 76.57768008299172
+      },
+      "usage": [
+        {
+          "input": 953,
+          "output": 62,
+          "reasoning": 5,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        {
+          "input": 1208,
+          "output": 3901,
+          "reasoning": 3788,
+          "cache": {
+            "read": 881,
+            "write": 0
+          }
+        },
+        {
+          "input": 4952,
+          "output": 2880,
+          "reasoning": 2769,
+          "cache": {
+            "read": 2033,
+            "write": 0
+          }
+        },
+        {
+          "input": 3942,
+          "output": 125,
+          "reasoning": 63,
+          "cache": {
+            "read": 6897,
+            "write": 0
+          }
+        },
+        {
+          "input": 1188,
+          "output": 158,
+          "reasoning": 25,
+          "cache": {
+            "read": 10737,
+            "write": 0
+          }
+        }
+      ],
+      "cost_usd": 0,
+      "cost_note": "OpenCode reported cost; free Contributor model, not a billing receipt",
+      "independent_host_check": {
+        "board_sha256": "728f63a4bd778c6245eba0dee3f7c6267de2767b3bbabf733763183e398f6bda",
+        "distances": [
+          {
+            "distance_mm": 3.8980163224388895,
+            "pair": "C9.1:U3.3"
+          },
+          {
+            "distance_mm": 3.8980163224388895,
+            "pair": "C9.2:U3.1"
+          }
+        ],
+        "findings": [],
+        "open_connections_outside_scope": 3,
+        "scope": "placement_only",
+        "status": "pass",
+        "measurement": {
+          "kicad_version": "10.0.4",
+          "board_sha256": "728f63a4bd778c6245eba0dee3f7c6267de2767b3bbabf733763183e398f6bda",
+          "protected_sha256": "02ff76a99f4ff400fd461adefafb2120576145c95420be00290f87d31453807a",
+          "footprints": [
+            {
+              "reference": "C9",
+              "position_mm": [
+                5.0,
+                10.0
+              ],
+              "angle_deg": 90.0,
+              "bounds_mm": [
+                3.375,
+                7.675,
+                6.625,
+                12.325
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "+15V",
+                  "position_mm": [
+                    5.0,
+                    11.475
+                  ],
+                  "bounds_mm": [
+                    3.65,
+                    10.9,
+                    6.35,
+                    12.05
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "gnd",
+                  "position_mm": [
+                    5.0,
+                    8.525
+                  ],
+                  "bounds_mm": [
+                    3.65,
+                    7.95,
+                    6.35,
+                    9.1
+                  ]
+                }
+              ]
+            },
+            {
+              "reference": "U3",
+              "position_mm": [
+                10.0,
+                10.0
+              ],
+              "angle_deg": 0.0,
+              "bounds_mm": [
+                7.925,
+                8.1,
+                12.075,
+                11.725
+              ],
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "gnd",
+                  "position_mm": [
+                    8.8625,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    8.75,
+                    9.525,
+                    9.35
+                  ]
+                },
+                {
+                  "number": "2",
+                  "net": "sw",
+                  "position_mm": [
+                    8.8625,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    9.7,
+                    9.525,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "3",
+                  "net": "+15V",
+                  "position_mm": [
+                    8.8625,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    8.2,
+                    10.65,
+                    9.525,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "4",
+                  "net": "fb",
+                  "position_mm": [
+                    11.1375,
+                    10.95
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    10.65,
+                    11.8,
+                    11.25
+                  ]
+                },
+                {
+                  "number": "5",
+                  "net": "+15V",
+                  "position_mm": [
+                    11.1375,
+                    10.0
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    9.7,
+                    11.8,
+                    10.3
+                  ]
+                },
+                {
+                  "number": "6",
+                  "net": "boot",
+                  "position_mm": [
+                    11.1375,
+                    9.05
+                  ],
+                  "bounds_mm": [
+                    10.475,
+                    8.75,
+                    11.8,
+                    9.35
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "wire": {
+        "request_count": 5,
+        "served_models": [
+          "muse-spark-1.3-contributor-free"
+        ],
+        "tool_catalog": [
+          "pcb_check",
+          "pcb_inspect",
+          "pcb_place"
+        ]
+      }
+    }
+  ]
+}

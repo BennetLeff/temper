@@ -15,6 +15,7 @@ check:
 	ruff check --isolated --select E4,E7,E9,F,I *.py
 	ruff format --isolated --check *.py
 	$(PYTHON) -m compileall -q .
+	$(PYTHON) -m unittest discover -s . -p 'test_*.py'
 
 qualify: build
 	$(PYTHON) qualify.py $(OUTPUT)

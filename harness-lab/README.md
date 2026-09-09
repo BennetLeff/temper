@@ -4,11 +4,16 @@ Place C9, the real buck input capacitor, near fixed regulator U3. This is a
 two-footprint placement task. Routing and complete converter construction come
 later. Existing optimizer code is shelved; this directory imports none of it.
 
-The native tool chain passes all **18 local qualification cases**. See the
-[receipt](evidence/qualification.json) and [full evidence](evidence/qualification.tar.gz).
-**No model preflight or scored agent trial has run.** Following the user's
-September 9 decision, this experiment stays local. The proposed external
-runner and [trial inputs](TRIAL-INPUTS.md) are retained for future review.
+**All three scored placement trials passed using Muse Spark 1.3 Contributor
+Free through OpenCode Zen.** They took 22, 49, and 81 seconds and used 1, 2,
+and 2 placement edits. Read the [results and limitations](EXPERIMENT-00-RESULTS.md),
+including an initial-feedback defect found after scoring and fixed locally.
+The corrected tool chain passes **19 native qualification cases**, and all
+three final boards also pass the corrected evaluator.
+
+The user approved the Zen/Meta Contributor data terms on September 9. PCB
+operations and validation run locally; model inference is hosted. The earlier
+Codex/OpenAI proposal remains deferred. See [payload authorization](TRIAL-INPUTS.md).
 
 ## What is admitted
 
@@ -61,22 +66,30 @@ writing a report (`SwiftNativeNSArray: Array index out of range`). The native
 qualification ran successfully through the approved local execution path.
 The host records nonzero exits and never substitutes an empty report.
 
-Model execution is deferred. If approved later, start with the inspection-only preflight:
+For a future Zen batch, first qualify the current source, then run an
+inspection-only preflight. These commands create fresh evidence; the completed
+batch is preserved in the results above and should not be replaced with retries.
 
 ```sh
-python3 harness-lab/run_trials.py harness-lab/runs/preflight-new \
+python3 harness-lab/run_zen_trials.py harness-lab/runs/preflight-new \
   --qualification harness-lab/runs/qualification-new/qualification.json --preflight
+
+python3 harness-lab/run_zen_trials.py harness-lab/runs/scored-new \
+  --qualification harness-lab/runs/qualification-new/qualification.json \
+  --preflight-receipt harness-lab/runs/preflight-new/results.json
 ```
 
-Inspect its transcript and actual available tool catalog before starting the
-single scored batch with the same command and no `--preflight`. Preflight
-must show only the admitted task access; the runner's external Codex integration
-and environment isolation remain unverified until that preflight runs.
+The Zen runner requires a successful preflight with matching runner,
+OpenCode executable, and qualification hashes. It isolates OpenCode's XDG
+state, disables unrelated skills/plugins/tools, and records actual provider
+traffic through a local relay admitting only the selected free model and the
+three PCB tools. Preflight prohibits placement in the host. The original
+`run_trials.py` Codex integration remains unverified and deferred.
 
 Output directories must be new. Each run retains the initial/final board,
 every action snapshot, request/response log, native DRC reports, shown model
-transcript, model usage when supplied, and final host verification. Monetary
-cost is `null` when the subscription runtime supplies no cost receipt.
+transcript, model usage when supplied, and final host verification. Zen costs
+are OpenCode-reported values, not independently obtained billing receipts.
 Qualification binds the fixture, tools, and evaluator binary by full SHA-256;
 changes require requalification.
 
@@ -87,8 +100,8 @@ environment and thin tool surface. The agent chooses placements; native tools
 execute and measure them. No search optimizer is hidden in `place`.
 [Chase's talk](https://sequoiacap.com/podcast/owning-your-intelligence-starts-with-the-harness)
 motivates exact context at each decision: current pads, constraints, and
-introduced/resolved findings. We reuse Codex as the proposed general agent
-runtime and build only the PCB boundary.
+introduced/resolved findings. We reuse OpenCode as the general agent
+runtime and build the PCB boundary and experiment recorder.
 [Continual Harness](https://arxiv.org/html/2605.09998v1) motivates preserving
 traces for a later outer refinement loop. This milestone deliberately stops
 before implementing that loop or claiming learned improvement.
