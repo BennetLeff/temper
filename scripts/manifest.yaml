@@ -1,9 +1,9 @@
 _meta:
   last_audit_date: '2026-09-09'
-  total_scripts: 186
+  total_scripts: 174
   counts:
-    keep: 180
-    ticket: 5
+    keep: 169
+    ticket: 4
   ticket_scripts_deleted: 52
 scripts:
 - path: add_power_planes.py
