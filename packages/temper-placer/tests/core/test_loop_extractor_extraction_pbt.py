@@ -37,9 +37,9 @@ from __future__ import annotations
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from temper_design_bundle_python import Loop, LoopCollection, LoopPriority, LoopType
 
 import temper_placer.core.loop_extractor as le
-from temper_placer.core.loop import Loop, LoopCollection, LoopPriority, LoopType
 from temper_placer.core.loop_extractor import ComponentClassification
 from temper_placer.core.netlist import Component, Netlist, Pin
 

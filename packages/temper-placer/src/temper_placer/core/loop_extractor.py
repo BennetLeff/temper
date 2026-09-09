@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .loop import (
+from temper_design_bundle_python import (
     Loop,
     LoopCollection,
     LoopEvent,
@@ -30,6 +30,7 @@ from .loop import (
     LoopPriority,
     LoopType,
 )
+
 from .netlist import Component, Netlist
 
 

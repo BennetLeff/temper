@@ -157,7 +157,7 @@ fn derive_from_spec(
 /// The `_VOLTAGE_CLASS_BY_CODE` mapping (derivation.py's code -> pyclass
 /// member table) resolved through the `VoltageClass` pyclass.
 fn voltage_class_member<'py>(py: Python<'py>, code: i64) -> PyResult<Bound<'py, PyAny>> {
-    let net_types = py.import("temper_placer.core.net_types")?;
+    let net_types = py.import("temper_design_bundle_python")?;
     let voltage_class = net_types.getattr("VoltageClass")?;
     let name = match code {
         0 => "LOW_VOLTAGE",

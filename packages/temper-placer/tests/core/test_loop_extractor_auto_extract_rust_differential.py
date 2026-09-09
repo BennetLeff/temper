@@ -70,8 +70,7 @@ import random
 from dataclasses import dataclass
 
 import pytest
-
-from temper_placer.core.loop import (
+from temper_design_bundle_python import (
     Loop,
     LoopCollection,
     LoopEvent,
@@ -79,6 +78,7 @@ from temper_placer.core.loop import (
     LoopPriority,
     LoopType,
 )
+
 from temper_placer.core.loop_extractor_rs import (
     _dict_to_loop_collection,
     _netlist_to_dict,

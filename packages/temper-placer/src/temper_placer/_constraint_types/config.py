@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import re
 
+import temper_design_bundle_python as _tdb
 from pydantic import BaseModel, ConfigDict, Field
+from temper_design_bundle_python import NetClassification
 
 from temper_placer.core.board import GroundDomain, LayerStackup, Zone
-from temper_placer.core.net_graph import NetGraph
-from temper_placer.core.net_types import NetClassification
+
+NetGraph = _tdb.net_graph_contracts.NetGraph
 
 from .clearance import ClearanceRule, DifferentialPairRule, NetClassRule, SignalToHVClearance
 from .groups import (

@@ -444,7 +444,8 @@ def test_get_diff_pair_and_bus_cohort_identical():
 def test_mutation_paths_persist_identically():
     from temper_placer.core.bus_cohort import BusCohortConstraint
     from temper_placer.core.differential_pair import DifferentialPairConstraint
-    from temper_placer.core.net_graph import NetGraph
+
+    NetGraph = _tdb.net_graph_contracts.NetGraph
 
     def build_dr(cls):
         dr = cls()

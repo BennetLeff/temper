@@ -25,9 +25,9 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, TypeAlias
 
 from numpy.typing import NDArray
+from temper_design_bundle_python import LoopCollection
 
 from temper_placer.core.board import Board
-from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
 from temper_placer.router_v6.congestion import analyze_congestion
 

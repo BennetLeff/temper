@@ -63,7 +63,7 @@ class _OracleComponentLoopInfo:
         )
 
     def get_priority_weight(self, loop_collection) -> float:
-        from temper_placer.core.loop import LoopPriority
+        from temper_design_bundle_python import LoopPriority
 
         max_weight = 0.0
         for membership in self.memberships:
@@ -107,7 +107,7 @@ class _OracleLoopOwnershipMap:
     def components_share_critical_loop(
         self, ref_a: str, ref_b: str, loop_collection
     ) -> bool:
-        from temper_placer.core.loop import LoopPriority
+        from temper_design_bundle_python import LoopPriority
 
         shared = self.get_shared_loops(ref_a, ref_b)
         for loop_name in shared:
@@ -128,7 +128,6 @@ from temper_placer.core.loop_ownership import (
     LoopMembership,
     LoopOwnershipMap,
 )
-
 
 # ============================================================================
 # Canonicalization helpers
@@ -280,7 +279,7 @@ class TestComponentLoopInfoDifferential:
 
     def test_get_priority_weight_critical(self):
         """Should return 1.0 for CRITICAL loop."""
-        from temper_placer.core.loop import Loop, LoopCollection, LoopPriority, LoopType
+        from temper_design_bundle_python import Loop, LoopCollection, LoopPriority, LoopType
 
         loop = Loop(
             name="commutation",
@@ -298,7 +297,7 @@ class TestComponentLoopInfoDifferential:
 
     def test_get_priority_weight_high(self):
         """Should return 0.7 for HIGH loop."""
-        from temper_placer.core.loop import Loop, LoopCollection, LoopPriority, LoopType
+        from temper_design_bundle_python import Loop, LoopCollection, LoopPriority, LoopType
 
         loop = Loop(
             name="bootstrap",
@@ -316,7 +315,7 @@ class TestComponentLoopInfoDifferential:
 
     def test_get_priority_weight_empty(self):
         """Should return 0.0 for component with no memberships."""
-        from temper_placer.core.loop import LoopCollection
+        from temper_design_bundle_python import LoopCollection
 
         info = ComponentLoopInfo("J1", [])
         lc = LoopCollection(loops=[])
@@ -441,7 +440,7 @@ class TestLoopOwnershipMapDifferential:
         assert not ownership.components_share_loop("Q1", "C1")
 
     def test_components_share_critical_loop(self):
-        from temper_placer.core.loop import Loop, LoopCollection, LoopPriority, LoopType
+        from temper_design_bundle_python import Loop, LoopCollection, LoopPriority, LoopType
 
         commutation = Loop(
             name="commutation",

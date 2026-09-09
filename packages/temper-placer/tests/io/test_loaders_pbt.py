@@ -77,9 +77,9 @@ import string
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
+from temper_design_bundle_python import Loop, LoopEvent, LoopPin, LoopPriority, LoopType
 
 from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
-from temper_placer.core.loop import Loop, LoopEvent, LoopPin, LoopPriority, LoopType
 from temper_placer.io.loop_loader import (
     LoopLoadError,
     load_loop_collection,
