@@ -1,0 +1,54 @@
+{
+  "schema": "control-assembly.interfaces.v1",
+  "plan": "docs/plans/2026-09-10-1322-feat-buck-mcu-composition-plan.md",
+  "unit": "U1",
+  "rule": "Future endpoints are obligations, not fictional product connectors or suppressed opens. A full-board overlay routes only interfaces whose counterpart is in this milestone.",
+  "internal_required": [
+    {
+      "name": "BUCK_3V3_TO_MCU",
+      "from": "buck.power_out.vcc",
+      "to": "mcu.power.vcc",
+      "target_net": "+3V3",
+      "domain": "SELV_LV",
+      "route_in_scope": true,
+      "note": "Inter-block supply routed in U3 within the target context."
+    },
+    {
+      "name": "BUCK_GND_TO_MCU",
+      "from": "buck.power_out.gnd",
+      "to": "mcu.power.gnd",
+      "target_net": "gnd",
+      "domain": "SELV_LV",
+      "route_in_scope": true,
+      "note": "Inter-block return routed in U3; zone refill rechecked so a visually connected path cannot be electrically open."
+    },
+    {
+      "name": "BUCK_VIN_15V",
+      "from": "AuxSupply PS1.VP (+15V)",
+      "to": "buck.power_in.vcc",
+      "target_net": "+15V",
+      "domain": "SELV_LV",
+      "direction": "into section",
+      "route_in_scope": true,
+      "note": "Admitted external connection: actual counterpart (PS1 at ~104,125) is on the board."
+    },
+    {
+      "name": "BUCK_EN",
+      "from": "buck.enable.line",
+      "to": "+15V (tied in PowerManagement)",
+      "domain": "SELV_LV",
+      "route_in_scope": true,
+      "note": "Source ties EN to power_15v.vcc; no separate board route required unless P1 source changes it."
+    }
+  ],
+  "future_obligations": [
+    {"name": "PWM_HS", "destination": "gate-drive HS", "domain": "signal/SELV", "access_region_mm": {"x1": 18, "y1": 28, "x2": 52, "y2": 68}, "route_in_overlay": false},
+    {"name": "PWM_LS", "destination": "gate-drive LS", "domain": "signal/SELV", "access_region_mm": {"x1": 18, "y1": 28, "x2": 52, "y2": 68}, "route_in_overlay": false},
+    {"name": "RTD_SPI", "signals": ["RTD_CS_N", "RTD_SCK", "RTD_SDI", "RTD_SDO", "RTD_DRDY"], "destination": "RTD sensing (MAX31865)", "domain": "signal/SELV", "route_in_overlay": false},
+    {"name": "SAFETY", "signals": ["SHUTDOWN", "RTD_HW_FAULT", "WDT_RESET_N", "WDT_KICK"], "destination": "safety/interlock + TPS3823", "domain": "signal/SELV", "route_in_overlay": false},
+    {"name": "RELAY_DISCHARGE", "signals": ["RELAY_CTRL", "DISCHARGE_CTRL"], "destination": "relay + bus discharge", "domain": "signal/SELV", "route_in_overlay": false},
+    {"name": "SENSE_ADC", "signals": ["I_SENSE", "V_BUS_SENSE"], "destination": "current/voltage sensing", "domain": "signal/SELV", "route_in_overlay": false},
+    {"name": "COMMS", "signals": ["usb_dn/usb_dp", "UART TXD0/RXD0", "I2C IO38/IO39"], "destination": "programming/debug/UI", "domain": "signal/SELV", "route_in_overlay": false}
+  ],
+  "blockers": []
+}

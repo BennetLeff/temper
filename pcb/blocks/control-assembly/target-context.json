@@ -1,0 +1,120 @@
+{
+  "schema": "control-assembly.target-context.v1",
+  "plan": "docs/plans/2026-09-10-1322-feat-buck-mcu-composition-plan.md",
+  "unit": "U1",
+  "generated": "2026-09-10",
+  "production_board_readonly": true,
+  "target": {
+    "board_file": "pcb/temper.kicad_pcb",
+    "project_file": "pcb/temper.kicad_pro",
+    "outline_mm": {
+      "shape": "rect",
+      "x1": 8.0,
+      "y1": 20.0,
+      "x2": 172.0,
+      "y2": 254.0,
+      "width": 164.0,
+      "height": 234.0,
+      "source": "gr_poly Edge.Cuts pts in pcb/temper.kicad_pcb"
+    },
+    "thickness_mm": 1.6,
+    "finish": "ENIG",
+    "physical_copper_order": ["F.Cu", "In3.Cu", "In1.Cu", "In2.Cu", "In4.Cu", "B.Cu"],
+    "copper_thickness_mm": {
+      "F.Cu": 0.07,
+      "In3.Cu": 0.035,
+      "In1.Cu": 0.035,
+      "In2.Cu": 0.035,
+      "In4.Cu": 0.035,
+      "B.Cu": 0.07
+    },
+    "dielectrics_mm": {
+      "dielectric_1_prepreg": 0.15,
+      "dielectric_2_prepreg": 0.15,
+      "dielectric_3_core": 0.72,
+      "dielectric_4_prepreg": 0.15,
+      "dielectric_5_prepreg": 0.15
+    },
+    "ordinal_id_warning": "Layer ordinal IDs in the (layers) block are NOT physical order: (0 F.Cu, 3 In3.Cu, 1 In1.Cu, 2 In2.Cu, 4 In4.Cu, 31 B.Cu). Physical order is the (setup (stackup ...)) sequence recorded above. Do not map F.Cu/B.Cu by alphabet or ordinals.",
+    "net_classes": ["Default", "Power", "HighVoltage", "HighVoltageTank"],
+    "net_count": 684,
+    "footprint_count": 168
+  },
+  "voltage_domains": {
+    "HV": {
+      "nets": ["+170V_BUS", "ac_l", "ac_n", "SW_NODE", "GATE_HS", "GATE_LS", "+15V_LS"],
+      "note": "Mains-referenced / switched power. Isolation barrier to SELV required across every copper layer; a declared boundary or distance check alone is not a barrier (CONCEPTS.md)."
+    },
+    "SELV_LV": {
+      "nets": ["+15V", "+3V3", "gnd", "PWR_RTN", "DC_BUS_RTN"],
+      "note": "Aux 15V from PS1 (IRM-10-15, isolated) feeds buck VIN; buck 3V3 feeds MCU VCC3V3. Power_in.gnd ~ power_out.gnd inside BuckConverter3V3 is the single LV return tie for this section."
+    },
+    "signal": {
+      "nets": ["PWM_HS", "PWM_LS", "RTD_SCK", "RTD_SDI", "RTD_SDO", "RTD_CS_N", "I_SENSE", "V_BUS_SENSE", "SHUTDOWN", "RELAY_CTRL", "WDT_KICK", "WDT_RESET_N", "en", "usb_dn", "usb_dp"],
+      "note": "SELV-referenced control/sense. No new HV/LV crossing is introduced by this section."
+    }
+  },
+  "existing_section_instances": {
+    "mcu": {
+      "ref": "U27",
+      "footprint": "lib:ESP32-S3-WROOM-1",
+      "at": [33.1, 47.96, 90],
+      "body_mm": [18.0, 25.5],
+      "sheetpath": "mcu.mcu",
+      "note": "Current target placeholder for the MCU. U2 replaces its geometry with the P1 source-derived package; identity is revalidated then, not by refdes match here."
+    },
+    "buck": {
+      "ic": {"ref": "U3", "footprint": "Package_TO_SOT_SMD:SOT-23-6", "at": [117.93, 149.08, 180]},
+      "inductor": {"ref": "L2", "footprint": "Inductor_SMD:L_Bourns_SRP1265A", "at": [135.29, 147.93, 270]},
+      "note": "Current target placeholder for the buck. Surrounding passives near (100-145, 135-160) are NOT blanket-attributed; U2 binds each to BuckConverter3V3 source instances (c_in/c_boot/l_out/c_out1/c_out2/c_out_hf/r_fb_top/r_fb_bot) before any removal."
+    }
+  },
+  "reserved_regions_mm": {
+    "mcu_block": {"x1": 18.0, "y1": 28.0, "x2": 52.0, "y2": 68.0, "purpose": "MCU module + decoupling/EN/boot/I2C pullups + routing access"},
+    "antenna_keepout": {"x1": 18.0, "y1": 20.0, "x2": 52.0, "y2": 32.0, "purpose": "ESP32-S3-WROOM-1 antenna access: no copper pour, tracks, or tall parts; keep clear on all copper layers. RF certification itself is out of scope."},
+    "buck_block": {"x1": 100.0, "y1": 132.0, "x2": 146.0, "y2": 162.0, "purpose": "Buck converter local loops (input, switch, output, feedback) + inter-block supply/return exits"},
+    "note": "Regions are reservations for P1 construction and P3 U2/U3 routing, not a full product floorplan (out of scope per plan)."
+  },
+  "mechanical": {
+    "keepouts_observed": "10 copper-pour keepout polygons exist in the target; none is an antenna keepout. Antenna keepout above is newly reserved by this context.",
+    "zones_observed": 151,
+    "edge_clearance_rule_mm": 0.5
+  },
+  "reconciled_contradictions": [
+    "Ordinal layer IDs (0/3/1/2/4/31) do not encode physical order; resolved to the setup/stackup sequence F/In3/In1/In2/In4/B with thicknesses above.",
+    "Two-layer buck prototype settings (50x40mm, 1.6mm FR-4, 1oz, HASL) do NOT transfer; target is six-layer 164x234mm ENIG above.",
+    "Prototype J1/J2/TP1-TP4/H1-H4 are fixtures, excluded from the functional nine (U3/L2/C9/C10/C11/C12/C13/R16/R17).",
+    "Samsung capacitor update (CL32B106KBJZW6E / CL32B226KAJNNWE) postdates older receipts; U2 uses current bytes via source-manifest, not a copied digest.",
+    "Net-name spellings (+3V3 vs 3V3, gnd vs GND) are aliases resolved by canonical source identity in U2, not by string match."
+  ],
+  "replacement_ledger": {
+    "remove": [
+      {"ref": "U27", "tstamp": "92a720b8-6473-ffc4-7fa8-ef701c075add", "reason": "MCU placeholder replaced by P1 source-derived package"},
+      {"ref": "U3", "reason": "buck IC placeholder replaced by source-matched LMR51430 geometry"},
+      {"ref": "L2", "reason": "buck inductor placeholder replaced by source-matched SRP1265A-5R6M geometry"}
+    ],
+    "verify_then_remove": "Target passives inside buck_block/mcu_block that U2 binds to a BuckConverter3V3/MCU source instance; each removal must verify the object existed in the baseline and retain before/after identity.",
+    "retain": "All geometry outside the owned boundary envelopes; shared +3V3/gnd nets are cut only at envelope endpoints, never deleted by net name.",
+    "owned_envelopes_mm": {
+      "mcu_envelope": {"x1": 18.0, "y1": 28.0, "x2": 52.0, "y2": 68.0},
+      "buck_envelope": {"x1": 100.0, "y1": 132.0, "x2": 146.0, "y2": 162.0}
+    },
+    "boundary_rule": "Cut/reconnect shared or crossing nets only at explicit envelope endpoints with continuity rechecked after insertion. A crossing that cannot be replaced within scope is a named interface blocker (interfaces.json), not permission to reroute unrelated circuits."
+  },
+  "pending_inputs": {
+    "p1_combined_source": "P1 U2 wrapper/export (buck+MCU through 3V3/return) — required before U2 composition",
+    "p1_mcu_geometry": "P1 U4 accepted pcb/blocks/mcu/ package — required before U2 composition",
+    "p2_memory_closeout": "Needed only for U4 handoff, not for U1 context"
+  },
+  "provenance": {
+    "pcb/temper.kicad_pcb": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "pcb/temper.kicad_pro": "5bc09a679a3d0a1d671d28d6ac9f1186436c56235083baaf4e3addfee19393bb",
+    "pcb/fp-lib-table": "e2d94e86834940110cb6f852cfd5e13f6facb6eb68a1c6350bb299919c68f2d6",
+    "pcb/sym-lib-table": "d833fe771772244baf78e61db2e3c148ec8d2b5fd420cc68caf0b4fb034bc8f4",
+    "elec/src/modules.ato": "272f7f9604771d44255e8cbd9c3f3b7dd6c68bd16a0bad7b48a03b665e0a16cc",
+    "pcb/prototypes/buck-reva/buck-reva.kicad_pcb": "8da3f73444f803e389f38864ba5278f9987533d4e597fa5b40823ad2d0c8d2b3",
+    "pcb/prototypes/buck-reva/source-manifest.json": "83b462c4bbce39b1c367fa2e1965e4a937db26d7e301f505736e2aec8f52cd52",
+    "CONCEPTS.md": "e9ac5682962bd93237f4219f969c1230bbda894a777cb52f2d0b2b8c13e7f6ee",
+    "extraction": "native KiCad file parse (outline gr_poly, setup/stackup, layers, nets, footprints); no Python rotation or net-identity policy introduced"
+  }
+}
