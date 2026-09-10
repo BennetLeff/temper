@@ -570,13 +570,14 @@ def validate_tj_safety(
         )
         Rjc = 0.31
 
-    from temper_placer.physics.thermal import estimate_junction_temp
-
-    Tj = estimate_junction_temp(
-        power_W=power_w,
-        edge_distance_mm=edge_distance_mm,
-        ambient_C=ambient_C,
-        Rjc=Rjc,
+    Tj = _tt.estimate_junction_temp_py(
+        power_w,
+        edge_distance_mm,
+        0.0,
+        ambient_C,
+        Rjc,
+        _tt.tim_rch_kw(),
+        _tt.hs1_rha_kw(),
     )
 
     if Tj > rated_tj_max:

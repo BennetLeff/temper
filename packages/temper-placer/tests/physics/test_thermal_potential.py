@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import temper_thermal as _tt
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -249,10 +250,12 @@ class TestValidateTjSafety:
 
     def test_far_from_edge_increases_tj(self):
         """Greater distance from edge increases junction temp."""
-        from temper_placer.physics.thermal import estimate_junction_temp
-
-        Tj_close = estimate_junction_temp(50.0, 5.0, Rjc=0.6)
-        Tj_far = estimate_junction_temp(50.0, 50.0, Rjc=0.6)
+        Tj_close = _tt.estimate_junction_temp_py(
+            50.0, 5.0, 0.0, _tt.default_ambient_c(), 0.6, _tt.tim_rch_kw(), _tt.hs1_rha_kw()
+        )
+        Tj_far = _tt.estimate_junction_temp_py(
+            50.0, 50.0, 0.0, _tt.default_ambient_c(), 0.6, _tt.tim_rch_kw(), _tt.hs1_rha_kw()
+        )
         assert Tj_far > Tj_close, "Tj should increase with distance from edge"
 
 
