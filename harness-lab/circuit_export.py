@@ -29,11 +29,13 @@ def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def export(project: Path, output: Path) -> dict[str, Any]:
+def export(project: Path, output: Path,
+           entry_file: str = "buck.ato",
+           entry_module: str = "BuckCircuitCandidate") -> dict[str, Any]:
     from atopile import api, instance_methods
 
-    entry = (project / "buck.ato").resolve()
-    address = f"{entry}:BuckCircuitCandidate"
+    entry = (project / entry_file).resolve()
+    address = f"{entry}:{entry_module}"
     api.build(address)
     components: list[dict[str, Any]] = []
     for descendant in instance_methods.all_descendants(address):
@@ -71,8 +73,13 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("project", type=Path)
     parser.add_argument("output", type=Path)
+    # Parameterized for non-buck blocks (P1 U2); defaults preserve the
+    # historical buck entry exactly.
+    parser.add_argument("--entry-file", default="buck.ato")
+    parser.add_argument("--entry", default="BuckCircuitCandidate")
     args = parser.parse_args()
-    export(args.project.resolve(), args.output.resolve())
+    export(args.project.resolve(), args.output.resolve(),
+           args.entry_file, args.entry)
     return 0
 
 

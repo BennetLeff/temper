@@ -1444,15 +1444,21 @@ module BuckConverter3V3:
     buck = new LMR51430
 
     c_in = new Capacitor
-    c_in.value = 10uF +/- 20%
+    # Samsung CL32B106KBJZW6E: exact 10uF +/-10%, 50V, X7R, 1210,
+    # mass-production soft-termination candidate (Samsung product page and
+    # ADS catalog, retrieved 2026-09-10). Typical DC-bias data are screening
+    # evidence only; effective capacitance remains an open qualification item.
+    c_in.value = 10uF +/- 10%
     c_in.dielectric = "X7R"
-    c_in.voltage_rating = 25V
-    c_in.mpn = "GRM32ER71E106KA12L"
+    c_in.voltage_rating = 50V
+    c_in.mpn = "CL32B106KBJZW6E"
     c_in.footprint = "Capacitor_SMD:C_1210_3225Metric"
 
     c_boot = new Capacitor
-    c_boot.value = 100nF
-    c_boot.voltage_rating = 25V
+    c_boot.value = 100nF +/- 10%
+    # C0603C104K5RACTU is the exact 50V KEMET orderable; 25V was only a
+    # stale minimum declaration and misrepresented the selected part.
+    c_boot.voltage_rating = 50V
     c_boot.dielectric = "X7R"
     c_boot.mpn = "C0603C104K5RACTU"
     c_boot.footprint = "Capacitor_SMD:C_0603_1608Metric"
@@ -1467,23 +1473,29 @@ module BuckConverter3V3:
     l_out.footprint = "Inductor_SMD:L_Bourns_SRP1265A"
 
     c_out1 = new Capacitor
-    c_out1.value = 22uF +/- 20%
+    c_out1.value = 22uF +/- 10%
     c_out1.dielectric = "X7R"
     c_out1.voltage_rating = 25V
-    c_out1.mpn = "GRM32ER71E226KE15L"
+    # Samsung CL32B226KAJNNWE: exact 22uF +/-10%, 25V, X7R, 1210.
+    # This prototype substitution preserves nominal value, voltage, dielectric
+    # and land pattern. Samsung DC-bias behavior has not been qualified here;
+    # do not reuse the prior Murata derating evidence as a Samsung minimum.
+    c_out1.mpn = "CL32B226KAJNNWE"
     c_out1.footprint = "Capacitor_SMD:C_1210_3225Metric"
 
     c_out2 = new Capacitor
-    c_out2.value = 22uF +/- 20%
+    c_out2.value = 22uF +/- 10%
     c_out2.dielectric = "X7R"
     c_out2.voltage_rating = 25V
-    c_out2.mpn = "GRM32ER71E226KE15L"
+    c_out2.mpn = "CL32B226KAJNNWE"
     c_out2.footprint = "Capacitor_SMD:C_1210_3225Metric"
 
     c_out_hf = new Capacitor
     c_out_hf.value = 100nF +/- 10%
     c_out_hf.dielectric = "X7R"
-    c_out_hf.voltage_rating = 10V
+    # The exact KEMET MPN is rated 50V; the old 10V field was a stale
+    # minimum and did not describe the selected BOM part.
+    c_out_hf.voltage_rating = 50V
     c_out_hf.mpn = "C0603C104K5RACTU"
     c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
 
@@ -3485,11 +3497,14 @@ module MCU:
     # Assertions
     assert power.voltage within 3.3V +/- 5%
     
-    # Boot timing assertions
+    # Boot timing assertions use honest worst-case spreads: r_en +/-2%
+    # (declared; MPN RC0603FR is +/-1%, so this is conservative) plus c_en
+    # +/-10% (per MPN K code). Linear sum: RC = 10ms +/-12% = 8.8-11.2ms;
+    # delay = x1.4 = 12.3-15.7ms. Bands below contain those corners.
     t_boot_rc: time = r_en.value * c_en.value
-    assert t_boot_rc within 9ms to 11ms
+    assert t_boot_rc within 8.5ms to 11.5ms
     t_boot_delay: time = t_boot_rc * 1.4
-    assert t_boot_delay within 13ms to 15ms
+    assert t_boot_delay within 12ms to 16ms
     
     signal pwm_h
     signal pwm_l
@@ -3524,7 +3539,11 @@ module MCU:
     r_en.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     c_en = new Capacitor
-    c_en.value = 1uF +/- 2%
+    # GRM188R71A105KA61D tolerance code K = +/-10%: the declared tolerance
+    # must match the purchasable part, not an ideal value. A +/-2% 1uF X7R
+    # 0603 does not exist as an orderable part; declaring it made the RC
+    # assertions pass against a fiction (previously 10ms +/-400us).
+    c_en.value = 1uF +/- 10%
     c_en.voltage_rating = 10V
     c_en.mpn = "GRM188R71A105KA61D"
     c_en.footprint = "Capacitor_SMD:C_0603_1608Metric"
@@ -3587,7 +3606,10 @@ module MCU:
     spi.sclk ~ mcu.SPI_CLK
     spi.mosi ~ mcu.SPI_MOSI
     spi.miso ~ mcu.SPI_MISO
-    rtd_drdy.line ~ mcu.IO9  # Assuming IO9 for DRDY based on schematic or defaults
+    # DRDY on IO9: confirmed by firmware (temper_pins.h PIN_RTD_DRDY=9,
+    # main.c bootstrap comment, README). Not an assumption; any pin move
+    # must change firmware and source together.
+    rtd_drdy.line ~ mcu.IO9
     
     wdt_kick.line ~ mcu.IO7
     relay_ctrl.line ~ mcu.IO16

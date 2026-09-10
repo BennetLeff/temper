@@ -1,0 +1,643 @@
+{
+  "artifact_hashes": {
+    "build_default_csv": "09d804ac1ad3c9d98cd37117d57323ef51a001eff40ac5d019339ce1d15f7dff",
+    "build_default_net": "5110218aef4a9a67a1075eefc0ca29baef5f41ddf35fb8ca1c5ade755f3adc03"
+  },
+  "assertions": [
+    {
+      "expression": "power.voltage within 3.3V +/- 5%",
+      "measured": "3.3V within 3.13 to 3.46 V",
+      "status": "pass"
+    },
+    {
+      "expression": "t_boot_rc within 8.5ms to 11.5ms",
+      "measured": "8.82 to 11.22 ms",
+      "status": "pass"
+    },
+    {
+      "expression": "t_boot_delay within 12ms to 16ms",
+      "measured": "12.35 to 15.71 ms",
+      "status": "pass"
+    }
+  ],
+  "boundary_nets": [
+    {
+      "destination": "HalfBridge PWM_H (future endpoint)",
+      "mcu_pin": "IO4",
+      "net": "pwm_h",
+      "u1_pad": "4"
+    },
+    {
+      "destination": "HalfBridge PWM_L (future endpoint)",
+      "mcu_pin": "IO5",
+      "net": "pwm_l",
+      "u1_pad": "5"
+    },
+    {
+      "destination": "CurrentSensing burden (future endpoint)",
+      "mcu_pin": "GPIO1",
+      "net": "adc_i_sense_stub",
+      "note": "wrapper stub; required signal",
+      "u1_pad": "39"
+    },
+    {
+      "destination": "PowerManagement divider (future endpoint)",
+      "mcu_pin": "GPIO2",
+      "net": "adc_v_bus_stub",
+      "note": "wrapper stub; required signal",
+      "u1_pad": "38"
+    },
+    {
+      "destination": "ThermalSystem NTC (future endpoint)",
+      "mcu_pin": "GPIO3",
+      "net": "adc_ntc_stub",
+      "note": "wrapper stub; required signal",
+      "u1_pad": "15"
+    },
+    {
+      "destination": "RTDSensing MAX31865 SCLK",
+      "mcu_pin": "SPI_CLK/IO8",
+      "net": "sclk",
+      "u1_pad": "12"
+    },
+    {
+      "destination": "RTDSensing MAX31865 MOSI",
+      "mcu_pin": "SPI_MOSI/IO11",
+      "net": "mosi",
+      "u1_pad": "19"
+    },
+    {
+      "destination": "RTDSensing MAX31865 MISO",
+      "mcu_pin": "SPI_MISO/IO12",
+      "net": "miso",
+      "u1_pad": "20"
+    },
+    {
+      "destination": "RTDSensing CS",
+      "mcu_pin": "SPI_CS/IO10",
+      "net": "mcu-line",
+      "u1_pad": "18"
+    },
+    {
+      "destination": "RTDSensing DRDY",
+      "mcu_pin": "IO9",
+      "net": "mcu-line-1",
+      "u1_pad": "17"
+    },
+    {
+      "destination": "TPS3823 WDI",
+      "mcu_pin": "IO7",
+      "net": "mcu-line-2",
+      "u1_pad": "7"
+    },
+    {
+      "destination": "inrush relay coils (BusDischarge)",
+      "mcu_pin": "IO16",
+      "net": "mcu-line-3",
+      "note": "OBLIGATION-1: firmware reserves 16 for RTD CS2, drives relay from 19",
+      "u1_pad": "9"
+    },
+    {
+      "destination": "bus-discharge relay, fail-safe low (BusDischarge)",
+      "mcu_pin": "IO47",
+      "net": "mcu-line-4",
+      "note": "OBLIGATION-4: absent from temper_pins.h",
+      "u1_pad": "24"
+    },
+    {
+      "destination": "latched SHUTDOWN sense (SafetyInterlock)",
+      "mcu_pin": "IO17",
+      "net": "mcu-line-5",
+      "note": "OBLIGATION-2: firmware drives LED_FAULT on 17",
+      "u1_pad": "10"
+    },
+    {
+      "destination": "latch reset request (SafetyInterlock)",
+      "mcu_pin": "IO14",
+      "net": "mcu-line-6",
+      "u1_pad": "22"
+    },
+    {
+      "destination": "TPS3823 RESET_N sense",
+      "mcu_pin": "IO6",
+      "net": "mcu-line-7",
+      "u1_pad": "6"
+    },
+    {
+      "destination": "safety latch runaway cut",
+      "mcu_pin": "IO15",
+      "net": "mcu-line-8",
+      "u1_pad": "8"
+    },
+    {
+      "destination": "3V3 rail (AuxSupply LDO)",
+      "mcu_pin": "VCC3V3",
+      "net": "vcc",
+      "u1_pad": "2"
+    },
+    {
+      "destination": "return (star to supply)",
+      "mcu_pin": "GND",
+      "net": "gnd",
+      "note": "model exposes a single GND pad; module ground-pad census is an open R3 map item",
+      "u1_pad": "1"
+    },
+    {
+      "destination": "native USB D- (port obligation)",
+      "mcu_pin": "IO19",
+      "net": "usb_dn",
+      "note": "OBLIGATION-3: firmware drives RELAY_BYPASS on 19",
+      "u1_pad": "13"
+    },
+    {
+      "destination": "native USB D+ (port obligation)",
+      "mcu_pin": "IO20",
+      "net": "usb_dp",
+      "note": "OBLIGATION-3: firmware senses FAULT on 20",
+      "u1_pad": "14"
+    },
+    {
+      "destination": "firmware LED_POWER (no source net)",
+      "mcu_pin": "IO18",
+      "net": "gpio18",
+      "note": "OBLIGATION-2: source leaves IO18 unconnected",
+      "u1_pad": "11"
+    },
+    {
+      "destination": "boot strap + BOOT button",
+      "mcu_pin": "IO0",
+      "net": "io0",
+      "u1_pad": "27"
+    },
+    {
+      "destination": "EN RC + RESET button",
+      "mcu_pin": "EN",
+      "net": "en",
+      "u1_pad": "3"
+    },
+    {
+      "destination": "I2C SDA + 4.7k pullup",
+      "mcu_pin": "IO38",
+      "net": "sda",
+      "u1_pad": "31"
+    },
+    {
+      "destination": "I2C SCL + 4.7k pullup",
+      "mcu_pin": "IO39",
+      "net": "scl",
+      "u1_pad": "32"
+    },
+    {
+      "destination": "debug console (naming map open)",
+      "mcu_pin": "TXD0",
+      "net": "tx",
+      "note": "OBLIGATION-5: firmware uses GPIO43/44",
+      "u1_pad": "37"
+    },
+    {
+      "destination": "debug console (naming map open)",
+      "mcu_pin": "RXD0",
+      "net": "rx",
+      "note": "OBLIGATION-5: firmware uses GPIO43/44",
+      "u1_pad": "36"
+    }
+  ],
+  "compiler_notes": [
+    "Atopile exits nonzero on a FAILED assertion but still writes netlist/BOM artifacts (measured 2026-09-10: rc=1 with the old 9-11ms band under the honest +/-10% tolerance, artifacts present). Downstream stages must gate on return code AND the assertions report and never consume artifacts from a failed build. U2 bridge takes this as an input.",
+    "Netlist value fields are '?' for every component and libsource carries the MPN alias: per KTD3 neither is an authoritative part identity. Exact MPNs come from the CSV joined through the designator map, values from resolved attributes (U2 bridge).",
+    "Each ElectricLogic interface contributes one connected 'mcu-line*' net and one empty 'mcu-reference*' net (9 empties). References are unconnected interface members, not physical pads; they must not become copper."
+  ],
+  "discrepancies_fixed": [
+    {
+      "evidence": "fresh-workspace build with honest +/-10% tolerance FAILS the old bands (8.82-11.22ms vs 9-11ms); passes the new ones",
+      "field": "elec/src/modules.ato MCU.c_en.value, t_boot_rc/t_boot_delay asserts",
+      "finding": "c_en declared 1uF +/-2% but the selected MPN GRM188R71A105KA61D tolerance code K is +/-10%; the old 9-11ms/13-15ms RC bands passed only against the fictional tolerance",
+      "fix": "declare 1uF +/-10%; widen bands to 8.5-11.5ms / 12-16ms containing the honest worst case (R +/-2% declared, C +/-10%) with margin; main.ato t_mcu_boot=14ms literal still inside the delay band, no main.ato change"
+    },
+    {
+      "field": "elec/src/modules.ato MCU rtd_drdy comment",
+      "finding": "DRDY mapping carried an 'Assuming IO9' comment with no provenance",
+      "fix": "comment now cites firmware ground truth: temper_pins.h PIN_RTD_DRDY=9, main.c bootstrap, README; pin moves must change both sides together"
+    },
+    {
+      "field": "components/ESP32-S3/ESP32-S3-WROOM-1.kicad_sym MPN + Description",
+      "finding": "symbol carried MPN ESP32-S3-WROOM-1-N4 (4MB, no PSRAM) while elec source, BOM \u00a73.1 (reconciled 2026-07-26), and bom-reconciliation-allowlist all require N8R8 (8MB flash + 8MB PSRAM)",
+      "fix": "MPN -> ESP32-S3-WROOM-1-N8R8, Description -> 8MB Flash + 8MB PSRAM; no test pinned N4; firmware sdkconfig sets no flash/PSRAM size so no firmware side effect"
+    }
+  ],
+  "entry": "mcu.ato:McuCandidate",
+  "firmware_crosscheck": {
+    "agree": [
+      "PWM_H=4, PWM_L=5",
+      "ADC current=1, voltage=2, NTC=3",
+      "SPI SCLK=8, MOSI=11, MISO=12, CS_RTD1=10",
+      "DRDY=9 (fixes the source 'assumption' comment)",
+      "WDI=7, WDT_RESET=6, RUNAWAY=15, RESET_IN=14",
+      "BOOT=IO0, I2C SDA=38/SCL=39"
+    ],
+    "method": "compared compiled pin partitions against firmware/components/hal/include/temper_pins.h, firmware/main/main.c, firmware/components/safety/safety.h, firmware/README.md (2026-09-10 worktree state)",
+    "obligations": [
+      "OBLIGATION-1 (owner: firmware + P3): source relay_ctrl=IO16 vs firmware CS_RTD2=16 (reserved) and RELAY_BYPASS=19. One pin, two owners.",
+      "OBLIGATION-2 (owner: firmware + P3): source fault_status_in=IO17 vs firmware LED_FAULT=17 (output); firmware LED_POWER=18 has no source net (IO18 unconnected in MCU).",
+      "OBLIGATION-3 (owner: firmware + P3): source native USB on IO19/IO20 vs firmware RELAY_BYPASS=19 and FAULT_OUT=20. USB and relay/fault cannot share these pins.",
+      "OBLIGATION-4 (owner: firmware): source discharge_ctrl=IO47 (fail-safe-low, README agrees) has no PIN_ definition in temper_pins.h.",
+      "OBLIGATION-5 (owner: P1 U2 R3 map): source UART on TXD0/RXD0 (U1 pads 37/36) vs firmware UART on GPIO43/44. If module TXD0/RXD0 are GPIO43/44 under another name, the explicit R3 pin map records it; until then it is an open naming item, not an agreement."
+    ]
+  },
+  "interfaces": {
+    "i2c": {
+      "scl": "mcu.IO39",
+      "sda": "mcu.IO38"
+    },
+    "power": {
+      "gnd": "power.gnd",
+      "vcc": "power.vcc (3.3V)"
+    },
+    "signals": {
+      "adc_i_sense": "mcu.GPIO1 (required)",
+      "adc_ntc": "mcu.GPIO3 (required)",
+      "adc_v_bus": "mcu.GPIO2 (required)",
+      "cs_rtd": "cs_rtd.line ~ mcu.SPI_CS",
+      "discharge_ctrl": "discharge_ctrl.line ~ mcu.IO47",
+      "fault_status_in": "fault_status_in.line ~ mcu.IO17",
+      "pwm_h": "mcu.IO4",
+      "pwm_l": "mcu.IO5",
+      "relay_ctrl": "relay_ctrl.line ~ mcu.IO16",
+      "reset_n": "reset_n.line ~ mcu.IO14",
+      "rtd_drdy": "rtd_drdy.line ~ mcu.IO9",
+      "runaway_cut": "runaway_cut.line ~ mcu.IO15",
+      "wdt_kick": "wdt_kick.line ~ mcu.IO7",
+      "wdt_reset_in": "wdt_reset_in.line ~ mcu.IO6"
+    },
+    "spi": {
+      "miso": "mcu.SPI_MISO",
+      "mosi": "mcu.SPI_MOSI",
+      "sclk": "mcu.SPI_CLK"
+    },
+    "uart": {
+      "rx": "mcu.RXD0",
+      "tx": "mcu.TXD0"
+    },
+    "usb": {
+      "dn": "mcu.IO19",
+      "dp": "mcu.IO20"
+    }
+  },
+  "manufacturer_layout_rules": {
+    "adopted_sections": [
+      {
+        "implements": "P3 antenna_keepout (18-52 x 20-32mm, all copper layers)",
+        "rule": "PCB antenna outside the base-board edge, feed point at the edge; if enclosed, cut out both sides + below; 15mm housing clearance in all directions",
+        "section": "Positioning a Module on a Base Board"
+      },
+      {
+        "applies_to": "usb_dn/usb_dp on IO19/IO20, U3 routing",
+        "rule": "90-ohm differential +/-10%, length-matched, minimal vias (paired ground-return vias at any transition), continuous GND reference, ground-surrounded",
+        "section": "USB"
+      },
+      {
+        "applies_to": "TXD0/RXD0, U3 routing",
+        "rule": "TX series resistor near chip, short top-layer traces, ground copper + stitching around, kept away from antenna and crystal",
+        "section": "UART"
+      },
+      {
+        "applies_to": "C1/C2 placement, U4 construction",
+        "rule": "10uF at power entrance + 100nF parallel (block carries 10uF bulk C2 + 100nF C1); short ground return via near decoupling GND pads",
+        "section": "Power Supply (module-applied)"
+      },
+      {
+        "applies_to": "antenna keepout + UART routing side",
+        "rule": "no high-frequency traces near RF/antenna; UART keep-away explicitly listed",
+        "section": "RF"
+      }
+    ],
+    "not_applicable": "chip-level rules (crystal placement, RF stub/CLC matching, EPAD vias, flash/PSRAM length matching) apply inside the Espressif module, not the base board; the local 39-pad footprint has no thermal pad",
+    "revision": "latest, retrieved 2026-09-10 (doc footer: Copyright 2023-2026)",
+    "source": "Espressif ESP Hardware Design Guidelines, ESP32-S3 PCB Layout Design chapter",
+    "url": "https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/pcb-layout-design.html"
+  },
+  "open_items": [
+    "R3 explicit pin map (U2): every required U1 pad against the local footprint and the WROOM-1 manufacturer pin table, including the module ground-pad census (model exposes a single GND~pin1) and the TXD0/RXD0 vs GPIO43/44 naming item.",
+    "OBLIGATION-1..5 above: no copper is drawn for a contested pin until its owner resolves it. Contested pins (16/17/18/19/20/47, UART) stay named obligations in P3 interfaces.json.",
+    "Numeric MCU layout contract (manufacturer revision + antenna keepout + USB/UART/power rules) is established in U1 jointly with P3 target context; the adopted source sections are listed in README.md."
+  ],
+  "physical_instances": [
+    {
+      "designator": "U1",
+      "footprint": "ESP32-S3-WROOM-1 (custom, local)",
+      "instance": "mcu.mcu",
+      "mpn": "ESP32-S3-WROOM-1-N8R8",
+      "variant_note": "N8R8 ordering code exists on the Espressif product page (8MB flash + 8MB octal PSRAM, PCB antenna, 18x25.5x3.1mm); matches flash_size/psram_size fields"
+    },
+    {
+      "designator": "C1",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance": "mcu.c_vcc1",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF / 10V"
+    },
+    {
+      "designator": "C2",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "instance": "mcu.c_vcc2",
+      "mpn": "GRM21BR71A106KE51L",
+      "value": "10uF / 10V"
+    },
+    {
+      "designator": "C3",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance": "mcu.c_en",
+      "mpn": "GRM188R71A105KA61D",
+      "value": "1uF +/-10% / 10V (K code; was fictionally +/-2%)"
+    },
+    {
+      "designator": "R1",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance": "mcu.r_en",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm +/-2% declared (MPN F code is +/-1%, conservative)"
+    },
+    {
+      "designator": "R2",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance": "mcu.r_boot",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm"
+    },
+    {
+      "designator": "R3",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance": "mcu.r_sda_pullup",
+      "mpn": "RC0603FR-074K7L",
+      "value": "4.7kohm"
+    },
+    {
+      "designator": "R4",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance": "mcu.r_scl_pullup",
+      "mpn": "RC0603FR-074K7L",
+      "value": "4.7kohm"
+    },
+    {
+      "designator": "SW1",
+      "footprint": "Resistor_SMD:R_0603_1608Metric (PLACEHOLDER per components.ato; real tactile footprint pending)",
+      "instance": "mcu.btn_reset",
+      "mpn": "EVQ-P7A01P"
+    },
+    {
+      "designator": "SW2",
+      "footprint": "Resistor_SMD:R_0603_1608Metric (PLACEHOLDER per components.ato; real tactile footprint pending)",
+      "instance": "mcu.btn_boot",
+      "mpn": "EVQ-P7A01P"
+    }
+  ],
+  "production_crosscheck": {
+    "method": "each compiled U1 pad (pad number == module pin number) against footprint lib:ESP32-S3-WROOM-1 ref U27 in pcb/temper.kicad_pcb (read-only, milestone R3); status match = same function, name-differs = reviewed alias (U1-D2 class), unconnected = stub net, verified as explicitly unconnected in U2, never an open",
+    "pads": [
+      {
+        "pad": "1",
+        "production_net": "gnd",
+        "status": "match"
+      },
+      {
+        "note": "VCC3V3/vcc/+3V3 reviewed aliases",
+        "pad": "2",
+        "production_net": "+3V3",
+        "status": "match"
+      },
+      {
+        "pad": "3",
+        "production_net": "en",
+        "status": "match"
+      },
+      {
+        "pad": "4",
+        "production_net": "PWM_HS",
+        "status": "match"
+      },
+      {
+        "pad": "5",
+        "production_net": "PWM_LS",
+        "status": "match"
+      },
+      {
+        "pad": "6",
+        "production_net": "WDT_RESET_N",
+        "status": "match"
+      },
+      {
+        "pad": "7",
+        "production_net": "WDT_KICK",
+        "status": "match"
+      },
+      {
+        "pad": "8",
+        "production_net": "safety-line-3",
+        "status": "name-differs"
+      },
+      {
+        "pad": "9",
+        "production_net": "RELAY_CTRL",
+        "status": "match"
+      },
+      {
+        "pad": "10",
+        "production_net": "SHUTDOWN",
+        "status": "name-differs"
+      },
+      {
+        "pad": "11",
+        "production_net": "gpio18",
+        "status": "unconnected"
+      },
+      {
+        "pad": "12",
+        "production_net": "RTD_SCK",
+        "status": "match"
+      },
+      {
+        "pad": "13",
+        "production_net": "usb_dn",
+        "status": "match"
+      },
+      {
+        "pad": "14",
+        "production_net": "usb_dp",
+        "status": "match"
+      },
+      {
+        "note": "function plausibly identical thermistor tap; U2 schematic-parity traces it",
+        "pad": "15",
+        "production_net": "safety-line",
+        "status": "name-differs"
+      },
+      {
+        "pad": "16",
+        "production_net": "io46",
+        "status": "unconnected"
+      },
+      {
+        "pad": "17",
+        "production_net": "RTD_DRDY",
+        "status": "match"
+      },
+      {
+        "pad": "18",
+        "production_net": "RTD_CS_N",
+        "status": "match"
+      },
+      {
+        "pad": "19",
+        "production_net": "RTD_SDI",
+        "status": "match"
+      },
+      {
+        "pad": "20",
+        "production_net": "RTD_SDO",
+        "status": "match"
+      },
+      {
+        "pad": "21",
+        "production_net": "io13",
+        "status": "unconnected"
+      },
+      {
+        "pad": "22",
+        "production_net": "safety-line-2",
+        "status": "name-differs"
+      },
+      {
+        "pad": "23",
+        "production_net": "gpio21",
+        "status": "unconnected"
+      },
+      {
+        "pad": "24",
+        "production_net": "DISCHARGE_CTRL",
+        "status": "match"
+      },
+      {
+        "pad": "25",
+        "production_net": "io48",
+        "status": "unconnected"
+      },
+      {
+        "pad": "26",
+        "production_net": "io45",
+        "status": "unconnected"
+      },
+      {
+        "pad": "27",
+        "production_net": "io0",
+        "status": "match"
+      },
+      {
+        "pad": "28",
+        "production_net": "gpio35",
+        "status": "unconnected"
+      },
+      {
+        "pad": "29",
+        "production_net": "gpio36",
+        "status": "unconnected"
+      },
+      {
+        "pad": "30",
+        "production_net": "gpio37",
+        "status": "unconnected"
+      },
+      {
+        "pad": "31",
+        "production_net": "i2c_sda_ui",
+        "status": "match"
+      },
+      {
+        "pad": "32",
+        "production_net": "i2c_scl_ui",
+        "status": "match"
+      },
+      {
+        "pad": "33",
+        "production_net": "io40",
+        "status": "unconnected"
+      },
+      {
+        "pad": "34",
+        "production_net": "io41",
+        "status": "unconnected"
+      },
+      {
+        "pad": "35",
+        "production_net": "io42",
+        "status": "unconnected"
+      },
+      {
+        "pad": "36",
+        "production_net": "rx",
+        "status": "match"
+      },
+      {
+        "pad": "37",
+        "production_net": "tx",
+        "status": "match"
+      },
+      {
+        "pad": "38",
+        "production_net": "V_BUS_SENSE",
+        "status": "name-differs"
+      },
+      {
+        "pad": "39",
+        "production_net": "I_SENSE",
+        "status": "name-differs"
+      }
+    ]
+  },
+  "provenance": {
+    "atopile_version": "0.2.69",
+    "build_date": "2026-09-10",
+    "entry": "mcu.ato:McuCandidate",
+    "mcu_section_sha256": "7c7da71f9afd172b347e6cee5769a91ca3388138ee9029de4b08fac079476619",
+    "source_hashes": {
+      "elec/ato.yaml": "e329edbf21569a5a347c20a4aab83209a02f11d1d29de7a96316097d4eec1a4d",
+      "elec/src/modules.ato": "6f14dba190b24f1c4dea5af8bb834e4a0ad23b00d62bd9115efaa9528a288b57",
+      "harness-lab/blocks/mcu/ato.yaml": "0e6365276f00659ccaaaebab1c24ccbef129b5abb77d7f9b98d1f4778101f6e9",
+      "harness-lab/blocks/mcu/mcu.ato": "a3844663a915ab7f4120b223536b70393e78c9eb7b61101b1f22490c935acd83"
+    },
+    "wrapper": [
+      "harness-lab/blocks/mcu/mcu.ato",
+      "harness-lab/blocks/mcu/ato.yaml"
+    ]
+  },
+  "schema": "temper.mcu-identity.v1",
+  "target_binding": {
+    "antenna_keepout_mm": {
+      "x1": 18.0,
+      "x2": 52.0,
+      "y1": 20.0,
+      "y2": 32.0
+    },
+    "context": "pcb/blocks/control-assembly/target-context.json (P3 U1)",
+    "interfaces": "pcb/blocks/control-assembly/interfaces.json (P3 U1)",
+    "mcu_region_mm": {
+      "x1": 18.0,
+      "x2": 52.0,
+      "y1": 28.0,
+      "y2": 68.0
+    },
+    "outline_mm": {
+      "x1": 8.0,
+      "x2": 172.0,
+      "y1": 20.0,
+      "y2": 254.0
+    },
+    "physical_copper_order": [
+      "F.Cu",
+      "In3.Cu",
+      "In1.Cu",
+      "In2.Cu",
+      "In4.Cu",
+      "B.Cu"
+    ]
+  }
+}

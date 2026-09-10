@@ -248,6 +248,40 @@ def _layout_or_default(layout: SchematicLayout | None) -> SchematicLayout:
     return DEFAULT_LAYOUT if layout is None else layout
 
 
+def mcu_candidate_layout() -> SchematicLayout:
+    """Strict-candidate layout for the P1 U2 MCU block.
+
+    Single-sheet envelope: every compiled module prefix of the isolated MCU
+    build (`mcu`, from `McuCandidate::mcu.*` instance paths) lands on the one
+    `MCU` sheet. Root and sheet filenames are candidate-scoped so generation
+    can never overwrite production schematics by default. This is an explicit
+    strict-candidate path: callers pass the returned layout (or its JSON form)
+    deliberately; omitting it keeps the production defaults unchanged.
+    """
+    return SchematicLayout(
+        root_sheet="mcu_candidate.kicad_sch",
+        sheets=("MCU",),
+        sheet_files={"MCU": "mcu.kicad_sch"},
+        module_to_sheet={"mcu": "MCU"},
+        title="MCU Candidate (source-derived, unrouted)",
+        sheet_description="MCU CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP1 U2 strict-candidate path: source-derived starting point, no functional copper claims\\n\\n1 Sheet:\\nMCU",
+    )
+
+
+def write_candidate_layout_config(layout: SchematicLayout, path: Path) -> None:
+    """Record a candidate layout as JSON for the source manifest."""
+    payload = {
+        "schema_version": 1,
+        "root_sheet": layout.root_sheet,
+        "sheets": list(layout.sheets),
+        "sheet_files": dict(layout.sheet_files),
+        "module_to_sheet": dict(layout.module_to_sheet),
+        "title": layout.title,
+        "sheet_description": layout.sheet_description,
+    }
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def _component_sheet(comp: Component, layout: SchematicLayout) -> str:
     return layout.module_to_sheet.get(comp.sheet_module, "Unknown")
 

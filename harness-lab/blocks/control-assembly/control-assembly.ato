@@ -1,0 +1,36 @@
+# Combined build root (P1 U2): the real BuckConverter3V3 and MCU modules
+# with their source-defined supply/return connection.
+#
+# The implementation of both blocks stays owned by production elec/src; this
+# file only supplies the `ControlAssemblyCandidate` entry so P3 can generate
+# its assembly without authoring another export path.
+#
+# Join discipline (measured 2026-09-10): joining whole ElectricPower
+# interfaces (`buck.power_out ~ mcu.power`) is REJECTED -- both sides define
+# `voltage = 3.3V` and Atopile forbids two definitions on a joined net, even
+# when the values agree. The signal-level join below connects the same copper
+# (vcc-to-vcc, gnd-to-gnd) while each interface keeps its own single voltage
+# definition and local assertions.
+import BuckConverter3V3 from "elec/src/modules.ato"
+import MCU from "elec/src/modules.ato"
+import ElectricPower from "elec/src/generics/interfaces.ato"
+
+module ControlAssemblyCandidate:
+    buck = new BuckConverter3V3
+    mcu = new MCU
+    feed = new ElectricPower
+    buck.power_in ~ feed
+    buck.enable.line ~ feed.vcc
+    # Source-defined inter-block supply/return (P3 interfaces.json
+    # BUCK_3V3_TO_MCU / BUCK_GND_TO_MCU): buck 3V3 output feeds MCU VCC3V3,
+    # buck return ties MCU return. Single LV return tie for this section.
+    buck.power_out.vcc ~ mcu.power.vcc
+    buck.power_out.gnd ~ mcu.power.gnd
+    # Stub the MCU's required sense signals; their real destinations live in
+    # other cooker units (same stubs as harness-lab/blocks/mcu/mcu.ato).
+    signal adc_i_sense_stub
+    signal adc_v_bus_stub
+    signal adc_ntc_stub
+    adc_i_sense_stub ~ mcu.adc_i_sense
+    adc_v_bus_stub ~ mcu.adc_v_bus
+    adc_ntc_stub ~ mcu.adc_ntc

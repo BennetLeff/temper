@@ -38,7 +38,7 @@
       "to": "+15V (tied in PowerManagement)",
       "domain": "SELV_LV",
       "route_in_scope": true,
-      "note": "Source ties EN to power_15v.vcc; no separate board route required unless P1 source changes it."
+      "note": "P1 source-side tie only. Target U3 (SOT-23-6) exposes pads gnd/sw/+15V/fb/boot and has NO EN pad, so no board route exists or is required unless P1 source changes the package."
     }
   ],
   "future_obligations": [
@@ -48,7 +48,8 @@
     {"name": "SAFETY", "signals": ["SHUTDOWN", "RTD_HW_FAULT", "WDT_RESET_N", "WDT_KICK"], "destination": "safety/interlock + TPS3823", "domain": "signal/SELV", "route_in_overlay": false},
     {"name": "RELAY_DISCHARGE", "signals": ["RELAY_CTRL", "DISCHARGE_CTRL"], "destination": "relay + bus discharge", "domain": "signal/SELV", "route_in_overlay": false},
     {"name": "SENSE_ADC", "signals": ["I_SENSE", "V_BUS_SENSE"], "destination": "current/voltage sensing", "domain": "signal/SELV", "route_in_overlay": false},
-    {"name": "COMMS", "signals": ["usb_dn/usb_dp", "UART TXD0/RXD0", "I2C IO38/IO39"], "destination": "programming/debug/UI", "domain": "signal/SELV", "route_in_overlay": false}
+    {"name": "COMMS", "signals": ["usb_dn", "usb_dp", "tx", "rx", "i2c_scl_ui", "i2c_sda_ui"], "destination": "programming/debug/UI", "domain": "signal/SELV", "route_in_overlay": false, "note": "Native net names. No IO38/IO39/TXD0/RXD0 nets exist on the target; U27 pads 31/32 carry i2c_sda_ui/i2c_scl_ui and pads 36/37 carry rx/tx."},
+    {"name": "SPARES", "signals": ["gpio18", "gpio21", "gpio35", "gpio36", "gpio37", "io0", "io13", "io40", "io41", "io42", "io45", "io46", "io48", "safety-line", "safety-line-2", "safety-line-3", "en"], "destination": "unassigned MCU pads; future use only", "domain": "signal/SELV", "route_in_overlay": false, "note": "Named so U2/U3 cannot mistake an unconnected pad for a missing connection. gpio18 is unconnected in source (P1 identity-inventory OBLIGATION-2); en/io0 are strapping nets shared with R71/R72/C41/SW1/SW2, not spares to reroute."}
   ],
   "blockers": []
 }

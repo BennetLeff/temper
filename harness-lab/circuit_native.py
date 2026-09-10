@@ -12,12 +12,22 @@ import harness
 
 PINNED_ATOPILE = "0.2.69"
 ENGINEERING = Path(__file__).resolve().parent / "engineering"
+# Buck defaults: the historical circuit profile. Callers for other blocks
+# (e.g. P1 U2 MCU/control-assembly builds) pass their own wrapper location,
+# entry file, and entry module explicitly; the defaults keep every existing
+# buck caller byte-identical in behavior.
+BUCK_ENTRY_FILE = "buck.ato"
+BUCK_ENTRY_MODULE = "BuckCircuitCandidate"
 
 
-def _build(repo: Path, build_dir: Path) -> dict[str, Any]:
+def _build(repo: Path, build_dir: Path,
+           entry_file: str = BUCK_ENTRY_FILE,
+           entry_module: str = BUCK_ENTRY_MODULE,
+           wrapper_dir: Path | None = None) -> dict[str, Any]:
     build_dir.mkdir(parents=True, exist_ok=False)
-    for name in ("buck.ato", "ato.yaml"):
-        shutil.copyfile(ENGINEERING / name, build_dir / name)
+    source_dir = wrapper_dir if wrapper_dir is not None else ENGINEERING
+    for name in (entry_file, "ato.yaml"):
+        shutil.copyfile(source_dir / name, build_dir / name)
     shutil.copytree(
         repo / "elec/src",
         build_dir / "elec/src",
@@ -33,7 +43,7 @@ def _build(repo: Path, build_dir: Path) -> dict[str, Any]:
         "ato",
         "--non-interactive",
         "build",
-        "buck.ato:BuckCircuitCandidate",
+        f"{entry_file}:{entry_module}",
     ]
     result: dict[str, Any] = {
         "status": "blocked",
@@ -79,6 +89,10 @@ def _build(repo: Path, build_dir: Path) -> dict[str, Any]:
             str(harness.ROOT / "circuit_export.py"),
             str(build_dir),
             str(export_path),
+            "--entry-file",
+            entry_file,
+            "--entry",
+            entry_module,
         ]
         with (
             (build_dir / "export-stdout.txt").open("w") as stdout,
@@ -101,7 +115,13 @@ def _build(repo: Path, build_dir: Path) -> dict[str, Any]:
     return result
 
 
-def collect(repo: Path, output: Path, board: Path | None = None) -> dict[str, Any]:
+def collect(
+    repo: Path,
+    output: Path,
+    board: Path | None = None,
+    *,
+    adapter: Path | None = None,
+) -> dict[str, Any]:
     repo, output = repo.resolve(), output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     source_files = sorted((repo / "elec/src").rglob("*.ato"))
@@ -123,7 +143,7 @@ def collect(repo: Path, output: Path, board: Path | None = None) -> dict[str, An
     if board is not None:
         try:
             evidence["candidate"] = harness.native(
-                "measure", board, adapter=harness.ROOT / "buck_native.py"
+                "measure", board, adapter=adapter or harness.ROOT / "buck_native.py"
             )
         except (OSError, subprocess.SubprocessError, ValueError) as error:
             evidence["candidate_error"] = str(error)

@@ -36,18 +36,20 @@
       "dielectric_5_prepreg": 0.15
     },
     "ordinal_id_warning": "Layer ordinal IDs in the (layers) block are NOT physical order: (0 F.Cu, 3 In3.Cu, 1 In1.Cu, 2 In2.Cu, 4 In4.Cu, 31 B.Cu). Physical order is the (setup (stackup ...)) sequence recorded above. Do not map F.Cu/B.Cu by alphabet or ordinals.",
-    "net_classes": ["Default", "Power", "HighVoltage", "HighVoltageTank"],
-    "net_count": 684,
+    "net_classes": ["Default", "Power", "HighVoltage", "HighVoltageTank", "HighVoltageSignal", "GateDriveHV", "GateDriveSELV", "HighVoltageIsolated", "ACMains", "FinePitch", "Differential", "GND"],
+    "net_classes_source": "pcb/temper.kicad_pro net_settings.classes names, in file order (12 native classes)",
+    "net_count": 159,
+    "net_count_method": "Unique native (net N \"name\") declaration numbers in pcb/temper.kicad_pcb (top-level net block). A raw grep counts 684 because each placed pad re-states its (net N \"name\"); 684-159=525 are pad-level copies, not nets.",
     "footprint_count": 168
   },
   "voltage_domains": {
     "HV": {
-      "nets": ["+170V_BUS", "ac_l", "ac_n", "SW_NODE", "GATE_HS", "GATE_LS", "+15V_LS"],
-      "note": "Mains-referenced / switched power. Isolation barrier to SELV required across every copper layer; a declared boundary or distance check alone is not a barrier (CONCEPTS.md)."
+      "nets": ["+170V_BUS", "DC_BUS_RTN", "PWR_RTN", "ac_l", "ac_n", "SW_NODE", "GATE_HS", "GATE_LS", "+15V_LS"],
+      "note": "Mains-referenced / switched power. DC_BUS_RTN (dc_bus_minus) and PWR_RTN (power_return, doubler midpoint) are HV per elec/domain_manifest.yaml, not SELV returns. Isolation barrier to SELV required across every copper layer; a declared boundary or distance check alone is not a barrier (CONCEPTS.md)."
     },
     "SELV_LV": {
-      "nets": ["+15V", "+3V3", "gnd", "PWR_RTN", "DC_BUS_RTN"],
-      "note": "Aux 15V from PS1 (IRM-10-15, isolated) feeds buck VIN; buck 3V3 feeds MCU VCC3V3. Power_in.gnd ~ power_out.gnd inside BuckConverter3V3 is the single LV return tie for this section."
+      "nets": ["+15V", "+3V3", "gnd"],
+      "note": "Aux 15V from PS1 (IRM-10-15, isolated) feeds buck VIN; buck 3V3 feeds MCU VCC3V3. gnd and PWR_RTN are separate compiled nets (star-join short removed); the single LV return tie claim for this section is a U2 wiring obligation, not a measured board fact."
     },
     "signal": {
       "nets": ["PWM_HS", "PWM_LS", "RTD_SCK", "RTD_SDI", "RTD_SDO", "RTD_CS_N", "I_SENSE", "V_BUS_SENSE", "SHUTDOWN", "RELAY_CTRL", "WDT_KICK", "WDT_RESET_N", "en", "usb_dn", "usb_dp"],
@@ -61,17 +63,37 @@
       "at": [33.1, 47.96, 90],
       "body_mm": [18.0, 25.5],
       "sheetpath": "mcu.mcu",
-      "note": "Current target placeholder for the MCU. U2 replaces its geometry with the P1 source-derived package; identity is revalidated then, not by refdes match here."
+      "note": "Current target placeholder for the MCU. U2 replaces its geometry with the P1 source-derived package; identity is revalidated then, not by refdes match here.",
+      "passives_native": [
+        {"ref": "C39", "source_candidate": "c_vcc1", "at": [21.24, 203.44], "nets": ["+3V3", "gnd"], "binding": "audit-named; U2 confirms"},
+        {"ref": "C40", "source_candidate": "c_vcc2", "at": [41.04, 32.95], "nets": ["+3V3", "gnd"], "binding": "provisional by net+footprint (0805 matches C2); U2 confirms"},
+        {"ref": "C41", "source_candidate": "c_en", "at": [33.55, 35.4], "nets": ["en", "gnd"], "binding": "provisional by net+footprint (0603 matches C3); U2 confirms"},
+        {"ref": "R71", "source_candidate": "r_en", "at": [79.65, 242.77], "nets": ["+3V3", "en"], "binding": "audit-named; U2 confirms"},
+        {"ref": "R72", "source_candidate": "r_boot", "at": [36.76, 31.02], "nets": ["+3V3", "io0"], "binding": "provisional by net+footprint (0603 matches R2); U2 confirms"},
+        {"ref": "R73", "source_candidate": "r_sda_pullup", "at": [139.77, 140.7], "nets": ["+3V3", "i2c_sda_ui"], "binding": "audit-named; U2 confirms"},
+        {"ref": "R74", "source_candidate": "r_scl_pullup", "at": [170.02, 51.14], "nets": ["+3V3", "i2c_scl_ui"], "binding": "audit-named; U2 confirms"},
+        {"ref": "SW1", "source_candidate": "btn_reset", "at": [102.72, 246.62], "nets": ["en", "gnd"], "binding": "audit-named; U2 confirms"},
+        {"ref": "SW2", "source_candidate": "btn_boot", "at": [139.77, 144.66], "nets": ["gnd", "io0"], "binding": "audit-named; U2 confirms"}
+      ]
     },
     "buck": {
-      "ic": {"ref": "U3", "footprint": "Package_TO_SOT_SMD:SOT-23-6", "at": [117.93, 149.08, 180]},
-      "inductor": {"ref": "L2", "footprint": "Inductor_SMD:L_Bourns_SRP1265A", "at": [135.29, 147.93, 270]},
-      "note": "Current target placeholder for the buck. Surrounding passives near (100-145, 135-160) are NOT blanket-attributed; U2 binds each to BuckConverter3V3 source instances (c_in/c_boot/l_out/c_out1/c_out2/c_out_hf/r_fb_top/r_fb_bot) before any removal."
+      "ic": {"ref": "U3", "footprint": "Package_TO_SOT_SMD:SOT-23-6", "at": [117.93, 149.08, 180], "tstamp": "64548453-6ce6-b0e8-a81b-d46b964b66d2", "pads_native": {"1": "gnd", "2": "sw", "3": "+15V", "4": "fb", "5": "+15V", "6": "boot"}, "no_en_pad": true},
+      "inductor": {"ref": "L2", "footprint": "Inductor_SMD:L_Bourns_SRP1265A", "at": [135.29, 147.93, 270], "tstamp": "b00b9a7d-6d7a-14d1-b6ad-9ece56e8a9d7"},
+      "passives_native": [
+        {"ref": "C9", "source": "c_in", "at": [88.15, 251.2], "nets": ["+15V", "gnd"]},
+        {"ref": "C10", "source": "c_boot", "at": [106.28, 27.04], "nets": ["boot", "sw"]},
+        {"ref": "C11", "source": "c_out1", "at": [166.6, 54.47], "nets": ["+3V3", "gnd"]},
+        {"ref": "C12", "source": "c_out2", "at": [123.97, 42.58], "nets": ["+3V3", "gnd"]},
+        {"ref": "C13", "source": "c_out_hf", "at": [157.9, 92.52], "nets": ["+3V3", "gnd"]},
+        {"ref": "R16", "source": "r_fb_top", "at": [30.34, 36.38], "nets": ["+3V3", "fb"]},
+        {"ref": "R17", "source": "r_fb_bot", "at": [37.12, 33.48], "nets": ["fb", "gnd"]}
+      ],
+      "note": "Current target placeholder for the buck. Measured native positions are board-scattered, NOT clustered near (100-145, 135-160): only U3/L2 sit in the buck_block box; all seven passives lie outside it (see passives_native). U2 binds each by sheetpath/net identity, not by proximity, before any removal. Target U3 (SOT-23-6) pads are gnd/sw/+15V/fb/boot with NO EN pad; EN handling is a P1 source-side matter, not a board route."
     }
   },
   "reserved_regions_mm": {
     "mcu_block": {"x1": 18.0, "y1": 28.0, "x2": 52.0, "y2": 68.0, "purpose": "MCU module + decoupling/EN/boot/I2C pullups + routing access"},
-    "antenna_keepout": {"x1": 18.0, "y1": 20.0, "x2": 52.0, "y2": 32.0, "purpose": "ESP32-S3-WROOM-1 antenna access: no copper pour, tracks, or tall parts; keep clear on all copper layers. RF certification itself is out of scope."},
+    "antenna_keepout": {"x1": 18.0, "y1": 20.0, "x2": 52.0, "y2": 32.0, "assumed": true, "purpose": "ESP32-S3-WROOM-1 antenna access: no copper pour, tracks, or tall parts; keep clear on all copper layers. ASSUMED reservation, not a measured native polygon: the 10 native copper-pour keepouts include no antenna keepout. RF certification itself is out of scope."},
     "buck_block": {"x1": 100.0, "y1": 132.0, "x2": 146.0, "y2": 162.0, "purpose": "Buck converter local loops (input, switch, output, feedback) + inter-block supply/return exits"},
     "note": "Regions are reservations for P1 construction and P3 U2/U3 routing, not a full product floorplan (out of scope per plan)."
   },
@@ -90,14 +112,36 @@
   "replacement_ledger": {
     "remove": [
       {"ref": "U27", "tstamp": "92a720b8-6473-ffc4-7fa8-ef701c075add", "reason": "MCU placeholder replaced by P1 source-derived package"},
-      {"ref": "U3", "reason": "buck IC placeholder replaced by source-matched LMR51430 geometry"},
-      {"ref": "L2", "reason": "buck inductor placeholder replaced by source-matched SRP1265A-5R6M geometry"}
+      {"ref": "U3", "tstamp": "64548453-6ce6-b0e8-a81b-d46b964b66d2", "reason": "buck IC placeholder replaced by source-matched LMR51430 geometry"},
+      {"ref": "L2", "tstamp": "b00b9a7d-6d7a-14d1-b6ad-9ece56e8a9d7", "reason": "buck inductor placeholder replaced by source-matched SRP1265A-5R6M geometry"}
     ],
     "verify_then_remove": "Target passives inside buck_block/mcu_block that U2 binds to a BuckConverter3V3/MCU source instance; each removal must verify the object existed in the baseline and retain before/after identity.",
     "retain": "All geometry outside the owned boundary envelopes; shared +3V3/gnd nets are cut only at envelope endpoints, never deleted by net name.",
     "owned_envelopes_mm": {
-      "mcu_envelope": {"x1": 18.0, "y1": 28.0, "x2": 52.0, "y2": 68.0},
-      "buck_envelope": {"x1": 100.0, "y1": 132.0, "x2": 146.0, "y2": 162.0}
+      "rule": "One envelope per owned instance (19 total: 9 buck + 10 mcu), each centered on its measured native (at). Passives/U3 use at +/-5mm (covers 0603/1210 bodies, pads, and local copper); L2 uses +/-8mm (SRP1265A body); U27 uses its 18.0x25.5 body rect at rot 90 (25.5 along x). The prior two-box scheme (mcu 18-52x28-68, buck 100-146x132-162) covered only U3/L2/U27 and left all 16 scattered passives outside owned scope. R74's box touches the board outline edge (x2 172.0); that is its measured position, not an extension. C40/C41/R72 envelopes are provisional on U2 confirming the binding.",
+      "buck": [
+        {"ref": "U3", "at": [117.93, 149.08], "x1": 112.93, "y1": 144.08, "x2": 122.93, "y2": 154.08},
+        {"ref": "L2", "at": [135.29, 147.93], "x1": 127.29, "y1": 139.93, "x2": 143.29, "y2": 155.93},
+        {"ref": "C9", "at": [88.15, 251.2], "x1": 83.15, "y1": 246.2, "x2": 93.15, "y2": 256.2},
+        {"ref": "C10", "at": [106.28, 27.04], "x1": 101.28, "y1": 22.04, "x2": 111.28, "y2": 32.04},
+        {"ref": "C11", "at": [166.6, 54.47], "x1": 161.6, "y1": 49.47, "x2": 171.6, "y2": 59.47},
+        {"ref": "C12", "at": [123.97, 42.58], "x1": 118.97, "y1": 37.58, "x2": 128.97, "y2": 47.58},
+        {"ref": "C13", "at": [157.9, 92.52], "x1": 152.9, "y1": 87.52, "x2": 162.9, "y2": 97.52},
+        {"ref": "R16", "at": [30.34, 36.38], "x1": 25.34, "y1": 31.38, "x2": 35.34, "y2": 41.38},
+        {"ref": "R17", "at": [37.12, 33.48], "x1": 32.12, "y1": 28.48, "x2": 42.12, "y2": 38.48}
+      ],
+      "mcu": [
+        {"ref": "U27", "at": [33.1, 47.96], "x1": 20.35, "y1": 38.96, "x2": 45.85, "y2": 56.96},
+        {"ref": "C39", "at": [21.24, 203.44], "x1": 16.24, "y1": 198.44, "x2": 26.24, "y2": 208.44},
+        {"ref": "C40", "at": [41.04, 32.95], "x1": 36.04, "y1": 27.95, "x2": 46.04, "y2": 37.95, "provisional_binding": true},
+        {"ref": "C41", "at": [33.55, 35.4], "x1": 28.55, "y1": 30.4, "x2": 38.55, "y2": 40.4, "provisional_binding": true},
+        {"ref": "R71", "at": [79.65, 242.77], "x1": 74.65, "y1": 237.77, "x2": 84.65, "y2": 247.77},
+        {"ref": "R72", "at": [36.76, 31.02], "x1": 31.76, "y1": 26.02, "x2": 41.76, "y2": 36.02, "provisional_binding": true},
+        {"ref": "R73", "at": [139.77, 140.7], "x1": 134.77, "y1": 135.7, "x2": 144.77, "y2": 145.7},
+        {"ref": "R74", "at": [170.02, 51.14], "x1": 165.02, "y1": 46.14, "x2": 175.02, "y2": 56.14},
+        {"ref": "SW1", "at": [102.72, 246.62], "x1": 97.72, "y1": 241.62, "x2": 107.72, "y2": 251.62},
+        {"ref": "SW2", "at": [139.77, 144.66], "x1": 134.77, "y1": 139.66, "x2": 144.77, "y2": 149.66}
+      ]
     },
     "boundary_rule": "Cut/reconnect shared or crossing nets only at explicit envelope endpoints with continuity rechecked after insertion. A crossing that cannot be replaced within scope is a named interface blocker (interfaces.json), not permission to reroute unrelated circuits."
   },

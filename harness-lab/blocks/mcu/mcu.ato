@@ -1,0 +1,20 @@
+# Isolated MCU build root (P1 U1). The implementation remains owned by
+# production elec/src; this file only supplies a build entry so the MCU
+# module compiles alone with pinned Atopile for reconciliation.
+import MCU from "elec/src/modules.ato"
+import ElectricPower from "elec/src/generics/interfaces.ato"
+
+module McuCandidate:
+    mcu = new MCU
+    supply = new ElectricPower
+    # Do not set supply.voltage here: MCU already defines power.voltage,
+    # and Atopile rejects two definitions on a joined net.
+    mcu.power ~ supply
+    # Stub the module's required sense signals; they are boundary
+    # obligations whose real destinations live in other cooker units.
+    signal adc_i_sense_stub
+    signal adc_v_bus_stub
+    signal adc_ntc_stub
+    adc_i_sense_stub ~ mcu.adc_i_sense
+    adc_v_bus_stub ~ mcu.adc_v_bus
+    adc_ntc_stub ~ mcu.adc_ntc

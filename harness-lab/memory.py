@@ -13,7 +13,19 @@ favor of Rust.
 Ownership: P2 owns this adapter and its tests. P1 exclusively owns
 `workspace.py`, `workspace_worker.py`, `test_workspace.py`, shared
 observation/receipt wiring, and calls from `run_block.py`; P2 supplies the
-interface (:func:`p1_interface`) without editing those files.
+interface (:func:`p1_interface`, :func:`deliver_selection`) without editing
+those files.
+
+U3 delivery (KTD6) reuses the existing runtime path only: the selected
+revision is materialized through :class:`artifacts.Store` and loaded with
+``Workspace.apply_revision``; notes travel in the revision and in the
+retained model-input capture; helpers execute only inside the sandbox via
+``Workspace.execute`` with every nested ``pcb.call`` attributed to the
+executing revision. No change to the shared runtime files was needed: the
+existing ``apply_revision`` acknowledgement, ``revision_events`` log, and
+``current_revision`` already express everything KTD6 requires. The only new
+plumbing is receipt-side (helper-call provenance entries and the
+model-input capture), which the shared observation channel cannot express.
 """
 
 from __future__ import annotations
@@ -21,6 +33,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -365,6 +378,209 @@ def build_receipt(
     }
 
 
+def apply_to_workspace(workspace_obj: Any, record: dict) -> bool:
+    """Load a materialized memory revision into a live worker (KTD6).
+
+    Thin adapter over the P1-owned ``Workspace.apply_revision``: the notes
+    are supplied initially (and P1 re-supplies them whenever the active
+    revision changes); helpers load only inside the existing sandbox. The
+    worker compiles the skills source itself, so ``False`` means the helper
+    initialization failed and the previous active revision is retained --
+    the caller records the rejection and keeps the old revision, never a
+    half-loaded one.
+    """
+    return bool(
+        workspace_obj.apply_revision(
+            record["revision_sha256"],
+            record["skills_utf8"],
+            record["notes_utf8"],
+        )
+    )
+
+
+def capture_model_input(
+    *,
+    attempt_id: str,
+    selection: dict,
+    loaded: dict,
+    record: dict,
+) -> dict:
+    """Assemble the retained model-visible payload (KTD6, scenario 2).
+
+    This is the delivery evidence P1 persists per attempt: the exact notes
+    bytes the model sees, bound to the attempt, the selection, and the
+    active revision. A worker load acknowledgement alone cannot prove model
+    delivery; only this retained capture (checked by
+    :func:`model_delivery_proven`) can.
+    """
+    by_id = {item["descriptor"]["id"]: item for item in loaded["entries"]}
+    return {
+        "schema": SCHEMA,
+        "attempt_id": attempt_id,
+        "selection_sha256": selection["selection_sha256"],
+        "selected_ids": list(selection["selected_ids"]),
+        "revision_sha256": record["revision_sha256"],
+        "notes_sha256": record["receipt"]["notes_sha256"],
+        "skills_sha256": record["receipt"]["skills_sha256"],
+        "model_notes": record["notes_utf8"],
+        "entry_content": {
+            entry_id: by_id[entry_id]["content_sha256"]
+            for entry_id in selection["selected_ids"]
+        },
+    }
+
+
+def publish_model_input(directory: Path, capture: dict) -> Path:
+    """Atomically publish the retained model-input capture next to the receipt."""
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / "model-input.json"
+    artifacts.write_once(path, capture)
+    path.chmod(0o444)
+    return path
+
+
+def model_delivery_proven(capture: dict, record: dict) -> bool:
+    """Check that a retained capture proves delivery of the active revision.
+
+    Requires the capture to carry the record's exact notes bytes and all
+    three content bindings. A receipt whose only evidence is
+    ``delivery.acknowledged`` (worker load ack) fails this check by
+    construction: it carries no model-visible bytes.
+    """
+    try:
+        return (
+            capture["revision_sha256"] == record["revision_sha256"]
+            and capture["notes_sha256"] == record["receipt"]["notes_sha256"]
+            and capture["skills_sha256"] == record["receipt"]["skills_sha256"]
+            and capture["model_notes"] == record["notes_utf8"]
+            and bool(capture["attempt_id"])
+            and bool(capture["selection_sha256"])
+        )
+    except KeyError:
+        return False
+
+
+def acknowledge_delivery(receipt: dict) -> dict:
+    """Record the worker load acknowledgement on a receipt (KTD6).
+
+    Explicitly not model-delivery proof: it records that the sandboxed
+    worker accepted the revision, nothing about what the model saw. P1
+    calls this from the ``revision_applied`` path; the capture from
+    :func:`capture_model_input` remains the delivery evidence.
+    """
+    receipt["delivery"]["acknowledged"] = True
+    return receipt
+
+
+def record_helper_call(
+    receipt: dict,
+    *,
+    revision_sha256: str,
+    helper: str,
+    operations: list[str],
+    result_ref: str,
+) -> dict:
+    """Append helper-execution provenance to a receipt (KTD6).
+
+    Loading a helper is not executing it: each invocation records the
+    executing revision, the helper name, the admitted operations it nested,
+    and a reference to the result. Notes-only applicability keeps an empty
+    list, reported as delivered rather than executed.
+    """
+    if not re.fullmatch("[0-9a-f]{64}", revision_sha256):
+        raise ValueError("invalid executing revision identity")
+    if not helper or not operations or not result_ref:
+        raise ValueError("helper provenance requires a name, operations, and result ref")
+    receipt["delivery"]["helper_calls"].append(
+        {
+            "revision_sha256": revision_sha256,
+            "helper": helper,
+            "operations": list(operations),
+            "result_ref": result_ref,
+        }
+    )
+    return receipt
+
+
+def inspect_evidence(mounted_root: Path, relpath: str, *, max_bytes: int = 65536) -> bytes:
+    """Agent-facing read gate: allowed evidence within the mounted task package.
+
+    Resolves ``relpath`` strictly inside ``mounted_root`` and returns its
+    bytes. Absolute paths, parent escapes, backslashes, hidden
+    cross-attempt artifacts (``attempt-``/``check-``/``state-`` siblings are
+    addressed only through the mounted root, never by absolute tmp path),
+    symlinks, and over-limit reads are rejected. This never grants
+    repository-wide filesystem access.
+    """
+    if not isinstance(relpath, str) or not relpath:
+        raise ValueError("evidence path is required")
+    if relpath.startswith(("/", "\\")) or "\\" in relpath:
+        raise ValueError(f"evidence path must be task-relative: {relpath!r}")
+    root = mounted_root.resolve()
+    # Symlink check on the unresolved join: resolve() follows links, so a
+    # resolved path can never report one.
+    probe = root
+    for part in Path(relpath).parts:
+        probe = probe / part
+        if probe.is_symlink():
+            raise ValueError(f"evidence path must not traverse a symlink: {relpath!r}")
+    target = (root / relpath).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as error:
+        raise ValueError(f"evidence path escapes the task package: {relpath!r}") from error
+    if not target.is_file():
+        raise ValueError(f"evidence is not a readable file: {relpath!r}")
+    data = target.read_bytes()
+    if len(data) > max_bytes:
+        raise ValueError("evidence exceeds the read limit")
+    return data
+
+
+def deliver_selection(
+    store: artifacts.Store,
+    workspace_obj: Any,
+    loaded: dict,
+    selection: dict,
+    *,
+    base_skills_source: str,
+    attempt_id: str,
+    attempt_dir: Path,
+) -> tuple[dict, dict, dict, dict[str, Path]]:
+    """P1 entry point: selection -> Store revision -> worker -> retained evidence.
+
+    Materializes the selection through the existing Store, loads it into
+    the live worker via :func:`apply_to_workspace` (``False`` raises: the
+    previous revision stays active and the rejection is reported, never
+    silently kept), then publishes the content-bound receipt and the
+    model-input capture. Returns ``(record, receipt, capture, paths)``.
+    """
+    record = materialize_selection(
+        store, loaded, selection, base_skills_source=base_skills_source
+    )
+    if not apply_to_workspace(workspace_obj, record):
+        raise ValueError(
+            "worker rejected the memory revision; previous revision retained"
+        )
+    receipt = build_receipt(
+        selection=selection,
+        loaded=loaded,
+        revision_sha256=record["revision_sha256"],
+        notes_sha256=record["receipt"]["notes_sha256"],
+        skills_sha256=record["receipt"]["skills_sha256"],
+        attempt_id=attempt_id,
+    )
+    acknowledge_delivery(receipt)
+    capture = capture_model_input(
+        attempt_id=attempt_id, selection=selection, loaded=loaded, record=record
+    )
+    paths = {
+        "receipt": publish_receipt(attempt_dir, receipt),
+        "model_input": publish_model_input(attempt_dir, capture),
+    }
+    return record, receipt, capture, paths
+
+
 def p1_interface() -> dict:
     """Interface contract for P1's runner/dispatcher integration (U3).
 
@@ -372,6 +588,12 @@ def p1_interface() -> dict:
     dispatcher commands below are served today by the standalone
     ``memory_judge`` bridge and move into the main judge when P1 registers
     ``mod memory`` with schema ``memory/v1``.
+
+    Runtime entry point for P1: :func:`deliver_selection` chains
+    materialize -> apply -> receipt -> model-input capture. The worker
+    acknowledgement (:func:`acknowledge_delivery`) alone never proves model
+    delivery; only a retained capture passing :func:`model_delivery_proven`
+    does.
     """
     return {
         "schema": SCHEMA,
@@ -397,6 +619,18 @@ def p1_interface() -> dict:
             "helper_provenance": "record every helper call (revision, operation, result ref) "
             "separately from merely loading it; never infer causation from delivery",
         },
+        "entry_point": "deliver_selection(store, workspace_obj, loaded, "
+        "selection, base_skills_source=..., attempt_id=..., attempt_dir=...): "
+        "P1 calls this before the first construction call and whenever the "
+        "active revision changes; it returns (record, receipt, capture, paths)",
+        "model_input_artifact": "model-input.json, retained next to "
+        "memory-selection.json and bound to attempt_id + selection_sha256 + "
+        "revision_sha256; live MCU attempts must retain the actual payload, "
+        "a control may retain this exact shape (P1 U4 owns live evidence)",
+        "agent_inspection": "inspect_evidence(mounted_root, relpath): read-only, "
+        "resolves inside the mounted task package only; absolute paths, "
+        "parent escapes, symlinks, and cross-attempt hidden artifacts are "
+        "rejected (no repository-wide filesystem access)",
         "forbidden": [
             "editing workspace.py, workspace_worker.py, test_workspace.py, run_block.py, "
             "src/main.rs, or shared observation/receipt wiring from P2",
@@ -420,5 +654,13 @@ __all__ = [
     "materialize_selection",
     "publish_receipt",
     "build_receipt",
+    "apply_to_workspace",
+    "capture_model_input",
+    "publish_model_input",
+    "model_delivery_proven",
+    "acknowledge_delivery",
+    "record_helper_call",
+    "inspect_evidence",
+    "deliver_selection",
     "p1_interface",
 ]

@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import harness  # noqa: E402
 
 ROOT = Path(__file__).parent
-FIX = ROOT / "engineering/controls/circuit"
+FIX = ROOT / "engineering/controls/circuit-v2"
 DIGEST = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 
 
@@ -102,6 +102,14 @@ class CircuitValidatorControls(unittest.TestCase):
         result = self.run_judge(payload(qualification=True))
         self.assertEqual(result["status"], "blocked")
         self.assertFalse(result["hardware_validated"])
+
+    def test_historical_fixture_is_rejected_as_stale_part_identity(self) -> None:
+        value = payload()
+        value["resolved_export"] = json.loads(
+            (ROOT / "engineering/controls/circuit/temper-u7-export.json").read_text()
+        )
+        result = self.run_judge(value)
+        self.assertEqual(result["integrity"]["status"], "fail")
 
     def test_mutations_fail_independently(self) -> None:
         value = payload(qualification=True)

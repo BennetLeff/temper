@@ -43,7 +43,7 @@
         (hide yes)
       )
     )
-    (property "Description" "ESP32-S3 WiFi+BLE SoC Module, 4MB Flash, PCB Antenna"
+    (property "Description" "ESP32-S3 WiFi+BLE SoC Module, 8MB Flash + 8MB PSRAM, PCB Antenna"
       (at 0 -36.83 0)
       (effects
         (font
@@ -61,7 +61,7 @@
         (hide yes)
       )
     )
-    (property "MPN" "ESP32-S3-WROOM-1-N4"
+    (property "MPN" "ESP32-S3-WROOM-1-N8R8"
       (at 0 -41.91 0)
       (effects
         (font

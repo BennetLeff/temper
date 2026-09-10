@@ -4,12 +4,14 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::io::{self, Read};
 
+mod block;
 mod buck;
 mod buck_operations;
 mod circuit_validation;
 mod continual;
 mod engineering;
 mod layout_validation;
+mod memory;
 mod qualification;
 mod routing;
 mod simulation_validation;
@@ -256,6 +258,12 @@ fn run() -> Result<Value> {
         .read_to_string(&mut input_text)
         .context("read stdin")?;
     let raw: Value = continual::parse_strict(&input_text).context("invalid measurement input")?;
+    if raw.get("schema").and_then(Value::as_str) == Some(memory::SCHEMA) {
+        return Ok(match memory::dispatch(raw.clone()) {
+            Ok(result) => result,
+            Err(error) => memory::error_response(Some(&raw), &error),
+        });
+    }
     if raw.get("schema").and_then(Value::as_str) == Some(continual::SCHEMA) {
         return Ok(match continual::dispatch(raw.clone()) {
             Ok(result) => result,
@@ -284,6 +292,26 @@ fn run() -> Result<Value> {
         return Ok(match buck_operations::validate(raw) {
             Ok(value) => value,
             Err(error) => json!({"status": "invalid", "error": format!("{error:#}")}),
+        });
+    }
+    if raw.get("profile").and_then(Value::as_str) == Some("block-operation") {
+        return Ok(match block::validate(raw) {
+            Ok(value) => value,
+            Err(error) => json!({"status": "invalid", "error": format!("{error:#}")}),
+        });
+    }
+    if raw
+        .get("contract")
+        .and_then(|c| c.get("profile"))
+        .and_then(Value::as_str)
+        == Some("block")
+    {
+        let input: block::Input =
+            serde_json::from_value(raw).context("invalid block measurement input")?;
+        return block::evaluate(input).or_else(|error| {
+            // Malformed evaluation input (not a failed candidate) stays
+            // indeterminate; candidate defects already returned as `fail`.
+            Ok(json!({"status": "indeterminate", "error": format!("{error:#}")}))
         });
     }
     let input: Input = serde_json::from_value(raw).context("invalid measurement input")?;

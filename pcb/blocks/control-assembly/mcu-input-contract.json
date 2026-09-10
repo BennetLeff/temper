@@ -1,0 +1,66 @@
+{
+  "schema": "control-assembly.mcu-input-contract.v1",
+  "plan": "docs/plans/2026-09-10-1322-feat-buck-mcu-composition-plan.md",
+  "unit": "P3 U2 (expects P1 U4)",
+  "status": "pending-p1-u4",
+  "owner": "P1",
+  "consumer": "P3 U2 compose_blocks.build_source_map(require_mcu=True)",
+  "package": {
+    "path": "pcb/blocks/mcu/",
+    "required_files": [
+      "source-manifest.json",
+      "mcu_candidate.kicad_pcb",
+      "mcu_candidate.kicad_sch",
+      "mcu.kicad_sch",
+      "fp-lib-table",
+      "rules.json",
+      "build-evidence/default.net",
+      "build-evidence/default.csv",
+      "build-evidence/resolved-components.json"
+    ],
+    "manifest_schema": "temper.mcu-candidate.v1",
+    "manifest_must_contain": [
+      "entry",
+      "atopile_pinned",
+      "converted.components",
+      "strict_map.entries",
+      "strict_map.unconnected_pads",
+      "staging.positions",
+      "staging.staging_only",
+      "board.outline_mm",
+      "board.layers",
+      "target_context.sha256"
+    ]
+  },
+  "source_identity": {
+    "entry": "mcu.ato:McuCandidate",
+    "atopile_pinned": "0.2.69",
+    "functional_refs": ["U1", "C1", "C2", "C3", "R1", "R2", "R3", "R4", "SW1", "SW2"],
+    "instance_path_prefix": "mcu.",
+    "wrapper": "harness-lab/blocks/mcu/mcu.ato + ato.yaml (unchanged shape; P1 owns content)",
+    "inventory": "harness-lab/blocks/mcu/identity-inventory.json (P1 owns; P3 reads)"
+  },
+  "geometry_contract": {
+    "functional_copper": "none: starting board carries no tracks, vias, zones, or pours",
+    "layers": "P3 six-layer physical_copper_order from pcb/blocks/control-assembly/target-context.json",
+    "staging": "neutral staging inside reserved_regions_mm.mcu_block, staging_only=true; U2/U3 place for real",
+    "outline_mm": "target outline from target-context.json (P3 owned)",
+    "transforms": "native KiCad R(-theta) only; compose_blocks delegates to temper_geometry"
+  },
+  "pin_map_contract": {
+    "rule": "exact pin==pad map plus explicit unconnected pads; no positional fallback, no unreviewed alias",
+    "gate": "temper-design-bundle candidate_validate_pin_map (Rust); P3 calls compose_blocks.validate_pin_map_native",
+    "net_gate": "temper-design-bundle validation.candidate_check_net_admission (Rust); empty nets rejected"
+  },
+  "acceptance": {
+    "by_p1_u4": "accepted pcb/blocks/mcu/ package with current source-manifest.json",
+    "by_p3_u2": "build_source_map(require_mcu=True) maps all 10 MCU instances by source path; strict pin partition agrees; ledger applied; cross-view comparison bound",
+    "invalidation": "any geometry change invalidates prior block-layout receipts and requires current checks (KTD4)"
+  },
+  "combined_source_pending": {
+    "wrapper": "harness-lab/blocks/control-assembly/control-assembly.ato:ControlAssemblyCandidate (P1 U2)",
+    "joins": "buck.power_out.vcc ~ mcu.power.vcc, buck.power_out.gnd ~ mcu.power.gnd (signal-level; whole-interface join is rejected by Atopile)",
+    "buck_namespace": "buck.* (9 functional instances)",
+    "mcu_namespace": "mcu.* (10 functional instances)"
+  }
+}

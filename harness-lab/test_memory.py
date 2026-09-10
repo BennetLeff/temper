@@ -116,9 +116,7 @@ class MemoryHostTests(unittest.TestCase):
         self.assertEqual(baseline["selected_ids"], [])
 
     def test_tampered_evidence_rejected(self):
-        tampered = {
-            descriptor_path: "0" * 64 for descriptor_path in memory._evidence_hashes()
-        }
+        tampered = dict.fromkeys(memory._evidence_hashes(), "0" * 64)
         with self.assertRaises(ValueError):
             memory.validate_loaded(self.loaded, evidence_hashes=tampered)
 

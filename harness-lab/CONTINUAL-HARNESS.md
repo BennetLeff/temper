@@ -73,6 +73,24 @@ Real canaries test denied outside reads/writes, repository and board reads,
 bootstrap writes, network connections, and subprocess creation. A missing or
 unqualified boundary blocks use; there is no import-filter fallback.
 
+## Cross-unit memory and the block profile (2026-09-10)
+
+The same revision/Store/workspace path now carries an explicit cross-unit
+memory package: expert-curated entries in
+[`memory/`](memory/README.md), selected deterministically by
+[`memory.py`](memory.py) and `src/memory.rs` from declared task capabilities
+and current compiled-artifact hashes, and delivered through
+`memory.deliver_selection` (materialize → `Workspace.apply_revision` → receipt
+→ model-input capture). Selection, delivery, and use are recorded separately;
+this does not manufacture a historical buck learning receipt, and the
+historical engineering gates are unchanged.
+
+A bounded block profile (`run_block.py::BlockSession`) builds, inspects, and
+repairs a source-derived MCU board with the same 200-mutation / 1,200-second
+budget and the same native operation primitive. The first attempt was
+transport-blocked and remains `apparatus-only`; see
+[`docs/hardware/control-assembly/harness-report.md`](../docs/hardware/control-assembly/harness-report.md).
+
 ## Recovery and experiment isolation
 
 Recovery may resume the same attempt only after a driver interruption following
@@ -130,11 +148,15 @@ Tracing is enabled by default for continual buck harness runs. Use
 The CLI summary reports `exported`, `disabled`, `unavailable`, or `dropped` so
 missing traces are visible.
 
-Export runs after the authoritative local result is finalized. It sends
-allowlisted run metadata through OTLP/HTTP JSON in a separate subprocess;
-credential lookup and export share a five-second budget. Prompts, executable
-code, raw tool payloads, and model credentials are excluded. Export failures
-produce a separate diagnostic and cannot change results or retries.
+Export runs after the authoritative local result is finalized. It sends a
+structured OTLP/HTTP JSON trace through a separate subprocess; credential
+lookup and export share a five-second budget. The root trace contains
+LangSmith-compatible Input/Output with complete model JSONL conversations and
+PCB/project/footprint artifacts, while child spans describe each judged
+attempt and native operation with statuses, hashes, measurements, and
+mutation/refinement counts. API credentials remain transport-only and never
+enter span data. Use `--no-telemetry` for an offline/private run. Export
+failures produce a separate diagnostic and cannot change results or retries.
 
 This machine uses the `temper-harness` project at LangSmith's US endpoint.
 The credential is stored in macOS Keychain under service
