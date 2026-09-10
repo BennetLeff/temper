@@ -1,0 +1,59 @@
+{
+  "attempt_id": "mcu-apparatus-b01",
+  "budget": {
+    "max_actions": 200,
+    "max_seconds": 1200.0
+  },
+  "committed_actions": 16,
+  "final_findings": [],
+  "final_revision": "1e58e2d248d9708d1fc4e8fd26f64bbf5c74b1af07e298c972cc3ec33cab4b35",
+  "final_status": "pass",
+  "final_verdict": "pass",
+  "label": "apparatus-only-assisted",
+  "live": false,
+  "memory": {
+    "attempt_id": "mcu-apparatus-b01",
+    "delivery": {
+      "acknowledged": true,
+      "attempt_id": "mcu-apparatus-b01",
+      "helper_calls": [],
+      "notes": "selected notes delivered to model-visible context; no helper executed (seed package is notes-only)"
+    },
+    "entry_content": {
+      "buck-mem-001": "feb5a98f429b181227f811180b2b3f92dbc77f7a9c0917b909c8e6e5eec94091",
+      "buck-mem-002": "eea09592c9ef12ca05be463ac9cf1407bc062be34f4abc14b8fd26863f614810",
+      "buck-mem-003": "e50a3232ba3fdbb54eb01f9ef561c5f150d8e1873ffc87e636b758a11313a7ba",
+      "buck-mem-004": "12c3eacc06cc62e06c3e34525fd35822eab3545c34ef7389660b444cfa8d2552",
+      "buck-mem-005": "9908a4ace867ea983ded23e71a6a4e39cb410dc6c9dc1e52dc4b329af5617537"
+    },
+    "exclusions": [],
+    "materialized": {
+      "notes_sha256": "8a28c10bb9b88eaba52a640be15e95fbd8bb204fe08bb965e0efc3e5a0ea4c76",
+      "revision_sha256": "6b572338bae86699580c8706a2677cbcd6fbe17509768480f47437646d80b646",
+      "skills_sha256": "4283bde9a503214dd3708ef214ef06dd5259a98cefdbc3e5576eed04e059222e"
+    },
+    "model_delivery_proven": true,
+    "model_input_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/runs/mcu-20260910-b/trial-assisted/model-input.json",
+    "receipt_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/runs/mcu-20260910-b/trial-assisted/memory-selection.json",
+    "schema": "temper.mcu-memory-delivery.v1",
+    "selected_ids": [
+      "buck-mem-001",
+      "buck-mem-002",
+      "buck-mem-003",
+      "buck-mem-004",
+      "buck-mem-005"
+    ],
+    "selection_sha256": "359bf35d2e9e05134653a5e97c5c7df4e76b4931f842612621ca96e25543ca74",
+    "source_identities": {
+      "harness-lab.blocks.mcu.identity-inventory.json": "c7b539541fca8a7a754ed7e5be5f6b7ccd3926370e777cbc9f0d5d29ef30df54",
+      "harness-lab.blocks.mcu.mcu.ato": "a3844663a915ab7f4120b223536b70393e78c9eb7b61101b1f22490c935acd83",
+      "mcu.candidate.kicad_pcb": "1caacb89e69bd6c5259371cb2d63d8c153dca510e8b4f2bfcaaf0e94ca16305b",
+      "mcu.default.net": "563ae59fabf2d713248657c4731a518ae7511a8f166d2034e73d0195a69a5488",
+      "mcu.source-manifest.json": "6a52b7a1e6f1248137151d3192e46d4677f9c547fade2ede7956c7f3e042e93f",
+      "p3.target-context.json": "db3e07b6fcb70ccedc4791a55d32ad37ae3c6177c6a4de82dee0c04206241c79"
+    }
+  },
+  "operations": 17,
+  "reason": "live model transport unavailable (Zen FreeUsageLimitError)",
+  "schema": "temper.mcu-apparatus-attempt.v1"
+}

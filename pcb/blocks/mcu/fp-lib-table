@@ -2,5 +2,6 @@
   (version 7)
   (lib (name "Capacitor_SMD")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/Capacitor_SMD.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "Resistor_SMD")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/Resistor_SMD.pretty")(options "")(descr "U2 candidate-local vendored copy"))
+  (lib (name "Button_Switch_SMD")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/Button_Switch_SMD.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "lib")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/lib.pretty")(options "")(descr "U2 candidate-local vendored copy"))
 )

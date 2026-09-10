@@ -1,0 +1,818 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-10T17:24:53",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55",
+            "violations": [
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R3 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.3556,
+                                "y": 0.808
+                            },
+                            "uuid": "b145117f-d092-2a13-1930-ad65b98e5bbf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C1 [C0603C104K5RACTU]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 0.508
+                            },
+                            "uuid": "1a56c20b-a3d8-c90f-3789-7e30b1bb8afd"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R3 [RC0603FR-0710KL]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 0.808
+                            },
+                            "uuid": "98600adb-07ef-0540-43b1-65c6636fc4fe"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol C2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.7556,
+                                "y": 0.508
+                            },
+                            "uuid": "6b2855a7-4fe9-2a6a-6597-38fd7cc27b51"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R4 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.7556,
+                                "y": 0.808
+                            },
+                            "uuid": "d099161d-90ab-452f-08a3-e35cbc6eaf64"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C2 [GRM21BR71A106KE51L]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 0.508
+                            },
+                            "uuid": "40378f36-d6c9-0c79-c6c7-baff194c3ea3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R4 [RC0603FR-0710KL]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 0.808
+                            },
+                            "uuid": "ded0dc06-a45b-07b9-3000-3544d78cd39a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol C3 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.1556,
+                                "y": 0.508
+                            },
+                            "uuid": "061f9adb-6af9-67a0-08af-2894cb29c7e6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol SW1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.1556,
+                                "y": 0.808
+                            },
+                            "uuid": "56df5f0c-dd32-86e6-9126-60dffaec724d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C3 [C0603C104K5RACTU]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 0.508
+                            },
+                            "uuid": "0ff4915d-7fef-384f-efa3-e0400dd9d278"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol SW1 [EVQ-P7A01P]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 0.808
+                            },
+                            "uuid": "2c9e102e-b51f-5ba6-9219-949dbad7280c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 0.508
+                            },
+                            "uuid": "0d54085c-dabd-ac58-2f6c-b8fdf7fa2660"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol SW2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 0.808
+                            },
+                            "uuid": "7bd2db38-97ab-3cbf-c011-10b3c32a88bc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R1 [RC0603FR-0710KL]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 0.508
+                            },
+                            "uuid": "46e1fd7b-7509-5c5a-b018-edc1babca55c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol SW2 [EVQ-P7A01P]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 0.808
+                            },
+                            "uuid": "f3fbd215-7827-f5a6-1cdb-f97b79e92a29"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'gpio37'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.3254
+                            },
+                            "uuid": "394d8826-d808-95b7-2c80-9b4a72c3134b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'gpio36'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.3762
+                            },
+                            "uuid": "c90c8172-35c9-ab13-5faa-6dd6d681da7c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'gpio35'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.427
+                            },
+                            "uuid": "3696d709-c923-b642-d821-5b62a29dd4ca"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'gpio21'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.4778
+                            },
+                            "uuid": "d302119b-1c85-a8b7-8bbb-27ae21074d39"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.508
+                            },
+                            "uuid": "0b48b5e7-4cf4-2dae-df28-6f98723848a9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'rx'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.5286
+                            },
+                            "uuid": "db0bce70-d226-ad0c-d63d-1b41397d43c6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'tx'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.5794
+                            },
+                            "uuid": "1ed5b623-8326-c6a6-8fe9-204a11140596"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'usb_dp'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.6302
+                            },
+                            "uuid": "8d6dcfb4-9c49-6690-e23c-42526e9e5f38"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'usb_dn'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.681
+                            },
+                            "uuid": "83ab8c14-4f36-6058-c9a9-c0b6ba884f3e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'gpio18'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.7318
+                            },
+                            "uuid": "cd3b7dda-3c2b-9078-6039-15301ed0f890"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'adc_ntc_stub'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.7826
+                            },
+                            "uuid": "a0a89780-16f9-fd78-77c0-56a79009c148"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'adc_v_bus_stub'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.8334
+                            },
+                            "uuid": "141e4df4-4f24-6c67-4f42-833dea5e9bac"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'adc_i_sense_stub'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.8842
+                            },
+                            "uuid": "bfea1527-6d7c-9a72-72d9-5b1a036342a1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-5'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.935
+                            },
+                            "uuid": "5e376a16-f3e5-14ce-3675-7aca3446bc0d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-3'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.9858
+                            },
+                            "uuid": "c271bf83-b7ac-b6ef-87ae-e19ea50c3df2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'miso'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 1.0366
+                            },
+                            "uuid": "47d2e470-49fb-99eb-999b-270f5aa7db41"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mosi'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 1.0874
+                            },
+                            "uuid": "4fb4e699-e924-a884-ed56-49e71245c789"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 1.1382
+                            },
+                            "uuid": "f4c88659-1c92-4403-f943-e76bda49ca4f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'sclk'",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 1.189
+                            },
+                            "uuid": "034590d9-add5-3672-d610-ba76dfd32c57"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol U1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 1.2906
+                            },
+                            "uuid": "0b5d9a0a-40fc-48d1-5dae-f44e99064fc3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R2 [RC0603FR-0710KL]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 0.508
+                            },
+                            "uuid": "df552236-a411-e51b-1afd-a98f9ef6a3d4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol U1 [ESP32-S3-WROOM-1-N8R8]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 0.808
+                            },
+                            "uuid": "0a50b267-d69f-481b-386a-20b1275bb084"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io48'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.3508
+                            },
+                            "uuid": "0ca9dd15-736c-e06b-3b1d-a8248c2b6565"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-4'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.4016
+                            },
+                            "uuid": "a46c0590-9cc8-197d-d66a-8468039e77bf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io46'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.4524
+                            },
+                            "uuid": "a0a8c605-809c-3d4a-0c2d-89efa739c026"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io45'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.5032
+                            },
+                            "uuid": "981e8e39-0f94-1284-a3c9-9e14d5fcce48"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io42'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.554
+                            },
+                            "uuid": "89d9cf94-ad9d-b49e-750b-b4cef3ee07a9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io41'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.6048
+                            },
+                            "uuid": "d9c4b933-0eca-b4d8-6f38-ac39faf2791b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io40'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.6556
+                            },
+                            "uuid": "f6dd65f5-6c41-1aaa-8966-7614df283f0a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-8'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.808
+                            },
+                            "uuid": "c4d5cf7c-69b7-9cf0-e913-8e334f690f81"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-6'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.8588
+                            },
+                            "uuid": "b8616777-f2a7-bc62-8bf7-1e14d50867c8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io13'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.9096
+                            },
+                            "uuid": "0ad622b8-9584-6fc5-a47e-aa8db6239799"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-1'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 0.9604
+                            },
+                            "uuid": "a696a55b-69f3-210b-dc51-765f5695efac"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-2'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 1.0112
+                            },
+                            "uuid": "d25845f5-718b-c291-cc03-d91ab190dbd4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-7'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 1.062
+                            },
+                            "uuid": "23dc088c-46e1-667f-b4b6-264bd3058b48"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'pwm_l'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 1.2144
+                            },
+                            "uuid": "436298f2-9e40-9192-62b4-ae23eb8b6971"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'pwm_h'",
+                            "pos": {
+                                "x": 2.2604,
+                                "y": 1.2652
+                            },
+                            "uuid": "e17cf860-e85a-6067-7978-3310ed587566"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                }
+            ]
+        }
+    ],
+    "source": "candidate.kicad_sch"
+}

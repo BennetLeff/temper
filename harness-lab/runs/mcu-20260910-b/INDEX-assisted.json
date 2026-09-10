@@ -1,0 +1,102 @@
+{
+  "artifact": "candidate-assisted",
+  "assisted": true,
+  "atopile_pinned": "0.2.69",
+  "board": {
+    "footprints": 10,
+    "layers": [
+      "F.Cu",
+      "In3.Cu",
+      "In1.Cu",
+      "In2.Cu",
+      "In4.Cu",
+      "B.Cu"
+    ],
+    "nets": 39,
+    "outline_mm": [
+      8.0,
+      20.0,
+      172.0,
+      254.0
+    ]
+  },
+  "bom_sha256": "cec6658355844a6fa3f05bf286096db43fb61c13f8ce53ed60fa54193f54b356",
+  "components": 10,
+  "entry": "mcu.ato:McuCandidate",
+  "files": [
+    {
+      "path": "build-evidence/default.csv",
+      "sha256": "cec6658355844a6fa3f05bf286096db43fb61c13f8ce53ed60fa54193f54b356"
+    },
+    {
+      "path": "build-evidence/default.net",
+      "sha256": "563ae59fabf2d713248657c4731a518ae7511a8f166d2034e73d0195a69a5488"
+    },
+    {
+      "path": "build-evidence/resolved-components.json",
+      "sha256": "c658a1e5209b0cceb10ffe707ca276d4684c2ebaf250baec0d629d558816049a"
+    },
+    {
+      "path": "build-evidence/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build-evidence/stdout.txt",
+      "sha256": "e7661546405f2b77673cde5cd544ef0d75285f476f2c04c132f4e00059f08a51"
+    },
+    {
+      "path": "candidate-libs/Button_Switch_SMD.pretty/SW_SPST_EVQP7A.kicad_mod",
+      "sha256": "5054a9ea0fd5020b765d793470383f518c271ca7e965ce8ecd0e9a255d8d89ac"
+    },
+    {
+      "path": "candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod",
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405"
+    },
+    {
+      "path": "candidate-libs/Capacitor_SMD.pretty/C_0805_2012Metric.kicad_mod",
+      "sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb"
+    },
+    {
+      "path": "candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod",
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23"
+    },
+    {
+      "path": "candidate-libs/lib.pretty/ESP32-S3-WROOM-1.kicad_mod",
+      "sha256": "9c5a41379d7255f50ce1b7efb060994b700847c8aafe400b160dca7ccc5fd7dd"
+    },
+    {
+      "path": "fp-lib-table",
+      "sha256": "d00b564dd91524ae836902b6fc9048f10a5f72c6ef9772fbe8285a452a3419bf"
+    },
+    {
+      "path": "mcu_candidate.kicad_pcb",
+      "sha256": "1caacb89e69bd6c5259371cb2d63d8c153dca510e8b4f2bfcaaf0e94ca16305b"
+    },
+    {
+      "path": "mcu_candidate.kicad_pro",
+      "sha256": "6fcba6fd177ec85eb7a4bb40c2315c3c7fa7b18605701700cd4f5c82c976eba1"
+    },
+    {
+      "path": "mcu_candidate.kicad_sch",
+      "sha256": "07f925c31539e1b26142bfa658b7f3e690c75d717f63c4d79e8829669861bcab"
+    },
+    {
+      "path": "rules.json",
+      "sha256": "0ac4b0c3a7bd6d664251328f8add3edde17b40d3e71f4606c43c6cb296b0db72"
+    },
+    {
+      "path": "schematic_layout.json",
+      "sha256": "d9a9cb6ec39f7c74836f72d9147070a201c163b795eb4928699739a5c8a549c5"
+    },
+    {
+      "path": "source-manifest.json",
+      "sha256": "6a52b7a1e6f1248137151d3192e46d4677f9c547fade2ede7956c7f3e042e93f"
+    }
+  ],
+  "generated_by": "harness-lab/runs/mcu-20260910-b/generate_candidate.py",
+  "kicad_cli": "10.0.4",
+  "netlist_sha256": "563ae59fabf2d713248657c4731a518ae7511a8f166d2034e73d0195a69a5488",
+  "run_id": "mcu-20260910-b",
+  "schema": "temper.mcu-run-index.v1",
+  "target_context_sha256": "db3e07b6fcb70ccedc4791a55d32ad37ae3c6177c6a4de82dee0c04206241c79"
+}

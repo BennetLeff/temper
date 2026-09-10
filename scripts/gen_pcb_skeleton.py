@@ -557,6 +557,7 @@ def generate_candidate_board(
     outline_mm: tuple[float, float, float, float],
     staging: dict[str, tuple[float, float, float]],
     output_path: Path,
+    values: dict[str, str] | None = None,
 ) -> dict[str, object]:
     """Build a strict-candidate .kicad_pcb: exact pad numbers only.
 
@@ -567,6 +568,11 @@ def generate_candidate_board(
       in `unconnected_pads`; anything else raises as an unintended open.
     - `staging` gives neutral (ref -> (x_mm, y_mm, rot_deg)) placement; it is
       recorded as staging, never as a solution. Missing refs raise.
+    - `values` maps ref -> authoritative part identity (atopile default.csv
+      Comment). When supplied, the footprint ``Value`` field is set from it
+      so KiCad schematic-parity agrees with the schematic symbol's value.
+      When omitted, the netlist's footprint-aliased ``value`` is used, which
+      is ``?`` for every passive; that legacy path is unchanged.
     - The board carries footprints, the net table, and the target outline
       only: no tracks, vias, zones, or copper pours.
     """
@@ -617,7 +623,7 @@ def generate_candidate_board(
         fp.tedit = _uuid_from_seed(f"tedit:{comp.tstamp}")[:8]  # type: ignore[attr-defined]
         fp.properties = {  # type: ignore[attr-defined]
             "Reference": comp.ref,
-            "Value": comp.value or "?",
+            "Value": (values or {}).get(comp.ref) or comp.value or "?",
             "Footprint": comp.footprint,
             "Sheetpath": comp.sheetpath,
         }

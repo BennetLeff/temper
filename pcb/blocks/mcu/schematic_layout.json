@@ -1,10 +1,11 @@
 {
+  "flat": true,
   "module_to_sheet": {
     "mcu": "MCU"
   },
   "root_sheet": "mcu_candidate.kicad_sch",
   "schema_version": 1,
-  "sheet_description": "MCU CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP1 U2 strict-candidate path: source-derived starting point, no functional copper claims\\n\\n1 Sheet:\\nMCU",
+  "sheet_description": "MCU CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP1 U2 strict-candidate path: source-derived starting point, no functional copper claims\\n\\n1 Sheet (flat):\\nMCU",
   "sheet_files": {
     "MCU": "mcu.kicad_sch"
   },

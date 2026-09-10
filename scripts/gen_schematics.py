@@ -170,6 +170,11 @@ class SchematicLayout:
     The production layout is the default value below.  Qualification
     candidates may supply a checked JSON layout without changing any
     production filenames or mappings.
+
+    ``flat`` selects the strict-candidate single-sheet envelope: every symbol
+    lives directly in the root sheet, so local-label net names are the plain
+    compiled names (``vcc``) rather than the hierarchical ``/MCU/vcc``. The
+    production path leaves it ``False`` and is generated unchanged.
     """
 
     root_sheet: str
@@ -178,6 +183,7 @@ class SchematicLayout:
     module_to_sheet: dict[str, str]
     title: str
     sheet_description: str
+    flat: bool = False
 
 
 DEFAULT_LAYOUT = SchematicLayout(
@@ -206,6 +212,7 @@ def _load_layout_config(path: Path) -> SchematicLayout:
     module_to_sheet = raw.get("module_to_sheet")
     title = raw.get("title")
     sheet_description = raw.get("sheet_description", title)
+    flat = raw.get("flat", False)
     if (
         not isinstance(root_sheet, str)
         or Path(root_sheet).name != root_sheet
@@ -232,6 +239,7 @@ def _load_layout_config(path: Path) -> SchematicLayout:
         or not isinstance(title, str)
         or not title.strip()
         or not isinstance(sheet_description, str)
+        or not isinstance(flat, bool)
     ):
         raise ValueError("schematic layout config has invalid root/sheet mapping")
     return SchematicLayout(
@@ -241,6 +249,7 @@ def _load_layout_config(path: Path) -> SchematicLayout:
         module_to_sheet=dict(module_to_sheet),
         title=title,
         sheet_description=sheet_description,
+        flat=flat,
     )
 
 
@@ -251,12 +260,15 @@ def _layout_or_default(layout: SchematicLayout | None) -> SchematicLayout:
 def mcu_candidate_layout() -> SchematicLayout:
     """Strict-candidate layout for the P1 U2 MCU block.
 
-    Single-sheet envelope: every compiled module prefix of the isolated MCU
-    build (`mcu`, from `McuCandidate::mcu.*` instance paths) lands on the one
-    `MCU` sheet. Root and sheet filenames are candidate-scoped so generation
-    can never overwrite production schematics by default. This is an explicit
-    strict-candidate path: callers pass the returned layout (or its JSON form)
-    deliberately; omitting it keeps the production defaults unchanged.
+    Single-sheet, flat envelope: the isolated MCU build (`mcu`, from
+    `McuCandidate::mcu.*` instance paths) is one block, so every symbol is
+    emitted directly in the root sheet. A hierarchical sub-sheet would scope
+    each local label to `/MCU/<net>`, which cannot match the candidate
+    board's plain compiled net names; flattening keeps them identical. Root
+    and sheet filenames are candidate-scoped so generation can never
+    overwrite production schematics by default. This is an explicit
+    strict-candidate path: callers pass the returned layout (or its JSON
+    form) deliberately; omitting it keeps the production defaults unchanged.
     """
     return SchematicLayout(
         root_sheet="mcu_candidate.kicad_sch",
@@ -264,7 +276,8 @@ def mcu_candidate_layout() -> SchematicLayout:
         sheet_files={"MCU": "mcu.kicad_sch"},
         module_to_sheet={"mcu": "MCU"},
         title="MCU Candidate (source-derived, unrouted)",
-        sheet_description="MCU CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP1 U2 strict-candidate path: source-derived starting point, no functional copper claims\\n\\n1 Sheet:\\nMCU",
+        sheet_description="MCU CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP1 U2 strict-candidate path: source-derived starting point, no functional copper claims\\n\\n1 Sheet (flat):\\nMCU",
+        flat=True,
     )
 
 
@@ -278,6 +291,7 @@ def write_candidate_layout_config(layout: SchematicLayout, path: Path) -> None:
         "module_to_sheet": dict(layout.module_to_sheet),
         "title": layout.title,
         "sheet_description": layout.sheet_description,
+        "flat": layout.flat,
     }
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -696,6 +710,26 @@ def _hierarchical_label(
   )"""
 
 
+def _global_label(
+    net_name: str, x: float, y: float, uuid: str, shape: str = "bidirectional"
+) -> str:
+    """Emit an unscoped global label.
+
+    A local label is sheet-path scoped: even at the root its exported net
+    name carries a leading ``/`` (``/vcc``), so it cannot match the candidate
+    board's plain compiled name. A global label's connection name is exactly
+    its text, which is what the board carries. Used only by the flat strict
+    candidate (``layout.flat``); the production hierarchy is unchanged.
+    """
+    escaped = net_name.replace('"', '\\"')
+    return f"""  (global_label "{escaped}"
+    (shape {shape})
+    (at {x:.2f} {y:.2f} 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "{uuid}")
+  )"""
+
+
 def _no_connect(x: float, y: float, uuid: str) -> str:
     return f"""  (no_connect
     (at {x:.2f} {y:.2f})
@@ -935,6 +969,92 @@ def generate_sheet(
     return "\n".join(parts)
 
 
+def generate_flat_root_sheet(netlist: Netlist, layout: SchematicLayout) -> str:
+    """Generate one flat root schematic holding every component.
+
+    Strict-candidate only (``layout.flat``). A hierarchical sub-sheet scopes
+    each label to ``/<Sheet>/<net>`` (``/MCU/vcc``); the candidate board
+    carries the plain compiled names (``vcc``), so parity can never agree.
+    The flat envelope also emits unscoped global labels, because even a local
+    label on the root is exported scoped as ``/vcc``.
+
+    Every pin that appears in the compiled netlist gets an unscoped global
+    label, including pins on single-node nets. KiCad's parity netlist omits a
+    pin whose connection subgraph has fewer than two items, so a ``no_connect``
+    marker on a board-connected single-node pin reads as "No corresponding pin
+    found in schematic". A label on the pin is a second subgraph item, which
+    keeps the pin in the netlist with the same net name the board carries.
+    The label is global rather than local because even a root local label is
+    exported scoped as ``/vcc``; only a global label's name is exactly
+    ``vcc``, matching the board. A pin absent from the netlist entirely still
+    gets ``no_connect``.
+
+    The production hierarchy is generated by :func:`generate_sheet` and is
+    deliberately untouched.
+    """
+    comps = sorted(netlist.components.values(), key=lambda c: c.ref)
+
+    seen_parts: dict[str, LibPart] = {}
+    for comp in comps:
+        if comp.part_name in netlist.libparts:
+            seen_parts[comp.part_name] = netlist.libparts[comp.part_name]
+
+    pin_net: dict[tuple[str, str], str] = {}
+    for net in netlist.nets.values():
+        for ref, pin in net.nodes:
+            pin_net[(ref, pin)] = net.name
+
+    parts: list[str] = [
+        _schematic_header(layout.title, ROOT_UUID),
+        f'  (text "{layout.sheet_description}"',
+        "    (exclude_from_sim no)",
+        "    (at 25.4 38.1 0)",
+        "    (effects (font (size 2.54 2.54)) (justify left))",
+        '    (uuid "00000000-0000-0000-0000-000000000001")',
+        "  )",
+        "",
+        "  (lib_symbols",
+    ]
+    for _part_name, libpart in sorted(seen_parts.items()):
+        parts.append(synthesize_symbol(libpart))
+    parts.append("  )")
+    parts.append("")
+
+    # Same column/grid contract as generate_sheet, so widths do not collide.
+    GRID_X = 40.0
+    GRID_Y = 30.0
+    COLS = 5
+    for idx, comp in enumerate(comps):
+        col = idx % COLS
+        row = idx // COLS
+        sx = 50.8 + col * GRID_X
+        sy = 50.8 + row * GRID_Y
+
+        symbol_id = _sanitize_name(comp.part_name)
+        instance_uuid = _uuid_from_seed(f"flatinst:{comp.tstamp}")
+        libpart = netlist.libparts.get(comp.part_name)
+        parts.append(
+            _symbol_instance(
+                comp.ref, symbol_id, sx, sy, comp.footprint, comp.part_name,
+                instance_uuid, libpart=libpart, display_value=comp.display_value,
+            )
+        )
+        if libpart is None:
+            continue
+        for num_str, _name in libpart.pins:
+            pin_x, pin_y = _pin_absolute_position(libpart, num_str, sx, sy)
+            net_name = pin_net.get((comp.ref, num_str))
+            if net_name is None:
+                nc_uuid = _uuid_from_seed(f"nc:{comp.ref}:{num_str}")
+                parts.append(_no_connect(pin_x, pin_y, nc_uuid))
+                continue
+            label_uuid = _uuid_from_seed(f"label:{comp.ref}:{num_str}:{net_name}")
+            parts.append(_global_label(net_name, pin_x, pin_y, label_uuid))
+
+    parts.append("\n)")  # close kicad_sch
+    return "\n".join(parts)
+
+
 def generate_root_sheet(
     netlist: Netlist,
     sheet_components: dict[str, list[Component]],
@@ -1041,6 +1161,12 @@ def _generate_all_sheets(
             inter_sheet_nets.add(net.name)
 
     files: dict[str, str] = {}
+
+    # Strict-candidate flat envelope: one root sheet, no sub-sheet. See
+    # generate_flat_root_sheet for why the hierarchy cannot satisfy parity.
+    if layout.flat:
+        files[layout.root_sheet] = generate_flat_root_sheet(netlist, layout)
+        return files
 
     # Generate sub-sheets
     for sheet_name in layout.sheets:
@@ -1185,9 +1311,17 @@ def oracle_verify(
         # with no_connect and are not part of the source connectivity spec.
         gen_by_net_filtered: dict[str, set[tuple[str, str]]] = {}
         unconnected_pattern = re.compile(r"^unconnected-")
+        flat = _layout_or_default(layout).flat
 
         for net_name, pins in gen_by_net.items():
             if unconnected_pattern.match(net_name):
+                continue
+            # Flat strict-candidate schematics label single-node compiled
+            # nets too (the board carries those names). They are intentionally
+            # ignored here, exactly as single-node source nets are; a lost
+            # connection in a multi-node net still surfaces as a missing
+            # source group below.
+            if flat and len(pins) <= 1:
                 continue
             gen_by_net_filtered[net_name] = pins
 

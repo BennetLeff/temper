@@ -316,6 +316,17 @@ def build_strict_pin_map(
     pad numbers 1:1), so every entry is exact with no alias note; any
     footprint pad without a compiled pin is explicitly listed unconnected.
     A name difference without a reviewed note fails downstream in Rust.
+
+    The map is keyed by ``(reference, pin)``, not by footprint pad instance.
+    A footprint may expose the same pad number on more than one physical pad
+    (e.g. a switch whose two terminals per contact share number ``1`` or
+    ``2``); those repeats are one electrical identity and must be emitted
+    once. Emitting one entry per footprint pad instance would instead fail
+    the Rust gate as ``duplicate_map`` -- which is correct, because two
+    entries for the same ``(ref, pin)`` are indistinguishable from a real
+    duplicate. Repeated same-number pads are covered by the single entry;
+    a pad number claimed by two *different* compiled pins is still rejected
+    downstream as ``split_pad``.
     """
     pins_by_ref: dict[str, set[str]] = {}
     for net in bridge["nets"]:
@@ -328,11 +339,16 @@ def build_strict_pin_map(
         ref = comp["reference"]
         pads = census[nick_by_ref[ref]]["pads"]
         pins = pins_by_ref.get(ref, set())
+        instance = next(
+            c["instance_path"] for c in bridge["components"] if c["reference"] == ref
+        )
+        seen_pads: set[str] = set()
         for pad in pads:
+            if pad in seen_pads:
+                # Same-number repeat on another physical pad: one identity.
+                continue
+            seen_pads.add(pad)
             if pad in pins:
-                instance = next(
-                    c["instance_path"] for c in bridge["components"] if c["reference"] == ref
-                )
                 entries.append(
                     {
                         "instance_path": instance,
@@ -495,6 +511,7 @@ def assemble_mcu_candidate(
             outline_mm,
             {ref: tuple(pos) for ref, pos in staging.items()},
             output_dir / "mcu_candidate.kicad_pcb",
+            values=bom_values,
         )
         if not skeleton.candidate_oracle_verify(
             output_dir / "mcu_candidate.kicad_pcb",

@@ -1,32 +1,37 @@
 {
   "schema": "temper.mcu-package-status.v1",
-  "run_id": "mcu-20260910-a",
+  "run_id": "mcu-20260910-b",
   "package_path": "pcb/blocks/mcu/",
-  "state": "assisted-pending-schematic-parity",
+  "predecessor_run": "mcu-20260910-a",
+  "state": "assisted-verified-apparatus-only",
   "autonomous": false,
   "live_model": false,
   "label": "apparatus-only-assisted",
   "operator_corrections": [
-    "scripts/gen_pcb_skeleton.py::_restore_candidate_property_geometry -- the U2 generator re-emitted bare (property \"Reference\"/\"Value\") entries (kiutils drops their geometry), placing each reference field over its own pads/silk; 34 intrinsic silk findings unfixable through place/replace_copper.",
-    "harness-lab/block_native.py::copper_layer_id -- resolved KiCad file ordinals as pcbnew layer ids; it must resolve copper layers by name (GetLayerID)."
+    "scripts/gen_pcb_skeleton.py::generate_candidate_board(values=...) -- strict-candidate footprints now carry the default.csv part identity as their Value (was '?'); schematic parity requires footprint.Value == schematic symbol value.",
+    "scripts/gen_schematics.py::generate_flat_root_sheet/_global_label (layout.flat) -- the strict candidate is a single flat sheet whose pins carry unscoped global labels, so schematic net names are 'vcc' (not '/MCU/vcc') and every compiled single-node net keeps its pin. Production hierarchy is unchanged (flat defaults false; byte-identical).",
+    "harness-lab/block_source.py::build_strict_pin_map -- emit one entry per unique (reference, pin), deduping repeated same-number pads and unconnected pads; the EVQP7A switch exposes pads 1,1,2,2 and the old one-entry-per-physical-pad emission failed the design-bundle gate as duplicate_map.",
+    "harness-lab/runs/mcu-20260910-b/construct.py -- apparatus placement clears the larger EVQP7A switch (SW1 y=56, SW2 y=58) and routes every physical pad of each contact to its shared via (the old last-wins pad dict dropped one terminal per contact and left it open).",
+    "harness-lab/block_native.py::_electrical_census -- collapse repeated same-number pads to one electrical identity for the block judge (census/invalid_cluster), retaining pads_all for the construction apparatus."
   ],
-  "routed_board_sha256": "f9087f4c4500415f897b3057c5ac0c6beb8828d177be469342199d99baa25dd2",
-  "source_manifest_sha256": "10cbe6db7d234e263fa6399c57cc1f8dac3ae59937abcbad20dc3505f093d7a6",
+  "routed_board_sha256": "1e58e2d248d9708d1fc4e8fd26f64bbf5c74b1af07e298c972cc3ec33cab4b35",
+  "candidate_board_sha256": "1caacb89e69bd6c5259371cb2d63d8c153dca510e8b4f2bfcaaf0e94ca16305b",
+  "source_manifest_sha256": "6a52b7a1e6f1248137151d3192e46d4677f9c547fade2ede7956c7f3e042e93f",
   "block_judge_status": "pass",
   "native_final_check": {
     "drc_violations": 0,
     "drc_unconnected": 0,
-    "schematic_parity": 67,
-    "erc_violations": 19,
+    "schematic_parity": 0,
+    "erc_violations": 52,
     "runs": 3,
     "stable_across_runs": true,
     "runtime": "kicad-cli 10.0.4"
   },
   "gaps": [
-    "Schematic parity fails with 67 findings (board Value '?' vs schematic value; '/MCU/<net>' vs '<net>'). The block host judge does not enable --schematic-parity, so this package is not fully verified under the plan's verification contract.",
-    "Live model delivery was blocked (Zen FreeUsageLimitError, HTTP 429); no autonomous model constructed this board.",
-    "ERC reports 19 warnings (lib_symbol_issues, endpoint_off_grid); no errors.",
-    "A filled zone makes the KiCad headless measure adapter segfault on teardown; ground is routed with explicit F.Cu copper."
+    "Live model delivery remains blocked (Zen FreeUsageLimitError, HTTP 429); this run is apparatus-only and no autonomous model constructed the board.",
+    "ERC reports 52 warnings (10 lib_symbol_issues, 9 endpoint_off_grid, 33 isolated_pin_label), no errors. The isolated-pin labels are the single-node compiled nets that must be labelled to satisfy schematic parity; they are warnings, not DRC errors.",
+    "The source fix (elec/src/components.ato SW1/SW2 footprint) is an uncommitted concurrent working-tree change authored by another session; it is treated as fixed input and was not edited here.",
+    "harness-lab/block_native.py::_electrical_census is a Python-side adapter correction so the block judge's per-pin census accepts repeated same-number pads; the design-bundle strict gate (packages/temper-design-bundle) was already correct and was not weakened."
   ],
-  "full_handoff": "harness-lab/runs/mcu-20260910-a/handoff.json"
+  "full_handoff": "harness-lab/runs/mcu-20260910-b/handoff.json"
 }

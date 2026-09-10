@@ -1,0 +1,152 @@
+{
+  "accepted_package": {
+    "marker": "pcb/blocks/mcu/ASSISTED-PACKAGE.json",
+    "path": "pcb/blocks/mcu/",
+    "state": "assisted-verified-apparatus-only"
+  },
+  "assisted_attempt": {
+    "block_judge_findings": [],
+    "block_judge_status": "pass",
+    "candidate_board_sha256": "1caacb89e69bd6c5259371cb2d63d8c153dca510e8b4f2bfcaaf0e94ca16305b",
+    "candidate_index": "harness-lab/runs/mcu-20260910-b/INDEX-assisted.json",
+    "committed_actions": 16,
+    "final_board_sha256": "1e58e2d248d9708d1fc4e8fd26f64bbf5c74b1af07e298c972cc3ec33cab4b35",
+    "label": "apparatus-only-assisted",
+    "live": false,
+    "operator_corrections": [
+      "scripts/gen_pcb_skeleton.py::generate_candidate_board(values=...) -- footprint Value from default.csv part identity",
+      "scripts/gen_schematics.py::generate_flat_root_sheet/_global_label (layout.flat) -- flat unscoped-net candidate schematic",
+      "harness-lab/block_source.py::build_strict_pin_map -- unique-pin emission, repeated same-number pads deduped",
+      "harness-lab/runs/mcu-20260910-b/construct.py -- EVQP7A placement and every-physical-pad routing",
+      "harness-lab/block_native.py::_electrical_census -- repeated same-number pads collapsed for the block judge"
+    ]
+  },
+  "context": {
+    "path": "pcb/blocks/control-assembly/target-context.json",
+    "target_context_sha256": "db3e07b6fcb70ccedc4791a55d32ad37ae3c6177c6a4de82dee0c04206241c79"
+  },
+  "gaps": [
+    "Live model transport: Zen FreeUsageLimitError (HTTP 429) retained in harness-lab/runs/mcu-20260910-a/live-01/; no live attempt in this run.",
+    "ERC warnings (10 lib_symbol_issues, 9 endpoint_off_grid, 33 isolated_pin_label); no errors.",
+    "elec/src/components.ato SW1/SW2 footprint fix is uncommitted/concurrent (another session's working-tree change).",
+    "harness-lab/block_native.py::_electrical_census is a Python-side adapter correction for repeated same-number pads; the design-bundle strict gate was not weakened."
+  ],
+  "label": "apparatus-only-assisted",
+  "libraries": {
+    "Button_Switch_SMD:SW_SPST_EVQP7A": {
+      "sha256": "5054a9ea0fd5020b765d793470383f518c271ca7e965ce8ecd0e9a255d8d89ac",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Button_Switch_SMD.pretty/SW_SPST_EVQP7A.kicad_mod"
+    },
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod"
+    },
+    "Capacitor_SMD:C_0805_2012Metric": {
+      "sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0805_2012Metric.kicad_mod"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod"
+    },
+    "lib:ESP32-S3-WROOM-1": {
+      "sha256": "9c5a41379d7255f50ce1b7efb060994b700847c8aafe400b160dca7ccc5fd7dd",
+      "source": "pcb/libs/lib.pretty/ESP32-S3-WROOM-1.kicad_mod"
+    }
+  },
+  "live_model": false,
+  "live_transport": {
+    "conclusion": "Zen free-usage limit still blocks the live model turn; no autonomous construction occurred. Live-delivery evidence remains an explicit gap and the milestone cannot close without it.",
+    "errors": [
+      {
+        "error": "ValueError: provider request failed with status 429"
+      },
+      {
+        "retry_after_s": "7726"
+      },
+      {
+        "error": "ValueError: trial transport already failed; retry blocked"
+      }
+    ],
+    "http_statuses": [
+      429
+    ],
+    "model": "opencode/muse-spark-1.3-contributor-free",
+    "retained_at": "harness-lab/runs/mcu-20260910-a/live-01/",
+    "status": "transport_blocked",
+    "tool_calls": [],
+    "wire_requests": 2
+  },
+  "milestone_status": "open",
+  "native_checks": {
+    "assisted": {
+      "dir": "native-check-assisted",
+      "runs": [
+        {
+          "drc_parity": 0,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 0,
+          "erc_returncode": 0,
+          "erc_violations": 52,
+          "judge_findings": 0,
+          "judge_status": "pass",
+          "measurement_board_sha256": "1e58e2d248d9708d1fc4e8fd26f64bbf5c74b1af07e298c972cc3ec33cab4b35",
+          "measurement_protected_sha256": "b53b4cd7b2e3b074b86db2bc847643cd36fe3995274bd8504ccc3de85190fa7c",
+          "run": 1
+        },
+        {
+          "drc_parity": 0,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 0,
+          "erc_returncode": 0,
+          "erc_violations": 52,
+          "judge_findings": 0,
+          "judge_status": "pass",
+          "measurement_board_sha256": "1e58e2d248d9708d1fc4e8fd26f64bbf5c74b1af07e298c972cc3ec33cab4b35",
+          "measurement_protected_sha256": "b53b4cd7b2e3b074b86db2bc847643cd36fe3995274bd8504ccc3de85190fa7c",
+          "run": 2
+        },
+        {
+          "drc_parity": 0,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 0,
+          "erc_returncode": 0,
+          "erc_violations": 52,
+          "judge_findings": 0,
+          "judge_status": "pass",
+          "measurement_board_sha256": "1e58e2d248d9708d1fc4e8fd26f64bbf5c74b1af07e298c972cc3ec33cab4b35",
+          "measurement_protected_sha256": "b53b4cd7b2e3b074b86db2bc847643cd36fe3995274bd8504ccc3de85190fa7c",
+          "run": 3
+        }
+      ],
+      "stable_across_runs": true
+    },
+    "note": "Schematic parity is now enabled and clean: DRC 0, unconnected 0, schematic parity 0, block judge pass, stable across 3 runs on kicad-cli 10.0.4."
+  },
+  "predecessor_run": "mcu-20260910-a",
+  "run_id": "mcu-20260910-b",
+  "schema": "temper.mcu-u4-handoff.v1",
+  "source_identity": {
+    "atopile_pinned": "0.2.69",
+    "bom_sha256": "cec6658355844a6fa3f05bf286096db43fb61c13f8ce53ed60fa54193f54b356",
+    "entry": "mcu.ato:McuCandidate",
+    "export_sha256": "c658a1e5209b0cceb10ffe707ca276d4684c2ebaf250baec0d629d558816049a",
+    "kicad_cli": "10.0.4",
+    "manifest_sha256": "6a52b7a1e6f1248137151d3192e46d4677f9c547fade2ede7956c7f3e042e93f",
+    "netlist_sha256": "563ae59fabf2d713248657c4731a518ae7511a8f166d2034e73d0195a69a5488",
+    "workspace_hashes": {
+      "elec/src/components.ato": "81de19a40e93337d16584a9cd1794c96926301d2ff89f141695c0cf08ac9fa04",
+      "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+      "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+      "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+      "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+      "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+      "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+      "elec/src/modules.ato": "6f14dba190b24f1c4dea5af8bb834e4a0ad23b00d62bd9115efaa9528a288b57",
+      "mcu.ato": "a3844663a915ab7f4120b223536b70393e78c9eb7b61101b1f22490c935acd83"
+    }
+  }
+}

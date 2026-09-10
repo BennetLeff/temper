@@ -113,7 +113,7 @@
         "value": "4.7kohm"
       },
       {
-        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "footprint": "Button_Switch_SMD:SW_SPST_EVQP7A",
         "instance_path": "mcu.btn_reset",
         "mpn": "EVQ-P7A01P",
         "origins": {
@@ -125,7 +125,7 @@
         "value": null
       },
       {
-        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "footprint": "Button_Switch_SMD:SW_SPST_EVQP7A",
         "instance_path": "mcu.btn_boot",
         "mpn": "EVQ-P7A01P",
         "origins": {
@@ -164,14 +164,23 @@
   },
   "entry": "mcu.ato:McuCandidate",
   "inputs": {
-    "bom_sha256": "09d804ac1ad3c9d98cd37117d57323ef51a001eff40ac5d019339ce1d15f7dff",
+    "bom_sha256": "cec6658355844a6fa3f05bf286096db43fb61c13f8ce53ed60fa54193f54b356",
     "build_evidence": "build-evidence/default.net, default.csv, resolved-components.json, stdout.txt, stderr.txt (byte copies of the qualified build)",
     "build_gate": {
       "failed_present": false,
       "returncode": 0
     },
-    "export_sha256": "38916ebd45bfb1244432809ff145eb2ea0e2195d317286350c7ffe2f1039cd6c",
+    "export_sha256": "c658a1e5209b0cceb10ffe707ca276d4684c2ebaf250baec0d629d558816049a",
     "footprint_census": {
+      "Button_Switch_SMD:SW_SPST_EVQP7A": {
+        "pads": [
+          "1",
+          "1",
+          "2",
+          "2"
+        ],
+        "sha256": "5054a9ea0fd5020b765d793470383f518c271ca7e965ce8ecd0e9a255d8d89ac"
+      },
       "Capacitor_SMD:C_0603_1608Metric": {
         "pads": [
           "1",
@@ -239,6 +248,10 @@
       }
     },
     "libraries": {
+      "Button_Switch_SMD:SW_SPST_EVQP7A": {
+        "sha256": "5054a9ea0fd5020b765d793470383f518c271ca7e965ce8ecd0e9a255d8d89ac",
+        "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Button_Switch_SMD.pretty/SW_SPST_EVQP7A.kicad_mod"
+      },
       "Capacitor_SMD:C_0603_1608Metric": {
         "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
         "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod"
@@ -256,11 +269,11 @@
         "source": "pcb/libs/lib.pretty/ESP32-S3-WROOM-1.kicad_mod"
       }
     },
-    "netlist_sha256": "90d04ba4af410f765ab3586091385c3aef78b202616268c36653fe6ccab731a5",
+    "netlist_sha256": "563ae59fabf2d713248657c4731a518ae7511a8f166d2034e73d0195a69a5488",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "stdout_sha256": "3c5c1ab824ace2949912b5fc33a0c97efc292bc90a29530090b968dd58a91bbd",
+    "stdout_sha256": "e7661546405f2b77673cde5cd544ef0d75285f476f2c04c132f4e00059f08a51",
     "workspace_hashes": {
-      "elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+      "elec/src/components.ato": "81de19a40e93337d16584a9cd1794c96926301d2ff89f141695c0cf08ac9fa04",
       "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
       "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
       "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
@@ -276,16 +289,16 @@
   "schema": "temper.mcu-candidate.v1",
   "schematic": {
     "files": [
-      "mcu.kicad_sch",
       "mcu_candidate.kicad_sch"
     ],
     "layout": {
+      "flat": true,
       "module_to_sheet": {
         "mcu": "MCU"
       },
       "root_sheet": "mcu_candidate.kicad_sch",
       "schema_version": 1,
-      "sheet_description": "MCU CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP1 U2 strict-candidate path: source-derived starting point, no functional copper claims\\n\\n1 Sheet:\\nMCU",
+      "sheet_description": "MCU CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP1 U2 strict-candidate path: source-derived starting point, no functional copper claims\\n\\n1 Sheet (flat):\\nMCU",
       "sheet_files": {
         "MCU": "mcu.kicad_sch"
       },

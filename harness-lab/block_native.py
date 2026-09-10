@@ -166,15 +166,55 @@ def replace_copper(
     buck_native.save(board, path)
 
 
+def _electrical_census(result: dict) -> None:
+    """Collapse repeated same-number pads to one electrical identity.
+
+    A footprint may expose the same pad number on more than one physical pad
+    (the EVQP7A switch: pads ``1,1,2,2``).  Those repeats are one electrical
+    terminal, which is exactly how the strict U2 pin map and the block task
+    contract census treat them.  The native measurement is per physical pad,
+    so the Rust block judge would otherwise see ``SW1`` with 4 pads where the
+    contract has 2 and report ``unexpected_pad_census`` / ``invalid_cluster``.
+
+    The raw physical pad list is retained under ``pads_all`` for the
+    construction apparatus, which must route every terminal; the judge reads
+    only ``pads`` and ignores the extra key.
+    """
+    for footprint in result["footprints"]:
+        merged: dict[str, dict] = {}
+        for pad in footprint["pads"]:
+            merged.setdefault(pad["number"], pad)
+        if len(merged) != len(footprint["pads"]):
+            footprint["pads_all"] = list(footprint["pads"])
+            footprint["pads"] = list(merged.values())
+    clusters = result["block"]["connectivity"]
+    by_pad: dict[str, dict] = {}
+    for cluster in clusters:
+        existing = by_pad.get(cluster["pad"])
+        if existing is None:
+            by_pad[cluster["pad"]] = {
+                "pad": cluster["pad"],
+                "pads": sorted(set(cluster["pads"])),
+                "tracks": sorted(set(cluster["tracks"])),
+            }
+        else:
+            existing["pads"] = sorted(set(existing["pads"]) | set(cluster["pads"]))
+            existing["tracks"] = sorted(set(existing["tracks"]) | set(cluster["tracks"]))
+    result["block"]["connectivity"] = list(by_pad.values())
+
+
 def measure(path: Path) -> dict:
     """Native measurement with the block-profile evidence key.
 
     The geometry/connectivity census is fully generic (every footprint, every
     track/zone, native clusters); only the evidence key differs from the buck
     adapter, matching the ``block`` measurement the Rust judge deserializes.
+    Repeated same-number pads are collapsed to one electrical identity by
+    :func:`_electrical_census`.
     """
     result = buck_native.measure(path)
     result["block"] = result.pop("buck")
+    _electrical_census(result)
     return result
 
 

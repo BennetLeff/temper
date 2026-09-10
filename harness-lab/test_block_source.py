@@ -411,10 +411,13 @@ class McuCandidateGenerationContract(unittest.TestCase):
         sys.path.insert(0, str(REPO / "scripts"))
         import gen_schematics as schematics
 
-        self.assertTrue((self.out / "mcu_candidate.kicad_sch").is_file())
-        self.assertTrue((self.out / "mcu.kicad_sch").is_file())
         layout = schematics.mcu_candidate_layout()
         self.assertEqual(layout.root_sheet, "mcu_candidate.kicad_sch")
+        self.assertTrue(layout.flat)
+        self.assertTrue((self.out / "mcu_candidate.kicad_sch").is_file())
+        # The strict candidate is a single flat sheet: a hierarchical
+        # sub-sheet would scope every net as /MCU/<net> and break parity.
+        self.assertFalse((self.out / "mcu.kicad_sch").exists())
         self.assertTrue(
             schematics.oracle_verify(
                 self.out / "build-evidence" / "default.net",
@@ -580,6 +583,110 @@ class StrictPinPartitionContract(unittest.TestCase):
                 pads,
                 json.dumps({"U1": ["1", "2"]}),
                 json.dumps([["U1", "9"]]),
+            )
+        self.assertIn("split_pad", str(ctx.exception))
+
+
+class StrictPinMapBuilderContract(unittest.TestCase):
+    """``build_strict_pin_map`` emits one entry per unique (reference, pin).
+
+    A footprint may expose the same pad number on more than one physical pad
+    (e.g. ``SW_SPST_EVQP7A`` exposes pads ``1,1,2,2``: two terminals per
+    contact). Those repeats are one electrical identity, so the builder must
+    dedupe them instead of emitting a duplicate map entry -- which the Rust
+    gate rightly rejects as ``duplicate_map``. A pad number genuinely claimed
+    by two *different* pins is still rejected as ``split_pad``.
+    """
+
+    def _inputs(self, pads: list[str]):
+        converted = {
+            "components": [
+                {
+                    "reference": "SW1",
+                    "footprint": "Button_Switch_SMD:SW_SPST_EVQP7A",
+                }
+            ]
+        }
+        bridge = {
+            "components": [{"reference": "SW1", "instance_path": "mcu.sw1"}],
+            "nets": [
+                {"name": "en", "nodes": [["SW1", "1"]]},
+                {"name": "gnd", "nodes": [["SW1", "2"]]},
+            ],
+        }
+        census = {"Button_Switch_SMD:SW_SPST_EVQP7A": {"pads": list(pads)}}
+        nick = {"SW1": "Button_Switch_SMD:SW_SPST_EVQP7A"}
+        return converted, bridge, census, nick
+
+    def test_repeated_same_number_pads_emit_one_entry(self) -> None:
+        converted, bridge, census, nick = self._inputs(["1", "1", "2", "2"])
+        entries, unconnected = block_source.build_strict_pin_map(
+            converted, bridge, census, nick
+        )
+        self.assertEqual(
+            [(e["reference"], e["pin"], e["pad"]) for e in entries],
+            [("SW1", "1", "1"), ("SW1", "2", "2")],
+        )
+        self.assertEqual(unconnected, [])
+        # And the exact map is accepted by the Rust gate.
+        bundle = _bundle()
+        bundle.candidate_validate_pin_map(
+            json.dumps(entries, sort_keys=True),
+            json.dumps({"SW1": ["1", "1", "2", "2"]}),
+            json.dumps({"SW1": ["1", "2"]}),
+            json.dumps(unconnected),
+        )
+
+    def test_repeated_unconnected_pads_dedupe(self) -> None:
+        converted, bridge, census, nick = self._inputs(["1", "1", "2", "2", "9", "9"])
+        entries, unconnected = block_source.build_strict_pin_map(
+            converted, bridge, census, nick
+        )
+        self.assertEqual(
+            [(e["reference"], e["pin"]) for e in entries],
+            [("SW1", "1"), ("SW1", "2")],
+        )
+        self.assertEqual(unconnected, [["SW1", "9"]])
+        bundle = _bundle()
+        bundle.candidate_validate_pin_map(
+            json.dumps(entries, sort_keys=True),
+            json.dumps({"SW1": ["1", "1", "2", "2", "9", "9"]}),
+            json.dumps({"SW1": ["1", "2"]}),
+            json.dumps(unconnected),
+        )
+
+    def test_true_split_pad_still_rejected_by_rust(self) -> None:
+        # One pad number claimed by two different compiled pins is a split
+        # identity even though the footprint repeats the number; the Rust
+        # gate must keep rejecting it. This guards the Python dedupe fix from
+        # being "fixed" by weakening the gate.
+        bundle = _bundle()
+        entries = json.dumps(
+            [
+                {
+                    "instance_path": "mcu.sw1",
+                    "reference": "SW1",
+                    "pin": "1",
+                    "pad": "1",
+                    "alias_note": "",
+                    "positional": False,
+                },
+                {
+                    "instance_path": "mcu.sw1",
+                    "reference": "SW1",
+                    "pin": "2",
+                    "pad": "1",
+                    "alias_note": "reviewed",
+                    "positional": False,
+                },
+            ]
+        )
+        with self.assertRaises(ValueError) as ctx:
+            bundle.candidate_validate_pin_map(
+                entries,
+                json.dumps({"SW1": ["1", "1", "2", "2"]}),
+                json.dumps({"SW1": ["1", "2"]}),
+                json.dumps([]),
             )
         self.assertIn("split_pad", str(ctx.exception))
 
@@ -770,7 +877,6 @@ class CandidateDeterminismContract(unittest.TestCase):
         for name in (
             "mcu_candidate.kicad_pcb",
             "mcu_candidate.kicad_sch",
-            "mcu.kicad_sch",
             "fp-lib-table",
             "schematic_layout.json",
             "rules.json",
@@ -781,7 +887,12 @@ class CandidateDeterminismContract(unittest.TestCase):
                 (self.second / name).read_bytes(),
                 f"{name} differs between repeated generations",
             )
-        for lib in ("lib.pretty", "Capacitor_SMD.pretty", "Resistor_SMD.pretty"):
+        for lib in (
+            "lib.pretty",
+            "Capacitor_SMD.pretty",
+            "Resistor_SMD.pretty",
+            "Button_Switch_SMD.pretty",
+        ):
             for mod in sorted((self.first / "candidate-libs" / lib).iterdir()):
                 self.assertEqual(
                     mod.read_bytes(),
