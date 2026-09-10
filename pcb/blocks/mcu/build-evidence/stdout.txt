@@ -1,0 +1,122 @@
+[15:55:34] INFO     Using project                                   common.py:72
+                    /private/var/folders/c0/2frqysjx1c568ymcn_3nvry             
+                    m0000gn/T/mcu-u2-49f5evlx/mcu-ws                            
+           INFO     Building default                                 build.py:38
+[15:55:40] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/var/folders/c0/2frqysjx1c568ymcn_3nvry             
+                    m0000gn/T/mcu-u2-49f5evlx/mcu-ws/elec/src/modul             
+                    es.ato:3514:4                                               
+                        Field 'required' not declared for                       
+                    /private/var/folders/c0/2frqysjx1c568ymcn_3nvry             
+                    m0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCan             
+                    didate::mcu.adc_i_sense. Declaring implicitly               
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/var/folders/c0/2frqysjx1c568ymcn_3nvry             
+                    m0000gn/T/mcu-u2-49f5evlx/mcu-ws/elec/src/modul             
+                    es.ato:3516:4                                               
+                        Field 'required' not declared for                       
+                    /private/var/folders/c0/2frqysjx1c568ymcn_3nvry             
+                    m0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCan             
+                    didate::mcu.adc_v_bus. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/var/folders/c0/2frqysjx1c568ymcn_3nvry             
+                    m0000gn/T/mcu-u2-49f5evlx/mcu-ws/elec/src/modul             
+                    es.ato:3518:4                                               
+                        Field 'required' not declared for                       
+                    /private/var/folders/c0/2frqysjx1c568ymcn_3nvry             
+                    m0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCan             
+                    didate::mcu.adc_ntc. Declaring implicitly for               
+                    now, but in the future this may become an                   
+                    error...                                                    
+[15:55:42] INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /private/var/folders/c0/2frqysjx1c568ymcn_3nvrym            
+                    0000gn/T/mcu-u2-49f5evlx/mcu-ws/build                       
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name             ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━┩
+│           C1 │ mcu.c_vcc1       │
+│           C2 │ mcu.c_vcc2       │
+│           C3 │ mcu.c_en         │
+│           R1 │ mcu.r_en         │
+│           R2 │ mcu.r_boot       │
+│           R3 │ mcu.r_sda_pullup │
+│           R4 │ mcu.r_scl_pullup │
+│          SW1 │ mcu.btn_reset    │
+│          SW2 │ mcu.btn_boot     │
+│           U1 │ mcu.mcu          │
+└──────────────┴──────────────────┘
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓           ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ mcu.btn_boot     │ SW2        │
+│ mcu.btn_reset    │ SW1        │
+│ mcu.c_en         │ C3         │
+│ mcu.c_vcc1       │ C1         │
+│ mcu.c_vcc2       │ C2         │
+│ mcu.mcu          │ U1         │
+│ mcu.r_boot       │ R2         │
+│ mcu.r_en         │ R1         │
+│ mcu.r_scl_pullup │ R4         │
+│ mcu.r_sda_pullup │ R3         │
+└──────────────────┴────────────┘
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+                                   Assertions                                   
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Status ┃ Assertion                        ┃ Numeric                          ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ PASSED │ assert power.voltage within 3.3V │ 3.3V within 3.13 to 3.46 V       │
+│        │ +/- 5%                           │                                  │
+│ PASSED │ assert t_boot_rc within 8.5ms to │ 8.82 to 11.22 ms within 8.5 to   │
+│        │ 11.5ms                           │ 11.5 ms                          │
+│ PASSED │ assert t_boot_delay within 12ms  │ 12.35 to 15.71 ms within 12 to   │
+│        │ to 16ms                          │ 16 ms                            │
+└────────┴──────────────────────────────────┴──────────────────────────────────┘
+           INFO     Building 'variable-report' for 'default' config build.py:100
+                                Variable Values                                 
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Address                   ┃ Value                                  ┃ Comment ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ mcu.adc_i_sense.required  │ Symbol(key='/private/var/folders/c0/2… │         │
+│ mcu.adc_v_bus.required    │ Symbol(key='/private/var/folders/c0/2… │         │
+│ mcu.adc_ntc.required      │ Symbol(key='/private/var/folders/c0/2… │         │
+│ mcu.mcu.GPIO1.required    │ Symbol(key='/private/var/folders/c0/2… │         │
+│ mcu.mcu.GPIO2.required    │ Symbol(key='/private/var/folders/c0/2… │         │
+│ mcu.mcu.GPIO3.required    │ Symbol(key='/private/var/folders/c0/2… │         │
+│ mcu.t_boot_rc             │ 10.02 ± 1.2 ms                         │         │
+│ mcu.t_boot_delay          │ 14.03 ± 1.68 ms                        │         │
+│ adc_i_sense_stub.required │ Symbol(key='/private/var/folders/c0/2… │         │
+│ adc_v_bus_stub.required   │ Symbol(key='/private/var/folders/c0/2… │         │
+│ adc_ntc_stub.required     │ Symbol(key='/private/var/folders/c0/2… │         │
+└───────────────────────────┴────────────────────────────────────────┴─────────┘
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment          ┃ Designator ┃ Footprint         ┃ LCSC             ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ ESP32-S3-WROOM-… │ U1         │ ESP32-S3-WROOM-1  │ ESP32-S3-WROOM-… │ 0.00  │
+│ C0603C104K5RACTU │ C1         │ Capacitor_SMD:C_… │ C0603C104K5RACTU │ 0.00  │
+│ GRM21BR71A106KE… │ C2         │ Capacitor_SMD:C_… │ GRM21BR71A106KE… │ 0.00  │
+│ RC0603FR-0710KL  │ R1,R2      │ Resistor_SMD:R_0… │ RC0603FR-0710KL  │ 0.00  │
+│ GRM188R71A105KA… │ C3         │ Capacitor_SMD:C_… │ GRM188R71A105KA… │ 0.00  │
+│ EVQ-P7A01P       │ SW1,SW2    │ Resistor_SMD:R_0… │ EVQ-P7A01P       │ 0.00  │
+│ RC0603FR-074K7L  │ R3,R4      │ Resistor_SMD:R_0… │ RC0603FR-074K7L  │ 0.00  │
+└──────────────────┴────────────┴───────────────────┴──────────────────┴───────┘
+           INFO     Successfully built 'designator-map,             build.py:105
+                    copy-3dmodels, clone-footprints,                            
+                    copy-footprints, netlist, layout-module-map,                
+                    assertions-report, variable-report, bom' for                
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

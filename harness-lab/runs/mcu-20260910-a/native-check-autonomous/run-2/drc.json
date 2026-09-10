@@ -1,0 +1,1803 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-10T16:02:17",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [
+        {
+            "description": "Value (C1) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint C1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 38.0
+                    },
+                    "uuid": "54c6bd15-5f25-b1cf-4d07-b24d0e6da470"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (vcc) doesn't match net given by schematic (/MCU/vcc)",
+            "items": [
+                {
+                    "description": "Pad 1 [vcc] of C1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 38.775
+                    },
+                    "uuid": "22f6ddf2-6951-4c85-8e39-4e967c435656"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (gnd) doesn't match net given by schematic (/MCU/gnd)",
+            "items": [
+                {
+                    "description": "Pad 2 [gnd] of C1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 37.225
+                    },
+                    "uuid": "6021276b-4d07-40dc-9519-c84195fe41cd"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (C2) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint C2",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 42.0
+                    },
+                    "uuid": "75d28a7e-0326-bfdd-8008-c0427f3c9bd5"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (vcc) doesn't match net given by schematic (/MCU/vcc)",
+            "items": [
+                {
+                    "description": "Pad 1 [vcc] of C2 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 42.95
+                    },
+                    "uuid": "85398018-d910-42f7-8ee7-bd30fbfc22c2"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (gnd) doesn't match net given by schematic (/MCU/gnd)",
+            "items": [
+                {
+                    "description": "Pad 2 [gnd] of C2 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 41.05
+                    },
+                    "uuid": "4e9cd227-ffb1-4368-9b56-4f86b3468b69"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (C3) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint C3",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 50.0
+                    },
+                    "uuid": "30489631-ad56-3f20-a77a-4c75175b2eb0"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (en) doesn't match net given by schematic (/MCU/en)",
+            "items": [
+                {
+                    "description": "Pad 1 [en] of C3 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 50.775
+                    },
+                    "uuid": "b0d2c9ff-135b-49ba-8588-7aeb15b5ae93"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (gnd) doesn't match net given by schematic (/MCU/gnd)",
+            "items": [
+                {
+                    "description": "Pad 2 [gnd] of C3 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 49.225
+                    },
+                    "uuid": "c41e7954-3b0c-4aa5-8588-c81a96eb3fac"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (R1) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint R1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 46.0
+                    },
+                    "uuid": "9a71c6e9-e7a1-4e7c-bb86-569a94e024fe"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (vcc) doesn't match net given by schematic (/MCU/vcc)",
+            "items": [
+                {
+                    "description": "Pad 1 [vcc] of R1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 46.825
+                    },
+                    "uuid": "5a6d362a-9559-4062-aea7-70d7700821f6"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (en) doesn't match net given by schematic (/MCU/en)",
+            "items": [
+                {
+                    "description": "Pad 2 [en] of R1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 45.175
+                    },
+                    "uuid": "26d113ef-5ac4-440f-9269-fb7977774423"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (R2) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint R2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 44.0
+                    },
+                    "uuid": "b2618906-6723-41d6-45aa-6c3d2b871fa9"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (vcc) doesn't match net given by schematic (/MCU/vcc)",
+            "items": [
+                {
+                    "description": "Pad 1 [vcc] of R2 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 44.825
+                    },
+                    "uuid": "7d02d7d7-4ea5-4e3e-8572-448672f1b887"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (io0) doesn't match net given by schematic (/MCU/io0)",
+            "items": [
+                {
+                    "description": "Pad 2 [io0] of R2 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 43.175
+                    },
+                    "uuid": "57987b2b-86ce-45f7-a3b6-62ea8a674a42"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (R3) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint R3",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 48.0
+                    },
+                    "uuid": "00611275-0db9-d137-0858-80951d2d08f2"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (vcc) doesn't match net given by schematic (/MCU/vcc)",
+            "items": [
+                {
+                    "description": "Pad 1 [vcc] of R3 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 48.825
+                    },
+                    "uuid": "31493440-c94f-4e3e-ac67-aaca62c9ea96"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (sda) doesn't match net given by schematic (/MCU/sda)",
+            "items": [
+                {
+                    "description": "Pad 2 [sda] of R3 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 47.175
+                    },
+                    "uuid": "a28bca35-e530-48d6-b2e4-dbd6c3abbb0b"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (R4) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint R4",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 52.0
+                    },
+                    "uuid": "366603d9-fcad-c294-f4d8-11ff7947ea1c"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (vcc) doesn't match net given by schematic (/MCU/vcc)",
+            "items": [
+                {
+                    "description": "Pad 1 [vcc] of R4 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 52.825
+                    },
+                    "uuid": "74edeeb4-c8fb-43d4-ae3b-ef9c37254861"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (scl) doesn't match net given by schematic (/MCU/scl)",
+            "items": [
+                {
+                    "description": "Pad 2 [scl] of R4 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 51.175
+                    },
+                    "uuid": "a99c93a9-ec35-488d-8472-e7847412e17c"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (SW1) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint SW1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 54.0
+                    },
+                    "uuid": "0c4255c5-c882-a43e-a68d-03315110e0fa"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (en) doesn't match net given by schematic (/MCU/en)",
+            "items": [
+                {
+                    "description": "Pad 1 [en] of SW1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 54.825
+                    },
+                    "uuid": "e3f61816-38a8-497a-926d-30cc4f5ceea2"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (gnd) doesn't match net given by schematic (/MCU/gnd)",
+            "items": [
+                {
+                    "description": "Pad 2 [gnd] of SW1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 53.175
+                    },
+                    "uuid": "ce307136-c608-40dc-8206-39461547f90b"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (SW2) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint SW2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 56.0
+                    },
+                    "uuid": "20bb114d-5c10-ce9e-dc5d-207f0971ce60"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (io0) doesn't match net given by schematic (/MCU/io0)",
+            "items": [
+                {
+                    "description": "Pad 1 [io0] of SW2 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 56.825
+                    },
+                    "uuid": "8944658a-c220-44ac-898c-82f5ae6f21d1"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (gnd) doesn't match net given by schematic (/MCU/gnd)",
+            "items": [
+                {
+                    "description": "Pad 2 [gnd] of SW2 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 55.175
+                    },
+                    "uuid": "6c512304-e394-4410-86bd-ab8b08deaec8"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Value (U1) doesn't match symbol value (?)",
+            "items": [
+                {
+                    "description": "Footprint U1",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 50.0
+                    },
+                    "uuid": "92a720b8-6473-ffc4-7fa8-ef701c075add"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Pad net (gnd) doesn't match net given by schematic (/MCU/gnd)",
+            "items": [
+                {
+                    "description": "Pad 1 [gnd] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 60.16
+                    },
+                    "uuid": "a99d5805-661f-4419-997f-1080d8360e95"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (vcc) doesn't match net given by schematic (/MCU/vcc)",
+            "items": [
+                {
+                    "description": "Pad 2 [vcc] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 58.89
+                    },
+                    "uuid": "10021f49-e2df-4df3-8bb8-052d5a69d5a7"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (en) doesn't match net given by schematic (/MCU/en)",
+            "items": [
+                {
+                    "description": "Pad 3 [en] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 57.62
+                    },
+                    "uuid": "2a5b46bb-400b-46e4-914c-63dc0cbc6379"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 4 [pwm_h] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 56.35
+                    },
+                    "uuid": "c4a0b613-f108-4042-b6ab-54beede2b173"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 5 [pwm_l] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 55.08
+                    },
+                    "uuid": "4d0602bc-a86f-45fe-a70f-55a56f19108e"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 6 [mcu-line-7] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 53.81
+                    },
+                    "uuid": "b9ab7c6a-d94b-47ef-ab10-086297cfeb10"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 7 [mcu-line-2] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 52.54
+                    },
+                    "uuid": "3c7fc5dc-56da-415f-b108-c84c6f5c5e94"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 8 [mcu-line-8] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 51.27
+                    },
+                    "uuid": "f16fbbeb-9262-476a-bab4-acf7f9068955"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 9 [mcu-line-3] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 50.0
+                    },
+                    "uuid": "777dd5ba-33e2-4eca-b5e7-278b6ae593f4"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 10 [mcu-line-5] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 48.73
+                    },
+                    "uuid": "51e9addd-d892-467e-beb5-b3a0b9e7eb13"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 11 [gpio18] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 46.19
+                    },
+                    "uuid": "e4673ff5-32f7-4927-a224-f25e2bc122a3"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 12 [sclk] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 44.92
+                    },
+                    "uuid": "0db40c69-c902-4a29-b072-e29f983a83be"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 13 [usb_dn] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 43.65
+                    },
+                    "uuid": "02889d55-c081-43a2-b18f-8e25da5fee5a"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 14 [usb_dp] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 42.38
+                    },
+                    "uuid": "fdd4a664-632b-49ee-a62e-103c0a06d2bb"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 15 [adc_ntc_stub] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 41.11
+                    },
+                    "uuid": "3487c7ad-f03f-4e90-9293-ba3a6160b4ac"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 16 [io46] of U1 on F.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 39.84
+                    },
+                    "uuid": "8241a1c7-961c-48f1-8d4e-bf36d1b5aa0a"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 17 [mcu-line-1] of U1 on F.Cu",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 37.25
+                    },
+                    "uuid": "97ed6b3b-eac4-4d4b-bf36-2df540c6971b"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 18 [mcu-line] of U1 on F.Cu",
+                    "pos": {
+                        "x": 33.0,
+                        "y": 37.25
+                    },
+                    "uuid": "1fa887dc-7a77-4149-9264-d535d6d66b32"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 19 [mosi] of U1 on F.Cu",
+                    "pos": {
+                        "x": 36.0,
+                        "y": 37.25
+                    },
+                    "uuid": "f1abd352-1f3b-4ef5-9d19-053c90aa96a6"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 20 [miso] of U1 on F.Cu",
+                    "pos": {
+                        "x": 39.0,
+                        "y": 37.25
+                    },
+                    "uuid": "e3388311-23e1-45aa-9771-11176b151a50"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 21 [io13] of U1 on F.Cu",
+                    "pos": {
+                        "x": 42.0,
+                        "y": 37.25
+                    },
+                    "uuid": "c63f63e4-fa5c-410f-9fd1-445fc861b0ac"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 22 [mcu-line-6] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 39.84
+                    },
+                    "uuid": "69365974-eb9a-4053-bfd9-4a47b7cd41b2"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 23 [gpio21] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 41.11
+                    },
+                    "uuid": "dd5546ae-cbb7-400f-a85a-fc8134fb022f"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 24 [mcu-line-4] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 42.38
+                    },
+                    "uuid": "d083281a-c92f-4663-816d-b781d470383c"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 25 [io48] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 43.65
+                    },
+                    "uuid": "086fba11-5830-4611-ab18-b70a14ebc267"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 26 [io45] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 44.92
+                    },
+                    "uuid": "49f4c09d-4f80-4a2d-826a-72e766ca422e"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (io0) doesn't match net given by schematic (/MCU/io0)",
+            "items": [
+                {
+                    "description": "Pad 27 [io0] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 46.19
+                    },
+                    "uuid": "69be1e73-4d22-4c5b-8f07-51a7082137bf"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 28 [gpio35] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 47.46
+                    },
+                    "uuid": "f852d619-4ae2-4456-b6c1-dea6b5fb64cf"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 29 [gpio36] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 48.73
+                    },
+                    "uuid": "92c3aa1e-6513-456c-8603-4474575ee3cf"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 30 [gpio37] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 50.0
+                    },
+                    "uuid": "303119d5-339a-436f-ac82-09f3a15fdb24"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (sda) doesn't match net given by schematic (/MCU/sda)",
+            "items": [
+                {
+                    "description": "Pad 31 [sda] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 51.27
+                    },
+                    "uuid": "4fcf7f82-789b-46a7-84c6-3ad774c9d338"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Pad net (scl) doesn't match net given by schematic (/MCU/scl)",
+            "items": [
+                {
+                    "description": "Pad 32 [scl] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 52.54
+                    },
+                    "uuid": "8e3d2fda-ec8e-4aaa-b86b-c64b6cdf2d52"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 33 [io40] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 53.81
+                    },
+                    "uuid": "77798592-c811-49b3-a38e-73e4f6f50b90"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 34 [io41] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 55.08
+                    },
+                    "uuid": "fe6a2a87-1a9a-40be-b498-ae9638f23b23"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 35 [io42] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 56.35
+                    },
+                    "uuid": "1670ee08-b1d2-446c-9b54-cd83351f78db"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 36 [rx] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 57.62
+                    },
+                    "uuid": "8848c65a-ae98-4e95-8a18-df1b85bc7cad"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 37 [tx] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 58.89
+                    },
+                    "uuid": "d8a4059b-1f9e-418c-af08-1278b6f31ea1"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 38 [adc_v_bus_stub] of U1 on F.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 60.16
+                    },
+                    "uuid": "2b77e555-7c7c-43d4-8544-2c6a3f7bca37"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 39 [adc_i_sense_stub] of U1 on F.Cu",
+                    "pos": {
+                        "x": 40.0,
+                        "y": 62.75
+                    },
+                    "uuid": "af918cb7-a013-434f-9bda-238f526c2a9e"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        }
+    ],
+    "source": "candidate.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of R3",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 48.0
+                    },
+                    "uuid": "9f0f4690-4901-42bf-9c91-c5233efe0784"
+                },
+                {
+                    "description": "Segment of R3 on F.Silkscreen",
+                    "pos": {
+                        "x": 49.5225,
+                        "y": 48.237258
+                    },
+                    "uuid": "c6faca7f-8074-47bb-b036-8dca38a8dcce"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Segment of R3 on F.Silkscreen",
+                    "pos": {
+                        "x": 48.4775,
+                        "y": 48.237258
+                    },
+                    "uuid": "5ea7e315-2528-4d2f-ad92-c52ae263f2b1"
+                },
+                {
+                    "description": "Reference field of R3",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 48.0
+                    },
+                    "uuid": "9f0f4690-4901-42bf-9c91-c5233efe0784"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of SW1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 54.0
+                    },
+                    "uuid": "29c757bc-80ad-4e3d-8430-03e71f10c38c"
+                },
+                {
+                    "description": "Segment of SW1 on F.Silkscreen",
+                    "pos": {
+                        "x": 20.5225,
+                        "y": 54.237258
+                    },
+                    "uuid": "31027902-5c3e-4f94-9b43-4488a0505a80"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of SW2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 56.0
+                    },
+                    "uuid": "1506006c-b1f5-4256-a0f4-7c754c1696b3"
+                },
+                {
+                    "description": "Segment of SW2 on F.Silkscreen",
+                    "pos": {
+                        "x": 49.5225,
+                        "y": 56.237258
+                    },
+                    "uuid": "b6bbebd4-82fa-4134-9896-66176c327b7f"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of C3",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 50.0
+                    },
+                    "uuid": "ba25bced-a43f-4a83-b0e7-994950cb6707"
+                },
+                {
+                    "description": "Segment of C3 on F.Silkscreen",
+                    "pos": {
+                        "x": 20.51,
+                        "y": 50.14058
+                    },
+                    "uuid": "c6295a98-7c4d-49cc-8be5-1a54df15bd64"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of C3",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 50.0
+                    },
+                    "uuid": "ba25bced-a43f-4a83-b0e7-994950cb6707"
+                },
+                {
+                    "description": "Segment of C3 on F.Silkscreen",
+                    "pos": {
+                        "x": 19.49,
+                        "y": 50.14058
+                    },
+                    "uuid": "ed36dc11-17b2-4364-86e5-24bd190aa154"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of R4",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 52.0
+                    },
+                    "uuid": "1330331c-cbe1-4559-9e5a-b01bf7f361a4"
+                },
+                {
+                    "description": "Segment of R4 on F.Silkscreen",
+                    "pos": {
+                        "x": 49.5225,
+                        "y": 52.237258
+                    },
+                    "uuid": "29651db4-462e-4918-81e6-ecce8da5a94f"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of R4",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 52.0
+                    },
+                    "uuid": "1330331c-cbe1-4559-9e5a-b01bf7f361a4"
+                },
+                {
+                    "description": "Segment of R4 on F.Silkscreen",
+                    "pos": {
+                        "x": 48.4775,
+                        "y": 52.237258
+                    },
+                    "uuid": "2ca25188-da9c-4dbe-9c9c-ddd78247ce7e"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Segment of C2 on F.Silkscreen",
+                    "pos": {
+                        "x": 19.265,
+                        "y": 42.261252
+                    },
+                    "uuid": "636df25e-6462-41ac-a6a0-7e9207fc5aef"
+                },
+                {
+                    "description": "Reference field of C2",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 42.0
+                    },
+                    "uuid": "f0e0e2df-0703-4c9e-aa47-a4ba8d898293"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Segment of R1 on F.Silkscreen",
+                    "pos": {
+                        "x": 20.5225,
+                        "y": 46.237258
+                    },
+                    "uuid": "9b92b59f-df45-4ed1-962e-717ad3bc8c11"
+                },
+                {
+                    "description": "Reference field of R1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 46.0
+                    },
+                    "uuid": "9e3ea16b-26b0-4bea-8988-5181ecdc6f51"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of R1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 46.0
+                    },
+                    "uuid": "9e3ea16b-26b0-4bea-8988-5181ecdc6f51"
+                },
+                {
+                    "description": "Segment of R1 on F.Silkscreen",
+                    "pos": {
+                        "x": 19.4775,
+                        "y": 46.237258
+                    },
+                    "uuid": "dfdf9feb-cc39-4474-9ebb-9388ac850809"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Segment of C1 on F.Silkscreen",
+                    "pos": {
+                        "x": 20.51,
+                        "y": 38.14058
+                    },
+                    "uuid": "4a7e1607-f8d0-4b79-837e-4246169bd66e"
+                },
+                {
+                    "description": "Reference field of C1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 38.0
+                    },
+                    "uuid": "f35241dd-6f8d-4e72-8188-392705d47415"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Reference field of C1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 38.0
+                    },
+                    "uuid": "f35241dd-6f8d-4e72-8188-392705d47415"
+                },
+                {
+                    "description": "Segment of C1 on F.Silkscreen",
+                    "pos": {
+                        "x": 19.49,
+                        "y": 38.14058
+                    },
+                    "uuid": "fb14571c-2e9f-4e20-95b5-55ae10a6f906"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Segment of R2 on F.Silkscreen",
+                    "pos": {
+                        "x": 49.5225,
+                        "y": 44.237258
+                    },
+                    "uuid": "4aaa333a-beed-4548-a458-8f7f327d0120"
+                },
+                {
+                    "description": "Reference field of R2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 44.0
+                    },
+                    "uuid": "bedfee4f-1453-40a2-b651-6136a30d297b"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance",
+            "items": [
+                {
+                    "description": "Segment of R2 on F.Silkscreen",
+                    "pos": {
+                        "x": 48.4775,
+                        "y": 44.237258
+                    },
+                    "uuid": "4c4b7a21-68d0-4b98-a92c-8eb7401784bb"
+                },
+                {
+                    "description": "Reference field of R2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 44.0
+                    },
+                    "uuid": "bedfee4f-1453-40a2-b651-6136a30d297b"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of R3",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 48.0
+                    },
+                    "uuid": "9f0f4690-4901-42bf-9c91-c5233efe0784"
+                },
+                {
+                    "description": "Pad 1 [vcc] of R3 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 48.825
+                    },
+                    "uuid": "31493440-c94f-4e3e-ac67-aaca62c9ea96"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of R3",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 48.0
+                    },
+                    "uuid": "9f0f4690-4901-42bf-9c91-c5233efe0784"
+                },
+                {
+                    "description": "Pad 2 [sda] of R3 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 47.175
+                    },
+                    "uuid": "a28bca35-e530-48d6-b2e4-dbd6c3abbb0b"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of SW1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 54.0
+                    },
+                    "uuid": "29c757bc-80ad-4e3d-8430-03e71f10c38c"
+                },
+                {
+                    "description": "Pad 1 [en] of SW1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 54.825
+                    },
+                    "uuid": "e3f61816-38a8-497a-926d-30cc4f5ceea2"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of SW1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 54.0
+                    },
+                    "uuid": "29c757bc-80ad-4e3d-8430-03e71f10c38c"
+                },
+                {
+                    "description": "Pad 2 [gnd] of SW1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 53.175
+                    },
+                    "uuid": "ce307136-c608-40dc-8206-39461547f90b"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of SW2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 56.0
+                    },
+                    "uuid": "1506006c-b1f5-4256-a0f4-7c754c1696b3"
+                },
+                {
+                    "description": "Pad 1 [io0] of SW2 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 56.825
+                    },
+                    "uuid": "8944658a-c220-44ac-898c-82f5ae6f21d1"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of SW2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 56.0
+                    },
+                    "uuid": "1506006c-b1f5-4256-a0f4-7c754c1696b3"
+                },
+                {
+                    "description": "Pad 2 [gnd] of SW2 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 55.175
+                    },
+                    "uuid": "6c512304-e394-4410-86bd-ab8b08deaec8"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of C3",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 50.0
+                    },
+                    "uuid": "ba25bced-a43f-4a83-b0e7-994950cb6707"
+                },
+                {
+                    "description": "Pad 1 [en] of C3 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 50.775
+                    },
+                    "uuid": "b0d2c9ff-135b-49ba-8588-7aeb15b5ae93"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of C3",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 50.0
+                    },
+                    "uuid": "ba25bced-a43f-4a83-b0e7-994950cb6707"
+                },
+                {
+                    "description": "Pad 2 [gnd] of C3 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 49.225
+                    },
+                    "uuid": "c41e7954-3b0c-4aa5-8588-c81a96eb3fac"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of R4",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 52.0
+                    },
+                    "uuid": "1330331c-cbe1-4559-9e5a-b01bf7f361a4"
+                },
+                {
+                    "description": "Pad 1 [vcc] of R4 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 52.825
+                    },
+                    "uuid": "74edeeb4-c8fb-43d4-ae3b-ef9c37254861"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of R4",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 52.0
+                    },
+                    "uuid": "1330331c-cbe1-4559-9e5a-b01bf7f361a4"
+                },
+                {
+                    "description": "Pad 2 [scl] of R4 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 51.175
+                    },
+                    "uuid": "a99c93a9-ec35-488d-8472-e7847412e17c"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of C2",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 42.0
+                    },
+                    "uuid": "f0e0e2df-0703-4c9e-aa47-a4ba8d898293"
+                },
+                {
+                    "description": "Pad 1 [vcc] of C2 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 42.95
+                    },
+                    "uuid": "85398018-d910-42f7-8ee7-bd30fbfc22c2"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of R1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 46.0
+                    },
+                    "uuid": "9e3ea16b-26b0-4bea-8988-5181ecdc6f51"
+                },
+                {
+                    "description": "Pad 1 [vcc] of R1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 46.825
+                    },
+                    "uuid": "5a6d362a-9559-4062-aea7-70d7700821f6"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of R1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 46.0
+                    },
+                    "uuid": "9e3ea16b-26b0-4bea-8988-5181ecdc6f51"
+                },
+                {
+                    "description": "Pad 2 [en] of R1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 45.175
+                    },
+                    "uuid": "26d113ef-5ac4-440f-9269-fb7977774423"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of C1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 38.0
+                    },
+                    "uuid": "f35241dd-6f8d-4e72-8188-392705d47415"
+                },
+                {
+                    "description": "Pad 1 [vcc] of C1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 38.775
+                    },
+                    "uuid": "22f6ddf2-6951-4c85-8e39-4e967c435656"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of C1",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 38.0
+                    },
+                    "uuid": "f35241dd-6f8d-4e72-8188-392705d47415"
+                },
+                {
+                    "description": "Pad 2 [gnd] of C1 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 37.225
+                    },
+                    "uuid": "6021276b-4d07-40dc-9519-c84195fe41cd"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of C2",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 42.0
+                    },
+                    "uuid": "f0e0e2df-0703-4c9e-aa47-a4ba8d898293"
+                },
+                {
+                    "description": "Pad 2 [gnd] of C2 on F.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 41.05
+                    },
+                    "uuid": "4e9cd227-ffb1-4368-9b56-4f86b3468b69"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of R2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 44.0
+                    },
+                    "uuid": "bedfee4f-1453-40a2-b651-6136a30d297b"
+                },
+                {
+                    "description": "Pad 1 [vcc] of R2 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 44.825
+                    },
+                    "uuid": "7d02d7d7-4ea5-4e3e-8572-448672f1b887"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of R2",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 44.0
+                    },
+                    "uuid": "bedfee4f-1453-40a2-b651-6136a30d297b"
+                },
+                {
+                    "description": "Pad 2 [io0] of R2 on F.Cu",
+                    "pos": {
+                        "x": 49.0,
+                        "y": 43.175
+                    },
+                    "uuid": "57987b2b-86ce-45f7-a3b6-62ea8a674a42"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        }
+    ]
+}

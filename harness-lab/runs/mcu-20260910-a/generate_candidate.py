@@ -28,7 +28,14 @@ def sha256(path: Path) -> str:
 def main() -> None:
     if os.environ.get("TEMPER_BLOCK_GENERATE") != "1":
         raise SystemExit("set TEMPER_BLOCK_GENERATE=1 to generate")
-    output = RUN / "candidate"
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", default="candidate")
+    parser.add_argument("--index", default="INDEX.json")
+    args = parser.parse_args()
+    output = RUN / args.output
+    index_path = RUN / args.index
     manifest = run_block.generate_candidate(
         REPO,
         REPO / "pcb" / "blocks" / "control-assembly" / "target-context.json",
@@ -42,6 +49,8 @@ def main() -> None:
         "schema": "temper.mcu-run-index.v1",
         "run_id": RUN.name,
         "generated_by": "harness-lab/runs/mcu-20260910-a/generate_candidate.py",
+        "artifact": args.output,
+        "assisted": args.output != "candidate",
         "entry": manifest["entry"],
         "atopile_pinned": manifest["atopile_pinned"],
         "kicad_cli": manifest["kicad_cli"],
@@ -52,13 +61,14 @@ def main() -> None:
         "board": manifest["board"],
         "files": [{"path": name, "sha256": sha256(output / name)} for name in files],
     }
-    (RUN / "INDEX.json").write_text(
+    index_path.write_text(
         json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     print(
         json.dumps(
             {
                 "run": RUN.name,
+                "artifact": args.output,
                 "n_files": len(files),
                 "components": record["components"],
                 "board": record["board"],

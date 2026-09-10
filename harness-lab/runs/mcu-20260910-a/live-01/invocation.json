@@ -1,0 +1,13 @@
+[
+  "/Users/bennet/.opencode/bin/opencode",
+  "run",
+  "--format",
+  "json",
+  "--agent",
+  "pcb",
+  "--model",
+  "opencode/muse-spark-1.3-contributor-free",
+  "--title",
+  "Temper MCU U4",
+  "Construct the routed MCU block on the saved board. Inspect first, then place and route."
+]

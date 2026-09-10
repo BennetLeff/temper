@@ -1,0 +1,32 @@
+{
+  "schema": "temper.mcu-package-status.v1",
+  "run_id": "mcu-20260910-a",
+  "package_path": "pcb/blocks/mcu/",
+  "state": "assisted-pending-schematic-parity",
+  "autonomous": false,
+  "live_model": false,
+  "label": "apparatus-only-assisted",
+  "operator_corrections": [
+    "scripts/gen_pcb_skeleton.py::_restore_candidate_property_geometry -- the U2 generator re-emitted bare (property \"Reference\"/\"Value\") entries (kiutils drops their geometry), placing each reference field over its own pads/silk; 34 intrinsic silk findings unfixable through place/replace_copper.",
+    "harness-lab/block_native.py::copper_layer_id -- resolved KiCad file ordinals as pcbnew layer ids; it must resolve copper layers by name (GetLayerID)."
+  ],
+  "routed_board_sha256": "f9087f4c4500415f897b3057c5ac0c6beb8828d177be469342199d99baa25dd2",
+  "source_manifest_sha256": "10cbe6db7d234e263fa6399c57cc1f8dac3ae59937abcbad20dc3505f093d7a6",
+  "block_judge_status": "pass",
+  "native_final_check": {
+    "drc_violations": 0,
+    "drc_unconnected": 0,
+    "schematic_parity": 67,
+    "erc_violations": 19,
+    "runs": 3,
+    "stable_across_runs": true,
+    "runtime": "kicad-cli 10.0.4"
+  },
+  "gaps": [
+    "Schematic parity fails with 67 findings (board Value '?' vs schematic value; '/MCU/<net>' vs '<net>'). The block host judge does not enable --schematic-parity, so this package is not fully verified under the plan's verification contract.",
+    "Live model delivery was blocked (Zen FreeUsageLimitError, HTTP 429); no autonomous model constructed this board.",
+    "ERC reports 19 warnings (lib_symbol_issues, endpoint_off_grid); no errors.",
+    "A filled zone makes the KiCad headless measure adapter segfault on teardown; ground is routed with explicit F.Cu copper."
+  ],
+  "full_handoff": "harness-lab/runs/mcu-20260910-a/handoff.json"
+}

@@ -1,0 +1,129 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "09d804ac1ad3c9d98cd37117d57323ef51a001eff40ac5d019339ce1d15f7dff",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "90d04ba4af410f765ab3586091385c3aef78b202616268c36653fe6ccab731a5",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.mcu",
+      "attributes": {
+        "flash_size": "8MB",
+        "footprint": "ESP32-S3-WROOM-1",
+        "manufacturer": "Espressif",
+        "mpn": "ESP32-S3-WROOM-1-N8R8",
+        "psram_size": "8MB"
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.c_vcc1",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.c_vcc2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "GRM21BR71A106KE51L",
+        "value": "10uF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.r_en",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 2%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.c_en",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM188R71A105KA61D",
+        "value": "1uF +/- 10%",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.r_boot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.btn_reset",
+      "attributes": {
+        "designator_prefix": "SW",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Panasonic",
+        "mpn": "EVQ-P7A01P"
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.btn_boot",
+      "attributes": {
+        "designator_prefix": "SW",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Panasonic",
+        "mpn": "EVQ-P7A01P"
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.r_sda_pullup",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-074K7L",
+        "power_rating": null,
+        "value": "4.7kohm",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate::mcu.r_scl_pullup",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-074K7L",
+        "power_rating": null,
+        "value": "4.7kohm",
+        "voltage_rating": null
+      }
+    }
+  ],
+  "entry": "/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/mcu-u2-49f5evlx/mcu-ws/mcu.ato:McuCandidate",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+    "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+    "elec/src/modules.ato": "6f14dba190b24f1c4dea5af8bb834e4a0ad23b00d62bd9115efaa9528a288b57",
+    "mcu.ato": "a3844663a915ab7f4120b223536b70393e78c9eb7b61101b1f22490c935acd83"
+  }
+}

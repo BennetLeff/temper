@@ -1,0 +1,254 @@
+{
+  "accepted_package": {
+    "marker": "pcb/blocks/mcu/ASSISTED-PACKAGE.json",
+    "path": "pcb/blocks/mcu/",
+    "state": "assisted-pending-schematic-parity"
+  },
+  "assisted_attempt": {
+    "block_judge_findings": [],
+    "block_judge_status": "pass",
+    "candidate_index": "harness-lab/runs/mcu-20260910-a/INDEX-assisted.json",
+    "committed_actions": 16,
+    "final_board_sha256": "f9087f4c4500415f897b3057c5ac0c6beb8828d177be469342199d99baa25dd2",
+    "label": "apparatus-only-assisted",
+    "live": false,
+    "operator_correction": "scripts/gen_pcb_skeleton.py::_restore_candidate_property_geometry + harness-lab/block_native.py::copper_layer_id name resolution"
+  },
+  "autonomous_attempt": {
+    "blocker": "34 intrinsic silkscreen findings on the U2-generated board (reference field dropped by kiutils); not editable by place/replace_copper",
+    "candidate_board_sha256": "f850c544c9b8224c9474ac8592331e404f9c453cee7ec2ab1b7dfc2355fde2a0",
+    "candidate_index": "harness-lab/runs/mcu-20260910-a/INDEX.json",
+    "final_board_sha256": "08df1890f205d462a902b8708b640dc4380dbc6e6d7d2f10339d2fd4ff8e7289",
+    "findings": [
+      "kicad:silk_overlap:9f0f4690-4901-42bf-9c91-c5233efe0784:c6faca7f-8074-47bb-b036-8dca38a8dcce",
+      "kicad:silk_overlap:5ea7e315-2528-4d2f-ad92-c52ae263f2b1:9f0f4690-4901-42bf-9c91-c5233efe0784",
+      "kicad:silk_overlap:29c757bc-80ad-4e3d-8430-03e71f10c38c:31027902-5c3e-4f94-9b43-4488a0505a80",
+      "kicad:silk_overlap:1506006c-b1f5-4256-a0f4-7c754c1696b3:b6bbebd4-82fa-4134-9896-66176c327b7f",
+      "kicad:silk_overlap:ba25bced-a43f-4a83-b0e7-994950cb6707:c6295a98-7c4d-49cc-8be5-1a54df15bd64",
+      "kicad:silk_overlap:ba25bced-a43f-4a83-b0e7-994950cb6707:ed36dc11-17b2-4364-86e5-24bd190aa154",
+      "kicad:silk_overlap:1330331c-cbe1-4559-9e5a-b01bf7f361a4:29651db4-462e-4918-81e6-ecce8da5a94f",
+      "kicad:silk_overlap:1330331c-cbe1-4559-9e5a-b01bf7f361a4:2ca25188-da9c-4dbe-9c9c-ddd78247ce7e",
+      "kicad:silk_overlap:636df25e-6462-41ac-a6a0-7e9207fc5aef:f0e0e2df-0703-4c9e-aa47-a4ba8d898293",
+      "kicad:silk_overlap:9b92b59f-df45-4ed1-962e-717ad3bc8c11:9e3ea16b-26b0-4bea-8988-5181ecdc6f51",
+      "kicad:silk_overlap:9e3ea16b-26b0-4bea-8988-5181ecdc6f51:dfdf9feb-cc39-4474-9ebb-9388ac850809",
+      "kicad:silk_overlap:4a7e1607-f8d0-4b79-837e-4246169bd66e:f35241dd-6f8d-4e72-8188-392705d47415",
+      "kicad:silk_overlap:f35241dd-6f8d-4e72-8188-392705d47415:fb14571c-2e9f-4e20-95b5-55ae10a6f906",
+      "kicad:silk_overlap:4aaa333a-beed-4548-a458-8f7f327d0120:bedfee4f-1453-40a2-b651-6136a30d297b",
+      "kicad:silk_overlap:4c4b7a21-68d0-4b98-a92c-8eb7401784bb:bedfee4f-1453-40a2-b651-6136a30d297b",
+      "kicad:silk_over_copper:31493440-c94f-4e3e-ac67-aaca62c9ea96:9f0f4690-4901-42bf-9c91-c5233efe0784",
+      "kicad:silk_over_copper:9f0f4690-4901-42bf-9c91-c5233efe0784:a28bca35-e530-48d6-b2e4-dbd6c3abbb0b",
+      "kicad:silk_over_copper:29c757bc-80ad-4e3d-8430-03e71f10c38c:e3f61816-38a8-497a-926d-30cc4f5ceea2",
+      "kicad:silk_over_copper:29c757bc-80ad-4e3d-8430-03e71f10c38c:ce307136-c608-40dc-8206-39461547f90b",
+      "kicad:silk_over_copper:1506006c-b1f5-4256-a0f4-7c754c1696b3:8944658a-c220-44ac-898c-82f5ae6f21d1",
+      "kicad:silk_over_copper:1506006c-b1f5-4256-a0f4-7c754c1696b3:6c512304-e394-4410-86bd-ab8b08deaec8",
+      "kicad:silk_over_copper:b0d2c9ff-135b-49ba-8588-7aeb15b5ae93:ba25bced-a43f-4a83-b0e7-994950cb6707",
+      "kicad:silk_over_copper:ba25bced-a43f-4a83-b0e7-994950cb6707:c41e7954-3b0c-4aa5-8588-c81a96eb3fac",
+      "kicad:silk_over_copper:1330331c-cbe1-4559-9e5a-b01bf7f361a4:74edeeb4-c8fb-43d4-ae3b-ef9c37254861",
+      "kicad:silk_over_copper:1330331c-cbe1-4559-9e5a-b01bf7f361a4:a99c93a9-ec35-488d-8472-e7847412e17c",
+      "kicad:silk_over_copper:85398018-d910-42f7-8ee7-bd30fbfc22c2:f0e0e2df-0703-4c9e-aa47-a4ba8d898293",
+      "kicad:silk_over_copper:5a6d362a-9559-4062-aea7-70d7700821f6:9e3ea16b-26b0-4bea-8988-5181ecdc6f51",
+      "kicad:silk_over_copper:26d113ef-5ac4-440f-9269-fb7977774423:9e3ea16b-26b0-4bea-8988-5181ecdc6f51",
+      "kicad:silk_over_copper:22f6ddf2-6951-4c85-8e39-4e967c435656:f35241dd-6f8d-4e72-8188-392705d47415",
+      "kicad:silk_over_copper:6021276b-4d07-40dc-9519-c84195fe41cd:f35241dd-6f8d-4e72-8188-392705d47415",
+      "kicad:silk_over_copper:4e9cd227-ffb1-4368-9b56-4f86b3468b69:f0e0e2df-0703-4c9e-aa47-a4ba8d898293",
+      "kicad:silk_over_copper:7d02d7d7-4ea5-4e3e-8572-448672f1b887:bedfee4f-1453-40a2-b651-6136a30d297b",
+      "kicad:silk_over_copper:57987b2b-86ce-45f7-a3b6-62ea8a674a42:bedfee4f-1453-40a2-b651-6136a30d297b"
+    ],
+    "judge_status": "fail",
+    "label": "apparatus-only-autonomous",
+    "live": false
+  },
+  "context": {
+    "path": "pcb/blocks/control-assembly/target-context.json",
+    "target_context_sha256": "db3e07b6fcb70ccedc4791a55d32ad37ae3c6177c6a4de82dee0c04206241c79"
+  },
+  "gaps": [
+    "Live model transport: Zen FreeUsageLimitError (HTTP 429, retry-after ~7726 s); no live attempt occurred.",
+    "U2 generator: reference/value property geometry dropped by kiutils -> 34 intrinsic silk findings on the unassisted board.",
+    "Schematic parity: 67 findings (Value '?' and '/MCU/<net>' vs '<net>') on both boards; block judge does not enable parity.",
+    "ERC: 19 warnings (10 lib_symbol_issues, 9 endpoint_off_grid); no errors.",
+    "U3 adapter: block_native.copper_layer_id mis-mapped file ordinals to pcbnew layer ids (fixed).",
+    "U3 adapter: a filled zone causes a KiCad headless teardown segfault (exit 139); ground routed with explicit F.Cu copper instead."
+  ],
+  "libraries": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod"
+    },
+    "Capacitor_SMD:C_0805_2012Metric": {
+      "sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0805_2012Metric.kicad_mod"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod"
+    },
+    "lib:ESP32-S3-WROOM-1": {
+      "sha256": "9c5a41379d7255f50ce1b7efb060994b700847c8aafe400b160dca7ccc5fd7dd",
+      "source": "pcb/libs/lib.pretty/ESP32-S3-WROOM-1.kicad_mod"
+    }
+  },
+  "live_transport": {
+    "conclusion": "Zen free-usage limit blocked the live model turn; no autonomous construction occurred. Live-delivery evidence is an explicit gap and the milestone cannot close without it.",
+    "errors": [
+      {
+        "error": "ValueError: provider request failed with status 429"
+      },
+      {
+        "retry_after_s": "7726"
+      },
+      {
+        "error": "ValueError: trial transport already failed; retry blocked"
+      }
+    ],
+    "http_statuses": [
+      429
+    ],
+    "model": "opencode/muse-spark-1.3-contributor-free",
+    "status": "transport_blocked",
+    "tool_calls": [],
+    "wire_requests": 2
+  },
+  "memory": {
+    "delivery_acknowledged": true,
+    "entry_content": {
+      "buck-mem-001": "feb5a98f429b181227f811180b2b3f92dbc77f7a9c0917b909c8e6e5eec94091",
+      "buck-mem-002": "eea09592c9ef12ca05be463ac9cf1407bc062be34f4abc14b8fd26863f614810",
+      "buck-mem-003": "e50a3232ba3fdbb54eb01f9ef561c5f150d8e1873ffc87e636b758a11313a7ba",
+      "buck-mem-004": "12c3eacc06cc62e06c3e34525fd35822eab3545c34ef7389660b444cfa8d2552",
+      "buck-mem-005": "9908a4ace867ea983ded23e71a6a4e39cb410dc6c9dc1e52dc4b329af5617537"
+    },
+    "model_delivery_proven": true,
+    "model_input_attempt_id": "mcu-apparatus-01",
+    "model_input_path": "harness-lab/runs/mcu-20260910-a/trial-assisted/model-input.json",
+    "model_input_selection_sha256": "c4c31c10710dd85a96c2e07c6083f818e959a0a7394953d039bac32f24bce1e5",
+    "notes_sha256": "83da8094efc993f4f8726b47f1f701682d57471370a1006c15b2690cc8ad586b",
+    "receipt_path": "harness-lab/runs/mcu-20260910-a/trial-assisted/memory-selection.json",
+    "revision_sha256": "cb216b8a210e30bc29cbeb86eac35fb20fa28e1c07d17d3cd13688ecca2c4fb7",
+    "selected_ids": [
+      "buck-mem-001",
+      "buck-mem-002",
+      "buck-mem-003",
+      "buck-mem-004",
+      "buck-mem-005"
+    ],
+    "selection_sha256": "c4c31c10710dd85a96c2e07c6083f818e959a0a7394953d039bac32f24bce1e5",
+    "skills_sha256": "4283bde9a503214dd3708ef214ef06dd5259a98cefdbc3e5576eed04e059222e"
+  },
+  "milestone_status": "open",
+  "native_checks": {
+    "assisted": {
+      "dir": "native-check-assisted",
+      "runs": [
+        {
+          "drc_parity": 67,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 0,
+          "erc_returncode": 0,
+          "erc_violations": 19,
+          "judge_findings": 67,
+          "judge_status": "fail",
+          "measurement_board_sha256": "f9087f4c4500415f897b3057c5ac0c6beb8828d177be469342199d99baa25dd2",
+          "measurement_protected_sha256": "1dba55c80a13703d3e1a5fcba8d236576b3adc2bf082e1a62434625a9822b941",
+          "run": 1
+        },
+        {
+          "drc_parity": 67,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 0,
+          "erc_returncode": 0,
+          "erc_violations": 19,
+          "judge_findings": 67,
+          "judge_status": "fail",
+          "measurement_board_sha256": "f9087f4c4500415f897b3057c5ac0c6beb8828d177be469342199d99baa25dd2",
+          "measurement_protected_sha256": "1dba55c80a13703d3e1a5fcba8d236576b3adc2bf082e1a62434625a9822b941",
+          "run": 2
+        },
+        {
+          "drc_parity": 67,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 0,
+          "erc_returncode": 0,
+          "erc_violations": 19,
+          "judge_findings": 67,
+          "judge_status": "fail",
+          "measurement_board_sha256": "f9087f4c4500415f897b3057c5ac0c6beb8828d177be469342199d99baa25dd2",
+          "measurement_protected_sha256": "1dba55c80a13703d3e1a5fcba8d236576b3adc2bf082e1a62434625a9822b941",
+          "run": 3
+        }
+      ],
+      "stable_across_runs": true
+    },
+    "autonomous": {
+      "dir": "native-check-autonomous",
+      "runs": [
+        {
+          "drc_parity": 67,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 33,
+          "erc_returncode": 0,
+          "erc_violations": 19,
+          "judge_findings": 100,
+          "judge_status": "fail",
+          "measurement_board_sha256": "08df1890f205d462a902b8708b640dc4380dbc6e6d7d2f10339d2fd4ff8e7289",
+          "measurement_protected_sha256": "1dba55c80a13703d3e1a5fcba8d236576b3adc2bf082e1a62434625a9822b941",
+          "run": 1
+        },
+        {
+          "drc_parity": 67,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 33,
+          "erc_returncode": 0,
+          "erc_violations": 19,
+          "judge_findings": 100,
+          "judge_status": "fail",
+          "measurement_board_sha256": "08df1890f205d462a902b8708b640dc4380dbc6e6d7d2f10339d2fd4ff8e7289",
+          "measurement_protected_sha256": "1dba55c80a13703d3e1a5fcba8d236576b3adc2bf082e1a62434625a9822b941",
+          "run": 2
+        },
+        {
+          "drc_parity": 67,
+          "drc_returncode": 0,
+          "drc_unconnected": 0,
+          "drc_violations": 33,
+          "erc_returncode": 0,
+          "erc_violations": 19,
+          "judge_findings": 100,
+          "judge_status": "fail",
+          "measurement_board_sha256": "08df1890f205d462a902b8708b640dc4380dbc6e6d7d2f10339d2fd4ff8e7289",
+          "measurement_protected_sha256": "1dba55c80a13703d3e1a5fcba8d236576b3adc2bf082e1a62434625a9822b941",
+          "run": 3
+        }
+      ],
+      "stable_across_runs": true
+    },
+    "note": "The plan requires schematic parity; the block host omits --schematic-parity, so the assisted board passes the host judge and native DRC but fails the parity-inclusive judge (67 findings)."
+  },
+  "run_id": "mcu-20260910-a",
+  "schema": "temper.mcu-u4-handoff.v1",
+  "source_identity": {
+    "atopile_pinned": "0.2.69",
+    "bom_sha256": "09d804ac1ad3c9d98cd37117d57323ef51a001eff40ac5d019339ce1d15f7dff",
+    "entry": "mcu.ato:McuCandidate",
+    "export_sha256": "38916ebd45bfb1244432809ff145eb2ea0e2195d317286350c7ffe2f1039cd6c",
+    "kicad_cli": "10.0.4",
+    "manifest_sha256": "10cbe6db7d234e263fa6399c57cc1f8dac3ae59937abcbad20dc3505f093d7a6",
+    "netlist_sha256": "90d04ba4af410f765ab3586091385c3aef78b202616268c36653fe6ccab731a5",
+    "workspace_hashes": {
+      "elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+      "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+      "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+      "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+      "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+      "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+      "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+      "elec/src/modules.ato": "6f14dba190b24f1c4dea5af8bb834e4a0ad23b00d62bd9115efaa9528a288b57",
+      "mcu.ato": "a3844663a915ab7f4120b223536b70393e78c9eb7b61101b1f22490c935acd83"
+    }
+  }
+}

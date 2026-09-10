@@ -1,0 +1,93 @@
+{
+  "attempt_id": "mcu-apparatus-autonomous",
+  "budget": {
+    "max_actions": 200,
+    "max_seconds": 1200.0
+  },
+  "committed_actions": 16,
+  "final_findings": [
+    "kicad:silk_overlap:9f0f4690-4901-42bf-9c91-c5233efe0784:c6faca7f-8074-47bb-b036-8dca38a8dcce",
+    "kicad:silk_overlap:5ea7e315-2528-4d2f-ad92-c52ae263f2b1:9f0f4690-4901-42bf-9c91-c5233efe0784",
+    "kicad:silk_overlap:29c757bc-80ad-4e3d-8430-03e71f10c38c:31027902-5c3e-4f94-9b43-4488a0505a80",
+    "kicad:silk_overlap:1506006c-b1f5-4256-a0f4-7c754c1696b3:b6bbebd4-82fa-4134-9896-66176c327b7f",
+    "kicad:silk_overlap:ba25bced-a43f-4a83-b0e7-994950cb6707:c6295a98-7c4d-49cc-8be5-1a54df15bd64",
+    "kicad:silk_overlap:ba25bced-a43f-4a83-b0e7-994950cb6707:ed36dc11-17b2-4364-86e5-24bd190aa154",
+    "kicad:silk_overlap:1330331c-cbe1-4559-9e5a-b01bf7f361a4:29651db4-462e-4918-81e6-ecce8da5a94f",
+    "kicad:silk_overlap:1330331c-cbe1-4559-9e5a-b01bf7f361a4:2ca25188-da9c-4dbe-9c9c-ddd78247ce7e",
+    "kicad:silk_overlap:636df25e-6462-41ac-a6a0-7e9207fc5aef:f0e0e2df-0703-4c9e-aa47-a4ba8d898293",
+    "kicad:silk_overlap:9b92b59f-df45-4ed1-962e-717ad3bc8c11:9e3ea16b-26b0-4bea-8988-5181ecdc6f51",
+    "kicad:silk_overlap:9e3ea16b-26b0-4bea-8988-5181ecdc6f51:dfdf9feb-cc39-4474-9ebb-9388ac850809",
+    "kicad:silk_overlap:4a7e1607-f8d0-4b79-837e-4246169bd66e:f35241dd-6f8d-4e72-8188-392705d47415",
+    "kicad:silk_overlap:f35241dd-6f8d-4e72-8188-392705d47415:fb14571c-2e9f-4e20-95b5-55ae10a6f906",
+    "kicad:silk_overlap:4aaa333a-beed-4548-a458-8f7f327d0120:bedfee4f-1453-40a2-b651-6136a30d297b",
+    "kicad:silk_overlap:4c4b7a21-68d0-4b98-a92c-8eb7401784bb:bedfee4f-1453-40a2-b651-6136a30d297b",
+    "kicad:silk_over_copper:31493440-c94f-4e3e-ac67-aaca62c9ea96:9f0f4690-4901-42bf-9c91-c5233efe0784",
+    "kicad:silk_over_copper:9f0f4690-4901-42bf-9c91-c5233efe0784:a28bca35-e530-48d6-b2e4-dbd6c3abbb0b",
+    "kicad:silk_over_copper:29c757bc-80ad-4e3d-8430-03e71f10c38c:e3f61816-38a8-497a-926d-30cc4f5ceea2",
+    "kicad:silk_over_copper:29c757bc-80ad-4e3d-8430-03e71f10c38c:ce307136-c608-40dc-8206-39461547f90b",
+    "kicad:silk_over_copper:1506006c-b1f5-4256-a0f4-7c754c1696b3:8944658a-c220-44ac-898c-82f5ae6f21d1",
+    "kicad:silk_over_copper:1506006c-b1f5-4256-a0f4-7c754c1696b3:6c512304-e394-4410-86bd-ab8b08deaec8",
+    "kicad:silk_over_copper:b0d2c9ff-135b-49ba-8588-7aeb15b5ae93:ba25bced-a43f-4a83-b0e7-994950cb6707",
+    "kicad:silk_over_copper:ba25bced-a43f-4a83-b0e7-994950cb6707:c41e7954-3b0c-4aa5-8588-c81a96eb3fac",
+    "kicad:silk_over_copper:1330331c-cbe1-4559-9e5a-b01bf7f361a4:74edeeb4-c8fb-43d4-ae3b-ef9c37254861",
+    "kicad:silk_over_copper:1330331c-cbe1-4559-9e5a-b01bf7f361a4:a99c93a9-ec35-488d-8472-e7847412e17c",
+    "kicad:silk_over_copper:85398018-d910-42f7-8ee7-bd30fbfc22c2:f0e0e2df-0703-4c9e-aa47-a4ba8d898293",
+    "kicad:silk_over_copper:5a6d362a-9559-4062-aea7-70d7700821f6:9e3ea16b-26b0-4bea-8988-5181ecdc6f51",
+    "kicad:silk_over_copper:26d113ef-5ac4-440f-9269-fb7977774423:9e3ea16b-26b0-4bea-8988-5181ecdc6f51",
+    "kicad:silk_over_copper:22f6ddf2-6951-4c85-8e39-4e967c435656:f35241dd-6f8d-4e72-8188-392705d47415",
+    "kicad:silk_over_copper:6021276b-4d07-40dc-9519-c84195fe41cd:f35241dd-6f8d-4e72-8188-392705d47415",
+    "kicad:silk_over_copper:4e9cd227-ffb1-4368-9b56-4f86b3468b69:f0e0e2df-0703-4c9e-aa47-a4ba8d898293",
+    "kicad:silk_over_copper:7d02d7d7-4ea5-4e3e-8572-448672f1b887:bedfee4f-1453-40a2-b651-6136a30d297b",
+    "kicad:silk_over_copper:57987b2b-86ce-45f7-a3b6-62ea8a674a42:bedfee4f-1453-40a2-b651-6136a30d297b"
+  ],
+  "final_revision": "08df1890f205d462a902b8708b640dc4380dbc6e6d7d2f10339d2fd4ff8e7289",
+  "final_status": "fail",
+  "final_verdict": "fail",
+  "label": "apparatus-only-autonomous",
+  "live": false,
+  "memory": {
+    "attempt_id": "mcu-apparatus-autonomous",
+    "delivery": {
+      "acknowledged": true,
+      "attempt_id": "mcu-apparatus-autonomous",
+      "helper_calls": [],
+      "notes": "selected notes delivered to model-visible context; no helper executed (seed package is notes-only)"
+    },
+    "entry_content": {
+      "buck-mem-001": "feb5a98f429b181227f811180b2b3f92dbc77f7a9c0917b909c8e6e5eec94091",
+      "buck-mem-002": "eea09592c9ef12ca05be463ac9cf1407bc062be34f4abc14b8fd26863f614810",
+      "buck-mem-003": "e50a3232ba3fdbb54eb01f9ef561c5f150d8e1873ffc87e636b758a11313a7ba",
+      "buck-mem-004": "12c3eacc06cc62e06c3e34525fd35822eab3545c34ef7389660b444cfa8d2552",
+      "buck-mem-005": "9908a4ace867ea983ded23e71a6a4e39cb410dc6c9dc1e52dc4b329af5617537"
+    },
+    "exclusions": [],
+    "materialized": {
+      "notes_sha256": "c25695c8eabd8229360d70cc77b7a911fa341f3a81b162a0d96b2b4e2dc5d46a",
+      "revision_sha256": "95a489af58bfd96d0d451d2108489eca6c39f2b7c0c9b9ea51c77d200f73aae2",
+      "skills_sha256": "4283bde9a503214dd3708ef214ef06dd5259a98cefdbc3e5576eed04e059222e"
+    },
+    "model_delivery_proven": true,
+    "model_input_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/runs/mcu-20260910-a/trial/model-input.json",
+    "receipt_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/runs/mcu-20260910-a/trial/memory-selection.json",
+    "schema": "temper.mcu-memory-delivery.v1",
+    "selected_ids": [
+      "buck-mem-001",
+      "buck-mem-002",
+      "buck-mem-003",
+      "buck-mem-004",
+      "buck-mem-005"
+    ],
+    "selection_sha256": "7073c17652145f5ba7ef65c008b188409e6fd1b6b5c1f69d3829b3562b94f9ce",
+    "source_identities": {
+      "harness-lab.blocks.mcu.identity-inventory.json": "c7b539541fca8a7a754ed7e5be5f6b7ccd3926370e777cbc9f0d5d29ef30df54",
+      "harness-lab.blocks.mcu.mcu.ato": "a3844663a915ab7f4120b223536b70393e78c9eb7b61101b1f22490c935acd83",
+      "mcu.candidate.kicad_pcb": "f850c544c9b8224c9474ac8592331e404f9c453cee7ec2ab1b7dfc2355fde2a0",
+      "mcu.default.net": "b4d8c65b8018ca95034ae80bb9215e909880afda863ac9ab654c3846454856bc",
+      "mcu.source-manifest.json": "b7e10748b2f63533e6dd5bdadcad9137e295ad74f8e74847d104c0ef7b8e0fa2",
+      "p3.target-context.json": "db3e07b6fcb70ccedc4791a55d32ad37ae3c6177c6a4de82dee0c04206241c79"
+    }
+  },
+  "operations": 17,
+  "reason": "live model transport unavailable (Zen FreeUsageLimitError)",
+  "schema": "temper.mcu-apparatus-attempt.v1"
+}

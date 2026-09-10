@@ -485,6 +485,308 @@ def generate_board(
 
 
 # ---------------------------------------------------------------------------
+# Strict candidate path (P1 U2, MCU profile). Explicit opt-in: callers pass
+# an reviewed pin map, target outline/layers, and neutral staging. The legacy
+# generate_board() below (default flow placement + positional pad fallback)
+# is untouched; nothing here changes its behavior.
+# ---------------------------------------------------------------------------
+
+# P3 six-layer physical copper order with production ordinal IDs. Ordinal IDs
+# do NOT encode physical order (F.Cu=0, In3.Cu=3, In1.Cu=1, In2.Cu=2,
+# In4.Cu=4, B.Cu=31); the sequence below is the setup/stackup order from the
+# P3 target context, not an alphabetic or ordinal sort.
+CANDIDATE_COPPER_ORDER: list[tuple[int, str]] = [
+    (0, "F.Cu"),
+    (3, "In3.Cu"),
+    (1, "In1.Cu"),
+    (2, "In2.Cu"),
+    (4, "In4.Cu"),
+    (31, "B.Cu"),
+]
+
+
+def candidate_layer_defs() -> list[tuple[int, str, str, str | None]]:
+    """Six-copper-layer defs: P3 physical order first, then the same technical
+    layers the legacy four-layer defs carry."""
+    defs: list[tuple[int, str, str, str | None]] = [
+        (number, name, "signal", None) for number, name in CANDIDATE_COPPER_ORDER
+    ]
+    defs.extend(LAYER_DEFS[4:])
+    return defs
+
+
+def _restore_candidate_property_geometry(output_path: Path) -> None:
+    """Re-attach Reference/Value field geometry dropped by kiutils 1.4.8.
+
+    ``kiutils`` represents the KiCad property entries as a plain ``str -> str``
+    map, so the stock ``Reference``/``Value`` ``(at ...)``/``(layer ...)``/
+    ``(effects ...)`` are lost and the generator re-emits bare
+    ``(property "Reference" "C1")`` lines. KiCad then places the reference
+    field at the footprint origin on the default silkscreen layer, which
+    overlaps each passive's own pads and silk. That is an intrinsic DRC
+    defect (34 findings, unfixable through the agent's admitted place/
+    replace_copper operations) measured on the generated candidate
+    2026-09-10. Put both fields on ``F.Fab`` and hide them: identity/parity
+    are unchanged, silkscreen is clean.
+
+    This is textual because the parsed model has no geometry to preserve; it
+    runs only in the strict-candidate path and never on legacy boards.
+    """
+    text = output_path.read_text(encoding="utf-8")
+
+    def _field(match: "re.Match[str]") -> str:
+        kind, value = match.group(1), match.group(2)
+        y = -1.43 if kind == "Reference" else 1.43
+        return (
+            f'(property "{kind}" "{value}" (at 0 {y} 0) (layer "F.Fab") '
+            f'(hide yes) (effects (font (size 1 1) (thickness 0.15))))'
+        )
+
+    restored = re.sub(
+        r'\(property "(Reference|Value)" "([^"]*)"\)', _field, text
+    )
+    if restored != text:
+        output_path.write_text(restored, encoding="utf-8")
+
+
+def generate_candidate_board(
+    netlist: Netlist,
+    pin_map: dict[tuple[str, str], str],
+    unconnected_pads: set[tuple[str, str]],
+    fp_lib_table_path: Path,
+    outline_mm: tuple[float, float, float, float],
+    staging: dict[str, tuple[float, float, float]],
+    output_path: Path,
+) -> dict[str, object]:
+    """Build a strict-candidate .kicad_pcb: exact pad numbers only.
+
+    - Every netlist (ref, pin) must appear in `pin_map`; the mapped pad
+      number must exist on the resolved footprint. There is deliberately no
+      positional fallback: a missing entry raises naming the pin.
+    - Every connectable footprint pad must be covered by `pin_map` or listed
+      in `unconnected_pads`; anything else raises as an unintended open.
+    - `staging` gives neutral (ref -> (x_mm, y_mm, rot_deg)) placement; it is
+      recorded as staging, never as a solution. Missing refs raise.
+    - The board carries footprints, the net table, and the target outline
+      only: no tracks, vias, zones, or copper pours.
+    """
+    from kiutils.board import Board
+    from kiutils.footprint import Footprint
+    from kiutils.items.brditems import LayerToken
+    from kiutils.items.common import Net as KiNet
+    from kiutils.items.common import Position
+    from kiutils.items.gritems import GrPoly
+
+    pin_to_net: dict[tuple[str, str], str] = {}
+    for net in netlist.nets.values():
+        for ref, pin in net.nodes:
+            pin_to_net[(ref, pin)] = net.name
+
+    for key in pin_to_net:
+        if key not in pin_map:
+            raise ValueError(
+                f"candidate board: compiled pin {key[0]}.{key[1]} has no "
+                f"strict-map entry (positional fallback is forbidden)"
+            )
+
+    board = Board.create_new()
+    board.layers = []
+    for number, name, ltype, user_name in candidate_layer_defs():
+        lt = LayerToken(name=name, type=ltype, userName=user_name)
+        lt.ordinal = number  # type: ignore[attr-defined]
+        board.layers.append(lt)
+
+    sorted_nets = sorted(netlist.nets.values(), key=lambda n: n.name)
+    net_table: dict[str, KiNet] = {}
+    for i, net in enumerate(n for n in sorted_nets if n.nodes):
+        knet = KiNet(number=i + 1, name=net.name)
+        net_table[net.name] = knet
+    board.nets = list(net_table.values())
+
+    components = sorted(netlist.components.values(), key=lambda c: c.ref)
+    footprints: list[Footprint] = []
+    for comp in components:
+        if comp.ref not in staging:
+            raise ValueError(
+                f"candidate board: no neutral staging position for {comp.ref}"
+            )
+        fp_path = resolve_footprint(comp.footprint, fp_lib_table_path)
+        fp = Footprint.from_file(str(fp_path))
+        fp.libId = comp.footprint  # type: ignore[attr-defined]
+        fp.tstamp = _uuid_from_seed(f"fp:{comp.tstamp}")  # type: ignore[attr-defined]
+        fp.tedit = _uuid_from_seed(f"tedit:{comp.tstamp}")[:8]  # type: ignore[attr-defined]
+        fp.properties = {  # type: ignore[attr-defined]
+            "Reference": comp.ref,
+            "Value": comp.value or "?",
+            "Footprint": comp.footprint,
+            "Sheetpath": comp.sheetpath,
+        }
+        x, y, rot = staging[comp.ref]
+        fp.position = Position(x, y, rot if rot else None)  # type: ignore[attr-defined]
+
+        claimed: dict[str, tuple[str, str]] = {}
+        for (ref, pin), pad_no in pin_map.items():
+            if ref == comp.ref:
+                if pad_no in claimed:
+                    raise ValueError(
+                        f"candidate board: pad '{pad_no}' on {ref} claimed by "
+                        f"pins '{claimed[pad_no][1]}' and '{pin}'"
+                    )
+                claimed[pad_no] = (ref, pin)
+        for pad in fp.pads:
+            if getattr(pad, "type", "") not in ("smd", "thru_hole"):
+                continue
+            if pad.number in claimed:
+                ref, pin = claimed[pad.number]
+                pad.net = net_table[pin_to_net[(ref, pin)]]
+            elif (comp.ref, pad.number) in unconnected_pads:
+                continue
+            else:
+                raise ValueError(
+                    f"candidate board: footprint pad '{pad.number}' on "
+                    f"{comp.ref} is neither mapped nor explicitly unconnected"
+                )
+        footprints.append(fp)
+
+    board.footprints = footprints
+
+    x1, y1, x2, y2 = outline_mm
+    outline = GrPoly(
+        layer="Edge.Cuts",
+        width=0.1,
+        coordinates=[
+            Position(x1, y1),
+            Position(x2, y1),
+            Position(x2, y2),
+            Position(x1, y2),
+        ],
+    )
+    if not hasattr(board, "graphicItems"):
+        board.graphicItems = []  # type: ignore[attr-defined]
+    board.graphicItems.append(outline)  # type: ignore[attr-defined]
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    board.to_file(str(output_path))
+    _restore_candidate_property_geometry(output_path)
+    return {
+        "footprints": len(footprints),
+        "nets": len(net_table),
+        "outline_mm": list(outline_mm),
+        "layers": [name for _, name in CANDIDATE_COPPER_ORDER],
+    }
+
+
+def candidate_oracle_verify(
+    board_path: Path,
+    netlist: Netlist,
+    pin_map: dict[tuple[str, str], str],
+    outline_mm: tuple[float, float, float, float],
+) -> bool:
+    """Independent strict check of a candidate board.
+
+    Unlike the legacy oracle (which normalizes pad numbers through the same
+    positional fallback the generator used), this compares RAW actual pad
+    numbers against the independent compiled pin partitions: pad N on ref R
+    must carry the net of the single netlist pin mapped to (R, N). Also
+    verifies the net set equals the compiled non-empty set, the outline
+    matches the target, and no functional copper exists.
+    """
+    from kiutils.board import Board
+
+    text = board_path.read_text(encoding="utf-8")
+    for marker in ("(segment ", "(via ", "(zone ", "(track "):
+        if marker in text:
+            print(f"CANDIDATE ORACLE FAILURE: functional copper present ({marker.strip()})")
+            return False
+
+    board = Board.from_file(str(board_path))
+    pin_to_net: dict[tuple[str, str], str] = {}
+    for net in netlist.nets.values():
+        for ref, pin in net.nodes:
+            pin_to_net[(ref, pin)] = net.name
+
+    pad_to_pin: dict[tuple[str, str], str] = {}
+    for (ref, pin), pad_no in pin_map.items():
+        if (ref, pad_no) in pad_to_pin:
+            print(
+                f"CANDIDATE ORACLE FAILURE: pad '{pad_no}' on {ref} claimed twice"
+            )
+            return False
+        pad_to_pin[(ref, pad_no)] = pin
+
+    ok = True
+    board_refs = set()
+    for fp in board.footprints:
+        ref = fp.properties.get("Reference", "?") if hasattr(fp, "properties") else "?"
+        board_refs.add(ref)
+        if ref not in netlist.components:
+            print(f"CANDIDATE ORACLE FAILURE: footprint ref '{ref}' not in netlist")
+            ok = False
+            continue
+        if (hasattr(fp, "properties") and fp.properties.get("Sheetpath")
+                != netlist.components[ref].sheetpath):
+            print(f"CANDIDATE ORACLE FAILURE: Sheetpath drift on {ref}")
+            ok = False
+        for pad in fp.pads:
+            if getattr(pad, "type", "") not in ("smd", "thru_hole"):
+                continue
+            net = getattr(pad, "net", None)
+            net_name = getattr(net, "name", "") if net else ""
+            pin = pad_to_pin.get((ref, pad.number))
+            if pin is None:
+                if net_name:
+                    print(
+                        f"CANDIDATE ORACLE FAILURE: unmapped pad '{pad.number}' "
+                        f"on {ref} carries net '{net_name}'"
+                    )
+                    ok = False
+                continue
+            expected = pin_to_net.get((ref, pin), "")
+            if net_name != expected:
+                print(
+                    f"CANDIDATE ORACLE FAILURE: pad '{pad.number}' on {ref} "
+                    f"carries '{net_name}', compiled pin {pin} is on '{expected}'"
+                )
+                ok = False
+    if board_refs != set(netlist.components):
+        print(
+            f"CANDIDATE ORACLE FAILURE: board refs {sorted(board_refs)} != "
+            f"netlist refs {sorted(netlist.components)}"
+        )
+        ok = False
+
+    board_nets = {getattr(n, "name", "") for n in board.nets}
+    source_nets = {net.name for net in netlist.nets.values() if net.nodes}
+    if board_nets != source_nets:
+        print(
+            f"CANDIDATE ORACLE FAILURE: board nets != compiled non-empty nets "
+            f"(only-board={sorted(board_nets - source_nets)[:5]}, "
+            f"missing={sorted(source_nets - board_nets)[:5]})"
+        )
+        ok = False
+
+    x1, y1, x2, y2 = outline_mm
+    corners = {(x1, y1), (x2, y1), (x2, y2), (x1, y2)}
+    found: set[tuple[float, float]] = set()
+    for item in getattr(board, "graphicItems", []) or []:
+        if getattr(item, "layer", "") == "Edge.Cuts" and hasattr(item, "coordinates"):
+            for pos in item.coordinates:
+                found.add((round(float(pos.X), 3), round(float(pos.Y), 3)))
+    if not corners.issubset(found):
+        print(
+            f"CANDIDATE ORACLE FAILURE: Edge.Cuts corners {sorted(found)[:6]} "
+            f"do not contain target outline {sorted(corners)}"
+        )
+        ok = False
+    if ok:
+        print(
+            f"CANDIDATE ORACLE PASS: {len(board_refs)} footprints, "
+            f"{len(board_nets)} nets, raw pad numbers match compiled partitions"
+        )
+    return ok
+
+
+# ---------------------------------------------------------------------------
 # Oracle: connectivity + footprint-identity verification
 # ---------------------------------------------------------------------------
 

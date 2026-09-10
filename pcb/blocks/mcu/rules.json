@@ -1,0 +1,65 @@
+{
+  "antenna_keepout_mm": {
+    "assumed": true,
+    "purpose": "ESP32-S3-WROOM-1 antenna access: no copper pour, tracks, or tall parts; keep clear on all copper layers. ASSUMED reservation, not a measured native polygon: the 10 native copper-pour keepouts include no antenna keepout. RF certification itself is out of scope.",
+    "x1": 18.0,
+    "x2": 52.0,
+    "y1": 20.0,
+    "y2": 32.0
+  },
+  "edge_clearance_rule_mm": 0.5,
+  "functional_copper": "none: starting board carries no tracks, vias, zones, or pours",
+  "manufacturer_layout_rules": "see harness-lab/blocks/mcu/identity-inventory.json manufacturer_layout_rules; numeric enforcement ships in U3",
+  "mcu_region_mm": {
+    "purpose": "MCU module + decoupling/EN/boot/I2C pullups + routing access",
+    "x1": 18.0,
+    "x2": 52.0,
+    "y1": 28.0,
+    "y2": 68.0
+  },
+  "schema": "temper.mcu-candidate-rules.v1",
+  "voltage_domains": {
+    "HV": {
+      "nets": [
+        "+170V_BUS",
+        "DC_BUS_RTN",
+        "PWR_RTN",
+        "ac_l",
+        "ac_n",
+        "SW_NODE",
+        "GATE_HS",
+        "GATE_LS",
+        "+15V_LS"
+      ],
+      "note": "Mains-referenced / switched power. DC_BUS_RTN (dc_bus_minus) and PWR_RTN (power_return, doubler midpoint) are HV per elec/domain_manifest.yaml, not SELV returns. Isolation barrier to SELV required across every copper layer; a declared boundary or distance check alone is not a barrier (CONCEPTS.md)."
+    },
+    "SELV_LV": {
+      "nets": [
+        "+15V",
+        "+3V3",
+        "gnd"
+      ],
+      "note": "Aux 15V from PS1 (IRM-10-15, isolated) feeds buck VIN; buck 3V3 feeds MCU VCC3V3. gnd and PWR_RTN are separate compiled nets (star-join short removed); the single LV return tie claim for this section is a U2 wiring obligation, not a measured board fact."
+    },
+    "signal": {
+      "nets": [
+        "PWM_HS",
+        "PWM_LS",
+        "RTD_SCK",
+        "RTD_SDI",
+        "RTD_SDO",
+        "RTD_CS_N",
+        "I_SENSE",
+        "V_BUS_SENSE",
+        "SHUTDOWN",
+        "RELAY_CTRL",
+        "WDT_KICK",
+        "WDT_RESET_N",
+        "en",
+        "usb_dn",
+        "usb_dp"
+      ],
+      "note": "SELV-referenced control/sense. No new HV/LV crossing is introduced by this section."
+    }
+  }
+}

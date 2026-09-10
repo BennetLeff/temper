@@ -1,0 +1,843 @@
+{
+  "atopile_pinned": "0.2.69",
+  "block": "mcu",
+  "board": {
+    "footprints": 10,
+    "layers": [
+      "F.Cu",
+      "In3.Cu",
+      "In1.Cu",
+      "In2.Cu",
+      "In4.Cu",
+      "B.Cu"
+    ],
+    "nets": 39,
+    "outline_mm": [
+      8.0,
+      20.0,
+      172.0,
+      254.0
+    ]
+  },
+  "converted": {
+    "components": [
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "mcu.c_vcc1",
+        "mpn": "C0603C104K5RACTU",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        },
+        "reference": "C1",
+        "value": "100nF"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "instance_path": "mcu.c_vcc2",
+        "mpn": "GRM21BR71A106KE51L",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        },
+        "reference": "C2",
+        "value": "10uF"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "mcu.c_en",
+        "mpn": "GRM188R71A105KA61D",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        },
+        "reference": "C3",
+        "value": "1uF +/- 10%"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.r_en",
+        "mpn": "RC0603FR-0710KL",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        },
+        "reference": "R1",
+        "value": "10kohm +/- 2%"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.r_boot",
+        "mpn": "RC0603FR-0710KL",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        },
+        "reference": "R2",
+        "value": "10kohm"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.r_sda_pullup",
+        "mpn": "RC0603FR-074K7L",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        },
+        "reference": "R3",
+        "value": "4.7kohm"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.r_scl_pullup",
+        "mpn": "RC0603FR-074K7L",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        },
+        "reference": "R4",
+        "value": "4.7kohm"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.btn_reset",
+        "mpn": "EVQ-P7A01P",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist"
+        },
+        "reference": "SW1",
+        "value": null
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.btn_boot",
+        "mpn": "EVQ-P7A01P",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist"
+        },
+        "reference": "SW2",
+        "value": null
+      },
+      {
+        "footprint": "ESP32-S3-WROOM-1",
+        "instance_path": "mcu.mcu",
+        "mpn": "ESP32-S3-WROOM-1-N8R8",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist"
+        },
+        "reference": "U1",
+        "value": null
+      }
+    ],
+    "empty_reference_nets_excluded": [
+      "mcu-reference",
+      "mcu-reference-1",
+      "mcu-reference-2",
+      "mcu-reference-3",
+      "mcu-reference-4",
+      "mcu-reference-5",
+      "mcu-reference-6",
+      "mcu-reference-7",
+      "mcu-reference-8"
+    ],
+    "net_count": 48
+  },
+  "entry": "mcu.ato:McuCandidate",
+  "inputs": {
+    "bom_sha256": "09d804ac1ad3c9d98cd37117d57323ef51a001eff40ac5d019339ce1d15f7dff",
+    "build_evidence": "build-evidence/default.net, default.csv, resolved-components.json, stdout.txt, stderr.txt (byte copies of the qualified build)",
+    "build_gate": {
+      "failed_present": false,
+      "returncode": 0
+    },
+    "export_sha256": "38916ebd45bfb1244432809ff145eb2ea0e2195d317286350c7ffe2f1039cd6c",
+    "footprint_census": {
+      "Capacitor_SMD:C_0603_1608Metric": {
+        "pads": [
+          "1",
+          "2"
+        ],
+        "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405"
+      },
+      "Capacitor_SMD:C_0805_2012Metric": {
+        "pads": [
+          "1",
+          "2"
+        ],
+        "sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb"
+      },
+      "Resistor_SMD:R_0603_1608Metric": {
+        "pads": [
+          "1",
+          "2"
+        ],
+        "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23"
+      },
+      "lib:ESP32-S3-WROOM-1": {
+        "pads": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26",
+          "27",
+          "28",
+          "29",
+          "30",
+          "31",
+          "32",
+          "33",
+          "34",
+          "35",
+          "36",
+          "37",
+          "38",
+          "39"
+        ],
+        "sha256": "9c5a41379d7255f50ce1b7efb060994b700847c8aafe400b160dca7ccc5fd7dd"
+      }
+    },
+    "libraries": {
+      "Capacitor_SMD:C_0603_1608Metric": {
+        "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod"
+      },
+      "Capacitor_SMD:C_0805_2012Metric": {
+        "sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+        "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0805_2012Metric.kicad_mod"
+      },
+      "Resistor_SMD:R_0603_1608Metric": {
+        "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod"
+      },
+      "lib:ESP32-S3-WROOM-1": {
+        "sha256": "9c5a41379d7255f50ce1b7efb060994b700847c8aafe400b160dca7ccc5fd7dd",
+        "source": "pcb/libs/lib.pretty/ESP32-S3-WROOM-1.kicad_mod"
+      }
+    },
+    "netlist_sha256": "90d04ba4af410f765ab3586091385c3aef78b202616268c36653fe6ccab731a5",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "3c5c1ab824ace2949912b5fc33a0c97efc292bc90a29530090b968dd58a91bbd",
+    "workspace_hashes": {
+      "elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+      "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+      "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+      "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+      "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+      "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+      "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+      "elec/src/modules.ato": "6f14dba190b24f1c4dea5af8bb834e4a0ad23b00d62bd9115efaa9528a288b57",
+      "mcu.ato": "a3844663a915ab7f4120b223536b70393e78c9eb7b61101b1f22490c935acd83"
+    }
+  },
+  "kicad_cli": "10.0.4",
+  "production_pcb_geometry_used": false,
+  "schema": "temper.mcu-candidate.v1",
+  "schematic": {
+    "files": [
+      "mcu.kicad_sch",
+      "mcu_candidate.kicad_sch"
+    ],
+    "layout": {
+      "module_to_sheet": {
+        "mcu": "MCU"
+      },
+      "root_sheet": "mcu_candidate.kicad_sch",
+      "schema_version": 1,
+      "sheet_description": "MCU CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP1 U2 strict-candidate path: source-derived starting point, no functional copper claims\\n\\n1 Sheet:\\nMCU",
+      "sheet_files": {
+        "MCU": "mcu.kicad_sch"
+      },
+      "sheets": [
+        "MCU"
+      ],
+      "title": "MCU Candidate (source-derived, unrouted)"
+    }
+  },
+  "staging": {
+    "positions": {
+      "C1": [
+        21.0,
+        31.0,
+        0.0
+      ],
+      "C2": [
+        24.5,
+        31.0,
+        0.0
+      ],
+      "C3": [
+        28.0,
+        31.0,
+        0.0
+      ],
+      "R1": [
+        31.5,
+        31.0,
+        0.0
+      ],
+      "R2": [
+        35.0,
+        31.0,
+        0.0
+      ],
+      "R3": [
+        38.5,
+        31.0,
+        0.0
+      ],
+      "R4": [
+        42.0,
+        31.0,
+        0.0
+      ],
+      "SW1": [
+        45.5,
+        31.0,
+        0.0
+      ],
+      "SW2": [
+        49.0,
+        31.0,
+        0.0
+      ],
+      "U1": [
+        35.0,
+        50.0,
+        0.0
+      ]
+    },
+    "staging_only": true
+  },
+  "strict_map": {
+    "entries": [
+      {
+        "alias_note": "",
+        "instance_path": "mcu.c_vcc1",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "C1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.c_vcc1",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "C1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.c_vcc2",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "C2"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.c_vcc2",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "C2"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.c_en",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "C3"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.c_en",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "C3"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.r_en",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "R1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.r_en",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "R1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.r_boot",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "R2"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.r_boot",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "R2"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.r_sda_pullup",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "R3"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.r_sda_pullup",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "R3"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.r_scl_pullup",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "R4"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.r_scl_pullup",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "R4"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.btn_reset",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "SW1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.btn_reset",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "SW1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.btn_boot",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "SW2"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.btn_boot",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "SW2"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "1",
+        "pin": "1",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "10",
+        "pin": "10",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "11",
+        "pin": "11",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "12",
+        "pin": "12",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "13",
+        "pin": "13",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "14",
+        "pin": "14",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "15",
+        "pin": "15",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "16",
+        "pin": "16",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "17",
+        "pin": "17",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "18",
+        "pin": "18",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "19",
+        "pin": "19",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "2",
+        "pin": "2",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "20",
+        "pin": "20",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "21",
+        "pin": "21",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "22",
+        "pin": "22",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "23",
+        "pin": "23",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "24",
+        "pin": "24",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "25",
+        "pin": "25",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "26",
+        "pin": "26",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "27",
+        "pin": "27",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "28",
+        "pin": "28",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "29",
+        "pin": "29",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "3",
+        "pin": "3",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "30",
+        "pin": "30",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "31",
+        "pin": "31",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "32",
+        "pin": "32",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "33",
+        "pin": "33",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "34",
+        "pin": "34",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "35",
+        "pin": "35",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "36",
+        "pin": "36",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "37",
+        "pin": "37",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "38",
+        "pin": "38",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "39",
+        "pin": "39",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "4",
+        "pin": "4",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "5",
+        "pin": "5",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "6",
+        "pin": "6",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "7",
+        "pin": "7",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "8",
+        "pin": "8",
+        "positional": false,
+        "reference": "U1"
+      },
+      {
+        "alias_note": "",
+        "instance_path": "mcu.mcu",
+        "pad": "9",
+        "pin": "9",
+        "positional": false,
+        "reference": "U1"
+      }
+    ],
+    "unconnected_pads": []
+  },
+  "target_context": {
+    "antenna_keepout_mm": {
+      "assumed": true,
+      "purpose": "ESP32-S3-WROOM-1 antenna access: no copper pour, tracks, or tall parts; keep clear on all copper layers. ASSUMED reservation, not a measured native polygon: the 10 native copper-pour keepouts include no antenna keepout. RF certification itself is out of scope.",
+      "x1": 18.0,
+      "x2": 52.0,
+      "y1": 20.0,
+      "y2": 32.0
+    },
+    "mcu_region_mm": {
+      "purpose": "MCU module + decoupling/EN/boot/I2C pullups + routing access",
+      "x1": 18.0,
+      "x2": 52.0,
+      "y1": 28.0,
+      "y2": 68.0
+    },
+    "outline_mm": {
+      "height": 234.0,
+      "shape": "rect",
+      "source": "gr_poly Edge.Cuts pts in pcb/temper.kicad_pcb",
+      "width": 164.0,
+      "x1": 8.0,
+      "x2": 172.0,
+      "y1": 20.0,
+      "y2": 254.0
+    },
+    "path": "pcb/blocks/control-assembly/target-context.json",
+    "sha256": "db3e07b6fcb70ccedc4791a55d32ad37ae3c6177c6a4de82dee0c04206241c79"
+  }
+}

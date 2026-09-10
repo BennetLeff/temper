@@ -1,0 +1,16 @@
+{
+  "attempt": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/runs/mcu-20260910-a/live-01/attempt",
+  "budget_s": 1200.0,
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "opencode_sha256": "2d0c9c339bb91046c6ea951c97664bc2f8a8eaca707f31fbfbb7bc73c4eddc62",
+  "opencode_version": "1.18.30",
+  "runner_sha256": "231e68a6eac2dc6b1125dc2ffc7a9d3b007f51fd52be0358817370c14e2f460c",
+  "transport_policy": {
+    "after_incomplete_or_failed_response": "block all further upstream requests",
+    "data_use": "Zen/Meta Contributor terms approved 2026-09-09",
+    "max_concurrent_upstream_requests": 1,
+    "telemetry": "disabled",
+    "trial_budget_s": 1200.0
+  },
+  "trial": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/runs/mcu-20260910-a/trial-live"
+}
