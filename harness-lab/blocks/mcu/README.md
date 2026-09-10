@@ -116,10 +116,11 @@ The combined buck+MCU wrapper for P3 lives in
 
 ## Coordinator join
 
-The accepted package state (`assisted-pending-schematic-parity`), its exact
-board/manifest identities, the replay result, and the remaining interface
-obligations are joined in
+The accepted package state (`assisted-verified-apparatus-only`, run
+`harness-lab/runs/mcu-20260910-b/`), its exact board/manifest identities, the
+replay result, and the remaining interface obligations are joined in
 `docs/hardware/control-assembly/harness-report.md`. Only the assisted
 generator path is accepted; the unassisted candidate and the blocked live
 transport remain separate evidence, and the milestone stays INCOMPLETE until
-the live delivery and schematic-parity gaps close.
+the live delivery gap closes. The apparatus-only construction now passes the
+full native check (DRC 0, unconnected 0, schematic parity 0, block judge pass).

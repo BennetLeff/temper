@@ -20,7 +20,8 @@ engineering admission requirements.
 
 A source-derived MCU block and a buck+MCU assembly extend this harness. The
 accepted MCU package (`pcb/blocks/mcu/`, state
-`assisted-pending-schematic-parity`) was generated from the Atopile wrapper in
+`assisted-verified-apparatus-only`, run `harness-lab/runs/mcu-20260910-b/`) was
+generated from the Atopile wrapper in
 [`blocks/mcu/`](blocks/mcu/README.md) through
 [`block_source.py`](block_source.py) and the strict Rust bridge in
 `packages/temper-design-bundle`, constructed under the bounded
@@ -31,9 +32,12 @@ curated in [`memory/`](memory/README.md) and selected by
 [`memory.py`](memory.py) + `src/memory.rs`.
 
 **This is `apparatus-only-assisted`:** the live model transport was blocked
-(Zen HTTP 429), and schematic parity still fails, so the milestone is
-**INCOMPLETE**. The joined evidence, replay result, remaining interfaces, and
-blockers are in
+(Zen HTTP 429), so no autonomous model constructed the board and the milestone
+is **INCOMPLETE**. The apparatus-only construction now passes the full native
+check (DRC 0, unconnected 0, schematic parity 0, block judge pass, 3 runs);
+the switch-footprint source fix is an uncommitted concurrent change and ERC
+still reports warnings. The joined evidence, replay result, remaining
+interfaces, and blockers are in
 [`docs/hardware/control-assembly/harness-report.md`](../docs/hardware/control-assembly/harness-report.md).
 It is not a qualified cooker or hardware validation.
 
