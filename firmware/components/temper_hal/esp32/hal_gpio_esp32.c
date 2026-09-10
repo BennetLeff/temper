@@ -9,6 +9,9 @@
 #include "../include/hal_gpio.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+/* IRAM_ATTR (used on gpio_isr_handler below) is defined here. Without it the
+ * attribute is an undeclared identifier and the ISR is a syntax error. */
+#include "esp_attr.h"
 #include <string.h>
 
 static const char *TAG = "hal_gpio";

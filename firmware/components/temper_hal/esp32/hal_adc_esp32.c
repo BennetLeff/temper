@@ -107,7 +107,7 @@ static hal_status_t esp32_adc_init(const hal_adc_config_t *config)
                                                 &chan_cfg);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to configure ADC channel %d: %s", 
-                 config->channel, esp_err_to_name(err));
+                 (int)config->channel, esp_err_to_name(err));
         return HAL_ERROR;
     }
     
@@ -117,7 +117,7 @@ static hal_status_t esp32_adc_init(const hal_adc_config_t *config)
     s_channel_configs[config->channel].bitwidth = chan_cfg.bitwidth;
     
     ESP_LOGD(TAG, "ADC channel %d initialized, atten=%d, width=%d",
-             config->channel, config->atten, config->width);
+             (int)config->channel, config->atten, config->width);
     return HAL_OK;
 }
 
@@ -220,11 +220,11 @@ static hal_status_t esp32_adc_calibrate(hal_adc_channel_t channel)
 
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to create ADC calibration for channel %d: %s",
-                 channel, esp_err_to_name(err));
+                 (int)channel, esp_err_to_name(err));
         return HAL_ERROR;
     }
     
-    ESP_LOGI(TAG, "ADC channel %d calibrated", channel);
+    ESP_LOGI(TAG, "ADC channel %d calibrated", (int)channel);
     return HAL_OK;
 }
 
@@ -285,7 +285,7 @@ static hal_status_t esp32_adc_start_continuous(hal_adc_channel_t channel, uint32
     }
     
     ESP_LOGI(TAG, "ADC continuous mode started for channel %d at %lu Hz",
-             channel, (unsigned long)sample_rate_hz);
+             (int)channel, (unsigned long)sample_rate_hz);
     return HAL_OK;
 }
 
@@ -364,7 +364,7 @@ static hal_status_t esp32_adc_deinit(hal_adc_channel_t channel)
         s_adc1_handle = NULL;
     }
     
-    ESP_LOGD(TAG, "ADC channel %d deinitialized", channel);
+    ESP_LOGD(TAG, "ADC channel %d deinitialized", (int)channel);
     return HAL_OK;
 }
 
