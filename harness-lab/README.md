@@ -12,8 +12,8 @@ python3 harness-lab/engineering_host.py harness-lab/runs/engineering-new
 ```
 
 The [continual buck harness](CONTINUAL-HARNESS.md) adds persistent Python,
-versioned executable skills, bounded recovery, frozen inheritance, and optional
-OTLP tracing around OpenCode. Its local software controls do not remove the
+versioned executable skills, bounded recovery, frozen inheritance, and default
+OTLP tracing around OpenCode (`--no-telemetry` opts out). Its local software controls do not remove the
 engineering admission requirements.
 
 Two small experiments use the real buck input capacitor C9 and regulator U3.

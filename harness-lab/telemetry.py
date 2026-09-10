@@ -16,8 +16,14 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
+
+DEFAULT_CONFIG = Path(__file__).resolve().parent / "runs/langsmith-local/config.json"
+LANGSMITH_ENDPOINT = "https://api.smith.langchain.com/otel/v1/traces"
+KEYCHAIN_SERVICE = "com.temper.harness.langsmith"
+KEYCHAIN_ACCOUNT = "temper-harness"
 
 MAX_BYTES = 128 * 1024
 MAX_EVENTS = 1024
@@ -40,6 +46,47 @@ def endpoint_from_env(env: dict[str, str]) -> str | None:
         if env.get("OTEL_EXPORTER_OTLP_ENDPOINT")
         else None
     )
+
+
+def local_destination(deadline: float) -> tuple[str, dict[str, str]]:
+    """Resolve the explicitly configured LangSmith destination without logging secrets."""
+    if not DEFAULT_CONFIG.is_file():
+        raise ValueError("tracing destination is not configured")
+    config = json.loads(DEFAULT_CONFIG.read_text())
+    if (
+        not isinstance(config, dict)
+        or set(config) != {"endpoint", "project", "credential"}
+        or config["endpoint"] != LANGSMITH_ENDPOINT
+        or config["credential"] != "macos-keychain"
+        or not isinstance(config["project"], str)
+        or not re.fullmatch(r"[a-zA-Z0-9_.-]{1,128}", config["project"])
+    ):
+        raise ValueError("invalid local tracing configuration")
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise TimeoutError("tracing deadline expired")
+    result = subprocess.run(
+        [
+            "/usr/bin/security",
+            "find-generic-password",
+            "-a",
+            KEYCHAIN_ACCOUNT,
+            "-s",
+            KEYCHAIN_SERVICE,
+            "-w",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=min(2.0, remaining),
+        check=False,
+    )
+    key = result.stdout.strip()
+    if result.returncode or not key or "\n" in key or "\r" in key:
+        raise ValueError("tracing credential unavailable")
+    return config["endpoint"], {
+        "x-api-key": key,
+        "Langsmith-Project": config["project"],
+    }
 
 
 def packet(events: list[dict], receipt_digest: str) -> dict:
@@ -121,11 +168,10 @@ def export(
     if not enabled:
         return {"status": "disabled"}
     endpoint = endpoint or endpoint_from_env(os.environ)
-    if not endpoint:
-        return {"status": "unavailable", "reason": "endpoint_missing"}
     try:
         if not math.isfinite(timeout) or not 0 < timeout <= 5:
             raise ValueError("export timeout must be within five seconds")
+        deadline = time.monotonic() + timeout
         digest = hashlib.sha256(receipt.read_bytes()).hexdigest()
         body = json.dumps(
             packet(events, digest), allow_nan=False, separators=(",", ":")
@@ -135,7 +181,8 @@ def export(
     except (OSError, ValueError, KeyError, TypeError):
         return {"status": "dropped", "reason": "invalid_metadata"}
     headers = {}
-    # Only explicit OTLP headers, never ambient service or model credentials.
+    # Explicit OTLP headers or the configured tracing Keychain item only;
+    # never read ambient model or unrelated service credentials.
     raw = os.environ.get(
         "OTEL_EXPORTER_OTLP_TRACES_HEADERS",
         os.environ.get("OTEL_EXPORTER_OTLP_HEADERS", ""),
@@ -149,8 +196,20 @@ def export(
                 "authorization",
             }:
                 headers[key.strip()] = unquote(value.strip())
+    if not endpoint:
+        try:
+            endpoint, headers = local_destination(deadline)
+        except (OSError, ValueError, TypeError, subprocess.SubprocessError):
+            return {
+                "status": "unavailable",
+                "reason": "configuration_or_credential_unavailable",
+            }
+    # Explicit endpoint overrides never receive the local Keychain credential.
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        return {"status": "unavailable", "reason": "export_timeout"}
     payload = json.dumps(
-        {"endpoint": endpoint, "body": body, "headers": headers, "timeout": timeout}
+        {"endpoint": endpoint, "body": body, "headers": headers, "timeout": remaining}
     )
     try:
         result = subprocess.run(
@@ -158,7 +217,7 @@ def export(
             input=payload,
             text=True,
             capture_output=True,
-            timeout=timeout,
+            timeout=remaining,
             env={"PATH": "/usr/bin:/bin"},
             check=False,
         )

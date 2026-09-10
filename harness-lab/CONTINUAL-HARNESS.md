@@ -122,19 +122,44 @@ engineering limitations and empty approved component/model registries still
 block live full-buck scoring. Software controls do not qualify a SPICE model,
 electrical performance, fabrication, or hardware safety.
 
-## Optional tracing
+## Tracing
 
-Export is disabled by default and runs only after the authoritative local
-result is finalized. The adapter sends allowlisted metadata through OTLP/HTTP
-JSON in a separate, bounded subprocess. Prompts, executable code, raw tool
-payloads, and model credentials are excluded. Export failures produce a
-separate diagnostic and do not change results or retries.
+Tracing is enabled by default for continual buck harness runs. Use
+`--no-telemetry` for an explicitly offline/private run or a software control;
+`--telemetry` remains accepted. Unit tests disable or replace external export.
+The CLI summary reports `exported`, `disabled`, `unavailable`, or `dropped` so
+missing traces are visible.
 
-Pass `--telemetry` to opt in for a run. Configure a collector using `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` for a complete
-URL, or `OTEL_EXPORTER_OTLP_ENDPOINT` for a base URL to which `/v1/traces` is
-appended. Explicit OTLP export headers may provide collector credentials.
-A collector can forward to LangSmith using its standard exporter.
-[LangSmith documents non-LangChain OpenTelemetry ingestion](https://docs.langchain.com/langsmith/trace-with-opentelemetry);
-[OTLP specifies the JSON wire format](https://opentelemetry.io/docs/specs/otlp/).
-Local collector delivery is tested. Direct SaaS delivery remains unverified.
-No LangChain, LangGraph, vector database, or tracing SDK is required.
+Export runs after the authoritative local result is finalized. It sends
+allowlisted run metadata through OTLP/HTTP JSON in a separate subprocess;
+credential lookup and export share a five-second budget. Prompts, executable
+code, raw tool payloads, and model credentials are excluded. Export failures
+produce a separate diagnostic and cannot change results or retries.
+
+This machine uses the `temper-harness` project at LangSmith's US endpoint.
+The credential is stored in macOS Keychain under service
+`com.temper.harness.langsmith`, account `temper-harness`. Local, gitignored
+`runs/langsmith-local/config.json` selects that destination:
+
+```json
+{
+  "endpoint": "https://api.smith.langchain.com/otel/v1/traces",
+  "project": "temper-harness",
+  "credential": "macos-keychain"
+}
+```
+
+No shell setup is required here. The config contains no key, and the host reads
+the credential only when export is enabled. The local Keychain route accepts
+only the configured official LangSmith endpoint.
+
+For another collector, set `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` to a complete
+URL or `OTEL_EXPORTER_OTLP_ENDPOINT` to a base URL. Explicit OTLP headers supply
+that collector's credentials; a custom endpoint never receives the local
+Keychain key. Missing configuration or credentials leaves a visible
+`unavailable` diagnostic while preserving local results.
+
+[LangSmith supports non-LangChain OpenTelemetry ingestion](https://docs.langchain.com/langsmith/trace-with-opentelemetry).
+The local collector controls pass, and LangSmith accepted a metadata-only
+connection trace. No LangChain, LangGraph, vector database, or tracing SDK is
+required. Default tracing does not change the engineering admission gates.

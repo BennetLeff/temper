@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import tempfile
 import threading
 import time
@@ -18,6 +19,10 @@ class TelemetryTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
+        self.config = Path(self.temp.name) / "config.json"
+        patcher = patch.object(telemetry, "DEFAULT_CONFIG", self.config)
+        patcher.start()
+        self.addCleanup(patcher.stop)
         self.receipt = Path(self.temp.name) / "results.json"
         self.original = b'{"status":"fail"}\n'
         self.receipt.write_bytes(self.original)
@@ -123,6 +128,113 @@ class TelemetryTests(unittest.TestCase):
             "dropped",
         )
         self.assertEqual(self.received, [])
+
+    def test_local_keychain_configuration_is_bounded_and_not_logged(self):
+        self.config.write_text(
+            json.dumps(
+                {
+                    "endpoint": telemetry.LANGSMITH_ENDPOINT,
+                    "project": "temper-harness",
+                    "credential": "macos-keychain",
+                }
+            )
+        )
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            patch.object(
+                telemetry.subprocess,
+                "run",
+                side_effect=[
+                    subprocess.CompletedProcess([], 0, stdout="test-key\n", stderr=""),
+                    subprocess.CompletedProcess([], 0, stdout="", stderr=""),
+                ],
+            ) as execute,
+        ):
+            result = telemetry.export(self.receipt, self.events, enabled=True)
+        self.assertEqual(result["status"], "exported")
+        lookup, export = execute.call_args_list
+        self.assertLessEqual(lookup.kwargs["timeout"], 2)
+        self.assertLessEqual(export.kwargs["timeout"], 5)
+        payload = json.loads(export.kwargs["input"])
+        self.assertEqual(payload["headers"]["x-api-key"], "test-key")
+        self.assertNotIn("test-key", payload["body"])
+        self.assertNotIn("test-key", json.dumps(result))
+        self.assertEqual(self.receipt.read_bytes(), self.original)
+
+    def test_opt_out_never_reads_configuration_or_keychain(self):
+        self.config.write_text("invalid config")
+        with patch.object(telemetry.subprocess, "run") as execute:
+            result = telemetry.export(self.receipt, self.events, enabled=False)
+        execute.assert_not_called()
+        self.assertEqual(result["status"], "disabled")
+
+    def test_custom_endpoint_never_receives_keychain_credential(self):
+        self.config.write_text(
+            json.dumps(
+                {
+                    "endpoint": telemetry.LANGSMITH_ENDPOINT,
+                    "project": "temper-harness",
+                    "credential": "macos-keychain",
+                }
+            )
+        )
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            patch.object(
+                telemetry,
+                "local_destination",
+                side_effect=AssertionError("must not read Keychain"),
+            ),
+        ):
+            result = telemetry.export(
+                self.receipt,
+                self.events,
+                enabled=True,
+                endpoint=self.url + "/v1/traces",
+            )
+        self.assertEqual(result["status"], "exported")
+        self.assertNotIn("x-api-key", {k.lower() for k in self.received[0][1]})
+
+    def test_invalid_local_destination_does_not_read_credential(self):
+        self.config.write_text(
+            json.dumps(
+                {
+                    "endpoint": "https://other.example/v1/traces",
+                    "project": "temper-harness",
+                    "credential": "macos-keychain",
+                }
+            )
+        )
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            patch.object(telemetry.subprocess, "run") as execute,
+        ):
+            result = telemetry.export(self.receipt, self.events, enabled=True)
+        execute.assert_not_called()
+        self.assertEqual(result["status"], "unavailable")
+
+    def test_keychain_timeout_preserves_receipt_without_export(self):
+        self.config.write_text(
+            json.dumps(
+                {
+                    "endpoint": telemetry.LANGSMITH_ENDPOINT,
+                    "project": "temper-harness",
+                    "credential": "macos-keychain",
+                }
+            )
+        )
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            patch.object(
+                telemetry.subprocess,
+                "run",
+                side_effect=subprocess.TimeoutExpired("security", 2),
+            ) as execute,
+        ):
+            result = telemetry.export(self.receipt, self.events, enabled=True)
+        self.assertEqual(execute.call_count, 1)
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(self.receipt.read_bytes(), self.original)
 
     def test_endpoint_resolution(self):
         self.assertEqual(

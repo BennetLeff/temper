@@ -1070,7 +1070,7 @@ def run(
     engineering: Path | None,
     preflight_receipt: Path | None,
     inheritance: Path | None,
-    export_telemetry: bool = False,
+    export_telemetry: bool = True,
 ) -> dict[str, Any]:
     output.mkdir(parents=True, exist_ok=False)
     admission = inspect_admission(
@@ -1235,8 +1235,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--inheritance", type=Path)
     parser.add_argument(
         "--telemetry",
-        action="store_true",
-        help="Export allowlisted metadata after local results are finalized",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Export allowlisted metadata after local results are finalized (default: enabled)",
     )
     args = parser.parse_args(argv)
     report = run(
@@ -1248,9 +1249,23 @@ def main(argv: list[str] | None = None) -> int:
         inheritance=args.inheritance,
         export_telemetry=args.telemetry,
     )
+    try:
+        tracing = _json(args.output.resolve() / "telemetry.json").get(
+            "status", "unavailable"
+        )
+        if not isinstance(tracing, str) or tracing not in {
+            "exported",
+            "disabled",
+            "unavailable",
+            "dropped",
+        }:
+            tracing = "unavailable"
+    except (OSError, ValueError, RuntimeError, TypeError):
+        tracing = "unavailable"
     print(
         json.dumps(
             {
+                "telemetry": tracing,
                 "status": report["status"],
                 "phase": report["phase"],
                 "slot_count": len(report["slots"]),

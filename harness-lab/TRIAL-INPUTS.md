@@ -119,4 +119,6 @@ state, or provider-switching tools.
 Live development and evaluation remain subject to current engineering and
 qualification admission. Local scripted controls do not constitute live trials
 or qualify hardware. See [the continual harness](CONTINUAL-HARNESS.md) for
-budgets, frozen inheritance, output receipts, and optional metadata-only tracing.
+budgets, frozen inheritance, output receipts, and default metadata-only tracing.
+Use tracing for normal harness runs. Explicit offline/private runs and software
+controls may opt out with `--no-telemetry`; tracing failures never affect scores.

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import tempfile
 import unittest
@@ -12,6 +14,38 @@ import run_buck_trials
 
 
 class RunnerContractTests(unittest.TestCase):
+    def setUp(self):
+        exporter = patch.object(
+            run_buck_trials.telemetry, "export", return_value={"status": "disabled"}
+        )
+        self.exporter = exporter.start()
+        self.addCleanup(exporter.stop)
+
+    def test_tracing_defaults_on_with_explicit_cli_opt_out(self):
+        for flags, enabled in (
+            ([], True),
+            (["--no-telemetry"], False),
+            (["--telemetry"], True),
+        ):
+            with (
+                self.subTest(flags=flags),
+                patch.object(
+                    run_buck_trials,
+                    "run",
+                    return_value={
+                        "status": "blocked",
+                        "phase": "preflight",
+                        "slots": [],
+                    },
+                ) as run,
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                code = run_buck_trials.main(
+                    ["/tmp/unused-tracing-control", "--phase", "preflight", *flags]
+                )
+            self.assertEqual(code, 2)
+            self.assertEqual(run.call_args.kwargs["export_telemetry"], enabled)
+
     def test_slots_are_fixed_and_unique(self) -> None:
         development = run_buck_trials.slots_for("development")
         evaluation = run_buck_trials.slots_for("evaluation")
@@ -39,6 +73,7 @@ class RunnerContractTests(unittest.TestCase):
                 inheritance=None,
             )
             self.assertEqual(report["status"], "blocked")
+            self.assertTrue(self.exporter.call_args.kwargs["enabled"])
             self.assertEqual(len(report["slots"]), 4)
             self.assertTrue(
                 all(item["status"] == "blocked" for item in report["slots"])
@@ -156,6 +191,13 @@ if __name__ == "__main__":
 
 
 class RunnerIntegrationTests(unittest.TestCase):
+    def setUp(self):
+        exporter = patch.object(
+            run_buck_trials.telemetry, "export", return_value={"status": "disabled"}
+        )
+        exporter.start()
+        self.addCleanup(exporter.stop)
+
     identity = {key: "a" * 64 for key in run_buck_trials.IDENTITIES}
 
     def wire_driver(self, cells, *, interrupt=False, incomplete=False):
