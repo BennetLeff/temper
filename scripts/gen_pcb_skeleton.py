@@ -456,8 +456,6 @@ def generate_board(
 
     board.footprints = footprints
 
-    # Edge.Cuts outline with margin
-    margin = 10.0
     # Fixed board outline matching the corpus constraint target (100x150 mm).
     # Flow layout overflows this rectangle; the placer will fix positions.
     outline = GrPoly(
@@ -534,7 +532,7 @@ def _restore_candidate_property_geometry(output_path: Path) -> None:
     """
     text = output_path.read_text(encoding="utf-8")
 
-    def _field(match: "re.Match[str]") -> str:
+    def _field(match: re.Match[str]) -> str:
         kind, value = match.group(1), match.group(2)
         y = -1.43 if kind == "Reference" else 1.43
         return (
