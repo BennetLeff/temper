@@ -2,11 +2,12 @@
 use anyhow::{ensure, Context, Result};
 use serde::Deserialize;
 use serde_json::{json, Value};
-use std::io;
+use std::io::{self, Read};
 
 mod buck;
 mod buck_operations;
 mod circuit_validation;
+mod continual;
 mod engineering;
 mod layout_validation;
 mod qualification;
@@ -249,8 +250,18 @@ fn evaluate(input: Input) -> Result<Value> {
 }
 
 fn run() -> Result<Value> {
-    let raw: Value =
-        serde_json::from_reader(io::stdin().lock()).context("invalid measurement input")?;
+    let mut input_text = String::new();
+    io::stdin()
+        .lock()
+        .read_to_string(&mut input_text)
+        .context("read stdin")?;
+    let raw: Value = continual::parse_strict(&input_text).context("invalid measurement input")?;
+    if raw.get("schema").and_then(Value::as_str) == Some(continual::SCHEMA) {
+        return Ok(match continual::dispatch(raw.clone()) {
+            Ok(result) => result,
+            Err(error) => continual::error_response(Some(&raw), &error),
+        });
+    }
     match raw.get("profile").and_then(Value::as_str) {
         Some("engineering-qualification") => return qualification::evaluate(raw),
         Some("engineering") => return engineering::evaluate(raw),
