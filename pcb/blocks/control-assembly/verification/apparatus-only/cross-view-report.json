@@ -1,0 +1,18 @@
+{
+  "assembly_view": {
+    "path": "pcb/blocks/control-assembly/verification/apparatus-only/control-assembly-routed.kicad_pcb",
+    "sha256": "09c6e46d6c35ad954df1989897945e018b4a80aa15d71ce8470a57c813e4e7c4"
+  },
+  "categories": [
+    "pads",
+    "tracks",
+    "vias",
+    "zones",
+    "endpoints"
+  ],
+  "overlay_view": null,
+  "reason": "The scratch full-board overlay insertion is not part of this apparatus-only pass: the production board is read-only (R6) and composing the section into it requires the live-model placement/routing turn that is transport-blocked (Zen 429). The comparison method and canonical categories are bound here; the U2 package already carries the assembly-view extract.",
+  "rule": "compare canonical source identities, transformed pad geometry, tracks/vias/zones and interface endpoints in target coordinates; a difference in only one view fails",
+  "schema": "control-assembly.cross-view-report.v1",
+  "status": "pending-overlay"
+}

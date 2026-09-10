@@ -1,0 +1,41 @@
+{
+  "removals": [
+    {
+      "after": {
+        "combined_reference": "U2",
+        "footprint": "lib:ESP32-S3-WROOM-1",
+        "instance_path": "mcu.mcu"
+      },
+      "before": {
+        "tstamp": "92a720b8-6473-ffc4-7fa8-ef701c075add"
+      },
+      "reason": "MCU placeholder replaced by P1 source-derived package",
+      "ref": "U27"
+    },
+    {
+      "after": {
+        "combined_reference": "U1",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "instance_path": "buck.buck"
+      },
+      "before": {
+        "tstamp": "64548453-6ce6-b0e8-a81b-d46b964b66d2"
+      },
+      "reason": "buck IC placeholder replaced by source-matched LMR51430 geometry",
+      "ref": "U3"
+    },
+    {
+      "after": {
+        "combined_reference": "L1",
+        "footprint": "Inductor_SMD:L_Bourns_SRP1265A",
+        "instance_path": "buck.l_out"
+      },
+      "before": {
+        "tstamp": "b00b9a7d-6d7a-14d1-b6ad-9ece56e8a9d7"
+      },
+      "reason": "buck inductor placeholder replaced by source-matched SRP1265A-5R6M geometry",
+      "ref": "L2"
+    }
+  ],
+  "rule": "verify-then-remove; every touched object retains before/after identity (KTD4); shared +3V3/gnd nets are cut only at envelope endpoints, never deleted by net name"
+}

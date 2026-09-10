@@ -1,0 +1,10 @@
+{
+  "attempt": "autonomous live-model construction",
+  "error": "Zen FreeUsageLimitError HTTP 429 (retry-after ~7726 s)",
+  "label": "apparatus-only-autonomous",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "note": "Preserved separately so the apparatus-only scripted pass is never mistaken for the autonomous result. Source: harness-lab/runs/mcu-20260910-a/handoff.json live_transport.",
+  "outcome": "transport_blocked",
+  "schema": "control-assembly.failed-attempt.v1",
+  "tool_calls": 0
+}

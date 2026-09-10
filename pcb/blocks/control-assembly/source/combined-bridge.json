@@ -1,0 +1,729 @@
+{
+  "atopile_pinned": "0.2.69",
+  "bom_text": "Comment,Designator,Footprint,LCSC,Price\nLMR51430XDDCR,U1,Package_TO_SOT_SMD:SOT-23-6,LMR51430XDDCR,0.00\nCL32B106KBJZW6E,C1,Capacitor_SMD:C_1210_3225Metric,CL32B106KBJZW6E,0.00\nC0603C104K5RACTU,\"C2,C5,C6\",Capacitor_SMD:C_0603_1608Metric,C0603C104K5RACTU,0.00\nSRP1265A-5R6M,L1,Inductor_SMD:L_Bourns_SRP1265A,SRP1265A-5R6M,0.00\nCL32B226KAJNNWE,\"C3,C4\",Capacitor_SMD:C_1210_3225Metric,CL32B226KAJNNWE,0.00\nRC0603FR-07100KL,R1,Resistor_SMD:R_0603_1608Metric,RC0603FR-07100KL,0.00\nRC0603FR-0722K1L,R2,Resistor_SMD:R_0603_1608Metric,RC0603FR-0722K1L,0.00\nESP32-S3-WROOM-1-N8R8,U2,ESP32-S3-WROOM-1,ESP32-S3-WROOM-1-N8R8,0.00\nGRM21BR71A106KE51L,C7,Capacitor_SMD:C_0805_2012Metric,GRM21BR71A106KE51L,0.00\nRC0603FR-0710KL,\"R3,R4\",Resistor_SMD:R_0603_1608Metric,RC0603FR-0710KL,0.00\nGRM188R71A105KA61D,C8,Capacitor_SMD:C_0603_1608Metric,GRM188R71A105KA61D,0.00\nEVQ-P7A01P,\"SW1,SW2\",Resistor_SMD:R_0603_1608Metric,EVQ-P7A01P,0.00\nRC0603FR-074K7L,\"R5,R6\",Resistor_SMD:R_0603_1608Metric,RC0603FR-074K7L,0.00\n",
+  "bridge": {
+    "components": [
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "instance_path": "buck.buck",
+        "reference": "U1",
+        "tstamp": "72d807a9-b4af-53e4-ef57-b01ae59d15cc"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "instance_path": "buck.c_in",
+        "reference": "C1",
+        "tstamp": "0dea16b6-ef3b-7e24-ebfd-3ec6985bb284"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "instance_path": "buck.c_out1",
+        "reference": "C3",
+        "tstamp": "90ad0ead-5da2-d460-6544-67c52ea470e3"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "instance_path": "buck.c_out2",
+        "reference": "C4",
+        "tstamp": "37870026-4986-f542-9857-b02d3423f8a3"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "buck.c_boot",
+        "reference": "C2",
+        "tstamp": "0225e93e-a8b3-7cc7-1cc1-8a71104c7722"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "buck.c_out_hf",
+        "reference": "C5",
+        "tstamp": "0e709eae-6275-d6a7-c84e-2e1efc2017ec"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "mcu.c_vcc1",
+        "reference": "C6",
+        "tstamp": "1bd3beaa-0a49-1cee-0602-e4125d167e8f"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "mcu.c_en",
+        "reference": "C8",
+        "tstamp": "73fec446-f73c-3517-1c92-7cc255e339da"
+      },
+      {
+        "footprint": "Inductor_SMD:L_Bourns_SRP1265A",
+        "instance_path": "buck.l_out",
+        "reference": "L1",
+        "tstamp": "484c34cf-404d-775f-c531-dc4b22d9886e"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "buck.r_fb_top",
+        "reference": "R1",
+        "tstamp": "662be7e7-d13d-bc3c-27a4-34d8bdce1117"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "buck.r_fb_bot",
+        "reference": "R2",
+        "tstamp": "f733d812-fd9d-d5be-8385-defb4c5e7c42"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.r_en",
+        "reference": "R3",
+        "tstamp": "9988b738-3aa7-f45d-0428-21e1312cb042"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.r_boot",
+        "reference": "R4",
+        "tstamp": "60317d9d-7af6-869b-f8f3-c65ebc2a50fc"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.btn_reset",
+        "reference": "SW1",
+        "tstamp": "791ad33b-8fae-ac0c-842c-cdd06807c7c2"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.btn_boot",
+        "reference": "SW2",
+        "tstamp": "341d646e-14a5-c3a2-a717-eef1100dccdf"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.r_sda_pullup",
+        "reference": "R5",
+        "tstamp": "57260647-d313-554c-52f4-c87fdf23838f"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "mcu.r_scl_pullup",
+        "reference": "R6",
+        "tstamp": "77db0e1b-22a5-4161-d776-854da116fb4f"
+      },
+      {
+        "footprint": "lib:ESP32-S3-WROOM-1",
+        "instance_path": "mcu.mcu",
+        "reference": "U2",
+        "tstamp": "e99f58d0-a885-3bab-2ef1-d4f9b08253c5"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "instance_path": "mcu.c_vcc2",
+        "reference": "C7",
+        "tstamp": "6c3f116e-8c85-3313-6c8f-d29a843e7651"
+      }
+    ],
+    "nets": [
+      {
+        "name": "buck-vcc",
+        "nodes": [
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "C1",
+            "1"
+          ],
+          [
+            "U1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "gnd",
+        "nodes": [
+          [
+            "U2",
+            "1"
+          ],
+          [
+            "C6",
+            "2"
+          ],
+          [
+            "C7",
+            "2"
+          ],
+          [
+            "C8",
+            "2"
+          ],
+          [
+            "SW1",
+            "2"
+          ],
+          [
+            "SW2",
+            "2"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "C5",
+            "2"
+          ],
+          [
+            "R2",
+            "2"
+          ],
+          [
+            "C1",
+            "2"
+          ],
+          [
+            "U1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "buck-vcc-1",
+        "nodes": [
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "C7",
+            "1"
+          ],
+          [
+            "C6",
+            "1"
+          ],
+          [
+            "U2",
+            "2"
+          ],
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "C5",
+            "1"
+          ],
+          [
+            "C4",
+            "1"
+          ],
+          [
+            "C3",
+            "1"
+          ],
+          [
+            "L1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "sw",
+        "nodes": [
+          [
+            "L1",
+            "1"
+          ],
+          [
+            "U1",
+            "2"
+          ],
+          [
+            "C2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "fb",
+        "nodes": [
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "U1",
+            "4"
+          ],
+          [
+            "R1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "boot",
+        "nodes": [
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "U1",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "sclk",
+        "nodes": [
+          [
+            "U2",
+            "12"
+          ]
+        ]
+      },
+      {
+        "name": "miso",
+        "nodes": [
+          [
+            "U2",
+            "20"
+          ]
+        ]
+      },
+      {
+        "name": "mosi",
+        "nodes": [
+          [
+            "U2",
+            "19"
+          ]
+        ]
+      },
+      {
+        "name": "scl",
+        "nodes": [
+          [
+            "U2",
+            "32"
+          ],
+          [
+            "R6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "sda",
+        "nodes": [
+          [
+            "U2",
+            "31"
+          ],
+          [
+            "R5",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "tx",
+        "nodes": [
+          [
+            "U2",
+            "37"
+          ]
+        ]
+      },
+      {
+        "name": "rx",
+        "nodes": [
+          [
+            "U2",
+            "36"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-line",
+        "nodes": [
+          [
+            "U2",
+            "18"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference",
+        "nodes": []
+      },
+      {
+        "name": "mcu-line-1",
+        "nodes": [
+          [
+            "U2",
+            "17"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference-1",
+        "nodes": []
+      },
+      {
+        "name": "mcu-line-2",
+        "nodes": [
+          [
+            "U2",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference-2",
+        "nodes": []
+      },
+      {
+        "name": "mcu-line-3",
+        "nodes": [
+          [
+            "U2",
+            "9"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference-3",
+        "nodes": []
+      },
+      {
+        "name": "mcu-line-4",
+        "nodes": [
+          [
+            "U2",
+            "24"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference-4",
+        "nodes": []
+      },
+      {
+        "name": "mcu-line-5",
+        "nodes": [
+          [
+            "U2",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference-5",
+        "nodes": []
+      },
+      {
+        "name": "mcu-line-6",
+        "nodes": [
+          [
+            "U2",
+            "22"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference-6",
+        "nodes": []
+      },
+      {
+        "name": "mcu-line-7",
+        "nodes": [
+          [
+            "U2",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference-7",
+        "nodes": []
+      },
+      {
+        "name": "mcu-line-8",
+        "nodes": [
+          [
+            "U2",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "mcu-reference-8",
+        "nodes": []
+      },
+      {
+        "name": "pwm_h",
+        "nodes": [
+          [
+            "U2",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "pwm_l",
+        "nodes": [
+          [
+            "U2",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "adc_i_sense_stub",
+        "nodes": [
+          [
+            "U2",
+            "39"
+          ]
+        ]
+      },
+      {
+        "name": "adc_v_bus_stub",
+        "nodes": [
+          [
+            "U2",
+            "38"
+          ]
+        ]
+      },
+      {
+        "name": "adc_ntc_stub",
+        "nodes": [
+          [
+            "U2",
+            "15"
+          ]
+        ]
+      },
+      {
+        "name": "usb_dn",
+        "nodes": [
+          [
+            "U2",
+            "13"
+          ]
+        ]
+      },
+      {
+        "name": "usb_dp",
+        "nodes": [
+          [
+            "U2",
+            "14"
+          ]
+        ]
+      },
+      {
+        "name": "gpio18",
+        "nodes": [
+          [
+            "U2",
+            "11"
+          ]
+        ]
+      },
+      {
+        "name": "gpio21",
+        "nodes": [
+          [
+            "U2",
+            "23"
+          ]
+        ]
+      },
+      {
+        "name": "gpio35",
+        "nodes": [
+          [
+            "U2",
+            "28"
+          ]
+        ]
+      },
+      {
+        "name": "gpio36",
+        "nodes": [
+          [
+            "U2",
+            "29"
+          ]
+        ]
+      },
+      {
+        "name": "gpio37",
+        "nodes": [
+          [
+            "U2",
+            "30"
+          ]
+        ]
+      },
+      {
+        "name": "en",
+        "nodes": [
+          [
+            "C8",
+            "1"
+          ],
+          [
+            "U2",
+            "3"
+          ],
+          [
+            "R3",
+            "2"
+          ],
+          [
+            "SW1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "io0",
+        "nodes": [
+          [
+            "U2",
+            "27"
+          ],
+          [
+            "R4",
+            "2"
+          ],
+          [
+            "SW2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "io13",
+        "nodes": [
+          [
+            "U2",
+            "21"
+          ]
+        ]
+      },
+      {
+        "name": "io40",
+        "nodes": [
+          [
+            "U2",
+            "33"
+          ]
+        ]
+      },
+      {
+        "name": "io41",
+        "nodes": [
+          [
+            "U2",
+            "34"
+          ]
+        ]
+      },
+      {
+        "name": "io42",
+        "nodes": [
+          [
+            "U2",
+            "35"
+          ]
+        ]
+      },
+      {
+        "name": "io45",
+        "nodes": [
+          [
+            "U2",
+            "26"
+          ]
+        ]
+      },
+      {
+        "name": "io46",
+        "nodes": [
+          [
+            "U2",
+            "16"
+          ]
+        ]
+      },
+      {
+        "name": "io48",
+        "nodes": [
+          [
+            "U2",
+            "25"
+          ]
+        ]
+      }
+    ]
+  },
+  "build": {
+    "bom_sha256": "45d0ddeda89b83b53d9116e1c6cd8fdf2158799c081ef70b5d886ea19833a403",
+    "failed_present": false,
+    "netlist_sha256": "05c0fbb0ed2bdeaff4c6368019126dbeba9d5dd4cf458a4f1f71f89774237aa5",
+    "returncode": 0,
+    "stdout_sha256": "b56b927a64b45ad4d9dabe075eea2504a7ccf92fc5d28eae9a4bcf05b5e5ae69"
+  },
+  "entry": "control-assembly.ato:ControlAssemblyCandidate",
+  "netlist_text": "(export (version \"E\")\n  (design\n    (source \"unknown\")\n    (date \"\")\n    (tool \"atopile\"))\n  (components\n    (comp (ref \"U1\")\n      (value \"?\")\n      (footprint \"Package_TO_SOT_SMD:SOT-23-6\")\n      (libsource (lib \"lib\") (part \"LMR51430XDDCR\") (description \"elec/src/components.ato:LMR51430\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.buck\") (tstamps \"72d807a9-b4af-53e4-ef57-b01ae59d15cc\"))\n      (tstamps \"72d807a9-b4af-53e4-ef57-b01ae59d15cc\"))\n    (comp (ref \"C1\")\n      (value \"?\")\n      (footprint \"Capacitor_SMD:C_1210_3225Metric\")\n      (libsource (lib \"lib\") (part \"CL32B106KBJZW6E\") (description \"elec/src/components.ato:Capacitor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.c_in\") (tstamps \"0dea16b6-ef3b-7e24-ebfd-3ec6985bb284\"))\n      (tstamps \"0dea16b6-ef3b-7e24-ebfd-3ec6985bb284\"))\n    (comp (ref \"C3\")\n      (value \"?\")\n      (footprint \"Capacitor_SMD:C_1210_3225Metric\")\n      (libsource (lib \"lib\") (part \"CL32B106KBJZW6E\") (description \"elec/src/components.ato:Capacitor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.c_out1\") (tstamps \"90ad0ead-5da2-d460-6544-67c52ea470e3\"))\n      (tstamps \"90ad0ead-5da2-d460-6544-67c52ea470e3\"))\n    (comp (ref \"C4\")\n      (value \"?\")\n      (footprint \"Capacitor_SMD:C_1210_3225Metric\")\n      (libsource (lib \"lib\") (part \"CL32B106KBJZW6E\") (description \"elec/src/components.ato:Capacitor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.c_out2\") (tstamps \"37870026-4986-f542-9857-b02d3423f8a3\"))\n      (tstamps \"37870026-4986-f542-9857-b02d3423f8a3\"))\n    (comp (ref \"C2\")\n      (value \"?\")\n      (footprint \"Capacitor_SMD:C_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"C0603C104K5RACTU\") (description \"elec/src/components.ato:Capacitor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.c_boot\") (tstamps \"0225e93e-a8b3-7cc7-1cc1-8a71104c7722\"))\n      (tstamps \"0225e93e-a8b3-7cc7-1cc1-8a71104c7722\"))\n    (comp (ref \"C5\")\n      (value \"?\")\n      (footprint \"Capacitor_SMD:C_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"C0603C104K5RACTU\") (description \"elec/src/components.ato:Capacitor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.c_out_hf\") (tstamps \"0e709eae-6275-d6a7-c84e-2e1efc2017ec\"))\n      (tstamps \"0e709eae-6275-d6a7-c84e-2e1efc2017ec\"))\n    (comp (ref \"C6\")\n      (value \"?\")\n      (footprint \"Capacitor_SMD:C_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"C0603C104K5RACTU\") (description \"elec/src/components.ato:Capacitor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.c_vcc1\") (tstamps \"1bd3beaa-0a49-1cee-0602-e4125d167e8f\"))\n      (tstamps \"1bd3beaa-0a49-1cee-0602-e4125d167e8f\"))\n    (comp (ref \"C8\")\n      (value \"?\")\n      (footprint \"Capacitor_SMD:C_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"C0603C104K5RACTU\") (description \"elec/src/components.ato:Capacitor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.c_en\") (tstamps \"73fec446-f73c-3517-1c92-7cc255e339da\"))\n      (tstamps \"73fec446-f73c-3517-1c92-7cc255e339da\"))\n    (comp (ref \"L1\")\n      (value \"?\")\n      (footprint \"Inductor_SMD:L_Bourns_SRP1265A\")\n      (libsource (lib \"lib\") (part \"SRP1265A-5R6M\") (description \"elec/src/components.ato:Inductor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.l_out\") (tstamps \"484c34cf-404d-775f-c531-dc4b22d9886e\"))\n      (tstamps \"484c34cf-404d-775f-c531-dc4b22d9886e\"))\n    (comp (ref \"R1\")\n      (value \"?\")\n      (footprint \"Resistor_SMD:R_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"RC0603FR-07100KL\") (description \"elec/src/components.ato:Resistor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.r_fb_top\") (tstamps \"662be7e7-d13d-bc3c-27a4-34d8bdce1117\"))\n      (tstamps \"662be7e7-d13d-bc3c-27a4-34d8bdce1117\"))\n    (comp (ref \"R2\")\n      (value \"?\")\n      (footprint \"Resistor_SMD:R_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"RC0603FR-07100KL\") (description \"elec/src/components.ato:Resistor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::buck.r_fb_bot\") (tstamps \"f733d812-fd9d-d5be-8385-defb4c5e7c42\"))\n      (tstamps \"f733d812-fd9d-d5be-8385-defb4c5e7c42\"))\n    (comp (ref \"R3\")\n      (value \"?\")\n      (footprint \"Resistor_SMD:R_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"RC0603FR-07100KL\") (description \"elec/src/components.ato:Resistor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.r_en\") (tstamps \"9988b738-3aa7-f45d-0428-21e1312cb042\"))\n      (tstamps \"9988b738-3aa7-f45d-0428-21e1312cb042\"))\n    (comp (ref \"R4\")\n      (value \"?\")\n      (footprint \"Resistor_SMD:R_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"RC0603FR-07100KL\") (description \"elec/src/components.ato:Resistor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.r_boot\") (tstamps \"60317d9d-7af6-869b-f8f3-c65ebc2a50fc\"))\n      (tstamps \"60317d9d-7af6-869b-f8f3-c65ebc2a50fc\"))\n    (comp (ref \"SW1\")\n      (value \"?\")\n      (footprint \"Resistor_SMD:R_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"RC0603FR-07100KL\") (description \"elec/src/components.ato:Resistor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.btn_reset\") (tstamps \"791ad33b-8fae-ac0c-842c-cdd06807c7c2\"))\n      (tstamps \"791ad33b-8fae-ac0c-842c-cdd06807c7c2\"))\n    (comp (ref \"SW2\")\n      (value \"?\")\n      (footprint \"Resistor_SMD:R_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"RC0603FR-07100KL\") (description \"elec/src/components.ato:Resistor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.btn_boot\") (tstamps \"341d646e-14a5-c3a2-a717-eef1100dccdf\"))\n      (tstamps \"341d646e-14a5-c3a2-a717-eef1100dccdf\"))\n    (comp (ref \"R5\")\n      (value \"?\")\n      (footprint \"Resistor_SMD:R_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"RC0603FR-07100KL\") (description \"elec/src/components.ato:Resistor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.r_sda_pullup\") (tstamps \"57260647-d313-554c-52f4-c87fdf23838f\"))\n      (tstamps \"57260647-d313-554c-52f4-c87fdf23838f\"))\n    (comp (ref \"R6\")\n      (value \"?\")\n      (footprint \"Resistor_SMD:R_0603_1608Metric\")\n      (libsource (lib \"lib\") (part \"RC0603FR-07100KL\") (description \"elec/src/components.ato:Resistor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.r_scl_pullup\") (tstamps \"77db0e1b-22a5-4161-d776-854da116fb4f\"))\n      (tstamps \"77db0e1b-22a5-4161-d776-854da116fb4f\"))\n    (comp (ref \"U2\")\n      (value \"?\")\n      (footprint \"lib:ESP32-S3-WROOM-1\")\n      (libsource (lib \"lib\") (part \"ESP32-S3-WROOM-1-N8R8\") (description \"elec/src/components.ato:ESP32_S3_WROOM_1\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.mcu\") (tstamps \"e99f58d0-a885-3bab-2ef1-d4f9b08253c5\"))\n      (tstamps \"e99f58d0-a885-3bab-2ef1-d4f9b08253c5\"))\n    (comp (ref \"C7\")\n      (value \"?\")\n      (footprint \"Capacitor_SMD:C_0805_2012Metric\")\n      (libsource (lib \"lib\") (part \"GRM21BR71A106KE51L\") (description \"elec/src/components.ato:Capacitor\"))\n      (sheetpath (names \"/private/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/p3-assembly-fmoybm_u/assembly-ws/control-assembly.ato:ControlAssemblyCandidate::mcu.c_vcc2\") (tstamps \"6c3f116e-8c85-3313-6c8f-d29a843e7651\"))\n      (tstamps \"6c3f116e-8c85-3313-6c8f-d29a843e7651\")))\n  (libparts\n    (libpart (lib \"lib\") (part \"LMR51430XDDCR\")\n      (description \"elec/src/components.ato:LMR51430\")\n      (docs \"~\")\n      (footprints\n        (fp \"*\"))\n      (pins\n        (pin (num \"1\") (name \"1\") (type \"stereo\"))\n        (pin (num \"2\") (name \"2\") (type \"stereo\"))\n        (pin (num \"3\") (name \"3\") (type \"stereo\"))\n        (pin (num \"4\") (name \"4\") (type \"stereo\"))\n        (pin (num \"5\") (name \"5\") (type \"stereo\"))\n        (pin (num \"6\") (name \"6\") (type \"stereo\"))))\n    (libpart (lib \"lib\") (part \"CL32B106KBJZW6E\")\n      (description \"elec/src/components.ato:Capacitor\")\n      (docs \"~\")\n      (footprints\n        (fp \"*\"))\n      (pins\n        (pin (num \"1\") (name \"1\") (type \"stereo\"))\n        (pin (num \"2\") (name \"2\") (type \"stereo\"))))\n    (libpart (lib \"lib\") (part \"C0603C104K5RACTU\")\n      (description \"elec/src/components.ato:Capacitor\")\n      (docs \"~\")\n      (footprints\n        (fp \"*\"))\n      (pins\n        (pin (num \"1\") (name \"1\") (type \"stereo\"))\n        (pin (num \"2\") (name \"2\") (type \"stereo\"))))\n    (libpart (lib \"lib\") (part \"SRP1265A-5R6M\")\n      (description \"elec/src/components.ato:Inductor\")\n      (docs \"~\")\n      (footprints\n        (fp \"*\"))\n      (pins\n        (pin (num \"1\") (name \"1\") (type \"stereo\"))\n        (pin (num \"2\") (name \"2\") (type \"stereo\"))))\n    (libpart (lib \"lib\") (part \"RC0603FR-07100KL\")\n      (description \"elec/src/components.ato:Resistor\")\n      (docs \"~\")\n      (footprints\n        (fp \"*\"))\n      (pins\n        (pin (num \"1\") (name \"1\") (type \"stereo\"))\n        (pin (num \"2\") (name \"2\") (type \"stereo\"))))\n    (libpart (lib \"lib\") (part \"ESP32-S3-WROOM-1-N8R8\")\n      (description \"elec/src/components.ato:ESP32_S3_WROOM_1\")\n      (docs \"~\")\n      (footprints\n        (fp \"*\"))\n      (pins\n        (pin (num \"1\") (name \"1\") (type \"stereo\"))\n        (pin (num \"2\") (name \"2\") (type \"stereo\"))\n        (pin (num \"12\") (name \"12\") (type \"stereo\"))\n        (pin (num \"18\") (name \"18\") (type \"stereo\"))\n        (pin (num \"19\") (name \"19\") (type \"stereo\"))\n        (pin (num \"20\") (name \"20\") (type \"stereo\"))\n        (pin (num \"9\") (name \"9\") (type \"stereo\"))\n        (pin (num \"10\") (name \"10\") (type \"stereo\"))\n        (pin (num \"39\") (name \"39\") (type \"stereo\"))\n        (pin (num \"38\") (name \"38\") (type \"stereo\"))\n        (pin (num \"15\") (name \"15\") (type \"stereo\"))\n        (pin (num \"11\") (name \"11\") (type \"stereo\"))\n        (pin (num \"13\") (name \"13\") (type \"stereo\"))\n        (pin (num \"14\") (name \"14\") (type \"stereo\"))\n        (pin (num \"37\") (name \"37\") (type \"stereo\"))\n        (pin (num \"36\") (name \"36\") (type \"stereo\"))\n        (pin (num \"23\") (name \"23\") (type \"stereo\"))\n        (pin (num \"28\") (name \"28\") (type \"stereo\"))\n        (pin (num \"29\") (name \"29\") (type \"stereo\"))\n        (pin (num \"30\") (name \"30\") (type \"stereo\"))\n        (pin (num \"4\") (name \"4\") (type \"stereo\"))\n        (pin (num \"5\") (name \"5\") (type \"stereo\"))\n        (pin (num \"3\") (name \"3\") (type \"stereo\"))\n        (pin (num \"27\") (name \"27\") (type \"stereo\"))\n        (pin (num \"6\") (name \"6\") (type \"stereo\"))\n        (pin (num \"7\") (name \"7\") (type \"stereo\"))\n        (pin (num \"17\") (name \"17\") (type \"stereo\"))\n        (pin (num \"21\") (name \"21\") (type \"stereo\"))\n        (pin (num \"22\") (name \"22\") (type \"stereo\"))\n        (pin (num \"8\") (name \"8\") (type \"stereo\"))\n        (pin (num \"31\") (name \"31\") (type \"stereo\"))\n        (pin (num \"32\") (name \"32\") (type \"stereo\"))\n        (pin (num \"33\") (name \"33\") (type \"stereo\"))\n        (pin (num \"34\") (name \"34\") (type \"stereo\"))\n        (pin (num \"35\") (name \"35\") (type \"stereo\"))\n        (pin (num \"26\") (name \"26\") (type \"stereo\"))\n        (pin (num \"16\") (name \"16\") (type \"stereo\"))\n        (pin (num \"24\") (name \"24\") (type \"stereo\"))\n        (pin (num \"25\") (name \"25\") (type \"stereo\"))))\n    (libpart (lib \"lib\") (part \"GRM21BR71A106KE51L\")\n      (description \"elec/src/components.ato:Capacitor\")\n      (docs \"~\")\n      (footprints\n        (fp \"*\"))\n      (pins\n        (pin (num \"1\") (name \"1\") (type \"stereo\"))\n        (pin (num \"2\") (name \"2\") (type \"stereo\")))))\n  (nets\n    (net (code \"1\") (name \"buck-vcc\")\n      (node (ref \"U1\") (pin \"5\") (pintype \"stereo\"))\n      (node (ref \"C1\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"U1\") (pin \"3\") (pintype \"stereo\")))\n    (net (code \"2\") (name \"gnd\")\n      (node (ref \"U2\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"C6\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"C7\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"C8\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"SW1\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"SW2\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"C3\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"C4\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"C5\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"R2\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"C1\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"U1\") (pin \"1\") (pintype \"stereo\")))\n    (net (code \"3\") (name \"buck-vcc-1\")\n      (node (ref \"R6\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"R5\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"R4\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"R3\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"C7\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"C6\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"U2\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"R1\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"C5\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"C4\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"C3\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"L1\") (pin \"2\") (pintype \"stereo\")))\n    (net (code \"4\") (name \"sw\")\n      (node (ref \"L1\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"U1\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"C2\") (pin \"2\") (pintype \"stereo\")))\n    (net (code \"5\") (name \"fb\")\n      (node (ref \"R2\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"U1\") (pin \"4\") (pintype \"stereo\"))\n      (node (ref \"R1\") (pin \"2\") (pintype \"stereo\")))\n    (net (code \"6\") (name \"boot\")\n      (node (ref \"C2\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"U1\") (pin \"6\") (pintype \"stereo\")))\n    (net (code \"7\") (name \"sclk\")\n      (node (ref \"U2\") (pin \"12\") (pintype \"stereo\")))\n    (net (code \"8\") (name \"miso\")\n      (node (ref \"U2\") (pin \"20\") (pintype \"stereo\")))\n    (net (code \"9\") (name \"mosi\")\n      (node (ref \"U2\") (pin \"19\") (pintype \"stereo\")))\n    (net (code \"10\") (name \"scl\")\n      (node (ref \"U2\") (pin \"32\") (pintype \"stereo\"))\n      (node (ref \"R6\") (pin \"2\") (pintype \"stereo\")))\n    (net (code \"11\") (name \"sda\")\n      (node (ref \"U2\") (pin \"31\") (pintype \"stereo\"))\n      (node (ref \"R5\") (pin \"2\") (pintype \"stereo\")))\n    (net (code \"12\") (name \"tx\")\n      (node (ref \"U2\") (pin \"37\") (pintype \"stereo\")))\n    (net (code \"13\") (name \"rx\")\n      (node (ref \"U2\") (pin \"36\") (pintype \"stereo\")))\n    (net (code \"14\") (name \"mcu-line\")\n      (node (ref \"U2\") (pin \"18\") (pintype \"stereo\")))\n    (net (code \"15\") (name \"mcu-reference\"))\n    (net (code \"16\") (name \"mcu-line-1\")\n      (node (ref \"U2\") (pin \"17\") (pintype \"stereo\")))\n    (net (code \"17\") (name \"mcu-reference-1\"))\n    (net (code \"18\") (name \"mcu-line-2\")\n      (node (ref \"U2\") (pin \"7\") (pintype \"stereo\")))\n    (net (code \"19\") (name \"mcu-reference-2\"))\n    (net (code \"20\") (name \"mcu-line-3\")\n      (node (ref \"U2\") (pin \"9\") (pintype \"stereo\")))\n    (net (code \"21\") (name \"mcu-reference-3\"))\n    (net (code \"22\") (name \"mcu-line-4\")\n      (node (ref \"U2\") (pin \"24\") (pintype \"stereo\")))\n    (net (code \"23\") (name \"mcu-reference-4\"))\n    (net (code \"24\") (name \"mcu-line-5\")\n      (node (ref \"U2\") (pin \"10\") (pintype \"stereo\")))\n    (net (code \"25\") (name \"mcu-reference-5\"))\n    (net (code \"26\") (name \"mcu-line-6\")\n      (node (ref \"U2\") (pin \"22\") (pintype \"stereo\")))\n    (net (code \"27\") (name \"mcu-reference-6\"))\n    (net (code \"28\") (name \"mcu-line-7\")\n      (node (ref \"U2\") (pin \"6\") (pintype \"stereo\")))\n    (net (code \"29\") (name \"mcu-reference-7\"))\n    (net (code \"30\") (name \"mcu-line-8\")\n      (node (ref \"U2\") (pin \"8\") (pintype \"stereo\")))\n    (net (code \"31\") (name \"mcu-reference-8\"))\n    (net (code \"32\") (name \"pwm_h\")\n      (node (ref \"U2\") (pin \"4\") (pintype \"stereo\")))\n    (net (code \"33\") (name \"pwm_l\")\n      (node (ref \"U2\") (pin \"5\") (pintype \"stereo\")))\n    (net (code \"34\") (name \"adc_i_sense_stub\")\n      (node (ref \"U2\") (pin \"39\") (pintype \"stereo\")))\n    (net (code \"35\") (name \"adc_v_bus_stub\")\n      (node (ref \"U2\") (pin \"38\") (pintype \"stereo\")))\n    (net (code \"36\") (name \"adc_ntc_stub\")\n      (node (ref \"U2\") (pin \"15\") (pintype \"stereo\")))\n    (net (code \"37\") (name \"usb_dn\")\n      (node (ref \"U2\") (pin \"13\") (pintype \"stereo\")))\n    (net (code \"38\") (name \"usb_dp\")\n      (node (ref \"U2\") (pin \"14\") (pintype \"stereo\")))\n    (net (code \"39\") (name \"gpio18\")\n      (node (ref \"U2\") (pin \"11\") (pintype \"stereo\")))\n    (net (code \"40\") (name \"gpio21\")\n      (node (ref \"U2\") (pin \"23\") (pintype \"stereo\")))\n    (net (code \"41\") (name \"gpio35\")\n      (node (ref \"U2\") (pin \"28\") (pintype \"stereo\")))\n    (net (code \"42\") (name \"gpio36\")\n      (node (ref \"U2\") (pin \"29\") (pintype \"stereo\")))\n    (net (code \"43\") (name \"gpio37\")\n      (node (ref \"U2\") (pin \"30\") (pintype \"stereo\")))\n    (net (code \"44\") (name \"en\")\n      (node (ref \"C8\") (pin \"1\") (pintype \"stereo\"))\n      (node (ref \"U2\") (pin \"3\") (pintype \"stereo\"))\n      (node (ref \"R3\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"SW1\") (pin \"1\") (pintype \"stereo\")))\n    (net (code \"45\") (name \"io0\")\n      (node (ref \"U2\") (pin \"27\") (pintype \"stereo\"))\n      (node (ref \"R4\") (pin \"2\") (pintype \"stereo\"))\n      (node (ref \"SW2\") (pin \"1\") (pintype \"stereo\")))\n    (net (code \"46\") (name \"io13\")\n      (node (ref \"U2\") (pin \"21\") (pintype \"stereo\")))\n    (net (code \"47\") (name \"io40\")\n      (node (ref \"U2\") (pin \"33\") (pintype \"stereo\")))\n    (net (code \"48\") (name \"io41\")\n      (node (ref \"U2\") (pin \"34\") (pintype \"stereo\")))\n    (net (code \"49\") (name \"io42\")\n      (node (ref \"U2\") (pin \"35\") (pintype \"stereo\")))\n    (net (code \"50\") (name \"io45\")\n      (node (ref \"U2\") (pin \"26\") (pintype \"stereo\")))\n    (net (code \"51\") (name \"io46\")\n      (node (ref \"U2\") (pin \"16\") (pintype \"stereo\")))\n    (net (code \"52\") (name \"io48\")\n      (node (ref \"U2\") (pin \"25\") (pintype \"stereo\")))))\n",
+  "provenance": {
+    "recorded_workspace_hashes": {
+      "control-assembly.ato": "812cfe51c31a1519902d74c703dd9344ac68004310b5f849a06e7407a0bd0462",
+      "elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+      "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+      "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+      "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+      "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+      "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+      "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+      "elec/src/modules.ato": "6f14dba190b24f1c4dea5af8bb834e4a0ad23b00d62bd9115efaa9528a288b57"
+    }
+  },
+  "schema": "control-assembly.combined-bridge.v1",
+  "workspace_hashes": {
+    "control-assembly.ato": "812cfe51c31a1519902d74c703dd9344ac68004310b5f849a06e7407a0bd0462",
+    "elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+    "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+    "elec/src/modules.ato": "6f14dba190b24f1c4dea5af8bb834e4a0ad23b00d62bd9115efaa9528a288b57"
+  },
+  "wrapper": [
+    "harness-lab/blocks/control-assembly/control-assembly.ato",
+    "harness-lab/blocks/control-assembly/ato.yaml"
+  ]
+}

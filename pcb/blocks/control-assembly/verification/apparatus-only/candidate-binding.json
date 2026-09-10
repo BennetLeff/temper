@@ -1,0 +1,21 @@
+{
+  "production_board": {
+    "path": "pcb/temper.kicad_pcb",
+    "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+  },
+  "routed_candidate_board": {
+    "path": "pcb/blocks/control-assembly/verification/apparatus-only/control-assembly-routed.kicad_pcb",
+    "sha256": "09c6e46d6c35ad954df1989897945e018b4a80aa15d71ce8470a57c813e4e7c4"
+  },
+  "rule": "bind both artifact hashes and the comparison report in one manifest; a later edit invalidates the binding",
+  "schema": "control-assembly.candidate-binding.v1",
+  "source_package_board": {
+    "path": "pcb/blocks/control-assembly/assembly-candidate/control-assembly.kicad_pcb",
+    "sha256": "bde0b0055397e06c72cb8c6f5dbe4e6f30474af132616ea60eb4502c24d1649d"
+  },
+  "summary": {
+    "path": "pcb/blocks/control-assembly/verification/apparatus-only/summary.json",
+    "sha256": "e636d96c26f17e8296f00960f910398eb38a635c9fbcfdee23f7b3edab11549b"
+  },
+  "verdict": "apparatus-only; not a qualified cooker"
+}

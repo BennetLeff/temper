@@ -1,0 +1,609 @@
+{
+  "board": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/pcb/blocks/control-assembly/verification/apparatus-only/control-assembly-routed.kicad_pcb",
+  "kicad_version": "10.0.4",
+  "nets": {
+    "adc_i_sense_stub": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.39"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.39"
+      ]
+    },
+    "adc_ntc_stub": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.15"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.15"
+      ]
+    },
+    "adc_v_bus_stub": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.38"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.38"
+      ]
+    },
+    "boot": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C2.1",
+          "U1.6"
+        ]
+      ],
+      "pad_count": 2,
+      "pads": [
+        "C2.1",
+        "U1.6"
+      ]
+    },
+    "buck-vcc": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C1.1",
+          "U1.3",
+          "U1.5"
+        ]
+      ],
+      "pad_count": 3,
+      "pads": [
+        "C1.1",
+        "U1.3",
+        "U1.5"
+      ]
+    },
+    "buck-vcc-1": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C3.1",
+          "C4.1",
+          "C5.1",
+          "C6.1",
+          "C7.1",
+          "L1.2",
+          "R1.1",
+          "R3.1",
+          "R4.1",
+          "R5.1",
+          "R6.1",
+          "U2.2"
+        ]
+      ],
+      "pad_count": 12,
+      "pads": [
+        "C3.1",
+        "C4.1",
+        "C5.1",
+        "C6.1",
+        "C7.1",
+        "L1.2",
+        "R1.1",
+        "R3.1",
+        "R4.1",
+        "R5.1",
+        "R6.1",
+        "U2.2"
+      ]
+    },
+    "en": {
+      "cluster_count": 4,
+      "clusters": [
+        [
+          "C8.1"
+        ],
+        [
+          "R3.2"
+        ],
+        [
+          "SW1.1"
+        ],
+        [
+          "U2.3"
+        ]
+      ],
+      "pad_count": 4,
+      "pads": [
+        "C8.1",
+        "R3.2",
+        "SW1.1",
+        "U2.3"
+      ]
+    },
+    "fb": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "R1.2",
+          "R2.1",
+          "U1.4"
+        ]
+      ],
+      "pad_count": 3,
+      "pads": [
+        "R1.2",
+        "R2.1",
+        "U1.4"
+      ]
+    },
+    "gnd": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C1.2",
+          "C3.2",
+          "C4.2",
+          "C5.2",
+          "C6.2",
+          "C7.2",
+          "C8.2",
+          "R2.2",
+          "SW1.2",
+          "SW2.2",
+          "U1.1",
+          "U2.1"
+        ]
+      ],
+      "pad_count": 12,
+      "pads": [
+        "C1.2",
+        "C3.2",
+        "C4.2",
+        "C5.2",
+        "C6.2",
+        "C7.2",
+        "C8.2",
+        "R2.2",
+        "SW1.2",
+        "SW2.2",
+        "U1.1",
+        "U2.1"
+      ]
+    },
+    "gpio18": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.11"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.11"
+      ]
+    },
+    "gpio21": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.23"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.23"
+      ]
+    },
+    "gpio35": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.28"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.28"
+      ]
+    },
+    "gpio36": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.29"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.29"
+      ]
+    },
+    "gpio37": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.30"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.30"
+      ]
+    },
+    "io0": {
+      "cluster_count": 3,
+      "clusters": [
+        [
+          "R4.2"
+        ],
+        [
+          "SW2.1"
+        ],
+        [
+          "U2.27"
+        ]
+      ],
+      "pad_count": 3,
+      "pads": [
+        "R4.2",
+        "SW2.1",
+        "U2.27"
+      ]
+    },
+    "io13": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.21"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.21"
+      ]
+    },
+    "io40": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.33"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.33"
+      ]
+    },
+    "io41": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.34"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.34"
+      ]
+    },
+    "io42": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.35"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.35"
+      ]
+    },
+    "io45": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.26"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.26"
+      ]
+    },
+    "io46": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.16"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.16"
+      ]
+    },
+    "io48": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.25"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.25"
+      ]
+    },
+    "mcu-line": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.18"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.18"
+      ]
+    },
+    "mcu-line-1": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.17"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.17"
+      ]
+    },
+    "mcu-line-2": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.7"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.7"
+      ]
+    },
+    "mcu-line-3": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.9"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.9"
+      ]
+    },
+    "mcu-line-4": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.24"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.24"
+      ]
+    },
+    "mcu-line-5": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.10"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.10"
+      ]
+    },
+    "mcu-line-6": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.22"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.22"
+      ]
+    },
+    "mcu-line-7": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.6"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.6"
+      ]
+    },
+    "mcu-line-8": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.8"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.8"
+      ]
+    },
+    "miso": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.20"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.20"
+      ]
+    },
+    "mosi": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.19"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.19"
+      ]
+    },
+    "pwm_h": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.4"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.4"
+      ]
+    },
+    "pwm_l": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.5"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.5"
+      ]
+    },
+    "rx": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.36"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.36"
+      ]
+    },
+    "scl": {
+      "cluster_count": 2,
+      "clusters": [
+        [
+          "R6.2"
+        ],
+        [
+          "U2.32"
+        ]
+      ],
+      "pad_count": 2,
+      "pads": [
+        "R6.2",
+        "U2.32"
+      ]
+    },
+    "sclk": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.12"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.12"
+      ]
+    },
+    "sda": {
+      "cluster_count": 2,
+      "clusters": [
+        [
+          "R5.2"
+        ],
+        [
+          "U2.31"
+        ]
+      ],
+      "pad_count": 2,
+      "pads": [
+        "R5.2",
+        "U2.31"
+      ]
+    },
+    "sw": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C2.2",
+          "L1.1",
+          "U1.2"
+        ]
+      ],
+      "pad_count": 3,
+      "pads": [
+        "C2.2",
+        "L1.1",
+        "U1.2"
+      ]
+    },
+    "tx": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.37"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.37"
+      ]
+    },
+    "usb_dn": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.13"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.13"
+      ]
+    },
+    "usb_dp": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "U2.14"
+        ]
+      ],
+      "pad_count": 1,
+      "pads": [
+        "U2.14"
+      ]
+    }
+  },
+  "schema": "control-assembly.connectivity.v1"
+}

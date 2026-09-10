@@ -1,0 +1,35 @@
+{
+  "blocker": "live model transport blocked (Zen HTTP 429)",
+  "combined_bridge": {
+    "atopile_pinned": "0.2.69",
+    "bom_sha256": "45d0ddeda89b83b53d9116e1c6cd8fdf2158799c081ef70b5d886ea19833a403",
+    "netlist_sha256": "05c0fbb0ed2bdeaff4c6368019126dbeba9d5dd4cf458a4f1f71f89774237aa5"
+  },
+  "counts": {
+    "buck_imported_segments": 50,
+    "buck_imported_vias": 10,
+    "functional_instances": 19,
+    "prototype_fixture_copper_removed": 5,
+    "shared_copper_cuts": 3
+  },
+  "hashes": {
+    "control-assembly.kicad_pcb": "bde0b0055397e06c72cb8c6f5dbe4e6f30474af132616ea60eb4502c24d1649d",
+    "cross-view-scaffold.json": "607df278313bd54a4168217d011ed1e510f852287b047c6ce46a342235be0acb",
+    "layer-map.json": "a6ab659521084a219168285c6700be6dde79671bb6dd2ba4c8a011786ddd1b67",
+    "mcu-placement-revision.json": "80e7c11a8aa91fdab0d5a9f5fb42336371672f25a33982fd696649babbb97ff3",
+    "owned-region-guard.json": "ff1fe2e6fa654f5bac471c2521d2990e20fa2efa570fb5cd0463aa75bc781ded",
+    "prototype-exclusion.json": "940d2e7a42ea740467eaec1d3ea1cc33b8990c896f20dd6b83c4e7aa631d6fca",
+    "replacement-ledger.json": "507fa66ff1052c94f6ea5cf97e100e808064f22f8b96dc1e987b8a3a6a5f15cd",
+    "source-map.json": "c6c8fa7d9cc8e7da2e993172b25ba11cd2d2f933c1451c18ef424fa392e49758",
+    "via-recreation.json": "3a7e7d222116075f9d98e09b3125285a9295b9539d701cd3dd69565c379e5b7c"
+  },
+  "live_model": false,
+  "milestone": "docs/plans/2026-09-10-1322-feat-buck-mcu-composition-plan.md#U2",
+  "planted": {
+    "buck_source": "pcb/prototypes/buck-reva/buck-reva.kicad_pcb (functional nine, rigid translate)",
+    "combined_source": "harness-lab/blocks/control-assembly/control-assembly.ato",
+    "mcu_source": "pcb/blocks/mcu/ (P1 U4 accepted package staged geometry)"
+  },
+  "schema": "control-assembly.candidate-index.v1",
+  "status": "apparatus-only-assisted"
+}

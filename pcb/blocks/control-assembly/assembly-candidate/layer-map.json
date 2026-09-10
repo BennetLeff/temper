@@ -1,0 +1,222 @@
+{
+  "mapping": {
+    "B.Cu": "B.Cu",
+    "F.Cu": "F.Cu"
+  },
+  "physical_copper_order": [
+    "F.Cu",
+    "In3.Cu",
+    "In1.Cu",
+    "In2.Cu",
+    "In4.Cu",
+    "B.Cu"
+  ],
+  "records": [
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "F.Cu",
+      "target": "F.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    },
+    {
+      "source": "B.Cu",
+      "target": "B.Cu"
+    }
+  ],
+  "rejected_not_dropped": "any prototype copper layer outside F.Cu/B.Cu raises",
+  "schema": "control-assembly.layer-map.v1",
+  "target_outer_pair": [
+    "F.Cu",
+    "B.Cu"
+  ]
+}

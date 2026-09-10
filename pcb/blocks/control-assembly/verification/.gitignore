@@ -1,0 +1,6 @@
+# Generated KiCad runtime config and local session files captured during
+# native DRC/ERC runs. They are instrument noise, not evidence: the reports,
+# the candidate binding and the routed board are the committed artifacts.
+kicad-config/
+*.lck
+*.kicad_prl

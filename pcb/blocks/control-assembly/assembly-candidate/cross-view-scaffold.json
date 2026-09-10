@@ -1,0 +1,15 @@
+{
+  "categories": [
+    "pads",
+    "tracks",
+    "vias",
+    "zones",
+    "endpoints"
+  ],
+  "context_dependent_zones": "intentionally context-dependent zone fills must be listed and dispositioned with connectivity evidence, never silently excused",
+  "rule": "after routing/refill, extract the owned section from both views and compare canonical source identities, transformed pad geometry, tracks/vias/zones and interface endpoints in target coordinates; a difference in only one view fails (plan U3 scenario 7)",
+  "views": {
+    "assembly": "pcb/blocks/control-assembly/assembly-candidate/control-assembly.kicad_pcb",
+    "overlay": "scratch full-board overlay (production board + section); not yet produced"
+  }
+}

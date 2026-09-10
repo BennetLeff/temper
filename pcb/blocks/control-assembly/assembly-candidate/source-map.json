@@ -1,0 +1,132 @@
+{
+  "combined_ref_by_path": {
+    "buck.buck": "U1",
+    "buck.c_boot": "C2",
+    "buck.c_in": "C1",
+    "buck.c_out1": "C3",
+    "buck.c_out2": "C4",
+    "buck.c_out_hf": "C5",
+    "buck.l_out": "L1",
+    "buck.r_fb_bot": "R2",
+    "buck.r_fb_top": "R1",
+    "mcu.btn_boot": "SW2",
+    "mcu.btn_reset": "SW1",
+    "mcu.c_en": "C8",
+    "mcu.c_vcc1": "C6",
+    "mcu.c_vcc2": "C7",
+    "mcu.mcu": "U2",
+    "mcu.r_boot": "R4",
+    "mcu.r_en": "R3",
+    "mcu.r_scl_pullup": "R6",
+    "mcu.r_sda_pullup": "R5"
+  },
+  "entries": {
+    "buck.buck": {
+      "block": "buck",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "reference": "U1"
+    },
+    "buck.c_boot": {
+      "block": "buck",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "reference": "C2"
+    },
+    "buck.c_in": {
+      "block": "buck",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "reference": "C1"
+    },
+    "buck.c_out1": {
+      "block": "buck",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "reference": "C3"
+    },
+    "buck.c_out2": {
+      "block": "buck",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "reference": "C4"
+    },
+    "buck.c_out_hf": {
+      "block": "buck",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "reference": "C5"
+    },
+    "buck.l_out": {
+      "block": "buck",
+      "footprint": "Inductor_SMD:L_Bourns_SRP1265A",
+      "reference": "L1"
+    },
+    "buck.r_fb_bot": {
+      "block": "buck",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "reference": "R2"
+    },
+    "buck.r_fb_top": {
+      "block": "buck",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "reference": "R1"
+    },
+    "mcu.btn_boot": {
+      "block": "mcu",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "packaged_ref": "SW2",
+      "reference": "SW2"
+    },
+    "mcu.btn_reset": {
+      "block": "mcu",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "packaged_ref": "SW1",
+      "reference": "SW1"
+    },
+    "mcu.c_en": {
+      "block": "mcu",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "packaged_ref": "C3",
+      "reference": "C8"
+    },
+    "mcu.c_vcc1": {
+      "block": "mcu",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "packaged_ref": "C1",
+      "reference": "C6"
+    },
+    "mcu.c_vcc2": {
+      "block": "mcu",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "packaged_ref": "C2",
+      "reference": "C7"
+    },
+    "mcu.mcu": {
+      "block": "mcu",
+      "footprint": "lib:ESP32-S3-WROOM-1",
+      "packaged_ref": "U1",
+      "reference": "U2"
+    },
+    "mcu.r_boot": {
+      "block": "mcu",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "packaged_ref": "R2",
+      "reference": "R4"
+    },
+    "mcu.r_en": {
+      "block": "mcu",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "packaged_ref": "R1",
+      "reference": "R3"
+    },
+    "mcu.r_scl_pullup": {
+      "block": "mcu",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "packaged_ref": "R4",
+      "reference": "R6"
+    },
+    "mcu.r_sda_pullup": {
+      "block": "mcu",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "packaged_ref": "R3",
+      "reference": "R5"
+    }
+  },
+  "rule": "keyed by canonical combined-wrapper instance path; refdes renumbering preserved",
+  "schema": "control-assembly.source-map.v1"
+}

@@ -1,0 +1,119 @@
+{
+  "records": [
+    {
+      "envelope": "buck_block",
+      "reference": "C1",
+      "x_mm": 115.0,
+      "y_mm": 143.0
+    },
+    {
+      "envelope": "buck_block",
+      "reference": "C2",
+      "x_mm": 115.0,
+      "y_mm": 151.0
+    },
+    {
+      "envelope": "buck_block",
+      "reference": "C3",
+      "x_mm": 137.0,
+      "y_mm": 143.0
+    },
+    {
+      "envelope": "buck_block",
+      "reference": "C4",
+      "x_mm": 137.0,
+      "y_mm": 151.0
+    },
+    {
+      "envelope": "buck_block",
+      "reference": "C5",
+      "x_mm": 137.0,
+      "y_mm": 147.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "C6",
+      "x_mm": 21.0,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "C7",
+      "x_mm": 24.5,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "C8",
+      "x_mm": 28.0,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "buck_block",
+      "reference": "L1",
+      "x_mm": 126.0,
+      "y_mm": 147.0
+    },
+    {
+      "envelope": "buck_block",
+      "reference": "R1",
+      "x_mm": 109.0,
+      "y_mm": 144.0
+    },
+    {
+      "envelope": "buck_block",
+      "reference": "R2",
+      "x_mm": 109.0,
+      "y_mm": 148.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "R3",
+      "x_mm": 31.5,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "R4",
+      "x_mm": 35.0,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "R5",
+      "x_mm": 38.5,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "R6",
+      "x_mm": 42.0,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "SW1",
+      "x_mm": 45.5,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "SW2",
+      "x_mm": 49.0,
+      "y_mm": 35.0
+    },
+    {
+      "envelope": "buck_block",
+      "reference": "U1",
+      "x_mm": 115.0,
+      "y_mm": 147.0
+    },
+    {
+      "envelope": "mcu_block",
+      "reference": "U2",
+      "x_mm": 35.0,
+      "y_mm": 50.0
+    }
+  ],
+  "rule": "every placed instance sits inside an owned reserved region"
+}

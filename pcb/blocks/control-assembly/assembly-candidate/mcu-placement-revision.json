@@ -1,0 +1,123 @@
+{
+  "revisions": [
+    {
+      "from_mm": [
+        21.0,
+        31.0
+      ],
+      "instance_path": "mcu.c_vcc1",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "C6",
+      "to_mm": [
+        21.0,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        28.0,
+        31.0
+      ],
+      "instance_path": "mcu.c_en",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "C8",
+      "to_mm": [
+        28.0,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        31.5,
+        31.0
+      ],
+      "instance_path": "mcu.r_en",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "R3",
+      "to_mm": [
+        31.5,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        35.0,
+        31.0
+      ],
+      "instance_path": "mcu.r_boot",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "R4",
+      "to_mm": [
+        35.0,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        45.5,
+        31.0
+      ],
+      "instance_path": "mcu.btn_reset",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "SW1",
+      "to_mm": [
+        45.5,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        49.0,
+        31.0
+      ],
+      "instance_path": "mcu.btn_boot",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "SW2",
+      "to_mm": [
+        49.0,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        38.5,
+        31.0
+      ],
+      "instance_path": "mcu.r_sda_pullup",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "R5",
+      "to_mm": [
+        38.5,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        42.0,
+        31.0
+      ],
+      "instance_path": "mcu.r_scl_pullup",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "R6",
+      "to_mm": [
+        42.0,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        24.5,
+        31.0
+      ],
+      "instance_path": "mcu.c_vcc2",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "C7",
+      "to_mm": [
+        24.5,
+        35.0
+      ]
+    }
+  ],
+  "rule": "placement only; source identity, footprint, and orientation preserved",
+  "schema": "control-assembly.mcu-placement-revision.v1"
+}

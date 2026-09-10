@@ -1,0 +1,138 @@
+{
+  "diameter_mm": 0.8,
+  "drill_mm": 0.4,
+  "schema": "control-assembly.via-recreation.v1",
+  "target_span": "F.Cu-B.Cu",
+  "vias": [
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        116.1375,
+        147.95
+      ],
+      "source_position_mm": [
+        21.1375,
+        20.95
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        138.475,
+        143.0
+      ],
+      "source_position_mm": [
+        43.475,
+        16.0
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        112.6,
+        147.0
+      ],
+      "source_position_mm": [
+        17.6,
+        20.0
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        108.175,
+        144.0
+      ],
+      "source_position_mm": [
+        13.175,
+        17.0
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        137.775,
+        147.0
+      ],
+      "source_position_mm": [
+        42.775,
+        20.0
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        115.0,
+        141.525
+      ],
+      "source_position_mm": [
+        20.0,
+        14.525
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        135.525,
+        143.0
+      ],
+      "source_position_mm": [
+        40.525,
+        16.0
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        115.0,
+        144.475
+      ],
+      "source_position_mm": [
+        20.0,
+        17.475
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        138.475,
+        151.0
+      ],
+      "source_position_mm": [
+        43.475,
+        24.0
+      ],
+      "span": "F.Cu-B.Cu"
+    },
+    {
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4,
+      "position_mm": [
+        108.175,
+        148.0
+      ],
+      "source_position_mm": [
+        13.175,
+        21.0
+      ],
+      "span": "F.Cu-B.Cu"
+    }
+  ]
+}

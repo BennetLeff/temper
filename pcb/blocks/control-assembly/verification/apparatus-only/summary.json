@@ -1,0 +1,498 @@
+{
+  "artifacts": {
+    "routed_board": "pcb/blocks/control-assembly/verification/apparatus-only/control-assembly-routed.kicad_pcb",
+    "routed_board_sha256": "09c6e46d6c35ad954df1989897945e018b4a80aa15d71ce8470a57c813e4e7c4",
+    "source_board_sha256": "bde0b0055397e06c72cb8c6f5dbe4e6f30474af132616ea60eb4502c24d1649d"
+  },
+  "checks": {
+    "antenna_keepout": {
+      "intrusions": [],
+      "status": "pass"
+    },
+    "inter_block": {
+      "problems": [],
+      "status": "pass"
+    },
+    "no_placeholder_leftover": {
+      "checked": [
+        "U27",
+        "U3",
+        "L2"
+      ],
+      "leftovers": [],
+      "status": "pass"
+    },
+    "power_width": {
+      "floor_mm": 0.6,
+      "narrow": [
+        {
+          "net": "fb",
+          "uuid": "044c7996-6e75-4056-9b1d-3c7f72460e9f",
+          "width_mm": 0.3
+        },
+        {
+          "net": "boot",
+          "uuid": "285b6543-ce0f-43f6-a85f-ce8b9a20a3da",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "3412741f-7996-4fb3-a47c-26f959807622",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "34b410d5-8abb-434a-8bf2-66f76947e903",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "383f092b-fef6-49fb-b688-ab48fb8b8388",
+          "width_mm": 0.3
+        },
+        {
+          "net": "boot",
+          "uuid": "4d450a14-14c2-4d3b-b533-0a4e20fe240c",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "506fcd81-fa55-4829-9855-1b39691c0af3",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "5f53a858-3902-4a7d-914f-6c8d6abec48a",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "66c1ccf0-fb59-4ddf-a812-bf92ae692b83",
+          "width_mm": 0.3
+        },
+        {
+          "net": "fb",
+          "uuid": "9a0bc6c2-4d12-449c-9d41-23590a33745c",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "b2e4b6e1-cda0-4071-a07d-cc2f00ef1719",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "b4d4aaa9-6d56-4559-8320-6bb5d1a1c2c3",
+          "width_mm": 0.3
+        },
+        {
+          "net": "fb",
+          "uuid": "c37891a8-8ad7-4c05-9c57-c5917285a128",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "c40d6f04-4766-4ba1-aeac-8f7de31d457a",
+          "width_mm": 0.3
+        },
+        {
+          "net": "fb",
+          "uuid": "d35b759b-fc15-4c8e-a4e2-cebefa90d341",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "d4e1de40-9f14-44de-8d60-3a0777cf7daa",
+          "width_mm": 0.3
+        },
+        {
+          "net": "fb",
+          "uuid": "e4574b80-bf4e-4317-9000-a15620371312",
+          "width_mm": 0.3
+        },
+        {
+          "net": "buck-vcc-1",
+          "uuid": "f17b8add-04fc-44ff-a200-29e131d46dc5",
+          "width_mm": 0.3
+        },
+        {
+          "net": "fb",
+          "uuid": "f7131363-8f7a-459a-a89c-dd2aa7c62786",
+          "width_mm": 0.3
+        }
+      ],
+      "status": "fail"
+    },
+    "production_digest": {
+      "actual_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+      "expected_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+      "status": "pass"
+    },
+    "required_connectivity": {
+      "problems": [],
+      "status": "pass"
+    }
+  },
+  "connectivity_required_nets": {
+    "boot": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C2.1",
+          "U1.6"
+        ]
+      ],
+      "pad_count": 2,
+      "pads": [
+        "C2.1",
+        "U1.6"
+      ]
+    },
+    "buck-vcc": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C1.1",
+          "U1.3",
+          "U1.5"
+        ]
+      ],
+      "pad_count": 3,
+      "pads": [
+        "C1.1",
+        "U1.3",
+        "U1.5"
+      ]
+    },
+    "buck-vcc-1": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C3.1",
+          "C4.1",
+          "C5.1",
+          "C6.1",
+          "C7.1",
+          "L1.2",
+          "R1.1",
+          "R3.1",
+          "R4.1",
+          "R5.1",
+          "R6.1",
+          "U2.2"
+        ]
+      ],
+      "pad_count": 12,
+      "pads": [
+        "C3.1",
+        "C4.1",
+        "C5.1",
+        "C6.1",
+        "C7.1",
+        "L1.2",
+        "R1.1",
+        "R3.1",
+        "R4.1",
+        "R5.1",
+        "R6.1",
+        "U2.2"
+      ]
+    },
+    "fb": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "R1.2",
+          "R2.1",
+          "U1.4"
+        ]
+      ],
+      "pad_count": 3,
+      "pads": [
+        "R1.2",
+        "R2.1",
+        "U1.4"
+      ]
+    },
+    "gnd": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C1.2",
+          "C3.2",
+          "C4.2",
+          "C5.2",
+          "C6.2",
+          "C7.2",
+          "C8.2",
+          "R2.2",
+          "SW1.2",
+          "SW2.2",
+          "U1.1",
+          "U2.1"
+        ]
+      ],
+      "pad_count": 12,
+      "pads": [
+        "C1.2",
+        "C3.2",
+        "C4.2",
+        "C5.2",
+        "C6.2",
+        "C7.2",
+        "C8.2",
+        "R2.2",
+        "SW1.2",
+        "SW2.2",
+        "U1.1",
+        "U2.1"
+      ]
+    },
+    "sw": {
+      "cluster_count": 1,
+      "clusters": [
+        [
+          "C2.2",
+          "L1.1",
+          "U1.2"
+        ]
+      ],
+      "pad_count": 3,
+      "pads": [
+        "C2.2",
+        "L1.1",
+        "U1.2"
+      ]
+    }
+  },
+  "drc": {
+    "baseline_findings": 126,
+    "delta": {
+      "introduced": [],
+      "introduced_count": 0,
+      "persistent": [
+        "parity|footprint_symbol_mismatch|Footprint C1",
+        "parity|footprint_symbol_mismatch|Footprint C2",
+        "parity|footprint_symbol_mismatch|Footprint C3",
+        "parity|footprint_symbol_mismatch|Footprint C4",
+        "parity|footprint_symbol_mismatch|Footprint C5",
+        "parity|footprint_symbol_mismatch|Footprint C6",
+        "parity|footprint_symbol_mismatch|Footprint C7",
+        "parity|footprint_symbol_mismatch|Footprint C8",
+        "parity|footprint_symbol_mismatch|Footprint L1",
+        "parity|footprint_symbol_mismatch|Footprint R1",
+        "parity|footprint_symbol_mismatch|Footprint R2",
+        "parity|footprint_symbol_mismatch|Footprint R3",
+        "parity|footprint_symbol_mismatch|Footprint R4",
+        "parity|footprint_symbol_mismatch|Footprint R5",
+        "parity|footprint_symbol_mismatch|Footprint R6",
+        "parity|footprint_symbol_mismatch|Footprint SW1",
+        "parity|footprint_symbol_mismatch|Footprint SW2",
+        "parity|footprint_symbol_mismatch|Footprint U1",
+        "parity|footprint_symbol_mismatch|Footprint U2",
+        "parity|net_conflict|Pad 1 [boot] of C2 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of C3 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of C4 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of C5 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of C6 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of C7 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of R1 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of R3 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of R4 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of R5 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc-1] of R6 on F.Cu",
+        "parity|net_conflict|Pad 1 [buck-vcc] of C1 on F.Cu",
+        "parity|net_conflict|Pad 1 [en] of C8 on F.Cu",
+        "parity|net_conflict|Pad 1 [en] of SW1 on F.Cu",
+        "parity|net_conflict|Pad 1 [fb] of R2 on F.Cu",
+        "parity|net_conflict|Pad 1 [gnd] of U1 on F.Cu",
+        "parity|net_conflict|Pad 1 [gnd] of U2 on F.Cu",
+        "parity|net_conflict|Pad 1 [io0] of SW2 on F.Cu",
+        "parity|net_conflict|Pad 1 [sw] of L1 on F.Cu",
+        "parity|net_conflict|Pad 10 [mcu-line-5] of U2 on F.Cu",
+        "parity|net_conflict|Pad 11 [gpio18] of U2 on F.Cu",
+        "parity|net_conflict|Pad 12 [sclk] of U2 on F.Cu",
+        "parity|net_conflict|Pad 13 [usb_dn] of U2 on F.Cu",
+        "parity|net_conflict|Pad 14 [usb_dp] of U2 on F.Cu",
+        "parity|net_conflict|Pad 15 [adc_ntc_stub] of U2 on F.Cu",
+        "parity|net_conflict|Pad 16 [io46] of U2 on F.Cu",
+        "parity|net_conflict|Pad 17 [mcu-line-1] of U2 on F.Cu",
+        "parity|net_conflict|Pad 18 [mcu-line] of U2 on F.Cu",
+        "parity|net_conflict|Pad 19 [mosi] of U2 on F.Cu",
+        "parity|net_conflict|Pad 2 [buck-vcc-1] of L1 on F.Cu",
+        "parity|net_conflict|Pad 2 [buck-vcc-1] of U2 on F.Cu",
+        "parity|net_conflict|Pad 2 [en] of R3 on F.Cu",
+        "parity|net_conflict|Pad 2 [fb] of R1 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of C1 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of C3 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of C4 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of C5 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of C6 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of C7 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of C8 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of R2 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of SW1 on F.Cu",
+        "parity|net_conflict|Pad 2 [gnd] of SW2 on F.Cu",
+        "parity|net_conflict|Pad 2 [io0] of R4 on F.Cu",
+        "parity|net_conflict|Pad 2 [scl] of R6 on F.Cu",
+        "parity|net_conflict|Pad 2 [sda] of R5 on F.Cu",
+        "parity|net_conflict|Pad 2 [sw] of C2 on F.Cu",
+        "parity|net_conflict|Pad 2 [sw] of U1 on F.Cu",
+        "parity|net_conflict|Pad 20 [miso] of U2 on F.Cu",
+        "parity|net_conflict|Pad 21 [io13] of U2 on F.Cu",
+        "parity|net_conflict|Pad 22 [mcu-line-6] of U2 on F.Cu",
+        "parity|net_conflict|Pad 23 [gpio21] of U2 on F.Cu",
+        "parity|net_conflict|Pad 24 [mcu-line-4] of U2 on F.Cu",
+        "parity|net_conflict|Pad 25 [io48] of U2 on F.Cu",
+        "parity|net_conflict|Pad 26 [io45] of U2 on F.Cu",
+        "parity|net_conflict|Pad 27 [io0] of U2 on F.Cu",
+        "parity|net_conflict|Pad 28 [gpio35] of U2 on F.Cu",
+        "parity|net_conflict|Pad 29 [gpio36] of U2 on F.Cu",
+        "parity|net_conflict|Pad 3 [buck-vcc] of U1 on F.Cu",
+        "parity|net_conflict|Pad 3 [en] of U2 on F.Cu",
+        "parity|net_conflict|Pad 30 [gpio37] of U2 on F.Cu",
+        "parity|net_conflict|Pad 31 [sda] of U2 on F.Cu",
+        "parity|net_conflict|Pad 32 [scl] of U2 on F.Cu",
+        "parity|net_conflict|Pad 33 [io40] of U2 on F.Cu",
+        "parity|net_conflict|Pad 34 [io41] of U2 on F.Cu",
+        "parity|net_conflict|Pad 35 [io42] of U2 on F.Cu",
+        "parity|net_conflict|Pad 36 [rx] of U2 on F.Cu",
+        "parity|net_conflict|Pad 37 [tx] of U2 on F.Cu",
+        "parity|net_conflict|Pad 38 [adc_v_bus_stub] of U2 on F.Cu",
+        "parity|net_conflict|Pad 39 [adc_i_sense_stub] of U2 on F.Cu",
+        "parity|net_conflict|Pad 4 [fb] of U1 on F.Cu",
+        "parity|net_conflict|Pad 4 [pwm_h] of U2 on F.Cu",
+        "parity|net_conflict|Pad 5 [buck-vcc] of U1 on F.Cu",
+        "parity|net_conflict|Pad 5 [pwm_l] of U2 on F.Cu",
+        "parity|net_conflict|Pad 6 [boot] of U1 on F.Cu",
+        "parity|net_conflict|Pad 6 [mcu-line-7] of U2 on F.Cu",
+        "parity|net_conflict|Pad 7 [mcu-line-2] of U2 on F.Cu",
+        "parity|net_conflict|Pad 8 [mcu-line-8] of U2 on F.Cu",
+        "parity|net_conflict|Pad 9 [mcu-line-3] of U2 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [en] of C8 on F.Cu|Pad 2 [en] of R3 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [en] of C8 on F.Cu|Pad 3 [en] of U2 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [en] of SW1 on F.Cu|Pad 2 [en] of R3 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [io0] of SW2 on F.Cu|Pad 2 [io0] of R4 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [io0] of SW2 on F.Cu|Pad 27 [io0] of U2 on F.Cu",
+        "unconnected|unconnected_items|Pad 2 [scl] of R6 on F.Cu|Pad 32 [scl] of U2 on F.Cu",
+        "unconnected|unconnected_items|Pad 2 [sda] of R5 on F.Cu|Pad 31 [sda] of U2 on F.Cu",
+        "violation|clearance|Pad 1 [buck-vcc] of C1 on F.Cu|Pad 4 [fb] of U1 on F.Cu",
+        "violation|lib_footprint_mismatch|Footprint C1",
+        "violation|lib_footprint_mismatch|Footprint R2",
+        "violation|lib_footprint_mismatch|Footprint U1",
+        "violation|silk_over_copper|Pad 1 [buck-vcc] of C1 on F.Cu|Segment of U1 on F.Silkscreen",
+        "violation|track_dangling|Track [buck-vcc-1] on F.Cu, length 8.0000 mm",
+        "violation|track_dangling|Track [buck-vcc] on F.Cu, length 8.4853 mm",
+        "violation|track_dangling|Track [gnd] on B.Cu, length 2.0800 mm"
+      ],
+      "persistent_count": 113,
+      "resolved": [
+        "unconnected|unconnected_items|Pad 1 [buck-vcc-1] of C6 on F.Cu|Pad 1 [buck-vcc-1] of C7 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [buck-vcc-1] of C7 on F.Cu|Pad 1 [buck-vcc-1] of R3 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [buck-vcc-1] of C7 on F.Cu|Pad 2 [buck-vcc-1] of U2 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [buck-vcc-1] of R3 on F.Cu|Pad 1 [buck-vcc-1] of R4 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [buck-vcc-1] of R4 on F.Cu|Pad 1 [buck-vcc-1] of R5 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [buck-vcc-1] of R5 on F.Cu|Pad 1 [buck-vcc-1] of R6 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [gnd] of U2 on F.Cu|Pad 2 [gnd] of C7 on F.Cu",
+        "unconnected|unconnected_items|Pad 1 [gnd] of U2 on F.Cu|Track [gnd] on B.Cu, length 7.0000 mm",
+        "unconnected|unconnected_items|Pad 2 [buck-vcc-1] of U2 on F.Cu|Track [buck-vcc-1] on B.Cu, length 27.0000 mm",
+        "unconnected|unconnected_items|Pad 2 [gnd] of C6 on F.Cu|Pad 2 [gnd] of C7 on F.Cu",
+        "unconnected|unconnected_items|Pad 2 [gnd] of C7 on F.Cu|Pad 2 [gnd] of C8 on F.Cu",
+        "unconnected|unconnected_items|Pad 2 [gnd] of C8 on F.Cu|Pad 2 [gnd] of SW1 on F.Cu",
+        "unconnected|unconnected_items|Pad 2 [gnd] of SW1 on F.Cu|Pad 2 [gnd] of SW2 on F.Cu"
+      ],
+      "resolved_count": 13
+    },
+    "routed_findings": 113,
+    "schematic_parity_baseline": 98,
+    "schematic_parity_enabled": true,
+    "schematic_parity_routed": 98,
+    "unconnected_baseline": 20,
+    "unconnected_routed": 7
+  },
+  "erc": {
+    "baseline_findings": 55,
+    "delta": {
+      "introduced": [],
+      "introduced_count": 0,
+      "persistent": [
+        "erc|endpoint_off_grid|Symbol C2 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol C3 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol C4 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol C5 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol C7 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol C8 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol L1 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol R1 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol R2 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol R3 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol R4 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol R5 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol R6 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol SW1 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol SW2 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol U1 Pin 1 [1, Bidirectional, Line]",
+        "erc|endpoint_off_grid|Symbol U2 Pin 1 [1, Bidirectional, Line]",
+        "erc|footprint_link_issues|Symbol C1 [CL32B106KBJZW6E]",
+        "erc|footprint_link_issues|Symbol C2 [C0603C104K5RACTU]",
+        "erc|footprint_link_issues|Symbol C3 [CL32B106KBJZW6E]",
+        "erc|footprint_link_issues|Symbol C4 [CL32B106KBJZW6E]",
+        "erc|footprint_link_issues|Symbol C5 [C0603C104K5RACTU]",
+        "erc|footprint_link_issues|Symbol C6 [C0603C104K5RACTU]",
+        "erc|footprint_link_issues|Symbol C7 [GRM21BR71A106KE51L]",
+        "erc|footprint_link_issues|Symbol C8 [C0603C104K5RACTU]",
+        "erc|footprint_link_issues|Symbol L1 [SRP1265A-5R6M]",
+        "erc|footprint_link_issues|Symbol R1 [RC0603FR-07100KL]",
+        "erc|footprint_link_issues|Symbol R2 [RC0603FR-07100KL]",
+        "erc|footprint_link_issues|Symbol R3 [RC0603FR-07100KL]",
+        "erc|footprint_link_issues|Symbol R4 [RC0603FR-07100KL]",
+        "erc|footprint_link_issues|Symbol R5 [RC0603FR-07100KL]",
+        "erc|footprint_link_issues|Symbol R6 [RC0603FR-07100KL]",
+        "erc|footprint_link_issues|Symbol SW1 [RC0603FR-07100KL]",
+        "erc|footprint_link_issues|Symbol SW2 [RC0603FR-07100KL]",
+        "erc|footprint_link_issues|Symbol U1 [LMR51430XDDCR]",
+        "erc|footprint_link_issues|Symbol U2 [ESP32-S3-WROOM-1-N8R8]",
+        "erc|lib_symbol_issues|Symbol C1 [CL32B106KBJZW6E]",
+        "erc|lib_symbol_issues|Symbol C2 [C0603C104K5RACTU]",
+        "erc|lib_symbol_issues|Symbol C3 [CL32B106KBJZW6E]",
+        "erc|lib_symbol_issues|Symbol C4 [CL32B106KBJZW6E]",
+        "erc|lib_symbol_issues|Symbol C5 [C0603C104K5RACTU]",
+        "erc|lib_symbol_issues|Symbol C6 [C0603C104K5RACTU]",
+        "erc|lib_symbol_issues|Symbol C7 [GRM21BR71A106KE51L]",
+        "erc|lib_symbol_issues|Symbol C8 [C0603C104K5RACTU]",
+        "erc|lib_symbol_issues|Symbol L1 [SRP1265A-5R6M]",
+        "erc|lib_symbol_issues|Symbol R1 [RC0603FR-07100KL]",
+        "erc|lib_symbol_issues|Symbol R2 [RC0603FR-07100KL]",
+        "erc|lib_symbol_issues|Symbol R3 [RC0603FR-07100KL]",
+        "erc|lib_symbol_issues|Symbol R4 [RC0603FR-07100KL]",
+        "erc|lib_symbol_issues|Symbol R5 [RC0603FR-07100KL]",
+        "erc|lib_symbol_issues|Symbol R6 [RC0603FR-07100KL]",
+        "erc|lib_symbol_issues|Symbol SW1 [RC0603FR-07100KL]",
+        "erc|lib_symbol_issues|Symbol SW2 [RC0603FR-07100KL]",
+        "erc|lib_symbol_issues|Symbol U1 [LMR51430XDDCR]",
+        "erc|lib_symbol_issues|Symbol U2 [ESP32-S3-WROOM-1-N8R8]"
+      ],
+      "persistent_count": 55,
+      "resolved": [],
+      "resolved_count": 0
+    },
+    "routed_findings": 55
+  },
+  "live_model": false,
+  "live_model_blocker": "Zen FreeUsageLimitError HTTP 429; no autonomous construction occurred",
+  "refill": {
+    "returncode": 0
+  },
+  "routing": {
+    "bounded_operation": "replace_copper (buck_native primitive dispatched by run_block.BlockSession)",
+    "gnd": {
+      "zones": 1
+    },
+    "plus3": {
+      "segments": 12,
+      "vias": 2
+    }
+  },
+  "schema": "control-assembly.u3-verification.v1",
+  "status": "apparatus-only-assisted"
+}

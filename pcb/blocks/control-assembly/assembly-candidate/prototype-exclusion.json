@@ -1,0 +1,67 @@
+{
+  "excluded_refs": [
+    "J1",
+    "J2",
+    "TP1",
+    "TP2",
+    "TP3",
+    "TP4",
+    "H1",
+    "H2",
+    "H3",
+    "H4"
+  ],
+  "removed_copper": [
+    {
+      "kind": "segment",
+      "net": "+3V3",
+      "reason": "serves a prototype-only fixture object",
+      "uuid": "2bd75840-7dbe-4bfa-9f35-8b1852737dba"
+    },
+    {
+      "kind": "segment",
+      "net": "gnd",
+      "reason": "serves a prototype-only fixture object",
+      "uuid": "3bfac8ac-dcce-46c9-b37d-c274f413af11"
+    },
+    {
+      "kind": "segment",
+      "net": "gnd",
+      "reason": "serves a prototype-only fixture object",
+      "uuid": "605773eb-f97a-401d-a512-90624edc061f"
+    },
+    {
+      "kind": "segment",
+      "net": "+15V",
+      "reason": "serves a prototype-only fixture object",
+      "uuid": "6ea5835f-b686-407b-8cd6-7e65e33c3fa8"
+    },
+    {
+      "kind": "segment",
+      "net": "+15V",
+      "reason": "serves a prototype-only fixture object",
+      "uuid": "ae3d3685-b139-42a7-b0cb-14e6d9cbaec9"
+    }
+  ],
+  "schema": "control-assembly.prototype-exclusion.v1",
+  "shared_copper_cuts": [
+    {
+      "kind": "segment",
+      "net": "gnd",
+      "reason": "joins a functional pad to a fixture pad; cut at the functional end, continuity rechecked after import",
+      "uuid": "0d5849c8-efaf-4791-aad2-3a707a95d4cf"
+    },
+    {
+      "kind": "segment",
+      "net": "gnd",
+      "reason": "joins a functional pad to a fixture pad; cut at the functional end, continuity rechecked after import",
+      "uuid": "36eff75d-bbef-40a8-8631-8a0187843fce"
+    },
+    {
+      "kind": "segment",
+      "net": "+3V3",
+      "reason": "joins a functional pad to a fixture pad; cut at the functional end, continuity rechecked after import",
+      "uuid": "5034eb92-b682-4f8b-8c89-9b7004bc8e1b"
+    }
+  ]
+}

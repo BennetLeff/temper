@@ -1,0 +1,104 @@
+(kicad_sch
+  (version 20231120)
+  (generator "gen_schematics")
+  (generator_version "1.0")
+  (uuid "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55")
+  (paper "A3")
+  (title_block
+    (title "Control Assembly Candidate (source-derived, apparatus-only)")
+    (date "2026-07-15")
+    (rev "1.0")
+    (company "Temper")
+    (comment 1 "GENERATED -- do not hand-edit")
+    (comment 2 "edit elec/src/*.ato and run make schematics")
+  )
+  (text "CONTROL ASSEMBLY CANDIDATE\n\nGENERATED -- do not hand-edit\nP3 U2 source-derived composition of the buck functional nine and the MCU ten; apparatus-only, live model blocked\n\n2 Sheets:\nBUCK\nMCU"
+    (exclude_from_sim no)
+    (at 25.4 38.1 0)
+    (effects (font (size 2.54 2.54)) (justify left))
+    (uuid "00000000-0000-0000-0000-000000000001")
+  )
+
+  (lib_symbols)
+
+
+  (sheet
+    (at 25.40 101.60)
+    (size 50.80 25.40)
+    (fields_autoplaced yes)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 255 194 194 1.0))
+    (uuid "6b12487b-c4c2-3d81-f7b5-021aa58263e0")
+    (property "Sheetname" "BUCK"
+      (at 25.40 100.89 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom)))
+    (property "Sheetfile" "buck.kicad_sch"
+      (at 25.40 128.27 0)
+      (effects (font (size 1.27 1.27)) (justify left top)))    (pin "buck-vcc-1" bidirectional
+      (at 25.40 107.95 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "a79572e6-2de4-7ba9-0c64-d31544d7fb3e"))    (pin "gnd" bidirectional
+      (at 25.40 113.03 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "c896c9b0-391c-7d87-4fa7-c99db2bb2901"))    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "2")
+        )
+      )
+    )
+  )
+  (label "buck-vcc-1"
+    (at 25.40 107.95 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "5ca359bf-0c72-d14a-d6de-4dea9cac167d")
+  )
+  (label "gnd"
+    (at 25.40 113.03 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "288d7747-3b86-e415-99d4-dcaf05f61d47")
+  )
+
+  (sheet
+    (at 25.40 147.00)
+    (size 50.80 25.40)
+    (fields_autoplaced yes)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 194 255 194 1.0))
+    (uuid "342ceefe-d4ef-f24b-854a-f51698d00808")
+    (property "Sheetname" "MCU"
+      (at 25.40 146.29 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom)))
+    (property "Sheetfile" "mcu.kicad_sch"
+      (at 25.40 173.67 0)
+      (effects (font (size 1.27 1.27)) (justify left top)))    (pin "buck-vcc-1" bidirectional
+      (at 25.40 153.35 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "118bb0c9-0bf7-03f0-9769-57dde55b4b99"))    (pin "gnd" bidirectional
+      (at 25.40 158.43 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "f6a61036-2bf6-f636-ad48-480a66c8df29"))    (instances
+      (project "temper"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (page "3")
+        )
+      )
+    )
+  )
+  (label "buck-vcc-1"
+    (at 25.40 153.35 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "f545a25c-36dd-0f1a-8983-2ce94521be8d")
+  )
+  (label "gnd"
+    (at 25.40 158.43 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "b40a3849-5309-f0c6-8a06-59f2aff98bc6")
+  )
+
+  (sheet_instances
+    (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/702ce106-6eb5-367a-1e75-700c405aac4e" (page "2"))
+    (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/76fc9ade-10f6-d7af-0abf-9e029d01a323" (page "3"))
+  )
+
+)
