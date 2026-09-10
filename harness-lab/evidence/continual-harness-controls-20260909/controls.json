@@ -1,0 +1,61 @@
+{
+  "controls": {
+    "development": {
+      "attempt_id": "slot-1-756c59e3d2184c1284f85a9b80e960a7",
+      "board_sha256": "e504f60c7534e670215e7452e8acb40c90ffb01b59e43b67cacb307e9e4eaaae",
+      "condition": "updating_base",
+      "elapsed_ms": 18627,
+      "history_count": 23,
+      "initial_revision_sha256": "7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190",
+      "revision_sha256": "439a101d374f4d037d559f278540fce09978b17450b7ffccbb0b160ec1712a41",
+      "status": "fail",
+      "successful_mutations": 20
+    },
+    "fixed": {
+      "attempt_id": "slot-4-ff0a81c64c8143b585d4bcdd8ad47aff",
+      "board_sha256": "b12f0299090cf0fa10448241d564ffcf1df8cbc811aa475884bbae750f7c3223",
+      "condition": "fixed_base",
+      "elapsed_ms": 1116,
+      "history_count": 2,
+      "initial_revision_sha256": "7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190",
+      "revision_sha256": "7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190",
+      "status": "fail",
+      "successful_mutations": 0
+    },
+    "inherited": {
+      "attempt_id": "slot-5-42f3f1aff5c24d9b84b004517b4a9f0e",
+      "board_sha256": "b12f0299090cf0fa10448241d564ffcf1df8cbc811aa475884bbae750f7c3223",
+      "condition": "inherited_frozen",
+      "elapsed_ms": 1122,
+      "history_count": 2,
+      "initial_revision_sha256": "439a101d374f4d037d559f278540fce09978b17450b7ffccbb0b160ec1712a41",
+      "revision_sha256": "439a101d374f4d037d559f278540fce09978b17450b7ffccbb0b160ec1712a41",
+      "status": "fail",
+      "successful_mutations": 0
+    }
+  },
+  "live_admission": "blocked",
+  "raw_evidence": "harness-lab/runs/continual-controls-20260909-final",
+  "raw_summary_sha256": "ea518179f33ac24bc4d856ef459c67471f1427e96f3e817e4a679dc7a58c6f6d",
+  "recovery": {
+    "attempt_id": "slot-0-b7a2122159264288992cbd51f2f69279",
+    "resume_count": 1,
+    "status": "fail",
+    "successful_mutations": 0
+  },
+  "review": {
+    "coverage": "Reviewing-agent sequential pass; independent persona and validator slots unavailable. All five confirmed defect groups fixed and rechecked.",
+    "remaining_confirmed_findings": 0,
+    "run_id": "20260910-035654-04274819",
+    "status": "degraded"
+  },
+  "scope": "Software controls only. Scripted provider; real Rust, KiCad, loopback MCP and sandboxed Python. No live model, engineering qualification, fabrication or hardware validation.",
+  "tests": {
+    "full_command": "make -C harness-lab build check",
+    "import_contracts_broken": 0,
+    "import_contracts_kept": 5,
+    "import_gate": "PYTHONPATH=packages/temper-placer/src uv run --no-sync python scripts/import_linter_gate.py",
+    "python": 123,
+    "rust": 28
+  }
+}

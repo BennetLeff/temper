@@ -104,3 +104,19 @@ edits share one ten-edit budget. Native placement leaves existing copper fixed.
 plan](COMBINED-EXPERIMENT.md) record the exact tools, constraints and three
 initial board observations. Only the trial's current state is shown to the
 model. Scripted witness poses and routes from qualification are withheld.
+
+
+## Full-buck continual harness
+
+The September 9 refinement plan preserves the approved Muse Spark 1.3
+Contributor Free / OpenCode Zen destination. The construction catalog contains
+inspect, check, place, replace_copper, and execute. A separate refiner receives
+only its own bounded native trajectory, current notes/skills, observation, and
+instructions; its sole tool returns replacement artifact contents. Neither
+solver nor refiner receives witnesses, repository access, other-trial runtime
+state, or provider-switching tools.
+
+Live development and evaluation remain subject to current engineering and
+qualification admission. Local scripted controls do not constitute live trials
+or qualify hardware. See [the continual harness](CONTINUAL-HARNESS.md) for
+budgets, frozen inheritance, output receipts, and optional metadata-only tracing.

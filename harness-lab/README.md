@@ -11,6 +11,11 @@ make -C harness-lab build check
 python3 harness-lab/engineering_host.py harness-lab/runs/engineering-new
 ```
 
+The [continual buck harness](CONTINUAL-HARNESS.md) adds persistent Python,
+versioned executable skills, bounded recovery, frozen inheritance, and optional
+OTLP tracing around OpenCode. Its local software controls do not remove the
+engineering admission requirements.
+
 Two small experiments use the real buck input capacitor C9 and regulator U3.
 Experiment 00 places C9; Experiment 00R freezes that placement and routes its
 two mapped connections. Existing optimizer code is shelved; this directory

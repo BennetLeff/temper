@@ -9,7 +9,6 @@ from pathlib import Path
 
 import harness
 
-
 D = "a" * 64
 MODEL = "opencode/muse-spark-1.3-contributor-free"
 ROOT = Path(__file__).parent
@@ -64,6 +63,95 @@ class ContinualContractTests(unittest.TestCase):
         return self.run_judge(
             {"schema": "continual/v1", "command": "attempt.classify", "input": payload}
         )
+
+    def test_final_classification_rejects_known_state_conflicts(self):
+        for overrides in (
+            {"state_ack_matches": False},
+            {"reconstructed_globals": True},
+            {"board_sha256": D, "expected_board_sha256": "b" * 64},
+            {"revision_sha256": D, "expected_revision_sha256": "b" * 64},
+            {"action_count": 1, "expected_action_count": 0},
+            {"expected_deadline_unix_ms": 2000},
+        ):
+            with self.subTest(overrides=overrides):
+                self.assertEqual(
+                    self.classify(**overrides)["decision"], "record_indeterminate"
+                )
+
+    def test_optional_statuses_cannot_hide_transport_or_worker_failure(self):
+        for overrides in (
+            {"provider_status": False},
+            {"measurement_status": False},
+            {"construction_status": "fail"},
+        ):
+            self.assertEqual(self.classify(**overrides)["status"], "invalid")
+        for overrides in (
+            {"provider_status": "complete", "transport_status": "failed"},
+            {"worker_status": "crash"},
+            {"measurement_status": "missing"},
+        ):
+            self.assertEqual(
+                self.classify(**overrides)["decision"], "record_indeterminate"
+            )
+
+    def test_inheritance_current_identities_must_be_real_digests(self):
+        keys = (
+            "engineering_inventory_sha256",
+            "qualification_sha256",
+            "source_sha256",
+            "approved_evidence_sha256",
+            "native_judge_sha256",
+        )
+        manifest = {
+            "frozen": True,
+            "source_phase": "development",
+            "revisions": [],
+            **{key: D for key in keys},
+        }
+        result = self.run_judge(
+            {
+                "schema": "continual/v1",
+                "command": "inheritance.select",
+                "input": {
+                    "manifest": manifest,
+                    "engineering_admission": "pass",
+                    **{key: False for key in keys},
+                },
+            }
+        )
+        self.assertEqual(result["status"], "invalid")
+
+    def test_history_cannot_forge_revision_without_refinement(self):
+        import copy
+
+        initial = {
+            "board_sha256": D,
+            "revision_sha256": D,
+            "action_count": 0,
+            "successful_mutations": 0,
+            "refinement_count": 0,
+            "deadline_unix_ms": 1000,
+            "edit_budget": 200,
+        }
+        packet = {
+            "schema": "continual/v1",
+            "command": "attempt.event",
+            "input": {
+                "attempt_id": "control",
+                "sequence": 1,
+                "kind": "inspect",
+                "state": initial,
+                "history": [],
+            },
+        }
+        first = self.run_judge(packet)
+        self.assertEqual(first["status"], "pass")
+        history = copy.deepcopy(first["history"])
+        history[0]["state_after"]["revision_sha256"] = "b" * 64
+        packet["input"].update(
+            sequence=2, history=history, state=history[0]["state_after"]
+        )
+        self.assertEqual(self.run_judge(packet)["status"], "invalid")
 
     def test_start_and_envelope_are_rust_owned(self) -> None:
         result = self.run_judge(

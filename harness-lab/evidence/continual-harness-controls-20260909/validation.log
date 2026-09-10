@@ -1,0 +1,67 @@
+cargo build --locked
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+cargo test --locked
+   Compiling temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.81s
+     Running unittests src/main.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/temper_harness_e00-96e5d11f0b25e276)
+
+running 28 tests
+test buck::tests::parallel_tracks_never_touch ... ok
+test buck::tests::crossing_tracks_measure_zero ... ok
+test buck::tests::asymmetric_oracle_probe_uses_kicad_clockwise_rotation ... ok
+test buck::tests::partial_digest_is_not_a_content_identity ... ok
+test buck_operations::tests::execute_rejects_code_over_byte_limit ... ok
+test buck_operations::tests::replace_copper_rejects_non_ground_zone ... ok
+test buck_operations::tests::replace_copper_rejects_nested_unknown_key ... ok
+test buck_operations::tests::execute_admits_utf8_bytes_and_rejects_unknown_keys ... ok
+test buck_operations::tests::place_rejects_protected_reference ... ok
+test continual::tests::provider_failure_sticks_even_when_worker_alive ... ok
+test continual::tests::only_verified_driver_interrupt_resumes ... ok
+test continual::tests::start_accepts_frozen_slot ... ok
+test continual::tests::strict_json_rejects_duplicate_fields ... ok
+test continual::tests::mutation_fail_is_progress_not_terminal ... ok
+test buck_operations::tests::schema_contains_nested_shapes ... ok
+test tests::missing_evidence_cannot_deserialize_as_a_pass ... ok
+test qualification::tests::only_exact_reviewed_receipt_is_admitted ... ok
+test simulation_validation::tests::native_ngspice_rc_control_matches_analytic_response ... ok
+test simulation_validation::tests::raw_measurements_pass_and_defect_fails ... ok
+test tests::partial_digest_is_not_a_content_identity ... ok
+test engineering::tests::stale_and_synthetic_receipts_cannot_pass ... ok
+test continual::tests::changed_provenance_changes_revision_identity ... ok
+test engineering::tests::complete_resolved_chain_passes_stages_one_to_four ... ok
+test engineering::tests::missing_receipts_fail_closed_and_hardware_is_unverified ... ok
+test simulation_validation::tests::bad_raw_and_missing_limits_are_rejected ... ok
+test engineering::tests::malformed_identity_dependencies_and_missing_limits_cannot_pass ... ok
+test engineering::tests::missing_identity_or_inventory_blocks ... ok
+test simulation_validation::tests::complete_software_chain_and_independent_negative_controls ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+cargo clippy --all-targets --all-features --locked -- -D warnings
+    Checking temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.76s
+cargo fmt -- --check
+ruff check --isolated --select E4,E7,E9,F,I *.py
+All checks passed!
+ruff format --isolated --check *.py
+47 files already formatted
+python3 -m compileall -q .
+python3 -m unittest discover -s . -p 'test_*.py'
+........................usage: python3.14 -m unittest [-h] --phase {preflight,development,evaluation}
+                              [--qualification QUALIFICATION]
+                              [--engineering ENGINEERING]
+                              [--preflight-receipt PREFLIGHT_RECEIPT]
+                              [--inheritance INHERITANCE] [--telemetry]
+                              output
+python3.14 -m unittest: error: unrecognized arguments: --override
+...................................................................................................
+----------------------------------------------------------------------
+Ran 123 tests in 125.318s
+
+OK
+
+WARN Ignoring non-directory workspace member: `/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/README.md`
+lint-imports report: 5 kept, 0 broken (exit code 0).
+Import boundary enforcement — violations will block PR merge.
+
+Import boundary gate PASSED — 0 new violations

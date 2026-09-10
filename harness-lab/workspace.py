@@ -154,7 +154,7 @@ class Workspace:
         self._cell_seq = 0
         self._closed = False
         self.indeterminate = False
-        self._raw_output = bytearray()
+        self._protocol_bytes = 0
         self._control_reader = _Frames()
         self._pending_events: list[dict[str, Any]] = []
         self._stdout_reader = bytearray()
@@ -306,8 +306,8 @@ class Workspace:
                             chunk = os.read(key.fd, 65536)
                             if not chunk:
                                 continue
-                            self._raw_output.extend(chunk)
-                            if len(self._raw_output) > MAX_PROTOCOL_BYTES:
+                            self._protocol_bytes += len(chunk)
+                            if self._protocol_bytes > MAX_PROTOCOL_BYTES:
                                 raise WorkspaceError(
                                     "worker protocol output exceeds 64 MiB",
                                     indeterminate=True,
@@ -376,8 +376,8 @@ class Workspace:
                         raise WorkspaceError(
                             "worker pipe reached EOF", indeterminate=True
                         )
-                    self._raw_output.extend(chunk)
-                    if len(self._raw_output) > MAX_PROTOCOL_BYTES:
+                    self._protocol_bytes += len(chunk)
+                    if self._protocol_bytes > MAX_PROTOCOL_BYTES:
                         raise WorkspaceError(
                             "worker protocol output exceeds 64 MiB", indeterminate=True
                         )
@@ -561,7 +561,7 @@ class Workspace:
             time.monotonic() + min(float(timeout), MAX_EXECUTE_SECONDS),
             self.session.deadline,
         )
-        self._raw_output.clear()
+        self._protocol_bytes = 0
         self._stdout_reader.clear()
         self._send(
             {

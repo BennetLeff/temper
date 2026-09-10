@@ -563,7 +563,7 @@ fn event(v: &Value) -> Result<Value> {
             "initial counters must be zero"
         );
     }
-    for record in &prior {
+    for (index, record) in prior.iter().enumerate() {
         ensure!(
             record.get("history").is_none(),
             "nested history is forbidden"
@@ -580,6 +580,37 @@ fn event(v: &Value) -> Result<Value> {
         validate["history"] = json!([]);
         validate["sequence"] = json!(1);
         event_input(&validate)?;
+        if index == 0 {
+            ensure!(
+                before["action_count"] == 0
+                    && before["successful_mutations"] == 0
+                    && before["refinement_count"] == 0,
+                "history initial counters must be zero"
+            );
+        }
+        let was_refinement = record["kind"] == "refinement";
+        ensure!(
+            after["revision_sha256"]
+                == if was_refinement {
+                    record["new_revision_sha256"].clone()
+                } else {
+                    before["revision_sha256"].clone()
+                },
+            "history revision drift"
+        );
+        if was_refinement {
+            let boundary = u64_field(before, "successful_mutations")?;
+            ensure!(
+                [20, 60, 100].contains(&boundary)
+                    && index > 0
+                    && prior[index - 1]["native_verdict"] == "fail"
+                    && !prior[..index]
+                        .iter()
+                        .any(|earlier| earlier["kind"] == "refinement"
+                            && earlier["state"]["successful_mutations"] == boundary),
+                "invalid historical refinement boundary"
+            );
+        }
         let was_committed = record["kind"] == "mutation" && record["mutation_committed"] == true;
         ensure!(
             u64_field(after, "action_count")?
@@ -766,7 +797,6 @@ fn classify(v: &Value) -> Result<Value> {
             "remaining_ms",
             "resume_count",
             "slot_consumed",
-            "construction_status",
             "evidence_refs",
             "state_sha256",
             "expected_state_sha256",
@@ -787,9 +817,20 @@ fn classify(v: &Value) -> Result<Value> {
         ],
     )?;
     nonempty_id(str_field(v, "attempt_id")?, "attempt_id")?;
-    let provider_status = optional_str(v, "provider_status")
-        .or_else(|| optional_str(v, "transport_status"))
-        .unwrap_or("complete");
+    for key in [
+        "provider_status",
+        "transport_status",
+        "measurement_status",
+        "native_status",
+        "worker_status",
+    ] {
+        if v.get(key).is_some() {
+            str_field(v, key)?;
+        }
+    }
+    let provider_failed = ["provider_status", "transport_status"]
+        .iter()
+        .any(|key| optional_str(v, key).is_some_and(|status| status != "complete"));
     let provider_complete = bool_field(v, "provider_complete")?;
     let provider_verified = bool_field(v, "provider_verified")?;
     let worker_alive = bool_field(v, "worker_alive")?;
@@ -807,12 +848,18 @@ fn classify(v: &Value) -> Result<Value> {
         ["complete", "interrupt"].contains(&driver),
         "invalid driver status"
     );
-    if let Some(status) =
-        optional_str(v, "provider_status").or_else(|| optional_str(v, "transport_status"))
-    {
+    for key in ["provider_status", "transport_status"] {
+        if let Some(status) = optional_str(v, key) {
+            ensure!(
+                ["complete", "failed", "incomplete", "timeout"].contains(&status),
+                "invalid provider/transport status"
+            );
+        }
+    }
+    if let Some(status) = optional_str(v, "worker_status") {
         ensure!(
-            ["complete", "failed", "incomplete", "timeout"].contains(&status),
-            "invalid provider status"
+            ["alive", "dead", "crash", "killed", "timeout", "failed"].contains(&status),
+            "invalid worker status"
         );
     }
     for key in [
@@ -866,26 +913,29 @@ fn classify(v: &Value) -> Result<Value> {
         .get("slot_consumed")
         .and_then(Value::as_bool)
         .unwrap_or(false);
-    let interrupted = driver == "interrupt"
-        || obj(v)?
-            .get("driver_interruption")
-            .and_then(Value::as_bool)
-            .unwrap_or(false);
+    let interrupted = driver == "interrupt";
+    let identity_conflict = [
+        ("board_sha256", "expected_board_sha256"),
+        ("revision_sha256", "expected_revision_sha256"),
+        ("action_count", "expected_action_count"),
+        ("deadline_unix_ms", "expected_deadline_unix_ms"),
+    ]
+    .iter()
+    .any(|(actual, expected)| {
+        (v.get(*actual).is_some() || v.get(*expected).is_some())
+            && (v.get(*actual).is_none() || v.get(*actual) != v.get(*expected))
+    });
     let mut decision = "record_failed";
     let mut reason = "valid attempt outcome";
     if slot_consumed {
         decision = "record_indeterminate";
         reason = "attempt slot was already consumed";
-    } else if !provider_complete
-        || !provider_verified
-        || provider_status == "failed"
-        || provider_status == "incomplete"
-        || provider_status == "timeout"
-    {
+    } else if !provider_complete || !provider_verified || provider_failed {
         decision = "record_indeterminate";
         reason = "provider response incomplete or failed";
     } else if !worker_alive
         || !worker_owned
+        || optional_str(v, "worker_status").is_some_and(|status| status != "alive")
         || process == "crash"
         || process == "killed"
         || process == "timeout"
@@ -893,7 +943,10 @@ fn classify(v: &Value) -> Result<Value> {
     {
         decision = "record_indeterminate";
         reason = "worker/process failure";
-    } else if !measurement_present {
+    } else if !ack || reconstructed || identity_conflict {
+        decision = "record_indeterminate";
+        reason = "acknowledged state or expected identity mismatch";
+    } else if !measurement_present || optional_str(v, "measurement_status") == Some("missing") {
         decision = "record_indeterminate";
         reason = "missing external measurement";
     } else if native.is_none() {
@@ -1268,12 +1321,11 @@ fn inheritance(v: &Value) -> Result<Value> {
         "approved_evidence_sha256",
         "native_judge_sha256",
     ] {
-        if let Some(actual) = optional_str(v, key) {
-            ensure!(
-                actual == str_field(manifest, key)?,
-                "stale inheritance identity: {key}"
-            );
-        }
+        let actual = str_field(v, key)?;
+        ensure!(
+            digest(actual) && actual == str_field(manifest, key)?,
+            "stale or malformed inheritance identity: {key}"
+        );
     }
     ensure!(
         ["pass", "software_control"].contains(&str_field(v, "engineering_admission")?),

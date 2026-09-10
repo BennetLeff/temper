@@ -50,6 +50,9 @@ class RefinementTests(unittest.TestCase):
 
     @staticmethod
     def proposal(context, deadline, directory):
+        (directory / "wire-001.response.txt").write_text(
+            "scripted complete provider response"
+        )
         return {
             "notes_utf8": "learned control",
             "skills_utf8": "def value():\n    return 2\n",
@@ -154,6 +157,7 @@ class RefinementTests(unittest.TestCase):
 
     def test_unchanged_base_cannot_be_promoted_as_learning(self):
         def unchanged(context, _deadline, _directory):
+            (_directory / "control.json").write_text('{"software_control":true}')
             return {
                 "notes_utf8": context["notes_utf8"],
                 "skills_utf8": context["skills_utf8"],

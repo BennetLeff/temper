@@ -9,6 +9,7 @@ from typing import Callable
 
 import artifacts
 import buck_host
+import harness
 import workspace as workspace_module
 
 
@@ -151,6 +152,14 @@ class Manager:
                 raise TransportIntegrityError(
                     "refiner transport reference escaped its directory"
                 )
+            transport_path = directory / reference
+            if transport_path.is_symlink() or not transport_path.is_file():
+                raise TransportIntegrityError("refiner transport evidence is missing")
+            transport_path.resolve().relative_to(directory.resolve())
+            receipt["transport"] = {
+                **transport,
+                "sha256": harness.file_hash(transport_path),
+            }
             count = context["pair_count"]
             first = context["trimmed_pair_count"] + 1 if count else 0
             last = len(self.pairs) if count else 0
@@ -196,6 +205,13 @@ class Manager:
             raise
         except (ValueError, TypeError, KeyError, SyntaxError, TimeoutError) as error:
             receipt.update(status="rejected", reason=f"{type(error).__name__}: {error}")
+        except Exception as error:
+            receipt.update(
+                status="indeterminate", reason=f"{type(error).__name__}: {error}"
+            )
+            self.terminal_error = receipt["reason"]
+            self.workspace._terminate(self.terminal_error)
+            raise TransportIntegrityError(self.terminal_error) from error
         finally:
             receipt["elapsed_s"] = time.monotonic() - started
             receipt["active_revision_sha256"] = self.current["revision_sha256"]
