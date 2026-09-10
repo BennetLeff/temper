@@ -456,3 +456,64 @@ Evidence identities: accepted MCU package `pcb/blocks/mcu/` (board
 summary `e636d96c…`); target context `db3e07b6…`; P1 handoff
 `harness-lab/runs/mcu-20260910-a/handoff.json`; P2 selection `c4c31c10…`;
 production board `00a27419…` (unchanged).
+
+---
+
+## 12. Addendum — post-commit verification and a source-identity defect (2026-09-10)
+
+After the milestone artifacts were committed, final verification surfaced a
+**real source-identity defect in the accepted MCU package**, and the worktree
+was found to be under **live concurrent editing by another session**. Both are
+recorded here rather than hidden.
+
+### 12.1 SW1/SW2 used a placeholder resistor footprint (R3 violation)
+
+`pcb/blocks/mcu/source-manifest.json` records the accepted package's reset/boot
+buttons as:
+
+```
+SW1  footprint Resistor_SMD:R_0603_1608Metric  mpn EVQ-P7A01P
+SW2  footprint Resistor_SMD:R_0603_1608Metric  mpn EVQ-P7A01P
+```
+
+`pcb/blocks/mcu/mcu_candidate.kicad_pcb` physically places both as 0603
+resistors. HEAD's `elec/src/components.ato` explicitly called this a
+placeholder:
+
+> Placeholder 0603 footprint: Button_Switch_SMD is not in the committed
+> fp-lib-table yet. Swap to SW_SPST_B3U-1000P (or similar) once the library is
+> added via tools/setup_kicad_env.py.
+
+This slipped through the strict pin/part admission because a 0603 footprint
+exposes pads `1,2`, which coincide with `Button.p1/p2`. The gate checked pad
+*numbers*, not that the footprint is the purchased part — exactly the
+"correct by coincidence" failure mode the plan's R3 forbids ("unresolved exact
+purchased parts prevent admission"). **The accepted package therefore does not
+satisfy R3 and the milestone Definition of Done ("Generated artifacts and
+source agree").**
+
+### 12.2 The source is now being corrected concurrently — and the gate rejects it
+
+A concurrent session changed the `Button` footprint to
+`Button_Switch_SMD:SW_SPST_EVQP7A` at 16:54 (working tree, not this branch's
+commit; left untouched). That stock footprint has **pads `1,1,2,2`**.
+`block_source.build_strict_pin_map` emits one entry per footprint pad, so
+`candidate_validate_pin_map` correctly fires:
+
+```
+duplicate_map: map covers SW1.1 more than once
+```
+
+`harness-lab/test_block_source.py` consequently fails on the live tree
+(10 passed, then a build error). This is caused by the concurrent source edit,
+not by the committed milestone state; a re-run is not meaningful while another
+session edits `elec/src/components.ato`. The correct fix is a reviewed explicit
+alias map for the duplicated switch pads (KTD3/R3), delivered by P1.
+
+### 12.3 Consequence for closure
+
+The closed list of remaining closure work in §11 gains two items: (1) replace
+the SW1/SW2 placeholder footprint with the real purchased switch and re-admit
+the package, and (2) support duplicated switch pad numbers with a reviewed
+alias map. Re-run `test_block_source.py` and regenerate the MCU package only
+after the concurrent source edit lands.
