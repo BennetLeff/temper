@@ -43,7 +43,8 @@
 //! R1h: **N/A — not a physics-gated surface.** The loader moves numbers; it
 //! does not gate on a physics quantity.
 
-use pyo3::exceptions::PyValueError;
+use pyo3::create_exception;
+use pyo3::exceptions::{PyException, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyBool, PyDict, PyFloat, PyList, PyString, PyTuple};
 use pyo3::IntoPyObjectExt;
@@ -53,6 +54,13 @@ use crate::design_rules::DesignRules;
 use crate::differential_pair_contracts::DifferentialPairConstraint;
 use crate::net_graph_contracts::{NetGraph, SubNetEdge};
 use crate::net_types;
+
+create_exception!(
+    temper_design_bundle_python,
+    ConfigValidationError,
+    PyException,
+    "Invalid constraint configuration."
+);
 
 // ---------------------------------------------------------------------------
 // Small Python-semantics helpers (every coercion/operator is CPython's own).
@@ -2058,6 +2066,44 @@ fn validate_current_capacity<'py>(
 
 /// Wrap a pydantic `ValidationError` in `ConfigValidationError`; any other
 /// error type propagates unchanged (the oracle's `except ValidationError`).
+///
+/// `ConfigValidationError` is a Rust-defined exception (registered with its
+/// `__module__` restored to `temper_placer.io.config_loader`, mirroring the
+/// `LoopLoadError` precedent in loaders.rs). It carries the same surface as
+/// the pre-migration Python class: `.config_path`, `.validation_error`, and
+/// the `Invalid config at {path}: {error}` message, chained `from` the
+/// original error. The one documented deviation: `__context__` is not set
+/// (same rationale as loaders.rs — the oracle raises from inside `except`,
+/// Rust has no active exception state; with `__cause__` set, `__context__`
+/// is never rendered).
+fn config_validation_error_from<'py>(
+    py: Python<'py>,
+    config_path: &Bound<'py, PyAny>,
+    err: pyo3::PyErr,
+) -> pyo3::PyErr {
+    let message = format!(
+        "Invalid config at {}: {}",
+        config_path.str().map(|s| s.to_string()).unwrap_or_else(|_| "<unprintable path>".to_string()),
+        err.value(py).str().map(|s| s.to_string()).unwrap_or_else(|_| "<unprintable error>".to_string()),
+    );
+    let wrapped: Bound<'_, PyAny> = match py
+        .get_type::<ConfigValidationError>()
+        .call1((message,))
+    {
+        Ok(v) => v.into_any(),
+        // Practically unreachable (the class is defined two screens up);
+        // surfacing the original error beats a construction-time panic.
+        Err(_) => return err,
+    };
+    // Same attributes the Python __init__ set; setattr cannot fail here in
+    // any case the Python version survived (both objects already exist).
+    let _ = wrapped.setattr("config_path", config_path);
+    let _ = wrapped.setattr("validation_error", err.value(py));
+    let mut out = pyo3::PyErr::from_value(wrapped);
+    out.set_cause(py, Some(err));
+    out
+}
+
 fn wrap_validation_error<'py>(
     py: Python<'py>,
     err: pyo3::PyErr,
@@ -2065,27 +2111,7 @@ fn wrap_validation_error<'py>(
     validation_error_cls: &Bound<'py, PyAny>,
 ) -> pyo3::PyErr {
     if err.matches(py, validation_error_cls).unwrap_or(false) {
-        // `ConfigValidationError` is genuinely Python and has no pyclass
-        // mapping (PyAny surface audit, docs/evidence/2026-08-05-pyany-surface-audit.md
-        // §5 item 3). Its definition lives IN `temper_placer/io/config_loader.py`
-        // itself (the delegation shim over this crate) — there is no
-        // non-circular home to import it from, so this import IS "from its
-        // real home". It is not circular at runtime: this function only runs
-        // after the shim (and `_tdb`) are already imported, so the import is
-        // a sys.modules hit. The defensive fallback below stays for the
-        // pathological case where the shim cannot be (re)built.
-        match PyModule::import(py, "temper_placer.io.config_loader")
-            .and_then(|m| m.getattr("ConfigValidationError"))
-            .and_then(|cls| cls.call1((config_path, &err)))
-        {
-            Ok(wrapped) => pyo3::PyErr::from_value(wrapped),
-            Err(wrap_failure) => {
-                // Extremely defensive: if the wrapper itself cannot be built
-                // (module import cycle), surface the original error.
-                eprintln!("config_loader: failed to wrap ValidationError: {wrap_failure}");
-                err
-            }
-        }
+        config_validation_error_from(py, config_path, err)
     } else {
         err
     }
@@ -2354,5 +2380,20 @@ pub fn apply_fixed_components_to_netlist<'py>(
             comp.setattr("fixed", true)?;
         }
     }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Python module registration
+// ---------------------------------------------------------------------------
+
+pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
+    let py = module.py();
+    let exc = py.get_type::<ConfigValidationError>();
+    // Restore the pre-migration `__module__` so tracebacks and `repr(cls)`
+    // read `temper_placer.io.config_loader.ConfigValidationError` exactly as
+    // before (mirrors the LoopLoadError restore in loaders.rs).
+    exc.setattr("__module__", "temper_placer.io.config_loader")?;
+    module.add("ConfigValidationError", exc)?;
     Ok(())
 }

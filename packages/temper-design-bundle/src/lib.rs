@@ -419,6 +419,7 @@ mod python {
         // preprocess transform, the load chain, and the downstream helpers
         // (see config_loader.rs / reference_loader.rs) — PyYAML + pydantic are
         // called back across the boundary.
+        crate::config_loader::register(module)?;
         module.add_function(wrap_pyfunction!(crate::config_loader::preprocess_config, module)?)?;
         module.add_function(wrap_pyfunction!(crate::config_loader::load_constraints, module)?)?;
         module.add_function(wrap_pyfunction!(crate::config_loader::infer_rjc, module)?)?;
