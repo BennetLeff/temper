@@ -780,6 +780,26 @@ def _ipc2152_forward(
 # CLEAN"). Never resolve it by choosing a number.
 import temper_placer.core.insulation_coordination as _insulation
 
+# Retained from main's #1418 classifier fix (and its tests): the per-pairing
+# gate does not use this scalar, but `_is_hv_net` below keeps the 7-name
+# legacy set FIRST (widening-only, per its docstring) and
+# `tests/placer/cp_sat/test_physics_gate.py` imports both symbols.
+HV_LV_CREEPAGE_MM: float = (
+    _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0
+)
+
+_HV_NET_PATTERNS: frozenset[str] = frozenset(
+    {
+        "DC_BUS+",
+        "DC_BUS-",
+        "SW_NODE",
+        "SW_NODE_DC+",
+        "SW_NODE_DC-",
+        "AC_L",
+        "AC_N",
+    }
+)
+
 
 def _is_hv_net(name: str) -> bool:
     """Check whether *name* is an HV-domain net.
