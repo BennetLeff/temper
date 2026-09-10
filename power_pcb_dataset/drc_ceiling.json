@@ -364,13 +364,21 @@
         "track_dangling": 0,
         "via_dangling": 0
       }
+    },
+    "2026-09-03-parser-unconnected-items-rebaseline": {
+      "date": "2026-09-03",
+      "cause": "Re-baselined the current main board after fix/drc-parser-unconnected-items-blindness (#1390, commit 85b4e4005) made _drc_api parse KiCad's top-level unconnected_items array. The prior 406-error ceiling was measured with that array silently dropped; the corrected parser exposes 348 real unconnected_items errors without any board or rule change. A fresh 120-sample run on clean current main (3d10b36f3), with regenerated DRU rules, kicad-cli 10.0.5, --all-track-errors, sibling fp-lib-table, and single-thread KICAD_CONFIG_HOME, was deterministic at 754 errors / 402 warnings on every sample. The only delta is unconnected_items +348; all previously recorded categories are unchanged.",
+      "per_type_delta": {
+        "unconnected_items": 348,
+        "error_ceiling": 348
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 406,
+      "error_ceiling": 754,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -386,12 +394,13 @@
         "solder_mask_bridge": 4,
         "track_width": 0,
         "tracks_crossing": 0,
-        "via_diameter": 0
+        "via_diameter": 0,
+        "unconnected_items": 348
       },
       "provenance": {
-        "measured_at_commit": "3f26ee8871d2d4b92518c3402981b0d46a43e4e6",
+        "measured_at_commit": "3d10b36f32bece9dcc6be5e3f2c5c2d68f0ecb24",
         "dirty": false,
-        "branch": "fix/board-safety-followup-20260830",
+        "branch": "fix/drc-ceiling-current-main-20260903",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
@@ -403,7 +412,7 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with sibling fp-lib-table and single-thread KICAD_CONFIG_HOME pin, 120 samples on the clean board commit 392870a58f2d1964c88f68aeac32f078d35a53d0 after regenerating pcb/temper.kicad_dru. The unchanged origin/main control was measured with the same tool, flags, rules, project context, and sample count first. Spread 0 in every error and warning category on both boards: errors 406/406, warnings 402/402. Full attribution is recorded in the 2026-08-30-c6-absolute-pad-orientation _march entry."
+        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with sibling fp-lib-table and single-thread KICAD_CONFIG_HOME pin, 120 samples on clean current main commit 3d10b36f32bece9dcc6be5e3f2c5c2d68f0ecb24 after regenerating pcb/temper.kicad_dru. Spread 0 in every error and warning category: errors 754/754, warnings 402/402. The +348 unconnected_items are the previously invisible top-level array exposed by parser fix 85b4e4005 (#1390); no board or rule bytes changed."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,
