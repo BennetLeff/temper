@@ -13,6 +13,17 @@ geometry and placement calculations.
 """
 
 # IPC-2221 PCB design standards
+# Net graph utilities (net_graph_contracts is an attribute namespace on the
+# extension, not an importable submodule -- alias through the module object).
+import temper_design_bundle_python as _tdb
+from temper_design_bundle_python import (
+    Loop,
+    LoopCollection,
+    LoopEvent,
+    LoopPin,
+    LoopPriority,
+    LoopType,
+)
 from temper_drc_rs import estimate_current_from_net_class
 
 from temper_placer.core.board import (
@@ -39,14 +50,6 @@ from temper_placer.core.differential_pair import DifferentialPairConstraint
 
 # Hypergraph utilities
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
-from temper_placer.core.loop import (
-    Loop,
-    LoopCollection,
-    LoopEvent,
-    LoopPin,
-    LoopPriority,
-    LoopType,
-)
 from temper_placer.core.loop_extractor import (
     auto_extract_loops,
     classify_component,
@@ -60,15 +63,16 @@ from temper_placer.core.loop_ownership import (
 )
 from temper_placer.core.manufacturing import FabPreset, inflated_clearance, inflated_width
 
-# Net graph utilities
-from temper_placer.core.net_graph import NetGraph, SubNetEdge
-from temper_placer.core.net_types import (
+NetGraph = _tdb.net_graph_contracts.NetGraph
+SubNetEdge = _tdb.net_graph_contracts.SubNetEdge
+from temper_design_bundle_python import (
     ConnectivityStrategy,
     NetClassification,
     NetType,
     NetTypeSpec,
     VoltageClass,
 )
+
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 # Physical pad identity (SSOT: (ref, pin_number, occurrence) -- see module docstring)

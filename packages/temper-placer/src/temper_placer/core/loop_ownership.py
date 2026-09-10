@@ -17,7 +17,7 @@ objects.
 
 Example usage:
     >>> from temper_placer.core.loop_ownership import build_ownership_map
-    >>> from temper_placer.core.loop import LoopCollection
+    >>> from temper_design_bundle_python import LoopCollection
     >>> from temper_placer.core.netlist import Netlist
     >>>
     >>> loops = LoopCollection(...)  # From auto-extraction or YAML
@@ -45,11 +45,11 @@ LoopMembership = _tdb.loop_ownership_contracts.LoopMembership
 LoopOwnershipMap = _tdb.loop_ownership_contracts.LoopOwnershipMap
 
 if TYPE_CHECKING:
-    from .loop import Loop, LoopCollection
+    from temper_design_bundle_python import Loop, LoopCollection
+
     from .netlist import Component, Netlist
 
 from .loop_extractor import classify_component
-
 
 # =============================================================================
 # Re-exports from Rust pyclasses (data contracts)

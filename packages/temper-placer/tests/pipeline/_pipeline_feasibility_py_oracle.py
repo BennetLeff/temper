@@ -724,13 +724,13 @@ physical performance specifications (EMI, Thermal, Signal Integrity).
 
 import math
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
     from temper_placer.core.specification import PcbSpecification
 
-from temper_placer.core.net_types import VoltageClass
+from temper_design_bundle_python import VoltageClass
 
 
 def _mains_voltage_to_class(voltage_v: float) -> VoltageClass:

@@ -6,12 +6,12 @@ import tempfile
 from pathlib import Path
 
 import pytest
-
-from temper_placer.core.loop import (
+from temper_design_bundle_python import (
     Loop,
     LoopPriority,
     LoopType,
 )
+
 from temper_placer.io.loop_loader import (
     LoopLoadError,
     load_loop_collection,
@@ -221,7 +221,7 @@ class TestSaveLoopToYaml:
 
     def test_save_and_reload(self):
         """Should be able to save and reload a loop."""
-        from temper_placer.core.loop import LoopEvent, LoopPin
+        from temper_design_bundle_python import LoopEvent, LoopPin
 
         original = Loop(
             name="test_loop",
