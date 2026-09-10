@@ -16,6 +16,27 @@ versioned executable skills, bounded recovery, frozen inheritance, and default
 OTLP tracing around OpenCode (`--no-telemetry` opts out). Its local software controls do not remove the
 engineering admission requirements.
 
+## MCU block harness (2026-09-10)
+
+A source-derived MCU block and a buck+MCU assembly extend this harness. The
+accepted MCU package (`pcb/blocks/mcu/`, state
+`assisted-pending-schematic-parity`) was generated from the Atopile wrapper in
+[`blocks/mcu/`](blocks/mcu/README.md) through
+[`block_source.py`](block_source.py) and the strict Rust bridge in
+`packages/temper-design-bundle`, constructed under the bounded
+[`run_block.py`](run_block.py) session, and composed by
+[`compose_assembly.py`](compose_assembly.py) /
+[`run_control_assembly.py`](run_control_assembly.py). Cross-unit memory is
+curated in [`memory/`](memory/README.md) and selected by
+[`memory.py`](memory.py) + `src/memory.rs`.
+
+**This is `apparatus-only-assisted`:** the live model transport was blocked
+(Zen HTTP 429), and schematic parity still fails, so the milestone is
+**INCOMPLETE**. The joined evidence, replay result, remaining interfaces, and
+blockers are in
+[`docs/hardware/control-assembly/harness-report.md`](../docs/hardware/control-assembly/harness-report.md).
+It is not a qualified cooker or hardware validation.
+
 Two small experiments use the real buck input capacitor C9 and regulator U3.
 Experiment 00 places C9; Experiment 00R freezes that placement and routes its
 two mapped connections. Existing optimizer code is shelved; this directory

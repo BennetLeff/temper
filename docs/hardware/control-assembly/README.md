@@ -6,6 +6,13 @@ so this package is the labelled apparatus-only scripted result. The autonomous
 outcome is preserved separately in
 `pcb/blocks/control-assembly/verification/failed-attempts/live-model-transport.json`.
 
+**Milestone status: INCOMPLETE.** The coordinator join, contract acceptance,
+replay, and full remaining-interface inventory are in
+[`harness-report.md`](harness-report.md). Closure is blocked by the missing
+live model delivery/construction turn and the failing schematic parity (67 MCU
+/ 98 assembly findings); this README, the integration report, and the memory
+report are the P3/P2 owner reports the coordinator joins.
+
 This directory is the entry point for the buck + MCU section that fits the
 cooker board. It composes the source-derived buck functional nine with the P1
 U4 accepted MCU ten, routes their shared supply/return, and records every
@@ -22,6 +29,7 @@ mapping and remaining interface needed by the next owner.
 | `assembly-candidate/` | The U2 assembly candidate: source-path map, layer map, via recreation, prototype exclusion, replacement ledger, owned-region guard, cross-view scaffold, generated PCB + schematic. |
 | `verification/apparatus-only/` | The U3 scripted routing/verification pass: routed board, native DRC/ERC reports, finding-set delta, connectivity, candidate binding. |
 | `verification/failed-attempts/` | The autonomous live-model attempt, preserved separately. |
+| `../../docs/hardware/control-assembly/harness-report.md` | Coordinator report (U1-U3): contract acceptance, attempt/intervention ledger, replay, tests, remaining interfaces, milestone verdict. |
 | `../../docs/hardware/control-assembly/integration-report.md` | Full integration report and finding-set delta. |
 | `../../docs/hardware/control-assembly/memory-report.md` | P2 memory closeout (link). |
 
@@ -96,3 +104,10 @@ Power: `BUCK_VIN_15V` (PS1 counterpart is not in this candidate) and
 5. P1 vendorer gap: `Inductor_SMD:L_Bourns_SRP1265A` is not in KiCad stock or
    `pcb/libs` (P3 works around it from the prototype library; a P1 fix is
    requested).
+6. Live-delivery memory receipt: P2 records delivery of the frozen buck-memory
+   selection to the retained model-input payload, but no live model turn ran,
+   so the plan's live-delivery requirement is unsatisfied (see
+   [`harness-report.md`](harness-report.md) §4).
+7. Uncommitted milestone artifacts: the working tree carries P1/P2/P3 source
+   and evidence that are not yet committed (see `harness-report.md` §7). The
+   branch is not reproducible until the owner lands them.

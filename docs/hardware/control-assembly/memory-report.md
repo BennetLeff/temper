@@ -24,8 +24,14 @@ Priority is catalog order; the selection is deterministic over
   the entry — not assumed). Content `sha256:9908a4ac…7537`.
 
 Selection receipt: `selection_sha256`
-`bd3c56ff37d4069476c64f77a634143acffb818e7a106594f34db982632721c3`,
-zero exclusions, materialized entry bytes 8243 of the 64-KiB pair cap.
+`c4c31c10710dd85a96c2e07c6083f818e959a0a7394953d039bac32f24bce1e5`,
+zero exclusions, materialized notes 8981 bytes of the 64-KiB pair cap. This
+receipt is the accepted assisted-attempt selection bound to the current source
+identities; the earlier `bd3c56ff…`/8243-byte figures in this section matched
+no retained receipt and were reconciled by the coordinator
+(`harness-report.md` §1.5, §8). The **unassisted** attempt, bound to the
+pre-fix source identities, recorded a different content-bound selection hash
+(`7073c176…`) over the same five entry bytes.
 Evidence hashes verified live against `harness-lab/REPAIR-RESULTS.md`,
 `harness-lab/COMBINED-RESULTS.md`, `harness-lab/STREAM-DIAGNOSTIC.md`,
 `docs/solutions/best-practices/behavioral-model-evidence-boundary.md`,
