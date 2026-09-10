@@ -69,7 +69,7 @@ from temper_placer.io.kicad_metadata import KiCadMetadata
 # ---------------------------------------------------------------------------
 
 _PINNED = {
-    "_deterministic_pipeline_py_oracle.py": "23940ceeafe6aa446b6c824a4048187235aa100ba2ac2ed75128c6a83ed69f3f",
+    "_deterministic_pipeline_py_oracle.py": "5791cddad80ae332a4187ec5797d8664aedc8a5c691a8ad310bfc1d086a8d59c",
 }
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"
 

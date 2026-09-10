@@ -69,9 +69,9 @@ if TYPE_CHECKING:
 
     from shapely.geometry import Polygon
 
+    from temper_placer._constraint_types import IsolationSlot
     from temper_placer.core.board import Zone as CopperZone
     from temper_placer.deterministic.io.kicad_metadata import KiCadMetadata
-    from temper_placer.io.config_loader import IsolationSlot
     from temper_placer.validation.drc_fence import DRCFence
 
 _SIDE_TO_LAYER: dict[int, str] = {0: "F.Cu", 1: "B.Cu"}
