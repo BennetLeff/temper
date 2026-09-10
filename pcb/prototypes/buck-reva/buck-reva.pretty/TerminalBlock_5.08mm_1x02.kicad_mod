@@ -1,0 +1,118 @@
+(footprint "TerminalBlock_5.08mm_1x02"
+	(version 20260206)
+	(generator "buck-reva")
+	(generator_version "1.0")
+	(layer "F.Cu")
+	(descr "Wurth Elektronik 691253500002, WR-TBL Series 2535, 2-pos 5.08 mm vertical (top) wire-entry screw terminal. Recommended PCB hole Ø1.5 mm, pitch 5.08 mm, pin 1 centre 2.54 mm from the end, body 10.16 x 5.3 mm, height 11.2 mm. Source: Wurth datasheet 691253500002.pdf (WR-TBL 2535), rev 26-AUG-14, sheet 1/2, 2026-09-10.")
+	(tags "terminal block screw vertical top entry 5.08mm THT")
+	(property "Reference" "REF**"
+		(at 2.54 -5.5 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "TerminalBlock_5.08mm_1x02"
+		(at 2.54 5.5 0)
+		(layer "F.Fab")
+		(hide yes)
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" "https://www.we-online.com/components/products/datasheet/691253500002.pdf"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Wurth 691253500002 WR-TBL 2535 vertical top-entry screw terminal, 2-pos 5.08 mm, 16 A / 300 V."
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start -2.54 -2.65)
+		(end 7.62 2.65)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(fill no)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -2.54 2.65)
+		(end -2.54 1.4)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_text user "1"
+		(at -1.6 1.9 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(fp_rect
+		(start -2.79 -2.9)
+		(end 7.87 2.9)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+	)
+	(fp_rect
+		(start -2.54 -2.65)
+		(end 7.62 2.65)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill no)
+		(layer "F.Fab")
+	)
+	(pad "1" thru_hole roundrect
+		(at 0 0)
+		(size 2.8 2.8)
+		(drill 1.5)
+		(layers "*.Cu" "*.Mask")
+		(roundrect_rratio 0.25)
+		(remove_unused_layers no)
+	)
+	(pad "2" thru_hole circle
+		(at 5.08 0)
+		(size 2.8 2.8)
+		(drill 1.5)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(embedded_fonts no)
+)

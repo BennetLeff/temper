@@ -1,0 +1,88 @@
+{
+  "schema": "buck-reva.source-manifest.v1",
+  "revision": "A",
+  "project": "pcb/prototypes/buck-reva",
+  "generated": "2026-09-10",
+  "toolchain": {
+    "kicad_cli": "10.0.6",
+    "kicad_cli_path": "/Volumes/KiCad/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
+  },
+  "files": {
+    "buck-reva.kicad_sch": "1c6529104b5ce671406785a3c6b1508a9ae0a05ebf81f61423be6062659a56c5",
+    "buck-reva.kicad_pcb": "cb8cca0bd5eaaf695e6c8a3e23a8e270f62b39f2ab4d08ffad7d9a9a850b3303",
+    "buck-reva.kicad_pro": "260eaf039a2aa24c08389d5870da409e6ac1135a3be15633b4c96747fdf733e8",
+    "buck-reva.kicad_dru": "e53161ef573ffc1623e5f4751f32a11e23d65479c83230e49e41cf93273cacf5",
+    "buck-reva.kicad_sym": "d2eed7d974fe60449b1c14d568b9892415b6fabfa890490acbdc9cc7b7eb078d",
+    "fp-lib-table": "80201c126689b71db1a36ec47614f8e89423df249797ac259c98e76428d584ae",
+    "sym-lib-table": "410cee4cb805a90e2df5ca1b1686b36e05d93a9a3829e5f8c04c9fad47f9ce85",
+    "buck-reva.pretty/C_0603_1608Metric.kicad_mod": "7533b5bc39ffc20f7fa30362d8e299f64306ce4aa022bce462c1e5234d60260c",
+    "buck-reva.pretty/C_1210_3225Metric.kicad_mod": "d919150483ebe46191c59fbbaf6e4ffe5855ef12b103073829e6d08666a10026",
+    "buck-reva.pretty/L_Bourns_SRP1265A.kicad_mod": "d5ff9e60249c5215983beaa8a32d3e98070646daca522f473cc45b47ad605ba8",
+    "buck-reva.pretty/MountingHole_3.2mm_M3.kicad_mod": "b83ec84428449465df3b459f1bc24b285045c812102a2052b1b7ce0f67e018f2",
+    "buck-reva.pretty/R_0603_1608Metric.kicad_mod": "543eed1d2230b94dc22a283c6593beed5960db625feec403313397e7192a606f",
+    "buck-reva.pretty/SOT-23-6.kicad_mod": "6f81d4fc72cfb7be1b9b8a12649a04f91a7edf5fa18908274b6667fbd89ad2ce",
+    "buck-reva.pretty/TerminalBlock_5.08mm_1x02.kicad_mod": "3842ea506b22f345aa2561fb463257f5736a6c1d959497e1a4b3652fb494615b",
+    "buck-reva.pretty/TestPoint_Probe_2mm.kicad_mod": "73935858328c3c61e47a0e53f72eb520825d67d9f746501c6f54c2dec8351470"
+  },
+  "source_provenance": {
+    "elec/src/modules.ato": "d3873898d65300b5982eeba66d61b1ec4938c63ec29ce869d34a3ac8d11cc547",
+    "harness-lab/engineering/circuit-contract.json": "2866d51e6176239275f945b97e560c75abbd2475ca22d81bbebea3cd95b9df44",
+    "harness-lab/fixtures/buck-v2/buck-v2-contract.json": "eb69d057cdf0801f7257095e5818352408de183ead1d20dacab050df78569959",
+    "harness-lab/fixtures/buck-v2/buck-dev-a/witness.kicad_pcb": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",
+    "harness-lab/audits/buck-final-20260910/components/current-buck-bom.md": "0cd86e3d210622f04e900596e7691c42f9928f4735e0695fd15199e0e4b233bb",
+    "harness-lab/audits/buck-final-20260910/source-build/collection.json": "3702152ebe2570dbefddd328916f9a08efdbc3f29a506065435c05c6ff1b24d0",
+    "harness-lab/audits/buck-20260910-followup/layout.md": "a28016f3e75e48193da9bd0450f7188ec11448d9668c684adb8cdf973dcea7e5",
+    "pcb/temper.kicad_pcb": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+  },
+  "net_names": {
+    "PCB net +15V": "silk/doc VIN",
+    "PCB net gnd": "silk/doc GND",
+    "PCB net +3V3": "silk/doc VOUT / 3V3",
+    "PCB net sw": "SW",
+    "PCB net boot": "BOOT",
+    "PCB net fb": "FB"
+  },
+  "interface": {
+    "J1": {
+      "mfr": "Wurth Elektronik",
+      "mpn": "691253500002",
+      "desc": "WR-TBL 2535, 2-pos 5.08 mm vertical top-entry screw terminal, 16 A / 300 V",
+      "pin1": "+15V (VIN)",
+      "pin2": "gnd (GND)",
+      "wire_entry": "top (perpendicular to PCB)"
+    },
+    "J2": {
+      "mfr": "Wurth Elektronik",
+      "mpn": "691253500002",
+      "desc": "WR-TBL 2535, 2-pos 5.08 mm vertical top-entry screw terminal, 16 A / 300 V",
+      "pin1": "+3V3 (VOUT)",
+      "pin2": "gnd (GND)",
+      "wire_entry": "top (perpendicular to PCB)"
+    },
+    "test_points": {
+      "TP1": "+15V (VIN)",
+      "TP2": "gnd (GND)",
+      "TP3": "+3V3 (VOUT)",
+      "TP4": "gnd (GND)"
+    },
+    "optional_sw_access": "not populated; switching node accessible at U3.2 / L2.1 pads only (documented, no dedicated pad added to avoid enlarging the SW loop)",
+    "mounting_holes": "H1-H4, NPTH 3.2 mm for M3, isolated"
+  },
+  "fabrication": {
+    "layers": 2,
+    "outline_mm": [
+      50.0,
+      40.0
+    ],
+    "thickness_mm": 1.6,
+    "base_material": "FR-4",
+    "finished_copper_oz": 1,
+    "surface_finish": "lead-free HASL",
+    "solder_mask": "both sides",
+    "silkscreen": "both sides (F.SilkS populated)",
+    "assembly_side": "top",
+    "min_track_mm": 0.2,
+    "min_clearance_mm": 0.2,
+    "min_edge_clearance_mm": 0.2
+  }
+}
