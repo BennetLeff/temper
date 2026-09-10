@@ -1,6 +1,7 @@
 """Pinned Python oracle for Wave-4 heuristics/ Phase B -- ``create_keepout_mask``.
 
 DO NOT EDIT -- THIS IS THE REFERENCE.
+======================================
 ``create_keepout_mask`` below is a **verbatim** ``git show`` extraction from
 commit ``d5f4593142da87c75f9b21734e0e65d0e991f16d`` (``origin/main`` tip at
 the time this migration was pulled; the function itself last changed in
@@ -68,8 +69,8 @@ from typing import TypeAlias
 import numpy as np
 from numpy.typing import NDArray
 
-from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
+from temper_placer._constraint_types import PlacementConstraints
 
 Array: TypeAlias = NDArray
 

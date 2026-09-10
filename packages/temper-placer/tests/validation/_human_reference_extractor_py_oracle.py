@@ -25,7 +25,7 @@ import yaml
 from temper_placer.core.state import PlacementState
 
 if TYPE_CHECKING:
-    from temper_placer.io._kicad_types import ParseResult
+    from temper_design_bundle_python.parse_engine import ParseResult
 
 # ---------------------------------------------------------------------------
 # Minimal quality-metrics context

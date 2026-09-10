@@ -31,10 +31,10 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from temper_placer.deterministic import DeterministicPipeline
+from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.feedback.drc_parser import parse_kicad_drc
 from temper_placer.deterministic.feedback.violation_mapper import ViolationComponentMapper
 from temper_placer.deterministic.feedback.zone_adjuster import AdjustmentResult, ZoneAdjuster
-from temper_placer.deterministic.state import BoardState
 
 if TYPE_CHECKING:
     from temper_placer._constraint_types import PlacementConstraints

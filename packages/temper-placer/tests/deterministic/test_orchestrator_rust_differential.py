@@ -72,7 +72,6 @@ from temper_placer.deterministic.state import BoardState
 
 _PINNED = {
     "_orchestrator_py_oracle.py": "c0e3f4b15fef083b6b31739fad4e6ab17cb831b64500849332ea7e196233585d",
-    "_orchestrator_py_oracle.py": "9647b9ff721942a5906b2994bb473074f95d51824bcf0387ad2b560febc7ce30",
 }
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"
 

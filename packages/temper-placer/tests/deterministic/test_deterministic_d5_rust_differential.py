@@ -79,7 +79,7 @@ _PINNED = {
         "0731def49ded64dfa2b077d802dafd36223bac0ba90b81a8e2730e9b0025671f"
     ),
     "_phased_assignment_py_oracle.py": (
-        "ace24db1518d3c988df599c2df17e56f5e7068c7002aff5ae22298783bf343c3"
+        "324d3f7f4f8bf70cc661efca11f69c6262f93249248cd4c5df6ed988cdaf4c2d"
     ),
 }
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"

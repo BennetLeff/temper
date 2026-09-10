@@ -214,7 +214,7 @@ from typing import TYPE_CHECKING
 from temper_placer.router_v6.net_classification import is_ground_net, is_signal_net
 
 if TYPE_CHECKING:
-    from temper_placer.io._kicad_types import ParseResult, ViaData
+    from temper_design_bundle_python.parse_engine import ParseResult, ViaData
     from temper_placer.router_v6.routing_results import CompiledRoute
 
 # Verbatim from quality/corridor.py — module-level constants, unchanged.
