@@ -64,7 +64,7 @@ _CONSTRAINT_SNAPSHOT = {
 
 
 def _load_netclass_rules():
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     return load_netclass_rules(_RULES_PATH)
 
@@ -304,8 +304,9 @@ class TestU9CompletionPreservation:
         catches accidental Default/plane-layer routing without restoring the
         no-op gate U7 deliberately removes.
         """
+        from temper_design_bundle_python import load_netclass_rules
+
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.netclass_loader import load_netclass_rules
         from temper_placer.router_v6.channel_mapping import _assign_layer
         from temper_placer.router_v6.layer_assignment import (
             layer_assignments_from_netclass,
@@ -372,9 +373,10 @@ class TestU9CompletionPreservation:
             "docs/brainstorms/2026-07-20-router-tree-executor-resilience-and-zone-policy-requirements.md, "
             "previously masked by single-layer-only routing."
         )
+        from temper_design_bundle_python import load_netclass_rules
+
         from temper_placer.io.config_loader import load_constraints
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.netclass_loader import load_netclass_rules
         from temper_placer.placer.cp_sat.encoder import solve_placement
         from temper_placer.router_v6.adapter import route_pcb
 

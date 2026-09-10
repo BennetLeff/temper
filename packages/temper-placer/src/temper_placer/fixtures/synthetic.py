@@ -11,9 +11,10 @@ import random
 from dataclasses import dataclass
 from pathlib import Path
 
+from temper_io_types import load_footprint_library
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io.footprint_library import load_footprint_library
 
 
 @dataclass
@@ -352,7 +353,7 @@ def generate_200_component_netlist(
 
 def _create_minimal_footprint_library():
     """Create minimal footprint library for testing when file not available."""
-    from temper_placer.io.footprint_library import FootprintLibrary, FootprintSpec
+    from temper_io_types import FootprintLibrary, FootprintSpec
 
     lib = FootprintLibrary()
 

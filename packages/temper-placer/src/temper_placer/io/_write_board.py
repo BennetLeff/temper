@@ -17,14 +17,14 @@ from pathlib import Path
 
 import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
+from temper_io_types import write_types as _write_types_rs
 
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
-from temper_placer.io._write_types import (
-    IsolationSlotResult,
-    PlacementUpdate,
-    WriteResult,
-)
+
+IsolationSlotResult = _write_types_rs.IsolationSlotResult
+PlacementUpdate = _write_types_rs.PlacementUpdate
+WriteResult = _write_types_rs.WriteResult
 
 
 def write_placements_to_pcb(

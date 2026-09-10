@@ -1,0 +1,27 @@
+# Custom partition table for the Temper induction cooktop (ESP32-S3, 4 MB flash).
+#
+# Referenced by sdkconfig.defaults:
+#   CONFIG_PARTITION_TABLE_CUSTOM=y
+#   CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+# That setting has been in sdkconfig.defaults since the firmware was first
+# committed, but this file never existed anywhere in the repo, so the build
+# could not generate a partition table at all.
+#
+# Layout rationale:
+#   nvs      - required: main.c calls nvs_flash_init() for persisted settings.
+#   phy_init - standard IDF slot. Wi-Fi and BT are both disabled in
+#              sdkconfig.defaults, so nothing writes it today; it is kept so
+#              that enabling either later does not require moving `factory`.
+#   factory  - single application image, no OTA. Nothing in this firmware
+#              references esp_ota_* or a second app slot, so a single 3 MB
+#              factory image is the honest layout; adding OTA later means
+#              re-sizing here deliberately rather than silently.
+#
+# Offsets: the partition table itself lives at 0x8000 and occupies 0x1000, so
+# the first entry starts at 0x9000. 0x10000 + 0x300000 = 0x310000 (3.06 MB of
+# 4 MB used), leaving headroom below the configured 4 MB device size.
+#
+# Name,     Type, SubType, Offset,   Size,     Flags
+nvs,        data, nvs,     0x9000,   0x6000,
+phy_init,   data, phy,     0xf000,   0x1000,
+factory,    app,  factory, 0x10000,  0x300000,

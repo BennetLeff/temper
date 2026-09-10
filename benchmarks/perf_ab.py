@@ -1009,8 +1009,9 @@ def bench_loaders() -> tuple[float, float]:
     "no regression beyond noise" arm for a pure-delegation, I/O-shaped
     surface — NOT a speedup claim.
     """
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.io.loop_loader import load_loop_collection
-    from temper_placer.io.netclass_loader import load_netclass_rules
 
     netclass_oracle = _load_module_from_path(
         "_perf_ab_netclass_loader_oracle",

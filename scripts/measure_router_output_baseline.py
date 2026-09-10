@@ -45,6 +45,7 @@ def kicad_version() -> str:
 
 
 def route_once() -> tuple[str, float]:
+    from temper_design_bundle_python import load_netclass_rules
     from tests.conftest import make_parsed_pcb_stub
     from tests.placer.cp_sat.test_regression_drc import (
         PRODUCTION_BOARD_PATH,
@@ -52,7 +53,6 @@ def route_once() -> tuple[str, float]:
     )
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
 
     rules = load_netclass_rules(RULES_PATH)

@@ -230,8 +230,9 @@ def main() -> int:
 
     engine = _verified_engine()
 
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.placer.cp_sat._encoder_solve import _POLARIZED_REFS, courtyard_clearance_mm
     from temper_placer.placer.cp_sat.tank_creepage import (
         check_tank_creepage_separation,

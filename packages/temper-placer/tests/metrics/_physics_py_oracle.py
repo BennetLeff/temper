@@ -210,7 +210,8 @@ def _oracle_measure_thermal(
     RE-PINNED 2026-08-15 (thermal corrections): the body mirrors the
     CURRENT ``measure_thermal`` — the sensor-chain model (Ts → Tc → Tj)
     with per-device resistances resolved by
-    ``temper_placer.physics.thermal.thermal_resistance_for``, the 60 °C
+    ``temper_thermal.thermal_resistance_for_py`` (previously re-exported as
+    ``temper_placer.physics.thermal.thermal_resistance_for``), the 60 °C
     design-limit ambient default, and ``thermal_margin_c`` vs the 80 °C
     firmware heatsink trip in sensor space (was: flat 0.6/0.25/1.0 K/W
     for every device and ``150.0 - max_tj``). The edge-distance f32
@@ -222,7 +223,7 @@ def _oracle_measure_thermal(
     if not power_dissipation:
         return OracleThermalMetrics(ambient_temp_c, 0.0, 0.0)
 
-    from temper_placer.physics.thermal import thermal_resistance_for
+    from temper_thermal import thermal_resistance_for_py
 
     positions = np.array(state.positions)
     max_tj = ambient_temp_c
@@ -244,7 +245,7 @@ def _oracle_measure_thermal(
 
         # Sensor-chain model (kernel mirror): penalty widened to f64 first
         # (matches `dist as f64`), copper_area is always 0.0 in this kernel.
-        rjc, rch, rha = thermal_resistance_for(ref)
+        rjc, rch, rha, _provenance = thermal_resistance_for_py(ref)
         dist_f = float(dist)
         edge_penalty = max(0.0, dist_f - 5.0) * 0.2
         rha_eff = (rha + edge_penalty) - 0.0

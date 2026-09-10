@@ -462,7 +462,7 @@ def build_courtyard_constraints(
 def default_clearance_mm() -> float:
     """Same fallback/lookup solve_placement itself uses for tau's input."""
     try:
-        from temper_placer.io.netclass_loader import load_netclass_rules
+        from temper_design_bundle_python import load_netclass_rules
 
         cfg = PLACER_ROOT / "configs" / "netclass_rules.yaml"
         if cfg.exists():
