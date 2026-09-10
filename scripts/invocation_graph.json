@@ -152,6 +152,13 @@
   "check_import_fallback_hygiene.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_insulation_pairings.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/core/insulation_coordination.py",
+    "packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
+    "packages/temper-placer/src/temper_placer/placer/cp_sat/hv_functional_creepage.py",
+    "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py"
+  ],
   "check_iso7741_gate_drive_qualification.py": [],
   "check_isolation_architecture_qualification.py": [],
   "check_isolation_joint_qualification.py": [],
@@ -188,7 +195,6 @@
     "packages/temper-placer/src/temper_placer/_constraint_types/config.py",
     "packages/temper-placer/src/temper_placer/core/net_classification.py",
     "packages/temper-placer/src/temper_placer/physics/gate_drive.py",
-    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py",
     "packages/temper-placer/tests/core/_priority_py_oracle.py",
@@ -245,6 +251,8 @@
   "check_pad_orientation.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
+    "packages/temper-placer/src/temper_placer/geometry/pad_world.py",
+    "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
     "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py"
   ],
   "check_pad_world_position_oracle.py": [
@@ -254,7 +262,8 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_pd2_compartment_evidence.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/core/insulation_coordination.py"
   ],
   "check_physics_provenance.py": [
     ".github/workflows/python-tests.yml",
@@ -457,6 +466,7 @@
   "generate_kicad_dru.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/design_rules.py",
+    "packages/temper-placer/src/temper_placer/core/insulation_coordination.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/tank_creepage.py",
@@ -469,7 +479,6 @@
     "packages/temper-placer/src/temper_placer/router_v6/zone_pour_clearance.py",
     "packages/temper-placer/src/temper_placer/router_v6/zone_pour_creepage.py",
     "packages/temper-placer/src/temper_placer/validation/drc_result.py",
-    "packages/temper-placer/tests/placer/cp_sat/test_physics_gate.py",
     "packages/temper-placer/tests/placer/cp_sat/test_tank_creepage.py",
     "packages/temper-placer/tests/requirements/clearance_oracle/clearance.py",
     "packages/temper-placer/tests/router_v6/test_pair_clearance.py",
@@ -511,6 +520,7 @@
   ],
   "measure_cross_domain_creepage.py": [
     ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
     "packages/temper-placer/tests/validation/test_gate_input_registry.py"
   ],
   "measure_router_output_baseline.py": [
