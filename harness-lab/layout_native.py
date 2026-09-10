@@ -30,7 +30,7 @@ def _worker(board: Path) -> dict[str, Any]:
                 box = field.GetBoundingBox()
                 labels.append(
                     {
-                        "text": field.GetShownText(),
+                        "text": field.GetShownText(False),
                         "layer": loaded.GetLayerName(field.GetLayer()),
                         "height_mm": pcbnew.ToMM(field.GetTextSize().y),
                         "bounds_mm": [

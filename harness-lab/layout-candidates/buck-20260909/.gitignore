@@ -1,0 +1,7 @@
+__pycache__/
+*.kicad_prl
+*.lck
+kicad-config/
+**/kicad-config/
+
+.history/

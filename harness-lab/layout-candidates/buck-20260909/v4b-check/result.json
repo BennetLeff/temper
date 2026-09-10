@@ -1,0 +1,60 @@
+{
+  "board_sha256": "57dba36371d243b993de979c3a9988bc85781df463f94ac532564ac106705752",
+  "findings": [
+    {
+      "evidence": {
+        "description": "Silkscreen clearance",
+        "items": [
+          {
+            "description": "Reference field of U3",
+            "pos": {
+              "x": 20.0,
+              "y": 22.0
+            },
+            "uuid": "76a46de3-c71a-45a6-866c-c130178cd48c"
+          },
+          {
+            "description": "Segment of U3 on F.Silkscreen",
+            "pos": {
+              "x": 20.91,
+              "y": 21.51
+            },
+            "uuid": "e4db8640-626b-4fdc-8fc3-14215b17ace7"
+          }
+        ],
+        "severity": "warning",
+        "type": "silk_overlap"
+      },
+      "id": "kicad:silk_overlap:76a46de3-c71a-45a6-866c-c130178cd48c:e4db8640-626b-4fdc-8fc3-14215b17ace7"
+    },
+    {
+      "evidence": {
+        "description": "Silkscreen clearance",
+        "items": [
+          {
+            "description": "Reference field of U3",
+            "pos": {
+              "x": 20.0,
+              "y": 22.0
+            },
+            "uuid": "76a46de3-c71a-45a6-866c-c130178cd48c"
+          },
+          {
+            "description": "Segment of U3 on F.Silkscreen",
+            "pos": {
+              "x": 20.91,
+              "y": 21.56
+            },
+            "uuid": "d0d2f7a1-3161-4710-b6c4-d4d1f53b9f57"
+          }
+        ],
+        "severity": "warning",
+        "type": "silk_overlap"
+      },
+      "id": "kicad:silk_overlap:76a46de3-c71a-45a6-866c-c130178cd48c:d0d2f7a1-3161-4710-b6c4-d4d1f53b9f57"
+    }
+  ],
+  "open_connection_evidence": [],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

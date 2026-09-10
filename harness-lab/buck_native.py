@@ -226,7 +226,9 @@ def measure(path: Path) -> dict:
             "layer": VIA_SPAN
             if kind == "via"
             else board.GetLayerName(track.GetLayer()),
-            "width_mm": pcbnew.ToMM(track.GetWidth()),
+            "width_mm": pcbnew.ToMM(
+                track.GetWidth(pcbnew.F_Cu) if kind == "via" else track.GetWidth()
+            ),
             "start_mm": list(pcbnew.ToMM(track.GetStart())),
             "end_mm": list(pcbnew.ToMM(track.GetEnd())),
             "bounds_mm": bounds(track.GetBoundingBox()),

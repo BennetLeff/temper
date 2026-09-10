@@ -1,0 +1,235 @@
+{
+  "findings": [],
+  "hardware_validated": false,
+  "layout": {
+    "electrical": "pass",
+    "presentation": "pass",
+    "status": "pass"
+  },
+  "measurements": {
+    "copper_path_mm": {
+      "ground_return": {
+        "from": "C9.2",
+        "length_mm": 11.2875,
+        "net": "gnd",
+        "to": "U3.1"
+      },
+      "input_path": {
+        "from": "C9.1",
+        "length_mm": 5.4375,
+        "net": "+15V",
+        "to": "U3.3"
+      }
+    },
+    "power_bottleneck_width_mm": 0.6
+  },
+  "presentation_observations": {
+    "labels": [
+      {
+        "bounds_mm": [
+          18.422619,
+          25.15175,
+          21.577381,
+          26.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "C10"
+      },
+      {
+        "bounds_mm": [
+          40.422619,
+          12.15175,
+          43.577381,
+          13.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "C11"
+      },
+      {
+        "bounds_mm": [
+          40.422619,
+          26.15175,
+          43.577381,
+          27.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "C12"
+      },
+      {
+        "bounds_mm": [
+          44.422619,
+          20.15175,
+          47.577381,
+          21.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "C13"
+      },
+      {
+        "bounds_mm": [
+          18.89881,
+          11.15175,
+          21.101191,
+          12.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "C9"
+      },
+      {
+        "bounds_mm": [
+          2.017857,
+          14.65175,
+          3.982143,
+          16.34825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "J1"
+      },
+      {
+        "bounds_mm": [
+          1.94762,
+          12.8214,
+          4.052381,
+          14.1786
+        ],
+        "height_mm": 0.8,
+        "layer": "F.Silkscreen",
+        "text": "VIN"
+      },
+      {
+        "bounds_mm": [
+          2.017857,
+          23.15175,
+          3.982143,
+          24.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "J2"
+      },
+      {
+        "bounds_mm": [
+          1.680953,
+          25.3214,
+          4.319048,
+          26.6786
+        ],
+        "height_mm": 0.8,
+        "layer": "F.Silkscreen",
+        "text": "GND"
+      },
+      {
+        "bounds_mm": [
+          46.017857,
+          14.65175,
+          47.982143,
+          16.34825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "J3"
+      },
+      {
+        "bounds_mm": [
+          45.795238,
+          12.8214,
+          48.204762,
+          14.1786
+        ],
+        "height_mm": 0.8,
+        "layer": "F.Silkscreen",
+        "text": "3V3"
+      },
+      {
+        "bounds_mm": [
+          29.994048,
+          27.15175,
+          32.005953,
+          28.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "L2"
+      },
+      {
+        "bounds_mm": [
+          12.422619,
+          14.15175,
+          15.577381,
+          15.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "R16"
+      },
+      {
+        "bounds_mm": [
+          12.422619,
+          22.15175,
+          15.577381,
+          23.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "R17"
+      },
+      {
+        "bounds_mm": [
+          15.875,
+          24.15175,
+          18.125,
+          25.84825
+        ],
+        "height_mm": 1.0,
+        "layer": "F.Silkscreen",
+        "text": "U3"
+      }
+    ],
+    "missing_3d_models": [
+      "J1",
+      "J2",
+      "J3",
+      "L2"
+    ],
+    "model_files_resolved": false,
+    "model_paths": {
+      "C10": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+      ],
+      "C11": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+      ],
+      "C12": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+      ],
+      "C13": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+      ],
+      "C9": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+      ],
+      "J1": [],
+      "J2": [],
+      "J3": [],
+      "L2": [],
+      "R16": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ],
+      "R17": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ],
+      "U3": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-6.step"
+      ]
+    }
+  },
+  "profile": "engineering-layout",
+  "schema_version": "engineering-layout/v1",
+  "status": "pass"
+}

@@ -1,0 +1,49 @@
+{
+  "findings": [
+    {
+      "id": "exact_model_missing",
+      "message": "exact LMR51430XDDCR 500 kHz PFM, 0.6 V model identity is required"
+    },
+    {
+      "id": "qualification_not_approved",
+      "message": "exact model receipt is absent from the trusted approval registry"
+    },
+    {
+      "id": "model_not_qualified",
+      "message": "reviewed independent qualification evidence bound to the exact model is required"
+    },
+    {
+      "id": "unsupported_coverage",
+      "message": "startup"
+    },
+    {
+      "id": "unsupported_coverage",
+      "message": "input_variation"
+    },
+    {
+      "id": "unsupported_coverage",
+      "message": "load_variation"
+    },
+    {
+      "id": "identity_missing",
+      "message": "settings_sha256"
+    },
+    {
+      "id": "mandatory_scenario_missing",
+      "message": "startup"
+    },
+    {
+      "id": "mandatory_scenario_missing",
+      "message": "input_variation"
+    },
+    {
+      "id": "mandatory_scenario_missing",
+      "message": "load_variation"
+    }
+  ],
+  "hardware_validated": false,
+  "layout_sensitive": false,
+  "scenarios": [],
+  "stage": "simulation",
+  "status": "blocked"
+}

@@ -1,0 +1,77 @@
+(footprint "L2"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Stub for Bourns SRP1265A inductor.")
+	(property "Reference" "L2"
+		(at -12.64 283.22 90)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "e2b0026b-18d2-46cb-9d74-3568440f2e6a")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Value" "?"
+		(at -12.64 283.22 90)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a5dfb8ba-552d-41b3-96f1-3846ff5aac3c")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "f157d353-9452-4940-9c79-f02883e541a4")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "689317f3-5358-45cf-a414-3add3c434726")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Sheetpath" "power_mgmt.buck_3v3.l_out"
+		(at -12.64 283.22 90)
+		(layer "F.Fab")
+		(uuid "70ff3917-2d98-4b9a-aec0-7bd91eaa55eb")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(duplicate_pad_numbers_are_jumpers no)
+	(pad "1" smd rect
+		(at -5 0)
+		(size 3.4 5.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "b5daf6d5-9992-4fb8-be8e-0282513e5ac0")
+	)
+	(pad "2" smd rect
+		(at 5 0)
+		(size 3.4 5.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "9244c636-a717-4575-8bb8-3714d9afbf36")
+	)
+	(embedded_fonts no)
+)

@@ -103,6 +103,31 @@ class LayoutJudgeControls(unittest.TestCase):
             shutil.copyfile(
                 directory / "witness.kicad_pcb", directory / "candidate.kicad_pcb"
             )
+            # The frozen witness hides all references. Expose real native
+            # fields so this test exercises KiCad's GetShownText signature.
+            script = """
+import sys
+import pcbnew
+board = pcbnew.PCB_IO_KICAD_SEXPR().LoadBoard(sys.argv[1], None)
+for index, fp in enumerate(sorted(board.GetFootprints(), key=lambda fp: fp.GetReference())):
+    ref = fp.Reference()
+    ref.SetVisible(True)
+    ref.SetTextSize(pcbnew.VECTOR2I(pcbnew.FromMM(1), pcbnew.FromMM(1)))
+    ref.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(3 + 4 * index), pcbnew.FromMM(3)))
+pcbnew.PCB_IO_KICAD_SEXPR().SaveBoard(sys.argv[1], board)
+"""
+            subprocess.run(
+                [
+                    harness.KICAD_PYTHON,
+                    "-c",
+                    script,
+                    str(directory / "candidate.kicad_pcb"),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
             cls.base = qualify_buck.evaluate(
                 directory, contract, vid, directory / "evaluation"
             )
@@ -259,3 +284,7 @@ class LayoutJudgeControls(unittest.TestCase):
             self.assertEqual(len(pads), 1)
             self.assertEqual(len(pads[0]["position_mm"]), 2)
             self.assertIn("labels", payload["presentation"])
+            self.assertEqual(
+                {label["text"] for label in payload["presentation"]["labels"]},
+                {fp["reference"] for fp in payload["measurement"]["footprints"]},
+            )
