@@ -719,15 +719,14 @@ jobs:
         env:
           RUST_BACKTRACE: full
 
+      # Coverage moved 2026-09-10 to the dedicated `coverage` job below:
+      # the widened suite (41 min measured) does not fit this job's 35-min
+      # budget, and the gate must read the widened coverage.json, not the
+      # core-only file this job used to write. The --cov flags left with it.
       - name: Run temper-placer tests (core only for CI speed)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
-        # tests/validation/test_gate_input_registry.py and
-        # tests/validation/test_dead_parameter_probe.py are included so the
-        # dead-parameter registry/probe (plan 2026-08-02-019) public surface
-        # carries executed-line coverage in the same coverage.json the
-        # coverage gate reads.
-        run: uv run pytest tests/core/ tests/validation/test_gate_input_registry.py tests/validation/test_dead_parameter_probe.py tests/cli/test_repair_unplaced.py -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
+        run: uv run pytest tests/core/ tests/validation/test_gate_input_registry.py tests/validation/test_dead_parameter_probe.py tests/cli/test_repair_unplaced.py -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
@@ -995,21 +994,108 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
-      # Removed 2026-08-07: dead weight. The `run:` command already ends in
-      # `|| echo "::warning ..."`, a shell fallback that makes the WHOLE
-      # step exit 0 unconditionally (verified: `bash -c 'false || echo x;
-      # echo $?'` -> 0) regardless of what check_coverage_gate.py does --
-      # continue-on-error had nothing left to guard. The gate is still
-      # genuinely warn-only (Phase 1 paydown pending); that policy now lives
-      # entirely in the `|| echo` fallback, not in a second masking layer.
+      # Coverage gate MOVED 2026-09-10 to the dedicated `coverage` job: it
+      # must read the widened coverage.json, which this job no longer
+      # produces (see above). Still warn-only; policy lives in the `|| echo`
+      # fallback there, not here.
+
+  # Widened-suite coverage (Phase 0, 2026-09-10): the core-only measurement
+  # covered ~80 of 954 test files, so 69% of the allowlist was entries for
+  # already-exercised functions. This job runs the widened suite
+  # (41 min measured 2026-09-09; hence its own 90-min budget instead of
+  # Core Tests' 35) and gates the resynced allowlist against its output.
+  # Trigger: main pushes + nightly + dispatch. NOT per-PR and NOT in the
+  # change-driven manifest: the gate is warn-only, and wiring per-PR signal
+  # needs a manifest id + changes output (validate_job_conditions is
+  # fail-closed) -- follow-up, not this PR. Like astar-nightly, a plain
+  # event predicate with no needs:[changes] is the sanctioned shape.
+  # No netlist build: matches the measured baseline (netlist-dependent
+  # tests fail identically with/without; coverage still records).
+  coverage:
+    name: Coverage (widened suite + gate)
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 90
+    env:
+      VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+
+      - name: Stale-compiled-extension gate (all pyo3 crates)
+        run: uv run python scripts/check_stale_extensions.py
+        env:
+          TEMPER_REQUIRE_FRESH_EXTENSIONS: "1"
+
+      # No --maxfail: it aborts before coverage.json is written (measured).
+      # --continue-on-collection-errors for the same reason. Markers mirror
+      # the measured baseline; netlist-dependent tests fail as on main and
+      # still record coverage.
+      - name: Run widened suite with coverage
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/core/ tests/placer/ tests/pcl/ tests/regression/ tests/requirements/ tests/fields/ tests/metrics/ tests/physics/ tests/io/ tests/validation/ tests/deterministic/ tests/router_v6/ tests/cli/test_repair_unplaced.py -q --tb=short -p no:cacheprovider -m "not slow and not integration and not nightly and not external and not benchmark and not gpu and not monte_carlo" --continue-on-collection-errors --cov=temper_placer --cov-report=json:coverage.json --cov-config=../../pyproject.toml
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
+      # Still warn-only (Phase 1 paydown prerequisite not yet met); policy
+      # lives entirely in the `|| echo` fallback, as before. Flip to blocking
+      # only via the checklist in the resync plan (gate exit 0, all entries
+      # ticketed, --check-shrink green, header true, fallback removed).
+      # Note: this job runs post-merge, so --check-shrink compares the
+      # allowlist against itself (informational only). PR-time shrink
+      # enforcement arrives with the blocking flip, which needs per-PR
+      # manifest wiring (see job comment above).
       - name: Coverage gate (temper-placer)
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/check_coverage_gate.py
           --coverage-json coverage.json
           --allowlist ../../.coverage-allowlist
+          --check-shrink
           || echo "::warning title=Coverage Gate::Phase 1 paydown prerequisite not yet met; gate is warn-only."
+
+      - name: Upload coverage.json
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-json
+          path: packages/temper-placer/coverage.json
+          retention-days: 14
 
   # Split out of Core Tests 2026-07-28. These two cargo steps ran at position
   # 16-17 of the old 58-step job, ahead of every Python gate in the pipeline. On
