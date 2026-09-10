@@ -35,6 +35,26 @@ No bench session has been run. Every check below is **NOT RUN**:
 - Room-temperature thermal screen — NOT RUN
 - Efficiency observation — NOT RUN
 
+## Closeout consistency review (2026-09-10, against unfrozen CAD)
+
+Checked read-only (no CAD edits — board owner owns `pcb/prototypes/buck-reva/`):
+
+- J1 pad 1 = `+15V`, pad 2 = `gnd`; J2 pad 1 = `+3V3`, pad 2 = `gnd`
+  (verified at PCB pad nets, silk "1" marker present on both). Matches runbook.
+- TP1 = `+15V`, TP3 = `+3V3`; no TP5 exists in schematic or PCB
+  (footprint description text mentions "TP1-TP5" generically).
+- U3 EN pin coincides with the `+15V` net label position — EN tied to VIN, as assumed.
+- Core matches: U3 LMR51430XDDCR, L2 Bourns SRP1265A 5.6 uH, C9 10 uF/50 V/1210,
+  C10/C13 100 nF/0603, C11/C12 22 uF/25 V/1210, J1/J2 Würth 691253500002 (16 A/300 V).
+- Observation for board owner (not edited): J1/J2 schematic symbols carry an empty
+  `Datasheet` field; the MPN/datasheet link currently lives only in the PCB footprint
+  properties. Plan 1 requires exact MPN data in schematic fields before freeze.
+
+Still blocked on board freeze: `verification/board-freeze.md` and `source-manifest.json`
+are absent, release output dirs are empty scaffolding, and no final assembly drawing
+exists. Final SVG binding (real pin numbering, wire-entry directions, TP positions,
+SW access) and the tabletop walkthrough wait for those. Provisional banners stay.
+
 ## Bound revision
 
 No board revision is frozen at the time of writing. Before energizing, the operator must
