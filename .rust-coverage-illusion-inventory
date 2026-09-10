@@ -57,7 +57,6 @@ temper_placer.io._parse_modules	packages/temper-design-bundle/src/parse_engine.r
 temper_placer.io._parse_nets	packages/temper-design-bundle/src/pcl_parse.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer.io._write_modules	packages/temper-design-bundle/src/write_board_geometry.rs,packages/temper-io-types/src/write_types.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer.io._write_tracks	packages/temper-design-bundle/src/write_board_geometry.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
-temper_placer.io._write_types	packages/temper-design-bundle/src/write_board_geometry.rs,packages/temper-io-types/src/kicad_write_geometry.rs	NO_RUST: recorded at gate introduction; not triaged
 temper_placer.io._write_zones	packages/temper-design-bundle/src/write_board_geometry.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer.io.design_bundle_preflight	packages/temper-design-bundle/src/design_rules.rs,packages/temper-geometry/src/bundle_analyzer.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer.io.dsn	packages/temper-io-types/src/dsn.rs,packages/temper-io-types/src/dsn_exporter.rs,packages/temper-io-types/src/dsn_pyo3.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged

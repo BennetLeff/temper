@@ -15,8 +15,9 @@ from pathlib import Path
 
 import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
+from temper_io_types import write_types as _write_types_rs
 
-from temper_placer.io._write_types import WriteResult
+WriteResult = _write_types_rs.WriteResult
 
 
 def _net_index_map_from_nets(nets) -> dict[str, int]:
