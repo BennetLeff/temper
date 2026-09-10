@@ -1,4 +1,3 @@
-import sys
 
 with open("routed_v3_clean.kicad_pcb", "r+b") as f:
     f.seek(44365)

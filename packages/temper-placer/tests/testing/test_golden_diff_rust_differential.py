@@ -47,7 +47,6 @@ import math
 import re
 from dataclasses import dataclass, field
 
-
 # ---------------------------------------------------------------------------
 # Verbatim pre-migration oracles (copied from golden_diff.py AS COMMITTED at
 # origin/main 2426f5cf5 before the migration; do not edit -- they are the

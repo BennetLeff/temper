@@ -26,7 +26,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 def compare_stage(
     baseline_ms: float, current_ms: float, margin: float, floor_ms: float
 ) -> tuple[float, float, float, float, bool]:
@@ -139,8 +138,8 @@ class Trace:
     entries: Any
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
     @staticmethod
-    def empty() -> "Trace": ...
-    def add(self, subject: str, value: Any, because: str) -> "Trace": ...
+    def empty() -> Trace: ...
+    def add(self, subject: str, value: Any, because: str) -> Trace: ...
 
 # deterministic_pipeline.rs — the PipelineRunner<BoardState> loop
 # (deterministic/__init__.py's DeterministicPipeline delegates its `run` here).

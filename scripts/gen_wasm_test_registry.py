@@ -1463,7 +1463,7 @@ def widen_mod_decl(text: str, ident: str) -> str:
 # (`#[cfg(test)]\nmod integration;`), tolerating other attributes in between.
 def _mod_gate_pattern(ident: str) -> re.Pattern[str]:
     return re.compile(
-        rf"^([ \t]*)"
+        r"^([ \t]*)"
         + re.escape(TEST_GATE)
         + r"([ \t]*\n(?:[ \t]*#\[[^\n]*\][ \t]*\n)*"
         + rf"[ \t]*(?:pub(?:\([^)]*\))?[ \t]+)?mod[ \t]+{re.escape(ident)}[ \t]*;)",

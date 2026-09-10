@@ -274,7 +274,7 @@ def main():
             wasm_results[name] = {"status": "trap", "exit_code": exit_code}
 
     # Run native tests
-    print(f"  Running native tests (cargo test --no-default-features)...")
+    print("  Running native tests (cargo test --no-default-features)...")
     native_results = run_native_tests()
     print(f"    {len(native_results)} native test results parsed")
 
@@ -291,7 +291,7 @@ def main():
     native_pass = sum(1 for r in native_results.values() if r == "pass")
     native_fail = sum(1 for r in native_results.values() if r == "fail")
 
-    print(f"\n  Summary:")
+    print("\n  Summary:")
     print(f"    wasm:          {wasm_pass} pass, {wasm_trap} trap, {wasm_expected} expected-fail")
     print(f"    native:        {native_pass} pass, {native_fail} fail")
 
@@ -381,7 +381,7 @@ def main():
     print("\n--- R1 Verdict (rungs 2-3) ---")
     print(f"  Rung 2 (links):              PASS ✓  ({size:,} bytes, sha256={sha[:16]}...)")
     if not imports:
-        print(f"  Rung 2 (import list):        PASS ✓  (zero imports, bare-isolate deployable)")
+        print("  Rung 2 (import list):        PASS ✓  (zero imports, bare-isolate deployable)")
     else:
         print(f"  Rung 2 (import list):        FAIL ✗  ({len(imports)} imports)")
 
@@ -395,7 +395,7 @@ def main():
     elif stale_expected:
         print(f"  Rung 3 (execution):          PASS-WITH-STALE-MANIFEST  ({len(stale_expected)} expected-fail entries now pass)")
     else:
-        print(f"  Rung 3 (execution):          PASS ✓  (all tests match native)")
+        print("  Rung 3 (execution):          PASS ✓  (all tests match native)")
 
     print(f"  Six-family exact-match:      {'PASS ✓' if mismatches == 0 or (mismatches == len(stale_expected) and not unmanifested_traps) else 'ISSUES'}")
     print(f"  Import list clean:           {'YES ✓' if not imports else 'NO ✗'}")

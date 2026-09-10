@@ -715,6 +715,8 @@ def repair_unplaced(
     from temper_placer.validation._drc_api import (
         DrcRunnerError,
         copy_kicad_project_sidecar,
+    )
+    from temper_placer.validation._drc_api import (
         run_drc as run_kicad_drc,
     )
 

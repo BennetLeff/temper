@@ -19,7 +19,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from shapely.geometry import MultiPoint, Point, Polygon
+from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
 PCBPATH = Path("pcb/temper.kicad_pcb")
@@ -33,10 +33,10 @@ def fmt_pts(ring) -> str:
     return f"(pts{pts})"
 
 def main():
-    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-    from temper_placer.router_v6.routing_space import _get_board_polygon
-    from temper_placer.router_v6.pad_connectivity_audit import _pads_by_net
     from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
+    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+    from temper_placer.router_v6.pad_connectivity_audit import _pads_by_net
+    from temper_placer.router_v6.routing_space import _get_board_polygon
 
     pcb = parse_kicad_pcb_v6(PCBPATH)
     board = _get_board_polygon(pcb)

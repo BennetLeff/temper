@@ -291,8 +291,8 @@ def _install_patches():
 
     def run_probe(channel_mapping, grids, design_rules=None, **kw):
         TRACE["nlayer_entered"] += 1
-        from temper_placer.router_v6._net_policy import _should_route
         from temper_placer.router_v6._astar_ordering import _compute_net_order
+        from temper_placer.router_v6._net_policy import _should_route
 
         order = _compute_net_order(channel_mapping)
         routable = [n for n in order if _should_route(n)]

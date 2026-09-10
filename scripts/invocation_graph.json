@@ -125,6 +125,9 @@
   "check_firmware_invariants.py": [
     ".github/workflows/firmware-tests.yml"
   ],
+  "check_firmware_link.py": [
+    ".github/workflows/firmware-tests.yml"
+  ],
   "check_footprint_drift.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/validation/netlist_reconciliation.py",
@@ -293,6 +296,7 @@
   ],
   "check_rust_coverage_illusions.py": [
     ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/router_v6/route_stage.py",
     "packages/temper-placer/tests/scripts/test_rust_coverage_illusion_gate.py"
   ],
   "check_rust_drc_presence.py": [

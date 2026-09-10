@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """CP-SAT Benchmark Runner — reads scenario YAML, runs placement, outputs JSONL."""
 from __future__ import annotations
-import argparse, json, sys, time
+
+import argparse
+import json
+import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
+
 import yaml
 
 _HERE = Path(__file__).resolve().parent
@@ -54,6 +59,7 @@ class BenchmarkRunner:
                 t0 = time.monotonic()
                 try:
                     from tests.fixtures.generators.synthetic_netlist import generate_netlist
+
                     from temper_placer.placer.cp_sat.encoder import solve_placement
                     netlist = generate_netlist(n_components=cfg.n_components, seed=seed)
                     board = type("Board", (), {"width": cfg.board_width_mm, "height": cfg.board_height_mm, "zones": [], "constraints": None})()

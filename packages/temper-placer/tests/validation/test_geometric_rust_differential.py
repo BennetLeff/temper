@@ -38,6 +38,7 @@ import pytest
 import temper_drc_rs as _tdrc
 from hypothesis import given, settings
 from hypothesis import strategies as st
+
 from tests._legacy_oracle_modules import install as _install_legacy_oracle_modules
 
 _install_legacy_oracle_modules()

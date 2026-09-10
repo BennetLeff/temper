@@ -9,7 +9,6 @@ from temper_placer.validation.validation_gates import (
     RoutingCompleteGate,
     ValidatedGate,
     ValidationGate,
-    ValidationGatesResult,
     check_all_gates,
     check_gate,
 )

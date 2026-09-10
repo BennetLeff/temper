@@ -6,7 +6,6 @@ KiCad Environment Setup Tool.
 2. Generates local fp-lib-table for hermetic operation.
 """
 
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -41,7 +40,7 @@ def run_cmd(cmd, cwd=None):
     """Run shell command with error handling."""
     try:
         subprocess.run(cmd, check=True, cwd=cwd, shell=True)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         print(f"Error running command: {cmd}")
         sys.exit(1)
 
@@ -57,7 +56,7 @@ def fetch_libraries(libs_dir: Path):
     if not (repo_dir / ".git").exists():
         print("    Initializing git repo...")
         repo_dir.mkdir(exist_ok=True)
-        run_cmd(f"git init", cwd=repo_dir)
+        run_cmd("git init", cwd=repo_dir)
         run_cmd(f"git remote add origin {KICAD_GIT_URL}", cwd=repo_dir)
         run_cmd("git config core.sparseCheckout true", cwd=repo_dir)
     else:

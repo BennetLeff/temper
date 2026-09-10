@@ -33,6 +33,7 @@ from tests.core._contract_canon import canon
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.state import BoardState
 
+
 def _netlist(components, nets):
     return Netlist(components=components, nets=nets)
 

@@ -50,7 +50,6 @@ mutant at NONZERO power where the phantom breaks the cross-check chain.
 
 from __future__ import annotations
 
-import numpy as np
 import temper_thermal as _tt
 from hypothesis import given, settings
 from hypothesis import strategies as st

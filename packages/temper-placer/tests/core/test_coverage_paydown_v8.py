@@ -12,10 +12,6 @@ Exercises public functions in:
 - topological/graph.py
 """
 
-import json
-import os
-import tempfile
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -358,7 +354,7 @@ class TestPlacementContextMethods:
         from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Component, Netlist
-        from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
+        from temper_placer.heuristics.base import PlacementContext
 
         comps = [
             Component(ref="U1", footprint="QFN-32", bounds=(5, 5)),

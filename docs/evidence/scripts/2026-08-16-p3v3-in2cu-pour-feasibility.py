@@ -39,11 +39,9 @@ def main() -> int:
     sys.path.insert(0, str(REPO_ROOT / "packages" / "temper-placer"))
 
     import temper_geometry as _tg
-    from shapely.geometry import Point as ShapelyPoint
     from shapely.geometry import Polygon
     from shapely.ops import unary_union
 
-    from temper_io_types import strip_existing_copper
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.placer.cp_sat.isolation_barrier import (
         DEFAULT_CORRIDOR_WIDTH_MM,
@@ -57,7 +55,10 @@ def main() -> int:
     from temper_placer.router_v6.routing_space import _get_board_polygon
     from temper_placer.router_v6.topology_copper_audit import net_number_to_name_map
     from temper_placer.router_v6.zone_emission import compute_zones_for_net
-    from temper_placer.router_v6.zone_pour_clearance import collect_zone_obstacle_records, default_table
+    from temper_placer.router_v6.zone_pour_clearance import (
+        collect_zone_obstacle_records,
+        default_table,
+    )
     from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
 
     pcb = parse_kicad_pcb_v6(PCB_PATH)
@@ -190,7 +191,6 @@ def main() -> int:
 
 
 def _point_in_rings(x: float, y: float, zones) -> bool:
-    import temper_geometry as _tg
     for zone_rings in zones:
         exterior = zone_rings[0]
         if not _point_in_poly(x, y, exterior):

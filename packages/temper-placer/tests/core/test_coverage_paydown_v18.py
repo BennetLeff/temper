@@ -24,7 +24,6 @@ from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.reference_loader import (
-    ReferenceDesign,
     filter_components,
     list_reference_designs,
     load_reference_pcb,

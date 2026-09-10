@@ -12,7 +12,6 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import gen_schematics as generator  # noqa: E402
 
-
 CONFIG = ROOT / "elec/qualification/iso7741_gate_drive/validation/schematic_layout.json"
 
 

@@ -88,7 +88,6 @@ scripts:
   disposition: utility
   imports:
   - math
-  - statistics
   - temper_geometry
   - time
 - path: board_defect_mutator.py
@@ -365,12 +364,12 @@ scripts:
 - path: check_firmware_link.py
   purpose: 'Firmware link ratchet: assert the ESP32-S3 image configures and compiles, that no component
     directory is silently dropped for want of a CMakeLists.txt, that no simulation symbol is defined in
-    the built objects, and that the set of undefined link symbols matches .firmware-link-inventory
-    exactly (shrink-only, on the .hash-order-inventory model). The firmware has never linked -- 34
-    symbols including read_dc_bus_current and read_heatsink_temperature are declared and called but
-    defined nowhere -- so the gate pins the SHAPE of that failure rather than trying to make it green.
-    Wired into .github/workflows/firmware-tests.yml as the non-required job "Firmware Build (ESP32-S3
-    link ratchet)"; see that job comment for what would make it blocking.'
+    the built objects, and that the set of undefined link symbols matches .firmware-link-inventory exactly
+    (shrink-only, on the .hash-order-inventory model). The firmware has never linked -- 34 symbols including
+    read_dc_bus_current and read_heatsink_temperature are declared and called but defined nowhere -- so
+    the gate pins the SHAPE of that failure rather than trying to make it green. Wired into .github/workflows/firmware-tests.yml
+    as the non-required job "Firmware Build (ESP32-S3 link ratchet)"; see that job comment for what would
+    make it blocking.'
   owner: bennet
   last_run: '2026-08-20'
   category: keep
@@ -2209,7 +2208,6 @@ scripts:
   imports:
   - argparse
   - pathlib
-  - shutil
   - subprocess
   - sys
 - path: install_git_stash_guard.py
@@ -2323,10 +2321,10 @@ scripts:
   - temper_placer.geometry.kicad_transform
 - path: measure_isolation_binding_pairs.py
   purpose: 'Per-part binding HV<->SELV pad-pair measurement for the five isolation-bridging parts (C6/K1/T1/T2/U6):
-    reads pad geometry from the board, so the report is readable without opening a layout tool. Pairwise: it enumerates every
-    intra-footprint pad pair and reports, per pair, the EXACT copper-edge distance, both nets'' declared domains,
-    both nets'' board-enforced netclasses, whether both pads actually carry copper, and the governing creepage
-    rule from the generated DRU. Backs docs/evidence/2026-08-18-isolation-part-binding-pad-pairs.md.'
+    reads pad geometry from the board, so the report is readable without opening a layout tool. Pairwise:
+    it enumerates every intra-footprint pad pair and reports, per pair, the EXACT copper-edge distance,
+    both nets'' declared domains, both nets'' board-enforced netclasses, whether both pads actually carry
+    copper, and the governing creepage rule from the generated DRU. Backs docs/evidence/2026-08-18-isolation-part-binding-pad-pairs.md.'
   owner: bennet
   last_run: '2026-08-18'
   category: keep
@@ -2674,7 +2672,6 @@ scripts:
   - __future__
   - argparse
   - copy
-  - dataclasses
   - gen_pcb_skeleton
   - json
   - kiutils.board
@@ -2921,7 +2918,6 @@ scripts:
   - argparse
   - hashlib
   - json
-  - os
   - pathlib
   - re
   - subprocess

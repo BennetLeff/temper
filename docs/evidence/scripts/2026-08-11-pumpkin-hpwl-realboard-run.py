@@ -55,12 +55,13 @@ harness = importlib.util.module_from_spec(spec)
 sys.modules["cpsat_equivalence_harness"] = harness
 spec.loader.exec_module(harness)
 
+from temper_placer.io.config_loader import load_constraints  # noqa: E402
+
+from temper_placer.io.kicad_parser import parse_kicad_pcb  # noqa: E402
 from temper_placer.placer.cp_sat import _encoder_core  # noqa: E402
+from temper_placer.placer.cp_sat._encoder_solve import _POLARIZED_REFS  # noqa: E402
 from temper_placer.placer.cp_sat.model import CpSatModel  # noqa: E402
 from temper_placer.router_v6._net_policy import _should_route  # noqa: E402
-from temper_placer.io.config_loader import load_constraints  # noqa: E402
-from temper_placer.io.kicad_parser import parse_kicad_pcb  # noqa: E402
-from temper_placer.placer.cp_sat._encoder_solve import _POLARIZED_REFS  # noqa: E402
 
 build_courtyard_constraints = harness.build_courtyard_constraints
 default_clearance_mm = harness.default_clearance_mm
@@ -93,7 +94,7 @@ def _stripped_pcl_config() -> Path:
     return Path(tmp.name)
 
 
-def build_real_board_corpus() -> "CorpusModel":
+def build_real_board_corpus() -> CorpusModel:
     """Same mechanism as the existing harness's own
     ``build_full_board_corpus()``, pointed at ``pcb/temper.kicad_pcb`` (169
     components) instead of the stale

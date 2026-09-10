@@ -11,11 +11,11 @@ All tests are pure Python; no fixtures, no temp files.
 
 from __future__ import annotations
 
-import json
 import tempfile
 from pathlib import Path
 
 import pytest
+
 # ===========================================================================
 # validation/scheduler.py
 # ===========================================================================

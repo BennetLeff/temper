@@ -50,6 +50,7 @@ from hypothesis import strategies as st
 
 import temper_placer.router_v6._astar_search as astar_search_mod
 import temper_placer.router_v6.astar_pathfinding as astar_pathfinding_mod
+
 # Tier 3 is Rust-backed since the astar_nlayer port; these call sites
 # import the replacement under the pre-migration names so the tests
 # keep asserting the same behaviour against the shipping engine.

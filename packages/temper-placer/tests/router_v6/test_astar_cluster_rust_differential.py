@@ -35,7 +35,6 @@ sorted key order) and the same neighbor-expansion order
 from __future__ import annotations
 
 import random
-from types import SimpleNamespace
 
 import numpy as np
 

@@ -2,7 +2,7 @@
 import numpy as np
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Netlist, Pin
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.validation.geometric import (
     GeometricValidator,

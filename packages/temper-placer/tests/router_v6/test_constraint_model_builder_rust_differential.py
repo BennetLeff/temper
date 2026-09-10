@@ -46,16 +46,15 @@ import inspect
 import math
 from pathlib import Path
 
-import tests.graph_fixtures as nx
 import pytest
 
+import tests.graph_fixtures as nx
 import tests.router_v6._constraint_model_builder_py_oracle as _orc
-
 from temper_placer.core.netlist import Component, Net, Pin
+from temper_placer.router_v6 import constraint_model as cm_module
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.constraint_model import ModelBuilder as ShimModelBuilder
-from temper_placer.router_v6 import constraint_model as cm_module
 from temper_placer.router_v6.diff_pair_inference import DiffPair
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, ParsedPCB
 

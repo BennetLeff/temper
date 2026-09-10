@@ -1,5 +1,6 @@
 import temper_orchestration as _to
 
+
 class FenceViolation(RuntimeError):
     """Raised when the U3 clearance-grid fence detects a non-conservative expansion.
 

@@ -31,8 +31,6 @@ whether or not the extension is currently importable.
 
 from __future__ import annotations
 
-import math
-
 import numpy as np
 import pytest
 from hypothesis import given, settings

@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from temper_placer.router_v6.occupancy_grid import CellState, OccupancyGrid
 
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from tests.router_v6 import _occupancy_raster_py_oracle as oracle
 
 pytest.importorskip("temper_geometry")

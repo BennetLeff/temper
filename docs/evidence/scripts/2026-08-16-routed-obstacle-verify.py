@@ -14,7 +14,6 @@ Usage (KiCad env as for the other harnesses):
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
@@ -68,8 +67,9 @@ def main() -> int:
     scratch = REPO_ROOT / "docs" / "evidence" / "scratch-routed-obstacle.kicad_pcb"
     scratch.write_text(new_content)
 
-    import pcbnew
     from collections import Counter
+
+    import pcbnew
 
     pcb_board = pcbnew.LoadBoard(str(scratch))
     filler = pcbnew.ZONE_FILLER(pcb_board)

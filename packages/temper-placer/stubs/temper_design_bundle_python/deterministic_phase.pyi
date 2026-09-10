@@ -19,7 +19,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 def effective_ghost_pad_radius_py(
     base_radius: float,
     current_pin_absolute: tuple[float, float],

@@ -96,9 +96,21 @@ markers = [
 target-version = "py311"
 line-length = 100
 src = ["packages/*/src", "packages/*/tests"]
+# scripts/deadcode-baseline.py is vulture-gate DATA (parsed by
+# scripts/vulture_gate.py), not importable code -- ruff must not lint it.
+exclude = ["scripts/deadcode-baseline.py"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
+# Pinned verbatim oracles (*_py_oracle.py, content-hash gated): their bytes
+# are the pre-migration snapshots under test. Never auto-fix or hand-edit
+# them for style -- silence the residual rules here instead. Any rule added
+# to this list must be verified oracle-only first
+# (ruff check --output-format concise | grep _py_oracle).
+[tool.ruff.lint.per-file-ignores]
+"*_py_oracle.py" = ["I001", "F401", "F821", "F811", "B007", "UP042", "UP037", "SIM102"]
 ignore = ["E501"]
 
 [tool.mypy]

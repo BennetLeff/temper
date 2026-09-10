@@ -22,10 +22,9 @@ from __future__ import annotations
 
 import random
 
-import tests.graph_fixtures as nx
-import pytest
-
 import temper_design_bundle_python as _tdb
+
+import tests.graph_fixtures as nx
 
 TopologicalGraphStore = _tdb.topological_graph_contracts.TopologicalGraphStore
 
@@ -232,7 +231,7 @@ class TestInsertionOrder:
             # Compare as multisets (same edges, may differ in parallel-edge order)
             rust_set = set((u, v, d["distance"]) for u, v, d in rust_edges)
             nx_set = set((u, v, d["distance"]) for u, v, d in nx_edges)
-            assert rust_set == nx_set, f"edge set mismatch"
+            assert rust_set == nx_set, "edge set mismatch"
 
 
 class TestHasEdge:
@@ -483,7 +482,7 @@ class TestBuildIntegration:
         # Compare as multisets
         rust_set = set(rust_edges)
         nx_set = set(nx_edges)
-        assert rust_set == nx_set, f"edge set mismatch"
+        assert rust_set == nx_set, "edge set mismatch"
 
 
 # ---------------------------------------------------------------------------

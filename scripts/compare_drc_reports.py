@@ -16,7 +16,6 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-
 # Must stay equal to temper_placer.validation._drc_api._VIOLATION_ARRAY_KEYS
 # -- pinned by scripts/tests/test_drc_report_array_keys.py.
 _VIOLATION_ARRAY_KEYS = ("violations", "unconnected_items", "schematic_parity")

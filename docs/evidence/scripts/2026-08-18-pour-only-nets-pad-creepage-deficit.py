@@ -3,13 +3,14 @@
 """Per-pad: actual edge-to-edge gap to nearest other-net copper vs required separation."""
 import re
 from pathlib import Path
-from shapely.geometry import Point, LineString, box
+
+from shapely.geometry import LineString, Point, box
 from shapely.strtree import STRtree
+
+from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.router_v6.zone_pour_clearance import default_table, collect_zone_obstacle_records
+from temper_placer.router_v6.zone_pour_clearance import collect_zone_obstacle_records, default_table
 from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
-from temper_placer.core.pin_geometry import pin_world_position, pin_world_layer
-import temper_orchestration as _to
 
 BOARD = Path("pcb/temper.kicad_pcb")
 NINE = ["+170V_BUS","DC_BUS_RTN","PWR_RTN","SW_NODE","ac_n","power_in.ntc-no",

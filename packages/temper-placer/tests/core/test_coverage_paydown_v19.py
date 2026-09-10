@@ -29,12 +29,12 @@ from temper_placer.deterministic.feedback.drc_parser import parse_kicad_drc
 from temper_placer.deterministic.geometry.guard_strip import compute_guard_strip
 from temper_placer.physics.thermal_fdm import ThermalFDMConfig
 from temper_placer.router_v6 import stage_validators as sv
+from temper_placer.router_v6.test_boards import TestBoard as BoardCatalogEntry
 from temper_placer.router_v6.test_boards import (
     get_available_boards,
     get_board_by_name,
     print_test_suite_status,
 )
-from temper_placer.router_v6.test_boards import TestBoard as BoardCatalogEntry
 from temper_placer.validation.drc_result import ClearanceCheck, CourtyardCheck, PowerDomainCheck
 from temper_placer.validation.drc_runner import CheckRunner
 from temper_placer.validation.helps_battery import BatteryVerdict, run_helps_battery
@@ -56,7 +56,6 @@ from temper_placer.validation.spice import (
     run_gate_drive_simulation,
     run_power_integrity_simulation,
 )
-
 
 # ---------------------------------------------------------------------------
 # Shared helpers

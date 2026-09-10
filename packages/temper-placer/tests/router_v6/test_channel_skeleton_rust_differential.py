@@ -54,7 +54,6 @@ import random
 import subprocess
 from pathlib import Path
 
-import tests.graph_fixtures as nx
 import pytest
 import temper_geometry as _tg
 from shapely.geometry import Polygon, box

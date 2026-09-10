@@ -5,14 +5,11 @@ Run: uv run python -m pytest firmware/tools/test_transition_model.py -v
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 
 import pytest
 import yaml
-
 from transition_model import (
-    FAULT_NONE,
     INIT_STATE,
     RUNAWAY_FAULT_CODE,
     RUNAWAY_FAULT_STATE,

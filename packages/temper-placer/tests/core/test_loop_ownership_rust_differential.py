@@ -129,7 +129,6 @@ from temper_placer.core.loop_ownership import (
     LoopOwnershipMap,
 )
 
-
 # ============================================================================
 # Canonicalization helpers
 # ============================================================================

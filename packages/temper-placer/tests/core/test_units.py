@@ -5,11 +5,9 @@ import pytest
 
 from temper_placer.core.units import (
     CellIndex,
-    Degrees,
     LayerIndex,
     Millimeters,
     NetId,
-    Radians,
     cell_to_mm,
     deg_to_rad,
     distance_mm,

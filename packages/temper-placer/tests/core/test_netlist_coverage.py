@@ -1,7 +1,6 @@
 """Tests for core.netlist coverage (compute_eigenvector_centrality, etc.)."""
 
 import numpy as np
-import pytest
 
 from temper_placer.core.netlist import compute_eigenvector_centrality
 

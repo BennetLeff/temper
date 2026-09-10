@@ -8,8 +8,11 @@ for why this probe's `net_channel_vars` is degenerate.
 
 provenance: commit=6b669db2a6ff3943954cc95e7f467429431fbf2e dirty=false
 """
-import os, sys, gc
+import gc
+import sys
+
 import temper_design_bundle_python as t
+
 mb = t.model_builder
 
 def rss_kb():

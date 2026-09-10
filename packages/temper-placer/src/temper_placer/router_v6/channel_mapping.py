@@ -32,7 +32,7 @@ import temper_orchestration as _to
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.terminal_extraction import ParsedTerminal
 from temper_placer.router_v6.terminal_tree import TerminalTreePlan
-from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+from temper_placer.router_v6.topology_extraction import TopologyGraph
 
 
 def _flatten(points: list[tuple[float, float]]) -> list[float]:

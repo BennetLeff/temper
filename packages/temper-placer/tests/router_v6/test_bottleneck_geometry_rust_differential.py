@@ -34,7 +34,6 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-
 import temper_geometry as _tg
 
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid

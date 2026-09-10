@@ -21,8 +21,8 @@ from __future__ import annotations
 import random
 
 import temper_io_types as _rust
-
 from temper_orchestration import Entry, Trace
+
 from tests.explainability.explain_oracle import trace_oracle as _oracle
 
 # Module-scope RED arm.

@@ -54,10 +54,10 @@ import math
 
 import numpy as np
 import pytest
+import temper_geometry as _TG
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-import temper_geometry as _TG
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.router_v6 import congestion as _cong

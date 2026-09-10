@@ -17,8 +17,6 @@ Exercises public functions in:
 
 from __future__ import annotations
 
-import pytest
-
 # ===========================================================================
 # constraints/reporter.py — ConstraintResult and ConstraintReport
 # ===========================================================================
@@ -919,14 +917,10 @@ class TestHeuristicPipeline:
     """Covers HeuristicPipeline.register, clear, register_all."""
 
     def test_register_and_clear(self):
-        from temper_placer._constraint_types import PlacementConstraints
-        from temper_placer.core.board import Board
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.base import (
             Heuristic,
             HeuristicPriority,
             HeuristicResult,
-            PlacementContext,
         )
         from temper_placer.heuristics.pipeline import HeuristicPipeline
 

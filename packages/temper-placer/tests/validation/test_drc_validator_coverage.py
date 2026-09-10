@@ -1,11 +1,7 @@
 """Tests for validation.drc module — KiCadDRCValidator pure methods."""
-import pytest
 
-from temper_placer.validation.base import ValidationSeverity
 from temper_placer.validation.drc import (
     DRCResult,
-    DRCViolation,
-    DRCViolationType,
     KiCadDRCValidator,
     find_kicad_cli,
 )
@@ -99,10 +95,11 @@ class TestKiCadDRCValidatorPure:
 
     def test_validate_not_available(self):
         v = KiCadDRCValidator(kicad_cli_path=None)
+        import numpy as np
+
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Netlist
         from temper_placer.core.state import PlacementState
-        import numpy as np
         state = PlacementState(
             positions=np.zeros((1, 2), dtype=np.float32),
             rotation_logits=np.zeros((1, 4), dtype=np.float32),

@@ -13,7 +13,6 @@ sys.path.insert(0, str(SCRIPTS))
 
 import check_isolation_joint_qualification as runner  # noqa: E402
 
-
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "isolation_joint_qualification"
 U9_ROOT = Path(__file__).resolve().parents[4] / "power_pcb_dataset/qualification/isolation_joint"
 

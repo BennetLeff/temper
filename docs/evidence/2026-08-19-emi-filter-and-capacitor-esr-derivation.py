@@ -484,7 +484,7 @@ def main() -> None:
     print()
 
     print("  2.2 DC-bus electrolytics, 4 x EKMQ251VSN182MA50S")
-    print(f"      ESR at 120 Hz from tan(delta)/(2*pi*f*C), ALL MAXIMA:")
+    print("      ESR at 120 Hz from tan(delta)/(2*pi*f*C), ALL MAXIMA:")
     for tand, src in ((TAND_E1001E, "repo cite, CAT E1001E"),
                       (TAND_E1001U, "datasheet, CAT E1001U, read this session"),
                       (TAND_E1001U_ADDER, "E1001U + its >1000uF adder")):
@@ -604,8 +604,8 @@ def main() -> None:
             print(f"  {q:>8.1f} | {row[0]:>8.1f} C | {row[1]:>8.1f} C "
                   f"| {row[2]:>8.1f} C | {tloc:>9.1f} C")
     print()
-    print(f"  Per-part outcome at eps = 0.5.  ESP32-S3 is shown BOTH ways: at the")
-    print(f"  bare wall rise (the 2026-08-19 analysis's own convention for this part)")
+    print("  Per-part outcome at eps = 0.5.  ESP32-S3 is shown BOTH ways: at the")
+    print("  bare wall rise (the 2026-08-19 analysis's own convention for this part)")
     print(f"  and at the x{FILM_FACTOR} film-boosted local air, so this document is not")
     print("  silently harsher than its predecessor.  The ICs use the film-boosted")
     print("  value, as before.  Electrolytics use the wall rise, as before.")

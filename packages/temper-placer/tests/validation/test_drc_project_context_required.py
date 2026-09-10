@@ -36,7 +36,6 @@ from temper_placer.validation._drc_api import (
     is_kicad_cli_available,
     run_drc,
 )
-
 from tests.placer.cp_sat._parallel_drc import run_drc_loud
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -206,9 +205,9 @@ class TestRealKicadCliConcealmentMagnitude:
         # directly (what the pre-fix code path actually measured) --
         # confirms the guard is preventing a REAL silent gap, not a
         # hypothetical one.
+        import json as _json
         import subprocess as _subprocess
         import tempfile as _tempfile
-        import json as _json
 
         json_out = _tempfile.NamedTemporaryFile(suffix=".json", delete=False)
         json_out.close()

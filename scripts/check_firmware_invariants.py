@@ -46,8 +46,9 @@ if str(FIRMWARE_TOOLS) not in sys.path:
     sys.path.insert(0, str(FIRMWARE_TOOLS))
 
 from gen_proof_record import OUTPUT_PATH, build_proof_record, render  # noqa: E402
-from invariants import evaluate_all, load_invariant_specs  # noqa: E402
 from transition_model import ModelParseError, build_model  # noqa: E402
+
+from invariants import evaluate_all, load_invariant_specs  # noqa: E402
 
 EXIT_OK = 0
 EXIT_VIOLATION = 2

@@ -39,7 +39,6 @@ the contract, the numpy wrapper is not (documented in VERIFICATION.md).
 from __future__ import annotations
 
 import hashlib
-import math
 import random
 from pathlib import Path
 from types import SimpleNamespace

@@ -46,12 +46,11 @@ scenarios:
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, FrozenSet, List, Optional, Tuple, Union
 
 import yaml
-
 from power_active_mapping import FAULTED_STATES, POWER_ACTIVE_STATES
 from transition_model import (
     INIT_STATE,
@@ -65,18 +64,18 @@ from transition_model import (
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 INVARIANTS_YAML = Path(__file__).resolve().parent / "invariants.yaml"
 
-_DERIVED_STATE_SETS: Dict[str, Callable[[TransitionModel], FrozenSet[str]]] = {
+_DERIVED_STATE_SETS: dict[str, Callable[[TransitionModel], frozenset[str]]] = {
     "power_active": lambda model: POWER_ACTIVE_STATES,
     "faulted": lambda model: FAULTED_STATES,
     "all_states": lambda model: frozenset(model.states),
 }
 
-_DERIVED_EVENT_SETS: Dict[str, Callable[[TransitionModel], FrozenSet[str]]] = {
+_DERIVED_EVENT_SETS: dict[str, Callable[[TransitionModel], frozenset[str]]] = {
     "sensor_fault_events": lambda model: derived_sensor_fault_events(model, FAULTED_STATES),
 }
 
 
-def resolve_state_set(model: TransitionModel, spec: Union[str, list, None]) -> Optional[FrozenSet[str]]:
+def resolve_state_set(model: TransitionModel, spec: str | list | None) -> frozenset[str] | None:
     if spec is None:
         return None
     if isinstance(spec, str):
@@ -86,7 +85,7 @@ def resolve_state_set(model: TransitionModel, spec: Union[str, list, None]) -> O
     return frozenset(spec)
 
 
-def resolve_event_set(model: TransitionModel, spec: Union[str, list, None]) -> Optional[FrozenSet[str]]:
+def resolve_event_set(model: TransitionModel, spec: str | list | None) -> frozenset[str] | None:
     if spec is None:
         return None
     if isinstance(spec, str):
@@ -103,7 +102,7 @@ def resolve_event_set(model: TransitionModel, spec: Union[str, list, None]) -> O
 class InvariantViolation:
     invariant_id: str
     detail: str
-    edge: Optional[Edge] = None
+    edge: Edge | None = None
 
     def to_dict(self) -> dict:
         d = {"invariant_id": self.invariant_id, "detail": self.detail}
@@ -119,8 +118,8 @@ class InvariantResult:
     description: str
     passed: bool
     evidence_count: int
-    violations: List[InvariantViolation] = field(default_factory=list)
-    base_case_holds: Optional[bool] = None  # only meaningful for state_induction
+    violations: list[InvariantViolation] = field(default_factory=list)
+    base_case_holds: bool | None = None  # only meaningful for state_induction
 
     def to_dict(self) -> dict:
         return {
@@ -150,7 +149,7 @@ def _eval_edge(model: TransitionModel, spec: dict) -> InvariantResult:
     edges = model.edges.values() if include_implicit else model.explicit_edges()
 
     evaluated = 0
-    violations: List[InvariantViolation] = []
+    violations: list[InvariantViolation] = []
     for edge in edges:
         if events is not None and edge.event not in events:
             continue
@@ -178,9 +177,9 @@ def _eval_edge(model: TransitionModel, spec: dict) -> InvariantResult:
 
 
 def _eval_exit_set(model: TransitionModel, spec: dict) -> InvariantResult:
-    allowed_exits: Dict[str, list] = spec["allowed_exits"]
+    allowed_exits: dict[str, list] = spec["allowed_exits"]
     evaluated = 0
-    violations: List[InvariantViolation] = []
+    violations: list[InvariantViolation] = []
     for state, allowed_rows in allowed_exits.items():
         allowed_pairs = {(r["event"], r["to"]) for r in allowed_rows}
         actual_edges = [e for e in model.explicit_edges() if e.from_state == state]
@@ -207,7 +206,7 @@ def _eval_exit_set(model: TransitionModel, spec: dict) -> InvariantResult:
     )
 
 
-def reachable_excluding_expansion(model: TransitionModel, start: str, stop_expansion_at: FrozenSet[str]) -> FrozenSet[str]:
+def reachable_excluding_expansion(model: TransitionModel, start: str, stop_expansion_at: frozenset[str]) -> frozenset[str]:
     """Fixed-point closure from *start*, EXCEPT states in
     *stop_expansion_at* are added to the reached set but never expanded
     further -- used by I-NO-REENTRY to express "no path ... except through
@@ -236,7 +235,7 @@ def _eval_path(model: TransitionModel, spec: dict) -> InvariantResult:
     stop_at = frozenset(spec.get("stop_expansion_at", []))
 
     evaluated = 0
-    violations: List[InvariantViolation] = []
+    violations: list[InvariantViolation] = []
     for start in sorted(from_states):
         reached = reachable_excluding_expansion(model, start, stop_at)
         evaluated += len(reached)
@@ -261,7 +260,7 @@ def _eval_state_induction(model: TransitionModel, spec: dict) -> InvariantResult
         return state in allowed
 
     base_ok = predicate(INIT_STATE)
-    violations: List[InvariantViolation] = []
+    violations: list[InvariantViolation] = []
     if not base_ok:
         violations.append(InvariantViolation(
             invariant_id=spec["id"],
@@ -286,7 +285,7 @@ def _eval_state_induction(model: TransitionModel, spec: dict) -> InvariantResult
     )
 
 
-_EVALUATORS: Dict[str, Callable[[TransitionModel, dict], InvariantResult]] = {
+_EVALUATORS: dict[str, Callable[[TransitionModel, dict], InvariantResult]] = {
     "edge": _eval_edge,
     "exit_set": _eval_exit_set,
     "path": _eval_path,
@@ -301,7 +300,7 @@ def evaluate_invariant(model: TransitionModel, spec: dict) -> InvariantResult:
     return _EVALUATORS[kind](model, spec)
 
 
-def load_invariant_specs(path: Path = INVARIANTS_YAML) -> List[dict]:
+def load_invariant_specs(path: Path = INVARIANTS_YAML) -> list[dict]:
     doc = yaml.safe_load(path.read_text())
     specs = doc.get("invariants", [])
     ids = [s["id"] for s in specs]
@@ -310,7 +309,7 @@ def load_invariant_specs(path: Path = INVARIANTS_YAML) -> List[dict]:
     return specs
 
 
-def evaluate_all(model: TransitionModel, specs: Optional[List[dict]] = None) -> List[InvariantResult]:
+def evaluate_all(model: TransitionModel, specs: list[dict] | None = None) -> list[InvariantResult]:
     if specs is None:
         specs = load_invariant_specs()
     return [evaluate_invariant(model, spec) for spec in specs]

@@ -47,9 +47,15 @@ import re
 
 from _lib.gate_allowlist import (
     TICKET_PATTERN,
-    load_allowlist as _load_allowlist,
-    git_show_main_allowlist as _git_show_main_allowlist,
+)
+from _lib.gate_allowlist import (
     check_shrink_mode as _check_shrink_mode,
+)
+from _lib.gate_allowlist import (
+    git_show_main_allowlist as _git_show_main_allowlist,
+)
+from _lib.gate_allowlist import (
+    load_allowlist as _load_allowlist,
 )
 from _lib.repo import find_repo_root
 from rich.console import Console

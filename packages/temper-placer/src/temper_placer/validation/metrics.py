@@ -54,12 +54,13 @@ import temper_quality_oracle as _qo
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
+from temper_geometry import compute_pairwise_distances, get_rotated_bounds
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pad_identity import net_pin_occurrence_indices, nth_matching_pin
 from temper_placer.core.pin_geometry import pin_world_position_at
 from temper_placer.core.state import PlacementState
-from temper_geometry import compute_pairwise_distances, get_rotated_bounds
 
 
 @dataclass

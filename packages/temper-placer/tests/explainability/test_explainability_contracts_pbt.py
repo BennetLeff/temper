@@ -23,9 +23,9 @@ from __future__ import annotations
 from datetime import datetime
 
 import pytest
-import temper_io_types as _rust
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from temper_orchestration import Trace
 
 from temper_placer.explainability.decision import (
     Decision,
@@ -33,7 +33,6 @@ from temper_placer.explainability.decision import (
     DecisionTrace,
     DecisionType,
 )
-from temper_orchestration import Trace
 
 _FIXED_DT = datetime(2026, 8, 4, 12, 30, 45)
 

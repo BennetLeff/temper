@@ -8,8 +8,7 @@ Import via::
 These modules are exempt from ``scripts/manifest.yaml`` entries.
 """
 
-from _lib.repo import find_repo_root
-from _lib.path_setup import setup_temper_placer_path
+from _lib.argparse_helpers import add_standard_args
 from _lib.gate_allowlist import (
     TICKET_PATTERN,
     check_shrink_mode,
@@ -17,7 +16,8 @@ from _lib.gate_allowlist import (
     load_allowlist,
 )
 from _lib.github_summary import get_github_summary_path
-from _lib.argparse_helpers import add_standard_args
+from _lib.path_setup import setup_temper_placer_path
+from _lib.repo import find_repo_root
 
 __all__ = [
     "find_repo_root",

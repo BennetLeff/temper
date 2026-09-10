@@ -80,9 +80,9 @@ import argparse
 import json
 import re
 import sys
+import xml.etree.ElementTree as ET
 from collections import Counter, defaultdict
 from pathlib import Path
-import xml.etree.ElementTree as ET
 
 try:
     import yaml

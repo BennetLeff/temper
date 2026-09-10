@@ -9,12 +9,7 @@ Tests functions still on the coverage allowlist that existing suites
 from __future__ import annotations
 
 import json
-import tempfile
-import time
 from pathlib import Path
-from unittest.mock import Mock
-
-import pytest
 
 # ============================================================================
 # metrics_recorder — record_metrics_for_stage, record_stage_timing
@@ -635,7 +630,6 @@ class TestGoldenManifest:
         assert manifest.boards[0].description == "test board"
 
     def test_load_empty_yaml_returns_default(self, tmp_path: Path):
-        import yaml
 
         from temper_placer.regression.manifest import GoldenManifest
 

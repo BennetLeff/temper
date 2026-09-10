@@ -4,6 +4,7 @@ Compiled from `packages/temper-design-bundle/src/differential_pair_contracts.rs`
 Keep in sync with that file.
 """
 from __future__ import annotations
+
 from typing import Any
 
 class DifferentialPairConstraint:

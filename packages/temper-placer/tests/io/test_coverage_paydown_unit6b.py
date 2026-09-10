@@ -12,8 +12,6 @@ Targets io/ functions not exercised by existing tests:
 from __future__ import annotations
 
 import json
-import tempfile
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -21,7 +19,6 @@ import pytest
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
-
 
 # ============================================================================
 # reference_loader: netlist_to_placement_state
@@ -182,8 +179,8 @@ class TestFilterComponents:
 
     @pytest.fixture
     def fixture_design(self):
-        from temper_placer.io.reference_loader import ReferenceDesign
         from temper_placer.io.kicad_parser import ParseResult
+        from temper_placer.io.reference_loader import ReferenceDesign
 
         comps = [
             Component(
@@ -472,6 +469,7 @@ class TestFlagsEdgeCases:
     def test_is_feedback_enabled_default(self):
         """Default (unset) returns True."""
         import os
+
         from temper_placer.deterministic.flags import is_feedback_enabled
 
         old = os.environ.get("TEMPER_FEEDBACK_ENABLED")
@@ -486,6 +484,7 @@ class TestFlagsEdgeCases:
     def test_is_feedback_enabled_explicitly_on(self):
         """Setting TEMPER_FEEDBACK_ENABLED=1 returns True."""
         import os
+
         from temper_placer.deterministic.flags import is_feedback_enabled
 
         old = os.environ.get("TEMPER_FEEDBACK_ENABLED")
@@ -501,6 +500,7 @@ class TestFlagsEdgeCases:
     def test_is_feedback_enabled_explicitly_off(self):
         """Setting TEMPER_FEEDBACK_ENABLED=0 returns False."""
         import os
+
         from temper_placer.deterministic.flags import is_feedback_enabled
 
         old = os.environ.get("TEMPER_FEEDBACK_ENABLED")
@@ -516,6 +516,7 @@ class TestFlagsEdgeCases:
     def test_is_feedback_enabled_off_variants(self):
         """Various way to say 'off': false, no, off, and case-insensitive."""
         import os
+
         from temper_placer.deterministic.flags import is_feedback_enabled
 
         old = os.environ.get("TEMPER_FEEDBACK_ENABLED")
@@ -532,6 +533,7 @@ class TestFlagsEdgeCases:
     def test_is_feedback_enabled_blank_is_on(self):
         """Empty string (unset) returns True."""
         import os
+
         from temper_placer.deterministic.flags import is_feedback_enabled
 
         old = os.environ.get("TEMPER_FEEDBACK_ENABLED")
@@ -646,7 +648,6 @@ class TestBoardStateCoverage:
         )
 
     def test_is_route_locked_true_after_lock(self, fixture_state):
-        from temper_placer.deterministic.state import BoardState
 
         state = fixture_state.with_locked_route("VCC")
         assert state.is_route_locked("VCC") is True
@@ -699,7 +700,7 @@ class TestDSNCoverage:
         assert "polygon" in str(expr)
 
     def test_dsn_shape_is_base(self):
-        from temper_placer.io.dsn import DSNShape, DSNPolygon
+        from temper_placer.io.dsn import DSNPolygon, DSNShape
 
         shape = DSNShape()
         assert isinstance(shape, DSNShape)

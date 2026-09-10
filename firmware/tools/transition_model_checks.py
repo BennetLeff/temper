@@ -60,8 +60,8 @@ every edge, including self-loops).
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Dict, List
 
 from power_active_mapping import FAULTED_STATES, POWER_ACTIVE_STATES
 from transition_model import (
@@ -93,7 +93,7 @@ class CheckResult:
     name: str
     description: str
     passed: bool
-    violations: List[Violation] = field(default_factory=list)
+    violations: list[Violation] = field(default_factory=list)
     evidence_count: int = 0  # number of cells/edges evaluated
 
     def to_dict(self) -> dict:
@@ -108,7 +108,7 @@ class CheckResult:
 
 def check_p1_no_fault_to_power_active(model: TransitionModel) -> CheckResult:
     """P1: no edge from a faulted state to a power-active state."""
-    violations: List[Violation] = []
+    violations: list[Violation] = []
     evaluated = 0
     for edge in model.edges.values():
         if edge.from_state in FAULTED_STATES:
@@ -134,7 +134,7 @@ def check_p2_sensor_fault_blocks(model: TransitionModel) -> CheckResult:
     """P2: every sensor-fault event, from every state that declares it,
     targets a faulted state with a non-FAULT_NONE code."""
     sensor_events = derived_sensor_fault_events(model, FAULTED_STATES)
-    violations: List[Violation] = []
+    violations: list[Violation] = []
     evaluated = 0
     for edge in model.explicit_edges():
         if edge.event not in sensor_events:
@@ -161,7 +161,7 @@ def check_p2_sensor_fault_blocks(model: TransitionModel) -> CheckResult:
 def check_p3_fault_code_discipline(model: TransitionModel) -> CheckResult:
     """P3: fault-code / fault-target pairing (self-loop scoped; see module
     docstring)."""
-    violations: List[Violation] = []
+    violations: list[Violation] = []
     evaluated = 0
     for edge in model.edges.values():
         evaluated += 1
@@ -200,7 +200,7 @@ def check_p3_fault_code_discipline(model: TransitionModel) -> CheckResult:
 def check_p4_no_invalid_targets(model: TransitionModel) -> CheckResult:
     """P4: no explicit row targets an unknown state (defense-in-depth: the
     U1 parser already refuses to build a model with a bad reference)."""
-    violations: List[Violation] = []
+    violations: list[Violation] = []
     evaluated = 0
     state_set = set(model.states)
     for edge in model.explicit_edges():
@@ -220,7 +220,7 @@ def check_p4_no_invalid_targets(model: TransitionModel) -> CheckResult:
     )
 
 
-ALL_CHECKS: List[Callable[[TransitionModel], CheckResult]] = [
+ALL_CHECKS: list[Callable[[TransitionModel], CheckResult]] = [
     check_p1_no_fault_to_power_active,
     check_p2_sensor_fault_blocks,
     check_p3_fault_code_discipline,
@@ -228,7 +228,7 @@ ALL_CHECKS: List[Callable[[TransitionModel], CheckResult]] = [
 ]
 
 
-def run_all_checks(model: TransitionModel) -> List[CheckResult]:
+def run_all_checks(model: TransitionModel) -> list[CheckResult]:
     return [check(model) for check in ALL_CHECKS]
 
 

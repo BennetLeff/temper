@@ -46,7 +46,7 @@ def _pin(model: CpSatModel, values: tuple[int, int, int, int, int, int]) -> None
 
 
 def test_witnessed_six_value_tuple_is_infeasible() -> None:
-    assert RUST_MODEL_UNITS_PER_MM == rust.collision_campaign_model_units_per_mm()
+    assert rust.collision_campaign_model_units_per_mm() == RUST_MODEL_UNITS_PER_MM
     model = _model()
     before = len(model.model_ref.Proto().constraints)
     apply_collision_cut(model, _rust_cut(), expected_candidate_digest="digest")

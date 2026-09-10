@@ -4,6 +4,7 @@ Compiled from `packages/temper-design-bundle/src/model_builder.rs`. Keep in
 sync with that file.
 """
 from __future__ import annotations
+
 from typing import Any
 
 class Variable:

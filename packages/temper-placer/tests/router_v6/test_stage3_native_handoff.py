@@ -53,6 +53,7 @@ def test_custom_capacity_metadata_stays_foreign_for_legacy_fallback():
     """Custom public metadata must survive and keep the legacy solver path."""
 
     import temper_rust_router as router
+
     from temper_placer.router_v6.constraint_model import (
         CapacityConstraint,
         ConstraintModel,

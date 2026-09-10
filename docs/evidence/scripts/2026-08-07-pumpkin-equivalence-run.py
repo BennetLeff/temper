@@ -54,7 +54,7 @@ if str(PLACER_SRC) not in sys.path:
 from temper_placer.placer.cp_sat._encoder_solve import _POLARIZED_REFS  # noqa: E402
 
 
-def _serialize_model(model: "harness.CorpusModel") -> dict[str, Any]:
+def _serialize_model(model: harness.CorpusModel) -> dict[str, Any]:
     """PlacementModel + minimize_displacement_to -> the pumpkin_engine wire
     format. Built from ``model.verification_model`` -- the SAME independent
     PlacementModel the harness's own IndependentVerifier checks against
@@ -115,7 +115,7 @@ class PumpkinEngine:
         # repeated measurement of the SAME configuration, which is honest
         # (not cached/faked) and incidentally gives Tier 4 data for free.
 
-    def solve(self, spec_model: "harness.CorpusModel", *, seed: int, timeout_ms: int, num_workers: int) -> "harness.SolveOutcome":
+    def solve(self, spec_model: harness.CorpusModel, *, seed: int, timeout_ms: int, num_workers: int) -> harness.SolveOutcome:
         payload = _serialize_model(spec_model)
         payload["seed"] = seed
         payload["timeout_ms"] = timeout_ms

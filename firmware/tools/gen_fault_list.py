@@ -18,7 +18,6 @@ from pathlib import Path
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
-
 # Label overrides for manifest entries whose mechanically-derived label
 # would differ from the existing hand-maintained strings in state_machine.h.
 # These preserve backward compatibility with test assertions and EEPROM logs.

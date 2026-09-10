@@ -46,6 +46,8 @@ import numpy as np
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
+from temper_geometry import compute_pairwise_distances, get_rotated_bounds
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
@@ -53,7 +55,6 @@ from temper_placer.geometry.constraints import (
     compute_boundary_violation,
     point_in_zone,
 )
-from temper_geometry import compute_pairwise_distances, get_rotated_bounds
 from temper_placer.validation.base import (
     ValidationIssue,
     ValidationResult,

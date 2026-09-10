@@ -17,12 +17,11 @@ G2 (behavioral A/B): bit-identical parity between ``nx.Graph`` and
 from __future__ import annotations
 
 import random
-import subprocess
 from pathlib import Path
 
-import tests.graph_fixtures as nx
-import pytest
 import temper_design_bundle_python as _tdb
+
+import tests.graph_fixtures as nx
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -250,11 +249,8 @@ def test_production_board_connected_components_count():
     """On the production board, the skeleton has 3 connected components
     and the bridge branch is reached but adds 0 bridges (S4 §§2,4)."""
     # Import routing space utilities (this needs temper_geometry built)
-    import temper_geometry as _tg
-    from shapely.geometry import Polygon, box
 
     from temper_placer.router_v6.channel_skeleton import (
-        _ensure_skeleton_connectivity,
         _extract_medial_axis_single as shipped_extract_medial_axis_single,
     )
 
@@ -445,9 +441,9 @@ def _ensure_skeleton_connectivity_rust(
     import numpy as np
 
     from temper_placer.router_v6.channel_skeleton import (
-        _UnionFind,
         _bridge_validity_mask,
         _radius_pairs,
+        _UnionFind,
     )
 
     G = graph

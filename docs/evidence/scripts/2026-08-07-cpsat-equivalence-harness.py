@@ -491,7 +491,7 @@ class SolveOutcome:
 class Engine(Protocol):
     name: str
 
-    def solve(self, spec: "CorpusModel", *, seed: int, timeout_ms: int, num_workers: int) -> SolveOutcome: ...
+    def solve(self, spec: CorpusModel, *, seed: int, timeout_ms: int, num_workers: int) -> SolveOutcome: ...
 
 
 @contextlib.contextmanager
@@ -522,7 +522,7 @@ def _forced_worker_count(n: int):
 class OrToolsEngine:
     name = "ortools-cpsat"
 
-    def solve(self, spec: "CorpusModel", *, seed: int, timeout_ms: int, num_workers: int) -> SolveOutcome:
+    def solve(self, spec: CorpusModel, *, seed: int, timeout_ms: int, num_workers: int) -> SolveOutcome:
         t0 = time.monotonic()
         with _forced_worker_count(num_workers):
             result = solve_placement(
@@ -726,6 +726,7 @@ def build_full_board_corpus() -> CorpusModel | None:
         return None
 
     from temper_placer.io.config_loader import load_constraints
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
     parse_result = parse_kicad_pcb(board_path)

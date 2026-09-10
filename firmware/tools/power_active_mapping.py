@@ -26,7 +26,5 @@ abstraction too).
 
 from __future__ import annotations
 
-from typing import FrozenSet
-
-POWER_ACTIVE_STATES: FrozenSet[str] = frozenset({"STATE_PREHEAT", "STATE_HEATING"})
-FAULTED_STATES: FrozenSet[str] = frozenset({"STATE_FAULT", "STATE_RUNAWAY_FAULT"})
+POWER_ACTIVE_STATES: frozenset[str] = frozenset({"STATE_PREHEAT", "STATE_HEATING"})
+FAULTED_STATES: frozenset[str] = frozenset({"STATE_FAULT", "STATE_RUNAWAY_FAULT"})

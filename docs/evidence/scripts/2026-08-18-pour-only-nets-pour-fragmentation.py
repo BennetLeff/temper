@@ -2,18 +2,26 @@
 # provenance: commit=2abb246db697da2685a652b93632a42d11595d51 dirty=false
 """Per-net pour fragmentation: clustering vs carve. READ-ONLY on the board."""
 from pathlib import Path
+
 import temper_geometry as _tg
-from shapely.geometry import Polygon
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.router_v6.zone_emission import _cluster_positions, _convex_hull_from_positions, _clip_to_board, compute_zones_for_net
-from temper_placer.router_v6._zone_pour_stitch import (
-    _zone_layers_for_net, _zone_params_for_net, _own_pads_on_layer,
-    _CONTINUITY_EXEMPT_CLASSES, _CONTINUITY_EXEMPT_NETS, _MIN_CARVED_AREA_MM2,
-)
-from temper_placer.router_v6.zone_pour_clearance import default_table, collect_zone_obstacle_records
-from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
-from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
 import temper_orchestration as _to
+
+from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
+from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+from temper_placer.router_v6._zone_pour_stitch import (
+    _CONTINUITY_EXEMPT_CLASSES,
+    _CONTINUITY_EXEMPT_NETS,
+    _MIN_CARVED_AREA_MM2,
+    _own_pads_on_layer,
+    _zone_layers_for_net,
+    _zone_params_for_net,
+)
+from temper_placer.router_v6.zone_emission import (
+    _cluster_positions,
+    compute_zones_for_net,
+)
+from temper_placer.router_v6.zone_pour_clearance import collect_zone_obstacle_records, default_table
+from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
 
 BOARD = Path("pcb/temper.kicad_pcb")
 NINE = ["+170V_BUS","DC_BUS_RTN","PWR_RTN","SW_NODE","ac_n","power_in.ntc-no",
@@ -23,8 +31,10 @@ pcb = parse_kicad_pcb_v6(BOARD)
 pad_positions = dict(_to.run_collect_pad_positions(pcb))
 content = BOARD.read_text()
 import re
+
 net_name_to_number = {m.group(2): int(m.group(1)) for m in re.finditer(r'\(net\s+(\d+)\s+"([^"]+)"', content)}
 from temper_placer.router_v6.routing_space import _get_board_polygon
+
 board_polygon = _get_board_polygon(pcb)
 print(f"board polygon area = {board_polygon.area:.1f} mm2  bounds={tuple(round(v,2) for v in board_polygon.bounds)}")
 number_to_name = {v:k for k,v in net_name_to_number.items()}

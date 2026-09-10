@@ -11,9 +11,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml  # type: ignore[import-untyped]
-
 import temper_design_bundle_python as _tdb
+import yaml  # type: ignore[import-untyped]
 
 # Re-export the Rust pyclasses (attribute access because pyo3 submodules
 # are not directly importable as ``parent.child``).

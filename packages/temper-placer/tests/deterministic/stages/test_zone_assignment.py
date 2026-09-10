@@ -4,9 +4,10 @@ Unit tests for ZoneAssignmentStage.
 Tests component-to-zone assignment based on net classes and component types.
 """
 
+import temper_orchestration as _to
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-import temper_orchestration as _to
 from temper_placer.deterministic.state import BoardState
 
 

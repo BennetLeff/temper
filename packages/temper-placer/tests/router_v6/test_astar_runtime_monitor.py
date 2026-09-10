@@ -15,14 +15,15 @@ import time
 import numpy as np
 import pytest
 
+from temper_placer.router_v6.astar_monitor import astar_monitor, get_monitor_state
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+
 # The monitor hook is a per-pop callback inside the *Python* search. That
 # search moved to Rust on 2026-08-18 and the Rust kernel does not call
 # back into Python per expansion (that callback was the cost the port
 # existed to remove), so these tests run against the pinned pre-port
 # oracle -- the only implementation the monitor can still observe.
 from tests.router_v6._astar_core_py_oracle import _astar_search
-from temper_placer.router_v6.astar_monitor import astar_monitor, get_monitor_state
-from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 
 def _make_grid(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None) -> OccupancyGrid:

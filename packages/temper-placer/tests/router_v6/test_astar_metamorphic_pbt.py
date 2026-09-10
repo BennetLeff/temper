@@ -27,6 +27,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_core import octile_distance
+
 # `_astar_search` moved to Rust on 2026-08-18
 # (`temper_rust_router_core::astar_search2d`). This suite holds the RUST
 # kernel -- the live implementation -- to its properties; the pre-port

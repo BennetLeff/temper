@@ -8,6 +8,7 @@ own `explainability.rs` Decision/DecisionTrace/Alternative, consumed via
 distinct crates, not aliases of each other). Keep in sync with that file.
 """
 from __future__ import annotations
+
 from typing import Any
 
 class Alternative:

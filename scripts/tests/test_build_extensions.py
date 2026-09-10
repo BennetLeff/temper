@@ -74,12 +74,27 @@ def test_build_crate_cleans_touches_source_then_runs_maturin(
     def fake_utime(path: Path, times: None) -> None:
         events.append(("touch", path))
 
+    removed: list[object] = []
+
+    def fake_remove(crate_arg: object) -> None:
+        # REAL _remove_installed_artifact resolves the artifact by module
+        # name in the LIVE environment: our fake crate is named
+        # "temper-geometry", so the real function unlinks the venv's
+        # installed .so and the mocked maturin never rebuilds it. Every
+        # full-suite run then loses temper_geometry (2026-09-10). Record
+        # instead; the call itself is asserted below.
+        removed.append(crate_arg)
+
     monkeypatch.setattr("build_extensions._run", fake_run)
     monkeypatch.setattr("build_extensions.os.utime", fake_utime)
+    monkeypatch.setattr(
+        "build_extensions._remove_installed_artifact", fake_remove
+    )
 
     build_crate(crate, repo_root=tmp_path)
 
     assert [kind for kind, _ in events] == ["run", "touch", "run"]
+    assert removed == [crate]
     clean_command = events[0][1][0]
     maturin_command = events[2][1][0]
     assert isinstance(clean_command, list)

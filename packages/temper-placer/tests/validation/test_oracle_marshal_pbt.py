@@ -46,7 +46,6 @@ from tests.validation.test_oracle_marshal_rust_differential import (  # noqa: E4
     _oracle_placement_to_oracle_dict,
 )
 
-
 # ---------------------------------------------------------------------------
 # Input strategies
 # ---------------------------------------------------------------------------

@@ -62,8 +62,10 @@ chain it after the build command (``build && write-stamp``), never alongside.
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Callable  # noqa: F401 -- used in signature
-from collections.abc import Iterable
+from collections.abc import (
+    Callable,  # noqa: F401 -- used in signature
+    Iterable,
+)
 from dataclasses import dataclass
 from pathlib import Path
 

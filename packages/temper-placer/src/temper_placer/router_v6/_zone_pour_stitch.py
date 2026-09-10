@@ -704,10 +704,11 @@ def _stitch_pads_to_each_other(
     `power_in.ntc-no` without also checking the evidence doc's own
     explicit ampacity caveat.
     """
-    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
-    from temper_placer.router_v6._adapter_convert import _next_tstamp
     from shapely.geometry import LineString, Point
     from shapely.ops import unary_union
+
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+    from temper_placer.router_v6._adapter_convert import _next_tstamp
 
     _STITCH_LAYER = "In3.Cu"
 

@@ -11,10 +11,11 @@ kernel); its identical compute is reachable via
 ``ipc2152_current_capacity``.
 """
 
-import pytest
 
 from temper_drc_rs import (
     estimate_current_from_net_class,
+)
+from temper_drc_rs import (
     ipc2152_current_capacity as estimate_trace_current,
 )
 

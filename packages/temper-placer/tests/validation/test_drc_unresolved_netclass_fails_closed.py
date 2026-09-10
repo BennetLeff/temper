@@ -49,7 +49,6 @@ import json
 from typing import Any
 
 import pytest
-
 import temper_drc_rs as _tdrc
 
 

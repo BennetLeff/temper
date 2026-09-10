@@ -14,21 +14,14 @@ wrappers take flat scalar coordinates / flat vertex lists.
 
 import numpy as np
 
-from temper_geometry import (
-    polygon_area,
-)
-
 # Import geometry functions
 from temper_geometry import (
-    smooth_max,
-)
-from temper_geometry import (
-    point_distance,
-)
-from temper_geometry import sdf_circle
-from temper_geometry import (
     get_rotation_matrix,
+    point_distance,
+    polygon_area,
     rotate_point,
+    sdf_circle,
+    smooth_max,
 )
 
 # =============================================================================

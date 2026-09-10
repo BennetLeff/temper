@@ -28,7 +28,6 @@ from __future__ import annotations
 import itertools
 import math
 
-import numpy as np
 import pytest
 import temper_quality_oracle as _tqo
 from hypothesis import assume, given, settings

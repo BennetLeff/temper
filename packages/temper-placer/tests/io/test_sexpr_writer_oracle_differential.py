@@ -16,6 +16,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from tests.io._sexpr_writer_py_oracle import (
     KIUTILS_MINIMAL_BOARD_SEXPR,
 )

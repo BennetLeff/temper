@@ -19,7 +19,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-
 # ============================================================================
 # compute_input_fingerprint / compute_source_fingerprint
 # ============================================================================
@@ -118,7 +117,6 @@ class TestComputeSourceFingerprint:
         assert len(fp) == 64
 
     def test_different_code_different_fingerprint(self, tmp_path: Path):
-        from temper_placer.regression.fingerprint import compute_source_fingerprint
 
         # Create two different source trees
         dir_a = tmp_path / "a"

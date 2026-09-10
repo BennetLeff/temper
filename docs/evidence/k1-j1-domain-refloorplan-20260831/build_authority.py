@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-
 OLD_ROUTE_TSTAMPS = {
     # rtd_force_p: J1.1 to the retained (93.65, 239.75) trunk.
     "a6696568-c3de-577c-960b-782cac80198e",

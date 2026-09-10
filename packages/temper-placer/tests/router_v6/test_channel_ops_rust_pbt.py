@@ -40,7 +40,6 @@ Anti-vacuity per G4 is explicit in each property's ``_guard`` companion.
 from __future__ import annotations
 
 import hypothesis.strategies as st
-import pytest
 from hypothesis import given, settings
 from shapely.geometry import box
 

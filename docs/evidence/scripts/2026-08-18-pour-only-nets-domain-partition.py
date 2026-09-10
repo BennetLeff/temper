@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 # provenance: commit=2abb246db697da2685a652b93632a42d11595d51 dirty=false
 """Q3: is a compliant HV/SELV partition of the current outline achievable at all?"""
-from pathlib import Path
 from collections import Counter, defaultdict
-from shapely.geometry import box, MultiPoint, Point
+from pathlib import Path
+
+from shapely.geometry import MultiPoint, box
 from shapely.ops import unary_union
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+
 from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
 from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
 from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.router_v6.routing_space import _get_board_polygon
 
 pcb = parse_kicad_pcb_v6(Path("pcb/temper.kicad_pcb"))

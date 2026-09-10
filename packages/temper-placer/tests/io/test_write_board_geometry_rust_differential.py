@@ -19,8 +19,6 @@ concern) and are intentionally kept.
 
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import numpy as np
 import pytest
 import temper_design_bundle_python as _tdb
@@ -37,7 +35,6 @@ def test_write_placements_delegates_to_rust_update(tmp_path):
     proving the kernel is correct in isolation. Monkeypatch the Rust
     symbol to raise; call the shipped entry point; the raise propagates.
     """
-    from pathlib import Path
 
     sentinel = RuntimeError("REACHED_RUST_UPDATE_FP")
 

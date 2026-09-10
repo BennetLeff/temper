@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import pytest
 import temper_drc_rs
+
 from temper_placer.placer.cp_sat.gates import StackupGate
 
 # The Python exact-match authority under test.

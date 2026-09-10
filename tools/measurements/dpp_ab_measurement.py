@@ -88,8 +88,6 @@ def run_ab_measurements(
 
 def _run_baseline(netlist, board, seed):
     """Run single-seed baseline via train_multiphase."""
-    import jax
-    import jax.numpy as jnp
     from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
     from temper_placer.losses.boundary import BoundaryLoss
     from temper_placer.losses.overlap import OverlapLoss
@@ -119,6 +117,7 @@ def _run_random_multiseed(netlist, board, seed, n_generate, n_select):
     from temper_placer.optimizer.seed_generation import _generate_diverse_seeds
     from temper_placer.optimizer.train import train_multiphase
     from temper_placer.optimizer.triage import _triage_evaluate
+
     from temper_placer.core.state import PlacementState
 
     context = LossContext.from_netlist_and_board(netlist, board)
@@ -199,7 +198,7 @@ def _write_markdown_summary(results: dict, output_md: Path) -> None:
     """Write markdown summary of A/B results."""
     lines = ["# DPP Multi-Seed A/B Test Results", ""]
     lines.append(f"**Date:** {_today()}")
-    lines.append(f"**Variants:** Baseline (single), Random K-from-N, DPP selection")
+    lines.append("**Variants:** Baseline (single), Random K-from-N, DPP selection")
     lines.append("")
 
     for board_name, variant_data in results.items():

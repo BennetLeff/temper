@@ -57,9 +57,17 @@ from hypothesis import strategies as st
 
 from temper_placer.router_v6 import (
     dense_package_detection as dpd,
+)
+from temper_placer.router_v6 import (
     diff_pair_inference as dpi,
+)
+from temper_placer.router_v6 import (
     power_plane as pp,
+)
+from temper_placer.router_v6 import (
     resource_bound as rb,
+)
+from temper_placer.router_v6 import (
     trace_width_assignment as twa,
 )
 from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
@@ -87,9 +95,9 @@ _NEUTRAL_NETS = ("SIG1", "GND", "3V3", "ZZZ", "AUDIO_L", "CLK")
 
 
 def _grid(rows: int, cols: int, blocked_cells: set[tuple[int, int]]) -> rb.OccupancyGrid:
-    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-
     import numpy as np
+
+    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
     grid = np.zeros((rows, cols), dtype=np.int8)
     for (r, c) in blocked_cells:

@@ -144,6 +144,10 @@ ignore = [
 # modules. Reformatting one silently weakens the parity proof it anchors, so
 # they carry the lint profile of the code they pin, not of new code.
 "tests/pcl/_*_py_oracle.py" = ["UP007"]
+# Pinned verbatim oracles (content-hash gated): never auto-fix or hand-edit
+# for style. Residual rules verified oracle-only 2026-09-10
+# (ruff check --output-format concise | grep _py_oracle).
+"tests/**/*_py_oracle.py" = ["I001", "F401", "F821", "F811", "B007", "UP042", "UP037", "SIM102"]
 "**/validation/results/battery_run.py" = ["SIM105", "B025"]  # intentional suppress
 # The try/except/pass this suppresses moved to _battery_smoke_test.py (LOC
 # cap split, 2026-08-17); same code, same rationale, ignore follows it.

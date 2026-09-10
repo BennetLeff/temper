@@ -44,8 +44,6 @@ def main() -> int:
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.router_v6 import _astar_reconstruct as recon
-    from temper_placer.router_v6 import _astar_search as search_mod
-    from temper_placer.router_v6.astar_grid import _identify_blocking_nets
 
     pcb_path = repo_root / "pcb" / "temper.kicad_pcb"
     rules_path = repo_root / "packages" / "temper-placer" / "configs" / "netclass_rules.yaml"

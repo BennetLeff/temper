@@ -27,7 +27,6 @@ from temper_placer.router_v6.trace_width_assignment import (
     TraceWidthAssignment,
 )
 
-
 # ── creepage / clearance / annular violations ─────────────────────
 
 

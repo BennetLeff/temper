@@ -33,10 +33,10 @@ import subprocess
 import sys
 import textwrap
 
-import tests.graph_fixtures as nx
 import numpy as np
 import pytest
 
+import tests.graph_fixtures as nx
 from temper_placer.router_v6.channel_skeleton import (
     _ensure_skeleton_connectivity,
     _radius_pairs,

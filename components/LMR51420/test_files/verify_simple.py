@@ -10,10 +10,9 @@ For induction cooker LMR51430 power supply design
 Date: 2025-12-09
 """
 
-import sys
 import os
 import re
-from pathlib import Path
+import sys
 
 
 class SimpleValidator:
@@ -38,7 +37,7 @@ class SimpleValidator:
         print("-" * 70)
 
         try:
-            with open(filename, 'r') as f:
+            with open(filename) as f:
                 content = f.read()
 
             # Extract key information from header
@@ -94,7 +93,7 @@ class SimpleValidator:
         print("-" * 70)
 
         try:
-            with open(log_file, 'r') as f:
+            with open(log_file) as f:
                 content = f.read()
 
             # Look for measurement results
@@ -133,47 +132,47 @@ class SimpleValidator:
 
                 # Check output voltage
                 error_pct = abs(vout - target) / target * 100
-                print(f"\n1. Output Voltage Check:")
+                print("\n1. Output Voltage Check:")
                 print(f"   Target:  {target:.3f}V ± {self.specs['VOUT_TOL_PCT']:.1f}%")
                 print(f"   Measured: {vout:.3f}V")
                 print(f"   Error:    {error_pct:.2f}%")
 
                 if vout < 1.0:
-                    print(f"   [FAIL] ✗ Output voltage too low - check SPICE model!")
-                    print(f"   NOTE: This suggests the regulator is not starting or switching.")
-                    print(f"         Possible causes:")
-                    print(f"         - Enable signal not activating")
-                    print(f"         - Internal oscillator not working")
-                    print(f"         - Feedback loop issue")
+                    print("   [FAIL] ✗ Output voltage too low - check SPICE model!")
+                    print("   NOTE: This suggests the regulator is not starting or switching.")
+                    print("         Possible causes:")
+                    print("         - Enable signal not activating")
+                    print("         - Internal oscillator not working")
+                    print("         - Feedback loop issue")
                     return False
                 elif abs(vout - target) <= target * tol:
-                    print(f"   [PASS] ✓ Within specification")
+                    print("   [PASS] ✓ Within specification")
                 else:
-                    print(f"   [WARN] ⚠ Outside target range but regulating")
+                    print("   [WARN] ⚠ Outside target range but regulating")
 
                 # Check ripple
                 ripple = measurements.get('vout_pp', 0)
-                print(f"\n2. Output Ripple Check:")
+                print("\n2. Output Ripple Check:")
                 print(f"   Measured: {ripple*1000:.1f}mV p-p")
                 print(f"   Max spec: {self.specs['VOUT_RIPPLE_MAX_MV']:.1f}mV")
 
                 if ripple * 1000 < self.specs['VOUT_RIPPLE_MAX_MV']:
-                    print(f"   [PASS] ✓ Ripple within limits")
+                    print("   [PASS] ✓ Ripple within limits")
                 else:
-                    print(f"   [FAIL] ✗ Excessive ripple")
+                    print("   [FAIL] ✗ Excessive ripple")
 
                 # Check inductor current
                 il = measurements.get('il_avg', 0)
-                print(f"\n3. Inductor Current Check:")
+                print("\n3. Inductor Current Check:")
                 print(f"   Measured: {il:.3f}A")
-                print(f"   Expected: ~2.0A (for 2.5Ω load @ 5V)")
+                print("   Expected: ~2.0A (for 2.5Ω load @ 5V)")
 
                 if 1.5 < il < 2.5:
-                    print(f"   [PASS] ✓ Current reasonable for load")
+                    print("   [PASS] ✓ Current reasonable for load")
                 elif il < 0.5:
-                    print(f"   [FAIL] ✗ Current too low - not delivering power")
+                    print("   [FAIL] ✗ Current too low - not delivering power")
                 else:
-                    print(f"   [WARN] ⚠ Current outside expected range")
+                    print("   [WARN] ⚠ Current outside expected range")
 
                 print("\n" + "=" * 70)
 
@@ -205,13 +204,13 @@ class SimpleValidator:
             f.write("=" * 70 + "\n\n")
 
             f.write("Test Configuration:\n")
-            f.write(f"  Input Voltage:  12V\n")
-            f.write(f"  Output Voltage: 5V target\n")
-            f.write(f"  Load Current:   2A\n")
-            f.write(f"  Frequency:      500kHz\n\n")
+            f.write("  Input Voltage:  12V\n")
+            f.write("  Output Voltage: 5V target\n")
+            f.write("  Load Current:   2A\n")
+            f.write("  Frequency:      500kHz\n\n")
 
             if self.data.get('success'):
-                f.write(f"Simulation Statistics:\n")
+                f.write("Simulation Statistics:\n")
                 f.write(f"  Data Points: {self.data.get('num_points', 'N/A')}\n")
                 f.write(f"  Variables:   {self.data.get('num_vars', 'N/A')}\n\n")
 

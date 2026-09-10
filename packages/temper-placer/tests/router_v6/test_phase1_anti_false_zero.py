@@ -373,9 +373,7 @@ class TestU9CompletionPreservation:
             "docs/brainstorms/2026-07-20-router-tree-executor-resilience-and-zone-policy-requirements.md, "
             "previously masked by single-layer-only routing."
         )
-        from temper_design_bundle_python import load_netclass_rules
-
-        from temper_design_bundle_python import load_constraints
+        from temper_design_bundle_python import load_constraints, load_netclass_rules
 
         from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.placer.cp_sat.encoder import solve_placement

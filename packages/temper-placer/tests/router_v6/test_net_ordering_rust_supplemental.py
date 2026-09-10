@@ -144,7 +144,7 @@ def test_fractional_rotation_agrees_with_the_oracle(rotation):
     assert sig(rust_hpwl) == sig(oracle_hpwl)
 
 
-def test_integer_rotation_is_unchanged_by_the_widening(): 
+def test_integer_rotation_is_unchanged_by_the_widening():
     """The widening must not perturb the integer-index path it inherited.
 
     ``Option<i64>`` -> ``Option<f64>`` changes the multiply from

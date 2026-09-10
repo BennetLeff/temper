@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 # provenance: commit=2abb246db697da2685a652b93632a42d11595d51 dirty=false
 """Exact free-space feasibility for routing the 9 nets as TRACES. READ-ONLY."""
-import sys, re, math
-from pathlib import Path
+import re
 from collections import Counter
-from shapely.geometry import Polygon, Point, LineString, box
-from shapely.ops import unary_union
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.router_v6.zone_pour_clearance import default_table, collect_zone_obstacle_records
-from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
-from temper_placer.router_v6.routing_space import _get_board_polygon
-from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+from pathlib import Path
+
 import temper_orchestration as _to
+from shapely.geometry import LineString, Point, box
+from shapely.ops import unary_union
+
+from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+from temper_placer.router_v6.routing_space import _get_board_polygon
+from temper_placer.router_v6.zone_pour_clearance import collect_zone_obstacle_records, default_table
+from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
 
 BOARD = Path("pcb/temper.kicad_pcb")
 NINE = ["+170V_BUS","DC_BUS_RTN","PWR_RTN","SW_NODE","ac_n","power_in.ntc-no",

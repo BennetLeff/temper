@@ -105,11 +105,10 @@ class _OracleDifferentialPairConstraint:
 # Production imports — after U2/U3, these are the Rust pyclasses via delegation
 # shims. Before U2/U3, they ARE the Python dataclasses (identity mode).
 # ---------------------------------------------------------------------------
-from temper_placer.core.net_graph import NetGraph, SubNetEdge  # noqa: E402
 from temper_placer.core.differential_pair import (
     DifferentialPairConstraint,  # noqa: E402
 )
-
+from temper_placer.core.net_graph import NetGraph, SubNetEdge  # noqa: E402
 
 # ============================================================================
 # Canonicalization helpers — extract fields from both sides into comparable

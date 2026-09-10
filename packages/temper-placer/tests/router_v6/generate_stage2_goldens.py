@@ -16,10 +16,11 @@ import sys
 from enum import Enum
 from pathlib import Path
 
-import tests.graph_fixtures as nx
 import numpy as np
-from tests.graph_fixtures import node_link_data
 from shapely.geometry import MultiPolygon, Polygon
+
+import tests.graph_fixtures as nx
+from tests.graph_fixtures import node_link_data
 
 HERE = Path(__file__).resolve().parent
 GOLDEN_DIR = HERE.parent / "fixtures" / "stage2_goldens"

@@ -43,7 +43,8 @@ from collections import Counter
 
 import pytest
 import temper_io_types as _rs
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 # ---------------------------------------------------------------------------
 # Verbatim pre-migration oracles (copied from _strip_copper.py AS COMMITTED at

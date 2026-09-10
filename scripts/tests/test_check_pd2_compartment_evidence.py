@@ -26,7 +26,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_pd2_compartment_evidence import (  # noqa: E402
     EXIT_OK,
-    EXIT_VIOLATION,
     GateError,
     load_board_zone_names,
     load_enforced_bar,

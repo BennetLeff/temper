@@ -5,7 +5,6 @@ from temper_placer.validation.scorecard import (
     GateMargin,
     IndependenceViolationError,
     MarginScorecard,
-    _assert_independent,
     _is_scorable_metric,
     build_scorecard,
 )

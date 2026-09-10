@@ -53,7 +53,6 @@ from temper_placer.pipeline.explainability import (
     generate_markdown_report,
 )
 
-
 # ---------------------------------------------------------------------------
 # io/placement_exporter
 # ---------------------------------------------------------------------------
@@ -752,7 +751,7 @@ class TestDeriveConstraintsFromSpec:
 
 
 def _make_trivial_netlist():
-    from temper_placer.core.netlist import Component, Netlist
+    from temper_placer.core.netlist import Netlist
 
     return Netlist(components=[], nets=[])
 

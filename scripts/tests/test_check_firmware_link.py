@@ -22,8 +22,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from check_firmware_link import (  # noqa: E402
     ALLOWED_UNBUILT_COMPONENT_DIRS,
     LEDGER_PATH,
-    main as gate_main,
     parse_ledger,
+)
+from check_firmware_link import (
+    main as gate_main,
 )
 
 CONFIGURE_BANNER = "-- Building ESP-IDF components for target esp32s3\n"

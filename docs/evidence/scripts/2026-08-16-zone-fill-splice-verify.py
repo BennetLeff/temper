@@ -18,7 +18,6 @@ Usage (needs the relocated KiCad root env, same as the kicad-cli wrapper):
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 

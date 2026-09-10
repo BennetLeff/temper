@@ -10,8 +10,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 GEN_CONFIG = REPO_ROOT / "firmware" / "tools" / "gen_config.py"
 GEN_FAULT_LIST = REPO_ROOT / "firmware" / "tools" / "gen_fault_list.py"

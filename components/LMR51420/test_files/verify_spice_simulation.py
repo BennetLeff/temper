@@ -15,11 +15,11 @@ Author: Generated for LMR51430 induction cooker power supply design
 Date: 2025-12-09
 """
 
-import sys
-import os
 import argparse
+import os
+import sys
+
 import numpy as np
-from pathlib import Path
 
 # Try to import PyLTSpice for reading raw files
 try:
@@ -73,7 +73,7 @@ class LMR51430Validator:
         variables = []
 
         try:
-            with open(filename, 'r') as f:
+            with open(filename) as f:
                 lines = f.readlines()
 
             # Find header section
@@ -218,16 +218,16 @@ class LMR51430Validator:
 
                 error_pct = abs(vout_final - vout_target) / vout_target * 100
 
-                print(f"\nOutput Voltage Analysis:")
+                print("\nOutput Voltage Analysis:")
                 print(f"  Target: {vout_target:.3f}V ± {tolerance*100:.1f}%")
                 print(f"  Actual: {vout_final:.3f}V")
                 print(f"  Error:  {error_pct:.2f}%")
 
                 if abs(vout_final - vout_target) <= vout_target * tolerance:
-                    print(f"  [PASS] Output voltage within spec")
+                    print("  [PASS] Output voltage within spec")
                     self.results['vout_pass'] = True
                 else:
-                    print(f"  [FAIL] Output voltage out of spec!")
+                    print("  [FAIL] Output voltage out of spec!")
                     all_passed = False
                     self.results['vout_pass'] = False
 
@@ -240,14 +240,14 @@ class LMR51430Validator:
                         vout_steady = vout[-pts_per_ms:]
                         ripple_pp = np.max(vout_steady) - np.min(vout_steady)
 
-                        print(f"\nRipple Analysis:")
+                        print("\nRipple Analysis:")
                         print(f"  Peak-to-peak: {ripple_pp*1000:.1f}mV")
                         print(f"  Max allowed:  {self.specs['VOUT_RIPPLE_MAX']*1000:.1f}mV")
 
                         if ripple_pp < self.specs['VOUT_RIPPLE_MAX']:
-                            print(f"  [PASS] Ripple within spec")
+                            print("  [PASS] Ripple within spec")
                         else:
-                            print(f"  [FAIL] Excessive ripple!")
+                            print("  [FAIL] Excessive ripple!")
                             all_passed = False
 
         # Test 3: Check switch node
@@ -259,15 +259,15 @@ class LMR51430Validator:
                 sw_max = np.max(sw_steady)
                 sw_min = np.min(sw_steady)
 
-                print(f"\nSwitch Node Analysis:")
+                print("\nSwitch Node Analysis:")
                 print(f"  Max voltage: {sw_max:.2f}V")
                 print(f"  Min voltage: {sw_min:.2f}V")
 
                 # Should swing between ~0V and VIN
                 if sw_max > self.specs['VIN_NOM'] * 0.9 and sw_min < 1.0:
-                    print(f"  [PASS] Switch node swinging correctly")
+                    print("  [PASS] Switch node swinging correctly")
                 else:
-                    print(f"  [WARN] Switch node may not be switching properly")
+                    print("  [WARN] Switch node may not be switching properly")
 
         # Test 4: Estimate switching frequency
         if sw_keys and len(sw) > 1000:
@@ -287,13 +287,13 @@ class LMR51430Validator:
                     avg_period = np.mean(periods)
                     freq_measured = 1.0 / avg_period
 
-                    print(f"\nSwitching Frequency Analysis:")
+                    print("\nSwitching Frequency Analysis:")
                     print(f"  Target: {self.specs['FSW_NOM']/1e3:.0f} kHz")
                     print(f"  Measured: {freq_measured/1e3:.0f} kHz")
 
                     freq_error = abs(freq_measured - self.specs['FSW_NOM']) / self.specs['FSW_NOM']
                     if freq_error < 0.2:  # Within 20%
-                        print(f"  [PASS] Frequency within range")
+                        print("  [PASS] Frequency within range")
                     else:
                         print(f"  [WARN] Frequency deviation: {freq_error*100:.1f}%")
 

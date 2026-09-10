@@ -15,7 +15,6 @@ import pytest
 
 from temper_placer.physics.gate_drive import _hull_area, _min_spacing
 
-
 ROOT = Path(__file__).resolve().parents[4]
 CANDIDATE = ROOT / "elec/qualification/iso7741_gate_drive"
 OUTPUT = ROOT / "power_pcb_dataset/qualification/iso7741_gate_drive"

@@ -164,8 +164,8 @@ def test_extract_corridor_mask_single_cell():
 
 
 def test_clearance_matrix_parse_default():
-    from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
     from temper_placer.core.board import Board
+    from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
 
     board = Board(width=100.0, height=100.0)
     matrix = ClearanceMatrix.parse(board)
@@ -449,7 +449,7 @@ def test_get_clearance_hv():
 
 
 def test_matches_any_ground():
-    from temper_placer.router_v6.net_classification import _matches_any, GROUND_NET_PATTERNS
+    from temper_placer.router_v6.net_classification import GROUND_NET_PATTERNS, _matches_any
 
     assert _matches_any("GND", GROUND_NET_PATTERNS) is True
     assert _matches_any("PGND", GROUND_NET_PATTERNS) is True
@@ -457,7 +457,7 @@ def test_matches_any_ground():
 
 
 def test_matches_any_hv_special():
-    from temper_placer.router_v6.net_classification import _matches_any, HV_NET_PATTERNS
+    from temper_placer.router_v6.net_classification import HV_NET_PATTERNS, _matches_any
 
     assert _matches_any("DC_BUS+", HV_NET_PATTERNS) is True
     assert _matches_any("DC_BUS-", HV_NET_PATTERNS) is True

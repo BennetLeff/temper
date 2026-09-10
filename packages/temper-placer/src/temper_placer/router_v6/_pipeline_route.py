@@ -310,10 +310,11 @@ def _run_stage3_direct(
     Stage 4's unguided A* fallback, preserving the documented selective-SAT
     semantic.
     """
+    from temper_rust_router import solve_topology_direct_py
+
     from temper_placer.router_v6._pipeline_grid import _net_pad_positions
     from temper_placer.router_v6.constraint_model import _stage3_mem_trace
     from temper_placer.router_v6.net_batching import HUB_BLOCKS, order_nets_for_batching
-    from temper_rust_router import solve_topology_direct_py
 
     if self.verbose:
         print("  3.1-3.6: Direct capacity-aware topology solve (no SAT model)...")

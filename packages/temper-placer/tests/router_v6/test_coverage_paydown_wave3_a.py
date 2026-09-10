@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-import temper_geometry as _tg
 
 from temper_placer.router_v6 import constraints_geometry as CG
 from temper_placer.router_v6._astar_theta_star import (
@@ -28,10 +27,6 @@ from temper_placer.router_v6.astar_core_rust import (
     get_route_profile_stats,
     reset_route_profile_stats,
 )
-from temper_placer.router_v6.grid_types import (
-    GridCell,
-)
-
 
 # ── astar_core module-level helpers ────────────────────────────────
 

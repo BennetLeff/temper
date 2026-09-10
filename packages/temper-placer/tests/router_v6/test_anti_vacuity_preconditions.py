@@ -62,10 +62,10 @@ Groups:
 
 from __future__ import annotations
 
-import tests.graph_fixtures as nx
 import pytest
 from shapely.geometry import MultiPolygon
 
+import tests.graph_fixtures as nx
 from temper_placer.core.netlist import Net
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton

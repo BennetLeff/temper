@@ -13,8 +13,7 @@ import copy
 import dataclasses
 
 import pytest
-
-from transition_model import Edge, FAULT_NONE, build_model
+from transition_model import FAULT_NONE, Edge, build_model
 from transition_model_checks import run_all_checks
 
 
@@ -131,8 +130,8 @@ class TestP4Bites:
 
 class TestDerivedSensorFaultEventSet:
     def test_matches_plan_documented_set(self, model):
-        from transition_model import derived_sensor_fault_events
         from power_active_mapping import FAULTED_STATES
+        from transition_model import derived_sensor_fault_events
         events = derived_sensor_fault_events(model, FAULTED_STATES)
         expected = {
             "EVENT_SELFTEST_FAIL", "EVENT_PREHEAT_TIMEOUT", "EVENT_OVER_TEMP",
@@ -142,7 +141,7 @@ class TestDerivedSensorFaultEventSet:
         assert events == expected
 
     def test_fault_reset_persists_excluded(self, model):
-        from transition_model import derived_sensor_fault_events
         from power_active_mapping import FAULTED_STATES
+        from transition_model import derived_sensor_fault_events
         events = derived_sensor_fault_events(model, FAULTED_STATES)
         assert "EVENT_FAULT_RESET_PERSISTS" not in events

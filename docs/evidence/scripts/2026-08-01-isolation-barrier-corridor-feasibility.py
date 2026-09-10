@@ -42,7 +42,7 @@ import argparse
 import json
 import sys
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 REPO = Path(__file__).parent.parent.parent

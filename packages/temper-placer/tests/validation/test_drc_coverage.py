@@ -2,8 +2,8 @@
 
 from temper_placer.validation.drc import (
     DRCResult,
-    DRCViolation,
     DRCSeverity,
+    DRCViolation,
     DRCViolationType,
 )
 

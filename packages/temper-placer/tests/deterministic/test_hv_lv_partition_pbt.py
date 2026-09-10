@@ -181,7 +181,7 @@ _AREA = st.floats(min_value=0.5, max_value=1e3, allow_nan=False, allow_infinity=
 def test_p5_area_ok_when_regions_fit(hv, lv, hv_area, lv_area):
     if set(hv) & set(lv):
         return
-    areas = {r: 1.0 for r in hv + lv}
+    areas = dict.fromkeys(hv + lv, 1.0)
     max_hv = max(areas[r] for r in hv)
     max_lv = max(areas[r] for r in lv)
     if hv_area < max_hv or lv_area < max_lv:
@@ -201,7 +201,7 @@ def test_p5_area_ok_when_regions_fit(hv, lv, hv_area, lv_area):
 def test_p6_fallback_vs_raise_same_failure(hv, lv, hv_area):
     if set(hv) & set(lv):
         return
-    areas = {r: 1000.0 for r in hv + lv}
+    areas = dict.fromkeys(hv + lv, 1000.0)
     max_hv = max(areas[r] for r in hv)
     if hv_area >= max_hv:
         return  # must be a genuinely failing HV bucket
@@ -242,13 +242,13 @@ def test_mr1_component_order_permutation(components_nets):
 def test_mr2_power_of_two_scale_invariance(hv, lv, hv_area, lv_area, k):
     if set(hv) & set(lv):
         return
-    areas = {r: 1.5 for r in hv + lv}
+    areas = dict.fromkeys(hv + lv, 1.5)
     scale = 2.0**k
     a = _RS.hv_lv_area_check(hv, lv, areas, hv_area, False, lv_area, False, True)
     b = _RS.hv_lv_area_check(
         hv,
         lv,
-        {r: 1.5 * scale for r in hv + lv},
+        dict.fromkeys(hv + lv, 1.5 * scale),
         hv_area * scale,
         False,
         lv_area * scale,

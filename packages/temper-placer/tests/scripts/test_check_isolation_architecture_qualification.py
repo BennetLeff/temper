@@ -15,7 +15,6 @@ sys.path.insert(0, str(SCRIPTS))
 
 import check_isolation_architecture_qualification as gate  # noqa: E402
 
-
 REAL_MANIFEST = (
     Path(__file__).resolve().parents[4]
     / "power_pcb_dataset"

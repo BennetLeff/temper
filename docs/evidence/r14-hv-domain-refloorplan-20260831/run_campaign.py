@@ -25,6 +25,7 @@ import temper_design_bundle_python as tdb  # noqa: E402
 import temper_geometry  # noqa: E402
 import temper_quality_oracle  # noqa: E402
 from shapely.geometry import Polygon  # noqa: E402
+
 from temper_placer.core.pad_geometry import pad_pair_distance, shape_code  # noqa: E402
 from temper_placer.io.fab_body_extraction import extract_fab_bodies  # noqa: E402
 from temper_placer.io.kicad_metadata import extract_kicad_metadata  # noqa: E402

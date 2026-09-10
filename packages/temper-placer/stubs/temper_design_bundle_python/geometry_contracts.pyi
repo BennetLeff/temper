@@ -5,6 +5,7 @@ Compiled from `packages/temper-design-bundle/src/geometry_types_contracts.rs`
 sync with that file.
 """
 from __future__ import annotations
+
 from typing import Any
 
 class Point:

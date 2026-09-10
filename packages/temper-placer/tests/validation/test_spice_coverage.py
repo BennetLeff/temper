@@ -1,9 +1,4 @@
 """Tests for validation.spice module — SpiceResult, SpiceMeasurement, PlacementSpiceResult."""
-from temper_placer.validation.base import (
-    ValidationIssue,
-    ValidationResult,
-    ValidationSeverity,
-)
 from temper_placer.validation.spice import (
     SpiceMeasurement,
     SpiceResult,

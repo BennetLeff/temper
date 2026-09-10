@@ -5,15 +5,12 @@ Tests the functions likely still uncovered by existing test suites:
 BoardState methods, ChannelMap methods, Bottleneck, instrumentation, flags, etc.
 """
 
-import tempfile
-from pathlib import Path
 
 import pytest
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.state import BoardState
-
 
 # ============================================================================
 # BoardState tests
@@ -118,7 +115,7 @@ class TestBottleneck:
 
 def test_routability_penalty_returns_float():
     """routability_penalty returns a float."""
-    from temper_placer.deterministic.channels import routability_penalty, ChannelMap
+    from temper_placer.deterministic.channels import ChannelMap, routability_penalty
     cm = ChannelMap.empty()
     penalty = routability_penalty((5.0, 5.0), cm)
     assert isinstance(penalty, float)
@@ -132,6 +129,7 @@ def test_routability_penalty_returns_float():
 def test_is_feedback_enabled_default():
     """is_feedback_enabled returns a bool with default env."""
     import os
+
     from temper_placer.deterministic.flags import is_feedback_enabled
     old = os.environ.get("TEMPER_FEEDBACK_ENABLED")
     try:
@@ -151,8 +149,7 @@ def test_is_feedback_enabled_default():
 
 def test_create_legacy_pipeline():
     """create_legacy_pipeline returns a DeterministicPipeline."""
-    from temper_placer.deterministic import create_legacy_pipeline
-    from temper_placer.deterministic import DeterministicPipeline
+    from temper_placer.deterministic import DeterministicPipeline, create_legacy_pipeline
     pipeline = create_legacy_pipeline()
     assert isinstance(pipeline, DeterministicPipeline)
 

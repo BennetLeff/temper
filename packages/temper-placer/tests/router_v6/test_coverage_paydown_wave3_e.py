@@ -16,7 +16,6 @@ from temper_placer.router_v6.resource_bound import (
     max_routable_nets,
 )
 
-
 # ── power_plane CopperPour ────────────────────────────────────────
 
 
@@ -94,8 +93,8 @@ def test_demand_budget_summary():
 def test_tree_route_geometry_iter_segments():
     from temper_placer.router_v6.astar_core import RoutePath
     from temper_placer.router_v6.connectivity import PadIdentity
-    from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
     from temper_placer.router_v6.terminal_tree import TerminalTreeEdge
+    from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
     src = PadIdentity("C1", "1", "N1", 0.0, 0.0, (0,))
     tgt = PadIdentity("C1", "2", "N1", 10.0, 10.0, (0,))
     edge = TerminalTreeEdge(source=src, target=tgt)
@@ -109,8 +108,8 @@ def test_tree_route_geometry_iter_segments():
 def test_tree_route_geometry_via_positions_empty():
     from temper_placer.router_v6.astar_core import RoutePath
     from temper_placer.router_v6.connectivity import PadIdentity
-    from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
     from temper_placer.router_v6.terminal_tree import TerminalTreeEdge
+    from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
     src = PadIdentity("C1", "1", "N1", 0.0, 0.0, (0,))
     tgt = PadIdentity("C1", "2", "N1", 10.0, 10.0, (0,))
     edge = TerminalTreeEdge(source=src, target=tgt)

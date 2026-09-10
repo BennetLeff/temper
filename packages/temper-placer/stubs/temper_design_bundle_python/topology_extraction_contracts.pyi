@@ -4,6 +4,7 @@ Compiled from `packages/temper-design-bundle/src/topology_extraction_contracts.r
 Keep in sync with that file.
 """
 from __future__ import annotations
+
 from typing import Any
 
 class PathGraph:

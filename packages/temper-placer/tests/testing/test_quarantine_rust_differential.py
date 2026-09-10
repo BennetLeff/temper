@@ -48,9 +48,9 @@ import pytest
 import temper_io_types as _tio
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from tests.testing import _quarantine_py_oracle as _oracle
 
 from temper_placer.testing import quarantine as shim_mod
-from tests.testing import _quarantine_py_oracle as _oracle
 
 # ---------------------------------------------------------------------------
 # The oracle must stay verbatim

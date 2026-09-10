@@ -26,9 +26,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+import temper_design_bundle_python as _tdb
 from kiutils.board import Board as KiBoard
 from kiutils.items.gritems import GrRect, GrText
-import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
 
 import tests.io._write_modules_py_oracle as _oracle

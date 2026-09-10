@@ -7,19 +7,12 @@ Tests functions still on the coverage allowlist that existing suites
 
 from __future__ import annotations
 
-import json
-import os
-from pathlib import Path
-from typing import Any
-from unittest.mock import Mock
-
 import pytest
 from shapely.geometry import Polygon
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.state import BoardState
-
 
 # ============================================================================
 # BoardState helpers

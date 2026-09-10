@@ -11,7 +11,6 @@ import json
 import re
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 CANDIDATE = ROOT / "elec/qualification/iso7741_gate_drive"
 GENERATED = ROOT / "power_pcb_dataset/qualification/iso7741_gate_drive/generated"

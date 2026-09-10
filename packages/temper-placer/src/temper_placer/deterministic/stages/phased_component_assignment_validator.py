@@ -147,7 +147,7 @@ def _creepage_mm(state) -> float:
     return max_creepage
 
 
-def validate_phased_component_assignment_hv(state) -> list["StageDRCFailure"]:
+def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
     """Verify the placer reserved every HV pin's creepage ring AND no slot is over-claimed.
 
     Two checks run in this order:

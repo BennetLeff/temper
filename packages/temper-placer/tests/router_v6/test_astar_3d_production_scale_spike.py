@@ -96,6 +96,8 @@ import pytest
 from temper_placer.router_v6.astar_core import RouteNode3D
 from temper_placer.router_v6.astar_nlayer_rust import (
     astar_search_3d_rust as _astar_search_3d,
+)
+from temper_placer.router_v6.astar_nlayer_rust import (
     route_segment_3d_rust as _route_segment_3d,
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid

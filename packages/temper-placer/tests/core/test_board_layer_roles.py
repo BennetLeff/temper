@@ -120,9 +120,9 @@ class TestRoutableSignalLayers:
         ]
 
     def test_engine_supported_set_is_the_four_signal_layers(self):
-        assert ENGINE_SUPPORTED_SIGNAL_LAYERS == frozenset(
+        assert frozenset(
             {"F.Cu", "In3.Cu", "In4.Cu", "B.Cu"}
-        )
+        ) == ENGINE_SUPPORTED_SIGNAL_LAYERS
 
 
 class TestIsSignalLayer:

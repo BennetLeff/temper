@@ -23,11 +23,8 @@ Run: uv run python -m pytest firmware/tools/test_power_active_mapping.py -v
 from __future__ import annotations
 
 import re
-from pathlib import Path
-from typing import Dict
 
 import pytest
-
 from power_active_mapping import FAULTED_STATES, POWER_ACTIVE_STATES
 from transition_model import REPO_ROOT, build_model
 
@@ -40,13 +37,13 @@ def _entry_function_name(state: str) -> str:
     return f"state_{suffix}_entry"
 
 
-def extract_function_bodies(source: str) -> Dict[str, str]:
+def extract_function_bodies(source: str) -> dict[str, str]:
     """Extract {function_name: body_text} for every `void NAME(void) { ... }`
     top-level function in *source*, via brace-balance scanning (the file is
     C, not something with an AST readily available at this layer -- same
     approach as scripts/check_firmware_board_contract.py's constant
     regexes: targeted parsing over a known, simple shape)."""
-    bodies: Dict[str, str] = {}
+    bodies: dict[str, str] = {}
     for m in re.finditer(r"void\s+(\w+)\s*\(void\)\s*\{", source):
         name = m.group(1)
         start = m.end() - 1  # index of the opening '{'
@@ -70,7 +67,7 @@ def source() -> str:
 
 
 @pytest.fixture(scope="module")
-def function_bodies(source) -> Dict[str, str]:
+def function_bodies(source) -> dict[str, str]:
     return extract_function_bodies(source)
 
 

@@ -43,7 +43,6 @@ def _board_with_layers_block(layers_block: str) -> str:
     motivating defect) is constructed without a second giant synthetic
     fixture.
     """
-    import re
 
     text = _real_board_text()
     # Matches the whole top-level (layers ...) block, balanced-paren.

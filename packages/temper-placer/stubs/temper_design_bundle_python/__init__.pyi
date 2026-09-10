@@ -32,9 +32,17 @@ from typing import Any
 # same types.
 from temper_placer.pcl.constraints import (
     Axis as Axis,
+)
+from temper_placer.pcl.constraints import (
     BoardSide as BoardSide,
+)
+from temper_placer.pcl.constraints import (
     ConstraintTier as ConstraintTier,
+)
+from temper_placer.pcl.constraints import (
     DistanceMetric as DistanceMetric,
+)
+from temper_placer.pcl.constraints import (
     EdgeType as EdgeType,
 )
 
@@ -46,30 +54,18 @@ from temper_placer.pcl.constraints import (
 # pyclass's `__name__`/`__qualname__` equal to the dataclass it replaces,
 # which the `unhashable type: 'X'` / repr parity assertions depend on.
 from . import board_contracts as board_contracts
-from . import deterministic_stages as deterministic_stages
-from . import netlist_contracts as netlist_contracts
-from . import parse_engine as parse_engine
+from . import channel_skeleton_contracts as channel_skeleton_contracts
+from . import constraint_model as constraint_model
+from . import decision_contracts as decision_contracts
 from . import deterministic_hubs as deterministic_hubs
-from . import deterministic_phase as deterministic_phase
 
 # Wave 4 Phase 3/5 per-domain submodules (formats/IO + deterministic leaf
 # stages) — same nesting rationale as the block above.
 from . import deterministic_leaves as deterministic_leaves
-from . import write_board_geometry as write_board_geometry
-from . import constraint_model as constraint_model
-from . import hv_lv_partition as hv_lv_partition
-from . import specification_contracts as specification_contracts
-from . import decision_contracts as decision_contracts
-from . import loop_ownership_contracts as loop_ownership_contracts
-from . import stackup_contracts as stackup_contracts
-
-# Orchestration plan Phase A unit U7: the typed terminal-extraction wire
-# format and the typed Coo container (see
-# packages/temper-design-bundle/src/{terminal_wire_contracts,hypergraph_contracts}.rs).
-from . import terminal_wire_contracts as terminal_wire_contracts
-from . import hypergraph_contracts as hypergraph_contracts
-
-from . import validation as validation
+from . import deterministic_phase as deterministic_phase
+from . import deterministic_stages as deterministic_stages
+from . import differential_pair_contracts as differential_pair_contracts
+from . import fixed_copper_builder as fixed_copper_builder
 
 # 2026-08-12 type-check gate paydown: submodules registered in lib.rs but
 # never mirrored here (same append-only-migration-outran-the-stub shape as
@@ -77,13 +73,24 @@ from . import validation as validation
 # convention -- see decision_contracts.pyi / this file's own TagRef-family
 # classes for the established bare-class pattern.
 from . import geometry_contracts as geometry_contracts
-from . import topology_extraction_contracts as topology_extraction_contracts
-from . import net_graph_contracts as net_graph_contracts
-from . import differential_pair_contracts as differential_pair_contracts
-from . import channel_skeleton_contracts as channel_skeleton_contracts
-from . import topological_graph_contracts as topological_graph_contracts
+from . import hv_lv_partition as hv_lv_partition
+from . import hypergraph_contracts as hypergraph_contracts
+from . import loop_ownership_contracts as loop_ownership_contracts
 from . import model_builder as model_builder
-from . import fixed_copper_builder as fixed_copper_builder
+from . import net_graph_contracts as net_graph_contracts
+from . import netlist_contracts as netlist_contracts
+from . import parse_engine as parse_engine
+from . import specification_contracts as specification_contracts
+from . import stackup_contracts as stackup_contracts
+
+# Orchestration plan Phase A unit U7: the typed terminal-extraction wire
+# format and the typed Coo container (see
+# packages/temper-design-bundle/src/{terminal_wire_contracts,hypergraph_contracts}.rs).
+from . import terminal_wire_contracts as terminal_wire_contracts
+from . import topological_graph_contracts as topological_graph_contracts
+from . import topology_extraction_contracts as topology_extraction_contracts
+from . import validation as validation
+from . import write_board_geometry as write_board_geometry
 
 # loop_extraction_contracts.rs — registered at the TOP level of the module
 # (not nested; see that file's `register()`), consumed by
@@ -91,7 +98,7 @@ from . import fixed_copper_builder as fixed_copper_builder
 class LoopExtractionInput:
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
     @staticmethod
-    def from_netlist(netlist: Any, topology_hints: dict[str, str] | None = None) -> "LoopExtractionInput": ...
+    def from_netlist(netlist: Any, topology_hints: dict[str, str] | None = None) -> LoopExtractionInput: ...
     def to_dict(self) -> dict[str, Any]: ...
     def to_json(self) -> str: ...
 
@@ -104,9 +111,9 @@ class LoopExtractionOutput:
     loops: list[Any]
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
     @staticmethod
-    def from_dict(data: dict[str, Any]) -> "LoopExtractionOutput": ...
+    def from_dict(data: dict[str, Any]) -> LoopExtractionOutput: ...
     @staticmethod
-    def from_json(data: str) -> "LoopExtractionOutput": ...
+    def from_json(data: str) -> LoopExtractionOutput: ...
 
 def sha256_hex(bytes: bytes) -> str: ...
 

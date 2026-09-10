@@ -24,11 +24,10 @@ Metamorphic relations (>=3 per module — DecisionTrace as primary module):
 import json
 from datetime import datetime
 
-import pytest
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.core.decision import Alternative, Decision, DecisionTrace
-
 
 # ---------------------------------------------------------------------------
 # Strategies
@@ -227,7 +226,7 @@ def test_p5_fails_for_always_empty_kernel():
     alt = Alternative(value=0, rejection_reason="bad")
     trace.add_decision(Decision(id="d1", subject="Q1", value=1, alternatives_considered=[alt]))
     result = trace.why_not("Q1", 0)
-    assert "Rejected because: bad" == result
+    assert result == "Rejected because: bad"
 
 
 # ============================================================================

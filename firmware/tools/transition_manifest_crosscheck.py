@@ -49,13 +49,10 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
-from typing import Dict, List, Tuple
 
 from transition_model import (
     FAULT_NONE,
     RUNAWAY_ABS_EVENT,
-    RUNAWAY_FAULT_CODE,
-    RUNAWAY_FAULT_STATE,
     RUNAWAY_RATE_EVENT,
     RUNAWAY_WILDCARD_EVENTS,
     ModelParseError,
@@ -108,8 +105,8 @@ class RowDivergence:
     kind: str  # "missing_in_test" | "missing_in_production" | "value_mismatch"
     from_state: str
     event: str
-    production: Tuple[str, str] | None = None  # (to, fault)
-    test: Tuple[str, str] | None = None         # (to, fault)
+    production: tuple[str, str] | None = None  # (to, fault)
+    test: tuple[str, str] | None = None         # (to, fault)
 
     def describe(self) -> str:
         key = f"({self.from_state}, {self.event})"
@@ -122,10 +119,10 @@ class RowDivergence:
 
 @dataclass
 class CrosscheckReport:
-    explicit_divergences: List[RowDivergence] = field(default_factory=list)
-    wildcard_divergences: List[RowDivergence] = field(default_factory=list)
-    wildcard_documented_exceptions: List[str] = field(default_factory=list)
-    codegen_drift: List[str] = field(default_factory=list)
+    explicit_divergences: list[RowDivergence] = field(default_factory=list)
+    wildcard_divergences: list[RowDivergence] = field(default_factory=list)
+    wildcard_documented_exceptions: list[str] = field(default_factory=list)
+    codegen_drift: list[str] = field(default_factory=list)
     production_row_count: int = 0
     test_row_count: int = 0
 
@@ -145,19 +142,19 @@ class CrosscheckReport:
         }
 
 
-def _production_explicit_rows(model: TransitionModel) -> Dict[Tuple[str, str], Tuple[str, str]]:
+def _production_explicit_rows(model: TransitionModel) -> dict[tuple[str, str], tuple[str, str]]:
     return {
         (e.from_state, e.event): (e.to_state, e.fault)
         for e in model.explicit_edges()
     }
 
 
-def _test_side_rows(test_module: ModuleType) -> Tuple[
-    Dict[Tuple[str, str], Tuple[str, str]],   # non-wildcard rows
-    Dict[Tuple[str, str], Tuple[str, str]],   # wildcard rows, expanded over ACTIVE_STATES
+def _test_side_rows(test_module: ModuleType) -> tuple[
+    dict[tuple[str, str], tuple[str, str]],   # non-wildcard rows
+    dict[tuple[str, str], tuple[str, str]],   # wildcard rows, expanded over ACTIVE_STATES
 ]:
-    non_wildcard: Dict[Tuple[str, str], Tuple[str, str]] = {}
-    wildcard: Dict[Tuple[str, str], Tuple[str, str]] = {}
+    non_wildcard: dict[tuple[str, str], tuple[str, str]] = {}
+    wildcard: dict[tuple[str, str], tuple[str, str]] = {}
     active_states = list(test_module.ACTIVE_STATES)
 
     for from_s, event, to_s, fault, _needs_setup in test_module.TRANSITIONS:
@@ -173,10 +170,10 @@ def _test_side_rows(test_module: ModuleType) -> Tuple[
 
 
 def crosscheck_explicit_rows(
-    production_rows: Dict[Tuple[str, str], Tuple[str, str]],
-    test_rows: Dict[Tuple[str, str], Tuple[str, str]],
-) -> List[RowDivergence]:
-    divergences: List[RowDivergence] = []
+    production_rows: dict[tuple[str, str], tuple[str, str]],
+    test_rows: dict[tuple[str, str], tuple[str, str]],
+) -> list[RowDivergence]:
+    divergences: list[RowDivergence] = []
     all_keys = set(production_rows) | set(test_rows)
     for key in sorted(all_keys):
         from_s, event = key
@@ -193,15 +190,15 @@ def crosscheck_explicit_rows(
 
 def crosscheck_wildcard_rows(
     model: TransitionModel,
-    test_wildcard_rows: Dict[Tuple[str, str], Tuple[str, str]],
-    active_states: List[str],
-) -> Tuple[List[RowDivergence], List[str]]:
+    test_wildcard_rows: dict[tuple[str, str], tuple[str, str]],
+    active_states: list[str],
+) -> tuple[list[RowDivergence], list[str]]:
     """Compare the KTD2 implicit interlock edges against the test
     generator's wildcard-expanded rows. Values must agree on the overlap
     (``active_states``); the state-set difference is a documented
     exception, recorded but not an error."""
-    divergences: List[RowDivergence] = []
-    documented_exceptions: List[str] = []
+    divergences: list[RowDivergence] = []
+    documented_exceptions: list[str] = []
 
     for state in model.states:
         for event in RUNAWAY_WILDCARD_EVENTS:
@@ -238,7 +235,7 @@ def crosscheck_wildcard_rows(
     return divergences, documented_exceptions
 
 
-def crosscheck_codegen_drift() -> List[str]:
+def crosscheck_codegen_drift() -> list[str]:
     """Regenerate transition_table.h in memory from the production manifest
     and diff it against the committed file."""
     tools_dir = Path(__file__).resolve().parent

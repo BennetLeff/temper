@@ -54,14 +54,14 @@ _PLACER_DIR = REPO / "packages" / "temper-placer"
 os.chdir(_PLACER_DIR)
 sys.path.insert(0, str(_PLACER_DIR))
 
+from temper_placer.placer.cp_sat.clearance_repair import (  # noqa: E402
+    run_clearance_repair_solve,
+)
 from tests.requirements.safety._real_board_fixture import (  # noqa: E402
     load_real_board_placement,
 )
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb  # noqa: E402
-from temper_placer.placer.cp_sat.clearance_repair import (  # noqa: E402
-    run_clearance_repair_solve,
-)
 
 FREE = {"K3", "C27"}
 MARGIN_FC_MM = 0.05

@@ -33,7 +33,6 @@ import math
 import random
 
 import pytest
-
 import temper_geometry as _tg
 
 # ---------------------------------------------------------------------------
@@ -206,4 +205,4 @@ def test_oracle_discriminates_wrong_scale() -> None:
         1 for v in _bit_pattern_values(n=1000) if (v * 40.0) != (v / 0.0254)
     )
     assert disagreements > 0
-    assert getattr(_tg, "mm_to_mil")(1.0) == _ORACLES["mm_to_mil"](1.0)
+    assert _tg.mm_to_mil(1.0) == _ORACLES["mm_to_mil"](1.0)

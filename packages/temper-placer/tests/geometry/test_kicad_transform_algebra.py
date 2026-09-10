@@ -58,6 +58,7 @@ from temper_placer.geometry.kicad_transform import (
     rotate_local_to_world_deg,
     rotate_world_to_local,
 )
+
 # The solver's finite angle set (ROTATION_ANGLES_DEG in transform.rs; the
 # only rotations the CP-SAT solver emits today).
 FINITE_ANGLE_SET_DEG = (0.0, 90.0, 180.0, 270.0)

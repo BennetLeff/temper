@@ -16,7 +16,6 @@ Exercises public functions in:
 from __future__ import annotations
 
 import json
-import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -125,7 +124,6 @@ class TestValidatorABC:
     """Exercise Validator.is_available, name, validate through concrete impl."""
 
     def test_concrete_validator(self):
-        import numpy as np
 
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Netlist
@@ -174,7 +172,6 @@ class TestValidatorABC:
 
     def test_validator_abstract_validate(self):
         """Exercise Validator.validate (abstract method) via super() call."""
-        import numpy as np
 
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Netlist
@@ -218,11 +215,7 @@ class TestCompositeValidator:
         assert cv.is_available() is False
 
     def test_is_available_with_available(self):
-        import numpy as np
 
-        from temper_placer.core.board import Board
-        from temper_placer.core.netlist import Netlist
-        from temper_placer.core.state import PlacementState
         from temper_placer.validation.base import CompositeValidator, ValidationResult, Validator
 
         class AlwaysAvail(Validator):
@@ -237,7 +230,6 @@ class TestCompositeValidator:
         assert cv.is_available() is True
 
     def test_validate_merges_results(self):
-        import numpy as np
 
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Netlist
@@ -917,7 +909,7 @@ class TestKiCadDRCValidator:
         assert v.name == "KiCadDRCValidator"
 
     def test_is_available_false_when_not_found(self, monkeypatch):
-        from temper_placer.validation.drc import KiCadDRCValidator, find_kicad_cli
+        from temper_placer.validation.drc import KiCadDRCValidator
 
         # Mock find_kicad_cli to return None
         monkeypatch.setattr(
@@ -952,12 +944,11 @@ class TestKiCadDRCValidator:
 
     def test_validate_not_available(self, monkeypatch):
         """validate() when kicad-cli is not available."""
-        import numpy as np
 
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Netlist
         from temper_placer.core.state import PlacementState
-        from temper_placer.validation.drc import KiCadDRCValidator, find_kicad_cli
+        from temper_placer.validation.drc import KiCadDRCValidator
 
         monkeypatch.setattr(
             "temper_placer.validation.drc.find_kicad_cli",
@@ -978,9 +969,8 @@ class TestKiCadDRCValidator:
 
     def test_run_drc_not_available(self, monkeypatch):
         """run_drc() when kicad-cli is not available."""
-        from pathlib import Path
 
-        from temper_placer.validation.drc import KiCadDRCValidator, find_kicad_cli
+        from temper_placer.validation.drc import KiCadDRCValidator
 
         monkeypatch.setattr(
             "temper_placer.validation.drc.find_kicad_cli",

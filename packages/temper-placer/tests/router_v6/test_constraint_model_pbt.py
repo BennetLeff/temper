@@ -46,10 +46,10 @@ import math
 import random
 
 import hypothesis.strategies as st
-import tests.graph_fixtures as nx
 import pytest
 from hypothesis import HealthCheck, given, settings
 
+import tests.graph_fixtures as nx
 from temper_placer.router_v6 import constraint_model as cm
 
 _FINITE = st.floats(min_value=-50.0, max_value=50.0, allow_nan=False, allow_infinity=False)

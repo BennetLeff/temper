@@ -65,10 +65,20 @@ import random
 import numpy as np
 import pytest
 import temper_quality_oracle as _qo
+
 from tests._legacy_oracle_modules import install as _install_legacy_oracle_modules
 
 _install_legacy_oracle_modules()
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.validation.metrics import (
+    PlacementMetrics,
+    _compute_clearance_metrics,
+    _compute_distribution_metrics,
+    _compute_overlap_metrics,
+    _compute_wirelength_metrics,
+)
 from tests.validation._validation_metrics_py_oracle import (
     PlacementMetrics as _OraclePlacementMetrics,
 )
@@ -77,17 +87,6 @@ from tests.validation._validation_metrics_py_oracle import (
     _oracle_compute_distribution_metrics,
     _oracle_compute_overlap_metrics,
     _oracle_compute_wirelength_metrics,
-)
-
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.core.state import PlacementState
-from temper_placer.validation.metrics import (
-    PlacementMetrics,
-    _compute_clearance_metrics,
-    _compute_distribution_metrics,
-    _compute_overlap_metrics,
-    _compute_wirelength_metrics,
 )
 
 # ---------------------------------------------------------------------------

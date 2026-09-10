@@ -42,12 +42,15 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from temper_placer.router_v6.adapter import _write_routes_to_content
+
 # Tier 3 is Rust-backed since the astar_nlayer port; these call sites
 # import the replacement under the pre-migration names so the tests
 # keep asserting the same behaviour against the shipping engine.
 from temper_placer.router_v6.astar_core import RouteNode3D
 from temper_placer.router_v6.astar_nlayer_rust import (
     astar_search_3d_rust as _astar_search_3d,
+)
+from temper_placer.router_v6.astar_nlayer_rust import (
     route_segment_3d_rust as _route_segment_3d,
 )
 from temper_placer.router_v6.channel_mapping import _assign_layer

@@ -1,9 +1,9 @@
 """Tests for validation.dead_parameter_probe module."""
 from temper_placer.validation.dead_parameter_probe import (
-    ProbeRecord,
-    measure_noise_floor,
     DEAD,
     LIVE,
+    ProbeRecord,
+    measure_noise_floor,
 )
 
 

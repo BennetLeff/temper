@@ -525,7 +525,7 @@ def _run_both_validator(state):
     # the verbatim oracle helper only for this test invocation, then remove it.
     stage_cls = _shim_phased_component_assignment.PhasedComponentAssignmentStage
     legacy_radius = _orc_component_assignment.ComponentAssignmentStage._get_footprint_radius
-    setattr(stage_cls, "_get_footprint_radius", legacy_radius)
+    stage_cls._get_footprint_radius = legacy_radius
     try:
         orc = _orc_validator.validate_phased_component_assignment_hv(state)
     finally:

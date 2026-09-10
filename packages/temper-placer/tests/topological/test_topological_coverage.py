@@ -18,10 +18,10 @@ from temper_placer.topological.graph import (
 )
 from temper_placer.topological.initial_placement import (
     InitialPlacement,
+    generate_initial_placement,
     identify_clusters,
     place_cluster,
     place_components_in_zone,
-    generate_initial_placement,
 )
 from temper_placer.topological.zone_solver import ZoneAssignment, ZoneSolver
 

@@ -219,8 +219,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib.drc_ceiling import load_ceiling  # noqa: E402
 from _lib.gate_allowlist import (  # noqa: E402
     TICKET_PATTERN,
+)
+from _lib.gate_allowlist import (
     check_shrink_mode as _check_shrink_mode,
+)
+from _lib.gate_allowlist import (
     git_show_main_allowlist as _git_show_main_allowlist,
+)
+from _lib.gate_allowlist import (
     load_allowlist as _load_allowlist,
 )
 from _lib.github_summary import get_github_summary_path  # noqa: E402

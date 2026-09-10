@@ -36,7 +36,6 @@ import inspect
 import textwrap
 from pathlib import Path
 
-import pytest
 import temper_orchestration as _to
 from hypothesis import given, settings
 from hypothesis import strategies as st

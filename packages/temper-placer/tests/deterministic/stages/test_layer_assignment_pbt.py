@@ -64,7 +64,7 @@ def test_p1_total_mapping(net_class):
     layer, is_plane = _RS.assign_layer_by_net_class_py(net_class)
     assert layer in (0, 1, 2, 3)
     assert isinstance(is_plane, bool)
-    assert (0, False) <= (layer, is_plane)
+    assert (layer, is_plane) >= (0, False)
 
 
 @given(st.sampled_from(_NET_CLASSES))
@@ -113,7 +113,7 @@ def test_mr1_assignment_total(names):
 @given(st.lists(_NAMES, min_size=1, max_size=6), st.integers(min_value=0, max_value=3))
 @settings(max_examples=50, deadline=None)
 def test_mr2_manual_only_invariance(names, layer):
-    manual = {n: layer for n in names}
+    manual = dict.fromkeys(names, layer)
     a = list(_RS.assign_layers([_FakeNet(n, "Ground") for n in names], manual, {}))
     b = list(_RS.assign_layers([_FakeNet(n, "Signal") for n in names], manual, {}))
     assert [(x.net_name, x.layer, x.is_plane) for x in a] == [

@@ -8,7 +8,6 @@ import itertools
 import json
 import math
 import shutil
-from dataclasses import asdict
 from pathlib import Path
 
 import temper_design_bundle_python as tdb
@@ -17,9 +16,8 @@ from temper_placer.core.pad_geometry import pad_pair_distance
 from temper_placer.io.fab_body_extraction import extract_fab_bodies, extract_fab_body_coverage
 from temper_placer.io.kicad_metadata import extract_kicad_metadata
 from temper_placer.io.real_board import load_real_board_placement
-from temper_placer.requirements.validators.clearance import verify_iec60335_compliance
 from temper_placer.requirements.validators._copper import _component_pads
-
+from temper_placer.requirements.validators.clearance import verify_iec60335_compliance
 
 ROOT = Path("/home/bennet/Desktop/temper/.worktrees/fix-isolation-barrier-safety")
 CAMPAIGN = Path("/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831")

@@ -63,7 +63,7 @@ def test_dsn_polygon():
     expr = poly.to_dsn()
     assert isinstance(expr, DSNExpression)
     # Order of points as given
-    assert "(polygon F.Cu 0.2 0 0 10 0 10 10 0 10)" in str(expr) or "(polygon F.Cu 0.2 0 0 10 0 10 10 0 10)" == str(expr)
+    assert "(polygon F.Cu 0.2 0 0 10 0 10 10 0 10)" in str(expr) or str(expr) == "(polygon F.Cu 0.2 0 0 10 0 10 10 0 10)"
 
 
 def test_dsn_polygon_single_point():

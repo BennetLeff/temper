@@ -24,9 +24,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import yaml  # type: ignore[import-untyped]
-
 import temper_io_types as _tio
+import yaml  # type: ignore[import-untyped]
 
 
 @dataclass

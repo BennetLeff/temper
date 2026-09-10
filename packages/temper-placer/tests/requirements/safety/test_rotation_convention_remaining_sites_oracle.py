@@ -42,6 +42,7 @@ from pathlib import Path
 import pytest
 
 from temper_placer.core.netlist import Component, Pin
+from temper_placer.geometry.kicad_transform import place_local_to_world as _place_local_to_world
 from temper_placer.router_v6.connectivity import CopperPad, _to_pad_coordinates
 from temper_placer.router_v6.constraints_geometry import (
     Point,
@@ -51,7 +52,6 @@ from temper_placer.router_v6.constraints_geometry import (
 from temper_placer.router_v6.dense_package_detection import DensePackage
 from temper_placer.router_v6.escape_via_generator import generate_escape_vias
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
-from temper_placer.geometry.kicad_transform import place_local_to_world as _place_local_to_world
 
 # Reused, not reimplemented -- same pcbnew-oracle plumbing
 # `test_rotation_convention_oracle.py` already built and battle-tested.

@@ -20,8 +20,8 @@ import argparse
 import re
 import subprocess
 
-from _lib.repo import find_repo_root
 from _lib.github_summary import get_github_summary_path
+from _lib.repo import find_repo_root
 
 REPO_ROOT = find_repo_root()
 DEFAULT_MIN_CONFIDENCE = 80

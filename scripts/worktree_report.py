@@ -151,7 +151,7 @@ def build_report(main_ref: str | None) -> list[dict]:
         raise RuntimeError(f"`git worktree list --porcelain` failed: {out}")
     entries = parse_worktree_list(out)
 
-    now = _dt.datetime.now(_dt.timezone.utc)
+    now = _dt.datetime.now(_dt.UTC)
     report = []
     for e in entries:
         path = e.get("path", UNKNOWN)
@@ -367,7 +367,7 @@ def main() -> None:
 
     if args.json_out:
         payload = {
-            "generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+            "generated_at": _dt.datetime.now(_dt.UTC).isoformat(),
             "main_ref": main_ref or UNKNOWN,
             "worktrees": report,
         }

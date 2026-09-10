@@ -35,7 +35,6 @@ from kiutils.board import Board  # noqa: E402
 from kiutils.items.brditems import Segment, Via  # noqa: E402
 from kiutils.items.common import Net, Position  # noqa: E402
 from kiutils.items.zones import Zone  # noqa: E402
-
 from resync_pcb_netlist import NetRemapError, resync  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

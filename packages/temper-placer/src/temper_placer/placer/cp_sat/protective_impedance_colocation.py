@@ -94,9 +94,10 @@ pairs, matching the manifest's two chains of three.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.model import CpSatModel

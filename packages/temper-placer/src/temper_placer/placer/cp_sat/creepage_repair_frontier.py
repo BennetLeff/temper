@@ -64,8 +64,8 @@ def prepare_initial_creepage_repair(
     violations = tuple(verify_generated_creepage(netlist, design_rules, boxes))
     movable_set = set(temper_orchestration.plan_creepage_repair_frontier_py(list(violations)))
     if board is not None:
-        board_width = float(getattr(board, "width"))
-        board_height = float(getattr(board, "height"))
+        board_width = float(board.width)
+        board_height = float(board.height)
         if not math.isfinite(board_width) or not math.isfinite(board_height):
             raise ValueError("board dimensions must be finite")
         for ref, x_min, x_max, y_min, y_max in boxes:

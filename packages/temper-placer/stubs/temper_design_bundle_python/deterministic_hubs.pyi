@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 class ChannelIndex:
     def penalty(self, x_mm: float, y_mm: float) -> float: ...
 

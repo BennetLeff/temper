@@ -555,7 +555,7 @@ def _canon_board_dict(d):
     return result
 
 
-def _oracle_constraints() -> "_tdrc.ConstraintSet":
+def _oracle_constraints() -> _tdrc.ConstraintSet:
     """The ConstraintSet used as the canonical input for the constraints-dict oracle."""
     return _tdrc.ConstraintSet(
         clearances=[

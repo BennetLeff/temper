@@ -71,7 +71,6 @@ Usage:
             installed by this script.
 """
 import argparse
-import shutil
 import subprocess
 import sys
 from pathlib import Path

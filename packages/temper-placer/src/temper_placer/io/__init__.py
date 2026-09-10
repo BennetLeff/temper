@@ -10,11 +10,11 @@ This module handles all input/output operations:
 The IO layer converts between external formats and internal data structures.
 """
 
-from temper_design_bundle_python import parse_engine as _parse_engine
 from temper_design_bundle_python import (
     create_board_from_constraints,
     load_constraints,
 )
+from temper_design_bundle_python import parse_engine as _parse_engine
 from temper_io_types import is_dsn_normalized, normalize_dsn, strip_control_chars
 
 from temper_placer._constraint_types import (
@@ -24,6 +24,7 @@ from temper_placer._constraint_types import (
     PlacementConstraints,
     ThermalConstraint,
 )
+
 ParseResult = _parse_engine.ParseResult
 
 # DSN/SES universal seam

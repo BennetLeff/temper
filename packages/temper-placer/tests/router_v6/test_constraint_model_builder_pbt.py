@@ -49,12 +49,10 @@ P6, on the pre-fix shared-dict shape via the oracle's mutable dataclass).
 from __future__ import annotations
 
 import hypothesis.strategies as st
-import tests.graph_fixtures as nx
-import pytest
 from hypothesis import given, settings
 
+import tests.graph_fixtures as nx
 import tests.router_v6._constraint_model_builder_py_oracle as _orc
-
 from temper_placer.core.netlist import Component, Net, Pin
 from temper_placer.router_v6 import constraint_model as cm
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton

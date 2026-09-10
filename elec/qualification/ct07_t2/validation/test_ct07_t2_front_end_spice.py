@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "validation/ct07_t2_front_end.cir.in"
 

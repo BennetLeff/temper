@@ -60,7 +60,6 @@ import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, FrozenSet, List, Optional, Tuple
 
 import yaml
 
@@ -76,7 +75,7 @@ FAULT_NONE = "FAULT_NONE"
 # are NOT members of EVENT_LIST in state_machine.h -- see module docstring.
 RUNAWAY_ABS_EVENT = "EVENT_RUNAWAY_ABSOLUTE_TEMP"
 RUNAWAY_RATE_EVENT = "EVENT_RUNAWAY_RISE_RATE"
-RUNAWAY_WILDCARD_EVENTS: Tuple[str, str] = (RUNAWAY_ABS_EVENT, RUNAWAY_RATE_EVENT)
+RUNAWAY_WILDCARD_EVENTS: tuple[str, str] = (RUNAWAY_ABS_EVENT, RUNAWAY_RATE_EVENT)
 RUNAWAY_FAULT_STATE = "STATE_RUNAWAY_FAULT"
 RUNAWAY_FAULT_CODE = "FAULT_RUNAWAY_BOUNDARY"
 
@@ -94,8 +93,8 @@ class Edge:
     to_state: str
     fault: str = FAULT_NONE
     implicit: bool = False          # True for KTD2 wildcard interlock edges
-    row_index: Optional[int] = None  # manifest row index; None for implicit edges
-    notes: Optional[str] = None
+    row_index: int | None = None  # manifest row index; None for implicit edges
+    notes: str | None = None
 
     @property
     def is_self_loop(self) -> bool:
@@ -110,35 +109,35 @@ class Edge:
 class TransitionModel:
     """The finite transition graph parsed from the manifest."""
 
-    states: Tuple[str, ...]
-    manifest_events: Tuple[str, ...]           # events declared in EVENT_LIST
-    fault_codes: Tuple[str, ...]
-    edges: Dict[Tuple[str, str], Edge] = field(default_factory=dict)
+    states: tuple[str, ...]
+    manifest_events: tuple[str, ...]           # events declared in EVENT_LIST
+    fault_codes: tuple[str, ...]
+    edges: dict[tuple[str, str], Edge] = field(default_factory=dict)
 
     # -- cell-space helpers ------------------------------------------------
 
-    def all_cell_events(self) -> Tuple[str, ...]:
+    def all_cell_events(self) -> tuple[str, ...]:
         """Every event a cell can be enumerated against: declared + wildcard."""
         return tuple(self.manifest_events) + RUNAWAY_WILDCARD_EVENTS
 
-    def outgoing_edges(self, state: str) -> List[Edge]:
+    def outgoing_edges(self, state: str) -> list[Edge]:
         return [e for (s, _ev), e in self.edges.items() if s == state]
 
-    def incoming_edges(self, state: str, *, include_self_loops: bool = True) -> List[Edge]:
+    def incoming_edges(self, state: str, *, include_self_loops: bool = True) -> list[Edge]:
         result = [e for e in self.edges.values() if e.to_state == state]
         if not include_self_loops:
             result = [e for e in result if not e.is_self_loop]
         return result
 
-    def explicit_edges(self) -> List[Edge]:
+    def explicit_edges(self) -> list[Edge]:
         return [e for e in self.edges.values() if not e.implicit]
 
-    def implicit_edges(self) -> List[Edge]:
+    def implicit_edges(self) -> list[Edge]:
         return [e for e in self.edges.values() if e.implicit]
 
     # -- reachability --------------------------------------------------------
 
-    def reachable_from(self, start: str) -> FrozenSet[str]:
+    def reachable_from(self, start: str) -> frozenset[str]:
         """Fixed-point closure of states reachable from *start* (exhaustive:
         the graph is finite, so this terminates and covers every path)."""
         if start not in self.states:
@@ -156,18 +155,18 @@ class TransitionModel:
                     frontier.append(edge.to_state)
         return frozenset(seen)
 
-    def interlock_only_states(self) -> Dict[str, List[Edge]]:
+    def interlock_only_states(self) -> dict[str, list[Edge]]:
         """States whose only non-self-loop incoming edges are implicit (KTD2)
         interlock edges -- i.e. there is no declared manifest row that enters
         the state from elsewhere. Returns {state: [evidence edges]}."""
-        result: Dict[str, List[Edge]] = {}
+        result: dict[str, list[Edge]] = {}
         for state in self.states:
             incoming = self.incoming_edges(state, include_self_loops=False)
             if incoming and all(e.implicit for e in incoming):
                 result[state] = incoming
         return result
 
-    def reachability_report(self) -> "ReachabilityReport":
+    def reachability_report(self) -> ReachabilityReport:
         reachable = self.reachable_from(INIT_STATE)
         unreachable = frozenset(self.states) - reachable
         interlock_only = self.interlock_only_states()
@@ -179,12 +178,12 @@ class TransitionModel:
             cells=cells,
         )
 
-    def cell_coverage(self) -> Dict[Tuple[str, str], str]:
+    def cell_coverage(self) -> dict[tuple[str, str], str]:
         """Every (state, event) cell in the full 9x25 space, mapped to
         'declared' (a manifest row backs it), 'implicit' (KTD2 wildcard
         interlock edge), or 'TRANSITION_INVALID' (A3: no row -> invalid by
         construction)."""
-        cells: Dict[Tuple[str, str], str] = {}
+        cells: dict[tuple[str, str], str] = {}
         for state in self.states:
             for event in self.all_cell_events():
                 edge = self.edges.get((state, event))
@@ -199,10 +198,10 @@ class TransitionModel:
 
 @dataclass
 class ReachabilityReport:
-    reachable: FrozenSet[str]
-    unreachable: FrozenSet[str]
-    interlock_only: Dict[str, List[Edge]]
-    cells: Dict[Tuple[str, str], str]
+    reachable: frozenset[str]
+    unreachable: frozenset[str]
+    interlock_only: dict[str, list[Edge]]
+    cells: dict[tuple[str, str], str]
 
     def to_dict(self) -> dict:
         counts = {"declared": 0, "implicit": 0, "TRANSITION_INVALID": 0}
@@ -228,26 +227,26 @@ class ReachabilityReport:
 # Parsing
 # ---------------------------------------------------------------------------
 
-def parse_state_machine_header(header_path: Path) -> Tuple[Tuple[str, ...], Tuple[str, ...], Tuple[str, ...]]:
+def parse_state_machine_header(header_path: Path) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
     """Extract STATE_*, EVENT_*, and FAULT_* symbol names from state_machine.h
     (and the generated fault list it #includes)."""
     content = header_path.read_text()
 
-    state_names: List[str] = []
+    state_names: list[str] = []
     m = re.search(
         r"#define\s+STATE_LIST\(X\)(.*?)(?:#define\s+EXPAND_STATE_ENUM|\Z)",
         content, re.DOTALL)
     if m:
         state_names = [sym for sym, _name in re.findall(r'X\((\w+),\s*"([^"]+)"\)', m.group(1))]
 
-    event_names: List[str] = []
+    event_names: list[str] = []
     m = re.search(
         r"#define\s+EVENT_LIST\(X\)(.*?)(?:#define\s+EXPAND_EVENT_ENUM|\Z)",
         content, re.DOTALL)
     if m:
         event_names = [sym for sym, _name in re.findall(r'X\((\w+),\s*"([^"]+)"\)', m.group(1))]
 
-    fault_names: List[str] = []
+    fault_names: list[str] = []
     fault_list_path = header_path.parent / "fault_list_generated.h"
     if fault_list_path.exists():
         fault_content = fault_list_path.read_text()
@@ -271,7 +270,7 @@ def parse_state_machine_header(header_path: Path) -> Tuple[Tuple[str, ...], Tupl
     return tuple(state_names), tuple(event_names), tuple(fault_names)
 
 
-def parse_manifest_rows(manifest_path: Path) -> List[dict]:
+def parse_manifest_rows(manifest_path: Path) -> list[dict]:
     manifest = yaml.safe_load(manifest_path.read_text())
     return list(manifest.get("transitions", []))
 
@@ -294,7 +293,7 @@ def build_model(
 
     rows = parse_manifest_rows(manifest_path)
 
-    edges: Dict[Tuple[str, str], Edge] = {}
+    edges: dict[tuple[str, str], Edge] = {}
     for i, row in enumerate(rows):
         from_s = row.get("from")
         event = row.get("event")
@@ -339,7 +338,7 @@ def build_model(
     return TransitionModel(states=states, manifest_events=events, fault_codes=faults, edges=edges)
 
 
-def derived_sensor_fault_events(model: "TransitionModel", faulted_states: FrozenSet[str]) -> FrozenSet[str]:
+def derived_sensor_fault_events(model: TransitionModel, faulted_states: frozenset[str]) -> frozenset[str]:
     """The "sensor-fault event" set, derived from the manifest rather than
     hardcoded (per U2's P2 approach and shared with U6's
     I-SENSOR-FAULT-BLOCKS-HEATING so the two consumers cannot drift, KTD5).

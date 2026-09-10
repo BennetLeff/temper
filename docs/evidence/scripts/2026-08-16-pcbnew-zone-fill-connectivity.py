@@ -12,8 +12,8 @@ design).
 Usage (needs the relocated KiCad root env, same as the kicad-cli wrapper):
 
     KICAD_ROOT=/home/bennet/.local/opt/kicad-10.0.5/root \\
-    LD_LIBRARY_PATH="\$(find \$KICAD_ROOT -name '*.so*' -printf '%h\\n' | sort -u | tr '\\n' ':')" \\
-    PYTHONPATH="\$KICAD_ROOT/usr/lib/python3/dist-packages" \\
+    LD_LIBRARY_PATH="\\$(find \\$KICAD_ROOT -name '*.so*' -printf '%h\\n' | sort -u | tr '\\n' ':')" \\
+    PYTHONPATH="\\$KICAD_ROOT/usr/lib/python3/dist-packages" \\
     .venv/bin/python docs/evidence/scripts/2026-08-16-pcbnew-zone-fill-connectivity.py \\
         <board.kicad_pcb> [--save-filled <out.kicad_pcb>] [--nets gnd,+3V3]
 

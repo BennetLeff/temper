@@ -24,9 +24,9 @@ with an empty channel sequence before the pipeline's fallback fires).
 
 from __future__ import annotations
 
-import tests.graph_fixtures as nx
 import pytest
 
+import tests.graph_fixtures as nx
 from temper_placer.core.netlist import Component, Net, Pin
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths

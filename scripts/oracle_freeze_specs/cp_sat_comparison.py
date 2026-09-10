@@ -365,12 +365,7 @@ def render_rust(results: list[tuple[FreezeCase, object]]) -> str:
             passed_lit = "false"
         else:
             rows_rs = ", ".join(
-                '("{name}", {actual_bits:#018x}_u64, {expected_bits:#018x}_u64, {passed})'.format(
-                    name=r[0],
-                    actual_bits=_bits(float(r[1])),
-                    expected_bits=_bits(float(r[2])),
-                    passed=str(bool(r[3])).lower(),
-                )
+                f'("{r[0]}", {_bits(float(r[1])):#018x}_u64, {_bits(float(r[2])):#018x}_u64, {str(bool(r[3])).lower()})'
                 for r in output["rows"]
             )
             summary_lit = _py_str_literal(output["summary"])

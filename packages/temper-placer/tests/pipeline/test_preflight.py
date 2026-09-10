@@ -1,9 +1,6 @@
 """Tests for preflight module."""
 
 from dataclasses import dataclass, field
-from unittest import mock
-
-import pytest
 
 from temper_placer.pipeline.preflight import (
     PreflightCheck,

@@ -4,7 +4,6 @@ Covers ProgressCallback, TerminalProgress, RichDashboard methods,
 and create_progress_display factory.
 """
 
-from unittest import mock
 
 from temper_placer.pipeline.visualization import (
     ProgressCallback,
@@ -12,7 +11,6 @@ from temper_placer.pipeline.visualization import (
     TerminalProgress,
     create_progress_display,
 )
-
 
 # =============================================================================
 # ProgressCallback

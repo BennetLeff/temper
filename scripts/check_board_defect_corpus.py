@@ -851,6 +851,7 @@ def run_corpus(
         )
 
     from board_defect_mutator import apply_mutation, board_content_hash, copy_board
+
     from temper_placer.validation._drc_api import copy_kicad_project_sidecar
 
     actual_board_hash = board_content_hash(board_path)

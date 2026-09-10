@@ -43,7 +43,6 @@ from temper_placer.core.board import Board  # noqa: E402
 from temper_placer.core.netlist import Component, Net, Netlist  # noqa: E402
 from temper_placer.core.state import PlacementState  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Oracle 1 — _netlist_to_oracle_dict (human_reference_extractor.py, verbatim)
 # ---------------------------------------------------------------------------

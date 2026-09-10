@@ -6,15 +6,12 @@ connectivity data structures, manufacturing_report, via_placement.
 
 from __future__ import annotations
 
-import pytest
-
 from temper_placer.router_v6.acid_trap_detection import AcidTrapReport
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.connectivity import (
     ConnectivityComponent,
     CopperPad,
     CopperTrack,
-    CopperVia,
     NetConnectivity,
     NetDisposition,
     PadIdentity,
@@ -28,7 +25,6 @@ from temper_placer.router_v6.layer_assignment import (
 )
 from temper_placer.router_v6.routing_results import RoutingResults
 from temper_placer.router_v6.via_placement import ViaPlacement
-
 
 # ── layer_assignment standalone functions ──────────────────────────
 

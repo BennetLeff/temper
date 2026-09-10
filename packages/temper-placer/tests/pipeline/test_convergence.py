@@ -2,8 +2,6 @@
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from temper_placer.pipeline.convergence import (
     ConvergenceChecker,
     ConvergenceCriteria,

@@ -6,12 +6,9 @@ MetricsSummary.total_penalty, MetricsSummary.from_run_result.
 
 from __future__ import annotations
 
-import pytest
-
 from temper_placer.validation.base import (
     CompositeValidator,
     ValidationResult,
-    ValidationSeverity,
     Validator,
 )
 from temper_placer.validation.drc_fence import (
@@ -24,7 +21,6 @@ from temper_placer.validation.drc_result import (
     CompositeCheck,
     RunResult,
 )
-
 
 # =============================================================================
 #  Minimal concrete implementations for ABC testing

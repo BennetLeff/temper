@@ -19,12 +19,10 @@ wrappers take flat scalar coordinates / flat vertex lists.
 import math
 
 import numpy as np
-import pytest
 
 # ---------------------------------------------------------------------------
 # transform.py — uncovered subset
 # ---------------------------------------------------------------------------
-
 from temper_geometry import (
     get_rotated_bounds,
     transform_pin_position,

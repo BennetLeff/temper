@@ -7,7 +7,6 @@ Covers still-zero-coverage allowlisted functions:
 """
 
 import numpy as np
-import pytest
 
 from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
@@ -438,7 +437,6 @@ class TestPipelineGetRegisteredHeuristics:
 
     def test_get_registered_with_heuristics(self):
         from temper_placer.heuristics import create_default_pipeline
-        from temper_placer.heuristics.pipeline import HeuristicPipeline
         pipeline = create_default_pipeline()
         registered = pipeline.get_registered_heuristics()
         assert len(registered) > 0
@@ -453,7 +451,6 @@ class TestPipelineClear:
 
     def test_pipeline_clear(self):
         from temper_placer.heuristics import create_default_pipeline
-        from temper_placer.heuristics.pipeline import HeuristicPipeline
         pipeline = create_default_pipeline()
         assert len(pipeline.heuristics) > 0
         pipeline.clear()

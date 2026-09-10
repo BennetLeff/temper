@@ -50,6 +50,8 @@ from temper_placer.router_v6.astar_core import (
     _DIRS_8,
     DIAGONAL_COST_FACTOR,
 )
+from temper_placer.router_v6.astar_core_rust import _astar_search_rust
+
 # `_astar_search` moved to Rust on 2026-08-18
 # (`temper_rust_router_core::astar_search2d`). This suite holds the RUST
 # kernel -- the live implementation -- to its properties; the pre-port
@@ -58,7 +60,6 @@ from temper_placer.router_v6.astar_core import (
 from temper_placer.router_v6.astar_search2d_rust import (
     _astar_search_2d_rust as _astar_search,
 )
-from temper_placer.router_v6.astar_core_rust import _astar_search_rust
 from temper_placer.router_v6.neighbor_validity import (
     build_neighbor_validity_tensor_2d,
     is_valid_2d,

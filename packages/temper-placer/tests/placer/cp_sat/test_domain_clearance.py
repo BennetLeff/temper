@@ -17,6 +17,7 @@ Three groups, mapping to the three R24 gates in
 from __future__ import annotations
 
 import itertools
+from math import dist as _distance
 
 from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
 from temper_placer.placer.cp_sat.domain_clearance import (
@@ -27,7 +28,6 @@ from temper_placer.placer.cp_sat.domain_clearance import (
     generate_domain_clearance_constraints,
     required_margin_mm,
 )
-from math import dist as _distance
 
 # ---------------------------------------------------------------------------
 # Group 1: the generator is not vacuous
@@ -313,12 +313,12 @@ class TestIntraFootprintDomainConflicts:
         """
         import pytest
 
+        from temper_placer.requirements.validators.clearance import (
+            verify_iec60335_compliance,
+        )
         from tests.requirements.safety._real_board_fixture import (
             RealBoardUnavailable,
             load_real_board_placement,
-        )
-        from temper_placer.requirements.validators.clearance import (
-            verify_iec60335_compliance,
         )
 
         try:

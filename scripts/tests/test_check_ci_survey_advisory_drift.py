@@ -19,8 +19,6 @@ import sys
 import textwrap
 from pathlib import Path
 
-import pytest
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_ci_survey_advisory_drift import (  # noqa: E402

@@ -4,14 +4,16 @@
 Snap each pad to its nearest free-space piece; do the pads still share a corridor?"""
 import re
 from pathlib import Path
-from shapely.geometry import Point, LineString, box
-from shapely.ops import unary_union
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.router_v6.zone_pour_clearance import default_table, collect_zone_obstacle_records
-from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
-from temper_placer.router_v6.routing_space import _get_board_polygon
-from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+
 import temper_orchestration as _to
+from shapely.geometry import LineString, Point, box
+from shapely.ops import unary_union
+
+from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+from temper_placer.router_v6.routing_space import _get_board_polygon
+from temper_placer.router_v6.zone_pour_clearance import collect_zone_obstacle_records, default_table
+from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
 
 BOARD=Path("pcb/temper.kicad_pcb")
 NINE=["+170V_BUS","DC_BUS_RTN","PWR_RTN","SW_NODE","ac_n","power_in.ntc-no",

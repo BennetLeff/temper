@@ -1,6 +1,5 @@
 """Tests for core.net_classification module."""
 
-import pytest
 
 from temper_placer.core.net_classification import (
     GROUND_NET_PATTERNS,

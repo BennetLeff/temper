@@ -3,10 +3,12 @@
 from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
 from temper_placer.router_v6._net_policy import _should_route
 from temper_placer.router_v6._zone_pour_stitch import (
-    _zone_layers_for_net, _CONTINUITY_EXEMPT_CLASSES, _CONTINUITY_EXEMPT_NETS,
+    _CONTINUITY_EXEMPT_CLASSES,
+    _CONTINUITY_EXEMPT_NETS,
+    _zone_layers_for_net,
     _zone_params_for_net,
 )
-from temper_placer.router_v6.net_classification import is_power_net, is_ground_net, is_hv_net
+from temper_placer.router_v6.net_classification import is_ground_net, is_hv_net, is_power_net
 
 NINE = ["+170V_BUS","DC_BUS_RTN","PWR_RTN","SW_NODE","ac_n","power_in.ntc-no",
         "tank.c_tank1-p2","w1_1","w1_2"]

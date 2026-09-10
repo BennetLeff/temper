@@ -26,7 +26,7 @@ before networkx was removed from the environment (see
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterator
 
 __all__ = [
     "Graph",

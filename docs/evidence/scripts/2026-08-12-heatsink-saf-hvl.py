@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 import temper_drc_rs
+
 from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 

@@ -33,8 +33,12 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO / "packages" / "temper-placer" / "src"))
 
+from temper_placer.core.pin_geometry import (  # noqa: E402
+    pin_world_layer,
+    pin_world_position,
+    pin_world_radius,
+)
 from temper_placer.io.kicad_parser import parse_kicad_pcb  # noqa: E402
-from temper_placer.core.pin_geometry import pin_world_position, pin_world_layer, pin_world_radius  # noqa: E402
 from temper_placer.io.real_board import _load_manifest  # noqa: E402
 
 PCB = REPO / "pcb" / "temper.kicad_pcb"
@@ -135,8 +139,8 @@ def best_single_line(hv, selv):
 
 
 def bichromatic_delaunay_cycle(hv, selv):
-    from scipy.spatial import Delaunay
     import networkx as nx
+    from scipy.spatial import Delaunay
 
     pts = [(p.x, p.y) for p in hv + selv]
     labels = list(hv) + list(selv)

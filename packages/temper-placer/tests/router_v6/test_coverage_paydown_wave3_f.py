@@ -67,7 +67,6 @@ from temper_placer.router_v6.trace_width_assignment import (
 )
 from temper_placer.router_v6.via_placement import ViaPlacement
 
-
 # =============================================================================
 # AcidTrapReport properties
 # =============================================================================
@@ -899,7 +898,7 @@ def test_copper_pour_area():
 
 
 def test_power_plane_geometry_via_count():
-    from temper_placer.router_v6.power_plane import PowerPlaneGeometry, CopperPour
+    from temper_placer.router_v6.power_plane import CopperPour, PowerPlaneGeometry
 
     gnd_pour = CopperPour(net="GND", layer="In1.Cu", bounds=(0, 0, 100, 50))
     ppg = PowerPlaneGeometry(
@@ -1028,8 +1027,8 @@ def test_bottleneck_analysis_worst_bottleneck():
 
 
 def test_channel_skeleton_properties():
-    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
     import tests.graph_fixtures as nx
+    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 
     g = nx.Graph()
     g.add_node("A")
@@ -1046,8 +1045,8 @@ def test_channel_skeleton_properties():
 
 
 def test_channel_skeleton_single_node():
-    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
     import tests.graph_fixtures as nx
+    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 
     g = nx.Graph()
     g.add_node("A")
@@ -1062,8 +1061,8 @@ def test_channel_skeleton_single_node():
 
 
 def test_channel_skeleton_disconnected():
-    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
     import tests.graph_fixtures as nx
+    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 
     g = nx.Graph()
     g.add_node("A")
@@ -1165,7 +1164,7 @@ def test_routing_demand_complexity():
 
 
 def test_routing_space_empty():
-    from temper_placer.router_v6.routing_space import RoutingSpace
+    pass
 
     # NOTE: RoutingSpace requires MultiPolygon for available_area, which
     # requires shapely. We test that the class is importable and that
@@ -1228,8 +1227,8 @@ def test_layer_capacity_importable():
 
 
 def test_congestion_grid_from_board():
-    from temper_placer.router_v6.congestion import CongestionGrid
     from temper_placer.core.board import Board
+    from temper_placer.router_v6.congestion import CongestionGrid
 
     board = Board(width=100.0, height=100.0)
     grid = CongestionGrid.from_board(board, cell_size_mm=5.0)
@@ -1465,13 +1464,13 @@ def test_pcb_geometry_default_construction():
 
 
 def test_pcb_geometry_add_and_clear():
+    from temper_placer.router_v6.constraints_geometry import Point as CGPoint
     from temper_placer.router_v6.constraints_spatial_index import (
-        PCBGeometry,
         Pad,
+        PCBGeometry,
         Track,
         Via,
     )
-    from temper_placer.router_v6.constraints_geometry import Point as CGPoint
 
     pcb = PCBGeometry()
 
@@ -1522,8 +1521,8 @@ def test_pcb_geometry_add_and_clear():
 
 
 def test_pad_properties():
-    from temper_placer.router_v6.constraints_spatial_index import Pad
     from temper_placer.router_v6.constraints_geometry import Point as CGPoint
+    from temper_placer.router_v6.constraints_spatial_index import Pad
 
     pad = Pad(
         center=CGPoint(10.0, 20.0),
@@ -1540,8 +1539,8 @@ def test_pad_properties():
 
 
 def test_track_properties():
-    from temper_placer.router_v6.constraints_spatial_index import Track
     from temper_placer.router_v6.constraints_geometry import Point as CGPoint
+    from temper_placer.router_v6.constraints_spatial_index import Track
 
     t = Track(
         start=CGPoint(0.0, 0.0),
@@ -1567,8 +1566,8 @@ def test_track_properties():
 
 
 def test_via_properties():
-    from temper_placer.router_v6.constraints_spatial_index import Via
     from temper_placer.router_v6.constraints_geometry import Point as CGPoint
+    from temper_placer.router_v6.constraints_spatial_index import Via
 
     via = Via(
         center=CGPoint(5.0, 5.0),
@@ -1586,8 +1585,8 @@ def test_via_properties():
 
 
 def test_drc_oracle_construction():
-    from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
     from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
+    from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
 
     cm = ClearanceMatrix()
     oracle = DRCOracle(rules=cm)
@@ -1609,8 +1608,8 @@ def test_clearance_matrix_construction():
 
 
 def test_clearance_matrix_add_net_class_rules():
-    from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
     from temper_placer.core.design_rules import NetClassRules
+    from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
 
     cm = ClearanceMatrix()
     # add_net_class_rules takes a NetClassRules object

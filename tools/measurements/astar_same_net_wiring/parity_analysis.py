@@ -12,7 +12,6 @@ This script documents: (1) what the Python reference does for net_id >= 0,
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]

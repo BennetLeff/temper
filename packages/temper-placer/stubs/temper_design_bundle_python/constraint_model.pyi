@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 def edge_endpoint_key_py(node: tuple[float, float]) -> str: ...
 def canonical_channel_edges_py(
     layer_name: str,

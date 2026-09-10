@@ -31,14 +31,11 @@ from __future__ import annotations
 import math
 import random
 
-import pytest
-
 # ============================================================================
 # Oracle block — verbatim copy of `temper_placer/core/pin_geometry.py`
 # (origin/main, pre-migration). DO NOT EDIT — these are the reference
 # implementations.
 # ============================================================================
-
 import temper_geometry as _tg
 
 
@@ -129,12 +126,11 @@ def _oracle_pin_world_radius(pin):
 
 from temper_placer.core.pin_geometry import (  # noqa: E402
     _normalize_rotation,
+    pin_world_layer,
     pin_world_position,
     pin_world_position_at,
-    pin_world_layer,
     pin_world_radius,
 )
-
 
 # ============================================================================
 # Bit-exact comparison helpers

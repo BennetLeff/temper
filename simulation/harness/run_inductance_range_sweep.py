@@ -72,8 +72,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import run_zvs_sweep as base  # noqa: E402  (reuse, not reimplement)
 import run_tank_coil_sweep as tank  # noqa: E402  (reuse f_res_loaded_hz)
+import run_zvs_sweep as base  # noqa: E402  (reuse, not reimplement)
 
 REPO_ROOT = base.REPO_ROOT
 C_TANK_F = base.C_TANK_F

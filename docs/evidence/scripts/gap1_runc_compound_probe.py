@@ -62,14 +62,14 @@ _PLACER_DIR = REPO / "packages" / "temper-placer"
 os.chdir(_PLACER_DIR)
 sys.path.insert(0, str(_PLACER_DIR))
 
+from temper_placer.placer.cp_sat.clearance_repair import (  # noqa: E402
+    run_clearance_repair_solve,
+)
 from tests.requirements.safety._real_board_fixture import (  # noqa: E402
     load_real_board_placement,
 )
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb  # noqa: E402
-from temper_placer.placer.cp_sat.clearance_repair import (  # noqa: E402
-    run_clearance_repair_solve,
-)
 from temper_placer.placer.cp_sat.fixed_copper import (  # noqa: E402
     audit_fixed_copper,
     build_fixed_copper_items,

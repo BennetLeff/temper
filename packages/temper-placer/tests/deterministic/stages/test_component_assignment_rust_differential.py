@@ -19,8 +19,9 @@ from __future__ import annotations
 
 import temper_design_bundle_python as _tdb
 import tests.deterministic.stages._component_assignment_py_oracle as _oracle
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from tests.core._contract_canon import canon
+
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 _RS = _tdb.deterministic_leaves
 

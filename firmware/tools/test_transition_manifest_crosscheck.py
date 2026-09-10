@@ -6,9 +6,7 @@ Run: uv run python -m pytest firmware/tools/test_transition_manifest_crosscheck.
 from __future__ import annotations
 
 import pytest
-
 from transition_manifest_crosscheck import (
-    RowDivergence,
     crosscheck_codegen_drift,
     crosscheck_explicit_rows,
     crosscheck_wildcard_rows,

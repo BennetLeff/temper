@@ -50,7 +50,6 @@ if TYPE_CHECKING:
 
 from .loop_extractor import classify_component
 
-
 # =============================================================================
 # Re-exports from Rust pyclasses (data contracts)
 # =============================================================================

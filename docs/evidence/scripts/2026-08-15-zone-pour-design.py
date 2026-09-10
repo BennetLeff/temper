@@ -28,11 +28,10 @@ implementation, is what is being validated.
 
 from __future__ import annotations
 
-import math
 import sys
 from pathlib import Path
 
-from shapely.geometry import MultiPoint, MultiPolygon, Point, Polygon
+from shapely.geometry import MultiPoint, Point, Polygon
 from shapely.ops import unary_union
 
 # ---------------------------------------------------------------------------
@@ -68,7 +67,7 @@ def nets_by_name(pcb):
 
 def pad_geometry(pin, comp):
     """(position, half_extent) for a pin in world coordinates."""
-    from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
+    from temper_placer.core.pin_geometry import pin_world_position
 
     return pin_world_position(pin, comp), (pin.width / 2.0, pin.height / 2.0)
 
@@ -81,7 +80,6 @@ def collect_obstacles(pcb, layer: str, own_net: str):
     per-pair separation.
     """
     from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
-    from temper_placer.router_v6.pad_connectivity_audit import ALL_LAYERS
 
     pads = []  # (Polygon, net_name)
     for comp in getattr(pcb, "components", []) or []:
@@ -338,7 +336,7 @@ def main():
         1 for pos in ntc_positions if any(p.contains(Point(pos)) for p in pieces_new)
     )
     print(f"    new carve: {n_new} pieces, {cov_new}/{len(ntc_positions)} pads covered")
-    print(f"    (47+ island fragmentation was measured with the old carve + real fill)")
+    print("    (47+ island fragmentation was measured with the old carve + real fill)")
 
     # B2: same net on In3.Cu -- a sparse inner SIGNAL layer (SMD pads do
     # not exist there; only THT pads / through vias obstruct). The design

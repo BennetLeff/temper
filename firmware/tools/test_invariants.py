@@ -13,6 +13,7 @@ import copy
 import dataclasses
 
 import pytest
+from transition_model import FAULT_NONE, INIT_STATE, build_model
 
 from invariants import (
     evaluate_all,
@@ -20,7 +21,6 @@ from invariants import (
     load_invariant_specs,
     reachable_excluding_expansion,
 )
-from transition_model import Edge, FAULT_NONE, INIT_STATE, build_model
 
 
 @pytest.fixture(scope="module")

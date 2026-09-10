@@ -30,7 +30,6 @@ from _lib.oracle_freeze import (  # noqa: E402
     FreezeCase,
     FreezeSpec,
     NonVacuityCheck,
-    SplitMix64,
     rust_f64_literal,
 )
 

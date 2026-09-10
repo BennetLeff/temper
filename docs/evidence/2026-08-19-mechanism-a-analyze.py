@@ -59,9 +59,10 @@ print(f"failure reasons={Counter(S['failure_reasons'].values())}")
 import sys  # noqa: E402
 
 sys.path.insert(0, str(args.repo / "packages" / "temper-placer" / "src"))
+from temper_placer.io.netclass_loader import load_netclass_rules  # noqa: E402
+
 from temper_placer.core.pin_geometry import pin_world_position  # noqa: E402
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6  # noqa: E402
-from temper_placer.io.netclass_loader import load_netclass_rules  # noqa: E402
 from temper_placer.router_v6.pad_connectivity_audit import audit_pcb_file  # noqa: E402
 from temper_placer.router_v6.pair_creepage import (  # noqa: E402
     default_creepage_table,

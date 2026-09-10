@@ -8,7 +8,6 @@ read-only analysis -- no code is modified, no Rust is built.
 from __future__ import annotations
 
 import ast
-import inspect
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]

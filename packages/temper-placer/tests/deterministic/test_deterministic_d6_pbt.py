@@ -45,13 +45,29 @@ from hypothesis import strategies as st
 from temper_placer.core.board import Trace, Via
 from temper_placer.deterministic.stages import (
     ConnectivityValidationStage as _shim_cv,
+)
+from temper_placer.deterministic.stages import (
     CourtyardCheckStage as _shim_cc,
+)
+from temper_placer.deterministic.stages import (
     DRCSweepStage as _shim_ds,
+)
+from temper_placer.deterministic.stages import (
     DRCValidationStage as _shim_drv,
+)
+from temper_placer.deterministic.stages import (
     PlacementValidationStage as _shim_pv,
+)
+from temper_placer.deterministic.stages import (
     ShortCircuitDetectionStage as _shim_sc,
+)
+from temper_placer.deterministic.stages import (
     TrackDeduplicationStage as _shim_td,
+)
+from temper_placer.deterministic.stages import (
     ViaDeduplicationStage as _shim_vd,
+)
+from temper_placer.deterministic.stages import (
     ViaValidationStage as _shim_vv,
 )
 from temper_placer.deterministic.state import BoardState

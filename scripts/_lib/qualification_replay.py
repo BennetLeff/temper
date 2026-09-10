@@ -12,9 +12,10 @@ import hashlib
 import json
 import os
 import stat
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Iterable, Mapping, Sequence
+from typing import Any
 
 
 class ReplayError(RuntimeError):

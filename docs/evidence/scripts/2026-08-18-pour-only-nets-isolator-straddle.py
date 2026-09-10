@@ -2,10 +2,14 @@
 # provenance: commit=2abb246db697da2685a652b93632a42d11595d51 dirty=false
 """Re-verify isolator straddle feasibility at PD3 12.6mm on TODAY's parts."""
 from pathlib import Path
+
+from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.placer.cp_sat.isolation_barrier import (
-    load_domain_manifest_nets, compute_pad_groups, evaluate_isolator_feasibility)
-from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
+    compute_pad_groups,
+    evaluate_isolator_feasibility,
+    load_domain_manifest_nets,
+)
 
 hv_nets, selv_nets = load_domain_manifest_nets(Path("elec/domain_manifest.yaml"))
 pcb = parse_kicad_pcb_v6(Path("pcb/temper.kicad_pcb"))

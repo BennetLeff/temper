@@ -13,9 +13,9 @@ from __future__ import annotations
 
 import random
 
-import tests.graph_fixtures as nx
-
 import temper_design_bundle_python as _tdb
+
+import tests.graph_fixtures as nx
 
 PathGraph = _tdb.topology_extraction_contracts.PathGraph
 NetTopology = _tdb.topology_extraction_contracts.NetTopology

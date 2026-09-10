@@ -50,7 +50,6 @@ import pytest
 # (origin/main, 1be60090, pre-migration). DO NOT EDIT — these are the
 # reference implementations, name-suffixed _Oracle.
 # ============================================================================
-
 # The oracle must import temper_geometry for the numeric methods it delegates.
 # In identity mode this is the same extension; after migration the oracles
 # remain Python-side and continue calling the same extension.
@@ -135,7 +134,6 @@ class _OraclePad:
 # ============================================================================
 
 from temper_placer.core.geometry_types import Pad, Point, Track, Via  # noqa: E402
-
 
 # ============================================================================
 # Helper: compare two objects field-by-field

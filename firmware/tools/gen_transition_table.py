@@ -11,7 +11,6 @@ generated content differs from the current file.
 
 import re
 import sys
-import os
 from pathlib import Path
 
 import yaml
@@ -21,7 +20,7 @@ from jinja2 import Environment, FileSystemLoader
 def parse_state_machine_header(header_path):
     """Extract STATE_*, EVENT_*, and FAULT_* members from state_machine.h."""
     header_path = Path(header_path)
-    with open(header_path, 'r') as f:
+    with open(header_path) as f:
         content = f.read()
 
     state_names = []
@@ -47,7 +46,7 @@ def parse_state_machine_header(header_path):
     # Parse FAULT_LIST X-macro entries from generated file
     fault_list_path = header_path.parent / "fault_list_generated.h"
     if fault_list_path.exists():
-        with open(fault_list_path, 'r') as ff:
+        with open(fault_list_path) as ff:
             fault_content = ff.read()
         m = re.search(
             r'#define\s+FAULT_LIST\(X\)(.*?)(?:/\*|\Z)',

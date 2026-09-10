@@ -6,8 +6,6 @@ Part of temper-qic1
 
 from types import SimpleNamespace
 
-import temper_design_bundle_python as _tdb
-
 from temper_placer.router_v6.channel_mapping import (
     ChannelMapping,
     ChannelPath,

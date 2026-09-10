@@ -22,8 +22,6 @@ Dicts are compared key-by-key with hex-float values.
 
 from __future__ import annotations
 
-import re
-
 import pytest
 
 import tests.core._specification_py_oracle as _oracle
@@ -41,7 +39,6 @@ from temper_placer.core.specification import (  # noqa: E402
     SignalIntegritySpec,
     ThermalSpec,
 )
-
 
 # ============================================================================
 # Repr normalization — the oracle classes are name-prefixed ``_Oracle*`` to

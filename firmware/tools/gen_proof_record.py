@@ -26,8 +26,9 @@ import json
 import sys
 from pathlib import Path
 
+from transition_model import REPO_ROOT, TRANSITION_YAML, ModelParseError, build_model
+
 from invariants import INVARIANTS_YAML, evaluate_all, load_invariant_specs
-from transition_model import REPO_ROOT, ModelParseError, TRANSITION_YAML, build_model
 
 OUTPUT_PATH = Path(__file__).resolve().parent / "proof_record.json"
 

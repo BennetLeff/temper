@@ -65,7 +65,7 @@ CALL_LOG: list[dict] = []
 
 def _install_hooks() -> None:
     import temper_placer.placer.cp_sat as cp_sat_pkg
-    from temper_placer.placer.cp_sat import _encoder_solve, encoder, model, unsat
+    from temper_placer.placer.cp_sat import _encoder_solve, encoder, model
 
     orig_solve_placement = _encoder_solve.solve_placement
 

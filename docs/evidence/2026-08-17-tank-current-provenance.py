@@ -356,10 +356,10 @@ def main() -> int:
         report("    worst-case high: R -5%, all 1800W into the tank", chart_L,
                lambda f: chart_R_total(f) * 0.95)["i"],
         b["i"], a["i"])
-    print(f"\n  SEATED FERROMAGNETIC PAN, committed operating point:")
+    print("\n  SEATED FERROMAGNETIC PAN, committed operating point:")
     print(f"    I_tank = {lo:.1f} - {hi:.1f} A rms  "
           f"({lo * math.sqrt(2):.1f} - {hi * math.sqrt(2):.1f} A peak)")
-    print(f"    The committed 22.5 A rms / 31.9 A peak sits inside this bracket,")
+    print("    The committed 22.5 A rms / 31.9 A peak sits inside this bracket,")
     print(f"    {abs(22.5 - (lo + hi) / 2) / ((lo + hi) / 2) * 100:.1f}% off its "
           f"centre.  CONFIRMED -- no correction is warranted.")
     print("    +/-10% on L and +/-10% on C both move I_tank by under 2%: at fixed")

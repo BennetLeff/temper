@@ -128,6 +128,7 @@ NETS_DIR = HARNESS_DIR / "nets"
 
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 from _lib.provenance import collect as collect_provenance  # noqa: E402
+
 MASTER_CIR = NETS_DIR / "zvs_margin_sweep.cir"
 
 # --- Sourced from elec/ (read-only); duplicated here (not imported from

@@ -1,6 +1,5 @@
 """Tests for core.topology module."""
 
-import pytest
 
 from temper_placer.core.topology import (
     ComponentCluster,

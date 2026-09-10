@@ -11,6 +11,11 @@ import pytest
 
 from temper_placer.router_v6._check_report_base import BaseCheckReport
 from temper_placer.router_v6.congestion_tensor import CongestionTensor
+from temper_placer.router_v6.neighbor_validity import (
+    DIRS_8,
+    build_neighbor_validity_tensor_2d,
+    is_valid_2d,
+)
 from temper_placer.router_v6.net_classification import (
     classify_net_type,
     get_single_layer_mode,
@@ -24,13 +29,7 @@ from temper_placer.router_v6.net_classification import (
     is_signal_net,
     set_single_layer_mode,
 )
-from temper_placer.router_v6.neighbor_validity import (
-    DIRS_8,
-    build_neighbor_validity_tensor_2d,
-    is_valid_2d,
-)
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-
 
 # ── _check_report_base ──────────────────────────────────────────────
 

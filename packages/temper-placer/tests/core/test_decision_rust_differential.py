@@ -142,7 +142,6 @@ class _OracleDecisionTrace:
 
 from temper_placer.core.decision import Alternative, Decision, DecisionTrace
 
-
 # ============================================================================
 # Helper -- canonicalize a class instance into a field-tuple for comparison,
 # independent of repr formatting differences (e.g., name resolution).

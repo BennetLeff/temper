@@ -11,11 +11,12 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from temper_orchestration import Trace
+
 from temper_placer.explainability.decision import (
     Decision,
     DecisionTrace,
 )
-from temper_orchestration import Trace
 
 
 def _trace(entries):

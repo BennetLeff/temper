@@ -51,12 +51,11 @@ _PLACER_DIR = REPO / "packages" / "temper-placer"
 os.chdir(_PLACER_DIR)
 sys.path.insert(0, str(_PLACER_DIR))
 
-from tests.requirements.safety._real_board_fixture import (  # noqa: E402
-    load_real_board_placement,
-)
-
 from temper_placer.placer.cp_sat.clearance_repair import (  # noqa: E402
     run_clearance_repair_solve,
+)
+from tests.requirements.safety._real_board_fixture import (  # noqa: E402
+    load_real_board_placement,
 )
 
 PCB = REPO / "pcb" / "temper.kicad_pcb"

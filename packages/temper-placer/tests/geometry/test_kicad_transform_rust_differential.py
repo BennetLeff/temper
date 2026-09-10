@@ -45,8 +45,9 @@ import math
 import random
 
 import pytest
-
 import temper_geometry as _tg
+from temper_geometry import transform_pin_position, transform_pin_positions
+
 from temper_placer.geometry.kicad_transform import (
     place_local_to_world,
     rotate_local_to_world,
@@ -55,7 +56,6 @@ from temper_placer.geometry.kicad_transform import (
     rotate_world_to_local_deg,
     shapely_rotation_angle_deg,
 )
-from temper_geometry import transform_pin_position, transform_pin_positions
 
 # ---------------------------------------------------------------------------
 # The six kernels, exposed from temper_geometry under the kicad_ prefix

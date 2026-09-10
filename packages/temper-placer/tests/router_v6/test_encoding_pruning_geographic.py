@@ -14,19 +14,18 @@ that are absent from the full model).
 
 from __future__ import annotations
 
-import pytest
+from temper_placer.router_v6.constraint_model import (
+    _DEFAULT_PRUNE_K_FACTOR as K_DEFAULT,
+)
+from temper_placer.router_v6.constraint_model import (
+    _DEFAULT_PRUNE_M_MIN as M_MIN_DEFAULT,
+)
 
 # The predicate functions are standalone geometry helpers.
 from temper_placer.router_v6.constraint_model import (
     _is_candidate_edge,
     _pin_span,
     _point_to_segment_distance,
-)
-from temper_placer.router_v6.constraint_model import (
-    _DEFAULT_PRUNE_K_FACTOR as K_DEFAULT,
-)
-from temper_placer.router_v6.constraint_model import (
-    _DEFAULT_PRUNE_M_MIN as M_MIN_DEFAULT,
 )
 
 

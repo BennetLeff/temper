@@ -84,6 +84,7 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
+import tests.deterministic._setup_py_oracle as _orc_setup  # noqa: E402
 from temper_placer.core.courtyard import Courtyard
 from temper_placer.placer.cp_sat.isolation_barrier import _project_onto_barrier_axis
 from temper_placer.requirements.validators._copper import _rotate as copper_rotate
@@ -95,8 +96,6 @@ from temper_placer.requirements.validators._copper import _rotate as copper_rota
 from tests.placer.cp_sat.test_zone_pour_production_measurement import (
     _resolve_pcbnew_python,
 )
-
-import tests.deterministic._setup_py_oracle as _orc_setup  # noqa: E402
 
 # `tests/requirements/safety/test_X.py` -> repo root is 5 levels up
 # (safety -> requirements -> tests -> temper-placer -> packages -> root).

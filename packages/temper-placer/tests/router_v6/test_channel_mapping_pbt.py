@@ -36,11 +36,11 @@ from __future__ import annotations
 
 import random
 
-import tests.graph_fixtures as nx
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+import tests.graph_fixtures as nx
 from temper_placer.router_v6 import channel_mapping as cm
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 

@@ -27,7 +27,6 @@ pin by comparing the aggregated bounds exactly.
 from __future__ import annotations
 
 import logging
-import math
 import random
 import re
 from dataclasses import dataclass
@@ -36,7 +35,20 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+from temper_placer.router_v6.dense_package_detection import (
+    _estimate_pitch,
+    _infer_package_type,
+)
+from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.power_plane import (
+    DEFAULT_POWER_DOMAINS,
+    CopperPour,
+    _rect_polygon,
+    _thermal_via_positions,
+    generate_ground_pour,
+    generate_power_pours,
+)
 from temper_placer.router_v6.resource_bound import (
     _capacity_in_bbox,
     _cluster_union_bbox,
@@ -45,23 +57,10 @@ from temper_placer.router_v6.resource_bound import (
     demand_budget_summary,
     max_routable_nets,
 )
-from temper_placer.router_v6.power_plane import (
-    CopperPour,
-    DEFAULT_POWER_DOMAINS,
-    _rect_polygon,
-    _thermal_via_positions,
-    generate_ground_pour,
-    generate_power_pours,
-)
-from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
 from temper_placer.router_v6.trace_width_assignment import (
     TraceWidth,
     _determine_trace_width,
     _kw_boundary_match,
-)
-from temper_placer.router_v6.dense_package_detection import (
-    _estimate_pitch,
-    _infer_package_type,
 )
 
 logger = logging.getLogger(__name__)

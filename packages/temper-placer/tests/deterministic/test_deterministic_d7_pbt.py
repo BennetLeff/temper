@@ -34,10 +34,9 @@ from __future__ import annotations
 from dataclasses import replace
 
 import pytest
+import temper_orchestration as _to
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
-import temper_orchestration as _to
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import (

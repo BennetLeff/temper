@@ -15,7 +15,6 @@ Disposition: FREEZE. Not a safety kernel (physics model, not DRC).
 
 from __future__ import annotations
 
-import math
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -390,7 +389,7 @@ def render_rust(results: list[tuple[FreezeCase, object]]) -> str:
         elif tag.startswith("extreme"):
             cf, nv = "ep_count", "ep_n"
         elif tag == "interior_k_grid":
-            L.append(f'            assert!(grid_present, "interior_k_grid: not present");')
+            L.append('            assert!(grid_present, "interior_k_grid: not present");')
             continue
         else:
             cf, nv = "le_count", "le_n"

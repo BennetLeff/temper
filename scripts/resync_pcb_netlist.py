@@ -33,7 +33,6 @@ import argparse
 import copy
 import json
 import sys
-from dataclasses import asdict
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -45,7 +44,6 @@ from gen_pcb_skeleton import (  # noqa: E402  (path shim above must run first)
     parse_netlist,
     resolve_footprint,
 )
-
 from kiutils.board import Board  # noqa: E402
 from kiutils.footprint import Footprint  # noqa: E402
 from kiutils.items.common import Net as KiNet  # noqa: E402

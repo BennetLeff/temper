@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[4]
 EVIDENCE = ROOT / "docs/evidence/r14-hv-domain-refloorplan-20260831"
 
