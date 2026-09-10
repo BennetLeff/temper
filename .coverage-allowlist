@@ -1,12 +1,25 @@
 # Coverage gate allowlist — monotonically-shrinking baseline
-# Format: path::function  # TODO: temper-xxx
+# Format: path::function  # TODO: temper-xxx (optional batch tag)
 #
 # Scope (Phase 2): All public functions in temper_placer/ except
 #   _constraint_types/ and profiling/ subpackages.
 # Phase 1 baseline: 193 entries (temper_placer/core/ only).
-# Phase 2 baseline: 1927 entries (temper_placer/ minus exclusions).
-# Phase 1 entries remaining: ~73 — paydown is ~62% (>=50% prerequisite met).
-# Stale entries removed: 111 Phase 1 entries that gained coverage.
+# Phase 1 entries remaining: 1 (192/193 paid down = 99.5%; prerequisite met).
+# Phase 2 resync (2026-09-10, Phase 0): measured against the widened suite
+#   (core + placer/pcl/regression/requirements/fields/metrics/physics/io/
+#   validation/deterministic/router_v6 + repair_unplaced, minus
+#   slow/integration/nightly/external/benchmark/gpu/monte_carlo).
+#   181 entries: 102 carried (still zero-coverage), 185 removed (now covered),
+#   79 added (still zero even wide; batch-tagged B1-B7 per the resync plan).
+#
+# An entry represents a public function with zero line coverage.
+# Entries may only be removed when the same PR adds a test
+# exercising the function or deletes the function from source.
+# Entries may only be added with a # TODO: temper-xxx ticket reference
+# (batch tags like (coverage-B2-router-logic) point at the follow-up batch).
+# See AGENTS.md §Coverage Gate for details.
+# Coverage gate allowlist — monotonically-shrinking baseline
+# Format: path::function  # TODO: temper-xxx
 #
 # An entry represents a public function with zero line coverage.
 # Entries may only be removed when the same PR adds a test
@@ -14,16 +27,6 @@
 # Entries may only be added with a # TODO: temper-xxx ticket reference.
 # See AGENTS.md §Coverage Gate for details.
 
-temper_placer/core/state.py::PlacementState.from_netlist_and_board  # TODO: temper-xxx
-temper_placer/adapters/deterministic_adapter.py::wrap_deterministic_stage  # TODO: temper-xxx
-temper_placer/adapters/register_strategies.py::PlacementStage.run  # TODO: temper-xxx
-temper_placer/adapters/register_strategies.py::RoutingStage.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage0_LoadPCB.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage1_EscapeVias.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage2_ChannelAnalysis.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage3_TopologicalRouting.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage4_GeometricRealization.run  # TODO: temper-xxx
-temper_placer/cli/__init__.py::main  # TODO: temper-xxx
 temper_placer/cli/__init__.py::optimize  # TODO: temper-xxx
 temper_placer/cli/__init__.py::regression  # TODO: temper-xxx
 temper_placer/cli/andon_commands.py::andon  # TODO: temper-xxx
@@ -44,47 +47,11 @@ temper_placer/constraints/builder.py::ConstraintBuilder.add_routing_corridor  # 
 temper_placer/constraints/builder.py::ConstraintBuilder.add_thermal_constraint  # TODO: temper-xxx
 temper_placer/constraints/builder.py::ConstraintBuilder.to_yaml  # TODO: temper-xxx
 temper_placer/constraints/builder.py::ConstraintBuilder.validate  # TODO: temper-xxx
-temper_placer/constraints/compiler.py::ConstraintCompiler.compile_to_slot_filter  # TODO: temper-xxx
-temper_placer/constraints/compiler.py::ConstraintCompiler.compile_to_slot_scorer  # TODO: temper-xxx
-temper_placer/constraints/compiler.py::ConstraintCompiler.validate  # TODO: temper-xxx
 temper_placer/constraints/reporter.py::ConstraintReporter.check  # TODO: temper-xxx
-temper_placer/deterministic/__init__.py::DeterministicPipeline.run  # TODO: temper-xxx
-temper_placer/deterministic/__init__.py::create_drc_aware_pipeline  # TODO: temper-xxx
-temper_placer/deterministic/__init__.py::create_legacy_pipeline  # TODO: temper-xxx
-temper_placer/deterministic/__init__.py::load_channel_map_from_sidecar  # TODO: temper-xxx
-temper_placer/deterministic/feedback/orchestrator.py::AutomatedZeroDRC.run  # TODO: temper-xxx
-temper_placer/deterministic/feedback/violation_mapper.py::ViolationComponentMapper.map_violation  # TODO: temper-xxx
-temper_placer/deterministic/feedback/zone_adjuster.py::ZoneAdjuster.compute_adjustments  # TODO: temper-xxx
-temper_placer/deterministic/instrumentation.py::InstrumentedStage.run  # TODO: temper-xxx
-temper_placer/deterministic/instrumentation.py::instrument_pipeline  # TODO: temper-xxx
-temper_placer/deterministic/instrumentation.py::run_with_trace_log  # TODO: temper-xxx
-temper_placer/deterministic/stages/component_assignment.py::ComponentAssignmentStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/component_assignment.py::ComponentAssignmentStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/connectivity_validation.py::ConnectivityValidationStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/connectivity_validation.py::ConnectivityValidationStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/courtyard_check.py::CourtyardCheckStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/courtyard_check.py::CourtyardCheckStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/drc_validation.py::DRCValidationStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/drc_validation.py::DRCValidationStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/fine_pitch_escape.py::FinePitchEscapeStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/fine_pitch_escape.py::FinePitchEscapeStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/hv_lv_partition.py::HvLvPartitionStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/hv_lv_partition.py::HvLvPartitionStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/hv_lv_partition.py::load_guard_config  # TODO: temper-xxx
-temper_placer/deterministic/stages/layer_assignment.py::LayerAssignmentStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/layer_assignment.py::LayerAssignmentStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/phased_component_assignment_validator.py::validate_phased_component_assignment_hv  # TODO: temper-xxx
-temper_placer/deterministic/stages/placement_validation.py::PlacementValidationStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/placement_validation.py::PlacementValidationStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/power_plane.py::PowerPlaneStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/power_plane.py::PowerPlaneStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/zone_aware_slot_generation.py::RoutingChannelAwareSlotStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/zone_aware_slot_generation.py::ZoneAwareSlotGenerationStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/zone_aware_slot_generation.py::ZoneAwareSlotGenerationStage.run  # TODO: temper-xxx
+temper_placer/core/state.py::PlacementState.from_netlist_and_board  # TODO: temper-xxx
 temper_placer/fixtures/synthetic.py::ComponentDistribution.total  # TODO: temper-xxx
 temper_placer/fixtures/synthetic.py::generate_200_component_netlist  # TODO: temper-xxx
 temper_placer/heuristics/__init__.py::create_default_pipeline  # TODO: temper-xxx
-temper_placer/heuristics/mcu_subsystem.py::MCUSubsystemHeuristic.apply  # TODO: temper-xxx
 temper_placer/heuristics/organizational.py::DecouplingCapHeuristic.apply  # TODO: temper-xxx
 temper_placer/heuristics/organizational.py::DecouplingCapHeuristic.description  # TODO: temper-xxx
 temper_placer/heuristics/organizational.py::DomainSeparationHeuristic.apply  # TODO: temper-xxx
@@ -96,8 +63,6 @@ temper_placer/heuristics/organizational.py::PowerFlowTopologyHeuristic.descripti
 temper_placer/heuristics/organizational.py::PowerFlowTopologyHeuristic.name  # TODO: temper-xxx
 temper_placer/heuristics/organizational.py::PowerFlowTopologyHeuristic.priority  # TODO: temper-xxx
 temper_placer/heuristics/pipeline.py::HeuristicPipeline.run  # TODO: temper-xxx
-
-
 temper_placer/heuristics/structural.py::ConnectorEdgeSnappingHeuristic.apply  # TODO: temper-xxx
 temper_placer/heuristics/structural.py::ConnectorEdgeSnappingHeuristic.description  # TODO: temper-xxx
 temper_placer/heuristics/structural.py::CriticalLoopHeuristic.apply  # TODO: temper-xxx
@@ -114,164 +79,33 @@ temper_placer/heuristics/topological_init.py::TopologicalInitializationHeuristic
 temper_placer/heuristics/topological_init.py::TopologicalInitializationHeuristic.description  # TODO: temper-xxx
 temper_placer/heuristics/topological_init.py::TopologicalInitializationHeuristic.name  # TODO: temper-xxx
 temper_placer/heuristics/topological_init.py::TopologicalInitializationHeuristic.priority  # TODO: temper-xxx
-temper_placer/io/design_bundle_preflight.py::preflight_identity  # TODO: temper-xxx
-# temper_placer/io/real_board.py::load_real_board_placement is exercised by
-# the safety suite (tests/requirements/safety/) and the CLI wiring tests
-# (tests/cli/test_optimize_validator_input.py) against the real board, but
-# the coverage gate only measures tests/core/, so it reads as zero here.
-temper_placer/io/real_board.py::load_real_board_placement  # TODO: temper-617
-temper_placer/io/dsn_exporter.py::DSNExporter.export_library  # TODO: temper-xxx
-temper_placer/io/dsn_exporter.py::DSNExporter.export_network  # TODO: temper-xxx
-temper_placer/io/dsn_exporter.py::DSNExporter.export_pcb  # TODO: temper-xxx
-temper_placer/io/dsn_exporter.py::DSNExporter.export_placement  # TODO: temper-xxx
-temper_placer/io/dsn_exporter.py::DSNExporter.export_structure  # TODO: temper-xxx
-temper_placer/io/dsn_exporter.py::DSNExporter.export_wiring  # TODO: temper-xxx
-temper_placer/io/kicad_exporter.py::export_board_state  # TODO: temper-xxx
-temper_placer/io/kicad_exporter.py::export_from_geometry  # TODO: temper-xxx
-temper_placer/io/kicad_exporter.py::export_routed_pcb  # TODO: temper-xxx
-temper_placer/io/kicad_exporter.py::extract_pad_centers  # TODO: temper-xxx
-temper_placer/io/kicad_metadata.py::extract_kicad_metadata  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::parse_kicad_pcb_v6  # TODO: temper-xxx
-temper_placer/io/loop_loader.py::save_loop_to_yaml  # TODO: temper-xxx
-temper_placer/io/placement_exporter.py::export_positions_to_temp_pcb  # TODO: temper-xxx
-temper_placer/io/zone_manager.py::add_power_planes  # TODO: temper-xxx
 temper_placer/io/zone_manager.py::add_zones_from_classification  # TODO: temper-xxx
 temper_placer/io/zone_manager.py::add_zones_to_pcb  # TODO: temper-xxx
-temper_placer/io/zone_manager.py::create_zone  # TODO: temper-xxx
-temper_placer/io/zone_manager.py::get_board_outline  # TODO: temper-xxx
-temper_placer/io/zone_manager.py::get_net_code  # TODO: temper-xxx
-temper_placer/metrics/external_oracle.py::score_placement  # TODO: temper-xxx
-temper_placer/metrics/routing_quality.py::evaluate_routing_quality  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::BaseConstraint.escalate  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::BaseConstraint.involves_component  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::BaseConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/constraints.py::ConstraintType.capabilities  # TODO: temper-xxx
-temper_placer/pcl/constraints.py::ConstraintType.label  # TODO: temper-xxx
-temper_placer/pcl/constraints.py::ConstraintType.supported_targets  # TODO: temper-xxx
-temper_placer/pcl/linter.py::LintResult.passed  # TODO: temper-xxx
-temper_placer/pcl/linter.py::lint_constraints  # TODO: temper-xxx
 temper_placer/pcl/parser.py::ConstraintCollection.auto_enrich  # TODO: temper-xxx
-temper_placer/pcl/parser.py::ConstraintCollection.by_tier  # TODO: temper-xxx
-temper_placer/pcl/parser.py::ConstraintCollection.by_type  # TODO: temper-xxx
-temper_placer/pcl/parser.py::ConstraintCollection.copy  # TODO: temper-xxx
-temper_placer/pcl/parser.py::ConstraintCollection.involving_component  # TODO: temper-xxx
-temper_placer/pcl/parser.py::ConstraintCollection.lint  # TODO: temper-xxx
-temper_placer/pcl/parser.py::ConstraintCollection.validate_component_refs  # TODO: temper-xxx
-temper_placer/pcl/parser.py::load_pcl_collection  # TODO: temper-xxx
-temper_placer/pcl/parser.py::parse_pcl_file  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::ConstraintOrigin.get_sat_names  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::ConstraintOrigin.lookup_pcl_id  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::ConstraintOrigin.record  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::SATBridgeContext.channels  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::SATBridgeContext.component_indices  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::SATBridgeContext.net_index  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::constraint_to_clauses  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::register_handler  # TODO: temper-xxx
-temper_placer/pcl/tag_dispatch.py::E  # TODO: temper-xxx
-temper_placer/pcl/tag_dispatch.py::components  # TODO: temper-xxx
-temper_placer/pcl/tag_dispatch.py::pre_expansion_validate  # TODO: temper-xxx
-temper_placer/pcl/tag_dispatch.py::resolve  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAdjacentConstraint.collect_tag_exprs  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAdjacentConstraint.involves_component  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAdjacentConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAlignedConstraint.collect_tag_exprs  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAlignedConstraint.involves_component  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAlignedConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAnchoredConstraint.collect_tag_exprs  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAnchoredConstraint.involves_component  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedAnchoredConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedEnclosingConstraint.collect_tag_exprs  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedEnclosingConstraint.involves_component  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedEnclosingConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedOnSideConstraint.collect_tag_exprs  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedOnSideConstraint.involves_component  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedOnSideConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedSeparatedConstraint.collect_tag_exprs  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedSeparatedConstraint.involves_component  # TODO: temper-xxx
-temper_placer/pcl/tagged_constraints.py::TaggedSeparatedConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/unsat_compiler.py::compile_unsat_to_pcl  # TODO: temper-xxx
-temper_placer/pcl/unsat_compiler.py::reset_escalation_counts  # TODO: temper-xxx
-temper_placer/placer/cp_sat/model.py::CpSatModel.mm_to_units  # TODO: temper-xxx
-temper_placer/placer/cp_sat/model.py::CpSatModel.units_to_mm  # TODO: temper-xxx
 temper_placer/regression/cli.py::main  # TODO: temper-xxx
 temper_placer/regression/cli.py::run_corpus  # TODO: temper-xxx
 temper_placer/regression/cli.py::run_regression  # TODO: temper-xxx
-temper_placer/regression/closure_test.py::ClosureTest.run  # TODO: temper-xxx
-temper_placer/regression/corpus_runner.py::BaselineFile.load  # TODO: temper-xxx
-temper_placer/regression/corpus_runner.py::CorpusManifest.load  # TODO: temper-xxx
 temper_placer/regression/corpus_runner.py::CorpusRegressionRunner.run  # TODO: temper-xxx
 temper_placer/regression/measure_closure.py::main  # TODO: temper-xxx
-temper_placer/regression/measure_closure.py::measure_closure  # TODO: temper-xxx
 temper_placer/regression/physics_oracle.py::run_physics_oracle  # TODO: temper-xxx
 temper_placer/regression/physics_oracle.py::score_human_baseline  # TODO: temper-xxx
 temper_placer/regression/runner.py::RegressionRunner.run  # TODO: temper-xxx
-temper_placer/regression/schema_validator.py::SchemaValidator.validate  # TODO: temper-xxx
-temper_placer/router_v6/annular_ring_check.py::check_annular_rings  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::main  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::run_benchmark_suite  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::run_resource_bound_benchmark  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::run_v5_router  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::run_v6_router  # TODO: temper-xxx
-temper_placer/router_v6/bottleneck_analysis.py::BottleneckAnalysisStage.name  # TODO: temper-xxx
-temper_placer/router_v6/bottleneck_analysis.py::BottleneckAnalysisStage.run  # TODO: temper-xxx
-temper_placer/router_v6/bottleneck_analysis.py::identify_bottlenecks  # TODO: temper-xxx
-temper_placer/router_v6/bottleneck_analysis.py::validate_bottleneck_analysis  # TODO: temper-xxx
-temper_placer/router_v6/bottleneck_geometry.py::analyze_bottleneck  # TODO: temper-xxx
-temper_placer/router_v6/channel_mapping.py::map_topology_to_channels  # TODO: temper-xxx
-temper_placer/router_v6/channel_skeleton.py::ChannelSkeletonStage.name  # TODO: temper-xxx
-temper_placer/router_v6/channel_skeleton.py::ChannelSkeletonStage.run  # TODO: temper-xxx
-temper_placer/router_v6/channel_skeleton.py::extract_channel_skeleton  # TODO: temper-xxx
-temper_placer/router_v6/channel_skeleton.py::validate_channel_skeleton  # TODO: temper-xxx
-temper_placer/router_v6/channel_widths.py::ChannelWidthsStage.name  # TODO: temper-xxx
-temper_placer/router_v6/channel_widths.py::ChannelWidthsStage.run  # TODO: temper-xxx
-temper_placer/router_v6/channel_widths.py::compute_channel_widths  # TODO: temper-xxx
-temper_placer/router_v6/channel_widths.py::validate_channel_widths  # TODO: temper-xxx
 temper_placer/router_v6/constraint_model.py::ConstraintGenerationStage.name  # TODO: temper-xxx
 temper_placer/router_v6/constraint_model.py::ConstraintGenerationStage.run  # TODO: temper-xxx
-temper_placer/router_v6/constraint_model.py::ModelBuilder.build  # TODO: temper-xxx
 temper_placer/router_v6/constraint_model.py::validate_constraint_generation  # TODO: temper-xxx
-temper_placer/router_v6/escape_via_generator.py::generate_escape_vias  # TODO: temper-xxx
-temper_placer/router_v6/grid_prep_stage.py::GridPrepStage.name  # TODO: temper-xxx
-temper_placer/router_v6/grid_prep_stage.py::GridPrepStage.run  # TODO: temper-xxx
-temper_placer/router_v6/grid_prep_stage.py::validate_grid_prep  # TODO: temper-xxx
-temper_placer/router_v6/kicad_connectivity.py::connectivity_preflight  # TODO: temper-xxx
-temper_placer/router_v6/net_prep_stage.py::NetPrepStage.name  # TODO: temper-xxx
-temper_placer/router_v6/net_prep_stage.py::NetPrepStage.run  # TODO: temper-xxx
-temper_placer/router_v6/net_prep_stage.py::validate_net_prep  # TODO: temper-xxx
-temper_placer/router_v6/obstacle_map.py::ObstacleMapStage.name  # TODO: temper-xxx
-temper_placer/router_v6/obstacle_map.py::ObstacleMapStage.run  # TODO: temper-xxx
-temper_placer/router_v6/obstacle_map.py::build_obstacle_map  # TODO: temper-xxx
-temper_placer/router_v6/obstacle_map.py::validate_obstacle_map  # TODO: temper-xxx
-temper_placer/router_v6/occupancy_grid.py::OccupancyGridStage.run  # TODO: temper-xxx
-temper_placer/router_v6/occupancy_grid.py::validate_occupancy_grid  # TODO: temper-xxx
-temper_placer/router_v6/placement_audit.py::PlacementAuditor.check_collisions  # TODO: temper-xxx
-temper_placer/router_v6/placement_legalization.py::Legalizer.legalize  # TODO: temper-xxx
 temper_placer/router_v6/quality/via_count.py::classify_vias  # TODO: temper-xxx
-temper_placer/router_v6/quality/via_count.py::classify_vias_from_parse  # TODO: temper-xxx
 temper_placer/router_v6/quality/via_count.py::count_signal_vias  # TODO: temper-xxx
-temper_placer/router_v6/quality/via_count.py::count_signal_vias_from_routing  # TODO: temper-xxx
 temper_placer/router_v6/quality/via_count.py::count_stitching_vias  # TODO: temper-xxx
 temper_placer/router_v6/quality/via_count.py::count_thermal_vias  # TODO: temper-xxx
-temper_placer/router_v6/result_aggregate_stage.py::ResultAggregateStage.name  # TODO: temper-xxx
-temper_placer/router_v6/result_aggregate_stage.py::ResultAggregateStage.run  # TODO: temper-xxx
-temper_placer/router_v6/result_aggregate_stage.py::validate_result_aggregate  # TODO: temper-xxx
-temper_placer/router_v6/route_stage.py::RouteStage.name  # TODO: temper-xxx
-temper_placer/router_v6/route_stage.py::RouteStage.run  # TODO: temper-xxx
-temper_placer/router_v6/route_stage.py::validate_route  # TODO: temper-xxx
-temper_placer/router_v6/routing_demand.py::RoutingDemandStage.name  # TODO: temper-xxx
-temper_placer/router_v6/routing_demand.py::RoutingDemandStage.run  # TODO: temper-xxx
-temper_placer/router_v6/routing_demand.py::validate_routing_demand  # TODO: temper-xxx
-temper_placer/router_v6/routing_space.py::RoutingSpaceStage.name  # TODO: temper-xxx
-temper_placer/router_v6/routing_space.py::RoutingSpaceStage.run  # TODO: temper-xxx
-temper_placer/router_v6/routing_space.py::compute_routing_space  # TODO: temper-xxx
-temper_placer/router_v6/routing_space.py::validate_routing_space  # TODO: temper-xxx
-temper_placer/router_v6/stage2_orchestrator.py::Stage2Orchestrator.assemble_stage2_output  # TODO: temper-xxx
-temper_placer/router_v6/stage2_orchestrator.py::Stage2Orchestrator.run  # TODO: temper-xxx
-temper_placer/router_v6/stage4_orchestrator.py::Stage4Orchestrator.assemble_pathfinding_result  # TODO: temper-xxx
 temper_placer/router_v6/stage4_orchestrator.py::Stage4Orchestrator.run  # TODO: temper-xxx
-temper_placer/router_v6/terminal_extraction.py::extract_net_terminals  # TODO: temper-xxx
-temper_placer/router_v6/terminal_tree.py::plan_terminal_tree  # TODO: temper-xxx
-temper_placer/router_v6/terminal_tree_execution.py::execute_terminal_tree  # TODO: temper-xxx
 temper_placer/router_v6/verifier.py::RoutingVerifier.to_placement_feedback  # TODO: temper-xxx
 temper_placer/router_v6/verifier.py::RoutingVerifier.verify  # TODO: temper-xxx
 temper_placer/runner.py::PipelineRunner.run  # TODO: temper-xxx
@@ -281,16 +115,11 @@ temper_placer/strategy_registry.py::get  # TODO: temper-xxx
 temper_placer/strategy_registry.py::get_composite  # TODO: temper-xxx
 temper_placer/strategy_registry.py::list_stages  # TODO: temper-xxx
 temper_placer/strategy_registry.py::register_composite  # TODO: temper-xxx
-temper_placer/testing/golden_diff.py::diff_golden  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::compute_fingerprint  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::compute_stack_hash  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::load_manifest  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::quarantine_error  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::quarantine_summary  # TODO: temper-xxx
-temper_placer/testing/version_gate.py::check_git_ancestry  # TODO: temper-xxx
-temper_placer/validation/_drc_api.py::is_kicad_cli_available  # TODO: temper-xxx
-temper_placer/validation/_drc_api.py::run_drc  # TODO: temper-xxx
-temper_placer/validation/_drc_api.py::DrcCountInfo.is_honest  # TODO: temper-xxx
 temper_placer/validation/drc_fence.py::DRCFence.check  # TODO: temper-xxx
 temper_placer/validation/drc_oracle.py::DRCOracle.evaluate  # TODO: temper-xxx
 temper_placer/validation/drc_oracle.py::DRCOracle.evaluate_placement  # TODO: temper-xxx
@@ -299,11 +128,83 @@ temper_placer/validation/drc_oracle.py::build_placement_from_netlist  # TODO: te
 temper_placer/validation/drc_oracle.py::create_standard_drc_oracle  # TODO: temper-xxx
 temper_placer/validation/drc_runner.py::CheckRunner.run  # TODO: temper-xxx
 temper_placer/validation/drc_runner.py::CheckRunner.run_single  # TODO: temper-xxx
-temper_placer/validation/human_reference_extractor.py::HumanReference.save  # TODO: temper-xxx
-temper_placer/validation/human_reference_extractor.py::extract_human_reference  # TODO: temper-xxx
-temper_placer/validation/mfem_gate.py::MFEMCorroborationGate.check  # TODO: temper-xxx
-temper_placer/validation/mfem_mesh.py::build_temper_mesh  # TODO: temper-xxx
 temper_placer/validation/mfem_runner.py::MFEMRunner.run  # TODO: temper-xxx
-temper_placer/validation/mfem_runner.py::check_mfem  # TODO: temper-xxx
-temper_placer/validation/results/battery_run.py::run_thermal_helps_battery  # TODO: temper-xxx
-temper_placer/validation/thermal_scorer.py::falsifiability_assertion  # TODO: temper-xxx
+temper_placer/core/board_layer_roles.py::LayerRole.is_routable_role  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/core/board_layer_roles.py::parse_declared_layer_roles_from_path  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/core/board_layer_roles.py::signal_layer_names_from_path  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/core/netlist.py::rotation_quadrant_to_degrees  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/core/netlist.py::rotation_quadrant_to_radians  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/core/pad_geometry.py::pad_core_polygon  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/geometry/kicad_transform.py::rotate_world_to_local  # TODO: temper-xxx (coverage-triage)
+temper_placer/io/_write_board.py::compute_to247_isolation_slots  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/io/_write_board.py::export_placements  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/io/_write_board.py::validate_output_pcb  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/io/_write_tracks.py::get_routing_statistics  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/io/_write_tracks.py::strip_routing  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/io/_write_tracks.py::strip_routing_preserve_nets  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/io/_write_zones.py::build_net_name_to_index_map  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/pcl/router_compiler.py::ConstraintCompilationReceipt.output_names  # TODO: temper-xxx (coverage-B5-leftovers)
+temper_placer/physics/thermal.py::thermal_resistance_for  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/physics/tj_cross_check.py::TjCrossCheckGate.check  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/placer/cp_sat/body_collision.py::BodyCollisionAuditResult.report  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/collision_corridor_campaign.py::resume_collision_corridor_campaign  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/collision_corridor_checkpoint.py::restore_collision_campaign_checkpoint  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/collision_corridor_evidence.py::prepare_u6_corridor_experiment  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/collision_corridor_evidence.py::read_collision_corridor_evidence  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/collision_corridor_evidence.py::run_collision_corridor_comparison  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/collision_corridor_evidence.py::write_collision_corridor_evidence  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_family_campaign.py::ConstraintFamilyCampaignResult.accepted  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_family_campaign.py::ConstraintFamilyCampaignResult.feasible_probes  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_family_campaign.py::ConstraintFamilyCampaignResult.first_nonaccepted  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_family_campaign.py::ConstraintFamilyProbeResult.exact_creepage_clean  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_family_campaign.py::ConstraintFamilyProbeResult.production_feasible  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_family_probe_planner.py::ConstraintFamilyProbe.families  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_family_probe_planner.py::ConstraintFamilyProbe.name  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_restoration_campaign.py::RestorationCampaignResult.accepted  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_restoration_campaign.py::RestorationCampaignResult.final_stage  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/constraint_restoration_campaign.py::SelectiveDisplacementCampaignResult.accepted  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/creepage_replay_campaign.py::ReplayCampaignResult.diagnostics  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/creepage_replay_campaign.py::ReplayCampaignResult.successful  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/creepage_search_corridor_experiment.py::CreepageSearchCorridorExperimentRecord.to_json  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/creepage_search_corridor_experiment.py::CreepageSearchCorridorExperimentRecord.write  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/creepage_search_corridor_experiment.py::main  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/creepage_search_corridor_experiment.py::prepare_corridor_experiment  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/creepage_search_corridor_experiment.py::run_creepage_search_corridor_experiment  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/creepage_search_corridor_experiment.py::run_prepared_collision_corridor_experiment  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/displacement_deletion_campaign.py::DisplacementDeletionCampaignResult.feasible_tests  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/displacement_deletion_campaign.py::DisplacementDeletionTestResult.exact_creepage_clean  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/displacement_deletion_campaign.py::DisplacementDeletionTestResult.production_feasible  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/displacement_deletion_scheduler.py::DeletionProbePlan.canonical_key  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/displacement_deletion_scheduler.py::DeletionProbePlan.name  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/envelope_solver.py::EnvelopeSolveResult.bounds  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/fixed_copper.py::exact_overlap  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/hierarchical_displacement_campaign.py::CoarseGroupDisplacementCampaignResult.accepted  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/local_subenvelope_solver.py::LocalSubEnvelopeSolveResult.components  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/local_subenvelope_solver.py::LocalSubEnvelopeSolveResult.envelope_height_mm  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/local_subenvelope_solver.py::LocalSubEnvelopeSolveResult.envelope_width_mm  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/production_stripped_instance.py::ProductionStrippedInstance.component_count  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/production_stripped_instance.py::ProductionStrippedInstance.requirement_count  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/production_stripped_instance.py::ProductionStrippedProbeReport.accepted  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/production_stripped_instance.py::ProductionStrippedProbeReport.accepted_run  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/production_stripped_instance.py::run_production_stripped_probe  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/protective_impedance_colocation.py::ChainViolation.detail  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/protective_impedance_colocation.py::add_chain_colocation_to_model  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/stripped_creepage_solver.py::StrippedCreepageSolveResult.positions  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/stripped_creepage_solver.py::StrippedCreepageSolveResult.rotations  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/validator_audit.py::DomainClearanceValidatorAuditResult.report  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/placer/cp_sat/validator_audit.py::DomainClearanceValidatorViolation.shortfall_mm  # TODO: temper-xxx (coverage-B4-cpsat)
+temper_placer/router_v6/_adapter_core.py::V6RouterAdapter.block_components  # TODO: temper-xxx (coverage-B2-router-logic)
+temper_placer/router_v6/_adapter_core.py::V6RouterAdapter.block_pads  # TODO: temper-xxx (coverage-B2-router-logic)
+temper_placer/router_v6/_adapter_core.py::V6RouterAdapter.from_board  # TODO: temper-xxx (coverage-B2-router-logic)
+temper_placer/router_v6/_adapter_core.py::V6RouterAdapter.get_conflict_locations  # TODO: temper-xxx (coverage-B2-router-logic)
+temper_placer/router_v6/_adapter_core.py::V6RouterAdapter.rrr_route_all_nets  # TODO: temper-xxx (coverage-B2-router-logic)
+temper_placer/router_v6/_pipeline_types.py::Stage2Output.to_snapshot_dict  # TODO: temper-xxx (coverage-B1-router-accessors)
+temper_placer/router_v6/_pipeline_types.py::Stage3Output.to_snapshot_dict  # TODO: temper-xxx (coverage-B1-router-accessors)
+temper_placer/router_v6/_pipeline_types.py::Stage4Output.to_snapshot_dict  # TODO: temper-xxx (coverage-B1-router-accessors)
+temper_placer/router_v6/_routing_reports.py::PathfindingResult.completion_rate  # TODO: temper-xxx (coverage-B1-router-accessors)
+temper_placer/router_v6/_routing_reports.py::PathfindingResult.print_failure_analysis  # TODO: temper-xxx (coverage-B1-router-accessors)
+temper_placer/router_v6/_routing_reports.py::PathfindingResult.total_forced_segments  # TODO: temper-xxx (coverage-B1-router-accessors)
+temper_placer/router_v6/pad_connectivity_audit.py::zone_layers_and_fill_stats  # TODO: temper-xxx (coverage-B1-router-accessors)
+temper_placer/strategy_registry.py::register  # TODO: temper-xxx (coverage-B5-leftovers)
+temper_placer/validation/dead_parameter_probe.py::run_all_probes  # TODO: temper-xxx (coverage-B6-slated)
+temper_placer/validation/dead_parameter_probe.py::summarize  # TODO: temper-xxx (coverage-B6-slated)
