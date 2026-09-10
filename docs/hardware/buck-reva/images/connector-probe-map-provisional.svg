@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" font-family="sans-serif">
+<rect x="0" y="0" width="640" height="48" fill="#a00"/>
+<text x="320" y="30" fill="#fff" font-size="18" text-anchor="middle" font-weight="bold">PROVISIONAL — verify against frozen assembly drawing before use</text>
+<rect x="120" y="90" width="400" height="260" fill="none" stroke="#333" stroke-width="2"/>
+<text x="320" y="115" font-size="14" text-anchor="middle">Buck Rev A board (provisional outline, 50 x 40 mm)</text>
+<!-- J1 input left -->
+<rect x="120" y="170" width="60" height="70" fill="#dde" stroke="#333"/>
+<text x="150" y="160" font-size="13" text-anchor="middle" font-weight="bold">J1 in</text>
+<circle cx="140" cy="195" r="8" fill="#fff" stroke="#333"/><text x="140" y="220" font-size="11" text-anchor="middle">1 VIN</text>
+<circle cx="140" cy="245" r="8" fill="#000"/><text x="140" y="262" font-size="11" text-anchor="middle">2 GND</text>
+<!-- J2 output right -->
+<rect x="460" y="170" width="60" height="70" fill="#dde" stroke="#333"/>
+<text x="490" y="160" font-size="13" text-anchor="middle" font-weight="bold">J2 out</text>
+<circle cx="500" cy="195" r="8" fill="#fff" stroke="#333"/><text x="500" y="220" font-size="11" text-anchor="middle">1 3V3</text>
+<circle cx="500" cy="245" r="8" fill="#000"/><text x="500" y="262" font-size="11" text-anchor="middle">2 GND</text>
+<!-- U3, L2, caps -->
+<rect x="280" y="170" width="80" height="60" fill="#eee" stroke="#333"/><text x="320" y="195" font-size="13" text-anchor="middle">U3</text><text x="320" y="212" font-size="11" text-anchor="middle">LMR51430</text>
+<rect x="280" y="245" width="80" height="40" fill="#eee" stroke="#333"/><text x="320" y="269" font-size="13" text-anchor="middle">L2</text>
+<!-- TPs -->
+<text x="200" y="300" font-size="12">TP1 VIN</text><text x="200" y="318" font-size="12">TP2 input GND</text>
+<text x="400" y="300" font-size="12">TP3 VOUT</text><text x="400" y="318" font-size="12">TP4 output GND</text>
+<text x="320" y="340" font-size="12" text-anchor="middle">Ripple: probe C11/C12 pads, short return (identify part in record)</text>
+<text x="320" y="380" font-size="12" text-anchor="middle">Pin numbers provisional — confirm silk on frozen board before energizing.</text>
+<text x="320" y="400" font-size="12" text-anchor="middle">SW access (if present): optional diagnostic only.</text>
+</svg>
