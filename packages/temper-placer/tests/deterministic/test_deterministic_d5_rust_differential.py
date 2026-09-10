@@ -49,13 +49,17 @@ from dataclasses import replace
 from pathlib import Path
 
 import temper_orchestration as _to
-from tests._legacy_oracle_modules import install as _install_legacy_oracle_modules
 import tests.deterministic._phased_assignment_py_oracle as _orc_phased
+from tests._legacy_oracle_modules import install as _install_legacy_oracle_modules
 
 _install_legacy_oracle_modules()
 
 import tests.deterministic._zone_aware_slot_generation_run_py_oracle as _orc_zone_aware
 
+from temper_placer._constraint_types import (
+    IsolationSlot,
+    PlacementConstraints,
+)
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import (
@@ -65,7 +69,6 @@ from temper_placer.deterministic.stages import (
     ZoneAwareSlotGenerationStage as _shim_zone_aware,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 # ---------------------------------------------------------------------------
 # Oracle body pinning (G1)
@@ -76,7 +79,7 @@ _PINNED = {
         "0731def49ded64dfa2b077d802dafd36223bac0ba90b81a8e2730e9b0025671f"
     ),
     "_phased_assignment_py_oracle.py": (
-        "5f23ea0991a14b9aac4819664c4092b9cb503b4c2d12d2d0e048008c720ffe91"
+        "ace24db1518d3c988df599c2df17e56f5e7068c7002aff5ae22298783bf343c3"
     ),
 }
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"

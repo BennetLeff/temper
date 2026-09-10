@@ -53,11 +53,10 @@ from pathlib import Path
 import pytest
 
 import tests.heuristics._organizational_py_oracle as ORACLE
-from temper_placer._constraint_types import ComponentGroup
+from temper_placer._constraint_types import ComponentGroup, PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
-from temper_placer.io.config_loader import PlacementConstraints
 from tests.router_v6._pending_rust import missing_symbols, rust
 from tests.router_v6._signature import sig
 

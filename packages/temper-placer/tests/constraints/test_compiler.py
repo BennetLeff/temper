@@ -6,8 +6,7 @@ Part of temper-g54c.2: Constraint compilation for deterministic placement.
 
 from unittest.mock import Mock
 
-from temper_placer.constraints.compiler import ConstraintCompiler, ValidationError
-from temper_placer.io.config_loader import (
+from temper_placer._constraint_types import (
     ComponentGroup,
     ComponentSpacingRule,
     EscapeClearance,
@@ -16,6 +15,7 @@ from temper_placer.io.config_loader import (
     RoutingCorridor,
     ThermalConstraint,
 )
+from temper_placer.constraints.compiler import ConstraintCompiler, ValidationError
 
 
 class TestSlotFilter:

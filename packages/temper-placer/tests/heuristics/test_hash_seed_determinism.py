@@ -65,7 +65,7 @@ from temper_placer.heuristics.structural import CriticalLoopHeuristic
 from temper_placer.heuristics.topological_init import (
     TopologicalInitializationHeuristic,
 )
-from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer._constraint_types.topology import CriticalLoop
 
 # Deliberately NOT in lexicographic order: netlist order and sorted order

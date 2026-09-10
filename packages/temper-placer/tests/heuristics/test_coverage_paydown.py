@@ -6,9 +6,9 @@ organizational, structural, style, and other heuristic modules.
 """
 
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io.config_loader import PlacementConstraints
 
 # ============================================================================
 # Organizational module tests
@@ -393,13 +393,13 @@ class TestHeuristicPipeline:
 
     def test_heuristic_pipeline_register_and_run(self, simple_netlist, simple_board, rng_key):
         """HeuristicPipeline.register and run cycle."""
+        from temper_placer._constraint_types import PlacementConstraints as PC
         from temper_placer.heuristics.base import (
             Heuristic,
             HeuristicPriority,
             HeuristicResult,
         )
         from temper_placer.heuristics.pipeline import HeuristicPipeline
-        from temper_placer.io.config_loader import PlacementConstraints as PC
         pipeline = HeuristicPipeline()
         # Initially empty
         assert len(pipeline.heuristics) == 0

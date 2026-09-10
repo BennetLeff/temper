@@ -312,7 +312,7 @@ def compute_to247_isolation_slots(
     Pure data transform — no kiutils dependency. See the pre-migration
     docstring for the TO-247 pin geometry rationale.
     """
-    from temper_placer.io.config_loader import IsolationSlot
+    from temper_placer._constraint_types import IsolationSlot
 
     TO247_PIN1_TO_PIN2_X = 5.45
 

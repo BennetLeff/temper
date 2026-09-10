@@ -23,6 +23,10 @@ from typing import Any
 import numpy as np
 import pytest
 
+from temper_placer._constraint_types import (
+    ComponentGroup,
+    PlacementConstraints,
+)
 from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.core.state import PlacementState
@@ -32,7 +36,6 @@ from temper_placer.heuristics.organizational import (
 )
 from temper_placer.heuristics.structural import create_keepout_mask
 from temper_placer.heuristics.style import extract_signal_chains
-from temper_placer.io.config_loader import ComponentGroup, PlacementConstraints
 from temper_placer.io.dsn_schema import embed_schema_header, extract_schema_hash
 from temper_placer.metrics.quality import (
     congestion_score,

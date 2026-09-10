@@ -58,6 +58,8 @@ from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import component_assignment as _shim_component_assignment
 from temper_placer.deterministic.stages import (
     phased_component_assignment as _shim_phased_component_assignment,
+)
+from temper_placer.deterministic.stages import (
     phased_component_assignment_validator as _shim_validator,
 )
 from temper_placer.deterministic.state import BoardState
@@ -661,10 +663,10 @@ def test_validator_full_placer_end_to_end() -> None:
     """Run the D5 Python phased placer on a canonical board, then drive both
     validator arms on its output (placements + used_slots) -- the real
     production surface, bit-identical."""
+    from temper_placer._constraint_types import PlacementConstraints
     from temper_placer.deterministic.stages.phased_component_assignment import (
         PhasedComponentAssignmentStage,
     )
-    from temper_placer.io.config_loader import PlacementConstraints
 
     state = _validator_state()
     constraints = PlacementConstraints()

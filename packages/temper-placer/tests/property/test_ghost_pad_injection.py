@@ -23,6 +23,7 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from conftest import board_state_with_ghost_pads, design_rules_with_hv
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
@@ -31,7 +32,6 @@ from temper_placer.deterministic.stages.phased_component_assignment_validator im
     _absolute_hv_pins,
     _creepage_mm,
 )
-from temper_placer.io.config_loader import PlacementConstraints
 
 
 def _run_placer(state):
@@ -230,10 +230,10 @@ def test_property_perpendicular_slot_reduces_zero(
 
     The placer must not over- or under-credit perpendicular slots.
     """
-    from temper_placer.io.config_loader import (
-        IsolationSlot,
-        PlacementConstraints,
-    )
+    from temper_placer._constraint_types import (
+    IsolationSlot,
+    PlacementConstraints,
+)
 
     # Build a stage with a single slot whose vector points along ``slot_angle``.
     sx = math.cos(slot_angle) * slot_length

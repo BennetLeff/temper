@@ -56,7 +56,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"_placement_subprocess: no such constraints: {args.constraints}", file=sys.stderr)
         return 1
 
-    from temper_placer.io.config_loader import load_constraints
+    from temper_design_bundle_python import load_constraints
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.placer.cp_sat._encoder_solve import solve_placement
 

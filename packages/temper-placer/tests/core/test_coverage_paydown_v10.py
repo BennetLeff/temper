@@ -537,9 +537,9 @@ class TestClassifySignalDomains:
     """Covers classify_signal_domains."""
 
     def test_digital_default(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_signal_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [Component(ref="U_UNKNOWN", footprint="QFP-100", bounds=(10, 10))]
         netlist = Netlist(components=comps, nets=[])
@@ -548,9 +548,9 @@ class TestClassifySignalDomains:
         assert domains["U_UNKNOWN"] == "digital"
 
     def test_power_patterns(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_signal_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="Q1", footprint="TO-220", bounds=(10, 5)),
@@ -566,9 +566,9 @@ class TestClassifySignalDomains:
             assert domains[comp.ref] == "power", f"{comp.ref} should be power"
 
     def test_analog_patterns(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_signal_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U_OPAMP_1", footprint="SOIC-8", bounds=(5, 4)),
@@ -582,9 +582,9 @@ class TestClassifySignalDomains:
             assert domains[comp.ref] == "analog", f"{comp.ref} should be analog"
 
     def test_digital_patterns(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_signal_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U_MCU_MAIN", footprint="QFP-100", bounds=(10, 10)),
@@ -597,9 +597,9 @@ class TestClassifySignalDomains:
             assert domains[comp.ref] == "digital", f"{comp.ref} should be digital"
 
     def test_net_name_classification(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Net, Netlist
         from temper_placer.heuristics.organizational import classify_signal_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         # A regular component with an analog net name
         comps = [
@@ -620,9 +620,9 @@ class TestClassifyPowerTopology:
     """Covers classify_power_topology."""
 
     def test_input_components(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_power_topology
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="J_DC_IN", footprint="CONN_2P", bounds=(10, 5)),
@@ -639,9 +639,9 @@ class TestClassifyPowerTopology:
                 assert node.stage == 0
 
     def test_distribution(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_power_topology
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U_BUCK_1", footprint="QFN-16", bounds=(4, 4)),
@@ -657,9 +657,9 @@ class TestClassifyPowerTopology:
                 assert node.stage == 1
 
     def test_load_components(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_power_topology
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U_MCU_1", footprint="QFP-100", bounds=(10, 10)),
@@ -674,9 +674,9 @@ class TestClassifyPowerTopology:
                 assert node.stage == 2
 
     def test_skips_fixed_components(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_power_topology
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="Q1", footprint="TO-220", bounds=(10, 5), fixed=True),
@@ -689,9 +689,9 @@ class TestClassifyPowerTopology:
         assert len(nodes) == 0
 
     def test_skips_passives_without_role(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.organizational import classify_power_topology
-        from temper_placer.io.config_loader import PlacementConstraints
 
         # Passives (R*, C* without special patterns) default to load stage 2
         # but are excluded from nodes unless they start with "U"
@@ -715,9 +715,9 @@ class TestIdentifyGroundDomains:
     """Covers identify_ground_domains."""
 
     def test_power_ground_patterns(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.style import identify_ground_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="Q1", footprint="TO-220", bounds=(10, 5)),
@@ -731,9 +731,9 @@ class TestIdentifyGroundDomains:
             assert domains[comp.ref] == "PGND", f"{comp.ref} should be PGND"
 
     def test_analog_ground_patterns(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.style import identify_ground_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U_OPAMP1", footprint="SOIC-8", bounds=(5, 4)),
@@ -746,9 +746,9 @@ class TestIdentifyGroundDomains:
             assert domains[comp.ref] == "AGND", f"{comp.ref} should be AGND"
 
     def test_digital_ground_patterns(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.style import identify_ground_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U_MCU1", footprint="QFP-100", bounds=(10, 10)),
@@ -762,9 +762,9 @@ class TestIdentifyGroundDomains:
             assert domains[comp.ref] == "DGND", f"{comp.ref} should be DGND"
 
     def test_default_digital(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.style import identify_ground_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [Component(ref="R42", footprint="0603", bounds=(2, 1))]
         netlist = Netlist(components=comps, nets=[])
@@ -773,9 +773,9 @@ class TestIdentifyGroundDomains:
         assert domains["R42"] == "DGND"
 
     def test_net_name_overrides(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Net, Netlist
         from temper_placer.heuristics.style import identify_ground_domains
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [Component(ref="R1", footprint="0603", bounds=(2, 1))]
         nets = [Net("PGND", [("R1", "1")])]
@@ -794,9 +794,9 @@ class TestIdentifyConnectors:
     """Covers identify_connectors."""
 
     def test_by_reference_pattern(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.structural import identify_connectors
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="J1", footprint="CONN_2", bounds=(10, 5)),
@@ -809,9 +809,9 @@ class TestIdentifyConnectors:
         assert len(connectors) == 3
 
     def test_by_footprint(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.structural import identify_connectors
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U_ADAPTER", footprint="USB_C_CONN", bounds=(8, 3)),
@@ -822,9 +822,9 @@ class TestIdentifyConnectors:
         assert len(connectors) == 1
 
     def test_classify_power_input(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.structural import identify_connectors
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [Component(ref="J_DC_IN", footprint="BARREL_JACK", bounds=(10, 8))]
         netlist = Netlist(components=comps, nets=[])
@@ -835,9 +835,9 @@ class TestIdentifyConnectors:
         assert purpose == "power_input"
 
     def test_classify_debug(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.structural import identify_connectors
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [Component(ref="J_DEBUG", footprint="HEADER_6", bounds=(15, 5))]
         netlist = Netlist(components=comps, nets=[])
@@ -852,9 +852,9 @@ class TestIdentifyThermalComponents:
     """Covers identify_thermal_components."""
 
     def test_by_reference_pattern(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.structural import identify_thermal_components
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="Q1", footprint="TO-220", bounds=(10, 5)),
@@ -866,9 +866,9 @@ class TestIdentifyThermalComponents:
         assert len(thermal) == 2
 
     def test_by_footprint(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.structural import identify_thermal_components
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U_REG_1", footprint="D2PAK", bounds=(10, 10)),
@@ -879,9 +879,9 @@ class TestIdentifyThermalComponents:
         assert len(thermal) == 1
 
     def test_from_config_thermal_properties(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.structural import identify_thermal_components
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [Component(ref="R_HEAT", footprint="0603", bounds=(2, 1))]
         netlist = Netlist(components=comps, nets=[])
@@ -897,9 +897,9 @@ class TestIdentifyThermalComponents:
         assert len(thermal) == 1
 
     def test_excludes_fixed(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.structural import identify_thermal_components
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="Q1", footprint="TO-220", bounds=(10, 5), fixed=True),
@@ -919,6 +919,7 @@ class TestHeuristicPipeline:
     """Covers HeuristicPipeline.register, clear, register_all."""
 
     def test_register_and_clear(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.base import (
@@ -928,7 +929,6 @@ class TestHeuristicPipeline:
             PlacementContext,
         )
         from temper_placer.heuristics.pipeline import HeuristicPipeline
-        from temper_placer.io.config_loader import PlacementConstraints
 
         class DummyHeuristic(Heuristic):
             @property
@@ -954,12 +954,12 @@ class TestHeuristicPipeline:
         assert len(registered) == 0
 
     def test_register_all(self):
-        from temper_placer.heuristics.pipeline import HeuristicPipeline
         from temper_placer.heuristics.organizational import (
             DecouplingCapHeuristic,
             DomainSeparationHeuristic,
             FunctionalModuleClusteringHeuristic,
         )
+        from temper_placer.heuristics.pipeline import HeuristicPipeline
         from temper_placer.heuristics.structural import (
             ConnectorEdgeSnappingHeuristic,
             CriticalLoopHeuristic,

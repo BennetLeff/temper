@@ -1,7 +1,6 @@
 """Pinned Python oracle for Wave-4 heuristics/ -- style.py.
 
 DO NOT EDIT -- THIS IS THE REFERENCE.
-======================================
 Everything below the module docstring is a **verbatim** ``git show``
 extraction of commit ``550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5``
 ("docs(plans): board regeneration proposal for wasm-tier R3 (Q2) (#669)", the
@@ -73,6 +72,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.heuristics.base import (
@@ -82,7 +82,6 @@ from temper_placer.heuristics.base import (
     HeuristicResult,
     PlacementContext,
 )
-from temper_placer._constraint_types import PlacementConstraints
 
 # =============================================================================
 # Star Ground Topology Heuristic (STYLE priority)

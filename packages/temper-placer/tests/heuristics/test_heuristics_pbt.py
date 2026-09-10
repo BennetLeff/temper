@@ -47,10 +47,10 @@ import temper_geometry as _rust  # noqa: F401 -- Rust-backed guard
 from hypothesis import HealthCheck, event, given, settings
 from hypothesis import strategies as st
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
-from temper_placer.io.config_loader import PlacementConstraints
 
 SETTINGS = settings(
     max_examples=150,

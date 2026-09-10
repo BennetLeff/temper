@@ -7,13 +7,16 @@ Part of temper-g54c.3: Phased placement using placement_priority configuration.
 import math
 from unittest.mock import Mock
 
+from temper_placer._constraint_types import (
+    IsolationSlot,
+    PlacementConstraints,
+)
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 
 class TestPhasedPlacement:
@@ -242,7 +245,7 @@ class TestPhasedPlacement:
 
     def test_constraint_validation_warnings(self):
         """Test that constraint validation warnings are logged."""
-        from temper_placer.io.config_loader import EscapeClearance
+        from temper_placer._constraint_types import EscapeClearance
 
         constraints = PlacementConstraints(
             escape_clearances=[EscapeClearance(component="MISSING_COMPONENT", clearance_mm=5.0)]

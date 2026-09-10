@@ -11,6 +11,7 @@ Tests the HeuristicPipeline orchestrator:
 import numpy as np
 import pytest
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
@@ -27,7 +28,6 @@ from temper_placer.heuristics.pipeline import (
     HeuristicPipeline,
     PipelineResult,
 )
-from temper_placer.io.config_loader import PlacementConstraints
 
 
 class MockHeuristic(Heuristic):

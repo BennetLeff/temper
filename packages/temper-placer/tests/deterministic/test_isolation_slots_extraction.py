@@ -14,10 +14,11 @@ deterministic builder must not mutate IsolationSlot fields.
 from pathlib import Path
 
 import pytest
+from temper_design_bundle_python import load_constraints
 
+from temper_placer._constraint_types import IsolationSlot
 from temper_placer.deterministic import create_drc_aware_pipeline
 from temper_placer.deterministic.stages import ZoneAwareSlotGenerationStage
-from temper_placer.io.config_loader import IsolationSlot, load_constraints
 
 # Path to the production config that already declares Q1/Q2 isolation slots
 # (configs/temper_deterministic_config.yaml:482-499). Tests below use this as
@@ -86,7 +87,7 @@ class TestIsolationSlotsMissing:
 
     def test_extract_tolerates_missing_field(self):
         """An empty constraints object (no isolation_slots attribute) must not raise."""
-        from temper_placer.io.config_loader import PlacementConstraints
+        from temper_placer._constraint_types import PlacementConstraints
 
         # Construct via the dataclass default — isolation_slots is not in the
         # kwargs, so getattr(config, "isolation_slots", []) in

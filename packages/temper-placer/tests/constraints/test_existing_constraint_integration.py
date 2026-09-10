@@ -4,13 +4,13 @@ This module tests that ComponentSpacingRule and ProximityRule work correctly
 with the tier system (hard/soft) when integrated with ConstraintCompiler.
 """
 
-from temper_placer.constraints.compiler import ConstraintCompiler
-from temper_placer.io.config_loader import (
+from temper_placer._constraint_types import (
     ComponentGroup,
     ComponentSpacingRule,
     PlacementConstraints,
     ProximityRule,
 )
+from temper_placer.constraints.compiler import ConstraintCompiler
 
 
 class TestComponentSpacingRuleIntegration:

@@ -88,10 +88,10 @@ from pathlib import Path
 import pytest
 
 import tests.heuristics._style_py_oracle as ORACLE
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
-from temper_placer.io.config_loader import PlacementConstraints
 from tests.router_v6._pending_rust import missing_symbols, rust
 from tests.router_v6._signature import sig
 
@@ -483,6 +483,7 @@ def test_signal_flow_max_pos_uses_full_list_trap():
 # ---------------------------------------------------------------------------
 
 import temper_geometry as _GEOM  # noqa: E402
+
 import temper_placer.heuristics.style as shipped  # noqa: E402
 
 

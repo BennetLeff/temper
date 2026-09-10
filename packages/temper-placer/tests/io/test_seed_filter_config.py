@@ -8,15 +8,17 @@ from __future__ import annotations
 import pytest
 import yaml
 from pydantic import ValidationError
-
-from temper_placer.deterministic.stages.phased_component_assignment import (
-    PhasedComponentAssignmentStage,
-)
-from temper_placer.io.config_loader import (
+from temper_design_bundle_python import (
     ConfigValidationError,
+    load_constraints,
+)
+
+from temper_placer._constraint_types import (
     PlacementConstraints,
     SeedFilterConfig,
-    load_constraints,
+)
+from temper_placer.deterministic.stages.phased_component_assignment import (
+    PhasedComponentAssignmentStage,
 )
 
 

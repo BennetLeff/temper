@@ -34,3 +34,7 @@ get_footprint_reference_py	production io-shim caller deleted; exercised by tests
 GroupConstraint	production drc_types.py re-export deleted; exercised by tests/constraints/test_builder.py and validation DRC differentials/oracles
 LoopConstraint	production drc_types.py re-export deleted; exercised by tests/validation/test_drc_check_vacuity_guard.py, test_drc_contracts_rust_differential.py and validation oracles
 PadData	production _kicad_types.py re-export deleted; exercised by deterministic d1 tests and pipeline oracles
+preprocess_config	production config_loader.py alias deleted; exercised by tests/io/test_config_loader_rust_differential.py via direct temper_design_bundle_python imports
+apply_zones_to_netlist	production config_loader.py alias deleted; exercised by tests/io/test_config_loader_rust_differential.py via direct temper_design_bundle_python imports
+infer_rjc	production config_loader.py alias deleted; exercised by tests/io/test_config_loader_rust_differential.py via direct temper_design_bundle_python imports
+apply_fixed_components_to_netlist	production config_loader.py alias deleted; exercised by tests/io/test_config_loader_rust_differential.py via direct temper_design_bundle_python imports

@@ -16,6 +16,7 @@ from numpy.typing import NDArray
 
 Array: TypeAlias = NDArray
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
@@ -27,7 +28,6 @@ from temper_placer.heuristics.base import (
     PlacementContext,
 )
 from temper_placer.heuristics.conflict import ConflictResolver, ResolutionStrategy
-from temper_placer.io.config_loader import PlacementConstraints
 
 
 @dataclass

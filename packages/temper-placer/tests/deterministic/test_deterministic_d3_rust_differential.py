@@ -49,13 +49,13 @@ import tests.deterministic._grid_fence_py_oracle as _orc_fence
 import tests.deterministic._grid_hv_py_oracle as _orc_hv
 import tests.deterministic._grid_stage_py_oracle as _orc_grid_stage
 
+from temper_placer._constraint_types import HVExclusionZone
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import _grid_fence as _shim_fence
 from temper_placer.deterministic.stages import _grid_hv as _shim_hv
 from temper_placer.deterministic.stages import _grid_stage as _shim_grid_stage
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import HVExclusionZone
 
 # ---------------------------------------------------------------------------
 # Oracle body pinning (G1)

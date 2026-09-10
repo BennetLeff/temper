@@ -1,6 +1,6 @@
 """Tests for validation.preflight module — preflight check functions."""
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.netlist import Component, Netlist
-from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.validation.preflight import (
     PreflightResult,
     check_components_have_zones,

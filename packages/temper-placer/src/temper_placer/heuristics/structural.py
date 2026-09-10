@@ -21,6 +21,7 @@ from numpy.typing import NDArray
 
 Array: TypeAlias = NDArray
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.heuristics.base import (
@@ -31,7 +32,6 @@ from temper_placer.heuristics.base import (
     PlacementContext,
     order_refs_by_netlist,
 )
-from temper_placer.io.config_loader import PlacementConstraints
 
 # =============================================================================
 # Keep-out Zone Heuristic (HARD priority)

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages.phased_component_assignment import (
@@ -17,7 +18,6 @@ from temper_placer.deterministic.stages.phased_component_assignment_validator im
     validate_phased_component_assignment_hv,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import PlacementConstraints
 
 # ---------------------------------------------------------------------------
 # Test fixtures

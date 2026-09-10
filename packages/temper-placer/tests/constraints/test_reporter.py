@@ -1,12 +1,6 @@
 """Tests for constraint satisfaction reporting."""
 
-from temper_placer.constraints.reporter import (
-    ConstraintReport,
-    ConstraintReporter,
-    ConstraintResult,
-    ConstraintStatus,
-)
-from temper_placer.io.config_loader import (
+from temper_placer._constraint_types import (
     ComponentGroup,
     ComponentSpacingRule,
     EscapeClearance,
@@ -14,6 +8,12 @@ from temper_placer.io.config_loader import (
     ProximityRule,
     RoutingCorridor,
     ThermalConstraint,
+)
+from temper_placer.constraints.reporter import (
+    ConstraintReport,
+    ConstraintReporter,
+    ConstraintResult,
+    ConstraintStatus,
 )
 
 

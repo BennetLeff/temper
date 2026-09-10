@@ -6,9 +6,11 @@ Extracted from ``temper_placer.io.config_loader`` to break the
 are pure ``@dataclass`` containers with no I/O logic.
 
 Backward compatibility:
-    ``temper_placer.io`` re-exports these symbols so existing callers
-    that import from ``temper_placer.io.config_loader`` continue to
-    work without changes.
+    ``temper_placer.io`` re-exports these symbols (from this module and
+    ``temper_design_bundle_python``) so existing callers keep working
+    without changes. The former ``temper_placer.io.config_loader`` shim
+    module was deleted after the Rust migration; import from here or
+    ``temper_design_bundle_python`` directly.
 """
 
 from .clearance import ClearanceRule, DifferentialPairRule, NetClassRule, SignalToHVClearance

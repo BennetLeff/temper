@@ -9,6 +9,7 @@ Covers still-zero-coverage allowlisted functions:
 import numpy as np
 import pytest
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.heuristics.base import (
@@ -17,8 +18,6 @@ from temper_placer.heuristics.base import (
     HeuristicResult,
     PlacementContext,
 )
-from temper_placer.io.config_loader import PlacementConstraints
-
 
 # ============================================================================
 # Fixtures
@@ -118,8 +117,8 @@ class TestConflictResolver:
         assert len(conflicts) == 0
 
     def test_get_all_conflicts_with_placements(self):
-        from temper_placer.heuristics.conflict import ConflictResolver
         from temper_placer.heuristics.base import ComponentPlacement
+        from temper_placer.heuristics.conflict import ConflictResolver
         cr = ConflictResolver()
         cr.add_placement(
             ComponentPlacement(ref="U1", position=(10.0, 20.0)),

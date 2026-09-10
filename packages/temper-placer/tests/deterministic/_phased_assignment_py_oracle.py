@@ -22,6 +22,7 @@
 # everything below the marker and fails if this file drifts.
 # --- BEGIN PINNED BODY ---
 from __future__ import annotations
+
 # ===================================================================
 # [1/5] _phase_core.py (verbatim)
 """Core orchestration for phased component assignment.
@@ -37,6 +38,10 @@ from collections.abc import Mapping
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
+from temper_placer._constraint_types import (
+    IsolationSlot,
+    PlacementConstraints,
+)
 from temper_placer.constraints.compiler import ConstraintCompiler
 from temper_placer._constraint_types import IsolationSlot, PlacementConstraints
 
@@ -376,18 +381,13 @@ structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 
-from collections.abc import Mapping
-from typing import TYPE_CHECKING
 
 import temper_design_bundle_python as _tdb
 
 from temper_placer.deterministic.channels import routability_penalty
 
 if TYPE_CHECKING:
-    from shapely.geometry import Polygon
 
-    from temper_placer.core.component import Component
-    from temper_placer.core.netlist import Netlist
 
 
 class _PhasePlacementMixin:
@@ -782,13 +782,10 @@ structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 
-from typing import TYPE_CHECKING
 
 import temper_design_bundle_python as _tdb
 
 if TYPE_CHECKING:
-    from temper_placer.core.component import Component
-    from temper_placer.core.netlist import Netlist
 
 
 class _PhaseHVMixin:

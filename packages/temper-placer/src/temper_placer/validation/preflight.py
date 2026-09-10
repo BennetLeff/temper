@@ -40,9 +40,9 @@ from pathlib import Path
 
 import temper_design_bundle_python as _tdb
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Zone
 from temper_placer.core.netlist import Netlist
-from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.validation.drc import find_kicad_cli
 
 

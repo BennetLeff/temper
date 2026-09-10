@@ -142,7 +142,7 @@ def test_optimize_non_convergent_loop_fails_closed(tmp_path):
             return_value=parsed,
         ),
         mock.patch(
-            "temper_placer.io.config_loader.load_constraints",
+            "temper_design_bundle_python.load_constraints",
             return_value=constraints,
         ),
         mock.patch.object(PlaceRouteLoop, "run", return_value=failed_loop),

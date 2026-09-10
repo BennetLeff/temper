@@ -35,10 +35,10 @@ import temper_orchestration as _to
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from temper_placer._constraint_types import HVExclusionZone
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import HVExclusionZone
 
 _STAGE_DEFAULTS = dict(
     cell_size_mm=0.5,

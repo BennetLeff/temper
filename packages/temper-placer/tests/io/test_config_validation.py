@@ -1,7 +1,9 @@
 import pytest
 import yaml
-
-from temper_placer.io.config_loader import ConfigValidationError, load_constraints
+from temper_design_bundle_python import (
+    ConfigValidationError,
+    load_constraints,
+)
 
 
 def test_loss_weight_validation_negative(tmp_path):

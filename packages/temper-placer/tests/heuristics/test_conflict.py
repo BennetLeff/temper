@@ -8,6 +8,7 @@ Tests conflict resolution between component placements:
 
 import pytest
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.heuristics.base import (
@@ -19,7 +20,6 @@ from temper_placer.heuristics.conflict import (
     ConflictResolver,
     ResolutionStrategy,
 )
-from temper_placer.io.config_loader import PlacementConstraints
 
 
 class TestResolutionStrategy:

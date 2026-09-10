@@ -12,8 +12,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from temper_design_bundle_python import load_constraints
 
-from temper_placer.io.config_loader import load_constraints
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 
 

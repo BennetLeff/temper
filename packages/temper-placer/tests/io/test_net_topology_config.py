@@ -1,4 +1,4 @@
-from temper_placer.io.config_loader import load_constraints
+from temper_design_bundle_python import load_constraints
 
 
 def test_load_net_topology(tmp_path):
