@@ -11,8 +11,8 @@ from pathlib import Path
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
+from temper_design_bundle_python import load_netclass_rules
 
-from temper_placer.io.netclass_loader import load_netclass_rules
 from temper_placer.router_v6.layer_assignment import (
     Layer,
     get_layer_for_net,

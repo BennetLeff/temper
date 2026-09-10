@@ -157,7 +157,8 @@ def main():
     # True per-pair netclass margins from the same generator solve_placement
     # uses (Signal<->Power is 0.25mm, not 6.0 — the 6.0 figure only applies
     # to HV-crossing class pairs in configs/netclass_rules.yaml).
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.placer.cp_sat.netclass_constraints import (
         generate_netclass_separated_constraints,
     )

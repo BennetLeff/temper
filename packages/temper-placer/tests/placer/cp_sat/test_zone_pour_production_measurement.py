@@ -266,8 +266,9 @@ class TestZonePourProductionMeasurement:
     """
 
     def _measure_arm(self, *, pours_enabled: bool) -> _ArmMeasurement:
+        from temper_design_bundle_python import load_netclass_rules
+
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.netclass_loader import load_netclass_rules
         from temper_placer.router_v6.adapter import route_pcb
         from tests.conftest import make_parsed_pcb_stub
 

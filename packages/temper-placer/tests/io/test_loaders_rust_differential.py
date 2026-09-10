@@ -338,12 +338,14 @@ def test_netclass_result_is_the_rust_wrapper_type():
 
 
 def test_netclass_rules_dict_identity_and_module():
-    """``NetClassRulesDict`` reports the pre-migration ``__module__`` so
-    pickling by reference, ``repr(cls)`` and tracebacks read unchanged
+    """``NetClassRulesDict`` reports its real surviving home as
+    ``__module__`` (``temper_design_bundle_python``; the former
+    ``temper_placer.io.netclass_loader`` shim was deleted 2026-09-10) so
+    pickling by reference, ``repr(cls)`` and tracebacks resolve
     (mirrors ``test_loop_load_error_identity_and_module`` for
     ``LoopLoadError``)."""
     assert RUST_NETCLASS_RULES_DICT.__name__ == "NetClassRulesDict"
-    assert RUST_NETCLASS_RULES_DICT.__module__ == "temper_placer.io.netclass_loader"
+    assert RUST_NETCLASS_RULES_DICT.__module__ == "temper_design_bundle_python"
 
 
 def test_netclass_rules_dict_pickles_and_shallow_copies_like_the_dataclass():
@@ -355,12 +357,12 @@ def test_netclass_rules_dict_pickles_and_shallow_copies_like_the_dataclass():
     import copy
     import pickle
 
-    from temper_placer.io.netclass_loader import NetClassRulesDict as ShimNCRD
+    from temper_design_bundle_python import NetClassRulesDict
 
-    # Class pickles by reference through the importable module (the broken
-    # behaviour was PicklingError: attribute lookup NetClassRulesDict on
-    # builtins failed).
-    assert pickle.loads(pickle.dumps(ShimNCRD)) is ShimNCRD
+    # Class pickles by reference through the importable extension module (the
+    # broken behaviour was PicklingError: attribute lookup NetClassRulesDict
+    # on builtins failed).
+    assert pickle.loads(pickle.dumps(NetClassRulesDict)) is NetClassRulesDict
 
     # Shallow copy: same-object fields, equal result — the dataclass behaves
     # identically (asserted against the oracle right below).
@@ -1133,17 +1135,8 @@ def test_save_then_load_real_templates_round_trip(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Public-API preservation: the delegation shims re-export the Rust symbols.
+# Public-API preservation: the loop_loader shim re-exports the Rust symbols.
 # ---------------------------------------------------------------------------
-
-
-def test_netclass_loader_module_delegates_to_rust():
-    from temper_placer.io import netclass_loader
-
-    assert netclass_loader.load_netclass_rules is RUST_LOAD_NETCLASS
-    assert netclass_loader.NetClassRulesDict is RUST_NETCLASS_RULES_DICT
-    # The pre-migration module surface that consumers may touch.
-    assert netclass_loader.logger.name == _PRODUCTION_LOGGER_NAME
 
 
 def test_loop_loader_module_delegates_to_rust():
