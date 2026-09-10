@@ -40,9 +40,9 @@ def main() -> int:
     repo_root = args.repo_root
     sys.path.insert(0, str(repo_root / "scripts"))
     from route_board import _make_parsed_stub, strip_existing_copper  # noqa: E402
+    from temper_design_bundle_python import load_netclass_rules
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6 import _astar_reconstruct as recon
     from temper_placer.router_v6 import _astar_search as search_mod
     from temper_placer.router_v6.astar_grid import _identify_blocking_nets

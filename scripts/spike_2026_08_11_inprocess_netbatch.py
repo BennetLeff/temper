@@ -191,7 +191,7 @@ def main() -> int:
     if captured.get("design_rules") is not None:
         design_rules = captured["design_rules"]
     else:
-        from temper_placer.io.netclass_loader import load_netclass_rules
+        from temper_design_bundle_python import load_netclass_rules
 
         design_rules = load_netclass_rules(rules_path).design_rules
     failure_reports = captured.get("failure_reports") or {}

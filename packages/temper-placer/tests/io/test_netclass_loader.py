@@ -11,7 +11,7 @@ RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.y
 class TestNetclassLoader:
     @pytest.fixture(autouse=True)
     def setup(self):
-        from temper_placer.io.netclass_loader import load_netclass_rules
+        from temper_design_bundle_python import load_netclass_rules
 
         self.ncr = load_netclass_rules(RULES_PATH)
         self.dr = self.ncr.design_rules
@@ -129,7 +129,7 @@ class TestGateDriveSplit:
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        from temper_placer.io.netclass_loader import load_netclass_rules
+        from temper_design_bundle_python import load_netclass_rules
 
         self.ncr = load_netclass_rules(RULES_PATH)
         self.dr = self.ncr.design_rules

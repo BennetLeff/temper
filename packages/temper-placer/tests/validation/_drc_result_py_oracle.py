@@ -31,7 +31,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from temper_placer.validation.drc_types import ConstraintSet, Placement
+    from temper_drc_rs import ConstraintSet, Placement
 
 
 # =========================================================================

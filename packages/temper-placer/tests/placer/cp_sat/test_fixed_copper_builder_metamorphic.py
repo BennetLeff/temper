@@ -29,10 +29,12 @@ from __future__ import annotations
 
 import hypothesis.strategies as st
 from hypothesis import given, settings
+from temper_design_bundle_python import parse_engine as _parse_engine
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist, Pin
-from temper_placer.io._kicad_types import TraceData
+
+TraceData = _parse_engine.TraceData
 from temper_placer.placer.cp_sat import fixed_copper as fc
 
 _ALL_LAYERS = frozenset({"F.Cu", "B.Cu", "In1.Cu", "In2.Cu"})

@@ -228,7 +228,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     design_rules = load_netclass_rules(args.rules).design_rules
     net_class_of = dict(design_rules.net_class_assignments)

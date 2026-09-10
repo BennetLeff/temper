@@ -37,7 +37,7 @@ from temper_placer.deterministic.feedback.violation_mapper import ViolationCompo
 from temper_placer.deterministic.feedback.zone_adjuster import AdjustmentResult, ZoneAdjuster
 
 if TYPE_CHECKING:
-    from temper_placer.io.config_loader import PlacementConstraints
+    from temper_placer._constraint_types import PlacementConstraints
 
 logger = logging.getLogger(__name__)
 

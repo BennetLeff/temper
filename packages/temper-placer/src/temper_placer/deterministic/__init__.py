@@ -7,11 +7,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import temper_orchestration as _to
-
-from temper_placer.validation.drc_types import ClearanceRule as _DRCClearanceRule
-from temper_placer.validation.drc_types import ComponentPlacement as _DRCCompPlacement
-from temper_placer.validation.drc_types import ConstraintSet as _DRCConstraintSet
-from temper_placer.validation.drc_types import Placement as _DRCPlacement
+from temper_drc_rs import ClearanceRule as _DRCClearanceRule
+from temper_drc_rs import ComponentPlacement as _DRCCompPlacement
+from temper_drc_rs import ConstraintSet as _DRCConstraintSet
+from temper_drc_rs import Placement as _DRCPlacement
 
 from .channels import (
     ChannelMap as ChannelMap,

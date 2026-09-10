@@ -27,8 +27,6 @@ import struct
 import pytest
 import temper_thermal as _tt
 
-from temper_placer.physics.thermal import estimate_junction_temp
-
 # ---------------------------------------------------------------------------
 # Oracle (pre-migration implementation, verbatim)
 # ---------------------------------------------------------------------------
@@ -241,54 +239,3 @@ def test_direct_zero_power_is_ambient():
     for ambient in (-40.0, 0.0, 25.0, 100.0):
         got = _tt.estimate_junction_temp_py(0.0, 25.0, 0.0, ambient, 0.6, 0.25, 1.0)
         assert got == ambient, f"zero-power Tj={got!r} != ambient={ambient!r}"
-
-
-# ---------------------------------------------------------------------------
-# Module-level pins (full delegation path)
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("seed", range(10))
-def test_module_level_bit_exact(seed):
-    """estimate_junction_temp (delegating) == oracle, default args too."""
-    rng = random.Random(1000 + seed)
-    for _ in range(25):
-        power, edge, copper, ambient, rjc, rch, rha = _random_input(rng)
-        expected = _oracle_estimate_junction_temp(
-            power, edge, copper, ambient, rjc, rch, rha
-        )
-        got = estimate_junction_temp(
-            power_W=power,
-            edge_distance_mm=edge,
-            copper_area_mm2=copper,
-            ambient_C=ambient,
-            Rjc=rjc,
-            Rch=rch,
-            Rha_base=rha,
-        )
-        assert got == expected, (
-            f"module-level mismatch on power={power!r} edge={edge!r} "
-            f"copper={copper!r} ambient={ambient!r}: rust={got!r} oracle={expected!r}"
-        )
-
-
-def test_module_level_defaults_bit_exact():
-    """Default arguments (copper=0, ambient=60, Rjc=0.31, Rch=0.20,
-    Rha=0.45 — the 2026-08-15 corrected defaults) route through the
-    kernel unchanged."""
-    for power, edge in [(15.0, 5.0), (15.0, 10.0), (50.0, 15.0), (0.0, 3.0)]:
-        expected = _oracle_estimate_junction_temp(power, edge)
-        got = estimate_junction_temp(power_W=power, edge_distance_mm=edge)
-        assert got == expected, f"defaults mismatch: {got!r} vs {expected!r}"
-
-
-def test_module_level_custom_thermal_params():
-    """Custom Rjc/Rch/Rha_base route through (thermal_potential.py call
-    shape: ambient + Rjc only, defaults for the rest)."""
-    expected = _oracle_estimate_junction_temp(
-        12.0, 8.0, 0.0, 25.0, 0.9, 0.20, 0.45
-    )
-    got = estimate_junction_temp(
-        power_W=12.0, edge_distance_mm=8.0, ambient_C=25.0, Rjc=0.9
-    )
-    assert got == expected

@@ -70,7 +70,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from temper_placer.core.board import Board
-from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer._constraint_types import PlacementConstraints
 
 Array: TypeAlias = NDArray
 
