@@ -26,8 +26,8 @@ from pathlib import Path
 RUN = Path(__file__).resolve().parent
 sys.path.insert(0, str(RUN))
 
-import runlib  # noqa: E402
 import run_block  # noqa: E402
+import runlib  # noqa: E402
 import workspace  # noqa: E402
 
 # Ten movable instances: module centred; the EN/boot/I2C cluster on the left,
@@ -257,7 +257,6 @@ def build_copper(measurement: dict):
             )
         positions[net] = points
 
-    all_vias = [p for net, pts in positions.items() for p in pts]
     segments: dict[str, list[dict]] = {net: [] for net in net_pads}
     for net, points in positions.items():
         layer = NET_LAYER[net]

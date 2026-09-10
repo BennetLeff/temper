@@ -37,8 +37,8 @@ from pathlib import Path
 RUN = Path(__file__).resolve().parent
 sys.path.insert(0, str(RUN))
 
-import runlib  # noqa: E402
 import run_block  # noqa: E402
+import runlib  # noqa: E402
 import workspace  # noqa: E402
 
 UPSTREAM_HOST = "opencode.ai"

@@ -34,8 +34,6 @@ def native_summary(name: str) -> dict:
 
 def main() -> None:
     index = load(RUN / "INDEX.json")
-    index_assisted = load(RUN / "INDEX-assisted.json")
-    manifest = load(RUN / "candidate" / "source-manifest.json")
     manifest_assisted = load(RUN / "candidate-assisted" / "source-manifest.json")
     live = load(RUN / "live-01" / "result.json")
     autonomous = load(RUN / "autonomous-result.json")

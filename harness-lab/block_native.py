@@ -17,9 +17,8 @@ import json
 import sys
 from pathlib import Path
 
-import pcbnew
-
 import buck_native
+import pcbnew
 
 # Ten physical instances in elec/src/modules.ato::MCU (U1 identity). This is
 # the documented census for the real MCU trial; the adapter itself enforces
