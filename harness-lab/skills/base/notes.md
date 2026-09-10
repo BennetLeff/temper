@@ -1,0 +1,1 @@
+Use native inspection and checks as evidence. Place and route the complete buck within the admitted operations and budget. Keep ordinary working variables in the persistent interpreter; reusable helpers belong in skills.py. A construction pass does not qualify electrical performance or hardware.
