@@ -740,12 +740,12 @@ component ESP32_S3_WROOM_1:
 component Button:
     """Momentary tactile pushbutton (boot/reset strap access).
 
-    Placeholder 0603 footprint: Button_Switch_SMD is not in the committed
-    fp-lib-table yet. Swap to SW_SPST_B3U-1000P (or similar) once the
-    library is added via tools/setup_kicad_env.py.
+    Panasonic EVQP7A side-actuated switch. The stock footprint matches the
+    manufacturer's straight-terminal land pattern; terminals 1/2 are the
+    normally-open contact. Candidate generation vendors this library.
     """
     designator_prefix = "SW"
-    footprint = "Resistor_SMD:R_0603_1608Metric"
+    footprint = "Button_Switch_SMD:SW_SPST_EVQP7A"
     mpn = "EVQ-P7A01P"
     manufacturer = "Panasonic"
 
