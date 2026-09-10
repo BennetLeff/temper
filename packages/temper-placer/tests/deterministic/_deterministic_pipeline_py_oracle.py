@@ -31,10 +31,10 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from temper_placer.validation.drc_types import ClearanceRule as _DRCClearanceRule
-from temper_placer.validation.drc_types import ComponentPlacement as _DRCCompPlacement
-from temper_placer.validation.drc_types import ConstraintSet as _DRCConstraintSet
-from temper_placer.validation.drc_types import Placement as _DRCPlacement
+from temper_drc_rs import ClearanceRule as _DRCClearanceRule
+from temper_drc_rs import ComponentPlacement as _DRCCompPlacement
+from temper_drc_rs import ConstraintSet as _DRCConstraintSet
+from temper_drc_rs import Placement as _DRCPlacement
 
 from temper_placer.deterministic.channels import (
     ALLOWED_SCHEMA_HASHES as ALLOWED_SCHEMA_HASHES,
@@ -58,7 +58,9 @@ from temper_placer.deterministic.channels import (
     routability_penalty as routability_penalty,
 )
 from temper_placer.deterministic.stages.base import Stage
-from temper_placer.deterministic.stages.hv_lv_partition import HvLvPartitionStage as HvLvPartitionStage
+from temper_placer.deterministic.stages.hv_lv_partition import (
+    HvLvPartitionStage as HvLvPartitionStage,
+)
 from temper_placer.deterministic.stages.hv_lv_partition import PartitionError as PartitionError
 from temper_placer.deterministic.state import BoardState
 
@@ -68,10 +70,9 @@ if TYPE_CHECKING:
     from shapely.geometry import Polygon
 
     from temper_placer.core.board import Zone as CopperZone
+    from temper_placer.deterministic.io.kicad_metadata import KiCadMetadata
     from temper_placer.io.config_loader import IsolationSlot
     from temper_placer.validation.drc_fence import DRCFence
-
-    from temper_placer.deterministic.io.kicad_metadata import KiCadMetadata
 
 _SIDE_TO_LAYER: dict[int, str] = {0: "F.Cu", 1: "B.Cu"}
 _DEFAULT_CLEARANCES = [_DRCClearanceRule(from_class="*", to_class="*", min_mm=0.3)]

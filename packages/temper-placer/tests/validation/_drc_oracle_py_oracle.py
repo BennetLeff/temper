@@ -22,9 +22,10 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from temper_drc_rs import ConstraintSet as DrcConstraintSet
+    from temper_drc_rs import Placement as DrcPlacement
+
     from temper_placer.validation.drc_result import RunResult
-    from temper_placer.validation.drc_types import ConstraintSet as DrcConstraintSet
-    from temper_placer.validation.drc_types import Placement as DrcPlacement
 
 try:
     import temper_drc_rs
@@ -71,7 +72,7 @@ def build_placement_from_netlist(
     - layer from initial_side (0=F.Cu, 1=B.Cu)
     - voltage_domain set to None (not present on temper-placer Component)
     """
-    from temper_placer.validation.drc_types import ComponentPlacement, Placement
+    from temper_drc_rs import ComponentPlacement, Placement
 
     netlist = context.netlist
     components: dict[str, ComponentPlacement] = {}
@@ -119,7 +120,7 @@ def build_constraint_set(context: Any) -> DrcConstraintSet:
     min_clearance) to temper_drc.input.constraints.ClearanceRule (from_class,
     to_class, min_mm).
     """
-    from temper_placer.validation.drc_types import ClearanceRule, ConstraintSet
+    from temper_drc_rs import ClearanceRule, ConstraintSet
 
     clearances: list[ClearanceRule] = []
     for rule in context.clearance_rules:
