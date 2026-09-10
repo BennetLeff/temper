@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/pcb/prototypes/buck-reva/buck-reva.kicad_sch")
-		(date "2026-09-10T12:03:32")
+		(date "2026-09-10T12:19:52")
 		(tool "Eeschema 10.0.6")
 		(sheet
 			(number "1")
@@ -59,6 +59,7 @@
 			(value "10uF 50V X7R")
 			(footprint "buck-reva:C_1210_3225Metric")
 			(datasheet "https://product.samsungsem.com/mlcc/CL32B106KBJZW6.do")
+			(description "Samsung 10 uF 50 V X7R 1210 input capacitor.")
 			(fields
 				(field
 					(name "Manufacturer") "Samsung Electro-Mechanics")
@@ -69,8 +70,7 @@
 				(field
 					(name "Datasheet") "https://product.samsungsem.com/mlcc/CL32B106KBJZW6.do")
 				(field
-					(name "Description")
-				)
+					(name "Description") "Samsung 10 uF 50 V X7R 1210 input capacitor.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -117,6 +117,7 @@
 			(value "100nF 50V X7R")
 			(footprint "buck-reva:C_0603_1608Metric")
 			(datasheet "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf")
+			(description "KEMET 100 nF 50 V X7R 0603.")
 			(fields
 				(field
 					(name "Manufacturer") "KEMET")
@@ -127,8 +128,7 @@
 				(field
 					(name "Datasheet") "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf")
 				(field
-					(name "Description")
-				)
+					(name "Description") "KEMET 100 nF 50 V X7R 0603.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -175,6 +175,7 @@
 			(value "22uF 25V X7R")
 			(footprint "buck-reva:C_1210_3225Metric")
 			(datasheet "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L")
+			(description "Murata 22 uF 25 V X7R 1210 output capacitor.")
 			(fields
 				(field
 					(name "Manufacturer") "Murata")
@@ -185,8 +186,7 @@
 				(field
 					(name "Datasheet") "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L")
 				(field
-					(name "Description")
-				)
+					(name "Description") "Murata 22 uF 25 V X7R 1210 output capacitor.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -233,6 +233,7 @@
 			(value "22uF 25V X7R")
 			(footprint "buck-reva:C_1210_3225Metric")
 			(datasheet "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L")
+			(description "Murata 22 uF 25 V X7R 1210 output capacitor.")
 			(fields
 				(field
 					(name "Manufacturer") "Murata")
@@ -243,8 +244,7 @@
 				(field
 					(name "Datasheet") "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L")
 				(field
-					(name "Description")
-				)
+					(name "Description") "Murata 22 uF 25 V X7R 1210 output capacitor.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -291,6 +291,7 @@
 			(value "100nF 50V X7R")
 			(footprint "buck-reva:C_0603_1608Metric")
 			(datasheet "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf")
+			(description "KEMET 100 nF 50 V X7R 0603.")
 			(fields
 				(field
 					(name "Manufacturer") "KEMET")
@@ -301,8 +302,7 @@
 				(field
 					(name "Datasheet") "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf")
 				(field
-					(name "Description")
-				)
+					(name "Description") "KEMET 100 nF 50 V X7R 0603.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -345,10 +345,227 @@
 			)
 		)
 		(comp
+			(ref "H1")
+			(value "MountingHole_3.2mm_M3")
+			(footprint "buck-reva:MountingHole_3.2mm_M3")
+			(description "Mechanical mounting hole; not populated.")
+			(fields
+				(field
+					(name "Manufacturer") "N/A")
+				(field
+					(name "MPN") "N/A")
+				(field
+					(name "Footprint") "buck-reva:MountingHole_3.2mm_M3")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Mechanical mounting hole; not populated.")
+			)
+			(libsource
+				(lib "buck-reva")
+				(part "MountingHole")
+				(description "Mechanical mounting hole; not populated.")
+			)
+			(property
+				(name "Manufacturer")
+				(value "N/A")
+			)
+			(property
+				(name "MPN")
+				(value "N/A")
+			)
+			(property
+				(name "Sheetname")
+				(value "buck-reva")
+			)
+			(property
+				(name "Sheetfile")
+				(value "buck-reva.kicad_sch")
+			)
+			(property
+				(name "exclude_from_bom")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "eaa819ab-efcf-e02b-89ea-51ae1b818721")
+			(units
+				(unit
+					(name "A")
+					(pins)
+				)
+			)
+		)
+		(comp
+			(ref "H2")
+			(value "MountingHole_3.2mm_M3")
+			(footprint "buck-reva:MountingHole_3.2mm_M3")
+			(description "Mechanical mounting hole; not populated.")
+			(fields
+				(field
+					(name "Manufacturer") "N/A")
+				(field
+					(name "MPN") "N/A")
+				(field
+					(name "Footprint") "buck-reva:MountingHole_3.2mm_M3")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Mechanical mounting hole; not populated.")
+			)
+			(libsource
+				(lib "buck-reva")
+				(part "MountingHole")
+				(description "Mechanical mounting hole; not populated.")
+			)
+			(property
+				(name "Manufacturer")
+				(value "N/A")
+			)
+			(property
+				(name "MPN")
+				(value "N/A")
+			)
+			(property
+				(name "Sheetname")
+				(value "buck-reva")
+			)
+			(property
+				(name "Sheetfile")
+				(value "buck-reva.kicad_sch")
+			)
+			(property
+				(name "exclude_from_bom")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "587656ff-2130-e128-24b8-7acb974a6f02")
+			(units
+				(unit
+					(name "A")
+					(pins)
+				)
+			)
+		)
+		(comp
+			(ref "H3")
+			(value "MountingHole_3.2mm_M3")
+			(footprint "buck-reva:MountingHole_3.2mm_M3")
+			(description "Mechanical mounting hole; not populated.")
+			(fields
+				(field
+					(name "Manufacturer") "N/A")
+				(field
+					(name "MPN") "N/A")
+				(field
+					(name "Footprint") "buck-reva:MountingHole_3.2mm_M3")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Mechanical mounting hole; not populated.")
+			)
+			(libsource
+				(lib "buck-reva")
+				(part "MountingHole")
+				(description "Mechanical mounting hole; not populated.")
+			)
+			(property
+				(name "Manufacturer")
+				(value "N/A")
+			)
+			(property
+				(name "MPN")
+				(value "N/A")
+			)
+			(property
+				(name "Sheetname")
+				(value "buck-reva")
+			)
+			(property
+				(name "Sheetfile")
+				(value "buck-reva.kicad_sch")
+			)
+			(property
+				(name "exclude_from_bom")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "a5457edd-cd3f-dbbe-0811-991c430c8b98")
+			(units
+				(unit
+					(name "A")
+					(pins)
+				)
+			)
+		)
+		(comp
+			(ref "H4")
+			(value "MountingHole_3.2mm_M3")
+			(footprint "buck-reva:MountingHole_3.2mm_M3")
+			(description "Mechanical mounting hole; not populated.")
+			(fields
+				(field
+					(name "Manufacturer") "N/A")
+				(field
+					(name "MPN") "N/A")
+				(field
+					(name "Footprint") "buck-reva:MountingHole_3.2mm_M3")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Mechanical mounting hole; not populated.")
+			)
+			(libsource
+				(lib "buck-reva")
+				(part "MountingHole")
+				(description "Mechanical mounting hole; not populated.")
+			)
+			(property
+				(name "Manufacturer")
+				(value "N/A")
+			)
+			(property
+				(name "MPN")
+				(value "N/A")
+			)
+			(property
+				(name "Sheetname")
+				(value "buck-reva")
+			)
+			(property
+				(name "Sheetfile")
+				(value "buck-reva.kicad_sch")
+			)
+			(property
+				(name "exclude_from_bom")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "f030d508-dd76-bda0-65d8-3f5933d6342e")
+			(units
+				(unit
+					(name "A")
+					(pins)
+				)
+			)
+		)
+		(comp
 			(ref "J1")
 			(value "VIN / GND")
 			(footprint "buck-reva:TerminalBlock_5.08mm_1x02")
 			(datasheet "https://www.we-online.com/components/products/datasheet/691253500002.pdf")
+			(description "2-position 5.08 mm vertical screw terminal.")
 			(fields
 				(field
 					(name "Manufacturer") "Wurth Elektronik")
@@ -359,8 +576,7 @@
 				(field
 					(name "Datasheet") "https://www.we-online.com/components/products/datasheet/691253500002.pdf")
 				(field
-					(name "Description")
-				)
+					(name "Description") "2-position 5.08 mm vertical screw terminal.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -407,6 +623,7 @@
 			(value "3V3 / GND")
 			(footprint "buck-reva:TerminalBlock_5.08mm_1x02")
 			(datasheet "https://www.we-online.com/components/products/datasheet/691253500002.pdf")
+			(description "2-position 5.08 mm vertical screw terminal.")
 			(fields
 				(field
 					(name "Manufacturer") "Wurth Elektronik")
@@ -417,8 +634,7 @@
 				(field
 					(name "Datasheet") "https://www.we-online.com/components/products/datasheet/691253500002.pdf")
 				(field
-					(name "Description")
-				)
+					(name "Description") "2-position 5.08 mm vertical screw terminal.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -465,6 +681,7 @@
 			(value "5.6uH")
 			(footprint "buck-reva:L_Bourns_SRP1265A")
 			(datasheet "https://www.bourns.com/docs/Product-Datasheets/SRP1265A.pdf")
+			(description "Bourns 5.6 uH 12.5 A power inductor.")
 			(fields
 				(field
 					(name "Manufacturer") "Bourns")
@@ -475,8 +692,7 @@
 				(field
 					(name "Datasheet") "https://www.bourns.com/docs/Product-Datasheets/SRP1265A.pdf")
 				(field
-					(name "Description")
-				)
+					(name "Description") "Bourns 5.6 uH 12.5 A power inductor.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -523,6 +739,7 @@
 			(value "100k")
 			(footprint "buck-reva:R_0603_1608Metric")
 			(datasheet "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L_12.pdf")
+			(description "Yageo 100 kohm 1% 0603 feedback resistor.")
 			(fields
 				(field
 					(name "Manufacturer") "Yageo")
@@ -533,8 +750,7 @@
 				(field
 					(name "Datasheet") "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L_12.pdf")
 				(field
-					(name "Description")
-				)
+					(name "Description") "Yageo 100 kohm 1% 0603 feedback resistor.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -581,6 +797,7 @@
 			(value "22.1k")
 			(footprint "buck-reva:R_0603_1608Metric")
 			(datasheet "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L_12.pdf")
+			(description "Yageo 22.1 kohm 1% 0603 feedback resistor.")
 			(fields
 				(field
 					(name "Manufacturer") "Yageo")
@@ -591,8 +808,7 @@
 				(field
 					(name "Datasheet") "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L_12.pdf")
 				(field
-					(name "Description")
-				)
+					(name "Description") "Yageo 22.1 kohm 1% 0603 feedback resistor.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -638,6 +854,7 @@
 			(ref "TP1")
 			(value "VIN")
 			(footprint "buck-reva:TestPoint_Probe_2mm")
+			(description "Bare 2.0 mm probe pad.")
 			(fields
 				(field
 					(name "Manufacturer") "N/A (bare pad)")
@@ -649,8 +866,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description")
-				)
+					(name "Description") "Bare 2.0 mm probe pad.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -696,6 +912,7 @@
 			(ref "TP2")
 			(value "GND")
 			(footprint "buck-reva:TestPoint_Probe_2mm")
+			(description "Bare 2.0 mm probe pad.")
 			(fields
 				(field
 					(name "Manufacturer") "N/A (bare pad)")
@@ -707,8 +924,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description")
-				)
+					(name "Description") "Bare 2.0 mm probe pad.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -754,6 +970,7 @@
 			(ref "TP3")
 			(value "VOUT")
 			(footprint "buck-reva:TestPoint_Probe_2mm")
+			(description "Bare 2.0 mm probe pad.")
 			(fields
 				(field
 					(name "Manufacturer") "N/A (bare pad)")
@@ -765,8 +982,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description")
-				)
+					(name "Description") "Bare 2.0 mm probe pad.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -812,6 +1028,7 @@
 			(ref "TP4")
 			(value "GND")
 			(footprint "buck-reva:TestPoint_Probe_2mm")
+			(description "Bare 2.0 mm probe pad.")
 			(fields
 				(field
 					(name "Manufacturer") "N/A (bare pad)")
@@ -823,8 +1040,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description")
-				)
+					(name "Description") "Bare 2.0 mm probe pad.")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -871,6 +1087,7 @@
 			(value "LMR51430XDDCR")
 			(footprint "buck-reva:SOT-23-6")
 			(datasheet "https://www.ti.com/lit/ds/symlink/lmr51430.pdf")
+			(description "4.5-36 V, 3 A synchronous buck converter, SOT-23-6 (DDC).")
 			(fields
 				(field
 					(name "Manufacturer") "Texas Instruments")
@@ -881,8 +1098,7 @@
 				(field
 					(name "Datasheet") "https://www.ti.com/lit/ds/symlink/lmr51430.pdf")
 				(field
-					(name "Description")
-				)
+					(name "Description") "4.5-36 V, 3 A synchronous buck converter, SOT-23-6 (DDC).")
 			)
 			(libsource
 				(lib "buck-reva")
@@ -1086,6 +1302,25 @@
 		)
 		(libpart
 			(lib "buck-reva")
+			(part "MountingHole")
+			(description "Mechanical mounting hole; not populated.")
+			(fields
+				(field
+					(name "Reference") "REF")
+				(field
+					(name "Value") "MountingHole")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Mechanical mounting hole; not populated.")
+			)
+		)
+		(libpart
+			(lib "buck-reva")
 			(part "RC0603FR-07100KL")
 			(description "Yageo 100 kohm 1% 0603 feedback resistor.")
 			(fields
@@ -1244,7 +1479,7 @@
 	(nets
 		(net
 			(code "1")
-			(name "/+3V3")
+			(name "+3V3")
 			(class "Default")
 			(node
 				(ref "C11")
@@ -1291,7 +1526,7 @@
 		)
 		(net
 			(code "2")
-			(name "/+15V")
+			(name "+15V")
 			(class "Default")
 			(node
 				(ref "C9")
@@ -1326,7 +1561,7 @@
 		)
 		(net
 			(code "3")
-			(name "/boot")
+			(name "boot")
 			(class "Default")
 			(node
 				(ref "C10")
@@ -1343,7 +1578,7 @@
 		)
 		(net
 			(code "4")
-			(name "/fb")
+			(name "fb")
 			(class "Default")
 			(node
 				(ref "R16")
@@ -1366,7 +1601,7 @@
 		)
 		(net
 			(code "5")
-			(name "/gnd")
+			(name "gnd")
 			(class "Default")
 			(node
 				(ref "C11")
@@ -1431,7 +1666,7 @@
 		)
 		(net
 			(code "6")
-			(name "/sw")
+			(name "sw")
 			(class "Default")
 			(node
 				(ref "C10")

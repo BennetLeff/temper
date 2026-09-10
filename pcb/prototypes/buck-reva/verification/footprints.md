@@ -50,3 +50,7 @@ resemblance.
 2. The Würth pad diameter is a designer choice (the drawing specifies the hole
    only). 2.8 mm is standard and gives a 0.65 mm annular ring on a 1.5 mm hole,
    comfortably within the fabricator's minimum.
+3. Via-in-pad: the core routing carries nine vias at SMD pad centres
+   (0.8 mm / 0.4 mm), mask-tented but not filled/capped — including the U3 GND
+   pad and the R16/R17 feedback divider. This is an assembly consideration, not
+   a pad-geometry defect; see the via-treatment note in `board-freeze.md`.

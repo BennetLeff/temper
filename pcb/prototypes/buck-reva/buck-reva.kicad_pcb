@@ -87,178 +87,6 @@
 			(outputdirectory "")
 		)
 	)
-	(footprint "buck-reva:TestPoint_Probe_2mm"
-		(layer "F.Cu")
-		(uuid "058796b3-8c35-4f03-908c-bad64fa5a782")
-		(at 17 10)
-		(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP5.")
-		(tags "TestPoint probe pad bare")
-		(property "Reference" "TP1"
-			(at 0 -3 0)
-			(layer "F.SilkS")
-			(uuid "1c1ef71c-8c34-49e2-9ff9-69f424d944ca")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Value" "VIN"
-			(at 0 -4.5 0)
-			(layer "F.Fab")
-			(uuid "e0a79aa8-6180-47b3-bb28-e2bd97d898fb")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "9d69fb5e-0425-4551-8c9c-c1426146c2f1")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Description" "Bare 2.0 mm probe pad; exposed copper, no paste, no purchased part."
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "1cdbca29-2441-4903-95b2-fe831711232d")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(attr smd exclude_from_pos_files exclude_from_bom)
-		(duplicate_pad_numbers_are_jumpers no)
-		(fp_circle
-			(center 0 0)
-			(end 1.3 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill no)
-			(layer "F.SilkS")
-			(uuid "5af6ba91-cc5b-4ff2-8082-8e08b108dfd8")
-		)
-		(fp_circle
-			(center 0 0)
-			(end 1.2 0)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(fill no)
-			(layer "F.CrtYd")
-			(uuid "3cf3ffa4-002c-4d90-a943-8eefc5e8907f")
-		)
-		(pad "1" smd roundrect
-			(at 0 0)
-			(size 1.8 1.8)
-			(layers "F.Cu" "F.Mask")
-			(roundrect_rratio 0.25)
-			(net "+15V")
-			(uuid "07b8cee8-8372-45e1-b0e1-0c7bfaee6f24")
-		)
-		(embedded_fonts no)
-	)
-	(footprint "buck-reva:TestPoint_Probe_2mm"
-		(layer "F.Cu")
-		(uuid "15426c86-1689-403f-92e1-1720d5b6a3bd")
-		(at 40.525 12)
-		(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP5.")
-		(tags "TestPoint probe pad bare")
-		(property "Reference" "TP3"
-			(at 0 -3 0)
-			(layer "F.SilkS")
-			(uuid "934e6775-7f92-4258-9ed7-ae9c5aed511b")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Value" "VOUT"
-			(at 0 -4.5 0)
-			(layer "F.Fab")
-			(uuid "4c35f78c-4a78-4437-955b-ccb75dd14764")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "4fe290c9-eda6-4367-a289-906102de9955")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Description" "Bare 2.0 mm probe pad; exposed copper, no paste, no purchased part."
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "4d3a23be-9d36-469c-be98-beb9e0531925")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(attr smd exclude_from_pos_files exclude_from_bom)
-		(duplicate_pad_numbers_are_jumpers no)
-		(fp_circle
-			(center 0 0)
-			(end 1.3 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill no)
-			(layer "F.SilkS")
-			(uuid "e831079e-753a-4911-9174-97c22eeee4c9")
-		)
-		(fp_circle
-			(center 0 0)
-			(end 1.2 0)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(fill no)
-			(layer "F.CrtYd")
-			(uuid "a00731de-73cd-4f65-903e-a82ae8d44eb9")
-		)
-		(pad "1" smd roundrect
-			(at 0 0)
-			(size 1.8 1.8)
-			(layers "F.Cu" "F.Mask")
-			(roundrect_rratio 0.25)
-			(net "+3V3")
-			(uuid "d7e3418d-4c75-42d8-8bba-ccab45a5a79c")
-		)
-		(embedded_fonts no)
-	)
 	(footprint "buck-reva:C_1210_3225Metric"
 		(layer "F.Cu")
 		(uuid "15528756-5d77-53ea-e6f3-7c796d7b81e0")
@@ -276,7 +104,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "10uF 50V X7R"
 			(at 339.35 163.05 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -287,7 +115,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://product.samsungsem.com/mlcc/CL32B106KBJZW6.do"
 			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
@@ -298,7 +126,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Samsung 10 uF 50 V X7R 1210 input capacitor."
 			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
@@ -317,6 +145,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "da2f7c39-8330-4643-aa25-89b4bed5e384")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL32B106KBJZW6E"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "e1953693-0896-4784-8258-89d3afa24681")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -406,15 +256,15 @@
 	)
 	(footprint "buck-reva:MountingHole_3.2mm_M3"
 		(layer "F.Cu")
-		(uuid "2eb0a501-35d3-4aa9-826f-e2f7dd06dbfb")
-		(at 3 4)
+		(uuid "1b858104-f51f-47e0-85a7-030289e82431")
+		(at 3 36)
 		(descr "Mounting Hole 3.2mm, M3, no annular, generated by kicad-footprint-generator mountinghole.py")
 		(tags "mountinghole M3")
-		(property "Reference" "H1"
+		(property "Reference" "H3"
 			(at 0 -4.15 0)
 			(layer "F.SilkS")
 			(hide yes)
-			(uuid "46e919e9-abb5-4482-bbed-28380a8476f9")
+			(uuid "c9c03b62-3019-4af5-a139-fbc22a7d5e4f")
 			(effects
 				(font
 					(size 1 1)
@@ -426,7 +276,7 @@
 			(at 0 4.15 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "daf126bf-6b84-4df5-8e22-1dc66b131af8")
+			(uuid "e70a6ef6-d460-4435-ad92-552af128b130")
 			(effects
 				(font
 					(size 1 1)
@@ -438,18 +288,18 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "8341bdb4-3132-4f32-ad09-ccfdd16ddb06")
+			(uuid "f87ddb5a-3d79-4037-839f-e1fe6f9448de")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Mechanical mounting hole; not populated."
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "f5b6d691-1575-4287-b0d5-d598abe4e0be")
+			(uuid "7e529a1f-27cc-4c08-a115-b66e0c1526ef")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -460,11 +310,33 @@
 			(at 0 0 0)
 			(layer "F.SilkS")
 			(hide yes)
-			(uuid "6d4ae1be-eeb6-4305-acc2-efd24a5897c4")
+			(uuid "30c98972-53ac-421d-a3aa-b9bf1ad46389")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "f1c9e570-c3b1-471f-be35-f08bf90b0481")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "3504ab97-45ee-461f-8fc7-83cf0bd74e00")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -479,7 +351,7 @@
 			)
 			(fill no)
 			(layer "Cmts.User")
-			(uuid "04dd323a-5481-4007-88a7-510f6cfc27d2")
+			(uuid "fe5a3166-ec77-40b1-bbc9-accd95c60b2e")
 		)
 		(fp_circle
 			(center 0 0)
@@ -490,12 +362,12 @@
 			)
 			(fill no)
 			(layer "F.CrtYd")
-			(uuid "8ceaf5bb-3bfc-4569-ab64-45ee0ce04e25")
+			(uuid "f3bd5794-8cf9-41d2-9238-dd2ad34e4d43")
 		)
 		(fp_text user "${REFERENCE}"
 			(at 0 0 0)
 			(layer "F.Fab")
-			(uuid "d09ba02a-7b8d-4761-8ba3-5142048816aa")
+			(uuid "0f050d53-6953-4dad-bd30-eaaed66f80d3")
 			(effects
 				(font
 					(size 1 1)
@@ -508,7 +380,115 @@
 			(size 3.2 3.2)
 			(drill 3.2)
 			(layers "*.Cu" "*.Mask")
-			(uuid "b90c1de9-887b-4682-a84d-afc97b6d4a4e")
+			(uuid "a83547a6-1eb6-41d0-a81b-79db2019492b")
+		)
+		(embedded_fonts no)
+	)
+	(footprint "buck-reva:TestPoint_Probe_2mm"
+		(layer "F.Cu")
+		(uuid "2cbf498b-5137-4ca0-979c-cd6475c472b6")
+		(at 17 10)
+		(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP4.")
+		(tags "TestPoint probe pad bare")
+		(property "Reference" "TP1"
+			(at 0 -3 0)
+			(layer "F.SilkS")
+			(uuid "a51aa1a4-b48f-485f-a8ed-7ecb7317be90")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Value" "VIN"
+			(at 0 -4.5 0)
+			(layer "F.Fab")
+			(uuid "a8a5235b-fb0a-4cfa-ac99-77036433c030")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "1c479e10-7bec-4194-9827-dd9db0944af0")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" "Bare 2.0 mm probe pad."
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "1b921c74-f667-410e-bea7-6066fb8105fb")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "N/A (bare pad)"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "19afe2e6-cfb7-4f9c-b197-4580aa30fcba")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "0eb24b04-0089-4d50-ade6-81fc1e17a111")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr smd exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers no)
+		(fp_circle
+			(center 0 0)
+			(end 1.3 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill no)
+			(layer "F.SilkS")
+			(uuid "42316985-8d1b-404c-af68-ea788ed66565")
+		)
+		(fp_circle
+			(center 0 0)
+			(end 1.2 0)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(fill no)
+			(layer "F.CrtYd")
+			(uuid "45bef62a-26ea-42d2-8508-6ab40933cede")
+		)
+		(pad "1" smd roundrect
+			(at 0 0)
+			(size 1.8 1.8)
+			(layers "F.Cu" "F.Mask")
+			(roundrect_rratio 0.25)
+			(net "+15V")
+			(uuid "24d0f02f-79d9-448b-87df-66cac8b69652")
 		)
 		(embedded_fonts no)
 	)
@@ -529,7 +509,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "100nF 50V X7R"
 			(at 250.42 -65.38 270)
 			(layer "F.Fab")
 			(hide yes)
@@ -540,7 +520,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -551,7 +531,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "KEMET 100 nF 50 V X7R 0603."
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -570,6 +550,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "KEMET"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "9e89dfb8-4337-47a8-973e-41061081b0fe")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "C0603C104K5RACTU"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "c29ff0c0-0c17-415c-b980-d9022e45d4a9")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -657,6 +659,158 @@
 			)
 		)
 	)
+	(footprint "buck-reva:TerminalBlock_5.08mm_1x02"
+		(layer "F.Cu")
+		(uuid "47009cbd-1cbc-4d51-883d-16fad4256ff3")
+		(at 5.5 18 -90)
+		(descr "Wurth Elektronik 691253500002, WR-TBL Series 2535, 2-pos 5.08 mm vertical (top) wire-entry screw terminal. Recommended PCB hole Ø1.5 mm, pitch 5.08 mm, pin 1 centre 2.54 mm from the end, body 10.16 x 5.3 mm, height 11.2 mm. Source: Wurth datasheet 691253500002.pdf (WR-TBL 2535), rev 26-AUG-14, sheet 1/2, 2026-09-10.")
+		(tags "terminal block screw vertical top entry 5.08mm THT")
+		(property "Reference" "J1"
+			(at 2.54 -5.5 270)
+			(layer "F.SilkS")
+			(uuid "8d324dc3-397e-41a5-a4be-ea994faf1aa1")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Value" "VIN / GND"
+			(at 2.54 5.5 270)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "349cb65f-f4eb-40d7-84d3-3107ea80e6c4")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/691253500002.pdf"
+			(at 0 0 270)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "f74d9584-17bf-485c-9ac7-612319c62c83")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" "2-position 5.08 mm vertical screw terminal."
+			(at 0 0 270)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "c6ba4aea-cf9d-46ca-82ef-dcddbe39cb3a")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Wurth Elektronik"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "0954f252-00b0-4e78-bb33-ea5f9df812dc")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "691253500002"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "1db906da-89a0-4a55-89fa-474c1c1a5eea")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr through_hole)
+		(duplicate_pad_numbers_are_jumpers no)
+		(fp_line
+			(start -2.54 2.65)
+			(end -2.54 1.4)
+			(stroke
+				(width 0.12)
+				(type default)
+			)
+			(layer "F.SilkS")
+			(uuid "5f1de884-1d1d-4dc2-9863-3aded32d8bd1")
+		)
+		(fp_rect
+			(start -2.54 -2.65)
+			(end 7.62 2.65)
+			(stroke
+				(width 0.12)
+				(type default)
+			)
+			(fill no)
+			(layer "F.SilkS")
+			(uuid "553472b3-600b-4012-8916-967540de8cb1")
+		)
+		(fp_rect
+			(start -2.79 -2.9)
+			(end 7.87 2.9)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(fill no)
+			(layer "F.CrtYd")
+			(uuid "6ce4ceab-6a0f-4cee-b2e8-e1bf016d2cb8")
+		)
+		(fp_rect
+			(start -2.54 -2.65)
+			(end 7.62 2.65)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(fill no)
+			(layer "F.Fab")
+			(uuid "931d586d-7a5f-4f59-961e-47a8cae2ba91")
+		)
+		(fp_text user "1"
+			(at -1.6 1.9 270)
+			(layer "F.SilkS")
+			(uuid "9c19518b-fab1-48dd-a469-ee0924c60eec")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+			)
+		)
+		(pad "1" thru_hole roundrect
+			(at 0 0 270)
+			(size 2.8 2.8)
+			(drill 1.5)
+			(layers "*.Cu" "*.Mask")
+			(remove_unused_layers no)
+			(roundrect_rratio 0.25)
+			(net "+15V")
+			(uuid "93177529-c9af-47b8-a9fe-eb50f3dc5845")
+		)
+		(pad "2" thru_hole circle
+			(at 5.08 0 270)
+			(size 2.8 2.8)
+			(drill 1.5)
+			(layers "*.Cu" "*.Mask")
+			(remove_unused_layers no)
+			(net "gnd")
+			(uuid "35d4119a-20a8-4a89-aeb8-468749885e3d")
+		)
+		(embedded_fonts no)
+	)
 	(footprint "buck-reva:R_0603_1608Metric"
 		(layer "F.Cu")
 		(uuid "4ca23ac1-3930-175f-c311-f946b3b532e7")
@@ -674,7 +828,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "100k"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -685,7 +839,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L_12.pdf"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -696,7 +850,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Yageo 100 kohm 1% 0603 feedback resistor."
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -715,6 +869,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "b22fb64a-f5d4-4367-b0f6-34d3f9113789")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0603FR-07100KL"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "5c2309be-b964-4e19-8688-f363495cffba")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -802,136 +978,6 @@
 			)
 		)
 	)
-	(footprint "buck-reva:TerminalBlock_5.08mm_1x02"
-		(layer "F.Cu")
-		(uuid "5d8a11b2-50f3-4152-bde7-e82e389b7117")
-		(at 33 34)
-		(descr "Wurth Elektronik 691253500002, WR-TBL Series 2535, 2-pos 5.08 mm vertical (top) wire-entry screw terminal. Recommended PCB hole Ø1.5 mm, pitch 5.08 mm, pin 1 centre 2.54 mm from the end, body 10.16 x 5.3 mm, height 11.2 mm. Source: Wurth datasheet 691253500002.pdf (WR-TBL 2535), rev 26-AUG-14, sheet 1/2, 2026-09-10.")
-		(tags "terminal block screw vertical top entry 5.08mm THT")
-		(property "Reference" "J2"
-			(at 2.54 -5.5 0)
-			(layer "F.SilkS")
-			(uuid "0b52578d-9f73-4028-83ab-ea5bddaa1e86")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Value" "TerminalBlock_5.08mm_1x02"
-			(at 2.54 5.5 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "3707ae4f-89f7-42a4-981a-22b160b74c4a")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/691253500002.pdf"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "0458aeac-df98-423d-8efb-6a2cb251c6e9")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Description" "Wurth 691253500002 WR-TBL 2535 vertical top-entry screw terminal, 2-pos 5.08 mm, 16 A / 300 V."
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "a9ed7e85-9511-4ef0-8240-aa3e0d4b0f09")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(attr through_hole)
-		(duplicate_pad_numbers_are_jumpers no)
-		(fp_line
-			(start -2.54 2.65)
-			(end -2.54 1.4)
-			(stroke
-				(width 0.12)
-				(type default)
-			)
-			(layer "F.SilkS")
-			(uuid "ecb38cae-a469-4c1f-adcb-44e5ce3e4f0c")
-		)
-		(fp_rect
-			(start -2.54 -2.65)
-			(end 7.62 2.65)
-			(stroke
-				(width 0.12)
-				(type default)
-			)
-			(fill no)
-			(layer "F.SilkS")
-			(uuid "6444250d-0042-4441-8899-9a080d4adc7d")
-		)
-		(fp_rect
-			(start -2.79 -2.9)
-			(end 7.87 2.9)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(fill no)
-			(layer "F.CrtYd")
-			(uuid "861173d0-66ca-4852-a64f-64b4ddf276ce")
-		)
-		(fp_rect
-			(start -2.54 -2.65)
-			(end 7.62 2.65)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(fill no)
-			(layer "F.Fab")
-			(uuid "5605d306-a358-47af-b019-23e8245f0d67")
-		)
-		(fp_text user "1"
-			(at -1.6 1.9 0)
-			(layer "F.SilkS")
-			(uuid "4f5f7769-368e-4920-8ee9-77867084b311")
-			(effects
-				(font
-					(size 0.8 0.8)
-					(thickness 0.12)
-				)
-			)
-		)
-		(pad "1" thru_hole roundrect
-			(at 0 0)
-			(size 2.8 2.8)
-			(drill 1.5)
-			(layers "*.Cu" "*.Mask")
-			(remove_unused_layers no)
-			(roundrect_rratio 0.25)
-			(net "+3V3")
-			(uuid "e0a6e8b6-d88d-43cd-8e73-ce218be81301")
-		)
-		(pad "2" thru_hole circle
-			(at 5.08 0)
-			(size 2.8 2.8)
-			(drill 1.5)
-			(layers "*.Cu" "*.Mask")
-			(remove_unused_layers no)
-			(net "gnd")
-			(uuid "f061cd00-0f88-4a1a-981c-bc9fb0719fc6")
-		)
-		(embedded_fonts no)
-	)
 	(footprint "buck-reva:SOT-23-6"
 		(layer "F.Cu")
 		(uuid "64548453-6ce6-b0e8-a81b-d46b964b66d2")
@@ -949,7 +995,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "LMR51430XDDCR"
 			(at 235.86 298.16 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -960,7 +1006,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/lmr51430.pdf"
 			(at 0 0 180)
 			(layer "F.Fab")
 			(hide yes)
@@ -971,7 +1017,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "4.5-36 V, 3 A synchronous buck converter, SOT-23-6 (DDC)."
 			(at 0 0 180)
 			(layer "F.Fab")
 			(hide yes)
@@ -990,6 +1036,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "5c4dd76f-d6b6-415e-83ab-dd0a6c91967a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "LMR51430XDDCR"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "1484f17c-e69a-46fd-ab58-91219477b835")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -1271,92 +1339,6 @@
 			)
 		)
 	)
-	(footprint "buck-reva:TestPoint_Probe_2mm"
-		(layer "F.Cu")
-		(uuid "65efa731-0daf-4ba5-8ba0-ee8fabe3b503")
-		(at 20 10)
-		(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP5.")
-		(tags "TestPoint probe pad bare")
-		(property "Reference" "TP2"
-			(at 0 -3 0)
-			(layer "F.SilkS")
-			(uuid "1fdae352-6db7-4b8b-9bb4-002c1be601b6")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 0 -4.5 0)
-			(layer "F.Fab")
-			(uuid "aff8f96f-09df-44b2-9b23-c0a7fd8a1212")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "db905ad9-3131-4245-bf11-a09135531b20")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Description" "Bare 2.0 mm probe pad; exposed copper, no paste, no purchased part."
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "31c10d88-92fe-4eb9-8114-0fc9da2f8047")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(attr smd exclude_from_pos_files exclude_from_bom)
-		(duplicate_pad_numbers_are_jumpers no)
-		(fp_circle
-			(center 0 0)
-			(end 1.3 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill no)
-			(layer "F.SilkS")
-			(uuid "6fd7a94c-f270-4486-a128-e6ee80e53fa0")
-		)
-		(fp_circle
-			(center 0 0)
-			(end 1.2 0)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(fill no)
-			(layer "F.CrtYd")
-			(uuid "1a04fadb-b362-4552-95bf-3391bcce3d33")
-		)
-		(pad "1" smd roundrect
-			(at 0 0)
-			(size 1.8 1.8)
-			(layers "F.Cu" "F.Mask")
-			(roundrect_rratio 0.25)
-			(net "gnd")
-			(uuid "1e4f3520-8229-4a6f-b8dd-84069c4bc73e")
-		)
-		(embedded_fonts no)
-	)
 	(footprint "buck-reva:C_0603_1608Metric"
 		(layer "F.Cu")
 		(uuid "6a272f27-7ea1-c4a1-a272-a3e2007b0676")
@@ -1374,7 +1356,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "100nF 50V X7R"
 			(at 212.56 54.08 180)
 			(layer "F.Fab")
 			(hide yes)
@@ -1385,7 +1367,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -1396,7 +1378,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "KEMET 100 nF 50 V X7R 0603."
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -1415,6 +1397,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "KEMET"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "279c1a1a-fff1-4a4e-9d93-b21de628256f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "C0603C104K5RACTU"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "be4ce939-1f6f-4348-998c-f21936c236b1")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -1502,254 +1506,16 @@
 			)
 		)
 	)
-	(footprint "buck-reva:TerminalBlock_5.08mm_1x02"
-		(layer "F.Cu")
-		(uuid "96135d04-92db-4c2a-ab31-5014168b4df8")
-		(at 5.5 18 -90)
-		(descr "Wurth Elektronik 691253500002, WR-TBL Series 2535, 2-pos 5.08 mm vertical (top) wire-entry screw terminal. Recommended PCB hole Ø1.5 mm, pitch 5.08 mm, pin 1 centre 2.54 mm from the end, body 10.16 x 5.3 mm, height 11.2 mm. Source: Wurth datasheet 691253500002.pdf (WR-TBL 2535), rev 26-AUG-14, sheet 1/2, 2026-09-10.")
-		(tags "terminal block screw vertical top entry 5.08mm THT")
-		(property "Reference" "J1"
-			(at 2.54 -5.5 270)
-			(layer "F.SilkS")
-			(uuid "af8f2197-d2b1-4791-b04e-a9123cc40fea")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Value" "TerminalBlock_5.08mm_1x02"
-			(at 2.54 5.5 270)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "738e3425-1ba5-4cc7-b1b4-439ebe49ec5d")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/691253500002.pdf"
-			(at 0 0 270)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "ff0abc38-3d1a-4653-ba09-ed4ad0b61e46")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Description" "Wurth 691253500002 WR-TBL 2535 vertical top-entry screw terminal, 2-pos 5.08 mm, 16 A / 300 V."
-			(at 0 0 270)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "92361fda-e662-453d-b8dc-4939d0abdd52")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(attr through_hole)
-		(duplicate_pad_numbers_are_jumpers no)
-		(fp_line
-			(start -2.54 2.65)
-			(end -2.54 1.4)
-			(stroke
-				(width 0.12)
-				(type default)
-			)
-			(layer "F.SilkS")
-			(uuid "94faffec-02da-4288-80d0-e761cd58b4ba")
-		)
-		(fp_rect
-			(start -2.54 -2.65)
-			(end 7.62 2.65)
-			(stroke
-				(width 0.12)
-				(type default)
-			)
-			(fill no)
-			(layer "F.SilkS")
-			(uuid "78fde584-335c-40e1-ad44-de10b39e2285")
-		)
-		(fp_rect
-			(start -2.79 -2.9)
-			(end 7.87 2.9)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(fill no)
-			(layer "F.CrtYd")
-			(uuid "9efe5b9a-f76f-433d-a2cb-04f0925f8da6")
-		)
-		(fp_rect
-			(start -2.54 -2.65)
-			(end 7.62 2.65)
-			(stroke
-				(width 0.05)
-				(type default)
-			)
-			(fill no)
-			(layer "F.Fab")
-			(uuid "ab8eda0b-5055-4859-b545-5ad6516e6540")
-		)
-		(fp_text user "1"
-			(at -1.6 1.9 270)
-			(layer "F.SilkS")
-			(uuid "55ef2caf-42fb-41ca-a20c-4cce9796273b")
-			(effects
-				(font
-					(size 0.8 0.8)
-					(thickness 0.12)
-				)
-			)
-		)
-		(pad "1" thru_hole roundrect
-			(at 0 0 270)
-			(size 2.8 2.8)
-			(drill 1.5)
-			(layers "*.Cu" "*.Mask")
-			(remove_unused_layers no)
-			(roundrect_rratio 0.25)
-			(net "+15V")
-			(uuid "61003f77-bb64-46ef-a223-da690f2d48d4")
-		)
-		(pad "2" thru_hole circle
-			(at 5.08 0 270)
-			(size 2.8 2.8)
-			(drill 1.5)
-			(layers "*.Cu" "*.Mask")
-			(remove_unused_layers no)
-			(net "gnd")
-			(uuid "cd6ad437-2111-4a7e-8402-541cc32f149f")
-		)
-		(embedded_fonts no)
-	)
-	(footprint "buck-reva:MountingHole_3.2mm_M3"
-		(layer "F.Cu")
-		(uuid "9c4d0beb-fc16-4a0d-b567-e9f6e5b84850")
-		(at 3 36)
-		(descr "Mounting Hole 3.2mm, M3, no annular, generated by kicad-footprint-generator mountinghole.py")
-		(tags "mountinghole M3")
-		(property "Reference" "H3"
-			(at 0 -4.15 0)
-			(layer "F.SilkS")
-			(hide yes)
-			(uuid "f8118a67-2312-4f85-819f-0e9ce57b6a1f")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Value" "MountingHole_3.2mm_M3"
-			(at 0 4.15 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "54372627-c06b-4cdd-aae3-c9a907916e42")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "b8c06e5f-720e-4755-afbc-e1e85235d5b5")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "9f3fc673-6052-4a55-8cd7-0f3cfae1281b")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "KiLib_Generator" "mounting_hardware/mounting_hole"
-			(at 0 0 0)
-			(layer "F.SilkS")
-			(hide yes)
-			(uuid "f9246aab-0bcc-41fe-90f3-dad63a6e2673")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(attr exclude_from_pos_files exclude_from_bom)
-		(duplicate_pad_numbers_are_jumpers no)
-		(fp_circle
-			(center 0 0)
-			(end 3.2 0)
-			(stroke
-				(width 0.15)
-				(type solid)
-			)
-			(fill no)
-			(layer "Cmts.User")
-			(uuid "fba7b598-5843-41ce-9d71-2101f2bc0a19")
-		)
-		(fp_circle
-			(center 0 0)
-			(end 3.45 0)
-			(stroke
-				(width 0.05)
-				(type solid)
-			)
-			(fill no)
-			(layer "F.CrtYd")
-			(uuid "5f146b1e-972f-4313-9704-91dd1dfa0c9d")
-		)
-		(fp_text user "${REFERENCE}"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(uuid "ab819afc-56b5-4a4c-bd88-9cf7f15b7a45")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(pad "" np_thru_hole circle
-			(at 0 0)
-			(size 3.2 3.2)
-			(drill 3.2)
-			(layers "*.Cu" "*.Mask")
-			(uuid "08fcff3c-6b23-44e0-a74b-410c9c8bb191")
-		)
-		(embedded_fonts no)
-	)
 	(footprint "buck-reva:TestPoint_Probe_2mm"
 		(layer "F.Cu")
-		(uuid "aace20cb-ca8d-4f29-81e1-4c704e7832d1")
-		(at 43.5 12)
-		(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP5.")
+		(uuid "75838e30-a232-453b-add6-ec7a42abd44c")
+		(at 20 10)
+		(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP4.")
 		(tags "TestPoint probe pad bare")
-		(property "Reference" "TP4"
+		(property "Reference" "TP2"
 			(at 0 -3 0)
 			(layer "F.SilkS")
-			(uuid "e0ed4886-b7ac-4d5f-a548-a64020b5b0a7")
+			(uuid "fa325bbf-012d-4448-b2ce-765a78950945")
 			(effects
 				(font
 					(size 1 1)
@@ -1760,7 +1526,7 @@
 		(property "Value" "GND"
 			(at 0 -4.5 0)
 			(layer "F.Fab")
-			(uuid "cdf02c74-1b2d-419c-9c13-144f30687c1e")
+			(uuid "31d61d6b-ac0f-4a43-af74-871734f5440c")
 			(effects
 				(font
 					(size 1 1)
@@ -1772,7 +1538,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "f95e9432-e639-4815-9925-647e64635eb2")
+			(uuid "059d3a5b-9713-4f9b-bb61-1d1bd7bf28d9")
 			(effects
 				(font
 					(size 1 1)
@@ -1780,15 +1546,37 @@
 				)
 			)
 		)
-		(property "Description" "Bare 2.0 mm probe pad; exposed copper, no paste, no purchased part."
+		(property "Description" "Bare 2.0 mm probe pad."
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "1006c020-32f3-4085-b119-de4713624115")
+			(uuid "0642d9e4-bf46-420a-9ba2-2bef34fb95ca")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "N/A (bare pad)"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "fcb0e468-c171-4f61-8e77-22f305b7ea33")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "9ffece65-3d16-439e-8a14-2487b765997c")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -1803,7 +1591,7 @@
 			)
 			(fill no)
 			(layer "F.SilkS")
-			(uuid "e6330cc6-6178-478e-9d86-248a261f537c")
+			(uuid "87fd6ae8-c336-4b60-8b1f-c2546af12593")
 		)
 		(fp_circle
 			(center 0 0)
@@ -1814,7 +1602,7 @@
 			)
 			(fill no)
 			(layer "F.CrtYd")
-			(uuid "38bf1d01-6757-4327-bc11-7dd0ecc9a813")
+			(uuid "621e4712-6001-444a-b575-919c851bfa38")
 		)
 		(pad "1" smd roundrect
 			(at 0 0)
@@ -1822,21 +1610,20 @@
 			(layers "F.Cu" "F.Mask")
 			(roundrect_rratio 0.25)
 			(net "gnd")
-			(uuid "a64580dd-6395-424b-badf-da2cfc84a581")
+			(uuid "aa3225ed-40fb-486d-8412-e8799750e37b")
 		)
 		(embedded_fonts no)
 	)
-	(footprint "buck-reva:MountingHole_3.2mm_M3"
+	(footprint "buck-reva:TestPoint_Probe_2mm"
 		(layer "F.Cu")
-		(uuid "af1bcedc-f571-4edf-a26c-932605ceb3c0")
-		(at 47 36)
-		(descr "Mounting Hole 3.2mm, M3, no annular, generated by kicad-footprint-generator mountinghole.py")
-		(tags "mountinghole M3")
-		(property "Reference" "H4"
-			(at 0 -4.15 0)
+		(uuid "75c09ff8-ffd1-48c7-b251-d0600c533415")
+		(at 40.525 12)
+		(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP4.")
+		(tags "TestPoint probe pad bare")
+		(property "Reference" "TP3"
+			(at 0 -3 0)
 			(layer "F.SilkS")
-			(hide yes)
-			(uuid "80fc5786-d1c0-4038-b20f-0841bd2e811d")
+			(uuid "d4671f21-9660-4456-bcf9-446c12897737")
 			(effects
 				(font
 					(size 1 1)
@@ -1844,11 +1631,10 @@
 				)
 			)
 		)
-		(property "Value" "MountingHole_3.2mm_M3"
-			(at 0 4.15 0)
+		(property "Value" "VOUT"
+			(at 0 -4.5 0)
 			(layer "F.Fab")
-			(hide yes)
-			(uuid "829db627-1b5f-4d7d-8387-b83b58f2091b")
+			(uuid "563ee4c3-4d49-4d3d-8d65-ae15b24876cd")
 			(effects
 				(font
 					(size 1 1)
@@ -1860,18 +1646,128 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "4de2761a-d831-4453-82af-0420505b24dd")
+			(uuid "08b65406-3334-46a1-b976-ac9c4944a854")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" "Bare 2.0 mm probe pad."
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "4f175bac-6e9d-4d31-9544-6341171dffc4")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "N/A (bare pad)"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "485a3660-3518-42f5-bfbe-e854337d45f0")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Description" ""
+		(property "MPN" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "2412946d-87ca-4687-8fa2-4b0839913721")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr smd exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers no)
+		(fp_circle
+			(center 0 0)
+			(end 1.3 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill no)
+			(layer "F.SilkS")
+			(uuid "d2e4ff27-3dd8-4aa1-9b6e-129cf6816b43")
+		)
+		(fp_circle
+			(center 0 0)
+			(end 1.2 0)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(fill no)
+			(layer "F.CrtYd")
+			(uuid "bf4aedb2-52be-49ee-9797-e3855d4f982b")
+		)
+		(pad "1" smd roundrect
+			(at 0 0)
+			(size 1.8 1.8)
+			(layers "F.Cu" "F.Mask")
+			(roundrect_rratio 0.25)
+			(net "+3V3")
+			(uuid "2bf871d6-04ab-48c1-8731-02c991762c21")
+		)
+		(embedded_fonts no)
+	)
+	(footprint "buck-reva:MountingHole_3.2mm_M3"
+		(layer "F.Cu")
+		(uuid "7d7d36c8-5780-4953-b488-67caf0128c66")
+		(at 47 4)
+		(descr "Mounting Hole 3.2mm, M3, no annular, generated by kicad-footprint-generator mountinghole.py")
+		(tags "mountinghole M3")
+		(property "Reference" "H2"
+			(at 0 -4.15 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "b249207d-c16a-4c54-b907-f25ff380ceeb")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Value" "MountingHole_3.2mm_M3"
+			(at 0 4.15 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "a1e3c57c-6958-4f3d-9139-a6323297cfc5")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "1021cf3b-625f-4954-acaa-ec579de4af53")
+			(uuid "5c672d26-df94-452b-966f-a60dd17fd07a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Mechanical mounting hole; not populated."
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "f6842002-6ded-4b74-9462-dfe47961d063")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1882,11 +1778,33 @@
 			(at 0 0 0)
 			(layer "F.SilkS")
 			(hide yes)
-			(uuid "f1378eb4-df46-4b8d-b7c1-c97926a3abfe")
+			(uuid "fe7941cb-a10e-440e-a3b7-18383f1d86dd")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "0a464c37-3bac-4154-b27a-c15025e3eb0a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "bc378e81-e0fe-4b76-856f-29c53bf29c69")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -1901,7 +1819,7 @@
 			)
 			(fill no)
 			(layer "Cmts.User")
-			(uuid "4b5ed0dd-1d9e-49a6-acd3-b1c6b50d99df")
+			(uuid "dcb4164c-1d4b-4f95-abea-e43e5d99e5d9")
 		)
 		(fp_circle
 			(center 0 0)
@@ -1912,12 +1830,12 @@
 			)
 			(fill no)
 			(layer "F.CrtYd")
-			(uuid "90ea3efa-7916-4282-a2c2-1acceb4dc4cb")
+			(uuid "5e4e3fcc-6a27-48d9-8eed-06a6c40bb8ed")
 		)
 		(fp_text user "${REFERENCE}"
 			(at 0 0 0)
 			(layer "F.Fab")
-			(uuid "77435bf6-0b94-40d5-bf5b-428a8767713c")
+			(uuid "6a047813-1a91-4c6b-8c68-3580bfe76dd7")
 			(effects
 				(font
 					(size 1 1)
@@ -1930,7 +1848,419 @@
 			(size 3.2 3.2)
 			(drill 3.2)
 			(layers "*.Cu" "*.Mask")
-			(uuid "cf2c9acb-e167-4ef7-a5f1-a0a439d40eab")
+			(uuid "cff7afd3-98e4-421b-a1bc-d18348d34148")
+		)
+		(embedded_fonts no)
+	)
+	(footprint "buck-reva:MountingHole_3.2mm_M3"
+		(layer "F.Cu")
+		(uuid "9bccc4bc-543b-4268-9e17-94bf83adff0a")
+		(at 3 4)
+		(descr "Mounting Hole 3.2mm, M3, no annular, generated by kicad-footprint-generator mountinghole.py")
+		(tags "mountinghole M3")
+		(property "Reference" "H1"
+			(at 0 -4.15 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "d7e8ea43-7556-4fc2-9482-9f510de95ea1")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Value" "MountingHole_3.2mm_M3"
+			(at 0 4.15 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "71bc532d-2ef2-4198-99f0-4e2bc9969ce4")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "8ecf9b20-1c57-4ef2-a39d-e90a23b6e575")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Mechanical mounting hole; not populated."
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "f2b9554a-cab0-421d-bd29-59ce6b90418d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "mounting_hardware/mounting_hole"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "f20de6b5-9dbf-498d-b461-f37617fe3510")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "56e78f4e-e787-4b12-8058-0bddab08848d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "4d44cc69-d61c-4ea6-ad53-2877b0ec546f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers no)
+		(fp_circle
+			(center 0 0)
+			(end 3.2 0)
+			(stroke
+				(width 0.15)
+				(type solid)
+			)
+			(fill no)
+			(layer "Cmts.User")
+			(uuid "c997d1f6-2a56-4ccf-b3f7-6d72bf3a6cbc")
+		)
+		(fp_circle
+			(center 0 0)
+			(end 3.45 0)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(fill no)
+			(layer "F.CrtYd")
+			(uuid "ecb66801-d40e-4653-96d8-6f3c6f0c3f43")
+		)
+		(fp_text user "${REFERENCE}"
+			(at 0 0 0)
+			(layer "F.Fab")
+			(uuid "b0b878f5-6010-4589-a4f5-ff3df049a615")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(pad "" np_thru_hole circle
+			(at 0 0)
+			(size 3.2 3.2)
+			(drill 3.2)
+			(layers "*.Cu" "*.Mask")
+			(uuid "3f54c4c6-0576-4d3b-822b-84bd07fe3ecd")
+		)
+		(embedded_fonts no)
+	)
+	(footprint "buck-reva:MountingHole_3.2mm_M3"
+		(layer "F.Cu")
+		(uuid "9bffd2a4-45f2-452c-8527-43ee42202ca6")
+		(at 47 36)
+		(descr "Mounting Hole 3.2mm, M3, no annular, generated by kicad-footprint-generator mountinghole.py")
+		(tags "mountinghole M3")
+		(property "Reference" "H4"
+			(at 0 -4.15 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "7849c324-bd01-4ff0-9ab5-c29650e94941")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Value" "MountingHole_3.2mm_M3"
+			(at 0 4.15 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "7f0259d8-407d-40b0-8cc3-0215302c0911")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "8962aa52-a92f-4438-b2d7-45f772d3219a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Mechanical mounting hole; not populated."
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "67549274-033b-45d4-94d1-6104167969a1")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "mounting_hardware/mounting_hole"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "789f5e92-baff-4341-8e10-48c82375babb")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "8270de09-ca77-4d89-9fd8-349b41354a6a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "8f47dbd3-65f8-444f-ad86-1e8a9be507f5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers no)
+		(fp_circle
+			(center 0 0)
+			(end 3.2 0)
+			(stroke
+				(width 0.15)
+				(type solid)
+			)
+			(fill no)
+			(layer "Cmts.User")
+			(uuid "190f0356-7417-4298-9f00-706b4a3d3214")
+		)
+		(fp_circle
+			(center 0 0)
+			(end 3.45 0)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(fill no)
+			(layer "F.CrtYd")
+			(uuid "a7880826-867b-4229-b3f8-13466f71c528")
+		)
+		(fp_text user "${REFERENCE}"
+			(at 0 0 0)
+			(layer "F.Fab")
+			(uuid "f9154bd7-e5d8-4e96-90cf-6bc0352ca857")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(pad "" np_thru_hole circle
+			(at 0 0)
+			(size 3.2 3.2)
+			(drill 3.2)
+			(layers "*.Cu" "*.Mask")
+			(uuid "14ba2ac7-81f3-4010-bb6c-1c46671f3cd0")
+		)
+		(embedded_fonts no)
+	)
+	(footprint "buck-reva:TerminalBlock_5.08mm_1x02"
+		(layer "F.Cu")
+		(uuid "ac60f6c0-8c82-473e-806e-535e32d781ca")
+		(at 33 34)
+		(descr "Wurth Elektronik 691253500002, WR-TBL Series 2535, 2-pos 5.08 mm vertical (top) wire-entry screw terminal. Recommended PCB hole Ø1.5 mm, pitch 5.08 mm, pin 1 centre 2.54 mm from the end, body 10.16 x 5.3 mm, height 11.2 mm. Source: Wurth datasheet 691253500002.pdf (WR-TBL 2535), rev 26-AUG-14, sheet 1/2, 2026-09-10.")
+		(tags "terminal block screw vertical top entry 5.08mm THT")
+		(property "Reference" "J2"
+			(at 2.54 -5.5 0)
+			(layer "F.SilkS")
+			(uuid "d9d9e3f8-3d59-4001-8fc0-f0dd3f64cabc")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Value" "3V3 / GND"
+			(at 2.54 5.5 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "a74fadeb-24e0-4aff-b176-214b5845ee31")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/691253500002.pdf"
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "75c72db3-c532-4f43-90f5-93ed1b337851")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" "2-position 5.08 mm vertical screw terminal."
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "b85c332d-1213-4013-b698-90676094f9c5")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Wurth Elektronik"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "d83b0f09-67c0-471a-a9de-93bc5b38c8e8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "691253500002"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "934743c1-da9b-4951-a2d2-dbea9105f20d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr through_hole)
+		(duplicate_pad_numbers_are_jumpers no)
+		(fp_line
+			(start -2.54 2.65)
+			(end -2.54 1.4)
+			(stroke
+				(width 0.12)
+				(type default)
+			)
+			(layer "F.SilkS")
+			(uuid "c60047a1-ade4-46d9-afa8-2f9537b7122a")
+		)
+		(fp_rect
+			(start -2.54 -2.65)
+			(end 7.62 2.65)
+			(stroke
+				(width 0.12)
+				(type default)
+			)
+			(fill no)
+			(layer "F.SilkS")
+			(uuid "231fafd9-45d4-4454-8069-5a7ad76a5a65")
+		)
+		(fp_rect
+			(start -2.79 -2.9)
+			(end 7.87 2.9)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(fill no)
+			(layer "F.CrtYd")
+			(uuid "0c0659f3-62c7-45bf-9f88-0b2441a52a6c")
+		)
+		(fp_rect
+			(start -2.54 -2.65)
+			(end 7.62 2.65)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(fill no)
+			(layer "F.Fab")
+			(uuid "f628a11f-9773-4a9f-b1a8-7324face60a4")
+		)
+		(fp_text user "1"
+			(at -1.6 1.9 0)
+			(layer "F.SilkS")
+			(uuid "91feabf7-2d52-4ec6-8851-9f7b68a9c3ca")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+			)
+		)
+		(pad "1" thru_hole roundrect
+			(at 0 0)
+			(size 2.8 2.8)
+			(drill 1.5)
+			(layers "*.Cu" "*.Mask")
+			(remove_unused_layers no)
+			(roundrect_rratio 0.25)
+			(net "+3V3")
+			(uuid "ecc9d91b-61b1-4d3a-abc5-8573905aa656")
+		)
+		(pad "2" thru_hole circle
+			(at 5.08 0)
+			(size 2.8 2.8)
+			(drill 1.5)
+			(layers "*.Cu" "*.Mask")
+			(remove_unused_layers no)
+			(net "gnd")
+			(uuid "236c1048-d6c0-439d-8228-a2c23d1ed616")
 		)
 		(embedded_fonts no)
 	)
@@ -1950,7 +2280,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "5.6uH"
 			(at -12.64 283.22 90)
 			(layer "F.Fab")
 			(hide yes)
@@ -1961,7 +2291,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.bourns.com/docs/Product-Datasheets/SRP1265A.pdf"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -1972,7 +2302,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Bourns 5.6 uH 12.5 A power inductor."
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -1991,6 +2321,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Bourns"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "06665545-a7cf-4275-8905-e725c4d22c6d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "SRP1265A-5R6M"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "8e213550-af9d-43a5-bb40-40752ea6e7f8")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -2062,7 +2414,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "22uF 25V X7R"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -2073,7 +2425,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -2084,7 +2436,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Murata 22 uF 25 V X7R 1210 output capacitor."
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -2103,6 +2455,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "da3ceac0-b628-4c93-a06a-6a0b6c156df1")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM32ER71E226KE15L"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "52307a1b-22e7-40b2-b442-6784237c27cb")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -2207,7 +2581,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "22uF 25V X7R"
 			(at 333.2 108.94 180)
 			(layer "F.Fab")
 			(hide yes)
@@ -2218,7 +2592,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -2229,7 +2603,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Murata 22 uF 25 V X7R 1210 output capacitor."
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -2248,6 +2622,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "80c1e9c6-5dbd-4b94-a4aa-8154fcd54467")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM32ER71E226KE15L"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "f3bd6a3d-aa16-4cb7-9b73-833fef7fd198")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -2335,114 +2731,6 @@
 			)
 		)
 	)
-	(footprint "buck-reva:MountingHole_3.2mm_M3"
-		(layer "F.Cu")
-		(uuid "c31396db-04e6-41aa-9ad9-e0898ae915c5")
-		(at 47 4)
-		(descr "Mounting Hole 3.2mm, M3, no annular, generated by kicad-footprint-generator mountinghole.py")
-		(tags "mountinghole M3")
-		(property "Reference" "H2"
-			(at 0 -4.15 0)
-			(layer "F.SilkS")
-			(hide yes)
-			(uuid "dc8c21c9-f9c7-4d43-b9b3-d40f65b09468")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Value" "MountingHole_3.2mm_M3"
-			(at 0 4.15 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "f71850f1-91fe-4112-93d2-c766e54ef24a")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "0109e10e-a35d-417e-9919-b4095f9ba0f3")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "71da792b-7f6e-4927-ac39-f64728591085")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "KiLib_Generator" "mounting_hardware/mounting_hole"
-			(at 0 0 0)
-			(layer "F.SilkS")
-			(hide yes)
-			(uuid "84d58088-2e29-48f4-8524-5cfd801be5b3")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(attr exclude_from_pos_files exclude_from_bom)
-		(duplicate_pad_numbers_are_jumpers no)
-		(fp_circle
-			(center 0 0)
-			(end 3.2 0)
-			(stroke
-				(width 0.15)
-				(type solid)
-			)
-			(fill no)
-			(layer "Cmts.User")
-			(uuid "5e270747-2637-42eb-bd21-ee507dae7678")
-		)
-		(fp_circle
-			(center 0 0)
-			(end 3.45 0)
-			(stroke
-				(width 0.05)
-				(type solid)
-			)
-			(fill no)
-			(layer "F.CrtYd")
-			(uuid "7fc674a7-f9e9-4d1a-b58d-ff31e5474f6e")
-		)
-		(fp_text user "${REFERENCE}"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(uuid "232c1be9-8622-4864-9a56-ef612997fdbe")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(pad "" np_thru_hole circle
-			(at 0 0)
-			(size 3.2 3.2)
-			(drill 3.2)
-			(layers "*.Cu" "*.Mask")
-			(uuid "63b02f2f-dabb-4c34-b51b-54a8745b2163")
-		)
-		(embedded_fonts no)
-	)
 	(footprint "buck-reva:R_0603_1608Metric"
 		(layer "F.Cu")
 		(uuid "d16e60aa-23e4-1bb0-cab6-bb08ea9105f1")
@@ -2460,7 +2748,7 @@
 				)
 			)
 		)
-		(property "Value" "?"
+		(property "Value" "22.1k"
 			(at 74.24 66.96 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -2471,7 +2759,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L_12.pdf"
 			(at 0 0 180)
 			(layer "F.Fab")
 			(hide yes)
@@ -2482,7 +2770,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Yageo 22.1 kohm 1% 0603 feedback resistor."
 			(at 0 0 180)
 			(layer "F.Fab")
 			(hide yes)
@@ -2501,6 +2789,28 @@
 				(font
 					(size 1 1)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "ffffd768-9ec5-4c64-9387-120feb9aa1ae")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0603FR-0722K1L"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "a2c4bb88-cd16-4e48-826e-c89e97d75574")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -2588,6 +2898,114 @@
 			)
 		)
 	)
+	(footprint "buck-reva:TestPoint_Probe_2mm"
+		(layer "F.Cu")
+		(uuid "f2758129-1684-4458-9f8c-debbf85de34b")
+		(at 43.5 12)
+		(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP4.")
+		(tags "TestPoint probe pad bare")
+		(property "Reference" "TP4"
+			(at 0 -3 0)
+			(layer "F.SilkS")
+			(uuid "72fc43a7-5998-4db6-8f2e-583c3c09bbd6")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 0 -4.5 0)
+			(layer "F.Fab")
+			(uuid "c228375b-2e4a-434b-b086-ae3ac772fddd")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "0e16da58-c1e5-4a85-a11d-99f81731ee97")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" "Bare 2.0 mm probe pad."
+			(at 0 0 0)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "03e66e8b-9ee6-465c-883d-9b03948d5b3c")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Manufacturer" "N/A (bare pad)"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "59c0e974-04db-40b9-94cb-b3a383f51a5a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "83582f35-6de0-440b-b56d-4e1278dffcf0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr smd exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers no)
+		(fp_circle
+			(center 0 0)
+			(end 1.3 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill no)
+			(layer "F.SilkS")
+			(uuid "f6d46429-cbe5-436f-9202-918ba3d00898")
+		)
+		(fp_circle
+			(center 0 0)
+			(end 1.2 0)
+			(stroke
+				(width 0.05)
+				(type default)
+			)
+			(fill no)
+			(layer "F.CrtYd")
+			(uuid "50a1a135-4920-4c74-8632-c4264d2e9570")
+		)
+		(pad "1" smd roundrect
+			(at 0 0)
+			(size 1.8 1.8)
+			(layers "F.Cu" "F.Mask")
+			(roundrect_rratio 0.25)
+			(net "gnd")
+			(uuid "e3ec9676-a884-4c39-bf9b-f813fbfcf2c0")
+		)
+		(embedded_fonts no)
+	)
 	(gr_rect
 		(start 24 13.6)
 		(end 38 26.4)
@@ -2642,7 +3060,7 @@
 	(gr_text "VIN"
 		(at 8.7 18 0)
 		(layer "F.SilkS")
-		(uuid "ed806d73-0d0e-4f53-b6d4-001e772609b3")
+		(uuid "6d74bca6-e146-4ec1-9890-786cdd41cddf")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -2654,7 +3072,7 @@
 	(gr_text "GND"
 		(at 8.7 23.08 0)
 		(layer "F.SilkS")
-		(uuid "c0b646d8-e9f5-48d4-a515-8a94d01cd44a")
+		(uuid "2d1f1cf6-aa62-44c8-aea0-a59f4187c8aa")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -2666,7 +3084,7 @@
 	(gr_text "VIN 13.5-16.5V -> 3V3 0.5A"
 		(at 22 4.5 0)
 		(layer "F.SilkS")
-		(uuid "fde19bac-0863-4d20-a529-58addd16ee8a")
+		(uuid "7049e700-4c50-42f9-9b22-bada37fb74b6")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -2678,7 +3096,7 @@
 	(gr_text "ISOLATED DC - NO MAINS"
 		(at 22 6.5 0)
 		(layer "F.SilkS")
-		(uuid "eb0edc10-7785-46d5-8d8a-3a1497dc5611")
+		(uuid "f69bc282-8847-4845-bfcf-8aaa6a948cdb")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -2690,7 +3108,7 @@
 	(gr_text "3V3"
 		(at 28 34 0)
 		(layer "F.SilkS")
-		(uuid "db6f01d4-b0b5-4777-b562-fc3d89578ce0")
+		(uuid "a2996b52-96ae-43d6-8f86-ad148f901320")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -2702,7 +3120,7 @@
 	(gr_text "GND"
 		(at 40.9 34 0)
 		(layer "F.SilkS")
-		(uuid "6fe6cce2-7d04-4452-9633-68d02e490a0e")
+		(uuid "bb4d98da-0911-4786-8663-2c53f1aa1af0")
 		(effects
 			(font
 				(size 0.8 0.8)
@@ -2714,7 +3132,7 @@
 	(gr_text "BUCK REV A"
 		(at 22 2.5 0)
 		(layer "F.SilkS")
-		(uuid "a49bbf1c-7632-46e6-8212-23e589fc458f")
+		(uuid "7ed540b7-e829-4989-a2e5-75b1daf612d7")
 		(effects
 			(font
 				(size 1.2 1.2)
@@ -2730,22 +3148,6 @@
 		(layer "F.Cu")
 		(net "+15V")
 		(uuid "210e1089-8844-4d51-abb7-6a1ce951cea8")
-	)
-	(segment
-		(start 5.5 18)
-		(end 10 18)
-		(width 0.6)
-		(layer "F.Cu")
-		(net "+15V")
-		(uuid "23a2417b-08d7-493f-bd5c-3791018653d2")
-	)
-	(segment
-		(start 17 10)
-		(end 17 12)
-		(width 0.3)
-		(layer "F.Cu")
-		(net "+15V")
-		(uuid "34f258c8-7c5a-4308-9aa8-4438c4a2fc53")
 	)
 	(segment
 		(start 18 12)
@@ -2780,6 +3182,14 @@
 		(uuid "57ebdace-23d6-4a22-ac76-237dfe3634e8")
 	)
 	(segment
+		(start 5.5 18)
+		(end 10 18)
+		(width 0.6)
+		(layer "F.Cu")
+		(net "+15V")
+		(uuid "6ea5835f-b686-407b-8cd6-7e65e33c3fa8")
+	)
+	(segment
 		(start 22.5 17.475)
 		(end 22.5 19.05)
 		(width 0.6)
@@ -2794,6 +3204,14 @@
 		(layer "F.Cu")
 		(net "+15V")
 		(uuid "9a220470-d83e-482f-9e8b-dda6c68b22f7")
+	)
+	(segment
+		(start 17 10)
+		(end 17 12)
+		(width 0.3)
+		(layer "F.Cu")
+		(net "+15V")
+		(uuid "ae3d3685-b139-42a7-b0cb-14e6d9cbaec9")
 	)
 	(segment
 		(start 20 17.475)
@@ -2841,7 +3259,7 @@
 		(width 0.3)
 		(layer "F.Cu")
 		(net "gnd")
-		(uuid "264ca0c8-78b9-4c44-b763-a63dcf55020b")
+		(uuid "0d5849c8-efaf-4791-aad2-3a707a95d4cf")
 	)
 	(segment
 		(start 43.5 12)
@@ -2849,7 +3267,7 @@
 		(width 0.3)
 		(layer "F.Cu")
 		(net "gnd")
-		(uuid "a871a829-d45c-4c47-9fa4-dfe71e989c0a")
+		(uuid "36eff75d-bbef-40a8-8631-8a0187843fce")
 	)
 	(via
 		(at 21.1375 20.95)
@@ -2932,6 +3350,14 @@
 		(uuid "37bf5c54-365b-4248-999e-f5dd498e4eca")
 	)
 	(segment
+		(start 5.5 23.08)
+		(end 6 23.08)
+		(width 0.6)
+		(layer "B.Cu")
+		(net "gnd")
+		(uuid "3bfac8ac-dcce-46c9-b37d-c274f413af11")
+	)
+	(segment
 		(start 13.175 21)
 		(end 13.175 25)
 		(width 0.6)
@@ -2945,15 +3371,7 @@
 		(width 0.6)
 		(layer "B.Cu")
 		(net "gnd")
-		(uuid "4b99e8b1-2f75-4ea3-8adc-222fa8eefbf5")
-	)
-	(segment
-		(start 5.5 23.08)
-		(end 6 23.08)
-		(width 0.6)
-		(layer "B.Cu")
-		(net "gnd")
-		(uuid "65b2a841-463d-4128-9725-f8374f4d2cb5")
+		(uuid "605773eb-f97a-401d-a512-90624edc061f")
 	)
 	(segment
 		(start 42.775 20)
@@ -3025,7 +3443,7 @@
 		(width 0.6)
 		(layer "B.Cu")
 		(net "gnd")
-		(uuid "e2db23f7-6967-4a14-ba13-f7f5f9b45046")
+		(uuid "fa166321-4c1f-43e1-84d6-00dc09f5b881")
 	)
 	(segment
 		(start 23 20.95)
@@ -3036,20 +3454,20 @@
 		(uuid "fba39771-8b51-40a0-a4b0-910965b7d2ba")
 	)
 	(segment
-		(start 40.525 12)
-		(end 40.525 16)
-		(width 0.3)
-		(layer "F.Cu")
-		(net "+3V3")
-		(uuid "09ed8bb8-3872-4da3-8ff8-5b0a24d573ab")
-	)
-	(segment
 		(start 33 34)
 		(end 33 30)
 		(width 0.6)
 		(layer "F.Cu")
 		(net "+3V3")
-		(uuid "476384e2-06c1-4b8c-b52b-1a874479fc6b")
+		(uuid "2bd75840-7dbe-4bfa-9f35-8b1852737dba")
+	)
+	(segment
+		(start 40.525 12)
+		(end 40.525 16)
+		(width 0.3)
+		(layer "F.Cu")
+		(net "+3V3")
+		(uuid "5034eb92-b682-4f8b-8c89-9b7004bc8e1b")
 	)
 	(segment
 		(start 39 16)
@@ -3068,20 +3486,20 @@
 		(uuid "69f1c41b-4829-4c48-b2c3-1d5ef3425cdb")
 	)
 	(segment
+		(start 33 30)
+		(end 41 30)
+		(width 0.6)
+		(layer "F.Cu")
+		(net "+3V3")
+		(uuid "79bb7061-184d-490c-b1d7-7cc7d7815f4a")
+	)
+	(segment
 		(start 36 20)
 		(end 39 20)
 		(width 0.6)
 		(layer "F.Cu")
 		(net "+3V3")
 		(uuid "a2888fbd-11e8-4743-b6e8-7c110cb514f2")
-	)
-	(segment
-		(start 33 30)
-		(end 41 30)
-		(width 0.6)
-		(layer "F.Cu")
-		(net "+3V3")
-		(uuid "b12fc2b1-7a2a-4312-93eb-47249a95b3ed")
 	)
 	(segment
 		(start 39 20)
@@ -3092,6 +3510,14 @@
 		(uuid "bc23fb2d-5362-48d4-a81a-5bf4b19af379")
 	)
 	(segment
+		(start 41 20)
+		(end 41.225 20)
+		(width 0.6)
+		(layer "F.Cu")
+		(net "+3V3")
+		(uuid "c8a297b3-ba0b-4a21-85a5-41585ad5c73f")
+	)
+	(segment
 		(start 40.525 16)
 		(end 39 16)
 		(width 0.6)
@@ -3100,20 +3526,12 @@
 		(uuid "cc9fafc0-a288-4e19-9910-6f483a226d7c")
 	)
 	(segment
-		(start 41 20)
-		(end 41.225 20)
-		(width 0.6)
-		(layer "F.Cu")
-		(net "+3V3")
-		(uuid "d0d3eff0-f189-43f4-8de3-762bb72124d0")
-	)
-	(segment
 		(start 41 30)
 		(end 41 20)
 		(width 0.6)
 		(layer "F.Cu")
 		(net "+3V3")
-		(uuid "f0205c4c-25ea-493c-b2d6-7807aed710db")
+		(uuid "e6c9942f-d497-4a14-acb8-731295b0ab8e")
 	)
 	(via
 		(at 13.175 17)

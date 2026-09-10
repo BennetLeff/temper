@@ -8,11 +8,11 @@
     "kicad_cli_path": "/Volumes/KiCad/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
   },
   "files": {
-    "buck-reva.kicad_sch": "1c6529104b5ce671406785a3c6b1508a9ae0a05ebf81f61423be6062659a56c5",
-    "buck-reva.kicad_pcb": "cb8cca0bd5eaaf695e6c8a3e23a8e270f62b39f2ab4d08ffad7d9a9a850b3303",
-    "buck-reva.kicad_pro": "260eaf039a2aa24c08389d5870da409e6ac1135a3be15633b4c96747fdf733e8",
+    "buck-reva.kicad_sch": "f0a48a4c707a90fd7aa51a36d1879652492e78d1f08f8a87a944e9e9ee920a26",
+    "buck-reva.kicad_pcb": "308131c56e3af2c9f40ee526018c6af945e92f42ad9db4c4d89710911c85390b",
+    "buck-reva.kicad_pro": "b5a93ddb50cef2d550aaacdff28a67ecfa6ed2e060b945ca82bec222a287196b",
     "buck-reva.kicad_dru": "e53161ef573ffc1623e5f4751f32a11e23d65479c83230e49e41cf93273cacf5",
-    "buck-reva.kicad_sym": "d2eed7d974fe60449b1c14d568b9892415b6fabfa890490acbdc9cc7b7eb078d",
+    "buck-reva.kicad_sym": "64406f8d76017d988a2e1f5c6a678c20fd38351862ea2d2f8b254c358986b268",
     "fp-lib-table": "80201c126689b71db1a36ec47614f8e89423df249797ac259c98e76428d584ae",
     "sym-lib-table": "410cee4cb805a90e2df5ca1b1686b36e05d93a9a3829e5f8c04c9fad47f9ce85",
     "buck-reva.pretty/C_0603_1608Metric.kicad_mod": "7533b5bc39ffc20f7fa30362d8e299f64306ce4aa022bce462c1e5234d60260c",
@@ -22,7 +22,7 @@
     "buck-reva.pretty/R_0603_1608Metric.kicad_mod": "543eed1d2230b94dc22a283c6593beed5960db625feec403313397e7192a606f",
     "buck-reva.pretty/SOT-23-6.kicad_mod": "6f81d4fc72cfb7be1b9b8a12649a04f91a7edf5fa18908274b6667fbd89ad2ce",
     "buck-reva.pretty/TerminalBlock_5.08mm_1x02.kicad_mod": "3842ea506b22f345aa2561fb463257f5736a6c1d959497e1a4b3652fb494615b",
-    "buck-reva.pretty/TestPoint_Probe_2mm.kicad_mod": "73935858328c3c61e47a0e53f72eb520825d67d9f746501c6f54c2dec8351470"
+    "buck-reva.pretty/TestPoint_Probe_2mm.kicad_mod": "6ce59bc58c0121304efafabd3d2c653d0621af394f8ce36e8c7a8e4ef596ce78"
   },
   "source_provenance": {
     "elec/src/modules.ato": "d3873898d65300b5982eeba66d61b1ec4938c63ec29ce869d34a3ac8d11cc547",
@@ -65,7 +65,7 @@
       "TP3": "+3V3 (VOUT)",
       "TP4": "gnd (GND)"
     },
-    "optional_sw_access": "not populated; switching node accessible at U3.2 / L2.1 pads only (documented, no dedicated pad added to avoid enlarging the SW loop)",
+    "optional_sw_access": "not populated; SW accessible at U3.2 / L2.1 pads only",
     "mounting_holes": "H1-H4, NPTH 3.2 mm for M3, isolated"
   },
   "fabrication": {
@@ -79,10 +79,11 @@
     "finished_copper_oz": 1,
     "surface_finish": "lead-free HASL",
     "solder_mask": "both sides",
-    "silkscreen": "both sides (F.SilkS populated)",
+    "silkscreen": "front side only (F.SilkS); back silkscreen unused",
     "assembly_side": "top",
     "min_track_mm": 0.2,
     "min_clearance_mm": 0.2,
-    "min_edge_clearance_mm": 0.2
+    "min_edge_clearance_mm": 0.5,
+    "via_treatment": "Core vias are via-in-pad (9 of 10 at SMD pad centres, 0.8 mm / 0.4 mm), tented both sides, no plug/fill/cap. Assembly note: for reflow either accept via-in-pad at these joints or specify IPC-4761 Type VII fill+cap; hand-soldering the affected joints is acceptable for this prototype."
   }
 }

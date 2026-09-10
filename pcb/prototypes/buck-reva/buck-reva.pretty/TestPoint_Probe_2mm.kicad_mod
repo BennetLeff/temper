@@ -3,7 +3,7 @@
 	(generator "buck-reva")
 	(generator_version "1.0")
 	(layer "F.Cu")
-	(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP5.")
+	(descr "Bare 2.0 mm probe pad, exposed copper (F.Cu + F.Mask, no paste). No purchased part; not populated by an assembler. Used for TP1-TP4.")
 	(tags "TestPoint probe pad bare")
 	(attr smd exclude_from_pos_files exclude_from_bom)
 	(property "Reference" "REF**"

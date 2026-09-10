@@ -86,6 +86,21 @@
         (pin bidirectional line (at 15.24 5.08 180) (length 2.54) (name "FB" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
       )
     )
+    (symbol "buck-reva:MountingHole"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "REF" (at 0 7.62 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "MountingHole" (at 0 -7.62 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Description" "Mechanical mounting hole; not populated." (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "MountingHole_0_1"
+        (rectangle (start -12.70 -5.08) (end 12.70 5.08) (stroke (width 0.254) (type default)) (fill (type background))))
+      (symbol "MountingHole_1_1"
+      )
+    )
     (symbol "buck-reva:RC0603FR-07100KL"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
@@ -185,6 +200,7 @@
     (property "Value" "LMR51430XDDCR" (at 148.59 93.98 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:SOT-23-6" (at 148.59 90.17 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.ti.com/lit/ds/symlink/lmr51430.pdf" (at 148.59 90.17 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "4.5-36 V, 3 A synchronous buck converter, SOT-23-6 (DDC)." (at 148.59 90.17 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Texas Instruments" (at 148.59 90.17 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "LMR51430XDDCR" (at 148.59 90.17 0) (effects (font (size 1.27 1.27)) hide))
     (pin "3" (uuid "f990affe-7dfb-1d0b-5490-dfc29b9e2f26"))
@@ -195,35 +211,71 @@
     (pin "4" (uuid "6de49884-5f93-ef67-a350-1682b17643e7"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "U3") (unit 1))))
   )
-  (label "+15V"
+  (global_label "+15V"
+    (shape bidirectional)
     (at 133.35 95.25 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "b29cbcc9-dfa6-c024-e3a3-c9f23d27ab77")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 133.35 95.25 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "+15V"
+  (global_label "+15V"
+    (shape bidirectional)
     (at 133.35 90.17 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "c39a189c-3699-4295-d757-a9eacde72246")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 133.35 90.17 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 133.35 85.09 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "5f62dc48-785a-dca7-b5ac-f1c4802d9580")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 133.35 85.09 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "sw"
+  (global_label "sw"
+    (shape bidirectional)
     (at 163.83 95.25 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "abbe9d22-502f-e898-2f8c-98eb26ff95ee")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 163.83 95.25 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "boot"
+  (global_label "boot"
+    (shape bidirectional)
     (at 163.83 90.17 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "5f8606a9-2438-3717-0562-d2e97dcf86a2")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 163.83 90.17 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "fb"
+  (global_label "fb"
+    (shape bidirectional)
     (at 163.83 85.09 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "4ab38ba7-0e4d-2069-018b-65f3cae0c1a6")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 163.83 85.09 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -239,21 +291,34 @@
     (property "Value" "10uF 50V X7R" (at 39.37 63.50 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:C_1210_3225Metric" (at 39.37 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://product.samsungsem.com/mlcc/CL32B106KBJZW6.do" (at 39.37 59.69 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Samsung 10 uF 50 V X7R 1210 input capacitor." (at 39.37 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Samsung Electro-Mechanics" (at 39.37 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "CL32B106KBJZW6E" (at 39.37 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "978989e0-d83d-9dae-1687-eec9e91c8e88"))
     (pin "2" (uuid "82beedad-8fa3-ef32-e443-0c864cb4ac6c"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "C9") (unit 1))))
   )
-  (label "+15V"
+  (global_label "+15V"
+    (shape bidirectional)
     (at 24.13 59.69 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "e00106be-c9fc-6889-c10a-ac6b5afff543")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 24.13 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 54.61 59.69 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "f0803ce9-284f-5a7f-f9c5-2a3e47901c7d")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 54.61 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -269,21 +334,34 @@
     (property "Value" "100nF 50V X7R" (at 148.59 184.15 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:C_0603_1608Metric" (at 148.59 180.34 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf" (at 148.59 180.34 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "KEMET 100 nF 50 V X7R 0603." (at 148.59 180.34 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "KEMET" (at 148.59 180.34 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "C0603C104K5RACTU" (at 148.59 180.34 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "ff67e11a-387e-1c15-3474-0d3c3fac8edd"))
     (pin "2" (uuid "a8dfd364-052a-2d6d-ed9a-821dec2d3d61"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "C10") (unit 1))))
   )
-  (label "boot"
+  (global_label "boot"
+    (shape bidirectional)
     (at 133.35 180.34 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "bbaec0d8-1509-6b1e-1b24-82821d4e6130")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 133.35 180.34 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "sw"
+  (global_label "sw"
+    (shape bidirectional)
     (at 163.83 180.34 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "edbb6e09-dc14-b0e1-7c88-46b7c47b446e")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 163.83 180.34 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -299,21 +377,34 @@
     (property "Value" "5.6uH" (at 250.19 63.50 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:L_Bourns_SRP1265A" (at 250.19 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.bourns.com/docs/Product-Datasheets/SRP1265A.pdf" (at 250.19 59.69 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bourns 5.6 uH 12.5 A power inductor." (at 250.19 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Bourns" (at 250.19 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "SRP1265A-5R6M" (at 250.19 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "b5b710df-84e9-e465-16aa-68b325761a2b"))
     (pin "2" (uuid "cb1944af-03a4-a130-6636-dd71fcf60599"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "L2") (unit 1))))
   )
-  (label "sw"
+  (global_label "sw"
+    (shape bidirectional)
     (at 234.95 59.69 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "a9de3944-3031-d891-82a1-c32c4952f2c1")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 234.95 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "+3V3"
+  (global_label "+3V3"
+    (shape bidirectional)
     (at 265.43 59.69 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "575e3320-2487-21f7-a0e5-908d93336d26")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 265.43 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -329,21 +420,34 @@
     (property "Value" "22uF 25V X7R" (at 250.19 133.35 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:C_1210_3225Metric" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Murata 22 uF 25 V X7R 1210 output capacitor." (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Murata" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "GRM32ER71E226KE15L" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "dcd4ef28-ccae-3042-c201-a0ef9ecbb83e"))
     (pin "2" (uuid "4363d49b-f1f9-9938-b447-52055ce8919a"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "C11") (unit 1))))
   )
-  (label "+3V3"
+  (global_label "+3V3"
+    (shape bidirectional)
     (at 234.95 129.54 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "1dcb2034-1a66-9867-8c0c-a023a887e8b3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 234.95 129.54 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 265.43 129.54 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "270cbe31-e2f9-e482-3bf1-def24cb050ca")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 265.43 129.54 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -359,21 +463,34 @@
     (property "Value" "22uF 25V X7R" (at 250.19 204.47 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:C_1210_3225Metric" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Murata 22 uF 25 V X7R 1210 output capacitor." (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Murata" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "GRM32ER71E226KE15L" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "75a93c6a-099f-157f-88cf-acfbeb0d1d7e"))
     (pin "2" (uuid "010a6b56-f1b6-4c68-d4ed-e453972f524f"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "C12") (unit 1))))
   )
-  (label "+3V3"
+  (global_label "+3V3"
+    (shape bidirectional)
     (at 234.95 200.66 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "b6d54c98-38dc-95be-1136-15b5a545dd92")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 234.95 200.66 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 265.43 200.66 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "a7bd565e-996b-3497-a87f-98db192b4974")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 265.43 200.66 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -389,21 +506,34 @@
     (property "Value" "100nF 50V X7R" (at 250.19 264.16 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:C_0603_1608Metric" (at 250.19 260.35 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf" (at 250.19 260.35 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "KEMET 100 nF 50 V X7R 0603." (at 250.19 260.35 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "KEMET" (at 250.19 260.35 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "C0603C104K5RACTU" (at 250.19 260.35 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "a962f6a8-941c-cb79-bb21-4a677aaca0b0"))
     (pin "2" (uuid "0005bdca-d0a7-b5a9-73bf-8be9e7984692"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "C13") (unit 1))))
   )
-  (label "+3V3"
+  (global_label "+3V3"
+    (shape bidirectional)
     (at 234.95 260.35 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "f9b472f2-d042-3407-15d5-5b7808e2edf6")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 234.95 260.35 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 265.43 260.35 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "d28ae3ca-2392-2972-3081-e0b1e04f3306")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 265.43 260.35 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -419,21 +549,34 @@
     (property "Value" "100k" (at 59.69 184.15 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:R_0603_1608Metric" (at 59.69 180.34 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L_12.pdf" (at 59.69 180.34 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Yageo 100 kohm 1% 0603 feedback resistor." (at 59.69 180.34 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Yageo" (at 59.69 180.34 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "RC0603FR-07100KL" (at 59.69 180.34 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "fa5bed94-c505-16c2-30d9-2905520991fe"))
     (pin "2" (uuid "59dc13a8-11ee-03db-c973-923438f8aeb4"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "R16") (unit 1))))
   )
-  (label "+3V3"
+  (global_label "+3V3"
+    (shape bidirectional)
     (at 44.45 180.34 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "4e4f7742-11cf-25fe-a2e3-a982660ba8aa")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 44.45 180.34 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "fb"
+  (global_label "fb"
+    (shape bidirectional)
     (at 74.93 180.34 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "91a38aeb-dab9-2136-3bdc-5c9c94c46eb2")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 74.93 180.34 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -449,21 +592,34 @@
     (property "Value" "22.1k" (at 59.69 254.00 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:R_0603_1608Metric" (at 59.69 250.19 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L_12.pdf" (at 59.69 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Yageo 22.1 kohm 1% 0603 feedback resistor." (at 59.69 250.19 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Yageo" (at 59.69 250.19 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "RC0603FR-0722K1L" (at 59.69 250.19 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "a8449973-3ac8-6f2b-6819-52279498b8fe"))
     (pin "2" (uuid "2b48131d-6cd9-28b3-e331-0a0b5f1668c4"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "R17") (unit 1))))
   )
-  (label "fb"
+  (global_label "fb"
+    (shape bidirectional)
     (at 44.45 250.19 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "2e7c5e95-0503-ca92-384d-08eb4a9612c0")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 44.45 250.19 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 74.93 250.19 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "e203a9d7-6824-441e-ae64-f48e8d7465d4")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 74.93 250.19 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -479,21 +635,34 @@
     (property "Value" "VIN / GND" (at 39.37 284.48 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:TerminalBlock_5.08mm_1x02" (at 39.37 280.67 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.we-online.com/components/products/datasheet/691253500002.pdf" (at 39.37 280.67 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "2-position 5.08 mm vertical screw terminal." (at 39.37 280.67 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Wurth Elektronik" (at 39.37 280.67 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "691253500002" (at 39.37 280.67 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "02532dd5-e094-e26b-b0d4-283e2ea95efa"))
     (pin "2" (uuid "603ebe67-f312-6c6b-4df5-c0a2a719816e"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "J1") (unit 1))))
   )
-  (label "+15V"
+  (global_label "+15V"
+    (shape bidirectional)
     (at 24.13 280.67 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "8fd91f1c-9891-5d75-e54f-b47663ae398a")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 24.13 280.67 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 54.61 280.67 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "0e7b2a2a-e007-5264-04da-1195ee42ae35")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 54.61 280.67 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -509,21 +678,34 @@
     (property "Value" "3V3 / GND" (at 320.04 63.50 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:TerminalBlock_5.08mm_1x02" (at 320.04 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.we-online.com/components/products/datasheet/691253500002.pdf" (at 320.04 59.69 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "2-position 5.08 mm vertical screw terminal." (at 320.04 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Wurth Elektronik" (at 320.04 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "691253500002" (at 320.04 59.69 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "ce03bdc5-c8e8-9561-7b49-13192bf2b99d"))
     (pin "2" (uuid "7e8aef1d-e93d-2d7c-d7c8-b0442d7624ef"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "J2") (unit 1))))
   )
-  (label "+3V3"
+  (global_label "+3V3"
+    (shape bidirectional)
     (at 304.80 59.69 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "0ec190d5-bde1-73b3-36ab-c2be28cab4e1")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 304.80 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 335.28 59.69 0)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "ad44d0ed-82a8-205a-6e10-f89d62146c66")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 335.28 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -539,15 +721,22 @@
     (property "Value" "VIN" (at 148.59 43.18 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:TestPoint_Probe_2mm" (at 148.59 39.37 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "" (at 148.59 39.37 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bare 2.0 mm probe pad." (at 148.59 39.37 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "N/A (bare pad)" (at 148.59 39.37 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "N/A" (at 148.59 39.37 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "f404b590-7eaf-00a0-e109-ac2a77ea9e05"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "TP1") (unit 1))))
   )
-  (label "+15V"
+  (global_label "+15V"
+    (shape bidirectional)
     (at 133.35 39.37 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "ce484d5f-09db-c4ba-0327-9ce8eb41e188")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 133.35 39.37 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -563,15 +752,22 @@
     (property "Value" "GND" (at 190.50 43.18 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:TestPoint_Probe_2mm" (at 190.50 39.37 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "" (at 190.50 39.37 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bare 2.0 mm probe pad." (at 190.50 39.37 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "N/A (bare pad)" (at 190.50 39.37 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "N/A" (at 190.50 39.37 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "8179a0bf-944d-811f-fc3f-8838227b2f79"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "TP2") (unit 1))))
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 175.26 39.37 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "f8f7aaa5-f630-2897-032e-e451ef50de8f")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 175.26 39.37 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -587,15 +783,22 @@
     (property "Value" "VOUT" (at 320.04 133.35 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:TestPoint_Probe_2mm" (at 320.04 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "" (at 320.04 129.54 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bare 2.0 mm probe pad." (at 320.04 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "N/A (bare pad)" (at 320.04 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "N/A" (at 320.04 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "7c33899d-0fd4-5318-d12e-2940ad349b16"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "TP3") (unit 1))))
   )
-  (label "+3V3"
+  (global_label "+3V3"
+    (shape bidirectional)
     (at 304.80 129.54 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "798efff4-9e2c-603e-d763-cb0c693151b3")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 304.80 129.54 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (symbol
@@ -611,15 +814,98 @@
     (property "Value" "GND" (at 320.04 204.47 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:TestPoint_Probe_2mm" (at 320.04 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "" (at 320.04 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Bare 2.0 mm probe pad." (at 320.04 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "N/A (bare pad)" (at 320.04 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "N/A" (at 320.04 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "0dcf33e1-532c-2daa-cd57-770cd29838d2"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "TP4") (unit 1))))
   )
-  (label "gnd"
+  (global_label "gnd"
+    (shape bidirectional)
     (at 304.80 200.66 180)
+    (fields_autoplaced yes)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "804dd3e9-3af8-9c2f-0695-b0530d180a8e")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 304.80 200.66 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
+  (symbol
+    (lib_id "buck-reva:MountingHole")
+    (at 110.49 250.19 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "eaa819ab-efcf-e02b-89ea-51ae1b818721")
+    (property "Reference" "H1" (at 110.49 246.38 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MountingHole_3.2mm_M3" (at 110.49 254.00 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "buck-reva:MountingHole_3.2mm_M3" (at 110.49 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "" (at 110.49 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Mechanical mounting hole; not populated." (at 110.49 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "N/A" (at 110.49 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "N/A" (at 110.49 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "H1") (unit 1))))
+  )
+
+  (symbol
+    (lib_id "buck-reva:MountingHole")
+    (at 148.59 250.19 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "587656ff-2130-e128-24b8-7acb974a6f02")
+    (property "Reference" "H2" (at 148.59 246.38 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MountingHole_3.2mm_M3" (at 148.59 254.00 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "buck-reva:MountingHole_3.2mm_M3" (at 148.59 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "" (at 148.59 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Mechanical mounting hole; not populated." (at 148.59 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "N/A" (at 148.59 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "N/A" (at 148.59 250.19 0) (effects (font (size 1.27 1.27)) hide))
+    (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "H2") (unit 1))))
+  )
+
+  (symbol
+    (lib_id "buck-reva:MountingHole")
+    (at 110.49 273.05 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "a5457edd-cd3f-dbbe-0811-991c430c8b98")
+    (property "Reference" "H3" (at 110.49 269.24 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MountingHole_3.2mm_M3" (at 110.49 276.86 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "buck-reva:MountingHole_3.2mm_M3" (at 110.49 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "" (at 110.49 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Mechanical mounting hole; not populated." (at 110.49 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "N/A" (at 110.49 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "N/A" (at 110.49 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "H3") (unit 1))))
+  )
+
+  (symbol
+    (lib_id "buck-reva:MountingHole")
+    (at 148.59 273.05 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board yes)
+    (dnp no)
+    (uuid "f030d508-dd76-bda0-65d8-3f5933d6342e")
+    (property "Reference" "H4" (at 148.59 269.24 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MountingHole_3.2mm_M3" (at 148.59 276.86 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "buck-reva:MountingHole_3.2mm_M3" (at 148.59 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "" (at 148.59 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Mechanical mounting hole; not populated." (at 148.59 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "N/A" (at 148.59 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "N/A" (at 148.59 273.05 0) (effects (font (size 1.27 1.27)) hide))
+    (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "H4") (unit 1))))
   )
   (sheet_instances
     (path "/" (page "1"))

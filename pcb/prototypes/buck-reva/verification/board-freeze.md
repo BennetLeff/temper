@@ -5,23 +5,28 @@ Frozen: 2026-09-10. Revision **A**. Project: `pcb/prototypes/buck-reva/`.
 This document freezes one concrete board revision. Later changes to any file
 listed in `source-manifest.json` invalidate this freeze and require a new one.
 
+> Supersedes an earlier same-day freeze whose DRC receipt did not enable
+> KiCad's `--schematic-parity` check. That check is now enabled and included in
+> this record; the board and schematic were additionally brought into field
+> parity (footprint Value/Manufacturer/MPN/Datasheet fields and the four
+> mounting-hole symbols). See "Change history" at the end.
+
 ## Freeze identity
 
 - Source manifest: `pcb/prototypes/buck-reva/source-manifest.json`
 - Schema: `buck-reva.source-manifest.v1`
-- **Source-manifest SHA-256: `7cf32ae8c6be81a46b73bc72a8edf469f70031affaefecdf3b0050be5369a0ea`**
+- **Source-manifest SHA-256: `3f77b285623adf3fcdc1ccea152fedbf86431f3404f8b9c7b36003c398beebcb`**
 - Frozen CAD hashes (full digests; also in the manifest):
 
 | File | SHA-256 |
 |---|---|
-| `buck-reva.kicad_sch` | `1c6529104b5ce671406785a3c6b1508a9ae0a05ebf81f61423be6062659a56c5` |
-| `buck-reva.kicad_pcb` | `cb8cca0bd5eaaf695e6c8a3e23a8e270f62b39f2ab4d08ffad7d9a9a850b3303` |
-| `buck-reva.kicad_pro` | `260eaf039a2aa24c08389d5870da409e6ac1135a3be15633b4c96747fdf733e8` |
+| `buck-reva.kicad_sch` | `f0a48a4c707a90fd7aa51a36d1879652492e78d1f08f8a87a944e9e9ee920a26` |
+| `buck-reva.kicad_pcb` | `308131c56e3af2c9f40ee526018c6af945e92f42ad9db4c4d89710911c85390b` |
+| `buck-reva.kicad_pro` | `b5a93ddb50cef2d550aaacdff28a67ecfa6ed2e060b945ca82bec222a287196b` |
 | `buck-reva.kicad_dru` | `e53161ef573ffc1623e5f4751f32a11e23d65479c83230e49e41cf93273cacf5` |
-| `buck-reva.kicad_sym` | `d2eed7d974fe60449b1c14d568b9892415b6fabfa890490acbdc9cc7b7eb078d` |
+| `buck-reva.kicad_sym` | `64406f8d76017d988a2e1f5c6a678c20fd38351862ea2d2f8b254c358986b268` |
 
-The five hashes above are repeated here for convenience; `source-manifest.json`
-is the authority and additionally pins `fp-lib-table`, `sym-lib-table` and
+`source-manifest.json` additionally pins `fp-lib-table`, `sym-lib-table` and
 every local `.kicad_mod` (15 files total).
 
 ## Toolchain
@@ -29,8 +34,11 @@ every local `.kicad_mod` (15 files total).
 - KiCad CLI **10.0.6**, `/Volumes/KiCad/KiCad/KiCad.app/Contents/MacOS/kicad-cli`
   (verified with `kicad-cli version`). One runtime used for ERC, DRC and all
   renders; no legacy 10.0.4 checks are mixed into this receipt.
-- The board, schematic and project file were confirmed byte-stable across
-  `sch erc`, `sch export netlist` and `pcb drc` runs.
+- The board, schematic, project and library files were confirmed byte-stable
+  across the export commands (`sch erc`, `sch export netlist`,
+  `pcb drc`, `pcb drc --refill-zones`, `pcb export pos`). The `.kicad_pro`
+  stored here is KiCad's canonical serialization and is idempotent under
+  kicad-cli.
 
 ## Final interface (authoritative)
 
@@ -56,34 +64,48 @@ every local `.kicad_mod` (15 files total).
 - Optional SW access: **not populated**. No dedicated probe pad was added,
   because every candidate location lies inside L2's courtyard or would extend
   the switching-node copper. SW remains reachable at the U3.2 / L2.1 pads.
-- Mounting: H1–H4, 3.2 mm non-plated holes for M3, isolated.
+- Mounting: H1–H4, 3.2 mm non-plated holes for M3, isolated (symbols present in
+  the schematic for parity; excluded from the BOM).
 - Net-name aliases are recorded in `verification/connectivity.md`.
 
 ## Fabrication specification
 
 - 2 copper layers, FR-4, 1.6 mm, 1 oz finished copper.
-- Solder mask both sides; silkscreen both sides.
+- Solder mask both sides; **front** silkscreen only (no back silk artwork).
 - Surface finish: lead-free HASL.
 - Top-side assembly.
 - Outline 50 × 40 mm.
-- Design rules: 0.2 mm min track, 0.2 mm min clearance, 0.2 mm min
-  copper-to-edge (`.kicad_dru` adds a 0.2 mm "buck copper clearance" rule;
-  `buck-reva.kicad_pro` sets `min_clearance` 0.2 and
-  `min_copper_edge_clearance` 0.2, Default netclass clearance 0.2).
+- Rules: Default netclass clearance 0.2 mm and `min_track_width` 0.2 mm; the
+  project-local `buck-reva.kicad_dru` adds a 0.2 mm "buck copper clearance"
+  rule; `min_copper_edge_clearance` is KiCad's 0.5 mm default (stricter than
+  the 0.2 mm starting rule).
+- **Via treatment (assembly note):** the nine-device core carries nine vias
+  placed at SMD pad centres (via-in-pad), 0.8 mm / 0.4 mm, including the U3
+  GND pad and the R16/R17 feedback divider. They are mask-tented but not
+  filled/capped. For reflow assembly, either accept via-in-pad at these joints
+  or specify IPC-4761 Type VII fill+cap; hand-soldering those joints is also
+  acceptable for this prototype. Flagged for the release owner's assembly
+  notes.
 
 ## Native verification results (KiCad 10.0.6)
 
+Command: `kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format json`.
+
 | Check | Result | Report |
 |---|---|---|
-| Schematic ERC (`--severity-all`) | **0 violations** | `verification/buck-reva-erc.json` |
-| PCB DRC (`--all-track-errors --format json`) | **0 violations, 0 unconnected, 0 schematic-parity** | `verification/buck-reva-drc.json` |
+| Schematic ERC (`sch erc --severity-all`) | **0 violations** | `verification/buck-reva-erc.json` |
+| PCB DRC (with `--schematic-parity --severity-all`) | **0 violations, 0 unconnected, 0 schematic-parity** | `verification/buck-reva-drc.json` |
 | Schematic↔board connectivity | exact match, all 6 nets | `verification/connectivity.md` |
 | Locality metrics (core) | all within limits (below) | this file |
 
 Warning disposition: the final reports contain **no warnings**. Earlier
-iterations' silk warnings (edge clearance, over-copper, overlap, text height)
-and one dangling track were fixed in geometry, not suppressed; DRC exclusions
-are empty.
+iterations' issues (silk edge/overlap/over-copper, one dangling track, and
+60 schematic-parity warnings) were fixed in geometry/data, not suppressed; DRC
+exclusions are empty. The 60 parity warnings were 30 root-prefix `net_conflict`
+entries (fixed by using global labels), 15+11 footprint/symbol field
+mismatches (fixed by syncing the board footprint Value/Manufacturer/MPN/
+Datasheet and Description fields from the schematic), and 4 extra mounting-hole
+footprints (fixed by adding H1–H4 symbols to the schematic).
 
 ## Locality metrics (supporting checks)
 
@@ -103,8 +125,12 @@ Measured on the frozen board; limits from `buck-v2-contract.json`.
 | `fb_sw_separation` (pads + same-layer segments) | 2.47 mm | ≥1.0 | PASS |
 | `ground_return` C9.2/C11.2/C12.2/C13.2 | 0.00 mm | ≤4.0 | PASS |
 
-These are geometry checks, not performance measurements. The routed loops were
-inspected directly (see the renders) in addition to the numeric checks.
+Caveat (recorded): `ground_return` is structurally 0.00 because a ground via
+sits at each of those pad centres; it confirms the pads are connected and says
+nothing about return-path length or impedance. Ground return is a routed B.Cu
+network (17 segments, 0.6 mm); there is no ground plane/zone. The routed loops
+were inspected directly in the renders; this is a geometry check, not a
+measurement of transient performance.
 
 ## Reviewed artifacts
 
@@ -133,14 +159,23 @@ Recorded separately from the manufacturing input mapping (see
 
 The production board and all benchmark fixtures were left unchanged.
 
+## Change history
+
+- **rev A (first freeze, superseded):** manifest
+  `7cf32ae8c6be81a46b73bc72a8edf469f70031affaefecdf3b0050be5369a0ea`. DRC
+  command omitted `--schematic-parity`; the "0 parity" claim was unsupported.
+- **rev A (this freeze):** global labels, board↔schematic field sync, and
+  H1–H4 schematic symbols added; DRC now runs with `--schematic-parity` and
+  reports 0. Manifest digest above.
+
 ## Outstanding items (explicit)
 
+- Via-in-pad treatment (see fabrication note) is an assembly decision.
 - Combined capacitor derating, hot-inductor characterization, behavioral-model
   correlation and environmental qualification remain deferred; they are not
   required for this prototype build.
 - No STEP model for L2 or the terminals (cosmetic only; dimensions verified).
-- Physical assembly and bench measurements are **NOT RUN** and are out of scope
-  for the board freeze.
+- Physical assembly and bench measurements are **NOT RUN**.
 
 ## Release / bring-up handoff
 

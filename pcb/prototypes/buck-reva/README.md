@@ -13,7 +13,7 @@ been assembled or measured. See the deferred-qualification list at the end.
 | Item | State |
 |---|---|
 | Board | **Frozen**, revision A, 2026-09-10 |
-| Source-manifest digest | `7cf32ae8c6be81a46b73bc72a8edf469f70031affaefecdf3b0050be5369a0ea` |
+| Source-manifest digest | `3f77b285623adf3fcdc1ccea152fedbf86431f3404f8b9c7b36003c398beebcb` |
 | Native ERC / DRC | 0 violations / 0 violations, 0 unconnected (KiCad 10.0.6) |
 | Schematic ↔ board connectivity | exact match |
 | Manufacturing export | release owner; waits on this freeze |
@@ -32,7 +32,7 @@ Freeze details: `verification/board-freeze.md`. Upstream identity:
   **J2.1 = 3V3 (`+3V3`)**, **J2.2 = GND (`gnd`)**.
 - Probe pads: **TP1 = VIN**, **TP2 = GND**, **TP3 = VOUT**, **TP4 = GND**.
   No TP5; SW stays on the U3.2 / L2.1 pads.
-- Silk reads `VIN 13.5–16.5V -> 3V3 0.5A`, `ISOLATED DC - NO MAINS`, plus
+- Silk reads `VIN 13.5-16.5V -> 3V3 0.5A`, `ISOLATED DC - NO MAINS`, plus
   per-terminal polarity and reference designators.
 
 ## Files
@@ -56,7 +56,7 @@ All artifacts were produced with **KiCad CLI 10.0.6** at
 K=/Volumes/KiCad/KiCad/KiCad.app/Contents/MacOS/kicad-cli
 $K sch erc --format json --severity-all buck-reva.kicad_sch -o verification/buck-reva-erc.json
 $K sch export netlist buck-reva.kicad_sch -o verification/buck-reva.net
-$K pcb drc --all-track-errors --format json -o verification/buck-reva-drc.json buck-reva.kicad_pcb
+$K pcb drc --all-track-errors --schematic-parity --severity-all --format json -o verification/buck-reva-drc.json buck-reva.kicad_pcb
 ```
 
 The board was derived once from the reviewed witness fixture; see
@@ -65,10 +65,11 @@ footprint UUIDs, positions and pad nets are carried over unchanged.
 
 ## Design rules
 
-- 0.2 mm minimum track, 0.2 mm minimum clearance, 0.2 mm copper-to-edge
-  (`buck-reva.kicad_dru` + project net class).
+- 0.2 mm minimum track, 0.2 mm minimum clearance (Default netclass and the
+  `buck-reva.kicad_dru` rule), 0.5 mm copper-to-edge (KiCad default, stricter
+  than the 0.2 mm starting rule).
 - Two layers, 50 × 40 mm, 1.6 mm FR-4, 1 oz copper, lead-free HASL,
-  mask and silk both sides, top-side assembly.
+  solder mask both sides, front silkscreen only, top-side assembly.
 
 ## Deferred (not blockers for this prototype)
 

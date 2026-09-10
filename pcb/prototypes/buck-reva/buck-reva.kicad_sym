@@ -74,6 +74,21 @@
       (pin bidirectional line (at 15.24 5.08 180) (length 2.54) (name "FB" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
     )
   )
+  (symbol "MountingHole"
+    (pin_names (offset 1.016))
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (property "Reference" "REF" (at 0 7.62 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "MountingHole" (at 0 -7.62 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Mechanical mounting hole; not populated." (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+    (symbol "MountingHole_0_1"
+      (rectangle (start -12.70 -5.08) (end 12.70 5.08) (stroke (width 0.254) (type default)) (fill (type background))))
+    (symbol "MountingHole_1_1"
+    )
+  )
   (symbol "RC0603FR-07100KL"
     (pin_names (offset 1.016))
     (exclude_from_sim no)
