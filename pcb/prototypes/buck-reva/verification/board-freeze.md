@@ -170,6 +170,11 @@ The production board and all benchmark fixtures were left unchanged.
 
 ## Outstanding items (explicit)
 
+- Fabricator capability for the frozen spec (2-layer, 1.6 mm, 1 oz, lead-free
+  HASL, 0.2 mm min track/clearance, 1.5 mm terminal holes) is a standard,
+  widely supported capability but was **not** verified against a selected
+  fabricator; fabricator selection and capability confirmation belong to the
+  release owner.
 - Via-in-pad treatment (see fabrication note) is an assembly decision.
 - Combined capacitor derating, hot-inductor characterization, behavioral-model
   correlation and environmental qualification remain deferred; they are not
