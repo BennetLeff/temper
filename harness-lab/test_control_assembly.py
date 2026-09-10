@@ -30,6 +30,7 @@ import run_control_assembly as u3  # noqa: E402
 VERIFY = REPO / "pcb" / "blocks" / "control-assembly" / "verification" / "apparatus-only"
 SUMMARY = VERIFY / "summary.json"
 CONNECTIVITY = VERIFY / "routed-connectivity.json"
+CROSS_VIEW = VERIFY / "cross-view-report.json"
 
 
 class Scenario1PhysicalConnectivity(unittest.TestCase):
@@ -240,11 +241,149 @@ class Scenario7CrossViewComparison(unittest.TestCase):
         mismatches = compose_blocks.compare_views(self._extract(), other)
         self.assertTrue(any(m["category"] == "tracks" for m in mismatches))
 
+    def test_one_view_via_change_fails(self) -> None:
+        other = self._extract()
+        other["vias"] = [{"uuid": "v", "span": "In1.Cu-B.Cu"}]
+        mismatches = compose_blocks.compare_views(self._extract(), other)
+        self.assertTrue(any(m["category"] == "vias" for m in mismatches))
+
+    def test_one_view_zone_change_fails(self) -> None:
+        view = self._extract(zones=[{"uuid": "z", "net": "gnd", "layer": "F.Cu"}])
+        other = self._extract(zones=[{"uuid": "z", "net": "gnd", "layer": "B.Cu"}])
+        mismatches = compose_blocks.compare_views(view, other)
+        self.assertTrue(any(m["category"] == "zones" for m in mismatches))
+
+    def test_one_view_pad_change_fails(self) -> None:
+        other = self._extract()
+        other["pads"] = {"U2.2": {"net": "buck-vcc-1", "x_mm": 26.5, "y_mm": 58.89}}
+        mismatches = compose_blocks.compare_views(self._extract(), other)
+        self.assertTrue(any(m["category"] == "pads" for m in mismatches))
+
     def test_one_view_endpoint_change_fails(self) -> None:
         other = self._extract()
         other["endpoints"] = {"BUCK_3V3_TO_MCU": {"net": "gnd"}}
         mismatches = compose_blocks.compare_views(self._extract(), other)
         self.assertTrue(any(m["category"] == "endpoints" for m in mismatches))
+
+    def test_committed_overlay_cross_view_passes(self) -> None:
+        report = json.loads(CROSS_VIEW.read_text(encoding="utf-8"))
+        self.assertIsNotNone(report["overlay_view"], report)
+        self.assertEqual(report["status"], "pass", report)
+        self.assertEqual(report["mismatch_count"], 0, report)
+        self.assertEqual(
+            set(report["categories"]), set(compose_blocks.COMPARE_CATEGORIES)
+        )
+        self.assertIn("rebind_required_after", report)
+
+
+class Scenario5OverlayScratchBoard(unittest.TestCase):
+    """The scratch overlay is the copied production board plus the section."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
+        cls.report = json.loads(CROSS_VIEW.read_text(encoding="utf-8"))
+        cls.overlay = cls.summary["overlay"]
+
+    def test_production_board_digest_stays_exact(self) -> None:
+        self.assertEqual(self.overlay["production_digest_after_overlay"]["status"], "pass")
+        self.assertEqual(self.summary["checks"]["production_digest"]["status"], "pass")
+
+    def test_untouched_outside_region_geometry_is_exact(self) -> None:
+        invariance = self.overlay["outside_region_invariance"]
+        self.assertEqual(invariance["status"], "pass", invariance)
+        self.assertEqual(invariance["problem_count"], 0, invariance)
+        # Track geometry outside the replaced placeholders is unchanged; any
+        # net re-propagation is recorded rather than silently absorbed.
+        self.assertIn("net_reassigned", invariance)
+
+    def test_overlay_is_bound_in_the_manifest(self) -> None:
+        binding = json.loads(
+            (VERIFY / "candidate-binding.json").read_text(encoding="utf-8")
+        )
+        overlay_path = REPO / binding["overlay_board"]["path"]
+        self.assertTrue(overlay_path.is_file())
+        self.assertEqual(
+            u3._sha256(overlay_path), binding["overlay_board"]["sha256"]
+        )
+        report_path = REPO / binding["cross_view_report"]["path"]
+        self.assertEqual(
+            u3._sha256(report_path), binding["cross_view_report"]["sha256"]
+        )
+
+    def test_overlay_finding_delta_is_set_based(self) -> None:
+        delta = self.overlay["finding_delta"]
+        self.assertEqual(delta["introduced_count"], len(delta["introduced"]))
+        self.assertEqual(delta["resolved_count"], len(delta["resolved"]))
+        self.assertEqual(delta["persistent_count"], len(delta["persistent"]))
+        # Both views must be sampled the same way; kicad-cli is nondeterministic.
+        stability = self.overlay["stability"]
+        self.assertEqual(stability["baseline"]["samples"], stability["routed"]["samples"])
+        self.assertGreaterEqual(stability["baseline"]["union"], stability["baseline"]["intersection"])
+
+    def test_overlay_reveals_section_integration_debt(self) -> None:
+        """The overlay is an honest instrument: the current section is NOT
+        overlay-clean (its board-wide gnd pour shorts against production
+        copper). The report keeps that debt visible rather than suppressing it."""
+        delta = self.overlay["finding_delta"]
+        self.assertGreater(delta["introduced_count"], 0, self.overlay)
+        self.assertTrue(
+            any("shorting_items" in item for item in delta["introduced"]),
+            "expected shorting_items from the section's board-wide gnd pour",
+        )
+
+
+class PowerWidthClassification(unittest.TestCase):
+    """The power-width floor is unchanged; the net classification is explicit."""
+
+    def test_committed_power_width_passes_for_power_nets(self) -> None:
+        summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
+        result = summary["checks"]["power_width"]
+        self.assertEqual(result["status"], "pass", result)
+        self.assertEqual(result["narrow"], [], result)
+        self.assertEqual(
+            set(result["power_nets"]), set(u3.run_block.ASSEMBLY_POWER_NETS)
+        )
+
+    def test_inherited_signal_copper_is_attributed_not_hidden(self) -> None:
+        summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
+        inherited = summary["checks"]["power_width"]["inherited_below_power_floor"]
+        self.assertTrue(inherited, "inherited prototype debt must stay visible")
+        self.assertTrue(all(item["net"] in ("fb", "boot") for item in inherited))
+        self.assertTrue(all(item["width_mm"] == 0.3 for item in inherited))
+
+    def test_narrow_power_segment_still_fails(self) -> None:
+        narrow = {
+            "tracks": [{"uuid": "n", "kind": "segment", "net": "buck-vcc-1",
+                        "width_mm": 0.3}]
+        }
+        result = u3.check_power_width(narrow, ["buck-vcc-1"], ("fb",))
+        self.assertEqual(result["status"], "fail", result)
+
+    def test_signal_below_power_floor_is_recorded_not_failed(self) -> None:
+        signal = {
+            "tracks": [{"uuid": "s", "kind": "segment", "net": "fb",
+                        "width_mm": 0.3}]
+        }
+        result = u3.check_power_width(signal, ["buck-vcc-1"], ("fb",))
+        self.assertEqual(result["status"], "pass", result)
+        self.assertEqual(len(result["inherited_below_power_floor"]), 1)
+
+
+class BlockSessionAdmission(unittest.TestCase):
+    """All PCB mutations used the shared bounded native operation."""
+
+    def test_summary_records_the_block_session(self) -> None:
+        summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
+        session = summary["session"]
+        self.assertEqual(session["runner"], "run_block.BlockSession")
+        self.assertEqual(session["contract_kind"], "assembly")
+        self.assertGreaterEqual(session["actions"], 1)
+        self.assertEqual(
+            summary["routing"]["bounded_operation"].split(" dispatched")[0],
+            "replace_copper",
+        )
+        self.assertIn("BlockSession", summary["routing"]["bounded_operation"])
 
 
 class ApparatusOnlyLabelling(unittest.TestCase):

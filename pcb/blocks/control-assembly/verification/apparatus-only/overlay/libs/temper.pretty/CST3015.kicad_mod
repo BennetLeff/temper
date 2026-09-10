@@ -1,0 +1,111 @@
+(footprint "CST3015"
+	(version 20231120)
+	(generator "temper-hand")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Coilcraft CST3015 SMT current sense transformer (CST3015-100ED, 1:100, 88A sensed, 5000Vrms reinforced isolation, >=8mm creepage/clearance, AEC-Q200 Grade 1, -40..+125C). Land pattern hand-built from the official Recommended Land Pattern, Coilcraft Document 1608-2 rev 09/08/25 (https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf). PRIMARY pads 1/2: 9.0 x 4.8mm on 15.36mm centres (datasheet land pattern 9.0 pad width, 6.36 inner gap); these land a 7.36 x 3.8mm terminal, giving 0.82mm extension per side. SECONDARY pads 3/4: 3.0 x 4.6mm on 13.76mm centres (datasheet 3.0 pad width, 10.76 inner gap). Row centres 18.5mm apart outer-to-outer. Body 23.0 x 30.0mm max, 15.2mm max height. PAD NUMBERING matches the datasheet's own pin numbers and the atopile component CST3015_100E directly (primary = pins/pads 1 and 2, secondary = pins/pads 3 and 4) -- unlike the CST2010 footprint, no remapping is required. Silkscreen dot marks pin 1, matching the dot on the part body per the datasheet's 'Dot indicates pin 1'. CONFIDENCE: the secondary geometry is cross-verified -- 3.0mm pad + 10.76mm inner gap = 13.76mm centre-to-centre, which independently equals the 13.76 +/-0.15mm secondary span dimensioned on the component drawing. The primary geometry is consistent (9.0mm land for a 7.36mm terminal) but is not independently cross-verified. VERIFY AGAINST THE DATASHEET DRAWING BEFORE FABRICATION.")
+	(tags "current transformer CST3015 coilcraft SMD isolated")
+	(property "Reference" "REF**"
+		(at 0 -16.5 0)
+		(layer "F.SilkS")
+		(uuid "c5730100-0000-0000-0000-000000000001")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	(property "Value" "CST3015"
+		(at 0 16.5 0)
+		(layer "F.Fab")
+		(uuid "c5730100-0000-0000-0000-000000000002")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	(property "Datasheet" "https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "c5730100-0000-0000-0000-000000000003")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	;; Courtyard: body 23.0 x 30.0 and pads (x +/-12.18) plus 0.25mm margin.
+	;; Body dominates in Y, pads dominate in X.
+	(fp_rect
+		(start -12.43 -15.25)
+		(end 12.43 15.25)
+		(layer "F.CrtYd")
+		(width 0.05)
+		(fill none)
+		(uuid "c5730110-0000-0000-0000-000000000001")
+	)
+	;; Fab body outline: 23.0 x 30.0 mm max body
+	(fp_rect
+		(start -11.5 -15.0)
+		(end 11.5 15.0)
+		(layer "F.Fab")
+		(width 0.1)
+		(fill none)
+		(uuid "c5730111-0000-0000-0000-000000000001")
+	)
+	;; Silkscreen: left/right body edges only; the top and bottom body edges sit
+	;; clear of the pads, so short segments are drawn there too.
+	(fp_line
+		(start -11.7 -15.2)
+		(end -11.7 15.2)
+		(layer "F.SilkS")
+		(width 0.12)
+		(uuid "c5730112-0000-0000-0000-000000000001")
+	)
+	(fp_line
+		(start 11.7 -15.2)
+		(end 11.7 15.2)
+		(layer "F.SilkS")
+		(width 0.12)
+		(uuid "c5730112-0000-0000-0000-000000000002")
+	)
+	(fp_line
+		(start -11.7 -15.2)
+		(end 11.7 -15.2)
+		(layer "F.SilkS")
+		(width 0.12)
+		(uuid "c5730112-0000-0000-0000-000000000003")
+	)
+	(fp_line
+		(start -11.7 15.2)
+		(end 11.7 15.2)
+		(layer "F.SilkS")
+		(width 0.12)
+		(uuid "c5730112-0000-0000-0000-000000000004")
+	)
+	;; Pin-1 marker dot, outside the courtyard beside pad 1
+	(fp_circle
+		(center 12.9 -6.85)
+		(end 13.2 -6.85)
+		(layer "F.SilkS")
+		(width 0.3)
+		(fill solid)
+		(uuid "c5730113-0000-0000-0000-000000000001")
+	)
+	;; PRIMARY pads (datasheet pins 1/2): 9.0 x 4.8 mm, 15.36 mm centres
+	(pad "1" smd rect
+		(at 7.68 -6.85)
+		(size 9.0 4.8)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "c5730120-0000-0000-0000-000000000001")
+	)
+	(pad "2" smd rect
+		(at -7.68 -6.85)
+		(size 9.0 4.8)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "c5730120-0000-0000-0000-000000000002")
+	)
+	;; SECONDARY pads (datasheet pins 3/4): 3.0 x 4.6 mm, 13.76 mm centres
+	(pad "3" smd rect
+		(at -6.88 6.95)
+		(size 3.0 4.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "c5730120-0000-0000-0000-000000000003")
+	)
+	(pad "4" smd rect
+		(at 6.88 6.95)
+		(size 3.0 4.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "c5730120-0000-0000-0000-000000000004")
+	)
+)

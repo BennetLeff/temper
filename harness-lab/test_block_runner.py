@@ -432,5 +432,105 @@ class BlockRunnerTests(unittest.TestCase):
                 session.close()
 
 
+ASSEMBLY_PACKAGE = (
+    ROOT.parent / "pcb" / "blocks" / "control-assembly" / "assembly-candidate"
+)
+
+
+class AssemblyBlockSessionTests(unittest.TestCase):
+    """The combined 19-instance assembly is admitted by the same BlockSession.
+
+    The MCU-profile contract/session path above is unchanged; this proves the
+    shared bounded operations accept the combined census, nets and obligations
+    without a profile fork.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.assertTrue(Path(harness.JUDGE).is_file(), "harness judge is not built")
+        cls.assertTrue(
+            (ASSEMBLY_PACKAGE / "control-assembly.kicad_pcb").is_file(),
+            "committed assembly candidate package missing",
+        )
+
+    def test_assembly_task_contract_admits_19_instances(self) -> None:
+        contract = run_block.build_assembly_task_contract(ASSEMBLY_PACKAGE)
+        self.assertEqual(contract["kind"], "assembly")
+        self.assertEqual(contract["profile"], "block")
+        self.assertEqual(len(contract["movable_refs"]), 19)
+        self.assertEqual(sorted(contract["pad_census"]), contract["movable_refs"])
+        self.assertEqual(
+            sorted(contract["obligations"]), sorted(run_block.ASSEMBLY_REQUIRED_NETS)
+        )
+        self.assertTrue(
+            set(run_block.ASSEMBLY_POWER_NETS) <= set(contract["power_nets"])
+        )
+        self.assertTrue(contract["signal_nets"], "signal nets must be partitioned")
+        self.assertFalse(
+            set(contract["power_nets"]) & set(contract["signal_nets"]),
+            "power and signal nets must be disjoint",
+        )
+        # Every measured pad is keyed by one of the 19 movable references.
+        movable = set(contract["movable_refs"])
+        self.assertTrue(
+            all(pad.split(".")[0] in movable for pad in contract["net_mapping"])
+        )
+        self.assertEqual(contract["keepouts"][0]["id"], "antenna_keepout")
+        self.assertEqual(contract["zone_nets"], ["gnd"])
+
+    def test_assembly_contract_has_no_unconnected_gap(self) -> None:
+        contract = run_block.build_assembly_task_contract(ASSEMBLY_PACKAGE)
+        self.assertEqual(
+            sum(contract["pad_census"].values()), len(contract["net_mapping"])
+        )
+
+    def test_assembly_prepare_and_session_inspect(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            trial = run_block.prepare_assembly(Path(tmp) / "trial", ASSEMBLY_PACKAGE)
+            session = run_block.BlockSession(trial)
+            try:
+                self.assertEqual(session.kind, "assembly")
+                result = session.call("inspect", {})
+                self.assertEqual(result["status"], "pass", result)
+                self.assertFalse(result["mutation_committed"])
+                self.assertEqual(len(result["measurement"]["footprints"]), 19)
+            finally:
+                session.close()
+
+    def test_assembly_session_commits_bounded_copper_replace(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            trial = run_block.prepare_assembly(Path(tmp) / "trial", ASSEMBLY_PACKAGE)
+            session = run_block.BlockSession(trial)
+            try:
+                before = session.revision
+                result = session.call(
+                    "replace_copper",
+                    {"net": "buck-vcc-1", "segments": [], "vias": [], "zones": []},
+                )
+                self.assertTrue(result.get("mutation_committed"), result)
+                self.assertEqual(session.actions, 1)
+                self.assertNotEqual(session.revision, before)
+                self.assertEqual(result["native_verdict"], "fail")  # retained debt
+            finally:
+                session.close()
+
+    def test_assembly_session_rejects_unadmitted_net(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            trial = run_block.prepare_assembly(Path(tmp) / "trial", ASSEMBLY_PACKAGE)
+            session = run_block.BlockSession(trial)
+            try:
+                before = (trial / "candidate.kicad_pcb").read_bytes()
+                result = session.call(
+                    "replace_copper",
+                    {"net": "not_a_net", "segments": [], "vias": [], "zones": []},
+                )
+                self.assertEqual(result["status"], "invalid", result)
+                self.assertFalse(result["mutation_committed"])
+                self.assertEqual(session.actions, 0)
+                self.assertEqual((trial / "candidate.kicad_pcb").read_bytes(), before)
+            finally:
+                session.close()
+
+
 if __name__ == "__main__":
     unittest.main()

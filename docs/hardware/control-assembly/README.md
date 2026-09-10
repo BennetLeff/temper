@@ -81,8 +81,15 @@ Full details in `integration-report.md` and
   milestone blocker, same class as the MCU package's 67).
 - Antenna keepout: **pass**. Production digest: **exact**. No placeholder
   leftover: **pass**.
-- Required power path: **fail** — imported prototype +3V3 copper is 0.3 mm,
-  below the 0.6 mm assembly floor (inherited geometry, needs review).
+- Required power path: **pass** — the +3V3 (`buck-vcc-1`) net was widened to
+  the 0.6 mm floor with 0 introduced findings; 8 inherited `fb`/`boot` 0.3 mm
+  prototype segments are attributed signal-net copper and kept visible.
+- BlockSession: **admitted** — the combined 19-instance assembly routes
+  through `run_block.BlockSession` (2 bounded actions; no native bypass).
+- Cross-view comparison: **produced, 0 mismatches** (assembly vs scratch
+  overlay). Scratch overlay: **produced but not clean** — it introduces 313
+  findings (section board-wide `gnd` pour vs production copper); an open
+  integration blocker, reported not suppressed.
 
 ## Remaining interfaces (not closed by this milestone)
 
@@ -97,10 +104,12 @@ Power: `BUCK_VIN_15V` (PS1 counterpart is not in this candidate) and
 
 1. Live model transport blocked (Zen 429) — no autonomous construction turn.
 2. Schematic parity 98 findings (Value `?` + sheet-prefixed nets).
-3. Scratch full-board overlay insertion not produced in this pass.
-4. `run_block.BlockSession` carries an MCU-profile task contract
-   (`vcc`/`gnd`, MCU staging census) that does not fit the combined assembly;
-   the scripted pass uses the same native primitive but not the session.
+3. Scratch full-board overlay is produced but introduces 313 findings
+   (board-wide section `gnd` pour vs production copper); the ground pour must
+   be clipped to the owned regions. Cross-view comparison passes; outside-region
+   geometry is exact.
+4. Re-bind required after the parallel `pcb/blocks/mcu/` regeneration: the
+   committed assembly package (and therefore the overlay binding) predates it.
 5. P1 vendorer gap: `Inductor_SMD:L_Bourns_SRP1265A` is not in KiCad stock or
    `pcb/libs` (P3 works around it from the prototype library; a P1 fix is
    requested).

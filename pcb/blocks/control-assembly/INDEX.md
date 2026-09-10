@@ -2,7 +2,9 @@
 
 Machine entry point for the P3 U2-U4 buck + MCU integration candidate.
 Status: **`apparatus-only-assisted`** — not autonomously constructed, not a
-qualified cooker. Human-readable entry point:
+qualified cooker. The local section is clean (0 introduced DRC findings) and
+the cross-view comparison passes, but the scratch full-board overlay exposes
+open integration debt (see below). Human-readable entry point:
 `docs/hardware/control-assembly/README.md`; full report:
 `docs/hardware/control-assembly/integration-report.md`.
 
@@ -28,12 +30,15 @@ qualified cooker. Human-readable entry point:
 | Artifact | Path |
 |----------|------|
 | U3 summary | `verification/apparatus-only/summary.json` |
-| Candidate binding (board + summary + production hashes) | `verification/apparatus-only/candidate-binding.json` |
+| Candidate binding (boards + overlay + summary + report + production hashes) | `verification/apparatus-only/candidate-binding.json` |
 | Native connectivity | `verification/apparatus-only/routed-connectivity.json` |
 | Native DRC (baseline / routed) | `verification/apparatus-only/baseline/drc.json`, `.../routed/drc.json` |
 | Native ERC (baseline / routed) | `verification/apparatus-only/baseline/erc.json`, `.../routed/erc.json` |
 | Refill record | `verification/apparatus-only/refill/refill-command.json` |
-| Cross-view report | `verification/apparatus-only/cross-view-report.json` |
+| BlockSession records | `verification/apparatus-only/session/` (`operations.jsonl`, sealed `task-contract.json`) |
+| Scratch full-board overlay (production COPY + section) | `verification/apparatus-only/overlay/overlay.kicad_pcb` |
+| Overlay instruction / identity binding | `verification/apparatus-only/overlay-instruction.json` |
+| Cross-view report (assembly vs overlay) | `verification/apparatus-only/cross-view-report.json` |
 | Rendered candidate | `verification/apparatus-only/renders/control-assembly-routed.svg` |
 | Failed autonomous attempt | `verification/failed-attempts/live-model-transport.json` |
 
@@ -51,10 +56,23 @@ qualified cooker. Human-readable entry point:
 
 ## Finding-set delta
 
-DRC (all-track-errors + schematic-parity + all-severity): baseline 126 ->
-routed 113, **introduced 0**, resolved 13, persistent 113. ERC 55 ->
-55, introduced 0 (0 errors). Schematic parity 98 -> 98 (persistent).
-Unconnected 20 -> 7. Sets are compared, never counts.
+Sets are compared, never counts, and each view is sampled 3x with the
+intersection used (kicad-cli is nondeterministic run-to-run).
+
+- **Local section** — DRC (all-track-errors + schematic-parity +
+  all-severity): baseline 126 -> routed 113, **introduced 0**, resolved 13,
+  persistent 113. ERC 55 -> 55, introduced 0 (0 errors). Schematic parity
+  98 -> 98 (persistent). Unconnected 20 -> 7.
+- **Scratch full-board overlay** — base copy 599 -> overlay 798, **introduced
+  313**, resolved 114, persistent 485. The section is not overlay-clean: the
+  board-wide F.Cu `gnd` pour shorts against production copper (`shorting_items`
+  99, `clearance` 44, etc.). Outside-region geometry is exact; 10 production
+  tracks are re-netted by KiCad load/save propagation (recorded). This is an
+  open blocker, not suppressed. Cross-view comparison: 0 mismatches.
+
+`power_width`: the +3V3 (`buck-vcc-1`) net was widened to 0.6 mm (0
+introduced findings); 8 inherited `fb`/`boot` 0.3 mm prototype segments are
+attributed signal-net copper and kept visible in `summary.json`.
 
 ## Pending external interfaces
 

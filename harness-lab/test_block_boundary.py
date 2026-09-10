@@ -348,6 +348,44 @@ class BlockBoundaryTests(unittest.TestCase):
         )
         self.assertEqual(answer["status"], "invalid", answer)
 
+    def test_block_operation_admits_target_board_extent(self) -> None:
+        """The combined assembly occupies a 164x234 mm board; a 200 mm cap
+        clipped legitimate +3V3/gnd coordinates. 400 mm admits the target and
+        still rejects a coordinate beyond the native range."""
+        context = {
+            "outline_mm": [8.0, 20.0, 172.0, 254.0],
+            "movable_refs": ["U1"],
+            "admitted_nets": ["gnd"],
+            "supported_layers": ["F.Cu", "B.Cu"],
+            "zone_nets": ["gnd"],
+        }
+
+        def payload(y_mm: float) -> dict:
+            return {
+                "profile": "block-operation",
+                "operation": "replace_copper",
+                "arguments": {
+                    "net": "gnd",
+                    "segments": [
+                        {
+                            "start_mm": [10.0, y_mm],
+                            "end_mm": [20.0, y_mm],
+                            "layer": "F.Cu",
+                            "width_mm": 0.6,
+                        }
+                    ],
+                    "vias": [],
+                    "zones": [],
+                },
+                "context": context,
+            }
+
+        code, answer = judge(payload(253.0))
+        self.assertEqual(code, 0, answer)
+        self.assertEqual(answer["status"], "pass", answer)
+        code, answer = judge(payload(450.0))
+        self.assertEqual(answer["status"], "invalid", answer)
+
     def test_buck_admission_semantics_unchanged(self) -> None:
         code, answer = judge(
             {

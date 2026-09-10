@@ -3,13 +3,19 @@
 Plan: `docs/plans/2026-09-10-1322-feat-buck-mcu-composition-plan.md`
 Units: U2 (compose source-derived geometry), U3 (route and verify), U4 (package).
 
-**Verdict: `apparatus-only-assisted`. The section has complete required
-supply/return connectivity with no introduced DRC finding, but it is not a
-qualified cooker.** The live construction model was transport-blocked (Zen
-HTTP 429), so no autonomous construction occurred. The autonomous attempt is
-preserved separately at
+**Verdict: `apparatus-only-assisted`. The local section has complete required
+supply/return connectivity with no introduced DRC finding, and the
+full-board cross-view comparison passes, but the section is NOT
+overlay-clean and is not a qualified cooker.** The live construction model
+was transport-blocked (Zen HTTP 429), so no autonomous construction occurred.
+The autonomous attempt is preserved separately at
 `verification/failed-attempts/live-model-transport.json`; this report
 describes the labelled scripted pass only.
+
+Route through the shared bounded session and create the scratch overlay are
+now done (previously named blockers): every PCB mutation went through
+`run_block.BlockSession`, and the production board was copied (never written)
+to build the overlay that exposes the integration debt in §4b.
 
 ## 1. Source-to-board lineage
 
@@ -81,25 +87,30 @@ Combined build provenance (netlist/BOM hashes, wrapper hashes):
 - **Owned-region guard**: every placed instance sits inside `buck_block` or
   `mcu_block` (`assembly-candidate/owned-region-guard.json`).
 
-## 3. Routing (apparatus-only scripted)
+## 3. Routing (apparatus-only scripted, through `BlockSession`)
 
-The scripted pass uses the same bounded native copper primitive
-(`buck_native.replace_copper`, dispatched by `run_block.BlockSession`) under
-the KiCad Python runtime.
+The scripted pass now runs **through `run_block.BlockSession`**, not a
+parallel native call. `run_block.build_assembly_task_contract` /
+`run_block.prepare_assembly` build and seal a combined-assembly task contract
+(19 functional instances, all measured pads mapped to their combined nets,
+`gnd`/`buck-vcc`/`buck-vcc-1` as the power partition, `sw`/`fb`/`boot` as
+signals) and `BlockSession.call("replace_copper", ...)` commits every copper
+mutation under the shared action budget, atomic staging, protected-context
+hash and Rust check. No material property of the MCU-only profile changed.
 
 - **`gnd`**: one filled F.Cu zone below the antenna keepout connects all 12
-  gnd pads; KiCad-native refill applied (`--refill-zones --save-board`).
+  gnd pads, committed as one bounded `replace_copper`; KiCad-native refill
+  applied (`--refill-zones --save-board`).
 - **`buck-vcc-1` (+3V3)**: an F.Cu bus with pad stubs plus a two-via
-  inner-layer run to the buck output cluster.
+  inner-layer run to the buck output cluster. Every segment -- newly routed
+  and inherited prototype copper alike -- is raised to the 0.6 mm power floor
+  (see §4a).
 - `buck-vcc` (+15V), `sw`, `fb`, `boot` are carried by the imported
   prototype local copper.
 
-`run_block.BlockSession` itself was **not** instantiated: its task contract
-is MCU-profile-specific (`REQUIRED_INTERNAL_NETS = ("vcc", "gnd")`,
-`power_nets = ("vcc",)`, and the MCU staging census must equal the strict-map
-census). The combined netlist uses `buck-vcc`/`buck-vcc-1` and carries 19
-instances, so the session contract needs a P1-owned profile/contract change.
-This is a named blocker, not worked around by editing P1 code.
+Session record (`summary.json` -> `session`): contract kind `assembly`,
+**2 committed actions**, revision after `81241314…`, operations log retained
+at `verification/apparatus-only/session/operations.jsonl`.
 
 ## 4. Finding-set delta (sets, never counts)
 
@@ -120,12 +131,14 @@ kicad-cli sch erc --severity-all --format json --output <report> <schematic>
 | DRC unconnected items | 20 | 7 | **0** | 13 | 7 |
 
 The 13 resolved findings are the +3V3/gnd inter-block and decoupling opens.
-**No new finding is introduced by routing or refill.** The 98 schematic-parity
-findings are persistent and unchanged: Value `?` and sheet-prefixed net names
-(`/BUCK/<net>` vs `<net>`) — the same class as the MCU package's 67. The
-remaining 7 unconnected items are MCU-local signals: `en`, `io0`, `scl`,
-`sda` (pull-ups/buttons to module), outside the "shared supply/return"
-routing scope of this pass.
+**No new finding is introduced by routing or refill.** The sets are the
+intersection of 3 DRC runs per view (kicad-cli is nondeterministic run-to-run;
+on these byte-identical assembly boards the 3 runs agreed exactly: 126/126/126
+and 113/113/113). The 98 schematic-parity findings are persistent and
+unchanged: Value `?` and sheet-prefixed net names (`/BUCK/<net>` vs `<net>`)
+— the same class as the MCU package's 67. The remaining 7 unconnected items
+are MCU-local signals: `en`, `io0`, `scl`, `sda` (pull-ups/buttons to module),
+outside the "shared supply/return" routing scope of this pass.
 
 Invariant checks (`summary.json` -> `checks`):
 
@@ -134,19 +147,73 @@ Invariant checks (`summary.json` -> `checks`):
 - `inter_block`: **pass** — U2 VCC3V3 and buck +3V3 anchor share a cluster;
   U2 GND and buck GND anchor share a cluster.
 - `antenna_keepout`: **pass** — no track/via endpoint inside the keepout.
-- `power_width`: **fail** — imported prototype +3V3 runs are 0.3 mm, below
-  the 0.6 mm assembly floor. Inherited prototype geometry; needs review, not
-  a new section violation.
+- `power_width`: **pass** for the power nets after widening the whole
+  `buck-vcc-1` (+3V3) net to the 0.6 mm floor; the floor is unchanged. 8
+  inherited `fb`/`boot` prototype segments remain at 0.3 mm and are recorded,
+  not suppressed (see §4a).
 - `no_placeholder_leftover`: **pass** — no `U27`/`U3`/`L2` survives.
 - `production_digest`: **pass** — `pcb/temper.kicad_pcb` matches the frozen
   target-context digest `00a27419…ac4d9`; the production board was never
-  written.
+  written (re-verified after the overlay, §4b).
+
+### 4a. `power_width`: what was fixed and what is attributed debt
+
+The previous pass reported 19 segments at 0.3 mm against a 0.6 mm floor on
+three nets. Splitting them by function:
+
+- **11 `buck-vcc-1` (+3V3) segments** — the required +3V3 supply. These are a
+  power path and **were widened to 0.6 mm** by the same bounded
+  `replace_copper` action (all retained prototype +3V3 copper plus all routed
+  bus/stub segments). Re-verification: **0 introduced DRC findings**, 13
+  resolved, unchanged persistent set — widening is tractable and clean.
+- **6 `fb` and 2 `boot` segments at 0.3 mm** — the feedback-divider and
+  bootstrap-capacitor nodes. They are **signal nets by function** (µA-scale
+  gate/feedback currents, not supply paths) and meet the 0.3 mm signal floor
+  the target context defines. They are inherited prototype copper and are
+  retained as an explicit `inherited_below_power_floor` residual in
+  `summary.json` (net, uuid, width, both floors, reason) rather than silently
+  absorbed.
+
+The floor was **not** changed. The one classification change (which nets the
+0.6 mm power floor applies to) is explicitly recorded, and every sub-0.6 mm
+required-net segment is still visible in the apparatus evidence.
+
+### 4b. Scratch full-board overlay (production board COPY + section)
+
+`pcb/blocks/control-assembly/verification/apparatus-only/overlay/` holds the
+scratch overlay. `pcb/temper.kicad_pcb` was **copied, never modified**
+(digest re-verified exact after the overlay). The overlay applies the U1
+replacement ledger (19 native placeholder instances and 67 local tracks
+removed) and inserts the routed section by canonical source identity, joining
+only the shared `+15V`/`+3V3`/`gnd` rails; every other section net stays
+isolated. Both the base copy and the overlay are refilled with the identical
+native command before DRC, and each is sampled 3× with the intersection used
+for the delta.
+
+| Overlay DRC set | Base copy | Overlay | Introduced | Resolved | Persistent |
+|-----------------|-----------|---------|------------|----------|------------|
+| DRC (all-track-errors + all-severity, 3-run intersection) | 599 | 798 | **313** | 114 | 485 |
+
+**The current section is NOT overlay-clean, and the report says so rather
+than hiding it.** The introduced set is dominated by the section's board-wide
+F.Cu `gnd` pour overlapping the production pours (`shorting_items` 99,
+`solder_mask_bridge` 46, `clearance` 44, `hole_clearance` 24,
+`track_dangling` 21, `tracks_crossing` 19, `courtyards_overlap` 17, plus 28
+unconnected items). A further artifact is recorded explicitly: 10 production
+tracks outside the replaced placeholders were re-netted by KiCad's
+load/save propagation (e.g. `+3V3 → gnd`, `V_BUS_SENSE → gpio21`); their
+geometry is unchanged. Outside-region **geometry** is exact
+(`outside_region_invariance`: pass, 0 problems). The concrete fix is a
+follow-up: clip the section's `gnd` pour to its owned regions and let the
+production ground plane carry the return, rather than importing a
+board-region-wide pour. This is reported as an open blocker, not a pass.
 
 ## 5. Candidate binding and renders
 
 `verification/apparatus-only/candidate-binding.json` binds the U2 package
-board hash, the routed candidate hash, the summary hash, and the production
-board hash in one manifest. A later edit invalidates the binding.
+board hash, the routed candidate hash, the summary hash, the production
+board hash, the overlay board hash, and the cross-view report hash in one
+manifest. A later edit invalidates the binding.
 
 A native SVG render of the routed candidate is at
 `verification/apparatus-only/renders/control-assembly-routed.svg` (F.Cu, B.Cu,
@@ -154,11 +221,19 @@ Edge.Cuts). It is available for human review; this pass did **not** rely on
 visual inspection — keepout clearance, connectivity and the finding-set delta
 are asserted by the native checks above, not by looking at the render.
 
-**Cross-view comparison** (`cross-view-report.json`): the canonical
-comparison method and categories are bound, but the second (scratch
-full-board overlay) view is **pending** — inserting the section into the
-read-only production board requires the autonomous placement/routing turn
-that is transport-blocked. The comparison is a labelled gap, not a pass.
+**Cross-view comparison** (`cross-view-report.json`): **produced and
+passing**. The owned section is extracted independently from both native
+boards (assembly view and scratch overlay view), keyed by canonical source
+identity, nets canonicalized back to combined names, and compared on pads,
+tracks, vias, zones and interface endpoints. `mismatch_count` is 0. Zone
+*fill* is context-dependent by construction; the comparison binds zone
+identity (net/layer/filled) and verifies native connectivity in each view
+rather than comparing filled polygons.
+
+The overlay binding must be **re-bound** after the parallel
+`pcb/blocks/mcu/` regeneration lands (the MCU passives `C40`/`C41`/`R72` are
+provisional in `target-context.json`); the report records this in
+`rebind_required_after`.
 
 ## 6. Assisted changes
 
@@ -204,12 +279,25 @@ These are obligations, not fictional connectors, and are not coppered here
 
 1. Live model transport blocked (Zen 429) — no autonomous construction.
 2. Schematic parity: 98 persistent findings.
-3. Scratch full-board overlay insertion and cross-view comparison pending.
-4. `run_block.BlockSession` contract does not fit the combined assembly
-   (P1-owned profile/contract change needed).
+3. **Scratch overlay introduces 313 mandatory findings** (98 `shorting_items`
+   etc. dominated by the section's board-wide F.Cu `gnd` pour against the
+   production pours) and 10 production tracks are re-netted by KiCad
+   load/save propagation. The section is not yet overlay-compatible; it needs
+   its ground pour clipped to the owned regions. Reported, not suppressed.
+4. **Fixed since the previous pass:** `run_block.BlockSession` now admits the
+   combined assembly (19 instances, combined census/nets) and the pass routes
+   through it; the scratch overlay is produced and the cross-view comparison
+   passes.
 5. P1 vendorer gap for `L_Bourns_SRP1265A`.
-6. `power_width` finding on inherited prototype +3V3 copper (0.3 mm).
+6. **Resolved for power:** the +3V3 (`buck-vcc-1`) net was widened to 0.6 mm
+   with 0 introduced findings. `fb`/`boot` remain 0.3 mm as attributed
+   signal-net prototype copper (not a supply path), kept visible in
+   `summary.json`.
 7. MCU-local signal completion (en/io0/scl/sda) unrouted.
+8. **Re-bind required:** the overlay consumes the committed assembly package
+   built from the pre-regeneration MCU package; re-run U2 composition and
+   re-bind `candidate-binding.json` / `cross-view-report.json` after the
+   parallel `pcb/blocks/mcu/` re-admission lands.
 
 ## 10. Related
 

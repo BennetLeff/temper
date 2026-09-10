@@ -41,8 +41,10 @@ from artifacts import Store
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent
 ADAPTER = ROOT / "block_native.py"
+ASSEMBLY_GEOMETRY = ROOT / "assembly_geometry.py"
 BASE_SKILLS = ROOT / "skills" / "base" / "skills.py"
 TASK_SCHEMA = "temper.mcu-task-contract.v1"
+ASSEMBLY_TASK_SCHEMA = "temper.assembly-task-contract.v1"
 GENERATE_ENV = "TEMPER_BLOCK_GENERATE"
 GENERATION_REQUEST_MAX_BYTES = 8 * 1024
 
@@ -55,6 +57,21 @@ MIN_SIGNAL_WIDTH_MM = 0.3
 POWER_NETS_DEFAULT = ("vcc",)
 ZONE_NETS = ("gnd",)
 PROFILE = "block-operation"
+
+# --- Combined buck/MCU assembly profile (P3 U3, KTD5) ----------------------
+# The 19-instance combined assembly does not fit the MCU-profile contract
+# (``vcc``/``gnd`` with a single strict-map census). It reuses the identical
+# bounded operations, budget and judge; only the census, net partition,
+# obligations and keepout source differ, and those come from the assembly
+# package's own source map plus a native board census.
+ASSEMBLY_REQUIRED_NETS = ("gnd", "buck-vcc", "buck-vcc-1", "sw", "fb", "boot")
+# Required power paths: the +15V feed, the +3V3 output, and the shared return.
+# ``sw``/``fb``/``boot`` are the converter's switching, feedback-divider and
+# bootstrap nodes -- signal nets, not supply paths (their prototype copper is
+# intentionally 0.3 mm; see the apparatus power_width evidence).
+ASSEMBLY_POWER_NETS = ("gnd", "buck-vcc", "buck-vcc-1")
+ASSEMBLY_ZONE_NETS = ("gnd",)
+ASSEMBLY_BOARD_GLOB = "*.kicad_pcb"
 
 
 def _judge_schema() -> dict[str, Any]:
@@ -220,6 +237,237 @@ def build_task_contract(
     }
 
 
+def _assembly_geometry(board: Path) -> dict[str, Any]:
+    """Native ``pcbnew`` census of the assembly candidate board.
+
+    Uses the same extractor as the P3 composition hosts so the pad/net census
+    the task contract admits is measured, not hand-authored. Runs under the
+    KiCad Python runtime; raises on a non-zero exit.
+    """
+    result = subprocess.run(
+        [harness.KICAD_PYTHON, str(ASSEMBLY_GEOMETRY), "extract", str(board)],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"assembly geometry extraction failed: {result.stderr[-800:]}"
+        )
+    return json.loads(result.stdout)
+
+
+def build_assembly_task_contract(
+    package_dir: Path,
+    *,
+    kicad_version: str = "10.0.4",
+    required_nets: tuple[str, ...] = ASSEMBLY_REQUIRED_NETS,
+    power_nets: tuple[str, ...] = ASSEMBLY_POWER_NETS,
+) -> dict[str, Any]:
+    """Assemble the judge task contract for the 19-instance combined assembly.
+
+    Inputs (all read-only): the assembly package ``source-map.json`` (canonical
+    instance paths -> combined refdes), the P3 target context (outline, stackup,
+    antenna keepout), and a native census of the candidate board. Every pad
+    maps to exactly the net the board carries, and the census covers exactly
+    the source map's 19 references -- unknown, missing, or extra instances fail
+    here, never as a silent default.
+
+    The MCU-profile builder (:func:`build_task_contract`) is unchanged; this is
+    the combined-assembly builder the ``BlockSession`` admits alongside it.
+    """
+    package_dir = package_dir.resolve()
+    target_context = json.loads(
+        (
+            REPO / "pcb" / "blocks" / "control-assembly" / "target-context.json"
+        ).read_text()
+    )
+    source_map = json.loads((package_dir / "source-map.json").read_text())
+    entries = source_map["entries"]
+    combined_refs = sorted({entry["reference"] for entry in entries.values()})
+    if len(entries) != 19 or len(combined_refs) != 19:
+        raise ValueError(
+            f"assembly source map must hold exactly 19 functional instances, "
+            f"got paths={len(entries)} refs={len(combined_refs)}"
+        )
+
+    board = next(package_dir.glob(ASSEMBLY_BOARD_GLOB), None)
+    if board is None:
+        raise ValueError(f"assembly package {package_dir} has no candidate board")
+    extract = _assembly_geometry(board)
+
+    net_mapping: dict[str, str] = {}
+    pad_census: dict[str, int] = {}
+    for footprint in extract["footprints"]:
+        reference = footprint["reference"]
+        pad_census[reference] = len(footprint["pads"])
+        for pad in footprint["pads"]:
+            net_mapping[f"{reference}.{pad['number']}"] = pad["net"]
+    if sorted(pad_census) != combined_refs:
+        raise ValueError(
+            f"assembly board census {sorted(pad_census)} differs from the source "
+            f"map's 19 references"
+        )
+    if not net_mapping:
+        raise ValueError("assembly board exposes no pad/net identities")
+
+    present = {net for net in net_mapping.values() if net}
+    resolved_power = [net for net in power_nets if net in present]
+    if not resolved_power:
+        raise ValueError("no declared assembly power net is present on the board")
+    signal_nets = sorted(present - set(resolved_power))
+
+    by_net: dict[str, list[str]] = {}
+    for pad, net in net_mapping.items():
+        if net:
+            by_net.setdefault(net, []).append(pad)
+    obligations: dict[str, list[str]] = {}
+    for net in required_nets:
+        pads = sorted(by_net.get(net, []))
+        if not pads:
+            raise ValueError(f"required assembly net {net!r} connects no pads")
+        obligations[net] = pads
+
+    target = target_context["target"]
+    outline = target["outline_mm"]
+    outline_mm = [outline["x1"], outline["y1"], outline["x2"], outline["y2"]]
+    copper_order = target["physical_copper_order"]
+    antenna = target_context["reserved_regions_mm"]["antenna_keepout"]
+    return {
+        "schema": ASSEMBLY_TASK_SCHEMA,
+        "kind": "assembly",
+        "profile": "block",
+        "kicad_version": kicad_version,
+        "protected_sha256": source_map.get("protected_sha256", "pending-prepare"),
+        "outline_mm": outline_mm,
+        "physical_copper_order": copper_order,
+        "supported_layers": list(copper_order),
+        "allowed_copper_kinds": ["segment", "via", "zone"],
+        "min_power_width_mm": MIN_POWER_WIDTH_MM,
+        "min_signal_width_mm": MIN_SIGNAL_WIDTH_MM,
+        "power_nets": resolved_power,
+        "signal_nets": signal_nets,
+        "movable_refs": combined_refs,
+        "protected_ports": {},
+        "pad_census": pad_census,
+        "net_mapping": net_mapping,
+        "obligations": obligations,
+        "boundary": {},
+        "keepouts": [
+            {
+                "id": "antenna_keepout",
+                "x1": antenna["x1"],
+                "y1": antenna["y1"],
+                "x2": antenna["x2"],
+                "y2": antenna["y2"],
+            }
+        ],
+        "zone_nets": list(ASSEMBLY_ZONE_NETS),
+        "via_diameter_mm": 0.8,
+        "via_drill_mm": 0.4,
+        "provenance": {
+            "assembly_source_map_sha256": _sha256(package_dir / "source-map.json"),
+            "board_sha256": _sha256(board),
+            "target_context_sha256": _sha256(
+                REPO / "pcb" / "blocks" / "control-assembly" / "target-context.json"
+            ),
+        },
+    }
+
+
+def _assembly_staging(extract: dict[str, Any]) -> dict[str, list[float]]:
+    """Canonical staging poses for the assembly board's 19 instances.
+
+    The protected-state digest resets every staged instance to these poses
+    before hashing, exactly like the buck/MCU fixtures, so copper edits never
+    drift the protected identity. Poses are the board's current measured
+    poses, normalized into [0, 360).
+    """
+    staging: dict[str, list[float]] = {}
+    for footprint in extract["footprints"]:
+        x, y = footprint["position_mm"]
+        staging[footprint["reference"]] = [
+            float(x),
+            float(y),
+            float(footprint["angle_deg"]) % 360.0,
+        ]
+    return staging
+
+
+def prepare_assembly(
+    directory: Path, package_dir: Path, *, timeout: float = 60.0
+) -> Path:
+    """Operator-side trial setup for the combined assembly.
+
+    Mirrors :func:`prepare` (same protected-context layout: ``fixture.pretty``
+    with the URI rewrite, project/rules sidecars, sealed contract) but starts
+    from the 19-instance assembly package instead of an MCU candidate. The
+    sealed ``protected_sha256`` comes from one native measure over the staged
+    board; the assembly source map and target context are pinned by digest.
+    """
+    package_dir = package_dir.resolve()
+    directory = directory.resolve()
+    if directory.exists():
+        raise ValueError(f"assembly trial directory {directory} already exists")
+    board_src = next(package_dir.glob(ASSEMBLY_BOARD_GLOB), None)
+    if board_src is None:
+        raise ValueError(f"assembly package {package_dir} has no candidate board")
+    extract = _assembly_geometry(board_src)
+    staging = _assembly_staging(extract)
+    directory.mkdir(parents=True)
+
+    shutil.copyfile(board_src, directory / "candidate.kicad_pcb")
+    fixture_lib = directory / "fixture.pretty"
+    fixture_lib.mkdir()
+    table_text = (package_dir / "fp-lib-table").read_text(encoding="utf-8")
+    if "candidate-libs" not in table_text:
+        raise ValueError("assembly fp-lib-table does not reference candidate-libs")
+    (directory / "fp-lib-table").write_text(
+        table_text.replace("candidate-libs", "fixture.pretty"), encoding="utf-8"
+    )
+    for pretty in sorted((package_dir / "candidate-libs").glob("*.pretty")):
+        shutil.copytree(pretty, fixture_lib / pretty.name)
+    (directory / "candidate.kicad_pro").write_text(
+        json.dumps({"meta": {"filename": "candidate.kicad_pro", "version": 1}}) + "\n",
+        encoding="utf-8",
+    )
+    (directory / "candidate.kicad_dru").write_text("(version 1)\n", encoding="utf-8")
+
+    contract = build_assembly_task_contract(package_dir)
+    source: dict[str, Any] = {
+        "schema": "temper.assembly-trial-source.v1",
+        "candidate_board": board_src.name,
+        "staging": staging,
+        "staging_only": True,
+        "assembly_package": str(package_dir.relative_to(REPO)),
+    }
+    (directory / "task-contract.json").write_text(
+        json.dumps(contract, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    # Seal: the admitted protected state comes from one native measure over the
+    # staged board. ``source.json`` must exist first because the native
+    # canonicalizer reads the staging poses from it.
+    (directory / "source.json").write_text(
+        json.dumps(source, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    measurement = harness.native(
+        "measure", directory / "candidate.kicad_pcb", adapter=ADAPTER
+    )
+    contract["protected_sha256"] = measurement["protected_sha256"]
+    (directory / "task-contract.json").write_text(
+        json.dumps(contract, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    source["task_contract_sha256"] = _sha256(directory / "task-contract.json")
+    source["context_sha256"] = harness.context_hash(directory)
+    (directory / "source.json").write_text(
+        json.dumps(source, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    shutil.copyfile(directory / "candidate.kicad_pcb", directory / "initial.kicad_pcb")
+    del timeout  # reserved for parity with prepare(); native calls are bounded
+    return directory
+
+
 def source_facts(candidate_dir: Path) -> dict[str, Any]:
     """Model-visible source facts: what the agent may inspect, not mutate.
 
@@ -350,6 +598,9 @@ class BlockSession(buck_host.Session):
         if task_contract.get("profile") != "block":
             raise ValueError("BlockSession requires a block-profile task contract")
         self.contract = task_contract
+        # Both the MCU profile and the combined assembly share the ``block``
+        # Rust profile; ``kind`` only labels session provenance (never policy).
+        self.kind = str(task_contract.get("kind", "mcu"))
         source = json.loads((self.directory / "source.json").read_text())
         if (
             _sha256(self.directory / "task-contract.json")
@@ -375,6 +626,7 @@ class BlockSession(buck_host.Session):
             {
                 "kind": "session",
                 "profile": "block",
+                "contract_kind": self.kind,
                 "task_contract_sha256": source["task_contract_sha256"],
                 "revision": self.revision,
                 "deadline": self.deadline,

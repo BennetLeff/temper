@@ -1,0 +1,129 @@
+{
+  "binding": {
+    "buck.buck": "U3",
+    "buck.c_boot": "C10",
+    "buck.c_in": "C9",
+    "buck.c_out1": "C11",
+    "buck.c_out2": "C12",
+    "buck.c_out_hf": "C13",
+    "buck.l_out": "L2",
+    "buck.r_fb_bot": "R17",
+    "buck.r_fb_top": "R16",
+    "mcu.btn_boot": "SW2",
+    "mcu.btn_reset": "SW1",
+    "mcu.c_en": "C41",
+    "mcu.c_vcc1": "C39",
+    "mcu.c_vcc2": "C40",
+    "mcu.mcu": "U27",
+    "mcu.r_boot": "R72",
+    "mcu.r_en": "R71",
+    "mcu.r_scl_pullup": "R74",
+    "mcu.r_sda_pullup": "R73"
+  },
+  "native_refs": [
+    "C10",
+    "C11",
+    "C12",
+    "C13",
+    "C39",
+    "C40",
+    "C41",
+    "C9",
+    "L2",
+    "R16",
+    "R17",
+    "R71",
+    "R72",
+    "R73",
+    "R74",
+    "SW1",
+    "SW2",
+    "U27",
+    "U3"
+  ],
+  "net_map": {
+    "buck-vcc": "+15V",
+    "buck-vcc-1": "+3V3"
+  },
+  "rebind_required_after": "pcb/blocks/mcu/ re-admission; C40/C41/R72 bindings are provisional in target-context.json",
+  "replace_footprints": [
+    {
+      "native_ref": "U3",
+      "section_ref": "U1"
+    },
+    {
+      "native_ref": "C10",
+      "section_ref": "C2"
+    },
+    {
+      "native_ref": "C9",
+      "section_ref": "C1"
+    },
+    {
+      "native_ref": "C11",
+      "section_ref": "C3"
+    },
+    {
+      "native_ref": "C12",
+      "section_ref": "C4"
+    },
+    {
+      "native_ref": "C13",
+      "section_ref": "C5"
+    },
+    {
+      "native_ref": "L2",
+      "section_ref": "L1"
+    },
+    {
+      "native_ref": "R17",
+      "section_ref": "R2"
+    },
+    {
+      "native_ref": "R16",
+      "section_ref": "R1"
+    },
+    {
+      "native_ref": "SW2",
+      "section_ref": "SW2"
+    },
+    {
+      "native_ref": "SW1",
+      "section_ref": "SW1"
+    },
+    {
+      "native_ref": "C41",
+      "section_ref": "C8"
+    },
+    {
+      "native_ref": "C39",
+      "section_ref": "C6"
+    },
+    {
+      "native_ref": "C40",
+      "section_ref": "C7"
+    },
+    {
+      "native_ref": "U27",
+      "section_ref": "U2"
+    },
+    {
+      "native_ref": "R72",
+      "section_ref": "R4"
+    },
+    {
+      "native_ref": "R71",
+      "section_ref": "R3"
+    },
+    {
+      "native_ref": "R74",
+      "section_ref": "R6"
+    },
+    {
+      "native_ref": "R73",
+      "section_ref": "R5"
+    }
+  ],
+  "rule": "remove each native placeholder and its local copper, insert the source-derived section instance under the native ref, join only the shared +15V/+3V3/gnd rails, keep every other section net isolated",
+  "schema": "control-assembly.overlay-instruction.v1"
+}

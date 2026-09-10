@@ -27,7 +27,12 @@ use std::collections::{BTreeMap, BTreeSet};
 pub const MAX_ACTIONS: u64 = 200;
 pub const MAX_SECONDS: f64 = 1200.0;
 pub const MAX_OBJECTS: usize = 512;
-pub const MAX_COORD_MM: f64 = 200.0;
+// Native coordinate range. The MCU fixture is small, but the combined
+// buck/MCU assembly occupies the real cooker board (164x234 mm, outline
+// 8..172 x 20..254); a 200 mm cap clipped legitimate +3V3/gnd coordinates on
+// that board. 400 mm covers the target with margin and does not change any
+// admitted MCU/assembly geometry (every real coordinate is well inside it).
+pub const MAX_COORD_MM: f64 = 400.0;
 pub const MAX_EXECUTE_BYTES: usize = 65_536;
 
 /// Reference P3 physical copper order (target-context.json). Operation policy
@@ -704,7 +709,7 @@ fn operation_context(input: &Value) -> Result<OperationContext<'_>> {
 }
 
 fn schema() -> Value {
-    let coordinate = json!({"type":"number", "minimum":-200.0, "maximum":200.0});
+    let coordinate = json!({"type":"number", "minimum":-MAX_COORD_MM, "maximum":MAX_COORD_MM});
     let width = json!({"type":"number", "minimum":0.2, "maximum":2.0});
     let point = json!({"type":"array", "minItems":2, "maxItems":2, "items":coordinate});
     json!({

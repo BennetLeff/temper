@@ -1,0 +1,21 @@
+# Apparatus-only U3 evidence: keep the primary, deterministic artifacts
+# (summary.json, candidate-binding.json, cross-view-report.json, the routed
+# board, the overlay board + instruction, and the first native report of each
+# DRC run). Regenerable staging, duplicate stability samples and scratch base
+# copies are not committed.
+session/state-*.kicad_pcb
+session/attempt-*/
+session/check-*/
+session/fixture.pretty
+baseline/run-1/
+baseline/run-2/
+routed/run-1/
+routed/run-2/
+overlay/base.kicad_pcb
+overlay/base-refill/
+overlay/refill/
+overlay/baseline/run-1/
+overlay/baseline/run-2/
+overlay/routed/run-1/
+overlay/routed/run-2/
+*.kicad_prl
