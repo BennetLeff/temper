@@ -15,12 +15,10 @@ import os
 from pathlib import Path
 
 import pytest
+from temper_design_bundle_python import load_constraints
 
 from temper_placer.deterministic import create_drc_aware_pipeline
 from temper_placer.deterministic.stages import ZoneAwareSlotGenerationStage, ZoneGeometryStage
-from temper_placer.io.config_loader import (
-    load_constraints,
-)
 from temper_placer.router_v6.constraints_design_rules import DesignRulesParser
 from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
 

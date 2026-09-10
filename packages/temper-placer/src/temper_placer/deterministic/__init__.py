@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 
     from shapely.geometry import Polygon
 
+    from temper_placer._constraint_types import IsolationSlot
     from temper_placer.core.board import Zone as CopperZone
-    from temper_placer.io.config_loader import IsolationSlot
     from temper_placer.validation.drc_fence import DRCFence
 
     from .io.kicad_metadata import KiCadMetadata

@@ -53,11 +53,10 @@ from pathlib import Path
 import pytest
 
 import tests.heuristics._organizational_py_oracle as ORACLE
-from temper_placer._constraint_types import ComponentGroup
+from temper_placer._constraint_types import ComponentGroup, PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
-from temper_placer.io.config_loader import PlacementConstraints
 from tests.router_v6._pending_rust import missing_symbols, rust
 from tests.router_v6._signature import sig
 
@@ -247,6 +246,19 @@ def _tail_after_module_docstring(src: str) -> str:
     return src
 
 
+# 2026-09-10 re-pin: the oracle's `PlacementConstraints` import moved from the
+# deleted `temper_placer.io.config_loader` shim to `_constraint_types` (the
+# module config_loader re-exported it from; same class object), and isort may
+# relocate it. Drop that single import line from both tails before the byte
+# comparison -- every other byte past the docstring stays pinned.
+def _normalize_import_home(src: str) -> str:
+    return src.replace(
+        "from temper_placer.io.config_loader import PlacementConstraints\n", ""
+    ).replace(
+        "from temper_placer._constraint_types import PlacementConstraints\n", ""
+    )
+
+
 def test_oracle_is_verbatim_copy():
     """Everything past the oracle's own docstring is byte-identical to the pin."""
     try:
@@ -263,8 +275,8 @@ def test_oracle_is_verbatim_copy():
     ).stdout
     oracle_src = Path(ORACLE.__file__).read_text(encoding="utf-8")
 
-    pinned_tail = _tail_after_module_docstring(pinned_src)
-    oracle_tail = _tail_after_module_docstring(oracle_src)
+    pinned_tail = _normalize_import_home(_tail_after_module_docstring(pinned_src))
+    oracle_tail = _normalize_import_home(_tail_after_module_docstring(oracle_src))
     assert oracle_tail == pinned_tail
 
 

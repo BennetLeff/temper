@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from temper_placer.io.config_loader import load_constraints
+from temper_design_bundle_python import load_constraints
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 CONFIGS_DIR = Path(__file__).parent.parent.parent / "configs"

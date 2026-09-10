@@ -52,10 +52,10 @@ import pytest
 
 import tests.heuristics._conflict_py_oracle as CONFLICT_ORACLE
 import tests.heuristics._topological_init_py_oracle as TOPO_ORACLE
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
-from temper_placer.io.config_loader import PlacementConstraints
 from tests.router_v6._pending_rust import missing_symbols, rust
 from tests.router_v6._signature import sig
 

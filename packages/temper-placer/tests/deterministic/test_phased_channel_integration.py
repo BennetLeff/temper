@@ -14,11 +14,11 @@ import logging
 import statistics
 import time
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.deterministic.channels import ChannelMap, routability_penalty
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
-from temper_placer.io.config_loader import PlacementConstraints
 
 
 def _make_two_slot_cmap(*, cell_size_um: float = 1000.0) -> ChannelMap:

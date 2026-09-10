@@ -2695,9 +2695,9 @@ scripts:
   - pathlib
   - subprocess
   - sys
+  - temper_design_bundle_python
   - temper_placer.deterministic
   - temper_placer.deterministic.feedback
-  - temper_placer.io.config_loader
   - temper_placer.io.kicad_metadata
   - temper_placer.io.kicad_parser
   - temper_placer.io.kicad_writer

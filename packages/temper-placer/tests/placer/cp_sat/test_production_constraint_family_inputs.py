@@ -44,7 +44,7 @@ def test_adapter_uses_live_no_loop_options_and_reports_unavailable_families(monk
     parsed = SimpleNamespace(netlist=_Netlist(), board=_Board())
     monkeypatch.setattr("temper_placer.io.kicad_parser.parse_kicad_pcb", lambda _path: parsed)
     monkeypatch.setattr(
-        "temper_placer.io.config_loader.load_constraints",
+        "temper_design_bundle_python.load_constraints",
         lambda _path: SimpleNamespace(pcl_constraints=["authoritative-pcl"]),
     )
     pcb = tmp_path / "board.kicad_pcb"
@@ -75,7 +75,7 @@ def test_adapter_includes_audits_only_when_authoritative_builders_resolve(monkey
     parsed = SimpleNamespace(netlist=_Netlist(), board=_Board())
     monkeypatch.setattr("temper_placer.io.kicad_parser.parse_kicad_pcb", lambda _path: parsed)
     monkeypatch.setattr(
-        "temper_placer.io.config_loader.load_constraints",
+        "temper_design_bundle_python.load_constraints",
         lambda _path: SimpleNamespace(pcl_constraints=[]),
     )
     monkeypatch.setattr(
@@ -111,7 +111,7 @@ def test_adapter_feeds_fresh_campaign_with_the_exact_family_options(monkeypatch,
     parsed = SimpleNamespace(netlist=_Netlist(), board=_Board())
     monkeypatch.setattr("temper_placer.io.kicad_parser.parse_kicad_pcb", lambda _path: parsed)
     monkeypatch.setattr(
-        "temper_placer.io.config_loader.load_constraints",
+        "temper_design_bundle_python.load_constraints",
         lambda _path: SimpleNamespace(pcl_constraints=[]),
     )
     monkeypatch.setattr(adapter, "_validator_input", lambda _path: (None, "not available"))

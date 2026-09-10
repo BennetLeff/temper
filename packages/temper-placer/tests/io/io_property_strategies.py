@@ -11,9 +11,9 @@ from __future__ import annotations
 
 from hypothesis import strategies as st
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.router_v6.stage0_data import (
     DesignRules,
     LayerInfo,

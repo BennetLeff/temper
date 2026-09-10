@@ -11,6 +11,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.heuristics import (
@@ -18,7 +19,6 @@ from temper_placer.heuristics import (
     create_default_pipeline,
 )
 from temper_placer.heuristics.topological_init import TopologicalInitializationHeuristic
-from temper_placer.io.config_loader import PlacementConstraints
 
 # =============================================================================
 # Test Fixtures

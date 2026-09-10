@@ -41,6 +41,10 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from temper_placer._constraint_types import (
+    IsolationSlot,
+    PlacementConstraints,
+)
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Netlist, Pin
 from temper_placer.deterministic.stages.phased_component_assignment import (
@@ -50,7 +54,6 @@ from temper_placer.deterministic.stages.zone_aware_slot_generation import (
     ZoneAwareSlotGenerationStage as _shim_zone_aware,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 _REF = st.sampled_from(["Q1", "C1", "U_MCU1", "R1", "R2", "U2"])
 

@@ -24,13 +24,17 @@ from pathlib import Path
 # Add package to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages/temper-placer/src"))
 
+from temper_design_bundle_python import (
+    constraints_to_design_rules,
+    load_constraints,
+)
+
 from temper_placer.deterministic import BoardState, create_drc_aware_pipeline
 from temper_placer.deterministic.feedback import (
     ViolationComponentMapper,
     ZoneAdjuster,
     parse_kicad_drc,
 )
-from temper_placer.io.config_loader import constraints_to_design_rules, load_constraints
 from temper_placer.io.kicad_metadata import extract_kicad_metadata
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.kicad_writer import (

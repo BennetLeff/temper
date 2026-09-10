@@ -11,7 +11,7 @@ from .violation_mapper import ViolationComponentMapper
 from .zone_adjuster import AdjustmentResult, ZoneAdjuster
 
 if TYPE_CHECKING:
-    from temper_placer.io.config_loader import PlacementConstraints
+    from temper_placer._constraint_types import PlacementConstraints
 
 logger = logging.getLogger(__name__)
 

@@ -58,8 +58,8 @@ import numpy as np
 import pytest
 
 import tests.heuristics._structural_py_oracle as ORACLE
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board, MountingHole
-from temper_placer.io.config_loader import PlacementConstraints
 from tests.router_v6._pending_rust import missing_symbols, rust
 from tests.router_v6._signature import sig
 

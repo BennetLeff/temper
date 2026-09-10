@@ -7,10 +7,11 @@ Part of temper-g54c.1: Add routing-aware dataclasses for deterministic placement
 import tempfile
 from pathlib import Path
 
-from temper_placer.io.config_loader import (
+from temper_design_bundle_python import load_constraints
+
+from temper_placer._constraint_types import (
     EscapeClearance,
     RoutingCorridor,
-    load_constraints,
 )
 
 

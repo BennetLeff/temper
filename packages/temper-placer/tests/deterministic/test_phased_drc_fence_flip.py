@@ -16,13 +16,13 @@ import logging
 
 import pytest
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.deterministic.channels import ChannelMap
 from temper_placer.deterministic.flags import is_drc_fence_fail_enabled
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentError,
     PhasedComponentAssignmentStage,
 )
-from temper_placer.io.config_loader import PlacementConstraints
 
 
 def _cmap_with_critical() -> ChannelMap:

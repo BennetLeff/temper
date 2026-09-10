@@ -2,8 +2,8 @@
 
 import yaml
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.constraints.builder import ConstraintBuilder
-from temper_placer.io.config_loader import PlacementConstraints
 
 
 class TestBasicBuilding:

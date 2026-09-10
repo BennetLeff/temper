@@ -355,10 +355,10 @@ class TestPlacementContextMethods:
     is_position_valid, check_overlap."""
 
     def _make_context(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U1", footprint="QFN-32", bounds=(5, 5)),
@@ -449,10 +449,10 @@ class TestPlacementContextMethods:
 
 class TestConflictResolver:
     def _make_context(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.base import PlacementContext
-        from temper_placer.io.config_loader import PlacementConstraints
 
         comps = [
             Component(ref="U1", footprint="QFN-32", bounds=(5, 5)),
@@ -708,6 +708,7 @@ class TestHeuristicABC:
     and apply through a concrete subclass."""
 
     def test_heuristic_properties_and_methods(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Component, Netlist
         from temper_placer.heuristics.base import (
@@ -717,7 +718,6 @@ class TestHeuristicABC:
             HeuristicResult,
             PlacementContext,
         )
-        from temper_placer.io.config_loader import PlacementConstraints
 
         class TestHeuristicImpl(Heuristic):
             @property

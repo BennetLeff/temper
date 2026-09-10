@@ -27,8 +27,11 @@ from typing import TYPE_CHECKING
 import temper_design_bundle_python as _tdb
 import temper_orchestration as _to
 
+from temper_placer._constraint_types import (
+    IsolationSlot,
+    PlacementConstraints,
+)
 from temper_placer.constraints.compiler import ConstraintCompiler
-from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 from ..channels import ChannelMap
 from ..flags import is_drc_fence_fail_enabled

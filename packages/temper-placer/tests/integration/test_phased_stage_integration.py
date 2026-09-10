@@ -7,9 +7,9 @@ Tests that the stage can be instantiated and used in a pipeline context.
 from pathlib import Path
 
 import pytest
+from temper_design_bundle_python import load_constraints
 
 from temper_placer.deterministic.stages import PhasedComponentAssignmentStage
-from temper_placer.io.config_loader import load_constraints
 
 TEMPER_CONFIG_PATH = Path(__file__).parents[4] / "configs" / "temper_deterministic_config.yaml"
 

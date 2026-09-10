@@ -1,5 +1,6 @@
 import pytest
 
+from temper_placer._constraint_types import HVExclusionZone
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages.clearance_grid import (
@@ -15,7 +16,6 @@ from temper_placer.deterministic.stages.clearance_grid import (
     hv_pad_set,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import HVExclusionZone
 
 
 def test_empty_grid_all_available():

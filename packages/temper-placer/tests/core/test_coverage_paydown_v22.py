@@ -411,8 +411,8 @@ class TestValidationGates:
 
 
 def _constraints():
+    from temper_placer._constraint_types import PlacementConstraints
     from temper_placer.core.board import Zone
-    from temper_placer.io.config_loader import PlacementConstraints
 
     return PlacementConstraints(
         board_width_mm=100.0,
@@ -441,8 +441,8 @@ class TestPreflight:
         assert result.passed is True
 
     def test_check_zones_outside_board(self):
+        from temper_placer._constraint_types import PlacementConstraints
         from temper_placer.core.board import Zone
-        from temper_placer.io.config_loader import PlacementConstraints
         from temper_placer.validation.preflight import check_zones_fit_on_board
 
         c = PlacementConstraints(

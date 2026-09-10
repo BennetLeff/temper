@@ -313,7 +313,8 @@ def optimize(
     if loop:
         console.print("\n[bold cyan]Running place→route feedback loop...[/]")
         try:
-            from temper_placer.io.config_loader import load_constraints
+            from temper_design_bundle_python import load_constraints
+
             from temper_placer.io.kicad_parser import parse_kicad_pcb
             from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
 
@@ -554,7 +555,8 @@ def optimize(
         # --no-loop: direct CP-SAT solve, no routing feedback
         console.print("\n[bold cyan]Running CP-SAT solver (--no-loop)...[/]")
         try:
-            from temper_placer.io.config_loader import load_constraints
+            from temper_design_bundle_python import load_constraints
+
             from temper_placer.io.kicad_parser import parse_kicad_pcb
             from temper_placer.placer.cp_sat.encoder import solve_placement
             from temper_placer.placer.cp_sat.tank_creepage import (

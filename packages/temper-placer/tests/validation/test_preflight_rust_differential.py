@@ -36,13 +36,13 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 import tests.validation._preflight_py_oracle as _oracle
-from temper_placer.core.board import Zone
-from temper_placer.core.netlist import Component, Netlist
-from temper_placer.io.config_loader import (
+from temper_placer._constraint_types import (
     ComponentGroup,
     PlacementConstraints,
     ThermalConstraint,
 )
+from temper_placer.core.board import Zone
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.validation.preflight import (
     PreflightIssue,
     PreflightResult,

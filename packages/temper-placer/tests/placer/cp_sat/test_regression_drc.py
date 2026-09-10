@@ -134,7 +134,7 @@ def _load_pcl_constraints(config_path: Path) -> list:
     docs/evidence/2026-08-11-pumpkin-real-budget-spike.md §4.0. A config
     that fails to load must fail this test, not silently degrade it.
     """
-    from temper_placer.io.config_loader import load_constraints
+    from temper_design_bundle_python import load_constraints
 
     constraints = load_constraints(config_path)
     return list(getattr(constraints, "pcl_constraints", []))
@@ -147,7 +147,7 @@ def _load_zones(config_path: Path) -> dict[str, tuple[float, float, float, float
     See :func:`_load_pcl_constraints` for why load errors are not swallowed
     here either.
     """
-    from temper_placer.io.config_loader import load_constraints
+    from temper_design_bundle_python import load_constraints
 
     constraints = load_constraints(config_path)
     return {z.name: z.bounds for z in getattr(constraints, "zones", [])}

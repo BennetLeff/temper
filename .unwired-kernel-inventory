@@ -23,3 +23,7 @@ geom_segments_intersect_py	requirements geometry bindings are intentionally test
 pad_to_capsule_distance_py	intentionally evidence-only exact pad-to-track/via clearance API; exercised by the committed R14 replay and Rust geometry tests
 replace_declared_route_and_move_footprint_py	intentionally evidence-only atomic KiCad mutation API; exercised by the committed R14 replay and Rust/Python differential tests
 replace_footprint_block_by_reference_py	intentionally evidence-only J1 authority mutation API; exercised by the committed R14 replay and a retired-Python differential oracle
+preprocess_config	production config_loader.py alias deleted; exercised by tests/io/test_config_loader_rust_differential.py via direct temper_design_bundle_python imports
+apply_zones_to_netlist	production config_loader.py alias deleted; exercised by tests/io/test_config_loader_rust_differential.py via direct temper_design_bundle_python imports
+infer_rjc	production config_loader.py alias deleted; exercised by tests/io/test_config_loader_rust_differential.py via direct temper_design_bundle_python imports
+apply_fixed_components_to_netlist	production config_loader.py alias deleted; exercised by tests/io/test_config_loader_rust_differential.py via direct temper_design_bundle_python imports

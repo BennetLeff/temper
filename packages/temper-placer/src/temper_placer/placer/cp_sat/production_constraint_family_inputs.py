@@ -352,7 +352,8 @@ def prepare_production_constraint_family_inputs(
 
     pcb_path = Path(input_pcb)
     config_path = Path(config)
-    from temper_placer.io.config_loader import load_constraints
+    from temper_design_bundle_python import load_constraints
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
     parse_result = parse_kicad_pcb(pcb_path)

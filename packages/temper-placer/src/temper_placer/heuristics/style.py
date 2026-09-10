@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.heuristics.base import (
@@ -22,7 +23,6 @@ from temper_placer.heuristics.base import (
     HeuristicResult,
     PlacementContext,
 )
-from temper_placer.io.config_loader import PlacementConstraints
 
 # =============================================================================
 # Star Ground Topology Heuristic (STYLE priority)
