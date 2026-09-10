@@ -52,7 +52,6 @@ temper_placer.deterministic.stages.zone_geometry	packages/temper-design-bundle/s
 temper_placer.deterministic.state	packages/temper-orchestration/src/pipeline_state.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer.fields.result	packages/temper-geometry/src/net_route_result.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer.geometry.constraints	packages/temper-drc-rs/src/constraints.rs,packages/temper-geometry/src/drc_constraints_geometry.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
-temper_placer.io._kicad_types	packages/temper-geometry/src/kicad_transform.rs,packages/temper-io-types/src/kicad_write_geometry.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer.io._parse_board	packages/temper-design-bundle/src/board_contracts.rs,packages/temper-design-bundle/src/pcl_parse.rs,packages/temper-design-bundle/src/write_board_geometry.rs,packages/temper-drc-rs/src/board.rs,packages/temper-drc-rs/src/board_py_bridge.rs,packages/temper-orchestration/src/board_state.rs,packages/temper-quality-oracle/src/cluster_f/board.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer.io._parse_modules	packages/temper-design-bundle/src/parse_engine.rs,packages/temper-design-bundle/src/pcl_parse.rs	NO_RUST: recorded at gate introduction; not triaged
 temper_placer.io._parse_nets	packages/temper-design-bundle/src/pcl_parse.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
