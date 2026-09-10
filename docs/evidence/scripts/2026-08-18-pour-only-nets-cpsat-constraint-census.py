@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # provenance: commit=2abb246db697da2685a652b93632a42d11595d51 dirty=false
-from pathlib import Path
 from collections import Counter
-from temper_placer.io.netclass_loader import load_netclass_rules
-from temper_placer.placer.cp_sat.netclass_constraints import generate_netclass_separated_constraints
+from pathlib import Path
+
+from temper_design_bundle_python import load_netclass_rules
+
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+from temper_placer.placer.cp_sat.netclass_constraints import generate_netclass_separated_constraints
+
 nr = load_netclass_rules(Path("packages/temper-placer/configs/netclass_rules.yaml"))
 pcb = parse_kicad_pcb_v6(Path("pcb/temper.kicad_pcb"))
 class N: pass

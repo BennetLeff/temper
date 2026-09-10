@@ -35,7 +35,7 @@ def _make_mock_component(ref: str, net_name: str = ""):
 
 @pytest.fixture
 def rules():
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     return load_netclass_rules(RULES_PATH)
 

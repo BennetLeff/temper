@@ -128,8 +128,9 @@ def _load_routing_design_rules() -> Any:
     """
     from pathlib import Path
 
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.core.design_rules import create_temper_design_rules
-    from temper_placer.io.netclass_loader import load_netclass_rules
 
     config_path = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
     if config_path.exists():

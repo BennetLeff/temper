@@ -48,8 +48,9 @@ class TestHybridPourStitchVerification:
         assert _PCB_PATH.exists()
         assert _RULES_PATH.exists()
 
+        from temper_design_bundle_python import load_netclass_rules
+
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.netclass_loader import load_netclass_rules
         from temper_placer.router_v6.adapter import route_pcb
 
         rules = load_netclass_rules(_RULES_PATH)

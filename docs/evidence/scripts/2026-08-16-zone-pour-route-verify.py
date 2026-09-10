@@ -39,10 +39,10 @@ POLYGON_RE = re.compile(r"\(polygon\n\s+\(pts")
 def main() -> int:
     sys.path.insert(0, str(REPO_ROOT / "packages" / "temper-placer"))
     sys.path.insert(0, str(REPO_ROOT / "packages" / "temper-placer" / "tests"))
+    from temper_design_bundle_python import load_netclass_rules
     from tests.conftest import make_parsed_pcb_stub
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
 
     rules = load_netclass_rules(RULES_PATH)

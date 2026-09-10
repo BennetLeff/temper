@@ -27,7 +27,7 @@ from temper_placer.validation.drc_result import (
 from temper_placer.validation.drc_runner import CheckRunner
 
 if TYPE_CHECKING:
-    from temper_placer.validation.drc_types import ConstraintSet, Placement
+    from temper_drc_rs import ConstraintSet, Placement
 
 logger = logging.getLogger(__name__)
 

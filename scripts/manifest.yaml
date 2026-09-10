@@ -362,6 +362,27 @@ scripts:
   - rich.console
   - sys
   - yaml
+- path: check_firmware_link.py
+  purpose: 'Firmware link ratchet: assert the ESP32-S3 image configures and compiles, that no component
+    directory is silently dropped for want of a CMakeLists.txt, that no simulation symbol is defined in
+    the built objects, and that the set of undefined link symbols matches .firmware-link-inventory
+    exactly (shrink-only, on the .hash-order-inventory model). The firmware has never linked -- 34
+    symbols including read_dc_bus_current and read_heatsink_temperature are declared and called but
+    defined nowhere -- so the gate pins the SHAPE of that failure rather than trying to make it green.
+    Wired into .github/workflows/firmware-tests.yml as the non-required job "Firmware Build (ESP32-S3
+    link ratchet)"; see that job comment for what would make it blocking.'
+  owner: bennet
+  last_run: '2026-08-20'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - os
+  - pathlib
+  - re
+  - subprocess
+  - sys
 - path: check_doc_path_citations.py
   purpose: 'Doc-path citation gate (spike proof, docs/brainstorms/2026-08-12-referential-integrity-options.md):
     fail when a docs/plans/*.md or docs/evidence/*.md path cited in a comment/docstring/doc does not resolve.
@@ -2300,6 +2321,25 @@ scripts:
   - temper_placer.core.isolation_constants
   - temper_placer.core.pad_geometry
   - temper_placer.geometry.kicad_transform
+- path: measure_isolation_binding_pairs.py
+  purpose: 'Per-part binding HV<->SELV pad-pair measurement for the five isolation-bridging parts (C6/K1/T1/T2/U6):
+    reads pad geometry from the board, so the report is readable without opening a layout tool. Pairwise: it enumerates every
+    intra-footprint pad pair and reports, per pair, the EXACT copper-edge distance, both nets'' declared domains,
+    both nets'' board-enforced netclasses, whether both pads actually carry copper, and the governing creepage
+    rule from the generated DRU. Backs docs/evidence/2026-08-18-isolation-part-binding-pad-pairs.md.'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - itertools
+  - json
+  - math
+  - pathlib
+  - sys
+  - temper_placer.core.pad_geometry
+  - yaml
 - path: measure_router_output_baseline.py
   purpose: Measure the router-output DRC constants in the environment that enforces them. PRODUCTION_ROUTER_OUTPUT_*
     in test_regression_drc.py is a ratchet whose provenance records macOS arm64 measurements, while the
@@ -2652,6 +2692,9 @@ scripts:
     makes the corpus a record of production rather than of an instrumented variant of it. Reads the board;
     never writes it.
   owner: bennet
+  last_run: '2026-09-09'
+  category: keep
+  disposition: utility
   imports:
   - __future__
   - argparse
@@ -3380,26 +3423,3 @@ scripts:
   - json
   - pathlib
   - sys
-- path: validate_perf_capture.py
-  purpose: Fail-closed aggregation of five immutable-SHA performance captures into review-only manifest
-    and append patch artifacts
-  owner: pipeline
-  last_run: '2026-08-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - ast
-  - collections.abc
-  - dataclasses
-  - hashlib
-  - importlib.util
-  - json
-  - math
-  - pathlib
-  - pr_perf_compare
-  - re
-  - subprocess
-  - sys
-  - typing

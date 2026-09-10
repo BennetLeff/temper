@@ -17,13 +17,12 @@ RED before GREEN: this file is written and committed BEFORE
 at collection. That failure is the proof the differential was never
 vacuously green.
 
-The delegation tests at the bottom of this file are a SEPARATE proof from
-the bit-exactness tests above: a green differential compares the oracle
-against the Rust kernel directly and passes whether or not the SHIPPED
-``_write_types.py`` module actually re-exports it. Monkeypatching the Rust
-symbol to raise and calling the shipped entry point is the only thing that
-proves the production code path was rewired, not left as a second,
-unreachable implementation next to the first.
+The former ``_write_types.py`` delegation shim was deleted 2026-09-10; the
+production consumers (``_write_board``/``_write_tracks``/``_write_zones``/
+``kicad_writer``) now bind these Rust classes directly from
+``temper_io_types.write_types``. The remaining tests at the bottom assert
+that those consumers still expose the Rust classes by identity, so a
+consumer cannot silently shadow them with Python copies.
 """
 
 from __future__ import annotations
@@ -35,7 +34,6 @@ import pytest
 import temper_io_types as _tio
 
 import tests.io._write_types_py_oracle as _oracle
-from temper_placer.io import _write_types as shipped
 
 # Rust symbols under test — must exist or this file fails to collect (RED).
 _RUST = _tio.write_types
@@ -330,54 +328,28 @@ def test_placement_update_positional_construction_matches_dataclass():
 
 
 # ---------------------------------------------------------------------------
-# Shipped-module delegation proof -- NOT a bit-exactness check.
+# Production consumers bind the Rust classes by identity -- NOT bit-exactness.
 # ---------------------------------------------------------------------------
 
 
-def test_shipped_types_are_the_rust_classes():
-    """The SHIPPED `_write_types` module must re-export the Rust classes by
-    identity, not shadow them with Python copies. (`_get_footprint_reference`
-    is a thin wrapper by design — call-time lookup — so its reachability is
-    proven by the delegation test below, not by identity.)"""
-    assert shipped.WriteResult is _RUST.WriteResult
-    assert shipped.StrippingResult is _RUST.StrippingResult
-    assert shipped.PlacementUpdate is _RUST.PlacementUpdate
-    assert shipped.IsolationSlotResult is _RUST.IsolationSlotResult
-
-
-def test_get_footprint_reference_delegates_to_rust():
-    """The SHIPPED `_write_types._get_footprint_reference` must reach the
-    Rust function. Monkeypatch the Rust symbol to raise; call the shipped
-    entry point; the raise must propagate."""
-    sentinel = RuntimeError("REACHED_RUST_REF")
-
-    def boom(*_a, **_k):
-        raise sentinel
-
-    original = _RUST.get_footprint_reference_py
-    _RUST.get_footprint_reference_py = boom
-    try:
-        with pytest.raises(RuntimeError, match="REACHED_RUST_REF"):
-            shipped._get_footprint_reference(SimpleNamespace(properties={"Reference": "U1"}))
-    finally:
-        _RUST.get_footprint_reference_py = original
-
-
-def test_write_engine_modules_import_through_the_shim():
-    """Every production consumer of `_write_types` must still import after
-    the module became a delegation shim (no kiutils import remains)."""
-    from temper_placer.io import _write_board, _write_modules, _write_tracks, _write_zones
-    from temper_placer.io import kicad_writer
+def test_write_engine_modules_use_rust_types():
+    """Every production write module must import the Rust classes directly:
+    no Python shadow copy, and no kiutils import remains."""
+    from temper_placer.io import (
+        _write_board,
+        _write_modules,
+        _write_tracks,
+        _write_zones,
+        kicad_writer,
+    )
 
     assert kicad_writer.WriteResult is _RUST.WriteResult
     assert kicad_writer.PlacementUpdate is _RUST.PlacementUpdate
     assert kicad_writer.StrippingResult is _RUST.StrippingResult
     assert kicad_writer.IsolationSlotResult is _RUST.IsolationSlotResult
-    # The writer modules no longer import the reference helper at all:
-    # since the de-kiutils migration they read references through the Rust
-    # parse engine (extract_footprint_info_py / update_footprint_positions_py),
-    # not through a Python attribute walk. The helper itself stays on the
-    # shim for its remaining consumers and is delegation-tested above.
+    # The writer modules never imported the reference helper (since the
+    # de-kiutils migration they read references through the Rust parse
+    # engine), and importing them must not pull kiutils in.
     for module in (_write_board, _write_modules, _write_tracks, _write_zones):
         assert not hasattr(module, "_get_footprint_reference")
         assert "kiutils" not in module.__dict__

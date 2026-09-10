@@ -22,7 +22,7 @@ def load_netclass_rules():
     try:
         from pathlib import Path
 
-        from temper_placer.io.netclass_loader import load_netclass_rules as _load
+        from temper_design_bundle_python import load_netclass_rules as _load
 
         config_path = (
             Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"

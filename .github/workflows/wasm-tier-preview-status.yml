@@ -378,6 +378,12 @@ jobs:
     steps:
       - name: Download recent base-owned source identities, including old heads
         env:
+          # `gh run list`/`gh run download` infer the repository by shelling out
+          # to `git`; this job has no `actions/checkout`, so without an explicit
+          # repo context they abort with "fatal: not a git repository". GH_REPO
+          # is the documented `gh` env equivalent of `-R/--repo` and applies to
+          # every `gh` call in this step.
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail

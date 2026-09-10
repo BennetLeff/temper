@@ -22,7 +22,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-
 # ===========================================================================
 # validation/base.py — ValidationResult, Validator, CompositeValidator
 # ===========================================================================
@@ -295,8 +294,8 @@ class TestCompositeValidator:
 
 class TestDRCViolationToDict:
     def test_basic(self):
-        from temper_placer.validation.drc import DRCViolation, DRCViolationType
         from temper_placer.validation.base import ValidationSeverity
+        from temper_placer.validation.drc import DRCViolation, DRCViolationType
 
         v = DRCViolation(
             severity=ValidationSeverity.ERROR,
@@ -319,8 +318,8 @@ class TestDRCViolationToDict:
         assert d["component_refs"] == ["U1"]
 
     def test_minimal(self):
-        from temper_placer.validation.drc import DRCViolation
         from temper_placer.validation.base import ValidationSeverity
+        from temper_placer.validation.drc import DRCViolation
 
         v = DRCViolation(
             severity=ValidationSeverity.WARNING,
@@ -550,7 +549,7 @@ class TestCheckStubRun:
 
     @staticmethod
     def _make_placement():
-        from temper_placer.validation.drc_types import Placement
+        from temper_drc_rs import Placement
 
         return Placement(
             board_width=100.0,
@@ -564,7 +563,7 @@ class TestCheckStubRun:
 
     @staticmethod
     def _make_constraints():
-        from temper_placer.validation.drc_types import ConstraintSet
+        from temper_drc_rs import ConstraintSet
 
         return ConstraintSet()
 
@@ -918,7 +917,7 @@ class TestKiCadDRCValidator:
         assert v.name == "KiCadDRCValidator"
 
     def test_is_available_false_when_not_found(self, monkeypatch):
-        from temper_placer.validation.drc import find_kicad_cli, KiCadDRCValidator
+        from temper_placer.validation.drc import KiCadDRCValidator, find_kicad_cli
 
         # Mock find_kicad_cli to return None
         monkeypatch.setattr(
@@ -958,7 +957,7 @@ class TestKiCadDRCValidator:
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Netlist
         from temper_placer.core.state import PlacementState
-        from temper_placer.validation.drc import find_kicad_cli, KiCadDRCValidator
+        from temper_placer.validation.drc import KiCadDRCValidator, find_kicad_cli
 
         monkeypatch.setattr(
             "temper_placer.validation.drc.find_kicad_cli",
@@ -981,7 +980,7 @@ class TestKiCadDRCValidator:
         """run_drc() when kicad-cli is not available."""
         from pathlib import Path
 
-        from temper_placer.validation.drc import find_kicad_cli, KiCadDRCValidator
+        from temper_placer.validation.drc import KiCadDRCValidator, find_kicad_cli
 
         monkeypatch.setattr(
             "temper_placer.validation.drc.find_kicad_cli",
@@ -1163,11 +1162,10 @@ class TestDSNValidator:
         assert result is False
 
     def test_validate_or_warn_dsn_returns_true_on_match(self):
-        from temper_placer.io.dsn_validator import validate_or_warn_dsn
-        from temper_placer.io.dsn_schema import compute_dsn_schema_hash, embed_schema_header
-
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Netlist
+        from temper_placer.io.dsn_schema import compute_dsn_schema_hash, embed_schema_header
+        from temper_placer.io.dsn_validator import validate_or_warn_dsn
 
         # Compute a valid schema hash and embed it
         board = Board(width=100, height=100, origin=(0, 0))

@@ -33,10 +33,11 @@ def _parsed_pcb_to_drc_input(
     Placement model for DRC checks that operate on geometry beyond
     component footprint overlap.
     """
+    from temper_drc_rs import ClearanceRule, ConstraintSet
+    from temper_drc_rs import ComponentPlacement as DRCCompPlacement
+    from temper_drc_rs import Placement as DRCPlacement
+
     from temper_placer.core.netlist import rotation_quadrant_to_degrees
-    from temper_placer.validation.drc_types import ClearanceRule, ConstraintSet
-    from temper_placer.validation.drc_types import ComponentPlacement as DRCCompPlacement
-    from temper_placer.validation.drc_types import Placement as DRCPlacement
 
     board_width = pcb.board.width
     board_height = pcb.board.height
@@ -93,8 +94,8 @@ def _parsed_pcb_to_drc_input(
     )
 
     if escape_vias:
-        from temper_placer.validation.drc_types import Via as DRCVia
-        from temper_placer.validation.drc_types import ViaPlacement as DRCViaPlacement
+        from temper_drc_rs import Via as DRCVia
+        from temper_drc_rs import ViaPlacement as DRCViaPlacement
 
         drc_vias = [
             DRCVia(
@@ -110,8 +111,8 @@ def _parsed_pcb_to_drc_input(
         placement.via_placement = DRCViaPlacement(vias=drc_vias)
 
     if routing_results is not None:
-        from temper_placer.validation.drc_types import TracePlacement as DRCTracePlacement
-        from temper_placer.validation.drc_types import TraceSegment
+        from temper_drc_rs import TracePlacement as DRCTracePlacement
+        from temper_drc_rs import TraceSegment
 
         segments: list[TraceSegment] = []
         for net_name, net_result in getattr(routing_results, "results", {}).items():

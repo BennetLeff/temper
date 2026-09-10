@@ -33,16 +33,16 @@ violating input and asserts the invariant discriminates it.
 
 from __future__ import annotations
 
-import math
 from types import SimpleNamespace
 
 import hypothesis.strategies as st
-import pytest
 from hypothesis import given, settings
+from temper_design_bundle_python import parse_engine as _parse_engine
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io._kicad_types import TraceData
+
+TraceData = _parse_engine.TraceData
 from temper_placer.placer.cp_sat import fixed_copper as fc
 
 _ALL_LAYERS = frozenset({"F.Cu", "B.Cu", "In1.Cu", "In2.Cu"})
@@ -262,7 +262,7 @@ def test_p4_audit_soundness(pr, data, margin_mm):
     pads = fc.build_free_component_pads(nl, free)
     items = fc.build_fixed_copper_items(pr, nl, free, margin_mm=margin_mm)
     positions = {ref: (1000.0 + i, 1000.0 + i) for i, ref in enumerate(sorted(free))}
-    rotations = {ref: 0 for ref in free}
+    rotations = dict.fromkeys(free, 0)
     violations = fc.audit_fixed_copper(pads, items, positions, rotations)
     for v in violations:
         assert v.ref in free
@@ -294,7 +294,7 @@ def test_p5_audit_far_clearance_is_empty(pr, data):
     items = fc.build_fixed_copper_items(pr, nl, free)
     assert items is not None
     positions = {ref: (1000.0 + i, 1000.0 + i) for i, ref in enumerate(sorted(free))}
-    rotations = {ref: 0 for ref in free}
+    rotations = dict.fromkeys(free, 0)
     violations = fc.audit_fixed_copper(pads, items, positions, rotations)
     assert violations == [], f"far placement flagged {len(violations)} violations"
 
@@ -305,8 +305,8 @@ def test_p5_fails_for_all_flagging_mutant():
     pr, nl, free = _mini_board()
     pads = fc.build_free_component_pads(nl, free)
     items = fc.build_fixed_copper_items(pr, nl, free)
-    far = {ref: (2000.0, 2000.0) for ref in free}
-    assert fc.audit_fixed_copper(pads, items, far, {r: 0 for r in free}) == []
+    far = dict.fromkeys(free, (2000.0, 2000.0))
+    assert fc.audit_fixed_copper(pads, items, far, dict.fromkeys(free, 0)) == []
     # A far placement cannot overlap an item on the board by construction.
     assert all(
         all(abs(far[ref][0] - c) > 1000 for c in (0.0, 4.0))

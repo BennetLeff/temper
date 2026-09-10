@@ -231,8 +231,8 @@ target_include_directories({TARGET} PRIVATE
     ${{TEST_DIR}}
     ${{TEST_DIR}}/..
     ${{TEST_DIR}}/unity
-    ${{TEST_DIR}}/../components/hal/include
-    ${{TEST_DIR}}/../components/hal/mock
+    ${{TEST_DIR}}/../components/temper_hal/include
+    ${{TEST_DIR}}/../components/temper_hal/mock
     ${{TEST_DIR}}/../components/control
     ${{TEST_DIR}}/../components/safety
     ${{TEST_DIR}}/../main
