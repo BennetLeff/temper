@@ -188,7 +188,6 @@
     "packages/temper-placer/src/temper_placer/_constraint_types/config.py",
     "packages/temper-placer/src/temper_placer/core/net_classification.py",
     "packages/temper-placer/src/temper_placer/physics/gate_drive.py",
-    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py",
     "packages/temper-placer/tests/core/_priority_py_oracle.py",
@@ -513,6 +512,7 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/validation/test_gate_input_registry.py"
   ],
+  "measure_isolation_binding_pairs.py": [],
   "measure_router_output_baseline.py": [
     ".github/workflows/regression.yml"
   ],

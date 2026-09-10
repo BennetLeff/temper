@@ -2300,6 +2300,25 @@ scripts:
   - temper_placer.core.isolation_constants
   - temper_placer.core.pad_geometry
   - temper_placer.geometry.kicad_transform
+- path: measure_isolation_binding_pairs.py
+  purpose: 'Per-part binding HV<->SELV pad-pair measurement for the five isolation-bridging parts (C6/K1/T1/T2/U6):
+    reads pad geometry from the board, so the report is readable without opening a layout tool. Pairwise: it enumerates every
+    intra-footprint pad pair and reports, per pair, the EXACT copper-edge distance, both nets'' declared domains,
+    both nets'' board-enforced netclasses, whether both pads actually carry copper, and the governing creepage
+    rule from the generated DRU. Backs docs/evidence/2026-08-18-isolation-part-binding-pad-pairs.md.'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - itertools
+  - json
+  - math
+  - pathlib
+  - sys
+  - temper_placer.core.pad_geometry
+  - yaml
 - path: measure_router_output_baseline.py
   purpose: Measure the router-output DRC constants in the environment that enforces them. PRODUCTION_ROUTER_OUTPUT_*
     in test_regression_drc.py is a ratchet whose provenance records macOS arm64 measurements, while the
