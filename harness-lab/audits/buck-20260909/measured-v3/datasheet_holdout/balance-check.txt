@@ -1,0 +1,54 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: native postprocessing of saved waveform
+
+Loading raw data file ("waveform.raw") ...
+done.
+Title:  datasheet_holdout
+Name: Transient Analysis
+Date: Wed Sep  9 18:51:14  2026
+
+Here are the vectors currently active:
+
+Title: datasheet_holdout
+Name: tran1 (Transient Analysis)
+Date: Wed Sep  9 18:51:14  2026
+
+    gate_overlap        : notype, real, 2229421 long
+    gate_overlap_max    : notype, real, 2229421 long
+    i(l_out)            : current, real, 2229421 long
+    i(v_load)           : current, real, 2229421 long
+    i(vin)              : current, real, 2229421 long
+    il_avg              : notype, real, 2229421 long
+    il_max              : notype, real, 2229421 long
+    il_min              : notype, real, 2229421 long
+    pin                 : power, real, 2229421 long
+    pin_avg             : notype, real, 2229421 long
+    pout                : power, real, 2229421 long
+    pout_avg            : notype, real, 2229421 long
+    switching_span      : notype, real, 2229421 long
+    time                : time, real, 2229421 long [default scale]
+    transition_high     : notype, real, 2229421 long
+    transition_low      : notype, real, 2229421 long
+    v(cap)              : voltage, real, 2229421 long
+    v(fb)               : voltage, real, 2229421 long
+    v(in)               : voltage, real, 2229421 long
+    v(out)              : voltage, real, 2229421 long
+    v(sw)               : voltage, real, 2229421 long
+    v(vin_node)         : voltage, real, 2229421 long
+    v(x_u1.ctrl)        : voltage, real, 2229421 long
+    v(x_u1.gh)          : voltage, real, 2229421 long
+    v(x_u1.gl)          : voltage, real, 2229421 long
+    v(x_u1.ipk)         : voltage, real, 2229421 long
+    v(x_u1.ref)         : voltage, real, 2229421 long
+    vout_avg            : notype, real, 2229421 long
+    vout_before         : notype, real, 2229421 long
+    vout_loaded         : notype, real, 2229421 long
+    vout_max            : notype, real, 2229421 long
+    vout_min            : notype, real, 2229421 long
+vl_avg              =  4.213222e-05 from=  1.000000e-02 to=  1.200000e-02
+il_start            =  2.557394e+00
+il_end              =  2.576915e+00
+ngspice-45.2 done

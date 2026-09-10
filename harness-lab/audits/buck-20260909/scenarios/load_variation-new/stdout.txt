@@ -1,0 +1,31 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: exact LMR51430XDDCR load variation (approximate model)
+
+binary raw file ".worktrees/codex/buck-harness-experiment-plan/harness-lab/audits/buck-20260909/scenarios/load_variation-new/waveform.raw"
+Reducing trtol to 1 for xspice 'A' devices
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+No. of Data Columns : 13  
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 1134961
+
+No .measure possible in batch mode (-b) with -r rawfile set!
+Remove rawfile and use .print or .plot or
+select interactive mode (optionally with .control section) instead.
+
+
+Total analysis time (seconds) = 26.9676
+
+Total elapsed time (seconds) = 26.998 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  664.906 MB.
+Maximum ngspice program size =   11.328 MB.
+Current ngspice program size =   11.328 MB.
+

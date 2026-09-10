@@ -1,0 +1,10 @@
+Native postprocessing of saved waveform
+.control
+load waveform.raw
+let vl = v(sw)-v(out)-0.0085*i(l_out)
+meas tran vl_avg AVG vl from=10m to=12m
+meas tran il_start FIND i(l_out) at=10m
+meas tran il_end FIND i(l_out) at=12m
+quit
+.endc
+.end

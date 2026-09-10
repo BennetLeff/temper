@@ -1,0 +1,38 @@
+* DATASHEET-DERIVED APPROXIMATE MODEL -- NOT A TI MODEL
+* Target identity: LMR51430XDDCR, 500 kHz PFM, adjustable VOUT.
+* Source: TI LMR51430 datasheet Rev A, SHA256
+* f7d8053844fb07ae773844f023373c0c570507ca61603fe28dda15364987296c.
+* Published anchors: VFB=0.600 V typ, fSW=500 kHz CCM, RDSON(HS)=0.12 ohm,
+* RDSON(LS)=0.07 ohm, EN rising=1.36 V max / 1.1 V typ, VIN UVLO rising
+* =3.89 V typ, IPEAK_MIN=0.48 A typ, fixed soft-start.
+* Approximation: ideal PWM comparator/oscillator, first-order integral error
+* loop, finite-Ron/Roff synchronous switches, no calibrated dead-time energy effect,
+* no temperature dependence, no detailed current-limit, hiccup, thermal
+* shutdown, minimum-on-time, bootstrap dynamics, or validated compensation.
+* PFM is approximated by pulse inhibition while FB is above the reference and
+* low-side zero-current shutoff near the 20 mA typical zero-crossing;
+* light-load burst frequency/ripple is not calibrated. Exploratory only.
+.subckt LMR51430XDDCR VIN SW GND FB EN BOOT
+.param FSW=500k VREF=0.6 RHS=0.12 RLS=0.07 IPEAK=3.5 VEN_ON=1.227
+ BREF ref 0 V={(v(EN)>VEN_ON && v(VIN)>3.89) ? VREF*min(1,time/4m) : 0}
+* The internal compensation is unpublished; this simple error integrator is
+* an explicit numerical approximation, initialized below the nominal duty.
+GERR ctrl 0 value={(v(EN)>VEN_ON && v(VIN)>3.89) ? -2e-4*(v(ref)-v(FB)) : 2e-3*v(ctrl)}
+CCTRL ctrl 0 10u IC=0.25
+RCTRL ctrl 0 100Meg
+BRAMP ramp 0 V={time*FSW-floor(time*FSW)}
+BDUTY duty 0 V={limit(0.25+0.4*(v(ref)-v(FB)),0.02,0.95)}
+BGH gh0 0 V={(v(EN)>VEN_ON && v(VIN)>3.89 && v(ramp)<v(duty) && v(FB)<v(ref)+3m) ? 5 : 0}
+BGL gl0 0 V={(v(EN)>VEN_ON && v(VIN)>3.89 && v(ramp)>=v(duty)) ? 5 : 0}
+RGH gh0 0 1Meg
+RGL gl0 0 1Meg
+* Finite-Ron/Roff physical switch paths draw input power. The comparator is a
+* cycle-by-cycle peak-current cutoff (no latch timing or slope compensation).
+S_HS sw_int VIN gh0 0 SWHS
+S_LS sw_int GND gl0 0 SWLS
+.model SWHS SW(Ron={RHS} Roff=1Meg Vt=2.5 Vh=0.1)
+.model SWLS SW(Ron={RLS} Roff=1Meg Vt=2.5 Vh=0.1)
+VSENSE SW sense 0
+R_SW sw_int sense 0.01
+RFBIN FB 0 1G
+.ends LMR51430XDDCR

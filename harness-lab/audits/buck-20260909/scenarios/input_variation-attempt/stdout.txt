@@ -1,0 +1,25 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: exact LMR51430XDDCR input variation (approximate model)
+
+binary raw file "waveform.raw"
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+No. of Data Columns : 10  
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  3.23078e-05 Reference value :  3.43758e-05 Reference value :  3.64641e-05 Reference value :  4.02853e-05 Reference value :  4.24903e-05 Reference value :  4.62940e-05 Reference value :  4.83690e-05 Reference value :  5.04321e-05 Reference value :  5.43249e-05 Reference value :  5.64617e-05 Reference value :  6.02599e-05 Reference value :  6.24419e-05 Reference value :  6.62769e-05 Reference value :  6.84221e-05 Reference value :  7.23367e-05 Reference value :  7.44796e-05 Reference value :  8.02634e-05 Reference value :  8.42218e-05 Reference value :  8.64677e-05 Reference value :  9.04527e-05 Reference value :  9.51768e-05 Reference value :  1.00350e-04 Reference value :  1.04460e-04 Reference value :  1.10322e-04 Reference value :  1.14418e-04 Reference value :  1.18417e-04 Reference value :  1.24302e-04 Reference value :  1.28238e-04 Reference value :  1.32321e-04 Reference value :  1.36455e-04 Reference value :  1.42494e-04 Reference value :  1.50314e-04 Reference value :  1.56359e-04 Reference value :  1.62397e-04 Reference value :  1.68490e-04 Reference value :  1.76245e-04 Reference value :  1.82416e-04 Reference value :  1.88422e-04 Reference value :  1.98263e-04 Reference value :  2.04457e-04 Reference value :  2.14409e-04 Reference value :  2.24322e-04 Reference value :  2.34333e-04 Reference value :  2.44471e-04 Reference value :  2.56419e-04 Reference value :  2.70489e-04 Reference value :  2.86433e-04 Reference value :  3.04399e-04 Reference value :  3.26431e-04 Reference value :  3.48265e-04 Reference value :  3.76470e-04 Reference value :  4.14427e-04 Reference value :  4.58427e-04 Reference value :  5.06480e-04 Reference value :  5.94345e-04 Reference value :  6.76488e-04 Reference value :  8.96428e-04 Reference value :  1.50630e-03 Reference value :  2.07051e-03 Reference value :  3.22011e-03 Reference value :  5.25227e-03 Reference value :  7.11203e-03
+No. of Data Rows : 498916
+
+Total analysis time (seconds) = 15.7058
+
+Total elapsed time (seconds) = 15.713 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =   86.672 MB.
+Maximum ngspice program size =   10.109 MB.
+Current ngspice program size =   10.109 MB.
+

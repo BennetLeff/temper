@@ -1,0 +1,63 @@
+{
+  "kind": "exploratory-model-runs/v1",
+  "qualified": false,
+  "simulator": "/opt/homebrew/bin/ngspice",
+  "version": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "model_sha256": "5b8b31bdd9e0f813e552fc340f7d4bcd528fede14fd0446e13944f11c6a3f369",
+  "datasheet_sha256": "f7d8053844fb07ae773844f023373c0c570507ca61603fe28dda15364987296c",
+  "max_step_ns": 10,
+  "runs": [
+    {
+      "scenario": "startup",
+      "returncode": 0,
+      "timed_out": false,
+      "source_deck_sha256": "a4f66573ec92191dcea85071b76542a7a0fd3c0423a5b623fd3c48505f1b26ef",
+      "executed_deck_sha256": "645668ecb9d951258380f98f6fc9307ff783b778bb67c5c25c5f9aea21f2b967",
+      "log_sha256": "4be2220c1379bcd8b64963456c6cbe39ccc456ed20ef9a0f0ba9bf26d3f3028d",
+      "raw_sha256": "3caee663a5f0243453a48b1a3a299193affee7410fcb882fcf2f5196df471f1a",
+      "measurements": {
+        "vout_avg": 3.314877,
+        "vout_min": 3.309447,
+        "vout_max": 3.31917,
+        "il_avg": 0.5000402,
+        "il_min": 0.02316363,
+        "il_max": 0.9789274,
+        "pin_avg": 1.798733,
+        "pout_avg": 1.657412,
+        "gate_overlap_max": 0.001999999,
+        "vout_before": 3.304759,
+        "vout_loaded": 3.314998,
+        "transition_low": 3.307834,
+        "transition_high": 3.31798,
+        "switching_span": 0.0002
+      },
+      "missing_measurements": []
+    },
+    {
+      "scenario": "datasheet_holdout",
+      "returncode": 0,
+      "timed_out": false,
+      "source_deck_sha256": "68317e71ecd70e1ada7f4e2974b1c98ed030bb88270cb0972fe6746b0206d144",
+      "executed_deck_sha256": "9aad01d2656ae5802da0af97ab97cfb05438ddf2574caf96eafb1128ceab173a",
+      "log_sha256": "7b64b1943c7e1100bad22b096f72a63259f3b30eea28265d5695633f89f96ef3",
+      "raw_sha256": "bf0c753b569be2f87eb89535ff0f81b3a4f4cc6d6c576629d098dc1a8e660d1d",
+      "measurements": {
+        "vout_avg": 4.979029,
+        "vout_min": 4.97478,
+        "vout_max": 4.982734,
+        "il_avg": 2.987503,
+        "il_min": 2.554668,
+        "il_max": 3.413478,
+        "pin_avg": 16.15997,
+        "pout_avg": 14.87444,
+        "gate_overlap_max": 0.002,
+        "vout_before": 4.827437,
+        "vout_loaded": 4.968368,
+        "transition_low": 4.893364,
+        "transition_high": 4.980237,
+        "switching_span": 0.0002
+      },
+      "missing_measurements": []
+    }
+  ]
+}

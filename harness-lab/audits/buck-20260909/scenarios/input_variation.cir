@@ -1,0 +1,22 @@
+input_variation
+* Exploratory LMR51430XDDCR behavioral simulation; not qualification.
+.include ../sources/model/LMR51430XDDCR_datasheet_approx.lib
+VIN in 0 PWL(0 0 10u 13.5 6m 13.5 6.01m 16.5 9m 16.5 9.01m 13.5 12m 13.5)
+R_SOURCE in vin_node 100m
+C_IN vin_node 0 10u
+V_LOAD out load 0
+R_LOAD load 0 6.629864253
+R_ESR out cap 5m
+C_OUT cap 0 44u
+C_HF out 0 100n
+L_OUT sw l_out 5.6u
+R_DCR l_out out 8.5m
+R_FBTOP out fb 100k
+R_FBBOT fb 0 22.1k
+C_BOOT boot sw 100n
+X_U1 vin_node sw 0 fb vin_node boot LMR51430XDDCR
+.save time v(out) v(in) v(vin_node) i(VIN) i(V_LOAD) v(fb) v(sw) v(cap) v(x_u1.ref) v(x_u1.ctrl) v(x_u1.ipk) v(x_u1.gh) v(x_u1.gl) i(L_OUT)
+.options method=gear reltol=1e-4 abstol=1e-9 vntol=1e-6
+.temp 25
+.tran 20n 12m 0 20n uic
+.end

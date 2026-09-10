@@ -5,7 +5,12 @@ engineering-qualified**. Stage 5 always reports `not_run` and
 `hardware_validated: false`.
 
 [Implementation checks and four-variant results](evidence/engineering-20260909/README.md)
-retain the current evidence and qualification blockers.
+retain the initial evidence and qualification blockers. The follow-up
+[requirements/component audit](audits/buck-20260909/requirements-components.md),
+[compact layout candidate](layout-candidates/buck-20260909/README.md), and
+[measured behavioral SPICE model](audits/buck-20260909/model-simulation.md)
+record subsequent progress. The model is exploratory and remains outside the
+approved evidence registry.
 
 ```sh
 make -C harness-lab build check
@@ -26,9 +31,11 @@ host tools; they are not editable solver parameters.
 ## Stage 1: operating requirements
 
 `engineering/requirements.json` contains the source-supported 15 V nominal input
-and 3.3 V ±5% output. Twenty required product or component inputs remain
-unresolved. These include input range, load current, ripple bandwidth/limit,
-startup/transient limits, ambient/thermal limits, and component derating.
+and 3.3 V ±5% output. The source audit also resolves a 13.5–16.5 V input
+range, 0.5 A continuous design budget, and product ambient envelope. Sixteen
+required product or component inputs remain unresolved, including peak load,
+ripple bandwidth/limit, startup/transient limits, thermal limits, and component
+derating. A source design budget is not a measured maximum.
 The regulator's 3 A rating is not a product load requirement.
 
 Rust checks the schema, identities, units, finite values, approval states,
@@ -65,7 +72,11 @@ inputs, not inferred datasheet ratings; the host verifies the retained artifact.
 
 No exact, independently qualified LMR51430XDDCR model is supplied. The old
 `LMR51430_avg.lib` uses a 0.8 V reference and is rejected. The required variant
-has a 0.6 V reference, 500 kHz switching, and PFM operation.
+has a 0.6 V reference, 500 kHz switching, and PFM operation. A new
+[datasheet-derived model](audits/buck-20260909/sources/model/README.md) now runs
+startup, line/load steps, a TI example, and EN restart in ngspice. Its assumed
+compensation and missing device calibration prevent qualification; the audit
+runner does not issue admission receipts.
 
 The host runs fixed ngspice commands in fresh scenario directories and retains
 stdout, stderr, decks, exact model bytes, and ASCII rawfiles. Rust parses the
@@ -101,7 +112,10 @@ visible reference/value labels. It therefore fails the new layout checks.
 Missing 3D model declarations are reported separately; the current collector
 does not resolve every model-file path, and missing models do not alter
 electrical status. The preliminary boards and their original qualification
-artifacts remain unchanged.
+artifacts remain unchanged. The separately retained v4 candidate passes the
+layout and presentation judges with an 11.2875 mm ground-return path and
+visible labels. Its L2 footprint remains a stub; a reserved body outline is
+a review aid and does not qualify the land pattern or 3D model.
 
 ## Scope and next admission gate
 

@@ -1,0 +1,65 @@
+* LMR51430XDDCR 500 kHz PFM -- datasheet-derived behavioral model
+* Exploratory model, not a TI-supplied transistor/macromodel.
+* Pin order VIN SW GND FB EN CB (TI pins 3,2,1,4,5,6).
+* Anchors: VFB=0.600 V, fSW=500 kHz, RDSON(HS)=0.12 ohm,
+* RDSON(LS)=0.07 ohm, tSS=4 ms typ, IHS_PK(OC)=4.76 A typ,
+* minimum PFM peak current=0.48 A typ, EN rising=1.227 V typ,
+* falling=1.08 V typ, minimum on-time=70 ns.
+*
+* Physical finite-Ron synchronous switches draw VIN energy. VSENSE is a
+* zero-volt probe in the external SW path and carries inductor current.
+* Each 500 kHz cycle starts HS, which resets at commanded positive peak;
+* LS conducts only while current remains positive. A body diode provides
+* continuity when LS is off. PFM skips a new pulse when FB is above ref.
+* The unpublished compensation is a PI current command using FB only.
+* KP/KI are explicit assumptions, frozen for the reported holdout.
+* No desired output voltage, external L, or external load is in this model.
+* Repeated enable is unsupported: soft-start uses absolute simulation time.
+.subckt LMR51430XDDCR VIN SW GND FB EN CB
+.param FSW=500k VREF=0.6 RHS=0.12 RLS=0.07
+.param I_MIN=0.48 I_PK_MAX=4.76 VEN_ON=1.227
+.param TSS=4m TBLANK=70n KP=15.0 KI=10u CCTRL=1n
+BENA ena 0 V={0.5+0.5*tanh((v(EN,GND)-1.16)/0.02)}
+BREF ref 0 V={v(ena)*VREF*min(time/TSS,1)*(0.5+0.5*tanh((v(VIN,GND)-4.5)/0.05))}
+GINT ctrl 0 value={(v(ena)>0.01 && v(VIN,GND)>4.5) ? -KI*(v(ref)-v(FB,GND)) : v(ctrl)/1k}
+CINT ctrl 0 {CCTRL} IC=0
+RLEAK ctrl 0 10Meg
+BIPK ipk 0 V={min(max(I_MIN + KP*(v(ref)-v(FB,GND)) + v(ctrl), I_MIN), I_PK_MAX)}
+BPHASE phase 0 V={time-floor(time*FSW)/FSW}
+* XSPICE digital oscillator -> SR latch.  An independent source forces every
+* 500 kHz edge into the transient breakpoint list; the analog set qualifier
+* applies EN and PFM skip without putting an UNKNOWN into the latch.
+VCLK clk_a 0 PULSE(0 5 0 1n 1n 20n {1/FSW})
+BSET set_a 0 V={v(clk_a)*v(ena)*(0.5+0.5*tanh((v(ref)-v(FB,GND))/0.05))}
+BRESET reset_a 0 V={5*(1-v(ena)) + 5*(0.5+0.5*tanh((v(phase)-TBLANK)/20n))*(0.5+0.5*tanh((i(VSENSE)-v(ipk))/0.05))}
+VZERO zero_a 0 0
+AOSC [set_a] [clk_d] ADCOSC
+ARST [reset_a] [reset_d] ADCRESET
+AEN [ena] [ena_d] ADCEN
+AZERO [zero_a] [zero_d] ADCZERO
+ALATCH clk_d reset_d ena_d zero_d zero_d q nq LATCH
+ADACQ [q] [gh] DACGATE
+ADACN [nq] [nq_a] DACGATE
+* LS is enabled after minimum HS time, only when the latch is reset and
+* measured inductor current is still positive.  Its analog gate is converted
+* directly because it is a commutation condition rather than stored state.
+BLS gl 0 V={5*v(ena)*(0.5+0.5*tanh((v(phase)-TBLANK)/20n))*(0.5+0.5*tanh((0.1-v(gh))/0.1))*(0.5+0.5*tanh((i(VSENSE)-0.02)/0.005))}
+RGH gh 0 1Meg
+RGL gl 0 1Meg
+.model ADCOSC adc_bridge(in_low=2.5 in_high=2.5 rise_delay=1n fall_delay=1n)
+.model ADCRESET adc_bridge(in_low=4.5 in_high=4.5 rise_delay=1n fall_delay=1n)
+.model ADCEN adc_bridge(in_low=0.5 in_high=0.5 rise_delay=1n fall_delay=1n)
+.model ADCZERO adc_bridge(in_low=2.5 in_high=2.5 rise_delay=1n fall_delay=1n)
+.model LATCH d_srlatch(sr_delay=1n enable_delay=1n set_delay=1n reset_delay=1n ic=0)
+.model DACGATE dac_bridge(out_low=0 out_high=5 t_rise=1n t_fall=1n)
+* Behavioral conductances avoid an ideal discontinuous switch while retaining
+* finite on resistance and a 100 Mohm off path for simulator convergence.
+GHS sw_int VIN value={(1/100Meg + v(gh)/(5*RHS))*(v(sw_int)-v(VIN))}
+GLS sw_int GND value={(1/100Meg + v(gl)/(5*RLS))*(v(sw_int)-v(GND))}
+VSENSE sw_int SW 0
+RBOOT CB SW 1G
+DBODY GND sw_int DBODY
+.model DBODY D(Is=1n Rs=0.05 N=1.1 Cjo=10p Tt=2n)
+RSNUB sw_int snub 1
+CSNUB snub GND 1n
+.ends LMR51430XDDCR

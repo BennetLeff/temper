@@ -1,0 +1,25 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: LMR51430XDDCR datasheet holdout 12V to 5V (approximate model)
+
+binary raw file "waveform.raw"
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+No. of Data Columns : 10  
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  1.44912e-05 Reference value :  2.44195e-05 Reference value :  3.23877e-05 Reference value :  4.41057e-05 Reference value :  5.64434e-05 Reference value :  7.64652e-05 Reference value :  1.00407e-04 Reference value :  1.26329e-04 Reference value :  1.48429e-04 Reference value :  1.90464e-04 Reference value :  2.72142e-04 Reference value :  5.48229e-04 Reference value :  1.20534e-03 Reference value :  2.68044e-03 Reference value :  5.29849e-03 Reference value :  7.91995e-03
+No. of Data Rows : 210394
+
+Total analysis time (seconds) = 4.01704
+
+Total elapsed time (seconds) = 4.022 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  456.500 MB.
+Maximum ngspice program size =   10.109 MB.
+Current ngspice program size =   10.109 MB.
+

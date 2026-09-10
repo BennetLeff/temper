@@ -1,0 +1,43 @@
+{
+  "kind": "exploratory-model-runs/v1",
+  "qualified": false,
+  "simulator": "/opt/homebrew/bin/ngspice",
+  "version": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "model_sha256": "961cf17f5e902e3de2e707d6ee79dfbf5f11831ead13174a1cc26002d202a50a",
+  "datasheet_sha256": "f7d8053844fb07ae773844f023373c0c570507ca61603fe28dda15364987296c",
+  "max_step_ns": 20,
+  "runs": [
+    {
+      "scenario": "startup",
+      "returncode": 0,
+      "source_deck_sha256": "a4f66573ec92191dcea85071b76542a7a0fd3c0423a5b623fd3c48505f1b26ef",
+      "executed_deck_sha256": "c019f06e637e62f1a768e0aa06598f8d3292ed203f4ddcec78b0a30e8c7e68ea",
+      "log_sha256": "e89bfd6e7ed80d512f7a0e075f857a775a13c5397eb4a61bf8c78a7563f85ae3",
+      "raw_sha256": "b243670e2b517737c74be2172d98caab9342191104736f8d779b4705589545fe"
+    },
+    {
+      "scenario": "input_variation",
+      "returncode": 0,
+      "source_deck_sha256": "e43e7cbd05c78b855cd745023b1b1b4dc3569faf3b44aaa03deadee5e3d80950",
+      "executed_deck_sha256": "2d63eb07a81eb8655a5a9e64fa2e779611131c4ee2b942c5c3e195f993ef65a8",
+      "log_sha256": "045e71738e96bbd7ab0ac4ae277260d01355568c9244bbbc6a3cbce9275d135f",
+      "raw_sha256": "7e2a434d3803f3693161b6eac32601aa8f0c7f673b033098ac245ed37791c53e"
+    },
+    {
+      "scenario": "load_variation",
+      "returncode": 0,
+      "source_deck_sha256": "715594e634b9ba89a5afb3561e09de0419e4940f2f2074152b7ca90add7230bf",
+      "executed_deck_sha256": "e4301a39d863a1fcec1b4458a628fccdad337d476ae2ca4e767741dc6ea6d6a1",
+      "log_sha256": "c710275efecc9e9cf52ee01ab96bad2b81096841f0da3286508433e568149505",
+      "raw_sha256": "89fad4db385356e0c4780f97b817e8465b8d9dafbdac01fca338f5969245d77a"
+    },
+    {
+      "scenario": "datasheet_holdout",
+      "returncode": 0,
+      "source_deck_sha256": "68317e71ecd70e1ada7f4e2974b1c98ed030bb88270cb0972fe6746b0206d144",
+      "executed_deck_sha256": "3be251b4b02ca48d0fbce6a36c5a5c0ff385ef9820c2e0d3ce0d242dfc5b94b4",
+      "log_sha256": "0c7a0bc63c94d19e2bf1b4bc411db304e7e0c5d80f1ee206bc55b12888b42d6b",
+      "raw_sha256": "bc26526c682e54ee8cb88ed8387ced23967499fce83bafa282b81dcb4c281b5e"
+    }
+  ]
+}

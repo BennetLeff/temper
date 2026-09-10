@@ -1,0 +1,43 @@
+{
+  "kind": "exploratory-model-runs/v1",
+  "qualified": false,
+  "simulator": "/opt/homebrew/bin/ngspice",
+  "version": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "model_sha256": "5b8b31bdd9e0f813e552fc340f7d4bcd528fede14fd0446e13944f11c6a3f369",
+  "datasheet_sha256": "f7d8053844fb07ae773844f023373c0c570507ca61603fe28dda15364987296c",
+  "max_step_ns": 20,
+  "runs": [
+    {
+      "scenario": "enable_restart",
+      "returncode": 0,
+      "timed_out": false,
+      "source_deck_sha256": "66a9d812aed59e0fa859b5541f20be0272bcce121dc04b3ef60443edfc5e58a8",
+      "executed_deck_sha256": "e8986e5811c0f4e2738fb2be9cf5ba924271dc51743a4f9e6722d7a1d5fba64a",
+      "log_sha256": "80d6ec06b321a9039da87261d06ff72bc5cdd39dcfc89e78fbd734363db2c483",
+      "raw_sha256": "f860d11dfa0e47b93c44d76c136947252469992b2424efa7cca35614d6052aad",
+      "measurements": {
+        "vout_avg": 3.022211,
+        "vout_min": 2.360536,
+        "vout_max": 3.305407,
+        "il_avg": 0.4765536,
+        "il_min": 0.0004937431,
+        "il_max": 0.9936586,
+        "pin_avg": 1.587121,
+        "pout_avg": 1.391076,
+        "gate_overlap_max": 0.002,
+        "vout_before": 3.306136,
+        "vout_loaded": 0.828245,
+        "transition_low": 0.6103436,
+        "transition_high": 1.972036,
+        "switching_span": 0.0002,
+        "enabled_in_band": 1.0,
+        "disabled_in_band": 0.0,
+        "off_gate": 0.0,
+        "reset_reference": 0.0,
+        "restarted_reference": 0.2992301,
+        "second_reference_final": 0.6
+      },
+      "missing_measurements": []
+    }
+  ]
+}
