@@ -5,6 +5,7 @@ use serde_json::{json, Value};
 use std::io;
 
 mod buck;
+mod buck_operations;
 mod circuit_validation;
 mod engineering;
 mod layout_validation;
@@ -267,6 +268,12 @@ fn run() -> Result<Value> {
         let input: buck::Input =
             serde_json::from_value(raw).context("invalid buck measurement input")?;
         return buck::evaluate(input);
+    }
+    if raw.get("profile").and_then(Value::as_str) == Some("buck-operation") {
+        return Ok(match buck_operations::validate(raw) {
+            Ok(value) => value,
+            Err(error) => json!({"status": "invalid", "error": format!("{error:#}")}),
+        });
     }
     let input: Input = serde_json::from_value(raw).context("invalid measurement input")?;
     evaluate(input)

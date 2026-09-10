@@ -139,6 +139,53 @@ def clear_net(board: pcbnew.BOARD, net: str) -> None:
             board.Remove(zone)
 
 
+def replace_copper(
+    path: Path, net: str, segments: list, vias: list, zones: list
+) -> None:
+    """Replace mutable copper for one net on an already staged board."""
+    board = load(path)
+    if board.FindNet(net) is None:
+        raise ValueError(f"Unknown net {net}")
+    clear_net(board, net)
+    for segment in segments:
+        track = pcbnew.PCB_TRACK(board)
+        track.SetStart(position(*segment["start_mm"]))
+        track.SetEnd(position(*segment["end_mm"]))
+        track.SetWidth(pcbnew.FromMM(segment["width_mm"]))
+        track.SetLayer(COPPER_LAYERS[segment["layer"]])
+        track.SetNet(board.FindNet(net))
+        board.Add(track)
+    for via in vias:
+        item = pcbnew.PCB_VIA(board)
+        item.SetPosition(position(*via["position_mm"]))
+        # The operation contract admits only through vias spanning F.Cu-B.Cu.
+        item.SetViaType(pcbnew.VIATYPE_THROUGH)
+        item.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu)
+        item.SetWidth(pcbnew.FromMM(via["diameter_mm"]))
+        item.SetDrill(pcbnew.FromMM(via["drill_mm"]))
+        item.SetNet(board.FindNet(net))
+        board.Add(item)
+    for zone_spec in zones:
+        zone = pcbnew.ZONE(board)
+        zone.SetLayer(COPPER_LAYERS[zone_spec["layer"]])
+        zone.SetNet(board.FindNet(net))
+        # Build the zone through its native outline API. AddOutline expects a
+        # SHAPE_LINE_CHAIN; passing a polygon set here silently produced an
+        # empty/unfillable zone on KiCad 10.
+        outline = zone.Outline()
+        outline.NewOutline()
+        for x, y in zone_spec["outline_mm"]:
+            outline.Append(pcbnew.VECTOR2I(pcbnew.FromMM(x), pcbnew.FromMM(y)))
+        zone.SetLocalClearance(pcbnew.FromMM(0.2))
+        zone.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
+        board.Add(zone)
+    # Zone filling is deliberately left to KiCad's native reload/DRC path.
+    # ZONE_FILLER requires a GUI wxApp and segfaults in KiCad's headless
+    # Python runtime; invoking it here would turn a valid request into an
+    # unreportable process crash. No host-side polygon approximation is used.
+    save(board, path)
+
+
 def route(path: Path, net: str, layer: str, width_mm: float, points: list) -> None:
     board = load(path)
     if board.FindNet(net) is None:
@@ -255,6 +302,8 @@ def measure(path: Path) -> dict:
                 "net": zone.GetNetname(),
                 "layer": board.GetLayerName(zone.GetLayer()),
                 "width_mm": 0.5,
+                "filled": bool(zone.IsFilled()),
+                "filled_area_mm2": float(zone.GetFilledArea()) * pcbnew.ToMM(1) ** 2,
                 "start_mm": flat[0],
                 "end_mm": flat[-1],
                 "bounds_mm": bounds(zone.GetBoundingBox()),
@@ -324,5 +373,13 @@ if __name__ == "__main__":
         add_via(target, args[0], float(args[1]), float(args[2]))
     elif command == "add_zone":
         add_zone(target, args[0], args[1], json.loads(args[2]))
+    elif command == "replace_copper":
+        replace_copper(
+            target,
+            args[0],
+            json.loads(args[1]),
+            json.loads(args[2]),
+            json.loads(args[3]),
+        )
     else:
         raise ValueError("Unknown buck operation")

@@ -10,12 +10,411 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import buck_host
 import harness
 import qualify_buck as task
 from qualify_buck import ADAPTER
 
 
 class BuckBoundaryTests(unittest.TestCase):
+    def _prepared(self, root: Path, *, witness: bool = False) -> Path:
+        directory = root / "trial"
+        task.prepare(directory, "buck-dev-a")
+        if witness:
+            shutil.copyfile(
+                directory / "witness.kicad_pcb", directory / "candidate.kicad_pcb"
+            )
+        return directory
+
+    def test_full_buck_public_surface_and_nested_schema_are_rust_owned(self):
+        self.assertEqual(
+            [tool["name"] for tool in buck_host.TOOLS],
+            ["inspect", "check", "place", "replace_copper", "execute"],
+        )
+        self.assertEqual(
+            (buck_host.MAX_ACTIONS, buck_host.MAX_SECONDS, buck_host.MAX_OBJECTS),
+            (200, 1200.0, 512),
+        )
+        replace = next(
+            tool for tool in buck_host.TOOLS if tool["name"] == "replace_copper"
+        )["inputSchema"]
+        self.assertEqual(
+            replace["properties"]["segments"]["items"]["properties"]["start_mm"][
+                "minItems"
+            ],
+            2,
+        )
+        self.assertEqual(
+            replace["properties"]["vias"]["items"]["properties"]["diameter_mm"][
+                "const"
+            ],
+            0.8,
+        )
+
+    def test_full_buck_malformed_nested_requests_are_invalid_and_recorded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp))
+            before = harness.file_hash(directory / "candidate.kicad_pcb")
+            session = buck_host.Session(directory, "buck-dev-a")
+            try:
+                unknown = session.call(
+                    "replace_copper",
+                    {
+                        "net": "gnd",
+                        "segments": [
+                            {
+                                "start_mm": [0, 0],
+                                "end_mm": [1, 1],
+                                "layer": "F.Cu",
+                                "width_mm": 0.5,
+                                "unknown": 1,
+                            }
+                        ],
+                        "vias": [],
+                        "zones": [],
+                    },
+                )
+                nan = session.call(
+                    "replace_copper",
+                    {
+                        "net": "gnd",
+                        "segments": [
+                            {
+                                "start_mm": [0, float("nan")],
+                                "end_mm": [1, 1],
+                                "layer": "F.Cu",
+                                "width_mm": 0.5,
+                            }
+                        ],
+                        "vias": [],
+                        "zones": [],
+                    },
+                )
+                self.assertEqual(
+                    (unknown["status"], nan["status"]), ("invalid", "invalid")
+                )
+                self.assertEqual(
+                    harness.file_hash(directory / "candidate.kicad_pcb"), before
+                )
+                self.assertIn(
+                    "invalid_number_repr", (directory / "operations.jsonl").read_text()
+                )
+                rows = [
+                    json.loads(line)
+                    for line in (directory / "operations.jsonl")
+                    .read_text()
+                    .splitlines()
+                ]
+                responses = [row for row in rows if row["kind"] == "response"]
+                self.assertEqual(len(responses), 2)
+                self.assertEqual(responses[-1]["result"]["sequence"], 2)
+                self.assertIn("elapsed_s", responses[-1]["result"])
+            finally:
+                session.close()
+
+    def test_full_buck_native_failure_rolls_back_and_is_indeterminate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp))
+            board = directory / "candidate.kicad_pcb"
+            before = board.read_bytes()
+            with patch.object(
+                buck_host.Session, "_native", side_effect=RuntimeError("native crash")
+            ):
+                session = buck_host.Session(directory, "buck-dev-a")
+                try:
+                    result = session.call(
+                        "place",
+                        {"reference": "C9", "x_mm": 10, "y_mm": 10, "angle_deg": 0},
+                    )
+                    self.assertEqual(result["status"], "indeterminate")
+                    self.assertEqual(board.read_bytes(), before)
+                    self.assertEqual(session.actions, 0)
+                    self.assertTrue((directory / "state-000001.kicad_pcb").exists())
+                    self.assertTrue(
+                        (directory / "attempt-000001" / "candidate.kicad_pcb").exists()
+                    )
+                    terminal = session.call(
+                        "place",
+                        {"reference": "C9", "x_mm": 11, "y_mm": 11, "angle_deg": 0},
+                    )
+                    self.assertEqual(terminal["status"], "indeterminate")
+                    self.assertEqual(session.actions, 0)
+                finally:
+                    session.close()
+
+    def test_full_buck_placement_leaves_existing_copper_stationary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp), witness=True)
+            before = harness.native(
+                "measure", directory / "candidate.kicad_pcb", adapter=ADAPTER
+            )["buck"]["tracks"]
+            session = buck_host.Session(directory, "buck-dev-a")
+            try:
+                result = session.call(
+                    "place", {"reference": "C9", "x_mm": 15, "y_mm": 20, "angle_deg": 0}
+                )
+                self.assertIn(result["status"], ("pass", "fail"))
+                self.assertIn("drc", result)
+                self.assertIn("rust", result)
+                self.assertEqual(session.actions, 1)
+                self.assertTrue(result["mutation_committed"])
+                self.assertEqual(result["mutation_index"], 1)
+                self.assertEqual(result["native_verdict"], result["status"])
+                after = result["measurement"]["buck"]["tracks"]
+                self.assertEqual(
+                    sorted(
+                        (t["uuid"], t["net"], t["start_mm"], t["end_mm"])
+                        for t in before
+                    ),
+                    sorted(
+                        (t["uuid"], t["net"], t["start_mm"], t["end_mm"]) for t in after
+                    ),
+                )
+            finally:
+                session.close()
+
+    def test_full_buck_replace_one_net_preserves_other_nets(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp), witness=True)
+            before = harness.native(
+                "measure", directory / "candidate.kicad_pcb", adapter=ADAPTER
+            )["buck"]["tracks"]
+            session = buck_host.Session(directory, "buck-dev-a")
+            try:
+                before_revision = session.revision
+                result = session.call(
+                    "replace_copper",
+                    {"net": "sw", "segments": [], "vias": [], "zones": []},
+                )
+                self.assertIn(result["status"], ("pass", "fail"))
+                self.assertIn("drc", result)
+                self.assertIn("rust", result)
+                self.assertEqual(session.actions, 1)
+                self.assertNotEqual(session.revision, before_revision)
+                after = result["measurement"]["buck"]["tracks"]
+                before_other = sorted(
+                    (t["uuid"], t["net"], t["start_mm"], t["end_mm"])
+                    for t in before
+                    if t["net"] != "sw"
+                )
+                after_other = sorted(
+                    (t["uuid"], t["net"], t["start_mm"], t["end_mm"])
+                    for t in after
+                    if t["net"] != "sw"
+                )
+                self.assertEqual(before_other, after_other)
+                self.assertEqual([t for t in after if t["net"] == "sw"], [])
+            finally:
+                session.close()
+
+    def test_full_buck_replace_copper_uses_native_zone_and_through_via(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp))
+            session = buck_host.Session(directory, "buck-dev-a")
+            try:
+                result = session.call(
+                    "replace_copper",
+                    {
+                        "net": "gnd",
+                        "segments": [
+                            {
+                                "start_mm": [8.8625, 29.05],
+                                "end_mm": [12, 29.05],
+                                "layer": "B.Cu",
+                                "width_mm": 0.6,
+                            }
+                        ],
+                        "vias": [
+                            {
+                                "position_mm": [8.8625, 29.05],
+                                "diameter_mm": 0.8,
+                                "drill_mm": 0.4,
+                            },
+                            {
+                                "position_mm": [12, 29.05],
+                                "diameter_mm": 0.8,
+                                "drill_mm": 0.4,
+                            },
+                        ],
+                        "zones": [
+                            {
+                                "layer": "B.Cu",
+                                "outline_mm": [[5, 5], [45, 5], [45, 35], [5, 35]],
+                            }
+                        ],
+                    },
+                )
+                self.assertIn(result["status"], ("pass", "fail"))
+                self.assertIn("drc", result)
+                self.assertIn("rust", result)
+                tracks = result["measurement"]["buck"]["tracks"]
+                self.assertEqual(
+                    {item["kind"] for item in tracks}, {"segment", "via", "zone"}
+                )
+                zone = next(item for item in tracks if item["kind"] == "zone")
+                self.assertTrue(zone["filled"])
+                self.assertGreater(zone["filled_area_mm2"], 0)
+                self.assertTrue(
+                    any(
+                        "U3.1" in cluster["pads"] and cluster["tracks"]
+                        for cluster in result["measurement"]["buck"]["connectivity"]
+                    )
+                )
+                self.assertEqual(
+                    next(item for item in tracks if item["kind"] == "via")["layer"],
+                    "F.Cu-B.Cu",
+                )
+            finally:
+                session.close()
+
+    def test_full_buck_protected_terminal_and_stale_external_state_reject(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp))
+            session = buck_host.Session(directory, "buck-dev-a")
+            try:
+                before = session.revision
+                protected = session.call(
+                    "place", {"reference": "J1", "x_mm": 4, "y_mm": 18, "angle_deg": 0}
+                )
+                self.assertEqual(protected["status"], "invalid")
+                self.assertEqual(session.revision, before)
+                (directory / "candidate.kicad_pcb").write_bytes(b"external")
+                stale = session.call("inspect", {})
+                self.assertEqual(stale["status"], "invalid")
+            finally:
+                session.close()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp))
+            session = buck_host.Session(directory, "buck-dev-a")
+            try:
+                before = session.revision
+                (directory / "candidate.kicad_dru").write_text("external rules")
+                context_stale = session.call(
+                    "place", {"reference": "C9", "x_mm": 10, "y_mm": 10, "angle_deg": 0}
+                )
+                self.assertEqual(context_stale["status"], "invalid")
+                self.assertEqual(session.revision, before)
+            finally:
+                session.close()
+
+    def test_full_buck_shared_budget_is_one_public_counter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp))
+            fake_measure = {
+                "protected_sha256": json.loads(task.CONTRACT.read_text())["variants"][
+                    0
+                ]["protected_sha256"]
+            }
+            with (
+                patch.object(buck_host.Session, "_native"),
+                patch.object(
+                    buck_host.Session,
+                    "_check_stage",
+                    return_value={
+                        "status": "pass",
+                        "measurement": fake_measure,
+                        "drc": {},
+                        "rust": {"status": "pass"},
+                    },
+                ),
+            ):
+                session = buck_host.Session(directory, "buck-dev-a")
+                try:
+                    for _ in range(buck_host.MAX_ACTIONS):
+                        self.assertEqual(
+                            session.call(
+                                "place",
+                                {
+                                    "reference": "C9",
+                                    "x_mm": 10,
+                                    "y_mm": 10,
+                                    "angle_deg": 0,
+                                },
+                            )["status"],
+                            "pass",
+                        )
+                    self.assertEqual(
+                        session.call(
+                            "place",
+                            {"reference": "C9", "x_mm": 10, "y_mm": 10, "angle_deg": 0},
+                        )["status"],
+                        "invalid",
+                    )
+                    self.assertEqual(session.actions, buck_host.MAX_ACTIONS)
+                finally:
+                    session.close()
+
+    def test_full_buck_witness_replays_through_public_operations(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = self._prepared(Path(tmp))
+            witness = harness.native(
+                "measure", directory / "witness.kicad_pcb", adapter=ADAPTER
+            )
+            session = buck_host.Session(directory, "buck-dev-a")
+            try:
+                initial = session.call("inspect", {})
+                self.assertEqual(initial["measurement"]["buck"]["tracks"], [])
+                self.assertIsNone(initial["native_verdict"])
+                for fp in witness["footprints"]:
+                    if fp["reference"] in task.FUNCTIONAL_REFS:
+                        self.assertTrue(
+                            session.call(
+                                "place",
+                                {
+                                    "reference": fp["reference"],
+                                    "x_mm": fp["position_mm"][0],
+                                    "y_mm": fp["position_mm"][1],
+                                    "angle_deg": int(fp["angle_deg"]),
+                                },
+                            )["mutation_committed"],
+                        )
+                for net in task.NETS:
+                    copper = [
+                        item for item in witness["buck"]["tracks"] if item["net"] == net
+                    ]
+                    segments = [
+                        {
+                            k: item[k]
+                            for k in ("start_mm", "end_mm", "layer", "width_mm")
+                        }
+                        for item in copper
+                        if item["kind"] == "segment"
+                    ]
+                    vias = [
+                        {
+                            "position_mm": item["start_mm"],
+                            "diameter_mm": 0.8,
+                            "drill_mm": 0.4,
+                        }
+                        for item in copper
+                        if item["kind"] == "via"
+                    ]
+                    result = session.call(
+                        "replace_copper",
+                        {"net": net, "segments": segments, "vias": vias, "zones": []},
+                    )
+                    self.assertTrue(result["mutation_committed"], result)
+                checked = session.call("check", {})
+                self.assertEqual(checked["status"], "pass", checked)
+                self.assertEqual(session.actions, 15)
+                original = session.board.read_bytes()
+                again = session.call("check", {})
+                self.assertEqual(again["status"], "pass", again)
+                self.assertEqual(again["measurement"]["board_sha256"], session.revision)
+                self.assertEqual(session.board.read_bytes(), original)
+                self.assertNotEqual(again["sequence"], checked["sequence"])
+                rows = [
+                    json.loads(line)
+                    for line in (directory / "operations.jsonl")
+                    .read_text()
+                    .splitlines()
+                ]
+                self.assertEqual(rows[-1]["result"], again)
+                self.assertIsInstance(rows[-1]["result"]["elapsed_s"], float)
+            finally:
+                session.close()
+
     def test_only_the_seven_buck_tools_are_admitted(self):
         self.assertEqual(
             [t["name"] for t in task.TOOLS],
