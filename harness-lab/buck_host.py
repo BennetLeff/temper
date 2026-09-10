@@ -28,9 +28,7 @@ _POLICY_PROFILE = "buck-operation"
 def _rust_schema() -> dict[str, Any]:
     result = subprocess.run(
         [str(harness.JUDGE)],
-        input=json.dumps(
-            {"profile": _POLICY_PROFILE, "operation": "schema", "arguments": {}}
-        ),
+        input=json.dumps({"profile": _POLICY_PROFILE, "operation": "schema", "arguments": {}}),
         text=True,
         capture_output=True,
         timeout=5,
@@ -94,17 +92,13 @@ class Session:
         self.variant = variant
         contract = json.loads(qualify_buck.CONTRACT.read_text())
         self.contract = qualify_buck.variant_contract(contract, variant)
-        self.context_sha256 = qualify_buck.variant_spec(contract, variant)[
-            "context_sha256"
-        ]
+        self.context_sha256 = qualify_buck.variant_spec(contract, variant)["context_sha256"]
         self.board = self.directory / "candidate.kicad_pcb"
         self._require_fixture_context()
         self.started = time.monotonic()
         now = time.monotonic()
         self.deadline = (
-            min(deadline, now + MAX_SECONDS)
-            if deadline is not None
-            else now + MAX_SECONDS
+            min(deadline, now + MAX_SECONDS) if deadline is not None else now + MAX_SECONDS
         )
         self.actions = 0
         self.sequence = 0
@@ -182,6 +176,9 @@ class Session:
 
     def _remaining_timeout(self, maximum: float) -> float:
         remaining = self.deadline - time.monotonic()
+        active_cell_deadline = getattr(self, "_active_cell_deadline", None)
+        if active_cell_deadline is not None:
+            remaining = min(remaining, active_cell_deadline - time.monotonic())
         if remaining <= 0:
             raise TimeoutError("absolute buck attempt deadline expired")
         return min(maximum, remaining)
@@ -311,9 +308,7 @@ class Session:
             2,
         ):
             raise RuntimeError(result.get("error", "Rust check indeterminate"))
-        (stage / "native-check" / "result.json").write_text(
-            json.dumps(result, indent=2) + "\n"
-        )
+        (stage / "native-check" / "result.json").write_text(json.dumps(result, indent=2) + "\n")
         return {
             "status": result.get("status"),
             "measurement": measurement,
@@ -377,9 +372,7 @@ class Session:
             raise RuntimeError("native reload changed protected state")
         return measurement
 
-    def call(
-        self, operation: str, args: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+    def call(self, operation: str, args: dict[str, Any] | None = None) -> dict[str, Any]:
         args = {} if args is None else args
         self.sequence += 1
         sequence = self.sequence
@@ -403,9 +396,7 @@ class Session:
             if harness.context_hash(self.directory) != self.context_sha256:
                 raise ValueError("protected fixture context changed")
             if harness.file_hash(self.board) != self.revision:
-                raise ValueError(
-                    "stale request: board revision changed outside this session"
-                )
+                raise ValueError("stale request: board revision changed outside this session")
             self._rust_policy(operation, args)
             self._deadline()
             if operation in ("place", "replace_copper"):
@@ -447,9 +438,7 @@ class Session:
             RuntimeError,
             subprocess.SubprocessError,
         ) as error:
-            if isinstance(
-                error, (RuntimeError, OSError, subprocess.SubprocessError, TimeoutError)
-            ):
+            if isinstance(error, (RuntimeError, OSError, subprocess.SubprocessError, TimeoutError)):
                 self.terminal_error = str(error)
             result = {
                 "status": "indeterminate",

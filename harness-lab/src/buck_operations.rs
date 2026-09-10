@@ -93,7 +93,6 @@ pub fn validate(input: Value) -> Result<Value> {
                     .is_some_and(|code| code.len() <= MAX_EXECUTE_BYTES),
                 "code must be a UTF-8 string of at most 65536 bytes"
             );
-            ensure!(false, "execute is reserved for P2");
         }
         "place" => {
             exact_keys(
@@ -252,5 +251,28 @@ mod tests {
         let value = validate(json!({"operation":"schema","arguments":{}})).unwrap();
         assert_eq!(value["tools"].as_array().unwrap().len(), 5);
         assert!(value.to_string().contains("start_mm"));
+    }
+    #[test]
+    fn execute_admits_utf8_bytes_and_rejects_unknown_keys() {
+        let accepted = validate(json!({
+            "operation":"execute",
+            "arguments":{"code":"print('✓')"}
+        }))
+        .unwrap();
+        assert_eq!(accepted["status"], "pass");
+        assert!(validate(json!({
+            "operation":"execute",
+            "arguments":{"code":"x", "extra":true}
+        }))
+        .is_err());
+    }
+    #[test]
+    fn execute_rejects_code_over_byte_limit() {
+        let code = "é".repeat(MAX_EXECUTE_BYTES / 2 + 1);
+        assert!(validate(json!({
+            "operation":"execute",
+            "arguments":{"code":code}
+        }))
+        .is_err());
     }
 }
