@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "kicad_version": "10.0.4",
+  "checks": [
+    "existing zone deletion/new zone/native save reload",
+    "zone priority and clearance survive serialization",
+    "late operation failure leaves destination bytes unchanged"
+  ],
+  "inputs": {
+    "zapote/rtd/tests/native_adapter_regression.py": "0bee94ca8fcf492f3dae8702d800a9b8864a823941cfd38f68da6b40445cf2ae",
+    "harness-lab/block_native.py": "f649b3afb6e783c4c47a33af1a739f181cb54c78d5865588437677fc23bdde1c",
+    "harness-lab/buck_native.py": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+    "zapote/rtd/apply_routes.py": "412713bbe767f5e44b6860d9b79018edf447aba8d8f5a39358839f01eadd0c4c"
+  },
+  "native_refill": "PASS: filled zone, priority2, clearance0.22mm, zero native violations/opens",
+  "pre_refill_board_sha256": "7fd9c731ce7980a02fcef079b06bd206f8d297fadcc8eca65f9f0b9c3f50ed57",
+  "post_refill_board_sha256": "14eaea0741c83b8808c2397c79d4edffd2bb873b8a0c806699efc189699c733a",
+  "native_report_sha256": "a6808849b035f9eab872a3b60238393b77b9dbbc315a5a6066675768e57e0378"
+}

@@ -1,0 +1,153 @@
+{
+  "status": "copied stable circuit/model handoff; bounded datasheet model, no physical proof",
+  "files": [
+    {
+      "path": "zapote/rtd/circuit/RTD_CIRCUIT_AUDIT.md",
+      "sha256": "6c170393a2306da9853ca92dd06d0883aebb0d1f24d48ae13e1da3e8341ff1a9"
+    },
+    {
+      "path": "zapote/rtd/circuit/fault_nand_upstream_cap.patch",
+      "sha256": "515e7cc187f8b6d9964c721070680f38904b5cc0cb18bf0852e58a9a52ab6106"
+    },
+    {
+      "path": "zapote/rtd/circuit/fault_nand_upstream_power.patch",
+      "sha256": "edb14dc8461979cf8ae246f47731a1524f54cc9ce62b73ac3826f540a85a8bb7"
+    },
+    {
+      "path": "zapote/rtd/circuit/fault_nand_upstream_power_and_bypass.patch",
+      "sha256": "09f0c4c455227b383f9b01aeaa1eec298cb8008beb2b03f73dd691a58e2d2c6b"
+    },
+    {
+      "path": "zapote/rtd/circuit/firmware_test_receipt.txt",
+      "sha256": "66022bd8c8d97e023d9187163902d6d25aab7077461874060fae27850858f760"
+    },
+    {
+      "path": "zapote/rtd/circuit/footprint_receipt.txt",
+      "sha256": "9d44eb8bf7df9930c4943c80d7ffba72f696d12c4154eb5e7ca9dc1f1bce0103"
+    },
+    {
+      "path": "zapote/rtd/circuit/model_results.txt",
+      "sha256": "57a681abbfe33fdf236c595eabf519e3d6f8f026a4625cdd144051739265a3a6"
+    },
+    {
+      "path": "zapote/rtd/circuit/model_results_raw.txt",
+      "sha256": "176da65695d1c9dc1c26feff2463b29fbcd6892c01068fafd92e645eceeb19d2"
+    },
+    {
+      "path": "zapote/rtd/circuit/rail_monitor_bounds.txt",
+      "sha256": "f956500f981e683dc67688d62a95bc30177ed5091333ec5eb535c4c13230f824"
+    },
+    {
+      "path": "zapote/rtd/circuit/rail_monitor_tps3890.patch",
+      "sha256": "2759d0ca8d99f6465c9fbce67bb4ef1e1d9925701044ec20c97d06d7db1dc366"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_analog_source.patch",
+      "sha256": "6e7b3982a7a0f289280527a6659c559ddb800120d7783ed733df7d22afb28d81"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_circuit_final_receipt.txt",
+      "sha256": "d516c40b8f5ba01d71f49f19b47c3ca2c5dfccc03f572e318837a48811b35234"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_contract.json",
+      "sha256": "843551763065659e14778d7ff0337cf1349bd7e6c9e5fcd9906bb6b1016a31fb"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_diagnostic_loading.cir",
+      "sha256": "f242cf86c830feafcf72e640e77066bea62e35bb48b6e8da0f3bc0213aea67ab"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_observed_faults.json",
+      "sha256": "74e1187aabcd2f85e615866358f673a60e230f19d74d0bcfff5a0e6ee681fed8"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_observed_faults.py",
+      "sha256": "e754081f93921c53f333492bdc8fc29071d89f17d198baafc28e1e8f4929d0b9"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_protected_unit_build_receipt.txt",
+      "sha256": "896cb448951d1753d31781487a54ef8cfb945418d3d4426d07d05a232cca005a"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_sense_minus_open_rc.cir",
+      "sha256": "b530e0f41205a6afe018352cae1ecdef181d0a1224b978b0805933cccb2b8f60"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_sense_open_rc.cir",
+      "sha256": "331c11f6a161409e999cd4824f32a43b71f3ed90c75da07ed28548bc85709831"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_short10_spice_receipt.txt",
+      "sha256": "040e6fa0d1f150feb5f1a646ea5adec08f1294c4d6912c20fbbf8f85df5d9d26"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_sinc_phase_model.txt",
+      "sha256": "50cf383991ba40d318553a5ce7237c10873a204508875e7eb4098c8658533d87"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_window_bounded.cir",
+      "sha256": "48ddf2774593f33cfd70b7fafbb1c69a786609a5e6f2e9fafebc70e2af996f73"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtd_window_protection.patch",
+      "sha256": "8741cff4844a318c2406a03e1c9511579ceaf5f46b179fd9202316ca83a31111"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtdin_comparator_model.py",
+      "sha256": "46df61023950e23949d73d0dec78417b5b4decc0f934879091f4fabbc41d992a"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtdin_comparator_model_results.txt",
+      "sha256": "8f028402bc5bbc3c58c175ba7b415ac2e05ff74f589dc75c3a91445b60a8666d"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtdin_comparator_source.patch",
+      "sha256": "8fa8931b821750a921ece5344c286866bdb7e57a5be8a8da98caf0e9c0f3d6b0"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtdin_comparator_window.cir",
+      "sha256": "9ca9386d1a0565f6708cdbfce89a2bbe5a4e0de7faffd0d0b9326181759c123e"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtdin_spice_receipt.txt",
+      "sha256": "004e055d0e966f2cad5db46a6afd0db5c0c5ad8f8cfacfb9eee3e8e70b4a11eb"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtdin_transient_model.py",
+      "sha256": "1cab91630f8d1b4229b5f15a34ffd1b88a4a0d04e07299c4811b76e18db7429f"
+    },
+    {
+      "path": "zapote/rtd/circuit/rtdin_transient_model_results.txt",
+      "sha256": "43907ccb35f72d2d07ae506881198a052aaf6327cf2f760355e111d03d458d74"
+    },
+    {
+      "path": "zapote/rtd/circuit/source_component_patch_proposals.patch",
+      "sha256": "226150d7e58a94e4d8af3c7bd18acd6c3a90d6eb19920be6c31e0aa0ce637b64"
+    },
+    {
+      "path": "zapote/rtd/circuit/source_patch_proposal.patch",
+      "sha256": "4e0413cf7811d5320023a962d0c31585a12a2ace96325956b45ba5362b4dde20"
+    },
+    {
+      "path": "zapote/rtd/circuit/standalone_interface_contract.md",
+      "sha256": "78ced73f53220dc135c488c96dfec85a1de58fe844be11c87e80442630dbc7fe"
+    },
+    {
+      "path": "zapote/rtd/circuit/standalone_interface_source.patch",
+      "sha256": "ed066b9204e00721b73986f8c8c3a438d86b590fbb17bd18c64c7f0781e8211a"
+    },
+    {
+      "path": "zapote/rtd/circuit/standalone_interface_source_proposal.ato",
+      "sha256": "f35d009a951d9c8ad6fb7edfd00dd05e78688c9e51587e072fe5f197de15a6e8"
+    },
+    {
+      "path": "zapote/rtd/circuit/standalone_wrapper_build_receipt.txt",
+      "sha256": "18c06f3564eda2afe2c44f25dfea665165b04d8481081ec6c5d0e632c3aca7be"
+    },
+    {
+      "path": "zapote/rtd/circuit/threshold_formula_patch_proposal.patch",
+      "sha256": "1e597498eb600eb65ca19bf3f36704b05503eacc546126c3d8da19a02a9ed749"
+    }
+  ]
+}

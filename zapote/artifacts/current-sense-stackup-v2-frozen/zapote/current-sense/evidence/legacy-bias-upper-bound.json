@@ -1,0 +1,15 @@
+{
+  "claim": "DC upper bound from burden/divider subnetwork, not a complete transformer model",
+  "source": "elec/src/modules.ato:CurrentSensing",
+  "source_sha256": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d",
+  "v_supply_v": 3.3,
+  "r_top_ohm": 10000.0,
+  "r_bottom_ohm": 10000.0,
+  "r_burden_ohm": 4.99,
+  "formula": "VCC * (Rburden || Rbottom) / (Rtop + (Rburden || Rbottom))",
+  "result_upper_bound_v": 0.0016450582318845793,
+  "claimed_midpoint_v": 1.65,
+  "transformer_dc_winding": "omitted: any passive winding resistance from this node to ground further reduces the voltage",
+  "conclusion": "existing topology cannot establish its claimed 1.65V bias",
+  "hardware_measured": false
+}

@@ -1,0 +1,26 @@
+{
+  "reason": "Astra-authored exact restoration of the intentionally removed RTDIN- copper segment",
+  "nets": [
+    {
+      "net": "rtd_sense_n",
+      "mode": "append",
+      "paths": [
+        {
+          "points": [
+            [
+              22.6,
+              22.8575
+            ],
+            [
+              22.6,
+              24.1
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        }
+      ],
+      "vias": []
+    }
+  ]
+}

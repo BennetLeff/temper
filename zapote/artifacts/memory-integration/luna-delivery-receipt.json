@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-11",
+  "transport": "collaboration.followup_task",
+  "target": "/root/rtd_milestone_execution",
+  "scope": "read-only selected-memory control; separate from generic process adapter",
+  "prompt_path": "zapote/artifacts/memory-integration/verified-run/process-control/provider-request.stdin",
+  "prompt_sha256": "8955f2d8d30ef69046d21d7485bbf4d10f8eb51a30f6fd4fb6dc4dda25f420f9",
+  "prompt_delivery": "full selected prompt submitted verbatim as followup_task.message",
+  "response_path": "zapote/artifacts/memory-integration/luna-decision-record.json",
+  "response_sha256": "1eb7bf2f52cb8ecde3932f912e3f025ad32432a22ea5fbff3b962550ea47e144",
+  "reported_use": [
+    "rtd-mem-001"
+  ],
+  "exact_fact_transfer_allowed": false,
+  "helper_execution_observed": [],
+  "provider_wire_capture": "not available for collaboration tool",
+  "performance_improvement": "not measured",
+  "record_kind": "coordinator record of actual tool dispatch and returned agent response"
+}

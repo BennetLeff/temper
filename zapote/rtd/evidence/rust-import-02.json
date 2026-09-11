@@ -1,0 +1,53 @@
+{
+  "commit": "0d81b5591",
+  "files": [
+    {
+      "path": "zapote/OUTSTANDING_RUST_WORK.md",
+      "sha256": "b73fd1aceeb1bbd3e2bca04b59c4b6327dc72e332bb5deea917cb5cd26036725"
+    },
+    {
+      "path": "zapote/SCHEMA.md",
+      "sha256": "d6b9137706cb7f0f97fc9894c528d8e0e63bdba8051680b6f76cda18316b9fc1"
+    },
+    {
+      "path": "zapote/fixtures/rtd-current-native.json",
+      "sha256": "d156ab1001f6be7f4915cf345e33f9d009cdbd96de5267c193ab63badadc04d0"
+    },
+    {
+      "path": "zapote/packages/zapote-core/src/lib.rs",
+      "sha256": "46f061805940f3581138d7d47f220dc79d00072d4d8474e8c9e8b2bbf111b4e1"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/src/lib.rs",
+      "sha256": "b34c8e54f57463395a3c7eca80d386ddbf2930e7ff1a856880ad2c38bc4c1e80"
+    },
+    {
+      "path": "zapote/packages/zapote-erc/src/lib.rs",
+      "sha256": "625c3beeb12369cc7d022715f1d3d6464383ba7c3b2c41173a7e536d12368811"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/tests/rtd_defect_corpus.rs",
+      "sha256": "74dc40d3eaf161e1ae55f5c64292d8a15e150b06ad2721ba61abeca1469bcb28"
+    },
+    {
+      "path": "zapote/rtd/bom/README.md",
+      "sha256": "1c2bfdb37431a519461d5ca29c8bbd6aaeac52d33ecb11d32a4b6f229a57df41"
+    },
+    {
+      "path": "zapote/rtd/bom/SPI_RESISTOR_TOLERANCE_PROPOSAL.md",
+      "sha256": "42493faa804513b6aceafaf8813d539f189d3ec6e12eeba5aa48b40e952d73b5"
+    },
+    {
+      "path": "zapote/rtd/bom/rtd_33_audit.md",
+      "sha256": "f7ad394b1702d9eb84319601306b2311bd64f339a6ae48e61c75a554c8a94579"
+    },
+    {
+      "path": "zapote/rtd/bom/rtd_33_inventory.json",
+      "sha256": "ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "path": "zapote/tools/build_native_input.py",
+      "sha256": "d4489f1d87db1aa6e46085adcecfe29ecadf7d690cabe734f10e1a45f8cf71ac"
+    }
+  ]
+}

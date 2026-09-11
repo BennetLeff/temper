@@ -1,0 +1,14 @@
+    Checking zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-drc)
+warning: manual `RangeInclusive::contains` implementation
+   --> packages/zapote-drc/src/lib.rs:135:49
+    |
+135 |             Some(value) if value.is_finite() && value >= 0.0 && value <= 3.0 => value,
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `(0.0..=3.0).contains(&value)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#manual_range_contains
+    = note: `#[warn(clippy::manual_range_contains)]` on by default
+
+warning: `zapote-drc` (lib test) generated 1 warning (run `cargo clippy --fix --lib -p zapote-drc --tests` to apply 1 suggestion)
+warning: `zapote-drc` (lib) generated 1 warning (1 duplicate)
+    Checking zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.87s

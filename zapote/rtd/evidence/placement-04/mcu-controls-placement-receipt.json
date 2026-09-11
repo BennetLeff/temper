@@ -1,0 +1,349 @@
+{
+  "input_board_sha256": "3c9c1b0f0a2d4dbcdb6cd74fd094590c416fb7259b7ca32e424b3fc0f84daccc",
+  "output_board_sha256": "2963fe8ba0ae8cc84f5ae66d8eb72030faf01416248976ff6df6ad476c74df95",
+  "instruction_sha256": "b7b0166ba1357f54819eb898e07b00af999530f8783c98562b6748a617de23f0",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "mcu.btn_reset",
+      "reference": "SW1",
+      "uuid": "a393848f-238f-4b6b-9636-3571eae1f68c",
+      "before": {
+        "position_mm": [
+          30.0,
+          66.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "en",
+            "position_mm": [
+              28.2,
+              65.28
+            ]
+          },
+          {
+            "pad": "1",
+            "net": "en",
+            "position_mm": [
+              31.8,
+              65.28
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              28.2,
+              66.72
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              31.8,
+              66.72
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          31.0,
+          24.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "en",
+            "position_mm": [
+              29.2,
+              23.28
+            ]
+          },
+          {
+            "pad": "1",
+            "net": "en",
+            "position_mm": [
+              32.8,
+              23.28
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              29.2,
+              24.72
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              32.8,
+              24.72
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "mcu.btn_boot",
+      "reference": "SW2",
+      "uuid": "12a57f19-5870-44d9-8ebd-2b8258619da4",
+      "before": {
+        "position_mm": [
+          42.0,
+          66.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "io0",
+            "position_mm": [
+              40.2,
+              65.28
+            ]
+          },
+          {
+            "pad": "1",
+            "net": "io0",
+            "position_mm": [
+              43.8,
+              65.28
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              40.2,
+              66.72
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              43.8,
+              66.72
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          38.0,
+          24.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "io0",
+            "position_mm": [
+              36.2,
+              23.28
+            ]
+          },
+          {
+            "pad": "1",
+            "net": "io0",
+            "position_mm": [
+              39.8,
+              23.28
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              36.2,
+              24.72
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              39.8,
+              24.72
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "mcu.r_boot",
+      "reference": "R74",
+      "uuid": "9297fecd-2251-4fdc-94d2-b9101e8ca611",
+      "before": {
+        "position_mm": [
+          48.0,
+          46.19
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              47.175,
+              46.19
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "io0",
+            "position_mm": [
+              48.825,
+              46.19
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          48.0,
+          46.19
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              48.825,
+              46.19
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "io0",
+            "position_mm": [
+              47.175,
+              46.19
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "mcu.r_sda_pullup",
+      "reference": "R75",
+      "uuid": "5193c7b8-80b4-4aea-ab15-a80feb235ab4",
+      "before": {
+        "position_mm": [
+          49.0,
+          51.27
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              48.175,
+              51.27
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "i2c_sda_ui",
+            "position_mm": [
+              49.825,
+              51.27
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          49.0,
+          51.27
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              49.825,
+              51.27
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "i2c_sda_ui",
+            "position_mm": [
+              48.175,
+              51.27
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "mcu.r_scl_pullup",
+      "reference": "R76",
+      "uuid": "0ec9130d-1b37-476d-9960-104ef6a56813",
+      "before": {
+        "position_mm": [
+          49.0,
+          54.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              48.175,
+              54.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "i2c_scl_ui",
+            "position_mm": [
+              49.825,
+              54.0
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          49.0,
+          54.0
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              49.825,
+              54.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "i2c_scl_ui",
+            "position_mm": [
+              48.175,
+              54.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

@@ -1,0 +1,15 @@
+{
+  "status": "initialized-unrouted",
+  "input_board_sha256": "ce7ef26dabb849348607325bbfc4725b5753cabae15a24eb4fd3baba9e337f83",
+  "output_board_sha256": "a78c43feefbe6a5fcca4c0fcbbf3132be2270cbeb747634c6cb800054117ac2e",
+  "instruction_sha256": "35b2cf7ac37c98ed5a4fc96c94b0ed85d877b980388c417e04d8e88dff469ebd",
+  "replay_sha256": "1be003b1713f851e4dbe230f2250f7c503f2a1168abd6ef0d49dabbb4c41dbe6",
+  "kicad_version": "10.0.4",
+  "layers": [
+    "F.Cu",
+    "In1.Cu",
+    "In2.Cu",
+    "B.Cu"
+  ],
+  "physical_tests": "NOT RUN"
+}

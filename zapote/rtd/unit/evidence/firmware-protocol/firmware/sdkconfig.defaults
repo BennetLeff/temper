@@ -1,0 +1,73 @@
+# ESP-IDF sdkconfig.defaults for Induction Cooker
+# These settings are applied when running 'idf.py menuconfig'
+
+# Target: ESP32-S3
+CONFIG_IDF_TARGET="esp32s3"
+
+# CPU Frequency: 240 MHz for fast control loops
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=240
+
+# FreeRTOS Configuration
+CONFIG_FREERTOS_HZ=1000
+CONFIG_FREERTOS_TIMER_TASK_PRIORITY=25
+CONFIG_FREERTOS_TIMER_TASK_STACK_DEPTH=3072
+
+# Task Watchdog - enabled for safety
+CONFIG_ESP_TASK_WDT=y
+CONFIG_ESP_TASK_WDT_TIMEOUT_S=1
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0=y
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=y
+
+# PWM Configuration (MCPWM for gate driver)
+CONFIG_MCPWM_ISR_IRAM_SAFE=y
+CONFIG_MCPWM_CTRL_FUNC_IN_IRAM=y
+
+# ADC Configuration (for temperature sensing)
+CONFIG_ADC_DISABLE_DAC=y
+
+# SPI Configuration (for MAX31865)
+CONFIG_SPI_MASTER_ISR_IN_IRAM=y
+
+# I2C Configuration (for display/isolated sensors)
+CONFIG_I2C_ISR_IRAM_SAFE=y
+
+# GPIO Configuration
+CONFIG_GPIO_CTRL_FUNC_IN_IRAM=y
+
+# Logging
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_LOG_MAXIMUM_LEVEL_DEBUG=y
+
+# Partition Table
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# Flash Configuration
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+
+# Optimization - favor speed for control loops
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+
+# Stack smashing protection
+CONFIG_COMPILER_STACK_CHECK_MODE_NORM=y
+
+# Brownout detection - important for power electronics
+CONFIG_ESP_BROWNOUT_DET=y
+CONFIG_ESP_BROWNOUT_DET_LVL_SEL_7=y
+
+# Panic behavior - restart on crash
+CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT=y
+
+# Wi-Fi disabled (not needed for basic cooker)
+CONFIG_ESP_WIFI_ENABLED=n
+
+# Bluetooth disabled (not needed for basic cooker)
+CONFIG_BT_ENABLED=n
+
+# NVS for settings storage
+CONFIG_NVS_ENCRYPTION=n
+
+# Power management disabled (need deterministic timing)
+CONFIG_PM_ENABLE=n

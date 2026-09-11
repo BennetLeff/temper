@@ -1,0 +1,9 @@
+WARN Ignoring non-directory workspace member: `/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/README.md`
+WARN pydantic-core==2.46.5 needs to be downloaded from a registry
+WARN pydantic-core needs to be downloaded from a registry
+Resolved 5 packages in 17ms
+Installed 4 packages in 9ms
+ + annotated-types==0.8.0
+ + pydantic==2.13.4
+ + pydantic-core==2.46.4
+ + typing-inspection==0.4.4

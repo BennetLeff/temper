@@ -1,0 +1,50 @@
+{
+  "status": "fail",
+  "findings": [
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model must provide a non-empty faults array",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "local/reference load budget is authored but pending source-derived sum",
+      "object": "RTD_LOCAL_10MA",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "INPUT_SCHEMA",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "scenarios must contain at least one case",
+      "object": "run_input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "INPUT_SCHEMA",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "scenarios must contain at least one case",
+      "object": "run_input",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "ERC.RTD.UNIT_COMPONENT_MPN",
+    "ERC.RTD.UNIT_CONNECTIONS",
+    "ERC.RTD.UNIT_FIRMWARE",
+    "ERC.RTD.UNIT_INTERFACE",
+    "ERC.RTD.UNIT_MODEL",
+    "ERC.RTD.UNIT_SOURCE_BINDING"
+  ],
+  "coverage_gaps": []
+}

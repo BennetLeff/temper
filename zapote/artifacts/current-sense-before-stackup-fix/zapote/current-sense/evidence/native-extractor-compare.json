@@ -1,0 +1,30 @@
+{
+  "schema": "zapote.current-sense.native-extractor-compare.v1",
+  "status": "pass",
+  "board": "zapote/rtd/unit/candidate/section.kicad_pcb",
+  "board_sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+  "canonical_extractor": {
+    "path": "zapote/rtd/native_measure.py",
+    "sha256": "064755f6c9b7bc6b3964d25403c620bd9aa9f3be661dcd997fdcd6f9b7bb551f",
+    "output_sha256": "6babf49a5b4a3beab102f04035ef90b32f43c19c9c1d39f79768d732004cfc89"
+  },
+  "current_extractor": {
+    "path": "/private/tmp/zapote-current-native/extract_current_sense_native.py",
+    "sha256": "070799d571f8e37a926a6cf905f1173534d9805e3683e739d9cbd224ace4bdad",
+    "output_sha256": "7b3bd795af13b0ac502a8a30e0140132809c7e0424e56da7ac2e63d234a50b8e"
+  },
+  "runtime": "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9",
+  "compared_fields": [
+    "components",
+    "connections",
+    "connectivity_clusters",
+    "zones"
+  ],
+  "comparison": {
+    "components": "PASS",
+    "connections": "PASS",
+    "connectivity_clusters": "PASS",
+    "zones": "PASS"
+  },
+  "scope": "read-only transport comparison; no board bytes changed"
+}

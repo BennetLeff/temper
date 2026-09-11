@@ -1,0 +1,768 @@
+{
+  "status": "fail",
+  "findings": [
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.UNIT_PAD_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "compiled source binding is partial: 1 bindings for 119 source pads",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.UNIT_PAD_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native pad census does not exactly match compiled source bindings",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "local/reference load budget is authored but pending source-derived sum",
+      "object": "RTD_LOCAL_10MA",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad1 (DRDY) ->  connection",
+      "object": "rtd_pan.adc.pad1",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad2 (DVDD) ->  connection",
+      "object": "rtd_pan.adc.pad2",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad3 (VDD) ->  connection",
+      "object": "rtd_pan.adc.pad3",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad4 (BIAS) ->  connection",
+      "object": "rtd_pan.adc.pad4",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad5 (REFIN_P) ->  connection",
+      "object": "rtd_pan.adc.pad5",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad6 (REFIN_N) ->  connection",
+      "object": "rtd_pan.adc.pad6",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad7 (ISENSOR) ->  connection",
+      "object": "rtd_pan.adc.pad7",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad8 (FORCE_P) ->  connection",
+      "object": "rtd_pan.adc.pad8",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad9 (FORCE2) ->  connection",
+      "object": "rtd_pan.adc.pad9",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad10 (RTDIN_P) ->  connection",
+      "object": "rtd_pan.adc.pad10",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad11 (RTDIN_N) ->  connection",
+      "object": "rtd_pan.adc.pad11",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad12 (FORCE_N) ->  connection",
+      "object": "rtd_pan.adc.pad12",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad13 (GND2) ->  connection",
+      "object": "rtd_pan.adc.pad13",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad14 (SDI) ->  connection",
+      "object": "rtd_pan.adc.pad14",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad15 (SCLK) ->  connection",
+      "object": "rtd_pan.adc.pad15",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad16 (CS_N) ->  connection",
+      "object": "rtd_pan.adc.pad16",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad17 (SDO) ->  connection",
+      "object": "rtd_pan.adc.pad17",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad18 (DGND) ->  connection",
+      "object": "rtd_pan.adc.pad18",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad19 (GND1) ->  connection",
+      "object": "rtd_pan.adc.pad19",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.adc.pad20 (NC3) ->  connection",
+      "object": "rtd_pan.adc.pad20",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.r_ref.1 ->  connection",
+      "object": "rtd_pan.r_ref.1",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.r_ref.2 ->  connection",
+      "object": "rtd_pan.r_ref.2",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FOUR_WIRE_PINOUT",
+      "severity": "error",
+      "status": "fail",
+      "message": "connector pin 1 is FORCE+ / rtd_force_p, expected FORCE+ on ADC FORCE_P",
+      "object": "rtd_pan.j_rtd1",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FOUR_WIRE_PINOUT",
+      "severity": "error",
+      "status": "fail",
+      "message": "connector pin 2 is SENSE+ / rtd_sense_p, expected SENSE+ on ADC RTDIN_P",
+      "object": "rtd_pan.j_rtd1",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FOUR_WIRE_PINOUT",
+      "severity": "error",
+      "status": "fail",
+      "message": "connector pin 3 is SENSE- / rtd_sense_n, expected SENSE- on ADC RTDIN_N",
+      "object": "rtd_pan.j_rtd1",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FOUR_WIRE_PINOUT",
+      "severity": "error",
+      "status": "fail",
+      "message": "connector pin 4 is FORCE- / rtd_force_n, expected FORCE- on ADC FORCE_N",
+      "object": "rtd_pan.j_rtd1",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FORCE_SENSE_SEPARATION",
+      "severity": "error",
+      "status": "fail",
+      "message": "force or sense pair is electrically shorted",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "no native connectivity cluster for net ",
+      "object": "",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "no native connectivity cluster for net ",
+      "object": "",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "no native connectivity cluster for net ",
+      "object": "",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "no native connectivity cluster for net ",
+      "object": "",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.ADC_PIN_NETS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "MAX31865 pin BIAS has no source-derived net",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.ADC_PIN_NETS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "MAX31865 pin REFIN_P has no source-derived net",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.ADC_PIN_NETS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "MAX31865 pin REFIN_N has no source-derived net",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.ADC_PIN_NETS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "MAX31865 pin ISENSOR has no source-derived net",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.ADC_PIN_NETS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "MAX31865 pin FORCE_P has no source-derived net",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.ADC_PIN_NETS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "MAX31865 pin FORCE_N has no source-derived net",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.ADC_PIN_NETS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "MAX31865 pin RTDIN_P has no source-derived net",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.ADC_PIN_NETS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "MAX31865 pin RTDIN_N has no source-derived net",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "RTD_SCK host boundary does not reach ADC SCLK through its source series binding",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "RTD_SDI host boundary does not reach ADC SDI through its source series binding",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "RTD_SDO host boundary does not reach ADC SDO through its source series binding",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "RTD_CS_N host boundary does not reach ADC CS_N through its source series binding",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "RTD_DRDY host boundary does not reach ADC DRDY through its source series binding",
+      "object": "RTD_DRDY",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FAULT_CORNERS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "no observed fault scenarios were supplied; expected-only model entries cannot establish behavior",
+      "object": "fault-observations",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_DECOUPLING",
+      "severity": "error",
+      "status": "fail",
+      "message": "bypass rtd_pan.c_dvdd is outside 3 mm locality of rtd_pan.adc",
+      "object": "rtd_pan.c_dvdd",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_DECOUPLING",
+      "severity": "error",
+      "status": "fail",
+      "message": "bypass rtd_pan.c_window_and is outside 3 mm locality of rtd_pan.window_and",
+      "object": "rtd_pan.c_window_and",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_DECOUPLING",
+      "severity": "error",
+      "status": "fail",
+      "message": "bypass rtd_pan.c_fault_nand is outside 3 mm locality of rtd_pan.fault_nand",
+      "object": "rtd_pan.c_fault_nand",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_DECOUPLING",
+      "severity": "error",
+      "status": "fail",
+      "message": "differential filter rtd_pan.c_rtd_input is outside 3 mm locality of rtd_pan.adc",
+      "object": "rtd_pan.c_rtd_input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net sdo enters the authored aggressor region for RTD_DRDY",
+      "object": "sdo",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SCK enters the authored aggressor region for RTD_SDI",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SCK enters the authored aggressor region for RTD_SDO",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SCK enters the authored aggressor region for RTD_CS_N",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SCK enters the authored aggressor region for RTD_DRDY",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDI enters the authored aggressor region for RTD_SCK",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDI enters the authored aggressor region for RTD_SDO",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDI enters the authored aggressor region for RTD_CS_N",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDI enters the authored aggressor region for RTD_DRDY",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDO enters the authored aggressor region for RTD_SCK",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDO enters the authored aggressor region for RTD_SDI",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDO enters the authored aggressor region for RTD_CS_N",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDO enters the authored aggressor region for RTD_DRDY",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SCK",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SDI",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SDO",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_CS_N enters the authored aggressor region for RTD_DRDY",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_DRDY enters the authored aggressor region for RTD_SCK",
+      "object": "RTD_DRDY",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_DRDY enters the authored aggressor region for RTD_SDO",
+      "object": "RTD_DRDY",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "authored prohibited-connection population is empty",
+      "object": "geometry",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "authored local-escape membership population is empty",
+      "object": "paths",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+    "DRC.RTD.FERRITE_SEMANTICS",
+    "DRC.RTD.LOCAL_DECOUPLING",
+    "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+    "DRC.RTD.NATIVE_GEOMETRY",
+    "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+    "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+    "ERC.RTD.ADC_PIN_NETS",
+    "ERC.RTD.BOARD_COMPONENT_BINDING",
+    "ERC.RTD.EXACT_COMPONENTS",
+    "ERC.RTD.FAULT_CORNERS",
+    "ERC.RTD.FAULT_OUTPUT",
+    "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+    "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+    "ERC.RTD.FORCE_SENSE_SEPARATION",
+    "ERC.RTD.FOUR_WIRE_PINOUT",
+    "ERC.RTD.NATIVE_CONNECTIVITY",
+    "ERC.RTD.RREF_IDENTITY",
+    "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+    "ERC.RTD.SHARED_REFERENCE",
+    "ERC.RTD.SPI_SERIES_PLACEMENT",
+    "ERC.RTD.UNIT_COMPONENT_MPN",
+    "ERC.RTD.UNIT_CONNECTIONS",
+    "ERC.RTD.UNIT_FIRMWARE",
+    "ERC.RTD.UNIT_INTERFACE",
+    "ERC.RTD.UNIT_MODEL",
+    "ERC.RTD.UNIT_SOURCE_BINDING"
+  ],
+  "coverage_gaps": [
+    "independent observed fault scenarios are absent; hardware fault coverage is indeterminate",
+    "no authored prohibited domain connection pairs were supplied; boundary rule is indeterminate",
+    "no authored local-escape membership groups were supplied; escape eligibility is indeterminate"
+  ]
+}

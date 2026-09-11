@@ -1,0 +1,105 @@
+{
+  "schema": "zapote.current_sense_profile.v1",
+  "unit": "standalone_primary_current_sense",
+  "interfaces": {
+    "primary": {
+      "in": "PRIMARY_IN",
+      "out": "PRIMARY_OUT",
+      "connection": "series_one_turn"
+    },
+    "power": {
+      "supply": "+3V3",
+      "ground": "GND",
+      "nominal_v": 3.3,
+      "tolerance_fraction": 0.05
+    },
+    "signals": {
+      "analog": "SENSE_MON",
+      "fault": "OCP_FAULT",
+      "fault_polarity": "active_high"
+    }
+  },
+  "transformer": {
+    "mpn": "CST3015-100ED",
+    "component": "CST3015_100E",
+    "footprint": "temper:CST3015_Datasheet2025",
+    "ratio_primary_to_secondary": 100.0,
+    "sensed_current_reference_a": 88.0,
+    "frequency_hz": [
+      780.0,
+      1000000.0
+    ],
+    "volt_time_product_v_us": 638.0,
+    "isolation_vrms_1min": 5000.0,
+    "winding_creepage_clearance_mm": 8.0
+  },
+  "front_end": {
+    "burden_ohm": 1.5,
+    "burden_tolerance_fraction": 0.01,
+    "burden_mpn": "RC1206FR-071R5L",
+    "bias_top_ohm": 1000.0,
+    "bias_bottom_ohm": 1000.0,
+    "bias_tolerance_fraction": 0.001,
+    "threshold_high_top_ohm": 3740.0,
+    "threshold_high_bottom_ohm": 10000.0,
+    "threshold_low_top_ohm": 10000.0,
+    "threshold_low_bottom_ohm": 3740.0,
+    "threshold_tolerance_fraction": 0.001,
+    "input_series_ohm": 1000.0,
+    "bias_resistor_mpn": "ERA3AEB102V",
+    "filter_capacitor_mpn": "GRM31C5C1H104JA01L",
+    "clamp_mpn": "BAT54H,115",
+    "or_gate_mpn": "CD74HC4075M96",
+    "burden_filter_f": 1e-07,
+    "bias_bypass_f": 1e-07,
+    "clamp_reverse_leakage_total_a_at_25c": 4e-06,
+    "comparator_input_bias_a_per_input": 5e-09,
+    "sense_input_bias_combined_a": 1e-08,
+    "leakage_temperature_applicability": "25C_only_until_hot_data",
+    "host_monitor_min_ohm": 10000000.0,
+    "host_monitor_load_bound_a": 3.5e-07,
+    "comparator_input_offset_max_v_at_vcm_midpoint": 0.004,
+    "comparator_cmrr_min_db": 56.0,
+    "cmrr_error_bound_v": 0.001192,
+    "effective_comparator_error_bound_v": 0.005192,
+    "offset_cmrr_applicability": "conditional_at_3v3_nonmidpoint_commonmode",
+    "input_series_tolerance_fraction": 0.01
+  },
+  "logic_timing_assumption": {
+    "or_gate_supply_range_v": [
+      2.0,
+      6.0
+    ],
+    "or_gate_datasheet_characterization": "2V/4.5V/6V, 50pF; 5V/15pF typical point",
+    "actual_3v3_timing_status": "INDETERMINATE; measure comparator-to-OR-to-latch"
+  },
+  "primary_termination": {
+    "component": "PrimaryWireLands",
+    "footprint": "lib:LitzPad_15A",
+    "mpn": "NON_PURCHASED_BARE_LANDS",
+    "pad_count": 2,
+    "ampacity_claim": "none; root qualification required"
+  },
+  "requirements": {
+    "ocp_peak_a": [
+      45.0,
+      55.0
+    ],
+    "source_frequency_hz": [
+      20000.0,
+      100000.0
+    ],
+    "complete_chain_response_us": 1.0,
+    "current_operating_point_peak_a": 28.76,
+    "current_operating_point_frequency_hz": 47000.0
+  },
+  "gates": {
+    "rust_analytical_trip": "PASS_CONDITIONAL_BOUNDED_DC",
+    "both_polarities": "PASS_CONDITIONAL_BOUNDED_DC",
+    "ct_saturation_and_thermal": "INDETERMINATE",
+    "comparator_to_latch_timing": "INDETERMINATE",
+    "pd3_reinforced_12_6mm_isolation": "INDETERMINATE",
+    "primary_copper_and_terminal": "NOT_RUN",
+    "hardware": "NOT_RUN"
+  }
+}

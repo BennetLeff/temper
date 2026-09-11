@@ -1,0 +1,97 @@
+{
+  "schema": "zapote.rtd.unit.v1",
+  "profile_id": "RTDUnit",
+  "source_module": "RTDUnit",
+  "components": {
+    "adc_mpn": "MAX31865AAP+",
+    "supervisor_mpn": "TPS389001DSER",
+    "rref_mpn": "RG2012V-431-W-T1",
+    "rref_ohm": 430.0,
+    "rref_tolerance_pct": 0.05,
+    "rref_tcr_ppm_c": 5.0,
+    "divider_top_ohm": 16500.0,
+    "divider_bottom_ohm": 10000.0,
+    "decoupling_nf": 1.0,
+    "pullup_ohm": 1000000.0
+  },
+  "interface": {
+    "connector_mpn": "FTSH-105-01-F-D",
+    "qualification_status": "qualified_source",
+    "pins": [
+      {"number": 1, "net": "+3V3"},
+      {"number": 2, "net": "GND"},
+      {"number": 3, "net": "GND"},
+      {"number": 4, "net": "RTD_SCK"},
+      {"number": 5, "net": "RTD_SDI"},
+      {"number": 6, "net": "RTD_SDO"},
+      {"number": 7, "net": "RTD_CS_N"},
+      {"number": 8, "net": "RTD_DRDY"},
+      {"number": 9, "net": "RTD_HW_FAULT"},
+      {"number": 10, "net": "SHARED_REF_2V5"}
+    ]
+  },
+  "probe": {
+    "component": "rtd_pan.j_rtd1",
+    "mpn": "B4B-XH-A(LF)(SN)",
+    "pins": [
+      {"number": 1, "role": "FORCE+", "net": "rtd_force_p"},
+      {"number": 2, "role": "SENSE+", "net": "rtd_sense_p"},
+      {"number": 3, "role": "SENSE-", "net": "rtd_sense_n"},
+      {"number": 4, "role": "FORCE-", "net": "rtd_force_n"}
+    ]
+  },
+  "local": {
+    "reference_component": "rtd_pan.reference",
+    "reference_mpn": "REF2025AIDDCR",
+    "ferrite_component": "rtd_pan.fb_power",
+    "ferrite_mpn": "BLM18AG121SN1D",
+    "filtered_rail": "RTD_AVDD"
+  },
+  "board": {
+    "copper_layers": 4,
+    "min_finished_copper_um": 35.0,
+    "clearance_mm": 0.2,
+    "signal_width_mm": 0.2,
+    "power_return_width_mm": 0.3,
+    "via_diameter_mm": 0.7,
+    "via_drill_mm": 0.3
+  },
+  "loads": [
+    {"name": "RTD_LOCAL_10MA", "current_a": 0.01, "status": "pending_source_budget"},
+    {"name": "REFERENCE_INTERFACE_LOADS", "current_a": null, "status": "deferred"}
+  ],
+  "future_contracts": {
+    "reference_consumers": "required_source_load_budget",
+    "aggressors": "scope_not_run",
+    "model": "required_fault_model"
+  },
+  "component_bindings": [
+    {"role": "adc", "instance_id": "rtd_pan.adc", "mpn": "MAX31865AAP+"},
+    {"role": "rref", "instance_id": "rtd_pan.r_ref", "mpn": "RG2012V-431-W-T1"}
+  ],
+  "firmware": {
+    "cs_gpio": 10,
+    "drdy_gpio": 9,
+    "low_threshold_word": 1526,
+    "high_threshold_word": 45722,
+    "short_fault_ohm": 10.0,
+    "open_fault_ohm": 300.0
+  },
+  "decoupling_bindings": [
+    {"role": "adc_dvdd", "instance_id": "rtd_pan.c_dvdd", "mpn": "C0603C104K5RACTU", "capacitance_nf": 100.0, "target_component": "rtd_pan.adc", "pad_nets": ["+3V3", "gnd"]},
+    {"role": "adc_vdd", "instance_id": "rtd_pan.c_vdd", "mpn": "C0603C104K5RACTU", "capacitance_nf": 100.0, "target_component": "rtd_pan.adc", "pad_nets": ["RTD_AVDD", "gnd"]},
+    {"role": "rtd_input_filter", "instance_id": "rtd_pan.c_rtd_input", "mpn": "C0603C102J5GACTU", "capacitance_nf": 1.0, "target_component": "rtd_pan.adc", "pad_nets": ["rtd_sense_p", "rtd_sense_n"]},
+    {"role": "reference", "instance_id": "rtd_pan.c_reference", "mpn": "C0603C104K5RACTU", "capacitance_nf": 100.0, "target_component": "rtd_pan.reference", "pad_nets": ["+3V3", "gnd"]},
+    {"role": "low_window", "instance_id": "rtd_pan.c_low_window", "mpn": "C0603C104K5RACTU", "capacitance_nf": 100.0, "target_component": "rtd_pan.low_window", "pad_nets": ["RTD_AVDD", "gnd"]},
+    {"role": "high_window", "instance_id": "rtd_pan.c_high_window", "mpn": "C0603C104K5RACTU", "capacitance_nf": 100.0, "target_component": "rtd_pan.high_window", "pad_nets": ["RTD_AVDD", "gnd"]},
+    {"role": "window_and", "instance_id": "rtd_pan.c_window_and", "mpn": "C0603C104K5RACTU", "capacitance_nf": 100.0, "target_component": "rtd_pan.window_and", "pad_nets": ["RTD_AVDD", "gnd"]},
+    {"role": "rail_monitor", "instance_id": "rtd_pan.c_rail_monitor", "mpn": "C0603C104K5RACTU", "capacitance_nf": 100.0, "target_component": "rtd_pan.rail_monitor", "pad_nets": ["+3V3", "gnd"]},
+    {"role": "fault_nand", "instance_id": "rtd_pan.c_fault_nand", "mpn": "C0603C104K5RACTU", "capacitance_nf": 100.0, "target_component": "rtd_pan.fault_nand", "pad_nets": ["RTD_AVDD", "gnd"]}
+  ],
+  "geometry": {
+    "sensitive_nets": [],
+    "aggressors": [],
+    "prohibited_connections": [],
+    "required_locality_mm": 3.0
+  }
+}

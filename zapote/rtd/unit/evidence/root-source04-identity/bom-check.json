@@ -1,0 +1,8 @@
+{
+  "status": "PASS exact grouped BOM census",
+  "component_count": 36,
+  "orderable_groups": 20,
+  "source_manifest_sha256": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+  "bom_sha256": "bfe776c53325bd60b49d76c25dacf04785d105bb74bcee33703d548e04b3145c",
+  "scope": "Identity/quantity/reference/footprint equality only; not live distributor stock or price"
+}

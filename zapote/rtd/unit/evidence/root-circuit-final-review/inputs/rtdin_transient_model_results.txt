@@ -1,0 +1,65 @@
+# RTDIN runtime-open transient model receipt
+
+Command: /opt/homebrew/bin/python3 zapote/rtd/circuit/rtdin_transient_model.py
+Date: 2026-09-10
+
+The model solves the actual passive resistor network after a runtime open.
+RTDIN_P and RTDIN_N are the dynamic nodes represented by `sensep` and `sensem`;
+the protected 100 kohm comparator branch, LOW threshold, and HIGH threshold
+are solved algebraically at every step. It uses implicit Euler at 1 us for the stiff
+network, 1.10 nF differential C (1 nF C0G +5% tolerance plus separate 50 pF allowance), and 100 pF
+to ground at each RTDIN node (200 pF harness/board allowance). The initial
+state is a healthy 100 or 194.1 ohm PT100 with 1 ohm per conductor; the final
+state opens exactly one FORCE+/FORCE-/SENSE+/SENSE- conductor or steps to a
+10/0 ohm RTD short. `cross_ms` is
+the first comparator threshold crossing and `unit_detect_ms` adds the sourced
+TLV3201 55 ns maximum propagation and a conservative 10 ns AND/NAND logic
+bound. No MAX ADC or SINC assumption is used.
+The crossing criterion is 20 mV comparator overdrive, below the static corner sweep
+open-fault minimum margin of 166.7 mV; sourced propagation is applied only after
+that overdrive. An analytic monotonic-passive-RC envelope uses Rdiag(max)=1.057 Mohm,
+Rwindow(max)=102 kohm, Cbound=1.30 nF, and the retained corner endpoint margins;
+it bounds worst RC crossing at 1.323511 ms and detector time at 1.323576 ms.
+The output-load assumption is 15 pF (the TLV propagation test-load class); this is
+an engineering timing bound, not a vendor guarantee for an arbitrary load.
+
+The standalone unit transient contract is passive-harness only: each probe
+conductor must remain in -0.2..+2.5 V relative to unit ground, source
+impedance >=1 kohm, edge time >=10 us, pulse width <=1 ms, and repetition
+<=1 Hz. This span is 2.7 V, equal to the TLV3201 minimum 2.7 V supply, so the
+computed comparator differential remains within the supply and no input clamp
+is required. The MAX31865 +/-45 V RTDIN absolute maximum is recorded as a
+device limit only and is not a unit transient immunity claim. At local
+post-ferrite loss the external source is forbidden; the rail monitor/HW fault
+owns shutdown and the powered-comparator model is not asserted.
+
+The capacitor-energy and current lines below use four nominal 100 nF post-rail
+bypasses with an explicit acceptance minimum of 45 nF each (180 nF aggregate).
+This is a passive energy bound, not a rail-ramp or sink measurement. Physical harness, EMC, and shutdown validation
+remain NOT RUN.
+
+model bounded passive runtime opens; no MAX ADC/SINC model
+dt_us=1 tmax_ms=100 cdiff_nF=1.1 cground_each_pF=100 rwindow_ohm=100000 tlv_prop_ns=55 logic_prop_ns=10 fault_overdrive_v=0.02
+allowed_passive_harness_v=-0.2..2.5 source_r_min_ohm=1000 edge_min_us=10 pulse_max_ms=1 repetition_max_hz=1
+RTD=100.0 case=FORCE+  cross_ms=0.001 unit_detect_ms=0.001065 final_target_margin_v=-0.179477
+RTD=100.0 case=SENSE+  cross_ms=0.32899999999999996 unit_detect_ms=0.32906499999999994 final_target_margin_v=-1.244169
+RTD=100.0 case=SENSE-  cross_ms=0.018999999999999996 unit_detect_ms=0.019064999999999995 final_target_margin_v=-0.911779
+RTD=100.0 case=FORCE-  cross_ms=0.001 unit_detect_ms=0.001065 final_target_margin_v=-1.271416
+SHORT_INIT=100.0 target=10 cross_ms=0.001 unit_detect_ms=0.001065 final_low_margin_v=-0.132380
+SHORT_INIT=100.0 target=0 cross_ms=0.001 unit_detect_ms=0.001065 final_low_margin_v=-0.179027
+RTD=194.1 case=FORCE+  cross_ms=0.001 unit_detect_ms=0.001065 final_target_margin_v=-0.179275
+RTD=194.1 case=SENSE+  cross_ms=0.141 unit_detect_ms=0.141065 final_target_margin_v=-1.244169
+RTD=194.1 case=SENSE-  cross_ms=0.046 unit_detect_ms=0.046065 final_target_margin_v=-0.660796
+RTD=194.1 case=FORCE-  cross_ms=0.001 unit_detect_ms=0.001065 final_target_margin_v=-1.271422
+SHORT_INIT=194.1 target=10 cross_ms=0.001 unit_detect_ms=0.001065 final_low_margin_v=-0.132380
+SHORT_INIT=194.1 target=0 cross_ms=0.001 unit_detect_ms=0.001065 final_low_margin_v=-0.179027
+analytic_bound_forcep_fraction=0.584560 time_ms=1.323511
+analytic_bound_sensep_fraction=0.269841 time_ms=0.473847
+analytic_bound_sensem_fraction=0.415855 time_ms=0.810010
+analytic_bound_forcem_fraction=0.120822 time_ms=0.194014
+analytic_bound_rdiag_max_ohm=1.057e+06 rwindow_max_ohm=102000 c_bound_nF=1.3 tau_bound_ms=1.506700 worst_rc_cross_ms=1.323511 tlv_prop_ns=55 logic_prop_ns=10 worst_unit_detect_ms=1.323576 output_load_assumption_pF=15 monotonic_passive_rc_assumption=true
+local_off_upstream_on rtdin_p=+1.132347e-05 windowp=-1.988711e-03 low_margin=-0.179698 high_margin=+0.783722 comparator_window=FAULT_OWNER_MONITOR
+allowed_envelope_clamp_mA=0.000000 differential_span_v=2.7 <= tlv_vcc_min_v=2.700 tlv_input_limit_mA=10.000
+allowed_envelope_cap_energy_nJ=4.738500 device_only_MAX_RTDIN_absmax_v=+/-45.000 device_absmax_is_not_unit_transient_rating=true
+harness_edge_cap_current_mA=0.351000 low_divider_source_current_mA=0.245455 both_below_tlv_input_limit_mA=10.000
+local_rail_caps_count=4 nominal_each_nF=100 c_accept_min_each_nF=45 local_rail_cmin_uF=0.18 local_off_capacitive_energy_dv_max_v=0.229456 clamp_sum_upstream_on_mA=0.000000 local_off_external_source_allowed=false

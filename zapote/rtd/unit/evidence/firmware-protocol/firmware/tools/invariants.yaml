@@ -1,0 +1,95 @@
+# Declarative load-bearing safety invariants over the transition model.
+#
+# Plan: docs/plans/2026-08-02-028-feat-state-machine-model-check-plan.md (U6).
+# Evaluated by firmware/tools/invariants.py -- KTD7: this file is data, not
+# code; adding an invariant means adding an entry here.
+#
+# See firmware/tools/POWER_ACTIVE_MAPPING.md for the power_active / faulted
+# state-set definitions (KTD6) these invariants are proved against, and
+# firmware/tools/test_invariants.py for each invariant's KTD8 counter-example
+# mutation (proving the invariant can fail, not just that it currently
+# passes).
+
+invariants:
+  - id: I-OVERTEMP-DISABLES
+    kind: edge
+    description: >
+      Over-temp disables the power stage: every row whose event is
+      EVENT_OVER_TEMP or EVENT_COOLDOWN_OVERHEAT targets STATE_FAULT with a
+      non-FAULT_NONE fault code, from every state that declares the event.
+      The runaway interlock's own path to STATE_RUNAWAY_FAULT is outside
+      the manifest (A4) and is not part of this claim -- implicit KTD2
+      edges are excluded.
+    events: [EVENT_OVER_TEMP, EVENT_COOLDOWN_OVERHEAT]
+    require_to_state: STATE_FAULT
+    require_fault_not: FAULT_NONE
+    include_implicit: false
+
+  - id: I-SENSOR-FAULT-BLOCKS-HEATING
+    kind: edge
+    description: >
+      Sensor faults block heating: every sensor-fault event (the
+      manifest-derived set shared with U2's P2 check, via
+      transition_model.derived_sensor_fault_events -- never hardcoded
+      independently, so the two consumers cannot drift) originating in a
+      power-active state (STATE_PREHEAT, STATE_HEATING) targets a faulted
+      state, never a power-active or benign state.
+    events: derived:sensor_fault_events
+    require_from_state_in: power_active
+    require_to_state_in: faulted
+    include_implicit: false
+
+  - id: I-FAULT-EXITS
+    kind: exit_set
+    description: >
+      Faulted states cannot re-enter heating without the reset path: from
+      STATE_FAULT the only DECLARED exits are EVENT_FAULT_RESET_CLEARED ->
+      STATE_INIT and EVENT_FAULT_RESET_PERSISTS -> STATE_FAULT (a
+      self-loop); from STATE_RUNAWAY_FAULT the only declared row is the
+      EVENT_FAULT_RESET_PERSISTS self-loop -- no escape to any other state.
+      Implicit KTD2 interlock edges are outside this claim (A4): the
+      interlock can additionally fire from STATE_FAULT into the
+      even-safer STATE_RUNAWAY_FAULT, which is a documented, safe addition
+      the manifest doesn't declare, not a violation of "only declared
+      exits."
+    allowed_exits:
+      STATE_FAULT:
+        - { event: EVENT_FAULT_RESET_CLEARED, to: STATE_INIT }
+        - { event: EVENT_FAULT_RESET_PERSISTS, to: STATE_FAULT }
+      STATE_RUNAWAY_FAULT:
+        - { event: EVENT_FAULT_RESET_PERSISTS, to: STATE_RUNAWAY_FAULT }
+
+  - id: I-NO-REENTRY
+    kind: path
+    description: >
+      No path exists from a faulted state (STATE_FAULT, STATE_RUNAWAY_FAULT)
+      to a power-active state (STATE_PREHEAT, STATE_HEATING) except through
+      STATE_INIT (the self-test gate) -- verified via U1's reachability
+      computation (KTD5), not per-edge induction. Reaching STATE_INIT is
+      permitted (that IS the reset path); what matters is that no OTHER
+      route out of the fault domain lands directly on a power-active state.
+    from_state_set: faulted
+    forbidden_target_set: power_active
+    stop_expansion_at: [STATE_INIT]
+
+  - id: I-RUNAWAY-REACHES-SAFE-STATE
+    kind: edge
+    description: >
+      Task-directed safety property: from EVERY state in the model (all 9
+      are proven reachable from STATE_INIT -- see the U1 reachability
+      report), both runaway-interlock conditions (EVENT_RUNAWAY_ABSOLUTE_TEMP,
+      EVENT_RUNAWAY_RISE_RATE -- the KTD2 implicit wildcard edges standing
+      in for check_runaway_boundary() in firmware/main/state_machine.c)
+      target a faulted, non-power-active (de-energized) state. This is
+      what turns "the runaway interlock fires from any state" from an
+      assumption (the exact thing that made STATE_RUNAWAY_FAULT invisible
+      to the declared transition table before this plan) into a checked
+      property: every state the machine can reach has a runaway escape
+      hatch that lands in STATE_RUNAWAY_FAULT, whose entry handler
+      (state_runaway_fault_entry, firmware/main/state_handlers.c) disables
+      PWM (pwm_disable_all()), the PLL (pll_disable()), and sets power to
+      zero (power_set_level(0)) -- see POWER_ACTIVE_MAPPING.md.
+    events: [EVENT_RUNAWAY_ABSOLUTE_TEMP, EVENT_RUNAWAY_RISE_RATE]
+    require_to_state_in: faulted
+    require_to_state_not_in: power_active
+    include_implicit: true

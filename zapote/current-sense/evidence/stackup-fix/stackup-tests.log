@@ -1,0 +1,14 @@
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-drc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.87s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_drc-d50527b1ac0a9dab)
+
+running 6 tests
+test stackup::tests::physical_total_includes_mask ... ok
+test stackup::tests::native_zero_core_is_rejected ... ok
+test stackup::tests::string_contents_cannot_spoof_structural_fields ... ok
+test stackup::tests::duplicate_fields_and_trailing_documents_are_rejected ... ok
+test stackup::tests::missing_stackup_or_copper_cannot_pass ... ok
+test stackup::tests::missing_and_invalid_thicknesses_fail_closed ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 25 filtered out; finished in 0.08s
+

@@ -1,0 +1,3122 @@
+(export
+	(version "E")
+	(design
+		(source "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_sch")
+		(date "2026-09-10T20:34:12")
+		(tool "Eeschema 10.0.4")
+		(sheet
+			(number "1")
+			(name "/")
+			(tstamps "/")
+			(title_block
+				(title "Standalone RTD Unit")
+				(company "Temper")
+				(rev "1.0")
+				(date "2026-07-15")
+				(source "section.kicad_sch")
+				(comment
+					(number "1")
+					(value "GENERATED -- do not hand-edit")
+				)
+				(comment
+					(number "2")
+					(value "edit elec/src/*.ato and run make schematics")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+	)
+	(components
+		(comp
+			(ref "C1")
+			(value "C0603C104K5RACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "50da33b7-95a9-725a-875c-16e5caf98efc")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C2")
+			(value "C0603C104K5RACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "70ac80ce-ff30-f87e-262e-c309c32e03c9")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C3")
+			(value "C0603C102J5GACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "13ac626f-c551-44e4-f05e-d1c7ad22c6aa")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C4")
+			(value "C0603C104K5RACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "78b450f2-c9b0-377a-3b11-81c640cf64f6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C5")
+			(value "C0603C104K5RACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "f7cd3031-2eaa-2d15-e180-1c368d4b4193")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C6")
+			(value "C0603C104K5RACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "6933c69b-0a49-5181-605b-ca43120c1ed7")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C7")
+			(value "C0603C104K5RACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "33358a33-d6eb-64c4-bf02-1c6b922021ae")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C8")
+			(value "C0603C104K5RACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "cb8084d8-3c1c-143f-4cd9-0220e3518a0b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C9")
+			(value "C0603C104K5RACTU")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "C0603C104K5RACTU")
+				(description "elec/src/components.ato:Capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "d71cb8c5-bea3-0a71-6dc6-b227646aa136")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J1")
+			(value "B4B-XH-A(LF)(SN)")
+			(footprint "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical")
+			(fields
+				(field
+					(name "Footprint") "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "B4B-XH-A_LF__SN_")
+				(description "elec/src/components.ato:JST_XH_B4B_XH_A")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "08d95c3d-ce48-0188-0974-a850a30c5b95")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J2")
+			(value "FTSH-105-01-F-D")
+			(footprint "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm")
+			(fields
+				(field
+					(name "Footprint") "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "FTSH-105-01-F-D")
+				(description "elec/src/rtd_unit.ato:FTSH_105_01_F_D")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "79686654-81df-aaeb-5ca7-34f32f4ae2b1")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "6")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R1")
+			(value "RG2012V-431-W-T1")
+			(footprint "Resistor_SMD:R_0805_2012Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RG2012V-431-W-T1")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "2a82381d-c485-3172-560e-b36d2ce82406")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R2")
+			(value "RC0603JR-071ML")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "698f165e-4c50-63b6-7f7f-c0c851c8755d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R3")
+			(value "RC0603JR-071ML")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "7db634a0-2562-8d26-3244-1757c595b053")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R4")
+			(value "RC0603FR-0733RL")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "f9f5b782-9b2b-ea89-c637-1db8a39831ef")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R5")
+			(value "RC0603FR-0733RL")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "7ea53238-2d32-284e-5ed1-e31a1b396202")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R6")
+			(value "RC0603FR-0733RL")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "0a34e23f-4812-5a8f-9688-09584f3d462a")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R7")
+			(value "RC0603FR-0733RL")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "534dd45a-6e8c-8421-643b-5a85793fd040")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R8")
+			(value "BLM18AG121SN1D")
+			(footprint "Inductor_SMD:L_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Inductor_SMD:L_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "BLM18AG121SN1D")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "a86f6466-274c-85e4-ec59-2da3dd235e13")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R9")
+			(value "ERA-3AEB6192V")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "f5cd8dbf-9a7c-94c2-7f63-b889fc53c99d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R10")
+			(value "ERA-3AEB103V")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "a4442f1a-0984-8fc6-154e-edb4280b1aa0")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R11")
+			(value "ERA-3AEB5901V")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "24ba1363-4bd7-700e-66d1-1ea77df15435")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R12")
+			(value "ERA-3AEB103V")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "f2f43c6e-eaba-b0d1-2fc6-5ebbb2e5ee77")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R13")
+			(value "RC0603FR-07100KL")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "f0881135-1165-6502-32a8-ceed6982f1d4")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R14")
+			(value "ERA-3AEB1652V")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "4434c442-7dda-9b3d-112c-61841cba69aa")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R15")
+			(value "ERA-3AEB103V")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "8fbf0729-98a3-4249-5b08-d920a75cd270")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R16")
+			(value "RC0603FR-0710KL")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "9e345017-591c-d5b3-2ede-805cb8493b6f")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R17")
+			(value "RC0603FR-0710KL")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "RC0603JR-071ML")
+				(description "elec/src/components.ato:Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "9011526d-f3d8-687c-9791-c2bb7f70cf08")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U1")
+			(value "MAX31865AAP+")
+			(footprint "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm")
+			(fields
+				(field
+					(name "Footprint") "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "MAX31865AAP_")
+				(description "elec/src/components.ato:MAX31865")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "9c09ac71-cc0a-8437-a156-bb0c867c5c0d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "20")
+						)
+						(pin
+							(num "19")
+						)
+						(pin
+							(num "18")
+						)
+						(pin
+							(num "17")
+						)
+						(pin
+							(num "16")
+						)
+						(pin
+							(num "15")
+						)
+						(pin
+							(num "14")
+						)
+						(pin
+							(num "13")
+						)
+						(pin
+							(num "12")
+						)
+						(pin
+							(num "11")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U2")
+			(value "REF2025AIDDCR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "REF2025AIDDCR")
+				(description "elec/src/components.ato:REF2025")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "a9d43d32-97d9-ddad-7c88-61ee395b4d3c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U3")
+			(value "TLV3201AIDBVR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "REF2025AIDDCR")
+				(description "elec/src/components.ato:REF2025")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "596fe6d0-9e5f-1540-6bda-e84828750af6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U4")
+			(value "TLV3201AIDBVR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "REF2025AIDDCR")
+				(description "elec/src/components.ato:REF2025")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "24b4471e-cf06-0cde-6098-0051351117c9")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U5")
+			(value "SN74LVC1G08DBVR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "REF2025AIDDCR")
+				(description "elec/src/components.ato:REF2025")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "9ee5796a-3d55-63bf-2063-4ec093d44ac4")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U6")
+			(value "TPS389001DSER")
+			(footprint "Temper_RTD:TPS389001DSER_WSON-6_DSE")
+			(fields
+				(field
+					(name "Footprint") "Temper_RTD:TPS389001DSER_WSON-6_DSE")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "TPS389001DSER")
+				(description "elec/src/components.ato:TPS3890")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "3ffb078d-a0cf-4d6a-6e05-d4e1cd46b2ad")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U7")
+			(value "SN74LVC1G38DBVR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "")
+				(part "REF2025AIDDCR")
+				(description "elec/src/components.ato:REF2025")
+			)
+			(property
+				(name "Sheetname")
+				(value "section")
+			)
+			(property
+				(name "Sheetfile")
+				(value "section.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "3ff4298d-c087-c31b-12e1-fd9f06690d03")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+	)
+	(groups)
+	(variants)
+	(libparts
+		(libpart
+			(lib "")
+			(part "B4B-XH-A_LF__SN_")
+			(description "elec/src/components.ato:JST_XH_B4B_XH_A")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "B4B-XH-A(LF)(SN)")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/components.ato:JST_XH_B4B_XH_A")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+				(pin
+					(num "3")
+					(name "3")
+					(type "bidirectional")
+				)
+				(pin
+					(num "4")
+					(name "4")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "")
+			(part "BLM18AG121SN1D")
+			(description "elec/src/components.ato:Resistor")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "BLM18AG121SN1D")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/components.ato:Resistor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "")
+			(part "C0603C104K5RACTU")
+			(description "elec/src/components.ato:Capacitor")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "C0603C104K5RACTU")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/components.ato:Capacitor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "")
+			(part "FTSH-105-01-F-D")
+			(description "elec/src/rtd_unit.ato:FTSH_105_01_F_D")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "FTSH-105-01-F-D")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/rtd_unit.ato:FTSH_105_01_F_D")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+				(pin
+					(num "3")
+					(name "3")
+					(type "bidirectional")
+				)
+				(pin
+					(num "4")
+					(name "4")
+					(type "bidirectional")
+				)
+				(pin
+					(num "5")
+					(name "5")
+					(type "bidirectional")
+				)
+				(pin
+					(num "6")
+					(name "6")
+					(type "bidirectional")
+				)
+				(pin
+					(num "7")
+					(name "7")
+					(type "bidirectional")
+				)
+				(pin
+					(num "8")
+					(name "8")
+					(type "bidirectional")
+				)
+				(pin
+					(num "9")
+					(name "9")
+					(type "bidirectional")
+				)
+				(pin
+					(num "10")
+					(name "10")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "")
+			(part "MAX31865AAP_")
+			(description "elec/src/components.ato:MAX31865")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "MAX31865AAP+")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/components.ato:MAX31865")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+				(pin
+					(num "3")
+					(name "3")
+					(type "bidirectional")
+				)
+				(pin
+					(num "4")
+					(name "4")
+					(type "bidirectional")
+				)
+				(pin
+					(num "5")
+					(name "5")
+					(type "bidirectional")
+				)
+				(pin
+					(num "6")
+					(name "6")
+					(type "bidirectional")
+				)
+				(pin
+					(num "7")
+					(name "7")
+					(type "bidirectional")
+				)
+				(pin
+					(num "8")
+					(name "8")
+					(type "bidirectional")
+				)
+				(pin
+					(num "9")
+					(name "9")
+					(type "bidirectional")
+				)
+				(pin
+					(num "10")
+					(name "10")
+					(type "bidirectional")
+				)
+				(pin
+					(num "11")
+					(name "11")
+					(type "bidirectional")
+				)
+				(pin
+					(num "12")
+					(name "12")
+					(type "bidirectional")
+				)
+				(pin
+					(num "13")
+					(name "13")
+					(type "bidirectional")
+				)
+				(pin
+					(num "14")
+					(name "14")
+					(type "bidirectional")
+				)
+				(pin
+					(num "15")
+					(name "15")
+					(type "bidirectional")
+				)
+				(pin
+					(num "16")
+					(name "16")
+					(type "bidirectional")
+				)
+				(pin
+					(num "17")
+					(name "17")
+					(type "bidirectional")
+				)
+				(pin
+					(num "18")
+					(name "18")
+					(type "bidirectional")
+				)
+				(pin
+					(num "19")
+					(name "19")
+					(type "bidirectional")
+				)
+				(pin
+					(num "20")
+					(name "20")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "")
+			(part "RC0603JR-071ML")
+			(description "elec/src/components.ato:Resistor")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "RC0603JR-071ML")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/components.ato:Resistor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "")
+			(part "REF2025AIDDCR")
+			(description "elec/src/components.ato:REF2025")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "REF2025AIDDCR")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/components.ato:REF2025")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+				(pin
+					(num "3")
+					(name "3")
+					(type "bidirectional")
+				)
+				(pin
+					(num "4")
+					(name "4")
+					(type "bidirectional")
+				)
+				(pin
+					(num "5")
+					(name "5")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "")
+			(part "RG2012V-431-W-T1")
+			(description "elec/src/components.ato:Resistor")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "RG2012V-431-W-T1")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/components.ato:Resistor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "")
+			(part "TPS389001DSER")
+			(description "elec/src/components.ato:TPS3890")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TPS389001DSER")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "elec/src/components.ato:TPS3890")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "bidirectional")
+				)
+				(pin
+					(num "3")
+					(name "3")
+					(type "bidirectional")
+				)
+				(pin
+					(num "4")
+					(name "4")
+					(type "bidirectional")
+				)
+				(pin
+					(num "5")
+					(name "5")
+					(type "bidirectional")
+				)
+				(pin
+					(num "6")
+					(name "6")
+					(type "bidirectional")
+				)
+			)
+		)
+	)
+	(libraries)
+	(nets
+		(net
+			(code "1")
+			(name "+3V3")
+			(class "Default")
+			(node
+				(ref "C2")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C4")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C8")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "J2")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R16")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R17")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R8")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U2")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U2")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U6")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U6")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "2")
+			(name "RTD_AVDD")
+			(class "Default")
+			(node
+				(ref "C1")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C5")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C6")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C7")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C9")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R14")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R8")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U3")
+				(pin "5")
+				(pinfunction "5_5")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U4")
+				(pin "5")
+				(pinfunction "5_5")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U5")
+				(pin "5")
+				(pinfunction "5_5")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U7")
+				(pin "5")
+				(pinfunction "5_5")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "3")
+			(name "RTD_CS_N")
+			(class "Default")
+			(node
+				(ref "J2")
+				(pin "7")
+				(pinfunction "7_7")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R6")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "4")
+			(name "RTD_DRDY")
+			(class "Default")
+			(node
+				(ref "J2")
+				(pin "8")
+				(pinfunction "8_8")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "5")
+			(name "RTD_HW_FAULT")
+			(class "Default")
+			(node
+				(ref "J2")
+				(pin "9")
+				(pinfunction "9_9")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R17")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U7")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "6")
+			(name "RTD_SCK")
+			(class "Default")
+			(node
+				(ref "J2")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R4")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "7")
+			(name "RTD_SDI")
+			(class "Default")
+			(node
+				(ref "J2")
+				(pin "5")
+				(pinfunction "5_5")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R5")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "8")
+			(name "RTD_SDO")
+			(class "Default")
+			(node
+				(ref "J2")
+				(pin "6")
+				(pinfunction "6_6")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R7")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "9")
+			(name "SHARED_REF_2V5")
+			(class "Default")
+			(node
+				(ref "J2")
+				(pin "10")
+				(pinfunction "10_10")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U2")
+				(pin "5")
+				(pinfunction "5_5")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "10")
+			(name "bias")
+			(class "Default")
+			(node
+				(ref "R1")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R2")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R3")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "5")
+				(pinfunction "5_5")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "11")
+			(name "cs_n")
+			(class "Default")
+			(node
+				(ref "R6")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "16")
+				(pinfunction "16_16")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "12")
+			(name "ct")
+			(class "Default")
+			(node
+				(ref "U6")
+				(pin "5")
+				(pinfunction "5_5")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "13")
+			(name "gnd")
+			(class "Default")
+			(node
+				(ref "C1")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C2")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C4")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C5")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C6")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C7")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C8")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "C9")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "J2")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "J2")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R12")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R13")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R15")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "13")
+				(pinfunction "13_13")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "18")
+				(pinfunction "18_18")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "19")
+				(pinfunction "19_19")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "9")
+				(pinfunction "9_9")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U2")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U3")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U4")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U5")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U6")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U7")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "14")
+			(name "inn")
+			(class "Default")
+			(node
+				(ref "R10")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R9")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U3")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "15")
+			(name "inp")
+			(class "Default")
+			(node
+				(ref "R11")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R12")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U4")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "16")
+			(name "nc3")
+			(class "Default")
+			(node
+				(ref "U1")
+				(pin "20")
+				(pinfunction "20_20")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "17")
+			(name "refin_n")
+			(class "Default")
+			(node
+				(ref "R1")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "6")
+				(pinfunction "6_6")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "7")
+				(pinfunction "7_7")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "18")
+			(name "reset")
+			(class "Default")
+			(node
+				(ref "R16")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U6")
+				(pin "6")
+				(pinfunction "6_6")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U7")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "19")
+			(name "rtd_force_n")
+			(class "Default")
+			(node
+				(ref "J1")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "12")
+				(pinfunction "12_12")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "20")
+			(name "rtd_force_p")
+			(class "Default")
+			(node
+				(ref "J1")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "8")
+				(pinfunction "8_8")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "21")
+			(name "rtd_pan.high_window-out")
+			(class "Default")
+			(node
+				(ref "U4")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U5")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "22")
+			(name "rtd_pan.low_window-out")
+			(class "Default")
+			(node
+				(ref "U3")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U5")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "23")
+			(name "rtd_sense_n")
+			(class "Default")
+			(node
+				(ref "C3")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "J1")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R10")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R3")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "11")
+				(pinfunction "11_11")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "24")
+			(name "rtd_sense_p")
+			(class "Default")
+			(node
+				(ref "C3")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "J1")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R2")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "10")
+				(pinfunction "10_10")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U3")
+				(pin "3")
+				(pinfunction "3_3")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U4")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "25")
+			(name "sclk")
+			(class "Default")
+			(node
+				(ref "R4")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "15")
+				(pinfunction "15_15")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "26")
+			(name "sdi")
+			(class "Default")
+			(node
+				(ref "R5")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "14")
+				(pinfunction "14_14")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "27")
+			(name "sdo")
+			(class "Default")
+			(node
+				(ref "R7")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U1")
+				(pin "17")
+				(pinfunction "17_17")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "28")
+			(name "sense")
+			(class "Default")
+			(node
+				(ref "R14")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R15")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U6")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "29")
+			(name "vbias")
+			(class "Default")
+			(node
+				(ref "R11")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "R9")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U2")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "30")
+			(name "y")
+			(class "Default")
+			(node
+				(ref "R13")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U5")
+				(pin "4")
+				(pinfunction "4_4")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U7")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "bidirectional")
+			)
+		)
+	)
+)

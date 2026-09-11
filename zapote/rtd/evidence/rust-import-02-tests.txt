@@ -1,0 +1,88 @@
+   Compiling zapote-core v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-core)
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-drc)
+   Compiling zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.06s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_core-447bd774193d4908)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_drc-02a581367bc7eea3)
+
+running 5 tests
+test donor_geometry::tests::crossing_segments_are_intersecting ... ok
+test donor_geometry::tests::separated_segments_are_not_intersecting ... ok
+test tests::crossing_segment_is_detected_without_vertex_inside ... ok
+test tests::copper_width_is_included_at_boundary ... ok
+test tests::region_predicate_uses_authored_margin ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_erc-7f2b0779b26bc176)
+
+running 3 tests
+test tests::asymmetric_fault_cases_keep_documented_blind_spot ... ok
+test tests::low_threshold_strictly_exceeds_exact_code ... ok
+test tests::threshold_encoding_matches_board_words ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_harness-aab436377bd131fb)
+
+running 1 test
+test tests::missing_input_identity_cannot_be_a_pass ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_rtd-213563c563153d41)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rtd_defect_corpus.rs (/private/tmp/zapote-rtd-target/debug/deps/rtd_defect_corpus-8c4bbddb1d69f6a2)
+
+running 14 tests
+test missing_identity_field_is_indeterminate_and_never_passes ... ok
+test connector_swap_is_detected_against_board_bound_contract ... ok
+test broken_rref_and_reference_topology_are_detected ... ok
+test native_binding_without_extraction_hash_cannot_pass ... ok
+test sense_force_short_is_detected_from_typed_net_identity ... ok
+test each_conductor_open_is_classified_without_name_only_coverage ... ok
+test native_export_bound_to_different_board_cannot_pass ... ok
+test stale_well_formed_digest_is_rejected_by_artifact_binding ... ok
+test wrong_rail_and_wrong_cs_are_detected ... ok
+test actual_board_mutations_fail_with_contract_unchanged ... ok
+test actual_capacitor_and_return_cluster_mutations_fail ... ok
+test real_native_sensitive_trace_intruding_switch_region_fails ... ok
+test real_native_board_mutations_fail_with_source_contract_unchanged ... ok
+test each_real_conductor_expectation_is_independent ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.55s
+
+   Doc-tests zapote_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_drc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_erc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_harness
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

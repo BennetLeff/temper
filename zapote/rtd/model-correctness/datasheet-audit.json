@@ -1,0 +1,59 @@
+{
+  "scope": "First model-correctness pass; circuit intent assumed; PCB unchanged",
+  "review_date": "2026-09-11",
+  "baseline": {
+    "zapote/rtd/circuit/rtdin_comparator_model.py": "46df61023950e23949d73d0dec78417b5b4decc0f934879091f4fabbc41d992a",
+    "zapote/rtd/circuit/rtdin_transient_model.py": "1cab91630f8d1b4229b5f15a34ffd1b88a4a0d04e07299c4811b76e18db7429f",
+    "zapote/rtd/circuit/rtd_observed_faults.py": "e754081f93921c53f333492bdc8fc29071d89f17d198baafc28e1e8f4929d0b9",
+    "zapote/rtd/unit/candidate/section.kicad_pcb": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb"
+  },
+  "ref2025_regulation_finding": {
+    "source_url": "https://www.ti.com/lit/ds/sbos600c/sbos600c.pdf",
+    "retained_revision": "SBOS600F July2026",
+    "source_sha256": "2b21e0c5aea93ed74f4a6bd7c4c1f4f3e39ca87c338f699ef51998df424a3dff",
+    "section": "6.5 page6",
+    "model_values": {
+      "line_ppm_per_v": 3,
+      "load_ppm_per_ma": 8,
+      "vin_distance_v": 0.165
+    },
+    "datasheet_maxima_and_applicability": {
+      "line_ppm_per_v": 35,
+      "load_ppm_per_ma": 20,
+      "initial_accuracy_test_vin_v": 5,
+      "unit_vin_min_v": 3.135,
+      "unit_vin_max_v": 3.465,
+      "max_vin_distance_from_test_v": 1.865,
+      "load_sourcing_vin_min_v": 3.1
+    },
+    "comparison_holding_other_terms_and_load_constant": {
+      "retained_load_ma": 0.096242,
+      "old_absolute_vbias_error_v": 0.0012265811700000002,
+      "corrected_absolute_vbias_error_v": 0.0013089998000000002,
+      "additional_error_v": 8.241862999999999e-05
+    },
+    "verdict": "Confirmed underbounded reference envelope. Impact on complete circuit classification still requires revised-model evaluation.",
+    "revised_load_check": {
+      "rounded_vbias_load_bound_ua": 96.35,
+      "vref_upper_v": 1.2513090025000002,
+      "divider_sourcing_upper_ua_with_input_sinks": 96.34684014512274,
+      "input_sink_each_na": 5,
+      "assumptions": "Static sourcing condition: RTDIN_N >= 0 V; divider resistance minima, comparator sinks included. This conditional check does not qualify externally driven transient states.",
+      "fits_rounded_bound": true
+    }
+  },
+  "reviewed_without_identified_numeric_substitution_error": {
+    "tlv3201": {
+      "source_url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+      "revision": "SBOS561C",
+      "sections": "6.5 through6.8",
+      "parameters": {
+        "offset_max_mv": 4,
+        "bias_current_max_na": 5,
+        "propagation_max_ns": 55
+      },
+      "conditions": "Retain temperature, common-mode, supply, overdrive and output-load conditions. Individual correct numbers do not establish complete device fidelity."
+    }
+  },
+  "pending": "First-pass review findings retained in topology-review.md; full parameter coverage and valid full-network transient bound remain unqualified."
+}

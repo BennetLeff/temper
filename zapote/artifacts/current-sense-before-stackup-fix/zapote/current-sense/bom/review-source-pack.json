@@ -1,0 +1,162 @@
+{
+  "schema": "zapote.current-sense.source-bom-pack.v1",
+  "retrieved_on": "2026-09-11",
+  "source": {
+    "entry": "elec/src/current_sense_unit.ato:CurrentSenseUnit",
+    "manifest": "zapote/current-sense/candidate/source-manifest.json",
+    "source_build": "source-build-03",
+    "source_hashes": {
+      "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
+      "elec/src/current_sense_unit.ato": "5143a8e80686d14d867d29fb405b11547e3988c687ba50947a6e55d1346bc274"
+    },
+    "compiled_component_count": 21
+  },
+  "groups": [
+    {
+      "mpn": "CST3015-100ED",
+      "manufacturer": "Coilcraft",
+      "qty": 1,
+      "refs": ["T1"],
+      "value": null,
+      "footprint": "temper:CST3015_Datasheet2025",
+      "datasheet_url": "https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf",
+      "product_url": "https://www.coilcraft.com/en-us/products/transformers/power-transformers/current-sensing/cst3015/cst3015-100e/",
+      "availability": {
+        "status": "manual_confirmation_required",
+        "source": "Coilcraft product page",
+        "note": "Page shows in-stock/ready-to-ship language while also displaying selected-configuration-unavailable; confirm CST3015-100ED reel configuration directly."
+      }
+    },
+    {
+      "mpn": "NON_PURCHASED_BARE_LANDS",
+      "manufacturer": null,
+      "qty": 1,
+      "refs": ["J1"],
+      "value": null,
+      "footprint": "lib:LitzPad_15A",
+      "datasheet_url": null,
+      "product_url": null,
+      "availability": {
+        "status": "not_purchased",
+        "note": "Root-authored bare primary solder lands; no connector or ampacity claim encoded."
+      }
+    },
+    {
+      "mpn": "RC1206FR-071R5L",
+      "manufacturer": "YAGEO",
+      "qty": 1,
+      "refs": ["R1"],
+      "value": "1.50ohm +/- 1%",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "datasheet_url": "https://yageogroup.com/content/datasheet/asset/file/PYU-RC_GROUP_51_ROHS_L",
+      "product_url": "https://www.digikey.com/en/products/detail/yageo/RC1206FR-071R5L/728440",
+      "availability": {"status": "in_stock", "vendor": "DigiKey", "quantity": 12640, "lead_time_weeks": 17}
+    },
+    {
+      "mpn": "RC1206FR-071KL",
+      "manufacturer": "YAGEO",
+      "qty": 1,
+      "refs": ["R4"],
+      "value": "1kohm +/- 1%",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "datasheet_url": "https://yageogroup.com/content/datasheet/asset/file/PYU-RC_GROUP_51_ROHS_L",
+      "product_url": "https://www.digikey.com/en/products?s=RC1206FR-071KL",
+      "availability": {"status": "manual_confirmation_required", "note": "Exact DigiKey/Mouser stock row was not returned during this check; use the YAGEO RC_L specification and confirm exact resistance code before ordering."}
+    },
+    {
+      "mpn": "GRM31C5C1H104JA01L",
+      "manufacturer": "Murata",
+      "qty": 2,
+      "refs": ["C1", "C2"],
+      "value": "100nF +/- 5%",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "datasheet_url": "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM31C5C1H104JA01-01A.pdf",
+      "product_url": "https://www.murata.com/en-us/products/productdetail?partno=GRM31C5C1H104JA01%23",
+      "availability": {"status": "in_stock", "vendor": "DigiKey", "quantity": 54742, "lead_time_weeks": 17}
+    },
+    {
+      "mpn": "ERA3AEB103V",
+      "manufacturer": "Panasonic Industry",
+      "qty": 4,
+      "refs": ["R2", "R3", "R6", "R7"],
+      "value": "10kohm +/- 0.1%",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "datasheet_url": "https://na.industrial.panasonic.com/products/resistors/smd-chip-resistors/series/36034/model/46550",
+      "product_url": "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB103V/1465878",
+      "availability": {"status": "in_stock", "vendor": "DigiKey", "quantity": 219134, "lead_time_weeks": 41}
+    },
+    {
+      "mpn": "ERA3AEB3741V",
+      "manufacturer": "Panasonic Industry",
+      "qty": 2,
+      "refs": ["R5", "R8"],
+      "value": "3.74kohm +/- 0.1%",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "datasheet_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB3741V",
+      "product_url": "https://www.digikey.com/en/products/detail/panasonic-industry/ERA-3AEB3741V/3075947",
+      "availability": {"status": "in_stock", "vendor": "DigiKey", "quantity": 10099, "lead_time_weeks": 33}
+    },
+    {
+      "mpn": "BAT54H,115",
+      "manufacturer": "Nexperia",
+      "qty": 2,
+      "refs": ["D1", "D2"],
+      "value": null,
+      "footprint": "Diode_SMD:D_SOD-123F",
+      "datasheet_url": "https://www.nexperia-semiconductor.com/pdf-a4/bat54h%2C115.pdf",
+      "product_url": "https://www.digikey.com/en/products/detail/nexperia-usa-inc/BAT54H-115/1127168",
+      "availability": {"status": "out_of_stock", "vendor": "DigiKey", "quantity": 0, "expected_in_stock": "2027-05-03", "lead_time_weeks": 30}
+    },
+    {
+      "mpn": "TLV3201AIDBVR",
+      "manufacturer": "Texas Instruments",
+      "qty": 2,
+      "refs": ["U1", "U2"],
+      "value": null,
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "datasheet_url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+      "product_url": "https://www.ti.com/product/TLV3201/part-details/TLV3201AIDBVR",
+      "availability": {"status": "out_of_stock", "vendor": "DigiKey", "quantity": 0, "expected_in_stock": ["2026-10-29", "2026-11-02"], "lead_time_weeks": 16}
+    },
+    {
+      "mpn": "SN74HC4075DR",
+      "manufacturer": "Texas Instruments",
+      "qty": 1,
+      "refs": ["U3"],
+      "value": null,
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "datasheet_url": "https://www.ti.com/lit/gpn/cd74hc4075",
+      "product_url": "https://www.ti.com/product/CD74HC4075",
+      "availability": {"status": "manual_confirmation_required", "note": "Exact SN74HC4075DR listing was not found in this live search. TI's current official family page is CD74HC4075; do not silently substitute a CD74HC4075 or HCS4075 orderable without source identity approval."}
+    },
+    {
+      "mpn": "C0603C104K5RACTU",
+      "manufacturer": "KEMET",
+      "qty": 3,
+      "refs": ["C3", "C4", "C5"],
+      "value": "100nF +/- 10%",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "datasheet_url": "https://search.kemet.com/download/specsheet/C0603C104K5RACTU",
+      "product_url": "https://www.digikey.com/en/products/detail/kemet/C0603C104K5RACTU/1465623",
+      "availability": {"status": "in_stock", "vendor": "DigiKey", "quantity": 6484964, "lead_time_weeks": 12}
+    },
+    {
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "manufacturer": "JST Sales America Inc.",
+      "qty": 1,
+      "refs": ["J2"],
+      "value": null,
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "datasheet_url": "https://www.jst.com/wp-content/uploads/2021/01/eXH.pdf",
+      "product_url": "https://www.digikey.com/en/products/detail/jst-sales-america-inc/B4B-XH-A/1651047",
+      "availability": {"status": "in_stock", "vendor": "DigiKey", "quantity": 112324, "lead_time_weeks": 16}
+    }
+  ],
+  "footprint_review": {
+    "status": "pass",
+    "generic_resistor_default": "Resistor_SMD:R_0603_1608Metric",
+    "era_0603_refs": ["R2", "R3", "R5", "R6", "R7", "R8"],
+    "explicit_1206_refs": ["R1", "R4"],
+    "note": "The compiled manifest has no ERA 0603 mismatch. CurrentSenseUnit source explicitly sets the two 1206 YAGEO parts and the remaining ERA parts resolve to 0603; recheck if the generic Resistor default changes."
+  }
+}

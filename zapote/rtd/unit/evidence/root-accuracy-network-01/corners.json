@@ -1,0 +1,47 @@
+{
+  "scope": "Added-network 100 C error over unique declared model corners; nominal RREF since separate budget rows cover its tolerance/drift. Same model, not independent oracle.",
+  "unique_corners": 512,
+  "min_error_celsius": [
+    0.1316050791456049,
+    {
+      "vb": 1.95,
+      "rref": 430.0,
+      "vref": 1.25122658117,
+      "rlt": 61745.25,
+      "rlb": 9975.0,
+      "rht": 5900,
+      "rhb": 10000,
+      "rdiag": 1056000.0,
+      "voffl": 0,
+      "voffh": 0,
+      "ileak_max_sensep": 1.4e-08,
+      "ileak_sensem": -1.4e-08,
+      "ileak_windowp": 2e-08,
+      "ileak_lowth": -5e-09,
+      "ileak_highth": 0
+    }
+  ],
+  "max_error_celsius": [
+    0.15720455480164844,
+    {
+      "vb": 2.06,
+      "rref": 430.0,
+      "vref": 1.2487734188300001,
+      "rlt": 62054.75,
+      "rlb": 10025.0,
+      "rht": 5900,
+      "rhb": 10000,
+      "rdiag": 944000.0,
+      "voffl": 0,
+      "voffh": 0,
+      "ileak_max_sensep": -1.4e-08,
+      "ileak_sensem": 1.4e-08,
+      "ileak_windowp": -2e-08,
+      "ileak_lowth": 5e-09,
+      "ileak_highth": 0
+    }
+  ],
+  "allocation_celsius": 0.22,
+  "pass_within_allocation": true,
+  "model_sha256": "ad58e9e5f75f48f75ba62965d806fe55f06bc303e6368fd57425fd20fecf6aaa"
+}

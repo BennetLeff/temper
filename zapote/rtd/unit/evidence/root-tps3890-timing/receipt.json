@@ -1,0 +1,27 @@
+{
+  "source_url": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+  "source_path": "zapote/rtd/unit/evidence/sources/tps3890-ti.pdf",
+  "sha256": "ee79599730e7606ba9718d9820b411020e3dcd9ff7d44572f8ee63fead15b9d0",
+  "revision": "SLVSD65A, revised May 2016",
+  "page": 5,
+  "section": "7.6 Timing Requirements",
+  "assertion_delay_us": {
+    "nominal_at_vdd_3v3": 18,
+    "nominal_at_vdd_5v5": 8,
+    "maximum": null
+  },
+  "conditions": {
+    "ct": "open",
+    "mr": "VDD",
+    "input_overdrive_percent": 5,
+    "junction_celsius": [
+      -40,
+      125
+    ],
+    "vdd_volts": [
+      1.5,
+      5.5
+    ]
+  },
+  "conclusion": "Nominal model input only. No maximum assertion-delay guarantee is supplied by this table. No physical timing measurement performed."
+}

@@ -1,0 +1,221 @@
+{
+  "input_board_sha256": "09bfbd9ed416156893b754664c3591de8b713014e4794015f04bc0f328b11fcb",
+  "output_board_sha256": "2db49c4069f060b03121bb2d6c6298426ab5e68ce77dde9ba32cd084e485cec0",
+  "manifest_sha256": "ffc62e19c781b8604d7062106fbee51135de6404a16da85d248cea8e4b1b4c7f",
+  "poses_sha256": "415cef6c0187df8bb9428c27c6b5316ae44eaf9de3ddc2cbac2a992321efb844",
+  "replay_sha256": "8217724e9722d90b13e1e9609ec61708e2d6f66897316f9a4cdb7ee951bfe580",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "kicad_version": "10.0.4",
+  "operations": [
+    {
+      "instance": "ct",
+      "reference": "T1",
+      "library_sha256": "a4541edc45c617a00a4318770853290197c8b10c80920026353b3550c99222cd",
+      "pose": [
+        40,
+        31,
+        0
+      ]
+    },
+    {
+      "instance": "primary_lands",
+      "reference": "J1",
+      "library_sha256": "b433c013381f55c26320e0c6f900d104df3573b0906d462a052d155fe17e9535",
+      "pose": [
+        52.5,
+        10,
+        180
+      ]
+    },
+    {
+      "instance": "burden",
+      "reference": "R1",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pose": [
+        40,
+        49.2,
+        0
+      ]
+    },
+    {
+      "instance": "r_sense_series",
+      "reference": "R4",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pose": [
+        36,
+        54.8,
+        270
+      ]
+    },
+    {
+      "instance": "c_burden",
+      "reference": "C1",
+      "library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "pose": [
+        40,
+        52.2,
+        0
+      ]
+    },
+    {
+      "instance": "c_bias_bypass",
+      "reference": "C2",
+      "library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "pose": [
+        54,
+        47.5,
+        90
+      ]
+    },
+    {
+      "instance": "r_bias_top",
+      "reference": "R2",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        57,
+        47.5,
+        270
+      ]
+    },
+    {
+      "instance": "r_bias_bottom",
+      "reference": "R3",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        57,
+        51,
+        270
+      ]
+    },
+    {
+      "instance": "r_ref_hi_top",
+      "reference": "R5",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        29,
+        49,
+        270
+      ]
+    },
+    {
+      "instance": "r_ref_hi_bottom",
+      "reference": "R6",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        29,
+        52.5,
+        270
+      ]
+    },
+    {
+      "instance": "r_ref_lo_top",
+      "reference": "R7",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        49,
+        52.5,
+        270
+      ]
+    },
+    {
+      "instance": "r_ref_lo_bottom",
+      "reference": "R8",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        49,
+        56,
+        270
+      ]
+    },
+    {
+      "instance": "d_clamp_hi",
+      "reference": "D1",
+      "library_sha256": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+      "pose": [
+        33.5,
+        55.5,
+        270
+      ]
+    },
+    {
+      "instance": "d_clamp_lo",
+      "reference": "D2",
+      "library_sha256": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+      "pose": [
+        40,
+        56,
+        90
+      ]
+    },
+    {
+      "instance": "comp_pos",
+      "reference": "U1",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pose": [
+        33,
+        60,
+        180
+      ]
+    },
+    {
+      "instance": "comp_neg",
+      "reference": "U2",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pose": [
+        44,
+        60,
+        180
+      ]
+    },
+    {
+      "instance": "output_or",
+      "reference": "U3",
+      "library_sha256": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+      "pose": [
+        38.5,
+        68,
+        0
+      ]
+    },
+    {
+      "instance": "c_comp_pos",
+      "reference": "C3",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        30.5,
+        62,
+        180
+      ]
+    },
+    {
+      "instance": "c_comp_neg",
+      "reference": "C4",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        41.5,
+        62,
+        180
+      ]
+    },
+    {
+      "instance": "c_or_bypass",
+      "reference": "C5",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        44.3,
+        64.2,
+        0
+      ]
+    },
+    {
+      "instance": "host",
+      "reference": "J2",
+      "library_sha256": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+      "pose": [
+        64,
+        67,
+        90
+      ]
+    }
+  ]
+}

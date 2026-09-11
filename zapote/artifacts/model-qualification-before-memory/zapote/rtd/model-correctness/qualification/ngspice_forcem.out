@@ -1,0 +1,35 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: * independent full external rtdin network; open assertion at 10 us
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+bias                                      2.06
+refsrc                                    1.25
+ctrl                                         5
+forcep_i                              0.395117
+sensorp                               0.391246
+sensep                                0.391247
+sensorn                             0.00389677
+sensem                              0.00391616
+forcen_i                           3.89288e-06
+windowp                               0.391247
+lowth                                 0.177224
+highth                                0.786164
+vctrl#branch                                 0
+vrefsrc#branch                    -9.59471e-05
+vbias#branch                       -0.00387554
+
+
+No. of Data Rows : 3045
+cross               =  1.002654e-05
+Note: Simulation executed from .control section 

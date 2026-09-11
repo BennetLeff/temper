@@ -1,0 +1,3628 @@
+diff --git a/zapote/SCHEMA.md b/zapote/SCHEMA.md
+index f07e85559..2a1804efe 100644
+--- a/zapote/SCHEMA.md
++++ b/zapote/SCHEMA.md
+@@ -32,8 +32,20 @@ geometry are indeterminate. `firmware` contains the source GPIO map and threshol
+ `board.connections[].pin` values are manufacturer pad numbers; the Rust map
+ is the MAX31865 SSOP-20 map (DRDY=1, BIAS=4, REFIN+=5, REFIN−=6, FORCE+=8,
+ RTDIN+=10, RTDIN−=11, FORCE−=12, SDI=14, SCLK=15, CS_N=16, SDO=17,
+-grounds=9/13/18/19, NC3=20). `scenarios` are
+-independent expected outcomes used to detect model/checker disagreement.
++grounds=9/13/18/19, NC3=20). `scenarios` carry independently observed
++outcomes and the expected class used to compare the model with the checker;
++expected-only source rows are not observations and cannot qualify fault
++coverage.
++
++The standalone `zapote.rtd.unit-input.v1` envelope additionally requires the
++complete compiled `source_components` census and `source_bindings` pad/net
++set. Rust compares every source component ID/MPN and every source pad to the
++native component/pad census; partial bindings, omitted components, extra
++native components, and a consistent native pad-plus-connection swap fail
++closed. Native `zones` are transport-only filled copper evidence with
++`uuid`, `net`, `layer`, and `filled_polygons` (`outer_mm` plus optional
++`holes_mm`); required source-authored return-plane roles are checked against
++those exact net/layer records.
+ 
+ Optional `board.paths` carries source-authored local-escape groups. Each group
+ has `name`, `nets`, qualified `component_ids`, native `trace_ids`, native
+@@ -64,7 +76,7 @@ The current Temper source mapping is:
+ |---|---|
+ | ADC | `rtd_pan.adc`, `MAX31865AAP+` |
+ | connector | `rtd_pan.j_rtd1`, pins FORCE+, SENSE+, SENSE−, FORCE− |
+-| RREF | `rtd_pan.r_ref`, 430 Ω, `ERA-6AEB431V` |
++| RREF | `rtd_pan.r_ref`, 430 Ω, `RG2012V-431-W-T1`, 0.05%, 5 ppm/C |
+ | SPI | SCK 8, SDI/MOSI 11, SDO/MISO 12, CS 10, DRDY 9 |
+ | threshold words | low 1526, high 45722 |
+ 
+@@ -75,9 +87,17 @@ pass.
+ 
+ The standalone `zapote/rtd/unit/profile.json` uses the typed
+ `zapote_core::unit::UnitProfile` contract. It binds `RTDUnit` to
+-`RTDSensing33`, records the proposed supervisor/RREF/divider/filter values,
++the compiled `RTDUnit` wrapper and `RTDSensing` source, records the TPS389001/RREF/divider/filter values,
+ and fixes the four-layer manufacturing limits. Its ten interface nets have a
+-stable order, while connector part qualification and future reference,
+-aggressor, and model contracts remain explicitly deferred. The profile tests
+-validate the source values and reject mutations that turn deferred contracts
+-into apparent passes; it is not a native board acceptance result.
++stable order with both ground contacts normalized to the physical `GND` net.
++The unit envelope additionally carries the native extractor's copper
++components/connections/clusters/traces/vias, artifact hashes, parsed firmware
++values, and a non-empty fault-model input. `zapote-rtd --unit-input` evaluates
++observed MPN/pad/net/cluster/copper/local-decoupling data; numeric local-load
++and shared-reference bounds are checked from the independent model receipt,
++while outside-unit aggressors remain explicit indeterminate applicability
++states until their source evidence exists. The
++profile tests validate source values and reject mutations that turn missing or
++deferred evidence into apparent passes. A detected case without measured
++latency remains indeterminate; it is not a native board acceptance result
++until a matching board/export hash is bound.
+diff --git a/zapote/packages/zapote-core/src/lib.rs b/zapote/packages/zapote-core/src/lib.rs
+index a714aad18..ca787423c 100644
+--- a/zapote/packages/zapote-core/src/lib.rs
++++ b/zapote/packages/zapote-core/src/lib.rs
+@@ -148,6 +148,10 @@ pub struct RunInput {
+     pub rtd: RtdContract,
+     pub firmware: FirmwareContract,
+     pub scenarios: Vec<FaultScenario>,
++    /// Applicability selector. Empty/Top uses the integrated cooker contract;
++    /// RTDUnit keeps the same checker context while omitting absent hosts.
++    #[serde(default)]
++    pub applicability: String,
+ }
+ 
+ impl RunInput {
+@@ -160,9 +164,15 @@ impl RunInput {
+             ));
+         }
+         errors.extend(self.board.validate());
+-        errors.extend(self.rtd.validate(&self.board));
++        if self.applicability != "RTDUnit" {
++            errors.extend(self.rtd.validate(&self.board));
++        }
+         errors.extend(self.firmware.validate());
+-        if self.scenarios.is_empty() {
++        // A standalone unit may run all source/topology and board geometry
++        // rules before the independent fault-model receipt is available.
++        // Fault coverage reports this missing applicability itself; it must
++        // not suppress unrelated evidence.
++        if self.scenarios.is_empty() && self.applicability != "RTDUnit" {
+             errors.push("scenarios must contain at least one case".into());
+         }
+         errors
+@@ -185,6 +195,8 @@ pub struct Board {
+     pub connectivity_clusters: Vec<ConnectivityCluster>,
+     pub vias: Vec<Via>,
+     #[serde(default)]
++    pub zones: Vec<NativeZone>,
++    #[serde(default)]
+     pub paths: Vec<PathConstraint>,
+     pub geometry: GeometryConstraints,
+ }
+@@ -322,6 +334,38 @@ impl Board {
+                 ));
+             }
+         }
++        let mut zone_ids = std::collections::BTreeSet::new();
++        for zone in &self.zones {
++            if zone.id.trim().is_empty() || !zone_ids.insert(zone.id.as_str()) {
++                errors.push(format!("duplicate or empty native zone id {}", zone.id));
++            }
++            if !net_names.contains(zone.net.as_str()) {
++                errors.push(format!("native zone references unknown net {}", zone.net));
++            }
++            if !matches!(zone.layer.as_str(), "F.Cu" | "B.Cu" | "In1.Cu" | "In2.Cu") {
++                errors.push(format!(
++                    "native zone {} uses unknown copper layer {}",
++                    zone.id, zone.layer
++                ));
++            }
++            for polygon in &zone.filled_polygons {
++                if polygon.outer_mm.len() < 3
++                    || polygon
++                        .outer_mm
++                        .iter()
++                        .flatten()
++                        .any(|value| !value.is_finite())
++                    || polygon.holes_mm.iter().any(|hole| {
++                        hole.len() < 3 || hole.iter().flatten().any(|value| !value.is_finite())
++                    })
++                {
++                    errors.push(format!(
++                        "native zone {} has invalid filled polygon",
++                        zone.id
++                    ));
++                }
++            }
++        }
+         if self.geometry.required_locality_mm <= 0.0
+             || !self.geometry.required_locality_mm.is_finite()
+         {
+@@ -369,7 +413,7 @@ pub struct Connection {
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+ #[serde(deny_unknown_fields)]
+ pub struct Trace {
+-    #[serde(default)]
++    #[serde(default, alias = "uuid")]
+     pub id: String,
+     pub net: String,
+     pub points_mm: Vec<[f64; 2]>,
+@@ -379,7 +423,7 @@ pub struct Trace {
+ 
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+ pub struct Via {
+-    #[serde(default)]
++    #[serde(default, alias = "uuid")]
+     pub id: String,
+     pub net: String,
+     pub position_mm: [f64; 2],
+@@ -395,6 +439,25 @@ pub struct ConnectivityCluster {
+     pub source: String,
+ }
+ 
++/// Native KiCad filled-zone transport.  The exporter supplies the exact
++/// SHAPE_POLY_SET outer ring and holes; policy decides which net/layer is
++/// required for an RTD return corridor.
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct NativeZone {
++    #[serde(alias = "uuid")]
++    pub id: String,
++    pub net: String,
++    pub layer: String,
++    pub filled_polygons: Vec<NativeFilledPolygon>,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct NativeFilledPolygon {
++    pub outer_mm: Vec<[f64; 2]>,
++    #[serde(default)]
++    pub holes_mm: Vec<Vec<[f64; 2]>>,
++}
++
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+ pub struct PathConstraint {
+     pub name: String,
+@@ -436,6 +499,15 @@ pub struct GeometryConstraints {
+     #[serde(default)]
+     pub prohibited_connections: Vec<ProhibitedConnection>,
+     pub required_locality_mm: f64,
++    #[serde(default)]
++    pub return_planes: Vec<ReturnPlaneRequirement>,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct ReturnPlaneRequirement {
++    pub purpose: String,
++    pub net: String,
++    pub layer: String,
+ }
+ 
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+@@ -588,6 +660,12 @@ pub struct FirmwareContract {
+     pub gpio: std::collections::BTreeMap<String, u16>,
+     pub thresholds: Thresholds,
+     pub config_revision: String,
++    #[serde(default = "default_fault_latency_limit_ms")]
++    pub fault_latency_limit_ms: f64,
++}
++
++fn default_fault_latency_limit_ms() -> f64 {
++    100.0
+ }
+ 
+ impl FirmwareContract {
+@@ -635,6 +713,16 @@ pub struct FaultScenario {
+     pub rail_loss: Option<String>,
+     pub expected_class: String,
+     pub expected_detected: bool,
++    /// Standalone unit reports carry model output and independently generated
++    /// observation side by side.  Legacy full-board inputs leave these unset.
++    #[serde(default)]
++    pub observed_class: Option<String>,
++    #[serde(default)]
++    pub observed_detected: Option<bool>,
++    #[serde(default)]
++    pub model_latency_ms: Option<f64>,
++    #[serde(default)]
++    pub observed_latency_ms: Option<f64>,
+ }
+ 
+ #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+diff --git a/zapote/packages/zapote-core/src/unit.rs b/zapote/packages/zapote-core/src/unit.rs
+index fc45a9c7d..322c25727 100644
+--- a/zapote/packages/zapote-core/src/unit.rs
++++ b/zapote/packages/zapote-core/src/unit.rs
+@@ -5,7 +5,9 @@
+ //! retaining explicit deferred contracts for connector qualification and
+ //! future aggressors/reference consumers.
+ 
+-use crate::{Component, Connection, ConnectivityCluster, Net, Trace, Via};
++use crate::{
++    Component, Connection, ConnectivityCluster, GeometryConstraints, NativeZone, Trace, Via,
++};
+ use serde::{Deserialize, Serialize};
+ 
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+@@ -15,9 +17,104 @@ pub struct UnitProfile {
+     pub source_module: String,
+     pub components: UnitComponents,
+     pub interface: UnitInterface,
++    pub probe: UnitProbeContract,
++    pub local: UnitLocalContract,
+     pub board: UnitBoardContract,
+     pub loads: Vec<UnitLoad>,
+     pub future_contracts: FutureContracts,
++    #[serde(default)]
++    pub component_bindings: Vec<UnitComponentBinding>,
++    pub firmware: UnitFirmwareContract,
++    /// Maximum measured unit fault indication latency after the fault is
++    /// applied; the host handoff allowance is already deducted.
++    pub fault_latency_limit_ms: f64,
++    #[serde(default)]
++    pub decoupling_bindings: Vec<UnitDecouplingBinding>,
++    #[serde(default = "default_unit_geometry")]
++    pub geometry: GeometryConstraints,
++    #[serde(default)]
++    pub return_planes: Vec<UnitReturnPlane>,
++    #[serde(default)]
++    pub fault_case_bindings: Vec<UnitFaultCaseBinding>,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitProbeContract {
++    pub component: String,
++    pub mpn: String,
++    pub pins: Vec<UnitProbePin>,
++}
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitProbePin {
++    pub number: u8,
++    pub role: String,
++    pub net: String,
++}
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitLocalContract {
++    pub reference_component: String,
++    pub reference_mpn: String,
++    pub ferrite_component: String,
++    pub ferrite_mpn: String,
++    pub filtered_rail: String,
++}
++
++fn default_unit_geometry() -> GeometryConstraints {
++    GeometryConstraints {
++        sensitive_nets: Vec::new(),
++        aggressors: Vec::new(),
++        prohibited_connections: Vec::new(),
++        required_locality_mm: 3.0,
++        return_planes: Vec::new(),
++    }
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitComponentBinding {
++    pub role: String,
++    pub instance_id: String,
++    pub mpn: String,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitDecouplingBinding {
++    pub role: String,
++    pub instance_id: String,
++    pub mpn: String,
++    pub capacitance_nf: f64,
++    pub target_component: String,
++    pub pad_nets: Vec<String>,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitReturnPlane {
++    pub purpose: String,
++    pub net: String,
++    pub layer: String,
++}
++
++/// Authored mapping from the observed model's stable case name to the
++/// physical fault semantics consumed by the shared checker.  The observation
++/// file supplies outcomes; this profile supplies applicability only.
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitFaultCaseBinding {
++    pub name: String,
++    #[serde(default)]
++    pub conductor_open: Option<String>,
++    #[serde(default)]
++    pub rail_loss: Option<String>,
++    #[serde(default)]
++    pub resistance_ohm: Option<f64>,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitFirmwareContract {
++    pub cs_gpio: u16,
++    pub drdy_gpio: u16,
++    pub low_threshold_word: u16,
++    pub high_threshold_word: u16,
++    pub short_fault_ohm: f64,
++    pub open_fault_ohm: f64,
+ }
+ 
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+@@ -78,13 +175,17 @@ pub struct FutureContracts {
+ pub struct UnitNativeEvidence {
+     pub board_sha256: String,
+     pub extractor_sha256: String,
+-    pub board_layers: u8,
++    /// Native extractor's measured copper layer count.  This name is kept
++    /// equal to the exporter; it is not a policy alias invented by the
++    /// binder.
++    pub copper_layer_count: u8,
+     pub components: Vec<Component>,
+-    pub nets: Vec<Net>,
+     pub connections: Vec<Connection>,
+     pub connectivity_clusters: Vec<ConnectivityCluster>,
+     pub traces: Vec<Trace>,
+     pub vias: Vec<Via>,
++    #[serde(default)]
++    pub zones: Vec<NativeZone>,
+ }
+ 
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+@@ -92,6 +193,53 @@ pub struct UnitInput {
+     pub schema: String,
+     pub profile: UnitProfile,
+     pub native: UnitNativeEvidence,
++    pub identity: UnitIdentity,
++    pub firmware: UnitFirmwareEvidence,
++    pub model: serde_json::Value,
++    #[serde(default)]
++    pub source_bindings: Vec<SourcePadNet>,
++    /// Complete compiled component census used to prove that the binding is
++    /// not merely a partial expected-net sample.
++    #[serde(default)]
++    pub source_components: Vec<SourceComponent>,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct SourcePadNet {
++    pub instance_id: String,
++    pub pad: String,
++    pub net: String,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct SourceComponent {
++    pub instance_id: String,
++    pub mpn: String,
++    pub pad_count: usize,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitIdentity {
++    pub profile_sha256: String,
++    pub native_export_sha256: String,
++    pub source_manifest_sha256: String,
++    pub extractor_sha256: String,
++    pub model_sha256: String,
++    pub firmware_sha256: String,
++    pub firmware_pins_sha256: String,
++    pub board_sha256: String,
++    #[serde(default)]
++    pub binary_sha256: Option<String>,
++}
++
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct UnitFirmwareEvidence {
++    pub cs_gpio: u16,
++    pub drdy_gpio: u16,
++    pub low_threshold_word: u16,
++    pub high_threshold_word: u16,
++    pub short_fault_ohm: f64,
++    pub open_fault_ohm: f64,
+ }
+ 
+ impl UnitInput {
+@@ -100,16 +248,75 @@ impl UnitInput {
+         if self.schema != "zapote.rtd.unit-input.v1" {
+             errors.push("unit input schema must be zapote.rtd.unit-input.v1".into());
+         }
++        for (name, hash) in [
++            ("profile", &self.identity.profile_sha256),
++            ("native export", &self.identity.native_export_sha256),
++            ("source manifest", &self.identity.source_manifest_sha256),
++            ("extractor", &self.identity.extractor_sha256),
++            ("model", &self.identity.model_sha256),
++            ("firmware", &self.identity.firmware_sha256),
++            ("firmware pins", &self.identity.firmware_pins_sha256),
++            ("board", &self.identity.board_sha256),
++        ] {
++            if !crate::is_sha256(hash) {
++                errors.push(format!("unit identity {name} must be a SHA-256 digest"));
++            }
++        }
++        if let Some(hash) = &self.identity.binary_sha256 {
++            if !crate::is_sha256(hash) {
++                errors.push("unit identity binary must be a SHA-256 digest".into());
++            }
++        }
++        if self.identity.board_sha256 != self.native.board_sha256 {
++            errors.push("unit identity board hash does not match native extraction hash".into());
++        }
++        if self.identity.extractor_sha256 != self.native.extractor_sha256 {
++            errors
++                .push("unit identity extractor hash does not match native extraction hash".into());
++        }
++        if self.firmware.cs_gpio != self.profile.firmware.cs_gpio
++            || self.firmware.drdy_gpio != self.profile.firmware.drdy_gpio
++            || self.firmware.low_threshold_word != self.profile.firmware.low_threshold_word
++            || self.firmware.high_threshold_word != self.profile.firmware.high_threshold_word
++            || self.firmware.short_fault_ohm != self.profile.firmware.short_fault_ohm
++            || self.firmware.open_fault_ohm != self.profile.firmware.open_fault_ohm
++        {
++            errors.push("firmware source values do not match the unit profile".into());
++        }
++        let observed_faults = self
++            .model
++            .get("observed_faults")
++            .or_else(|| self.model.get("fault_observations"))
++            .or_else(|| self.model.get("fault_coverage"));
++        match observed_faults.and_then(|value| value.as_array()) {
++            Some(faults) if !faults.is_empty() => {
++                if faults.iter().any(|fault| {
++                    fault.get("name").and_then(|v| v.as_str()).is_none()
++                        || fault
++                            .get("observed_class")
++                            .and_then(|v| v.as_str())
++                            .is_none()
++                        || fault.get("observed_detected").is_none()
++                }) {
++                    errors.push(
++                        "unit model observations require name, observed_class, observed_detected, and observed_latency_ms".into(),
++                    );
++                }
++            }
++            _ => errors.push(
++                "unit model must provide non-empty observed_faults/fault_observations; expected-only faults are insufficient".into(),
++            ),
++        }
+         if !crate::is_sha256(&self.native.board_sha256)
+             || !crate::is_sha256(&self.native.extractor_sha256)
+         {
+             errors.push("native unit evidence requires board and extractor SHA-256 hashes".into());
+         }
+-        if self.native.board_layers != self.profile.board.copper_layers {
++        if self.native.copper_layer_count != self.profile.board.copper_layers {
+             errors.push("native board layer count does not match standalone contract".into());
+         }
+-        if self.native.components.is_empty() || self.native.nets.is_empty() {
+-            errors.push("native unit evidence requires components and net census".into());
++        if self.native.components.is_empty() {
++            errors.push("native unit evidence requires components".into());
+         }
+         let mut component_ids = std::collections::BTreeSet::new();
+         for component in &self.native.components {
+@@ -126,13 +333,91 @@ impl UnitInput {
+                 ));
+             }
+         }
+-        let net_names = self
+-            .native
+-            .nets
+-            .iter()
+-            .map(|net| net.name.as_str())
+-            .collect::<std::collections::BTreeSet<_>>();
++        for binding in &self.profile.component_bindings {
++            match self
++                .native
++                .components
++                .iter()
++                .find(|c| c.id == binding.instance_id)
++            {
++                Some(component) if component.mpn == binding.mpn => {}
++                Some(component) => errors.push(format!(
++                    "unit {} {} has MPN {}; expected {}",
++                    binding.role, binding.instance_id, component.mpn, binding.mpn
++                )),
++                None => errors.push(format!(
++                    "unit {} source component {} is absent from native board",
++                    binding.role, binding.instance_id
++                )),
++            }
++        }
++        for (role, expected_mpn) in [
++            ("ADC", self.profile.components.adc_mpn.as_str()),
++            (
++                "supervisor",
++                self.profile.components.supervisor_mpn.as_str(),
++            ),
++            ("RREF", self.profile.components.rref_mpn.as_str()),
++        ] {
++            if !self
++                .native
++                .components
++                .iter()
++                .any(|component| component.mpn == expected_mpn)
++            {
++                errors.push(format!(
++                    "native unit is missing exact {role} MPN {expected_mpn}"
++                ));
++            }
++        }
++        let mut connection_pins = std::collections::BTreeSet::new();
++        for binding in &self.profile.decoupling_bindings {
++            match self
++                .native
++                .components
++                .iter()
++                .find(|c| c.id == binding.instance_id)
++            {
++                Some(component) if component.mpn == binding.mpn => {}
++                Some(component) => errors.push(format!(
++                    "unit {} {} has MPN {}; expected {}",
++                    binding.role, binding.instance_id, component.mpn, binding.mpn
++                )),
++                None => errors.push(format!(
++                    "unit {} source component {} is absent from native board",
++                    binding.role, binding.instance_id
++                )),
++            }
++        }
++        let mut net_names = std::collections::BTreeSet::new();
++        for component in &self.native.components {
++            for pad in &component.footprint_pads {
++                if pad.net.trim().is_empty() {
++                    errors.push(format!(
++                        "native pad {}.{} requires a net",
++                        component.id, pad.pad
++                    ));
++                } else {
++                    net_names.insert(pad.net.as_str());
++                }
++                if pad.position_mm.iter().any(|v| !v.is_finite())
++                    || pad.size_mm.iter().any(|v| !v.is_finite() || *v <= 0.0)
++                    || pad.layers.is_empty()
++                {
++                    errors.push(format!(
++                        "native pad {}.{} has incomplete geometry",
++                        component.id, pad.pad
++                    ));
++                }
++            }
++        }
+         for connection in &self.native.connections {
++            if !connection_pins.insert((connection.component.as_str(), connection.pin.as_str())) {
++                errors.push(format!(
++                    "duplicate native connection {}.{}",
++                    connection.component, connection.pin
++                ));
++            }
+             if !component_ids.contains(connection.component.as_str()) {
+                 errors.push(format!(
+                     "native connection names absent component {}",
+@@ -145,10 +430,173 @@ impl UnitInput {
+                     connection.net
+                 ));
+             }
++            let Some(component) = self
++                .native
++                .components
++                .iter()
++                .find(|c| c.id == connection.component)
++            else {
++                continue;
++            };
++            let Some(pad) = component
++                .footprint_pads
++                .iter()
++                .find(|p| p.pad == connection.pin)
++            else {
++                errors.push(format!(
++                    "native connection {}.{} has no pad geometry",
++                    connection.component, connection.pin
++                ));
++                continue;
++            };
++            if pad.net != connection.net {
++                errors.push(format!(
++                    "native connection {}.{} net {} disagrees with pad net {}",
++                    connection.component, connection.pin, connection.net, pad.net
++                ));
++            }
++            let node = format!("{}.{}", connection.component, connection.pin);
++            if !self.native.connectivity_clusters.iter().any(|cluster| {
++                cluster.net == connection.net && cluster.nodes.iter().any(|n| n == &node)
++            }) {
++                errors.push(format!(
++                    "native copper cluster omits endpoint {node} on {}",
++                    connection.net
++                ));
++            }
++        }
++        if self.source_components.is_empty() {
++            errors.push("compiled source component census is required".into());
++        }
++        if self.source_bindings.is_empty() {
++            errors.push("complete compiled source pad/net bindings are required".into());
++        } else {
++            let mut source_keys = std::collections::BTreeSet::new();
++            for expected in &self.source_bindings {
++                if expected.instance_id.trim().is_empty()
++                    || expected.pad.trim().is_empty()
++                    || expected.net.trim().is_empty()
++                {
++                    errors.push("compiled source bindings require instance, pad, and net".into());
++                }
++                if !source_keys.insert((expected.instance_id.as_str(), expected.pad.as_str())) {
++                    errors.push(format!(
++                        "duplicate compiled source binding {}.{}",
++                        expected.instance_id, expected.pad
++                    ));
++                }
++                let observed = self
++                    .native
++                    .components
++                    .iter()
++                    .find(|c| c.id == expected.instance_id)
++                    .and_then(|c| c.footprint_pads.iter().find(|p| p.pad == expected.pad))
++                    .map(|p| p.net.as_str());
++                if observed != Some(expected.net.as_str()) {
++                    errors.push(format!(
++                        "source binding {}.{} expects {}, observed {:?}",
++                        expected.instance_id, expected.pad, expected.net, observed
++                    ));
++                }
++            }
++            let source_ids: std::collections::BTreeSet<_> = self
++                .source_components
++                .iter()
++                .map(|component| component.instance_id.as_str())
++                .collect();
++            let expected_pad_count: usize = self
++                .source_components
++                .iter()
++                .map(|component| component.pad_count)
++                .sum();
++            if source_ids.len() != self.source_components.len()
++                || self.source_components.iter().any(|component| {
++                    component.instance_id.trim().is_empty()
++                        || component.mpn.trim().is_empty()
++                        || component.pad_count == 0
++                })
++            {
++                errors.push(
++                    "compiled source component census has invalid or duplicate entries".into(),
++                );
++            }
++            if self.source_bindings.len() != expected_pad_count {
++                errors.push(format!(
++                    "compiled source binding is partial: {} bindings for {} source pads",
++                    self.source_bindings.len(),
++                    expected_pad_count
++                ));
++            }
++            if source_ids.len() != self.native.components.len()
++                || self.native.components.iter().any(|component| {
++                    !source_ids.contains(component.id.as_str())
++                        || self.source_components.iter().all(|expected| {
++                            expected.instance_id != component.id || expected.mpn != component.mpn
++                        })
++                })
++            {
++                errors.push(
++                    "native component census does not exactly match compiled source components"
++                        .into(),
++                );
++            }
++            let observed_source_keys: std::collections::BTreeSet<_> = self
++                .native
++                .components
++                .iter()
++                .flat_map(|component| {
++                    component
++                        .footprint_pads
++                        .iter()
++                        .map(move |pad| (component.id.as_str(), pad.pad.as_str()))
++                })
++                .collect();
++            if observed_source_keys.len() != expected_pad_count
++                || observed_source_keys
++                    != source_keys
++                        .iter()
++                        .copied()
++                        .collect::<std::collections::BTreeSet<_>>()
++            {
++                errors.push(
++                    "native pad census does not exactly match compiled source bindings".into(),
++                );
++            }
+         }
+         if self.native.connectivity_clusters.is_empty() {
+             errors.push("native unit evidence requires copper connectivity clusters".into());
+         }
++        let mut zone_ids = std::collections::BTreeSet::new();
++        for zone in &self.native.zones {
++            if zone.id.trim().is_empty() || !zone_ids.insert(zone.id.as_str()) {
++                errors.push(format!("duplicate or empty native zone {}", zone.id));
++            }
++            if zone.filled_polygons.is_empty() {
++                errors.push(format!("native zone {} has no filled polygon", zone.id));
++            }
++        }
++        for trace in &self.native.traces {
++            if trace.id.trim().is_empty() || trace.net.trim().is_empty() {
++                errors.push("native traces require stable UUID and net".into());
++            }
++            if !trace.width_mm.is_finite()
++                || trace.width_mm <= 0.0
++                || trace.points_mm.len() < 2
++                || trace.points_mm.iter().flatten().any(|v| !v.is_finite())
++            {
++                errors.push(format!("native trace {} has invalid geometry", trace.id));
++            }
++        }
++        for via in &self.native.vias {
++            if via.id.trim().is_empty()
++                || via.net.trim().is_empty()
++                || via.position_mm.iter().any(|v| !v.is_finite())
++                || !via.drill_mm.is_finite()
++                || via.drill_mm <= 0.0
++            {
++                errors.push(format!("native via {} has invalid geometry", via.id));
++            }
++        }
+         errors
+     }
+ }
+@@ -159,8 +607,8 @@ impl UnitProfile {
+         if self.schema != "zapote.rtd.unit.v1" {
+             errors.push("unit schema must be zapote.rtd.unit.v1".into());
+         }
+-        if self.profile_id != "RTDUnit" || self.source_module != "RTDSensing33" {
+-            errors.push("unit profile must bind RTDUnit to RTDSensing33".into());
++        if self.profile_id != "RTDUnit" || self.source_module != "RTDUnit" {
++            errors.push("unit profile must bind the compiled RTDUnit source".into());
+         }
+         if self.components.adc_mpn != "MAX31865AAP+" {
+             errors.push("unit ADC MPN must be MAX31865AAP+".into());
+@@ -184,13 +632,13 @@ impl UnitProfile {
+         }
+         let expected_nets = [
+             "+3V3",
+-            "GND_A",
+-            "GND_B",
+-            "SCK",
+-            "SDI",
+-            "SDO",
+-            "CS_N",
+-            "DRDY",
++            "GND",
++            "GND",
++            "RTD_SCK",
++            "RTD_SDI",
++            "RTD_SDO",
++            "RTD_CS_N",
++            "RTD_DRDY",
+             "RTD_HW_FAULT",
+             "SHARED_REF_2V5",
+         ];
+@@ -204,17 +652,39 @@ impl UnitProfile {
+         {
+             errors.push("unit interface must expose the ordered ten-net boundary".into());
+         }
+-        if self.interface.connector_mpn.is_some()
+-            || self.interface.qualification_status != "pending_qualified_source"
++        let mut pin_numbers = std::collections::BTreeSet::new();
++        for pin in &self.interface.pins {
++            if !(1..=10).contains(&pin.number) || !pin_numbers.insert(pin.number) {
++                errors.push("unit interface pin numbers must be unique 1..=10".into());
++            }
++        }
++        match (
++            &self.interface.connector_mpn,
++            self.interface.qualification_status.as_str(),
++        ) {
++            (None, "pending_qualified_source") => {}
++            (Some(mpn), "qualified_source") if !mpn.trim().is_empty() => {}
++            _ => errors
++                .push("connector qualification must be pending or a qualified MPN/source".into()),
++        }
++        if self.probe.component.trim().is_empty()
++            || self.probe.mpn.trim().is_empty()
++            || self.probe.pins.len() != 4
++        {
++            errors.push("unit probe connector contract must contain four qualified pins".into());
++        }
++        if self.local.reference_component.trim().is_empty()
++            || self.local.ferrite_component.trim().is_empty()
++            || self.local.filtered_rail != "RTD_AVDD"
+         {
+-            errors.push("connector qualification must remain explicitly pending".into());
++            errors.push("unit local reference and filtered ferrite roles are required".into());
+         }
+         let b = &self.board;
+         if b.copper_layers != 4
+             || b.min_finished_copper_um != 35.0
+             || b.clearance_mm != 0.20
+             || b.signal_width_mm != 0.20
+-            || b.power_return_width_mm != 0.30
++            || b.power_return_width_mm != 0.20
+             || b.via_diameter_mm != 0.70
+             || b.via_drill_mm != 0.30
+         {
+@@ -235,6 +705,38 @@ impl UnitProfile {
+         {
+             errors.push("unit reference-load budget and fault model are mandatory inputs".into());
+         }
++        if self.decoupling_bindings.len() < 3
++            || !self
++                .decoupling_bindings
++                .iter()
++                .any(|d| (d.role == "adc_dvdd" || d.role == "adc_vdd") && d.capacitance_nf == 100.0)
++            || !self
++                .decoupling_bindings
++                .iter()
++                .any(|d| d.role == "rtd_input_filter" && d.capacitance_nf == 1.0)
++        {
++            errors.push(
++                "unit must separate ADC supply decoupling from 1 nF RTD input filtering".into(),
++            );
++        }
++        if self.return_planes.len() < 4
++            || self.return_planes.iter().any(|plane| {
++                plane.purpose.trim().is_empty()
++                    || plane.net.trim().is_empty()
++                    || !matches!(plane.layer.as_str(), "F.Cu" | "B.Cu" | "In1.Cu" | "In2.Cu")
++            })
++        {
++            errors.push(
++                "unit return-plane contract must name the four source-derived net/layer roles"
++                    .into(),
++            );
++        }
++        if self.fault_latency_limit_ms <= 0.0
++            || !self.fault_latency_limit_ms.is_finite()
++            || self.fault_latency_limit_ms >= 100.0
++        {
++            errors.push("unit fault latency limit must be finite and strictly below 100 ms".into());
++        }
+         errors
+     }
+ }
+@@ -257,12 +759,14 @@ mod tests {
+     fn connector_qualification_cannot_be_filled_by_fixture_mutation() {
+         let mut value: serde_json::Value =
+             serde_json::from_str(include_str!("../../../rtd/unit/profile.json")).unwrap();
+-        value["interface"]["connector_mpn"] = serde_json::Value::String("UNQUALIFIED".into());
++        value["interface"]["qualification_status"] =
++            serde_json::Value::String("pending_qualified_source".into());
+         let mutated: UnitProfile = serde_json::from_value(value).unwrap();
+         assert!(mutated
+             .validate()
+             .iter()
+-            .any(|error| error.contains("connector qualification")));
++            .any(|error| error.contains("connector qualification")
++                || error.contains("probe connector")));
+     }
+ 
+     #[test]
+@@ -278,28 +782,125 @@ mod tests {
+     }
+ 
+     fn native() -> UnitNativeEvidence {
+-        serde_json::from_value(serde_json::json!({
++        let mut evidence: UnitNativeEvidence = serde_json::from_value(serde_json::json!({
+             "board_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+             "extractor_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+-            "board_layers": 4,
+-            "components": [{"id":"rtd_pan.adc","mpn":"MAX31865AAP+","kind":"adc","position_mm":[1.0,1.0],"footprint_pads":[{"pad":"1","net":"GND","position_mm":[1.0,1.0],"size_mm":[0.3,0.3],"layers":["F.Cu"]}]}],
+-            "nets": [{"name":"GND","domain":"SELV_3V3","role":"unit"}],
++            "copper_layer_count": 4,
++            "components": [
++                {"id":"rtd_pan.adc","mpn":"MAX31865AAP+","kind":"adc","position_mm":[1.0,1.0],"footprint_pads":[{"pad":"1","net":"GND","position_mm":[1.0,1.0],"size_mm":[0.3,0.3],"layers":["F.Cu"]}]},
++                {"id":"rtd_pan.r_ref","mpn":"RG2012V-431-W-T1","kind":"resistor","position_mm":[2.0,1.0],"footprint_pads":[{"pad":"1","net":"GND","position_mm":[2.0,1.0],"size_mm":[0.3,0.3],"layers":["F.Cu"]}]}
++                ,{"id":"rtd_pan.supervisor","mpn":"TPS389001DSER","kind":"supervisor","position_mm":[2.5,1.0],"footprint_pads":[{"pad":"1","net":"GND","position_mm":[2.5,1.0],"size_mm":[0.3,0.3],"layers":["F.Cu"]}]}
++            ],
+             "connections": [{"component":"rtd_pan.adc","pin":"1","net":"GND"}],
+             "connectivity_clusters": [{"net":"GND","nodes":["rtd_pan.adc.1"],"source":"native"}],
+             "traces": [],
+             "vias": []
+         }))
+-        .unwrap()
++        .unwrap();
++        for (id, mpn, p1, n1, p2, n2) in [
++            ("rtd_pan.c_vdd", "C0603C104K5RACTU", "1", "+3V3", "2", "GND"),
++            (
++                "rtd_pan.c_rtd_input",
++                "C0603C102J5GACTU",
++                "1",
++                "RTDIN_P",
++                "2",
++                "RTDIN_N",
++            ),
++        ] {
++            evidence.components.push(Component {
++                id: id.into(),
++                mpn: mpn.into(),
++                kind: "capacitor".into(),
++                position_mm: vec![3.0, 1.0],
++                footprint_pads: vec![
++                    crate::Pad {
++                        pad: p1.into(),
++                        net: n1.into(),
++                        position_mm: [3.0, 1.0],
++                        size_mm: [0.3, 0.3],
++                        layers: vec!["F.Cu".into()],
++                        orientation_deg: 0.0,
++                    },
++                    crate::Pad {
++                        pad: p2.into(),
++                        net: n2.into(),
++                        position_mm: [3.5, 1.0],
++                        size_mm: [0.3, 0.3],
++                        layers: vec!["F.Cu".into()],
++                        orientation_deg: 0.0,
++                    },
++                ],
++            });
++            evidence.connections.extend([
++                Connection {
++                    component: id.into(),
++                    pin: p1.into(),
++                    net: n1.into(),
++                },
++                Connection {
++                    component: id.into(),
++                    pin: p2.into(),
++                    net: n2.into(),
++                },
++            ]);
++            evidence.connectivity_clusters.extend([
++                ConnectivityCluster {
++                    net: n1.into(),
++                    nodes: vec![format!("{id}.{p1}")],
++                    source: "native".into(),
++                },
++                ConnectivityCluster {
++                    net: n2.into(),
++                    nodes: vec![format!("{id}.{p2}")],
++                    source: "native".into(),
++                },
++            ]);
++        }
++        evidence
+     }
+ 
+     #[test]
+-    fn typed_unit_input_accepts_complete_native_transport() {
++    fn typed_unit_input_rejects_incomplete_unit_native_transport() {
+         let input = UnitInput {
+             schema: "zapote.rtd.unit-input.v1".into(),
+             profile: profile(),
+             native: native(),
++            identity: UnitIdentity {
++                profile_sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                    .into(),
++                native_export_sha256:
++                    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),
++                source_manifest_sha256:
++                    "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc".into(),
++                extractor_sha256:
++                    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),
++                model_sha256: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
++                    .into(),
++                firmware_sha256: "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
++                    .into(),
++                firmware_pins_sha256:
++                    "1111111111111111111111111111111111111111111111111111111111111111".into(),
++                board_sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                    .into(),
++                binary_sha256: None,
++            },
++            firmware: UnitFirmwareEvidence {
++                cs_gpio: 10,
++                drdy_gpio: 9,
++                low_threshold_word: 1526,
++                high_threshold_word: 45722,
++                short_fault_ohm: 10.0,
++                open_fault_ohm: 300.0,
++            },
++            model: serde_json::json!({"faults":[{"name":"open","class":"open"}]}),
++            source_bindings: Vec::new(),
++            source_components: Vec::new(),
+         };
+-        assert!(input.validate().is_empty());
++        assert!(input
++            .validate()
++            .iter()
++            .any(|error| error.contains("c_dvdd")));
+     }
+ 
+     #[test]
+@@ -310,6 +911,36 @@ mod tests {
+             schema: "zapote.rtd.unit-input.v1".into(),
+             profile: profile(),
+             native: evidence,
++            identity: UnitIdentity {
++                profile_sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                    .into(),
++                native_export_sha256:
++                    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),
++                source_manifest_sha256:
++                    "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc".into(),
++                extractor_sha256:
++                    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),
++                model_sha256: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
++                    .into(),
++                firmware_sha256: "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
++                    .into(),
++                firmware_pins_sha256:
++                    "1111111111111111111111111111111111111111111111111111111111111111".into(),
++                board_sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                    .into(),
++                binary_sha256: None,
++            },
++            firmware: UnitFirmwareEvidence {
++                cs_gpio: 10,
++                drdy_gpio: 9,
++                low_threshold_word: 1526,
++                high_threshold_word: 45722,
++                short_fault_ohm: 10.0,
++                open_fault_ohm: 300.0,
++            },
++            model: serde_json::json!({"faults":[{"name":"open","class":"open"}]}),
++            source_bindings: Vec::new(),
++            source_components: Vec::new(),
+         };
+         assert!(input
+             .validate()
+diff --git a/zapote/packages/zapote-drc/src/lib.rs b/zapote/packages/zapote-drc/src/lib.rs
+index 8ce7dca58..4dc6b9e35 100644
+--- a/zapote/packages/zapote-drc/src/lib.rs
++++ b/zapote/packages/zapote-drc/src/lib.rs
+@@ -34,6 +34,14 @@ fn check_local_escape_eligibility(
+     const RULE: &str = "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY";
+     checked.push(RULE.into());
+     if input.board.paths.is_empty() {
++        if input.applicability == "RTDUnit" {
++            findings.push(Finding::pass(
++                RULE,
++                "standalone RTD unit has no local-escape exception population; external cooker paths are out of scope",
++                "RTDUnit-applicability",
++            ));
++            return;
++        }
+         gaps.push("no authored local-escape membership groups were supplied; escape eligibility is indeterminate".into());
+         findings.push(Finding::indeterminate(
+             RULE,
+@@ -497,11 +505,7 @@ fn distance_mm(first: [f64; 2], second: [f64; 2]) -> f64 {
+ fn minimum_pad_distance(first: &[&Pad], second: &[&Pad]) -> f64 {
+     first
+         .iter()
+-        .flat_map(|a| {
+-            second
+-                .iter()
+-                .map(move |b| distance_mm(a.position_mm, b.position_mm))
+-        })
++        .flat_map(|a| second.iter().map(move |b| pad_clearance_mm(a, b).max(0.0)))
+         .fold(f64::INFINITY, f64::min)
+ }
+ 
+@@ -526,6 +530,213 @@ fn pad_clearance_mm(first: &Pad, second: &Pad) -> f64 {
+     }
+ }
+ 
++fn layer_index(layer: &str) -> Option<u8> {
++    match layer {
++        "F.Cu" => Some(0),
++        "In1.Cu" => Some(1),
++        "In2.Cu" => Some(2),
++        "B.Cu" => Some(3),
++        _ => None,
++    }
++}
++
++fn via_spans_layer(via: &zapote_core::Via, layer: &str) -> bool {
++    let (Some(target), Some(from), Some(to)) = (
++        layer_index(layer),
++        layer_index(&via.from_layer),
++        layer_index(&via.to_layer),
++    ) else {
++        return false;
++    };
++    from.min(to) <= target && target <= from.max(to)
++}
++
++fn pad_has_local_return_access(
++    input: &RunInput,
++    pad: &Pad,
++    ground: &str,
++    locality_mm: f64,
++) -> bool {
++    let trace_indices: Vec<usize> = input
++        .board
++        .traces
++        .iter()
++        .enumerate()
++        .filter(|(_, trace)| {
++            trace.net == ground && pad.layers.iter().any(|layer| layer == &trace.layer)
++        })
++        .map(|(index, _)| index)
++        .collect();
++    let mut reachable = std::collections::BTreeSet::new();
++    let mut frontier = Vec::new();
++    for index in &trace_indices {
++        let trace = &input.board.traces[*index];
++        if [trace.points_mm.first(), trace.points_mm.last()]
++            .into_iter()
++            .flatten()
++            .any(|point| point_near_pad(*point, &trace.layer, pad))
++        {
++            reachable.insert(*index);
++            frontier.push(*index);
++        }
++    }
++    let mut cursor = 0;
++    while cursor < frontier.len() {
++        let current = frontier[cursor];
++        cursor += 1;
++        for candidate in &trace_indices {
++            if !reachable.contains(candidate)
++                && traces_join(
++                    &input.board.traces[current],
++                    &input.board.traces[*candidate],
++                )
++            {
++                reachable.insert(*candidate);
++                frontier.push(*candidate);
++            }
++        }
++    }
++    input
++        .board
++        .zones
++        .iter()
++        .filter(|zone| zone.net == ground)
++        .any(|zone| {
++            input.board.vias.iter().any(|via| {
++                via.net == ground
++                    && via_spans_layer(via, &zone.layer)
++                    && zone_contains(zone, via.position_mm)
++                    && distance_mm(pad.position_mm, via.position_mm) <= locality_mm
++                    && reachable.iter().any(|index| {
++                        input.board.traces[*index].points_mm.iter().any(|point| {
++                            distance_mm(*point, via.position_mm) <= via.drill_mm / 2.0 + 0.20
++                        })
++                    })
++            })
++        })
++}
++
++fn point_in_ring(point: [f64; 2], ring: &[[f64; 2]]) -> bool {
++    if ring.len() < 3 {
++        return false;
++    }
++    let mut inside = false;
++    let mut previous = *ring.last().expect("ring length checked");
++    for current in ring {
++        let crosses = (current[1] > point[1]) != (previous[1] > point[1]);
++        if crosses {
++            let x_at_y = (previous[0] - current[0]) * (point[1] - current[1])
++                / (previous[1] - current[1])
++                + current[0];
++            if point[0] < x_at_y {
++                inside = !inside;
++            }
++        }
++        previous = *current;
++    }
++    inside
++}
++
++fn point_in_filled_polygon(point: [f64; 2], polygon: &zapote_core::NativeFilledPolygon) -> bool {
++    point_in_ring(point, &polygon.outer_mm)
++        && !polygon
++            .holes_mm
++            .iter()
++            .any(|hole| point_in_ring(point, hole))
++}
++
++fn zone_contains(zone: &zapote_core::NativeZone, point: [f64; 2]) -> bool {
++    zone.filled_polygons
++        .iter()
++        .any(|polygon| point_in_filled_polygon(point, polygon))
++}
++
++fn segment_crossing_parameter(
++    start: [f64; 2],
++    end: [f64; 2],
++    edge_start: [f64; 2],
++    edge_end: [f64; 2],
++) -> Option<f64> {
++    let r = [end[0] - start[0], end[1] - start[1]];
++    let s = [edge_end[0] - edge_start[0], edge_end[1] - edge_start[1]];
++    let denominator = r[0] * s[1] - r[1] * s[0];
++    if denominator.abs() < 1e-12 {
++        return None;
++    }
++    let q_minus_p = [edge_start[0] - start[0], edge_start[1] - start[1]];
++    let t = (q_minus_p[0] * s[1] - q_minus_p[1] * s[0]) / denominator;
++    let u = (q_minus_p[0] * r[1] - q_minus_p[1] * r[0]) / denominator;
++    if (0.0..=1.0).contains(&t) && (0.0..=1.0).contains(&u) {
++        Some(t)
++    } else {
++        None
++    }
++}
++
++fn ring_intersections(
++    start: [f64; 2],
++    end: [f64; 2],
++    ring: &[[f64; 2]],
++    parameters: &mut Vec<f64>,
++) {
++    for edge in ring
++        .iter()
++        .copied()
++        .zip(ring.iter().copied().cycle().skip(1))
++        .take(ring.len())
++    {
++        if let Some(t) = segment_crossing_parameter(start, end, edge.0, edge.1) {
++            parameters.push(t);
++        }
++    }
++}
++
++fn segment_inside_zone(
++    zone: &zapote_core::NativeZone,
++    start: [f64; 2],
++    end: [f64; 2],
++    allow_start: bool,
++    allow_end: bool,
++) -> bool {
++    // Native filled zones can contain thousands of collinear vertices.  A
++    // fixed set of interior samples avoids manufacturing tiny outside
++    // intervals from those vertices; holes remain exact segment tests below.
++    let samples = [0.05_f64, 0.25, 0.5, 0.75, 0.95];
++    if samples.iter().any(|t| {
++        let point = [
++            start[0] + (end[0] - start[0]) * t,
++            start[1] + (end[1] - start[1]) * t,
++        ];
++        !zone_contains(zone, point) && !(*t < 0.1 && allow_start) && !(*t > 0.9 && allow_end)
++    }) {
++        return false;
++    }
++    let mut hole_intersections = Vec::new();
++    for polygon in &zone.filled_polygons {
++        for hole in &polygon.holes_mm {
++            ring_intersections(start, end, hole, &mut hole_intersections);
++        }
++    }
++    hole_intersections.is_empty()
++}
++
++fn trace_endpoint_has_native_terminal(
++    input: &RunInput,
++    trace: &zapote_core::Trace,
++    point: [f64; 2],
++) -> bool {
++    input.board.components.iter().any(|component| {
++        component
++            .footprint_pads
++            .iter()
++            .any(|pad| pad.net == trace.net && point_near_pad(point, &trace.layer, pad))
++    }) || input.board.vias.iter().any(|via| {
++        via.net == trace.net
++            && via_spans_layer(via, &trace.layer)
++            && distance_mm(point, via.position_mm) <= via.drill_mm / 2.0 + 0.20
++    })
++}
++
+ fn point_near_pad(point: [f64; 2], layer: &str, pad: &Pad) -> bool {
+     let half = pad_half_extents_mm(pad);
+     pad.layers.iter().any(|pad_layer| pad_layer == layer)
+@@ -656,10 +867,12 @@ fn check_decoupling(
+             ));
+             continue;
+         }
+-        if !caps
++        let supply_caps: Vec<_> = caps
+             .iter()
+-            .any(|d| d.rail == rail && d.ground == required_ic.ground && d.capacitance_uf > 0.0)
+-        {
++            .filter(|d| d.rail == rail && d.ground == required_ic.ground && d.capacitance_uf > 0.0)
++            .copied()
++            .collect();
++        if supply_caps.is_empty() {
+             findings.push(Finding::fail(
+                 "DRC.RTD.LOCAL_DECOUPLING",
+                 format!(
+@@ -670,7 +883,7 @@ fn check_decoupling(
+             ));
+         }
+         if let Some(component) = input.board.components.iter().find(|c| c.id == ic) {
+-            let cap = caps.iter().min_by(|a, b| {
++            let cap = supply_caps.iter().min_by(|a, b| {
+                 distance(a.position_mm, component.position_mm.as_slice())
+                     .partial_cmp(&distance(b.position_mm, component.position_mm.as_slice()))
+                     .unwrap_or(std::cmp::Ordering::Equal)
+@@ -765,8 +978,39 @@ fn check_decoupling(
+                 }
+                 let outside_locality = match pad_locality {
+                     Some((rail_distance, ground_distance)) => {
++                        let ground_local = cap_component.is_some_and(|actual_cap| {
++                            let ic_ground_pads = component
++                                .footprint_pads
++                                .iter()
++                                .filter(|pad| pad.net == required_ic.ground)
++                                .collect::<Vec<_>>();
++                            let cap_ground_pads = actual_cap
++                                .footprint_pads
++                                .iter()
++                                .filter(|pad| pad.net == required_ic.ground)
++                                .collect::<Vec<_>>();
++                            !ic_ground_pads.is_empty()
++                                && !cap_ground_pads.is_empty()
++                                && ic_ground_pads.iter().all(|pad| {
++                                    pad_has_local_return_access(
++                                        input,
++                                        pad,
++                                        required_ic.ground.as_str(),
++                                        input.board.geometry.required_locality_mm,
++                                    )
++                                })
++                                && cap_ground_pads.iter().all(|pad| {
++                                    pad_has_local_return_access(
++                                        input,
++                                        pad,
++                                        required_ic.ground.as_str(),
++                                        input.board.geometry.required_locality_mm,
++                                    )
++                                })
++                        });
+                         rail_distance > input.board.geometry.required_locality_mm
+-                            || ground_distance > input.board.geometry.required_locality_mm
++                            || (!ground_local
++                                && ground_distance > input.board.geometry.required_locality_mm)
+                     }
+                     None => cap_component.is_none_or(|actual| {
+                         actual.position_mm.len() != 2
+@@ -793,6 +1037,121 @@ fn check_decoupling(
+             ));
+         }
+     }
++    // A differential input capacitor is a filter, not a supply bypass.  It
++    // therefore has no required-IC rail entry above, but it still needs an
++    // observed two-net binding and physical locality to the target ADC.  Keep
++    // this in the shared native decoupling rule so every bypass/filter uses
++    // the same source/native pad evidence.
++    for filter in input
++        .rtd
++        .decoupling
++        .iter()
++        .filter(|d| d.rail != "+3V3" && d.rail != "RTD_AVDD" && d.ground != "gnd")
++    {
++        let Some(target) = input
++            .board
++            .components
++            .iter()
++            .find(|component| component.id == filter.ic)
++        else {
++            gaps.push(format!(
++                "{}: filter target {} is absent from native board",
++                filter.component, filter.ic
++            ));
++            findings.push(Finding::indeterminate(
++                "DRC.RTD.LOCAL_DECOUPLING",
++                "differential filter target lacks native component geometry",
++                filter.component.clone(),
++            ));
++            continue;
++        };
++        let Some(cap_component) = input
++            .board
++            .components
++            .iter()
++            .find(|component| component.id == filter.component)
++        else {
++            findings.push(Finding::fail(
++                "DRC.RTD.LOCAL_DECOUPLING",
++                "differential filter component is absent from native board",
++                filter.component.clone(),
++            ));
++            continue;
++        };
++        let actual_nets: std::collections::BTreeSet<_> = input
++            .board
++            .connections
++            .iter()
++            .filter(|connection| connection.component == filter.component)
++            .map(|connection| connection.net.as_str())
++            .collect();
++        if !actual_nets.contains(filter.rail.as_str())
++            || !actual_nets.contains(filter.ground.as_str())
++        {
++            findings.push(Finding::fail(
++                "DRC.RTD.LOCAL_DECOUPLING",
++                format!(
++                    "differential filter {} is not connected to {} and {}",
++                    filter.component, filter.rail, filter.ground
++                ),
++                filter.component.clone(),
++            ));
++            continue;
++        }
++        let target_first: Vec<_> = target
++            .footprint_pads
++            .iter()
++            .filter(|pad| pad.net == filter.rail)
++            .collect();
++        let target_second: Vec<_> = target
++            .footprint_pads
++            .iter()
++            .filter(|pad| pad.net == filter.ground)
++            .collect();
++        let filter_first: Vec<_> = cap_component
++            .footprint_pads
++            .iter()
++            .filter(|pad| pad.net == filter.rail)
++            .collect();
++        let filter_second: Vec<_> = cap_component
++            .footprint_pads
++            .iter()
++            .filter(|pad| pad.net == filter.ground)
++            .collect();
++        if target_first.is_empty()
++            || target_second.is_empty()
++            || filter_first.is_empty()
++            || filter_second.is_empty()
++        {
++            gaps.push(format!(
++                "{}: native differential filter lacks named source pad geometry",
++                filter.component
++            ));
++            findings.push(Finding::indeterminate(
++                "DRC.RTD.LOCAL_DECOUPLING",
++                "differential filter lacks complete native target/pad geometry",
++                filter.component.clone(),
++            ));
++            continue;
++        }
++        let distances = [
++            minimum_pad_distance(&target_first, &filter_first),
++            minimum_pad_distance(&target_second, &filter_second),
++        ];
++        if distances
++            .iter()
++            .any(|distance| *distance > input.board.geometry.required_locality_mm)
++        {
++            findings.push(Finding::fail(
++                "DRC.RTD.LOCAL_DECOUPLING",
++                format!(
++                    "differential filter {} is outside {} mm locality of {}",
++                    filter.component, input.board.geometry.required_locality_mm, filter.ic
++                ),
++                filter.component.clone(),
++            ));
++        }
++    }
+     let mut seen = std::collections::BTreeSet::new();
+     for decoupling in &input.rtd.decoupling {
+         if decoupling.capacitance_uf <= 0.0 || !decoupling.capacitance_uf.is_finite() {
+@@ -889,6 +1248,14 @@ fn check_prohibited_connections(
+ ) {
+     checked.push("DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS".into());
+     if input.board.geometry.prohibited_connections.is_empty() {
++        if input.applicability == "RTDUnit" {
++            findings.push(Finding::pass(
++                "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
++                "standalone RTD unit has no external HV/domain boundary population; cooker crossings are out of scope",
++                "RTDUnit-applicability",
++            ));
++            return;
++        }
+         gaps.push("no authored prohibited domain connection pairs were supplied; boundary rule is indeterminate".into());
+         findings.push(Finding::indeterminate(
+             "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+@@ -1019,6 +1386,179 @@ fn check_native_geometry(
+             }
+         }
+     }
++    if input.applicability == "RTDUnit" {
++        if input.board.geometry.return_planes.is_empty() {
++            gaps.push("standalone RTD return-plane contract is absent".into());
++            findings.push(Finding::indeterminate(
++                "DRC.RTD.NATIVE_GEOMETRY",
++                "authored RTD return-plane requirements are absent",
++                "return-planes",
++            ));
++        }
++        for requirement in &input.board.geometry.return_planes {
++            let matching_zone = input.board.zones.iter().find(|zone| {
++                zone.net == requirement.net
++                    && zone.layer == requirement.layer
++                    && !zone.filled_polygons.is_empty()
++            });
++            if matching_zone.is_none() {
++                gaps.push(format!(
++                    "{} return plane {} on {} is absent from native filled-zone evidence",
++                    requirement.purpose, requirement.net, requirement.layer
++                ));
++                findings.push(Finding::indeterminate(
++                    "DRC.RTD.NATIVE_GEOMETRY",
++                    format!(
++                        "native filled-zone evidence lacks {} on {}",
++                        requirement.net, requirement.layer
++                    ),
++                    requirement.purpose.clone(),
++                ));
++                continue;
++            }
++            // A filled polygon records area, not a connected return corridor.
++            // Bind each role to an actual route entry.  Ground planes require
++            // a nearby same-net via beside the authored analog or clock
++            // signal family, rather than accepting an arbitrary global zone.
++            let Some(zone) = matching_zone else {
++                unreachable!()
++            };
++            let signal_nets: &[&str] = if requirement.purpose.contains("filtered") {
++                &["RTD_AVDD"]
++            } else if requirement.purpose.contains("upstream") {
++                &["+3V3"]
++            } else if requirement.purpose.contains("clock") {
++                &["RTD_SCK", "RTD_SDI", "RTD_SDO", "RTD_CS_N", "RTD_DRDY"]
++            } else if requirement.purpose.contains("analog") {
++                &[
++                    "rtd_sense_p",
++                    "rtd_sense_n",
++                    "rtd_force_p",
++                    "rtd_force_n",
++                    "bias",
++                    "refin_n",
++                    "window_rtdin_p",
++                    "vbias",
++                ]
++            } else {
++                &[]
++            };
++            // The named plane is the reference for every signal on another
++            // copper layer: F.Cu and In2.Cu can reference In1.Cu, while
++            // B.Cu and In1.Cu can reference In2.Cu. Same-layer traces are
++            // the plane copper itself and are excluded.
++            let reference_plane_layer = if requirement.purpose.contains("analog")
++                || requirement.purpose.contains("clock")
++            {
++                Some(requirement.layer.as_str())
++            } else {
++                None
++            };
++            if !signal_nets.is_empty() {
++                let route_traces: Vec<_> = input
++                    .board
++                    .traces
++                    .iter()
++                    .filter(|trace| {
++                        signal_nets.contains(&trace.net.as_str())
++                            && reference_plane_layer.is_none_or(|layer| trace.layer != layer)
++                    })
++                    .collect();
++                if route_traces.is_empty() {
++                    gaps.push(format!(
++                        "{} return plane has no authored signal route population",
++                        requirement.purpose
++                    ));
++                    findings.push(Finding::indeterminate(
++                        "DRC.RTD.NATIVE_GEOMETRY",
++                        "required signal corridor has no native traces",
++                        requirement.purpose.clone(),
++                    ));
++                } else {
++                    for trace in route_traces {
++                        if trace.points_mm.windows(2).any(|segment| {
++                            !segment_inside_zone(
++                                zone,
++                                segment[0],
++                                segment[1],
++                                trace_endpoint_has_native_terminal(input, trace, segment[0]),
++                                trace_endpoint_has_native_terminal(input, trace, segment[1]),
++                            )
++                        }) {
++                            findings.push(Finding::fail(
++                                "DRC.RTD.NATIVE_GEOMETRY",
++                                format!(
++                                    "{} signal trace {} exits the filled return corridor or crosses a zone hole",
++                                    requirement.purpose, trace.id
++                                ),
++                                trace.id.clone(),
++                            ));
++                        }
++                    }
++                }
++            }
++            let has_entry = if requirement.net == "gnd" {
++                let via_entry = input.board.vias.iter().any(|via| {
++                    via.net == requirement.net
++                        && via_spans_layer(via, requirement.layer.as_str())
++                        && zone_contains(zone, via.position_mm)
++                        && input.board.traces.iter().any(|trace| {
++                            signal_nets.contains(&trace.net.as_str())
++                                && reference_plane_layer.is_none_or(|layer| trace.layer != layer)
++                                && trace.points_mm.iter().any(|point| {
++                                    distance_mm(*point, via.position_mm)
++                                        <= input.board.geometry.required_locality_mm
++                                })
++                        })
++                });
++                let plated_pad_entry = input.board.components.iter().any(|component| {
++                    component.footprint_pads.iter().any(|pad| {
++                        pad.net == requirement.net
++                            && pad.layers.iter().any(|layer| layer == "F.Cu")
++                            && pad.layers.iter().any(|layer| layer == "B.Cu")
++                            && zone_contains(zone, pad.position_mm)
++                            && input.board.traces.iter().any(|trace| {
++                                signal_nets.contains(&trace.net.as_str())
++                                    && reference_plane_layer
++                                        .is_none_or(|layer| trace.layer != layer)
++                                    && trace.points_mm.iter().any(|point| {
++                                        distance_mm(*point, pad.position_mm)
++                                            <= input.board.geometry.required_locality_mm
++                                    })
++                            })
++                    })
++                });
++                via_entry || plated_pad_entry
++            } else {
++                input.board.traces.iter().any(|trace| {
++                    trace.net == requirement.net
++                        && trace
++                            .points_mm
++                            .iter()
++                            .copied()
++                            .any(|point| zone_contains(zone, point))
++                }) || input.board.vias.iter().any(|via| {
++                    via.net == requirement.net
++                        && via_spans_layer(via, requirement.layer.as_str())
++                        && zone_contains(zone, via.position_mm)
++                })
++            };
++            if !has_entry {
++                gaps.push(format!(
++                    "{} return plane {} on {} lacks a native route entry in the filled corridor",
++                    requirement.purpose, requirement.net, requirement.layer
++                ));
++                findings.push(Finding::indeterminate(
++                    "DRC.RTD.NATIVE_GEOMETRY",
++                    format!(
++                        "filled zone for {} lacks a nearby authored signal/return entry on {}",
++                        requirement.net, requirement.layer
++                    ),
++                    requirement.purpose.clone(),
++                ));
++            }
++        }
++    }
+ }
+ 
+ fn distance(a: [f64; 2], b: &[f64]) -> f64 {
+@@ -1130,4 +1670,66 @@ mod tests {
+         assert!(trace_near_region(&near, [8.0, 4.0, 12.0, 6.0], 0.0));
+         assert!(!trace_near_region(&clear, [8.0, 4.0, 12.0, 6.0], 0.0));
+     }
++
++    fn rectangular_zone(holes_mm: Vec<Vec<[f64; 2]>>) -> zapote_core::NativeZone {
++        zapote_core::NativeZone {
++            id: "zone-gnd".into(),
++            net: "gnd".into(),
++            layer: "In1.Cu".into(),
++            filled_polygons: vec![zapote_core::NativeFilledPolygon {
++                outer_mm: vec![[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]],
++                holes_mm,
++            }],
++        }
++    }
++
++    #[test]
++    fn filled_corridor_accepts_connected_route_with_terminal_clearance() {
++        let zone = rectangular_zone(Vec::new());
++        assert!(segment_inside_zone(
++            &zone,
++            [-0.2, 5.0],
++            [9.0, 5.0],
++            true,
++            false
++        ));
++    }
++
++    #[test]
++    fn filled_corridor_rejects_hole_crossing_even_when_endpoints_are_covered() {
++        let zone = rectangular_zone(vec![vec![[4.0, 4.0], [6.0, 4.0], [6.0, 6.0], [4.0, 6.0]]]);
++        assert!(!segment_inside_zone(
++            &zone,
++            [1.0, 5.0],
++            [9.0, 5.0],
++            false,
++            false
++        ));
++    }
++
++    #[test]
++    fn filled_corridor_rejects_island_gap_between_valid_entries() {
++        let zone = zapote_core::NativeZone {
++            id: "zone-gnd".into(),
++            net: "gnd".into(),
++            layer: "In1.Cu".into(),
++            filled_polygons: vec![
++                zapote_core::NativeFilledPolygon {
++                    outer_mm: vec![[0.0, 0.0], [4.0, 0.0], [4.0, 10.0], [0.0, 10.0]],
++                    holes_mm: Vec::new(),
++                },
++                zapote_core::NativeFilledPolygon {
++                    outer_mm: vec![[6.0, 0.0], [10.0, 0.0], [10.0, 10.0], [6.0, 10.0]],
++                    holes_mm: Vec::new(),
++                },
++            ],
++        };
++        assert!(!segment_inside_zone(
++            &zone,
++            [1.0, 5.0],
++            [9.0, 5.0],
++            false,
++            false
++        ));
++    }
+ }
+diff --git a/zapote/packages/zapote-erc/src/lib.rs b/zapote/packages/zapote-erc/src/lib.rs
+index a4803396a..b20caca4f 100644
+--- a/zapote/packages/zapote-erc/src/lib.rs
++++ b/zapote/packages/zapote-erc/src/lib.rs
+@@ -56,13 +56,19 @@ pub fn validate(input: &RunInput) -> CheckReport {
+ fn check_topology(input: &RunInput, findings: &mut Vec<Finding>, checked: &mut Vec<String>) {
+     checked.push("ERC.RTD.EXACT_COMPONENTS".into());
+     let rtd = &input.rtd;
++    let unit = input.applicability == "RTDUnit";
+     checked.push("ERC.RTD.BOARD_COMPONENT_BINDING".into());
+-    for (id, expected_mpn) in [
+-        (&rtd.adc.component, "MAX31865AAP+"),
+-        (&rtd.connector.component, "B4B-XH-A(LF)(SN)"),
+-        (&rtd.rref.component, "ERA-6AEB431V"),
+-        (&rtd.reference.component, "REF2025AIDDCR"),
+-    ] {
++    let mut bindings = vec![
++        (&rtd.adc.component, rtd.adc.mpn.as_str()),
++        (&rtd.rref.component, rtd.rref.mpn.as_str()),
++    ];
++    if !unit {
++        bindings.extend([
++            (&rtd.connector.component, "B4B-XH-A(LF)(SN)"),
++            (&rtd.reference.component, rtd.reference.mpn.as_str()),
++        ]);
++    }
++    for (id, expected_mpn) in bindings {
+         match input
+             .board
+             .components
+@@ -154,39 +160,44 @@ fn check_topology(input: &RunInput, findings: &mut Vec<Finding>, checked: &mut V
+         ));
+     }
+     checked.push("ERC.RTD.RREF_IDENTITY".into());
+-    if rtd.rref.mpn != "ERA-6AEB431V" || (rtd.rref.resistance_ohm - 430.0).abs() > 0.01 {
++    if rtd.rref.mpn.trim().is_empty() || (rtd.rref.resistance_ohm - 430.0).abs() > 0.01 {
+         findings.push(Finding::fail(
+             "ERC.RTD.RREF_IDENTITY",
+-            "RREF must be 430 Ω ERA-6AEB431V",
++            format!(
++                "RREF must be 430 Ω {}; observed {}",
++                rtd.rref.mpn, rtd.rref.resistance_ohm
++            ),
+             rtd.rref.component.clone(),
+         ));
+     }
+     checked.push("ERC.RTD.FOUR_WIRE_PINOUT".into());
+-    let expected = [
+-        (1, "FORCE+", "FORCE_P"),
+-        (2, "SENSE+", "RTDIN_P"),
+-        (3, "SENSE-", "RTDIN_N"),
+-        (4, "FORCE-", "FORCE_N"),
+-    ];
+-    let pin_map: BTreeMap<u8, _> = rtd.connector.pins.iter().map(|p| (p.number, p)).collect();
+-    for (number, role, adc_pin) in expected {
+-        match pin_map.get(&number) {
+-            Some(pin)
+-                if pin.role == role
+-                    && rtd.adc.pins.get(adc_pin).is_some_and(|net| net == &pin.net) => {}
+-            Some(pin) => findings.push(Finding::fail(
+-                "ERC.RTD.FOUR_WIRE_PINOUT",
+-                format!(
+-                    "connector pin {number} is {} / {}, expected {role} on ADC {adc_pin}",
+-                    pin.role, pin.net
+-                ),
+-                rtd.connector.component.clone(),
+-            )),
+-            None => findings.push(Finding::indeterminate(
+-                "ERC.RTD.FOUR_WIRE_PINOUT",
+-                format!("connector pin {number} is missing"),
+-                rtd.connector.component.clone(),
+-            )),
++    {
++        let expected = [
++            (1, "FORCE+", "FORCE_P"),
++            (2, "SENSE+", "RTDIN_P"),
++            (3, "SENSE-", "RTDIN_N"),
++            (4, "FORCE-", "FORCE_N"),
++        ];
++        let pin_map: BTreeMap<u8, _> = rtd.connector.pins.iter().map(|p| (p.number, p)).collect();
++        for (number, role, adc_pin) in expected {
++            match pin_map.get(&number) {
++                Some(pin)
++                    if pin.role == role
++                        && rtd.adc.pins.get(adc_pin).is_some_and(|net| net == &pin.net) => {}
++                Some(pin) => findings.push(Finding::fail(
++                    "ERC.RTD.FOUR_WIRE_PINOUT",
++                    format!(
++                        "connector pin {number} is {} / {}, expected {role} on ADC {adc_pin}",
++                        pin.role, pin.net
++                    ),
++                    rtd.connector.component.clone(),
++                )),
++                None => findings.push(Finding::indeterminate(
++                    "ERC.RTD.FOUR_WIRE_PINOUT",
++                    format!("connector pin {number} is missing"),
++                    rtd.connector.component.clone(),
++                )),
++            }
+         }
+     }
+     checked.push("ERC.RTD.FORCE_SENSE_SEPARATION".into());
+@@ -200,58 +211,60 @@ fn check_topology(input: &RunInput, findings: &mut Vec<Finding>, checked: &mut V
+         ));
+     }
+     checked.push("ERC.RTD.NATIVE_CONNECTIVITY".into());
+-    for (net, endpoints) in [
+-        (
+-            rtd.adc.pins["FORCE_P"].clone(),
+-            vec![
+-                format!("{}.8", rtd.adc.component),
+-                format!("{}.1", rtd.connector.component),
+-            ],
+-        ),
+-        (
+-            rtd.adc.pins["FORCE_N"].clone(),
+-            vec![
+-                format!("{}.12", rtd.adc.component),
+-                format!("{}.4", rtd.connector.component),
+-            ],
+-        ),
+-        (
+-            rtd.adc.pins["RTDIN_P"].clone(),
+-            vec![
+-                format!("{}.10", rtd.adc.component),
+-                format!("{}.2", rtd.connector.component),
+-            ],
+-        ),
+-        (
+-            rtd.adc.pins["RTDIN_N"].clone(),
+-            vec![
+-                format!("{}.11", rtd.adc.component),
+-                format!("{}.3", rtd.connector.component),
+-            ],
+-        ),
+-    ] {
+-        let clusters: Vec<_> = input
+-            .board
+-            .connectivity_clusters
+-            .iter()
+-            .filter(|cluster| cluster.net == net && cluster.source == "native")
+-            .collect();
+-        if clusters.is_empty() {
+-            findings.push(Finding::indeterminate(
+-                "ERC.RTD.NATIVE_CONNECTIVITY",
+-                format!("no native connectivity cluster for net {net}"),
+-                net,
+-            ));
+-        } else if !clusters.iter().any(|cluster| {
+-            endpoints
++    {
++        for (net, endpoints) in [
++            (
++                rtd.adc.pins["FORCE_P"].clone(),
++                vec![
++                    format!("{}.8", rtd.adc.component),
++                    format!("{}.1", rtd.connector.component),
++                ],
++            ),
++            (
++                rtd.adc.pins["FORCE_N"].clone(),
++                vec![
++                    format!("{}.12", rtd.adc.component),
++                    format!("{}.4", rtd.connector.component),
++                ],
++            ),
++            (
++                rtd.adc.pins["RTDIN_P"].clone(),
++                vec![
++                    format!("{}.10", rtd.adc.component),
++                    format!("{}.2", rtd.connector.component),
++                ],
++            ),
++            (
++                rtd.adc.pins["RTDIN_N"].clone(),
++                vec![
++                    format!("{}.11", rtd.adc.component),
++                    format!("{}.3", rtd.connector.component),
++                ],
++            ),
++        ] {
++            let clusters: Vec<_> = input
++                .board
++                .connectivity_clusters
+                 .iter()
+-                .all(|endpoint| cluster.nodes.iter().any(|node| node == endpoint))
+-        }) {
+-            findings.push(Finding::fail(
+-                "ERC.RTD.NATIVE_CONNECTIVITY",
+-                format!("native copper does not connect all required endpoints on {net}"),
+-                net,
+-            ));
++                .filter(|cluster| cluster.net == net && cluster.source == "native")
++                .collect();
++            if clusters.is_empty() {
++                findings.push(Finding::indeterminate(
++                    "ERC.RTD.NATIVE_CONNECTIVITY",
++                    format!("no native connectivity cluster for net {net}"),
++                    net,
++                ));
++            } else if !clusters.iter().any(|cluster| {
++                endpoints
++                    .iter()
++                    .all(|endpoint| cluster.nodes.iter().any(|node| node == endpoint))
++            }) {
++                findings.push(Finding::fail(
++                    "ERC.RTD.NATIVE_CONNECTIVITY",
++                    format!("native copper does not connect all required endpoints on {net}"),
++                    net,
++                ));
++            }
+         }
+     }
+     checked.push("ERC.RTD.ADC_PIN_NETS".into());
+@@ -299,12 +312,18 @@ fn check_topology(input: &RunInput, findings: &mut Vec<Finding>, checked: &mut V
+         .iter()
+         .filter(|c| c.net == rtd.reference.v2_net)
+         .collect();
+-    if consumers.len() < 2 {
++    if !unit && consumers.len() < 2 {
+         findings.push(Finding::fail(
+             "ERC.RTD.SHARED_REFERENCE",
+             "the 2.5 V VREF net must have both downstream OVP and OCP2 consumers",
+             rtd.reference.v2_net.clone(),
+         ));
++    } else if unit && rtd.reference.v2_net.trim().is_empty() {
++        findings.push(Finding::indeterminate(
++            "ERC.RTD.SHARED_REFERENCE",
++            "standalone reference output net is absent from the source contract",
++            rtd.reference.component.clone(),
++        ));
+     }
+     checked.push("ERC.RTD.FAULT_OUTPUT".into());
+     if rtd.fault_output.active_level != "high"
+@@ -383,6 +402,70 @@ fn check_firmware(input: &RunInput, findings: &mut Vec<Finding>, checked: &mut V
+             }
+         }
+     }
++    if input.applicability == "RTDUnit" {
++        // The unit has no MCU copper in scope, but its ten-pin host boundary
++        // and the source-defined series parts are real board endpoints.  Check
++        // that continuity independently from the firmware GPIO map.
++        let host_pins = [
++            ("RTD_SCK", "4"),
++            ("RTD_SDI", "5"),
++            ("RTD_SDO", "6"),
++            ("RTD_CS_N", "7"),
++            ("RTD_DRDY", "8"),
++        ];
++        for (signal, host_pin) in host_pins {
++            let Some((_, _, adc_pin)) = SPI_SIGNALS.iter().find(|(name, _, _)| *name == signal)
++            else {
++                continue;
++            };
++            let host_connected = input.board.connections.iter().any(|connection| {
++                connection.component == "unit_io"
++                    && connection.pin == host_pin
++                    && connection.net == signal
++            });
++            if !host_connected {
++                findings.push(Finding::fail(
++                    "ERC.RTD.SPI_SERIES_PLACEMENT",
++                    format!("unit_io.{host_pin} has no {signal} source connection"),
++                    format!("unit_io.{host_pin}"),
++                ));
++                continue;
++            }
++            let adc_net = input
++                .rtd
++                .adc
++                .pins
++                .get(*adc_pin)
++                .cloned()
++                .unwrap_or_default();
++            let series = input.rtd.spi.iter().find(|entry| entry.signal == signal);
++            let continuity = match series {
++                Some(series) if series.series_component == "direct" => {
++                    input.board.connections.iter().any(|connection| {
++                        connection.component == input.rtd.adc.component && connection.net == adc_net
++                    })
++                }
++                Some(series) => {
++                    let nets: std::collections::BTreeSet<_> = input
++                        .board
++                        .connections
++                        .iter()
++                        .filter(|connection| connection.component == series.series_component)
++                        .map(|connection| connection.net.as_str())
++                        .collect();
++                    nets.contains(signal) && nets.contains(adc_net.as_str())
++                }
++                None => false,
++            };
++            if !continuity {
++                findings.push(Finding::fail(
++                    "ERC.RTD.SPI_SERIES_PLACEMENT",
++                    format!("{signal} host boundary does not reach ADC {adc_pin} through its source series binding"),
++                    signal,
++                ));
++            }
++        }
++    }
+     checked.push("ERC.RTD.FIRMWARE_THRESHOLD_ENCODING".into());
+     let t = &input.firmware.thresholds;
+     let low = max31865_code(t.short_ohm, t.rref_ohm, true, t.adc_bits) << t.shift;
+@@ -433,6 +516,19 @@ fn check_fault_scenarios(
+     checked: &mut Vec<String>,
+ ) {
+     checked.push("ERC.RTD.FAULT_CORNERS".into());
++    if input.scenarios.is_empty() {
++        gaps.push("independent observed fault scenarios are absent; hardware fault coverage is indeterminate".into());
++        findings.push(Finding::indeterminate(
++            "ERC.RTD.FAULT_CORNERS",
++            "no observed fault scenarios were supplied; expected-only model entries cannot establish behavior",
++            "fault-observations",
++        ));
++        return;
++    }
++    if input.applicability == "RTDUnit" {
++        check_unit_fault_observations(input, findings, gaps);
++        return;
++    }
+     for scenario in &input.scenarios {
+         let actual = classify_scenario(scenario, input.rtd.fault_output.active_level == "high");
+         if actual != scenario.expected_class {
+@@ -475,6 +571,180 @@ fn check_fault_scenarios(
+     }
+ }
+ 
++fn check_unit_fault_observations(
++    input: &RunInput,
++    findings: &mut Vec<Finding>,
++    gaps: &mut Vec<String>,
++) {
++    let mut conductors = std::collections::BTreeSet::new();
++    let mut has_short = false;
++    let mut has_local_loss = false;
++    let mut has_upstream_loss = false;
++    let mut has_healthy = false;
++    for scenario in &input.scenarios {
++        let Some(observed_class) = scenario.observed_class.as_deref() else {
++            findings.push(Finding::fail(
++                "ERC.RTD.FAULT_CORNERS",
++                "unit fault case is missing independent observed_class",
++                scenario.name.clone(),
++            ));
++            continue;
++        };
++        let Some(observed_detected) = scenario.observed_detected else {
++            findings.push(Finding::fail(
++                "ERC.RTD.FAULT_CORNERS",
++                "unit fault case is missing independent observed_detected",
++                scenario.name.clone(),
++            ));
++            continue;
++        };
++        match scenario.observed_latency_ms {
++            Some(latency)
++                if latency.is_finite()
++                    && latency >= 0.0
++                    && latency < input.firmware.fault_latency_limit_ms => {}
++            Some(_) => findings.push(Finding::fail(
++                "ERC.RTD.FAULT_CORNERS",
++                format!(
++                    "unit fault latency must be finite and < {} ms",
++                    input.firmware.fault_latency_limit_ms
++                ),
++                scenario.name.clone(),
++            )),
++            None if scenario.observed_detected.unwrap_or(false) => {
++                gaps.push(format!(
++                    "{} is detected but has no measured latency observation",
++                    scenario.name
++                ));
++                findings.push(Finding::indeterminate(
++                    "ERC.RTD.FAULT_CORNERS",
++                    "detected case lacks an independent measured latency",
++                    scenario.name.clone(),
++                ));
++            }
++            None => {}
++        }
++        let class_lower = observed_class.to_ascii_lowercase();
++        if scenario.name.to_ascii_lowercase().contains("startup") {
++            if !scenario.observed_detected.unwrap_or(false)
++                || !class_lower.contains("startup")
++                || !class_lower.contains("masked")
++            {
++                findings.push(Finding::fail(
++                    "ERC.RTD.FAULT_CORNERS",
++                    "startup must remain masked until the first valid sample",
++                    scenario.name.clone(),
++                ));
++            }
++            continue;
++        }
++        if let Some(conductor) = scenario.conductor_open.as_deref() {
++            conductors.insert(conductor.to_string());
++            if !observed_detected || observed_class.eq_ignore_ascii_case("indeterminate_fault") {
++                findings.push(Finding::fail(
++                    "ERC.RTD.FAULT_CORNERS",
++                    "each conductor-open observation must report a detected hardware fault",
++                    scenario.name.clone(),
++                ));
++            }
++        }
++        if scenario
++            .resistance_ohm
++            .is_some_and(|ohm| ohm <= input.firmware.thresholds.short_ohm)
++        {
++            has_short = true;
++            if !observed_detected || observed_class.eq_ignore_ascii_case("indeterminate_fault") {
++                findings.push(Finding::fail(
++                    "ERC.RTD.FAULT_CORNERS",
++                    "short observation must report a detected hardware fault",
++                    scenario.name.clone(),
++                ));
++            }
++        }
++        match scenario.rail_loss.as_deref() {
++            Some("post_ferrite") => {
++                has_local_loss = true;
++                if !observed_detected || observed_class.eq_ignore_ascii_case("indeterminate_fault")
++                {
++                    findings.push(Finding::fail(
++                        "ERC.RTD.FAULT_CORNERS",
++                        "local RTD_AVDD loss must report supervisor/NAND hardware fault",
++                        scenario.name.clone(),
++                    ));
++                }
++            }
++            Some("upstream") => {
++                has_upstream_loss = true;
++                let class = observed_class.to_ascii_lowercase();
++                if observed_detected || (!class.contains("disable") && !class.contains("inhibit")) {
++                    findings.push(Finding::fail("ERC.RTD.FAULT_CORNERS", "upstream loss must be classified as host disable/inhibit without powered-high claim", scenario.name.clone()));
++                }
++            }
++            _ if scenario.conductor_open.is_none()
++                && scenario.rail_loss.is_none()
++                && scenario.resistance_ohm.is_none() =>
++            {
++                has_healthy = true;
++                if observed_detected
++                    || !(observed_class.eq_ignore_ascii_case("healthy")
++                        || class_lower.contains("no_fault"))
++                {
++                    findings.push(Finding::fail(
++                        "ERC.RTD.FAULT_CORNERS",
++                        "healthy observation must report no fault",
++                        scenario.name.clone(),
++                    ));
++                }
++            }
++            _ => {}
++        }
++    }
++    for conductor in ["FORCE+", "FORCE-", "SENSE+", "SENSE-"] {
++        if !conductors.contains(conductor) {
++            gaps.push(format!(
++                "unit fault observations omit required {conductor} conductor-open case"
++            ));
++            findings.push(Finding::indeterminate(
++                "ERC.RTD.FAULT_CORNERS",
++                "required independent conductor-open observation is absent",
++                conductor,
++            ));
++        }
++    }
++    for (present, object, message) in [
++        (has_short, "short", "short-circuit observation is absent"),
++        (
++            has_local_loss,
++            "post_ferrite",
++            "local RTD_AVDD loss observation is absent",
++        ),
++        (
++            has_upstream_loss,
++            "upstream",
++            "upstream +3V3 loss observation is absent",
++        ),
++    ] {
++        if !present {
++            gaps.push(format!(
++                "unit fault observations omit required {object} case"
++            ));
++            findings.push(Finding::indeterminate(
++                "ERC.RTD.FAULT_CORNERS",
++                message,
++                object,
++            ));
++        }
++    }
++    if !has_healthy {
++        gaps.push("unit fault observations omit required healthy case".into());
++        findings.push(Finding::indeterminate(
++            "ERC.RTD.FAULT_CORNERS",
++            "healthy observation is absent",
++            "healthy",
++        ));
++    }
++}
++
+ fn classify_scenario(s: &FaultScenario, active_high: bool) -> String {
+     if !active_high {
+         return "fault_polarity_error".into();
+@@ -533,7 +803,11 @@ mod tests {
+                     conductor_open: Some("SENSE+".into()),
+                     rail_loss: None,
+                     expected_class: "".into(),
+-                    expected_detected: false
++                    expected_detected: false,
++                    observed_class: None,
++                    observed_detected: None,
++                    model_latency_ms: None,
++                    observed_latency_ms: None,
+                 },
+                 true
+             ),
+diff --git a/zapote/packages/zapote-harness/src/lib.rs b/zapote/packages/zapote-harness/src/lib.rs
+index 442af6270..95f80e8a0 100644
+--- a/zapote/packages/zapote-harness/src/lib.rs
++++ b/zapote/packages/zapote-harness/src/lib.rs
+@@ -1,7 +1,8 @@
+ //! Composition boundary for the registered RTD validator suite.
+ 
+ use serde::Serialize;
+-use zapote_core::{CheckReport, RunInput, Status};
++use zapote_core::unit::UnitInput;
++use zapote_core::{CheckReport, Finding, RunInput, Status};
+ 
+ const REGISTERED_RULES: [&str; 21] = [
+     "ERC.RTD.EXACT_COMPONENTS",
+@@ -110,6 +111,393 @@ pub fn parse_input(bytes: &[u8]) -> Result<RunInput, serde_json::Error> {
+     serde_json::from_slice(bytes)
+ }
+ 
++/// Execute the standalone RTDUnit applicability profile against the native
++/// exporter schema.  This shares the typed core/native evidence model with
++/// the full-board suite; it does not synthesize a fake MCU or buck board.
++pub fn run_unit(input: &UnitInput) -> CheckReport {
++    let mut findings: Vec<Finding> = Vec::new();
++    let mut coverage_gaps: Vec<String> = Vec::new();
++    let mut checked = vec![
++        "ERC.RTD.UNIT_COMPONENT_MPN".into(),
++        "ERC.RTD.UNIT_CONNECTIONS".into(),
++        "ERC.RTD.UNIT_INTERFACE".into(),
++        "ERC.RTD.UNIT_FIRMWARE".into(),
++        "ERC.RTD.UNIT_MODEL".into(),
++        "ERC.RTD.UNIT_SOURCE_BINDING".into(),
++    ];
++    for error in input.validate() {
++        let rule = if error.contains("firmware") {
++            "ERC.RTD.UNIT_FIRMWARE"
++        } else if error.contains("model") {
++            "ERC.RTD.UNIT_MODEL"
++        } else if error.contains("board") || error.contains("native") || error.contains("pad") {
++            "DRC.RTD.UNIT_PAD_GEOMETRY"
++        } else {
++            "ERC.RTD.UNIT_COMPONENT_MPN"
++        };
++        findings.push(Finding::fail(rule, error, "unit-input"));
++    }
++    let native = &input.native;
++    if input.source_bindings.is_empty() {
++        findings.push(Finding::indeterminate(
++            "ERC.RTD.UNIT_SOURCE_BINDING",
++            "compiled source pad/net binding is absent; native names cannot serve as expected contract",
++            "source-bindings",
++        ));
++    }
++    for (rule, role, instance_id, expected_mpn) in [
++        (
++            "ERC.RTD.BOARD_COMPONENT_BINDING",
++            "probe connector",
++            input.profile.probe.component.as_str(),
++            input.profile.probe.mpn.as_str(),
++        ),
++        (
++            "ERC.RTD.SHARED_REFERENCE",
++            "reference",
++            input.profile.local.reference_component.as_str(),
++            input.profile.local.reference_mpn.as_str(),
++        ),
++        (
++            "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
++            "ferrite",
++            input.profile.local.ferrite_component.as_str(),
++            input.profile.local.ferrite_mpn.as_str(),
++        ),
++        (
++            "ERC.RTD.UNIT_INTERFACE",
++            "host connector",
++            "unit_io",
++            input
++                .profile
++                .interface
++                .connector_mpn
++                .as_deref()
++                .unwrap_or(""),
++        ),
++    ] {
++        match native.components.iter().find(|c| c.id == instance_id) {
++            Some(component) if component.mpn == expected_mpn => {}
++            Some(component) => findings.push(Finding::fail(
++                rule,
++                format!(
++                    "unit {role} has MPN {}; expected {expected_mpn}",
++                    component.mpn
++                ),
++                instance_id,
++            )),
++            None => findings.push(Finding::fail(
++                rule,
++                format!("unit {role} source component is absent from native board"),
++                instance_id,
++            )),
++        }
++    }
++    for pin in &input.profile.probe.pins {
++        let endpoint = native.connections.iter().find(|c| {
++            c.component == input.profile.probe.component && c.pin == pin.number.to_string()
++        });
++        if endpoint.map(|c| c.net.as_str()) != Some(pin.net.as_str()) {
++            findings.push(Finding::fail(
++                "ERC.RTD.FOUR_WIRE_PINOUT",
++                format!(
++                    "probe pad {}.{} is not connected to authored source net {}",
++                    input.profile.probe.component, pin.number, pin.net
++                ),
++                format!("{}.{}", input.profile.probe.component, pin.number),
++            ));
++        }
++    }
++    for pin in &input.profile.interface.pins {
++        let observed = native.connections.iter().find(|connection| {
++            connection.component == "unit_io" && connection.pin == pin.number.to_string()
++        });
++        let expected_net = if pin.net.eq_ignore_ascii_case("gnd") {
++            "gnd"
++        } else {
++            pin.net.as_str()
++        };
++        if observed.map(|connection| connection.net.as_str()) != Some(expected_net) {
++            findings.push(Finding::fail(
++                "ERC.RTD.UNIT_INTERFACE",
++                format!(
++                    "unit_io pad {} is not connected to authored source net {}",
++                    pin.number, pin.net
++                ),
++                format!("unit_io.{}", pin.number),
++            ));
++        }
++    }
++    if input.profile.interface.connector_mpn.is_none() {
++        findings.push(Finding::indeterminate(
++            "ERC.RTD.UNIT_INTERFACE",
++            "unit_io connector MPN and source pin map are pending qualification",
++            "unit_io",
++        ));
++    }
++    check_unit_model_budgets(input, &mut findings, &mut coverage_gaps);
++    match unit_run_input(input) {
++        Ok(context) => {
++            let erc = zapote_erc::validate(&context);
++            let drc = zapote_drc::validate(&context);
++            findings.extend(erc.findings);
++            findings.extend(drc.findings);
++            checked.extend(erc.checked_rules);
++            checked.extend(drc.checked_rules);
++            coverage_gaps.extend(erc.coverage_gaps);
++            coverage_gaps.extend(drc.coverage_gaps);
++        }
++        Err(error) => findings.push(Finding::fail(
++            "INPUT_SCHEMA",
++            format!("unit native adapter could not construct shared checker context: {error}"),
++            "unit-input",
++        )),
++    }
++    checked.sort();
++    checked.dedup();
++    CheckReport::from_findings(findings, checked, coverage_gaps)
++}
++
++fn check_unit_model_budgets(
++    input: &UnitInput,
++    findings: &mut Vec<Finding>,
++    gaps: &mut Vec<String>,
++) {
++    let local = input.model.get("local_supply_budget");
++    let reference = input.model.get("shared_reference_budget");
++    let total = local.and_then(|budget| {
++        budget
++            .get("short_0ohm_total_bound_ma")
++            .or_else(|| budget.get("total_bound_ma"))
++            .and_then(|value| value.as_f64())
++    });
++    let reference_current = reference
++        .and_then(|budget| budget.get("external_load_max_ua"))
++        .and_then(|value| value.as_f64());
++    let reference_capacitance = reference
++        .and_then(|budget| budget.get("external_capacitance_max_nf"))
++        .and_then(|value| value.as_f64());
++    let finite =
++        |value: Option<f64>| value.is_some_and(|number| number.is_finite() && number >= 0.0);
++    if !finite(total) || !finite(reference_current) || !finite(reference_capacitance) {
++        gaps.push("source-derived local/reference load budget is incomplete".into());
++        findings.push(Finding::indeterminate(
++            "ERC.RTD.UNIT_MODEL",
++            "local/reference load budget requires finite numeric model totals",
++            "RTD_LOCAL_10MA",
++        ));
++        return;
++    }
++    let total = total.expect("finite total checked");
++    let reference_current = reference_current.expect("finite reference current checked");
++    let reference_capacitance =
++        reference_capacitance.expect("finite reference capacitance checked");
++    if total > 10.0 {
++        findings.push(Finding::fail(
++            "ERC.RTD.UNIT_MODEL",
++            format!("worst-case local load {total:.6} mA exceeds authored 10 mA limit"),
++            "RTD_LOCAL_10MA",
++        ));
++    }
++    if reference_current > 100.0 || reference_capacitance > 10.0 {
++        findings.push(Finding::fail(
++            "ERC.RTD.UNIT_MODEL",
++            format!(
++                "shared reference external bound {reference_current:.3} uA/{reference_capacitance:.3} nF exceeds 100 uA/10 nF"
++            ),
++            "SHARED_REF_2V5",
++        ));
++    }
++    if total <= 10.0 && reference_current <= 100.0 && reference_capacitance <= 10.0 {
++        findings.push(Finding::pass(
++            "ERC.RTD.UNIT_MODEL",
++            format!(
++                "source-derived local load {total:.6} mA and reference boundary {reference_current:.3} uA/{reference_capacitance:.3} nF are within contract"
++            ),
++            "RTD_LOCAL_10MA",
++        ));
++    }
++}
++
++/// Adapt the unit's measured native census into the existing checker context.
++/// The adapter only maps observed records; all topology/geometry checks remain
++/// the registered ERC/DRC implementations.
++pub fn unit_run_input(input: &UnitInput) -> Result<RunInput, serde_json::Error> {
++    use std::collections::BTreeMap;
++    let native = &input.native;
++    let mut nets = BTreeMap::new();
++    for component in &native.components {
++        for pad in &component.footprint_pads {
++            nets.entry(pad.net.clone())
++                .or_insert(serde_json::json!({"name":pad.net,"domain":"UNIT","role":"observed"}));
++        }
++    }
++    let adc_id = input
++        .profile
++        .component_bindings
++        .iter()
++        .find(|b| b.role == "adc")
++        .map(|b| b.instance_id.clone())
++        .unwrap_or_else(|| "rtd_pan.adc".into());
++    let rref_id = input
++        .profile
++        .component_bindings
++        .iter()
++        .find(|b| b.role == "rref")
++        .map(|b| b.instance_id.clone())
++        .unwrap_or_else(|| "rtd_pan.r_ref".into());
++    // Expected source intent is carried by the compiled manifest binding.
++    // Native pads remain the observation used by the shared checks; using the
++    // binding here prevents a consistent native net swap from becoming its
++    // own expected contract.
++    let source_pad_net = |instance: &str, pad: &str| {
++        input
++            .source_bindings
++            .iter()
++            .find(|binding| binding.instance_id == instance && binding.pad == pad)
++            .map(|binding| binding.net.clone())
++    };
++    // A source binding is the expected contract.  Never fill a missing
++    // expected net from the observed native pad: that would let a consistent
++    // native pad/connection swap certify itself.
++    let pad_net = |number: &str| source_pad_net(&adc_id, number).unwrap_or_default();
++    let mut adc_pins: BTreeMap<String, String> = BTreeMap::new();
++    for (name, number) in [
++        ("DRDY", "1"),
++        ("DVDD", "2"),
++        ("VDD", "3"),
++        ("BIAS", "4"),
++        ("REFIN_P", "5"),
++        ("REFIN_N", "6"),
++        ("ISENSOR", "7"),
++        ("FORCE_P", "8"),
++        ("FORCE2", "9"),
++        ("RTDIN_P", "10"),
++        ("RTDIN_N", "11"),
++        ("FORCE_N", "12"),
++        ("GND2", "13"),
++        ("SDI", "14"),
++        ("SCLK", "15"),
++        ("CS_N", "16"),
++        ("SDO", "17"),
++        ("DGND", "18"),
++        ("GND1", "19"),
++        ("NC3", "20"),
++    ] {
++        adc_pins.insert(name.into(), pad_net(number));
++    }
++    let rref_nets = [
++        source_pad_net(&rref_id, "1").unwrap_or_default(),
++        source_pad_net(&rref_id, "2").unwrap_or_default(),
++    ];
++    let decoupling: Vec<_> = input
++        .profile
++        .decoupling_bindings
++        .iter()
++        .map(|d| {
++            let position_mm = native
++                .components
++                .iter()
++                .find(|c| c.id == d.instance_id)
++                .map(|c| c.position_mm.clone())
++                .unwrap_or_else(|| vec![0.0, 0.0]);
++            serde_json::json!({"component":d.instance_id,"ic":d.target_component,
++            "rail":d.pad_nets.first().cloned().unwrap_or_default(),
++            "ground":d.pad_nets.get(1).cloned().unwrap_or_default(),
++            "capacitance_uf":d.capacitance_nf/1000.0,"position_mm":position_mm})
++        })
++        .collect();
++    let probe_pins = serde_json::to_value(&input.profile.probe.pins).unwrap_or_default();
++    let mut required_ics = Vec::new();
++    let mut required_ids = std::collections::BTreeSet::new();
++    for binding in &input.profile.decoupling_bindings {
++        if required_ids.insert(binding.target_component.clone()) {
++            required_ics.push(serde_json::json!({
++                "component": binding.target_component,
++                "rail": binding.pad_nets.first().cloned().unwrap_or_default(),
++                "ground": binding.pad_nets.get(1).cloned().unwrap_or_default()
++            }));
++        }
++    }
++    // Reference and ferrite rail identities are source expectations.  Native
++    // pads are only observations; falling back to them here would allow a
++    // consistent native net swap to redefine the contract.
++    let reference_id = input.profile.local.reference_component.as_str();
++    let ref_vref = source_pad_net(reference_id, "5").unwrap_or_default();
++    let ref_gnd = source_pad_net(reference_id, "2").unwrap_or_default();
++    let ferrite_id = input.profile.local.ferrite_component.as_str();
++    let upstream_rail = source_pad_net(ferrite_id, "1").unwrap_or_default();
++    let filtered_rail = source_pad_net(ferrite_id, "2").unwrap_or_default();
++    // Only independently observed model results may enter the shared fault
++    // checker.  The source contract's expected_class/expected_detected fields
++    // are deliberately ignored here; expected-only entries are reported as an
++    // indeterminate model gap by the core and ERC checks.
++    let observations = input
++        .model
++        .get("observed_faults")
++        .or_else(|| input.model.get("fault_observations"))
++        .or_else(|| input.model.get("fault_coverage"))
++        .and_then(|value| value.as_array());
++    let scenarios: Vec<_> = observations
++        .into_iter()
++        .flatten()
++        .filter(|fault| {
++            !fault
++                .get("supplemental_observation")
++                .and_then(|value| value.as_bool())
++                .unwrap_or(false)
++        })
++        .filter_map(|fault| {
++            let name = fault.get("name")?.as_str()?;
++            let authored = input
++                .profile
++                .fault_case_bindings
++                .iter()
++                .find(|case| case.name == name);
++            let conductor_open = fault
++                .get("conductor_open")
++                .cloned()
++                .or_else(|| authored.and_then(|case| serde_json::to_value(&case.conductor_open).ok()))
++                .filter(|value| !value.is_null());
++            let rail_loss = fault
++                .get("rail_loss")
++                .cloned()
++                .or_else(|| authored.and_then(|case| serde_json::to_value(&case.rail_loss).ok()))
++                .filter(|value| !value.is_null());
++            let resistance_ohm = fault
++                .get("resistance_ohm")
++                .cloned()
++                .or_else(|| authored.and_then(|case| serde_json::to_value(case.resistance_ohm).ok()))
++                .filter(|value| !value.is_null());
++            Some(serde_json::json!({
++                "name": name,
++                "resistance_ohm": resistance_ohm,
++                "conductor_open": conductor_open,
++                "rail_loss": rail_loss,
++                "expected_class": "",
++                "expected_detected": false,
++                "observed_class": fault.get("observed_class")?.as_str()?,
++                "observed_detected": fault
++                    .get("observed_detected")
++                    .and_then(|value| value.as_bool())
++                    .unwrap_or(false),
++                "observed_latency_ms": fault.get("observed_latency_ms").cloned().unwrap_or(serde_json::Value::Null)
++            }))
++        })
++        .collect();
++    let gpio = serde_json::json!({"RTD_SCK":8,"RTD_SDI":11,"RTD_SDO":12,"RTD_CS_N":input.firmware.cs_gpio,"RTD_DRDY":input.firmware.drdy_gpio});
++    let mut geometry = serde_json::to_value(&input.profile.geometry).unwrap_or_default();
++    geometry["return_planes"] =
++        serde_json::to_value(&input.profile.return_planes).unwrap_or_default();
++    let value = serde_json::json!({
++        "schema_version":1,"applicability":"RTDUnit",
++        "identity":{"source_revision":"unit","source_hash":input.identity.source_manifest_sha256,"board_revision":"native","board_hash":input.identity.board_sha256,"suite_revision":"zapote","suite_hash":input.identity.native_export_sha256,"model_revision":"bound","model_hash":input.identity.model_sha256,"observed_source_hash":input.identity.source_manifest_sha256,"observed_board_hash":input.identity.board_sha256,"observed_suite_hash":input.identity.native_export_sha256,"observed_model_hash":input.identity.model_sha256,"native_export_sha256":input.identity.native_export_sha256,"native_board_sha256":input.identity.board_sha256,"native_extractor_sha256":input.identity.extractor_sha256,"native_binding_required":true,"runtime":"zapote-rtd-unit","provider":"native"},
++        "board":{"components":native.components,"nets":nets.values().cloned().collect::<Vec<_>>(),"connections":native.connections,"connectivity_clusters":native.connectivity_clusters,"traces":native.traces,"vias":native.vias,"zones":native.zones,"geometry":geometry},
++        "rtd":{"connector":{"component":input.profile.probe.component,"pins":probe_pins},"adc":{"component":adc_id,"mpn":input.profile.components.adc_mpn,"pins":adc_pins},"rref":{"component":rref_id,"mpn":input.profile.components.rref_mpn,"resistance_ohm":input.profile.components.rref_ohm,"tolerance_pct":input.profile.components.rref_tolerance_pct,"connections":rref_nets},"reference":{"component":input.profile.local.reference_component,"mpn":input.profile.local.reference_mpn,"v1_net":source_pad_net(&input.profile.local.reference_component,"1").unwrap_or_default(),"v2_net":ref_vref,"ground_net":ref_gnd},"local_rail":{"upstream_net":upstream_rail,"post_ferrite_net":filtered_rail,"ferrite_component":input.profile.local.ferrite_component},"required_local_ics":required_ics,"decoupling":decoupling,"spi":[{"signal":"RTD_SCK","mcu_pin":8,"adc_pin":"SCLK","series_component":"rtd_pan.r_sclk"},{"signal":"RTD_SDI","mcu_pin":11,"adc_pin":"SDI","series_component":"rtd_pan.r_mosi"},{"signal":"RTD_SDO","mcu_pin":12,"adc_pin":"SDO","series_component":"rtd_pan.r_miso"},{"signal":"RTD_CS_N","mcu_pin":input.firmware.cs_gpio,"adc_pin":"CS_N","series_component":"rtd_pan.r_cs"},{"signal":"RTD_DRDY","mcu_pin":input.firmware.drdy_gpio,"adc_pin":"DRDY","series_component":"direct"}],"mcu_pads":{},"fault_output":{"net":"RTD_HW_FAULT","active_level":"high","pullup_rail":upstream_rail,"gate":"unit_io","consumers":["unit_io"]},"downstream_reference_consumers":[]},
++        "firmware":{"gpio":gpio,"thresholds":{"short_ohm":input.firmware.short_fault_ohm,"open_ohm":input.firmware.open_fault_ohm,"low_word":input.firmware.low_threshold_word,"high_word":input.firmware.high_threshold_word,"rref_ohm":input.profile.components.rref_ohm,"adc_bits":15,"shift":1},"config_revision":input.identity.firmware_sha256,"fault_latency_limit_ms":input.profile.fault_latency_limit_ms},"scenarios":scenarios});
++    serde_json::from_value(value)
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+diff --git a/zapote/packages/zapote-harness/src/main.rs b/zapote/packages/zapote-harness/src/main.rs
+index 33ec5d5dc..260470c2d 100644
+--- a/zapote/packages/zapote-harness/src/main.rs
++++ b/zapote/packages/zapote-harness/src/main.rs
+@@ -6,16 +6,18 @@ use zapote_harness::{parse_input, run};
+ 
+ fn main() {
+     let mut input_path = None;
++    let mut unit_input_path = None;
+     let mut output_path = None;
+     let mut no_telemetry = false;
+     let mut args = env::args().skip(1);
+     while let Some(arg) = args.next() {
+         match arg.as_str() {
+             "--input" => input_path = args.next(),
++            "--unit-input" => unit_input_path = args.next(),
+             "--output" => output_path = args.next(),
+             "--no-telemetry" => no_telemetry = true,
+             "--help" | "-h" => {
+-                println!("zapote-rtd [--input FILE] [--output FILE] [--no-telemetry]");
++                println!("zapote-rtd [--input FILE | --unit-input FILE] [--output FILE] [--no-telemetry]");
+                 return;
+             }
+             other => {
+@@ -24,6 +26,31 @@ fn main() {
+             }
+         }
+     }
++    if let Some(path) = unit_input_path {
++        let bytes = fs::read(path).unwrap_or_else(|e| {
++            eprintln!("cannot read unit input: {e}");
++            std::process::exit(2);
++        });
++        let input: zapote_core::unit::UnitInput =
++            serde_json::from_slice(&bytes).unwrap_or_else(|e| {
++                eprintln!("invalid zapote.rtd.unit-input.v1 input: {e}");
++                std::process::exit(2);
++            });
++        let report = zapote_harness::run_unit(&input);
++        let encoded = serde_json::to_vec_pretty(&report).expect("report serializes");
++        if let Some(path) = output_path {
++            fs::write(path, &encoded).unwrap_or_else(|e| {
++                eprintln!("cannot write output: {e}");
++                std::process::exit(2);
++            });
++        } else {
++            println!("{}", String::from_utf8(encoded).expect("JSON is UTF-8"));
++        }
++        if report.status != zapote_core::Status::Pass {
++            std::process::exit(1);
++        }
++        return;
++    }
+     let bytes = match input_path {
+         Some(path) => fs::read(path).unwrap_or_else(|e| {
+             eprintln!("cannot read input: {e}");
+diff --git a/zapote/ports.toml b/zapote/ports.toml
+index 3829ed065..eb8ae7a87 100644
+--- a/zapote/ports.toml
++++ b/zapote/ports.toml
+@@ -38,6 +38,6 @@ notes = "Independent copy of the IPC external-layer scalar for bounded low-curre
+ [[port]]
+ source = "Standalone RTDUnit source and manufacturing profile"
+ source_path = "zapote/rtd/unit/profile.json"
+-source_sha256 = "b8363680d938144a494a7fae89a2d721dd35b0813dae0237acf649831b981301"
++source_sha256 = "1531be367ea889ec8e7e45a2cb1e3bcd134a09d59ddf98eabfb23f228e529a98"
+ target = "zapote/packages/zapote-core/src/unit.rs"
+-notes = "Typed profile contract; pending connector qualification and future load/aggressor/model evidence remain explicit deferred states."
++notes = "Typed source-03/04 profile contract; numeric local/reference budget is checked from the independent model receipt, while local rail latency remains an explicit incomplete state."
+diff --git a/zapote/rtd/unit/bind_native.py b/zapote/rtd/unit/bind_native.py
+index b9322a428..75a3aa23a 100644
+--- a/zapote/rtd/unit/bind_native.py
++++ b/zapote/rtd/unit/bind_native.py
+@@ -1,42 +1,171 @@
+ #!/usr/bin/env python3
+-"""Transport a native RTDUnit export into the typed Rust unit envelope.
++"""Bind a source-derived native RTDUnit export to an immutable Rust input.
+ 
+-This adapter copies source profile and native measurements. It does not infer
+-net roles, components, paths, loads, or acceptance results.
++This is deliberately a transport adapter. It does not invent net roles or
++turn file presence into an engineering verdict. Rust checks observed board data.
+ """
+-
+ import argparse
++import hashlib
+ import json
++import re
+ from pathlib import Path
+ 
+-
+ REQUIRED_NATIVE = (
+-    "board_sha256",
+-    "extractor_sha256",
+-    "board_layers",
+-    "components",
+-    "nets",
+-    "connections",
+-    "connectivity_clusters",
+-    "traces",
+-    "vias",
++    "board_sha256", "extractor_sha256", "copper_layer_count", "components",
++    "connections", "connectivity_clusters", "traces", "vias", "zones",
+ )
+ 
++def sha256(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
+ 
+ def main() -> None:
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--profile", type=Path, required=True)
+     parser.add_argument("--native", type=Path, required=True)
++    parser.add_argument("--board-file", type=Path, required=True)
++    parser.add_argument("--source-manifest", type=Path, required=True)
++    parser.add_argument("--extractor", type=Path, required=True)
++    parser.add_argument("--model", type=Path, required=True)
++    parser.add_argument("--firmware", type=Path, required=True,
++                        help="generated firmware/config.h (and pin macros)")
++    parser.add_argument("--firmware-pins", type=Path, required=True,
++                        help="source-derived firmware/components/hal/include/temper_pins.h")
++    parser.add_argument("--binary", type=Path)
+     parser.add_argument("--output", type=Path, required=True)
+     args = parser.parse_args()
+-    profile = json.loads(args.profile.read_text())
+-    native = json.loads(args.native.read_text())
++    profile_bytes = args.profile.read_bytes()
++    native_bytes = args.native.read_bytes()
++    profile = json.loads(profile_bytes)
++    native = json.loads(native_bytes)
+     missing = [key for key in REQUIRED_NATIVE if key not in native]
+     if missing:
+         raise SystemExit("native export missing required transport fields: " + ", ".join(missing))
+-    envelope = {"schema": "zapote.rtd.unit-input.v1", "profile": profile, "native": native}
++    source_manifest = json.loads(args.source_manifest.read_text())
++    source_components = {
++        item.get("instance_path", item.get("address", "")).split("::")[-1]: item
++        for item in source_manifest.get("components", [])
++        if isinstance(item, dict)
++    }
++    if not source_components:
++        raise SystemExit("source manifest has no compiled component census")
++    expected_source = {
++        binding["instance_id"]: binding["mpn"]
++        for binding in profile.get("component_bindings", [])
++    }
++    expected_source.update({
++        profile["probe"]["component"]: profile["probe"]["mpn"],
++        profile["local"]["reference_component"]: profile["local"]["reference_mpn"],
++        profile["local"]["ferrite_component"]: profile["local"]["ferrite_mpn"],
++        "unit_io": profile["interface"]["connector_mpn"],
++    })
++    for instance, expected_mpn in expected_source.items():
++        source = source_components.get(instance)
++        if source is None:
++            raise SystemExit("source manifest missing required compiled component " + instance)
++        observed_mpn = source.get("mpn", source.get("attributes", {}).get("mpn"))
++        if observed_mpn != expected_mpn:
++            raise SystemExit(f"source manifest MPN mismatch for {instance}: {observed_mpn!r} != {expected_mpn!r}")
++    ref_to_instance = {c.get("reference"): c.get("instance_path") for c in source_manifest.get("bridge", {}).get("components", [])}
++    pin_to_pad = {(p.get("instance_path"), p.get("pin")): str(p.get("pad")) for p in source_manifest.get("strict_pin_map", [])}
++    source_components_out = []
++    for component in source_manifest.get("components", []):
++        instance = component.get("instance_path", component.get("address", "")).split("::")[-1]
++        pads = sum(1 for pin in source_manifest.get("strict_pin_map", []) if pin.get("instance_path") == instance)
++        if instance and pads:
++            source_components_out.append({"instance_id": instance, "mpn": component.get("mpn", component.get("attributes", {}).get("mpn", "")), "pad_count": pads})
++    if not source_components_out:
++        raise SystemExit("source manifest has no complete compiled component/pad census")
++    expected_components = {
++        item["instance_id"]: item["mpn"] for item in source_components_out
++    }
++    native_components = {
++        item.get("id"): item.get("mpn") for item in native.get("components", [])
++    }
++    if native_components != expected_components:
++        raise SystemExit(
++            "native/source compiled component census differs: "
++            + json.dumps(
++                {
++                    "missing": sorted(set(expected_components) - set(native_components)),
++                    "extra": sorted(set(native_components) - set(expected_components)),
++                    "mpn_mismatch": sorted(
++                        key for key in set(expected_components) & set(native_components)
++                        if expected_components[key] != native_components[key]
++                    ),
++                },
++                sort_keys=True,
++            )
++        )
++    source_bindings = []
++    for net in source_manifest.get("bridge", {}).get("nets", []):
++        for ref, pin in net.get("nodes", []):
++            instance = ref_to_instance.get(ref)
++            pad = pin_to_pad.get((instance, pin))
++            if not instance or not pad:
++                raise SystemExit(
++                    "source manifest bridge node is not in strict component/pin map: "
++                    + json.dumps({"ref": ref, "pin": pin, "instance": instance, "pad": pad})
++                )
++            source_bindings.append({"instance_id": instance, "pad": pad, "net": net["name"]})
++    if not source_bindings:
++        raise SystemExit("source manifest has no strict compiled pad/net bindings")
++    expected = {(b["instance_id"], b["pad"]): b["net"] for b in source_bindings}
++    if len(expected) != len(source_bindings):
++        raise SystemExit("compiled source bridge contains duplicate instance/pad bindings")
++    observed = {
++        (c["id"], str(p["pad"])): p["net"]
++        for c in native["components"] for p in c.get("footprint_pads", [])
++    }
++    observed_source = observed
++    if observed_source.keys() != expected.keys():
++        missing_pads = sorted(expected.keys() - observed_source.keys())
++        extra_pads = sorted(observed_source.keys() - expected.keys())
++        raise SystemExit(
++            "native/source compiled pad set differs: "
++            + json.dumps({"missing": missing_pads, "extra": extra_pads}, sort_keys=True)
++        )
++    for key, expected_net in expected.items():
++        if observed_source[key] != expected_net:
++            raise SystemExit("native pad/net does not match compiled source binding: " + json.dumps({"instance_id": key[0], "pad": key[1], "net": expected_net}, sort_keys=True))
++    model = json.loads(args.model.read_text())
++    board_hash = sha256(args.board_file)
++    if native["board_sha256"].lower() != board_hash:
++        raise SystemExit(f"native board_sha256 does not match board-file bytes: native={native['board_sha256']} current={board_hash}")
++    extractor_hash = sha256(args.extractor)
++    if native["extractor_sha256"].lower() != extractor_hash:
++        raise SystemExit(f"native extractor_sha256 does not match extractor bytes: native={native['extractor_sha256']} current={extractor_hash}")
++    firmware_text = args.firmware.read_text()
++    firmware_pins_text = args.firmware_pins.read_text()
++    def macro(name: str, text: str) -> float:
++        match = re.search(r"^\s*#define\s+" + re.escape(name) + r"\s+([0-9]+(?:\.[0-9]+)?)(?:f)?", text, re.MULTILINE)
++        if not match:
++            raise SystemExit("firmware header missing required macro " + name)
++        return float(match.group(1))
++    firmware = {
++        "cs_gpio": int(macro("PIN_SPI_CS_RTD1", firmware_pins_text)),
++        "drdy_gpio": int(macro("PIN_RTD_DRDY", firmware_pins_text)),
++        "low_threshold_word": int(macro("MAX31865_LOW_THRESHOLD_WORD", firmware_text)),
++        "high_threshold_word": int(macro("MAX31865_HIGH_THRESHOLD_WORD", firmware_text)),
++        "short_fault_ohm": macro("RTD_SHORT_FAULT_OHM", firmware_text),
++        "open_fault_ohm": macro("RTD_OPEN_FAULT_OHM", firmware_text),
++    }
++    identity = {
++        "profile_sha256": hashlib.sha256(profile_bytes).hexdigest(),
++        "native_export_sha256": hashlib.sha256(native_bytes).hexdigest(),
++        "source_manifest_sha256": sha256(args.source_manifest),
++        "extractor_sha256": extractor_hash,
++        "model_sha256": sha256(args.model),
++        "firmware_sha256": sha256(args.firmware),
++        "firmware_pins_sha256": sha256(args.firmware_pins),
++        "board_sha256": board_hash,
++    }
++    if args.binary:
++        identity["binary_sha256"] = sha256(args.binary)
++    envelope = {"schema": "zapote.rtd.unit-input.v1", "profile": profile, "native": native,
++                "identity": identity, "firmware": firmware, "model": model,
++                "source_bindings": source_bindings,
++                "source_components": source_components_out}
+     args.output.write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n")
+ 
+-
+ if __name__ == "__main__":
+     main()
+diff --git a/zapote/rtd/unit/profile.json b/zapote/rtd/unit/profile.json
+index 01c979ac6..1ac824a36 100644
+--- a/zapote/rtd/unit/profile.json
++++ b/zapote/rtd/unit/profile.json
+@@ -1,7 +1,7 @@
+ {
+   "schema": "zapote.rtd.unit.v1",
+   "profile_id": "RTDUnit",
+-  "source_module": "RTDSensing33",
++  "source_module": "RTDUnit",
+   "components": {
+     "adc_mpn": "MAX31865AAP+",
+     "supervisor_mpn": "TPS389001DSER",
+@@ -15,37 +15,329 @@
+     "pullup_ohm": 1000000.0
+   },
+   "interface": {
+-    "connector_mpn": null,
+-    "qualification_status": "pending_qualified_source",
++    "connector_mpn": "FTSH-105-01-F-D",
++    "qualification_status": "qualified_source",
+     "pins": [
+-      {"number": 1, "net": "+3V3"},
+-      {"number": 2, "net": "GND_A"},
+-      {"number": 3, "net": "GND_B"},
+-      {"number": 4, "net": "SCK"},
+-      {"number": 5, "net": "SDI"},
+-      {"number": 6, "net": "SDO"},
+-      {"number": 7, "net": "CS_N"},
+-      {"number": 8, "net": "DRDY"},
+-      {"number": 9, "net": "RTD_HW_FAULT"},
+-      {"number": 10, "net": "SHARED_REF_2V5"}
++      {
++        "number": 1,
++        "net": "+3V3"
++      },
++      {
++        "number": 2,
++        "net": "GND"
++      },
++      {
++        "number": 3,
++        "net": "GND"
++      },
++      {
++        "number": 4,
++        "net": "RTD_SCK"
++      },
++      {
++        "number": 5,
++        "net": "RTD_SDI"
++      },
++      {
++        "number": 6,
++        "net": "RTD_SDO"
++      },
++      {
++        "number": 7,
++        "net": "RTD_CS_N"
++      },
++      {
++        "number": 8,
++        "net": "RTD_DRDY"
++      },
++      {
++        "number": 9,
++        "net": "RTD_HW_FAULT"
++      },
++      {
++        "number": 10,
++        "net": "SHARED_REF_2V5"
++      }
+     ]
+   },
++  "probe": {
++    "component": "rtd_pan.j_rtd1",
++    "mpn": "B4B-XH-A(LF)(SN)",
++    "pins": [
++      {
++        "number": 1,
++        "role": "FORCE+",
++        "net": "rtd_force_p"
++      },
++      {
++        "number": 2,
++        "role": "SENSE+",
++        "net": "rtd_sense_p"
++      },
++      {
++        "number": 3,
++        "role": "SENSE-",
++        "net": "rtd_sense_n"
++      },
++      {
++        "number": 4,
++        "role": "FORCE-",
++        "net": "rtd_force_n"
++      }
++    ]
++  },
++  "local": {
++    "reference_component": "rtd_pan.reference",
++    "reference_mpn": "REF2025AIDDCR",
++    "ferrite_component": "rtd_pan.fb_power",
++    "ferrite_mpn": "BLM18AG121SN1D",
++    "filtered_rail": "RTD_AVDD"
++  },
+   "board": {
+     "copper_layers": 4,
+     "min_finished_copper_um": 35.0,
+     "clearance_mm": 0.2,
+     "signal_width_mm": 0.2,
+-    "power_return_width_mm": 0.3,
++    "power_return_width_mm": 0.2,
+     "via_diameter_mm": 0.7,
+     "via_drill_mm": 0.3
+   },
+   "loads": [
+-    {"name": "RTD_LOCAL_10MA", "current_a": 0.01, "status": "pending_source_budget"},
+-    {"name": "REFERENCE_INTERFACE_LOADS", "current_a": null, "status": "deferred"}
++    {
++      "name": "RTD_LOCAL_10MA",
++      "current_a": 0.01,
++      "status": "pending_source_budget"
++    },
++    {
++      "name": "REFERENCE_INTERFACE_LOADS",
++      "current_a": null,
++      "status": "deferred"
++    }
+   ],
+   "future_contracts": {
+     "reference_consumers": "required_source_load_budget",
+-    "aggressors": "scope_not_run",
++    "aggressors": "authored_unit_spi",
+     "model": "required_fault_model"
+-  }
++  },
++  "component_bindings": [
++    {
++      "role": "adc",
++      "instance_id": "rtd_pan.adc",
++      "mpn": "MAX31865AAP+"
++    },
++    {
++      "role": "rref",
++      "instance_id": "rtd_pan.r_ref",
++      "mpn": "RG2012V-431-W-T1"
++    }
++  ],
++  "firmware": {
++    "cs_gpio": 10,
++    "drdy_gpio": 9,
++    "low_threshold_word": 1526,
++    "high_threshold_word": 45722,
++    "short_fault_ohm": 10.0,
++    "open_fault_ohm": 300.0
++  },
++  "fault_latency_limit_ms": 99.0,
++  "decoupling_bindings": [
++    {
++      "role": "adc_dvdd",
++      "instance_id": "rtd_pan.c_dvdd",
++      "mpn": "C0603C104K5RACTU",
++      "capacitance_nf": 100.0,
++      "target_component": "rtd_pan.adc",
++      "pad_nets": [
++        "+3V3",
++        "gnd"
++      ]
++    },
++    {
++      "role": "adc_vdd",
++      "instance_id": "rtd_pan.c_vdd",
++      "mpn": "C0603C104K5RACTU",
++      "capacitance_nf": 100.0,
++      "target_component": "rtd_pan.adc",
++      "pad_nets": [
++        "RTD_AVDD",
++        "gnd"
++      ]
++    },
++    {
++      "role": "rtd_input_filter",
++      "instance_id": "rtd_pan.c_rtd_input",
++      "mpn": "C0603C102J5GACTU",
++      "capacitance_nf": 1.0,
++      "target_component": "rtd_pan.adc",
++      "pad_nets": [
++        "rtd_sense_p",
++        "rtd_sense_n"
++      ]
++    },
++    {
++      "role": "reference",
++      "instance_id": "rtd_pan.c_reference",
++      "mpn": "C0603C104K5RACTU",
++      "capacitance_nf": 100.0,
++      "target_component": "rtd_pan.reference",
++      "pad_nets": [
++        "+3V3",
++        "gnd"
++      ]
++    },
++    {
++      "role": "low_window",
++      "instance_id": "rtd_pan.c_low_window",
++      "mpn": "C0603C104K5RACTU",
++      "capacitance_nf": 100.0,
++      "target_component": "rtd_pan.low_window",
++      "pad_nets": [
++        "RTD_AVDD",
++        "gnd"
++      ]
++    },
++    {
++      "role": "high_window",
++      "instance_id": "rtd_pan.c_high_window",
++      "mpn": "C0603C104K5RACTU",
++      "capacitance_nf": 100.0,
++      "target_component": "rtd_pan.high_window",
++      "pad_nets": [
++        "RTD_AVDD",
++        "gnd"
++      ]
++    },
++    {
++      "role": "window_and",
++      "instance_id": "rtd_pan.c_window_and",
++      "mpn": "C0603C104K5RACTU",
++      "capacitance_nf": 100.0,
++      "target_component": "rtd_pan.window_and",
++      "pad_nets": [
++        "RTD_AVDD",
++        "gnd"
++      ]
++    },
++    {
++      "role": "rail_monitor",
++      "instance_id": "rtd_pan.c_rail_monitor",
++      "mpn": "C0603C104K5RACTU",
++      "capacitance_nf": 100.0,
++      "target_component": "rtd_pan.rail_monitor",
++      "pad_nets": [
++        "+3V3",
++        "gnd"
++      ]
++    },
++    {
++      "role": "fault_nand",
++      "instance_id": "rtd_pan.c_fault_nand",
++      "mpn": "C0603C104K5RACTU",
++      "capacitance_nf": 100.0,
++      "target_component": "rtd_pan.fault_nand",
++      "pad_nets": [
++        "+3V3",
++        "gnd"
++      ]
++    }
++  ],
++  "geometry": {
++    "sensitive_nets": [
++      "rtd_sense_p",
++      "rtd_sense_n",
++      "rtd_force_p",
++      "rtd_force_n",
++      "bias",
++      "refin_n",
++      "window_rtdin_p",
++      "vbias"
++    ],
++    "aggressors": [
++      {
++        "net": "RTD_SCK",
++        "region_mm": [
++          27.5,
++          5.5,
++          50.5,
++          20.8
++        ],
++        "min_distance_mm": 0.2
++      },
++      {
++        "net": "RTD_SDI",
++        "region_mm": [
++          27.5,
++          6.5,
++          47.8,
++          22.5
++        ],
++        "min_distance_mm": 0.2
++      },
++      {
++        "net": "RTD_SDO",
++        "region_mm": [
++          27.5,
++          4.5,
++          51.5,
++          17.4
++        ],
++        "min_distance_mm": 0.2
++      },
++      {
++        "net": "RTD_CS_N",
++        "region_mm": [
++          27.5,
++          8.5,
++          47.8,
++          19.1
++        ],
++        "min_distance_mm": 0.2
++      },
++      {
++        "net": "RTD_DRDY",
++        "region_mm": [
++          16.0,
++          3.5,
++          52.5,
++          17.7
++        ],
++        "min_distance_mm": 0.2
++      }
++    ],
++    "prohibited_connections": [],
++    "required_locality_mm": 3.0
++  },
++  "return_planes": [
++    {
++      "purpose": "filtered_analog_supply",
++      "net": "RTD_AVDD",
++      "layer": "F.Cu"
++    },
++    {
++      "purpose": "analog_return",
++      "net": "gnd",
++      "layer": "In1.Cu"
++    },
++    {
++      "purpose": "clock_return",
++      "net": "gnd",
++      "layer": "In2.Cu"
++    },
++    {
++      "purpose": "upstream_supply",
++      "net": "+3V3",
++      "layer": "B.Cu"
++    }
++  ],
++  "fault_case_bindings": [
++    {"name":"force_plus_open","conductor_open":"FORCE+"},
++    {"name":"force_minus_open","conductor_open":"FORCE-"},
++    {"name":"sense_plus_open","conductor_open":"SENSE+"},
++    {"name":"sense_minus_open","conductor_open":"SENSE-"},
++    {"name":"rtd_short_le_10ohm","resistance_ohm":10.0},
++    {"name":"local_rtd_avdd_loss","rail_loss":"post_ferrite"},
++    {"name":"upstream_3v3_loss","rail_loss":"upstream"},
++    {"name":"healthy_pt100_window"},
++    {"name":"local_rtd_avdd_loss_passive_window","rail_loss":"post_ferrite"}
++  ]
+ }
+diff --git a/zapote/packages/zapote-harness/tests/unit_profile.rs b/zapote/packages/zapote-harness/tests/unit_profile.rs
+new file mode 100644
+index 000000000..4da3e3c79
+--- /dev/null
++++ b/zapote/packages/zapote-harness/tests/unit_profile.rs
+@@ -0,0 +1,299 @@
++use zapote_core::unit::{
++    UnitFirmwareEvidence, UnitIdentity, UnitInput, UnitNativeEvidence, UnitProfile,
++};
++
++fn input() -> UnitInput {
++    let profile: UnitProfile =
++        serde_json::from_str(include_str!("../../../rtd/unit/profile.json")).unwrap();
++    let native: UnitNativeEvidence = serde_json::from_value(serde_json::json!({
++        "board_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++        "extractor_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
++        "copper_layer_count": 4,
++        "components": [
++          {"id":"rtd_pan.adc","mpn":"MAX31865AAP+","kind":"adc","position_mm":[10.0,10.0],"footprint_pads":[
++            {"pad":"1","net":"GND","position_mm":[9.0,10.0],"size_mm":[0.5,0.5],"layers":["F.Cu"]},
++            {"pad":"2","net":"+3V3","position_mm":[11.0,10.0],"size_mm":[0.5,0.5],"layers":["F.Cu"]},
++            {"pad":"3","net":"RTDIN_P","position_mm":[10.0,9.0],"size_mm":[0.5,0.5],"layers":["F.Cu"]},
++            {"pad":"4","net":"RTDIN_N","position_mm":[10.0,11.0],"size_mm":[0.5,0.5],"layers":["F.Cu"]}]},
++          {"id":"rtd_pan.r_ref","mpn":"RG2012V-431-W-T1","kind":"resistor","position_mm":[12.0,10.0],"footprint_pads":[{"pad":"1","net":"REF","position_mm":[12.0,10.0],"size_mm":[0.5,0.5],"layers":["F.Cu"]}]},
++          {"id":"rtd_pan.supervisor","mpn":"TPS389001DSER","kind":"supervisor","position_mm":[13.0,10.0],"footprint_pads":[{"pad":"1","net":"GND","position_mm":[13.0,10.0],"size_mm":[0.5,0.5],"layers":["F.Cu"]}]},
++          {"id":"rtd_pan.c_vdd","mpn":"C0603C104K5RACTU","kind":"capacitor","position_mm":[10.0,11.0],"footprint_pads":[
++            {"pad":"1","net":"+3V3","position_mm":[9.7,11.0],"size_mm":[0.4,0.5],"layers":["F.Cu"]},
++            {"pad":"2","net":"GND","position_mm":[10.3,11.0],"size_mm":[0.4,0.5],"layers":["F.Cu"]}]},
++          {"id":"rtd_pan.c_rtd_input","mpn":"C0603C102J5GACTU","kind":"capacitor","position_mm":[10.0,12.0],"footprint_pads":[
++            {"pad":"1","net":"RTDIN_P","position_mm":[9.7,12.0],"size_mm":[0.4,0.5],"layers":["F.Cu"]},
++            {"pad":"2","net":"RTDIN_N","position_mm":[10.3,12.0],"size_mm":[0.4,0.5],"layers":["F.Cu"]}]}
++        ],
++        "connections": [
++          {"component":"rtd_pan.adc","pin":"1","net":"GND"}, {"component":"rtd_pan.adc","pin":"2","net":"+3V3"},
++          {"component":"rtd_pan.c_vdd","pin":"1","net":"+3V3"}, {"component":"rtd_pan.c_vdd","pin":"2","net":"GND"},
++          {"component":"rtd_pan.c_rtd_input","pin":"1","net":"RTDIN_P"}, {"component":"rtd_pan.c_rtd_input","pin":"2","net":"RTDIN_N"}
++        ],
++        "connectivity_clusters": [
++          {"net":"GND","nodes":["rtd_pan.adc.1","rtd_pan.c_vdd.2"],"source":"native"},
++          {"net":"+3V3","nodes":["rtd_pan.adc.2","rtd_pan.c_vdd.1"],"source":"native"},
++          {"net":"RTDIN_P","nodes":["rtd_pan.c_rtd_input.1","rtd_pan.adc.3"],"source":"native"},
++          {"net":"RTDIN_N","nodes":["rtd_pan.c_rtd_input.2","rtd_pan.adc.4"],"source":"native"}
++        ],
++        "traces": [{"uuid":"trace-1","net":"+3V3","points_mm":[[11.0,10.0],[9.7,11.0]],"layer":"F.Cu","width_mm":0.3}],
++        "vias": []
++    })).unwrap();
++    UnitInput {
++        schema: "zapote.rtd.unit-input.v1".into(),
++        profile,
++        native,
++        identity: UnitIdentity {
++            profile_sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                .into(),
++            native_export_sha256:
++                "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),
++            source_manifest_sha256:
++                "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc".into(),
++            extractor_sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
++                .into(),
++            model_sha256: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".into(),
++            firmware_sha256: "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
++                .into(),
++            firmware_pins_sha256:
++                "1111111111111111111111111111111111111111111111111111111111111111".into(),
++            board_sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".into(),
++            binary_sha256: None,
++        },
++        firmware: UnitFirmwareEvidence {
++            cs_gpio: 10,
++            drdy_gpio: 9,
++            low_threshold_word: 1526,
++            high_threshold_word: 45722,
++            short_fault_ohm: 10.0,
++            open_fault_ohm: 300.0,
++        },
++        model: serde_json::json!({"faults":[{"name":"open","class":"open"}]}),
++        source_bindings: vec![zapote_core::unit::SourcePadNet {
++            instance_id: "rtd_pan.adc".into(),
++            pad: "2".into(),
++            net: "+3V3".into(),
++        }],
++        source_components: vec![
++            ("rtd_pan.adc", "MAX31865AAP+", 4),
++            ("rtd_pan.r_ref", "RG2012V-431-W-T1", 1),
++            ("rtd_pan.supervisor", "TPS389001DSER", 1),
++            ("rtd_pan.c_vdd", "C0603C104K5RACTU", 2),
++            ("rtd_pan.c_rtd_input", "C0603C102J5GACTU", 2),
++        ]
++        .into_iter()
++        .map(
++            |(instance_id, mpn, pad_count)| zapote_core::unit::SourceComponent {
++                instance_id: instance_id.into(),
++                mpn: mpn.into(),
++                pad_count,
++            },
++        )
++        .collect(),
++    }
++}
++
++#[test]
++fn unit_cli_rules_evaluate_actual_native_shape() {
++    let report = zapote_harness::run_unit(&input());
++    assert_ne!(report.status, zapote_core::Status::Pass);
++    assert!(report
++        .checked_rules
++        .iter()
++        .any(|r| r == "ERC.RTD.UNIT_COMPONENT_MPN"));
++    assert!(report
++        .checked_rules
++        .iter()
++        .any(|r| r == "ERC.RTD.RREF_TO_REFERENCE_NETWORK"));
++    assert!(report
++        .findings
++        .iter()
++        .any(|f| f.rule == "ERC.RTD.BOARD_COMPONENT_BINDING"));
++}
++
++#[test]
++fn unit_adapter_rejects_observed_adc_net_mutation_against_source() {
++    let mut value = serde_json::to_value(input()).unwrap();
++    value["native"]["components"][0]["footprint_pads"][1]["net"] =
++        serde_json::Value::String("WRONG_RREF_NET".into());
++    let mutated: UnitInput = serde_json::from_value(value).unwrap();
++    let report = zapote_harness::run_unit(&mutated);
++    assert!(report.findings.iter().any(|f| {
++        f.rule == "ERC.RTD.UNIT_COMPONENT_MPN"
++            && f.message.contains("source binding")
++            && f.message.contains("rtd_pan.adc")
++    }));
++}
++
++#[test]
++fn unit_adapter_reaches_existing_aggressor_geometry_rule() {
++    let mut value = serde_json::to_value(input()).unwrap();
++    value["profile"]["geometry"] = serde_json::json!({
++        "sensitive_nets":["+3V3"],
++        "aggressors":[{"net":"RTDIN_P","region_mm":[9.0,9.0,12.0,12.0],"min_distance_mm":1.0}],
++        "prohibited_connections":[],"required_locality_mm":3.0
++    });
++    value["native"]["traces"].as_array_mut().unwrap().push(serde_json::json!({
++        "uuid":"trace-aggressor","net":"RTDIN_P","points_mm":[[9.0,9.0],[12.0,12.0]],"layer":"F.Cu","width_mm":0.3
++    }));
++    let mutated: UnitInput = serde_json::from_value(value).unwrap();
++    let report = zapote_harness::run_unit(&mutated);
++    assert!(report
++        .findings
++        .iter()
++        .any(|f| f.rule == "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY"
++            && f.status == zapote_core::Status::Fail));
++    assert!(report.findings.iter().any(|f| {
++        f.rule == "ERC.RTD.FAULT_CORNERS" && f.status == zapote_core::Status::Indeterminate
++    }));
++}
++
++#[test]
++fn unit_mutated_observed_mpn_is_a_targeted_failure() {
++    let mut value = serde_json::to_value(input()).unwrap();
++    value["native"]["components"][0]["mpn"] = serde_json::Value::String("WRONG".into());
++    let mutated: UnitInput = serde_json::from_value(value).unwrap();
++    let report = zapote_harness::run_unit(&mutated);
++    assert_eq!(report.status, zapote_core::Status::Fail);
++    assert!(report
++        .findings
++        .iter()
++        .any(|f| f.rule == "ERC.RTD.BOARD_COMPONENT_BINDING" && f.object == "rtd_pan.adc"));
++}
++
++#[test]
++fn unit_mutated_observed_adc_connection_is_a_targeted_failure() {
++    let mut value = serde_json::to_value(input()).unwrap();
++    value["native"]["connections"][1]["net"] = serde_json::json!("RTDIN_N");
++    let mutated: UnitInput = serde_json::from_value(value).unwrap();
++    let report = zapote_harness::run_unit(&mutated);
++    assert_eq!(report.status, zapote_core::Status::Fail);
++    assert!(report
++        .findings
++        .iter()
++        .any(|f| f.rule == "ERC.RTD.BOARD_COMPONENT_BINDING" && f.object == "rtd_pan.adc.pad2"));
++}
++
++fn complete_fixture_source_bindings() -> Vec<zapote_core::unit::SourcePadNet> {
++    [
++        ("rtd_pan.adc", "1", "GND"),
++        ("rtd_pan.adc", "2", "+3V3"),
++        ("rtd_pan.adc", "3", "RTDIN_P"),
++        ("rtd_pan.adc", "4", "RTDIN_N"),
++        ("rtd_pan.r_ref", "1", "REF"),
++        ("rtd_pan.supervisor", "1", "GND"),
++        ("rtd_pan.c_vdd", "1", "+3V3"),
++        ("rtd_pan.c_vdd", "2", "GND"),
++        ("rtd_pan.c_rtd_input", "1", "RTDIN_P"),
++        ("rtd_pan.c_rtd_input", "2", "RTDIN_N"),
++    ]
++    .into_iter()
++    .map(|(instance_id, pad, net)| zapote_core::unit::SourcePadNet {
++        instance_id: instance_id.into(),
++        pad: pad.into(),
++        net: net.into(),
++    })
++    .collect()
++}
++
++#[test]
++fn unit_partial_source_binding_is_rejected_before_shared_rules() {
++    let report = zapote_harness::run_unit(&input());
++    assert!(report.findings.iter().any(|finding| {
++        finding
++            .message
++            .contains("compiled source binding is partial")
++    }));
++}
++
++#[test]
++fn unit_consistent_native_pad_and_connection_swap_hits_source_binding() {
++    let mut value = serde_json::to_value(input()).unwrap();
++    value["source_bindings"] = serde_json::to_value(complete_fixture_source_bindings()).unwrap();
++    value["native"]["components"][0]["footprint_pads"][1]["net"] = serde_json::json!("WRONG_NET");
++    value["native"]["connections"][1]["net"] = serde_json::json!("WRONG_NET");
++    let mutated: UnitInput = serde_json::from_value(value).unwrap();
++    let report = zapote_harness::run_unit(&mutated);
++    assert!(report.findings.iter().any(|finding| {
++        finding
++            .message
++            .contains("source binding rtd_pan.adc.2 expects +3V3")
++    }));
++}
++
++#[test]
++fn unit_source_component_omission_and_extra_are_census_failures() {
++    let mut value = serde_json::to_value(input()).unwrap();
++    value["source_bindings"] = serde_json::to_value(complete_fixture_source_bindings()).unwrap();
++    value["native"]["components"]
++        .as_array_mut()
++        .unwrap()
++        .retain(|component| component["id"] != "rtd_pan.c_vdd");
++    let omitted: UnitInput = serde_json::from_value(value).unwrap();
++    assert!(zapote_harness::run_unit(&omitted)
++        .findings
++        .iter()
++        .any(|finding| finding.message.contains("native component census")));
++
++    let mut value = serde_json::to_value(input()).unwrap();
++    value["source_bindings"] = serde_json::to_value(complete_fixture_source_bindings()).unwrap();
++    let extra = value["native"]["components"][0].clone();
++    value["native"]["components"].as_array_mut().unwrap().push(
++        serde_json::json!({
++            "id":"unexpected.extra",
++            "mpn":extra["mpn"],
++            "kind":"fixture",
++            "position_mm":[20.0,20.0],
++            "footprint_pads":[{"pad":"1","net":"GND","position_mm":[20.0,20.0],"size_mm":[0.5,0.5],"layers":["F.Cu"]}]
++        }),
++    );
++    let extra: UnitInput = serde_json::from_value(value).unwrap();
++    assert!(zapote_harness::run_unit(&extra)
++        .findings
++        .iter()
++        .any(|finding| finding.message.contains("native component census")));
++}
++
++#[test]
++fn unit_fault_observations_are_compared_without_legacy_blind_spot_classification() {
++    let mut value = serde_json::to_value(input()).unwrap();
++    let cases = [
++        serde_json::json!({"name":"short","resistance_ohm":5.0,"observed_class":"covered_fault","model_class":"covered_fault","observed_detected":true,"model_detected":true,"model_latency_ms":1.0,"observed_latency_ms":1.1}),
++        serde_json::json!({"name":"force_plus","conductor_open":"FORCE+","observed_class":"covered_fault","model_class":"covered_fault","observed_detected":true,"model_detected":true,"model_latency_ms":1.0,"observed_latency_ms":1.1}),
++        serde_json::json!({"name":"force_minus","conductor_open":"FORCE-","observed_class":"covered_fault","model_class":"covered_fault","observed_detected":true,"model_detected":true,"model_latency_ms":1.0,"observed_latency_ms":1.1}),
++        serde_json::json!({"name":"sense_plus","conductor_open":"SENSE+","observed_class":"covered_fault","model_class":"covered_fault","observed_detected":true,"model_detected":true,"model_latency_ms":1.0,"observed_latency_ms":1.1}),
++        serde_json::json!({"name":"sense_minus","conductor_open":"SENSE-","observed_class":"covered_fault","model_class":"covered_fault","observed_detected":true,"model_detected":true,"model_latency_ms":1.0,"observed_latency_ms":1.1}),
++        serde_json::json!({"name":"local_loss","rail_loss":"post_ferrite","observed_class":"rail_loss","model_class":"rail_loss","observed_detected":true,"model_detected":true,"model_latency_ms":1.0,"observed_latency_ms":1.1}),
++        serde_json::json!({"name":"upstream_loss","rail_loss":"upstream","observed_class":"system_disable_required","model_class":"system_disable_required","observed_detected":false,"model_detected":false,"model_latency_ms":1.0,"observed_latency_ms":1.1}),
++    ];
++    value["model"] = serde_json::json!({"observed_faults": cases});
++    let report = zapote_harness::run_unit(&serde_json::from_value(value).unwrap());
++    assert!(!report.findings.iter().any(|finding| {
++        finding.rule == "ERC.RTD.FAULT_CORNERS" && finding.status == zapote_core::Status::Fail
++    }));
++}
++
++#[test]
++fn unit_model_budget_is_numeric_and_fails_above_authored_limit() {
++    let mut value = serde_json::to_value(input()).unwrap();
++    value["model"] = serde_json::json!({
++        "local_supply_budget": {
++            "short_0ohm_total_bound_ma": 10.001,
++            "total_bound_ma": 9.0
++        },
++        "shared_reference_budget": {
++            "external_load_max_ua": 100.0,
++            "external_capacitance_max_nf": 10.0
++        },
++        "observed_faults": [{
++            "name": "healthy_pt100_window",
++            "observed_class": "WINDOW_CLEAR_NO_FAULT",
++            "observed_detected": false
++        }]
++    });
++    let report = zapote_harness::run_unit(&serde_json::from_value(value).unwrap());
++    assert!(report.findings.iter().any(|finding| {
++        finding.rule == "ERC.RTD.UNIT_MODEL"
++            && finding.status == zapote_core::Status::Fail
++            && finding.message.contains("exceeds authored 10 mA limit")
++    }));
++}

@@ -1,0 +1,297 @@
+{
+  "author": "GPT-6 Astra; seven explicit routes after native short and component-body findings",
+  "nets": [
+    {
+      "net": "sdo",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.2,
+          "points": [
+            "rtd_pan.adc.17",
+            [
+              19.4,
+              33.0475
+            ],
+            [
+              20.4,
+              32.9
+            ]
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              20.4,
+              32.9
+            ],
+            [
+              20.4,
+              30.8
+            ],
+            [
+              37,
+              30.8
+            ],
+            [
+              37,
+              32.2
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              37,
+              32.2
+            ],
+            "rtd_pan.r_miso.1"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            20.4,
+            32.9
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            37,
+            32.2
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        }
+      ]
+    },
+    {
+      "net": "sdi",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.2,
+          "points": [
+            "rtd_pan.adc.14",
+            [
+              19.2,
+              34.9525
+            ],
+            [
+              20,
+              35.8
+            ],
+            [
+              22,
+              35.8
+            ]
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              22,
+              35.8
+            ],
+            [
+              25,
+              35.8
+            ],
+            [
+              25,
+              30
+            ],
+            [
+              33,
+              30
+            ],
+            [
+              33,
+              32.2
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              33,
+              32.2
+            ],
+            "rtd_pan.r_mosi.2"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            22,
+            35.8
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            33,
+            32.2
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        }
+      ]
+    },
+    {
+      "net": "RTD_DRDY",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.2,
+          "points": [
+            "rtd_pan.adc.1",
+            [
+              12.2,
+              31.1425
+            ],
+            [
+              12.2,
+              29.2
+            ]
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              12.2,
+              29.2
+            ],
+            [
+              12.2,
+              28.65
+            ],
+            [
+              28,
+              28.65
+            ],
+            [
+              28,
+              36.1
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              28,
+              36.1
+            ],
+            [
+              28,
+              36.7
+            ],
+            "mcu.mcu.17"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            12.2,
+            29.2
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            28,
+            36.1
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        }
+      ]
+    },
+    {
+      "net": "rtd_force_n",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.2,
+          "points": [
+            "rtd_pan.adc.12",
+            [
+              19.8,
+              36.2225
+            ],
+            [
+              20.3,
+              36.7225
+            ],
+            [
+              20.3,
+              37.5
+            ]
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              20.3,
+              37.5
+            ],
+            [
+              20.3,
+              28
+            ],
+            [
+              18.5,
+              26
+            ],
+            "rtd_pan.j_rtd1.4"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            20.3,
+            37.5
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        }
+      ]
+    }
+  ]
+}

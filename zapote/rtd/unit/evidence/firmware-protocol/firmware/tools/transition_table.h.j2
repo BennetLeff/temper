@@ -1,0 +1,56 @@
+/**
+ * @file transition_table.h — GENERATED FILE. DO NOT EDIT.
+ *
+ * Transition table for the Temper state machine.
+ * Generated from firmware/transition_table.yaml
+ * by firmware/tools/gen_transition_table.py.
+ *
+ * Provides transition_table[STATE_COUNT][EVENT_COUNT] and
+ * transition_fault[STATE_COUNT][EVENT_COUNT] 2D arrays with
+ * designated initializers. Every legal (state, event) cell is
+ * explicitly set; illegal cells are TRANSITION_INVALID.
+ */
+
+#ifndef TRANSITION_TABLE_H
+#define TRANSITION_TABLE_H
+
+#include "state_machine.h"
+
+/** Sentinel: marks a (state, event) pair that has no declared transition. */
+#define TRANSITION_INVALID ((system_state_t)(-1))
+
+/** Complete transition table: transition_table[from_state][event] -> next_state.
+ *  Indexed by system_state_t (0..STATE_COUNT-1) and event_t (0..EVENT_COUNT-1).
+ *  Every cell is explicitly initialized. Unreachable cells are TRANSITION_INVALID. */
+static const system_state_t transition_table[STATE_COUNT][EVENT_COUNT] = {
+{%- for state_enum, state_str in state_names %}
+    [{{ state_enum }}] = {
+{%- for event_enum, event_str in event_names %}
+        [{{ event_enum }}] = {{ transition_cells[(state_enum, event_enum)] | default("TRANSITION_INVALID") }},
+{%- endfor %}
+    },
+{%- endfor %}
+};
+
+/** Fault code for a transition (or FAULT_NONE if not a fault transition).
+ *  Indexed identically to transition_table. */
+static const fault_code_t transition_fault[STATE_COUNT][EVENT_COUNT] = {
+{%- for state_enum, state_str in state_names %}
+    [{{ state_enum }}] = {
+{%- for event_enum, event_str in event_names %}
+        [{{ event_enum }}] = {{ fault_cells[(state_enum, event_str)] | default("FAULT_NONE") }},
+{%- endfor %}
+    },
+{%- endfor %}
+};
+
+/** Compile-time guard: dimensions match the X-macro sentinels. */
+_Static_assert(
+    sizeof(transition_table) == STATE_COUNT * EVENT_COUNT * sizeof(system_state_t),
+    "transition_table dimensions must equal STATE_COUNT * EVENT_COUNT");
+
+_Static_assert(
+    sizeof(transition_fault) == STATE_COUNT * EVENT_COUNT * sizeof(fault_code_t),
+    "transition_fault dimensions must equal STATE_COUNT * EVENT_COUNT");
+
+#endif /* TRANSITION_TABLE_H */

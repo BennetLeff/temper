@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "kicad_version": "10.0.4",
+  "checks": [
+    "existing zone deletion/new zone/native save reload",
+    "zone priority and clearance survive serialization",
+    "late operation failure leaves destination bytes unchanged"
+  ],
+  "board_sha256": "963781a3bc5f7fb547296378e7145aafcf8ee4a811c2b4062cddac74a7bd9c70",
+  "inputs": {
+    "zapote/rtd/tests/native_adapter_regression.py": "0bee94ca8fcf492f3dae8702d800a9b8864a823941cfd38f68da6b40445cf2ae",
+    "harness-lab/block_native.py": "e226116e66bbc0e2d5c21e9a9c1b923a40d39ff39dd89fe48709b9c429970973",
+    "harness-lab/buck_native.py": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+    "zapote/rtd/apply_routes.py": "34b89a085616315208bc4fa58ccade95250dcf9e97a51400fc3be480efe47c6c"
+  },
+  "native_refill": {
+    "status": "PASS",
+    "filled_area_mm2": 35.984522120362,
+    "output_board_sha256": "e8bb33e23b179a2746c6f099ee4dfc793c3ddcf361206dd4ed52ecb4f67a6543",
+    "report_sha256": "1afcf12cf8d67e5d57403b374d47974da8fc65a6c0c76e71ec005f7e71ce2fc1",
+    "command": "kicad-cli pcb drc --refill-zones --save-board --format json --all-track-errors --severity-all --output drc.json adapter.kicad_pcb",
+    "exit_code": 0
+  }
+}

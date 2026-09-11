@@ -1,0 +1,175 @@
+{
+  "input_board_sha256": "b6199a3b58e70cb97c2b6471095e14753e19b77885e34bd7e2c5756830c0985e",
+  "output_board_sha256": "3a2951f94064d13da7be49c950430099f933b9b4712c2d63cb153cb9855635c5",
+  "instruction_sha256": "b5e84d058f143baee3cfe6fe2846357a799a54d2606f60465685c9a467cef2e4",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "mcu.c_vcc1",
+      "reference": "C40",
+      "uuid": "dbd79659-68c4-4aa8-a1a7-cd26ab11a7b6",
+      "before": {
+        "position_mm": [
+          23.5,
+          59.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              22.725,
+              59.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              24.275,
+              59.0
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          23.5,
+          59.0
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              24.275,
+              59.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              22.725,
+              59.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "mcu.c_en",
+      "reference": "C42",
+      "uuid": "837ec545-b902-480b-af53-13d3210c255f",
+      "before": {
+        "position_mm": [
+          23.0,
+          56.5
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "en",
+            "position_mm": [
+              22.225,
+              56.5
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              23.775,
+              56.5
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          23.0,
+          56.5
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "en",
+            "position_mm": [
+              23.775,
+              56.5
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              22.225,
+              56.5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "mcu.r_en",
+      "reference": "R73",
+      "uuid": "5af6a0c5-d760-4f42-80bf-c3324599a320",
+      "before": {
+        "position_mm": [
+          21.0,
+          54.0
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              21.0,
+              54.825
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "en",
+            "position_mm": [
+              21.0,
+              53.175
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          21.0,
+          54.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              20.175,
+              54.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "en",
+            "position_mm": [
+              21.825,
+              54.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

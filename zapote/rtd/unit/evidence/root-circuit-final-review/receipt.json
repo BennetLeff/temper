@@ -1,0 +1,25 @@
+{
+  "scope": "Independent exact-hash import check, producer replay and receipt mutation rejection; not a physical or whole-unit acceptance result",
+  "import_files_verified": 37,
+  "observations_byte_identical": true,
+  "observation_count": 10,
+  "observations_sha256": "74e1187aabcd2f85e615866358f673a60e230f19d74d0bcfff5a0e6ee681fed8",
+  "mutation_rejections": {
+    "missing_force_plus_endpoints": "expected two RTD endpoints for FORCE+",
+    "nonfault_open_margin": "open FORCE+ does not have negative model margins",
+    "nonfault_short_margin": "short transient does not cross the 20 mV fault criterion",
+    "missing_short_case": "expected four healthy-to-short transient cases"
+  },
+  "physical_status": "NOT RUN",
+  "input_hashes": {
+    "rtdin_transient_model.py": "1cab91630f8d1b4229b5f15a34ffd1b88a4a0d04e07299c4811b76e18db7429f",
+    "rtdin_transient_model_results.txt": "43907ccb35f72d2d07ae506881198a052aaf6327cf2f760355e111d03d458d74",
+    "rtdin_comparator_model.py": "46df61023950e23949d73d0dec78417b5b4decc0f934879091f4fabbc41d992a",
+    "rtdin_comparator_model_results.txt": "8f028402bc5bbc3c58c175ba7b415ac2e05ff74f589dc75c3a91445b60a8666d",
+    "rtdin_comparator_window.cir": "9ca9386d1a0565f6708cdbfce89a2bbe5a4e0de7faffd0d0b9326181759c123e",
+    "rtd_short10_spice_receipt.txt": "040e6fa0d1f150feb5f1a646ea5adec08f1294c4d6912c20fbbf8f85df5d9d26",
+    "rail_monitor_bounds.txt": "f956500f981e683dc67688d62a95bc30177ed5091333ec5eb535c4c13230f824",
+    "fault_nand_upstream_power_and_bypass.patch": "09f0c4c455227b383f9b01aeaa1eec298cb8008beb2b03f73dd691a58e2d2c6b",
+    "rtd_observed_faults.py": "e754081f93921c53f333492bdc8fc29071d89f17d198baafc28e1e8f4929d0b9"
+  }
+}

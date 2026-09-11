@@ -1,0 +1,29 @@
+{
+  "scope": "Composed host firmware verification; canonical sensor sources plus Rust owner production startup gates and focused tests. Does not prove physical timing or canonical import.",
+  "source_origins": {
+    "base": "/private/tmp/temper-rtd-rust/firmware",
+    "sensor_overrides": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/firmware/components/sensors (max31865.c, rtd_service.c, include/max31865.h, include/rtd_service.h)"
+  },
+  "build_changed_source_files": [],
+  "targets": {
+    "test_max31865_only": {
+      "passed": 15,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "test_state_machine_only": {
+      "passed": 60,
+      "failed": 0,
+      "exit_code": 0
+    }
+  },
+  "artifacts": {
+    "source-manifest-after.json": "10f653b53b6a09610b2397ac8341d64cfab9eab133d27ba27a339ac204c6dfb2",
+    "build/test_max31865_only": "052b8c8037429adf4cca4b784de557a3bc29917e7435b353405ddfbcd5a8cea1",
+    "build/test_state_machine_only": "5fdb5e19663de5c77072bbe31a95f5415fbc07465c3c56e58e070526b4228187",
+    "max31865-tests.log": "1249e51bbca9227e69557374e6bba653cc2a9cbf4ad3681a216cff74e03907bb",
+    "state-machine-tests.log": "b60d32e2ad1f4a6d7f35bac306ecf777fabd1f6060f4879ee7ef4c17bff49bec",
+    "configure.log": "d8ab0099e9740b51f4379a01fdc374b25d3e30cb82b9ec632bd8acd533b5b00a",
+    "build.log": "ec22d3d18b2fe3087b2a23bf026907e6b43f55a8c70c7fb1219128c527dca0d6"
+  }
+}

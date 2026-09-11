@@ -1,0 +1,175 @@
+{
+  "input_board_sha256": "f0b3b1e8c4032a782e984a55f2372a531102f53ce752abead1ac16089ba1b4c1",
+  "output_board_sha256": "052ad96961adb40db39a565ae67d33c738bffca32db1357ef30d95e103d45253",
+  "instruction_sha256": "a39df0be996f0dc2930cee648e2751de8fd0b029f6a2d7cb537f2aceca69aff4",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "rtd_pan.r_cs",
+      "reference": "R34",
+      "uuid": "99680f76-7516-498f-a269-8c92095d9e9f",
+      "before": {
+        "position_mm": [
+          29.0,
+          34.0
+        ],
+        "angle_deg": -90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_CS_N",
+            "position_mm": [
+              29.0,
+              33.175
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "cs_n",
+            "position_mm": [
+              29.0,
+              34.825
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          29.0,
+          34.0
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_CS_N",
+            "position_mm": [
+              29.0,
+              34.825
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "cs_n",
+            "position_mm": [
+              29.0,
+              33.175
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.r_mosi",
+      "reference": "R33",
+      "uuid": "ccf1e290-db70-4e13-bba4-d9618840d1ac",
+      "before": {
+        "position_mm": [
+          33.0,
+          34.0
+        ],
+        "angle_deg": -90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_SDI",
+            "position_mm": [
+              33.0,
+              33.175
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "sdi",
+            "position_mm": [
+              33.0,
+              34.825
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          33.0,
+          34.0
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_SDI",
+            "position_mm": [
+              33.0,
+              34.825
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "sdi",
+            "position_mm": [
+              33.0,
+              33.175
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.r_miso",
+      "reference": "R35",
+      "uuid": "70bd1d9f-0b3b-4b7a-b33d-9a142259efa0",
+      "before": {
+        "position_mm": [
+          37.0,
+          34.0
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "sdo",
+            "position_mm": [
+              37.0,
+              34.825
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "RTD_SDO",
+            "position_mm": [
+              37.0,
+              33.175
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          37.0,
+          34.0
+        ],
+        "angle_deg": -90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "sdo",
+            "position_mm": [
+              37.0,
+              33.175
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "RTD_SDO",
+            "position_mm": [
+              37.0,
+              34.825
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

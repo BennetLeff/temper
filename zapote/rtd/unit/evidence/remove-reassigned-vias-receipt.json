@@ -1,0 +1,34 @@
+{
+  "input_board_sha256": "2e61d4faa6682f6bac6dc9147a7ec9996345bd59223990c40a0b34f1d0fce523",
+  "output_board_sha256": "ce5f7af41eebd4aabefaf389652305c0fda53e297dc7efe25535fe248665cd31",
+  "instruction_sha256": "aba170fe2c5722372ddb1b6df8afaf7f01904f34fa204635bbf8e95d5502371b",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [],
+  "removed_copper": [
+    {
+      "uuid": "c99954d7-58b1-452c-900c-430108e5b243",
+      "net": "+3V3",
+      "position_mm": [
+        36.4,
+        32.0
+      ]
+    },
+    {
+      "uuid": "375abdce-e7f7-4811-bc93-50de69521063",
+      "net": "RTD_AVDD",
+      "position_mm": [
+        32.0,
+        20.7
+      ]
+    },
+    {
+      "uuid": "3f928ff6-72f7-43da-b80c-1fad330934f0",
+      "net": "RTD_AVDD",
+      "position_mm": [
+        34.2,
+        49.95
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "input_board_sha256": "44a8fd42af05d096942982d441f3d6214e54273167b634e1b0860824472d2e1c",
+  "output_board_sha256": "edfbb978127b895a55188aff8df4541a833d04efd96503fbe212fe29c9f60e57",
+  "instruction_sha256": "8606ab1cc708c3b7d302d20b5422a3334d660d9c2ff28d5b7d1f2bd797e8a746",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [],
+  "removed_copper": [
+    {
+      "uuid": "00705cc2-fd66-4871-b3f1-f098f7706fe4",
+      "net": "gnd",
+      "position_mm": [
+        17.8625,
+        43.0
+      ]
+    },
+    {
+      "uuid": "37754aa0-f885-451a-8764-7e68683a4fa7",
+      "net": "gnd",
+      "position_mm": [
+        15.0,
+        55.175
+      ]
+    },
+    {
+      "uuid": "50494855-ceb0-4392-bed0-45d7098fe9c1",
+      "net": "gnd",
+      "position_mm": [
+        11.775,
+        40.0
+      ]
+    },
+    {
+      "uuid": "58039201-f247-48d9-88d8-26a53a94a3a5",
+      "net": "gnd",
+      "position_mm": [
+        23.0,
+        34.325
+      ]
+    },
+    {
+      "uuid": "a774e514-f7f3-4dd9-85f4-20f635dc2c1d",
+      "net": "gnd",
+      "position_mm": [
+        17.8625,
+        51.0
+      ]
+    },
+    {
+      "uuid": "c257e4b0-a61c-47fe-90aa-439bdd3eea7b",
+      "net": "gnd",
+      "position_mm": [
+        27.775,
+        30.0
+      ]
+    },
+    {
+      "uuid": "fc02fb15-fdb8-4424-8512-db55acdf834a",
+      "net": "gnd",
+      "position_mm": [
+        24.1375,
+        30.95
+      ]
+    }
+  ]
+}

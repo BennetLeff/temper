@@ -1,0 +1,371 @@
+{
+  "input_board_sha256": "b90d97a982c737dc7c27e37e353043269d258fe4ff531e20ca5ae38fd13316a6",
+  "output_board_sha256": "200d93cc51ea79fa849d2369e7f0a797f6e09d445433257296572e1d97604ef8",
+  "manifest_sha256": "327b1337aa1f7003c6190e195f30d4a324d6d687b0831651310d64d0195bc0bf",
+  "poses_sha256": "60385b9ae24026096773159f0628c29268fbd6040c5af8825d1ea82e1057167f",
+  "replay_sha256": "8217724e9722d90b13e1e9609ec61708e2d6f66897316f9a4cdb7ee951bfe580",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "kicad_version": "10.0.4",
+  "operations": [
+    {
+      "instance": "rtd_pan.adc",
+      "reference": "U1",
+      "library_sha256": "38e1d013616514c692a593ab99a4327a30a98e91bfb4bc7a621bc2c0352d9008",
+      "pose": [
+        20.0,
+        20.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_ref",
+      "reference": "R1",
+      "library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "pose": [
+        14.5,
+        20.5,
+        -90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_vdd",
+      "reference": "C1",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        14.4,
+        18.0,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_dvdd",
+      "reference": "C2",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        14.5,
+        15.8,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_rtd_input",
+      "reference": "C3",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        20.0,
+        25.5,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_reference",
+      "reference": "C4",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        20.0,
+        38.35,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_low_window",
+      "reference": "C5",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        30.0,
+        37.35,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_high_window",
+      "reference": "C6",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        30.0,
+        46.35,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_window_and",
+      "reference": "C7",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        40.0,
+        39.35,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_rail_monitor",
+      "reference": "C8",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        43.0,
+        30.5,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.c_fault_nand",
+      "reference": "C9",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pose": [
+        49.0,
+        39.35,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_rtdin_p_bias",
+      "reference": "R2",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        15.7,
+        27.0,
+        90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_rtdin_n_bias",
+      "reference": "R3",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        24.3,
+        27.0,
+        90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_sclk",
+      "reference": "R4",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        27.0,
+        20.3,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_mosi",
+      "reference": "R5",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        27.0,
+        22.0,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_cs",
+      "reference": "R6",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        27.0,
+        18.6,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_miso",
+      "reference": "R7",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        27.0,
+        16.9,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_low_top",
+      "reference": "R9",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        25.5,
+        39.0,
+        -90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_low_bottom",
+      "reference": "R10",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        25.5,
+        42.5,
+        -90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_high_top",
+      "reference": "R11",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        25.5,
+        48.0,
+        -90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_high_bottom",
+      "reference": "R12",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        25.5,
+        51.5,
+        -90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_window_sense_p",
+      "reference": "R13",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        33.5,
+        32,
+        0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R14",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        42.5,
+        45.5,
+        -90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_avdd_top",
+      "reference": "R15",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        39.5,
+        26.0,
+        -90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_avdd_bottom",
+      "reference": "R16",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        39.5,
+        29.5,
+        -90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_rail_ok_pullup",
+      "reference": "R17",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        46.0,
+        31.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.r_fault_pullup",
+      "reference": "R18",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pose": [
+        52.5,
+        44.5,
+        90.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.fb_power",
+      "reference": "R8",
+      "library_sha256": "a2a9c562208496756e22f3ab19e0bd6db2341d14da92e7c767d5eafd1bb45d38",
+      "pose": [
+        36.0,
+        12.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.reference",
+      "reference": "U2",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pose": [
+        20.0,
+        41.0,
+        180.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.low_window",
+      "reference": "U3",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pose": [
+        30.0,
+        40.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.high_window",
+      "reference": "U4",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pose": [
+        30.0,
+        49.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.window_and",
+      "reference": "U5",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pose": [
+        40.0,
+        42.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.fault_nand",
+      "reference": "U7",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pose": [
+        49.0,
+        42.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "library_sha256": "42f4a408e86b82b26da7b4b1c68170c1214dedadff38dff5015ac55a23dd6401",
+      "pose": [
+        43.0,
+        28.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "library_sha256": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+      "pose": [
+        16.25,
+        33.0,
+        0.0
+      ]
+    },
+    {
+      "instance": "unit_io",
+      "reference": "J2",
+      "library_sha256": "e7bb1532a01e30864dd947afe1a6b27613e0f4440c57c2f1a46d0ed885ba6c5b",
+      "pose": [
+        48.0,
+        12.0,
+        0.0
+      ]
+    }
+  ]
+}

@@ -1,0 +1,681 @@
+{
+  "input_board_sha256": "c610130c3c15b439b0877c4137e90418d5d1d08c7dc392c3607de457f7658074",
+  "output_board_sha256": "35611e9a8710fb10e645dbfec5a6f4d065c7e58f6925833ac20a04dfd868e131",
+  "manifest_sha256": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+  "section_sha256": "73ab0884bc7c49c70485c1e0e2f2289050822c774b048fd8a797d52c0828d35a",
+  "poses_sha256": "60385b9ae24026096773159f0628c29268fbd6040c5af8825d1ea82e1057167f",
+  "replay_sha256": "81599f36945ae6563a03c6c40b7ccd1c0c626319159a1a20e334de0d7ed1d9e8",
+  "operations": [
+    {
+      "instance": "rtd_pan.adc",
+      "added": false,
+      "before": {
+        "reference": "U1",
+        "pads": {
+          "1": "RTD_DRDY",
+          "2": "+3V3",
+          "3": "RTD_AVDD",
+          "4": "bias",
+          "5": "bias",
+          "6": "refin_n",
+          "7": "refin_n",
+          "8": "rtd_force_p",
+          "9": "gnd",
+          "10": "rtd_sense_p",
+          "11": "rtd_sense_n",
+          "12": "rtd_force_n",
+          "13": "gnd",
+          "14": "sdi",
+          "15": "sclk",
+          "16": "cs_n",
+          "17": "sdo",
+          "18": "gnd",
+          "19": "gnd",
+          "20": "nc3"
+        }
+      },
+      "reference": "U1",
+      "pads": {
+        "1": "RTD_DRDY",
+        "2": "+3V3",
+        "3": "RTD_AVDD",
+        "4": "bias",
+        "5": "bias",
+        "6": "refin_n",
+        "7": "refin_n",
+        "8": "rtd_force_p",
+        "9": "gnd",
+        "10": "rtd_sense_p",
+        "11": "rtd_sense_n",
+        "12": "rtd_force_n",
+        "13": "gnd",
+        "14": "sdi",
+        "15": "sclk",
+        "16": "cs_n",
+        "17": "sdo",
+        "18": "gnd",
+        "19": "gnd",
+        "20": "nc3"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_ref",
+      "added": false,
+      "before": {
+        "reference": "R1",
+        "pads": {
+          "1": "bias",
+          "2": "refin_n"
+        }
+      },
+      "reference": "R1",
+      "pads": {
+        "1": "bias",
+        "2": "refin_n"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_vdd",
+      "added": false,
+      "before": {
+        "reference": "C1",
+        "pads": {
+          "1": "RTD_AVDD",
+          "2": "gnd"
+        }
+      },
+      "reference": "C1",
+      "pads": {
+        "1": "RTD_AVDD",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_dvdd",
+      "added": false,
+      "before": {
+        "reference": "C2",
+        "pads": {
+          "1": "+3V3",
+          "2": "gnd"
+        }
+      },
+      "reference": "C2",
+      "pads": {
+        "1": "+3V3",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_rtd_input",
+      "added": false,
+      "before": {
+        "reference": "C3",
+        "pads": {
+          "1": "rtd_sense_p",
+          "2": "rtd_sense_n"
+        }
+      },
+      "reference": "C3",
+      "pads": {
+        "1": "rtd_sense_p",
+        "2": "rtd_sense_n"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_reference",
+      "added": false,
+      "before": {
+        "reference": "C4",
+        "pads": {
+          "1": "+3V3",
+          "2": "gnd"
+        }
+      },
+      "reference": "C4",
+      "pads": {
+        "1": "+3V3",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_low_window",
+      "added": false,
+      "before": {
+        "reference": "C5",
+        "pads": {
+          "1": "RTD_AVDD",
+          "2": "gnd"
+        }
+      },
+      "reference": "C5",
+      "pads": {
+        "1": "RTD_AVDD",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_high_window",
+      "added": false,
+      "before": {
+        "reference": "C6",
+        "pads": {
+          "1": "RTD_AVDD",
+          "2": "gnd"
+        }
+      },
+      "reference": "C6",
+      "pads": {
+        "1": "RTD_AVDD",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_window_and",
+      "added": false,
+      "before": {
+        "reference": "C7",
+        "pads": {
+          "1": "RTD_AVDD",
+          "2": "gnd"
+        }
+      },
+      "reference": "C7",
+      "pads": {
+        "1": "RTD_AVDD",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_rail_monitor",
+      "added": false,
+      "before": {
+        "reference": "C8",
+        "pads": {
+          "1": "+3V3",
+          "2": "gnd"
+        }
+      },
+      "reference": "C8",
+      "pads": {
+        "1": "+3V3",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.c_fault_nand",
+      "added": false,
+      "before": {
+        "reference": "C9",
+        "pads": {
+          "1": "RTD_AVDD",
+          "2": "gnd"
+        }
+      },
+      "reference": "C9",
+      "pads": {
+        "1": "+3V3",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_rtdin_p_bias",
+      "added": false,
+      "before": {
+        "reference": "R2",
+        "pads": {
+          "1": "rtd_sense_p",
+          "2": "bias"
+        }
+      },
+      "reference": "R2",
+      "pads": {
+        "1": "rtd_sense_p",
+        "2": "bias"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_rtdin_n_bias",
+      "added": false,
+      "before": {
+        "reference": "R3",
+        "pads": {
+          "1": "rtd_sense_n",
+          "2": "bias"
+        }
+      },
+      "reference": "R3",
+      "pads": {
+        "1": "rtd_sense_n",
+        "2": "bias"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_sclk",
+      "added": false,
+      "before": {
+        "reference": "R4",
+        "pads": {
+          "1": "RTD_SCK",
+          "2": "sclk"
+        }
+      },
+      "reference": "R4",
+      "pads": {
+        "1": "RTD_SCK",
+        "2": "sclk"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_mosi",
+      "added": false,
+      "before": {
+        "reference": "R5",
+        "pads": {
+          "1": "RTD_SDI",
+          "2": "sdi"
+        }
+      },
+      "reference": "R5",
+      "pads": {
+        "1": "RTD_SDI",
+        "2": "sdi"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_cs",
+      "added": false,
+      "before": {
+        "reference": "R6",
+        "pads": {
+          "1": "RTD_CS_N",
+          "2": "cs_n"
+        }
+      },
+      "reference": "R6",
+      "pads": {
+        "1": "RTD_CS_N",
+        "2": "cs_n"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_miso",
+      "added": false,
+      "before": {
+        "reference": "R7",
+        "pads": {
+          "1": "sdo",
+          "2": "RTD_SDO"
+        }
+      },
+      "reference": "R7",
+      "pads": {
+        "1": "sdo",
+        "2": "RTD_SDO"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_low_top",
+      "added": false,
+      "before": {
+        "reference": "R9",
+        "pads": {
+          "1": "vbias",
+          "2": "inn"
+        }
+      },
+      "reference": "R9",
+      "pads": {
+        "1": "vbias",
+        "2": "inn"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_low_bottom",
+      "added": false,
+      "before": {
+        "reference": "R10",
+        "pads": {
+          "1": "inn",
+          "2": "rtd_sense_n"
+        }
+      },
+      "reference": "R10",
+      "pads": {
+        "1": "inn",
+        "2": "rtd_sense_n"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_high_top",
+      "added": false,
+      "before": {
+        "reference": "R11",
+        "pads": {
+          "1": "vbias",
+          "2": "inp"
+        }
+      },
+      "reference": "R11",
+      "pads": {
+        "1": "vbias",
+        "2": "inp"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_high_bottom",
+      "added": false,
+      "before": {
+        "reference": "R12",
+        "pads": {
+          "1": "inp",
+          "2": "gnd"
+        }
+      },
+      "reference": "R12",
+      "pads": {
+        "1": "inp",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_window_sense_p",
+      "added": false,
+      "before": {
+        "reference": "R13",
+        "pads": {
+          "1": "rtd_sense_p",
+          "2": "window_rtdin_p"
+        }
+      },
+      "reference": "R13",
+      "pads": {
+        "1": "rtd_sense_p",
+        "2": "window_rtdin_p"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_window_ok_pulldown",
+      "added": false,
+      "before": {
+        "reference": "R14",
+        "pads": {
+          "1": "y",
+          "2": "gnd"
+        }
+      },
+      "reference": "R14",
+      "pads": {
+        "1": "y",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_avdd_top",
+      "added": false,
+      "before": {
+        "reference": "R15",
+        "pads": {
+          "1": "RTD_AVDD",
+          "2": "sense"
+        }
+      },
+      "reference": "R15",
+      "pads": {
+        "1": "RTD_AVDD",
+        "2": "sense"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_avdd_bottom",
+      "added": false,
+      "before": {
+        "reference": "R16",
+        "pads": {
+          "1": "sense",
+          "2": "gnd"
+        }
+      },
+      "reference": "R16",
+      "pads": {
+        "1": "sense",
+        "2": "gnd"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_rail_ok_pullup",
+      "added": false,
+      "before": {
+        "reference": "R17",
+        "pads": {
+          "1": "+3V3",
+          "2": "reset"
+        }
+      },
+      "reference": "R17",
+      "pads": {
+        "1": "+3V3",
+        "2": "reset"
+      }
+    },
+    {
+      "instance": "rtd_pan.r_fault_pullup",
+      "added": false,
+      "before": {
+        "reference": "R18",
+        "pads": {
+          "1": "+3V3",
+          "2": "RTD_HW_FAULT"
+        }
+      },
+      "reference": "R18",
+      "pads": {
+        "1": "+3V3",
+        "2": "RTD_HW_FAULT"
+      }
+    },
+    {
+      "instance": "rtd_pan.fb_power",
+      "added": false,
+      "before": {
+        "reference": "R8",
+        "pads": {
+          "1": "+3V3",
+          "2": "RTD_AVDD"
+        }
+      },
+      "reference": "R8",
+      "pads": {
+        "1": "+3V3",
+        "2": "RTD_AVDD"
+      }
+    },
+    {
+      "instance": "rtd_pan.reference",
+      "added": false,
+      "before": {
+        "reference": "U2",
+        "pads": {
+          "1": "vbias",
+          "2": "gnd",
+          "3": "+3V3",
+          "4": "+3V3",
+          "5": "SHARED_REF_2V5"
+        }
+      },
+      "reference": "U2",
+      "pads": {
+        "1": "vbias",
+        "2": "gnd",
+        "3": "+3V3",
+        "4": "+3V3",
+        "5": "SHARED_REF_2V5"
+      }
+    },
+    {
+      "instance": "rtd_pan.low_window",
+      "added": false,
+      "before": {
+        "reference": "U3",
+        "pads": {
+          "1": "rtd_pan.low_window-out",
+          "2": "gnd",
+          "3": "window_rtdin_p",
+          "4": "inn",
+          "5": "RTD_AVDD"
+        }
+      },
+      "reference": "U3",
+      "pads": {
+        "1": "rtd_pan.low_window-out",
+        "2": "gnd",
+        "3": "window_rtdin_p",
+        "4": "inn",
+        "5": "RTD_AVDD"
+      }
+    },
+    {
+      "instance": "rtd_pan.high_window",
+      "added": false,
+      "before": {
+        "reference": "U4",
+        "pads": {
+          "1": "rtd_pan.high_window-out",
+          "2": "gnd",
+          "3": "inp",
+          "4": "window_rtdin_p",
+          "5": "RTD_AVDD"
+        }
+      },
+      "reference": "U4",
+      "pads": {
+        "1": "rtd_pan.high_window-out",
+        "2": "gnd",
+        "3": "inp",
+        "4": "window_rtdin_p",
+        "5": "RTD_AVDD"
+      }
+    },
+    {
+      "instance": "rtd_pan.window_and",
+      "added": false,
+      "before": {
+        "reference": "U5",
+        "pads": {
+          "1": "rtd_pan.low_window-out",
+          "2": "rtd_pan.high_window-out",
+          "3": "gnd",
+          "4": "y",
+          "5": "RTD_AVDD"
+        }
+      },
+      "reference": "U5",
+      "pads": {
+        "1": "rtd_pan.low_window-out",
+        "2": "rtd_pan.high_window-out",
+        "3": "gnd",
+        "4": "y",
+        "5": "RTD_AVDD"
+      }
+    },
+    {
+      "instance": "rtd_pan.fault_nand",
+      "added": false,
+      "before": {
+        "reference": "U7",
+        "pads": {
+          "1": "y",
+          "2": "reset",
+          "3": "gnd",
+          "4": "RTD_HW_FAULT",
+          "5": "RTD_AVDD"
+        }
+      },
+      "reference": "U7",
+      "pads": {
+        "1": "y",
+        "2": "reset",
+        "3": "gnd",
+        "4": "RTD_HW_FAULT",
+        "5": "+3V3"
+      }
+    },
+    {
+      "instance": "rtd_pan.rail_monitor",
+      "added": false,
+      "before": {
+        "reference": "U6",
+        "pads": {
+          "1": "sense",
+          "2": "gnd",
+          "3": "+3V3",
+          "4": "+3V3",
+          "5": "ct",
+          "6": "reset"
+        }
+      },
+      "reference": "U6",
+      "pads": {
+        "1": "sense",
+        "2": "gnd",
+        "3": "+3V3",
+        "4": "+3V3",
+        "5": "ct",
+        "6": "reset"
+      }
+    },
+    {
+      "instance": "rtd_pan.j_rtd1",
+      "added": false,
+      "before": {
+        "reference": "J1",
+        "pads": {
+          "1": "rtd_force_p",
+          "2": "rtd_sense_p",
+          "3": "rtd_sense_n",
+          "4": "rtd_force_n"
+        }
+      },
+      "reference": "J1",
+      "pads": {
+        "1": "rtd_force_p",
+        "2": "rtd_sense_p",
+        "3": "rtd_sense_n",
+        "4": "rtd_force_n"
+      }
+    },
+    {
+      "instance": "unit_io",
+      "added": false,
+      "before": {
+        "reference": "J2",
+        "pads": {
+          "1": "+3V3",
+          "2": "gnd",
+          "3": "gnd",
+          "4": "RTD_SCK",
+          "5": "RTD_SDI",
+          "6": "RTD_SDO",
+          "7": "RTD_CS_N",
+          "8": "RTD_DRDY",
+          "9": "RTD_HW_FAULT",
+          "10": "SHARED_REF_2V5"
+        }
+      },
+      "reference": "J2",
+      "pads": {
+        "1": "+3V3",
+        "2": "gnd",
+        "3": "gnd",
+        "4": "RTD_SCK",
+        "5": "RTD_SDI",
+        "6": "RTD_SDO",
+        "7": "RTD_CS_N",
+        "8": "RTD_DRDY",
+        "9": "RTD_HW_FAULT",
+        "10": "SHARED_REF_2V5"
+      }
+    }
+  ],
+  "kicad_version": "10.0.4"
+}

@@ -1,0 +1,22 @@
+{
+  "status": "PASS: causal regression proof, not whole-unit acceptance",
+  "kicad": "10.0.4",
+  "method": "Same frozen native board baseline and seven agent-authored gnd vias; legacy variant removes exactly UnFill loops from replace_copper and append replay; fixed variant uses current adapters. Native refill/save after both.",
+  "legacy_wrong_net_count": 5,
+  "fixed_wrong_net_count": 0,
+  "scope": "Prepared scratch baseline from source03-return-pass with seven stitches removed and zones refilled; not original incident snapshot. No production or candidate CAD edited.",
+  "files": {
+    "check.py": "a8f337aa0afd88b0b8e56f7fd398204000fcf6264cc2635320bff195b672133c",
+    "baseline.kicad_pcb": "84883de49ed2602de38104ce18814a8f1a47a5decdbbbb0c32c9f9acb5ed1d56",
+    "legacy-result.json": "0708bb5b64f65dd1ab773e7df8ad922781f79ba8f08efa796ddba7cafc01251c",
+    "fixed-result.json": "36a7fecb234a6c0083861123d4403827216fa3c07478d72bba8cef8da706b5aa",
+    "legacy-drc.json": "891cae39b61352522c1d7b656ee80ccaa429573eb0238e6e326d41638dfb1af3",
+    "fixed-drc.json": "13e0761da796853a13088d215ba792fce63518273ff334497a181472b0a71efa",
+    "legacy-board.kicad_pcb": "f4df4efba44ddd02f307a2cab3c0c933b49b9eb5e6e65b5f65e516b92bffc3da",
+    "fixed-board.kicad_pcb": "4a4ef4c9582a0bd06a4e33f7e6d269e9245b88f2dbd945c3412edc8740094d2e",
+    "operation.json": "f06416541c64b28b33b15fb5d5e2621d13fe4a583fe725679b1cde0eb82163d3",
+    "block_native.py": "f649b3afb6e783c4c47a33af1a739f181cb54c78d5865588437677fc23bdde1c",
+    "apply_routes.py": "412713bbe767f5e44b6860d9b79018edf447aba8d8f5a39358839f01eadd0c4c",
+    "buck_native.py": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab"
+  }
+}

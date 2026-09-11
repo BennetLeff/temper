@@ -1,0 +1,29 @@
+{
+  "status": "emitted-native-verification-required",
+  "source_netlist_sha256": "c14a1d3030dc38c20fef8c67bd57560cbcb993fcb962888eb9e2da0e7dc9df6b",
+  "source_bom_sha256": "6e7adf8a6137f51abc71e52d0971f53e474ffe392c307263176876de3f731278",
+  "donor_sha256": "4f4a84076ee2a3d16ab9620f3aecd6d3493c7f7845fe8b04a988af4889b0c747",
+  "helper_sha256": "1e5f508911cdcc8d754c0c3f499e67108ccc08bf10e92127d1e58a498beff1a5",
+  "input_schematic_sha256": null,
+  "outputs": {
+    "section.kicad_sch": "a00fc0bfa1f33c815dec88a5d33feb601968fb92b88182f4a3ad33377d8f5505",
+    "current-sense-unit.kicad_sym": "8a648b275475839cd04b5b8de25124a0b83f4cbddeedda429247def125c3110f",
+    "sym-lib-table": "e164afa5dbed3ede58165d15676b4a27a892af20060ee6f8250ff3ee34b29b45"
+  },
+  "intentional_open_pins": [
+    [
+      "U3",
+      "6",
+      "y2"
+    ],
+    [
+      "U3",
+      "10",
+      "y3"
+    ]
+  ],
+  "component_count": 21,
+  "native_erc": "NOT RUN",
+  "native_netlist_equality": "NOT RUN",
+  "pcb_touched": false
+}

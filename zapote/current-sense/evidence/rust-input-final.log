@@ -1,0 +1,4 @@
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-drc)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.20s
+     Running `/private/tmp/zapote-rtd-target/debug/examples/current_sense_input zapote/current-sense/candidate/source-manifest.json zapote/current-sense/circuit/current_sense_profile.json zapote/current-sense/evidence/native-final.json zapote/current-sense/circuit/model_output.json zapote/current-sense/evidence/rust-input-final.json`

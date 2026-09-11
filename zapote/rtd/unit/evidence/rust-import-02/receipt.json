@@ -1,0 +1,85 @@
+{
+  "status": "imported stable44test checkpoint; further scoped corrections pending",
+  "files": [
+    {
+      "path": "zapote/Cargo.lock",
+      "sha256": "00c6f578fa66858a4fc224abfe0c3d73b9f9f9d56e646bd1ae072d2963d9f0b5"
+    },
+    {
+      "path": "zapote/Cargo.toml",
+      "sha256": "c38a5d2f502c84c630861afa6bc3eca538ac6eb3bbfc1971c15596ce9fddee39"
+    },
+    {
+      "path": "zapote/SCHEMA.md",
+      "sha256": "36320492884cdb3bf94716cd262fef8f9a3c25e2c726d74adc36806620103c83"
+    },
+    {
+      "path": "zapote/packages/zapote-core/Cargo.toml",
+      "sha256": "74d1859678f42b5f26aee0e8ff6315efdf78bbf2ad0647fc8a134146d4ee8426"
+    },
+    {
+      "path": "zapote/packages/zapote-core/src/lib.rs",
+      "sha256": "f6d7ba1ed458b330d9e9e884c1db9604cd6d81a84b7ebd4d46e7b372a974d6b0"
+    },
+    {
+      "path": "zapote/packages/zapote-core/src/unit.rs",
+      "sha256": "dab35c3cc811c7aab1e2417d3aa691735bf498529fd2f1d7e090a33d1edd513a"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/Cargo.toml",
+      "sha256": "d69cfabe9e2ae7addb05588a00ec5ce4cbbe7a76f6c873f8a699232f4c567fec"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/src/donor_geometry.rs",
+      "sha256": "c76898d176426fec10f40f76c60c6df7ecd9168093ec2bad082c5d4f114ddb4e"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/src/ipc.rs",
+      "sha256": "9f6210032f864b991ea7cc0cc7c0e3e344359e665ef59eed85208c9e8b7f5fcd"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/src/lib.rs",
+      "sha256": "680d9459fedac6929986f59a2330188d782959b7a8b48e427b703e607ee47281"
+    },
+    {
+      "path": "zapote/packages/zapote-erc/Cargo.toml",
+      "sha256": "891105d2b66dac9e84588795b0a372caa45f1ca54d4d6f08c45dd5532ac70db2"
+    },
+    {
+      "path": "zapote/packages/zapote-erc/src/lib.rs",
+      "sha256": "768326d9d8f035a0abb4f3bd90eae3be980c2bd68f44e93d2fa485fe5d645f9c"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/Cargo.toml",
+      "sha256": "acff4888101e6ca0db8e631d635f9abd558191ea677a2ebf8dc43536cf3d6002"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/src/lib.rs",
+      "sha256": "afe299af7626c42753e035dd2dfd2c35d09f11c58605638ff3a8f8097bfcee0f"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/src/main.rs",
+      "sha256": "e35b863e4f350b0eed91df08593a2687b75735060e35d0121c4f5c84e5e31974"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/tests/rtd_defect_corpus.rs",
+      "sha256": "c916c020a930e40751f4e1d3560af3158d3620e2c111c6f02a206bbf6f03ff77"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/tests/unit_profile.rs",
+      "sha256": "a9ad204e0a5a8a21c27e48cc885c9dfebd1935577988bb23bddd043c342f876a"
+    },
+    {
+      "path": "zapote/ports.toml",
+      "sha256": "76a8765bb40bdddee6c58d41b5a119b9a12ce4d341f5c0231395d34ff498ef8a"
+    },
+    {
+      "path": "zapote/rtd/unit/bind_native.py",
+      "sha256": "c5343dc0bc9a9c65d8ec15d485aa158619e72604d3dba04fc0f591f8dfa07ec3"
+    },
+    {
+      "path": "zapote/rtd/unit/profile.json",
+      "sha256": "aa0595df748f994f5c4318892f5f290cb07a9eff395f476b0891fc530186bbae"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "rtd_independent_ngspice_static_compare.v1",
+  "deck": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/model-correctness/evidence/independent_static_corrected.cir",
+  "model": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/model-correctness/revised/rtdin_comparator_model.py",
+  "ngspice_returncode": 0,
+  "ngspice_v": {
+    "sensep": 0.6234249,
+    "windowp": 0.6234249,
+    "sensem": 0.003237142,
+    "lowth": 0.1764574,
+    "highth": 0.7853403
+  },
+  "python_v": {
+    "sensep": 0.6234248959495305,
+    "windowp": 0.6234248959495307,
+    "sensem": 0.003237141714482239,
+    "lowth": 0.17645742801288522,
+    "highth": 0.7853402516981132
+  },
+  "absolute_error_v": {
+    "sensep": 4.050469404326407e-09,
+    "windowp": 4.050469293304104e-09,
+    "sensem": 2.8551776134339013e-10,
+    "lowth": 2.8012885233685836e-08,
+    "highth": 4.830188682358738e-08
+  },
+  "max_error_v": 4.830188682358738e-08,
+  "classification": "representative topology cross-check only"
+}

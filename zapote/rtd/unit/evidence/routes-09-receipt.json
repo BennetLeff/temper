@@ -1,0 +1,74 @@
+{
+  "input_board_sha256": "104ecfea2e52e9be04ed648411e4889d87783757aa5598d83dc4d73e787f0855",
+  "instruction_sha256": "f06416541c64b28b33b15fb5d5e2621d13fe4a583fe725679b1cde0eb82163d3",
+  "adapter_sha256": "e226116e66bbc0e2d5c21e9a9c1b923a40d39ff39dd89fe48709b9c429970973",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "replay_sha256": "95dd6067917052efb465ba295a50b4187c9301bdb79096306ab1843267730cb2",
+  "output_board_sha256": "314d790b2936573a9c34fe0cf640384c069f3f4d8a81199fab7053968ddef97e",
+  "operations": [
+    {
+      "net": "gnd",
+      "segments": [],
+      "vias": [
+        {
+          "position_mm": [
+            32,
+            20.7
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            27.8,
+            15.6
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            17.7,
+            13.3
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            19.1,
+            24.1
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            31.8,
+            33.2
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            36.4,
+            32
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            34.2,
+            49.95
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        }
+      ],
+      "zones": [],
+      "mode": "append"
+    }
+  ]
+}

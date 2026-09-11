@@ -1,0 +1,120 @@
+{
+  "input_board_sha256": "e544ebb494738c2f075e4e49697507cb1c100b052df52386b19b8f634e0a51c2",
+  "output_board_sha256": "fb675cc4b8f63956c9632ce411c5c095447e406561e3d013469bca626bf30c7f",
+  "instruction_sha256": "ac3f030f3af5102deafe8dbcc7cdd3956d23d58ee400009c2a9679441d2793fc",
+  "replay_sha256": "f87ad6da8fbdfb8ef10f4da6e3867fd0f4a9a228141d7fdf3d03b2fa83865e6a",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "c_comp_neg",
+      "reference": "C4",
+      "uuid": "c48c4604-fcc3-4070-a61b-c851b3be61d6",
+      "before": {
+        "position_mm": [
+          41.5,
+          63.1
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              42.275,
+              63.1
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              40.725,
+              63.1
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          40.0,
+          60.8
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              40.0,
+              61.575
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              40.0,
+              60.025
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "primary_lands",
+      "reference": "J1",
+      "uuid": "4a18789b-b539-4a3f-aa9b-e6774788761d",
+      "before": {
+        "position_mm": [
+          52.5,
+          10.0
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "PRIMARY_IN",
+            "position_mm": [
+              52.5,
+              10.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "PRIMARY_OUT",
+            "position_mm": [
+              27.5,
+              10.0
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          52.5,
+          6.0
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "PRIMARY_IN",
+            "position_mm": [
+              52.5,
+              6.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "PRIMARY_OUT",
+            "position_mm": [
+              27.5,
+              6.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

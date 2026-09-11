@@ -1,0 +1,11 @@
+[package]
+name = "zapote-drc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+zapote-core = { path = "../zapote-core" }
+
+[dev-dependencies]
+serde_json.workspace = true

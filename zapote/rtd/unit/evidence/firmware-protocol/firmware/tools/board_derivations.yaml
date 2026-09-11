@@ -1,0 +1,124 @@
+# Board-derivation registry -- plan 2026-08-02-027 (R18), U1.
+#
+# The single record of every firmware constant that has a board
+# derivation. The oracle (`scripts/check_firmware_board_contract.py`)
+# iterates this file: adding a derivation is DATA, not new check code.
+# The formula arithmetic lives in `firmware/tools/board_derivation_lib.py`
+# (shared with `scripts/check_pll_range_consistency.py` so the two cannot
+# drift); the registry names which formula each constant uses and where
+# every input comes from.
+#
+# Per-input provenance (KTD2 / plan U2):
+#   - `board-derived`:    the input is read from the actual board --
+#                         `pcb/temper.kicad_pcb` -- via the components
+#                         keyed by their `Sheetpath` property. The
+#                         registry records, per component, the physical
+#                         part class expected on the board (its footprint
+#                         library id) and the value that class decodes to
+#                         (footprint decode -- the board's Value fields
+#                         are "?" placeholders on this board, so the
+#                         footprint IS the physical-truth signal; a
+#                         board that populates Value fields is read
+#                         directly instead).
+#   - `declared-assumed`: an engineering assumption declared in a source
+#                         file (e.g. `l_tank_assumed` in elec/src/main.ato)
+#                         -- NOT board-derivable; recorded so the oracle
+#                         reports which inputs a derivation rests on and
+#                         never implies the board measured them.
+#
+# Comparison modes:
+#   - `>=`: the firmware constant must be at or above the derived value
+#           (PLL_MIN_FREQ_HZ is a round-kHz SAFETY FLOOR above the
+#           derived worst-case resonance -- a higher floor is always
+#           safe, and `round_up_to_khz` is what firmware commits).
+#   - `==`: the firmware constant must equal the derived value
+#           (MAX31865 threshold words are exact register words).
+#
+# Seeded derivations (the two documented board derivations as of
+# 2026-08-02): PLL_MIN_FREQ_HZ from the tank capacitance, and the
+# MAX31865 threshold words from the RTD reference resistor.
+version: 1
+
+derivations:
+  - constant: PLL_MIN_FREQ_HZ
+    firmware_file: firmware/components/control/pll_control.h
+    formula: pll_min_freq_hz
+    compare: ">="
+    description: >-
+      ZVS safety floor: 1.05 x the worst-case loaded tank resonance.
+      Worst-cases BOTH tank components (minimum L and minimum C) because
+      f_res ~ 1/sqrt(LC) -- a low-tolerance part on either side resonates
+      highest and needs the highest floor. Below the loaded resonance the
+      series tank is capacitive and the half-bridge hard-switches.
+    inputs:
+      - name: c_tank_total
+        provenance: board-derived
+        combine: sum
+        components:
+          - sheetpath: tank.c_tank1
+            footprint: temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal
+            value: 100nF
+          - sheetpath: tank.c_tank2
+            footprint: temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal
+            value: 100nF
+          - sheetpath: tank.c_tank3
+            footprint: temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal
+            value: 100nF
+      - name: l_tank_assumed
+        provenance: declared-assumed
+        source: elec/src/main.ato
+      - name: l_pan_loaded_ratio
+        provenance: declared-assumed
+        source: elec/src/main.ato
+      - name: l_tank_tolerance
+        provenance: declared-assumed
+        source: elec/src/main.ato
+      - name: c_tank_tolerance
+        provenance: declared-assumed
+        source: elec/src/main.ato
+      - name: zvs_margin_min
+        provenance: declared-assumed
+        source: gate-constant
+        value: 1.05
+
+  - constant: MAX31865_LOW_THRESHOLD_WORD
+    firmware_file: firmware/config.yaml
+    formula: max31865_low_threshold_word
+    compare: "=="
+    description: >-
+      MAX31865 low fault-threshold register word for the 10 ohm PT100
+      short boundary: the smallest 15-bit ratiometric ADC code strictly
+      above RTD/RREF * 2^15 (so an RTD AT or BELOW 10 ohm trips), shifted
+      left one bit.
+    inputs:
+      - name: rtd_resistance
+        provenance: declared-assumed
+        source: firmware/config.yaml
+        symbol: RTD_SHORT_FAULT_OHM
+      - name: r_ref
+        provenance: board-derived
+        components:
+          - sheetpath: rtd_pan.r_ref
+            footprint: Resistor_SMD:R_0805_2012Metric
+            value: 430ohm
+
+  - constant: MAX31865_HIGH_THRESHOLD_WORD
+    firmware_file: firmware/config.yaml
+    formula: max31865_high_threshold_word
+    compare: "=="
+    description: >-
+      MAX31865 high fault-threshold register word for the 300 ohm PT100
+      open boundary: the largest 15-bit ratiometric ADC code at-or-below
+      RTD/RREF * 2^15 (so an RTD AT or ABOVE 300 ohm trips), shifted left
+      one bit.
+    inputs:
+      - name: rtd_resistance
+        provenance: declared-assumed
+        source: firmware/config.yaml
+        symbol: RTD_OPEN_FAULT_OHM
+      - name: r_ref
+        provenance: board-derived
+        components:
+          - sheetpath: rtd_pan.r_ref
+            footprint: Resistor_SMD:R_0805_2012Metric
+            value: 430ohm

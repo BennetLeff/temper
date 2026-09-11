@@ -1,0 +1,25 @@
+{
+  "reason": "Native DRC found agent routes bypassed resistor pad2 when MCU-facing pad1 was on opposite side; reverse the three footprints and update explicit paths",
+  "input_board_sha256": "948381f9c3f425267b16aaa719830153baf6caf073aafe007d8a952ecf1ffdaa",
+  "output_board_sha256": "be781380e7b5de76b1444d1b6be52e810a4d13c290136ac87cb981d5d7132ee0",
+  "operations": [
+    [
+      "R29",
+      23,
+      44.92,
+      180
+    ],
+    [
+      "R31",
+      34,
+      40,
+      180
+    ],
+    [
+      "R32",
+      30,
+      38.8,
+      180
+    ]
+  ]
+}

@@ -1,0 +1,512 @@
+{
+  "artifact": "zapote-rtd-circuit-contract",
+  "schema_version": 1,
+  "status": "audit_ready_source_patch_proposed_physical_not_run",
+  "scope": {
+    "included": [
+      "MAX31865 four-wire PT100 source/interface contract",
+      "REFIN_MINUS/ISENSOR hardware window and rail-loss permission path",
+      "SPI/DRDY MCU correspondence",
+      "firmware resistance thresholds and register encoding",
+      "shared REF2025 VREF net identity",
+      "source patch proposals for 1 nF C0G RTDIN differential capacitor, paired 1 Mohm diagnostic pullups, RREF precision part, and RTD_AVDD monitor threshold"
+    ],
+    "excluded": [
+      "PCB placement and routing",
+      "physical probe, cable, EMC, noise, thermal, and shutdown scope captures",
+      "PVT proof and production safety certification"
+    ]
+  },
+  "authoritative_input": {
+    "checkout": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan",
+    "revision": "798a8b420e2a828fdd9cb99f768bc736ccfc98e8",
+    "revision_note": "WIP checkout is dirty; file hashes below identify the exact bytes audited",
+    "files": {
+      "elec/src/modules.ato": "6f14dba190b24f1c4dea5af8bb834e4a0ad23b00d62bd9115efaa9528a288b57",
+      "elec/src/components.ato": "81de19a40e93337d16584a9cd1794c96926301d2ff89f141695c0cf08ac9fa04",
+      "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+      "firmware/config.yaml": "27b948327244b7dcab23264d37e5484e8b892954cc2718dfc39560237abc4055",
+      "firmware/config.h": "3021920ba4096159d75bbbfd41e2ffbc0d34dcecd73c1d0a65e4c00b86f5a685",
+      "firmware/components/sensors/max31865.c": "c30b43e952a07a25f09e69a6dd4dfe2da492d10e971464e142eef302b8c931d4",
+      "firmware/components/sensors/include/max31865.h": "093bf82ce91f03ae9c4b8d3891dc70cf6e2b0014a7098c196622d2a54925dffa",
+      "firmware/components/sensors/rtd_service.c": "b0a410bae96a8134d449c1ea74388e8da0e9c65f8fdb53534f34eab559ad98b0",
+      "firmware/components/hal/include/temper_pins.h": "aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b",
+      "docs/hardware/RTD_SAFETY_DUAL_PATH.md": "2b339d34e1de93af23e0771e7e71ab0a6ed1b28c4e006ed28fd427bb8fb32a4a",
+      "components/REF2025/REF2025_Documentation.md": "eb3c7ea25ab473abb59058a06ae95e490bb46d736b5ce241229a7fad319c29dc",
+      "docs/CONNECTORS_AND_WIRING.md": "40306813b5035a9a07a8a275fa3a157c57230b176a663065416f1e237b3dcbae"
+    }
+  },
+  "interfaces": {
+    "probe_connector": {
+      "board_part": "JST B4B-XH-A(LF)(SN)",
+      "mating_part": "JST XHP-4",
+      "pitch_mm": 2.5,
+      "pin_map": {
+        "1": {
+          "harness": "FORCE+",
+          "sensor_label": "Bias+",
+          "max31865_pin": 8
+        },
+        "2": {
+          "harness": "RTDIN+",
+          "sensor_label": "Sense+",
+          "max31865_pin": 10
+        },
+        "3": {
+          "harness": "RTDIN-",
+          "sensor_label": "Sense-",
+          "max31865_pin": 11
+        },
+        "4": {
+          "harness": "FORCE-",
+          "sensor_label": "Bias-",
+          "max31865_pin": 12
+        }
+      },
+      "assumptions": [
+        "PT100 IEC 60751 alpha=0.00385; product accuracy criterion is steady-state 100 C; 0 to 250 C is retained only as a bounded extended-range analysis",
+        "maximum cable length 500 mm, shielded twisted pair, 24-26 AWG per docs/CONNECTORS_AND_WIRING.md",
+        "connector pin-1 orientation and mating harness continuity require a bench continuity check"
+      ]
+    },
+    "mcu_spi": {
+      "bus": "ESP32-S3 SPI2/HSPI",
+      "signals": {
+        "RTD_SCK": {
+          "source": "MCU SPI_CLK",
+          "gpio": 8,
+          "max31865_pin": 15,
+          "series_resistor": "33 ohm"
+        },
+        "RTD_SDI": {
+          "source": "MCU SPI_MOSI",
+          "gpio": 11,
+          "max31865_pin": 14,
+          "series_resistor": "33 ohm"
+        },
+        "RTD_SDO": {
+          "source": "MCU SPI_MISO",
+          "gpio": 12,
+          "max31865_pin": 17,
+          "series_resistor": "33 ohm"
+        },
+        "RTD_CS_N": {
+          "source": "MCU SPI_CS",
+          "gpio": 10,
+          "max31865_pin": 16,
+          "series_resistor": "33 ohm",
+          "polarity": "active_low"
+        },
+        "RTD_DRDY": {
+          "source": "MAX31865 DRDY",
+          "gpio": 9,
+          "max31865_pin": 1,
+          "polarity": "active_low_falling_edge"
+        }
+      },
+      "firmware_source": [
+        "firmware/components/hal/include/temper_pins.h",
+        "firmware/components/sensors/rtd_service.c"
+      ]
+    },
+    "max31865_ssop20": {
+      "mpn": "MAX31865AAP+",
+      "package": "SSOP-20",
+      "pin_map_verified_against_official_datasheet": {
+        "1": "DRDY",
+        "2": "DVDD",
+        "3": "VDD",
+        "4": "BIAS",
+        "5": "REFIN+",
+        "6": "REFIN-",
+        "7": "ISENSOR",
+        "8": "FORCE+",
+        "9": "FORCE2",
+        "10": "RTDIN+",
+        "11": "RTDIN-",
+        "12": "FORCE-",
+        "13": "GND2",
+        "14": "SDI",
+        "15": "SCLK",
+        "16": "CS",
+        "17": "SDO",
+        "18": "DGND",
+        "19": "GND1",
+        "20": "NC"
+      },
+      "source_pin_risks": [
+        "NC pin 20 must remain unconnected",
+        "FORCE2 pin 9 is grounded for 4-wire mode",
+        "GND1/GND2/DGND all require the documented ground connections",
+        "REFIN+ must tie to BIAS and RREF must be between REFIN+ and REFIN-; ISENSOR ties to REFIN-"
+      ]
+    }
+  },
+  "rtd_measurement": {
+    "rref_ohm": {
+      "nominal": 430.0,
+      "tolerance": 0.0005,
+      "tcr_ppm_per_c": 5,
+      "power_rating_w": 0.125,
+      "temperature_range_c": [
+        -55,
+        155
+      ],
+      "package": "0805",
+      "part": "RG2012V-431-W-T1",
+      "source": "Susumu RG series official ordering table (V=5 ppm/C), exact 430 ohm distributor listing"
+    },
+    "max31865_bias_v": {
+      "min": 1.95,
+      "typ": 2.0,
+      "max": 2.06,
+      "source": "MAX31865 datasheet electrical characteristics"
+    },
+    "node_model": "V_REFIN_MINUS = VBIAS * R_RTD / (RREF + R_RTD); I_BIAS = VBIAS / (RREF + R_RTD)",
+    "thresholds": {
+      "short_ohm_inclusive": 10.0,
+      "open_ohm_inclusive": 300.0,
+      "firmware_comparisons": {
+        "short": "R <= 10.0 ohm",
+        "open": "R >= 300.0 ohm"
+      },
+      "register_code_formula": {
+        "low_short_inclusive": "code_low=floor(32768*R_short/RREF)+1, including when the exact boundary is an integer, so every ADC code below code_low trips low",
+        "high_open_inclusive": "code_high=floor(32768*R_open/RREF), so every ADC code at or above code_high trips high",
+        "register_word": "register_word=code<<1"
+      },
+      "low": {
+        "adc_code": 763,
+        "register_word_decimal": 1526,
+        "register_word_hex": "0x05F6",
+        "effective_ohm_at_430": 10.0125122
+      },
+      "high": {
+        "adc_code": 22861,
+        "register_word_decimal": 45722,
+        "register_word_hex": "0xB29A",
+        "effective_ohm_at_430": 299.994812
+      },
+      "config": {
+        "value_hex": "0x84",
+        "bits": "1000_0100",
+        "meaning": "VBIAS on, normally-off conversion mode, automatic fault detection D3:D2=01, 60 Hz notch (D0=0), no clear"
+      },
+      "conversion_config": {
+        "value_hex": "0xC0",
+        "bits": "1100_0000",
+        "meaning": "VBIAS on, automatic conversion D6=1, 60 Hz notch (D0=0); each conversion completes with DRDY"
+      }
+    },
+    "hardware_window": {
+      "reference": "REF2025AIDDCR VBIAS nominal 1.25 V",
+      "low_divider": {
+        "top_ohm": 61900,
+        "bottom_ohm": 10000,
+        "nominal_v": 0.1738526,
+        "permission": "V_REFIN_MINUS > threshold"
+      },
+      "high_divider": {
+        "top_ohm": 5900,
+        "bottom_ohm": 10000,
+        "nominal_v": 0.7861635,
+        "permission": "V_REFIN_MINUS < threshold"
+      },
+      "corner_assumptions": {
+        "divider_tolerance": 0.001,
+        "ref_accuracy": 0.0005,
+        "tlv3201_offset_v": 0.004,
+        "valid_pt100_max_ohm": 194.1
+      },
+      "corner_results_v": {
+        "10_ohm_node": [
+          0.0442749,
+          0.046864
+        ],
+        "100_ohm_node": [
+          0.3676263,
+          0.3889948
+        ],
+        "194.1_ohm_node": [
+          0.6060477,
+          0.6411179
+        ],
+        "300_ohm_node": [
+          0.8008981,
+          0.8470743
+        ],
+        "low_threshold": [
+          0.1734667,
+          0.1742392
+        ],
+        "high_threshold": [
+          0.7851871,
+          0.7871402
+        ]
+      },
+      "margin_after_offset_v": {
+        "short_to_low_min": 0.1226027,
+        "valid_low_to_low_min": 0.1893871,
+        "valid_high_to_high_min": 0.1400692,
+        "open_to_high_min": 0.0097579
+      },
+      "rail_monitor": {
+        "part": "TPS389001DSER",
+        "manufacturer": "Texas Instruments",
+        "package": "WSON-6 DSE, 1.5 x 1.5 mm, 0.5 mm pitch",
+        "footprint": "Package_DFN_QFN:WSON-6-1.5x1.5mm_P0.5mm",
+        "pin_map": {
+          "1": "SENSE",
+          "2": "GND",
+          "3": "MR",
+          "4": "VDD",
+          "5": "CT",
+          "6": "RESET open-drain active-low"
+        },
+        "divider_top": {
+          "ohm": 16500,
+          "tolerance": 0.001,
+          "mpn": "ERA-3AEB1652V",
+          "package": "0603",
+          "tcr_ppm_per_c": 25
+        },
+        "divider_bottom": {
+          "ohm": 10000,
+          "tolerance": 0.001,
+          "mpn": "ERA-3AEB103V",
+          "package": "0603",
+          "tcr_ppm_per_c": 25
+        },
+        "nominal_falling_trip_v": 3.0475,
+        "internal_threshold_v": [
+          1.1385,
+          1.1615
+        ],
+        "positive_threshold_conservative_v": 1.171082375,
+        "sense_input_current_nA": [
+          -100,
+          100
+        ],
+        "temperature_span_c": 60,
+        "divider_current_at_local_min_uA": 118.2,
+        "falling_trip_v": [
+          3.006009934549,
+          3.089235504007
+        ],
+        "rising_clear_v": [
+          3.092085094442,
+          3.114708050363
+        ],
+        "source_buck_output_min_v": 3.135,
+        "source_buck_output_max_v": 3.465,
+        "source_buck_feedback_corner_v": [
+          3.176065790357,
+          3.459345777411
+        ],
+        "source_buck_feedback_assumptions": "LMR51430 VFB 0.591..0.609 V, 100k/22.1k feedback resistors +/-1%, opposing 100 ppm/C TCR over 60 C, and +/-50 nA FB leakage; the source's declared 3.135..3.465 V envelope is retained as the acceptance bound",
+        "rtd_branch_load_bound_ma": 10.0,
+        "ferrite_dcr_max_ohm": 0.18,
+        "local_rtd_avdd_min_v_at_load_bound": 3.1332,
+        "valid_min_rail_clear": true,
+        "ct_configuration": "CT left unconnected; TI no-capacitor propagation delay is approximately 25 us minimum. No added release delay is assumed in the assertion budget.",
+        "corner_method": "Vtrip=(Vthreshold-Iin*Rth)*(Rtop+Rbottom)/Rbottom; independent +/-0.1% resistor tolerance, opposing +/-25 ppm/C TCR over 60 C, +/-100 nA SENSE current, and 1% threshold accuracy. Rising bound conservatively applies max VITN accuracy and max 0.825% hysteresis.",
+        "verdict": "PASS bounded rail guard: falling trip minimum 3.006010 V is above the MAX31865 3.0 V minimum, and rising clear maximum 3.114708 V is below the 3.1332 V minimum valid local RTD_AVDD rail. This closes the deterministic low-valid-rail release corner in the source/model envelope; reset transients, rail ramp, PCB parasitics, and physical loss behavior remain NOT RUN.",
+        "sources": [
+          "TI TPS3890 Rev A datasheet",
+          "TI TPS389001DSET product/order page",
+          "Panasonic ERA-3AEB1652V data/order page"
+        ]
+      },
+      "high_window_trip_boundary_ohm_estimate": {
+        "fastest_corner": 262.67,
+        "slowest_corner": 293.56,
+        "meaning": "The independent hardware HIGH comparator can trip before the 300 ohm firmware open threshold. It is guaranteed clear through about 262.7 ohm, corner/offset dependent from about 262.7 to 293.6 ohm, and guaranteed fault by 300 ohm under the declared model. This is intentional coarse-window behavior only if the system accepts the earlier trip."
+      },
+      "verdict": "PASS for passive REFIN-/ISENSOR window under declared corners; open margin is 9.76 mV after +/-4 mV comparator offset and requires the stated assumptions",
+      "superseded_tps3700_result": {
+        "part": "TPS3700DDCR",
+        "divider": "698k/100k",
+        "falling_trip_v": [
+          3.05738100053,
+          3.223488617599
+        ],
+        "rising_clear_v": [
+          3.12888768429,
+          3.255548567263
+        ],
+        "disposition": "Superseded: fail-safe trip but could not guarantee release at 3.1332 V local minimum."
+      }
+    }
+  },
+  "diagnostic_bias": {
+    "part": "RC0603JR-071ML",
+    "quantity": 2,
+    "value_ohm": 1000000,
+    "connections": [
+      "RTDIN_P to BIAS",
+      "RTDIN_N to BIAS"
+    ],
+    "healthy_load_model": "Paired network includes 430 ohm RREF/RTD, 1 ohm sense lead/contact resistance, pullup +/-5% and independent +/-14 nA input leakage; worst RTD=194.1 ohm error is 0.1845 mV, about 0.084 ohm or 0.22 C in this passive model",
+    "selected_filter": {
+      "part": "C0603C102J5GACTU",
+      "value_f": 1e-09,
+      "dielectric": "C0G",
+      "tolerance": 0.05,
+      "voltage_rating_v": 50
+    },
+    "parasitic_budget_pf": 200,
+    "rc_corner": {
+      "minimum_tau_ms": 0.9025,
+      "nominal_tau_ms": 1.0,
+      "maximum_tau_ms": 1.322753125,
+      "settling_10_5_tau_ms": 13.8889078125,
+      "diagnostic_pullup_tcr_ppm_per_c": 100,
+      "filter_capacitor_tempco_ppm_per_c": 30,
+      "temperature_span_c": 60,
+      "temperature_multiplier_max": 1.0078108
+    },
+    "runtime_fault_assumption": "A conductor open is present before BIAS startup for the 90 ms startup-open bound; a conditional continuous-conversion model bounds an arbitrary runtime break by 13.9 ms settling overlap plus 55 ms conversion, one 10 ms control poll, and 5 ms sink allocation (83.9 ms), with one possibly contaminated sample. The 13.9 ms term includes worst 1M pullup +100 ppm/C and 1nF C0G +30 ppm/C drift over 60 C, plus +/-5% and <=200 pF parasitic corners.",
+    "runtime_filter_evidence": {
+      "datasheet_facts": "MAX31865 specifies a 60 Hz continuous conversion period of 16.7..17.6 ms and says the first conversion after enabling continuous mode takes the single-conversion time of 52..55 ms; it labels the block a 50/60 Hz digital SINC filter but gives no step-response or phase-reset guarantee",
+      "bounded_model_assumption": "For the 83.9 ms conditional bound, three 17.6 ms periods (52.8 ms) are treated as a conservative third-order boxcar history and covered by the 55 ms single-conversion maximum",
+      "status": "CONDITIONAL_ASSUMPTION_NOT_VENDOR_GUARANTEE",
+      "closure_needed": "Vendor step-response evidence or an instrumented runtime-break test must confirm filter-history clearing and arbitrary-break detection latency before claiming the 100 ms runtime requirement closed"
+    }
+  },
+  "fault_coverage": [
+    {
+      "fault": "RTD element short / <=10 ohm",
+      "digital": "MAX31865 low threshold",
+      "hardware": "REFIN- below LOW threshold",
+      "expected_overall": "FAULT",
+      "confidence": "bounded_model"
+    },
+    {
+      "fault": "RTD element open / >=300 ohm",
+      "digital": "MAX31865 high threshold",
+      "hardware": "REFIN- above HIGH threshold",
+      "expected_overall": "FAULT",
+      "confidence": "bounded_model"
+    },
+    {
+      "fault": "FORCE+ conductor open",
+      "digital": "MAX Table 12 lists FORCE+ unconnected as an analogue-path fault condition; resulting conversion data is indeterminate, not an absence of fault indication",
+      "hardware": "bounded open-loop model predicts no sensor current and REFIN- tending toward 0, below LOW threshold",
+      "expected_overall": "FAULT expected from the local REFIN-/ISENSOR low-window detector; numeric MAX conversion data remains a bench/oracle acceptance item",
+      "confidence": "bounded_model_with_max_data_assumption"
+    },
+    {
+      "fault": "RTDIN+ (SENSE+) conductor open",
+      "digital": "MAX recommends a pullup from RTDIN+ to BIAS for full-scale open detection; selected paired 1 Mohm pullups and bounded RC model predict differential above the 300 ohm code",
+      "hardware": "REFIN-/ISENSOR window is unchanged and is not the SENSE+ detector; selected 1 nF plus <=200 pF parasitic has temperature-adjusted tau <=1.322753 ms",
+      "expected_overall": "FAULT expected from positive full-scale conversion launched at 30 ms and completed by 85 ms; control-tick alignment accepts it by <=90 ms from sequence start, reserving 5 ms sink handoff",
+      "confidence": "bounded_rc_plus_adc_model"
+    },
+    {
+      "fault": "RTDIN- (SENSE-) conductor open",
+      "digital": "Matched 1 Mohm pullup drives the open RTDIN- input toward BIAS; bounded model predicts a negative RTDIN differential and MAX code 0",
+      "hardware": "REFIN-/ISENSOR path unchanged; passive connected-load error is bounded by paired network model",
+      "expected_overall": "FAULT expected from the MAX negative-input/low-code path in the same <=90 ms startup-open bound; common-mode and runtime-break acceptance remain physical checks",
+      "confidence": "bounded_rc_plus_adc_model"
+    },
+    {
+      "fault": "FORCE- conductor open",
+      "digital": "MAX Table 12 lists FORCE- unconnected as an analogue-path fault condition; resulting conversion data is indeterminate, not an absence of fault indication",
+      "hardware": "bounded open-loop model predicts the current return is interrupted and REFIN- tending toward VBIAS, above HIGH threshold",
+      "expected_overall": "FAULT expected in the bounded model; MAX conversion-data result remains a bench/oracle acceptance item",
+      "confidence": "bounded_model_with_max_data_assumption"
+    },
+    {
+      "fault": "RTD_AVDD loss/brownout",
+      "digital": "MAX31865 unpowered; SPI result unavailable",
+      "hardware": "TPS389001 RESET withdraws rail permission and NAND releases active-high pullup",
+      "expected_overall": "FAULT",
+      "confidence": "bounded_logic_model"
+    },
+    {
+      "fault": "upstream SAFETY_3V3 loss",
+      "digital": "unpowered",
+      "hardware": "RTD_HW_FAULT pullup disappears; downstream DIS/enable behavior belongs to milestone 3",
+      "expected_overall": "System disable obligation; RTD_HW_FAULT voltage alone is not a valid high claim",
+      "confidence": "architecture_contract"
+    }
+  ],
+  "timing": {
+    "max31865_bias_startup_ms": {
+      "datasheet_max": 10,
+      "source": "MAX31865 datasheet note 4"
+    },
+    "automatic_fault_cycle_us": {
+      "datasheet_max": 600,
+      "source": "MAX31865 datasheet"
+    },
+    "single_conversion_ms_60hz": {
+      "typ": 52,
+      "max": 55,
+      "source": "MAX31865 datasheet"
+    },
+    "current_firmware_poll_bound_ms": 100,
+    "proposed_protocol_budget_ms": {
+      "bias_startup_control_ticks": 20,
+      "automatic_fault_cycle_guard_tick": 10,
+      "continuous_conversion_first_result_timeout": 70,
+      "missing_drdy_service_bound": 100,
+      "startup_open_detection_bound": 90,
+      "sequence": "enable BIAS (0x80), wait 2 ticks, one-time automatic fault (0x84), wait 1 tick, continuous conversion (0xC0), wait falling DRDY, read RTD data first then fault status; leave continuous conversion armed",
+      "fault_sink_control_handoff_budget": 5
+    },
+    "spi_clock_hz": 500000,
+    "spi_margin": "MAX31865 5 MHz maximum; source uses mode 1 and 500 kHz",
+    "critical_gap": "The datasheet typical 100 nF RTD filter with a 10 Mohm diagnostic pullup would make tau about 1 s and is rejected. Selected paired 1 Mohm pullups and 1 nF C0G with <=200 pF parasitic give worst temperature-adjusted tau 1.323 ms and 10.5 tau 13.9 ms, so startup-open inputs are settled before continuous conversion launches at 30 ms. RC settling overlaps the mandatory startup/diagnostic phases; it is not added to the MAX 55 ms conversion bound. The 60 Hz MAX conversion bound is treated as the complete ADC/filter observation interval; the runtime timing model assumes the third-order filter history has settled within that bound (three 17.6 ms periods = 52.8 ms, covered by 55 ms), with no extra additive filter delay. The MAX 55 ms conversion maximum completes at or before the next 10 ms control tick (90 ms from startup sequence), leaving 10 ms total; reserve 5 ms for fault-sink/control handoff. A runtime break is observed within 13.9 ms settling overlap + 55 ms conversion + 10 ms poll + 5 ms sink budget (83.9 ms), with one contaminated sample possible. Local REFIN window thresholds do not detect isolated SENSE opens. MAX common-mode/internal-switch behavior, MAX gain/offset, EMC, physical wiring, and complete accuracy remain NOT RUN."
+  },
+  "shared_reference": {
+    "part": "REF2025AIDDCR",
+    "VBIAS": {
+      "net": "RTD_WINDOW_REF_1V25",
+      "consumer": "RTD low/high threshold dividers"
+    },
+    "VREF": {
+      "net": "SHARED_REF_2V5",
+      "consumers": [
+        "OVPComparator.vref_ext",
+        "SecondaryOCPComparator.vref_ext"
+      ]
+    },
+    "source_issue": "Top currently assigns OVP_VREF_2V5 and OCP2_VREF_2V5 to the same physical REF2025.VREF; names falsely imply two references",
+    "loading": "Two comparator reference inputs are high impedance; REF2025 output limit is +/-20 mA. The final board must include reference input bias, leakage, and decoupling in the load budget."
+  },
+  "physical_status": "NOT RUN",
+  "model_status": "bounded passive/DC, paired diagnostic-loading and isolated sense-open RC, and Boolean permission model only; startup-open assumption and <=200 pF parasitic budget are explicit; no PVT, vendor macro-model, arbitrary runtime-break waveform, physical wiring, EMC, common-mode, internal MAX switch, or shutdown proof",
+  "model_artifacts": {
+    "rtd_window_bounded.cir_sha256": "48ddf2774593f33cfd70b7fafbb1c69a786609a5e6f2e9fafebc70e2af996f73",
+    "rtd_sense_open_rc.cir_sha256": "331c11f6a161409e999cd4824f32a43b71f3ed90c75da07ed28548bc85709831",
+    "rtd_sense_minus_open_rc.cir_sha256": "b530e0f41205a6afe018352cae1ecdef181d0a1224b978b0805933cccb2b8f60",
+    "rtd_diagnostic_loading.cir_sha256": "f242cf86c830feafcf72e640e77066bea62e35bb48b6e8da0f3bc0213aea67ab",
+    "model_results_raw.txt_sha256": "176da65695d1c9dc1c26feff2463b29fbcd6892c01068fafd92e645eceeb19d2",
+    "simulator": "ngspice 45.2",
+    "rtd_sinc_phase_model.txt_sha256": "a6c8201eb5fc5061177e3bae13cebfcd915ae2281d9f6151b9301401f37d8473"
+  },
+  "firmware_handoff": {
+    "fresh_sample_required": true,
+    "api": "rtd_service_get_resistance()",
+    "before_first_sample": "returns RTD_OPEN_FAULT_OHM + 1.0f sentinel",
+    "publication_order": "read RTD 01h/02h, read fault 07h, then publish cached resistance",
+    "readiness": "rtd_service_is_ready() is false after bootstrap and true only after first successful conversion/status read"
+  },
+  "accuracy_budget": {
+    "status": "PASS bounded linear allocation at required steady-state 100 C; physical calibration/validation remains required",
+    "linear_ledger_celsius": {
+      "Class_A_PT100_at_100C": 0.35,
+      "MAX31865_ADC": 0.5,
+      "RREF_initial_0.05pct_at_100C": 0.18,
+      "RREF_5ppm_per_C_over_60C_at_100C": 0.11,
+      "paired_diagnostic_network": 0.22,
+      "self_heating_and_contact_allocation": 0.1,
+      "total": 1.46
+    },
+    "requirement_celsius": 2.0,
+    "extended_range_250C_bounded_total_celsius": 1.87,
+    "requirement_scope": "<=2 C steady-state at 100 C; +/-1 C stability at 60 C is a separate dynamic/thermal acceptance",
+    "disposition": "Selected Susumu RG2012V-431-W-T1 closes the declared 100 C linear allocation; physical accuracy, calibration decision, and thermal/contact validation remain required."
+  }
+}

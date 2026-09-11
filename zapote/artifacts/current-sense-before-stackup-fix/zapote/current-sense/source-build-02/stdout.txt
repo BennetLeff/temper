@@ -1,0 +1,155 @@
+[14:15:25] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02                                           
+           INFO     Building default                                 build.py:38
+[14:15:26] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:43:4                                                     
+                        Field 'required' not declared for                       
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:CurrentSenseUnit::fault.line. Declaring                  
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+[14:15:28] ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:82:4                                                     
+                        Couldn't find v_bias.reference                          
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:96:4                                                     
+                        Couldn't find ref_hi.reference                          
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:105:4                                                    
+                        Couldn't find ref_lo.reference                          
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:151:12                                                   
+                        Couldn't find v_bias.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:152:4                                                    
+                        Couldn't find v_bias.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:155:20                                                   
+                        Couldn't find v_bias.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:156:4                                                    
+                        Couldn't find v_bias.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:169:22                                                   
+                        Couldn't find ref_hi.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:170:4                                                    
+                        Couldn't find ref_hi.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:173:22                                                   
+                        Couldn't find ref_lo.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:174:4                                                    
+                        Couldn't find ref_lo.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:182:19                                                   
+                        Couldn't find ref_hi.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:187:19                                                   
+                        Couldn't find ref_lo.line                               
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:214:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:CurrentSenseUnit::primary_in.line. Declaring             
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:215:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:CurrentSenseUnit::primary_out.line.                      
+                    Declaring implicitly for now, but in the future             
+                    this may become an error...                                 
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:216:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:CurrentSenseUnit::power.vcc. Declaring                   
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:218:4                                                    
+                        Couldn't find v_bias.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:221:4                                                    
+                        Couldn't find ref_hi.line                               
+           ERROR    KeyError                                        errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/current-sens             
+                    e/source-build-02/elec/src/current_sense_unit.a             
+                    to:222:4                                                    
+                        Couldn't find ref_lo.line                               
+
+
+Unfortunately errors ^^^ stopped the build. If you need a hand jump on Discord! 
+https://discord.gg/mjtxARsr9V 👋

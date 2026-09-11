@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.12, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan
+configfile: pyproject.toml
+plugins: cov-7.1.0, xdist-3.8.0, bdd-8.1.0, hypothesis-6.167.1
+collected 41 items
+
+firmware/tools/test_board_derivation_lib.py ............................ [ 68%]
+.............                                                            [100%]
+
+============================== 41 passed in 0.19s ==============================

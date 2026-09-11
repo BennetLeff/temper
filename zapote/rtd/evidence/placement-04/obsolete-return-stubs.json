@@ -1,0 +1,99 @@
+{
+  "placements": {},
+  "delete_copper_uuids": [
+    "00705cc2-fd66-4871-b3f1-f098f7706fe4",
+    "37754aa0-f885-451a-8764-7e68683a4fa7",
+    "50494855-ceb0-4392-bed0-45d7098fe9c1",
+    "58039201-f247-48d9-88d8-26a53a94a3a5",
+    "a774e514-f7f3-4dd9-85f4-20f635dc2c1d",
+    "c257e4b0-a61c-47fe-90aa-439bdd3eea7b",
+    "fc02fb15-fdb8-4424-8512-db55acdf834a"
+  ],
+  "reason": "Remove original return stubs ending at explicitly deleted original vias. These stubs survived via-only native-short removal; replacements are recorded separately and required to restore allgroundendpoints.",
+  "original_geometry": [
+    {
+      "start_mm": [
+        17.8625,
+        43.0
+      ],
+      "end_mm": [
+        16.2,
+        42.2
+      ],
+      "width_mm": 0.25,
+      "layer": "F.Cu"
+    },
+    {
+      "start_mm": [
+        15.0,
+        55.175
+      ],
+      "end_mm": [
+        16,
+        55.175
+      ],
+      "width_mm": 0.25,
+      "layer": "F.Cu"
+    },
+    {
+      "start_mm": [
+        11.775,
+        40.0
+      ],
+      "end_mm": [
+        12.8,
+        40
+      ],
+      "width_mm": 0.25,
+      "layer": "F.Cu"
+    },
+    {
+      "start_mm": [
+        23.0,
+        34.325
+      ],
+      "end_mm": [
+        22,
+        34.325
+      ],
+      "width_mm": 0.25,
+      "layer": "F.Cu"
+    },
+    {
+      "start_mm": [
+        17.8625,
+        51.0
+      ],
+      "end_mm": [
+        16.2,
+        50.2
+      ],
+      "width_mm": 0.25,
+      "layer": "F.Cu"
+    },
+    {
+      "start_mm": [
+        27.775,
+        30.0
+      ],
+      "end_mm": [
+        28.8,
+        30
+      ],
+      "width_mm": 0.25,
+      "layer": "F.Cu"
+    },
+    {
+      "start_mm": [
+        24.1375,
+        30.95
+      ],
+      "end_mm": [
+        25.3,
+        31
+      ],
+      "width_mm": 0.25,
+      "layer": "F.Cu"
+    }
+  ]
+}

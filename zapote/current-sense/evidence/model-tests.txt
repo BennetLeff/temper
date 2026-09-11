@@ -1,0 +1,11 @@
+
+running 6 tests
+test tests::current_waveform_stays_inside_rail_for_ct_rating ... ok
+test tests::directional_load_moves_positive_and_negative_trips_apart ... ok
+test tests::host_monitor_bound_is_explicitly_small ... ok
+test tests::nominal_trip_is_near_50a_for_both_polarities ... ok
+test tests::modeled_25c_leakage_stays_inside_trip_window ... ok
+test tests::signed_kcl_oracle_matches_each_comparator_crossing ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,110 @@
+{
+  "source_worktree": "/private/tmp/temper-rtd-rust",
+  "files": [
+    {
+      "path": "zapote/packages/zapote-core/Cargo.toml",
+      "before_sha256": "74d1859678f42b5f26aee0e8ff6315efdf78bbf2ad0647fc8a134146d4ee8426",
+      "after_sha256": "74d1859678f42b5f26aee0e8ff6315efdf78bbf2ad0647fc8a134146d4ee8426"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/Cargo.toml",
+      "before_sha256": "d69cfabe9e2ae7addb05588a00ec5ce4cbbe7a76f6c873f8a699232f4c567fec",
+      "after_sha256": "d69cfabe9e2ae7addb05588a00ec5ce4cbbe7a76f6c873f8a699232f4c567fec"
+    },
+    {
+      "path": "zapote/packages/zapote-erc/Cargo.toml",
+      "before_sha256": "891105d2b66dac9e84588795b0a372caa45f1ca54d4d6f08c45dd5532ac70db2",
+      "after_sha256": "891105d2b66dac9e84588795b0a372caa45f1ca54d4d6f08c45dd5532ac70db2"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/Cargo.toml",
+      "before_sha256": "acff4888101e6ca0db8e631d635f9abd558191ea677a2ebf8dc43536cf3d6002",
+      "after_sha256": "acff4888101e6ca0db8e631d635f9abd558191ea677a2ebf8dc43536cf3d6002"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/tests/rtd_defect_corpus.rs",
+      "before_sha256": "b4a26c6e7e4684eccf79fdd1845f5b1536aa49cd4ac94cc70b984bda2e35533d",
+      "after_sha256": "c916c020a930e40751f4e1d3560af3158d3620e2c111c6f02a206bbf6f03ff77"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/tests/unit_profile.rs",
+      "before_sha256": null,
+      "after_sha256": "d0adc7644aa5024e5b7a539c93cf547467d38bff3111c2ff29579ba01d63c633"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/src/lib.rs",
+      "before_sha256": "e824573d8ec8ab97bc6bafc3ccad948060899d0dc1ca8d68b90415f4eb00330d",
+      "after_sha256": "1cff7ed655a2c4de2bde3d32d0ea17763dc99ca80e712de00d96799966e92c73"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/src/main.rs",
+      "before_sha256": "c54c3e61fc443dced3e786193a571f44ed510bbbf2f28860cf9405bc87d1f55e",
+      "after_sha256": "e35b863e4f350b0eed91df08593a2687b75735060e35d0121c4f5c84e5e31974"
+    },
+    {
+      "path": "zapote/packages/zapote-erc/src/lib.rs",
+      "before_sha256": "625c3beeb12369cc7d022715f1d3d6464383ba7c3b2c41173a7e536d12368811",
+      "after_sha256": "0a75ee9b20a8068bd6e76cb701f15ea843d304ce7cf1eaa147679224c1440de8"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/src/ipc.rs",
+      "before_sha256": null,
+      "after_sha256": "9f6210032f864b991ea7cc0cc7c0e3e344359e665ef59eed85208c9e8b7f5fcd"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/src/lib.rs",
+      "before_sha256": "b34c8e54f57463395a3c7eca80d386ddbf2930e7ff1a856880ad2c38bc4c1e80",
+      "after_sha256": "efae9e0b9a720bebf546389dca03a20d7cce8a3701a4f62a48e244c95d36b195"
+    },
+    {
+      "path": "zapote/packages/zapote-drc/src/donor_geometry.rs",
+      "before_sha256": "c76898d176426fec10f40f76c60c6df7ecd9168093ec2bad082c5d4f114ddb4e",
+      "after_sha256": "c76898d176426fec10f40f76c60c6df7ecd9168093ec2bad082c5d4f114ddb4e"
+    },
+    {
+      "path": "zapote/packages/zapote-core/src/lib.rs",
+      "before_sha256": "46f061805940f3581138d7d47f220dc79d00072d4d8474e8c9e8b2bbf111b4e1",
+      "after_sha256": "7247418d8e2876c1406baf6210c1c03ed77ae9d1f175d7b35a3759f58ffd45a5"
+    },
+    {
+      "path": "zapote/packages/zapote-core/src/unit.rs",
+      "before_sha256": null,
+      "after_sha256": "596c0eba192b3c83554ae75f18d3d0c74bb88f7b0060b9992fcb2aa5507793d8"
+    },
+    {
+      "path": "zapote/Cargo.toml",
+      "before_sha256": "c38a5d2f502c84c630861afa6bc3eca538ac6eb3bbfc1971c15596ce9fddee39",
+      "after_sha256": "c38a5d2f502c84c630861afa6bc3eca538ac6eb3bbfc1971c15596ce9fddee39"
+    },
+    {
+      "path": "zapote/Cargo.lock",
+      "before_sha256": "00c6f578fa66858a4fc224abfe0c3d73b9f9f9d56e646bd1ae072d2963d9f0b5",
+      "after_sha256": "00c6f578fa66858a4fc224abfe0c3d73b9f9f9d56e646bd1ae072d2963d9f0b5"
+    },
+    {
+      "path": "zapote/ports.toml",
+      "before_sha256": "f24d19c4f8ba8e658be1ecfa9b0b71fade7057265e1ecfce415bbb2862976c67",
+      "after_sha256": "46968ccd977a18ba34b2d832df62ed97852d8a84c76dbb6418e06261a6848fa8"
+    },
+    {
+      "path": "zapote/SCHEMA.md",
+      "before_sha256": "a725d9c9baca9aee8fe64894e0c4564a1e1935e8d9118e4ffe86964dccf5b9f2",
+      "after_sha256": "7422102b87f56e406a63a8ea789cb8fc8774b4679aedd939f0fa8ef6855d9bda"
+    },
+    {
+      "path": "zapote/rtd/unit/README.md",
+      "before_sha256": null,
+      "after_sha256": "445d85f889f65db513ac6d2e9187207ed3df5eb0f9e07a142e27817d317936d0"
+    },
+    {
+      "path": "zapote/rtd/unit/profile.json",
+      "before_sha256": null,
+      "after_sha256": "34983613db1d3f5a2ff63b9c3fe546cf2edf5f7a31af08966299de5f7e949da2"
+    },
+    {
+      "path": "zapote/rtd/unit/bind_native.py",
+      "before_sha256": null,
+      "after_sha256": "8e15d13647d4c9d4ad8c2f3a9c94a203aa6f5bbeacd93fd55955fae3cefdcb78"
+    }
+  ]
+}

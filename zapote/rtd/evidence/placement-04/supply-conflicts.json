@@ -1,0 +1,298 @@
+{
+  "author": "GPT-6 Astra",
+  "reason": "Remove explicitly identified ground/+3V3 copper shorting the owned RTD and MCU region. Reconnect all affected supply/return endpoints through reviewed feeds and filled plane before acceptance.",
+  "placements": {},
+  "delete_copper_uuids": [
+    "1ca04e39-e8ed-5861-bb2d-386b660a5d41",
+    "1ce3b942-23dc-5c31-a88e-98115af6a055",
+    "34c78a7a-812b-48a6-9ae2-0dd127fc23d8",
+    "36295b07-22e5-5b94-aea2-4624c09fa130",
+    "3a9aea3a-0c22-5721-8c67-36510d30d320",
+    "40fcd979-b192-4c81-9b44-d9ae066b1d1b",
+    "415f841c-c1e0-5d10-a5c3-72909a975b3e",
+    "45fb7b64-e576-533a-a60b-912f6d53959b",
+    "482f57b2-71af-499c-88bb-c06f3676e317",
+    "5254a53e-bce4-570e-9c12-b69120332241",
+    "69aca088-9a7b-59d2-8ad1-972b96ba9a4d",
+    "6f1be72d-76ab-5452-beeb-6d677d8e7b9c",
+    "819405a6-96fc-430d-9fbb-1f510003d664",
+    "83603b89-6c57-4e08-a9e2-be16da54adf7",
+    "9f723ea2-bf20-5107-9b8a-24dafcbdfd3b",
+    "a0990e3d-9c41-5d95-a1fb-ef88e3bcbd6d",
+    "a85b6491-2841-58a2-b46e-17d1d1bf1dc8",
+    "ab7f6afe-1012-533f-855f-fec276a182be",
+    "ac184c02-7f37-4ae4-8797-e82deacff57e",
+    "b8ee4e75-b331-5ffa-8cc4-991ea0f52041",
+    "bf50159a-6f01-5d73-b0bb-59ed4cdc5ffb",
+    "c56797f3-92e8-5cc5-b85a-367d4e395638",
+    "c9fff9c3-79a7-5f3e-9a5d-3f6046fa6a02",
+    "ca891cfa-3ab3-5a66-86d4-b99eb9ef3f0b",
+    "cc418a7f-14da-590c-b8fd-e04449047278",
+    "cc6a49b7-dda4-5d24-8619-df9435de0e20",
+    "dc1944d1-338e-5494-a831-c4b63462fad6",
+    "ea98b534-4d7f-5554-867d-bde7b51ed76c",
+    "efbacb44-696a-5aec-b757-2132d417d30e",
+    "f27b51c2-d2e9-4ee0-9148-0eb22d6b8cd7",
+    "f4031195-dd49-50ed-981e-e9b89d86d365",
+    "f6b6e0bb-d59a-532d-9bc2-02a4a3ce9672"
+  ],
+  "native_findings": [
+    {
+      "description": "Track [+3V3] on F.Cu, length 6.0000 mm",
+      "pos": {
+        "x": 29.5,
+        "y": 30.1
+      },
+      "uuid": "c56797f3-92e8-5cc5-b85a-367d4e395638"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 28.8,
+        "y": 30.0
+      },
+      "uuid": "34c78a7a-812b-48a6-9ae2-0dd127fc23d8"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 25.3,
+        "y": 31.0
+      },
+      "uuid": "ac184c02-7f37-4ae4-8797-e82deacff57e"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 25.1104,
+        "y": 35.155
+      },
+      "uuid": "cc418a7f-14da-590c-b8fd-e04449047278"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 21.94,
+        "y": 35.7729
+      },
+      "uuid": "45fb7b64-e576-533a-a60b-912f6d53959b"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 16.2,
+        "y": 50.2
+      },
+      "uuid": "83603b89-6c57-4e08-a9e2-be16da54adf7"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 16.0,
+        "y": 55.175
+      },
+      "uuid": "482f57b2-71af-499c-88bb-c06f3676e317"
+    },
+    {
+      "description": "Via [+3V3] on F.Cu - B.Cu",
+      "pos": {
+        "x": 29.515,
+        "y": 36.38
+      },
+      "uuid": "b8ee4e75-b331-5ffa-8cc4-991ea0f52041"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 16.2,
+        "y": 42.2
+      },
+      "uuid": "40fcd979-b192-4c81-9b44-d9ae066b1d1b"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 12.8,
+        "y": 40.0
+      },
+      "uuid": "f27b51c2-d2e9-4ee0-9148-0eb22d6b8cd7"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 43.86,
+        "y": 56.96
+      },
+      "uuid": "f6b6e0bb-d59a-532d-9bc2-02a4a3ce9672"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 21.84,
+        "y": 29.295
+      },
+      "uuid": "efbacb44-696a-5aec-b757-2132d417d30e"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 33.55,
+        "y": 36.175
+      },
+      "uuid": "ab7f6afe-1012-533f-855f-fec276a182be"
+    },
+    {
+      "description": "Via [gnd] on F.Cu - B.Cu",
+      "pos": {
+        "x": 22.0,
+        "y": 34.325
+      },
+      "uuid": "819405a6-96fc-430d-9fbb-1f510003d664"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 4.2411 mm",
+      "pos": {
+        "x": 25.63,
+        "y": 34.855
+      },
+      "uuid": "f4031195-dd49-50ed-981e-e9b89d86d365"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.4000 mm",
+      "pos": {
+        "x": 22.7,
+        "y": 35.7
+      },
+      "uuid": "dc1944d1-338e-5494-a831-c4b63462fad6"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 1.2000 mm",
+      "pos": {
+        "x": 22.9,
+        "y": 29.7
+      },
+      "uuid": "cc6a49b7-dda4-5d24-8619-df9435de0e20"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.8000 mm",
+      "pos": {
+        "x": 21.5,
+        "y": 29.1
+      },
+      "uuid": "ca891cfa-3ab3-5a66-86d4-b99eb9ef3f0b"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 1.4142 mm",
+      "pos": {
+        "x": 23.7,
+        "y": 34.7
+      },
+      "uuid": "ea98b534-4d7f-5554-867d-bde7b51ed76c"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.8485 mm",
+      "pos": {
+        "x": 22.3,
+        "y": 29.1
+      },
+      "uuid": "c9fff9c3-79a7-5f3e-9a5d-3f6046fa6a02"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 20.5962 mm",
+      "pos": {
+        "x": 41.69,
+        "y": 21.205
+      },
+      "uuid": "a0990e3d-9c41-5d95-a1fb-ef88e3bcbd6d"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.2828 mm",
+      "pos": {
+        "x": 23.5,
+        "y": 31.9
+      },
+      "uuid": "a85b6491-2841-58a2-b46e-17d1d1bf1dc8"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.3235 mm",
+      "pos": {
+        "x": 21.9,
+        "y": 36.1
+      },
+      "uuid": "6f1be72d-76ab-5452-beeb-6d677d8e7b9c"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.5657 mm",
+      "pos": {
+        "x": 22.3,
+        "y": 35.7
+      },
+      "uuid": "5254a53e-bce4-570e-9c12-b69120332241"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.2828 mm",
+      "pos": {
+        "x": 22.9,
+        "y": 30.9
+      },
+      "uuid": "3a9aea3a-0c22-5721-8c67-36510d30d320"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 2.6000 mm",
+      "pos": {
+        "x": 23.7,
+        "y": 32.1
+      },
+      "uuid": "69aca088-9a7b-59d2-8ad1-972b96ba9a4d"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 21.9921 mm",
+      "pos": {
+        "x": 21.24,
+        "y": 29.295
+      },
+      "uuid": "36295b07-22e5-5b94-aea2-4624c09fa130"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.2000 mm",
+      "pos": {
+        "x": 23.5,
+        "y": 31.7
+      },
+      "uuid": "415f841c-c1e0-5d10-a5c3-72909a975b3e"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.6000 mm",
+      "pos": {
+        "x": 21.24,
+        "y": 29.295
+      },
+      "uuid": "1ce3b942-23dc-5c31-a88e-98115af6a055"
+    },
+    {
+      "description": "Track [gnd] on F.Cu, length 0.3250 mm",
+      "pos": {
+        "x": 21.24,
+        "y": 29.295
+      },
+      "uuid": "1ca04e39-e8ed-5861-bb2d-386b660a5d41"
+    },
+    {
+      "description": "Track [+3V3] on F.Cu, length 1.1314 mm",
+      "pos": {
+        "x": 30.3,
+        "y": 29.3
+      },
+      "uuid": "bf50159a-6f01-5d73-b0bb-59ed4cdc5ffb"
+    },
+    {
+      "description": "Track [+3V3] on F.Cu, length 0.2804 mm",
+      "pos": {
+        "x": 29.5,
+        "y": 36.1
+      },
+      "uuid": "9f723ea2-bf20-5107-9b8a-24dafcbdfd3b"
+    }
+  ],
+  "status": "pending replacement return/feed validation"
+}

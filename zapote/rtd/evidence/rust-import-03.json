@@ -1,0 +1,30 @@
+{
+  "commit": "cb28ef7ab",
+  "files": [
+    {
+      "path": "zapote/SCHEMA.md",
+      "sha256": "a725d9c9baca9aee8fe64894e0c4564a1e1935e8d9118e4ffe86964dccf5b9f2"
+    },
+    {
+      "path": "zapote/fixtures/rtd-native-return01.json",
+      "sha256": "5de559f85ff8fb1f9524b79346775cc986e193d4c1fbdfd6bef91f59a4c20eb8"
+    },
+    {
+      "path": "zapote/fixtures/rtd-source-02-manifest.json",
+      "sha256": "3a09d338ba7d2ae05f10c6e2888ae86cf97df0303b6df56b46af7d0ea9e6d93b"
+    },
+    {
+      "path": "zapote/packages/zapote-harness/tests/rtd_defect_corpus.rs",
+      "sha256": "b4a26c6e7e4684eccf79fdd1845f5b1536aa49cd4ac94cc70b984bda2e35533d"
+    },
+    {
+      "path": "zapote/rtd/authored-policy.json",
+      "sha256": "111bd4dd691536afd284ab25737fa72bcdd6a7131fce6564b1b1e8018d5fd87b"
+    },
+    {
+      "path": "zapote/tools/build_native_input.py",
+      "sha256": "bceee2670a82a7f0a836e6d8b745598d70fd9fa80c15e5fbf3bd46dc95a2839a"
+    }
+  ],
+  "local_escape_rule": "not imported; pending independent review fixes"
+}

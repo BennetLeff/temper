@@ -1,0 +1,1235 @@
+{
+  "input_board_sha256": "2b8b0f80eeef383c651e867f3cf364723a2e20fa3ef773206ef350399f8eff61",
+  "source_manifest_sha256": "3a09d338ba7d2ae05f10c6e2888ae86cf97df0303b6df56b46af7d0ea9e6d93b",
+  "section_sha256": "b34b9eae0f45db975970144482b3663d6747435a3bf8bbf0f89e11cec840567c",
+  "adapter_sha256": "8a593250699ca981850d5322b5c02b2055f7a6e6aa9fc73a7a7fe3b87fac548c",
+  "output_board_sha256": "d900b6c247322f5bc0ae1789b99ecb1bbd56c73891a538e64d7ce9a88773fb01",
+  "removed_footprints": [
+    {
+      "instance": "rtd_pan.r_mosi",
+      "reference": "R31",
+      "uuid": "02d340f7-9bba-4a8d-ae94-3ff60acd4673"
+    },
+    {
+      "instance": "mcu.mcu",
+      "reference": "U27",
+      "uuid": "04310e5d-1ea7-4782-a484-5c74ea9480a9"
+    },
+    {
+      "instance": "rtd_pan.window_and",
+      "reference": "U12",
+      "uuid": "093068a6-2d3a-4106-b5e7-5f604ab480ac"
+    },
+    {
+      "instance": "rtd_pan.r_cs",
+      "reference": "R32",
+      "uuid": "10d01d21-6723-409b-98e6-37576fc93d9f"
+    },
+    {
+      "instance": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R39",
+      "uuid": "14858c9b-5a0c-42c6-9bea-e08eb762f63d"
+    },
+    {
+      "instance": "rtd_pan.c_fault_nand",
+      "reference": "C35",
+      "uuid": "2ac0204c-b8c9-4b3b-becc-14603ec94427"
+    },
+    {
+      "instance": "rtd_pan.r_low_top",
+      "reference": "R35",
+      "uuid": "2ae85f19-9be8-4e5e-86b0-862205405746"
+    },
+    {
+      "instance": "rtd_pan.reference",
+      "reference": "U9",
+      "uuid": "2c307807-8eca-4dba-9a30-984e28d1756a"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_out2",
+      "reference": "C12",
+      "uuid": "2d9d48b4-69cf-4c87-99ab-f1803ae4e53e"
+    },
+    {
+      "instance": "mcu.btn_reset",
+      "reference": "SW1",
+      "uuid": "2da10bcf-1bb7-4937-a7c8-d17c3aba45a2"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_out1",
+      "reference": "C11",
+      "uuid": "31865c73-4969-4abb-958c-ce17b4264abb"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_out_hf",
+      "reference": "C13",
+      "uuid": "3ab1cd6f-2919-4f70-8b09-39750b7b1398"
+    },
+    {
+      "instance": "rtd_pan.c_high_window",
+      "reference": "C32",
+      "uuid": "3ecc957a-291a-4c87-9e81-59c8e6fed531"
+    },
+    {
+      "instance": "mcu.r_boot",
+      "reference": "R72",
+      "uuid": "3f92047a-42b9-419c-885d-808c18ec29a7"
+    },
+    {
+      "instance": "rtd_pan.fault_nand",
+      "reference": "U14",
+      "uuid": "4e27d2c0-9290-4247-abfa-083793a345a4"
+    },
+    {
+      "instance": "mcu.r_scl_pullup",
+      "reference": "R74",
+      "uuid": "4e94f77c-7217-4b9f-ac6a-fd00dbecb1af"
+    },
+    {
+      "instance": "rtd_pan.r_low_bottom",
+      "reference": "R36",
+      "uuid": "54e83c3e-953a-4786-8999-f3114dd04567"
+    },
+    {
+      "instance": "rtd_pan.r_avdd_top",
+      "reference": "R40",
+      "uuid": "59843516-c3af-4d5c-b6a9-222983d56d8a"
+    },
+    {
+      "instance": "rtd_pan.r_miso",
+      "reference": "R33",
+      "uuid": "59cdef01-c4dd-47dd-bf4f-b22900d8f90f"
+    },
+    {
+      "instance": "rtd_pan.r_sclk",
+      "reference": "R29",
+      "uuid": "84b20d48-e319-4650-b44c-0531bafba9c7"
+    },
+    {
+      "instance": "rtd_pan.r_ref",
+      "reference": "R28",
+      "uuid": "862091e6-0989-4d41-b551-5679e2edc4a1"
+    },
+    {
+      "instance": "rtd_pan.low_window",
+      "reference": "U10",
+      "uuid": "8d575e72-e9dd-486d-9dde-675cc10c9aaa"
+    },
+    {
+      "instance": "rtd_pan.fb_power",
+      "reference": "R34",
+      "uuid": "8e5522d4-c5d5-4443-bab7-2700871363ac"
+    },
+    {
+      "instance": "mcu.c_vcc1",
+      "reference": "C39",
+      "uuid": "91b4f5d0-8822-41c0-8321-dcf00a8d3655"
+    },
+    {
+      "instance": "rtd_pan.c_vdd",
+      "reference": "C29",
+      "uuid": "9fa3b8bc-751e-4f1f-8a94-4a7867abe772"
+    },
+    {
+      "instance": "mcu.c_vcc2",
+      "reference": "C40",
+      "uuid": "a262dcae-146c-4baa-ba28-5204b653450a"
+    },
+    {
+      "instance": "rtd_pan.r_avdd_bottom",
+      "reference": "R41",
+      "uuid": "a9a2e99e-df24-4e74-9add-fff06a9799dc"
+    },
+    {
+      "instance": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "uuid": "aaaeb2e9-b7c6-448e-bad8-4c385f042af1"
+    },
+    {
+      "instance": "rtd_pan.c_low_window",
+      "reference": "C31",
+      "uuid": "acfe6e54-ca16-432b-b125-1cc85fab9455"
+    },
+    {
+      "instance": "mcu.c_en",
+      "reference": "C41",
+      "uuid": "b586ffb5-27d4-43bb-9417-7c3450024849"
+    },
+    {
+      "instance": "rtd_pan.r_fault_pullup",
+      "reference": "R43",
+      "uuid": "c32c66f7-a60c-4970-8564-0f95371f823f"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_in",
+      "reference": "C9",
+      "uuid": "c5bf1c17-679b-4392-bb79-0c7a6e8b1e7f"
+    },
+    {
+      "instance": "mcu.btn_boot",
+      "reference": "SW2",
+      "uuid": "c78ed125-1952-4410-bdbc-28e09b207c1f"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.buck",
+      "reference": "U3",
+      "uuid": "c87fa22a-145e-4cdf-a285-c5b6ab045de0"
+    },
+    {
+      "instance": "rtd_pan.r_rail_ok_pullup",
+      "reference": "R42",
+      "uuid": "c8b672c8-5b14-49a1-a3a5-e6a06d6f60e7"
+    },
+    {
+      "instance": "rtd_pan.r_high_bottom",
+      "reference": "R38",
+      "uuid": "ccd9d2e0-0458-45f8-9d9a-c198eddb78e5"
+    },
+    {
+      "instance": "rtd_pan.adc",
+      "reference": "U8",
+      "uuid": "d0543ce3-f06c-487f-9fdf-9c4b07fb1b21"
+    },
+    {
+      "instance": "mcu.r_en",
+      "reference": "R71",
+      "uuid": "d0d93c5f-3e7c-4cd2-9e6e-a1bc4ecd8090"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.r_fb_top",
+      "reference": "R16",
+      "uuid": "d57ccd7f-22da-4f19-9eec-c52283604aec"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_boot",
+      "reference": "C10",
+      "uuid": "e206f6a5-4923-4e80-a726-4a2bd8c926be"
+    },
+    {
+      "instance": "rtd_pan.r_high_top",
+      "reference": "R37",
+      "uuid": "e8b134bc-0bed-483e-8703-92f37495b946"
+    },
+    {
+      "instance": "mcu.r_sda_pullup",
+      "reference": "R73",
+      "uuid": "e98a42f6-94d3-47ec-b236-a4a265b92e8e"
+    },
+    {
+      "instance": "rtd_pan.rail_monitor",
+      "reference": "U13",
+      "uuid": "e9c4fc2e-f178-44ce-bf61-244939f1b286"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.r_fb_bot",
+      "reference": "R17",
+      "uuid": "ec753a04-c27b-4b39-9603-5590c753aa7b"
+    },
+    {
+      "instance": "rtd_pan.high_window",
+      "reference": "U11",
+      "uuid": "ed677d6c-220c-4544-9aae-643ace644441"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.l_out",
+      "reference": "L2",
+      "uuid": "f12dbbf2-e319-4c8a-928f-a66cc25e93bb"
+    },
+    {
+      "instance": "rtd_pan.c_reference",
+      "reference": "C30",
+      "uuid": "f4665abb-48e5-42c3-87ca-ca8987c7ede6"
+    },
+    {
+      "instance": "rtd_pan.c_window_and",
+      "reference": "C33",
+      "uuid": "f8218b39-9bb1-4757-8c7e-b522c766f2f1"
+    },
+    {
+      "instance": "rtd_pan.c_rail_monitor",
+      "reference": "C34",
+      "uuid": "faffcd13-b586-4763-91ba-b38d9ca2f601"
+    }
+  ],
+  "renamed_footprints": [
+    {
+      "instance": "safety.thermal.r_hyst",
+      "old_reference": "R59",
+      "reference": "R61",
+      "uuid": "029e8653-af55-5de5-d90b-6f74316499b2"
+    },
+    {
+      "instance": "safety.coil_thermal.comp",
+      "old_reference": "U18",
+      "reference": "U18",
+      "uuid": "0548d289-73f3-5aa0-dd7e-b83ccfb8d305"
+    },
+    {
+      "instance": "power_in.mov",
+      "old_reference": "RV1",
+      "reference": "RV1",
+      "uuid": "07402189-6764-4363-c029-e55f8f2dad42"
+    },
+    {
+      "instance": "discharge.d_fly1",
+      "old_reference": "D2",
+      "reference": "D2",
+      "uuid": "07cb0ed2-31e5-5ebf-a473-721ca3fc853c"
+    },
+    {
+      "instance": "safety.uvlo_logic.r_outa_pullup",
+      "old_reference": "R69",
+      "reference": "R71",
+      "uuid": "07dde994-29f9-8e22-56bb-8b774481cbb1"
+    },
+    {
+      "instance": "safety.ovp.r_div_bot",
+      "old_reference": "R49",
+      "reference": "R51",
+      "uuid": "09240e62-4917-722b-e81f-566856d193ba"
+    },
+    {
+      "instance": "power_in.r_relay_drop",
+      "old_reference": "R1",
+      "reference": "R1",
+      "uuid": "0957ba87-1bfe-c193-a977-80710ff9e8e2"
+    },
+    {
+      "instance": "ct_sense.c_filter",
+      "old_reference": "C28",
+      "reference": "C28",
+      "uuid": "098e9c24-6cec-a787-7bda-7c2ec7180852"
+    },
+    {
+      "instance": "safety.coil_thermal.r_hyst",
+      "old_reference": "R64",
+      "reference": "R66",
+      "uuid": "0af959d8-5f97-9a8a-9b9b-725e76921f59"
+    },
+    {
+      "instance": "power_in.bypass_relay",
+      "old_reference": "K1",
+      "reference": "K1",
+      "uuid": "0b982040-5316-4da5-e83f-acd4396bda7a"
+    },
+    {
+      "instance": "safety.ocp2.r_burden",
+      "old_reference": "R65",
+      "reference": "R67",
+      "uuid": "0cb937f9-8ed8-bf3f-08b2-6ef610c7459d"
+    },
+    {
+      "instance": "safety.ocp2.ct",
+      "old_reference": "T2",
+      "reference": "T2",
+      "uuid": "0e574622-38b4-a7be-463f-fadf6ff6f8ab"
+    },
+    {
+      "instance": "power_in.r_bleed1",
+      "old_reference": "R4",
+      "reference": "R4",
+      "uuid": "14ca97d0-48df-1884-281d-19bfe59391eb"
+    },
+    {
+      "instance": "discharge.r_dis1a",
+      "old_reference": "R6",
+      "reference": "R6",
+      "uuid": "19780ff7-1001-f98b-3fdf-7f4cfda76f2f"
+    },
+    {
+      "instance": "safety.uvlo_logic.r_div_bot",
+      "old_reference": "R67",
+      "reference": "R69",
+      "uuid": "19df3c11-9ee8-60a2-36f6-b22b23238331"
+    },
+    {
+      "instance": "safety.coil_thermal.r_ref_top",
+      "old_reference": "R62",
+      "reference": "R64",
+      "uuid": "1ab35ec7-5102-d64d-0788-97c73e654e6e"
+    },
+    {
+      "instance": "hb.gate_hs.neg_bias_zener",
+      "old_reference": "D4",
+      "reference": "D4",
+      "uuid": "209539b6-bd24-7372-e857-f39a418c4140"
+    },
+    {
+      "instance": "discharge.q_dis_drv",
+      "old_reference": "Q2",
+      "reference": "Q2",
+      "uuid": "2117f5e3-4463-fe1d-4671-932da47eeb17"
+    },
+    {
+      "instance": "power_in.fuse",
+      "old_reference": "F1",
+      "reference": "F1",
+      "uuid": "21caec6c-06a4-a08e-ce19-ee3d48163c8b"
+    },
+    {
+      "instance": "hb.gate_hs.driver",
+      "old_reference": "U6",
+      "reference": "U6",
+      "uuid": "235b18dd-5c59-0e5b-0fae-19f2610a47ce"
+    },
+    {
+      "instance": "discharge.r_gate",
+      "old_reference": "R12",
+      "reference": "R12",
+      "uuid": "24fb8ead-5a66-a875-6608-da1771bd54fc"
+    },
+    {
+      "instance": "tank.inductor_conn",
+      "old_reference": "R30",
+      "reference": "R30",
+      "uuid": "2641a51d-2253-0222-c77d-667fbc634c8b"
+    },
+    {
+      "instance": "safety.thermal.comp",
+      "old_reference": "U17",
+      "reference": "U17",
+      "uuid": "2903ae27-3929-b03f-5fa9-2a65c5717fa0"
+    },
+    {
+      "instance": "thermal.j_fan",
+      "old_reference": "J2",
+      "reference": "J2",
+      "uuid": "29d5f77f-41c6-ad9d-9e9c-f986c5831f21"
+    },
+    {
+      "instance": "safety.coil_thermal.r_ref_bot",
+      "old_reference": "R63",
+      "reference": "R65",
+      "uuid": "303b66c2-f296-a006-1d3d-e2649e11bda9"
+    },
+    {
+      "instance": "safety.ovp.r_adc_bot",
+      "old_reference": "R54",
+      "reference": "R56",
+      "uuid": "35dbf264-ad57-ee22-a220-604bd8a5494d"
+    },
+    {
+      "instance": "hb.gate_hs.c_filt_a",
+      "old_reference": "C18",
+      "reference": "C18",
+      "uuid": "385e4c5e-a75b-8816-b1bd-db9a687fff80"
+    },
+    {
+      "instance": "discharge.k_dis2",
+      "old_reference": "K3",
+      "reference": "K3",
+      "uuid": "3b259aaf-aef7-308b-67a9-bfce59ba6aea"
+    },
+    {
+      "instance": "power_in.cmc",
+      "old_reference": "L1",
+      "reference": "L1",
+      "uuid": "3f97c373-0896-fbbe-6ab8-041309cee618"
+    },
+    {
+      "instance": "hb.gate_hs.r_filt_a",
+      "old_reference": "R20",
+      "reference": "R20",
+      "uuid": "3ff2665c-94f1-3ea2-f38c-a5a8ff7ac0fb"
+    },
+    {
+      "instance": "safety.uvlo_logic.inv",
+      "old_reference": "U22",
+      "reference": "U22",
+      "uuid": "4160c69b-e1df-acba-ea7a-46e2eddda973"
+    },
+    {
+      "instance": "discharge.r_gate_pd",
+      "old_reference": "R13",
+      "reference": "R13",
+      "uuid": "4327a574-99bc-127d-e979-d469a9061238"
+    },
+    {
+      "instance": "hb.gate_hs.boot_cap",
+      "old_reference": "C17",
+      "reference": "C17",
+      "uuid": "457edb40-8cd7-e7ce-8951-3d2c00f33a28"
+    },
+    {
+      "instance": "discharge.r_dis1b",
+      "old_reference": "R7",
+      "reference": "R7",
+      "uuid": "47922b19-7699-6efb-2028-83f2c3ea1e98"
+    },
+    {
+      "instance": "power_in.r_gate",
+      "old_reference": "R2",
+      "reference": "R2",
+      "uuid": "49790dab-7114-9f53-6487-500643034cbf"
+    },
+    {
+      "instance": "aux_supply.c_in_bulk",
+      "old_reference": "C14",
+      "reference": "C14",
+      "uuid": "4bc14a84-6192-02ec-58c9-3ae12c188bc4"
+    },
+    {
+      "instance": "hb.gate_hs.rgs",
+      "old_reference": "R19",
+      "reference": "R19",
+      "uuid": "4e89fc99-da88-32ab-5e48-96adf5d1032d"
+    },
+    {
+      "instance": "safety.thermal.r_ref_top",
+      "old_reference": "R57",
+      "reference": "R59",
+      "uuid": "4ebc8749-cdf7-9d42-852c-4fa8cdc3cbea"
+    },
+    {
+      "instance": "hb.c_vcci2",
+      "old_reference": "C21",
+      "reference": "C21",
+      "uuid": "5234e5ae-d9d7-9f4a-4317-e32c1fbf2ed5"
+    },
+    {
+      "instance": "hb.c_vdda",
+      "old_reference": "C22",
+      "reference": "C22",
+      "uuid": "566aa91d-1343-c2c9-5283-93607c47be92"
+    },
+    {
+      "instance": "safety.ovp.c_adc_filter",
+      "old_reference": "C36",
+      "reference": "C37",
+      "uuid": "572f10aa-ee5a-d64e-8254-248b3e46ac53"
+    },
+    {
+      "instance": "safety.uvlo_logic.r_div_top",
+      "old_reference": "R66",
+      "reference": "R68",
+      "uuid": "574938d3-1b89-e7c4-9360-e74638e94c85"
+    },
+    {
+      "instance": "safety.uvlo_logic.r_hyst",
+      "old_reference": "R68",
+      "reference": "R70",
+      "uuid": "58d71f0b-5e5e-b299-a4be-6a4df57c7299"
+    },
+    {
+      "instance": "power_in.c_bus1",
+      "old_reference": "C2",
+      "reference": "C2",
+      "uuid": "5d247c2c-ee8c-e0ad-8a4a-01b47c8fbeb0"
+    },
+    {
+      "instance": "hb.gate_ls.rgs",
+      "old_reference": "R23",
+      "reference": "R23",
+      "uuid": "6133a82d-c59f-b3ac-d7d7-53075f433284"
+    },
+    {
+      "instance": "thermal.r_fan_drop",
+      "old_reference": "R75",
+      "reference": "R77",
+      "uuid": "62a7c6a7-d654-3672-1852-f44772c318aa"
+    },
+    {
+      "instance": "safety.coil_thermal.r_ntc_fixed",
+      "old_reference": "R61",
+      "reference": "R63",
+      "uuid": "67bf58aa-1a76-4278-4e16-c67f9dd29604"
+    },
+    {
+      "instance": "hb.c_dc_hf",
+      "old_reference": "C24",
+      "reference": "C24",
+      "uuid": "70251ddb-80de-af38-632f-dc9a27277821"
+    },
+    {
+      "instance": "safety.ovp.r_adc_top2",
+      "old_reference": "R52",
+      "reference": "R54",
+      "uuid": "7122ff34-bc53-296d-6ae9-0d2ddfc5e96b"
+    },
+    {
+      "instance": "safety.tp_uvlo2_fault",
+      "old_reference": "TP4",
+      "reference": "TP4",
+      "uuid": "730a8e72-eb16-c417-1c89-bd51a7f3768e"
+    },
+    {
+      "instance": "safety.tp_ocp2_fault",
+      "old_reference": "TP3",
+      "reference": "TP3",
+      "uuid": "74d1504e-58dc-5550-1da6-6b6b92b80e69"
+    },
+    {
+      "instance": "safety.latch",
+      "old_reference": "U26",
+      "reference": "U26",
+      "uuid": "74fb6f76-af48-9b1b-c533-055cc3ef467c"
+    },
+    {
+      "instance": "safety.thermal.ntc",
+      "old_reference": "R55",
+      "reference": "R57",
+      "uuid": "759a4c14-1c60-290a-b6aa-68e96c64aff2"
+    },
+    {
+      "instance": "ct_sense.r_burden",
+      "old_reference": "R25",
+      "reference": "R25",
+      "uuid": "78f7c5fa-bdf6-2b53-11e4-25a39b8f4c9f"
+    },
+    {
+      "instance": "discharge.r_dis2b",
+      "old_reference": "R9",
+      "reference": "R9",
+      "uuid": "7bde64d4-7c23-4f6b-baa4-ece30afd042b"
+    },
+    {
+      "instance": "safety.ocp.r_ref_bot",
+      "old_reference": "R45",
+      "reference": "R47",
+      "uuid": "8218fb21-c7d4-176c-fde6-c146f5643c88"
+    },
+    {
+      "instance": "safety.tp_shutdown",
+      "old_reference": "TP1",
+      "reference": "TP1",
+      "uuid": "85a55544-8061-eb59-8892-6c23d83b6394"
+    },
+    {
+      "instance": "power_in.c_bus1b",
+      "old_reference": "C4",
+      "reference": "C4",
+      "uuid": "876ba5bc-450e-d52e-a0ff-e67ed63f98fc"
+    },
+    {
+      "instance": "discharge.r_coil2",
+      "old_reference": "R11",
+      "reference": "R11",
+      "uuid": "8887fce0-12c1-953e-9325-1eaf13d74e44"
+    },
+    {
+      "instance": "ct_sense.r_bias_top",
+      "old_reference": "R26",
+      "reference": "R26",
+      "uuid": "888da027-aa5c-1f77-be61-841709f9c0a8"
+    },
+    {
+      "instance": "safety.fault_or",
+      "old_reference": "U23",
+      "reference": "U23",
+      "uuid": "89d7a04d-7052-d128-242c-27cd76b0fd6f"
+    },
+    {
+      "instance": "safety.fault_or3",
+      "old_reference": "U25",
+      "reference": "U25",
+      "uuid": "8c51bcff-4ca7-b410-3794-eb1c5ad49eb1"
+    },
+    {
+      "instance": "safety.ocp.r_ref_top",
+      "old_reference": "R44",
+      "reference": "R46",
+      "uuid": "8df552c4-f9d7-130a-bff9-3a84fe0b54c9"
+    },
+    {
+      "instance": "safety.thermal.r_ntc_fixed",
+      "old_reference": "R56",
+      "reference": "R58",
+      "uuid": "8e6ace81-e56a-96c1-a2ad-93c46f46b854"
+    },
+    {
+      "instance": "discharge.r_snub2",
+      "old_reference": "R15",
+      "reference": "R15",
+      "uuid": "8f15ab40-5230-8fb3-e3f8-abfc8efcf0ec"
+    },
+    {
+      "instance": "hb.gate_hs.boot_diode",
+      "old_reference": "U7",
+      "reference": "U7",
+      "uuid": "9016f60f-ef80-2bff-356a-b8fd07bd6c5a"
+    },
+    {
+      "instance": "hb.gate_hs.rg_on",
+      "old_reference": "R18",
+      "reference": "R18",
+      "uuid": "903dbf09-ab4d-ca52-c006-807538387b7a"
+    },
+    {
+      "instance": "power_in.d1",
+      "old_reference": "U1",
+      "reference": "U1",
+      "uuid": "91d930bf-cee7-584e-285e-b36aba2b0dc1"
+    },
+    {
+      "instance": "safety.ocp.comp",
+      "old_reference": "U15",
+      "reference": "U15",
+      "uuid": "92b8240c-afde-05f1-bafc-7ab99ba0f87d"
+    },
+    {
+      "instance": "safety.uvlo_logic.mon",
+      "old_reference": "U21",
+      "reference": "U21",
+      "uuid": "936e0b2b-5bfb-3981-e454-9bf91d97be17"
+    },
+    {
+      "instance": "hb.gate_hs.r_filt_b",
+      "old_reference": "R21",
+      "reference": "R21",
+      "uuid": "937216b3-ebc6-81f0-7a27-26b273b7d8f9"
+    },
+    {
+      "instance": "power_in.c_bus2b",
+      "old_reference": "C5",
+      "reference": "C5",
+      "uuid": "95ed67aa-0505-7e6f-ee97-7fba7a964675"
+    },
+    {
+      "instance": "safety.ovp.r_adc_top3",
+      "old_reference": "R53",
+      "reference": "R55",
+      "uuid": "98ed435b-5667-764a-7633-bc274ce4cf8a"
+    },
+    {
+      "instance": "discharge.c_snub1",
+      "old_reference": "C7",
+      "reference": "C7",
+      "uuid": "9b1497d4-d1ec-1a99-41c9-08a2d8a269e1"
+    },
+    {
+      "instance": "tank.c_tank2",
+      "old_reference": "C26",
+      "reference": "C26",
+      "uuid": "a20a5176-454e-6783-8948-c40b090e6033"
+    },
+    {
+      "instance": "power_in.r_gate_pd",
+      "old_reference": "R3",
+      "reference": "R3",
+      "uuid": "a245fb80-4ef4-6c54-7491-e410b8466308"
+    },
+    {
+      "instance": "power_in.c_bus2",
+      "old_reference": "C3",
+      "reference": "C3",
+      "uuid": "a53481f5-5a41-a3da-1169-1fa96392ab6c"
+    },
+    {
+      "instance": "discharge.r_coil1",
+      "old_reference": "R10",
+      "reference": "R10",
+      "uuid": "a6f0bacd-88c3-ed45-272f-c6a77f60eb96"
+    },
+    {
+      "instance": "safety.ovp.r_hyst",
+      "old_reference": "R50",
+      "reference": "R52",
+      "uuid": "a85e7c8b-9149-b6ec-7f4f-ead5b1a25e4c"
+    },
+    {
+      "instance": "aux_supply.psu",
+      "old_reference": "PS1",
+      "reference": "PS1",
+      "uuid": "aa0902db-237b-0eec-21fe-f9b9043eb14c"
+    },
+    {
+      "instance": "ct_sense.r_bias_bot",
+      "old_reference": "R27",
+      "reference": "R27",
+      "uuid": "aba4dfe1-4542-0e71-83c8-c6a3b5977735"
+    },
+    {
+      "instance": "tank.c_tank3",
+      "old_reference": "C27",
+      "reference": "C27",
+      "uuid": "ae8a9e79-1765-14e5-fafd-079798285e8f"
+    },
+    {
+      "instance": "safety.coil_thermal.ntc",
+      "old_reference": "R60",
+      "reference": "R62",
+      "uuid": "b724a208-9a6f-4102-605c-0a79a5a18144"
+    },
+    {
+      "instance": "tank.c_tank1",
+      "old_reference": "C25",
+      "reference": "C25",
+      "uuid": "b7df4d3e-2df9-1724-35ac-4001c0b34c4e"
+    },
+    {
+      "instance": "safety.wdt.c_bypass",
+      "old_reference": "C38",
+      "reference": "C39",
+      "uuid": "ba185d8c-a362-450a-0e87-afc3229955ca"
+    },
+    {
+      "instance": "discharge.d_fly2",
+      "old_reference": "D3",
+      "reference": "D3",
+      "uuid": "be9e3437-1e52-b02d-d7e5-0c4d0f7e8abf"
+    },
+    {
+      "instance": "safety.wdt.wdt",
+      "old_reference": "U20",
+      "reference": "U20",
+      "uuid": "c0864007-a0eb-e57f-1e04-facceb96bcd7"
+    },
+    {
+      "instance": "aux_supply.c_out",
+      "old_reference": "C15",
+      "reference": "C15",
+      "uuid": "c2ae13a1-5e76-422d-e14b-14fcc9ca5b67"
+    },
+    {
+      "instance": "ct_sense.ct",
+      "old_reference": "T1",
+      "reference": "T1",
+      "uuid": "c30f8de5-8eda-b7d7-0947-7aecd6438bfc"
+    },
+    {
+      "instance": "power_in.q_relay_drv",
+      "old_reference": "Q1",
+      "reference": "Q1",
+      "uuid": "c53a6c3b-b9e4-9a43-de8e-54a26ad33dfe"
+    },
+    {
+      "instance": "safety.tp_fault",
+      "old_reference": "TP2",
+      "reference": "TP2",
+      "uuid": "c63bf764-8c08-f3b9-2d4e-9d67cb452e9c"
+    },
+    {
+      "instance": "discharge.c_snub2",
+      "old_reference": "C8",
+      "reference": "C8",
+      "uuid": "c7bfe1b5-461a-9b97-d137-ce452425836b"
+    },
+    {
+      "instance": "safety.ovp.r_div_top2",
+      "old_reference": "R47",
+      "reference": "R49",
+      "uuid": "c860275d-922c-08ae-f8e1-aece8a9d34c0"
+    },
+    {
+      "instance": "safety.ovp.r_adc_top1",
+      "old_reference": "R51",
+      "reference": "R53",
+      "uuid": "ce7590ac-3fcc-4c81-c751-a4f6976d4982"
+    },
+    {
+      "instance": "power_in.ntc",
+      "old_reference": "RT1",
+      "reference": "RT1",
+      "uuid": "cf4e6aa1-cf9c-2aed-b3d6-61d0a7fb0185"
+    },
+    {
+      "instance": "power_in.r_bleed2",
+      "old_reference": "R5",
+      "reference": "R5",
+      "uuid": "d0668875-f03c-9cb0-5155-dd5d8c974d24"
+    },
+    {
+      "instance": "hb.power_loop.q_high",
+      "old_reference": "U4",
+      "reference": "U4",
+      "uuid": "d3456d3f-cbba-44cf-f44d-1baf52ae582a"
+    },
+    {
+      "instance": "safety.ocp2.comp",
+      "old_reference": "U19",
+      "reference": "U19",
+      "uuid": "d3bec8fa-9683-f6e3-cda9-876745428445"
+    },
+    {
+      "instance": "discharge.r_snub1",
+      "old_reference": "R14",
+      "reference": "R14",
+      "uuid": "d6ec76f2-e2eb-80ba-8be4-c6e4f2b77af8"
+    },
+    {
+      "instance": "hb.c_vcci1",
+      "old_reference": "C20",
+      "reference": "C20",
+      "uuid": "dc2076db-f379-33ed-ab36-7d481e16d31a"
+    },
+    {
+      "instance": "hb.dt_res",
+      "old_reference": "R24",
+      "reference": "R24",
+      "uuid": "de198dcc-f886-3f1b-aba0-584e8972e186"
+    },
+    {
+      "instance": "safety.thermal.r_ref_bot",
+      "old_reference": "R58",
+      "reference": "R60",
+      "uuid": "e00899c3-7961-9369-a665-9d616bc177c9"
+    },
+    {
+      "instance": "safety.uvlo_logic.r_fault_pullup",
+      "old_reference": "R70",
+      "reference": "R72",
+      "uuid": "e2914f90-b22f-8343-88f6-ddd4b0f1fa69"
+    },
+    {
+      "instance": "hb.gate_hs.c_filt_b",
+      "old_reference": "C19",
+      "reference": "C19",
+      "uuid": "e6199760-8db8-b513-2d2c-d050472e09c3"
+    },
+    {
+      "instance": "safety.ovp.r_div_top3",
+      "old_reference": "R48",
+      "reference": "R50",
+      "uuid": "e7de30b1-2a6b-1b62-784e-0c4d93257897"
+    },
+    {
+      "instance": "hb.gate_ls.rg_on",
+      "old_reference": "R22",
+      "reference": "R22",
+      "uuid": "e86d083c-e329-816e-45e9-6e5a73d80597"
+    },
+    {
+      "instance": "safety.fault_any_or",
+      "old_reference": "U24",
+      "reference": "U24",
+      "uuid": "e9831e1d-d1ad-0453-15d8-e3d8b31c51f6"
+    },
+    {
+      "instance": "aux_supply.c_out_hf",
+      "old_reference": "C16",
+      "reference": "C16",
+      "uuid": "ec6525ed-5603-82ec-69ab-9b64d27a13e6"
+    },
+    {
+      "instance": "hb.c_vddb",
+      "old_reference": "C23",
+      "reference": "C23",
+      "uuid": "f013576c-1851-5e87-ee46-6b29e93306e9"
+    },
+    {
+      "instance": "safety.ovp.comp",
+      "old_reference": "U16",
+      "reference": "U16",
+      "uuid": "f153fa0e-0e99-9d12-6941-4f96adadc7d3"
+    },
+    {
+      "instance": "safety.ovp.r_div_top1",
+      "old_reference": "R46",
+      "reference": "R48",
+      "uuid": "f20aa4a6-9ef3-b265-cb63-e67df340ab29"
+    },
+    {
+      "instance": "hb.power_loop.q_low",
+      "old_reference": "U5",
+      "reference": "U5",
+      "uuid": "f280d820-dbf2-2724-7361-ebf11cb6e89d"
+    },
+    {
+      "instance": "discharge.k_dis1",
+      "old_reference": "K2",
+      "reference": "K2",
+      "uuid": "f39c198d-b58b-88f0-c536-985efaa17cbf"
+    },
+    {
+      "instance": "power_in.y_cap_pe",
+      "old_reference": "C6",
+      "reference": "C6",
+      "uuid": "f5bb3490-150c-026d-09fd-1c0917c4df28"
+    },
+    {
+      "instance": "safety.ocp2.c_filter",
+      "old_reference": "C37",
+      "reference": "C38",
+      "uuid": "f6011c35-c347-1f34-3efa-edbeed1e8cb1"
+    },
+    {
+      "instance": "power_in.d2",
+      "old_reference": "U2",
+      "reference": "U2",
+      "uuid": "f6ce20a7-d8ab-3a55-eb50-7698868ae788"
+    },
+    {
+      "instance": "power_in.d_flyback",
+      "old_reference": "D1",
+      "reference": "D1",
+      "uuid": "f8f1a1a7-8355-d228-837f-acf753f022d0"
+    },
+    {
+      "instance": "discharge.r_dis2a",
+      "old_reference": "R8",
+      "reference": "R8",
+      "uuid": "fb2b942e-a09f-fee3-751f-1757f0e786b7"
+    },
+    {
+      "instance": "power_in.c_x2",
+      "old_reference": "C1",
+      "reference": "C1",
+      "uuid": "fec08eb5-5a12-711b-f9e3-b548d91fb86e"
+    }
+  ],
+  "added_footprints": [
+    {
+      "instance": "mcu.btn_boot",
+      "reference": "SW2",
+      "uuid": "12a57f19-5870-44d9-8ebd-2b8258619da4"
+    },
+    {
+      "instance": "mcu.btn_reset",
+      "reference": "SW1",
+      "uuid": "a393848f-238f-4b6b-9636-3571eae1f68c"
+    },
+    {
+      "instance": "mcu.c_en",
+      "reference": "C42",
+      "uuid": "837ec545-b902-480b-af53-13d3210c255f"
+    },
+    {
+      "instance": "mcu.c_vcc1",
+      "reference": "C40",
+      "uuid": "dbd79659-68c4-4aa8-a1a7-cd26ab11a7b6"
+    },
+    {
+      "instance": "mcu.c_vcc2",
+      "reference": "C41",
+      "uuid": "fbc5db07-a457-46c0-929d-de77b99d77c8"
+    },
+    {
+      "instance": "mcu.mcu",
+      "reference": "U27",
+      "uuid": "8a12b635-f424-4459-b37f-5d001fe22af1"
+    },
+    {
+      "instance": "mcu.r_boot",
+      "reference": "R74",
+      "uuid": "9297fecd-2251-4fdc-94d2-b9101e8ca611"
+    },
+    {
+      "instance": "mcu.r_en",
+      "reference": "R73",
+      "uuid": "5af6a0c5-d760-4f42-80bf-c3324599a320"
+    },
+    {
+      "instance": "mcu.r_scl_pullup",
+      "reference": "R76",
+      "uuid": "0ec9130d-1b37-476d-9960-104ef6a56813"
+    },
+    {
+      "instance": "mcu.r_sda_pullup",
+      "reference": "R75",
+      "uuid": "5193c7b8-80b4-4aea-ab15-a80feb235ab4"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.buck",
+      "reference": "U3",
+      "uuid": "e8ef1b2d-500a-46cb-b902-15fb1471e7ff"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_boot",
+      "reference": "C10",
+      "uuid": "ae126b1a-6c36-4217-87bb-2eb52fc02a74"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_in",
+      "reference": "C9",
+      "uuid": "fc7bd7a1-bbae-4483-b77a-ffbc5bafb9a8"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_out1",
+      "reference": "C11",
+      "uuid": "df8c1830-7e56-4617-b4cf-4e18461adcae"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_out2",
+      "reference": "C12",
+      "uuid": "0213a61a-d061-49bc-aa50-84e3402014cd"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.c_out_hf",
+      "reference": "C13",
+      "uuid": "0ff32be8-79e7-40ef-acef-15fdc61d61fe"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.l_out",
+      "reference": "L2",
+      "uuid": "e38137d9-0da7-474c-91d5-8b2a33eccb53"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.r_fb_bot",
+      "reference": "R17",
+      "uuid": "eb30068a-f360-452a-b551-680d0f5d922b"
+    },
+    {
+      "instance": "power_mgmt.buck_3v3.r_fb_top",
+      "reference": "R16",
+      "uuid": "d9018366-ff2a-4d6e-bb54-05a1f07b58a5"
+    },
+    {
+      "instance": "rtd_pan.adc",
+      "reference": "U8",
+      "uuid": "91e4a981-db32-4148-bb29-19ce93cc8399"
+    },
+    {
+      "instance": "rtd_pan.c_fault_nand",
+      "reference": "C36",
+      "uuid": "149eb969-e2ca-4b14-8488-1af7f7e33467"
+    },
+    {
+      "instance": "rtd_pan.c_high_window",
+      "reference": "C33",
+      "uuid": "1225e52a-ae49-4f43-8ef0-ad8f8de8305b"
+    },
+    {
+      "instance": "rtd_pan.c_low_window",
+      "reference": "C32",
+      "uuid": "8c5677d7-2160-4840-b5e2-fb76cedbb984"
+    },
+    {
+      "instance": "rtd_pan.c_rail_monitor",
+      "reference": "C35",
+      "uuid": "c3ea2742-d549-4a9a-bcb7-42a6d705bd2a"
+    },
+    {
+      "instance": "rtd_pan.c_reference",
+      "reference": "C31",
+      "uuid": "b56e444a-5289-4ba7-a6ac-7aa9c00b1205"
+    },
+    {
+      "instance": "rtd_pan.c_rtd_input",
+      "reference": "C30",
+      "uuid": "8ac66b45-3e19-4f3e-acd4-824aaca623e6"
+    },
+    {
+      "instance": "rtd_pan.c_vdd",
+      "reference": "C29",
+      "uuid": "4622f241-2b71-4759-93ed-d9e325b5215e"
+    },
+    {
+      "instance": "rtd_pan.c_window_and",
+      "reference": "C34",
+      "uuid": "1988558c-c1f9-4aec-8dd9-75b67535f4de"
+    },
+    {
+      "instance": "rtd_pan.fault_nand",
+      "reference": "U14",
+      "uuid": "64eb2abb-1625-4a38-889a-122dbfc1480c"
+    },
+    {
+      "instance": "rtd_pan.fb_power",
+      "reference": "R36",
+      "uuid": "dfb5bd0d-0943-4153-9794-4cc1f850d197"
+    },
+    {
+      "instance": "rtd_pan.high_window",
+      "reference": "U11",
+      "uuid": "98c50524-db5b-42f0-91db-c0cbdd20b8c3"
+    },
+    {
+      "instance": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "uuid": "94979642-3a27-4ae3-8131-dfe4b1c07a9e"
+    },
+    {
+      "instance": "rtd_pan.low_window",
+      "reference": "U10",
+      "uuid": "18ee5786-1ee0-4fba-951e-39ce98a7868a"
+    },
+    {
+      "instance": "rtd_pan.r_avdd_bottom",
+      "reference": "R43",
+      "uuid": "a0639a8b-d541-4e5f-aedf-4ff4f9440921"
+    },
+    {
+      "instance": "rtd_pan.r_avdd_top",
+      "reference": "R42",
+      "uuid": "efcecb46-f163-4233-a72d-d0fb66195d22"
+    },
+    {
+      "instance": "rtd_pan.r_cs",
+      "reference": "R34",
+      "uuid": "99680f76-7516-498f-a269-8c92095d9e9f"
+    },
+    {
+      "instance": "rtd_pan.r_fault_pullup",
+      "reference": "R45",
+      "uuid": "d3fd2496-d707-4f11-a79f-6e119c2a2cf7"
+    },
+    {
+      "instance": "rtd_pan.r_high_bottom",
+      "reference": "R40",
+      "uuid": "2fb17e65-dffb-4372-9adb-b94049aa4eaf"
+    },
+    {
+      "instance": "rtd_pan.r_high_top",
+      "reference": "R39",
+      "uuid": "e4000856-43e5-484f-8084-77acbfe37252"
+    },
+    {
+      "instance": "rtd_pan.r_low_bottom",
+      "reference": "R38",
+      "uuid": "690f7977-51e3-4a8c-a73a-3dfb00f8fe6e"
+    },
+    {
+      "instance": "rtd_pan.r_low_top",
+      "reference": "R37",
+      "uuid": "0d592024-1993-4c2d-8c7f-d00b82ecebc5"
+    },
+    {
+      "instance": "rtd_pan.r_miso",
+      "reference": "R35",
+      "uuid": "70bd1d9f-0b3b-4b7a-b33d-9a142259efa0"
+    },
+    {
+      "instance": "rtd_pan.r_mosi",
+      "reference": "R33",
+      "uuid": "ccf1e290-db70-4e13-bba4-d9618840d1ac"
+    },
+    {
+      "instance": "rtd_pan.r_rail_ok_pullup",
+      "reference": "R44",
+      "uuid": "525df9dd-38c4-4357-9809-affaed757a32"
+    },
+    {
+      "instance": "rtd_pan.r_ref",
+      "reference": "R28",
+      "uuid": "408dc521-f520-4c7c-9152-e5843716afdd"
+    },
+    {
+      "instance": "rtd_pan.r_rtdin_n_bias",
+      "reference": "R31",
+      "uuid": "c00ddf94-5756-4b41-bdee-046cdaeb9986"
+    },
+    {
+      "instance": "rtd_pan.r_rtdin_p_bias",
+      "reference": "R29",
+      "uuid": "028a596f-c287-4de2-9638-8eb048237936"
+    },
+    {
+      "instance": "rtd_pan.r_sclk",
+      "reference": "R32",
+      "uuid": "56f17419-ca90-4698-9497-3f6a9e3bcd6d"
+    },
+    {
+      "instance": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R41",
+      "uuid": "c5aaaab9-7bdf-419d-866a-2d9b507b6a85"
+    },
+    {
+      "instance": "rtd_pan.rail_monitor",
+      "reference": "U13",
+      "uuid": "4d4b3cfc-eec9-4615-8599-66fd0d2d632e"
+    },
+    {
+      "instance": "rtd_pan.reference",
+      "reference": "U9",
+      "uuid": "8de47d4b-27d3-425d-9f99-bde9ba1b1442"
+    },
+    {
+      "instance": "rtd_pan.window_and",
+      "reference": "U12",
+      "uuid": "dc9e7758-8921-4c0c-b724-97e600545979"
+    }
+  ],
+  "net_rename": {
+    "OCP2_VREF_2V5": "SHARED_REF_2V5"
+  }
+}

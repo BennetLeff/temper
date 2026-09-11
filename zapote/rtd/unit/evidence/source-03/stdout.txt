@@ -1,0 +1,230 @@
+[20:34:58] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03                                             
+           INFO     Building default                                 build.py:38
+[20:35:05] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03/elec/src/modules.ato:1806:4                 
+                        Field 'required' not declared for                       
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03/elec/src/rtd_unit.ato:RTDUnit::             
+                    rtd_pan.rtd_hw_fault.line. Declaring implicitly             
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03/elec/src/modules.ato:1812:4                 
+                        Field 'required' not declared for                       
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03/elec/src/rtd_unit.ato:RTDUnit::             
+                    rtd_pan.rtd_force_p. Declaring implicitly for               
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03/elec/src/modules.ato:1814:4                 
+                        Field 'required' not declared for                       
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03/elec/src/rtd_unit.ato:RTDUnit::             
+                    rtd_pan.rtd_force_n. Declaring implicitly for               
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03/elec/src/modules.ato:1816:4                 
+                        Field 'required' not declared for                       
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/rtd/unit/evi             
+                    dence/source-03/elec/src/rtd_unit.ato:RTDUnit::             
+                    rtd_pan.rtd_sense_p. Declaring implicitly for               
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+[20:35:07] INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/.worktrees/codex/bu            
+                    ck-harness-experiment-plan/zapote/rtd/unit/evide            
+                    nce/source-03/build                                         
+           INFO     Building 'variable-report' for 'default' config build.py:100
+                                Variable Values                                 
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Address                          ┃ Value                           ┃ Comment ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ rtd_hw_fault.line.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_hw_fault.line.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_force_p.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_force_n.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_sense_p.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_sense_n.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.FORCE_P.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.8.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.RTDIN_P.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.10.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.RTDIN_N.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.11.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.FORCE_N.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.12.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_rtd_input.p1.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_rtd_input.1.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_rtd_input.p2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_rtd_input.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_rtdin_p_bias.p1.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_rtdin_p_bias.1.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_rtdin_n_bias.p1.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_rtdin_n_bias.1.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_low_bottom.p2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_low_bottom.2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_window_sense_p.p1.req… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_window_sense_p.1.requ… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.fault_nand.Y.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.fault_nand.4.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_fault_pullup.p2.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_fault_pullup.2.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.p1.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.1.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.p2.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.2.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.p3.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.3.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.p4.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.4.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ unit_io.p9.required              │ Symbol(key='/Users/bennet/Desk… │         │
+│ unit_io.9.required               │ Symbol(key='/Users/bennet/Desk… │         │
+└──────────────────────────────────┴─────────────────────────────────┴─────────┘
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint      ┃ LCSC            ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ MAX31865AAP+    │ U1              │ Package_SO:SS… │ MAX31865AAP+    │ 0.00  │
+│ RG2012V-431-W-… │ R1              │ Resistor_SMD:… │ RG2012V-431-W-… │ 0.00  │
+│ C0603C104K5RAC… │ C1,C2,C4,C5,C6… │ Capacitor_SMD… │ C0603C104K5RAC… │ 0.00  │
+│ C0603C102J5GAC… │ C3              │ Capacitor_SMD… │ C0603C102J5GAC… │ 0.00  │
+│ RC0603JR-071ML  │ R2,R3           │ Resistor_SMD:… │ RC0603JR-071ML  │ 0.00  │
+│ RC0603FR-0733RL │ R4,R5,R6,R7     │ Resistor_SMD:… │ RC0603FR-0733RL │ 0.00  │
+│ BLM18AG121SN1D  │ R8              │ Inductor_SMD:… │ BLM18AG121SN1D  │ 0.00  │
+│ REF2025AIDDCR   │ U2              │ Package_TO_SO… │ REF2025AIDDCR   │ 0.00  │
+│ ERA-3AEB6192V   │ R9              │ Resistor_SMD:… │ ERA-3AEB6192V   │ 0.00  │
+│ ERA-3AEB103V    │ R10,R12,R16     │ Resistor_SMD:… │ ERA-3AEB103V    │ 0.00  │
+│ ERA-3AEB5901V   │ R11             │ Resistor_SMD:… │ ERA-3AEB5901V   │ 0.00  │
+│ TLV3201AIDBVR   │ U3,U4           │ Package_TO_SO… │ TLV3201AIDBVR   │ 0.00  │
+│ RC0603FR-07100… │ R13,R14         │ Resistor_SMD:… │ RC0603FR-07100… │ 0.00  │
+│ SN74LVC1G08DBVR │ U5              │ Package_TO_SO… │ SN74LVC1G08DBVR │ 0.00  │
+│ TPS389001DSER   │ U6              │ Temper_RTD:TP… │ TPS389001DSER   │ 0.00  │
+│ ERA-3AEB1652V   │ R15             │ Resistor_SMD:… │ ERA-3AEB1652V   │ 0.00  │
+│ RC0603FR-0710KL │ R17,R18         │ Resistor_SMD:… │ RC0603FR-0710KL │ 0.00  │
+│ SN74LVC1G38DBVR │ U7              │ Package_TO_SO… │ SN74LVC1G38DBVR │ 0.00  │
+│ B4B-XH-A(LF)(S… │ J1              │ Connector_JST… │ B4B-XH-A(LF)(S… │ 0.00  │
+│ FTSH-105-01-F-D │ J2              │ Temper_RTD:FT… │ FTSH-105-01-F-D │ 0.00  │
+└─────────────────┴─────────────────┴────────────────┴─────────────────┴───────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+                                   Assertions                                   
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Status ┃ Assertion                              ┃ Numeric                    ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ PASSED │ assert power.voltage within 3.3V +/-   │ 3.3V within 2.97 to 3.63 V │
+│        │ 10%                                    │                            │
+└────────┴────────────────────────────────────────┴────────────────────────────┘
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name                         ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│           C1 │ rtd_pan.c_vdd                │
+│           C2 │ rtd_pan.c_dvdd               │
+│           C3 │ rtd_pan.c_rtd_input          │
+│           C4 │ rtd_pan.c_reference          │
+│           C5 │ rtd_pan.c_low_window         │
+│           C6 │ rtd_pan.c_high_window        │
+│           C7 │ rtd_pan.c_window_and         │
+│           C8 │ rtd_pan.c_rail_monitor       │
+│           C9 │ rtd_pan.c_fault_nand         │
+│           J1 │ rtd_pan.j_rtd1               │
+│           J2 │ unit_io                      │
+│           R1 │ rtd_pan.r_ref                │
+│           R2 │ rtd_pan.r_rtdin_p_bias       │
+│           R3 │ rtd_pan.r_rtdin_n_bias       │
+│           R4 │ rtd_pan.r_sclk               │
+│           R5 │ rtd_pan.r_mosi               │
+│           R6 │ rtd_pan.r_cs                 │
+│           R7 │ rtd_pan.r_miso               │
+│           R8 │ rtd_pan.fb_power             │
+│           R9 │ rtd_pan.r_low_top            │
+│          R10 │ rtd_pan.r_low_bottom         │
+│          R11 │ rtd_pan.r_high_top           │
+│          R12 │ rtd_pan.r_high_bottom        │
+│          R13 │ rtd_pan.r_window_sense_p     │
+│          R14 │ rtd_pan.r_window_ok_pulldown │
+│          R15 │ rtd_pan.r_avdd_top           │
+│          R16 │ rtd_pan.r_avdd_bottom        │
+│          R17 │ rtd_pan.r_rail_ok_pullup     │
+│          R18 │ rtd_pan.r_fault_pullup       │
+│           U1 │ rtd_pan.adc                  │
+│           U2 │ rtd_pan.reference            │
+│           U3 │ rtd_pan.low_window           │
+│           U4 │ rtd_pan.high_window          │
+│           U5 │ rtd_pan.window_and           │
+│           U6 │ rtd_pan.rail_monitor         │
+│           U7 │ rtd_pan.fault_nand           │
+└──────────────┴──────────────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓                       ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ rtd_pan.adc                  │ U1         │
+│ rtd_pan.c_dvdd               │ C2         │
+│ rtd_pan.c_fault_nand         │ C9         │
+│ rtd_pan.c_high_window        │ C6         │
+│ rtd_pan.c_low_window         │ C5         │
+│ rtd_pan.c_rail_monitor       │ C8         │
+│ rtd_pan.c_reference          │ C4         │
+│ rtd_pan.c_rtd_input          │ C3         │
+│ rtd_pan.c_vdd                │ C1         │
+│ rtd_pan.c_window_and         │ C7         │
+│ rtd_pan.fault_nand           │ U7         │
+│ rtd_pan.fb_power             │ R8         │
+│ rtd_pan.high_window          │ U4         │
+│ rtd_pan.j_rtd1               │ J1         │
+│ rtd_pan.low_window           │ U3         │
+│ rtd_pan.r_avdd_bottom        │ R16        │
+│ rtd_pan.r_avdd_top           │ R15        │
+│ rtd_pan.r_cs                 │ R6         │
+│ rtd_pan.r_fault_pullup       │ R18        │
+│ rtd_pan.r_high_bottom        │ R12        │
+│ rtd_pan.r_high_top           │ R11        │
+│ rtd_pan.r_low_bottom         │ R10        │
+│ rtd_pan.r_low_top            │ R9         │
+│ rtd_pan.r_miso               │ R7         │
+│ rtd_pan.r_mosi               │ R5         │
+│ rtd_pan.r_rail_ok_pullup     │ R17        │
+│ rtd_pan.r_ref                │ R1         │
+│ rtd_pan.r_rtdin_n_bias       │ R3         │
+│ rtd_pan.r_rtdin_p_bias       │ R2         │
+│ rtd_pan.r_sclk               │ R4         │
+│ rtd_pan.r_window_ok_pulldown │ R14        │
+│ rtd_pan.r_window_sense_p     │ R13        │
+│ rtd_pan.rail_monitor         │ U6         │
+│ rtd_pan.reference            │ U2         │
+│ rtd_pan.window_and           │ U5         │
+│ unit_io                      │ J2         │
+└──────────────────────────────┴────────────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Successfully built 'variable-report, bom,       build.py:105
+                    copy-footprints, layout-module-map,                         
+                    assertions-report, designator-map,                          
+                    clone-footprints, netlist, copy-3dmodels' for               
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

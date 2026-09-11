@@ -1,0 +1,29 @@
+{
+  "scope": "Owner corrected location before capture; compare corrected source with explicit remote-cap mutation. Same single corner,2ms window; not final timing qualification.",
+  "hashes": {
+    "as_read.py": "3b7342fda37309ff40294f22e7f7b430a9ba1b67df876f56ee0f85ebd83ebe99",
+    "remote_cap_mutation.py": "702c33d8e8db3325fe4a63942691a56c0be083b5becef06dd966ba3a44f437e7"
+  },
+  "results": {
+    "as_read": {
+      "SENSE+": {
+        "cross_ms": 0.298,
+        "margin_at_2ms_v": -0.9846574605487681
+      },
+      "SENSE-": {
+        "cross_ms": 0.016,
+        "margin_at_2ms_v": -0.911779229757242
+      }
+    },
+    "remote_cap_mutation": {
+      "SENSE+": {
+        "cross_ms": 0.0,
+        "margin_at_2ms_v": -1.2441690290054077
+      },
+      "SENSE-": {
+        "cross_ms": 0.0,
+        "margin_at_2ms_v": -0.9117792297635855
+      }
+    }
+  }
+}

@@ -164,11 +164,11 @@
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | U_BUCK | Synchronous Buck | LMR51430XDDCR | Texas Instruments | 1 | SOT-23-6 | 4.5-36V in, 3A |
-| L_BUCK | Buck Inductor | SRP1265A-5R6M | Bourns | 1 | SMD 12.5x12.5mm | 5.6µH 12.5A |
-| C_IN | Input Capacitor | GRM32ER71E106KA12L | Murata | 1 | 1210 | 10µF 20% X7R 25V |
-| C_OUT1, C_OUT2 | Output Capacitor | GRM32ER71E226KE15L | Murata | 2 | 1210 | 22µF 20% X7R 25V |
+| L_BUCK | Buck Inductor | SRP1265A-5R6M | Bourns | 1 | SMD 13.5×12.5mm nominal; 14.0×12.8mm max | 5.6µH 12.5A; hot saturation remains to be qualified |
+| C_IN | Input Capacitor | CL32B106KBJZW6E | Samsung Electro-Mechanics | 1 | 1210 | 10µF 10% X7R 50V, soft termination; effective capacitance under bias remains to be qualified |
+| C_OUT1, C_OUT2 | Output Capacitor | CL32B226KAJNNWE | Samsung Electro-Mechanics | 2 | 1210 | 22µF 10% X7R 25V; DC-bias behavior remains unqualified for this prototype |
 | C_OUT_HF | Output HF Decoupling | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — MPN fixed 2026-07-26 |
-| C_BOOT | Bootstrap Capacitor | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF X7R 50V — MPN fixed 2026-07-26; ~5V nominal across it (bootstrap flying cap), not the 15V SW-node swing |
+| C_BOOT | Bootstrap Capacitor | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — MPN fixed 2026-07-26; ~5V nominal across it (bootstrap flying cap), not the 15V SW-node swing |
 | R_FB_TOP | Feedback Divider High | RC0603FR-07100KL | Yageo | 1 | 0603 | 100kΩ 1% |
 | R_FB_BOT | Feedback Divider Low | RC0603FR-0722K1L | Yageo | 1 | 0603 | 22.1kΩ 1% |
 

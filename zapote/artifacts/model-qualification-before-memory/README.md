@@ -1,0 +1,1 @@
+Frozen pre-memory qualification inputs and validator sources. Paths in closeout-receipt.json resolve relative to this directory. All 62 hashes verified before copying on 2026-09-11. The active workspace can evolve without rewriting the historical qualification receipt.

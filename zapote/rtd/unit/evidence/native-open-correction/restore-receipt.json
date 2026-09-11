@@ -1,0 +1,30 @@
+{
+  "input_board_sha256": "1c5fa00512a506f6b92a41282c5ddd5963f76ec306b8a5bd0bc6a775d54ff105",
+  "instruction_sha256": "b94acbc9a6cff86f034490da1b6173aca66a95206319bbe252c41ccd53d54500",
+  "adapter_sha256": "f649b3afb6e783c4c47a33af1a739f181cb54c78d5865588437677fc23bdde1c",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "replay_sha256": "412713bbe767f5e44b6860d9b79018edf447aba8d8f5a39358839f01eadd0c4c",
+  "output_board_sha256": "76b8b920a3ca18e7a90a9ac0cea413415f17460be22b37fbc74ab335e27e68d7",
+  "operations": [
+    {
+      "net": "rtd_sense_n",
+      "segments": [
+        {
+          "start_mm": [
+            22.6,
+            22.8575
+          ],
+          "end_mm": [
+            22.6,
+            24.1
+          ],
+          "width_mm": 0.2,
+          "layer": "F.Cu"
+        }
+      ],
+      "vias": [],
+      "zones": [],
+      "mode": "append"
+    }
+  ]
+}

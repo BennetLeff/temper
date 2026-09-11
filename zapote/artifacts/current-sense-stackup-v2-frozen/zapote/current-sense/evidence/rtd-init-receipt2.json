@@ -1,0 +1,18 @@
+{
+  "copper_layers": [
+    "F.Cu",
+    "B.Cu"
+  ],
+  "copper_thickness_mm": 0.07,
+  "input_board_sha256": "73ab0884bc7c49c70485c1e0e2f2289050822c774b048fd8a797d52c0828d35a",
+  "kicad_version": "10.0.4",
+  "minimum_clearance_mm": 0.2,
+  "minimum_track_width_mm": 0.25,
+  "output_board_sha256": "66dde45e610ae31131cb380adab70819f49412596dd3355286d2458e104d27cd",
+  "physical_tests": "NOT RUN",
+  "placement_and_routing": "operator-owned; no functional copper authored",
+  "schema": "zapote.current-sense.native-initialization-receipt.v1",
+  "status": "initialized-unrouted",
+  "via_diameter_mm": 0.6,
+  "via_drill_mm": 0.3
+}

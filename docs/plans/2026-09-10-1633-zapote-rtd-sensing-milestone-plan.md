@@ -1,53 +1,86 @@
-# Milestone 2: pan-temperature sensing and hardware fault interface
+# Milestone 2: standalone RTD unit and hardware fault interface
 Created: 2026-09-10
 
-Build the cooker's pan-temperature sensing section into the accepted buck/MCU
-board candidate. Deliver both the digital measurement connection and the local
-hardware fault output, using the same Atopile → KiCad → agent edits → Rust
-validation flow established in milestone 1.
+Status: standalone design/layout milestone accepted. See the [coordinator acceptance](../../zapote/rtd/unit/ACCEPTANCE.md) for exact evidence and deferred physical, timing and procurement obligations. Full-cooker integration remains a later goal.
+
+Updated by user direction, 2026-09-10: build and accept each unit separately
+first; integrate units afterward under a separate goal. This plan now targets
+the standalone RTD unit. Preserve prior full-cooker candidates and receipts as
+historical work; do not continue their placement/routing under this goal.
+
+Build the cooker's pan-temperature sensing unit as a standalone source-derived,
+placed and routed KiCad artifact. Deliver the digital measurement interface
+and local hardware fault output through explicit unit boundaries, using the
+same Atopile → KiCad → agent edits → Rust validation flow.
 
 This expands milestone 2 of the [overall roadmap](2026-09-10-1627-zapote-cooker-roadmap-plan.md).
 It is a hardware delivery plan with validation work, not a claim that the
-circuit, harness or hardware has already passed. Construction follows acceptance
-of milestone 1; source review and preparation can happen earlier.
+circuit, harness or hardware has already passed. Buck/MCU interface contracts
+and lessons are inputs; their integration into this board is not a prerequisite.
+
+## Replacement goal text
+
+Complete the standalone RTD pan-temperature sensing unit first. GPT-6 Astra/high
+owns placement/routing through the existing KiCad adapter; delegate circuit,
+models, Rust validation and evidence tasks to Luna. Check the circuit and
+interfaces, generate the unit from Atopile with exact source/pin/pad/net identity,
+place and route its own board, use actual Rust feedback to correct it, and verify
+the saved unit with Rust and native KiCad checks plus meaningful deliberate
+defects. Deliver the exact BOM, bounded fault/reference/power/SPI contracts,
+reproducible evidence and reviewed reusable lessons. Preserve prior integration
+work but defer buck/MCU/full-cooker composition and cross-unit routing to a later
+integration goal. Physical testing remains explicitly NOT RUN unless performed.
 
 ## What is in the section
 
-The current `RTDSensing` source contains 30 component instances, excluding
-interface objects. Reconcile that inventory during source review; it is not a
-frozen BOM or a reason to retain a missing/incorrect component.
+The source04 standalone checkpoint contains 36 components and 119 electrical
+pads, including the unit interface connector, separate supply bypasses and
+protected comparator branch. Its complete source-to-native identity comparison
+is retained under `zapote/rtd/unit/evidence/root-source04-identity/`. Reconcile
+the final inventory from the accepted source manifest; this checkpoint is not
+the final frozen BOM.
 
 | Circuit group | Role and current starting point |
 |---|---|
 | Four-wire PT100 interface | JST XH four-pin header, separate force and sense conductors, MAX31865AAP+ and 430 Ω precision reference resistor. Include the mating harness pinout and probe requirements. |
 | Measurement and MCU interface | Local supply filtering/bypassing; SPI clock/data/chip-select series resistors; DRDY connection. Reuse the existing MAX31865 firmware/service. |
-| Hardware fault detection | REF2025 reference, two TLV3201 window comparators, TPS3700 rail monitor, AND/open-drain NAND logic and pull resistors. Produce active-high `RTD_HW_FAULT` with defined local supply-loss behavior. |
+| Hardware fault detection | REF2025 reference, two TLV3201 window comparators, TPS389001DSER rail supervisor, AND/open-drain NAND logic and pull resistors. Source04 uses the TPS389001 replacement after the original TPS3700 divider failed the upstream-voltage contract. The supervisor and fault NAND use upstream power; the window comparators use the filtered rail. Final acceptance must establish active-high `RTD_HW_FAULT` behavior under the declared power-loss conditions. |
 | Shared reference interface | REF2025's 1.25 V output serves the local window; its 2.5 V output also feeds the later OVP and OCP2 circuits. Account for both consumers and the physical route reservation. |
 
-The hardware path observes the local `REFIN−`/`ISENSOR` node. It does not
-independently diagnose every possible four-wire cable fault. The digital path
-provides conversion and device/cable diagnostics. Neither path alone establishes
-complete cooker protection.
+The revised hardware window observes local `RTDIN_P` through a shared 100 kΩ
+resistor, with the LOW threshold's bottom leg returned to `RTDIN_N`. Paired
+diagnostic pulls and the differential capacitor terminate at the ADC sense
+pins. The earlier `REFIN−`/`ISENSOR` window missed isolated sense-wire opens;
+retain that failure as a counterexample, not as the current circuit definition.
+Final acceptance must cover each conductor separately with the actual revised
+network. The digital path provides conversion and device/cable diagnostics.
+Neither path alone establishes complete cooker protection.
 
 ## Interfaces and boundaries
 
 | Interface | Milestone 2 obligation |
 |---|---|
-| Upstream 3.3 V and ground | Connect to the accepted control section; account for sensor/reference load and local filtered rail. Preserve upstream versus post-ferrite ownership. |
-| `RTD_SCK`, `RTD_SDI`, `RTD_SDO`, `RTD_CS_N`, `RTD_DRDY` | Route to the actual MCU pads and reconcile Atopile, generated schematic, PCB and firmware pin definitions. Promote these from future obligations to checked connections. |
+| Upstream 3.3 V and ground | Provide an explicit standalone supply interface; honor the declared voltage/current envelope and local filtered rail. Preserve upstream versus post-ferrite ownership. Actual buck connection is deferred. |
+| `RTD_SCK`, `RTD_SDI`, `RTD_SDO`, `RTD_CS_N`, `RTD_DRDY` | Route to the unit interface connector; reconcile its pinout with the source, schematic, PCB and host firmware contract. Actual MCU-board copper is deferred. |
 | External probe | Header pins 1–4 are FORCE+, SENSE+, SENSE−, FORCE− in current source. Verify physical pin numbering, cable mating orientation, separate conductors and probe/cable assumptions. |
-| `RTD_HW_FAULT` | Validate the local output's polarity, pull-up rail, loading and fault behavior. Preserve its connection to the named safety input. |
-| Shared 2.5 V reference | Publish one electrical net identity with both OVP/OCP2 consumers; resolve the source's two override-name assignments without inventing separate references. |
+| `RTD_HW_FAULT` | Validate the local output's polarity, pull-up rail, loading and fault behavior at the unit boundary. Name the future safety input without claiming a routed connection to it. |
+| Shared 2.5 V reference | Provide one named reference output and a load budget accounting for future OVP/OCP2 consumers. Their physical connection is deferred. |
 
-For downstream safety/reference endpoints already present in the accepted
-candidate, verify and preserve their real connections. If those endpoints are
-not yet admitted, record exact destinations, load assumptions and routing access
-for milestone 3. Do not create dummy product connectors, fictional connections
-or suppress unexplained opens to make a section look complete.
+Use a real, explicitly identified low-voltage unit/test connector alongside the
+four-wire probe connector. Record its exact part, pinout and harness assumptions;
+distinguish this standalone carrier interface from final product interfaces.
+Preserve stable source identities to support later composition. Deferred external
+loads are contract inputs, not fake connected components or suppressed opens.
 
-Milestone 3 owns the integrated latch/reset/shutdown chain. Milestone 2 defines
-and checks its RTD contributor. Full-chain simulation can remain supporting
-evidence; it does not advance milestone 3 or establish physical shutdown timing.
+Source04 uses the unshrouded Samtec FTSH-105-01-F-D as `unit_io`. Pins 1–10 are
+`+3V3`, `gnd`, `gnd`, `RTD_SCK`, `RTD_SDI`, `RTD_SDO`, `RTD_CS_N`,
+`RTD_DRDY`, `RTD_HW_FAULT`, `SHARED_REF_2V5`. The two ground contacts are one
+electrical net. The interface is not mechanically keyed; the harness drawing
+must identify pin 1 and mating orientation explicitly.
+
+The later safety unit owns latch/reset/shutdown behavior; the separate integration
+goal owns cross-unit composition. This unit checks its RTD contributor. Full-chain
+simulation remains supporting evidence and does not establish physical timing.
 
 ## Work sequence
 
@@ -88,8 +121,8 @@ Make necessary corrections in Atopile and component definitions, then generate
 the section through the milestone 1 flow. Verify part → symbol pin → footprint
 pad → net identity, including intended NC pins and physical connector numbering.
 Carry the contract's supplies, net roles, sensitive regions and component
-properties into the validator input. Map the section into the existing full-board
-context with stable identities and an explicit replacement boundary.
+properties into the validator input. Generate RTDSensing and the explicit unit
+interfaces into a standalone board, retaining stable identities for later reuse.
 
 **Output:** generated schematic/PCB inputs, source manifest, exact parts and
 interface mapping. Hand-edited CAD must not become an unrecorded source fork.
@@ -123,33 +156,36 @@ is not a measured device or a substitute for unavailable physical evidence.
 the existing agent feedback loop. Do not expand this into a new validation
 framework, editor, placer or router.
 
-### 4. Let the agent place, route and integrate the section
+### 4. Let the agent place and route the standalone unit
 
-Supply the accepted source/board context, applicable buck/MCU lessons and RTD
+Supply the accepted unit source/board context, applicable buck/MCU lessons and RTD
 constraints. The agent makes explicit placement/routing decisions through the
 working KiCad adapter and receives actionable Rust findings during correction.
 Keep the probe/analog section away from declared aggressors and preserve access
 for the safety/reference interfaces. Fix violations in the circuit, layout or
 checker as evidence warrants; never relax a rule simply to finish a run.
 
-Run the complete adopted section suite and integrated regressions on the saved
-candidate, plus independent native KiCad ERC/DRC and schematic parity checks in
-the correct library/rule environment. Preserve all attempts and their outcomes.
+Run the complete adopted unit suite on the saved standalone candidate, plus
+independent native KiCad ERC/DRC and schematic parity checks in the correct
+library/rule environment. Rerun affected shared validator/adapter regressions;
+full-board buck/MCU routing regressions belong to integration. Keep future
+aggressor/interface constraints explicit without claiming those absent sections
+have been physically validated. Preserve attempts and outcomes.
 
-**Output:** the combined buck + MCU + RTD candidate, checks tied to its exact
-source/board/suite identities, and a reviewable integration delta.
+**Output:** a routed standalone RTD unit, checks tied to its exact source,
+board and suite identities, and a reviewable source-to-board record.
 
-### 5. Close the milestone and hand off safety integration
+### 5. Close the unit goal and hand off its interfaces
 
 Deliver an indexed bundle containing the accepted contract/BOM, source-derived
-artifacts, integrated board, validation and model evidence, remaining downstream
+artifacts, standalone board, validation and model evidence, remaining downstream
 obligations, and a low-voltage bench-test outline. Keep all unperformed physical
 tests marked NOT RUN. Promote reviewed lessons and relevant counterexamples into
 memory and tests for the milestone 3 agent.
 
-Use bounded Luna owners for circuit/source work, validators/models, and
-placement/integration. Circuit and validation preparation can run in parallel
-after agreeing interfaces. Placement uses their accepted outputs. One coordinator
+Use bounded Luna owners for circuit/source work, validators/models and evidence.
+GPT-6 Astra/high owns placement/routing. Circuit and validation preparation can
+run in parallel after agreeing interfaces. Placement uses their accepted outputs. One coordinator
 owns the shared input contract and the final combined acceptance; owners must
 not concurrently edit the same files.
 
@@ -158,12 +194,13 @@ not concurrently edit the same files.
 - **Shared reference:** `components/REF2025/REF2025_Documentation.md` says VREF
   is unused; `elec/src/main.ato` connects it to OVP and OCP2. The documentation
   must follow the reconciled generated connectivity and loading contract.
-- **Filter and open sense lead:** current `RTDSensing` does not declare a
+- **Filter and open sense lead:** the original `RTDSensing` did not declare a
   capacitor across RTDIN+/RTDIN− or the optional RTDIN+-to-BIAS diagnostic
   resistor. The manufacturer describes input filtering/settling and warns that
   an open RTDIN+ lead can escape detection; it describes a 10 MΩ bias option.
   Resolve these against noise, leakage/error and individual-wire fault coverage
-  before source freeze. Do not assume an RTD-element-open test covers every
+  before source freeze. Source-02 added paired diagnostic pulls and a capacitor;
+  their fault timing and accuracy still require acceptance. Do not assume an RTD-element-open test covers every
   cable open. [MAX31865 datasheet, pp. 19–21](https://www.analog.com/media/en/technical-documentation/data-sheets/MAX31865.pdf)
 - **Stale acceptance evidence:** the RTD safety document references property-test
   files no longer present at those paths in this checkout. Existing selected-value
@@ -174,15 +211,16 @@ not concurrently edit the same files.
   its isolation-zone and noise-distance rules cover narrower questions than
   end-to-end galvanic isolation or measured immunity. Adopt concrete rules with
   sufficient inputs; do not credit a filename as coverage. Recheck historical
-  HV/SELV-crossing warnings against the accepted full-board source.
+  HV/SELV-crossing warnings during the later full-board integration goal.
 
 ## Acceptance and next handoff
 
-Milestone 2 is complete when the RTD section is integrated, all mandatory
-section checks pass on that exact candidate, required source/model ambiguities
-are resolved, and integrated regressions introduce no unexplained failures.
-Explicitly inherited full-board debt and future endpoints remain named for their
-owners. A required section check that is missing or indeterminate blocks acceptance.
+Milestone 2 is complete when the standalone RTD unit is source-derived and
+routed, all mandatory unit checks pass on that exact candidate, required circuit
+and model ambiguities are resolved, and its interface contract/BOM/evidence and
+reviewed lessons are delivered. A required unit check that is missing or
+indeterminate blocks acceptance. Actual MCU/buck/full-cooker connections and
+full-board inherited debt belong to the later integration goal, not this gate.
 
 The next agent receives working measurement-interface circuitry, a checked local
 fault output and shared reference contract, executable checks and reviewed

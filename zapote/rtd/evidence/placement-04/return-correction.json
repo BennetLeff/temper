@@ -1,0 +1,14 @@
+{
+  "placements": {},
+  "delete_copper_uuids": [
+    "0b4a9202-3645-4988-b943-381a8010b751",
+    "30360e34-a9c3-4c9f-95d5-39044c20c8dd",
+    "b4c5711a-df7e-4949-910b-a46a130172e3",
+    "e3c31606-90bc-4be1-82a7-a13eba1646e2",
+    "b0526b6e-465e-409e-8b90-d4c5712bd512",
+    "d2107d4a-9d5f-44fa-b3af-22dc52d8e9ba",
+    "d5aa9eb9-6a5f-418b-afa2-07319d686f2d",
+    "f80a8731-adec-4942-8ce9-75b6fa996051"
+  ],
+  "reason": "Replace four explicit return branches that native DRC found crossing a diagnostic/force route or an adjacent resistor pad; preserve every return endpoint"
+}

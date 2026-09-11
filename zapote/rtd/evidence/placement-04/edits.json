@@ -1,0 +1,29 @@
+{
+  "author": "GPT-6 Astra",
+  "reason": "Native DRC feedback: separate overlapping RTD footprints, place MCU series resistors outside the ESP32 module body, and move two directly colliding inherited passives with their endpoint obligations retained.",
+  "placements": {
+    "rtd_pan.c_vdd": [10.5, 30.5, 180],
+    "rtd_pan.fb_power": [18, 28.65, 0],
+    "rtd_pan.r_rtdin_p_bias": [10, 37.6, 90],
+    "rtd_pan.r_low_top": [14, 42.0, 270],
+    "rtd_pan.r_low_bottom": [14, 45.0, 270],
+    "rtd_pan.c_low_window": [23, 43, 0],
+    "rtd_pan.c_high_window": [23, 51, 0],
+    "rtd_pan.r_fault_pullup": [18.5, 57, 0],
+    "rtd_pan.r_cs": [29, 34, 270],
+    "rtd_pan.r_mosi": [33, 34, 270],
+    "rtd_pan.r_miso": [37, 34, 90],
+    "ct_sense.r_burden": [48, 40, 0],
+    "discharge.r_gate": [48, 43, 0],
+    "hb.gate_hs.c_filt_a": [24, 24, 0]
+  },
+  "delete_copper_uuids": [
+    "adf19c86-7ba3-4685-bf77-8f14a955f3aa",
+    "b37c3fc8-7007-4919-8ab3-d3b8debc87ca",
+    "d3bab9fa-f0b1-4306-b475-d73a52166768",
+    "59112bcf-efd6-4629-ab93-90a063ec92af",
+    "ae3473b8-00c7-4796-a40f-e6c8001da4fd",
+    "b6ff8622-dbed-408b-8bed-baa59eb55198"
+  ],
+  "affected_endpoint_obligation": "All pads of moved footprints and every removed segment/via are retained in receipt before/after geometry. Reroute SPI, ADC bypass returns and moved inherited passives before acceptance. No induced disconnect is inherited debt."
+}

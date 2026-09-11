@@ -1,0 +1,669 @@
+{
+  "scope": "Retest prior partial-source-binding counterexample on source04 input; baseline has unrelated remaining failures",
+  "binary_sha256": "a65b1e6f3395dde088578010e008f4940bb6bdb10ae540456281155bf887cbfa",
+  "original_binding_count": 119,
+  "added_findings": [
+    [
+      "DRC.RTD.UNIT_PAD_GEOMETRY",
+      "compiled source binding is partial: 1 bindings for 119 source pads"
+    ],
+    [
+      "DRC.RTD.UNIT_PAD_GEOMETRY",
+      "native pad census does not exactly match compiled source bindings"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad1 (DRDY) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad2 (DVDD) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad3 (VDD) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad4 (BIAS) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad5 (REFIN_P) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad6 (REFIN_N) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad7 (ISENSOR) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad8 (FORCE_P) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad9 (FORCE2) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad10 (RTDIN_P) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad11 (RTDIN_N) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad12 (FORCE_N) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad13 (GND2) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad14 (SDI) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad15 (SCLK) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad16 (CS_N) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad17 (SDO) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad18 (DGND) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad19 (GND1) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.adc.pad20 (NC3) ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.r_ref.1 ->  connection"
+    ],
+    [
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "board has no rtd_pan.r_ref.2 ->  connection"
+    ],
+    [
+      "ERC.RTD.FOUR_WIRE_PINOUT",
+      "connector pin 1 is FORCE+ / rtd_force_p, expected FORCE+ on ADC FORCE_P"
+    ],
+    [
+      "ERC.RTD.FOUR_WIRE_PINOUT",
+      "connector pin 2 is SENSE+ / rtd_sense_p, expected SENSE+ on ADC RTDIN_P"
+    ],
+    [
+      "ERC.RTD.FOUR_WIRE_PINOUT",
+      "connector pin 3 is SENSE- / rtd_sense_n, expected SENSE- on ADC RTDIN_N"
+    ],
+    [
+      "ERC.RTD.FOUR_WIRE_PINOUT",
+      "connector pin 4 is FORCE- / rtd_force_n, expected FORCE- on ADC FORCE_N"
+    ],
+    [
+      "ERC.RTD.FORCE_SENSE_SEPARATION",
+      "force or sense pair is electrically shorted"
+    ],
+    [
+      "ERC.RTD.NATIVE_CONNECTIVITY",
+      "no native connectivity cluster for net "
+    ],
+    [
+      "ERC.RTD.NATIVE_CONNECTIVITY",
+      "no native connectivity cluster for net "
+    ],
+    [
+      "ERC.RTD.NATIVE_CONNECTIVITY",
+      "no native connectivity cluster for net "
+    ],
+    [
+      "ERC.RTD.NATIVE_CONNECTIVITY",
+      "no native connectivity cluster for net "
+    ],
+    [
+      "ERC.RTD.ADC_PIN_NETS",
+      "MAX31865 pin BIAS has no source-derived net"
+    ],
+    [
+      "ERC.RTD.ADC_PIN_NETS",
+      "MAX31865 pin REFIN_P has no source-derived net"
+    ],
+    [
+      "ERC.RTD.ADC_PIN_NETS",
+      "MAX31865 pin REFIN_N has no source-derived net"
+    ],
+    [
+      "ERC.RTD.ADC_PIN_NETS",
+      "MAX31865 pin ISENSOR has no source-derived net"
+    ],
+    [
+      "ERC.RTD.ADC_PIN_NETS",
+      "MAX31865 pin FORCE_P has no source-derived net"
+    ],
+    [
+      "ERC.RTD.ADC_PIN_NETS",
+      "MAX31865 pin FORCE_N has no source-derived net"
+    ],
+    [
+      "ERC.RTD.ADC_PIN_NETS",
+      "MAX31865 pin RTDIN_P has no source-derived net"
+    ],
+    [
+      "ERC.RTD.ADC_PIN_NETS",
+      "MAX31865 pin RTDIN_N has no source-derived net"
+    ],
+    [
+      "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "RTD_SCK host boundary does not reach ADC SCLK through its source series binding"
+    ],
+    [
+      "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "RTD_SDI host boundary does not reach ADC SDI through its source series binding"
+    ],
+    [
+      "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "RTD_SDO host boundary does not reach ADC SDO through its source series binding"
+    ],
+    [
+      "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "RTD_CS_N host boundary does not reach ADC CS_N through its source series binding"
+    ],
+    [
+      "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "RTD_DRDY host boundary does not reach ADC DRDY through its source series binding"
+    ]
+  ],
+  "results": {
+    "baseline": {
+      "exit_code": 1,
+      "status": "fail",
+      "findings": [
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "local/reference load budget is authored but pending source-derived sum"
+        ],
+        [
+          "ERC.RTD.FAULT_CORNERS",
+          "no observed fault scenarios were supplied; expected-only model entries cannot establish behavior"
+        ],
+        [
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "bypass rtd_pan.c_dvdd is outside 3 mm locality of rtd_pan.adc"
+        ],
+        [
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "bypass rtd_pan.c_window_and is outside 3 mm locality of rtd_pan.window_and"
+        ],
+        [
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "bypass rtd_pan.c_fault_nand is outside 3 mm locality of rtd_pan.fault_nand"
+        ],
+        [
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "differential filter rtd_pan.c_rtd_input is outside 3 mm locality of rtd_pan.adc"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net sdo enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SCK enters the authored aggressor region for RTD_SDI"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SCK enters the authored aggressor region for RTD_SDO"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SCK enters the authored aggressor region for RTD_CS_N"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SCK enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDI enters the authored aggressor region for RTD_SCK"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDI enters the authored aggressor region for RTD_SDO"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDI enters the authored aggressor region for RTD_CS_N"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDI enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDO enters the authored aggressor region for RTD_SCK"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDO enters the authored aggressor region for RTD_SDI"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDO enters the authored aggressor region for RTD_CS_N"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDO enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SCK"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SDI"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SDO"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_CS_N enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_DRDY enters the authored aggressor region for RTD_SCK"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_DRDY enters the authored aggressor region for RTD_SDO"
+        ],
+        [
+          "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+          "authored prohibited-connection population is empty"
+        ],
+        [
+          "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+          "authored local-escape membership population is empty"
+        ]
+      ]
+    },
+    "first_binding_only": {
+      "exit_code": 1,
+      "status": "fail",
+      "findings": [
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "unit model observations require name, observed_class, and observed_detected"
+        ],
+        [
+          "DRC.RTD.UNIT_PAD_GEOMETRY",
+          "compiled source binding is partial: 1 bindings for 119 source pads"
+        ],
+        [
+          "DRC.RTD.UNIT_PAD_GEOMETRY",
+          "native pad census does not exactly match compiled source bindings"
+        ],
+        [
+          "ERC.RTD.UNIT_MODEL",
+          "local/reference load budget is authored but pending source-derived sum"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad1 (DRDY) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad2 (DVDD) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad3 (VDD) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad4 (BIAS) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad5 (REFIN_P) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad6 (REFIN_N) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad7 (ISENSOR) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad8 (FORCE_P) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad9 (FORCE2) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad10 (RTDIN_P) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad11 (RTDIN_N) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad12 (FORCE_N) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad13 (GND2) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad14 (SDI) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad15 (SCLK) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad16 (CS_N) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad17 (SDO) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad18 (DGND) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad19 (GND1) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.adc.pad20 (NC3) ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.r_ref.1 ->  connection"
+        ],
+        [
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "board has no rtd_pan.r_ref.2 ->  connection"
+        ],
+        [
+          "ERC.RTD.FOUR_WIRE_PINOUT",
+          "connector pin 1 is FORCE+ / rtd_force_p, expected FORCE+ on ADC FORCE_P"
+        ],
+        [
+          "ERC.RTD.FOUR_WIRE_PINOUT",
+          "connector pin 2 is SENSE+ / rtd_sense_p, expected SENSE+ on ADC RTDIN_P"
+        ],
+        [
+          "ERC.RTD.FOUR_WIRE_PINOUT",
+          "connector pin 3 is SENSE- / rtd_sense_n, expected SENSE- on ADC RTDIN_N"
+        ],
+        [
+          "ERC.RTD.FOUR_WIRE_PINOUT",
+          "connector pin 4 is FORCE- / rtd_force_n, expected FORCE- on ADC FORCE_N"
+        ],
+        [
+          "ERC.RTD.FORCE_SENSE_SEPARATION",
+          "force or sense pair is electrically shorted"
+        ],
+        [
+          "ERC.RTD.NATIVE_CONNECTIVITY",
+          "no native connectivity cluster for net "
+        ],
+        [
+          "ERC.RTD.NATIVE_CONNECTIVITY",
+          "no native connectivity cluster for net "
+        ],
+        [
+          "ERC.RTD.NATIVE_CONNECTIVITY",
+          "no native connectivity cluster for net "
+        ],
+        [
+          "ERC.RTD.NATIVE_CONNECTIVITY",
+          "no native connectivity cluster for net "
+        ],
+        [
+          "ERC.RTD.ADC_PIN_NETS",
+          "MAX31865 pin BIAS has no source-derived net"
+        ],
+        [
+          "ERC.RTD.ADC_PIN_NETS",
+          "MAX31865 pin REFIN_P has no source-derived net"
+        ],
+        [
+          "ERC.RTD.ADC_PIN_NETS",
+          "MAX31865 pin REFIN_N has no source-derived net"
+        ],
+        [
+          "ERC.RTD.ADC_PIN_NETS",
+          "MAX31865 pin ISENSOR has no source-derived net"
+        ],
+        [
+          "ERC.RTD.ADC_PIN_NETS",
+          "MAX31865 pin FORCE_P has no source-derived net"
+        ],
+        [
+          "ERC.RTD.ADC_PIN_NETS",
+          "MAX31865 pin FORCE_N has no source-derived net"
+        ],
+        [
+          "ERC.RTD.ADC_PIN_NETS",
+          "MAX31865 pin RTDIN_P has no source-derived net"
+        ],
+        [
+          "ERC.RTD.ADC_PIN_NETS",
+          "MAX31865 pin RTDIN_N has no source-derived net"
+        ],
+        [
+          "ERC.RTD.SPI_SERIES_PLACEMENT",
+          "RTD_SCK host boundary does not reach ADC SCLK through its source series binding"
+        ],
+        [
+          "ERC.RTD.SPI_SERIES_PLACEMENT",
+          "RTD_SDI host boundary does not reach ADC SDI through its source series binding"
+        ],
+        [
+          "ERC.RTD.SPI_SERIES_PLACEMENT",
+          "RTD_SDO host boundary does not reach ADC SDO through its source series binding"
+        ],
+        [
+          "ERC.RTD.SPI_SERIES_PLACEMENT",
+          "RTD_CS_N host boundary does not reach ADC CS_N through its source series binding"
+        ],
+        [
+          "ERC.RTD.SPI_SERIES_PLACEMENT",
+          "RTD_DRDY host boundary does not reach ADC DRDY through its source series binding"
+        ],
+        [
+          "ERC.RTD.FAULT_CORNERS",
+          "no observed fault scenarios were supplied; expected-only model entries cannot establish behavior"
+        ],
+        [
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "bypass rtd_pan.c_dvdd is outside 3 mm locality of rtd_pan.adc"
+        ],
+        [
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "bypass rtd_pan.c_window_and is outside 3 mm locality of rtd_pan.window_and"
+        ],
+        [
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "bypass rtd_pan.c_fault_nand is outside 3 mm locality of rtd_pan.fault_nand"
+        ],
+        [
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "differential filter rtd_pan.c_rtd_input is outside 3 mm locality of rtd_pan.adc"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net sdo enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SCK enters the authored aggressor region for RTD_SDI"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SCK enters the authored aggressor region for RTD_SDO"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SCK enters the authored aggressor region for RTD_CS_N"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SCK enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDI enters the authored aggressor region for RTD_SCK"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDI enters the authored aggressor region for RTD_SDO"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDI enters the authored aggressor region for RTD_CS_N"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDI enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDO enters the authored aggressor region for RTD_SCK"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDO enters the authored aggressor region for RTD_SDI"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDO enters the authored aggressor region for RTD_CS_N"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_SDO enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SCK"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SDI"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SDO"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_CS_N enters the authored aggressor region for RTD_DRDY"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_DRDY enters the authored aggressor region for RTD_SCK"
+        ],
+        [
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "sensitive net RTD_DRDY enters the authored aggressor region for RTD_SDO"
+        ],
+        [
+          "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+          "authored prohibited-connection population is empty"
+        ],
+        [
+          "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+          "authored local-escape membership population is empty"
+        ]
+      ]
+    }
+  }
+}

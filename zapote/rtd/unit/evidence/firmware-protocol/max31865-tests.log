@@ -1,0 +1,21 @@
+
+=== MAX31865 Contract Tests ===
+
+test_max31865.c:401:test_start_before_rtd_ready_stays_idle_and_power_off:PASS
+test_max31865.c:402:test_rtd_sample_failure_blocks_pan_det_start:PASS
+test_max31865.c:403:test_first_good_rtd_sample_allows_pan_det_start:PASS
+test_max31865.c:404:test_max31865_init_writes_thresholds_and_enables_bias_only:PASS
+test_max31865.c:405:test_max31865_continuous_conversion_is_started_after_fault_cycle:PASS
+test_max31865.c:406:test_max31865_rtd_read_right_aligns_code:PASS
+test_max31865.c:407:test_max31865_high_threshold_fault_reaches_terminal_open_path:PASS
+test_max31865.c:408:test_max31865_low_threshold_fault_reaches_terminal_short_path:PASS
+test_max31865.c:409:test_max31865_non_threshold_fault_fails_closed_as_probe_open:PASS
+test_max31865.c:410:test_max31865_service_does_not_rearm_fault_cycle:PASS
+test_max31865.c:411:test_max31865_status_read_failure_fails_closed_as_probe_open:PASS
+test_max31865.c:412:test_rtd_service_defers_spi_and_state_mutation_until_drdy_control_tick:PASS
+test_max31865.c:413:test_rtd_service_bootstrap_failure_fails_closed_from_control_task:PASS
+test_max31865.c:414:test_rtd_service_good_sample_allows_readiness_and_repeated_drdy:PASS
+test_max31865.c:415:test_rtd_service_silent_drdy_fails_closed_within_control_bound:PASS
+-----------------------
+15 Tests 0 Failures 0 Ignored
+OK

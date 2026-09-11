@@ -156,8 +156,21 @@ class TestMax31865HappyPath:
         the boundary, so AT-or-above trips). A single shared rounding
         choice would disagree with one of the committed words."""
         # If both rounded the same way, one of these would differ:
-        assert max31865_low_threshold_word(10.0, 430.0) == 1526  # ceil
+        assert max31865_low_threshold_word(10.0, 430.0) == 1526  # floor+1
         assert max31865_high_threshold_word(300.0, 430.0) == 45722  # floor
+
+    def test_low_strict_boundary_handles_exact_integer_and_adjacent_codes(self) -> None:
+        # For an exact integer boundary, ceil(exact) would equal the boundary
+        # and fail the strict-below comparator semantics. floor(exact)+1 is
+        # required. Also pin the two adjacent code decisions at the 10 ohm
+        # boundary using the actual 15-bit code conversion.
+        exact_rtd = 430.0 * 763.0 / 32768.0
+        assert max31865_low_threshold_word(exact_rtd, 430.0) == (764 << 1)
+        low_word = max31865_low_threshold_word(10.0, 430.0)
+        low_code = low_word >> 1
+        assert low_code == 763
+        assert (10.0 / 430.0 * 32768.0) < low_code
+        assert (10.0 / 430.0 * 32768.0) >= low_code - 1
 
     def test_reference_resistor_drift_moves_the_words(self) -> None:
         """A board whose RREF differs from 430 ohm must change both

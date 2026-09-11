@@ -1,0 +1,17 @@
+# RTDIN comparator observed short receipt
+Date: 2026-09-10
+Command:
+  ngspice -b -o /tmp/rtdin_short10.out /tmp/rtdin_short10.cir
+Deck source: rtdin_comparator_window.cir with RTD=10 ohm, VBIAS=2.0 V,
+RREF=430 ohm, 1 ohm conductors, nominal comparator parameters.
+Exit: 0
+Observed .op values:
+  window=0.000000e+00
+  lowok=0.000000e+00
+  highok=3.300000e+00
+  lowth=1.777008e-01
+  windowp=4.781950e-02
+  sensep=4.981950e-02
+  sensem=4.569892e-03
+Interpretation: nominal short is observed outside the LOW window; this is a
+nominal SPICE observation, not a corner/PVT or physical proof.

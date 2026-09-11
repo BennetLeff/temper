@@ -1,0 +1,132 @@
+{
+  "status": "PASS",
+  "scope": "native fill-cache transport regression; not engineering DRC acceptance",
+  "legacy_mutation": false,
+  "wrong_net_count": 0,
+  "kicad_version": "10.0.4",
+  "command": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "drc",
+    "--refill-zones",
+    "--save-board",
+    "--all-track-errors",
+    "--severity-all",
+    "--format",
+    "json",
+    "--output",
+    "zapote/rtd/unit/evidence/cache-regression-context-fixed/drc.json",
+    "zapote/rtd/unit/evidence/cache-regression-context-fixed/section.kicad_pcb"
+  ],
+  "before": [
+    {
+      "position_mm": [
+        17.7,
+        13.3
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        19.1,
+        24.1
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        27.8,
+        15.6
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        31.8,
+        33.2
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        32.0,
+        20.7
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        34.2,
+        49.95
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        36.4,
+        32.0
+      ],
+      "net": "gnd"
+    }
+  ],
+  "after": [
+    {
+      "position_mm": [
+        17.7,
+        13.3
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        19.1,
+        24.1
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        27.8,
+        15.6
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        31.8,
+        33.2
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        32.0,
+        20.7
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        34.2,
+        49.95
+      ],
+      "net": "gnd"
+    },
+    {
+      "position_mm": [
+        36.4,
+        32.0
+      ],
+      "net": "gnd"
+    }
+  ],
+  "inputs": {
+    "zapote/rtd/tests/native_filled_zone_regression.py": "5d89ea7c2076ede27bfdbc89df7a6d7a9246b46e06bacb6921a3d69db4147249",
+    "zapote/rtd/unit/evidence/root-cache-regression-01/baseline.kicad_pcb": "84883de49ed2602de38104ce18814a8f1a47a5decdbbbb0c32c9f9acb5ed1d56",
+    "zapote/rtd/unit/evidence/root-cache-regression-01/operation.json": "f06416541c64b28b33b15fb5d5e2621d13fe4a583fe725679b1cde0eb82163d3",
+    "harness-lab/block_native.py": "f649b3afb6e783c4c47a33af1a739f181cb54c78d5865588437677fc23bdde1c",
+    "harness-lab/buck_native.py": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+    "zapote/rtd/apply_routes.py": "412713bbe767f5e44b6860d9b79018edf447aba8d8f5a39358839f01eadd0c4c"
+  },
+  "output_board_sha256": "37a97de2d32d30a179c5ab7ecc618368ddc2918f449c697d2c4f53c2a50d57ec"
+}

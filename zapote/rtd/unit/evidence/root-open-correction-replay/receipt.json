@@ -1,0 +1,18 @@
+{
+  "status": "PASS scoped independent replay",
+  "frozen_files_verified": 72,
+  "both_reports_reproduced": true,
+  "removed_findings": [
+    {
+      "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native copper does not connect all required endpoints on rtd_sense_n",
+      "object": "rtd_sense_n",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "added_findings": [],
+  "scope": "Other baseline failures persist; this verifies the native-edit/Rust-feedback/correction cycle only."
+}

@@ -1,0 +1,62 @@
+[  0%] Built target gen_config
+[  0%] Built target gen_transition_table
+[  8%] Built target gen_fault_list
+[  8%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/hal/mock/hal_init_mock.c.o
+[ 16%] Building C object CMakeFiles/test_max31865_only.dir/unity/unity.c.o
+[ 25%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/hal/mock/mock_gpio.c.o
+[ 25%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/hal/mock/mock_adc.c.o
+[ 33%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/hal/mock/mock_pwm.c.o
+[ 41%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/hal/mock/mock_spi.c.o
+[ 41%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/hal/mock/mock_timer.c.o
+[ 50%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/sensors/max31865.c.o
+[ 50%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/sensors/rtd_service.c.o
+[ 58%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/main/state_machine.c.o
+[ 58%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/main/state_handlers.c.o
+[ 66%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/control/low_temp_control.c.o
+/private/tmp/rtd-root-firmware-composed/firmware/main/state_handlers.c:216:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  216 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[ 75%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/control/pid_control.c.o
+[ 75%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/control/thermal_mass.c.o
+[ 83%] Building C object CMakeFiles/test_max31865_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/control/profiles.c.o
+[ 83%] Building C object CMakeFiles/test_max31865_only.dir/state_machine_stubs.c.o
+/private/tmp/rtd-root-firmware-composed/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+1 warning generated.
+[ 91%] Building C object CMakeFiles/test_max31865_only.dir/test_max31865.c.o
+[100%] Building C object CMakeFiles/test_max31865_only.dir/test_main_max31865.c.o
+[100%] Linking C executable test_max31865_only
+[100%] Built target test_max31865_only
+[  0%] Built target gen_config
+[  0%] Built target gen_transition_table
+[ 12%] Built target gen_fault_list
+[ 12%] Building C object CMakeFiles/test_state_machine_only.dir/private/tmp/rtd-root-firmware-composed/firmware/main/state_machine.c.o
+[ 25%] Building C object CMakeFiles/test_state_machine_only.dir/unity/unity.c.o
+[ 37%] Building C object CMakeFiles/test_state_machine_only.dir/private/tmp/rtd-root-firmware-composed/firmware/main/state_handlers.c.o
+[ 37%] Building C object CMakeFiles/test_state_machine_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/control/low_temp_control.c.o
+/private/tmp/rtd-root-firmware-composed/firmware/main/state_handlers.c:216:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  216 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[ 50%] Building C object CMakeFiles/test_state_machine_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/control/pid_control.c.o
+[ 62%] Building C object CMakeFiles/test_state_machine_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/control/thermal_mass.c.o
+[ 62%] Building C object CMakeFiles/test_state_machine_only.dir/private/tmp/rtd-root-firmware-composed/firmware/components/control/profiles.c.o
+[ 75%] Building C object CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o
+/private/tmp/rtd-root-firmware-composed/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+1 warning generated.
+[ 75%] Building C object CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o
+[ 87%] Building C object CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o
+/private/tmp/rtd-root-firmware-composed/firmware/test/test_transition_table_generated.c:220:13: warning: enumeration values 'STATE_RUNAWAY_FAULT' and 'STATE_COUNT' not handled in switch [-Wswitch]
+  220 |     switch (row->from) {
+      |             ^~~~~~~~~
+/private/tmp/rtd-root-firmware-composed/firmware/test/test_transition_table_generated.c:220:13: note: add missing switch cases
+  220 |     switch (row->from) {
+      |             ^
+1 warning generated.
+[ 87%] Building C object CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o
+[100%] Linking C executable test_state_machine_only
+[100%] Built target test_state_machine_only

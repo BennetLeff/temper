@@ -1,0 +1,71 @@
+ M CONCEPTS.md
+ M components/REF2025/REF2025_Documentation.md
+ M docs/hardware/BOM.md
+ M docs/hardware/buck-reva/BRINGUP.md
+ M docs/hardware/buck-reva/README.md
+ M docs/hardware/buck-reva/images/bench-wiring-provisional.svg
+ M docs/hardware/buck-reva/images/connector-probe-map-provisional.svg
+ M docs/hardware/buck-reva/run-record-template.md
+ M docs/plans/2026-09-10-1627-zapote-cooker-roadmap-plan.md
+ M docs/plans/2026-09-10-1633-zapote-rtd-sensing-milestone-plan.md
+ M elec/src/components.ato
+ M elec/src/main.ato
+ M elec/src/modules.ato
+ M firmware/components/sensors/include/max31865.h
+ M firmware/components/sensors/include/rtd_service.h
+ M firmware/components/sensors/max31865.c
+ M firmware/components/sensors/rtd_service.c
+ M firmware/test/test_max31865.c
+ M firmware/tools/board_derivation_lib.py
+ M firmware/tools/test_board_derivation_lib.py
+ M harness-lab/BUCK-ENGINEERING.md
+ M harness-lab/block_native.py
+ M harness-lab/block_source.py
+ M harness-lab/buck_native.py
+ M harness-lab/engineering/circuit-contract.json
+ M harness-lab/engineering/models/README.md
+ M harness-lab/engineering/requirements.json
+ M harness-lab/engineering/scenarios/README.md
+ M harness-lab/engineering_host.py
+ M harness-lab/layout-candidates/buck-20260909/candidate.kicad_pro
+ M harness-lab/qualify_buck.py
+ M harness-lab/run_buck_trials.py
+ M harness-lab/simulation_host.py
+ M harness-lab/src/engineering.rs
+ M harness-lab/src/simulation_validation.rs
+ M harness-lab/telemetry.py
+ M harness-lab/test_engineering.py
+ M harness-lab/test_simulation.py
+ M harness-lab/test_telemetry.py
+ M pcb/prototypes/buck-reva/README.md
+ M pcb/prototypes/buck-reva/buck-reva.kicad_pcb
+ M pcb/prototypes/buck-reva/buck-reva.kicad_sch
+ M pcb/prototypes/buck-reva/buck-reva.kicad_sym
+ M pcb/prototypes/buck-reva/source-manifest.json
+ M pcb/prototypes/buck-reva/verification/board-freeze.md
+ M pcb/prototypes/buck-reva/verification/connectivity.md
+ M pcb/prototypes/buck-reva/verification/footprints.md
+ M scripts/part_stress_limits.yaml
+?? docs/reviews/
+?? docs/solutions/architecture-patterns/kicad-stale-zone-fill-via-net-corruption-2026-09-10.md
+?? docs/solutions/best-practices/model-certificates-need-semantic-binding.md
+?? docs/solutions/logic-errors/cst3015-land-pattern-edge-gap.md
+?? elec/src/current_sense_unit.ato
+?? elec/src/modules.ato.orig
+?? elec/src/rtd_unit.ato
+?? harness-lab/audits/buck-20260910-followup/
+?? harness-lab/audits/buck-final-20260910/
+?? harness-lab/buck_native_v2.py
+?? harness-lab/buck_v2.py
+?? harness-lab/engineering/controls/circuit-v2/
+?? harness-lab/engineering/models/lmr51430-datasheet/
+?? harness-lab/engineering/scenarios/lmr51430-datasheet/
+?? harness-lab/fixtures/buck-v2/
+?? harness-lab/test_binary_host.py
+?? harness-lab/tests/binary_waveforms.rs
+?? pcb/libs/Temper_RTD.pretty/
+?? pcb/libs/temper.pretty/CST3015_Datasheet2025.kicad_mod
+?? pcb/prototypes/buck-reva/export-release.sh
+?? pcb/prototypes/buck-reva/procurement/
+?? pcb/prototypes/buck-reva/release/
+?? zapote/

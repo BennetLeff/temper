@@ -1,0 +1,33 @@
+{
+  "status": "PAUSED_INTEGRATION_NOT_ACCEPTED",
+  "reason": "User requests each unit separately first; full-cooker placement/routing deferred. Existing candidate preserved without reverting.",
+  "artifacts": [
+    {
+      "source": "zapote/rtd/candidate/cooker.kicad_dru",
+      "frozen": "zapote/rtd/evidence/scope-change-standalone/cooker.kicad_dru",
+      "sha256": "488a01a81ea29dd6b4ed3106d3f5c0b036a9d07bf9a545a60b1ca6fbc74a0fdb"
+    },
+    {
+      "source": "zapote/rtd/candidate/cooker.kicad_pcb",
+      "frozen": "zapote/rtd/evidence/scope-change-standalone/cooker.kicad_pcb",
+      "sha256": "8bdc402851a450be088f056d67d36d1619a2aca9573474e9ed672cedcef5babd"
+    },
+    {
+      "source": "zapote/rtd/candidate/cooker.kicad_pro",
+      "frozen": "zapote/rtd/evidence/scope-change-standalone/cooker.kicad_pro",
+      "sha256": "5bc09a679a3d0a1d671d28d6ac9f1186436c56235083baaf4e3addfee19393bb"
+    },
+    {
+      "source": "zapote/rtd/candidate/cooker.kicad_sch",
+      "frozen": "zapote/rtd/evidence/scope-change-standalone/cooker.kicad_sch",
+      "sha256": "4a8076bede7fdf339d4b0223e041405f595c95a34f14031069dde72488e216bc"
+    }
+  ],
+  "last_edits": [
+    "zapote/rtd/evidence/placement-04/mcu-controls-placement-receipt.json",
+    "zapote/rtd/evidence/placement-04/mcu-controls-routes-receipt.json"
+  ],
+  "latest_checked_checkpoint": "zapote/rtd/evidence/placement-04/window-drc-receipt.json",
+  "current_board_rechecked_after_last_edits": false,
+  "physical_tests": "NOT RUN"
+}

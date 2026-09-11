@@ -1,0 +1,31 @@
+{
+  "placements": {
+    "mcu.btn_reset": [
+      31,
+      24,
+      0
+    ],
+    "mcu.btn_boot": [
+      38,
+      24,
+      0
+    ],
+    "mcu.r_boot": [
+      48,
+      46.19,
+      180
+    ],
+    "mcu.r_sda_pullup": [
+      49,
+      51.27,
+      180
+    ],
+    "mcu.r_scl_pullup": [
+      49,
+      54,
+      180
+    ]
+  },
+  "delete_copper_uuids": [],
+  "reason": "Place user buttons at clear low-voltage top edge and orient pullup signal pads toward MCU, avoiding pad bypass and HV-adjacent lower edge."
+}

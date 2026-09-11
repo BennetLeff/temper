@@ -1,0 +1,670 @@
+{
+  "input_board_sha256": "2467a96e177accc21f362555c0f5d0766b852f9ba409697ca1bb34031d6f6640",
+  "output_board_sha256": "9f0e5d62bb5dd4b3579ef47db1db140936c4f5d4668a3be9a4fd5a90c1f529ed",
+  "instruction_sha256": "f1153f8cdc7b530fe737956398ebb38bbeab837184c95ee80753a7cfcecc88b3",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "rtd_pan.c_low_window",
+      "reference": "C5",
+      "uuid": "3d3f112e-7b6e-4ff3-ac38-1dcc59dd9ef7",
+      "before": {
+        "position_mm": [
+          33.5,
+          38.8
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              34.275,
+              38.8
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              32.725,
+              38.8
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          30.0,
+          37.35
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              30.775,
+              37.35
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              29.225,
+              37.35
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.c_high_window",
+      "reference": "C6",
+      "uuid": "1d201ddf-1fca-4018-975f-478547a09aa2",
+      "before": {
+        "position_mm": [
+          33.5,
+          47.8
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              34.275,
+              47.8
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              32.725,
+              47.8
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          30.0,
+          46.35
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              30.775,
+              46.35
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              29.225,
+              46.35
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.c_window_and",
+      "reference": "C7",
+      "uuid": "17ed1fcc-bdda-461f-8d4a-1ce455dfac8b",
+      "before": {
+        "position_mm": [
+          43.5,
+          40.8
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              44.275,
+              40.8
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              42.725,
+              40.8
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          40.0,
+          39.35
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              40.775,
+              39.35
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              39.225,
+              39.35
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.c_fault_nand",
+      "reference": "C9",
+      "uuid": "56f9a50f-7693-4411-ac63-719b8627e439",
+      "before": {
+        "position_mm": [
+          52.5,
+          40.8
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              53.275,
+              40.8
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              51.725,
+              40.8
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          49.0,
+          39.35
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              49.775,
+              39.35
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              48.225,
+              39.35
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.c_reference",
+      "reference": "C4",
+      "uuid": "f32a1507-588b-4a56-baf9-c8d56f7a9517",
+      "before": {
+        "position_mm": [
+          23.5,
+          39.5
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              22.725,
+              39.5
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              24.275,
+              39.5
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          20.0,
+          38.35
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              19.225,
+              38.35
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              20.775,
+              38.35
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.c_rail_monitor",
+      "reference": "C8",
+      "uuid": "8934b589-60ac-47c3-b62a-d9dcc7fa59fc",
+      "before": {
+        "position_mm": [
+          46.0,
+          28.0
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              46.775,
+              28.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              45.225,
+              28.0
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          43.0,
+          30.5
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              43.775,
+              30.5
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              42.225,
+              30.5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.r_rtdin_p_bias",
+      "reference": "R2",
+      "uuid": "7faa97f8-a20f-452b-b563-077e05f34130",
+      "before": {
+        "position_mm": [
+          16.5,
+          25.5
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "rtd_sense_p",
+            "position_mm": [
+              16.5,
+              26.325
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "bias",
+            "position_mm": [
+              16.5,
+              24.675
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          15.7,
+          27.0
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "rtd_sense_p",
+            "position_mm": [
+              15.7,
+              27.825
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "bias",
+            "position_mm": [
+              15.7,
+              26.175
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.r_rtdin_n_bias",
+      "reference": "R3",
+      "uuid": "1e7fa70b-10d2-4a9e-b5c2-b89d534449c2",
+      "before": {
+        "position_mm": [
+          23.5,
+          25.5
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "rtd_sense_n",
+            "position_mm": [
+              23.5,
+              26.325
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "bias",
+            "position_mm": [
+              23.5,
+              24.675
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          24.3,
+          27.0
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "rtd_sense_n",
+            "position_mm": [
+              24.3,
+              27.825
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "bias",
+            "position_mm": [
+              24.3,
+              26.175
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.r_sclk",
+      "reference": "R4",
+      "uuid": "e9365678-4c4e-426e-bdaf-f2f23120f8e5",
+      "before": {
+        "position_mm": [
+          27.0,
+          20.3
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_SCK",
+            "position_mm": [
+              26.175,
+              20.3
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "sclk",
+            "position_mm": [
+              27.825,
+              20.3
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          27.0,
+          20.3
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_SCK",
+            "position_mm": [
+              27.825,
+              20.3
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "sclk",
+            "position_mm": [
+              26.175,
+              20.3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.r_mosi",
+      "reference": "R5",
+      "uuid": "7c99dcfc-4f00-471f-9734-52d9d100a8d1",
+      "before": {
+        "position_mm": [
+          27.0,
+          22.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_SDI",
+            "position_mm": [
+              26.175,
+              22.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "sdi",
+            "position_mm": [
+              27.825,
+              22.0
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          27.0,
+          22.0
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_SDI",
+            "position_mm": [
+              27.825,
+              22.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "sdi",
+            "position_mm": [
+              26.175,
+              22.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.r_cs",
+      "reference": "R6",
+      "uuid": "6abe15b3-fca4-4861-abff-826801a7c6de",
+      "before": {
+        "position_mm": [
+          27.0,
+          18.6
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_CS_N",
+            "position_mm": [
+              26.175,
+              18.6
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "cs_n",
+            "position_mm": [
+              27.825,
+              18.6
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          27.0,
+          18.6
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_CS_N",
+            "position_mm": [
+              27.825,
+              18.6
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "cs_n",
+            "position_mm": [
+              26.175,
+              18.6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.c_dvdd",
+      "reference": "C2",
+      "uuid": "cf0d2ddd-037a-4e9b-b4e4-860812e92cca",
+      "before": {
+        "position_mm": [
+          13.5,
+          14.0
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              14.275,
+              14.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              12.725,
+              14.0
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          14.5,
+          14.5
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              15.275,
+              14.5
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              13.725,
+              14.5
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

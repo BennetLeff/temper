@@ -1,0 +1,21 @@
+{
+  "placements": {
+    "mcu.c_vcc1": [
+      23.5,
+      59,
+      180
+    ],
+    "mcu.c_en": [
+      23,
+      56.5,
+      180
+    ],
+    "mcu.r_en": [
+      21,
+      54,
+      0
+    ]
+  },
+  "delete_copper_uuids": [],
+  "reason": "Orient MCU bypass and EN parts with their signal/supply pads toward the actual MCU pins before explicit control wiring."
+}

@@ -1,0 +1,9 @@
+{
+  "board_sha256": "ef92d0327a0b870fd595010e34562be71067bfe715e6fc25265f2d1cd1632ace",
+  "report_sha256": "e3cc6f25b0faaacfdb70410c7649f0e6dc032cd5fd6c74f009aa9ab10bb67657",
+  "schematic_sha256": "4a8076bede7fdf339d4b0223e041405f595c95a34f14031069dde72488e216bc",
+  "command": "kicad-cli pcb drc --refill-zones --save-board --schematic-parity --format json --all-track-errors --severity-all --output zapote/rtd/evidence/placement-04/drc.json zapote/rtd/candidate/cooker.kicad_pcb",
+  "kicad_version": "10.0.4",
+  "result": "FAIL",
+  "physical_test": "NOT RUN"
+}

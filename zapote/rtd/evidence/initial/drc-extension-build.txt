@@ -1,0 +1,417 @@
+ Downloading crates ...
+  Downloaded crypto-common v0.1.6
+🐍 Found CPython 3.12 at /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/bin/python
+🔗 Found pyo3 bindings
+📡 Using build options features from pyproject.toml
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.46
+   Compiling serde_core v1.0.228
+   Compiling serde v1.0.228
+   Compiling libc v0.2.186
+   Compiling generic-array v0.14.9
+   Compiling either v1.16.0
+   Compiling memchr v2.8.2
+   Compiling pyo3-build-config v0.29.0
+   Compiling zmij v1.0.21
+   Compiling serde_json v1.0.150
+   Compiling smallvec v1.15.2
+   Compiling rayon v1.12.0
+   Compiling itertools v0.11.0
+   Compiling aho-corasick v1.1.5
+   Compiling spade v2.15.1
+   Compiling pyo3-ffi v0.29.0
+   Compiling regex-automata v0.4.18
+   Compiling crypto-common v0.1.6
+   Compiling block-buffer v0.10.4
+   Compiling earcutr v0.4.3
+   Compiling digest v0.10.7
+   Compiling pyo3 v0.29.0
+   Compiling log v0.4.33
+   Compiling indexmap v2.14.0
+   Compiling temper-drc-rs v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-drc-rs)
+   Compiling syn v2.0.118
+   Compiling syn v3.0.3
+   Compiling getrandom v0.2.17
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling rand_core v0.6.4
+   Compiling rand_chacha v0.3.1
+   Compiling regex v1.13.1
+   Compiling rand v0.8.7
+   Compiling thiserror-impl v2.0.20
+   Compiling pyo3-macros-backend v0.29.0
+   Compiling temper-io-types v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-io-types)
+   Compiling thiserror v2.0.20
+   Compiling serde_derive v1.0.228
+   Compiling thiserror-impl v1.0.69
+   Compiling temper-py-bridge-derive v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-py-bridge-derive)
+   Compiling thiserror v1.0.69
+   Compiling pyo3-macros v0.29.0
+   Compiling rstar v0.12.2
+   Compiling i_float v1.6.0
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling temper-pcl-ir v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-pcl-ir)
+   Compiling temper-rust-router-core v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-rust-router-core)
+   Compiling i_shape v1.6.0
+   Compiling i_overlay v1.9.4
+   Compiling geo-types v0.7.19
+   Compiling geo v0.28.0
+   Compiling geo v0.29.3
+   Compiling temper-py-bridge v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-py-bridge)
+   Compiling temper-geometry v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-geometry)
+   Compiling temper-design-bundle v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle)
+warning: methods `is_truthy` and `add` are never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:320:8
+    |
+312 | impl Num {
+    | -------- methods in this implementation
+...
+320 |     fn is_truthy(&self) -> bool {
+    |        ^^^^^^^^^
+...
+330 |     fn add(&self, o: &Num) -> Num {
+    |        ^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `num_to_string` is never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:388:4
+    |
+388 | fn num_to_string(v: Num) -> String {
+    |    ^^^^^^^^^^^^^
+
+warning: function `py_round` is never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:477:4
+    |
+477 | fn py_round(x: f64) -> f64 {
+    |    ^^^^^^^^
+
+warning: method `layer` is never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:552:8
+    |
+551 | impl RawFpItem {
+    | -------------- method in this implementation
+552 |     fn layer(&self) -> &str {
+    |        ^^^^^
+
+warning: function `calculate_footprint_bounds` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1551:4
+     |
+1551 | fn calculate_footprint_bounds(fp: &RawFootprint, center_offset_x: f64, center_offset_y: f64) -> (f64, f64) {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `get_footprint_reference` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1677:4
+     |
+1677 | fn get_footprint_reference(fp: &RawFootprint) -> Option<String> {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `extract_components_pure` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1713:4
+     |
+1713 | fn extract_components_pure(raw: &RawBoard, board_origin: (f64, f64)) -> Vec<CompOut> {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `NumOrDrill` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1837:6
+     |
+1837 | enum NumOrDrill {
+     |      ^^^^^^^^^^
+
+warning: struct `RawPinOut` is never constructed
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1843:8
+     |
+1843 | struct RawPinOut {
+     |        ^^^^^^^^^
+
+warning: struct `CompOut` is never constructed
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1859:8
+     |
+1859 | struct CompOut {
+     |        ^^^^^^^
+
+warning: function `extract_pads_pure` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1873:4
+     |
+1873 | fn extract_pads_pure(raw: &RawBoard) -> Vec<PadOut> {
+     |    ^^^^^^^^^^^^^^^^^
+
+warning: struct `PadOut` is never constructed
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1909:8
+     |
+1909 | struct PadOut {
+     |        ^^^^^^
+
+warning: function `extract_nets_pure` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1940:4
+     |
+1940 | fn extract_nets_pure(components: &[CompOut]) -> Vec<(String, Vec<(String, String)>)> {
+     |    ^^^^^^^^^^^^^^^^^
+
+warning: function `extract_traces_pure` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:1973:4
+     |
+1973 | fn extract_traces_pure(raw: &RawBoard, net_map: &HashMap<String, String>) -> (Vec<TraceOut>, Vec<ViaOut>) {
+     |    ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TraceOut` is never constructed
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2021:8
+     |
+2021 | struct TraceOut {
+     |        ^^^^^^^^
+
+warning: struct `ViaOut` is never constructed
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2030:8
+     |
+2030 | struct ViaOut {
+     |        ^^^^^^
+
+warning: function `extract_zones_pure` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2040:4
+     |
+2040 | fn extract_zones_pure(raw: &RawBoard, x_min: Num, y_min: Num) -> (Vec<ZoneOut>, Vec<String>) {
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: struct `ZoneOut` is never constructed
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2103:8
+     |
+2103 | struct ZoneOut {
+     |        ^^^^^^^
+
+warning: function `re_footprint_start` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2118:4
+     |
+2118 | fn re_footprint_start() -> &'static regex::Regex {
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `re_fp_at` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2124:4
+     |
+2124 | fn re_fp_at() -> &'static regex::Regex {
+     |    ^^^^^^^^
+
+warning: function `re_fp_ref` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2130:4
+     |
+2130 | fn re_fp_ref() -> &'static regex::Regex {
+     |    ^^^^^^^^^
+
+warning: function `re_net_class_start` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2136:4
+     |
+2136 | fn re_net_class_start() -> &'static regex::Regex {
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `re_net_class_name` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2142:4
+     |
+2142 | fn re_net_class_name() -> &'static regex::Regex {
+     |    ^^^^^^^^^^^^^^^^^
+
+warning: function `re_clearance` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2162:11
+     |
+2162 | re_const!(re_clearance, r"\(clearance\s+([\d.]+)\)");
+     |           ^^^^^^^^^^^^
+     |
+     = note: this warning originates in the macro `re_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `re_track_width` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2163:11
+     |
+2163 | re_const!(re_track_width, r"\(track_width\s+([\d.]+)\)");
+     |           ^^^^^^^^^^^^^^
+     |
+     = note: this warning originates in the macro `re_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `re_trace_width` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2164:11
+     |
+2164 | re_const!(re_trace_width, r"\(trace_width\s+([\d.]+)\)");
+     |           ^^^^^^^^^^^^^^
+     |
+     = note: this warning originates in the macro `re_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `re_via_dia` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2165:11
+     |
+2165 | re_const!(re_via_dia, r"\(via_dia\s+([\d.]+)\)");
+     |           ^^^^^^^^^^
+     |
+     = note: this warning originates in the macro `re_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `re_via_drill` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2166:11
+     |
+2166 | re_const!(re_via_drill, r"\(via_drill\s+([\d.]+)\)");
+     |           ^^^^^^^^^^^^
+     |
+     = note: this warning originates in the macro `re_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `re_diff_pair_gap` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2167:11
+     |
+2167 | re_const!(re_diff_pair_gap, r"\(diff_pair_gap\s+([\d.]+)\)");
+     |           ^^^^^^^^^^^^^^^^
+     |
+     = note: this warning originates in the macro `re_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `re_diff_pair_width` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2168:11
+     |
+2168 | re_const!(re_diff_pair_width, r"\(diff_pair_width\s+([\d.]+)\)");
+     |           ^^^^^^^^^^^^^^^^^^
+     |
+     = note: this warning originates in the macro `re_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `re_add_net` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2169:11
+     |
+2169 | re_const!(re_add_net, r#"\(add_net\s+"([^"]+)"\)"#);
+     |           ^^^^^^^^^^
+     |
+     = note: this warning originates in the macro `re_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `extract_footprint_positions_pure` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2171:4
+     |
+2171 | fn extract_footprint_positions_pure(content: &str) -> Vec<(String, f64, f64, f64)> {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `extract_net_classes_pure` is never used
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2199:4
+     |
+2199 | fn extract_net_classes_pure(content: &str) -> Vec<(String, NetClassRaw)> {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `NetClassRaw` is never constructed
+    --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/parse_engine.rs:2278:8
+     |
+2278 | struct NetClassRaw {
+     |        ^^^^^^^^^^^
+
+warning: constant `PINNED_ATOPILE_VERSION` is never used
+  --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:10:11
+   |
+10 | pub const PINNED_ATOPILE_VERSION: &str = "0.2.69";
+   |           ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `CIRCUIT_EXPORT_SCHEMA` is never used
+  --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:13:11
+   |
+13 | pub const CIRCUIT_EXPORT_SCHEMA: &str = "temper.circuit-export.v1";
+   |           ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CircuitResolvedComponent` is never constructed
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:110:12
+    |
+110 | pub struct CircuitResolvedComponent {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CircuitExportV1` is never constructed
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:117:12
+    |
+117 | pub struct CircuitExportV1 {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `BridgeNetlistComponent` is never constructed
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:132:12
+    |
+132 | pub struct BridgeNetlistComponent {
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BridgeNetlistNet` is never constructed
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:141:12
+    |
+141 | pub struct BridgeNetlistNet {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `BridgeNetlist` is never constructed
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:148:12
+    |
+148 | pub struct BridgeNetlist {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `ConvertedComponent` is never constructed
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:157:12
+    |
+157 | pub struct ConvertedComponent {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `ConvertedCandidate` is never constructed
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:171:12
+    |
+171 | pub struct ConvertedCandidate {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: function `display_value` is never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:181:4
+    |
+181 | fn display_value(value: Option<&serde_json::Value>) -> Option<String> {
+    |    ^^^^^^^^^^^^^
+
+warning: function `attr_string` is never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:194:4
+    |
+194 | fn attr_string(
+    |    ^^^^^^^^^^^
+
+warning: function `convert_circuit_export` is never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/atopile.rs:212:8
+    |
+212 | pub fn convert_circuit_export(
+    |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `StrictPinMapEntry` is never constructed
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/identity.rs:233:12
+    |
+233 | pub struct StrictPinMapEntry {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: function `validate_strict_pin_map` is never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/identity.rs:253:8
+    |
+253 | pub fn validate_strict_pin_map(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `NetName` is never constructed
+  --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/net_class_validation.rs:31:12
+   |
+31 | pub struct NetName(String);
+   |            ^^^^^^^
+
+warning: struct `UnresolvedNetClassKey` is never constructed
+  --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/net_class_validation.rs:45:12
+   |
+45 | pub struct UnresolvedNetClassKey {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ValidatedNetClassMap` is never constructed
+  --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/net_class_validation.rs:58:12
+   |
+58 | pub struct ValidatedNetClassMap(BTreeMap<NetName, String>);
+   |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `resolve` and `get` are never used
+  --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/net_class_validation.rs:68:12
+   |
+60 | impl ValidatedNetClassMap {
+   | ------------------------- associated items in this implementation
+...
+68 |     pub fn resolve(
+   |            ^^^^^^^
+...
+93 |     pub fn get(&self, net_name: &str) -> Option<&str> {
+   |            ^^^
+
+warning: function `format_unresolved` is never used
+   --> /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle/src/net_class_validation.rs:111:8
+    |
+111 | pub fn format_unresolved(errors: &[UnresolvedNetClassKey]) -> String {
+    |        ^^^^^^^^^^^^^^^^^
+
+warning: `temper-design-bundle` (lib) generated 53 warnings
+    Finished `release` profile [optimized] target(s) in 21.87s
+📦 Built wheel for CPython 3.12 to /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/.tmp2Bpb3E/temper_drc_rs-0.1.0-cp312-cp312-macosx_11_0_arm64.whl
+✏️ Setting installed package as editable
+🛠 Installed temper-drc-rs-0.1.0

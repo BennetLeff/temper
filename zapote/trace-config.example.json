@@ -1,0 +1,7 @@
+{
+  "service": "zapote-harness",
+  "project": "zapote-harness",
+  "endpoint": "https://api.smith.langchain.com/otel/v1/traces",
+  "credential": "macos-keychain",
+  "fidelity": "full"
+}

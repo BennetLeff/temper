@@ -9,8 +9,11 @@ two 0.1% threshold dividers. It is powered and enabled from upstream
 `SAFETY_3V3`, rather than post-ferrite `RTD_AVDD`, so thresholds remain defined
 while the RTD analogue rail is being declared unsafe.
 
-`VREF` is intentionally unused in this design. The local 100 nF bypass
-capacitor is a placement requirement for the `VIN` supply pins.
+`VREF` supplies the named `SHARED_REF_2V5` interface. Cooker source connects
+that same output to OVP and OCP2; the standalone RTD carrier exposes it at
+its unit connector. The later integration must honor the combined load and
+return-path contract. The local 100 nF bypass capacitor is a placement
+requirement for the `VIN` supply pins.
 
 ## Pinout
 
@@ -24,4 +27,4 @@ capacitor is a placement requirement for the `VIN` supply pins.
 
 ## Reference
 
-[REF2025 datasheet](https://www.ti.com/lit/ds/symlink/ref2025.pdf)
+[REF2025 datasheet](https://www.ti.com/lit/ds/sbos600d/sbos600d.pdf)

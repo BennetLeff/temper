@@ -1,0 +1,48 @@
+{
+  "command": [
+    "/private/tmp/zapote-rtd-target/debug/zapote-rtd",
+    "--input",
+    "zapote/rtd/evidence/placement-04/rust-window-input.json",
+    "--output",
+    "zapote/rtd/evidence/placement-04/rust-window-report.json",
+    "--no-telemetry"
+  ],
+  "exit_code": 1,
+  "status": "FAIL",
+  "artifacts": {
+    "board": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/window-saved.kicad_pcb",
+      "sha256": "44a8fd42af05d096942982d441f3d6214e54273167b634e1b0860824472d2e1c"
+    },
+    "native": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/native-window.json",
+      "sha256": "ab8cc61bacf43ef41cbcf61954b01bf02e83f850d4fff5af099d89ab43c586f8"
+    },
+    "source_manifest": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/source-02/generated/source-manifest.json",
+      "sha256": "3a09d338ba7d2ae05f10c6e2888ae86cf97df0303b6df56b46af7d0ea9e6d93b"
+    },
+    "input": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/rust-window-input.json",
+      "sha256": "f897ece7e4b98692e87b589760fa97fe66d4d0de4b19abcbfa090d7d6be40d2e"
+    },
+    "binary": {
+      "path": "/private/tmp/zapote-rtd-target/debug/zapote-rtd",
+      "sha256": "2d93fd3411cc30893295d783b3e18b894ccb1a1449f258c384164566cf416ed7"
+    },
+    "report": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/rust-window-report.json",
+      "sha256": "394b9568d55cb5b98c77f08701aa608432557d7a7ed505e2600f84b01655ba08"
+    },
+    "binder": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/tools/build_native_input.py",
+      "sha256": "bceee2670a82a7f0a836e6d8b745598d70fd9fa80c15e5fbf3bd46dc95a2839a"
+    },
+    "policy": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/authored-policy.json",
+      "sha256": "111bd4dd691536afd284ab25737fa72bcdd6a7131fce6564b1b1e8018d5fd87b"
+    }
+  },
+  "scope": "Real source-02/nativewindow diagnostic; runtime conductor model and finalphysicalacceptance remain pending",
+  "superseded_reason": "The mutable worker model changed after this diagnostic. Original source model bytes were not preserved; rerun02 freezesmodelbeforebinding. Board/source/native/binary remain reproducible."
+}

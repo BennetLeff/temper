@@ -1,0 +1,18 @@
+{
+  "status": "fail",
+  "findings": [
+    {
+      "rule": "DRC.BOARD.STACKUP",
+      "severity": "error",
+      "status": "fail",
+      "message": "dielectric 1: thickness must be finite and positive; found 0 mm",
+      "object": "board.setup.stackup",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "DRC.BOARD.STACKUP"
+  ],
+  "coverage_gaps": []
+}

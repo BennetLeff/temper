@@ -1,49 +1,54 @@
 # Zapote: from validated units to the complete cooker
 Created: 2026-09-10
 
+Milestone 2 standalone RTD design/layout is accepted; see [the acceptance record](../../zapote/rtd/unit/ACCEPTANCE.md). Physical qualification and procurement are distinct remaining obligations. The next unit is current sensing, under its own goal.
+
 This is the high-level delivery order. Detail only the next milestone as we
 approach it. Milestone-specific plans sit underneath this roadmap; the rows
 alone are scope commitments, not implementation-ready instructions or completion claims.
 
-The immediate finish line is **one complete, routed induction-cooker board
-that passes the adopted Rust engineering validation suite**, with a reproducible
-source-to-board record. Fabrication and physical cooker verification follow as
-separate deliverables.
+Updated scope, 2026-09-10: **build and accept each unit separately first, with
+one goal per unit. Integrate the accepted units afterward under a separate
+goal.** The complete routed cooker remains the overall destination, not the
+acceptance condition for an individual unit. Fabrication and physical cooker
+verification follow as separate deliverables.
 
 ## Delivery order
 
-Each electrical unit joins the same growing full-board candidate. Reuse the
-existing circuit design and buck work, reconciling them against current sources.
-An isolated block export can be a working artifact; the milestone closes on its
-integration into the cooker.
+Each electrical unit has its own Atopile-derived schematic, placed/routed KiCad
+board artifact, Rust validation evidence and explicit interface contract. Reuse
+existing circuit design and accepted work. A unit closes on its own engineering
+requirements; routing it into the full cooker is deferred. Rows containing
+several units describe sequencing groups, not permission to combine their goals.
 
 | Order | Deliverable | What must be true before moving on |
 |---|---|---|
-| 1 | **Integrated buck + MCU, with a working Zapote loop** | Atopile-derived control section is placed/routed in the intended board context. The agent receives real Rust findings through the working KiCad adapter, fixes findings, and reruns checks. Existing full-board validator coverage and gaps are recorded; applicable buck lessons reach the MCU agent. |
-| 2 | **[Pan-temperature sensing and its hardware fault output](2026-09-10-1633-zapote-rtd-sensing-milestone-plan.md)** | RTD interface, connector, reference, filtering and independent fault circuitry are integrated with MCU, supplies and safety interfaces. Source, layout and required engineering checks pass for the section. |
-| 3 | **Current/voltage/thermal sensing and the safety interlock** | Sensing, watchdog, fault combination, latch/reset and shutdown interfaces form a checked protection chain. Required behavior and remaining physical tests are explicit. |
-| 4 | **Isolated gate drive** | Drivers, local supplies/decoupling and gate connections are placed/routed against the defined power-stage geometry. Isolation, gate-loop and shutdown obligations have applicable checks and recorded results. |
-| 5 | **Complete power path** | Power entry, auxiliary supply, bus discharge, half-bridge and resonant tank/coil connections are integrated. Supply, switching, return-path, component-stress and thermal constraints are checked across section boundaries. |
-| 6 | **Complete product integration** | Cooling/fan circuitry, heatsink/coil/enclosure fit, connectors, programming/UI interfaces and firmware pin/function contracts are reconciled with the assembled board. No necessary product function is left as an unnamed future block. |
-| 7 | **Full-board validation and fabrication release** | Routing is complete; the full adopted Rust suite and independent native KiCad checks run on the frozen final board. Mandatory failures and required indeterminate checks are resolved. BOM, fabrication/assembly outputs and bring-up instructions match that exact revision. |
-| 8 | **Assembled and physically verified cooker** | Fabricated hardware is inspected and brought up under a separately detailed staged procedure. Firmware operation, sensing, protection, heating and thermal behavior have measured results; required corrective revisions are closed. |
+| 1 | **Buck, then MCU: separate unit goals and the working Zapote loop** | Reconcile existing standalone outputs; each has source identity, placement/routing, actual Rust feedback and unit acceptance. Carry applicable lessons forward. |
+| 2 | **[Standalone pan-temperature sensing and hardware fault output](2026-09-10-1633-zapote-rtd-sensing-milestone-plan.md)** | RTD probe interface, reference, filtering and local fault circuitry pass unit checks. Power, SPI, fault and reference connections terminate at explicit unit boundaries. |
+| 3 | **Current sensing, voltage sensing, thermal sensing, then safety interlock: separate goals** | Each unit is independently placed/routed and checked against declared input/output conditions. The interlock has explicit fault, watchdog, latch/reset and shutdown contracts. |
+| 4 | **Isolated gate-drive unit** | Driver, local supply/decoupling and gate interfaces have standalone layout and checked isolation, gate-loop and shutdown constraints. |
+| 5 | **Power-path units, each separately** | Detail power entry, auxiliary supply, bus discharge and switching/resonant units as bounded goals before execution. Accept each unit's stress, return, thermal and interface obligations. |
+| 6 | **Remaining product units, each separately** | Cooling/fan and programming/UI units have checked interfaces and mechanical constraints; reconcile any remaining product functions before integration. |
+| 7 | **Integration goal: complete cooker board** | Compose the accepted units, place/route cross-unit connections, and resolve mechanical, supply, noise, isolation and firmware interactions. Rerun unit regressions and whole-board checks. |
+| 8 | **Full-board validation and fabrication release** | The complete adopted Rust suite and native KiCad checks pass on the frozen board; required indeterminate checks are resolved. BOM and release outputs match it. |
+| 9 | **Assembled and physically verified cooker** | Staged hardware tests measure sensing, protection, heating and thermal behavior; required corrective revisions are closed. |
 
-This is a construction order. Define the whole-board outline/stackup, power and
-isolation domains, major component envelopes, connector locations and inter-unit
-interfaces in milestone 1. Reserve space for later sections before routing early
-ones. Revisit affected sections when an interface changes; rerun their checks.
+This is a construction order. Record expected supply/isolation domains, mechanical
+envelopes and inter-unit interfaces during unit work. Final whole-board placement
+and cross-unit routing belong to integration. Revisit affected units when an
+interface changes; rerun their checks.
 The order does not imply energizing an incomplete power or protection chain.
 
 ## What grows with every milestone
 
 Every milestone has three outputs:
 
-- **More of the real cooker:** updated Atopile source, generated KiCad artifacts
-  and an integrated placement/routing candidate with source identity preserved.
+- **A reusable cooker unit:** updated Atopile source, generated KiCad artifacts
+  and a standalone placement/routing candidate with source identity preserved.
 - **More useful validation:** reuse existing Temper Rust rules/tests in focused
   Zapote packages, supply their real inputs, and add missing checks for the new
   section. Keep a coverage/gap record and prove checks reject representative
-  faults. Run integrated regression checks as each section lands.
+  faults. Run unit regressions now and integrated regressions during integration.
 - **Reusable engineering memory:** retain findings, successful corrections and
   reviewed lessons; select and deliver relevant lessons to the next agent.
   Record actual reuse and outcomes. Executable requirements belong in validators.
@@ -59,23 +64,23 @@ fault detection separately from raw test totals. A comparative multiplier needs
 a defined baseline; the immediate gate is the board meeting its engineering
 requirements. See [the validation contract](../../zapote/VALIDATION.md).
 
-During incremental construction, explicitly tracked existing full-board defects
-may remain outside the section being accepted. Do not introduce unexplained
-regressions or present a section pass as a whole-board pass. Milestone 7 closes
-all mandatory full-board obligations; physical-only evidence belongs in milestone 8.
+Existing full-board defects do not block standalone unit acceptance unless they
+expose a defect in the unit's own contract. Preserve existing integration work
+and evidence for the later integration goal. Never present a unit pass as a
+whole-board pass. Milestone 8 closes full-board release obligations; physical
+verification belongs in milestone 9.
 
 ## How we add detail
 
 Before starting each milestone, make one bounded execution plan specifying its
-interfaces, owned source/layout region, required validations, integration exit
+interfaces, owned standalone artifacts, required validations, unit exit
 criteria and evidence handoff. Assign Luna agents independent work within that
 milestone; one coordinator accepts the combined result. Advance through the
 milestones in order, carrying forward unresolved obligations explicitly.
 
-Start by reconciling milestone 1's existing owner outputs against its plans,
-then detail only what remains. Do not restart completed buck work or infer a
-completed milestone from an individual owner's summary. Detail milestone 2
-using the accepted control-section interfaces next.
+Reconcile existing owner outputs rather than restarting accepted buck/MCU work.
+The current goal is the standalone RTD unit. Earlier composition plans and
+integrated RTD attempts are retained as historical work, not current goal gates.
 
 Existing milestone 1 plans:
 

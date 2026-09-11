@@ -1,0 +1,12 @@
+{
+  "erc_returncode": 0,
+  "erc_violations": 0,
+  "pcb_parity": null,
+  "pcb_touched": false,
+  "physical_tests": "NOT RUN",
+  "schema": "zapote.current-sense.schematic-replay-receipt.v1",
+  "schematic_oracle": "PASS",
+  "schematic_sha256": "116a5eeafb465a9a456d8d08990b7b719d6703a32333d2514eaaa3673d22504f",
+  "source_netlist_sha256": "a1fe3ecd5523a5a0c14eaee4dd0358051427f0924796e9c8797c54e93f2755de",
+  "status": "erc-and-schematic-oracle-pass"
+}

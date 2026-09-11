@@ -1,0 +1,25 @@
+# Standalone RTD footprint receipt
+
+Date: 2026-09-10
+
+## TPS389001DSER
+
+Footprint: `footprints/Temper_RTD.pretty/TPS389001DSER_WSON-6_DSE.kicad_mod`
+
+- Official source: [TI TPS3890 Rev A datasheet](https://www.ti.com/lit/ds/symlink/tps3890.pdf), DSE package drawing.
+- Six perimeter SMD pads, numbered 1 through 6 in the TI top view; no exposed thermal pad is present in the drawing and none is declared.
+- TI pin order recorded in `standalone_interface_contract.md`: SENSE=1, GND=2, MR=3, VDD=4, CT=5, RESET=6.
+- DSE land dimensions are encoded from the TI drawing: pad 1 is 0.80 x 0.25 mm; pads 2 through 6 are 0.70 x 0.25 mm; row centers are 1.20 mm and pitch is 0.50 mm. Pads 1 through 3 use a -0.05 mm solder-mask margin (mask-defined); pads 4 through 6 use a +0.05 mm margin (non-mask-defined), matching the drawing's asymmetric mask callout.
+- `kicad-cli pcb render -o /tmp/tps3890_final2.png /tmp/tps3890_final_check.kicad_pcb` completed with exit code 0. The minimal board has no Edge.Cuts outline, so KiCad reports its expected outline warning; the footprint rendered successfully.
+
+## Samtec FTSH-105-01-F-D
+
+Footprint: `footprints/Temper_RTD.pretty/FTSH-105-01-F-D_2x5_P1.27mm.kicad_mod`
+
+- Official sources: [Samtec product page](https://www.samtec.com/products/ftsh-105-01-f-d) and [Samtec FTS/FTSH DTH print](https://suddendocs.samtec.com/prints/fts-dth.pdf).
+- Exact orderable part is the 10-position, 2-row, 1.27 mm `FTSH-105-01-F-D` header. The `-D` part is a plain double-row header; the silkscreen dot is only a pin-1 mark and is not a keyed shroud.
+- Print-derived proposal uses 0.71 mm finished holes and 1.05 mm copper pads, leaving 0.22 mm between the two pad rows. Pad 1 is rectangular; pads 2 through 10 are circular.
+- The pin-1 silkscreen marker is at (-1.42, -2.54) mm; its nearest edge is at least 0.11 mm from pad-1 copper. This is an orientation mark only: the plain `-D` header has no keyed shroud.
+- Static check: 10 pads numbered 1…10; all drills 0.71 mm; all pads 1.05 mm; exactly one rectangular pad (pin 1).
+- `kicad-cli pcb render -o /tmp/ftsh_final2.png /tmp/ftsh_final_check.kicad_pcb` completed with exit code 0. The minimal board has no Edge.Cuts outline, so KiCad reports its expected outline warning; the footprint rendered successfully.
+- Final vendor-print review of body keepout, plating callout, and host-side orientation is still a mechanical acceptance item. No board placement or routing was run.

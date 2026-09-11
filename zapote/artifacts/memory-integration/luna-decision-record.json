@@ -1,0 +1,13 @@
+{
+  "applied_memory_ids": [
+    "rtd-mem-001"
+  ],
+  "checks": [
+    "Inspect the current-sensing unit’s post-fault graph, including divider and protection paths; verify each injected open actually disconnects its conductor.",
+    "Derive unit-specific limits from applicable datasheet guarantees and operating conditions, separating typical timing from guaranteed bounds and omitted hardware behavior.",
+    "Cross-check unit-specific equations with an independent derivation or simulator; require the normal Rust validator to reject stale sources, missing or duplicate fault cases, changed ranges, and rehashed contradictory results."
+  ],
+  "exact_fact_transfer_allowed": false,
+  "decision": "An RTD detection-time result cannot serve as the current-sensing unit’s bound. Transfer the review method; derive and qualify this unit’s own timing bound using its source, circuit, fault cases, constraints, and validators.",
+  "helper_execution": "NOT RUN; no helper, experiment, CAD operation, or code edit performed."
+}

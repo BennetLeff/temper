@@ -1,0 +1,66 @@
+{
+  "schema": "zapote.memory.catalog.v1",
+  "revision": "rtd-lessons-v1",
+  "entries": [
+    {
+      "id": "rtd-mem-001",
+      "title": "Qualify model meaning before accepting model output",
+      "path": "zapote/skills/revisions/rtd-lessons-v1/entries/model-semantic-binding.md",
+      "content_sha256": "850c1a22af0dc1a4fed5f78c94a4070c788abcd71837ff2c3e7aacba74851d80",
+      "applicability": {
+        "board_specific": false,
+        "exact_fact_transfer": false,
+        "required_capabilities": [
+          "simulation-evidence-scoping",
+          "assumption-ledger-reading"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "docs/solutions/best-practices/model-certificates-need-semantic-binding.md",
+          "hash": "sha256:a2944b95210f8b438a616cb03339e48b873b12ec8d65ce17298599a8e3cb5158"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed"
+    },
+    {
+      "id": "rtd-mem-002",
+      "title": "RTD conditional passive-network timing result",
+      "path": "zapote/skills/revisions/rtd-lessons-v1/entries/rtd-conditional-bound.md",
+      "content_sha256": "8def7c6eb02754848bd5fc56f28f79d9839e2a38a93244270af6a9863d2288ca",
+      "applicability": {
+        "board_specific": true,
+        "exact_fact_transfer": true,
+        "required_capabilities": [
+          "simulation-evidence-scoping",
+          "assumption-ledger-reading"
+        ],
+        "source_dependencies": [
+          "rtd_board",
+          "rtd_source_manifest",
+          "rtd_model_source",
+          "rtd_certificate"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "zapote/rtd/model-correctness/qualification/full_network_bound.json",
+          "hash": "sha256:8c6d1a303e125b1c1e9156548afe0f1f296aee37c423b9b5894c612d948378f6"
+        },
+        {
+          "path": "zapote/rtd/model-correctness/applicability-review.json",
+          "hash": "sha256:4b56eaa33300c9d4eb3a01b8bf6ae291f4874a97d4063055a27cedb2faf96db4"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed",
+      "current_sources": {
+        "rtd_board": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+        "rtd_source_manifest": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+        "rtd_model_source": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554",
+        "rtd_certificate": "8c6d1a303e125b1c1e9156548afe0f1f296aee37c423b9b5894c612d948378f6"
+      }
+    }
+  ]
+}

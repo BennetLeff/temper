@@ -1,0 +1,110 @@
+{
+  "status": "PASS",
+  "scope": "native ERC/DRC/parity; ignored checks retained in reports; no physical proof",
+  "kicad_version": "10.0.4",
+  "inputs": {
+    "candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+    "candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+    "candidate/candidate-libs/Inductor_SMD.pretty/L_0603_1608Metric.kicad_mod": "a2a9c562208496756e22f3ab19e0bd6db2341d14da92e7c767d5eafd1bb45d38",
+    "candidate/candidate-libs/Package_SO.pretty/SSOP-20_3.9x8.7mm_P0.635mm.kicad_mod": "38e1d013616514c692a593ab99a4327a30a98e91bfb4bc7a621bc2c0352d9008",
+    "candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+    "candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+    "candidate/candidate-libs/Resistor_SMD.pretty/R_0805_2012Metric.kicad_mod": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+    "candidate/candidate-libs/Temper_RTD.pretty/FTSH-105-01-F-D_2x5_P1.27mm.kicad_mod": "e7bb1532a01e30864dd947afe1a6b27613e0f4440c57c2f1a46d0ed885ba6c5b",
+    "candidate/candidate-libs/Temper_RTD.pretty/TPS389001DSER_WSON-6_DSE.kicad_mod": "42f4a408e86b82b26da7b4b1c68170c1214dedadff38dff5015ac55a23dd6401",
+    "candidate/fp-lib-table": "2a499806d6410b629b5b362162dd12098ad926ab692b95bbbe842d63448234a3",
+    "candidate/rtd-unit.kicad_sym": "dcd83101ecb99814fc182ea4cf655e1945cd25df7a4975b41ee33c8da7f6a318",
+    "candidate/section.kicad_dru": "fb69fedd1be7e36b7e557817547607f6d73f126a15ff99fe9b0a16da0b083dc3",
+    "candidate/section.kicad_pcb": "1896bf37a94eb0eb28e77cf18b2488f0672223c585ddf0f6bae2dc0a55b0d735",
+    "candidate/section.kicad_prl": "3fb7320dff162a0d12e2b388b3347022d3b40fc7ca77afed8affcd40ff0b60fd",
+    "candidate/section.kicad_pro": "b81bac9ae95dca67e4a47d74d0a66437ae644bf00707abfea5e9d6b2c156cb3e",
+    "candidate/section.kicad_sch": "b93db55b2b5af0829162d096a460b03763c68a9b70bdd73846d800937b0f8533",
+    "candidate/source-manifest.json": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+    "candidate/sym-lib-table": "7aba3087f37af31d6d1e7045220bc0702645de3781a91add46868c1822ffa32f"
+  },
+  "runs": [
+    {
+      "command": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "drc",
+        "--schematic-parity",
+        "--all-track-errors",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/evidence/native-final/drc-1.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_pcb"
+      ],
+      "returncode": 0,
+      "report_sha256": "d665c1731fe1ce4d7b7e99f1d96a6b1e89782b9b3c981d45296f58c406c7fe5e",
+      "counts": {
+        "violations": 0,
+        "unconnected_items": 0,
+        "schematic_parity": 0
+      }
+    },
+    {
+      "command": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "drc",
+        "--schematic-parity",
+        "--all-track-errors",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/evidence/native-final/drc-2.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_pcb"
+      ],
+      "returncode": 0,
+      "report_sha256": "7d5c2029bc34c2ba3f869b6a51f53444020f2b7c53eb28a8a9358d787e096208",
+      "counts": {
+        "violations": 0,
+        "unconnected_items": 0,
+        "schematic_parity": 0
+      }
+    },
+    {
+      "command": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "drc",
+        "--schematic-parity",
+        "--all-track-errors",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/evidence/native-final/drc-3.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_pcb"
+      ],
+      "returncode": 0,
+      "report_sha256": "2c42f631ba3dae06f9f99b4be48a88789e0abe92525850f3f4269c43f6e471cc",
+      "counts": {
+        "violations": 0,
+        "unconnected_items": 0,
+        "schematic_parity": 0
+      }
+    },
+    {
+      "command": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "erc",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/evidence/native-final/erc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_sch"
+      ],
+      "returncode": 0,
+      "report_sha256": "c82a2c8e766460fa348991d09effe86fecd6c0fd846fbe7cda4cefd48544ccd8",
+      "violations": 0
+    }
+  ],
+  "input_bytes_unchanged": true
+}

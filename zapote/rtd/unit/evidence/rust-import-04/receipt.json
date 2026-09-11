@@ -1,0 +1,26 @@
+[
+  {
+    "path": "zapote/packages/zapote-core/src/lib.rs",
+    "sha256": "2a05d6254783da80eab373c6896f68112fd1e1163ace5f30df0a728ea32270f3"
+  },
+  {
+    "path": "zapote/packages/zapote-core/src/unit.rs",
+    "sha256": "959596fadc0bb2929a5e83f083fb81ef037e7459f70042fadc1d6206a72898c4"
+  },
+  {
+    "path": "zapote/packages/zapote-erc/src/lib.rs",
+    "sha256": "a72dd4673e804faa82c71a6a6725a3349a8c620b6167c301fa32bab671681ccb"
+  },
+  {
+    "path": "zapote/packages/zapote-harness/src/lib.rs",
+    "sha256": "bc5903ab2d5c1a3ca1349545d70c1e8f691dbefb4e05ab74f4b0b46e791b524a"
+  },
+  {
+    "path": "zapote/packages/zapote-harness/src/main.rs",
+    "sha256": "e35b863e4f350b0eed91df08593a2687b75735060e35d0121c4f5c84e5e31974"
+  },
+  {
+    "path": "zapote/packages/zapote-harness/tests/unit_profile.rs",
+    "sha256": "08b1f5a0d48ff25f26db9929434c3f97ec71ddf6a3bc820c1800e8afc68000ef"
+  }
+]

@@ -1,0 +1,209 @@
+{
+  "fault_sink_interface": {
+    "downstream_sink_handoff_budget_ms": 15.0,
+    "external_capacitance_max_pf": 100.0,
+    "net": "RTD_HW_FAULT",
+    "pullup_ohm": 10000.0,
+    "rise_to_70_percent_us": 1.205,
+    "status": "BOUNDARY_CONTRACT"
+  },
+  "generated_date": "2026-09-11",
+  "local_supply_budget": {
+    "diagnostic_load_ua": 4.364,
+    "limit_ma": 10.0,
+    "max_active_ma": 3.5,
+    "max_bias_load_ma": 3.874686,
+    "remaining_margin_ma": 2.47095,
+    "short_0ohm_max_bias_load_ma": 4.794533,
+    "short_0ohm_remaining_margin_ma": 1.551102,
+    "short_0ohm_total_bound_ma": 8.448898,
+    "status": "PASS",
+    "total_bound_ma": 7.52905,
+    "two_logic_active_ua": 20.0,
+    "two_tlv3201_active_ua": 130.0
+  },
+  "observed_faults": [
+    {
+      "bound_ms": 0.002307976508969019,
+      "name": "force_plus_open",
+      "observation_status": "REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY",
+      "observed_class": "LOW_COMPARATOR_FAULT",
+      "observed_detect_ms": 0.00017909999999999947,
+      "observed_detected": true,
+      "observed_latency_ms": 0.00017909999999999947,
+      "qualification_scope": "adopted passive network only; device applicability indeterminate",
+      "source_model": "full_network_bound.py",
+      "source_model_sha256": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554"
+    },
+    {
+      "bound_ms": 0.0016187734904234126,
+      "name": "force_minus_open",
+      "observation_status": "REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY",
+      "observed_class": "HIGH_COMPARATOR_FAULT",
+      "observed_detect_ms": 9.153999999999991e-05,
+      "observed_detected": true,
+      "observed_latency_ms": 9.153999999999991e-05,
+      "qualification_scope": "adopted passive network only; device applicability indeterminate",
+      "source_model": "full_network_bound.py",
+      "source_model_sha256": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554"
+    },
+    {
+      "bound_ms": 0.971459818540245,
+      "name": "sense_plus_open",
+      "observation_status": "REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY",
+      "observed_class": "HIGH_COMPARATOR_FAULT",
+      "observed_detect_ms": 0.33928509999999995,
+      "observed_detected": true,
+      "observed_latency_ms": 0.33928509999999995,
+      "qualification_scope": "adopted passive network only; device applicability indeterminate",
+      "source_model": "full_network_bound.py",
+      "source_model_sha256": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554"
+    },
+    {
+      "bound_ms": 0.13535571246316708,
+      "name": "sense_minus_open",
+      "observation_status": "REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY",
+      "observed_class": "LOW_COMPARATOR_FAULT",
+      "observed_detect_ms": 0.018619069999999995,
+      "observed_detected": true,
+      "observed_latency_ms": 0.018619069999999995,
+      "qualification_scope": "adopted passive network only; device applicability indeterminate",
+      "source_model": "full_network_bound.py",
+      "source_model_sha256": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554"
+    },
+    {
+      "healthy_margin_v": {
+        "100.0": {
+          "high_min_margin_v": 0.386403955,
+          "low_min_margin_v": 0.186101645
+        },
+        "194.1": {
+          "high_min_margin_v": 0.135419237,
+          "low_min_margin_v": 0.423960244
+        }
+      },
+      "name": "healthy_pt100_window",
+      "observation_status": "MODELED_STATIC_CORNERS",
+      "observed_class": "WINDOW_CLEAR_NO_FAULT",
+      "observed_detected": false,
+      "observed_latency_ms": null,
+      "source_model": "rtdin_comparator_model_results.txt",
+      "source_model_sha256": "8f028402bc5bbc3c58c175ba7b415ac2e05ff74f589dc75c3a91445b60a8666d"
+    },
+    {
+      "bound_ms": 0.0009271246637447808,
+      "name": "rtd_short_le_10ohm",
+      "observation_status": "REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY",
+      "observed_class": "LOW_COMPARATOR_FAULT",
+      "observed_detect_ms": 6.6925957e-05,
+      "observed_detected": true,
+      "observed_latency_ms": 6.6925957e-05,
+      "qualification_scope": "adopted passive network only; device applicability indeterminate",
+      "source_model": "full_network_bound.py",
+      "source_model_sha256": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554"
+    },
+    {
+      "behavior": "BIAS settle, diagnostic/window qualification, and first valid continuous conversion precede readiness; startup fault remains masked until that sample.",
+      "name": "bias_startup_transition",
+      "observation_status": "CONTRACT_SEQUENCE_MODEL",
+      "observed_class": "STARTUP_MASKED_UNTIL_VALID_SAMPLE",
+      "observed_detected": true,
+      "observed_latency_ms": 90.0,
+      "ready_before_first_valid_sample": false,
+      "source_model": "rtd_contract.json startup sequence",
+      "startup_open_bound_ms": 90.0
+    },
+    {
+      "detection_condition": "falling_trip_min > MAX31865_min_supply and rising_clear_max < local_valid_rail_min",
+      "falling_trip_v_max": 3.089235504007,
+      "falling_trip_v_min": 3.006009934549,
+      "fault_owner": "TPS389001 rail monitor + upstream-powered SN74LVC1G38",
+      "local_valid_rail_min_v": 3.1332,
+      "name": "local_rtd_avdd_loss",
+      "observation_status": "BOUNDED_THRESHOLD_AND_NAND_TRUTH",
+      "observed_class": "RAIL_MONITOR_FAULT_OWNER",
+      "observed_detected": true,
+      "observed_latency_ms": null,
+      "powered_comparator_result": "UNASSERTED_WHILE_LOCAL_VDD_ABSENT",
+      "rising_clear_v_max": 3.114708050363,
+      "rising_clear_v_min": 3.092085094442,
+      "source_model": "rail_monitor_bounds.txt",
+      "source_model_sha256": "f956500f981e683dc67688d62a95bc30177ed5091333ec5eb535c4c13230f824",
+      "source_topology_sha256": "09f0c4c455227b383f9b01aeaa1eec298cb8008beb2b03f73dd691a58e2d2c6b"
+    },
+    {
+      "bound_ms": null,
+      "host_inhibit_required": true,
+      "name": "upstream_3v3_loss",
+      "observation_status": "EXTERNAL_POWER_LOSS_NOT_SIMULATED",
+      "observed_behavior": "Unit supply and pullups disappear; downstream safety disable must own this condition. No RTD comparator timing result is claimed.",
+      "observed_class": "SYSTEM_DISABLE_REQUIRED",
+      "observed_detected": null,
+      "observed_latency_ms": null,
+      "powered_hardware_detection_guaranteed": false,
+      "source_model": "system safety interface",
+      "source_model_sha256": null
+    },
+    {
+      "behavior": "Diagnostic passive collapse is recorded separately; it is not used as the powered fault detector while local VDD is absent.",
+      "name": "local_rtd_avdd_loss_passive_window",
+      "observation_status": "PASSIVE_COLLAPSE_MODEL_ONLY",
+      "observed_class": "FAULT_OWNER_MONITOR",
+      "observed_detected": false,
+      "observed_latency_ms": null,
+      "observed_window_margin_high_v": 0.783722,
+      "observed_window_margin_low_v": -0.179698,
+      "required_runtime_case": false,
+      "source_model": "rtdin_transient_model_results.txt",
+      "source_model_sha256": "43907ccb35f72d2d07ae506881198a052aaf6327cf2f760355e111d03d458d74",
+      "supplemental_observation": true
+    }
+  ],
+  "physical_status": "NOT RUN",
+  "producer": "reviewed full_network_bound.py + independent ngspice; bind_qualification.py transports evidence",
+  "qualification_scope": {
+    "historical_input_sha256": "d3fec50f97c36ac49a4aef47ce2b3f01d0dd745b05c64630a32f8522b398735f",
+    "inherited_assertions": "Other model fields retained from historical input without renewed qualification; ordinary numerical checks do not validate their physical applicability.",
+    "renewed": [
+      "force_plus_open",
+      "force_minus_open",
+      "sense_plus_open",
+      "sense_minus_open",
+      "rtd_short_le_10ohm"
+    ]
+  },
+  "schema": "rtd_observed_faults.v2",
+  "scope": "standalone RTD unit observed model outputs; separate from expected fault contract",
+  "shared_reference_budget": {
+    "downstream_input_bias_assumption_na_each": 5.0,
+    "external_capacitance_max_nf": 10.0,
+    "external_load_max_ua": 100.0,
+    "internal_vbias_divider_load_ua": 96.242,
+    "net": "SHARED_REF_2V5",
+    "output_limit_ma": 20.0,
+    "part": "REF2025AIDDCR",
+    "status": "PASS_BOUNDED_LOAD"
+  },
+  "source_model_hashes": {
+    "fault_nand_upstream_power_and_bypass.patch": "09f0c4c455227b383f9b01aeaa1eec298cb8008beb2b03f73dd691a58e2d2c6b",
+    "full_network_bound.py": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554",
+    "rail_monitor_bounds.txt": "f956500f981e683dc67688d62a95bc30177ed5091333ec5eb535c4c13230f824",
+    "rtd_observed_faults.py": "e754081f93921c53f333492bdc8fc29071d89f17d198baafc28e1e8f4929d0b9",
+    "rtd_short10_spice_receipt.txt": "040e6fa0d1f150feb5f1a646ea5adec08f1294c4d6912c20fbbf8f85df5d9d26",
+    "rtdin_comparator_model.py": "46df61023950e23949d73d0dec78417b5b4decc0f934879091f4fabbc41d992a",
+    "rtdin_comparator_model_results.txt": "8f028402bc5bbc3c58c175ba7b415ac2e05ff74f589dc75c3a91445b60a8666d",
+    "rtdin_comparator_window.cir": "9ca9386d1a0565f6708cdbfce89a2bbe5a4e0de7faffd0d0b9326181759c123e",
+    "rtdin_transient_model.py": "1cab91630f8d1b4229b5f15a34ffd1b88a4a0d04e07299c4811b76e18db7429f",
+    "rtdin_transient_model_results.txt": "43907ccb35f72d2d07ae506881198a052aaf6327cf2f760355e111d03d458d74"
+  },
+  "timing": {
+    "actual_model_max_detect_ms": 0.33928509999999995,
+    "analytic_max_rc_bound_ms": 0.971459818540245,
+    "fault_overdrive_v": 0.02,
+    "logic_delay_assumption_ns": 10,
+    "method": "full adopted passive network G-energy bound; conditional devices",
+    "output_load_assumption_pf": 15,
+    "rounded_hardware_detector_budget_ms": 2.0,
+    "tlv3201_propagation_ns": 55
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "zapote.current-sense.native-repeat-summary.v1",
+  "board_sha256": "5633b270855709ccf3a792c715d19fa4c48ae8d247565d492027ccc715b343f8",
+  "schematic_sha256": "a00fc0bfa1f33c815dec88a5d33feb601968fb92b88182f4a3ad33377d8f5505",
+  "sample_count": 3,
+  "observations": [
+    {
+      "erc": 0,
+      "drc": 0,
+      "unconnected": 0,
+      "parity": 0
+    },
+    {
+      "erc": 0,
+      "drc": 0,
+      "unconnected": 0,
+      "parity": 0
+    },
+    {
+      "erc": 0,
+      "drc": 0,
+      "unconnected": 0,
+      "parity": 0
+    }
+  ],
+  "source_generation_replay": "byte-identical generated PCB",
+  "schematic_oracle": "identical final schematic SHA, 64 pins /12 connected nets",
+  "kicad_version": "10.0.4"
+}

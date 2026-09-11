@@ -1,0 +1,120 @@
+{
+  "input_board_sha256": "72a51641dc4160a3d0105f89eede1782e038d48d6635c4117fe997566f452708",
+  "output_board_sha256": "5abe6781cc15e668d8514df896ead054819cfe59280dd57cecccf9e3bbf6bbf8",
+  "instruction_sha256": "75d92d104ee2bd4337307f967cd9e3a286ca7671e33fcad4d4f240b4355527d7",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "rtd_pan.c_vdd",
+      "reference": "C1",
+      "uuid": "146b1ef9-ded6-4bed-a334-ee150eec7550",
+      "before": {
+        "position_mm": [
+          14.5,
+          16.7
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              15.275,
+              16.7
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              13.725,
+              16.7
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          14.5,
+          18.2
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              15.275,
+              18.2
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              13.725,
+              18.2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance": "rtd_pan.c_dvdd",
+      "reference": "C2",
+      "uuid": "cf0d2ddd-037a-4e9b-b4e4-860812e92cca",
+      "before": {
+        "position_mm": [
+          14.5,
+          14.5
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              15.275,
+              14.5
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              13.725,
+              14.5
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          14.5,
+          15.8
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "+3V3",
+            "position_mm": [
+              15.275,
+              15.8
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              13.725,
+              15.8
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

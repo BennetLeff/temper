@@ -1,0 +1,291 @@
+{
+  "status": "fail",
+  "findings": [
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit model observations require name, observed_class, and observed_detected",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "local/reference load budget is authored but pending source-derived sum",
+      "object": "RTD_LOCAL_10MA",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FAULT_CORNERS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "no observed fault scenarios were supplied; expected-only model entries cannot establish behavior",
+      "object": "fault-observations",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_DECOUPLING",
+      "severity": "error",
+      "status": "fail",
+      "message": "bypass rtd_pan.c_dvdd is outside 3 mm locality of rtd_pan.adc",
+      "object": "rtd_pan.c_dvdd",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_DECOUPLING",
+      "severity": "error",
+      "status": "fail",
+      "message": "bypass rtd_pan.c_window_and is outside 3 mm locality of rtd_pan.window_and",
+      "object": "rtd_pan.c_window_and",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_DECOUPLING",
+      "severity": "error",
+      "status": "fail",
+      "message": "bypass rtd_pan.c_fault_nand is outside 3 mm locality of rtd_pan.fault_nand",
+      "object": "rtd_pan.c_fault_nand",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_DECOUPLING",
+      "severity": "error",
+      "status": "fail",
+      "message": "differential filter rtd_pan.c_rtd_input is outside 3 mm locality of rtd_pan.adc",
+      "object": "rtd_pan.c_rtd_input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net sdo enters the authored aggressor region for RTD_DRDY",
+      "object": "sdo",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SCK enters the authored aggressor region for RTD_SDI",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SCK enters the authored aggressor region for RTD_SDO",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SCK enters the authored aggressor region for RTD_CS_N",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SCK enters the authored aggressor region for RTD_DRDY",
+      "object": "RTD_SCK",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDI enters the authored aggressor region for RTD_SCK",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDI enters the authored aggressor region for RTD_SDO",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDI enters the authored aggressor region for RTD_CS_N",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDI enters the authored aggressor region for RTD_DRDY",
+      "object": "RTD_SDI",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDO enters the authored aggressor region for RTD_SCK",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDO enters the authored aggressor region for RTD_SDI",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDO enters the authored aggressor region for RTD_CS_N",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_SDO enters the authored aggressor region for RTD_DRDY",
+      "object": "RTD_SDO",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SCK",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SDI",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_CS_N enters the authored aggressor region for RTD_SDO",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_CS_N enters the authored aggressor region for RTD_DRDY",
+      "object": "RTD_CS_N",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_DRDY enters the authored aggressor region for RTD_SCK",
+      "object": "RTD_DRDY",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "sensitive net RTD_DRDY enters the authored aggressor region for RTD_SDO",
+      "object": "RTD_DRDY",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "authored prohibited-connection population is empty",
+      "object": "geometry",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "authored local-escape membership population is empty",
+      "object": "paths",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+    "DRC.RTD.FERRITE_SEMANTICS",
+    "DRC.RTD.LOCAL_DECOUPLING",
+    "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+    "DRC.RTD.NATIVE_GEOMETRY",
+    "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+    "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+    "ERC.RTD.ADC_PIN_NETS",
+    "ERC.RTD.BOARD_COMPONENT_BINDING",
+    "ERC.RTD.EXACT_COMPONENTS",
+    "ERC.RTD.FAULT_CORNERS",
+    "ERC.RTD.FAULT_OUTPUT",
+    "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+    "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+    "ERC.RTD.FORCE_SENSE_SEPARATION",
+    "ERC.RTD.FOUR_WIRE_PINOUT",
+    "ERC.RTD.NATIVE_CONNECTIVITY",
+    "ERC.RTD.RREF_IDENTITY",
+    "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+    "ERC.RTD.SHARED_REFERENCE",
+    "ERC.RTD.SPI_SERIES_PLACEMENT",
+    "ERC.RTD.UNIT_COMPONENT_MPN",
+    "ERC.RTD.UNIT_CONNECTIONS",
+    "ERC.RTD.UNIT_FIRMWARE",
+    "ERC.RTD.UNIT_INTERFACE",
+    "ERC.RTD.UNIT_MODEL",
+    "ERC.RTD.UNIT_SOURCE_BINDING"
+  ],
+  "coverage_gaps": [
+    "independent observed fault scenarios are absent; hardware fault coverage is indeterminate",
+    "no authored prohibited domain connection pairs were supplied; boundary rule is indeterminate",
+    "no authored local-escape membership groups were supplied; escape eligibility is indeterminate"
+  ]
+}

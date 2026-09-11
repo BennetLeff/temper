@@ -1,0 +1,70 @@
+{
+  "schema": "zapote.rtd.unit.rust-receipt.v2",
+  "status": "fail_incomplete",
+  "tests": {
+    "command": "CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo test --manifest-path zapote/Cargo.toml -q",
+    "result": "49 passed, 0 failed"
+  },
+  "run": {
+    "command": "zapote-rtd --unit-input /private/tmp/rtd-unit-returnstitch02.json --output /private/tmp/rtd-unit-returnstitch02-report.json",
+    "report_status": "fail",
+    "findings": 32,
+    "coverage_gaps": 2
+  },
+  "sha256": {
+    "profile": "1531be367ea889ec8e7e45a2cb1e3bcd134a09d59ddf98eabfb23f228e529a98",
+    "patch": "434c812fa4c0d28adbdfcd62d616185917546d20627624dc686753f8da554663",
+    "input": "cca72528e15de4c05df4880e45827a673f4027ed54bcfd1529661272fad105b4",
+    "report": "845ce0932b845fee54a129806d140322b1f703df97e9dc5067d6a2deb8145a0c",
+    "native": "2dfa5b40be6be8ea58b5f1ecf2d7da264ae80da314fb7f3c67864831bfa79ea4",
+    "board": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+    "source_manifest": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+    "extractor": "3c345444768b4aa2d74f19df9e1507f5fc3fc5d617bf56e0d005ed8d8e6b62f6",
+    "model": "74e1187aabcd2f85e615866358f673a60e230f19d74d0bcfff5a0e6ee681fed8",
+    "firmware": "3021920ba4096159d75bbbfd41e2ffbc0d34dcecd73c1d0a65e4c00b86f5a685",
+    "firmware_pins": "aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b"
+  },
+  "counts": {
+    "source_bindings": 119,
+    "source_components": 36,
+    "native_components": 36,
+    "native_pads": 119,
+    "native_zones": 4
+  },
+  "findings": {
+    "fault": "local_rtd_avdd_loss has observed_detected=true but observed_latency_ms=null; report remains indeterminate",
+    "load": "numeric worst-case short bound 8.448898 mA and ref 100 uA/10 nF pass",
+    "geometry": "27 DRC.RTD.NATIVE_GEOMETRY failures for actual analog/clock traces outside filled In1/In2 reference corridors; exact trace UUIDs in report"
+  },
+  "mutations": {
+    "no_ground_vias": {
+      "input": "/private/tmp/rtd-unit-no-ground-vias.json",
+      "report": "/private/tmp/rtd-unit-no-ground-vias-report.json",
+      "target": "DRC.RTD.LOCAL_DECOUPLING:rtd_pan.c_dvdd FAIL",
+      "input_sha256": "15532e258fd30e73352304e49db310b462621c4e770f146cb29f1af78051051e",
+      "report_sha256": "4e0eef7bb8b8be8d0366faaaf4c9ed49ff089a4eebca5bf382cfd00488aa1c03"
+    },
+    "disconnected_nearby_ground_via": {
+      "input": "/private/tmp/rtd-unit-disconnected-ground-via.json",
+      "report": "/private/tmp/rtd-unit-disconnected-ground-via-report.json",
+      "target": "DRC.RTD.LOCAL_DECOUPLING:rtd_pan.c_dvdd FAIL",
+      "input_sha256": "8f72597082bbd9588f16c57f16f9d5eff240c172ac91357912ab33a45db14a98",
+      "report_sha256": "5f359bd0059b243874d364782e24a39993b7bf0aa171f96e6d8d92e36c093844"
+    },
+    "analog_hole": {
+      "input": "/private/tmp/rtd-unit-analog-hole.json",
+      "report": "/private/tmp/rtd-unit-analog-hole-report.json",
+      "new_target": "DRC.RTD.NATIVE_GEOMETRY:0f6a3cce-5acd-44ca-bb8c-0ac9a7181a6b FAIL",
+      "input_sha256": "585bb0e2e375df6f6380447448ca124ede5fee5fbafdd6163bf09928bf57bb32",
+      "report_sha256": "659e1856eea8ead14c551702a76fd6ae992ef61b73a1abffcc7ac8d1b214c929"
+    },
+    "clock_hole": {
+      "input": "/private/tmp/rtd-unit-clock-hole.json",
+      "report": "/private/tmp/rtd-unit-clock-hole-report.json",
+      "new_target": "DRC.RTD.NATIVE_GEOMETRY:32dd898c-3014-4440-b4b8-556f6c8d98e5 FAIL",
+      "input_sha256": "7a591edfa94adde2c500e957c2f3446fed2c5a577101fe3d6529064bde49ee86",
+      "report_sha256": "3b2e4b57ff4f5c7d0c299371a8a788983191ac2c7d697a6073086146bce1fb47"
+    }
+  },
+  "firmware_composed_receipt": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/evidence/firmware-protocol/receipt.json"
+}

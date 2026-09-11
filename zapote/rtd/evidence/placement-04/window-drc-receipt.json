@@ -1,0 +1,7 @@
+{
+  "board_sha256": "44a8fd42af05d096942982d441f3d6214e54273167b634e1b0860824472d2e1c",
+  "report_sha256": "5f6a947290ba7135bb1224f9d26adb728f313cb289cdb9e74d60248bc59fd65d",
+  "command": "kicad-cli pcb drc --refill-zones --save-board --schematic-parity --format json --all-track-errors --severity-all --output zapote/rtd/evidence/placement-04/drc-window.json zapote/rtd/candidate/cooker.kicad_pcb",
+  "kicad_version": "10.0.4",
+  "status": "FAIL; exact object findings retained, no overall acceptance"
+}

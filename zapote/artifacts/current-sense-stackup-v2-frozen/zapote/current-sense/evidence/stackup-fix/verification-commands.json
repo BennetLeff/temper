@@ -1,0 +1,70 @@
+[
+  {
+    "name": "stackup-before",
+    "argv": [
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/stackup_check",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/stackup-fix/before.kicad_pcb"
+    ],
+    "returncode": 1,
+    "stdout": "{\n  \"status\": \"fail\",\n  \"findings\": [\n    {\n      \"rule\": \"DRC.BOARD.STACKUP\",\n      \"severity\": \"error\",\n      \"status\": \"fail\",\n      \"message\": \"dielectric 1: thickness must be finite and positive; found 0 mm\",\n      \"object\": \"board.setup.stackup\",\n      \"actual\": null,\n      \"required\": null\n    }\n  ],\n  \"checked_rules\": [\n    \"DRC.BOARD.STACKUP\"\n  ],\n  \"coverage_gaps\": []\n}\n",
+    "stderr": ""
+  },
+  {
+    "name": "stackup-fixed",
+    "argv": [
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/stackup_check",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pcb"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"status\": \"pass\",\n  \"findings\": [\n    {\n      \"rule\": \"DRC.BOARD.STACKUP\",\n      \"severity\": \"info\",\n      \"status\": \"pass\",\n      \"message\": \"2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm\",\n      \"object\": \"board.setup.stackup\",\n      \"actual\": null,\n      \"required\": null\n    }\n  ],\n  \"checked_rules\": [\n    \"DRC.BOARD.STACKUP\"\n  ],\n  \"coverage_gaps\": []\n}\n",
+    "stderr": ""
+  },
+  {
+    "name": "stackup-roundtrip",
+    "argv": [
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/stackup_check",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/stackup-fix/native-roundtrip.kicad_pcb"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"status\": \"pass\",\n  \"findings\": [\n    {\n      \"rule\": \"DRC.BOARD.STACKUP\",\n      \"severity\": \"info\",\n      \"status\": \"pass\",\n      \"message\": \"2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm\",\n      \"object\": \"board.setup.stackup\",\n      \"actual\": null,\n      \"required\": null\n    }\n  ],\n  \"checked_rules\": [\n    \"DRC.BOARD.STACKUP\"\n  ],\n  \"coverage_gaps\": []\n}\n",
+    "stderr": ""
+  },
+  {
+    "name": "stackup-initializer",
+    "argv": [
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/stackup_check",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/stackup-fix/initializer-replay/section.kicad_pcb"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"status\": \"pass\",\n  \"findings\": [\n    {\n      \"rule\": \"DRC.BOARD.STACKUP\",\n      \"severity\": \"info\",\n      \"status\": \"pass\",\n      \"message\": \"2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm\",\n      \"object\": \"board.setup.stackup\",\n      \"actual\": null,\n      \"required\": null\n    }\n  ],\n  \"checked_rules\": [\n    \"DRC.BOARD.STACKUP\"\n  ],\n  \"coverage_gaps\": []\n}\n",
+    "stderr": ""
+  },
+  {
+    "name": "build-input",
+    "argv": [
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/current_sense_input",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/source-manifest.json",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/circuit/current_sense_profile.json",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/stackup-fix/native-fixed.json",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/circuit/model_output.json",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/input.json"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "normal-harness",
+    "argv": [
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/zapote-rtd",
+      "--current-sense-input",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/input.json",
+      "--output",
+      "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/evidence/acceptance-stackup-v2/report.json",
+      "--no-telemetry"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "source_patch_sha256": "70562b6a9296fc71b77f8526c0c23a2ecc65446ba8a228d2b602cc5853535d28",
+  "included": [
+    "firmware/components/sensors/*",
+    "firmware/test/test_max31865.c"
+  ],
+  "main_readiness_gate": "pending merged Luna patch",
+  "status": "protocol source landed, integrated test pending"
+}

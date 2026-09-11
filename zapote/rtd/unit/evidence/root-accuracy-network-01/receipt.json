@@ -1,0 +1,18 @@
+{
+  "scope": "Nominal added-network error at 100C using actual RREF drop; no independent model oracle and not full tolerance proof",
+  "model_sha256": "ad58e9e5f75f48f75ba62965d806fe55f06bc303e6368fd57425fd20fecf6aaa",
+  "rtd_ohm": 138.50549999999998,
+  "inferred_ohm": 138.5601115604958,
+  "approx_error_celsius": 0.143987451212373,
+  "nodes": {
+    "forcep_i": 0.4927410091699627,
+    "sensorp": 0.4892357557029161,
+    "sensorn": 0.0035296226751084228,
+    "forcen_i": 3.526096578529893e-06,
+    "sensep": 0.48923726646564963,
+    "sensem": 0.0035489550238582135,
+    "windowp": 0.4892372664656497,
+    "lowth": 0.17690793207200037,
+    "highth": 0.7861635220125786
+  }
+}

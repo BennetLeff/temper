@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "input_hash": "152615bbaac598b77b69cd5f87f0c78a607875fc9e26d0092c64f9e723d89cf1",
+  "identity": {
+    "source_revision": "199b93979a2327c266c63d06c84e7d4024be288fbbe3ea5a9e6d80ab205fe741",
+    "source_hash": "f5c2bc03cb07b9ac7360b3f7086812039e9f12ba0097fad194bae51ea1740074",
+    "board_revision": "10.0.4",
+    "board_hash": "fadfb90f37530a4d2e6ebbf6726aaf6f51a03abc1d1a0ca9669c8bb77aaa5e98",
+    "suite_revision": "zapote-rtd-v1",
+    "suite_hash": "00c6f578fa66858a4fc224abfe0c3d73b9f9f9d56e646bd1ae072d2963d9f0b5",
+    "model_revision": "RTD_SAFETY_DUAL_PATH",
+    "model_hash": "2b339d34e1de93af23e0771e7e71ab0a6ed1b28c4e006ed28fd427bb8fb32a4a",
+    "observed_source_hash": "f5c2bc03cb07b9ac7360b3f7086812039e9f12ba0097fad194bae51ea1740074",
+    "observed_board_hash": "fadfb90f37530a4d2e6ebbf6726aaf6f51a03abc1d1a0ca9669c8bb77aaa5e98",
+    "observed_suite_hash": "00c6f578fa66858a4fc224abfe0c3d73b9f9f9d56e646bd1ae072d2963d9f0b5",
+    "observed_model_hash": "2b339d34e1de93af23e0771e7e71ab0a6ed1b28c4e006ed28fd427bb8fb32a4a",
+    "runtime": "rust-native",
+    "provider": "local"
+  },
+  "status": "fail",
+  "erc": {
+    "status": "fail",
+    "findings": [
+      {
+        "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper does not connect all required endpoints on rtd_force_p",
+        "object": "rtd_force_p",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper does not connect all required endpoints on rtd_force_n",
+        "object": "rtd_force_n",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper does not connect all required endpoints on rtd_sense_p",
+        "object": "rtd_sense_p",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper does not connect all required endpoints on rtd_sense_n",
+        "object": "rtd_sense_n",
+        "actual": null,
+        "required": null
+      }
+    ],
+    "checked_rules": [
+      "ERC.RTD.EXACT_COMPONENTS",
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "ERC.RTD.RREF_IDENTITY",
+      "ERC.RTD.FOUR_WIRE_PINOUT",
+      "ERC.RTD.FORCE_SENSE_SEPARATION",
+      "ERC.RTD.NATIVE_CONNECTIVITY",
+      "ERC.RTD.ADC_PIN_NETS",
+      "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+      "ERC.RTD.SHARED_REFERENCE",
+      "ERC.RTD.FAULT_OUTPUT",
+      "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+      "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+      "ERC.RTD.FAULT_CORNERS"
+    ],
+    "coverage_gaps": []
+  },
+  "drc": {
+    "status": "fail",
+    "findings": [
+      {
+        "rule": "DRC.RTD.LOCAL_DECOUPLING",
+        "severity": "error",
+        "status": "fail",
+        "message": "bypass rtd_pan.c_vdd is outside 3 mm locality of rtd_pan.adc",
+        "object": "rtd_pan.c_vdd",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.LOCAL_DECOUPLING",
+        "severity": "error",
+        "status": "fail",
+        "message": "bypass rtd_pan.c_low_window is outside 3 mm locality of rtd_pan.low_window",
+        "object": "rtd_pan.c_low_window",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.LOCAL_DECOUPLING",
+        "severity": "error",
+        "status": "fail",
+        "message": "bypass rtd_pan.c_high_window is outside 3 mm locality of rtd_pan.high_window",
+        "object": "rtd_pan.c_high_window",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.LOCAL_DECOUPLING",
+        "severity": "error",
+        "status": "fail",
+        "message": "bypass rtd_pan.c_window_and is outside 3 mm locality of rtd_pan.window_and",
+        "object": "rtd_pan.c_window_and",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.NATIVE_GEOMETRY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper splits or omits required endpoints on +3V3",
+        "object": "+3V3",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.NATIVE_GEOMETRY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper splits or omits required endpoints on vcc",
+        "object": "vcc",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.NATIVE_GEOMETRY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper splits or omits required endpoints on gnd",
+        "object": "gnd",
+        "actual": null,
+        "required": null
+      }
+    ],
+    "checked_rules": [
+      "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+      "DRC.RTD.FERRITE_SEMANTICS",
+      "DRC.RTD.LOCAL_DECOUPLING",
+      "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+      "DRC.RTD.NATIVE_GEOMETRY"
+    ],
+    "coverage_gaps": [
+      "native input has no pad coordinates, sizes, or layers; finite copper/pad return geometry remains indeterminate"
+    ]
+  },
+  "checked_rules": [
+    "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+    "DRC.RTD.FERRITE_SEMANTICS",
+    "DRC.RTD.LOCAL_DECOUPLING",
+    "DRC.RTD.NATIVE_GEOMETRY",
+    "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+    "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+    "ERC.RTD.ADC_PIN_NETS",
+    "ERC.RTD.BOARD_COMPONENT_BINDING",
+    "ERC.RTD.EXACT_COMPONENTS",
+    "ERC.RTD.FAULT_CORNERS",
+    "ERC.RTD.FAULT_OUTPUT",
+    "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+    "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+    "ERC.RTD.FORCE_SENSE_SEPARATION",
+    "ERC.RTD.FOUR_WIRE_PINOUT",
+    "ERC.RTD.NATIVE_CONNECTIVITY",
+    "ERC.RTD.RREF_IDENTITY",
+    "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+    "ERC.RTD.SHARED_REFERENCE",
+    "ERC.RTD.SPI_SERIES_PLACEMENT"
+  ],
+  "coverage_gaps": [
+    "native input has no pad coordinates, sizes, or layers; finite copper/pad return geometry remains indeterminate"
+  ],
+  "evidence": {
+    "source": "zapote-rtd-rust",
+    "authoritative": true,
+    "telemetry": "disabled"
+  }
+}

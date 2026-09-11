@@ -1,0 +1,68 @@
+--- elec/src/modules.ato	2026-09-10 19:51:13
++++ elec/src/modules.ato	2026-09-10 20:14:46
+@@ -1829,6 +1829,15 @@
+     c_vdd.mpn = "C0603C104K5RACTU"
+     c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
+ 
++    # DVDD remains on the upstream host rail so driven SPI inputs never see
++    # an unpowered MAX31865 while the post-ferrite analogue VDD is disabled.
++    # It has its own local 100 nF bypass, as required for each MAX supply pin.
++    c_dvdd = new Capacitor
++    c_dvdd.value = 100nF
++    c_dvdd.voltage_rating = 10V
++    c_dvdd.mpn = "C0603C104K5RACTU"
++    c_dvdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
++
+     # A differential RTDIN filter is required at the converter pins. The
+     # datasheet shows 100 nF as a typical 100 ohm application value, but that
+     # value cannot meet the 100 ms open-lead response requirement here.
+@@ -1900,8 +1909,10 @@
+     # Power connections through Ferrite Bead
+     power.vcc ~ fb_power.p1
+     fb_power.p2 ~ adc.VDD
+-    fb_power.p2 ~ adc.DVDD
+-    fb_power.p2 ~ c_vdd.p1 # Decoupling cap after bead
++    power.vcc ~ adc.DVDD
++    fb_power.p2 ~ c_vdd.p1 # VDD decoupling cap after bead
++    power.vcc ~ c_dvdd.p1 # Independent DVDD decoupling cap
++    c_dvdd.p2 ~ power.gnd
+     
+     c_vdd.p2 ~ power.gnd
+     power.gnd ~ adc.GND1
+@@ -1978,10 +1989,11 @@
+     r_ref.p2 ~ adc.REFIN_N
+     adc.ISENSOR ~ adc.REFIN_N
+ 
+-    # Independent hardware RTD window.  REF2025 runs from upstream 3.3 V so
++    # Independent hardware RTD window. REF2025 runs from upstream 3.3 V so
+     # its 1.25 V VBIAS threshold reference remains defined while the
+-    # post-ferrite RTD_AVDD rail browns out.  The comparators observe the local
+-    # REFIN-/ISENSOR RTD-drop node; they do not assume RTDIN- is board ground.
++    # post-ferrite RTD_AVDD rail browns out. Both comparators observe RTDIN_P;
++    # the low divider returns to RTDIN_N, making all four RTD conductors
++    # observable without relying on an undocumented ADC filter behavior.
+     reference = new REF2025
+     reference.VIN ~ power.vcc
+     reference.EN ~ power.vcc
+@@ -2017,18 +2029,18 @@
+     high_window.VCC ~ fb_power.p2
+     low_window.GND ~ power.gnd
+     high_window.GND ~ power.gnd
+-    adc.REFIN_N ~ low_window.INP
++    adc.RTDIN_P ~ low_window.INP
+     reference.VBIAS ~ r_low_top.p1
+     r_low_top.p2 ~ low_window.INN
+     low_window.INN ~ r_low_bottom.p1
+-    r_low_bottom.p2 ~ power.gnd
++    r_low_bottom.p2 ~ adc.RTDIN_N
+     # Invert the high comparison so both outputs are high only inside the
+     # permitted RTD voltage window.
+     reference.VBIAS ~ r_high_top.p1
+     r_high_top.p2 ~ high_window.INP
+     high_window.INP ~ r_high_bottom.p1
+     r_high_bottom.p2 ~ power.gnd
+-    adc.REFIN_N ~ high_window.INN
++    adc.RTDIN_P ~ high_window.INN
+ 
+     window_and = new SN74LVC1G08
+     window_and.VCC ~ fb_power.p2

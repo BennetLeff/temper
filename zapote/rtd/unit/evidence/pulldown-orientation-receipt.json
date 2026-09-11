@@ -1,0 +1,65 @@
+{
+  "input_board_sha256": "f53aef1f8faea0a0a006c206ab34ab6bc09a66b3923f2a8da23f2a23713d6c4d",
+  "output_board_sha256": "ea5fa19b8fe6956618cfd288bf53530282ac7a8eec075cf92fd2519abfc25b59",
+  "instruction_sha256": "04ea422231118a90281bb4bf7c94049d1f9fa2b1ff0636a3bcf45c8e3a4d61c7",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R13",
+      "uuid": "e9cb6b7e-91fa-41ea-b989-d2c05814b3c0",
+      "before": {
+        "position_mm": [
+          42.5,
+          45.5
+        ],
+        "angle_deg": 90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "y",
+            "position_mm": [
+              42.5,
+              46.325
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              42.5,
+              44.675
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          42.5,
+          45.5
+        ],
+        "angle_deg": -90.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "y",
+            "position_mm": [
+              42.5,
+              44.675
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              42.5,
+              46.325
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

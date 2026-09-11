@@ -1,0 +1,31 @@
+--- elec/src/modules.ato
++++ elec/src/modules.ato
+@@ -2030,7 +2030,18 @@
+     high_window.VCC ~ fb_power.p2
+     low_window.GND ~ power.gnd
+     high_window.GND ~ power.gnd
+-    adc.RTDIN_P ~ low_window.INP
++
++    # A shared 100 kohm branch resistor limits TLV3201 input-clamp current
++    # during a bounded off-board transient while its <=20 nA combined input
++    # and board-leakage bound contributes <=2 mV at the window node.
++    signal window_rtdin_p
++    r_window_sense_p = new Resistor
++    r_window_sense_p.value = 100kohm +/- 1%
++    r_window_sense_p.mpn = "RC0603FR-07100KL"
++    r_window_sense_p.footprint = "Resistor_SMD:R_0603_1608Metric"
++    adc.RTDIN_P ~ r_window_sense_p.p1
++    r_window_sense_p.p2 ~ window_rtdin_p
++    window_rtdin_p ~ low_window.INP
+     reference.VBIAS ~ r_low_top.p1
+     r_low_top.p2 ~ low_window.INN
+     low_window.INN ~ r_low_bottom.p1
+@@ -2041,7 +2052,7 @@
+     r_high_top.p2 ~ high_window.INP
+     high_window.INP ~ r_high_bottom.p1
+     r_high_bottom.p2 ~ power.gnd
+-    adc.RTDIN_P ~ high_window.INN
++    window_rtdin_p ~ high_window.INN
+ 
+     window_and = new SN74LVC1G08
+     window_and.VCC ~ fb_power.p2

@@ -1,0 +1,100 @@
+{
+  "status": "indeterminate",
+  "findings": [
+    {
+      "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+      "object": "both_polarities",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+      "object": "comparator_to_latch_timing",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+      "object": "ct_saturation_and_thermal",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "hardware applicability is unsupported: NOT_RUN",
+      "object": "hardware",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+      "object": "pd3_reinforced_12_6mm_isolation",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+      "object": "primary_copper_and_terminal",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+      "object": "rust_analytical_trip",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.BOARD.STACKUP",
+      "severity": "info",
+      "status": "pass",
+      "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+      "object": "board.setup.stackup",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "DRC.BOARD.STACKUP",
+    "DRC.CURRENT_SENSE.CLEARANCE",
+    "DRC.CURRENT_SENSE.LOCALITY",
+    "DRC.CURRENT_SENSE.NATIVE_GEOMETRY",
+    "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION",
+    "DRC.CURRENT_SENSE.REQUIRED_COPPER",
+    "ERC.CURRENT_SENSE.APPLICABILITY",
+    "ERC.CURRENT_SENSE.COMPONENT_ROLES",
+    "ERC.CURRENT_SENSE.ELECTRICAL_MODEL",
+    "ERC.CURRENT_SENSE.INPUT",
+    "ERC.CURRENT_SENSE.INTERFACES",
+    "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY"
+  ],
+  "coverage_gaps": [
+    "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+    "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+    "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+    "hardware applicability is unsupported: NOT_RUN",
+    "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+    "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+    "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC"
+  ]
+}

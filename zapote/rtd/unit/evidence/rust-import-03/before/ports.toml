@@ -1,0 +1,43 @@
+schema_version = 1
+
+[[port]]
+source = "Temper source-derived RTD contract and firmware values"
+source_path = "elec/src/modules.ato; elec/src/main.ato; firmware/components/hal/include/temper_pins.h; firmware/config.yaml"
+source_sha256 = "b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5,8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28,27b948327244b7dcab23264d37e5484e8b892954cc2718dfc39560237abc4055,aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b"
+target = "zapote/packages/zapote-core/src/lib.rs"
+notes = "New typed boundary; no runtime dependency on donor packages. Values cross-checked against the committed source files."
+
+[[port]]
+source = "Temper DRC geometry/connectivity patterns"
+source_path = "packages/temper-drc-rs/src/board.rs; packages/temper-drc-rs/src/rules/"
+source_sha256 = "bbd4e8a6a6b839cfaa35402a4160102ba3efe298b35499a4f2f188ab25e20249"
+target = "zapote/packages/zapote-drc/src/lib.rs"
+notes = "No donor code is linked. Geometry checks use a smaller source-derived schema and preserve native evidence as input."
+
+[[port]]
+source = "Temper firmware MAX31865 threshold derivation"
+source_path = "firmware/tools/board_derivation_lib.py"
+source_sha256 = "04fd8175d781ead68c97d075e16dfb2c197ab5dcb5051ca837c5ed39d8dc6dc4"
+target = "zapote/packages/zapote-erc/src/lib.rs"
+notes = "Strict low comparator uses floor(exact)+1; strict high comparator uses floor(exact); both shift the 15-bit code by one."
+
+[[port]]
+source = "Temper geometry segment intersection kernel"
+source_path = "packages/temper-geometry/src/geometry_kernels.rs"
+source_sha256 = "cee4ea749ebaa1d87695f9b2fbe96fbf5be8c0f76e380ace51276246ee564f51"
+target = "zapote/packages/zapote-drc/src/donor_geometry.rs"
+notes = "Copied segments_intersect with its orientation/on-segment helpers; Zapote invokes the copied kernel for live trace/region crossing checks and does not link donor crates."
+
+[[port]]
+source = "Temper IPC external-layer ampacity scalar"
+source_path = "packages/temper-drc-rs/src/ipc.rs"
+source_sha256 = "a11a99c85e30e1877b4faf3cefeb11952a9bfae352d569e21393a738f7e1d6a3"
+target = "zapote/packages/zapote-drc/src/ipc.rs"
+notes = "Independent copy of the IPC external-layer scalar for bounded low-current local escapes; no runtime dependency on donor packages."
+
+[[port]]
+source = "Standalone RTDUnit source and manufacturing profile"
+source_path = "zapote/rtd/unit/profile.json"
+source_sha256 = "aa0595df748f994f5c4318892f5f290cb07a9eff395f476b0891fc530186bbae"
+target = "zapote/packages/zapote-core/src/unit.rs"
+notes = "Typed source-03/04 profile contract; connector and source topology are qualified, while load and independently observed fault-model evidence remain explicit incomplete states."

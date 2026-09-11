@@ -1,0 +1,42 @@
+{
+  "input_board_sha256": "1896bf37a94eb0eb28e77cf18b2488f0672223c585ddf0f6bae2dc0a55b0d735",
+  "output_board_sha256": "6e7dcae6d971ed2c27fe9bcba16ede3ee6f963ea5088079163b0b1d11f02e40c",
+  "instruction_sha256": "5b13a2a69669e154055c9436568a20bbe29992111fd913398591715bc7132924",
+  "replay_sha256": "f87ad6da8fbdfb8ef10f4da6e3867fd0f4a9a228141d7fdf3d03b2fa83865e6a",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [],
+  "removed_copper": [
+    {
+      "uuid": "0f6b43d7-f013-4724-bc12-e3a04df8e3bb",
+      "net": "rtd_sense_p",
+      "position_mm": [
+        31.8,
+        28.0
+      ]
+    },
+    {
+      "uuid": "42c3e9c4-11d9-4ad5-8573-d3bd1c8bf885",
+      "net": "rtd_sense_p",
+      "position_mm": [
+        11.0,
+        25.5
+      ]
+    },
+    {
+      "uuid": "b5c753a1-29fa-4a23-b087-4931885b424e",
+      "net": "rtd_sense_p",
+      "position_mm": [
+        11.0,
+        28.0
+      ]
+    },
+    {
+      "uuid": "bf910d58-bd4d-463f-8ba9-1fa871e71fc5",
+      "net": "rtd_sense_p",
+      "position_mm": [
+        18.1,
+        25.5
+      ]
+    }
+  ]
+}

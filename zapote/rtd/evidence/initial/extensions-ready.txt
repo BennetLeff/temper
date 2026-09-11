@@ -1,0 +1,17 @@
+Stale-extension gate -- 10 pyo3/maturin crate(s) discovered under packages/, 10 checked (every discovered crate is checked; the denominator is never a subset).
+  fresh=5 stale=0 unloadable=0 missing=5 tool-errors=0  TEMPER_REQUIRE_FRESH_EXTENSIONS=0 (lenient)
+  decided by content hash: 0; by mtime fallback (no build stamp): 5
+  [MISSING] temper-constraint-compiler: temper_constraint_compiler is not importable in this environment -- build it with `uv run maturin develop --release --manifest-path /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-constraint-compiler/Cargo.toml`
+  [MISSING] temper-constraints: temper_constraints is not importable in this environment -- build it with `uv run maturin develop --release --manifest-path /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-placer/temper-constraints/Cargo.toml`
+  [OK] temper-design-bundle: temper_design_bundle_python: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so (built 2026-09-10T16:55:48) is fresh (no build stamp; mtime comparison)
+  [OK] temper-drc-rs: temper_drc_rs: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_drc_rs/temper_drc_rs.cpython-312-darwin.so (built 2026-09-10T16:53:27) is fresh (no build stamp; mtime comparison)
+  [OK] temper-geometry: temper_geometry: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_geometry/temper_geometry.cpython-312-darwin.so (built 2026-09-09T21:54:08) is fresh (no build stamp; mtime comparison)
+  [OK] temper-io-types: temper_io_types.temper_io_types: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_io_types/temper_io_types.cpython-312-darwin.so (built 2026-09-09T21:54:37) is fresh (no build stamp; mtime comparison)
+  [OK] temper-orchestration: temper_orchestration: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_orchestration/temper_orchestration.cpython-312-darwin.so (built 2026-09-09T21:54:30) is fresh (no build stamp; mtime comparison)
+  [MISSING] temper-quality-oracle: temper_quality_oracle is not importable in this environment -- build it with `uv run maturin develop --release --manifest-path /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-quality-oracle/Cargo.toml`
+  [MISSING] temper-rust-router: temper_rust_router is not importable in this environment -- build it with `uv run maturin develop --release --manifest-path /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-rust-router/Cargo.toml`
+  [MISSING] temper-thermal: temper_thermal is not importable in this environment -- build it with `uv run maturin develop --release --manifest-path /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-thermal/Cargo.toml`
+
+WARN -- 5 extension module(s) not installed; not failing because TEMPER_REQUIRE_FRESH_EXTENSIONS is unset (local dev: not every accelerator is assumed built). CI sets this.
+
+PASSED -- 5/10 extension module(s) fresh.

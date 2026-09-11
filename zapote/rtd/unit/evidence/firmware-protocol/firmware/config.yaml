@@ -1,0 +1,312 @@
+# Temper firmware — single-source-of-truth for all tunable parameters.
+#
+# This manifest declares every field in the generated firmware/config.h.
+# After editing, regenerate the header:
+#
+#     python3 firmware/tools/gen_config.py
+#     git add firmware/config.h && git commit -m "chore: regenerate config.h"
+#
+# Entries with `legacy_define: true` also produce a bare #define so
+# state_machine.c call sites compile unchanged.
+# Entries with `legacy_define: false` appear only in the struct initializer.
+# Entries with `legacy_define_only: true` produce a #define but no struct field.
+
+temperatures:
+  - c_symbol: SAFE_IDLE_TEMP
+    field: safe_idle_temp
+    value: 50.0
+    c_type: float
+    units: "°C"
+    env_var: TEMP_SAFE_IDLE_C
+    doc: "Safe temperature to return to IDLE"
+
+  - c_symbol: MIN_TEMP
+    field: min_temp
+    value: 30.0
+    c_type: float
+    units: "°C"
+    env_var: TEMP_MIN_C
+    doc: "Minimum setpoint temperature"
+
+  - c_symbol: MAX_TEMP
+    field: max_temp
+    value: 250.0
+    c_type: float
+    units: "°C"
+    env_var: TEMP_MAX_C
+    doc: "Maximum setpoint temperature"
+
+timeouts:
+  - c_symbol: PAN_DETECT_TIMEOUT_MS
+    field: pan_detect
+    value: 5000
+    c_type: uint32_t
+    units: ms
+    env_var: PAN_DETECT_TIMEOUT_MS
+    doc: "Pan detection timeout"
+
+  - c_symbol: NO_PAN_TIMEOUT_MS
+    field: no_pan_grace
+    value: 3000
+    c_type: uint32_t
+    units: ms
+    env_var: NO_PAN_GRACE_MS
+    doc: "Pan removal grace period"
+
+  - c_symbol: MAX_PREHEAT_TIME_MS
+    field: max_preheat
+    value: 600000
+    c_type: uint32_t
+    units: ms
+    env_var: MAX_PREHEAT_MS
+    doc: "Maximum preheat time"
+
+  - field: wdt_normal
+    value: 1000
+    c_type: uint32_t
+    units: ms
+    env_var: WDT_NORMAL_MS
+    doc: "Watchdog timeout in normal operation"
+    legacy_define: false
+
+  - field: wdt_idle
+    value: 10000
+    c_type: uint32_t
+    units: ms
+    env_var: WDT_IDLE_MS
+    doc: "Watchdog timeout in IDLE state"
+    legacy_define: false
+
+  - field: wdt_init
+    value: 5000
+    c_type: uint32_t
+    units: ms
+    env_var: WDT_INIT_MS
+    doc: "Watchdog timeout during INIT"
+    legacy_define: false
+
+  - field: fan_check_interval
+    value: 1000
+    c_type: uint32_t
+    units: ms
+    env_var: FAN_CHECK_INTERVAL_MS
+    doc: "Fan guard check interval"
+    legacy_define: false
+
+  - field: adc_check_interval
+    value: 500
+    c_type: uint32_t
+    units: ms
+    env_var: ADC_CHECK_INTERVAL_MS
+    doc: "ADC guard check interval"
+    legacy_define: false
+
+thresholds:
+  - c_symbol: RTD_SHORT_FAULT_OHM
+    field: rtd_short_fault_ohm
+    value: 10.0
+    c_type: float
+    units: "Ω"
+    env_var: RTD_SHORT_FAULT_OHM
+    doc: "PT100/MAX31865 short-fault boundary; values at or below fault"
+
+  - c_symbol: RTD_OPEN_FAULT_OHM
+    field: rtd_open_fault_ohm
+    value: 300.0
+    c_type: float
+    units: "Ω"
+    env_var: RTD_OPEN_FAULT_OHM
+    doc: "PT100/MAX31865 open/out-of-range guard; values at or above fault"
+
+  - c_symbol: RTD_GROSS_OPEN_DIAGNOSTIC_OHM
+    field: rtd_gross_open_diagnostic_ohm
+    value: 10000.0
+    c_type: float
+    units: "Ω"
+    env_var: RTD_GROSS_OPEN_DIAGNOSTIC_OHM
+    doc: "Legacy gross-open diagnostic retained while SIL fixtures migrate"
+
+  - c_symbol: MAX31865_LOW_THRESHOLD_WORD
+    field: max31865_low_threshold_word
+    value: 1526
+    c_type: uint16_t
+    units: "register word"
+    doc: "10Ω PT100 short threshold for 430Ω RREF; 15-bit ADC code shifted left one"
+    board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
+
+  - c_symbol: MAX31865_HIGH_THRESHOLD_WORD
+    field: max31865_high_threshold_word
+    value: 45722
+    c_type: uint16_t
+    units: "register word"
+    doc: "300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one"
+    board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
+
+  - c_symbol: PAN_DEBOUNCE_COUNT
+    field: pan_debounce_count
+    value: 10
+    c_type: uint16_t
+    env_var: PAN_DEBOUNCE_COUNT
+    doc: "Pan detection debounce samples"
+
+  - c_symbol: PAN_CONFIDENCE_REQUIRED
+    field: pan_confidence_required
+    value: 3
+    c_type: uint8_t
+    env_var: PAN_CONFIDENCE_REQUIRED
+    doc: "Pan detection confirmations needed"
+
+  - field: adc_min_valid_raw
+    value: 100
+    c_type: uint16_t
+    env_var: ADC_MIN_VALID_RAW
+    doc: "ADC minimum valid raw value"
+    legacy_define: false
+
+  - field: adc_max_valid_raw
+    value: 3950
+    c_type: uint16_t
+    env_var: ADC_MAX_VALID_RAW
+    doc: "ADC maximum valid raw value"
+    legacy_define: false
+
+  - field: adc_stuck_buffer_size
+    value: 8
+    c_type: uint8_t
+    env_var: ADC_STUCK_BUFFER_SIZE
+    doc: "ADC stuck check buffer size"
+    legacy_define: false
+
+  - field: adc_stuck_variance_threshold
+    value: 5
+    c_type: uint32_t
+    env_var: ADC_STUCK_VARIANCE_THRESHOLD
+    doc: "ADC stuck variance threshold"
+    legacy_define: false
+
+  - field: adc_watchdog_timeout_ms
+    value: 500
+    c_type: uint32_t
+    units: ms
+    env_var: ADC_WATCHDOG_TIMEOUT_MS
+    doc: "ADC watchdog timeout"
+    legacy_define: false
+
+  - field: fan_max_temp_rise_rate_c_per_s
+    value: 5.0
+    c_type: float
+    units: "°C/s"
+    env_var: FAN_MAX_TEMP_RISE_RATE_C_PER_S
+    doc: "Maximum fan temp rise rate"
+    legacy_define: false
+
+misc:
+  - c_symbol: MESSAGE_DISPLAY_TIME_MS
+    value: 2000
+    c_type: uint32_t
+    units: ms
+    doc: "Non-blocking message display time"
+    legacy_define_only: true
+
+runaway:
+  - c_symbol: RUNAWAY_MAX_ABSOLUTE_TEMP_C
+    field: max_absolute_temp_c
+    value: 300.0
+    c_type: float
+    units: "°C"
+    env_var: RUNAWAY_MAX_ABSOLUTE_TEMP_C
+    doc: "Maximum absolute pan temperature before runaway interlock triggers"
+
+  - c_symbol: RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S
+    field: max_temp_rise_rate_c_per_s
+    value: 15.0
+    c_type: float
+    units: "°C/s"
+    env_var: RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S
+    doc: "Maximum pan temperature rise rate before runaway interlock triggers"
+
+# ============================================================================
+# INTERLOCK THRESHOLDS -- software safety interlocks.
+#
+# Single source for the thresholds previously hardcoded as literals/#defines
+# in firmware/components/safety/safety.c, firmware/main/state_machine.c and
+# firmware/main/state_handlers.c. Emitted as bare #defines only
+# (legacy_define_only): a safety interlock is a compile-time constant and must
+# not be runtime-tunable via env vars.
+#
+# CITATION STATUS 2026-08-15 -- see
+# docs/evidence/2026-08-15-firmware-interlock-citations.md for the full audit:
+#   - OVER_TEMP_THRESHOLD and OVER_CURRENT_THRESHOLD date to the initial
+#     2025-12-14 sync (commit 04fe05232, "syncing dec 14") and originally
+#     carried NO citation to any datasheet, hardware design spec, or
+#     IEC 60335-1 clause. Both were labelled UNCITED in the audit; the
+#     data-driven decisions that resolve them landed on main as #1233
+#     (thermal 100->80C) and #1234 (OCP 35->40A peak), applied here.
+#   - IGBT_SHORT_CURRENT_THRESHOLD and FAULT_STATE_MAX_TEMP_C were hardcoded
+#     literals with the same lack of citation; they are single-sourced here so
+#     the whole interlock family has one home instead of four.
+#
+# OCP-02 DE-SCOPED 2026-08-16 (see docs/evidence/2026-08-16-ocp02-descope-
+# implementation.md and docs/evidence/2026-08-16-cert-lab-and-ocp02-spike.md):
+# there is intentionally NO OCP-02 interlock in this file, and there never was
+# one. OCP-02 (secondary over-current, T2/C37/R65) was always a hardware
+# comparator path (TLV3201 -> fault_or3.B1) -- the ESP32 only ever sees
+# I_SENSE from OCP-01's CT -- and it is de-scoped (DNF) because its CST3015
+# cannot reach the 12.6mm PD3 reinforced creepage bar in any placement. Do not
+# add an OCP-02 interlock here: the firmware has no OCP-02 fault path by
+# design, and inventing one would imply a sensing channel that is not fielded.
+interlocks:
+  - c_symbol: OVER_TEMP_THRESHOLD
+    value: 80.0
+    c_type: float
+    units: "°C"
+    doc: >-
+      Heatsink over-temperature interlock (firmware trip). Per thermal
+      threshold decision (#1233): 80°C is 5°C below hardware THM-01 latch
+      (85°C). 100°C was dead code — hardware always fired first. Decision
+      ladder: 75°C warn/derate → 80°C firmware shutdown → 85°C hardware
+      latch → 125°C fault-state backstop (docs/evidence/2026-08-15-thermal-
+      threshold-decision.md; committed aaa0af2dd).
+    legacy_define_only: true
+
+  - c_symbol: OVER_CURRENT_THRESHOLD
+    value: 40.0
+    c_type: float
+    units: "A"
+    doc: >-
+      Over-current interlock (software trip). Per OCP threshold decision
+      (#1234): 40A peak. 35A was RMS equivalent of hardware trip (50.1/√2),
+      mislabeled as operating limit. 40A = IGBT continuous rating, 125% of
+      hardware OCP (docs/evidence/2026-08-15-ocp-threshold-decision.md;
+      committed a720f9179). Layering: +25% above the 31.9A 1800W operating
+      peak, -11% below the 45A hardware OCP-01 acceptance floor.
+    legacy_define_only: true
+
+  - c_symbol: IGBT_SHORT_CURRENT_THRESHOLD
+    value: 50.0
+    c_type: float
+    units: "A"
+    doc: >-
+      IGBT-short fault threshold: DC-bus/tank current above this latches
+      FAULT_IGBT_SHORT (firmware/main/state_machine.c check_safety_interlocks).
+      UNCITED: hardcoded literal since the initial sync; no citation. Coincides
+      with the hardware OCP-01 comparator trip (50.1 A peak, 45-55 A window,
+      CT_SENSING_DESIGN.md §2.1 / elec/src/modules.ato CurrentSensing). No
+      desaturation path exists (DESAT_DECISION_BRIEF.md), so this is the only
+      IGBT-short detection. Same full-power-band tension as
+      OVER_CURRENT_THRESHOLD: 1800 W at typical coupling is 56.6 A peak
+      (docs/evidence/2026-07-26-ocp01-vs-full-power-current.md).
+    legacy_define_only: true
+
+  - c_symbol: FAULT_STATE_MAX_TEMP_C
+    value: 125.0
+    c_type: float
+    units: "°C"
+    doc: >-
+      Critical-temperature monitor while latched in STATE_FAULT
+      (firmware/main/state_handlers.c state_fault_update): heatsink above this
+      triggers trigger_hardware_shutdown(). UNCITED: hardcoded literal, no
+      citation. Above the IKW40N120H3 Tc(max recommended) = 100°C; a
+      last-resort backup that only matters if the normal interlock paths are
+      already broken.
+    legacy_define_only: true

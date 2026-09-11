@@ -1,0 +1,21 @@
+Quantity,References,Manufacturer part number,Value,Footprint,Source instances
+1,J1,B4B-XH-A(LF)(SN),,Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,rtd_pan.j_rtd1
+1,R8,BLM18AG121SN1D,120ohm,Inductor_SMD:L_0603_1608Metric,rtd_pan.fb_power
+1,C3,C0603C102J5GACTU,1nF,Capacitor_SMD:C_0603_1608Metric,rtd_pan.c_rtd_input
+8,C1 C2 C4 C5 C6 C7 C8 C9,C0603C104K5RACTU,100nF,Capacitor_SMD:C_0603_1608Metric,rtd_pan.c_vdd rtd_pan.c_dvdd rtd_pan.c_reference rtd_pan.c_low_window rtd_pan.c_high_window rtd_pan.c_window_and rtd_pan.c_rail_monitor rtd_pan.c_fault_nand
+3,R10 R12 R16,ERA-3AEB103V,10kohm +/- 0.1%,Resistor_SMD:R_0603_1608Metric,rtd_pan.r_low_bottom rtd_pan.r_high_bottom rtd_pan.r_avdd_bottom
+1,R15,ERA-3AEB1652V,16.5kohm +/- 0.1%,Resistor_SMD:R_0603_1608Metric,rtd_pan.r_avdd_top
+1,R11,ERA-3AEB5901V,5.9kohm +/- 0.1%,Resistor_SMD:R_0603_1608Metric,rtd_pan.r_high_top
+1,R9,ERA-3AEB6192V,61.9kohm +/- 0.1%,Resistor_SMD:R_0603_1608Metric,rtd_pan.r_low_top
+1,J2,FTSH-105-01-F-D,,Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm,unit_io
+1,U1,MAX31865AAP+,,Package_SO:SSOP-20_3.9x8.7mm_P0.635mm,rtd_pan.adc
+2,R13 R14,RC0603FR-07100KL,100kohm +/- 1%,Resistor_SMD:R_0603_1608Metric,rtd_pan.r_window_sense_p rtd_pan.r_window_ok_pulldown
+2,R17 R18,RC0603FR-0710KL,10kohm +/- 1%,Resistor_SMD:R_0603_1608Metric,rtd_pan.r_rail_ok_pullup rtd_pan.r_fault_pullup
+4,R4 R5 R6 R7,RC0603FR-0733RL,33ohm +/- 1%,Resistor_SMD:R_0603_1608Metric,rtd_pan.r_sclk rtd_pan.r_mosi rtd_pan.r_cs rtd_pan.r_miso
+2,R2 R3,RC0603JR-071ML,1Mohm +/- 5%,Resistor_SMD:R_0603_1608Metric,rtd_pan.r_rtdin_p_bias rtd_pan.r_rtdin_n_bias
+1,U2,REF2025AIDDCR,,Package_TO_SOT_SMD:SOT-23-5,rtd_pan.reference
+1,R1,RG2012V-431-W-T1,430ohm +/- 0.05%,Resistor_SMD:R_0805_2012Metric,rtd_pan.r_ref
+1,U5,SN74LVC1G08DBVR,,Package_TO_SOT_SMD:SOT-23-5,rtd_pan.window_and
+1,U7,SN74LVC1G38DBVR,,Package_TO_SOT_SMD:SOT-23-5,rtd_pan.fault_nand
+2,U3 U4,TLV3201AIDBVR,,Package_TO_SOT_SMD:SOT-23-5,rtd_pan.low_window rtd_pan.high_window
+1,U6,TPS389001DSER,,Temper_RTD:TPS389001DSER_WSON-6_DSE,rtd_pan.rail_monitor

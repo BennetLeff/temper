@@ -1,0 +1,25 @@
+model bounded passive runtime opens; no MAX ADC/SINC model
+dt_us=1 tmax_ms=100 cdiff_nF=1.1 cground_each_pF=100 rwindow_ohm=100000 tlv_prop_ns=55 logic_prop_ns=10 fault_overdrive_v=0.02
+allowed_passive_harness_v=-0.2..2.5 source_r_min_ohm=1000 edge_min_us=10 pulse_max_ms=1 repetition_max_hz=1
+RTD=100.0 case=FORCE+  cross_ms=0.001 unit_detect_ms=0.001065 final_target_margin_v=-0.179477
+RTD=100.0 case=SENSE+  cross_ms=0.32899999999999996 unit_detect_ms=0.32906499999999994 final_target_margin_v=-1.244169
+RTD=100.0 case=SENSE-  cross_ms=0.018999999999999996 unit_detect_ms=0.019064999999999995 final_target_margin_v=-0.911779
+RTD=100.0 case=FORCE-  cross_ms=0.001 unit_detect_ms=0.001065 final_target_margin_v=-1.271416
+SHORT_INIT=100.0 target=10 cross_ms=0.001 unit_detect_ms=0.001065 final_low_margin_v=-0.132380
+SHORT_INIT=100.0 target=0 cross_ms=0.001 unit_detect_ms=0.001065 final_low_margin_v=-0.179027
+RTD=194.1 case=FORCE+  cross_ms=0.001 unit_detect_ms=0.001065 final_target_margin_v=-0.179275
+RTD=194.1 case=SENSE+  cross_ms=0.141 unit_detect_ms=0.141065 final_target_margin_v=-1.244169
+RTD=194.1 case=SENSE-  cross_ms=0.046 unit_detect_ms=0.046065 final_target_margin_v=-0.660796
+RTD=194.1 case=FORCE-  cross_ms=0.001 unit_detect_ms=0.001065 final_target_margin_v=-1.271422
+SHORT_INIT=194.1 target=10 cross_ms=0.001 unit_detect_ms=0.001065 final_low_margin_v=-0.132380
+SHORT_INIT=194.1 target=0 cross_ms=0.001 unit_detect_ms=0.001065 final_low_margin_v=-0.179027
+analytic_bound_forcep_fraction=0.584560 time_ms=1.323511
+analytic_bound_sensep_fraction=0.269841 time_ms=0.473847
+analytic_bound_sensem_fraction=0.415855 time_ms=0.810010
+analytic_bound_forcem_fraction=0.120822 time_ms=0.194014
+analytic_bound_rdiag_max_ohm=1.057e+06 rwindow_max_ohm=102000 c_bound_nF=1.3 tau_bound_ms=1.506700 worst_rc_cross_ms=1.323511 tlv_prop_ns=55 logic_prop_ns=10 worst_unit_detect_ms=1.323576 output_load_assumption_pF=15 monotonic_passive_rc_assumption=true
+local_off_upstream_on rtdin_p=+1.132347e-05 windowp=-1.988711e-03 low_margin=-0.179698 high_margin=+0.783722 comparator_window=FAULT_OWNER_MONITOR
+allowed_envelope_clamp_mA=0.000000 differential_span_v=2.7 <= tlv_vcc_min_v=2.700 tlv_input_limit_mA=10.000
+allowed_envelope_cap_energy_nJ=4.738500 device_only_MAX_RTDIN_absmax_v=+/-45.000 device_absmax_is_not_unit_transient_rating=true
+harness_edge_cap_current_mA=0.351000 low_divider_source_current_mA=0.245455 both_below_tlv_input_limit_mA=10.000
+local_rail_caps_count=4 nominal_each_nF=100 c_accept_min_each_nF=45 local_rail_cmin_uF=0.18 local_off_capacitive_energy_dv_max_v=0.229456 clamp_sum_upstream_on_mA=0.000000 local_off_external_source_allowed=false

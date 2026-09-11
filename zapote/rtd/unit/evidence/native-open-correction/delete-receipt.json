@@ -1,0 +1,18 @@
+{
+  "input_board_sha256": "1896bf37a94eb0eb28e77cf18b2488f0672223c585ddf0f6bae2dc0a55b0d735",
+  "output_board_sha256": "beb5d73cf8f981d0a050d43996dd910aa8bc4c97ed7b03881b551fddad88c49c",
+  "instruction_sha256": "547239eaf5424668ae770f65270dd5a2eff00eb92670db520911c9e38c9c2542",
+  "replay_sha256": "f87ad6da8fbdfb8ef10f4da6e3867fd0f4a9a228141d7fdf3d03b2fa83865e6a",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [],
+  "removed_copper": [
+    {
+      "uuid": "0f6a3cce-5acd-44ca-bb8c-0ac9a7181a6b",
+      "net": "rtd_sense_n",
+      "position_mm": [
+        22.6,
+        22.8575
+      ]
+    }
+  ]
+}

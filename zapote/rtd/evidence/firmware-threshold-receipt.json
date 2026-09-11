@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "command": ".venv/bin/python -m pytest firmware/tools/test_board_derivation_lib.py -q",
+  "inputs": {
+    "firmware/tools/board_derivation_lib.py": "c5065d4e371b5efbf68ada8f1256802d67cc540b800111220dc4f1cdeb57fa56",
+    "firmware/tools/test_board_derivation_lib.py": "31bad26e7151a8582e501abaef0ef32771719ae8e410d464c36c95c40a7f4a38",
+    "zapote/rtd/evidence/firmware-threshold-tests.txt": "885017224b153d076a70f47dfc01b692e980e43d5fc53b1c7e9a1f9caee0ddd7"
+  }
+}

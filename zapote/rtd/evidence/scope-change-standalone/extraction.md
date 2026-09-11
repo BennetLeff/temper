@@ -1,0 +1,11 @@
+# Standalone RTD extraction
+
+The user now requires each unit separately before integration. The adjacent receipt freezes the incomplete cooker candidate and its sidecars. No further edits to that candidate are authorized by this unit work. Its latest edits have not been rechecked; earlier integrated failures remain historical evidence, not standalone acceptance results.
+
+Create `zapote/rtd/unit/` from an Atopile `RTDUnit` wrapper around the corrected `RTDSensing` module. Retain `rtd.*` source instance identities. The wrapper adds an exact, qualified low-voltage interface connector alongside the existing four-wire probe header. Its ten boundary pins carry upstream +3V3, two ground contacts, SCK, SDI, SDO, CS_N, DRDY, RTD_HW_FAULT and SHARED_REF_2V5. Pin order and connector part remain pending the circuit owner's qualified source proposal. No MCU, buck or downstream safety/reference consumers are represented as connected hardware.
+
+Freeze the qualified supervisor, reference resistor and diagnostic/filter source before generating the unit schematic, BOM and native footprint map. Astra will author the new outline, placement and each copper path through the existing native adapter. Start with a generous carrier outline and short local analog connections; do not copy the integrated candidate's incomplete copper or inherited violations. The final outline and layer stack will be explicit native operations with manufacturing assumptions in the unit contract.
+
+Retain the integrated Rust input/profile as historical data. Add an explicit standalone profile that validates the unit connector endpoints and local circuitry, with future reference loads and host pin/protocol requirements as external contracts. Absent buck/HV regions must be reported as deferred integration applicability, not physical checks performed. Run the actual unit board through native and Rust checks, preserve initial findings and authored corrections, and use independently expected source/copper/model defects.
+
+Luna owns the circuit/source/model proposal and Rust/BOM/validation work. Astra owns all placement/routing and final integration of this unit's artifacts. Composed firmware evidence remains useful protocol/interface evidence; physical tests are NOT RUN. Full-cooker composition, cross-unit routes and inherited board debt are deferred to a later goal.

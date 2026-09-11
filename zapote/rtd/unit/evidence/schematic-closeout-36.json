@@ -1,0 +1,28 @@
+{
+  "status": "emitted-native-verification-required",
+  "source_netlist_sha256": "0351c0aa7087f190498b93be7583dfbaf537210c6ae6759facd3cc0f4aaeb31d",
+  "source_bom_sha256": "29e875b76522778b3f7fd8a85da73e63fbb9c026a541f65d5847b6f2d2689e84",
+  "donor_sha256": "4f4a84076ee2a3d16ab9620f3aecd6d3493c7f7845fe8b04a988af4889b0c747",
+  "helper_sha256": "a15947c395a6545aa8e24a8635971773007e7aeb39939a44af7429e3d777fadd",
+  "input_schematic_sha256": "83c26879c014f457117c84d24fa533c93d70e654d67c87ac26ed960472b10b82",
+  "outputs": {
+    "section.kicad_sch": "2c42b17de16f54121d4ebf535a3be4f404ab00581094486c491ac60dafe60468",
+    "rtd-unit.kicad_sym": "dcd83101ecb99814fc182ea4cf655e1945cd25df7a4975b41ee33c8da7f6a318",
+    "sym-lib-table": "7aba3087f37af31d6d1e7045220bc0702645de3781a91add46868c1822ffa32f"
+  },
+  "intentional_open_pins": [
+    [
+      "U1",
+      "20",
+      "nc3"
+    ],
+    [
+      "U6",
+      "5",
+      "ct"
+    ]
+  ],
+  "component_count": 36,
+  "native_erc": "NOT RUN",
+  "native_netlist_equality": "NOT RUN"
+}

@@ -1,0 +1,97 @@
+{
+  "input_board_sha256": "9f0e5d62bb5dd4b3579ef47db1db140936c4f5d4668a3be9a4fd5a90c1f529ed",
+  "output_board_sha256": "0a29cd046e160d75844663bcd826e84f88ae8e4842686786faec85359b51c56b",
+  "instruction_sha256": "1e78c28fbc1b9b00a62560117101ac4f4d70cb8c4186ca03b4c6cfb2a1e7b63c",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "uuid": "6cd0d0a4-04cb-4075-aa3e-c776db939268",
+      "before": {
+        "position_mm": [
+          16.25,
+          31.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "rtd_force_p",
+            "position_mm": [
+              16.25,
+              31.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "rtd_sense_p",
+            "position_mm": [
+              18.75,
+              31.0
+            ]
+          },
+          {
+            "pad": "3",
+            "net": "rtd_sense_n",
+            "position_mm": [
+              21.25,
+              31.0
+            ]
+          },
+          {
+            "pad": "4",
+            "net": "rtd_force_n",
+            "position_mm": [
+              23.75,
+              31.0
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          16.25,
+          33.0
+        ],
+        "angle_deg": 0.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "rtd_force_p",
+            "position_mm": [
+              16.25,
+              33.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "rtd_sense_p",
+            "position_mm": [
+              18.75,
+              33.0
+            ]
+          },
+          {
+            "pad": "3",
+            "net": "rtd_sense_n",
+            "position_mm": [
+              21.25,
+              33.0
+            ]
+          },
+          {
+            "pad": "4",
+            "net": "rtd_force_n",
+            "position_mm": [
+              23.75,
+              33.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

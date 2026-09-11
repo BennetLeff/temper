@@ -1,0 +1,21 @@
+{
+  "schema": "zapote.current-sense.footprint-review.v1",
+  "source_pdf_sha256": "0da51f0ee5831b9b633eb10bc8008332e6f461f05f10eacff6d288fdee60bd5f",
+  "legacy_sha256": "68b00fedd73f91d5d63604576b8d1398a1a3fc49fbb4d4972d23a41c53327b9d",
+  "corrected_sha256": "a4541edc45c617a00a4318770853290197c8b10c80920026353b3550c99222cd",
+  "primary_pad_size_mm": [
+    4.8,
+    9.0
+  ],
+  "primary_center_spacing_mm": 11.16,
+  "secondary_pad_size_mm": [
+    3.0,
+    4.6
+  ],
+  "secondary_center_spacing_mm": 13.76,
+  "row_center_spacing_mm": 25.3,
+  "vertical_edge_gap_mm": 18.5,
+  "legacy_vertical_edge_gap_mm": 9.1,
+  "method": "Root visual reading of official recommended land pattern; dimensions explicitly referenced to copper edges; native numeric check follows.",
+  "scope": "New footprint only; legacy full-cooker footprint/board unchanged; no device-body insulation certification implied."
+}

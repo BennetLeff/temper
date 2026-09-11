@@ -1,0 +1,64 @@
+# RTDIN_P comparator-window model receipt
+
+Command: /opt/homebrew/bin/python3 zapote/rtd/circuit/rtdin_comparator_model.py
+Date: 2026-09-10
+Circuit deck: rtdin_comparator_window.cir
+Generator source and this output are retained together; the output data below
+must match the command byte-for-byte. Model hash is the SHA-256 of the
+complete result file recorded in the contract.
+
+The solver is a linear nodal model of the MAX four-wire external path:
+VBIAS -> RREF -> FORCE+ lead -> PT100 -> FORCE- lead -> 1 mOhm ISENSOR
+return. Each RTDIN sense lead is a separate resistor and each diagnostic
+pullup is 1 Mohm to BIAS. A 100 kohm shared RTDIN_P-to-window branch models the
+source protection resistor used by both TLV3201 inputs. LOW's lower divider
+resistor is tied to RTDIN_N; HIGH observes the protected window node. `low`
+is windowp - LOW_INN - VOFFL and `high` is HIGH_INP - windowp - VOFFH.
+A healthy case requires both margins positive. Each open case requires the
+corresponding margin negative: FORCE+ and SENSE- use LOW, SENSE+ and FORCE-
+use HIGH. `rtdin_p` is the MAX pin node; `windowp` is the comparator node.
+
+Corners are independent endpoints: VBIAS 1.95/2.06 V; RREF +/-0.05% and
++/-5 ppm/C over 60 C; REF2025 reference +/-0.05% initial plus 8 ppm/C drift, 3 ppm/V line regulation, and 8 ppm/mA load regulation; all window resistors
++/-0.1% and opposing +/-25 ppm/C; 1 Mohm pullups +/-5% and +/-100 ppm/C independently per purchased pullup;
+TLV3201 offset independently +/-4 mV; MAX leakage +/-14 nA at RTDIN_P and
+RTDIN_N; combined two TLV inputs +/-10 nA at the shared window node; and
++/-5 nA board leakage at each comparator node. There are 65536 combinations per row (independent diagnostic-pullup mismatch). The accepted harness accuracy case is 1 ohm per force/sense lead;
+50 ohm is a separate robustness sweep.
+
+This is a bounded passive polarity model. It does not model MAX internal
+switches, ADC codes, TLV3201 clamp dynamics/common-mode/output delay, cable
+EMC, rail ramp, or shutdown timing. It is neither PVT proof nor physical
+proof. Physical validation remains NOT RUN.
+
+corner_count 65536
+lead_ohm 1
+healthy RTD=100.0 rtdin_p=+0.370107117..+0.391511481 windowp=+0.368107117..+0.393511481 sensem=+0.003706067..+0.003919172 low=+0.186101645..+0.221242670 high=+0.386403955..+0.424305450 diff=+0.366400603..+0.387592771
+FORCE+  RTD=100.0 rtdin_p=+0.000204038..+0.000245694 windowp=-0.001795962..+0.002245694 sensem=+0.000040139..+0.000041529 low=-0.180647501..-0.166682538 high=+0.777669748..+0.794208522 diff=+0.000163523..+0.000204554
+SENSE+  RTD=100.0 rtdin_p=+1.914094369..+2.095902200 windowp=+1.912094369..+2.097902200 sensem=+0.003704881..+0.003917711 low=+1.730085541..+1.925639270 high=-1.317986792..-1.119681775 diff=+1.910383993..+2.091990277
+SENSE-  RTD=100.0 rtdin_p=+0.370091628..+0.391495600 windowp=+0.368091628..+0.393495600 sensem=+1.292140310..+1.309825920 low=-0.930911470..-0.894591031 high=+0.386419808..+0.424320966 diff=-0.931930995..-0.907640440
+FORCE-  RTD=100.0 rtdin_p=+1.945795080..+2.055230440 windowp=+1.943795080..+2.057230440 sensem=+1.944813559..+2.054107862 low=+0.090986501..+0.119659465 high=-1.277300497..-1.151397118 diff=+0.000969534..+0.001135335
+healthy RTD=194.1 rtdin_p=+0.607491642..+0.642496195 windowp=+0.605491642..+0.644496195 sensem=+0.003154970..+0.003335544 low=+0.423960244..+0.472730235 high=+0.135419237..+0.186920928 diff=+0.604336179..+0.639161160
+FORCE+  RTD=194.1 rtdin_p=+0.000374553..+0.000454171 windowp=-0.001625447..+0.002454171 sensem=+0.000040138..+0.000041529 low=-0.180476986..-0.166474061 high=+0.777461271..+0.794038007 diff=+0.000334038..+0.000413031
+SENSE+  RTD=194.1 rtdin_p=+1.914094620..+2.095902465 windowp=+1.912094620..+2.097902465 sensem=+0.003154117..+0.003334486 low=+1.730560758..+1.926140793 high=-1.317987057..-1.119682026 diff=+1.910936326..+2.092572374
+SENSE-  RTD=194.1 rtdin_p=+0.607478475..+0.642482697 windowp=+0.605478475..+0.644482697 sensem=+1.292140310..+1.309825920 low=-0.693524622..-0.643603934 high=+0.135432711..+0.186934119 diff=-0.694544148..-0.656653344
+FORCE-  RTD=194.1 rtdin_p=+1.945800897..+2.055237101 windowp=+1.943800897..+2.057237101 sensem=+1.943907513..+2.053071691 low=+0.091763818..+0.120567147 high=-1.277307178..-1.151402914 diff=+0.001870252..+0.002190027
+lead_ohm 50
+healthy RTD=100.0 rtdin_p=+0.464901672..+0.491679001 windowp=+0.462901672..+0.493679001 sensem=+0.156349425..+0.165297485 low=+0.149559664..+0.182395462 high=+0.286237708..+0.329509628 diff=+0.308532096..+0.326402291
+FORCE+  RTD=100.0 rtdin_p=+0.001318464..+0.001423729 windowp=-0.000681536..+0.003423729 sensem=+0.002002937..+0.002072292 low=-0.181234551..-0.167240707 high=+0.776493387..+0.793092431 diff=-0.000703266..-0.000629153
+SENSE+  RTD=100.0 rtdin_p=+1.914094469..+2.095902306 windowp=+1.912094469..+2.097902306 sensem=+0.156297209..+0.165233003 low=+1.598639406..+1.786841116 high=-1.317986898..-1.119681875 diff=+1.757595163..+1.930881953
+SENSE-  RTD=100.0 rtdin_p=+0.464260279..+0.491025249 windowp=+0.462260279..+0.493025249 sensem=+1.292140320..+1.309825931 low=-0.836742827..-0.795061391 high=+0.286890159..+0.330152315 diff=-0.837762354..-0.808110802
+FORCE-  RTD=100.0 rtdin_p=+1.945322935..+2.054697681 windowp=+1.943322935..+2.056697681 sensem=+1.943868774..+2.053030976 low=+0.091324336..+0.120057353 high=-1.276766110..-1.150926610 diff=+0.001436374..+0.001685635
+healthy RTD=194.1 rtdin_p=+0.657870548..+0.695667393 windowp=+0.655870548..+0.697667393 sensem=+0.136282147..+0.144052971 low=+0.359790794..+0.404688396 high=+0.082249146..+0.136540919 diff=+0.521566119..+0.551637403
+FORCE+  RTD=194.1 rtdin_p=+0.001488864..+0.001632067 windowp=-0.000511136..+0.003632067 sensem=+0.002002929..+0.002072281 low=-0.181064145..-0.167032358 high=+0.776285048..+0.792922031 diff=-0.000532860..-0.000420801
+SENSE+  RTD=194.1 rtdin_p=+1.914094673..+2.095902521 windowp=+1.912094673..+2.097902521 sensem=+0.136242764..+0.144004023 low=+1.615927650..+1.805093571 high=-1.317987113..-1.119682079 diff=+1.777690281..+1.952068391
+SENSE-  RTD=194.1 rtdin_p=+0.657302635..+0.695088110 windowp=+0.655302635..+0.697088110 sensem=+1.292140319..+1.309825929 low=-0.643700470..-0.590998529 high=+0.082827298..+0.137109959 diff=-0.644719997..-0.604047940
+FORCE-  RTD=194.1 rtdin_p=+1.945329393..+2.054705078 windowp=+1.943329393..+2.056705078 sensem=+1.942965346..+2.051997801 low=+0.092100053..+0.120963181 high=-1.276773528..-1.150933045 diff=+0.002335136..+0.002738047
+supply_budget
+MAX_active_spec_mA=3.500 MAX_BIAS_load_mA=3.874686 MAX_BIAS_short_0ohm_mA=4.794533 diagnostic_load_uA=4.364 MAX_plus_BIAS_mA=7.379050
+TLV3201_two_active_uA=130.0 logic_two_active_uA=20.0 RTD_AVDD_total_bound_mA=7.529050 RTD_AVDD_limit_mA=10.000 RTD_AVDD_margin_mA=2.470950 status=PASS
+RTD_AVDD_short_0ohm_total_bound_mA=8.448898 RTD_AVDD_short_0ohm_margin_mA=1.551102 status=PASS
+REF2025_VBIAS_divider_load_uA=96.242 REF2025_IQ_spec_uA=430.000 REF2025_output_limit_mA=20.000
+passive_transient_envelope: -0.2..+2.5 V, source >=1 kohm, edge >=10 us, pulse <=1 ms, repetition <=1 Hz; clamp sum=0
+device_only_MAX_RTDIN_absmax_v=+/-45.000 device_absmax_is_not_unit_transient_rating=true
+local_off_postferrite_model: BIAS=0, RTDIN_P/RTDIN_N collapse through RREF/diagnostics; LOW margin is negative and window_ok is false. MAX conversion is invalid while VDD is absent; HW fault/rail monitor owns shutdown.

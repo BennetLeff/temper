@@ -1,0 +1,65 @@
+{
+  "input_board_sha256": "8cab178ed5dd40ca0403275ce0831d5ce9d3cd6b737b8454761d1f17e52f1736",
+  "output_board_sha256": "ef253c50ac8c366ade05bcefb05b10542448ccab515ba832efaa245128e9b755",
+  "instruction_sha256": "412b2dd3ca416d7712abf6eff58b0b3ac58430769b778d66cf3881ee48321b11",
+  "replay_sha256": "e3b022e75feb1417f13e51d89f29d8f5b589e66a388316cdadd1785f2065dbc3",
+  "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
+  "placements": [
+    {
+      "instance": "rtd_pan.c_vdd",
+      "reference": "C1",
+      "uuid": "146b1ef9-ded6-4bed-a334-ee150eec7550",
+      "before": {
+        "position_mm": [
+          14.5,
+          18.2
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              15.275,
+              18.2
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              13.725,
+              18.2
+            ]
+          }
+        ]
+      },
+      "after": {
+        "position_mm": [
+          14.4,
+          18.0
+        ],
+        "angle_deg": 180.0,
+        "pads": [
+          {
+            "pad": "1",
+            "net": "RTD_AVDD",
+            "position_mm": [
+              15.175,
+              18.0
+            ]
+          },
+          {
+            "pad": "2",
+            "net": "gnd",
+            "position_mm": [
+              13.625,
+              18.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "removed_copper": []
+}

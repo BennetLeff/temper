@@ -1,0 +1,52 @@
+{
+  "command": [
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/rust-window-zapote-rtd",
+    "--input",
+    "zapote/rtd/evidence/placement-04/rust-window-input-02.json",
+    "--output",
+    "zapote/rtd/evidence/placement-04/rust-window-report-02.json",
+    "--no-telemetry"
+  ],
+  "exit_code": 1,
+  "status": "FAIL",
+  "artifacts": {
+    "board": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/window-saved.kicad_pcb",
+      "sha256": "44a8fd42af05d096942982d441f3d6214e54273167b634e1b0860824472d2e1c"
+    },
+    "native": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/native-window.json",
+      "sha256": "ab8cc61bacf43ef41cbcf61954b01bf02e83f850d4fff5af099d89ab43c586f8"
+    },
+    "source_manifest": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/source-02/generated/source-manifest.json",
+      "sha256": "3a09d338ba7d2ae05f10c6e2888ae86cf97df0303b6df56b46af7d0ea9e6d93b"
+    },
+    "input": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/rust-window-input-02.json",
+      "sha256": "2a4e02d2108f29e07071792387915dae3cf9ec9fa1d12ac99d3ea19a157b05e0"
+    },
+    "binary": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/rust-window-zapote-rtd",
+      "sha256": "2d93fd3411cc30893295d783b3e18b894ccb1a1449f258c384164566cf416ed7"
+    },
+    "report": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/rust-window-report-02.json",
+      "sha256": "d2586325bfb21d7ee98cac017c988ecf2ffe58d1843480667c5750051540cae4"
+    },
+    "binder": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/tools/build_native_input.py",
+      "sha256": "bceee2670a82a7f0a836e6d8b745598d70fd9fa80c15e5fbf3bd46dc95a2839a"
+    },
+    "policy": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/authored-policy.json",
+      "sha256": "111bd4dd691536afd284ab25737fa72bcdd6a7131fce6564b1b1e8018d5fd87b"
+    },
+    "model": {
+      "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/evidence/placement-04/rust-window-model-02.json",
+      "sha256": "819ec0421717435240d26f0dec2baf12bce99a993b4f3365a80fe4bf7463c260"
+    }
+  },
+  "scope": "Real source-02/nativewindow diagnostic; runtime conductor model and finalphysicalacceptance remain pending",
+  "model_scope": "Frozen evolving circuit proposal; model-field semantics are not yet fully adopted by ERC. The two conductor cases remainindeterminate."
+}

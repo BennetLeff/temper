@@ -1,0 +1,46 @@
+{
+  "canonical_hashes_verified": 90,
+  "frozen_hashes_verified": 102,
+  "native_input_hashes_verified": 18,
+  "native_drc_counts": [
+    {
+      "violations": 0,
+      "unconnected_items": 0,
+      "schematic_parity": 0
+    },
+    {
+      "violations": 0,
+      "unconnected_items": 0,
+      "schematic_parity": 0
+    },
+    {
+      "violations": 0,
+      "unconnected_items": 0,
+      "schematic_parity": 0
+    }
+  ],
+  "native_erc_violations": 0,
+  "native_ignored_checks_preserved": true,
+  "before_report_reproduces": true,
+  "before_return_failures": 14,
+  "after_failures": 0,
+  "admitted_indeterminate": [
+    {
+      "rule": "ERC.RTD.FAULT_CORNERS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured",
+      "object": "local_rtd_avdd_loss",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "acceptance_receipt_sha256": "e0633b21a0d863e6c247bf4fb8c1b2d138d5db695e2a153891b66ba2a52e6d5a",
+  "native_receipt_sha256": "066f1762c2dac2fbbdfe34e45fb342e5f6ee07e56dd66a94acc3c65784f7c2d2",
+  "scope": "Standalone layout/model evidence; physical and whole-cooker acceptance not claimed",
+  "procurement_groups_match_bom": true,
+  "reviewed_visuals": [
+    "front-final.pdf",
+    "returns-final.pdf page2"
+  ]
+}

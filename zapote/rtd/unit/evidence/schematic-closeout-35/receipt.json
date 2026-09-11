@@ -1,0 +1,52 @@
+{
+  "status": "native-format-and-netlist-verified",
+  "source_netlist_sha256": "6bbe61a17a13224ca1602753c68462b4fb259e2d2691141a7d0388446d626335",
+  "source_bom_sha256": "adb15581f92fca02ddd0b8f8d1fc73cb3c8bc545e8850102add60b46e020e625",
+  "donor_sha256": "4f4a84076ee2a3d16ab9620f3aecd6d3493c7f7845fe8b04a988af4889b0c747",
+  "helper_sha256": "a15947c395a6545aa8e24a8635971773007e7aeb39939a44af7429e3d777fadd",
+  "input_schematic_sha256": "df7d2a921f75ff1788902177b29cbf47eeb54eae7e746a8c0af39d58836b1b94",
+  "outputs": {
+    "section.kicad_sch": "025f621f1ff1a0a966626c64a57c3e1ddcdcd1a3bc442a759b8502ba667ade22",
+    "rtd-unit.kicad_sym": "dcd83101ecb99814fc182ea4cf655e1945cd25df7a4975b41ee33c8da7f6a318",
+    "sym-lib-table": "7aba3087f37af31d6d1e7045220bc0702645de3781a91add46868c1822ffa32f"
+  },
+  "intentional_open_pins": [
+    [
+      "U1",
+      "20",
+      "nc3"
+    ],
+    [
+      "U6",
+      "5",
+      "ct"
+    ]
+  ],
+  "component_count": 35,
+  "native_erc": {
+    "violations": 0,
+    "included_severities": [
+      "error",
+      "warning",
+      "exclusion"
+    ],
+    "kicad_version": "10.0.4"
+  },
+  "native_netlist_equality": {
+    "status": "PASS",
+    "pins": 117,
+    "nonempty_nets": 30
+  },
+  "visual_review": "Native PDF rendered and inspected; labels outside component boxes, drawing inside A2 border. Generic donor symbol pin electrical types remain unchanged; ERC is not manufacturer circuit qualification.",
+  "verification_hashes": {
+    "section.kicad_sch": "025f621f1ff1a0a966626c64a57c3e1ddcdcd1a3bc442a759b8502ba667ade22",
+    "rtd-unit.kicad_sym": "dcd83101ecb99814fc182ea4cf655e1945cd25df7a4975b41ee33c8da7f6a318",
+    "sym-lib-table": "7aba3087f37af31d6d1e7045220bc0702645de3781a91add46868c1822ffa32f",
+    "before.net": "dc041f483db40bef7fb248925632a9f803f331e9cec290f6823a2d3a7da12763",
+    "after.net": "d4b51e3189e87adc437b5c0ac2672c113a3b9655fbb83dac03395c2f61f448d8",
+    "erc-after.json": "94276202750e2f946ee61148c75c4e2f1d81d6633da14094f59bf4a3cb13b0ec",
+    "erc-after.log": "4bb8224325085b984eadfece51e3ae5174f9c41391796f392125a9f79dc1bc41",
+    "schematic.pdf": "7efe3221aa54ba4d8531c287e162302858d84fc12bd04bd2cfcc39b73c09ee37",
+    "schematic.png": "ec7be1c97defbca0f01107fb2668eeef96f8c41b00f73406cf65b0bf9b820ae3"
+  }
+}

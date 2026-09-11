@@ -1,0 +1,17 @@
+{
+  "schema": "rtd_scalar_timing_pairing_repro.v1",
+  "source_model": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/circuit/rtdin_comparator_model.py",
+  "source_transient": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/circuit/rtdin_transient_model.py",
+  "rtd_ohm": 194.1,
+  "healthy_margin_v": 0.4469560038006066,
+  "same_rtd_fault_margin_v": -0.1733055566239552,
+  "frozen_cross_pair_v": [
+    0.186101844,
+    -0.166474228
+  ],
+  "tau_ms": 1.5067000000000002,
+  "overdrive_v": 0.02,
+  "same_rtd_time_ms": 2.1059269882973317,
+  "frozen_cross_pair_time_ms": 1.3235107600576368,
+  "conclusion": "frozen table is not a maximum of this scalar calculation; neither result proves the full two-node transient bound"
+}

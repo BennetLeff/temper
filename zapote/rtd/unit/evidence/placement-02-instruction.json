@@ -1,0 +1,65 @@
+{
+  "placements": {
+    "rtd_pan.c_low_window": [
+      30,
+      37.35,
+      180
+    ],
+    "rtd_pan.c_high_window": [
+      30,
+      46.35,
+      180
+    ],
+    "rtd_pan.c_window_and": [
+      40,
+      39.35,
+      180
+    ],
+    "rtd_pan.c_fault_nand": [
+      49,
+      39.35,
+      180
+    ],
+    "rtd_pan.c_reference": [
+      20,
+      38.35,
+      0
+    ],
+    "rtd_pan.c_rail_monitor": [
+      43,
+      30.5,
+      180
+    ],
+    "rtd_pan.r_rtdin_p_bias": [
+      15.7,
+      27,
+      90
+    ],
+    "rtd_pan.r_rtdin_n_bias": [
+      24.3,
+      27,
+      90
+    ],
+    "rtd_pan.r_sclk": [
+      27,
+      20.3,
+      180
+    ],
+    "rtd_pan.r_mosi": [
+      27,
+      22,
+      180
+    ],
+    "rtd_pan.r_cs": [
+      27,
+      18.6,
+      180
+    ],
+    "rtd_pan.c_dvdd": [
+      14.5,
+      14.5,
+      180
+    ]
+  },
+  "delete_copper_uuids": []
+}

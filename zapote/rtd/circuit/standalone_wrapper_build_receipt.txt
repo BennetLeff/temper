@@ -1,0 +1,40 @@
+# Standalone RTDUnit source checkpoint receipt
+
+Date: 2026-09-10
+
+Source patch dry-run against the authoritative current WIP checkout passed:
+
+```text
+cd /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan
+patch -p0 --dry-run < /private/tmp/temper-rtd-circuit/zapote/rtd/circuit/standalone_interface_source.patch
+PATCH_DRYRUN_AUTHORITATIVE_EXIT:0
+```
+
+The isolated compile copied that checkout's current `elec/src`, applied the
+same patch, copied `elec/ato.yaml`, and ran:
+
+```text
+cd /tmp/rtd-unit-wrapper-final/elec
+uv tool run --from 'atopile==0.2.69' ato --non-interactive build src/modules.ato:RTDUnit
+```
+
+Result: exit 0, `Build complete!`. The assertion `power.voltage within 3.3V
++/- 10%` passed. The generated designator map contains `J2 unit_io` with
+`FTSH-105-01-F-D`; the internal instance remains `rtd_pan`.
+
+Final proposal hashes (SHA-256):
+
+```text
+standalone_interface_source.patch
+ed066b9204e00721b73986f8c8c3a438d86b590fbb17bd18c64c7f0781e8211a
+standalone_interface_source_proposal.ato
+f35d009a951d9c8ad6fb7edfd00dd05e78688c9e51587e072fe5f197de15a6e8
+TPS389001DSER_WSON-6_DSE.kicad_mod
+0787307f87826011b115e7cc17c8e88ea23ef0a886bc771293ee970f8af6aa42
+FTSH-105-01-F-D_2x5_P1.27mm.kicad_mod
+40f0b099f394786526640d5f477668afd24aec31504a78b64d55d15166e58b5b
+```
+
+The Atopile output retains the existing implicit-`required` deprecation
+warnings in `RTDSensing`; they do not fail this source checkpoint. No board
+placement, routing, or physical validation was run.

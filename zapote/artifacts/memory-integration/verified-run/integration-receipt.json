@@ -1,0 +1,236 @@
+{
+  "status": "pass",
+  "binary_sha256": "388781ec31b048f4c1c59e9a1ab8c6edb5da83ce6861e77600051fff1e92a633",
+  "policy_controls": [
+    {
+      "case": "cross-unit-procedure-only",
+      "exit_code": 0,
+      "response": {
+        "attempt_id": "cross-unit-control-20260911",
+        "catalog_sha256": "40a7f71dc26e290abbe6e91d2bf18278ae8a74a3d2e0e784c6a005ca8cf50bda",
+        "command": "context.prepare",
+        "notes_sha256": "22908b86171a8ea945c2d66e551d68515a7a223489fb938bada21e2dfab18736",
+        "notes_utf8": "## rtd-mem-001: Qualify model meaning before accepting model output\n\n# Qualify model meaning before accepting model output\n\nThis is portable engineering guidance, not an acceptance rule or a source of component limits.\n\nBefore accepting analytical or SPICE results:\n1. Inspect the actual post-fault circuit graph. Account for every remaining current path, including threshold dividers. Verify that an injected open opens rather than reconnects the wire.\n2. Match datasheet limits to their columns, test conditions, operating envelope and stated guarantees. Keep typical values separate from guaranteed bounds.\n3. Check model and circuit identities, then check meaning: runtime fault rows must agree with the independently justified certificate. Rehashing contradictory output must still fail the normal validator.\n4. Use an independent derivation or simulator as an oracle. Sampled agreement helps find defects but does not prove coverage of a continuous parameter range.\n5. Preserve device applicability and hardware characterization gaps as INDETERMINATE or NOT RUN. Mathematical qualification does not qualify omitted physical behavior.\n6. Retain counterexamples through the normal Rust validation entry point: stale sources, missing or duplicate faults, changed parameter ranges, and rehashed contradictory claims.\n\nFor another unit, derive its own equations, fault cases and limits. Current source, constraints and Rust validators govern acceptance. Record which lesson affected a decision; propose new lessons with evidence for review between attempts. A statement that a helper ran is not execution evidence.\n\n\n",
+        "prompt_sha256": "8955f2d8d30ef69046d21d7485bbf4d10f8eb51a30f6fd4fb6dc4dda25f420f9",
+        "prompt_utf8": "Read-only memory-delivery control for a future standalone current-sensing unit. No CAD or code edits. Based on the advisory memory below, identify three model-correctness checks to perform and explain whether an RTD detection-time result can be used as this unit's bound. Return a short decision record with applied_memory_ids, checks, exact_fact_transfer_allowed, and helper_execution. Do not claim an experiment or helper was run.\n\n\n--- Advisory selected memory (current constraints and validators override these notes) ---\n## rtd-mem-001: Qualify model meaning before accepting model output\n\n# Qualify model meaning before accepting model output\n\nThis is portable engineering guidance, not an acceptance rule or a source of component limits.\n\nBefore accepting analytical or SPICE results:\n1. Inspect the actual post-fault circuit graph. Account for every remaining current path, including threshold dividers. Verify that an injected open opens rather than reconnects the wire.\n2. Match datasheet limits to their columns, test conditions, operating envelope and stated guarantees. Keep typical values separate from guaranteed bounds.\n3. Check model and circuit identities, then check meaning: runtime fault rows must agree with the independently justified certificate. Rehashing contradictory output must still fail the normal validator.\n4. Use an independent derivation or simulator as an oracle. Sampled agreement helps find defects but does not prove coverage of a continuous parameter range.\n5. Preserve device applicability and hardware characterization gaps as INDETERMINATE or NOT RUN. Mathematical qualification does not qualify omitted physical behavior.\n6. Retain counterexamples through the normal Rust validation entry point: stale sources, missing or duplicate faults, changed parameter ranges, and rehashed contradictory claims.\n\nFor another unit, derive its own equations, fault cases and limits. Current source, constraints and Rust validators govern acceptance. Record which lesson affected a decision; propose new lessons with evidence for review between attempts. A statement that a helper ran is not execution evidence.\n\n\n",
+        "schema": "memory/v1",
+        "selection": {
+          "catalog_revision": "rtd-lessons-v1",
+          "catalog_sha256": "40a7f71dc26e290abbe6e91d2bf18278ae8a74a3d2e0e784c6a005ca8cf50bda",
+          "entry_hashes": {
+            "rtd-mem-001": "850c1a22af0dc1a4fed5f78c94a4070c788abcd71837ff2c3e7aacba74851d80"
+          },
+          "evidence_hashes": {
+            "rtd-mem-001": [
+              "a2944b95210f8b438a616cb03339e48b873b12ec8d65ce17298599a8e3cb5158"
+            ]
+          },
+          "exclusions": [
+            {
+              "id": "rtd-mem-002",
+              "reason": "source identity mismatch for exact-fact transfer"
+            }
+          ],
+          "materialized_bytes": 1547,
+          "selected_ids": [
+            "rtd-mem-001"
+          ],
+          "selection_sha256": "4adc152e94e431ed4e35d887aa2f7c92cd2c6a5454643d7e50ed452546b29a26",
+          "source_dependencies": {
+            "rtd-mem-001": []
+          },
+          "status": "pass"
+        },
+        "status": "pass"
+      }
+    },
+    {
+      "case": "matching-rtd-fact",
+      "exit_code": 0,
+      "response": {
+        "attempt_id": "cross-unit-control-20260911",
+        "catalog_sha256": "40a7f71dc26e290abbe6e91d2bf18278ae8a74a3d2e0e784c6a005ca8cf50bda",
+        "command": "context.prepare",
+        "notes_sha256": "ade9c03f0f4b8d2e33fa6f735c205a05d38ab25d748e8a2eca836a94f145e5e0",
+        "notes_utf8": "## rtd-mem-001: Qualify model meaning before accepting model output\n\n# Qualify model meaning before accepting model output\n\nThis is portable engineering guidance, not an acceptance rule or a source of component limits.\n\nBefore accepting analytical or SPICE results:\n1. Inspect the actual post-fault circuit graph. Account for every remaining current path, including threshold dividers. Verify that an injected open opens rather than reconnects the wire.\n2. Match datasheet limits to their columns, test conditions, operating envelope and stated guarantees. Keep typical values separate from guaranteed bounds.\n3. Check model and circuit identities, then check meaning: runtime fault rows must agree with the independently justified certificate. Rehashing contradictory output must still fail the normal validator.\n4. Use an independent derivation or simulator as an oracle. Sampled agreement helps find defects but does not prove coverage of a continuous parameter range.\n5. Preserve device applicability and hardware characterization gaps as INDETERMINATE or NOT RUN. Mathematical qualification does not qualify omitted physical behavior.\n6. Retain counterexamples through the normal Rust validation entry point: stale sources, missing or duplicate faults, changed parameter ranges, and rehashed contradictory claims.\n\nFor another unit, derive its own equations, fault cases and limits. Current source, constraints and Rust validators govern acceptance. Record which lesson affected a decision; propose new lessons with evidence for review between attempts. A statement that a helper ran is not execution evidence.\n\n\n## rtd-mem-002: RTD conditional passive-network timing result\n\n# RTD conditional passive-network timing result\n\nExact-source fact for the bound RTD design only. Do not use this number as a constraint for another unit or a modified RTD circuit.\n\nThe reviewed external passive-network certificate gives a maximum conditional detection bound of 0.971459818540245 ms within a fixed 2 ms detector allocation for its declared topology and parameter envelope. Rust independently recomputes the five fault certificates and checks runtime fault-row consistency.\n\nOverall qualification remains INDETERMINATE. Comparator hysteresis, common-mode/input-capacitance conditions, the MAX31865 force-path idealization and guaranteed brownout timing are not fully qualified. Physical measurements are NOT RUN. This note does not promote the hardware to PASS.\n\nRead the bound certificate and applicability review before citing the result. Any source identity mismatch makes this entry inapplicable; requalification must produce a new reviewed memory revision.\n\n\n",
+        "prompt_sha256": "db6772c2f8ecd6e99efa091a1c279f50d70435eb32047da23421de7d37a15336",
+        "prompt_utf8": "Read-only memory-delivery control for a future standalone current-sensing unit. No CAD or code edits. Based on the advisory memory below, identify three model-correctness checks to perform and explain whether an RTD detection-time result can be used as this unit's bound. Return a short decision record with applied_memory_ids, checks, exact_fact_transfer_allowed, and helper_execution. Do not claim an experiment or helper was run.\n\n\n--- Advisory selected memory (current constraints and validators override these notes) ---\n## rtd-mem-001: Qualify model meaning before accepting model output\n\n# Qualify model meaning before accepting model output\n\nThis is portable engineering guidance, not an acceptance rule or a source of component limits.\n\nBefore accepting analytical or SPICE results:\n1. Inspect the actual post-fault circuit graph. Account for every remaining current path, including threshold dividers. Verify that an injected open opens rather than reconnects the wire.\n2. Match datasheet limits to their columns, test conditions, operating envelope and stated guarantees. Keep typical values separate from guaranteed bounds.\n3. Check model and circuit identities, then check meaning: runtime fault rows must agree with the independently justified certificate. Rehashing contradictory output must still fail the normal validator.\n4. Use an independent derivation or simulator as an oracle. Sampled agreement helps find defects but does not prove coverage of a continuous parameter range.\n5. Preserve device applicability and hardware characterization gaps as INDETERMINATE or NOT RUN. Mathematical qualification does not qualify omitted physical behavior.\n6. Retain counterexamples through the normal Rust validation entry point: stale sources, missing or duplicate faults, changed parameter ranges, and rehashed contradictory claims.\n\nFor another unit, derive its own equations, fault cases and limits. Current source, constraints and Rust validators govern acceptance. Record which lesson affected a decision; propose new lessons with evidence for review between attempts. A statement that a helper ran is not execution evidence.\n\n\n## rtd-mem-002: RTD conditional passive-network timing result\n\n# RTD conditional passive-network timing result\n\nExact-source fact for the bound RTD design only. Do not use this number as a constraint for another unit or a modified RTD circuit.\n\nThe reviewed external passive-network certificate gives a maximum conditional detection bound of 0.971459818540245 ms within a fixed 2 ms detector allocation for its declared topology and parameter envelope. Rust independently recomputes the five fault certificates and checks runtime fault-row consistency.\n\nOverall qualification remains INDETERMINATE. Comparator hysteresis, common-mode/input-capacitance conditions, the MAX31865 force-path idealization and guaranteed brownout timing are not fully qualified. Physical measurements are NOT RUN. This note does not promote the hardware to PASS.\n\nRead the bound certificate and applicability review before citing the result. Any source identity mismatch makes this entry inapplicable; requalification must produce a new reviewed memory revision.\n\n\n",
+        "schema": "memory/v1",
+        "selection": {
+          "catalog_revision": "rtd-lessons-v1",
+          "catalog_sha256": "40a7f71dc26e290abbe6e91d2bf18278ae8a74a3d2e0e784c6a005ca8cf50bda",
+          "entry_hashes": {
+            "rtd-mem-001": "850c1a22af0dc1a4fed5f78c94a4070c788abcd71837ff2c3e7aacba74851d80",
+            "rtd-mem-002": "8def7c6eb02754848bd5fc56f28f79d9839e2a38a93244270af6a9863d2288ca"
+          },
+          "evidence_hashes": {
+            "rtd-mem-001": [
+              "a2944b95210f8b438a616cb03339e48b873b12ec8d65ce17298599a8e3cb5158"
+            ],
+            "rtd-mem-002": [
+              "8c6d1a303e125b1c1e9156548afe0f1f296aee37c423b9b5894c612d948378f6",
+              "4b56eaa33300c9d4eb3a01b8bf6ae291f4874a97d4063055a27cedb2faf96db4"
+            ]
+          },
+          "exclusions": [],
+          "materialized_bytes": 2525,
+          "selected_ids": [
+            "rtd-mem-001",
+            "rtd-mem-002"
+          ],
+          "selection_sha256": "8d67f7921e21d8d939027dd6c6c7f139373d95f7a2d9e5e310b30b615f1f46e7",
+          "source_dependencies": {
+            "rtd-mem-001": [],
+            "rtd-mem-002": [
+              {
+                "key": "rtd_board",
+                "sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb"
+              },
+              {
+                "key": "rtd_source_manifest",
+                "sha256": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868"
+              },
+              {
+                "key": "rtd_model_source",
+                "sha256": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554"
+              },
+              {
+                "key": "rtd_certificate",
+                "sha256": "8c6d1a303e125b1c1e9156548afe0f1f296aee37c423b9b5894c612d948378f6"
+              }
+            ]
+          },
+          "status": "pass"
+        },
+        "status": "pass"
+      }
+    },
+    {
+      "case": "changed-board-excludes-exact-fact",
+      "exit_code": 0,
+      "response": {
+        "attempt_id": "cross-unit-control-20260911",
+        "catalog_sha256": "40a7f71dc26e290abbe6e91d2bf18278ae8a74a3d2e0e784c6a005ca8cf50bda",
+        "command": "context.prepare",
+        "notes_sha256": "22908b86171a8ea945c2d66e551d68515a7a223489fb938bada21e2dfab18736",
+        "notes_utf8": "## rtd-mem-001: Qualify model meaning before accepting model output\n\n# Qualify model meaning before accepting model output\n\nThis is portable engineering guidance, not an acceptance rule or a source of component limits.\n\nBefore accepting analytical or SPICE results:\n1. Inspect the actual post-fault circuit graph. Account for every remaining current path, including threshold dividers. Verify that an injected open opens rather than reconnects the wire.\n2. Match datasheet limits to their columns, test conditions, operating envelope and stated guarantees. Keep typical values separate from guaranteed bounds.\n3. Check model and circuit identities, then check meaning: runtime fault rows must agree with the independently justified certificate. Rehashing contradictory output must still fail the normal validator.\n4. Use an independent derivation or simulator as an oracle. Sampled agreement helps find defects but does not prove coverage of a continuous parameter range.\n5. Preserve device applicability and hardware characterization gaps as INDETERMINATE or NOT RUN. Mathematical qualification does not qualify omitted physical behavior.\n6. Retain counterexamples through the normal Rust validation entry point: stale sources, missing or duplicate faults, changed parameter ranges, and rehashed contradictory claims.\n\nFor another unit, derive its own equations, fault cases and limits. Current source, constraints and Rust validators govern acceptance. Record which lesson affected a decision; propose new lessons with evidence for review between attempts. A statement that a helper ran is not execution evidence.\n\n\n",
+        "prompt_sha256": "8955f2d8d30ef69046d21d7485bbf4d10f8eb51a30f6fd4fb6dc4dda25f420f9",
+        "prompt_utf8": "Read-only memory-delivery control for a future standalone current-sensing unit. No CAD or code edits. Based on the advisory memory below, identify three model-correctness checks to perform and explain whether an RTD detection-time result can be used as this unit's bound. Return a short decision record with applied_memory_ids, checks, exact_fact_transfer_allowed, and helper_execution. Do not claim an experiment or helper was run.\n\n\n--- Advisory selected memory (current constraints and validators override these notes) ---\n## rtd-mem-001: Qualify model meaning before accepting model output\n\n# Qualify model meaning before accepting model output\n\nThis is portable engineering guidance, not an acceptance rule or a source of component limits.\n\nBefore accepting analytical or SPICE results:\n1. Inspect the actual post-fault circuit graph. Account for every remaining current path, including threshold dividers. Verify that an injected open opens rather than reconnects the wire.\n2. Match datasheet limits to their columns, test conditions, operating envelope and stated guarantees. Keep typical values separate from guaranteed bounds.\n3. Check model and circuit identities, then check meaning: runtime fault rows must agree with the independently justified certificate. Rehashing contradictory output must still fail the normal validator.\n4. Use an independent derivation or simulator as an oracle. Sampled agreement helps find defects but does not prove coverage of a continuous parameter range.\n5. Preserve device applicability and hardware characterization gaps as INDETERMINATE or NOT RUN. Mathematical qualification does not qualify omitted physical behavior.\n6. Retain counterexamples through the normal Rust validation entry point: stale sources, missing or duplicate faults, changed parameter ranges, and rehashed contradictory claims.\n\nFor another unit, derive its own equations, fault cases and limits. Current source, constraints and Rust validators govern acceptance. Record which lesson affected a decision; propose new lessons with evidence for review between attempts. A statement that a helper ran is not execution evidence.\n\n\n",
+        "schema": "memory/v1",
+        "selection": {
+          "catalog_revision": "rtd-lessons-v1",
+          "catalog_sha256": "40a7f71dc26e290abbe6e91d2bf18278ae8a74a3d2e0e784c6a005ca8cf50bda",
+          "entry_hashes": {
+            "rtd-mem-001": "850c1a22af0dc1a4fed5f78c94a4070c788abcd71837ff2c3e7aacba74851d80"
+          },
+          "evidence_hashes": {
+            "rtd-mem-001": [
+              "a2944b95210f8b438a616cb03339e48b873b12ec8d65ce17298599a8e3cb5158"
+            ]
+          },
+          "exclusions": [
+            {
+              "id": "rtd-mem-002",
+              "reason": "source identity mismatch for exact-fact transfer"
+            }
+          ],
+          "materialized_bytes": 1547,
+          "selected_ids": [
+            "rtd-mem-001"
+          ],
+          "selection_sha256": "1b9d7498e0181e527c9db62d0fcfa5305cdbb782a1366e630a5b0daff740148b",
+          "source_dependencies": {
+            "rtd-mem-001": []
+          },
+          "status": "pass"
+        },
+        "status": "pass"
+      }
+    },
+    {
+      "case": "changed-required-fact-rejected",
+      "exit_code": 1,
+      "response": {
+        "command": "context.prepare",
+        "error": "required entry rtd-mem-002 was excluded: source identity mismatch for exact-fact transfer",
+        "schema": "memory/v1",
+        "status": "invalid"
+      }
+    },
+    {
+      "case": "changed-entry-rejected",
+      "exit_code": 1,
+      "response": {
+        "command": "context.prepare",
+        "error": "entry bytes tampered: rtd-mem-001",
+        "schema": "memory/v1",
+        "status": "invalid"
+      }
+    },
+    {
+      "case": "changed-evidence-rejected",
+      "exit_code": 1,
+      "response": {
+        "command": "context.prepare",
+        "error": "evidence bytes tampered: docs/solutions/best-practices/model-certificates-need-semantic-binding.md",
+        "schema": "memory/v1",
+        "status": "invalid"
+      }
+    },
+    {
+      "case": "duplicate-entry",
+      "exit_code": 1,
+      "response": {
+        "command": "context.prepare",
+        "error": "duplicate catalog entry id: rtd-mem-001",
+        "schema": "memory/v1",
+        "status": "invalid"
+      }
+    },
+    {
+      "case": "candidate-required-entry",
+      "exit_code": 1,
+      "response": {
+        "command": "context.prepare",
+        "error": "required entry rtd-mem-001 was excluded: not selectable: validation state is candidate",
+        "schema": "memory/v1",
+        "status": "invalid"
+      }
+    },
+    {
+      "case": "rendered-notes-overflow-rejected",
+      "exit_code": 1,
+      "response": {
+        "command": "context.prepare",
+        "error": "selected memory notes exceed 64 KiB; refusing to truncate",
+        "schema": "memory/v1",
+        "status": "invalid"
+      }
+    }
+  ],
+  "process_control": {
+    "schema": "memory/v1",
+    "status": "completed",
+    "attempt_id": "cross-unit-control-20260911",
+    "prompt_sha256": "8955f2d8d30ef69046d21d7485bbf4d10f8eb51a30f6fd4fb6dc4dda25f420f9",
+    "provider": {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-c",
+        "import sys; sys.stdout.buffer.write(sys.stdin.buffer.read())"
+      ],
+      "identity": {
+        "kind": "local-process-control",
+        "model": null
+      }
+    },
+    "returncode": 0,
+    "process_completed": true,
+    "model_consumption": "unverified",
+    "reported_use": null,
+    "helper_execution": [],
+    "stdout_sha256": "8955f2d8d30ef69046d21d7485bbf4d10f8eb51a30f6fd4fb6dc4dda25f420f9",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "live_model_control": "separate; this replay uses no LLM"
+}

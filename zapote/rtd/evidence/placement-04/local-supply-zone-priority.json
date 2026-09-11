@@ -1,0 +1,11 @@
+{
+  "input_board_sha256": "edfbb978127b895a55188aff8df4541a833d04efd96503fbe212fe29c9f60e57",
+  "output_board_sha256": "3c9c1b0f0a2d4dbcdb6cd74fd094590c416fb7259b7ca32e424b3fc0f84daccc",
+  "operation": {
+    "zone_uuid": "8eb6998a-c212-4a9f-83f4-82b482f86092",
+    "net": "+3V3",
+    "old_priority": 0,
+    "new_priority": 1
+  },
+  "reason": "Native DRC requires different priorities for overlapping zones, including these same-net local and retained supply zones."
+}

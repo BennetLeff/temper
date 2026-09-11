@@ -1,0 +1,36 @@
+{
+  "schema": "zapote.rtd.unit-run-receipt.v1",
+  "status": "fail",
+  "checked_rules": 27,
+  "findings": 28,
+  "coverage_gaps": 3,
+  "source_bindings": 119,
+  "source_components": 36,
+  "native_components": 36,
+  "native_pads": 119,
+  "native_zones": 4,
+  "hashes": {
+    "profile": "aa0595df748f994f5c4318892f5f290cb07a9eff395f476b0891fc530186bbae",
+    "native": "9366ec73666bc302bd6bcb6a72c007f22570ee50d1d7dd190942a8f24565ebb5",
+    "board": "1896bf37a94eb0eb28e77cf18b2488f0672223c585ddf0f6bae2dc0a55b0d735",
+    "source_manifest": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+    "extractor": "3c345444768b4aa2d74f19df9e1507f5fc3fc5d617bf56e0d005ed8d8e6b62f6",
+    "model": "fda3080185e06b3c1c36ce505fa26af8fb2611e55aa544ebdb6243f8c34a0396",
+    "firmware": "3021920ba4096159d75bbbfd41e2ffbc0d34dcecd73c1d0a65e4c00b86f5a685",
+    "firmware_pins": "aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b",
+    "input": "5babb0ccfd64ae156bb37fe117f3e76bb11ee1c3383a684d130f060177e1c7ed",
+    "report": "6ba9d736b00f9ca662282b5d081a5a2c8f336657578fe7e1f227eec931efb117",
+    "patch": "2f5787f49406657f72a24af9d1b6c1ef4e4c93044f9f602711cf31f1d4e1ae16"
+  },
+  "commands": [
+    "python3 zapote/rtd/unit/bind_native.py ... --output /private/tmp/rtd-unit-source04-current.json",
+    "CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo build --manifest-path zapote/Cargo.toml -q -p zapote-harness",
+    "zapote-rtd --unit-input /private/tmp/rtd-unit-source04-current.json --output /private/tmp/rtd-unit-source04-report.json"
+  ],
+  "notes": [
+    "Source04 native extraction and board bytes match board_sha256 1896bf37...d735; extractor hash is 3c3454...b62f6.",
+    "Model is expected-only rtd_contract fault_coverage; no observed fault scenarios are accepted.",
+    "Return planes have four matching filled zones and spanning via/trace evidence.",
+    "Report is diagnostic FAIL due model/load gaps, decoupling locality, and authored SPI geometry crossings; no board acceptance claim."
+  ]
+}

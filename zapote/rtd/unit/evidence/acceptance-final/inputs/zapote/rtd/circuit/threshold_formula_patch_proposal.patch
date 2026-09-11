@@ -1,0 +1,61 @@
+--- firmware/tools/board_derivation_lib.py
++++ firmware/tools/board_derivation_lib.py
+@@ -193,9 +193,10 @@
+     """15-bit ratiometric ADC code for *rtd_ohm* against *r_ref_ohm*.
+ 
+     code = RTD / RREF * 2^15, clamped at MAX31865_ADC_MAX_CODE. *rounding*
+-    is ``"ceil"`` (low threshold: smallest code strictly above the
+-    boundary, so AT-or-below trips) or ``"floor"`` (high threshold:
+-    largest code at-or-below the boundary, so AT-or-above trips).
++    is ``"floor_plus_one"`` (low threshold: smallest code strictly above
++    the boundary, so AT-or-below trips, including exact integers) or
++    ``"floor"`` (high threshold: largest code at-or-below the boundary,
++    so AT-or-above trips).
+     """
+     if not math.isfinite(rtd_ohm) or rtd_ohm < 0.0:
+         raise ValueError(f"rtd_ohm must be a finite non-negative number, got {rtd_ohm!r}")
+@@ -203,8 +204,8 @@
+         raise ValueError(f"r_ref_ohm must be a positive finite number, got {r_ref_ohm!r}")
+ 
+     exact = rtd_ohm / r_ref_ohm * 32768.0
+-    if rounding == "ceil":
+-        code = math.ceil(exact)
++    if rounding == "floor_plus_one":
++        code = math.floor(exact) + 1
+     elif rounding == "floor":
+         code = math.floor(exact)
+     else:  # pragma: no cover - internal dispatch only
+@@ -216,7 +217,7 @@
+     """Fault-threshold register word that trips when RTD is AT or BELOW
+     *rtd_ohm* (e.g. the 10 ohm short boundary): the smallest 15-bit code
+     strictly above the boundary, shifted left one bit."""
+-    return _max31865_code(rtd_ohm, r_ref_ohm, "ceil") << 1
++    return _max31865_code(rtd_ohm, r_ref_ohm, "floor_plus_one") << 1
+ 
+ 
+ def max31865_high_threshold_word(rtd_ohm: float, r_ref_ohm: float) -> int:
+--- firmware/tools/test_board_derivation_lib.py
++++ firmware/tools/test_board_derivation_lib.py
+@@ -156,8 +156,21 @@
+         the boundary, so AT-or-above trips). A single shared rounding
+         choice would disagree with one of the committed words."""
+         # If both rounded the same way, one of these would differ:
+-        assert max31865_low_threshold_word(10.0, 430.0) == 1526  # ceil
++        assert max31865_low_threshold_word(10.0, 430.0) == 1526  # floor+1
+         assert max31865_high_threshold_word(300.0, 430.0) == 45722  # floor
++
++    def test_low_strict_boundary_handles_exact_integer_and_adjacent_codes(self) -> None:
++        # For an exact integer boundary, ceil(exact) would equal the boundary
++        # and fail the strict-below comparator semantics. floor(exact)+1 is
++        # required. Also pin the two adjacent code decisions at the 10 ohm
++        # boundary using the actual 15-bit code conversion.
++        exact_rtd = 430.0 * 763.0 / 32768.0
++        assert max31865_low_threshold_word(exact_rtd, 430.0) == (764 << 1)
++        low_word = max31865_low_threshold_word(10.0, 430.0)
++        low_code = low_word >> 1
++        assert low_code == 763
++        assert (10.0 / 430.0 * 32768.0) < low_code
++        assert (10.0 / 430.0 * 32768.0) >= low_code - 1
+ 
+     def test_reference_resistor_drift_moves_the_words(self) -> None:
+         """A board whose RREF differs from 430 ohm must change both

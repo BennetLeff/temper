@@ -1,0 +1,68 @@
+{
+  "reason": "Ground stitching at explicit F/B signal-layer transitions; both inner planes are ground.",
+  "nets": [
+    {
+      "net": "gnd",
+      "mode": "append",
+      "paths": [],
+      "vias": [
+        {
+          "position_mm": [
+            32,
+            20.7
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            27.8,
+            15.6
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            17.7,
+            13.3
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            19.1,
+            24.1
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            31.8,
+            33.2
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            36.4,
+            32
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            34.2,
+            49.95
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        }
+      ]
+    }
+  ]
+}

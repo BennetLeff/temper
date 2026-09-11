@@ -1,0 +1,83 @@
+{
+  "command": [
+    "kicad-cli",
+    "pcb",
+    "drc",
+    "--schematic-parity",
+    "--format",
+    "json",
+    "--all-track-errors",
+    "--severity-all",
+    "--output",
+    "zapote/rtd/evidence/source-02/drc-with-parity.json",
+    "zapote/rtd/candidate/cooker.kicad_pcb"
+  ],
+  "board_sha256": "ff71532901402e1deef2e71c34001d9aa0b4e9410596225ef5bd1655f6625eee",
+  "schematic_sha256": "4a8076bede7fdf339d4b0223e041405f595c95a34f14031069dde72488e216bc",
+  "report_sha256": "3a4ea8170c0b23451fad351aa1e6b6441502724b5f21bf194b07a213539b53e5",
+  "kicad_version": "10.0.4",
+  "status": "electrical_parity_clear_with_four_testpoint_BOM_metadata_warnings",
+  "warnings": [
+    {
+      "description": "Footprint attributes don't match symbol: 'Exclude from bill of materials' settings differ",
+      "items": [
+        {
+          "description": "Footprint TP1",
+          "pos": {
+            "x": 111.15,
+            "y": 146.15
+          },
+          "uuid": "85a55544-8061-eb59-8892-6c23d83b6394"
+        }
+      ],
+      "severity": "warning",
+      "type": "footprint_symbol_mismatch"
+    },
+    {
+      "description": "Footprint attributes don't match symbol: 'Exclude from bill of materials' settings differ",
+      "items": [
+        {
+          "description": "Footprint TP2",
+          "pos": {
+            "x": 111.72,
+            "y": 139.73
+          },
+          "uuid": "c63bf764-8c08-f3b9-2d4e-9d67cb452e9c"
+        }
+      ],
+      "severity": "warning",
+      "type": "footprint_symbol_mismatch"
+    },
+    {
+      "description": "Footprint attributes don't match symbol: 'Exclude from bill of materials' settings differ",
+      "items": [
+        {
+          "description": "Footprint TP3",
+          "pos": {
+            "x": 121.9,
+            "y": 143.5
+          },
+          "uuid": "74d1504e-58dc-5550-1da6-6b6b92b80e69"
+        }
+      ],
+      "severity": "warning",
+      "type": "footprint_symbol_mismatch"
+    },
+    {
+      "description": "Footprint attributes don't match symbol: 'Exclude from bill of materials' settings differ",
+      "items": [
+        {
+          "description": "Footprint TP4",
+          "pos": {
+            "x": 171.0,
+            "y": 102.65
+          },
+          "uuid": "730a8e72-eb16-c417-1c89-bd51a7f3768e"
+        }
+      ],
+      "severity": "warning",
+      "type": "footprint_symbol_mismatch"
+    }
+  ],
+  "adjudication": "TP1\u2013TP4 retain baseline exclusion from assembly BOM because they are PCB copper testpoints. The generated schematic marks all source symbols in-BOM. These four inherited attribute choices do not change component pin/net partitions; full candidate acceptance remains pending routing/DRC and BOM export reconciliation."
+}

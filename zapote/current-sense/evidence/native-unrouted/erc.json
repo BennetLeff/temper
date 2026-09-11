@@ -1,0 +1,683 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-11T14:17:55",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55",
+            "violations": [
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol D1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.3556,
+                                "y": 0.808
+                            },
+                            "uuid": "89271d0d-d006-7102-334e-9d03abcf79be"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.3556,
+                                "y": 1.108
+                            },
+                            "uuid": "7583912b-624e-6328-04ee-df65b8b2f9e0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R7 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.3556,
+                                "y": 1.408
+                            },
+                            "uuid": "54fd7bef-bb04-8b99-7b7d-b3bc1964db35"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'y2'",
+                            "pos": {
+                                "x": 0.3556,
+                                "y": 1.6064
+                            },
+                            "uuid": "3b3f8294-12d0-240b-935c-e3cfb89490b6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol U3 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.3556,
+                                "y": 1.8604
+                            },
+                            "uuid": "40f7acc0-bb8d-3b67-3d21-2123baef996c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C1 [GRM31C5C1H104JA01L]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 0.508
+                            },
+                            "uuid": "e86f85d8-0575-56e9-22d0-13a5e4cb794f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol D1 [BAT54H_115]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 0.808
+                            },
+                            "uuid": "7c096c06-ae98-68d5-c258-85670fec1582"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R2 [ERA3AEB103V]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 1.108
+                            },
+                            "uuid": "34c6746f-f2f0-8d0f-592f-f42fbb089285"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R7 [ERA3AEB103V]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 1.408
+                            },
+                            "uuid": "10cc12b3-223c-efef-7824-7caf2e687aa7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol U3 [SN74HC4075DR]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 1.708
+                            },
+                            "uuid": "340c70e8-2225-9093-759d-9c3e4cb83974"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'y3'",
+                            "pos": {
+                                "x": 0.6604,
+                                "y": 1.7588
+                            },
+                            "uuid": "0c55ce4b-3424-9d54-fc86-7214e51e1bc7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol C2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.7556,
+                                "y": 0.508
+                            },
+                            "uuid": "28e84201-ad6c-61a2-f246-5525964ad2f2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol D2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.7556,
+                                "y": 0.808
+                            },
+                            "uuid": "0ab52427-7030-568a-70d3-ebdf3c0ec0d7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R3 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.7556,
+                                "y": 1.108
+                            },
+                            "uuid": "b5bc266b-caba-5a74-b69f-d8f203afe75c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R8 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.7556,
+                                "y": 1.408
+                            },
+                            "uuid": "e7136915-070d-0eb8-a29a-ecf9fa03728e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C2 [GRM31C5C1H104JA01L]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 0.508
+                            },
+                            "uuid": "9c95ade0-70b2-e2fe-8d8a-081e7e84e3cc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol D2 [BAT54H_115]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 0.808
+                            },
+                            "uuid": "af9da787-1dc8-7633-4002-a7c39e328b7a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R3 [ERA3AEB103V]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 1.108
+                            },
+                            "uuid": "46fd6d8e-b319-043c-f020-5623a6007b10"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R8 [ERA3AEB103V]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 1.408
+                            },
+                            "uuid": "3eba1f3f-b356-bf93-b8ba-ca8714d58409"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol C3 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.1556,
+                                "y": 0.508
+                            },
+                            "uuid": "ddde56de-e67e-d643-84eb-2dd53436cb8d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol J1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.1556,
+                                "y": 0.808
+                            },
+                            "uuid": "da94293e-8b71-6fbb-31e2-2175da0d52c7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R4 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.1556,
+                                "y": 1.108
+                            },
+                            "uuid": "3b2e02f6-94b8-2cd6-880f-f97fb7dc2a9e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol T1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.1556,
+                                "y": 1.4334
+                            },
+                            "uuid": "ea67af0a-18a2-aa8d-22ea-d14c65c192ad"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C3 [C0603C104K5RACTU]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 0.508
+                            },
+                            "uuid": "3044efd5-399f-2a4c-4583-aa6ece70c326"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol J1 [NON_PURCHASED_BARE_LANDS]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 0.808
+                            },
+                            "uuid": "8e65517d-a21d-5bed-3177-38b9cb267690"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R4 [RC1206FR-071R5L]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 1.108
+                            },
+                            "uuid": "45a20ad3-a6dd-ced0-7445-76c8e51224fb"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol T1 [CST3015-100ED]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 1.408
+                            },
+                            "uuid": "a7918f78-b291-1f69-6630-7a3b0f40e1b1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol C4 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 0.508
+                            },
+                            "uuid": "7c7b8044-cee6-83fa-7eaf-ddb5512c3a46"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol J2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 0.8334
+                            },
+                            "uuid": "bd24ec16-c020-a66b-3005-bc861ce5341f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R5 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.108
+                            },
+                            "uuid": "3c588945-4646-4c7e-61b5-424b4105bc1b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol U1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.4588
+                            },
+                            "uuid": "ed5d5890-ce24-7cc5-7feb-4f6f3c185ccc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C4 [C0603C104K5RACTU]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 0.508
+                            },
+                            "uuid": "c42215bc-1974-d6b3-7bc4-e3e7dbdaf3d4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol J2 [B4B-XH-A_LF__SN_]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 0.808
+                            },
+                            "uuid": "9d077174-6a7c-2062-ef12-a6310d9b00f6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R5 [ERA3AEB103V]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 1.108
+                            },
+                            "uuid": "2913d8a5-48fd-3cf5-20d0-78657c19317a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol U1 [TLV3201AIDBVR]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 1.408
+                            },
+                            "uuid": "e3e520bb-04ae-9a4f-dcf1-a44f612728f5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol C5 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.508
+                            },
+                            "uuid": "f6b21f30-7ca8-e5c7-797e-3eb4e326140e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.808
+                            },
+                            "uuid": "95bb7b03-0579-0184-72cc-782d4a151438"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R6 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 1.108
+                            },
+                            "uuid": "bb51b1aa-2560-ca06-ff4f-204d632415e4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol U2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 1.4588
+                            },
+                            "uuid": "8f935283-7e80-c1f7-2186-604712f6c961"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C5 [C0603C104K5RACTU]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 0.508
+                            },
+                            "uuid": "cc123f69-9a32-b9c3-d622-b4a89a0b081a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R1 [RC1206FR-071R5L]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 0.808
+                            },
+                            "uuid": "99943823-f438-f5d8-15d5-c7ef6369c3f2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R6 [ERA3AEB103V]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 1.108
+                            },
+                            "uuid": "2aa0bd69-621d-62be-08a0-6724596783c0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol U2 [TLV3201AIDBVR]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 1.408
+                            },
+                            "uuid": "12f26663-c2b0-3917-deeb-59ef796c5a99"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                }
+            ]
+        }
+    ],
+    "source": "section.kicad_sch"
+}

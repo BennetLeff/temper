@@ -1,0 +1,914 @@
+diff --git a/components/REF2025/REF2025_Documentation.md b/components/REF2025/REF2025_Documentation.md
+index 0345bbb82..96f414dd0 100644
+--- a/components/REF2025/REF2025_Documentation.md
++++ b/components/REF2025/REF2025_Documentation.md
+@@ -9,8 +9,10 @@ two 0.1% threshold dividers. It is powered and enabled from upstream
+ `SAFETY_3V3`, rather than post-ferrite `RTD_AVDD`, so thresholds remain defined
+ while the RTD analogue rail is being declared unsafe.
+ 
+-`VREF` is intentionally unused in this design. The local 100 nF bypass
+-capacitor is a placement requirement for the `VIN` supply pins.
++`VREF` is the single 2.5 V reference net shared by the OVP and OCP2
++comparators. The two Top-level labels are aliases of this one electrical
++output, not separate references. The local 100 nF bypass capacitor remains a
++placement requirement for the `VIN` supply pins.
+ 
+ ## Pinout
+ 
+diff --git a/docs/hardware/RTD_SAFETY_DUAL_PATH.md b/docs/hardware/RTD_SAFETY_DUAL_PATH.md
+index 46b585f95..db393be89 100644
+--- a/docs/hardware/RTD_SAFETY_DUAL_PATH.md
++++ b/docs/hardware/RTD_SAFETY_DUAL_PATH.md
+@@ -2,15 +2,17 @@
+ 
+ The release design must use both mechanisms. They cover different common-cause
+ failures and neither is allowed to silently substitute for the other. The
+-current schematic implements the MAX31865 analogue interface and its
+-host-tested firmware device contract, including the board-owned boot/DRDY
+-service. The independent comparator now has a selected, executable interface
+-topology below; its components, resistor values, and fault-OR expansion remain
+-release-gated until the corresponding corner deck and schematic are reviewed.
++The WIP schematic declares the MAX31865 analogue interface and board-owned
++boot/DRDY service. The current firmware's `0x84`-only sequence is not a valid
++conversion protocol; the corrected sequence is recorded in the circuit audit
++and source patch proposal. The independent comparator has a selected,
++executable interface topology below; its component corners and fault-OR
++expansion still require the stated review and physical evidence.
+ 
+ 1. **MAX31865 digital path.** Configure the low/high fault registers on every
+-   boot, run the MAX31865 fault-detection cycle at startup and periodically,
+-   and treat the latched fault-status bits as a safety fault. The MAX31865
++   boot, run the MAX31865 fault-detection cycle once before enabling heating,
++   then keep automatic conversion running continuously and treat each
++   latched fault-status read as a safety fault. The MAX31865
+    documents open-element, short-element, cable, and out-of-range input
+    detection; its status is read over SPI and must feed the firmware fault
+    handler. [Analog Devices MAX31865 datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/MAX31865.pdf)
+@@ -25,10 +27,11 @@ release-gated until the corresponding corner deck and schematic are reviewed.
+    GPIO. The comparator supply-loss state must be fail-safe (a defined fault
+    level at the OR input).
+ 
+-The comparator thresholds must be derived from the **measured MAX31865 bias
+-current**, not guessed. For an excitation current `I_BIAS`, the nominal window
+-is `V_SHORT = I_BIAS * 10 Ω` and `V_OPEN = I_BIAS * 300 Ω`. Include the
+-MAX31865 bias-current tolerance, TLV3201 input offset, divider tolerance,
++The comparator thresholds must be derived from the **MAX31865 series reference
++network**, not a guessed constant current. For an RTD resistance `R_RTD`,
++`I_BIAS = V_BIAS / (R_REF + R_RTD)` and
++`V_REFIN- = V_BIAS * R_RTD / (R_REF + R_RTD)`. Include the MAX31865 BIAS
++voltage tolerance, RREF tolerance, TLV3201 input offset, divider tolerance,
+ connector resistance, and temperature drift in the corner sweep. Do not place
+ the comparator until that sweep has a non-overlapping pass/fail window.
+ 
+@@ -101,38 +104,27 @@ directly to the saturated existing OR.
+ 
+ ## In-box validation
+ 
+-The executable resistance model is
+-`code = floor(32768 * R_RTD / R_REF)` with the existing 430 Ω reference. The
+-property tests in
+-`packages/temper-placer/tests/validation/test_rtd_safety_pbt.py` prove that
+-the code is monotonic and that the short/open boundaries stay separated for a
+-±1% reference-resistor corner. They are a digital acceptance test, not a
+-substitute for analogue evidence.
+-
+-The same module now contains an in-box window-comparator synthesizer. It takes
+-the measured-or-datasheet bias-current range, comparator offset, divider
+-tolerance, and required no-false-trip margin as explicit parameters; it derives
+-both trip voltages only when every short, valid-PT100, and open corner is
+-separated. Otherwise it raises an error—there is no default bias current and
+-no guessed comparator threshold. Its property tests also require supply loss
+-to assert `RTD_HW_FAULT`. This is the decision gate before committing a
+-comparator circuit or SPICE deck.
+-`test_rtd_window_comparator_pbt.py` exhaustively samples the declared current,
+-offset, divider, short/open, valid-PT100, and supply-loss corners.
+-
+-`test_rtd_fault_latch_pbt.py` then carries the abstract `RTD_HW_FAULT` through
+-the fault OR and fault-qualified NAND latch over generated reset, MCU, and SPI
+-states. It proves that a comparator fault or its supply loss asserts shutdown,
+-dominates a simultaneous reset request, and remains latched until an explicit
+-reset after the fault clears. This is intentionally a behavioural contract:
+-the source-level connection is added only with the measured comparator circuit.
+-
+-`test_rtd_safety_pbt.py` also executes the board-owned MAX31865 service model
+-over generated DRDY delays, fault-status bytes, bootstrap outcomes, SPI-read
+-outcomes, and re-arm outcomes. It proves the 10-tick (100 ms) silent-DRDY bound
+-and fail-closed digital fault mapping. This simulation exercises protocol and
+-state timing only; it cannot prove physical SPI edges, GPIO voltage levels, or
+-the hardware latch response, which remain the low-voltage bench captures below.
++The generated board-derivation inputs and adjacent-code checks are the
++authoritative digital acceptance source. The low threshold is
++`floor(32768 * 10 / 430) + 1` because the comparison is strict below; the high
++threshold is `floor(32768 * 300 / 430)` because the comparison is inclusive.
++This is a digital acceptance test, not a substitute for analogue evidence.
++
++The bounded window model takes MAX BIAS voltage, RREF, comparator offset,
++divider tolerance, and supply-loss state as explicit inputs. It is recorded in
++the circuit audit and `zapote/rtd/circuit/rtd_window_bounded.cir`; it is a
++reviewable nominal/corner envelope, not a PVT or physical proof. Fault-latch
++integration remains a source and bench acceptance item.
++
++The board-owned MAX31865 service model must execute over generated DRDY
++delays, fault-status bytes, SPI outcomes, and repeated samples. The source
++correction models BIAS-enable -> automatic-fault -> continuous-conversion ->
++RTD-data-read, with the automatic fault cycle completed once before heating.
++`0x84` alone is not a conversion trigger. The missing-DRDY terminal timeout is
++100 ms; normal automatic-conversion DRDY periods are separately bounded by
++the MAX conversion specification. This simulation exercises protocol and
++state timing only; it cannot prove physical SPI edges, GPIO voltage levels,
++EMC, or the hardware latch response.
+ 
+ The same property suite combines that service model with the independent
+ `RTD_HW_FAULT`, active-high MCU GPIO15 request, and the fault-qualified
+@@ -159,9 +151,8 @@ The MAX31865 analogue front end is also modeled as its actual VBIAS-driven
+ series network, not as a guessed constant-current source: VBIAS is swept from
+ 1.95 V to 2.06 V and the populated 430 ohm reference is swept at +/-0.1% with
+ the PT100 valid range. This produces the RTD sense-voltage/current envelope
+-that a future comparator design must use. Comparator offset, supply-loss, and
+-threshold-network corners remain explicit inputs until a real comparator part
+-and circuit are selected.
++that the selected TLV3201 window design uses. Comparator offset, supply-loss,
++and threshold-network corners remain explicit inputs in the bounded audit.
+ 
+ Using the TLV3201's 4 mV full-temperature offset corner and 1% threshold
+ divider corners, the MAX31865 divider model retains the required 20% input
+@@ -179,7 +170,8 @@ Before PCB release, run an ngspice corner deck for the proposed comparator:
+ |---|---:|---|
+ | hard short | 0–10 Ω | `RTD_HW_FAULT=1` |
+-| valid cold/hot | 100–194.1 Ω (PT100, 0–250 °C) | `RTD_HW_FAULT=0` |
++| product accuracy point | 138.5 Ω PT100 at 100 °C | `RTD_HW_FAULT=0` |
++| extended range | 194.1 Ω PT100 at 250 °C | `RTD_HW_FAULT=0` (bounded extension) |
+-| guard band | 194.1–300 Ω | no false trip; firmware may derate |
++| analogue transition | 194.1–262.7 Ω guaranteed clear; 262.7–293.6 Ω corner dependent; 293.6–300 Ω early hardware trip | contract must accept coarse analogue window |
+ | open / cable fault | ≥300 Ω, open, or lead-to-rail | `RTD_HW_FAULT=1` |
+ 
+ Sweep at minimum `I_BIAS`, `I_BIAS` nominal, and `I_BIAS` maximum over the
+@@ -233,7 +224,9 @@ halves the physical resistance threshold.
+ ### Firmware device contract
+ 
+ `firmware/components/sensors/max31865.c` writes those two words and starts
+-MAX31865 automatic fault detection with `VBIAS=1` and `D[3:2]=01`.
++MAX31865 automatic fault detection with `VBIAS=1`, `D[3:2]=01`, and the 60 Hz
++filter bit (`0x84`). After the one-time diagnostic, it selects automatic
++conversion with the 60 Hz filter (`0xC0`).
+ `firmware/components/sensors/rtd_service.c` is the board-owned integration:
+ it initializes SPI2 on GPIO8/11/12 with CS10, configures active-low DRDY on
+ GPIO9, and is bootstrapped after the production HAL. Its DRDY ISR only sets a
+@@ -248,14 +241,20 @@ SPI or state work in interrupt context. A cycle that produces no DRDY handoff
+ within ten 10 ms control ticks (100 ms) is also terminal probe-open: a silent
+ MAX31865, cable, or DRDY path cannot leave the RTD interlock unmonitored.
+ 
+-That service reads the latched status at `07h`, delivers a decoded callback,
+-and then arms the next cycle. It can be wired directly to
++That service reads the RTD data at `01h/02h` first (which releases DRDY), then
++reads the latched status at `07h` and delivers a decoded callback. It publishes
++the fresh 15-bit code as the cached resistance only after both reads succeed;
++before the first sample its resistance API returns the open sentinel. Automatic
++conversion remains armed; the startup diagnostic is not repeated on every
++sample. It can be wired directly to
+ `state_machine_report_rtd_device_fault`: high-threshold, cable/reference, and
+ supply faults become `FAULT_PROBE_OPEN`; the low threshold becomes
+ `FAULT_PROBE_SHORT`. Both enter the existing terminal hardware-cut path. A
+-SPI read failure, or a failure to arm a clean next cycle, is reported as
+-open/out-of-range, and the driver never writes the MAX31865 status-clear bit,
+-so a digital-path error cannot silently clear a latched safety fault.
++SPI read failure is reported as open/out-of-range, and the driver never writes
++the MAX31865 status-clear bit, so a digital-path error cannot silently clear a
++latched safety fault. A missing DRDY is terminal after the 100 ms service
++timeout; conversion fault latency during continuous operation is bounded
++separately by the 55 ms maximum conversion time plus one 10 ms control poll.
+ 
+ ### Transient RTD-to-DIS safety envelope
+ 
+diff --git a/elec/src/main.ato b/elec/src/main.ato
+index 3293d3835..afe39f343 100644
+--- a/elec/src/main.ato
++++ b/elec/src/main.ato
+@@ -876,7 +876,8 @@ module Top:
+     # instead of a resistor divider off vcc_3v3 -- see OVPComparator's
+     # docstring and r_div_bot's comment for the full derivation.
+     safety.ovp.vref_ext.line ~ rtd_pan.reference.VREF
+-    safety.ovp.vref_ext.line.override_net_name = "OVP_VREF_2V5"
++    # One REF2025 VREF output feeds both comparators; preserve one net identity.
++    safety.ovp.vref_ext.line.override_net_name = "SHARED_REF_2V5"
+ 
+     # OCP-02 REF2025 reference (Option A implementation, 2026-08-07): same
+     # pattern as OVP-01 above -- SecondaryOCPComparator's comp.INN is
+@@ -886,7 +887,7 @@ module Top:
+     # resistor divider off vcc_3v3. See SecondaryOCPComparator's docstring
+     # ("WHY REF2025") for the full derivation.
+     safety.ocp2.vref_ext.line ~ rtd_pan.reference.VREF
+-    safety.ocp2.vref_ext.line.override_net_name = "OCP2_VREF_2V5"
++    safety.ocp2.vref_ext.line.override_net_name = "SHARED_REF_2V5"
+ 
+     # Watchdog
+     mcu.wdt_kick.line ~ safety.wdt_kick.line
+diff --git a/elec/src/modules.ato b/elec/src/modules.ato
+index d3acdb2f0..459ae2447 100644
+--- a/elec/src/modules.ato
++++ b/elec/src/modules.ato
+@@ -1828,6 +1828,44 @@ module RTDSensing:
+     c_vdd.voltage_rating = 10V
+     c_vdd.mpn = "C0603C104K5RACTU"
+     c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
++
++    # A differential RTDIN filter is required at the converter pins. The
++    # datasheet shows 100 nF as a typical 100 ohm application value, but that
++    # value cannot meet this design's 100 ms open-SENSE+ bound with the
++    # 1 Mohm diagnostic pullup paired with 1 nF C0G gives a worst-case
++    # 1.323 ms temperature-adjusted tau including a 200 pF harness/PCB
++    # parasitic budget, 100 ppm/C pullup TCR, and 30 ppm/C C0G tempco over
++    # 60 C (10.5 tau = 13.9 ms). The MAX's 10 Mohm recommendation is too slow with its
++    # typical 100 nF filter. Input-leakage and connected-load error still need
++    # electrical acceptance.
++    c_rtd_input = new Capacitor
++    c_rtd_input.value = 1nF
++    c_rtd_input.dielectric = "C0G"
++    c_rtd_input.voltage_rating = 50V
++    c_rtd_input.mpn = "C0603C102J5GACTU"
++    c_rtd_input.footprint = "Capacitor_SMD:C_0603_1608Metric"
++    adc.RTDIN_P ~ c_rtd_input.p1
++    c_rtd_input.p2 ~ adc.RTDIN_N
++
++    # MAX31865 datasheet p20 recommends this optional bias for a broken
++    # RTDIN+ lead. A matched pullup on RTDIN- gives the open-SENSE- case a
++    # bounded negative differential rather than leaving it unclassified.
++    r_rtdin_p_bias = new Resistor
++    r_rtdin_p_bias.value = 1Mohm +/- 5%
++    r_rtdin_p_bias.mpn = "RC0603JR-071ML"
++    r_rtdin_p_bias.footprint = "Resistor_SMD:R_0603_1608Metric"
++    adc.RTDIN_P ~ r_rtdin_p_bias.p1
++    r_rtdin_p_bias.p2 ~ adc.BIAS
++
++    # Apply the same bounded bias to RTDIN-. This is not in the MAX typical
++    # figure, but it gives an open-SENSE- lead a deterministic negative RTD
++    # differential (short/low code) with negligible connected-load error.
++    r_rtdin_n_bias = new Resistor
++    r_rtdin_n_bias.value = 1Mohm +/- 5%
++    r_rtdin_n_bias.mpn = "RC0603JR-071ML"
++    r_rtdin_n_bias.footprint = "Resistor_SMD:R_0603_1608Metric"
++    adc.RTDIN_N ~ r_rtdin_n_bias.p1
++    r_rtdin_n_bias.p2 ~ adc.BIAS
+     
+     # EMI Filtering (temper-en5)
+     # Series resistors on SPI lines to dampen ringing
+@@ -2064,6 +2101,8 @@ module RTDSensing:
+     adc.FORCE_N ~ rtd_force_n
+     adc.RTDIN_P ~ rtd_sense_p
+     adc.RTDIN_N ~ rtd_sense_n
++    # The paired external diagnostic pullups bias either open sense conductor
++    # for a deterministic ADC polarity; FORCE conductors remain separate.
+ 
+     # J_RTD1 (docs/CONNECTORS_AND_WIRING.md Sec 1, 2.3): the external PT100
+     # pan-probe connector these four force/sense conductors dead-ended
+diff --git a/firmware/components/sensors/include/max31865.h b/firmware/components/sensors/include/max31865.h
+index 9f4accd18..cc4b6077d 100644
+--- a/firmware/components/sensors/include/max31865.h
++++ b/firmware/components/sensors/include/max31865.h
+@@ -2,10 +2,9 @@
+  * @file max31865.h
+  * @brief MAX31865 RTD interface and fault-cycle contract.
+  *
+- * This driver deliberately does not wait for a fault-detection conversion.
+- * MAX31865 automatic fault detection completes asynchronously; callers start
+- * a cycle, wait for DRDY (or a platform-owned verified delay), then service
+- * the completed status and start the next cycle.
++ * MAX31865 automatic fault detection and ADC conversion are separate phases.
++ * The service waits for BIAS startup, runs the automatic fault cycle once,
++ * starts continuous conversion, then reads RTD data before servicing status.
+  */
+ 
+ #ifndef MAX31865_H
+@@ -22,13 +21,17 @@ extern "C" {
+ 
+ /* MAX31865 register map. */
+ #define MAX31865_REG_CONFIG             0x00u
++#define MAX31865_REG_RTD_MSB            0x01u
+ #define MAX31865_REG_HIGH_THRESHOLD_MSB 0x03u
+ #define MAX31865_REG_LOW_THRESHOLD_MSB  0x05u
+ #define MAX31865_REG_FAULT_STATUS       0x07u
+ 
+-/* Config register values used by the non-blocking automatic fault cycle. */
++/* Config register values. Automatic fault detection does not start a
++ * conversion; continuous conversion is enabled only after that cycle. */
+ #define MAX31865_CONFIG_VBIAS                 0x80u
++#define MAX31865_CONFIG_CONVERSION_AUTOMATIC  0x40u
+ #define MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC 0x04u
++#define MAX31865_CONFIG_FILTER_60HZ           0x00u
+ 
+ /* Fault-status bits from register 07h. */
+ #define MAX31865_FAULT_HIGH_THRESHOLD 0x80u
+@@ -57,18 +60,25 @@ hal_status_t max31865_initialize(max31865_device_t *device,
+ /** Start an asynchronous automatic fault-detection cycle. */
+ hal_status_t max31865_start_fault_detection(const max31865_device_t *device);
+ 
++/** Start asynchronous automatic conversion; each completed conversion asserts DRDY. */
++hal_status_t max31865_start_continuous(const max31865_device_t *device);
++
++/** Read and right-align the 15-bit RTD conversion; this read releases DRDY. */
++hal_status_t max31865_read_rtd_code(const max31865_device_t *device,
++                                    uint16_t *rtd_code);
++
+ /** Read the raw latched value of MAX31865 fault-status register 07h. */
+ hal_status_t max31865_read_fault_status(const max31865_device_t *device,
+                                         uint8_t *fault_status);
+ 
+ /**
+- * Service a completed fault-detection cycle and immediately start the next
+- * one. The caller must invoke this only after DRDY or a verified completion
+- * delay. A status-read failure, or failure to arm the next cycle after a
+- * clean status, is reported as open/out-of-range before the error is
+- * returned, so the safety path fails closed.
++ * Service a completed automatic conversion: read RTD data first to release
++ * DRDY, then read the latched fault status. A read failure fails closed
++ * through the open/out-of-range callback. Automatic fault detection is run
++ * once during startup; it is not re-armed on every conversion.
+  */
+ hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
++                                          uint16_t *rtd_code,
+                                           max31865_fault_sink_t fault_sink,
+                                           void *context);
+ 
+diff --git a/firmware/components/sensors/include/rtd_service.h b/firmware/components/sensors/include/rtd_service.h
+index 665eb6297..5ea8bc4d5 100644
+--- a/firmware/components/sensors/include/rtd_service.h
++++ b/firmware/components/sensors/include/rtd_service.h
+@@ -18,10 +18,14 @@
+ extern "C" {
+ #endif
+ 
+-/* The control task runs every 10 ms. MAX31865 automatic fault detection and
+- * the specified 21 ms maximum conversion complete well inside this 100 ms
+- * fail-silent bound. */
+-#define RTD_DRDY_TIMEOUT_CONTROL_TICKS 10u
++/* The control task runs every 10 ms. Two ticks cover MAX31865's 10 ms maximum
++ * BIAS startup, one tick covers the 600 us automatic-fault-cycle maximum, and
++ * seven ticks provide a 70 ms first-conversion timeout. After the one-time
++ * diagnostic, automatic conversion remains enabled so each DRDY is serviced
++ * within the 100 ms missing-DRDY safety bound. */
++#define RTD_DRDY_TIMEOUT_CONTROL_TICKS 7u
++#define RTD_BIAS_STARTUP_CONTROL_TICKS 2u
++#define RTD_FAULT_CYCLE_SETTLE_CONTROL_TICKS 1u
+ 
+ /** Configure SPI2, MAX31865 chip-select, DRDY, and start the first cycle. */
+ hal_status_t rtd_service_bootstrap(void);
+@@ -32,9 +36,15 @@ hal_status_t rtd_service_bootstrap(void);
+  */
+ void rtd_service_control_tick(void);
+ 
+-/** True only after successful board-owned SPI/MAX31865 bootstrap. */
++/** True only after bootstrap and one fresh RTD conversion/status read. */
+ bool rtd_service_is_ready(void);
+ 
++/** True only after a fresh RTD conversion has been read from MAX31865. */
++bool rtd_service_has_sample(void);
++
++/** Return newest resistance, or an open sentinel before the first sample. */
++float rtd_service_get_resistance(void);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/firmware/components/sensors/max31865.c b/firmware/components/sensors/max31865.c
+index 799d64fd5..8ad082626 100644
+--- a/firmware/components/sensors/max31865.c
++++ b/firmware/components/sensors/max31865.c
+@@ -34,7 +34,8 @@ static void report_fault(max31865_fault_sink_t fault_sink, uint8_t status,
+ hal_status_t max31865_start_fault_detection(const max31865_device_t *device)
+ {
+     const uint8_t config = MAX31865_CONFIG_VBIAS |
+-                           MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC;
++                           MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC |
++                           MAX31865_CONFIG_FILTER_60HZ;
+ 
+     if (!device_ready(device)) {
+         return HAL_ERROR_INVALID_ARG;
+@@ -46,9 +47,48 @@ hal_status_t max31865_start_fault_detection(const max31865_device_t *device)
+                              &config, 1u);
+ }
+ 
++hal_status_t max31865_start_continuous(const max31865_device_t *device)
++{
++    const uint8_t config = MAX31865_CONFIG_VBIAS |
++                           MAX31865_CONFIG_CONVERSION_AUTOMATIC |
++                           MAX31865_CONFIG_FILTER_60HZ;
++
++    if (!device_ready(device)) {
++        return HAL_ERROR_INVALID_ARG;
++    }
++
++    /* D6 selects automatic conversion. After the startup diagnostic, this
++     * leaves the ADC producing a DRDY for every conversion period. */
++    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG,
++                             &config, 1u);
++}
++
++hal_status_t max31865_read_rtd_code(const max31865_device_t *device,
++                                    uint16_t *rtd_code)
++{
++    uint8_t data[2];
++    hal_status_t status;
++
++    if (!device_ready(device) || rtd_code == NULL) {
++        return HAL_ERROR_INVALID_ARG;
++    }
++
++    /* Reading RTD MSB/LSB is the conversion-data read that releases DRDY.
++     * The low bit is the MAX31865 fault flag, not part of the 15-bit code. */
++    status = HAL_SPI_READ_REG(device->spi_device, MAX31865_REG_RTD_MSB,
++                              data, sizeof(data));
++    if (status != HAL_OK) {
++        return status;
++    }
++    *rtd_code = (uint16_t)(((uint16_t)data[0] << 7) |
++                           ((uint16_t)data[1] >> 1));
++    return HAL_OK;
++}
++
+ hal_status_t max31865_initialize(max31865_device_t *device,
+                                  hal_spi_device_t spi_device)
+ {
++    const uint8_t config = MAX31865_CONFIG_VBIAS;
+     const uint8_t high_threshold[] = {
+         (uint8_t)(MAX31865_HIGH_THRESHOLD_WORD >> 8),
+         (uint8_t)MAX31865_HIGH_THRESHOLD_WORD,
+@@ -79,7 +119,10 @@ hal_status_t max31865_initialize(max31865_device_t *device,
+         return status;
+     }
+ 
+-    return max31865_start_fault_detection(device);
++    /* Enable BIAS only. The service starts the automatic fault cycle after
++     * the MAX31865 10 ms maximum BIAS startup interval. */
++    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG,
++                             &config, 1u);
+ }
+ 
+ hal_status_t max31865_read_fault_status(const max31865_device_t *device,
+@@ -94,11 +137,25 @@ hal_status_t max31865_read_fault_status(const max31865_device_t *device,
+ }
+ 
+ hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
++                                          uint16_t *rtd_code,
+                                           max31865_fault_sink_t fault_sink,
+                                           void *context)
+ {
++    uint16_t sample_code = 0u;
+     uint8_t fault_status = 0u;
+-    hal_status_t status = max31865_read_fault_status(device, &fault_status);
++    hal_status_t status = max31865_read_rtd_code(device, &sample_code);
++
++    if (rtd_code != NULL) {
++        *rtd_code = sample_code;
++    }
++    if (status != HAL_OK) {
++        if (fault_sink != NULL) {
++            fault_sink(false, true, context);
++        }
++        return status;
++    }
++
++    status = max31865_read_fault_status(device, &fault_status);
+ 
+     if (status != HAL_OK) {
+         /* The MCU cannot distinguish a missing/open RTD path from an SPI
+@@ -111,11 +168,5 @@ hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
+     }
+ 
+     report_fault(fault_sink, fault_status, context);
+-    status = max31865_start_fault_detection(device);
+-    if (status != HAL_OK && fault_status == 0u && fault_sink != NULL) {
+-        /* A good completed cycle is not enough if the next cycle cannot be
+-         * armed: continuing operation would leave the RTD path unmonitored. */
+-        fault_sink(false, true, context);
+-    }
+-    return status;
++    return HAL_OK;
+ }
+diff --git a/firmware/components/sensors/rtd_service.c b/firmware/components/sensors/rtd_service.c
+index fb8d9adf8..38d90164f 100644
+--- a/firmware/components/sensors/rtd_service.c
++++ b/firmware/components/sensors/rtd_service.c
+@@ -7,6 +7,7 @@
+ 
+ #include "hal.h"
+ #include "max31865.h"
++#include "config.h"
+ #include "state_machine.h"
+ #include "temper_pins.h"
+ 
+@@ -21,6 +22,11 @@ static bool s_ready;
+ static bool s_bootstrap_failed;
+ static bool s_bootstrap_failure_reported;
+ static uint8_t s_drdy_wait_ticks;
++static uint8_t s_fault_cycle_wait_ticks;
++static bool s_fault_cycle_started;
++static bool s_conversion_armed;
++static bool s_has_sample;
++static float s_rtd_resistance_ohm;
+ 
+ static void rtd_drdy_isr(hal_pin_t pin, void *context)
+ {
+@@ -60,6 +66,11 @@ hal_status_t rtd_service_bootstrap(void)
+     s_bootstrap_failed = false;
+     s_bootstrap_failure_reported = false;
+     s_drdy_wait_ticks = 0u;
++    s_fault_cycle_wait_ticks = 0u;
++    s_fault_cycle_started = false;
++    s_conversion_armed = false;
++    s_has_sample = false;
++    s_rtd_resistance_ohm = RTD_OPEN_FAULT_OHM + 1.0f;
+ 
+     if (hal_spi == NULL || hal_gpio == NULL) {
+         s_bootstrap_failed = true;
+@@ -84,8 +95,9 @@ hal_status_t rtd_service_bootstrap(void)
+         return status;
+     }
+ 
+-    /* MAX31865 DRDY is active-low; only its falling edge marks a completed
+-     * conversion/fault-detection cycle. */
++    /* MAX31865 DRDY is active-low; its falling edge marks a completed ADC
++     * conversion. The separate automatic fault cycle is timed by the control
++     * task because it does not provide conversion DRDY. */
+     status = hal_gpio->set_interrupt(PIN_RTD_DRDY, HAL_GPIO_INTR_FALLING,
+                                      rtd_drdy_isr, NULL);
+     if (status != HAL_OK) {
+@@ -100,6 +112,8 @@ hal_status_t rtd_service_bootstrap(void)
+     }
+ 
+     s_ready = true;
++    /* initialize() enables BIAS only. It is not a conversion trigger. */
++    s_conversion_armed = false;
+     return HAL_OK;
+ }
+ 
+@@ -112,6 +126,38 @@ void rtd_service_control_tick(void)
+         return;
+     }
+ 
++    if (!s_fault_cycle_started) {
++        /* Wait for MAX31865's 10 ms maximum BIAS startup before writing 0x84. */
++        if (++s_fault_cycle_wait_ticks < RTD_BIAS_STARTUP_CONTROL_TICKS) {
++            return;
++        }
++        if (max31865_start_fault_detection(&s_max31865) != HAL_OK) {
++            s_ready = false;
++            state_machine_report_rtd_device_fault(false, true, NULL);
++            return;
++        }
++        s_fault_cycle_started = true;
++        s_fault_cycle_wait_ticks = 0u;
++        return;
++    }
++
++    if (!s_conversion_armed) {
++        /* 0x84 has no conversion-complete DRDY. One task period exceeds the
++         * 600 us automatic-cycle maximum before enabling continuous D6. */
++        if (++s_fault_cycle_wait_ticks < RTD_FAULT_CYCLE_SETTLE_CONTROL_TICKS) {
++            return;
++        }
++        if (max31865_start_continuous(&s_max31865) != HAL_OK) {
++            s_ready = false;
++            state_machine_report_rtd_device_fault(false, true, NULL);
++            return;
++        }
++        s_drdy_complete = false;
++        s_drdy_wait_ticks = 0u;
++        s_conversion_armed = true;
++        return;
++    }
++
+     if (!s_ready || !s_drdy_complete) {
+         if (s_ready) {
+             s_drdy_wait_ticks++;
+@@ -127,16 +173,43 @@ void rtd_service_control_tick(void)
+ 
+     s_drdy_complete = false;
+     s_drdy_wait_ticks = 0u;
+-    if (max31865_service_fault_cycle(&s_max31865,
+-                                     state_machine_report_rtd_device_fault,
+-                                     NULL) != HAL_OK) {
++    {
++        uint16_t rtd_code = 0u;
++        if (max31865_service_fault_cycle(&s_max31865, &rtd_code,
++                                         state_machine_report_rtd_device_fault,
++                                         NULL) != HAL_OK) {
+         /* The driver has already reported the terminal open fault. Do not
+-         * try to resume a monitor whose next cycle could not be armed. */
+-        s_ready = false;
++         * resume a monitor after a failed conversion/status transfer. */
++            s_ready = false;
++        } else {
++            /* Publish only the fresh conversion that was read before status.
++             * MAX31865's 15-bit code is code = floor(32768*R/RREF). */
++            s_rtd_resistance_ohm = ((float)rtd_code * 430.0f) / 32768.0f;
++            s_has_sample = true;
++            s_fault_cycle_wait_ticks = 0u;
++        }
+     }
+ }
+ 
+ bool rtd_service_is_ready(void)
+ {
+-    return s_ready;
++    return s_ready && s_has_sample;
++}
++
++bool rtd_service_has_sample(void)
++{
++    return s_has_sample;
++}
++
++float rtd_service_get_resistance(void)
++{
++    return s_has_sample ? s_rtd_resistance_ohm : RTD_OPEN_FAULT_OHM + 1.0f;
++}
++
++/* Production state-machine callers already use this interface name. The
++ * weak definition lets host SIL stubs override it while production receives
++ * the newest MAX31865 sample and fails closed before the first sample. */
++__attribute__((weak)) float read_rtd_resistance(void)
++{
++    return rtd_service_get_resistance();
+ }
+diff --git a/firmware/test/test_max31865.c b/firmware/test/test_max31865.c
+index c5fa0913a..a32b9ca8c 100644
+--- a/firmware/test/test_max31865.c
++++ b/firmware/test/test_max31865.c
+@@ -5,6 +5,8 @@
+ 
+ #include "unity/unity.h"
+ 
++#include <stddef.h>
++
+ #include "../components/hal/include/hal.h"
+ #include "../components/hal/include/temper_pins.h"
+ #include "../components/sensors/include/max31865.h"
+@@ -15,6 +17,9 @@
+ extern void mock_spi_reset(void);
+ extern void mock_spi_set_register(hal_spi_device_t device, uint8_t reg,
+                                   uint8_t value);
++extern void mock_spi_set_register_block(hal_spi_device_t device,
++                                        uint8_t start_reg,
++                                        const uint8_t *data, size_t len);
+ extern uint8_t mock_spi_get_register(hal_spi_device_t device, uint8_t reg);
+ extern void mock_spi_fail_next_read(hal_status_t status);
+ extern void mock_spi_fail_next_write(hal_status_t status);
+@@ -25,6 +30,13 @@ extern uint32_t mock_sm_get_trigger_shutdown_count(void);
+ 
+ static max31865_device_t sensor;
+ 
++static void arm_continuous_for_test(hal_spi_device_t spi_device)
++{
++    (void)spi_device;
++    TEST_ASSERT_EQUAL(HAL_OK, max31865_start_fault_detection(&sensor));
++    TEST_ASSERT_EQUAL(HAL_OK, max31865_start_continuous(&sensor));
++}
++
+ static hal_spi_device_t create_max31865_device(void)
+ {
+     const hal_spi_config_t config = {
+@@ -62,7 +74,7 @@ void tearDown(void)
+     (void)hal_deinit();
+ }
+ 
+-void test_max31865_init_writes_encoded_threshold_words_and_starts_async_cycle(void)
++void test_max31865_init_writes_thresholds_and_enables_bias_only(void)
+ {
+     hal_spi_device_t spi_device = create_max31865_device();
+ 
+@@ -82,16 +94,46 @@ void test_max31865_init_writes_encoded_threshold_words_and_starts_async_cycle(vo
+                                                  MAX31865_REG_LOW_THRESHOLD_MSB + 1u));
+     TEST_ASSERT_EQUAL_UINT16(0xB29A, MAX31865_HIGH_THRESHOLD_WORD);
+     TEST_ASSERT_EQUAL_UINT16(0x05F6, MAX31865_LOW_THRESHOLD_WORD);
++    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS,
++                           mock_spi_get_register(spi_device,
++                                                 MAX31865_REG_CONFIG));
++}
++
++void test_max31865_continuous_conversion_is_started_after_fault_cycle(void)
++{
++    hal_spi_device_t spi_device = create_max31865_device();
++    TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
++    TEST_ASSERT_EQUAL(HAL_OK, max31865_start_fault_detection(&sensor));
++    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
++                               MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC |
++                               MAX31865_CONFIG_FILTER_60HZ,
++                           mock_spi_get_register(spi_device,
++                                                 MAX31865_REG_CONFIG));
++    TEST_ASSERT_EQUAL(HAL_OK, max31865_start_continuous(&sensor));
+     TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
+-                               MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC,
++                               MAX31865_CONFIG_CONVERSION_AUTOMATIC |
++                               MAX31865_CONFIG_FILTER_60HZ,
+                            mock_spi_get_register(spi_device,
+                                                  MAX31865_REG_CONFIG));
+ }
+ 
++void test_max31865_rtd_read_right_aligns_code_and_consumes_data_register(void)
++{
++    const uint8_t rtd_data[] = {0x12u, 0x35u};
++    uint16_t rtd_code = 0u;
++    hal_spi_device_t spi_device = create_max31865_device();
++    TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
++    mock_spi_set_register_block(spi_device, MAX31865_REG_RTD_MSB,
++                                rtd_data, sizeof(rtd_data));
++    TEST_ASSERT_EQUAL(HAL_OK, max31865_read_rtd_code(&sensor, &rtd_code));
++    TEST_ASSERT_EQUAL_UINT16(0x091Au, rtd_code);
++}
++
+ void test_max31865_high_threshold_fault_reaches_terminal_open_path(void)
+ {
+     hal_spi_device_t spi_device = create_max31865_device();
+     TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
++    arm_continuous_for_test(spi_device);
+     mock_spi_set_register(spi_device, MAX31865_REG_FAULT_STATUS,
+                           MAX31865_FAULT_HIGH_THRESHOLD);
+ 
+@@ -99,6 +141,7 @@ void test_max31865_high_threshold_fault_reaches_terminal_open_path(void)
+      * DRDY or an equivalent verified completion delay. */
+     TEST_ASSERT_EQUAL(HAL_OK, max31865_service_fault_cycle(
+                                   &sensor,
++                                  NULL,
+                                   state_machine_report_rtd_device_fault,
+                                   NULL));
+ 
+@@ -111,11 +154,13 @@ void test_max31865_low_threshold_fault_reaches_terminal_short_path(void)
+ {
+     hal_spi_device_t spi_device = create_max31865_device();
+     TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
++    arm_continuous_for_test(spi_device);
+     mock_spi_set_register(spi_device, MAX31865_REG_FAULT_STATUS,
+                           MAX31865_FAULT_LOW_THRESHOLD);
+ 
+     TEST_ASSERT_EQUAL(HAL_OK, max31865_service_fault_cycle(
+                                   &sensor,
++                                  NULL,
+                                   state_machine_report_rtd_device_fault,
+                                   NULL));
+ 
+@@ -128,10 +173,12 @@ void test_max31865_non_threshold_fault_fails_closed_as_probe_open(void)
+ {
+     hal_spi_device_t spi_device = create_max31865_device();
+     TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
++    arm_continuous_for_test(spi_device);
+     mock_spi_set_register(spi_device, MAX31865_REG_FAULT_STATUS, 0x04u);
+ 
+     TEST_ASSERT_EQUAL(HAL_OK, max31865_service_fault_cycle(
+                                   &sensor,
++                                  NULL,
+                                   state_machine_report_rtd_device_fault,
+                                   NULL));
+ 
+@@ -140,30 +187,33 @@ void test_max31865_non_threshold_fault_fails_closed_as_probe_open(void)
+     TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+ }
+ 
+-void test_max31865_restart_write_failure_fails_closed_as_probe_open(void)
++void test_max31865_service_does_not_rearm_fault_cycle(void)
+ {
+     hal_spi_device_t spi_device = create_max31865_device();
+     TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
++    arm_continuous_for_test(spi_device);
+     mock_spi_fail_next_write(HAL_ERROR);
+ 
+-    TEST_ASSERT_EQUAL(HAL_ERROR, max31865_service_fault_cycle(
++    TEST_ASSERT_EQUAL(HAL_OK, max31865_service_fault_cycle(
+                                      &sensor,
++                                     NULL,
+                                      state_machine_report_rtd_device_fault,
+                                      NULL));
+ 
+-    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+-    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+-    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
++    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
++    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_trigger_shutdown_count());
+ }
+ 
+ void test_max31865_status_read_failure_fails_closed_as_probe_open(void)
+ {
+     hal_spi_device_t spi_device = create_max31865_device();
+     TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
++    arm_continuous_for_test(spi_device);
+     mock_spi_fail_next_read(HAL_ERROR);
+ 
+     TEST_ASSERT_EQUAL(HAL_ERROR, max31865_service_fault_cycle(
+                                      &sensor,
++                                     NULL,
+                                      state_machine_report_rtd_device_fault,
+                                      NULL));
+ 
+@@ -175,21 +225,32 @@ void test_max31865_status_read_failure_fails_closed_as_probe_open(void)
+ void test_rtd_service_defers_spi_and_state_mutation_until_drdy_control_tick(void)
+ {
+     TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+-    TEST_ASSERT_TRUE(rtd_service_is_ready());
++    TEST_ASSERT_FALSE(rtd_service_is_ready());
++    TEST_ASSERT_FALSE(rtd_service_has_sample());
+     TEST_ASSERT_TRUE(mock_gpio_is_initialized(PIN_RTD_DRDY));
+ 
+     /* Device zero is valid in the mock. A changed status alone must not cause
+-     * a transfer or state mutation before the DRDY ISR hands work to control. */
++     * a transfer or state mutation before the explicit 0x84 -> 0xC0 phases. */
+     mock_spi_set_register((hal_spi_device_t)0, MAX31865_REG_FAULT_STATUS,
+                           MAX31865_FAULT_HIGH_THRESHOLD);
+     rtd_service_control_tick();
+     TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+     TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_trigger_shutdown_count());
+ 
+-    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+-    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+-    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_trigger_shutdown_count());
++    rtd_service_control_tick();
++    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
++                               MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC |
++                               MAX31865_CONFIG_FILTER_60HZ,
++                           mock_spi_get_register((hal_spi_device_t)0,
++                                                 MAX31865_REG_CONFIG));
++    rtd_service_control_tick();
++    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
++                               MAX31865_CONFIG_CONVERSION_AUTOMATIC |
++                               MAX31865_CONFIG_FILTER_60HZ,
++                           mock_spi_get_register((hal_spi_device_t)0,
++                                                 MAX31865_REG_CONFIG));
+ 
++    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+     rtd_service_control_tick();
+     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+@@ -209,12 +270,55 @@ void test_rtd_service_bootstrap_failure_fails_closed_from_control_task(void)
+     TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+ }
+ 
++void test_rtd_service_reads_repeated_drdy_without_restarting_fault_cycle(void)
++{
++    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
++
++    /* Bias startup, automatic fault cycle, then continuous conversion. */
++    rtd_service_control_tick();
++    rtd_service_control_tick();
++    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
++                               MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC |
++                               MAX31865_CONFIG_FILTER_60HZ,
++                           mock_spi_get_register((hal_spi_device_t)0,
++                                                 MAX31865_REG_CONFIG));
++    rtd_service_control_tick();
++    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
++                               MAX31865_CONFIG_CONVERSION_AUTOMATIC |
++                               MAX31865_CONFIG_FILTER_60HZ,
++                           mock_spi_get_register((hal_spi_device_t)0,
++                                                 MAX31865_REG_CONFIG));
++
++    {
++        const uint8_t rtd_data[] = {0x3Bu, 0x88u}; /* code 0x1DC4 */
++        mock_spi_set_register_block((hal_spi_device_t)0,
++                                    MAX31865_REG_RTD_MSB,
++                                    rtd_data, sizeof(rtd_data));
++    }
++    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
++    rtd_service_control_tick();
++    TEST_ASSERT_TRUE(rtd_service_is_ready());
++    TEST_ASSERT_TRUE(rtd_service_has_sample());
++    TEST_ASSERT_FLOAT_WITHIN(0.01f, 100.0f, rtd_service_get_resistance());
++    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
++                               MAX31865_CONFIG_CONVERSION_AUTOMATIC |
++                               MAX31865_CONFIG_FILTER_60HZ,
++                           mock_spi_get_register((hal_spi_device_t)0,
++                                                 MAX31865_REG_CONFIG));
++    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
++    rtd_service_control_tick();
++    TEST_ASSERT_TRUE(rtd_service_is_ready());
++    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
++}
++
+ void test_rtd_service_silent_drdy_fails_closed_within_control_bound(void)
+ {
+     uint8_t tick;
+ 
+     TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+-    for (tick = 0u; tick < RTD_DRDY_TIMEOUT_CONTROL_TICKS - 1u; tick++) {
++    for (tick = 0u; tick < RTD_BIAS_STARTUP_CONTROL_TICKS +
++                            RTD_FAULT_CYCLE_SETTLE_CONTROL_TICKS +
++                            RTD_DRDY_TIMEOUT_CONTROL_TICKS - 1u; tick++) {
+         rtd_service_control_tick();
+         TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+     }
+@@ -228,13 +332,16 @@ void test_rtd_service_silent_drdy_fails_closed_within_control_bound(void)
+ 
+ void run_max31865_tests(void)
+ {
+-    RUN_TEST(test_max31865_init_writes_encoded_threshold_words_and_starts_async_cycle);
++    RUN_TEST(test_max31865_init_writes_thresholds_and_enables_bias_only);
++    RUN_TEST(test_max31865_continuous_conversion_is_started_after_fault_cycle);
++    RUN_TEST(test_max31865_rtd_read_right_aligns_code_and_consumes_data_register);
+     RUN_TEST(test_max31865_high_threshold_fault_reaches_terminal_open_path);
+     RUN_TEST(test_max31865_low_threshold_fault_reaches_terminal_short_path);
+     RUN_TEST(test_max31865_non_threshold_fault_fails_closed_as_probe_open);
+-    RUN_TEST(test_max31865_restart_write_failure_fails_closed_as_probe_open);
++    RUN_TEST(test_max31865_service_does_not_rearm_fault_cycle);
+     RUN_TEST(test_max31865_status_read_failure_fails_closed_as_probe_open);
+     RUN_TEST(test_rtd_service_defers_spi_and_state_mutation_until_drdy_control_tick);
+     RUN_TEST(test_rtd_service_bootstrap_failure_fails_closed_from_control_task);
++    RUN_TEST(test_rtd_service_reads_repeated_drdy_without_restarting_fault_cycle);
+     RUN_TEST(test_rtd_service_silent_drdy_fails_closed_within_control_bound);
+ }

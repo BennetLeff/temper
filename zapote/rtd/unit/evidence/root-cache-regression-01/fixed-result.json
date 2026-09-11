@@ -1,0 +1,107 @@
+{
+  "mode": "fixed",
+  "before_refill": [
+    {
+      "position": [
+        17.7,
+        13.3
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        19.1,
+        24.1
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        27.8,
+        15.6
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        31.8,
+        33.2
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        32.0,
+        20.7
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        34.2,
+        49.95
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        36.4,
+        32.0
+      ],
+      "net": "gnd"
+    }
+  ],
+  "after_refill": [
+    {
+      "position": [
+        17.7,
+        13.3
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        19.1,
+        24.1
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        27.8,
+        15.6
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        31.8,
+        33.2
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        32.0,
+        20.7
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        34.2,
+        49.95
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        36.4,
+        32.0
+      ],
+      "net": "gnd"
+    }
+  ],
+  "kicad": "10.0.4",
+  "board_sha256": "4a4ef4c9582a0bd06a4e33f7e6d269e9245b88f2dbd945c3412edc8740094d2e"
+}

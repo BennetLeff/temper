@@ -1,0 +1,13 @@
+{
+  "scope": "Current return-corrected native identity compared with independently validated complete source04 identity; no routing/physical acceptance implied",
+  "board_sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+  "native_sha256": "6babf49a5b4a3beab102f04035ef90b32f43c19c9c1d39f79768d732004cfc89",
+  "prior_native_sha256": "9366ec73666bc302bd6bcb6a72c007f22570ee50d1d7dd190942a8f24565ebb5",
+  "components": 36,
+  "pads": 119,
+  "component_uuid_mpn_identity_unchanged": true,
+  "pad_uuid_net_identity_unchanged": true,
+  "net_population_unchanged": true,
+  "complete_binder_census": true,
+  "native_polygon_max_error_mm": 0.005
+}

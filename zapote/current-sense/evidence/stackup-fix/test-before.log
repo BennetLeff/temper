@@ -1,0 +1,22 @@
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.86s
+     Running tests/current_sense_defect_corpus.rs (/private/tmp/zapote-rtd-target/debug/deps/current_sense_defect_corpus-ef99fb70c19d48ea)
+
+running 1 test
+test real_zero_core_board_is_rejected_by_the_normal_harness ... FAILED
+
+failures:
+
+---- real_zero_core_board_is_rejected_by_the_normal_harness stdout ----
+
+thread 'real_zero_core_board_is_rejected_by_the_normal_harness' (14368378) panicked at packages/zapote-harness/tests/current_sense_defect_corpus.rs:416:5:
+zero-core board escaped: CheckReport { status: Indeterminate, findings: [Finding { rule: "ERC.CURRENT_SENSE.APPLICABILITY", severity: "warning", status: Indeterminate, message: "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC", object: "both_polarities", actual: None, required: None }, Finding { rule: "ERC.CURRENT_SENSE.APPLICABILITY", severity: "warning", status: Indeterminate, message: "comparator_to_latch_timing applicability is unsupported: INDETERMINATE", object: "comparator_to_latch_timing", actual: None, required: None }, Finding { rule: "ERC.CURRENT_SENSE.APPLICABILITY", severity: "warning", status: Indeterminate, message: "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE", object: "ct_saturation_and_thermal", actual: None, required: None }, Finding { rule: "ERC.CURRENT_SENSE.APPLICABILITY", severity: "warning", status: Indeterminate, message: "hardware applicability is unsupported: NOT_RUN", object: "hardware", actual: None, required: None }, Finding { rule: "ERC.CURRENT_SENSE.APPLICABILITY", severity: "warning", status: Indeterminate, message: "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE", object: "pd3_reinforced_12_6mm_isolation", actual: None, required: None }, Finding { rule: "ERC.CURRENT_SENSE.APPLICABILITY", severity: "warning", status: Indeterminate, message: "primary_copper_and_terminal applicability is unsupported: NOT_RUN", object: "primary_copper_and_terminal", actual: None, required: None }, Finding { rule: "ERC.CURRENT_SENSE.APPLICABILITY", severity: "warning", status: Indeterminate, message: "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC", object: "rust_analytical_trip", actual: None, required: None }], checked_rules: ["DRC.CURRENT_SENSE.CLEARANCE", "DRC.CURRENT_SENSE.LOCALITY", "DRC.CURRENT_SENSE.NATIVE_GEOMETRY", "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION", "DRC.CURRENT_SENSE.REQUIRED_COPPER", "ERC.CURRENT_SENSE.APPLICABILITY", "ERC.CURRENT_SENSE.COMPONENT_ROLES", "ERC.CURRENT_SENSE.ELECTRICAL_MODEL", "ERC.CURRENT_SENSE.INPUT", "ERC.CURRENT_SENSE.INTERFACES", "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY"], coverage_gaps: ["both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC", "comparator_to_latch_timing applicability is unsupported: INDETERMINATE", "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE", "hardware applicability is unsupported: NOT_RUN", "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE", "primary_copper_and_terminal applicability is unsupported: NOT_RUN", "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC"] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    real_zero_core_board_is_rejected_by_the_normal_harness
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.32s
+
+error: test failed, to rerun pass `-p zapote-harness --test current_sense_defect_corpus`

@@ -1,0 +1,267 @@
+{
+  "result": "FAIL after first gnd append; vcc operation raised missing outline_mm before save",
+  "board_sha256": "1bf871b048f46bc049cbf80abd101176e6414d0b8d1fc2fb6a8e4d8918310d5b",
+  "completed_operations": [
+    {
+      "net": "gnd",
+      "mode": "append",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.c_vdd.2",
+            [
+              9.2,
+              31.5
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.c_reference.2",
+            [
+              12.8,
+              41
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.low_window.2",
+            [
+              19,
+              43
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.high_window.2",
+            [
+              19,
+              51
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.c_low_window.2",
+            [
+              24.5,
+              44
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.c_high_window.2",
+            [
+              24.5,
+              52
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.r_low_bottom.2",
+            [
+              14,
+              47
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.r_avdd_bottom.2",
+            [
+              24,
+              34.325
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.c_rail_monitor.2",
+            [
+              29.1,
+              30
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "rtd_pan.r_window_ok_pulldown.2",
+            [
+              14.7,
+              56.5
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "ct_sense.r_burden.2",
+            [
+              50.3,
+              41
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.25,
+          "points": [
+            "hb.gate_hs.c_filt_a.2",
+            [
+              25.6,
+              24
+            ]
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            9.2,
+            31.5
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            12.8,
+            41
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            19,
+            43
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            19,
+            51
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            24.5,
+            44
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            24.5,
+            52
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            14,
+            47
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            24,
+            34.325
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            29.1,
+            30
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            14.7,
+            56.5
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            50.3,
+            41
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        },
+        {
+          "position_mm": [
+            25.6,
+            24
+          ],
+          "diameter_mm": 0.9,
+          "drill_mm": 0.3,
+          "start_layer": "F.Cu",
+          "end_layer": "B.Cu"
+        }
+      ]
+    }
+  ],
+  "next_action": "retain appended ground and retry remaining operations with actual adapter schema"
+}

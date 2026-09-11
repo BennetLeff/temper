@@ -1,0 +1,107 @@
+{
+  "mode": "legacy",
+  "before_refill": [
+    {
+      "position": [
+        17.7,
+        13.3
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        19.1,
+        24.1
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        27.8,
+        15.6
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        31.8,
+        33.2
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        32.0,
+        20.7
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        34.2,
+        49.95
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        36.4,
+        32.0
+      ],
+      "net": "gnd"
+    }
+  ],
+  "after_refill": [
+    {
+      "position": [
+        17.7,
+        13.3
+      ],
+      "net": "+3V3"
+    },
+    {
+      "position": [
+        19.1,
+        24.1
+      ],
+      "net": "RTD_AVDD"
+    },
+    {
+      "position": [
+        27.8,
+        15.6
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        31.8,
+        33.2
+      ],
+      "net": "gnd"
+    },
+    {
+      "position": [
+        32.0,
+        20.7
+      ],
+      "net": "RTD_AVDD"
+    },
+    {
+      "position": [
+        34.2,
+        49.95
+      ],
+      "net": "RTD_AVDD"
+    },
+    {
+      "position": [
+        36.4,
+        32.0
+      ],
+      "net": "RTD_AVDD"
+    }
+  ],
+  "kicad": "10.0.4",
+  "board_sha256": "f4df4efba44ddd02f307a2cab3c0c933b49b9eb5e6e65b5f65e516b92bffc3da"
+}

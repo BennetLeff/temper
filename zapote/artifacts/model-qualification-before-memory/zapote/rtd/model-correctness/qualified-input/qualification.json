@@ -1,0 +1,526 @@
+{
+  "allocations": {
+    "conditional_comparator_ns": 55,
+    "conditional_logic_ns": 10,
+    "max_detect_ms": 2
+  },
+  "cases": [
+    {
+      "derived": {
+        "bound_ms": 0.002307976508969019,
+        "c_max": [
+          [
+            1.2999999999999999e-09,
+            -1.1e-09
+          ],
+          [
+            -1.1e-09,
+            1.2999999999999999e-09
+          ]
+        ],
+        "case": "FORCE+",
+        "comparator_logic_allocation_ms": 6.5e-05,
+        "delta_v": [
+          2.1,
+          2.1
+        ],
+        "dual_max": 454.0941465743735,
+        "energy_max": 8.820496447818677,
+        "g_max_diag": [
+          1.0000112634036664,
+          1.0001013097978477
+        ],
+        "g_min": [
+          [
+            0.003717033294111428,
+            -0.0018580621904091344
+          ],
+          [
+            -0.0018580621904091342,
+            0.010943759961494364
+          ]
+        ],
+        "initial_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "k_upper_v": 63.28772240201503,
+        "lambda_min_per_s": 2724469.692500811,
+        "lead_ranges_ohm": [
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ]
+        ],
+        "passive_bound_ms": 0.002242976508969019,
+        "remaining_v": 0.14040415859120334,
+        "rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "scope": "continuous passive-network certificate; device applicability remains conditional",
+        "target_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "transition": "open"
+      },
+      "name": "FORCE_PLUS",
+      "observed": {
+        "detected": true,
+        "kind": "representative_ngspice_plus_conditional_device_delay",
+        "latency_ms": 0.00017909999999999947,
+        "spice_receipt_sha256": "90862685f83094976de557f1132e7d9af2685910b128357ffa0ea3d18833b042"
+      }
+    },
+    {
+      "derived": {
+        "bound_ms": 0.0016187734904234126,
+        "c_max": [
+          [
+            1.2999999999999999e-09,
+            -1.1e-09
+          ],
+          [
+            -1.1e-09,
+            1.2999999999999999e-09
+          ]
+        ],
+        "case": "FORCE-",
+        "comparator_logic_allocation_ms": 6.5e-05,
+        "delta_v": [
+          2.1,
+          2.1
+        ],
+        "dual_max": 526.6984751303745,
+        "energy_max": 8.820496447818677,
+        "g_max_diag": [
+          1.0000112634036664,
+          1.0001013097978477
+        ],
+        "g_min": [
+          [
+            0.0047212450861318185,
+            -0.003129803561585813
+          ],
+          [
+            -0.003129803561585814,
+            0.00347041081604148
+          ]
+        ],
+        "initial_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "k_upper_v": 68.15968037600368,
+        "lambda_min_per_s": 2638807.6568006547,
+        "lead_ranges_ohm": [
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ]
+        ],
+        "passive_bound_ms": 0.0015537734904234126,
+        "remaining_v": 1.129464706841008,
+        "rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "scope": "continuous passive-network certificate; device applicability remains conditional",
+        "target_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "transition": "open"
+      },
+      "name": "FORCE_MINUS",
+      "observed": {
+        "detected": true,
+        "kind": "representative_ngspice_plus_conditional_device_delay",
+        "latency_ms": 9.153999999999991e-05,
+        "spice_receipt_sha256": "90862685f83094976de557f1132e7d9af2685910b128357ffa0ea3d18833b042"
+      }
+    },
+    {
+      "derived": {
+        "bound_ms": 0.971459818540245,
+        "c_max": [
+          [
+            1.2999999999999999e-09,
+            -1.1e-09
+          ],
+          [
+            -1.1e-09,
+            1.2999999999999999e-09
+          ]
+        ],
+        "case": "SENSE+",
+        "comparator_logic_allocation_ms": 6.5e-05,
+        "delta_v": [
+          2.0959550578579997,
+          0.0002216243621809935
+        ],
+        "dual_max": 1056999.9999999998,
+        "energy_max": 4.702749031823103e-06,
+        "g_max_diag": [
+          1.059322033898305e-06,
+          1.000015002364567
+        ],
+        "g_min": [
+          [
+            9.46073793755913e-07,
+            0.0
+          ],
+          [
+            0.0,
+            0.009999900000999989
+          ]
+        ],
+        "initial_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "k_upper_v": 2.229530382532837,
+        "lambda_min_per_s": 727.699778361246,
+        "lead_ranges_ohm": [
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ]
+        ],
+        "passive_bound_ms": 0.971394818540245,
+        "remaining_v": 1.0995567877129857,
+        "rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "scope": "continuous passive-network certificate; device applicability remains conditional",
+        "target_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "transition": "open"
+      },
+      "name": "SENSE_PLUS",
+      "observed": {
+        "detected": true,
+        "kind": "representative_ngspice_plus_conditional_device_delay",
+        "latency_ms": 0.33928509999999995,
+        "spice_receipt_sha256": "90862685f83094976de557f1132e7d9af2685910b128357ffa0ea3d18833b042"
+      }
+    },
+    {
+      "derived": {
+        "bound_ms": 0.13535571246316708,
+        "c_max": [
+          [
+            1.2999999999999999e-09,
+            -1.1e-09
+          ],
+          [
+            -1.1e-09,
+            1.2999999999999999e-09
+          ]
+        ],
+        "case": "SENSE-",
+        "comparator_logic_allocation_ms": 6.5e-05,
+        "delta_v": [
+          0.005778602017510682,
+          2.061287888100876
+        ],
+        "dual_max": 50377.119253151875,
+        "energy_max": 9.713593984194012e-05,
+        "g_max_diag": [
+          1.0000010593220339,
+          1.5002364567113997e-05
+        ],
+        "g_min": [
+          [
+            0.0034001924508927205,
+            0.0
+          ],
+          [
+            0.0,
+            1.481957507175545e-05
+          ]
+        ],
+        "initial_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "k_upper_v": 2.2121095870648912,
+        "lambda_min_per_s": 11364.166883327067,
+        "lead_ranges_ohm": [
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ]
+        ],
+        "passive_bound_ms": 0.13529071246316707,
+        "remaining_v": 0.4754376124574443,
+        "rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "scope": "continuous passive-network certificate; device applicability remains conditional",
+        "target_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "transition": "open"
+      },
+      "name": "SENSE_MINUS",
+      "observed": {
+        "detected": true,
+        "kind": "representative_ngspice_plus_conditional_device_delay",
+        "latency_ms": 0.018619069999999995,
+        "spice_receipt_sha256": "90862685f83094976de557f1132e7d9af2685910b128357ffa0ea3d18833b042"
+      }
+    },
+    {
+      "derived": {
+        "bound_ms": 0.0009271246637447808,
+        "c_max": [
+          [
+            1.2999999999999999e-09,
+            -1.1e-09
+          ],
+          [
+            -1.1e-09,
+            1.2999999999999999e-09
+          ]
+        ],
+        "case": "SHORT",
+        "comparator_logic_allocation_ms": 6.5e-05,
+        "delta_v": [
+          2.1,
+          2.1
+        ],
+        "dual_max": 250.45636855674317,
+        "energy_max": 8.820496447818677,
+        "g_max_diag": [
+          1.0000112634036664,
+          1.0001013097978477
+        ],
+        "g_min": [
+          [
+            0.012104089376739294,
+            -0.005640628042225279
+          ],
+          [
+            -0.005640628042225279,
+            0.013128637013354155
+          ]
+        ],
+        "initial_rt_range_ohm": [
+          100.0,
+          194.1
+        ],
+        "k_upper_v": 47.00159049636851,
+        "lambda_min_per_s": 7587047.252287991,
+        "lead_ranges_ohm": [
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ],
+          [
+            1.0,
+            50.0
+          ]
+        ],
+        "passive_bound_ms": 0.0008621246637447808,
+        "remaining_v": 0.06782671604360861,
+        "rt_range_ohm": [
+          0.0,
+          10.0
+        ],
+        "scope": "continuous passive-network certificate; device applicability remains conditional",
+        "target_rt_range_ohm": [
+          0.0,
+          10.0
+        ],
+        "transition": "short"
+      },
+      "name": "SHORT",
+      "observed": {
+        "detected": true,
+        "kind": "representative_ngspice_plus_conditional_device_delay",
+        "latency_ms": 6.6925957e-05,
+        "spice_receipt_sha256": "90862685f83094976de557f1132e7d9af2685910b128357ffa0ea3d18833b042"
+      }
+    }
+  ],
+  "device_applicability": {
+    "review_sha256": "4b56eaa33300c9d4eb3a01b8bf6ae291f4874a97d4063055a27cedb2faf96db4",
+    "status": "indeterminate"
+  },
+  "model_artifact_utf8": "{\n  \"fault_sink_interface\": {\n    \"downstream_sink_handoff_budget_ms\": 15.0,\n    \"external_capacitance_max_pf\": 100.0,\n    \"net\": \"RTD_HW_FAULT\",\n    \"pullup_ohm\": 10000.0,\n    \"rise_to_70_percent_us\": 1.205,\n    \"status\": \"BOUNDARY_CONTRACT\"\n  },\n  \"generated_date\": \"2026-09-11\",\n  \"local_supply_budget\": {\n    \"diagnostic_load_ua\": 4.364,\n    \"limit_ma\": 10.0,\n    \"max_active_ma\": 3.5,\n    \"max_bias_load_ma\": 3.874686,\n    \"remaining_margin_ma\": 2.47095,\n    \"short_0ohm_max_bias_load_ma\": 4.794533,\n    \"short_0ohm_remaining_margin_ma\": 1.551102,\n    \"short_0ohm_total_bound_ma\": 8.448898,\n    \"status\": \"PASS\",\n    \"total_bound_ma\": 7.52905,\n    \"two_logic_active_ua\": 20.0,\n    \"two_tlv3201_active_ua\": 130.0\n  },\n  \"observed_faults\": [\n    {\n      \"bound_ms\": 0.002307976508969019,\n      \"name\": \"force_plus_open\",\n      \"observation_status\": \"REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY\",\n      \"observed_class\": \"LOW_COMPARATOR_FAULT\",\n      \"observed_detect_ms\": 0.00017909999999999947,\n      \"observed_detected\": true,\n      \"observed_latency_ms\": 0.00017909999999999947,\n      \"qualification_scope\": \"adopted passive network only; device applicability indeterminate\",\n      \"source_model\": \"full_network_bound.py\",\n      \"source_model_sha256\": \"10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554\"\n    },\n    {\n      \"bound_ms\": 0.0016187734904234126,\n      \"name\": \"force_minus_open\",\n      \"observation_status\": \"REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY\",\n      \"observed_class\": \"HIGH_COMPARATOR_FAULT\",\n      \"observed_detect_ms\": 9.153999999999991e-05,\n      \"observed_detected\": true,\n      \"observed_latency_ms\": 9.153999999999991e-05,\n      \"qualification_scope\": \"adopted passive network only; device applicability indeterminate\",\n      \"source_model\": \"full_network_bound.py\",\n      \"source_model_sha256\": \"10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554\"\n    },\n    {\n      \"bound_ms\": 0.971459818540245,\n      \"name\": \"sense_plus_open\",\n      \"observation_status\": \"REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY\",\n      \"observed_class\": \"HIGH_COMPARATOR_FAULT\",\n      \"observed_detect_ms\": 0.33928509999999995,\n      \"observed_detected\": true,\n      \"observed_latency_ms\": 0.33928509999999995,\n      \"qualification_scope\": \"adopted passive network only; device applicability indeterminate\",\n      \"source_model\": \"full_network_bound.py\",\n      \"source_model_sha256\": \"10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554\"\n    },\n    {\n      \"bound_ms\": 0.13535571246316708,\n      \"name\": \"sense_minus_open\",\n      \"observation_status\": \"REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY\",\n      \"observed_class\": \"LOW_COMPARATOR_FAULT\",\n      \"observed_detect_ms\": 0.018619069999999995,\n      \"observed_detected\": true,\n      \"observed_latency_ms\": 0.018619069999999995,\n      \"qualification_scope\": \"adopted passive network only; device applicability indeterminate\",\n      \"source_model\": \"full_network_bound.py\",\n      \"source_model_sha256\": \"10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554\"\n    },\n    {\n      \"healthy_margin_v\": {\n        \"100.0\": {\n          \"high_min_margin_v\": 0.386403955,\n          \"low_min_margin_v\": 0.186101645\n        },\n        \"194.1\": {\n          \"high_min_margin_v\": 0.135419237,\n          \"low_min_margin_v\": 0.423960244\n        }\n      },\n      \"name\": \"healthy_pt100_window\",\n      \"observation_status\": \"MODELED_STATIC_CORNERS\",\n      \"observed_class\": \"WINDOW_CLEAR_NO_FAULT\",\n      \"observed_detected\": false,\n      \"observed_latency_ms\": null,\n      \"source_model\": \"rtdin_comparator_model_results.txt\",\n      \"source_model_sha256\": \"8f028402bc5bbc3c58c175ba7b415ac2e05ff74f589dc75c3a91445b60a8666d\"\n    },\n    {\n      \"bound_ms\": 0.0009271246637447808,\n      \"name\": \"rtd_short_le_10ohm\",\n      \"observation_status\": \"REPRESENTATIVE_NGSPICE_CONDITIONAL_DELAY\",\n      \"observed_class\": \"LOW_COMPARATOR_FAULT\",\n      \"observed_detect_ms\": 6.6925957e-05,\n      \"observed_detected\": true,\n      \"observed_latency_ms\": 6.6925957e-05,\n      \"qualification_scope\": \"adopted passive network only; device applicability indeterminate\",\n      \"source_model\": \"full_network_bound.py\",\n      \"source_model_sha256\": \"10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554\"\n    },\n    {\n      \"behavior\": \"BIAS settle, diagnostic/window qualification, and first valid continuous conversion precede readiness; startup fault remains masked until that sample.\",\n      \"name\": \"bias_startup_transition\",\n      \"observation_status\": \"CONTRACT_SEQUENCE_MODEL\",\n      \"observed_class\": \"STARTUP_MASKED_UNTIL_VALID_SAMPLE\",\n      \"observed_detected\": true,\n      \"observed_latency_ms\": 90.0,\n      \"ready_before_first_valid_sample\": false,\n      \"source_model\": \"rtd_contract.json startup sequence\",\n      \"startup_open_bound_ms\": 90.0\n    },\n    {\n      \"detection_condition\": \"falling_trip_min > MAX31865_min_supply and rising_clear_max < local_valid_rail_min\",\n      \"falling_trip_v_max\": 3.089235504007,\n      \"falling_trip_v_min\": 3.006009934549,\n      \"fault_owner\": \"TPS389001 rail monitor + upstream-powered SN74LVC1G38\",\n      \"local_valid_rail_min_v\": 3.1332,\n      \"name\": \"local_rtd_avdd_loss\",\n      \"observation_status\": \"BOUNDED_THRESHOLD_AND_NAND_TRUTH\",\n      \"observed_class\": \"RAIL_MONITOR_FAULT_OWNER\",\n      \"observed_detected\": true,\n      \"observed_latency_ms\": null,\n      \"powered_comparator_result\": \"UNASSERTED_WHILE_LOCAL_VDD_ABSENT\",\n      \"rising_clear_v_max\": 3.114708050363,\n      \"rising_clear_v_min\": 3.092085094442,\n      \"source_model\": \"rail_monitor_bounds.txt\",\n      \"source_model_sha256\": \"f956500f981e683dc67688d62a95bc30177ed5091333ec5eb535c4c13230f824\",\n      \"source_topology_sha256\": \"09f0c4c455227b383f9b01aeaa1eec298cb8008beb2b03f73dd691a58e2d2c6b\"\n    },\n    {\n      \"bound_ms\": null,\n      \"host_inhibit_required\": true,\n      \"name\": \"upstream_3v3_loss\",\n      \"observation_status\": \"EXTERNAL_POWER_LOSS_NOT_SIMULATED\",\n      \"observed_behavior\": \"Unit supply and pullups disappear; downstream safety disable must own this condition. No RTD comparator timing result is claimed.\",\n      \"observed_class\": \"SYSTEM_DISABLE_REQUIRED\",\n      \"observed_detected\": null,\n      \"observed_latency_ms\": null,\n      \"powered_hardware_detection_guaranteed\": false,\n      \"source_model\": \"system safety interface\",\n      \"source_model_sha256\": null\n    },\n    {\n      \"behavior\": \"Diagnostic passive collapse is recorded separately; it is not used as the powered fault detector while local VDD is absent.\",\n      \"name\": \"local_rtd_avdd_loss_passive_window\",\n      \"observation_status\": \"PASSIVE_COLLAPSE_MODEL_ONLY\",\n      \"observed_class\": \"FAULT_OWNER_MONITOR\",\n      \"observed_detected\": false,\n      \"observed_latency_ms\": null,\n      \"observed_window_margin_high_v\": 0.783722,\n      \"observed_window_margin_low_v\": -0.179698,\n      \"required_runtime_case\": false,\n      \"source_model\": \"rtdin_transient_model_results.txt\",\n      \"source_model_sha256\": \"43907ccb35f72d2d07ae506881198a052aaf6327cf2f760355e111d03d458d74\",\n      \"supplemental_observation\": true\n    }\n  ],\n  \"physical_status\": \"NOT RUN\",\n  \"producer\": \"reviewed full_network_bound.py + independent ngspice; bind_qualification.py transports evidence\",\n  \"qualification_scope\": {\n    \"historical_input_sha256\": \"d3fec50f97c36ac49a4aef47ce2b3f01d0dd745b05c64630a32f8522b398735f\",\n    \"inherited_assertions\": \"Other model fields retained from historical input without renewed qualification; ordinary numerical checks do not validate their physical applicability.\",\n    \"renewed\": [\n      \"force_plus_open\",\n      \"force_minus_open\",\n      \"sense_plus_open\",\n      \"sense_minus_open\",\n      \"rtd_short_le_10ohm\"\n    ]\n  },\n  \"schema\": \"rtd_observed_faults.v2\",\n  \"scope\": \"standalone RTD unit observed model outputs; separate from expected fault contract\",\n  \"shared_reference_budget\": {\n    \"downstream_input_bias_assumption_na_each\": 5.0,\n    \"external_capacitance_max_nf\": 10.0,\n    \"external_load_max_ua\": 100.0,\n    \"internal_vbias_divider_load_ua\": 96.242,\n    \"net\": \"SHARED_REF_2V5\",\n    \"output_limit_ma\": 20.0,\n    \"part\": \"REF2025AIDDCR\",\n    \"status\": \"PASS_BOUNDED_LOAD\"\n  },\n  \"source_model_hashes\": {\n    \"fault_nand_upstream_power_and_bypass.patch\": \"09f0c4c455227b383f9b01aeaa1eec298cb8008beb2b03f73dd691a58e2d2c6b\",\n    \"full_network_bound.py\": \"10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554\",\n    \"rail_monitor_bounds.txt\": \"f956500f981e683dc67688d62a95bc30177ed5091333ec5eb535c4c13230f824\",\n    \"rtd_observed_faults.py\": \"e754081f93921c53f333492bdc8fc29071d89f17d198baafc28e1e8f4929d0b9\",\n    \"rtd_short10_spice_receipt.txt\": \"040e6fa0d1f150feb5f1a646ea5adec08f1294c4d6912c20fbbf8f85df5d9d26\",\n    \"rtdin_comparator_model.py\": \"46df61023950e23949d73d0dec78417b5b4decc0f934879091f4fabbc41d992a\",\n    \"rtdin_comparator_model_results.txt\": \"8f028402bc5bbc3c58c175ba7b415ac2e05ff74f589dc75c3a91445b60a8666d\",\n    \"rtdin_comparator_window.cir\": \"9ca9386d1a0565f6708cdbfce89a2bbe5a4e0de7faffd0d0b9326181759c123e\",\n    \"rtdin_transient_model.py\": \"1cab91630f8d1b4229b5f15a34ffd1b88a4a0d04e07299c4811b76e18db7429f\",\n    \"rtdin_transient_model_results.txt\": \"43907ccb35f72d2d07ae506881198a052aaf6327cf2f760355e111d03d458d74\"\n  },\n  \"timing\": {\n    \"actual_model_max_detect_ms\": 0.33928509999999995,\n    \"analytic_max_rc_bound_ms\": 0.971459818540245,\n    \"fault_overdrive_v\": 0.02,\n    \"logic_delay_assumption_ns\": 10,\n    \"method\": \"full adopted passive network G-energy bound; conditional devices\",\n    \"output_load_assumption_pf\": 15,\n    \"rounded_hardware_detector_budget_ms\": 2.0,\n    \"tlv3201_propagation_ns\": 55\n  }\n}\n",
+  "model_sha256": "92361299e5822da856cfa1ea284ef52d274dc004602f98bc712e8b1d3d6a65c8",
+  "model_source_artifact_utf8": "#!/usr/bin/env python3\n\"\"\"Bounded passive runtime-open model for the RTDIN comparator window.\n\nThe MAX31865 ADC and SINC filter are intentionally absent. RTDIN_P and RTDIN_N\n(the `sensep`/`sensem` nodes at the ADC pins) are the only dynamic nodes; every\nother node is solved algebraically from the actual resistor network at each\ntime step.  The capacitor model is\n0.94..1.10 nF differential (1 nF C0G, +5% tolerance, 30 ppm/C, with outward\nrounding) and 0..200 pF to ground at each node (a conservative independent-pin\nsuperset of the 200 pF harness/board allowance).  The latter is a\nconservative common-mode capacitance model, not a cable measurement.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\nimport math\nimport json\nfrom pathlib import Path\n\n# A source open is an ideal missing edge in the analytic graph.  The SPICE\n# decks use Roff=1e12 only as a simulator representation and report that\n# distinction explicitly.\nOPEN = float(\"inf\")\nRRETURN = 1.0e-3\nRWIN = 100_000.0\n# C0603C102J5GACTU is 1 nF C0G, +/-5%; 30 ppm/C and outward rounding produce\n# the declared 0.94..1.10 nF differential interval.\nCD = 1.10e-9\nCG = 100e-12\nDT = 1.0e-6\nTMAX = 0.100\nTLV_PROP_NS = 55.0\nLOGIC_PROP_NS = 10.0\nHARNESS_VMIN = -0.2\nHARNESS_VMAX = 2.5\nHARNESS_RSOURCE = 1_000.0\nHARNESS_EDGE_US = 10.0\nHARNESS_PULSE_MS = 1.0\nHARNESS_REPETITION_HZ = 1.0\n# Four post-ferrite 100 nF bypasses are present (MAX VDD, low/high\n# comparators, and window AND).  The model accepts each only after a\n# temperature/voltage characterization or lot bound of >=45 nF; hence the\n# aggregate Cmin is 180 nF rather than the nominal 400 nF.\nLOCAL_RAIL_CMIN = 180e-9\nFAULT_OVERDRIVE_V = 0.020\n\nALL_NODES = (\n    \"forcep_i\", \"sensorp\", \"sensorn\", \"forcen_i\", \"sensep\", \"sensem\",\n    \"windowp\", \"lowth\", \"highth\",\n)\nDYNAMIC = (\"sensep\", \"sensem\")\nSTATIC = tuple(node for node in ALL_NODES if node not in DYNAMIC)\n\n\n@dataclass(frozen=True)\nclass Params:\n    vb: float = 2.06\n    rref: float = 430.0\n    vref: float = 1.25\n    rlt: float = 61900.0\n    rlb: float = 10000.0\n    rht: float = 5900.0\n    rhb: float = 10000.0\n    rdiag: float = 1e6\n    voffl: float = 0.004\n    voffh: float = 0.004\n    ileak_max_p: float = 14e-9\n    ileak_max_n: float = 14e-9\n    ileak_window: float = 20e-9\n    ileak_low: float = 5e-9\n    ileak_high: float = 5e-9\n    rwin: float = 100000.0\n    cdiff: float = 1.10e-9\n    cground: float = 100e-12\n    rdiag_n: float | None = None\n\n\ndef linear_solve(matrix: list[list[float]], rhs: list[float]) -> list[float]:\n    augmented = [row[:] + [value] for row, value in zip(matrix, rhs)]\n    n = len(rhs)\n    for column in range(n):\n        pivot = max(range(column, n), key=lambda row: abs(augmented[row][column]))\n        augmented[column], augmented[pivot] = augmented[pivot], augmented[column]\n        scale = augmented[column][column]\n        if abs(scale) < 1e-30:\n            raise ValueError(\"singular transient model matrix\")\n        augmented[column] = [value / scale for value in augmented[column]]\n        for row in range(n):\n            if row == column:\n                continue\n            factor = augmented[row][column]\n            if factor:\n                augmented[row] = [\n                    augmented[row][i] - factor * augmented[column][i]\n                    for i in range(n + 1)\n                ]\n    return [augmented[row][-1] for row in range(n)]\n\n\ndef network(case: str, rtd: float, lead: float | tuple[float, float, float, float], p: Params) -> tuple[list[list[float]], list[float]]:\n    index = {node: i for i, node in enumerate(ALL_NODES)}\n    n = len(ALL_NODES)\n    if isinstance(lead, tuple):\n        lead_fp, lead_fn, lead_sp, lead_sn = lead\n    else:\n        lead_fp = lead_fn = lead_sp = lead_sn = lead\n    matrix = [[0.0] * n for _ in range(n)]\n    rhs = [0.0] * n\n\n    def edge(a: str, b: str, resistance: float) -> None:\n        g = 1.0 / resistance\n        for source, other in ((a, b), (b, a)):\n            if source not in index:\n                continue\n            row = index[source]\n            matrix[row][row] += g\n            if other in index:\n                matrix[row][index[other]] -= g\n            elif other == \"bias\":\n                rhs[row] += g * p.vb\n            elif other == \"refsrc\":\n                rhs[row] += g * p.vref\n\n    def current(node: str, leaving: float) -> None:\n        rhs[index[node]] -= leaving\n\n    edge(\"bias\", \"forcep_i\", p.rref)\n    edge(\"forcep_i\", \"sensorp\", OPEN if case == \"FORCE+\" else lead_fp)\n    edge(\"sensorp\", \"sensorn\", rtd)\n    edge(\"sensorn\", \"forcen_i\", OPEN if case == \"FORCE-\" else lead_fn)\n    edge(\"forcen_i\", \"gnd\", RRETURN)\n    edge(\"sensorp\", \"sensep\", OPEN if case == \"SENSE+\" else lead_sp)\n    edge(\"sensorn\", \"sensem\", OPEN if case == \"SENSE-\" else lead_sn)\n    edge(\"bias\", \"sensep\", p.rdiag)\n    edge(\"bias\", \"sensem\", p.rdiag if p.rdiag_n is None else p.rdiag_n)\n    current(\"sensep\", p.ileak_max_p)\n    current(\"sensem\", p.ileak_max_n)\n    edge(\"sensep\", \"windowp\", p.rwin)\n    current(\"windowp\", p.ileak_window)\n    current(\"lowth\", p.ileak_low)\n    current(\"highth\", p.ileak_high)\n    edge(\"refsrc\", \"lowth\", p.rlt)\n    edge(\"lowth\", \"sensem\", p.rlb)\n    edge(\"refsrc\", \"highth\", p.rht)\n    edge(\"highth\", \"gnd\", p.rhb)\n    return matrix, rhs\n\n\ndef partition(case: str, rtd: float, lead: float, p: Params) -> tuple[list[list[float]], list[float]]:\n    matrix, rhs = network(case, rtd, lead, p)\n    ix = {node: i for i, node in enumerate(ALL_NODES)}\n    ia = [ix[node] for node in STATIC]\n    idyn = [ix[node] for node in DYNAMIC]\n    aa = [[matrix[row][col] for col in ia] for row in ia]\n    ad = [[matrix[row][col] for col in idyn] for row in ia]\n    da = [[matrix[row][col] for col in ia] for row in idyn]\n    dd = [[matrix[row][col] for col in idyn] for row in idyn]\n    ba = [rhs[row] for row in ia]\n    bd = [rhs[row] for row in idyn]\n    aa_inv_columns = []\n    for col in range(2):\n        unit = [1.0 if row == col else 0.0 for row in range(len(ia))]\n        aa_inv_columns.append(linear_solve(aa, unit))\n\n    def current_for(vdyn: list[float]) -> tuple[list[float], dict[str, float]]:\n        rhs_static = [ba[row] - sum(ad[row][col] * vdyn[col] for col in range(2)) for row in range(len(ia))]\n        vstatic = linear_solve(aa, rhs_static)\n        full = {node: 0.0 for node in ALL_NODES}\n        for pos, node in enumerate(STATIC):\n            full[node] = vstatic[pos]\n        for pos, node in enumerate(DYNAMIC):\n            full[node] = vdyn[pos]\n        cur = [bd[row] - sum(da[row][col] * vstatic[col] for col in range(len(ia))) -\n               sum(dd[row][col] * vdyn[col] for col in range(2)) for row in range(2)]\n        return cur, full\n\n    # Return the affine dynamic current function and keep the static solver\n    # closure.  The unused inverse columns make the intended linear partition\n    # explicit and are checked by the same Gaussian solver.\n    del aa_inv_columns\n    return current_for, {}\n\n\ndef dc(case: str, rtd: float, lead: float | tuple[float, float, float, float], p: Params) -> dict[str, float]:\n    matrix, rhs = network(case, _safe_rtd(rtd), lead, p)\n    values = linear_solve(matrix, rhs)\n    return dict(zip(ALL_NODES, values))\n\n\ndef _safe_rtd(rtd: float) -> float:\n    \"\"\"Use a numerical limiting value; exact zero is the merged-node model.\"\"\"\n    return max(rtd, 1.0e-6)\n\n\ndef _integrate_transition(\n    initial_case: str,\n    initial_rtd: float,\n    target_case: str,\n    target_rtd: float,\n    lead: float,\n    p: Params,\n    target: str,\n) -> tuple[float | None, float]:\n    initial = dc(initial_case, initial_rtd, lead, p)\n    current_for, _ = partition(target_case, target_rtd, lead, p)\n    cap = [[p.cground + p.cdiff, -p.cdiff], [-p.cdiff, p.cground + p.cdiff]]\n    q, _ = current_for([0.0, 0.0])\n    c1, _ = current_for([1.0, 0.0])\n    c2, _ = current_for([0.0, 1.0])\n    conductance = [[q[row] - c1[row], q[row] - c2[row]] for row in range(2)]\n    # The network contains sub-nanosecond resistive modes from the 1 ohm\n    # harness. Implicit Euler is A-stable here; an explicit RK step would\n    # become unstable long before the millisecond diagnostic transition.\n    system = [[cap[row][col] / DT + conductance[row][col] for col in range(2)] for row in range(2)]\n\n    state = [initial[node] for node in DYNAMIC]\n    crossing: float | None = None\n    steps = int(TMAX / DT)\n    for step in range(steps + 1):\n        t = step * DT\n        _, full = current_for(state)\n        low = full[\"windowp\"] - full[\"lowth\"] - p.voffl\n        high = full[\"highth\"] - full[\"windowp\"] - p.voffh\n        margin = low if target == \"low_margin\" else high\n        # The TLV propagation allocation is only applied after a conservative\n        # 20 mV comparator overdrive. The continuous certificate separately\n        # proves positive final overdrive reserve for each case.\n        if margin <= -FAULT_OVERDRIVE_V and crossing is None:\n            crossing = t\n        if step == steps:\n            break\n        next_rhs = [cap[row][0] / DT * state[0] + cap[row][1] / DT * state[1] + q[row] for row in range(2)]\n        state = linear_solve(system, next_rhs)\n    return crossing, margin\n\n\ndef integrate(case: str, rtd: float, lead: float, p: Params) -> tuple[float | None, float]:\n    target = \"low_margin\" if case in (\"FORCE+\", \"SENSE-\") else \"high_margin\"\n    return _integrate_transition(\"healthy\", rtd, case, rtd, lead, p, target)\n\n\ndef integrate_short(\n    initial_rtd: float, target_rtd: float, lead: float, p: Params\n) -> tuple[float | None, float]:\n    \"\"\"Bound a resistance step from a healthy RTD to a short condition.\"\"\"\n    # The physical zero-ohm case is an exact node merge.  The time-domain\n    # helper uses its analytic 1-uOhm limiting value only to retain a finite\n    # nodal matrix; the independent SPICE check uses an ideal 0-V source.\n    target = _safe_rtd(target_rtd)\n    return _integrate_transition(\n        \"healthy\", initial_rtd, \"healthy\", target, lead, p, \"low_margin\"\n    )\n\n\ndef _solve_static_partition(case: str, rtd: float, lead: float | tuple[float, float, float, float], p: Params,\n                            initial_rtd: float | None = None, low_fault: bool = False):\n    \"\"\"Return target G, output affine margin, and initial/final states.\"\"\"\n    matrix, rhs = network(case, _safe_rtd(rtd), lead, p)\n    ix = {node: i for i, node in enumerate(ALL_NODES)}\n    ia = [ix[node] for node in STATIC]\n    idyn = [ix[node] for node in DYNAMIC]\n    aa = [[matrix[row][col] for col in ia] for row in ia]\n    ad = [[matrix[row][col] for col in idyn] for row in ia]\n    da = [[matrix[row][col] for col in ia] for row in idyn]\n    dd = [[matrix[row][col] for col in idyn] for row in idyn]\n    ba = [rhs[row] for row in ia]\n    bd = [rhs[row] for row in idyn]\n\n    def f(x: list[float]) -> tuple[list[float], dict[str, float]]:\n        static_rhs = [ba[row] - sum(ad[row][col] * x[col] for col in range(2))\n                      for row in range(len(ia))]\n        static = linear_solve(aa, static_rhs)\n        full = {node: 0.0 for node in ALL_NODES}\n        full.update({node: static[j] for j, node in enumerate(STATIC)})\n        full.update({node: x[j] for j, node in enumerate(DYNAMIC)})\n        current = [bd[row] - sum(da[row][col] * static[col] for col in range(len(ia)))\n                   - sum(dd[row][col] * x[col] for col in range(2)) for row in range(2)]\n        return current, full\n\n    q, zero = f([0.0, 0.0])\n    c1, one = f([1.0, 0.0])\n    c2, two = f([0.0, 1.0])\n    g = [[q[row] - c1[row], q[row] - c2[row]] for row in range(2)]\n    target_margin = (lambda full: full[\"windowp\"] - full[\"lowth\"] - p.voffl\n                     if low_fault or case in (\"FORCE+\", \"SENSE-\")\n                     else full[\"highth\"] - full[\"windowp\"] - p.voffh)\n    k = target_margin(zero)\n    w = [target_margin(one) - k, target_margin(two) - k]\n    initial = dc(\"healthy\", rtd if initial_rtd is None else initial_rtd, lead, p)\n    final = dc(case, _safe_rtd(rtd), lead, p)\n    e = [initial[node] - final[node] for node in DYNAMIC]\n    return g, w, e, target_margin(final)\n\n\ndef _mat_inv(a: list[list[float]]) -> list[list[float]]:\n    det = a[0][0] * a[1][1] - a[0][1] * a[1][0]\n    return [[a[1][1] / det, -a[0][1] / det],\n            [-a[1][0] / det, a[0][0] / det]]\n\n\ndef _quad(a: list[list[float]], x: list[float]) -> float:\n    return sum(x[i] * a[i][j] * x[j] for i in range(2) for j in range(2))\n\n\ndef _lambda_min(g: list[list[float]], c: list[list[float]]) -> float:\n    # Generalized 2x2 eigenvalues of G x = lambda C x.\n    ci = _mat_inv(c)\n    a = ci[0][0] * g[0][0] + ci[0][1] * g[1][0]\n    b = ci[0][0] * g[0][1] + ci[0][1] * g[1][1]\n    d = ci[1][0] * g[0][1] + ci[1][1] * g[1][1]\n    tr = a + d\n    det = a * d - b * (ci[1][0] * g[0][0] + ci[1][1] * g[1][0])\n    disc = max(0.0, tr * tr - 4.0 * det)\n    return (tr - disc ** 0.5) / 2.0\n\n\ndef energy_certificate(case: str, rtd: float, lead: float | tuple[float, float, float, float], p: Params,\n                       initial_rtd: float | None = None) -> dict[str, float]:\n    \"\"\"Passive G-energy certificate for one parameter point.\n\n    For e=x-x_final, E=e'G e obeys dE/dt <= -2 lambda E where lambda is\n    the least generalized eigenvalue of (G,C).  Cauchy-Schwarz in the\n    G metric bounds |w'e| by sqrt((e0'G e0)(w'G^-1w))*exp(-lambda*t).\n    This is an exact matrix bound at this parameter point; the qualification\n    runner reports the envelope over its declared parameter boxes.\n    \"\"\"\n    g, w, e, final_margin = _solve_static_partition(case, rtd, lead, p, initial_rtd)\n    c = [[p.cground + p.cdiff, -p.cdiff], [-p.cdiff, p.cground + p.cdiff]]\n    gi = _mat_inv(g)\n    lam = _lambda_min(g, c)\n    e0 = _quad(g, e)\n    dual = _quad(gi, w)\n    k = max(0.0, e0 * dual) ** 0.5\n    remaining = -FAULT_OVERDRIVE_V - final_margin\n    if remaining <= 0.0:\n        raise ValueError(f\"fault endpoint lacks overdrive: {case} {rtd} {final_margin}\")\n    bound_s = max(0.0, __import__(\"math\").log(max(k / remaining, 1.0)) / lam)\n    return {\"final_margin_v\": final_margin, \"lambda_per_s\": lam,\n            \"e0_g_energy\": e0, \"output_dual_g\": dual, \"k_v\": k,\n            \"remaining_v\": remaining, \"bound_ms\": bound_s * 1e3}\n\n\ndef _ranges() -> dict[str, tuple[float, float]]:\n    def span(nominal: float, tol: float, tcr: float) -> tuple[float, float]:\n        # Independent tolerance and temperature terms multiply.  Retain\n        # full precision here; certificate output is rounded only for prose.\n        dt = tcr * 60.0\n        return nominal * (1.0 - tol) * (1.0 - dt), nominal * (1.0 + tol) * (1.0 + dt)\n    return {\n        \"vb\": (1.95, 2.06),\n        \"rref\": span(430.0, 0.0005, 5e-6),\n        # Outward-rounded REF2025 contract used by the Rust consumer.\n        \"vref\": (1.24869, 1.25131),\n        \"rlt\": span(61900.0, 0.001, 25e-6),\n        \"rlb\": span(10000.0, 0.001, 25e-6),\n        \"rht\": span(5900.0, 0.001, 25e-6),\n        \"rhb\": span(10000.0, 0.001, 25e-6),\n        \"rdiag\": (0.944e6, 1.057e6),\n        # R13 (100 k\u03a9): +/-1%, 100 ppm/C over 60 C; outward rounded.\n        \"rwin\": (98_000.0, 102_000.0),\n        \"cdiff\": (0.94e-9, 1.10e-9),\n        # A conservative independent-pin superset of the <=200 pF total\n        # parasitic contract; C_upper remains valid for any split.\n        \"cground\": (0.0, 200e-12),\n    }\n\n\ndef _corner_params(rtd: float, values: tuple[float, ...], source: tuple[float, ...]) -> Params:\n    rref, rlt, rlb, rht, rhb, rdp, rdn, rwin, cdiff, cground = values\n    vb, vref, voffl, voffh, ip, inn, iw, il, ih = source\n    return Params(vb=vb, rref=rref, vref=vref, rlt=rlt, rlb=rlb,\n                  rht=rht, rhb=rhb, rdiag=rdp, voffl=voffl, voffh=voffh,\n                  ileak_max_p=ip, ileak_max_n=inn, ileak_window=iw,\n                  ileak_low=il, ileak_high=ih, rwin=rwin, cdiff=cdiff,\n                  cground=cground, rdiag_n=rdn)\n\n\ndef _parallel(a: float, b: float) -> float:\n    return a * b / (a + b)\n\n\ndef analytic_bounds(ranges: dict[str, tuple[float, float]]) -> dict[str, object]:\n    \"\"\"Closed bounds for states and final margins over continuous intervals.\"\"\"\n    vbmin, vbmax = ranges[\"vb\"]\n    vrefmin, vrefmax = ranges[\"vref\"]\n    rrefmin, rrefmax = ranges[\"rref\"]\n    rltmin, rltmax, rlbmin, rlbmax = ranges[\"rlt\"][0], ranges[\"rlt\"][1], ranges[\"rlb\"][0], ranges[\"rlb\"][1]\n    rhtmin, rhtmax, rhbmin, rhbmax = ranges[\"rht\"][0], ranges[\"rht\"][1], ranges[\"rhb\"][0], ranges[\"rhb\"][1]\n    rdmin, rdmax, rwmax = ranges[\"rdiag\"][0], ranges[\"rdiag\"][1], ranges[\"rwin\"][1]\n    L = 58e-9\n    Rp = 50.0 + 194.1 + 50.0 + RRETURN\n    Rn = 50.0 + 50.0 + RRETURN\n    healthy_lo, healthy_hi = -L * Rp, vbmax + L * Rp\n    p_lo, p_hi = vbmin - rdmax * 34e-9, vbmax + rdmax * 34e-9\n    delta_p = max(p_hi - healthy_lo, healthy_hi - p_lo)\n    gmm_sminus = 1.0 / rdmax + 1.0 / (rltmax + rlbmax)\n    sensem_lo = vrefmin - 19e-9 / gmm_sminus\n    sensem_hi = vbmax + 19e-9 / gmm_sminus\n    # SENSE- uses the lower-side healthy return path (Rn), not the FORCE+\n    # path (Rp); using Rp here needlessly changes the energy numerator.\n    delta_m = max(sensem_hi + L * Rn, vbmax + L * Rn - sensem_lo)\n    isp = (vbmax + L * Rp) / rdmin + 34e-9\n    isn = ((vbmax + L * Rn) / rdmin\n           + max(vrefmax + L * Rn, vbmax + L * Rn - vrefmin) / (rltmin + rlbmin)\n           + 19e-9)\n    delta_sminus_p = isn * Rp\n    high_max = vrefmax * rhbmax / (rhtmin + rhbmax) + 5e-9 * _parallel(rhtmax, rhbmax)\n    window_min = vbmin - rdmax * 34e-9 - rwmax * 20e-9\n    splus_remaining = window_min - high_max - .004 - .020\n    low_min_sminus = vrefmin - 19e-9 / gmm_sminus - 5e-9 * _parallel(rltmax, rlbmax)\n    sensor_p_max = (vbmax * (194.1 + 50.0 + RRETURN)\n                    / (rrefmin + 1.0 + 194.1 + 50.0 + RRETURN)\n                    + (vbmax / rdmin + L) * Rp)\n    sminus_remaining = low_min_sminus - (sensor_p_max + rwmax * 20e-9) - .004 - .020\n    alpha = rltmax / (rltmax + rlbmin)\n    low_min_forcep = (vrefmin * rlbmin / (rltmax + rlbmin)\n                      - alpha * L * Rn - 5e-9 * _parallel(rltmax, rlbmax))\n    jp = 2.0 * vbmax / rdmin + vrefmax / (rltmin + rlbmin) + L\n    forcep_remaining = low_min_forcep - (jp * Rp + rwmax * 20e-9) - .004 - .020\n    jm = (vbmax - vrefmin) / (rltmin + rlbmin) + L\n    window_min_forcem = vbmin - jm * (rrefmax + 50.0 + 50.0) - rwmax * 20e-9\n    forcem_remaining = window_min_forcem - high_max - .004 - .020\n    iforce = vbmax / (rrefmin + 1.0 + 1.0 + RRETURN)\n    wshort = ((iforce + jp) * 10.0\n              + (vbmax / rdmin + 34e-9) * 50.0\n              + (vbmax / rdmin + vrefmax / (rltmin + rlbmin) + 19e-9) * 50.0\n              + rwmax * 20e-9)\n    sensem_short_max = (vbmax * (50.0 + RRETURN) / (rrefmin + 1.0 + 50.0 + RRETURN)\n                        + jp * Rn)\n    low_short_min = (rlbmin / (rltmax + rlbmin) * (vrefmin - sensem_short_max)\n                     - 5e-9 * _parallel(rltmax, rlbmax))\n    short_remaining = low_short_min - wshort - .004 - .020\n    return {\n        \"healthy_state_bounds_v\": [healthy_lo, healthy_hi],\n        \"delta_p_v\": delta_p, \"delta_sminus_p_v\": delta_sminus_p,\n        \"delta_m_v\": delta_m, \"delta_splus_m_v\": isp * Rn,\n        \"reserves_v\": {\"FORCE+\": forcep_remaining, \"FORCE-\": forcem_remaining,\n                       \"SENSE+\": splus_remaining, \"SENSE-\": sminus_remaining,\n                       \"short\": short_remaining},\n        \"assumptions\": {\"leak_sum_a\": L, \"rpath_p_ohm\": Rp, \"rpath_n_ohm\": Rn,\n                        \"alpha_max\": alpha, \"short_zero_ohm_approx\": \"exact node merge; 1-uOhm only as numerical limiting value\"},\n    }\n\n\ndef main() -> None:\n    ranges = _ranges()\n    analytic = analytic_bounds(ranges)\n\n    def values(which: int) -> list[float]:\n        return [ranges[\"rref\"][which], ranges[\"rlt\"][which], ranges[\"rlb\"][which],\n                ranges[\"rht\"][which], ranges[\"rhb\"][which], ranges[\"rdiag\"][which],\n                ranges[\"rwin\"][which], ranges[\"cdiff\"][which], ranges[\"cground\"][which]]\n\n    def make(v: list[float], rtd: float, lead: tuple[float, float, float, float]) -> Params:\n        vv = v[:6] + [v[5]] + v[6:]\n        return _corner_params(rtd, tuple(vv),\n                              (2.0, 1.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))\n\n    lead_min, lead_max = (1.0,) * 4, (50.0,) * 4\n    rdmin, rdmax = ranges[\"rdiag\"]\n    rltmin, rltmax = ranges[\"rlt\"]\n    rlbmin, rlbmax = ranges[\"rlb\"]\n    rp = analytic[\"assumptions\"][\"rpath_p_ohm\"]\n    rn = analytic[\"assumptions\"][\"rpath_n_ohm\"]\n    alpha = analytic[\"assumptions\"][\"alpha_max\"]\n    gmax_universal = [[1 / lead_min[2] + 1 / rdmin + 1 / ranges[\"rwin\"][0], 0.0],\n                      [0.0, 1 / lead_min[3] + 1 / rdmin + 1 / rlbmin]]\n    cmax = [[ranges[\"cground\"][1] + ranges[\"cdiff\"][1], -ranges[\"cdiff\"][1]],\n            [-ranges[\"cdiff\"][1], ranges[\"cground\"][1] + ranges[\"cdiff\"][1]]]\n\n    def gmin_from_network(case: str, rtd: float, low_fault: bool) -> list[list[float]]:\n        p = make(values(1), rtd, lead_max)\n        return _solve_static_partition(case, rtd, lead_max, p, rtd, low_fault)[0]\n\n    cases = (\"FORCE+\", \"FORCE-\", \"SENSE+\", \"SENSE-\", \"SHORT\")\n    records = []\n    for case in cases:\n        if case == \"SHORT\":\n            gmin = gmin_from_network(\"healthy\", 10.0, True)\n            gmax = [row[:] for row in gmax_universal]\n            delta = [2.1, 2.1]\n            coeff = [1.0, alpha]\n            remaining = analytic[\"reserves_v\"][\"short\"]\n            transition = \"short\"\n        elif case == \"SENSE+\":\n            # A conservative diagonal lower box avoids relying on the RTD\n            # branch that may be absent in the isolated-open topology.\n            gmin = [[1 / rdmax, 0.0], [0.0, 1 / rn]]\n            gmax = [[1 / rdmin, 0.0],\n                    [0.0, 1 / lead_min[3] + 1 / rdmin\n                     + 1 / (rltmin + rlbmin)]]\n            delta = [analytic[\"delta_p_v\"], analytic[\"delta_splus_m_v\"]]\n            coeff = [1.0, 0.0]\n            remaining = analytic[\"reserves_v\"][case]\n            transition = \"open\"\n        elif case == \"SENSE-\":\n            gmin = [[1 / rp, 0.0], [0.0, 1 / rdmax + 1 / (rltmax + rlbmax)]]\n            gmax = [[1 / lead_min[2] + 1 / rdmin, 0.0],\n                    [0.0, 1 / rdmin + 1 / (rltmin + rlbmin)]]\n            delta = [analytic[\"delta_sminus_p_v\"], analytic[\"delta_m_v\"]]\n            coeff = [1.0, alpha]\n            remaining = analytic[\"reserves_v\"][case]\n            transition = \"open\"\n        else:\n            gmin = gmin_from_network(case, 194.1, case == \"FORCE+\")\n            gmax = [row[:] for row in gmax_universal]\n            delta = [2.1, 2.1]\n            coeff = [1.0, alpha] if case == \"FORCE+\" else [1.0, 0.0]\n            remaining = analytic[\"reserves_v\"][case]\n            transition = \"open\"\n\n        gi = _mat_inv(gmin)\n        dual = sum(coeff[i] * abs(gi[i][j]) * coeff[j]\n                   for i in range(2) for j in range(2))\n        energy = sum(gmax[i][i] * delta[i] ** 2 for i in range(2))\n        lam = _lambda_min(gmin, cmax)\n        k = (energy * dual) ** 0.5\n        passive_bound = max(0.0, math.log(max(k / remaining, 1.0)) / lam * 1e3)\n        total_bound = passive_bound + (TLV_PROP_NS + LOGIC_PROP_NS) / 1e6\n        record = {\n            \"case\": case,\n            \"transition\": transition,\n            \"initial_rt_range_ohm\": [100.0, 194.1],\n            \"target_rt_range_ohm\": [0.0, 10.0] if case == \"SHORT\" else [100.0, 194.1],\n            \"rt_range_ohm\": [0.0, 10.0] if case == \"SHORT\" else [100.0, 194.1],\n            \"lead_ranges_ohm\": [[1.0, 50.0]] * 4,\n            \"g_min\": gmin,\n            \"g_max_diag\": [gmax[0][0], gmax[1][1]],\n            \"c_max\": cmax,\n            \"delta_v\": delta,\n            \"lambda_min_per_s\": lam,\n            \"energy_max\": energy,\n            \"dual_max\": dual,\n            \"k_upper_v\": k,\n            \"remaining_v\": remaining,\n            \"passive_bound_ms\": passive_bound,\n            \"bound_ms\": total_bound,\n            \"comparator_logic_allocation_ms\": (TLV_PROP_NS + LOGIC_PROP_NS) / 1e6,\n            \"scope\": \"continuous passive-network certificate; device applicability remains conditional\",\n        }\n        records.append(record)\n        print(record)\n\n    receipt = {\n        \"schema\": \"rtd_full_network_energy_certificate.v3\",\n        \"parameter_ranges\": ranges,\n        \"analytic_bounds\": analytic,\n        \"records\": records,\n        \"overall_certificate_bound_ms\": max(r[\"bound_ms\"] for r in records),\n        \"capacitor_model\": \"Cdiff 0.94..1.10 nF including tolerance/TCR outward rounding; each Cground pin 0..200 pF (superset)\",\n        \"transition_coverage\": \"five canonical fault cases; continuous RTD 100..194.1 ohm opens and 0..10 ohm shorts; four independent leads 1..50 ohm\",\n        \"method\": \"G-energy decay with conservative diagonal or Schur Gmin, incident-conductance Gmax, and continuous state/margin inequalities\",\n        \"comparator_propagation_ns\": {\"tlv3201\": TLV_PROP_NS, \"fault_logic\": LOGIC_PROP_NS},\n        \"short_zero_ohm_model\": \"exact node merge; Python time-domain helper uses only a numerical limiting conductance\",\n        \"qualification_status\": \"conditional model certificate; MAX internal paths, comparator applicability, harness and physical validation remain separate\",\n    }\n    Path(__file__).with_suffix(\".json\").write_text(json.dumps(receipt, indent=2) + \"\\n\")\n    print(\"overall_certificate_bound_ms\", receipt[\"overall_certificate_bound_ms\"])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "parameter_envelope": {
+    "cdiff_f": [
+      9.4e-10,
+      1.1e-09
+    ],
+    "cground_m_f": [
+      0.0,
+      2e-10
+    ],
+    "cground_p_f": [
+      0.0,
+      2e-10
+    ],
+    "conditional_delay_ns": 65,
+    "i_high_a": 5e-09,
+    "i_low_a": 5e-09,
+    "i_max_n_a": 1.4e-08,
+    "i_max_p_a": 1.4e-08,
+    "i_window_a": 2e-08,
+    "lead_fn_ohm": [
+      1,
+      50
+    ],
+    "lead_fp_ohm": [
+      1,
+      50
+    ],
+    "lead_sn_ohm": [
+      1,
+      50
+    ],
+    "lead_sp_ohm": [
+      1,
+      50
+    ],
+    "offset_v": 0.004,
+    "overdrive_v": 0.02,
+    "rdiag_n_ohm": [
+      944000.0,
+      1057000.0
+    ],
+    "rdiag_p_ohm": [
+      944000.0,
+      1057000.0
+    ],
+    "rhigh_bottom_ohm": [
+      9975.015000000001,
+      10025.015
+    ],
+    "rhigh_top_ohm": [
+      5885.258850000001,
+      5914.75885
+    ],
+    "rlow_bottom_ohm": [
+      9975.015000000001,
+      10025.015
+    ],
+    "rlow_top_ohm": [
+      61745.34285,
+      62054.84285
+    ],
+    "rref_ohm": [
+      429.6560645,
+      430.34406449999994
+    ],
+    "rtd_ohm": [
+      100,
+      194.1
+    ],
+    "rtd_short_ohm": [
+      0,
+      10
+    ],
+    "rwindow_ohm": [
+      98000.0,
+      102000.0
+    ],
+    "vb_v": [
+      1.95,
+      2.06
+    ],
+    "vref_v": [
+      1.24869,
+      1.25131
+    ]
+  },
+  "reference_envelope": {
+    "baseline_v": 5,
+    "delta_temp_c": 60,
+    "drift_ppm_per_c": 8,
+    "initial_tolerance_pct": 0.05,
+    "load_ppm_per_ma": 20,
+    "regulation_ppm_per_v": 35,
+    "vin_v": [
+      3.135,
+      3.465
+    ],
+    "vref_v": [
+      1.24869,
+      1.25131
+    ]
+  },
+  "schema": "zapote.rtd.model-qualification.v2",
+  "source_hashes": {
+    "board_sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+    "model_source_sha256": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554",
+    "source_manifest_sha256": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+    "topology_source_sha256": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868"
+  },
+  "status": "qualified"
+}

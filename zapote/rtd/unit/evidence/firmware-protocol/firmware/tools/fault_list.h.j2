@@ -1,0 +1,33 @@
+/**
+ * @file fault_list_generated.h
+ * @brief Fault code list — GENERATED from firmware/test/traces/manifest.json
+ *
+ * DO NOT EDIT BY HAND.
+ * Regenerate: python3 firmware/tools/gen_fault_list.py
+ *
+ * This file is the single source of truth for fault codes.
+ * Entries are derived from:
+ *   1. firmware/test/traces/manifest.json (SIL fault-injection scenarios)
+ *   2. firmware/tools/fault_list_supplemental.yaml (legacy entries without SIL scenarios)
+ *
+ * Add a fault:
+ *   - With SIL scenario: add an entry to firmware/test/traces/manifest.json
+ *   - Without SIL scenario: add to firmware/tools/fault_list_supplemental.yaml
+ *
+ * The FAULT_LIST(X) macro expands to the enum, FAULT_COUNT sentinel,
+ * and string-name table via the macros defined in state_machine.h.
+ */
+
+{%- set manifest_entries = manifest_entries | default([]) %}
+{%- set supplemental_entries = supplemental_entries | default([]) %}
+
+#define FAULT_LIST(X) \
+{%- for entry in supplemental_entries %}
+    X({{ entry.name }}, "{{ entry.label }}") \
+{%- endfor %}
+{%- for entry in manifest_entries %}
+    X({{ entry.name }}, "{{ entry.label }}") {% if not loop.last %}\{% endif %}
+{%- endfor %}
+
+/* FAULT_COUNT is derived from the above list — see state_machine.h.
+   After regeneration:  {{ manifest_entries | length }} manifest + {{ supplemental_entries | length }} supplemental = {{ manifest_entries | length + supplemental_entries | length }} total entries. */

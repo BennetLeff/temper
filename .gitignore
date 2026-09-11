@@ -171,3 +171,7 @@ power_pcb_dataset/sources/
 # Rust-only crates build into the shared target dir
 /crates/*/target/
 .scratch/
+
+# Local KiCad edit history and one-off working source backup
+/zapote/**/.history/
+/elec/src/modules.ato.orig

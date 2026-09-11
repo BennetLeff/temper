@@ -1,0 +1,11 @@
+{
+  "status": "PASS complete source-to-native identity and net assignment, not whole-unit qualification",
+  "components": 36,
+  "pads": 119,
+  "connected_net_names": 31,
+  "board_sha256": "1896bf37a94eb0eb28e77cf18b2488f0672223c585ddf0f6bae2dc0a55b0d735",
+  "hashes": {
+    "native.json": "9366ec73666bc302bd6bcb6a72c007f22570ee50d1d7dd190942a8f24565ebb5",
+    "manifest.json": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868"
+  }
+}

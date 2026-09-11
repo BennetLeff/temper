@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "input_hash": "4b9076cd7bba09ebc5a208b52d814483c10686fe425ab24858679449e2b94474",
+  "identity": {
+    "source_revision": "0dce2c2a8350708165cecd256fbc1598087de2e9aa1e692c6ff14c60856d974e",
+    "source_hash": "3a09d338ba7d2ae05f10c6e2888ae86cf97df0303b6df56b46af7d0ea9e6d93b",
+    "board_revision": "10.0.4",
+    "board_hash": "44a8fd42af05d096942982d441f3d6214e54273167b634e1b0860824472d2e1c",
+    "suite_revision": "zapote-rtd-v1",
+    "suite_hash": "2d93fd3411cc30893295d783b3e18b894ccb1a1449f258c384164566cf416ed7",
+    "model_revision": "RTD_SAFETY_DUAL_PATH",
+    "model_hash": "5cf15b9a0c56f697e26cf5dccfc9717c155faac911cad6b0c9035c17049e9170",
+    "observed_source_hash": "3a09d338ba7d2ae05f10c6e2888ae86cf97df0303b6df56b46af7d0ea9e6d93b",
+    "observed_board_hash": "44a8fd42af05d096942982d441f3d6214e54273167b634e1b0860824472d2e1c",
+    "observed_suite_hash": "2d93fd3411cc30893295d783b3e18b894ccb1a1449f258c384164566cf416ed7",
+    "observed_model_hash": "5cf15b9a0c56f697e26cf5dccfc9717c155faac911cad6b0c9035c17049e9170",
+    "native_export_sha256": "ab8cc61bacf43ef41cbcf61954b01bf02e83f850d4fff5af099d89ab43c586f8",
+    "native_board_sha256": "44a8fd42af05d096942982d441f3d6214e54273167b634e1b0860824472d2e1c",
+    "native_extractor_sha256": "97715bfb1504f8c47b9a75dca0f0ecdafbe48ed19dc48148a79a7585cb4ab0a9",
+    "native_binding_required": true,
+    "runtime": "rust-native",
+    "provider": "local"
+  },
+  "status": "fail",
+  "erc": {
+    "status": "indeterminate",
+    "findings": [
+      {
+        "rule": "ERC.RTD.FAULT_CORNERS",
+        "severity": "warning",
+        "status": "indeterminate",
+        "message": "RTDIN+ conductor open is not proven by the two paths",
+        "object": "sense_plus_open",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "ERC.RTD.FAULT_CORNERS",
+        "severity": "warning",
+        "status": "indeterminate",
+        "message": "fault case is outside the adopted detector model",
+        "object": "sense_minus_open",
+        "actual": null,
+        "required": null
+      }
+    ],
+    "checked_rules": [
+      "ERC.RTD.EXACT_COMPONENTS",
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "ERC.RTD.RREF_IDENTITY",
+      "ERC.RTD.FOUR_WIRE_PINOUT",
+      "ERC.RTD.FORCE_SENSE_SEPARATION",
+      "ERC.RTD.NATIVE_CONNECTIVITY",
+      "ERC.RTD.ADC_PIN_NETS",
+      "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+      "ERC.RTD.SHARED_REFERENCE",
+      "ERC.RTD.FAULT_OUTPUT",
+      "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+      "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+      "ERC.RTD.FAULT_CORNERS"
+    ],
+    "coverage_gaps": [
+      "sense_plus_open: RTDIN+ cable open is a documented blind spot until the optional bias diagnostic is adopted",
+      "sense_minus_open: source/model evidence does not establish a detector for this fault"
+    ]
+  },
+  "drc": {
+    "status": "fail",
+    "findings": [
+      {
+        "rule": "DRC.RTD.LOCAL_DECOUPLING",
+        "severity": "error",
+        "status": "fail",
+        "message": "bypass rtd_pan.c_vdd is outside 3 mm locality of rtd_pan.adc",
+        "object": "rtd_pan.c_vdd",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.LOCAL_DECOUPLING",
+        "severity": "error",
+        "status": "fail",
+        "message": "bypass rtd_pan.c_low_window is outside 3 mm locality of rtd_pan.low_window",
+        "object": "rtd_pan.c_low_window",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.LOCAL_DECOUPLING",
+        "severity": "error",
+        "status": "fail",
+        "message": "bypass rtd_pan.c_high_window is outside 3 mm locality of rtd_pan.high_window",
+        "object": "rtd_pan.c_high_window",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.LOCAL_DECOUPLING",
+        "severity": "error",
+        "status": "fail",
+        "message": "bypass rtd_pan.c_rail_monitor is outside 3 mm locality of rtd_pan.rail_monitor",
+        "object": "rtd_pan.c_rail_monitor",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.NATIVE_GEOMETRY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper splits or omits required endpoints on +3V3",
+        "object": "+3V3",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "DRC.RTD.NATIVE_GEOMETRY",
+        "severity": "error",
+        "status": "fail",
+        "message": "native copper splits or omits required endpoints on gnd",
+        "object": "gnd",
+        "actual": null,
+        "required": null
+      }
+    ],
+    "checked_rules": [
+      "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+      "DRC.RTD.FERRITE_SEMANTICS",
+      "DRC.RTD.LOCAL_DECOUPLING",
+      "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+      "DRC.RTD.NATIVE_GEOMETRY"
+    ],
+    "coverage_gaps": []
+  },
+  "checked_rules": [
+    "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+    "DRC.RTD.FERRITE_SEMANTICS",
+    "DRC.RTD.LOCAL_DECOUPLING",
+    "DRC.RTD.NATIVE_GEOMETRY",
+    "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+    "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+    "ERC.RTD.ADC_PIN_NETS",
+    "ERC.RTD.BOARD_COMPONENT_BINDING",
+    "ERC.RTD.EXACT_COMPONENTS",
+    "ERC.RTD.FAULT_CORNERS",
+    "ERC.RTD.FAULT_OUTPUT",
+    "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+    "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+    "ERC.RTD.FORCE_SENSE_SEPARATION",
+    "ERC.RTD.FOUR_WIRE_PINOUT",
+    "ERC.RTD.NATIVE_CONNECTIVITY",
+    "ERC.RTD.RREF_IDENTITY",
+    "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+    "ERC.RTD.SHARED_REFERENCE",
+    "ERC.RTD.SPI_SERIES_PLACEMENT"
+  ],
+  "coverage_gaps": [
+    "sense_plus_open: RTDIN+ cable open is a documented blind spot until the optional bias diagnostic is adopted",
+    "sense_minus_open: source/model evidence does not establish a detector for this fault"
+  ],
+  "evidence": {
+    "source": "zapote-rtd-rust",
+    "authoritative": true,
+    "telemetry": "disabled"
+  }
+}

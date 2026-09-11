@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.12, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan
+configfile: pyproject.toml
+plugins: cov-7.1.0, xdist-3.8.0, bdd-8.1.0, hypothesis-6.167.1
+collected 13 items
+
+zapote/current-sense/tests/test_tools.py .....                           [ 38%]
+zapote/tests/test_memory_transport.py ........                           [100%]
+
+============================== 13 passed in 1.93s ==============================

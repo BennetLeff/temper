@@ -1,0 +1,10 @@
+[package]
+name = "zapote-erc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+zapote-core = { path = "../zapote-core" }
+serde.workspace = true
+
