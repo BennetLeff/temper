@@ -28,7 +28,8 @@
 //! shell out to the existing Python/kicad-cli entry points and report
 //! success/failure — proving the binary works end-to-end as a driver.
 
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -36,6 +37,7 @@ use clap::{Parser, Subcommand};
 use temper_orchestration::{
     NativeBoardState, PipelineConfig, PipelineRunner, StageOutcome, SubprocessStage,
 };
+use temper_io_types::provenance::sha256_hex;
 
 #[derive(Parser)]
 #[command(name = "temper", about = "temper — PCB design tooling (Rust entry point)")]
@@ -106,6 +108,9 @@ enum Command {
         /// validation cannot complete. Warnings alone do not fail the check.
         #[arg(long)]
         check: bool,
+        /// Save the report and input hashes as a new JSON receipt; requires --check.
+        #[arg(long, requires = "check")]
+        receipt: Option<PathBuf>,
     },
 
     /// Print the D1→D7 deterministic pipeline stage order.
@@ -148,7 +153,7 @@ fn main() -> ExitCode {
         Command::Parse { pcb } => parse(&pcb),
         Command::Route { pcb, output } => route(&pcb, &output),
         Command::Place { pcb, constraints, output_json } => place(&pcb, &constraints, &output_json),
-        Command::Drc { pcb, check } => drc(&pcb, check),
+        Command::Drc { pcb, check, receipt } => drc(&pcb, check, receipt.as_deref()),
         Command::PipelineOrder { zone_aware, phased } => pipeline_order(zone_aware, phased),
         Command::PipelineRun { pcb, zone_aware, phased } => {
             pipeline_run(&pcb, zone_aware, phased)
@@ -521,7 +526,7 @@ fn place(pcb: &Path, constraints: &Path, output_json: &Path) -> ExitCode {
 /// kicad-cli with the same load-bearing flags `_drc_api.run_drc` uses
 /// (`--all-track-errors`; bare kicad-cli is not reproducible), and report
 /// the per-rule violation counts parsed from the JSON report.
-fn drc(pcb: &Path, check: bool) -> ExitCode {
+fn drc(pcb: &Path, check: bool, receipt_path: Option<&Path>) -> ExitCode {
     let validation_failure = if check { ExitCode::from(2) } else { ExitCode::FAILURE };
     let Some(repo) = repo_root() else {
         eprintln!("temper: cannot locate repo root (no scripts/route_board.py above CWD)");
@@ -549,6 +554,14 @@ fn drc(pcb: &Path, check: bool) -> ExitCode {
         );
         return validation_failure;
     }
+    let table_path = pcb.with_file_name("fp-lib-table");
+    let target_dru = pcb.with_extension("kicad_dru");
+    if let Some(output) = receipt_path {
+        if let Err(e) = check_receipt_path(output, &[&pcb, &project, &target_dru, &table_path]) {
+            eprintln!("temper: invalid receipt path: {e}");
+            return validation_failure;
+        }
+    }
     let python = python_cmd(&repo);
 
     // 1. Regenerate the canonical DRU (gitignored, generated), then install
@@ -571,7 +584,6 @@ fn drc(pcb: &Path, check: bool) -> ExitCode {
         );
         return validation_failure;
     }
-    let target_dru = pcb.with_extension("kicad_dru");
     if target_dru != generated_dru {
         if target_dru.exists() {
             let existing = match std::fs::read(&target_dru) {
@@ -604,12 +616,14 @@ fn drc(pcb: &Path, check: bool) -> ExitCode {
         }
         println!("temper: using generated KiCad rules at {}", target_dru.display());
     }
-
+    // Receipt-only reads must not change the legacy report/check interface.
+    let receipt_inputs = match receipt_path.map(|_| snapshot_inputs(&pcb, &project, &target_dru, &table_path)).transpose() {
+        Ok(inputs) => inputs,
+        Err(e) => { eprintln!("temper: cannot snapshot DRC inputs: {e}"); return validation_failure; }
+    };
     // 2. kicad-cli DRC into a temp JSON report. `--all-track-errors` is
     // load-bearing for determinism (see _drc_api.py's comment).
-    let tmp_dir = match std::env::temp_dir().join(format!("temper-drc-{}", std::process::id())) {
-        d => d,
-    };
+    let tmp_dir = std::env::temp_dir().join(format!("temper-drc-{}", std::process::id()));
     if let Err(e) = std::fs::create_dir_all(&tmp_dir) {
         eprintln!("temper: cannot create DRC report directory {}: {e}", tmp_dir.display());
         return validation_failure;
@@ -645,12 +659,18 @@ fn drc(pcb: &Path, check: bool) -> ExitCode {
         }
     };
     match report_violations(&json, check) {
-        Ok(errors) if check && errors > 0 => {
-            println!("DRC check: reported errors ({errors})");
-            ExitCode::from(1)
-        }
-        Ok(_) => {
+        Ok(summary) => {
+            if let (Some(path), Some(inputs)) = (receipt_path, receipt_inputs.as_ref()) {
+                if let Err(e) = publish_receipt(path, inputs, &kicad_args, &summary, &json) {
+                    eprintln!("temper: cannot publish DRC receipt: {e}");
+                    return validation_failure;
+                }
+            }
             if check {
+                if summary.errors > 0 {
+                    println!("DRC check: reported errors ({})", summary.errors);
+                    return ExitCode::from(1);
+                }
                 println!("DRC check: no reported errors");
             }
             ExitCode::SUCCESS
@@ -662,10 +682,151 @@ fn drc(pcb: &Path, check: bool) -> ExitCode {
     }
 }
 
-/// Print the DRC summary and return its error count. Check mode requires
+#[derive(serde::Serialize)]
+struct HashedFile {
+    path: PathBuf,
+    sha256: String,
+}
+
+#[derive(serde::Serialize)]
+struct OptionalHashedFile {
+    present: bool,
+    path: PathBuf,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sha256: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+struct ReceiptInputs {
+    board: HashedFile,
+    project: HashedFile,
+    generated_rules: HashedFile,
+    fp_lib_table: OptionalHashedFile,
+}
+
+struct ReportSummary {
+    errors: usize,
+    counts: BTreeMap<String, usize>,
+    kicad_version: Option<String>,
+}
+
+fn read_hashed_file(path: &Path) -> Result<HashedFile, String> {
+    path.to_str().ok_or_else(|| "receipt input paths must be valid UTF-8".to_string())?;
+    let bytes = std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(HashedFile { path: path.to_path_buf(), sha256: sha256_hex(&bytes) })
+}
+
+fn hashed_optional_file(path: &Path) -> Result<OptionalHashedFile, String> {
+    path.to_str().ok_or_else(|| "receipt input paths must be valid UTF-8".to_string())?;
+    match std::fs::read(path) {
+        Ok(bytes) => Ok(OptionalHashedFile { present: true, path: path.to_path_buf(), sha256: Some(sha256_hex(&bytes)) }),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            match std::fs::symlink_metadata(path) {
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound =>
+                    Ok(OptionalHashedFile { present: false, path: path.to_path_buf(), sha256: None }),
+                _ => Err(format!("cannot read footprint table {}: {e}", path.display())),
+            }
+        }
+        Err(e) => Err(format!("{}: {e}", path.display())),
+    }
+}
+
+#[cfg(all(test, unix))]
+mod receipt_tests {
+    use super::*;
+    use std::os::unix::ffi::OsStringExt;
+
+    #[test]
+    fn rejects_non_utf8_before_reading_or_serializing_input_paths() {
+        let path = PathBuf::from(std::ffi::OsString::from_vec(vec![0xff]));
+        assert!(matches!(read_hashed_file(&path), Err(e) if e.contains("valid UTF-8")));
+        assert!(matches!(hashed_optional_file(&path), Err(e) if e.contains("valid UTF-8")));
+    }
+}
+
+fn snapshot_inputs(pcb: &Path, project: &Path, rules: &Path, table: &Path) -> Result<ReceiptInputs, String> {
+    Ok(ReceiptInputs {
+        board: read_hashed_file(pcb)?, project: read_hashed_file(project)?,
+        generated_rules: read_hashed_file(rules)?, fp_lib_table: hashed_optional_file(table)?,
+    })
+}
+
+fn verify_snapshot(expected: &HashedFile) -> Result<(), String> {
+    let actual = read_hashed_file(&expected.path)?;
+    if actual.sha256 != expected.sha256 { return Err(format!("input changed during DRC: {}", expected.path.display())); }
+    Ok(())
+}
+
+fn verify_optional_snapshot(expected: &OptionalHashedFile) -> Result<(), String> {
+    let actual = hashed_optional_file(&expected.path)?;
+    if actual.present != expected.present || actual.sha256 != expected.sha256 {
+        return Err(format!("input changed during DRC: {}", expected.path.display()));
+    }
+    Ok(())
+}
+
+fn receipt_parent(path: &Path) -> &Path {
+    path.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or_else(|| Path::new("."))
+}
+
+fn check_receipt_path(path: &Path, inputs: &[&Path]) -> Result<(), String> {
+    match std::fs::symlink_metadata(path) {
+        Ok(_) => return Err(format!("refusing to overwrite {}", path.display())),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {},
+        Err(e) => return Err(format!("{}: {e}", path.display())),
+    }
+    let parent = std::fs::canonicalize(receipt_parent(path)).map_err(|e| e.to_string())?;
+    let name = path.file_name().ok_or_else(|| "receipt requires a file name".to_string())?;
+    let output = parent.join(name);
+    for input in inputs {
+        let parent = std::fs::canonicalize(receipt_parent(input)).map_err(|e| e.to_string())?;
+        if input.file_name().is_some_and(|name| parent.join(name) == output) {
+            return Err("receipt path must not alias a DRC input".to_string());
+        }
+    }
+    Ok(())
+}
+
+fn publish_receipt(path: &Path, inputs: &ReceiptInputs,
+                   args: &[&str], summary: &ReportSummary, raw: &str) -> Result<(), String> {
+    check_receipt_path(path, &[&inputs.board.path, &inputs.project.path,
+        &inputs.generated_rules.path, &inputs.fp_lib_table.path])?;
+    verify_snapshot(&inputs.board)?;
+    verify_snapshot(&inputs.project)?;
+    verify_snapshot(&inputs.generated_rules)?;
+    verify_optional_snapshot(&inputs.fp_lib_table)?;
+    let report_hash = sha256_hex(raw.as_bytes());
+    let version = summary.kicad_version.as_deref().ok_or_else(|| "report has no valid kicad_version".to_string())?;
+    let receipt = serde_json::json!({
+        "schema_version": 1,
+        "inputs": inputs,
+        "kicad": {"command": std::iter::once("kicad-cli").chain(args.iter().copied()).collect::<Vec<_>>(), "version": version},
+        "report": {"raw": raw, "sha256": report_hash},
+        "summary": {"errors": summary.errors, "counts": summary.counts, "verdict": if summary.errors == 0 { "pass" } else { "fail" }},
+    });
+    let bytes = serde_json::to_vec_pretty(&receipt).map_err(|e| e.to_string())?;
+    let parent = receipt_parent(path);
+    let temp = parent.join(format!(".{}.tmp-{}", path.file_name().and_then(|n| n.to_str()).unwrap_or("receipt"), std::process::id()));
+    let mut file = std::fs::OpenOptions::new().write(true).create_new(true).open(&temp)
+        .map_err(|e| format!("{}: {e}", path.display()))?;
+    // The final name becomes visible only after a complete write; hard_link
+    // fails if another writer claimed it. Clean up our temp on every outcome.
+    let result = (|| -> std::io::Result<()> {
+        file.write_all(&bytes)?;
+        file.write_all(b"\n")?;
+        file.sync_all()?;
+        drop(file);
+        std::fs::hard_link(&temp, path)
+    })();
+    let _ = std::fs::remove_file(&temp);
+    result.map_err(|e| format!("{}: {e}", path.display()))
+}
+
+/// Parse once for the printed summary, check verdict, and optional receipt.
+/// Check mode requires
 /// connectivity coverage and error severity, and validates finding fields
 /// before printing any summary. Report mode retains legacy compatibility.
-fn report_violations(json: &str, check: bool) -> Result<usize, String> {
+fn report_violations(json: &str, check: bool) -> Result<ReportSummary, String> {
     let v: serde_json::Value =
         serde_json::from_str(json).map_err(|e| format!("invalid JSON: {e}"))?;
     if check {
@@ -728,7 +889,7 @@ fn report_violations(json: &str, check: bool) -> Result<usize, String> {
             let rule = item.get("type").and_then(|x| x.as_str());
             let severity = item.get("severity").and_then(|x| x.as_str());
             if check {
-                if !rule.is_some_and(|r| !r.trim().is_empty()) {
+                if rule.is_none_or(|r| r.trim().is_empty()) {
                     return Err(format!("report \"{group}\" entry {index} has no valid type"));
                 }
                 if !matches!(severity, Some("error" | "warning")) {
@@ -749,5 +910,10 @@ fn report_violations(json: &str, check: bool) -> Result<usize, String> {
     for ((rule, severity), count) in &by_rule {
         println!("  [{severity}] {rule}: {count}");
     }
-    Ok(errors)
+    let counts = by_rule.into_iter()
+        .map(|((rule, severity), count)| (format!("{rule}:{severity}"), count))
+        .collect();
+    let kicad_version = v.get("kicad_version").and_then(|value| value.as_str())
+        .map(str::trim).filter(|value| !value.is_empty()).map(str::to_string);
+    Ok(ReportSummary { errors, counts, kicad_version })
 }

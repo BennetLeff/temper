@@ -717,8 +717,10 @@ dependencies = [
  "clap",
  "serde",
  "serde_json",
+ "sha2",
  "temper-data-model",
  "temper-design-bundle",
+ "temper-io-types",
  "temper-orchestration",
 ]
 
