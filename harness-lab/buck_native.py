@@ -136,7 +136,8 @@ def clear_net(board: pcbnew.BOARD, net: str) -> None:
             board.Delete(track)
     for zone in list(board.Zones()):
         if not zone.GetIsRuleArea() and zone.GetNetname() == net:
-            board.Remove(zone)
+            # Delete preserves SWIG type ownership on KiCad 10.0.4 macOS.
+            board.Delete(zone)
 
 
 def replace_copper(
@@ -356,9 +357,9 @@ def measure(path: Path) -> dict:
     }
 
 
-if __name__ == "__main__":
-    if pcbnew.GetBuildVersion() != "10.0.4":
-        raise RuntimeError("Buck adapter requires KiCad 10.0.4")
+def main(required_version: str = "10.0.4") -> None:
+    if pcbnew.GetBuildVersion() != required_version:
+        raise RuntimeError(f"Buck adapter requires KiCad {required_version}")
     command, path, *args = sys.argv[1:]
     target = Path(path)
     if command == "measure":
@@ -383,3 +384,7 @@ if __name__ == "__main__":
         )
     else:
         raise ValueError("Unknown buck operation")
+
+
+if __name__ == "__main__":
+    main()

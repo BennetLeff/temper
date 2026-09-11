@@ -1,0 +1,11 @@
+   Compiling temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running tests/binary_waveforms.rs (/tmp/temper-final-cargo.3kKweh/debug/deps/binary_waveforms-59f3acb9f7bdcbe2)
+
+running 3 tests
+test binary_parser_rejects_symlink_escape ... ok
+test settings_manifest_preserves_python_exponents_and_rejects_drift ... ok
+test binary_parser_rejects_malformed_waveforms_and_bindings ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+

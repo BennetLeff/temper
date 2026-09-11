@@ -1,0 +1,33 @@
+* LMR51430 native startup readiness capture; development only.
+* Isolated protocol buck test: 1 us discharged hold, then ideal VIN ramp
+* 0 -> 15 V in 1 ms (1 us -> 1.001 ms),
+* EN tied to VIN, voltage-compliant 0.5 A load.
+.include ./model.lib
+.param VINSET=15 CIN=10u COUT=44u LVAL=5.6u
+VIN in 0 PWL(0 0 1u 0 1.001m {VINSET} 21.001m {VINSET})
+C_IN in 0 {CIN}
+LOAD out load 0
+B_LOAD load 0 I={0.5*max(0,min(1,v(out)/0.1))}
+R_ESR out cap 5m
+C_OUT cap 0 {COUT}
+C_HF out 0 100n
+L_OUT sw l_out {LVAL}
+R_DCR l_out out 10m
+R_FBTOP out fb 100k
+R_FBBOT fb 0 22.1k
+C_BOOT boot sw 100n
+V_GND0 GND0 0 0
+X_U3 in sw GND0 fb in boot LMR51430XDDCR
+.options method=gear reltol=1e-4 abstol=1e-9 vntol=1e-6
+.temp 25
+.tran 20n 21.001m 0 20n uic
+.control
+set filetype=binary
+run
+meas tran load_final AVG i(LOAD) FROM=20.001m TO=21.001m
+meas tran vout_final AVG v(out) FROM=20.001m TO=21.001m
+meas tran vin_ramp MAX v(in) FROM=1u TO=1.001m
+write waveform.raw time v(out) v(in) i(VIN) i(LOAD)
+quit
+.endc
+.end

@@ -12,6 +12,29 @@ retain the initial evidence and qualification blockers. The follow-up
 record subsequent progress. The model is exploratory and remains outside the
 approved evidence registry.
 
+The [September 10 closeout ledger](audits/buck-final-20260910/README.md)
+records the current exact BOM, source build, waveform tests, corrected v2
+fixtures and isolated KiCad 10.0.6 qualification. Use it for current status;
+the earlier evidence below describes the historical references.
+
+## Harness implementation and admission
+
+The engineering stages implement validation infrastructure. They do not
+complete all of the paper-inspired harness capabilities:
+
+| Paper idea | Current status |
+|---|---|
+| Persistent traces | Implemented. PCB trials, engineering runs, model decks, logs, hashes, board snapshots, raw waveforms, and failed attempts are retained. Large raw waveforms remain local and Git-ignored; a recorded hash does not make them available in a fresh checkout. |
+| External computation | Implemented. Rust judges, KiCad, Atopile, ngspice, native DRC, analytical checks, and independent waveform parsing operate outside the language model. This does not by itself establish physical-model accuracy. |
+| Recovery | Implemented bounded act/refine execution and narrowly admitted interruption recovery. Missing or indeterminate native evidence terminates an attempt; it does not trigger an unrecorded replacement trial. |
+| Separating harness failures from model failures | Implemented at the validation boundary. Results distinguish pass, fail, blocked, indeterminate, missing/stale evidence, simulator failure, and invalid model receipts. Diagnosis is not yet fully automated. |
+| Persistent learned memory/skills | Implemented versioned `notes.md` and `skills.py`, immutable revisions, sandbox loading, and explicit development-to-evaluation inheritance. A live pilot has not yet established effectiveness. |
+
+The [continual harness contract](CONTINUAL-HARNESS.md) describes the implemented
+runtime, budgets, recovery, refinement and inheritance. These capabilities remain
+distinct from circuit/model qualification and physical validation. Live scoring
+requires admitted engineering evidence; software tests cannot supply it.
+
 ```sh
 make -C harness-lab build check
 python3 harness-lab/engineering_host.py harness-lab/runs/engineering-new
@@ -32,10 +55,11 @@ host tools; they are not editable solver parameters.
 
 `engineering/requirements.json` contains the source-supported 15 V nominal input
 and 3.3 V ±5% output. The source audit also resolves a 13.5–16.5 V input
-range, 0.5 A continuous design budget, and product ambient envelope. Sixteen
-required product or component inputs remain unresolved, including peak load,
-ripple bandwidth/limit, startup/transient limits, thermal limits, and component
-derating. A source design budget is not a measured maximum.
+range, 0.5 A continuous design budget, and product ambient envelope. The September
+10 closure revision adopts the 1 A pulse, ripple, startup/transient, efficiency
+and thermal targets documented in the requirements manifest. Two component
+inputs remain unresolved: effective capacitance and hot inductor saturation.
+A source design budget is not a measured maximum.
 The regulator's 3 A rating is not a product load requirement.
 
 Rust checks the schema, identities, units, finite values, approval states,
@@ -70,6 +94,19 @@ inputs, not inferred datasheet ratings; the host verifies the retained artifact.
 
 ## Stage 3: qualified simulation
 
+The current development path is the [reusable LMR51430X datasheet model](engineering/models/lmr51430-datasheet/README.md)
+with [native ngspice exercises](engineering/scenarios/lmr51430-datasheet/README.md).
+The user selected this path on September 10: build a model from the selected
+part's datasheet and use it for engineering work, with Luna implementing it.
+Do not require a vendor download or replace the part solely because that
+download is unavailable. Atopile owns the circuit and exact parts; the SPICE
+package records the pin mapping and models their electrical behavior.
+
+Development simulations can proceed before Stage 3 approval. Record their
+assumptions and use them for sensitivity studies, circuit debugging and bench
+test planning. Qualification is a separate claim about predictive accuracy:
+either a self-authored or vendor model needs evidence appropriate to that claim.
+
 No exact, independently qualified LMR51430XDDCR model is supplied. The old
 `LMR51430_avg.lib` uses a 0.8 V reference and is rejected. The required variant
 has a 0.6 V reference, 500 kHz switching, and PFM operation. A new
@@ -83,7 +120,9 @@ stdout, stderr, decks, exact model bytes, and ASCII rawfiles. Rust parses the
 rawfiles, checks named signal types, sample counts, monotonic finite time,
 duration/resolution, and computes windowed voltage, ripple, overshoot, settling,
 input variation, and load variation metrics. Caller-supplied scores are ignored.
-The three mandatory scenarios are startup, input variation, and load variation.
+The three scenario types are startup, input variation, and load variation.
+The adopted protocol requires six startup cases (three VIN corners and two
+loads), six load cases (three VIN corners and two profiles), and input variation.
 
 The [simulation manifest contract](engineering/scenarios/README.md) describes
 the operator input. The checked-in RC waveform is an instrument control only:
@@ -107,23 +146,26 @@ joined at endpoints, same-layer intersections, T-junctions, and through vias. Zo
 cannot be established by this graph are indeterminate, never assumed good.
 Centerline path length is not a copper polygon loop-area or field simulation.
 
-The development reference has about 43.7 mm of ground-return routing and no
+The original development reference has about 43.7 mm of ground-return routing and no
 visible reference/value labels. It therefore fails the new layout checks.
 Missing 3D model declarations are reported separately; the current collector
 does not resolve every model-file path, and missing models do not alter
 electrical status. The preliminary boards and their original qualification
 artifacts remain unchanged. The separately retained v4 candidate passes the
 layout and presentation judges with an 11.2875 mm ground-return path and
-visible labels. Its L2 footprint remains a stub; a reserved body outline is
-a review aid and does not qualify the land pattern or 3D model.
+visible labels. Its L2 footprint was a stub. The current v5-derived v2
+fixtures carry the reviewed SRP1265A land pattern and matching local library.
+Their four terminal variants preserve the original construction challenges.
+These fixture boards do not constitute a production PCB or physical validation.
 
 ## Scope and next admission gate
 
-The report is the admission boundary for future full buck trials. This delivery
-does not add the U2–U5 programmable solver/refinement runner, run new model
-construction trials, qualify a production PCB, or execute bench validation.
-Approve the missing product envelope, supply reviewed component/model evidence,
-and improve/requalify layout references before admitting those experiments.
+The report is the admission boundary for full buck trials. The continual
+solver/refinement runner is implemented and software-tested. Its live pilot
+remains unrun because component and model qualification are missing. Supply
+reviewed evidence, pin its exact identities, and obtain an eligible engineering
+report before running the development/evaluation pilot. Production PCB
+qualification and bench validation remain separate milestones.
 
 External qualification also requires an exact receipt pin in the compiled
 `engineering/approved-evidence.json` registry. Both registries are currently

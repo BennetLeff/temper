@@ -1,0 +1,1028 @@
+Building Atopile project...
+cd elec && uv tool run --from 'atopile==0.2.69' ato --non-interactive build src/main.ato:Top \
+	  && cd .. && uv run --no-sync python scripts/write_build_stamp.py \
+	       --artifact elec/build/default.net --source-root elec/src --glob '*.ato'
+[01:22:09] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec                            
+           INFO     Building default                                 build.py:38
+[01:22:11] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec/src/main.ato:5             
+                    20:4                                                        
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec/src/main.ato🔝             
+                    :dc_bus_plus. Declaring implicitly for now, but             
+                    in the future this may become an error...                   
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec/src/main.ato:5             
+                    22:4                                                        
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec/src/main.ato🔝             
+                    :dc_bus_minus. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec/src/main.ato:5             
+                    24:4                                                        
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec/src/main.ato🔝             
+                    :vcc_15v. Declaring implicitly for now, but in              
+                    the future this may become an error...                      
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec/src/main.ato:5             
+                    26:4                                                        
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/elec/src/main.ato🔝             
+                    :vcc_3v3. Declaring implicitly for now, but in              
+                    the future this may become an error...                      
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+[01:22:19] INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/.worktrees/codex/bu            
+                    ck-harness-experiment-plan/elec/build                       
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint       ┃ LCSC           ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ 0034.3129       │ F1              │ Fuse:Fuse_Hold… │ 0034.3129      │ 0.00  │
+│ V150LA10AP      │ RV1             │ Varistor:RV_Di… │ V150LA10AP     │ 0.00  │
+│ B32922C3224M289 │ C1              │ Capacitor_THT:… │ B32922C3224M2… │ 0.00  │
+│ B82726S2163N030 │ L1              │ temper:CMC_B82… │ B82726S2163N0… │ 0.00  │
+│ SL32 10015      │ RT1             │ Resistor_THT:R… │ SL32 10015     │ 0.00  │
+│ RT33K012        │ K1              │ temper:Relay_S… │ RT33K012       │ 0.00  │
+│ AO3400A         │ Q1,Q2           │ Package_TO_SOT… │ AO3400A        │ 0.00  │
+│ RSF100JB-73-91R │ R1              │ Resistor_THT:R… │ RSF100JB-73-9… │ 0.00  │
+│ CRCW08051K00FK… │ R2,R12          │ Resistor_SMD:R… │ CRCW08051K00F… │ 0.00  │
+│ CRCW0805100KFK… │ R3,R13          │ Resistor_SMD:R… │ CRCW0805100KF… │ 0.00  │
+│ SS14            │ D1,D2,D3        │ Diode_SMD:D_SMA │ SS14           │ 0.00  │
+│ MUR1560G        │ U1,U2           │ Package_TO_SOT… │ MUR1560G       │ 0.00  │
+│ EKMQ251VSN182M… │ C2,C3,C4,C5     │ Capacitor_THT:… │ EKMQ251VSN182… │ 0.00  │
+│ CRGP2512F22K    │ R4,R5           │ Resistor_SMD:R… │ CRGP2512F22K   │ 0.00  │
+│ B81123C1562M000 │ C6              │ Capacitor_THT:… │ B81123C1562M0… │ 0.00  │
+│ RT314012        │ K2,K3           │ temper:Relay_S… │ RT314012       │ 0.00  │
+│ AC05000003901J… │ R6,R7,R8,R9     │ Resistor_THT:R… │ AC05000003901… │ 0.00  │
+│ RC1206FR-07100… │ R10,R11         │ Resistor_SMD:R… │ RC1206FR-0710… │ 0.00  │
+│ CRGP2512F100R   │ R14,R15         │ Resistor_SMD:R… │ CRGP2512F100R  │ 0.00  │
+│ B32671L6474K000 │ C7,C8,C24       │ Capacitor_THT:… │ B32671L6474K0… │ 0.00  │
+│ LMR51430XDDCR   │ U3              │ Package_TO_SOT… │ LMR51430XDDCR  │ 0.00  │
+│ CL32B106KBJZW6E │ C9              │ Capacitor_SMD:… │ CL32B106KBJZW… │ 0.00  │
+│ C0603C104K5RAC… │ C10,C13,C16,C2… │ Capacitor_SMD:… │ C0603C104K5RA… │ 0.00  │
+│ SRP1265A-5R6M   │ L2              │ Inductor_SMD:L… │ SRP1265A-5R6M  │ 0.00  │
+│ GRM32ER71E226K… │ C11,C12         │ Capacitor_SMD:… │ GRM32ER71E226… │ 0.00  │
+│ RC0603FR-07100… │ R16,R39,R67     │ Resistor_SMD:R… │ RC0603FR-0710… │ 0.00  │
+│ RC0603FR-0722K… │ R17             │ Resistor_SMD:R… │ RC0603FR-0722… │ 0.00  │
+│ IRM-10-15       │ PS1             │ Converter_ACDC… │ IRM-10-15      │ 0.00  │
+│ GRM55DR72E106K… │ C14             │ Capacitor_SMD:… │ GRM55DR72E106… │ 0.00  │
+│ GRM32ER71E107M… │ C15             │ Capacitor_SMD:… │ GRM32ER71E107… │ 0.00  │
+│ IKW40N120H3     │ U4,U5           │ Package_TO_SOT… │ IKW40N120H3    │ 0.00  │
+│ UCC21550BDWKR   │ U6              │ SOIC16W_Isolat… │ UCC21550BDWKR  │ 0.00  │
+│ RC1206FR-072R2L │ R18,R22         │ Resistor_SMD:R… │ RC1206FR-072R… │ 0.00  │
+│ RC0603FR-072K2L │ R19,R23         │ Resistor_SMD:R… │ RC0603FR-072K… │ 0.00  │
+│ ES1J            │ U7              │ Diode_SMD:D_SMA │ ES1J           │ 0.00  │
+│ GRM32ER71H106K… │ C17             │ Capacitor_SMD:… │ GRM32ER71H106… │ 0.00  │
+│ BZT52C5V1-7-F   │ D4              │ Diode_SMD:D_SO… │ BZT52C5V1-7-F  │ 0.00  │
+│ RC0603FR-0751RL │ R20,R21         │ Resistor_SMD:R… │ RC0603FR-0751… │ 0.00  │
+│ GRM1885C1H221J… │ C18,C19         │ Capacitor_SMD:… │ GRM1885C1H221… │ 0.00  │
+│ RC0603FR-0734KL │ R24             │ Resistor_SMD:R… │ RC0603FR-0734… │ 0.00  │
+│ GRM188R71C105K… │ C21             │ Capacitor_SMD:… │ GRM188R71C105… │ 0.00  │
+│ 942C16P1K-F     │ C25,C26,C27     │ temper:C_Axial… │ 942C16P1K-F    │ 0.00  │
+│ CUSTOM_LITZ_CO… │ R30             │ LitzPad_15A     │ CUSTOM_LITZ_C… │ 0.00  │
+│ CST3015-100ED   │ T1,T2           │ temper:CST3015  │ CST3015-100ED  │ 0.00  │
+│ RC1206FR-074R9… │ R25             │ Resistor_SMD:R… │ RC1206FR-074R… │ 0.00  │
+│ GRM1885C1H104J… │ C28,C37         │ Capacitor_SMD:… │ GRM1885C1H104… │ 0.00  │
+│ RC0603FR-0710KL │ R26,R27,R42,R4… │ Resistor_SMD:R… │ RC0603FR-0710… │ 0.00  │
+│ MAX31865AAP+    │ U8              │ Package_SO:SSO… │ MAX31865AAP+   │ 0.00  │
+│ ERA-6AEB431V    │ R28             │ Resistor_SMD:R… │ ERA-6AEB431V   │ 0.00  │
+│ RC0603FR-0733RL │ R29,R31,R32,R33 │ Resistor_SMD:R… │ RC0603FR-0733… │ 0.00  │
+│ BLM18AG121SN1D  │ R34             │ Inductor_SMD:L… │ BLM18AG121SN1D │ 0.00  │
+│ REF2025AIDDCR   │ U9              │ Package_TO_SOT… │ REF2025AIDDCR  │ 0.00  │
+│ ERA-3AEB6192V   │ R35             │ Resistor_SMD:R… │ ERA-3AEB6192V  │ 0.00  │
+│ ERA-3AEB103V    │ R36,R38         │ Resistor_SMD:R… │ ERA-3AEB103V   │ 0.00  │
+│ ERA-3AEB5901V   │ R37             │ Resistor_SMD:R… │ ERA-3AEB5901V  │ 0.00  │
+│ TLV3201AIDBVR   │ U10,U11,U15,U1… │ Package_TO_SOT… │ TLV3201AIDBVR  │ 0.00  │
+│ SN74LVC1G08DBVR │ U12             │ Package_TO_SOT… │ SN74LVC1G08DB… │ 0.00  │
+│ TPS3700DDCR     │ U13,U21         │ Package_TO_SOT… │ TPS3700DDCR    │ 0.00  │
+│ ERA-6AEB6193V   │ R40             │ Resistor_SMD:R… │ ERA-6AEB6193V  │ 0.00  │
+│ ERA-3AEB104V    │ R41             │ Resistor_SMD:R… │ ERA-3AEB104V   │ 0.00  │
+│ SN74LVC1G38DBVR │ U14,U22         │ Package_TO_SOT… │ SN74LVC1G38DB… │ 0.00  │
+│ B4B-XH-A(LF)(S… │ J1              │ Connector_JST:… │ B4B-XH-A(LF)(… │ 0.00  │
+│ RC0603FR-073K2… │ R44             │ Resistor_SMD:R… │ RC0603FR-073K… │ 0.00  │
+│ RC1206FR-07430… │ R46,R47,R48     │ Resistor_SMD:R… │ RC1206FR-0743… │ 0.00  │
+│ RT0603BRD0716K… │ R49             │ Resistor_SMD:R… │ RT0603BRD0716… │ 0.00  │
+│ RT0603BRD07487… │ R50             │ Resistor_SMD:R… │ RT0603BRD0748… │ 0.00  │
+│ RC1206FR-07169… │ R51,R52,R53     │ Resistor_SMD:R… │ RC1206FR-0716… │ 0.00  │
+│ NTCALUG01A104GA │ R55,R60         │ Resistor_THT:R… │ NTCALUG01A104… │ 0.00  │
+│ RC0603FR-079K0… │ R57             │ Resistor_SMD:R… │ RC0603FR-079K… │ 0.00  │
+│ RC0603FR-0711K… │ R58,R64         │ Resistor_SMD:R… │ RC0603FR-0711… │ 0.00  │
+│ RC0603FR-0734K… │ R59             │ Resistor_SMD:R… │ RC0603FR-0734… │ 0.00  │
+│ RC0603FR-073K3… │ R61             │ Resistor_SMD:R… │ RC0603FR-073K… │ 0.00  │
+│ RC0603FR-073K1… │ R62             │ Resistor_SMD:R… │ RC0603FR-073K… │ 0.00  │
+│ RC0603FR-074K4… │ R63             │ Resistor_SMD:R… │ RC0603FR-074K… │ 0.00  │
+│ RC1206FR-074R1… │ R65             │ Resistor_SMD:R… │ RC1206FR-074R… │ 0.00  │
+│ TPS3823-33DBVR  │ U20             │ Package_TO_SOT… │ TPS3823-33DBVR │ 0.00  │
+│ RC0603FR-07698… │ R66             │ Resistor_SMD:R… │ RC0603FR-0769… │ 0.00  │
+│ RC0603FR-073M7… │ R68             │ Resistor_SMD:R… │ RC0603FR-073M… │ 0.00  │
+│ SN74HC4075DR    │ U23,U24,U25     │ Package_SO:SOI… │ SN74HC4075DR   │ 0.00  │
+│ SN74HC00DR      │ U26             │ Package_SO:SOI… │ SN74HC00DR     │ 0.00  │
+│ GENERIC_TEST_P… │ TP1,TP2,TP3,TP4 │ TestPoint:Test… │ GENERIC_TEST_… │ 0.00  │
+│ ESP32-S3-WROOM… │ U27             │ ESP32-S3-WROOM… │ ESP32-S3-WROO… │ 0.00  │
+│ GRM21BR71A106K… │ C40             │ Capacitor_SMD:… │ GRM21BR71A106… │ 0.00  │
+│ GRM188R71A105K… │ C41             │ Capacitor_SMD:… │ GRM188R71A105… │ 0.00  │
+│ EVQ-P7A01P      │ SW1,SW2         │ Resistor_SMD:R… │ EVQ-P7A01P     │ 0.00  │
+│ RC0603FR-074K7L │ R73,R74         │ Resistor_SMD:R… │ RC0603FR-074K… │ 0.00  │
+│ 61300211121     │ J2              │ Connector_PinH… │ 61300211121    │ 0.00  │
+│ RSF100JB-73-39R │ R75             │ Resistor_THT:R… │ RSF100JB-73-3… │ 0.00  │
+└─────────────────┴─────────────────┴─────────────────┴────────────────┴───────┘
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name                             ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│           C1 │ power_in.c_x2                    │
+│           C2 │ power_in.c_bus1                  │
+│           C3 │ power_in.c_bus2                  │
+│           C4 │ power_in.c_bus1b                 │
+│           C5 │ power_in.c_bus2b                 │
+│           C6 │ power_in.y_cap_pe                │
+│           C7 │ discharge.c_snub1                │
+│           C8 │ discharge.c_snub2                │
+│           C9 │ power_mgmt.buck_3v3.c_in         │
+│          C10 │ power_mgmt.buck_3v3.c_boot       │
+│          C11 │ power_mgmt.buck_3v3.c_out1       │
+│          C12 │ power_mgmt.buck_3v3.c_out2       │
+│          C13 │ power_mgmt.buck_3v3.c_out_hf     │
+│          C14 │ aux_supply.c_in_bulk             │
+│          C15 │ aux_supply.c_out                 │
+│          C16 │ aux_supply.c_out_hf              │
+│          C17 │ hb.gate_hs.boot_cap              │
+│          C18 │ hb.gate_hs.c_filt_a              │
+│          C19 │ hb.gate_hs.c_filt_b              │
+│          C20 │ hb.c_vcci1                       │
+│          C21 │ hb.c_vcci2                       │
+│          C22 │ hb.c_vdda                        │
+│          C23 │ hb.c_vddb                        │
+│          C24 │ hb.c_dc_hf                       │
+│          C25 │ tank.c_tank1                     │
+│          C26 │ tank.c_tank2                     │
+│          C27 │ tank.c_tank3                     │
+│          C28 │ ct_sense.c_filter                │
+│          C29 │ rtd_pan.c_vdd                    │
+│          C30 │ rtd_pan.c_reference              │
+│          C31 │ rtd_pan.c_low_window             │
+│          C32 │ rtd_pan.c_high_window            │
+│          C33 │ rtd_pan.c_window_and             │
+│          C34 │ rtd_pan.c_rail_monitor           │
+│          C35 │ rtd_pan.c_fault_nand             │
+│          C36 │ safety.ovp.c_adc_filter          │
+│          C37 │ safety.ocp2.c_filter             │
+│          C38 │ safety.wdt.c_bypass              │
+│          C39 │ mcu.c_vcc1                       │
+│          C40 │ mcu.c_vcc2                       │
+│          C41 │ mcu.c_en                         │
+│           D1 │ power_in.d_flyback               │
+│           D2 │ discharge.d_fly1                 │
+│           D3 │ discharge.d_fly2                 │
+│           D4 │ hb.gate_hs.neg_bias_zener        │
+│           F1 │ power_in.fuse                    │
+│           J1 │ rtd_pan.j_rtd1                   │
+│           J2 │ thermal.j_fan                    │
+│           K1 │ power_in.bypass_relay            │
+│           K2 │ discharge.k_dis1                 │
+│           K3 │ discharge.k_dis2                 │
+│           L1 │ power_in.cmc                     │
+│           L2 │ power_mgmt.buck_3v3.l_out        │
+│          PS1 │ aux_supply.psu                   │
+│           Q1 │ power_in.q_relay_drv             │
+│           Q2 │ discharge.q_dis_drv              │
+│           R1 │ power_in.r_relay_drop            │
+│           R2 │ power_in.r_gate                  │
+│           R3 │ power_in.r_gate_pd               │
+│           R4 │ power_in.r_bleed1                │
+│           R5 │ power_in.r_bleed2                │
+│           R6 │ discharge.r_dis1a                │
+│           R7 │ discharge.r_dis1b                │
+│           R8 │ discharge.r_dis2a                │
+│           R9 │ discharge.r_dis2b                │
+│          R10 │ discharge.r_coil1                │
+│          R11 │ discharge.r_coil2                │
+│          R12 │ discharge.r_gate                 │
+│          R13 │ discharge.r_gate_pd              │
+│          R14 │ discharge.r_snub1                │
+│          R15 │ discharge.r_snub2                │
+│          R16 │ power_mgmt.buck_3v3.r_fb_top     │
+│          R17 │ power_mgmt.buck_3v3.r_fb_bot     │
+│          R18 │ hb.gate_hs.rg_on                 │
+│          R19 │ hb.gate_hs.rgs                   │
+│          R20 │ hb.gate_hs.r_filt_a              │
+│          R21 │ hb.gate_hs.r_filt_b              │
+│          R22 │ hb.gate_ls.rg_on                 │
+│          R23 │ hb.gate_ls.rgs                   │
+│          R24 │ hb.dt_res                        │
+│          R25 │ ct_sense.r_burden                │
+│          R26 │ ct_sense.r_bias_top              │
+│          R27 │ ct_sense.r_bias_bot              │
+│          R28 │ rtd_pan.r_ref                    │
+│          R29 │ rtd_pan.r_sclk                   │
+│          R30 │ tank.inductor_conn               │
+│          R31 │ rtd_pan.r_mosi                   │
+│          R32 │ rtd_pan.r_cs                     │
+│          R33 │ rtd_pan.r_miso                   │
+│          R34 │ rtd_pan.fb_power                 │
+│          R35 │ rtd_pan.r_low_top                │
+│          R36 │ rtd_pan.r_low_bottom             │
+│          R37 │ rtd_pan.r_high_top               │
+│          R38 │ rtd_pan.r_high_bottom            │
+│          R39 │ rtd_pan.r_window_ok_pulldown     │
+│          R40 │ rtd_pan.r_avdd_top               │
+│          R41 │ rtd_pan.r_avdd_bottom            │
+│          R42 │ rtd_pan.r_rail_ok_pullup         │
+│          R43 │ rtd_pan.r_fault_pullup           │
+│          R44 │ safety.ocp.r_ref_top             │
+│          R45 │ safety.ocp.r_ref_bot             │
+│          R46 │ safety.ovp.r_div_top1            │
+│          R47 │ safety.ovp.r_div_top2            │
+│          R48 │ safety.ovp.r_div_top3            │
+│          R49 │ safety.ovp.r_div_bot             │
+│          R50 │ safety.ovp.r_hyst                │
+│          R51 │ safety.ovp.r_adc_top1            │
+│          R52 │ safety.ovp.r_adc_top2            │
+│          R53 │ safety.ovp.r_adc_top3            │
+│          R54 │ safety.ovp.r_adc_bot             │
+│          R55 │ safety.thermal.ntc               │
+│          R56 │ safety.thermal.r_ntc_fixed       │
+│          R57 │ safety.thermal.r_ref_top         │
+│          R58 │ safety.thermal.r_ref_bot         │
+│          R59 │ safety.thermal.r_hyst            │
+│          R60 │ safety.coil_thermal.ntc          │
+│          R61 │ safety.coil_thermal.r_ntc_fixed  │
+│          R62 │ safety.coil_thermal.r_ref_top    │
+│          R63 │ safety.coil_thermal.r_ref_bot    │
+│          R64 │ safety.coil_thermal.r_hyst       │
+│          R65 │ safety.ocp2.r_burden             │
+│          R66 │ safety.uvlo_logic.r_div_top      │
+│          R67 │ safety.uvlo_logic.r_div_bot      │
+│          R68 │ safety.uvlo_logic.r_hyst         │
+│          R69 │ safety.uvlo_logic.r_outa_pullup  │
+│          R70 │ safety.uvlo_logic.r_fault_pullup │
+│          R71 │ mcu.r_en                         │
+│          R72 │ mcu.r_boot                       │
+│          R73 │ mcu.r_sda_pullup                 │
+│          R74 │ mcu.r_scl_pullup                 │
+│          R75 │ thermal.r_fan_drop               │
+│          RT1 │ power_in.ntc                     │
+│          RV1 │ power_in.mov                     │
+│          SW1 │ mcu.btn_reset                    │
+│          SW2 │ mcu.btn_boot                     │
+│           T1 │ ct_sense.ct                      │
+│           T2 │ safety.ocp2.ct                   │
+│          TP1 │ safety.tp_shutdown               │
+│          TP2 │ safety.tp_fault                  │
+│          TP3 │ safety.tp_ocp2_fault             │
+│          TP4 │ safety.tp_uvlo2_fault            │
+│           U1 │ power_in.d1                      │
+│           U2 │ power_in.d2                      │
+│           U3 │ power_mgmt.buck_3v3.buck         │
+│           U4 │ hb.power_loop.q_high             │
+│           U5 │ hb.power_loop.q_low              │
+│           U6 │ hb.gate_hs.driver                │
+│           U7 │ hb.gate_hs.boot_diode            │
+│           U8 │ rtd_pan.adc                      │
+│           U9 │ rtd_pan.reference                │
+│          U10 │ rtd_pan.low_window               │
+│          U11 │ rtd_pan.high_window              │
+│          U12 │ rtd_pan.window_and               │
+│          U13 │ rtd_pan.rail_monitor             │
+│          U14 │ rtd_pan.fault_nand               │
+│          U15 │ safety.ocp.comp                  │
+│          U16 │ safety.ovp.comp                  │
+│          U17 │ safety.thermal.comp              │
+│          U18 │ safety.coil_thermal.comp         │
+│          U19 │ safety.ocp2.comp                 │
+│          U20 │ safety.wdt.wdt                   │
+│          U21 │ safety.uvlo_logic.mon            │
+│          U22 │ safety.uvlo_logic.inv            │
+│          U23 │ safety.fault_or                  │
+│          U24 │ safety.fault_any_or              │
+│          U25 │ safety.fault_or3                 │
+│          U26 │ safety.latch                     │
+│          U27 │ mcu.mcu                          │
+└──────────────┴──────────────────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓                           ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ aux_supply.c_in_bulk             │ C14        │
+│ aux_supply.c_out                 │ C15        │
+│ aux_supply.c_out_hf              │ C16        │
+│ aux_supply.psu                   │ PS1        │
+│ ct_sense.c_filter                │ C28        │
+│ ct_sense.ct                      │ T1         │
+│ ct_sense.r_bias_bot              │ R27        │
+│ ct_sense.r_bias_top              │ R26        │
+│ ct_sense.r_burden                │ R25        │
+│ discharge.c_snub1                │ C7         │
+│ discharge.c_snub2                │ C8         │
+│ discharge.d_fly1                 │ D2         │
+│ discharge.d_fly2                 │ D3         │
+│ discharge.k_dis1                 │ K2         │
+│ discharge.k_dis2                 │ K3         │
+│ discharge.q_dis_drv              │ Q2         │
+│ discharge.r_coil1                │ R10        │
+│ discharge.r_coil2                │ R11        │
+│ discharge.r_dis1a                │ R6         │
+│ discharge.r_dis1b                │ R7         │
+│ discharge.r_dis2a                │ R8         │
+│ discharge.r_dis2b                │ R9         │
+│ discharge.r_gate                 │ R12        │
+│ discharge.r_gate_pd              │ R13        │
+│ discharge.r_snub1                │ R14        │
+│ discharge.r_snub2                │ R15        │
+│ hb.c_dc_hf                       │ C24        │
+│ hb.c_vcci1                       │ C20        │
+│ hb.c_vcci2                       │ C21        │
+│ hb.c_vdda                        │ C22        │
+│ hb.c_vddb                        │ C23        │
+│ hb.dt_res                        │ R24        │
+│ hb.gate_hs.boot_cap              │ C17        │
+│ hb.gate_hs.boot_diode            │ U7         │
+│ hb.gate_hs.c_filt_a              │ C18        │
+│ hb.gate_hs.c_filt_b              │ C19        │
+│ hb.gate_hs.driver                │ U6         │
+│ hb.gate_hs.neg_bias_zener        │ D4         │
+│ hb.gate_hs.r_filt_a              │ R20        │
+│ hb.gate_hs.r_filt_b              │ R21        │
+│ hb.gate_hs.rg_on                 │ R18        │
+│ hb.gate_hs.rgs                   │ R19        │
+│ hb.gate_ls.rg_on                 │ R22        │
+│ hb.gate_ls.rgs                   │ R23        │
+│ hb.power_loop.q_high             │ U4         │
+│ hb.power_loop.q_low              │ U5         │
+│ mcu.btn_boot                     │ SW2        │
+│ mcu.btn_reset                    │ SW1        │
+│ mcu.c_en                         │ C41        │
+│ mcu.c_vcc1                       │ C39        │
+│ mcu.c_vcc2                       │ C40        │
+│ mcu.mcu                          │ U27        │
+│ mcu.r_boot                       │ R72        │
+│ mcu.r_en                         │ R71        │
+│ mcu.r_scl_pullup                 │ R74        │
+│ mcu.r_sda_pullup                 │ R73        │
+│ power_in.bypass_relay            │ K1         │
+│ power_in.c_bus1                  │ C2         │
+│ power_in.c_bus1b                 │ C4         │
+│ power_in.c_bus2                  │ C3         │
+│ power_in.c_bus2b                 │ C5         │
+│ power_in.c_x2                    │ C1         │
+│ power_in.cmc                     │ L1         │
+│ power_in.d1                      │ U1         │
+│ power_in.d2                      │ U2         │
+│ power_in.d_flyback               │ D1         │
+│ power_in.fuse                    │ F1         │
+│ power_in.mov                     │ RV1        │
+│ power_in.ntc                     │ RT1        │
+│ power_in.q_relay_drv             │ Q1         │
+│ power_in.r_bleed1                │ R4         │
+│ power_in.r_bleed2                │ R5         │
+│ power_in.r_gate                  │ R2         │
+│ power_in.r_gate_pd               │ R3         │
+│ power_in.r_relay_drop            │ R1         │
+│ power_in.y_cap_pe                │ C6         │
+│ power_mgmt.buck_3v3.buck         │ U3         │
+│ power_mgmt.buck_3v3.c_boot       │ C10        │
+│ power_mgmt.buck_3v3.c_in         │ C9         │
+│ power_mgmt.buck_3v3.c_out1       │ C11        │
+│ power_mgmt.buck_3v3.c_out2       │ C12        │
+│ power_mgmt.buck_3v3.c_out_hf     │ C13        │
+│ power_mgmt.buck_3v3.l_out        │ L2         │
+│ power_mgmt.buck_3v3.r_fb_bot     │ R17        │
+│ power_mgmt.buck_3v3.r_fb_top     │ R16        │
+│ rtd_pan.adc                      │ U8         │
+│ rtd_pan.c_fault_nand             │ C35        │
+│ rtd_pan.c_high_window            │ C32        │
+│ rtd_pan.c_low_window             │ C31        │
+│ rtd_pan.c_rail_monitor           │ C34        │
+│ rtd_pan.c_reference              │ C30        │
+│ rtd_pan.c_vdd                    │ C29        │
+│ rtd_pan.c_window_and             │ C33        │
+│ rtd_pan.fault_nand               │ U14        │
+│ rtd_pan.fb_power                 │ R34        │
+│ rtd_pan.high_window              │ U11        │
+│ rtd_pan.j_rtd1                   │ J1         │
+│ rtd_pan.low_window               │ U10        │
+│ rtd_pan.r_avdd_bottom            │ R41        │
+│ rtd_pan.r_avdd_top               │ R40        │
+│ rtd_pan.r_cs                     │ R32        │
+│ rtd_pan.r_fault_pullup           │ R43        │
+│ rtd_pan.r_high_bottom            │ R38        │
+│ rtd_pan.r_high_top               │ R37        │
+│ rtd_pan.r_low_bottom             │ R36        │
+│ rtd_pan.r_low_top                │ R35        │
+│ rtd_pan.r_miso                   │ R33        │
+│ rtd_pan.r_mosi                   │ R31        │
+│ rtd_pan.r_rail_ok_pullup         │ R42        │
+│ rtd_pan.r_ref                    │ R28        │
+│ rtd_pan.r_sclk                   │ R29        │
+│ rtd_pan.r_window_ok_pulldown     │ R39        │
+│ rtd_pan.rail_monitor             │ U13        │
+│ rtd_pan.reference                │ U9         │
+│ rtd_pan.window_and               │ U12        │
+│ safety.coil_thermal.comp         │ U18        │
+│ safety.coil_thermal.ntc          │ R60        │
+│ safety.coil_thermal.r_hyst       │ R64        │
+│ safety.coil_thermal.r_ntc_fixed  │ R61        │
+│ safety.coil_thermal.r_ref_bot    │ R63        │
+│ safety.coil_thermal.r_ref_top    │ R62        │
+│ safety.fault_any_or              │ U24        │
+│ safety.fault_or                  │ U23        │
+│ safety.fault_or3                 │ U25        │
+│ safety.latch                     │ U26        │
+│ safety.ocp.comp                  │ U15        │
+│ safety.ocp.r_ref_bot             │ R45        │
+│ safety.ocp.r_ref_top             │ R44        │
+│ safety.ocp2.c_filter             │ C37        │
+│ safety.ocp2.comp                 │ U19        │
+│ safety.ocp2.ct                   │ T2         │
+│ safety.ocp2.r_burden             │ R65        │
+│ safety.ovp.c_adc_filter          │ C36        │
+│ safety.ovp.comp                  │ U16        │
+│ safety.ovp.r_adc_bot             │ R54        │
+│ safety.ovp.r_adc_top1            │ R51        │
+│ safety.ovp.r_adc_top2            │ R52        │
+│ safety.ovp.r_adc_top3            │ R53        │
+│ safety.ovp.r_div_bot             │ R49        │
+│ safety.ovp.r_div_top1            │ R46        │
+│ safety.ovp.r_div_top2            │ R47        │
+│ safety.ovp.r_div_top3            │ R48        │
+│ safety.ovp.r_hyst                │ R50        │
+│ safety.thermal.comp              │ U17        │
+│ safety.thermal.ntc               │ R55        │
+│ safety.thermal.r_hyst            │ R59        │
+│ safety.thermal.r_ntc_fixed       │ R56        │
+│ safety.thermal.r_ref_bot         │ R58        │
+│ safety.thermal.r_ref_top         │ R57        │
+│ safety.tp_fault                  │ TP2        │
+│ safety.tp_ocp2_fault             │ TP3        │
+│ safety.tp_shutdown               │ TP1        │
+│ safety.tp_uvlo2_fault            │ TP4        │
+│ safety.uvlo_logic.inv            │ U22        │
+│ safety.uvlo_logic.mon            │ U21        │
+│ safety.uvlo_logic.r_div_bot      │ R67        │
+│ safety.uvlo_logic.r_div_top      │ R66        │
+│ safety.uvlo_logic.r_fault_pullup │ R70        │
+│ safety.uvlo_logic.r_hyst         │ R68        │
+│ safety.uvlo_logic.r_outa_pullup  │ R69        │
+│ safety.wdt.c_bypass              │ C38        │
+│ safety.wdt.wdt                   │ U20        │
+│ tank.c_tank1                     │ C25        │
+│ tank.c_tank2                     │ C26        │
+│ tank.c_tank3                     │ C27        │
+│ tank.inductor_conn               │ R30        │
+│ thermal.j_fan                    │ J2         │
+│ thermal.r_fan_drop               │ R75        │
+└──────────────────────────────────┴────────────┘
+           INFO     Building 'variable-report' for 'default' config build.py:100
+                                Variable Values                                 
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Address                          ┃ Value                           ┃ Comment ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ gnd.required                     │ Symbol(key='/Users/bennet/Desk… │         │
+│ pe.required                      │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.ac_l.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.ac_n.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.pe.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.gnd.required            │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.power_15v.gnd.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.fuse.p1.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.fuse.1.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.mov.p2.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.mov.2.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.c_x2.p2.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.c_x2.2.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.cmc.W2_1.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.cmc.2.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.q_relay_drv.S.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.q_relay_drv.3.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.r_gate_pd.p2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.r_gate_pd.2.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.y_cap_pe.p2.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.y_cap_pe.2.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_in.p_bleed_actual          │ 1.31W ± 13.14mW                 │         │
+│ discharge.gnd.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ discharge.power_15v.gnd.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ discharge.q_dis_drv.S.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ discharge.q_dis_drv.3.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ discharge.r_gate_pd.p2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ discharge.r_gate_pd.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ discharge.p_dis_resistor         │ 1.86W ± 92.86mW                 │         │
+│ power_mgmt.power_15v.gnd.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_mgmt.power_3v3.gnd.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ power_mgmt.buck_3v3.v_out_calcu… │ 3.32V ± 54.3mV                  │         │
+│ aux_supply.power_out.gnd.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ aux_supply.psu.VN.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ aux_supply.psu.4.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ aux_supply.c_out.p2.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ aux_supply.c_out.2.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ aux_supply.c_out_hf.p2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ aux_supply.c_out_hf.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.pwm_h.required                │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.pwm_l.required                │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.power_3v3.gnd.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.power_15v.gnd.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.dc_bus.v_max                  │ 400V                            │         │
+│ hb.gate_hs.driver.GNDI.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.driver.4.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.driver.DIS.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.driver.5.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.r_filt_a.p1.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.r_filt_a.1.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.c_filt_a.p2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.c_filt_a.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.r_filt_b.p1.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.r_filt_b.1.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.c_filt_b.p2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.c_filt_b.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.pwm_in_a.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.gate_hs.pwm_in_b.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.dt_res.p2.required            │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.dt_res.2.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.c_vcci1.p2.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.c_vcci1.2.required            │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.c_vcci2.p2.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ hb.c_vcci2.2.required            │ Symbol(key='/Users/bennet/Desk… │         │
+│ tank.out.required                │ Symbol(key='/Users/bennet/Desk… │         │
+│ tank.inductor_conn.p2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ tank.inductor_conn.2.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.primary_in.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.i_sense.line.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.i_sense.reference.requ… │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.ct.P1.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.ct.1.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.ct.S1.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.ct.3.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.ct.S2.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.ct.4.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_burden.p1.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_burden.1.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_burden.p2.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_burden.2.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.c_filter.p1.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.c_filter.1.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.c_filter.p2.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.c_filter.2.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_bias_top.p2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_bias_top.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_bias_bot.p1.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_bias_bot.1.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_bias_bot.p2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.r_bias_bot.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ ct_sense.v_burden_trip           │ 2.5V ± 24.95mV                  │         │
+│ rtd_pan.power.gnd.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_hw_fault.line.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_hw_fault.reference.… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_force_p.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_force_n.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_sense_p.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rtd_sense_n.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.FORCE_P.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.8.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.FORCE2.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.9.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.RTDIN_P.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.10.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.RTDIN_N.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.11.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.FORCE_N.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.12.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.GND2.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.13.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.DGND.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.18.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.GND1.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.adc.19.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_vdd.p2.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_vdd.2.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_reference.p2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_reference.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_low_window.p2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_low_window.2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_high_window.p2.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_high_window.2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_window_and.p2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_window_and.2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_rail_monitor.p2.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_rail_monitor.2.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_fault_nand.p2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.c_fault_nand.2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.reference.GND.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.reference.2.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_low_bottom.p2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_low_bottom.2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_high_bottom.p2.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_high_bottom.2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.low_window.GND.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.low_window.2.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.high_window.GND.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.high_window.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.window_and.GND.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.window_and.3.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_window_ok_pulldown.p2… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_window_ok_pulldown.2.… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rail_monitor.GND.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rail_monitor.2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rail_monitor.INB_N.requ… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.rail_monitor.4.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_avdd_bottom.p2.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_avdd_bottom.2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.fault_nand.GND.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.fault_nand.3.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.fault_nand.Y.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.fault_nand.4.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_fault_pullup.p2.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.r_fault_pullup.2.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.p1.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.1.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.p2.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.2.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.p3.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.3.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.p4.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ rtd_pan.j_rtd1.4.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.power_3v3.gnd.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.power_15v.gnd.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.i_sense.reference.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.dc_bus.reference.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ntc_sense.line.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ntc_sense.reference.requ… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.coil_ntc_sense.reference… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt_kick.line.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt_kick.reference.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.shutdown.line.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.shutdown.reference.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.reset_n_in.reference.req… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.runaway_cut.reference.re… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.rtd_hw_fault.line.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.rtd_hw_fault.reference.r… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_status.line.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_status.reference.r… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt_reset_n.line.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt_reset_n.reference.re… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ocp.fault.line.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ocp.comp.OUT.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ocp.comp.1.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.fault.line.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.comp.OUT.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.comp.1.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.r_hyst.p2.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.r_hyst.2.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.adc_v_bus.line.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.r_adc_top3.p2.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.r_adc_top3.2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.r_adc_bot.p1.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.r_adc_bot.1.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.c_adc_filter.p1.requ… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ovp.c_adc_filter.1.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.ntc_sense.line.r… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.fault.line.requi… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.comp.OUT.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.comp.1.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.comp.INN.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.comp.4.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.ntc.p1.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.ntc.1.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.r_ntc_fixed.p2.r… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.r_ntc_fixed.2.re… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.r_hyst.p2.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.thermal.r_hyst.2.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.coil_thermal.fault.line.… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.coil_thermal.comp.OUT.re… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.coil_thermal.comp.1.requ… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.coil_thermal.r_hyst.p2.r… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.coil_thermal.r_hyst.2.re… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ocp2.fault.line.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ocp2.comp.OUT.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ocp2.comp.1.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.ocp2.v_burden_design      │ 2.47V ± 24.72mV                 │         │
+│ safety.wdt.wdi.line.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt.reset_n.line.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt.wdt.RESET_N.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt.wdt.2.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt.wdt.WDI.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.wdt.wdt.4.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.uvlo_logic.fault.line.re… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.uvlo_logic.inv.Y.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.uvlo_logic.inv.4.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.uvlo_logic.r_fault_pullu… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.uvlo_logic.r_fault_pullu… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.A1.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.1.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.B1.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.2.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.GND.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.7.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.C1.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.8.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.A3.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.11.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.B3.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.12.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.C3.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or.13.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.B1.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.2.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.C2.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.5.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.GND.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.7.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.C1.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.8.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.A3.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.11.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.B3.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.12.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.C3.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_any_or.13.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.A1.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.1.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.B1.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.2.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.C2.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.5.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.GND.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.7.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.C1.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.8.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.A3.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.11.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.B3.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.12.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.C3.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.fault_or3.13.required     │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.latch.Y2.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.latch.6.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.latch.GND.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.latch.7.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.latch.B3.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.latch.10.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.latch.A4.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.latch.12.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_shutdown.p1.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_shutdown.1.required    │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_shutdown.bom_exclude   │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_fault.p1.required      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_fault.1.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_fault.bom_exclude      │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_ocp2_fault.p1.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_ocp2_fault.1.required  │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_ocp2_fault.bom_exclude │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_uvlo2_fault.p1.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_uvlo2_fault.1.required │ Symbol(key='/Users/bennet/Desk… │         │
+│ safety.tp_uvlo2_fault.bom_exclu… │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.power.gnd.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.wdt_kick.line.required       │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.fault_status_in.line.requir… │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.wdt_reset_in.line.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.pwm_h.required               │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.pwm_l.required               │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.adc_i_sense.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.adc_v_bus.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.adc_ntc.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.GND.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.1.required               │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.10.required              │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.GPIO1.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.GPIO2.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.GPIO3.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.4.required               │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.5.required               │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.IO4.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.IO5.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.IO6.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.6.required               │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.IO7.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.7.required               │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.mcu.IO17.required            │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.c_vcc1.p2.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.c_vcc1.2.required            │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.c_vcc2.p2.required           │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.c_vcc2.2.required            │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.c_en.p2.required             │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.c_en.2.required              │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.btn_reset.p2.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.btn_reset.2.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.btn_boot.p2.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.btn_boot.2.required          │ Symbol(key='/Users/bennet/Desk… │         │
+│ mcu.t_boot_rc                    │ 10ms ± 400us                    │         │
+│ mcu.t_boot_delay                 │ 14.01ms ± 560us                 │         │
+│ thermal.power_15v.gnd.required   │ Symbol(key='/Users/bennet/Desk… │         │
+│ thermal.j_fan.p2.required        │ Symbol(key='/Users/bennet/Desk… │         │
+│ thermal.j_fan.2.required         │ Symbol(key='/Users/bennet/Desk… │         │
+│ thermal.p_drop_max               │ 295.19mW                        │         │
+└──────────────────────────────────┴─────────────────────────────────┴─────────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+                                   Assertions                                   
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Status ┃ Assertion                        ┃ Numeric                          ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ PASSED │ assert fuse.current_rating >=    │ 16A >= 15A                       │
+│        │ constraints.i_max                │                                  │
+│ PASSED │ assert fuse.voltage_rating >=    │ 250V >= 135V                     │
+│        │ constraints.v_max                │                                  │
+│ PASSED │ assert cmc.current_rating >=     │ 16A >= 15A                       │
+│        │ constraints.i_max                │                                  │
+│ PASSED │ assert r_bleed1.voltage_rating   │ 250V >= 212.5V                   │
+│        │ >= v_bus_half * 1.25             │                                  │
+│ PASSED │ assert r_bleed2.voltage_rating   │ 250V >= 212.5V                   │
+│        │ >= v_bus_half * 1.25             │                                  │
+│ PASSED │ assert r_bleed1.power_rating >=  │ 2W >= 650.32 to 663.45 mW        │
+│        │ p_bleed_actual * 0.5             │                                  │
+│ PASSED │ assert r_bleed2.power_rating >=  │ 2W >= 650.32 to 663.45 mW        │
+│        │ p_bleed_actual * 0.5             │                                  │
+│ PASSED │ assert c_bus1.voltage_rating >=  │ 250V >= 212.5V                   │
+│        │ v_bus_half * 1.25                │                                  │
+│ PASSED │ assert c_bus2.voltage_rating >=  │ 250V >= 212.5V                   │
+│        │ v_bus_half * 1.25                │                                  │
+│ PASSED │ assert r_dis1a.power_rating >=   │ 5W >= 3.53 to 3.9 W              │
+│        │ p_dis_resistor * 2               │                                  │
+│ PASSED │ assert r_dis1b.power_rating >=   │ 5W >= 3.53 to 3.9 W              │
+│        │ p_dis_resistor * 2               │                                  │
+│ PASSED │ assert r_dis2a.power_rating >=   │ 5W >= 3.53 to 3.9 W              │
+│        │ p_dis_resistor * 2               │                                  │
+│ PASSED │ assert r_dis2b.power_rating >=   │ 5W >= 3.53 to 3.9 W              │
+│        │ p_dis_resistor * 2               │                                  │
+│ PASSED │ assert c_snub1.voltage_rating >= │ 630V >= 340V                     │
+│        │ v_bus_half * 2                   │                                  │
+│ PASSED │ assert c_snub2.voltage_rating >= │ 630V >= 340V                     │
+│        │ v_bus_half * 2                   │                                  │
+│ PASSED │ assert r_snub1.voltage_rating >= │ 500V >= 340V                     │
+│        │ v_bus_half * 2                   │                                  │
+│ PASSED │ assert r_snub2.voltage_rating >= │ 500V >= 340V                     │
+│        │ v_bus_half * 2                   │                                  │
+│ PASSED │ assert r_dis1a.voltage_rating >= │ 139V >= 106.25V                  │
+│        │ v_bus_half * 0.625               │                                  │
+│ PASSED │ assert r_dis1b.voltage_rating >= │ 139V >= 106.25V                  │
+│        │ v_bus_half * 0.625               │                                  │
+│ PASSED │ assert r_dis2a.voltage_rating >= │ 139V >= 106.25V                  │
+│        │ v_bus_half * 0.625               │                                  │
+│ PASSED │ assert r_dis2b.voltage_rating >= │ 139V >= 106.25V                  │
+│        │ v_bus_half * 0.625               │                                  │
+│ PASSED │ assert power_out.voltage within  │ 3.3V within 3.13 to 3.46 V       │
+│        │ 3.3V +/- 5%                      │                                  │
+│ PASSED │ assert v_out_calculated within   │ 3.26 to 3.37 V within 3.13 to    │
+│        │ 3.135V to 3.465V                 │ 3.46 V                           │
+│ PASSED │ assert power_out.voltage within  │ 15V within 13.5 to 16.5 V        │
+│        │ 15V +/- 10%                      │                                  │
+│ PASSED │ assert c_in_bulk.voltage_rating  │ 250V >= 212.5V                   │
+│        │ >= 170V * 1.25                   │                                  │
+│ PASSED │ assert q_high.voltage_rating >=  │ 1.2kV >= 400V                    │
+│        │ constraints.v_max                │                                  │
+│ PASSED │ assert q_high.current_rating >=  │ 40A >= 25A                       │
+│        │ constraints.i_max                │                                  │
+│ PASSED │ assert q_low.voltage_rating >=   │ 1.2kV >= 400V                    │
+│        │ constraints.v_max                │                                  │
+│ PASSED │ assert q_low.current_rating >=   │ 40A >= 25A                       │
+│        │ constraints.i_max                │                                  │
+│ PASSED │ assert rg_on.power_rating >=     │ 500mW >= 375mW                   │
+│        │ p_rg_avg * 1.5                   │                                  │
+│ PASSED │ assert driver.i_source_peak >=   │ 4A >= 4A                         │
+│        │ constraints.i_max                │                                  │
+│ PASSED │ assert rg_on.power_rating >=     │ 500mW >= 375mW                   │
+│        │ p_rg_avg * 1.5                   │                                  │
+│ PASSED │ assert t_dead_time within 300ns  │ 305.4ns within 300 to 310 ns     │
+│        │ to 310ns                         │                                  │
+│ PASSED │ assert power_15v_ls.voltage <=   │ 15V <= 25V                       │
+│        │ gate_hs.driver.v_cc_sec_max      │                                  │
+│ PASSED │ assert c_tank1.voltage_rating >= │ 1.6kV >= 572V                    │
+│        │ v_tank_peak * 1.43               │                                  │
+│ PASSED │ assert c_tank2.voltage_rating >= │ 1.6kV >= 572V                    │
+│        │ v_tank_peak * 1.43               │                                  │
+│ PASSED │ assert c_tank3.voltage_rating >= │ 1.6kV >= 572V                    │
+│        │ v_tank_peak * 1.43               │                                  │
+│ PASSED │ assert v_burden_trip within 2.4V │ 2.47 to 2.52 V within 2.4 to 2.6 │
+│        │ to 2.6V                          │ V                                │
+│ PASSED │ assert power.voltage within 3.3V │ 3.3V within 2.97 to 3.63 V       │
+│        │ +/- 10%                          │                                  │
+│ PASSED │ assert 180V * (r_div_bot.value / │ 2.3 to 2.35 V < 2.5V             │
+│        │ (r_div_top1.value +              │                                  │
+│        │ r_div_top2.value +               │                                  │
+│        │ r_div_top3.value +               │                                  │
+│        │ r_div_bot.value)) < 2.5V         │                                  │
+│ PASSED │ assert v_adc_max <= 3.3V         │ 3.29V <= 3.3V                    │
+│ PASSED │ assert v_burden_design within    │ 2.45 to 2.5 V within 2.4 to 2.6  │
+│        │ 2.4V to 2.6V                     │ V                                │
+│ PASSED │ assert power.voltage within 3.3V │ 3.3V within 3.13 to 3.46 V       │
+│        │ +/- 5%                           │                                  │
+│ PASSED │ assert t_boot_rc within 9ms to   │ 9.6 to 10.4 ms within 9 to 11 ms │
+│        │ 11ms                             │                                  │
+│ PASSED │ assert t_boot_delay within 13ms  │ 13.45 to 14.57 ms within 13 to   │
+│        │ to 15ms                          │ 15 ms                            │
+│ PASSED │ assert r_fan_drop.power_rating   │ 1W >= 590.38mW                   │
+│        │ >= p_drop_max * 2                │                                  │
+│ PASSED │ assert v_ac_nominal within 100V  │ 120V within 100 to 130 V         │
+│        │ to 130V                          │                                  │
+│ PASSED │ assert v_bus_max <=              │ 340V <= 400V                     │
+│        │ constraints.v_max                │                                  │
+│ PASSED │ assert i_peak_max <=             │ 25A <= 25A                       │
+│        │ constraints.i_max                │                                  │
+│ PASSED │ assert f_line within 59Hz to     │ 60Hz within 59 to 61 Hz          │
+│        │ 61Hz                             │                                  │
+│ PASSED │ assert v_bus_nominal within 280V │ 340V within 280 to 380 V         │
+│        │ to 380V                          │                                  │
+│ PASSED │ assert v_bus_ripple_max <        │ 20V < 34V                        │
+│        │ v_bus_nominal * 0.1              │                                  │
+│ PASSED │ assert f_switching within 20kHz  │ 47kHz within 20 to 100 kHz       │
+│        │ to 100kHz                        │                                  │
+│ PASSED │ assert f_pll_tracking_min <      │ 44kHz < 50kHz                    │
+│        │ f_pll_tracking_max               │                                  │
+│ PASSED │ assert f_switching >=            │ 47kHz >= 44kHz                   │
+│        │ f_pll_tracking_min               │                                  │
+│ PASSED │ assert f_switching <=            │ 47kHz <= 50kHz                   │
+│        │ f_pll_tracking_max               │                                  │
+│ PASSED │ assert f_resonant_nominal within │ 31kHz within 20 to 35 kHz        │
+│        │ 20kHz to 35kHz                   │                                  │
+│ PASSED │ assert l_tank_assumed within     │ 88uH within 50 to 250 uH         │
+│        │ 50uH to 250uH                    │                                  │
+│ PASSED │ assert c_tank_total within 150nF │ 300nF within 150 to 600 nF       │
+│        │ to 600nF                         │                                  │
+│ PASSED │ assert l_pan_loaded_ratio within │ 0.68 within 0.2 to 0.8           │
+│        │ 0.2 to 0.8                       │                                  │
+│ PASSED │ assert l_tank_tolerance within   │ 0.1 within 0.05 to 0.3           │
+│        │ 0.05 to 0.30                     │                                  │
+│ PASSED │ assert c_tank_tolerance within   │ 0.1 within 0.01 to 0.3           │
+│        │ 0.01 to 0.30                     │                                  │
+│ PASSED │ assert t_ambient_max within      │ 323.15kelvin within 313.15 to    │
+│        │ 313.15K to 333.15K               │ 333.15 kelvin                    │
+│ PASSED │ assert p_output_max within 1500W │ 1.8kW within 1.5 to 1.8 kW       │
+│        │ to 1800W                         │                                  │
+│ PASSED │ assert p_standby_max < 5W        │ 1W < 5W                          │
+│ PASSED │ assert eta_min >= 0.85           │ 0.9 >= 0.85                      │
+│ PASSED │ assert                           │ 1.2kV >= 510V                    │
+│        │ hb.power_loop.q_high.voltage_ra… │                                  │
+│        │ >= v_bus_max * 1.5               │                                  │
+│ PASSED │ assert                           │ 1.2kV >= 510V                    │
+│        │ hb.power_loop.q_low.voltage_rat… │                                  │
+│        │ >= v_bus_max * 1.5               │                                  │
+│ PASSED │ assert                           │ 40A >= 37.5A                     │
+│        │ hb.power_loop.q_high.current_ra… │                                  │
+│        │ >= i_peak_max * 1.5              │                                  │
+│ PASSED │ assert                           │ 40A >= 37.5A                     │
+│        │ hb.power_loop.q_low.current_rat… │                                  │
+│        │ >= i_peak_max * 1.5              │                                  │
+│ PASSED │ assert                           │ 600V >= 340V                     │
+│        │ hb.gate_hs.boot_diode.voltage_r… │                                  │
+│        │ >= v_bus_max                     │                                  │
+│ PASSED │ assert                           │ 1.6kV >= 1kV                     │
+│        │ tank.c_tank1.voltage_rating >=   │                                  │
+│        │ 1000V                            │                                  │
+│ PASSED │ assert                           │ 1.6kV >= 1kV                     │
+│        │ tank.c_tank2.voltage_rating >=   │                                  │
+│        │ 1000V                            │                                  │
+│ PASSED │ assert                           │ 250V >= 238V                     │
+│        │ power_in.c_bus1.voltage_rating   │                                  │
+│        │ >= v_bus_max * 0.7               │                                  │
+│ PASSED │ assert                           │ 250V >= 238V                     │
+│        │ power_in.c_bus2.voltage_rating   │                                  │
+│        │ >= v_bus_max * 0.7               │                                  │
+│ PASSED │ assert                           │ 600V >= 510V                     │
+│        │ power_in.d1.voltage_rating >=    │                                  │
+│        │ v_bus_max * 1.5                  │                                  │
+│ PASSED │ assert                           │ 600V >= 510V                     │
+│        │ power_in.d2.voltage_rating >=    │                                  │
+│        │ v_bus_max * 1.5                  │                                  │
+│ PASSED │ assert v_bus_max <= 400V         │ 340V <= 400V                     │
+│ PASSED │ assert i_ocp_trip_peak <         │ 50.1A < 60A                      │
+│        │ i_igbt_soa_limit                 │                                  │
+│ PASSED │ assert i_ocp_trip_rms <          │ 35.4A < 40A                      │
+│        │ hb.power_loop.q_high.current_ra… │                                  │
+│ PASSED │ assert v_ovp_trip < v_cap_max    │ 390V < 500V                      │
+│ PASSED │ assert v_ovp_trip > v_bus_max    │ 390V > 340V                      │
+│ PASSED │ assert t_thermal_trip <          │ 358.15kelvin < 398.15kelvin      │
+│        │ thermal_constraints.igbt_derate… │                                  │
+│ PASSED │ assert t_wdt_timeout >           │ 1.6s > 1s                        │
+│        │ t_fault_response_max * 10        │                                  │
+│ PASSED │ assert t_mcu_boot <              │ 14ms < 500ms                     │
+│        │ t_soft_start_delay               │                                  │
+│ PASSED │ assert t_dt_sw > t_igbt_off +    │ 300ns > 295ns                    │
+│        │ 50ns                             │                                  │
+└────────┴──────────────────────────────────┴──────────────────────────────────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Successfully built 'bom, designator-map,        build.py:105
+                    variable-report, copy-footprints,                           
+                    assertions-report, clone-footprints,                        
+                    layout-module-map, netlist, copy-3dmodels' for              
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59
+WARN Ignoring non-directory workspace member: `/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/README.md`
+[write-build-stamp] elec/build/default.net: 8 input(s), digest 206ce198882a…

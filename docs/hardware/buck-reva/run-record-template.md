@@ -3,7 +3,7 @@
 ## Identity
 
 - Date / operator:
-- Board revision + release manifest/hash (from `pcb/prototypes/buck-reva/verification/board-freeze.md`):
+- Board revision + source-manifest/release ZIP hash (frozen Rev A; assembly drawing at `pcb/prototypes/buck-reva/release/docs/assembly-drawing.pdf`):
 - Assembly identifier (new ID after any rework):
 - Requirements revision: `temper-buck-requirements-2026-09-10-startup-compliance`
 - This runbook revision (git SHA):

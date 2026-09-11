@@ -16,7 +16,11 @@ MANDATORY_SCENARIOS = {"startup", "input_variation", "load_variation"}
 
 
 def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _identity(value: Any) -> str | None:
@@ -35,6 +39,7 @@ def collect(
     model_manifest: Any = None,
     circuit_identity: Any = None,
     requirements_identity: Any = None,
+    requirements_manifest_text: str | None = None,
     timeout_seconds: float = 30.0,
 ) -> dict[str, Any]:
     repo, output = Path(repo).resolve(), Path(output).resolve()
@@ -43,6 +48,7 @@ def collect(
         "stage": "simulation",
         "circuit_sha256": _identity(circuit_identity),
         "requirements_sha256": _identity(requirements_identity),
+        "requirements_manifest": requirements_manifest_text,
         "scenarios": [],
         "findings": [],
         "layout_sensitive": False,
@@ -117,10 +123,64 @@ def collect(
         shutil.copyfile(qualification_path, output / "qualification-evidence.txt")
         result["qualification_verified"] = True
         specs = model["scenarios"]
-        if len(specs) != 3 or {s["name"] for s in specs} != MANDATORY_SCENARIOS:
+        try:
+            requirements_obj = json.loads(requirements_manifest_text or "")
+        except json.JSONDecodeError:
+            requirements_obj = {}
+        protocol_required = any(
+            item.get("id") in {"startup_ramp", "load_step_slew"}
+            for item in requirements_obj.get("requirements", [])
+        )
+        if not protocol_required and (
+            len(specs) != 4 or {s.get("name") for s in specs} != MANDATORY_SCENARIOS
+        ):
             return blocked(
-                "three distinct explicit scenarios are required",
+                "startup, input variation, and two load profiles are required",
                 "scenario_manifest_invalid",
+            )
+        if protocol_required:
+            names = [s.get("name") for s in specs]
+            if (
+                len(specs) < 13
+                or names.count("startup") < 6
+                or names.count("load_variation") < 6
+                or names.count("input_variation") < 1
+            ):
+                return blocked(
+                    "adopted protocol requires six startup, six load, and one input case",
+                    "scenario_manifest_invalid",
+                )
+            if any(
+                not isinstance(s.get("case_id"), str) or not s["case_id"] for s in specs
+            ):
+                return blocked(
+                    "adopted protocol requires explicit unique case_id values",
+                    "scenario_case_id_missing",
+                )
+            if len({s["case_id"] for s in specs}) != len(specs):
+                return blocked(
+                    "scenario case_id values must be unique",
+                    "scenario_case_id_duplicate",
+                )
+        spec_profiles = [
+            s.get("profile_id") for s in specs if s.get("name") == "load_variation"
+        ]
+        if (
+            not protocol_required
+            and (
+                len(spec_profiles) != 2
+                or len({p for p in spec_profiles if isinstance(p, str)}) != 2
+            )
+        ) or (
+            protocol_required
+            and any(
+                p not in {"continuous_50mA_to_500mA", "pulse_50mA_to_1A"}
+                for p in spec_profiles
+            )
+        ):
+            return blocked(
+                "both required load profiles must have explicit scenario specs",
+                "load_profile_mismatch",
             )
         # Settings are trusted, reviewed operator inputs; bind them to circuit and requirements.
         if model.get("requirements_sha256") != result["requirements_sha256"]:
@@ -131,7 +191,24 @@ def collect(
             return blocked(
                 "scenario decks reference a different circuit", "stale_circuit"
             )
-        result["settings_sha256"] = _identity(specs)
+        settings_manifest = json.dumps(
+            specs, sort_keys=True, separators=(",", ":"), allow_nan=False
+        )
+        result["settings_manifest"] = settings_manifest
+        result["settings_sha256"] = hashlib.sha256(
+            settings_manifest.encode()
+        ).hexdigest()
+        reviewed_scenarios = model.get("reviewed_scenarios_sha256")
+        if reviewed_scenarios is not None:
+            if (
+                not isinstance(reviewed_scenarios, str)
+                or reviewed_scenarios != result["settings_sha256"]
+            ):
+                return blocked(
+                    "scenario settings are not bound to the reviewed scenario receipt",
+                    "reviewed_scenarios_mismatch",
+                )
+            result["reviewed_scenarios_verified"] = True
         tool = shutil.which("ngspice")
         if tool is None:
             return blocked("ngspice is unavailable", "simulator_missing")
@@ -141,15 +218,48 @@ def collect(
         result["simulator"] = {"path": tool, "version": version.stdout}
         for spec in specs:
             name = spec["name"]
+            raw_format = spec.get("raw_format", "ascii")
+            if raw_format not in {"ascii", "ngspice-binary-le64"}:
+                return blocked("unsupported waveform format", "raw_format_invalid")
+            binary = raw_format == "ngspice-binary-le64"
+            if binary and (
+                not isinstance(spec.get("timeout_seconds", 3600), (int, float))
+                or not 0 < float(spec.get("timeout_seconds", 3600)) <= 3600
+            ):
+                return blocked(
+                    "binary scenario timeout must be between 0 and 3600 seconds",
+                    "scenario_timeout_invalid",
+                )
             deck = verified_file(spec, "deck", "deck_sha256")
-            folder = output / name
+            case_id = spec.get("case_id")
+            folder_name = (
+                f"case-{hashlib.sha256(case_id.encode()).hexdigest()[:16]}"
+                if isinstance(case_id, str) and case_id
+                else name
+                if name != "load_variation"
+                else f"load_variation-{hashlib.sha256(spec['profile_id'].encode()).hexdigest()[:16]}"
+            )
+            folder = output / folder_name
             folder.mkdir()
             shutil.copyfile(deck, folder / "scenario.cir")
             # Decks use the retained exact model at ../model.lib. No implicit include search.
             rawfile = folder / "waveform.raw"
-            scenario = {"name": name, "spec": spec, "deck_sha256": spec["deck_sha256"]}
+            scenario = {
+                "name": name,
+                "case_id": spec.get("case_id"),
+                "spec": spec,
+                "deck_sha256": spec["deck_sha256"],
+                "raw_format": raw_format,
+            }
+            if binary:
+                scenario["raw_file"] = rawfile.relative_to(output).as_posix()
             result["scenarios"].append(scenario)
-            argv = [tool, "-b", "-r", str(rawfile), "scenario.cir"]
+            argv = [tool, "-n", "-b", "-r", str(rawfile), "scenario.cir"]
+            env = {**os.environ}
+            if binary:
+                env.pop("SPICE_ASCIIRAWFILE", None)
+            else:
+                env["SPICE_ASCIIRAWFILE"] = "1"
             with (
                 (folder / "stdout.txt").open("w") as stdout,
                 (folder / "stderr.txt").open("w") as stderr,
@@ -160,8 +270,12 @@ def collect(
                         cwd=folder,
                         stdout=stdout,
                         stderr=stderr,
-                        env={**os.environ, "SPICE_ASCIIRAWFILE": "1"},
-                        timeout=timeout_seconds,
+                        env=env,
+                        timeout=(
+                            float(spec.get("timeout_seconds", 3600))
+                            if binary
+                            else timeout_seconds
+                        ),
                         check=False,
                     )
                     scenario.update(
@@ -174,8 +288,15 @@ def collect(
             for filename in ("stdout.txt", "stderr.txt"):
                 scenario[filename + "_sha256"] = _sha256(folder / filename)
             if scenario["status"] == "pass":
-                if not rawfile.is_file() or rawfile.stat().st_size > 32 * 1024 * 1024:
+                if not rawfile.is_file() or (
+                    not binary and rawfile.stat().st_size > 32 * 1024 * 1024
+                ):
                     scenario["status"] = "truncated"
+                elif binary:
+                    if rawfile.stat().st_size > 8 * 1024 * 1024 * 1024:
+                        scenario["status"] = "truncated"
+                    else:
+                        scenario["artifact_sha256"] = _sha256(rawfile)
                 else:
                     scenario["raw_waveform"] = rawfile.read_text()
                     scenario["artifact_sha256"] = _sha256(rawfile)

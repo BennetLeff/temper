@@ -1,6 +1,6 @@
 # Buck Rev A — board freeze record
 
-Frozen: 2026-09-10. Revision **A**. Project: `pcb/prototypes/buck-reva/`.
+Frozen: 2026-09-10. Revision **A** (Samsung C11/C12 assembly substitution bound by this manifest). Project: `pcb/prototypes/buck-reva/`.
 
 This document freezes one concrete board revision. Later changes to any file
 listed in `source-manifest.json` invalidate this freeze and require a new one.
@@ -15,16 +15,16 @@ listed in `source-manifest.json` invalidate this freeze and require a new one.
 
 - Source manifest: `pcb/prototypes/buck-reva/source-manifest.json`
 - Schema: `buck-reva.source-manifest.v1`
-- **Source-manifest SHA-256: `3f77b285623adf3fcdc1ccea152fedbf86431f3404f8b9c7b36003c398beebcb`**
+- **Source-manifest SHA-256: `83b462c4bbce39b1c367fa2e1965e4a937db26d7e301f505736e2aec8f52cd52`**
 - Frozen CAD hashes (full digests; also in the manifest):
 
 | File | SHA-256 |
 |---|---|
-| `buck-reva.kicad_sch` | `f0a48a4c707a90fd7aa51a36d1879652492e78d1f08f8a87a944e9e9ee920a26` |
-| `buck-reva.kicad_pcb` | `308131c56e3af2c9f40ee526018c6af945e92f42ad9db4c4d89710911c85390b` |
+| `buck-reva.kicad_sch` | `a9a1df53251c9d9352035494bdf2e2d8407d2f0f9e73117046ddc9867ea2501e` |
+| `buck-reva.kicad_pcb` | `8da3f73444f803e389f38864ba5278f9987533d4e597fa5b40823ad2d0c8d2b3` |
 | `buck-reva.kicad_pro` | `b5a93ddb50cef2d550aaacdff28a67ecfa6ed2e060b945ca82bec222a287196b` |
 | `buck-reva.kicad_dru` | `e53161ef573ffc1623e5f4751f32a11e23d65479c83230e49e41cf93273cacf5` |
-| `buck-reva.kicad_sym` | `64406f8d76017d988a2e1f5c6a678c20fd38351862ea2d2f8b254c358986b268` |
+| `buck-reva.kicad_sym` | `07494d5628b2b45665e5d0732d82864aa99e9b7922695eec30e87edffb56667d` |
 
 `source-manifest.json` additionally pins `fp-lib-table`, `sym-lib-table` and
 every local `.kicad_mod` (15 files total).
@@ -93,8 +93,8 @@ Command: `kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all
 
 | Check | Result | Report |
 |---|---|---|
-| Schematic ERC (`sch erc --severity-all`) | **0 violations** | `verification/buck-reva-erc.json` |
-| PCB DRC (with `--schematic-parity --severity-all`) | **0 violations, 0 unconnected, 0 schematic-parity** | `verification/buck-reva-drc.json` |
+| Schematic ERC (`sch erc --severity-all`) | **0 violations** | `release/verification/erc-report.txt` |
+| PCB DRC (with `--schematic-parity --severity-all`) | **0 violations, 0 unconnected, 0 schematic-parity** | `release/verification/drc-report.txt` |
 | Schematic↔board connectivity | exact match, all 6 nets | `verification/connectivity.md` |
 | Locality metrics (core) | all within limits (below) | this file |
 
@@ -134,10 +134,10 @@ measurement of transient performance.
 
 ## Reviewed artifacts
 
-- `verification/renders/top.svg`, `verification/renders/bottom.svg` — 2D copper/mask/silk/outline, both sides.
-- `verification/renders/top-3d.png` — assembled top 3D view.
-- `verification/renders/schematic.pdf` — one-page schematic.
-- `verification/buck-reva.net` — exported schematic netlist.
+- `release/verification/buck-reva-F_Cu.svg` and corresponding layer SVGs — current 2D copper/mask/silk/outline views.
+- `release/docs/assembly-drawing.pdf` — current assembly drawing.
+- `release/docs/schematic.pdf` — current one-page schematic.
+- `release/verification/schematic-netlist.kicadsexpr` — current exported schematic netlist.
 - `verification/footprints.md` — land-pattern/mechanical review.
 - `verification/connectivity.md` — source/schematic/board connectivity review.
 
@@ -148,7 +148,7 @@ Recorded separately from the manufacturing input mapping (see
 
 | Upstream source | SHA-256 |
 |---|---|
-| `elec/src/modules.ato` | `d3873898d65300b5982eeba66d61b1ec4938c63ec29ce869d34a3ac8d11cc547` |
+| `elec/src/modules.ato` | `272f7f9604771d44255e8cbd9c3f3b7dd6c68bd16a0bad7b48a03b665e0a16cc` |
 | `harness-lab/engineering/circuit-contract.json` | `2866d51e6176239275f945b97e560c75abbd2475ca22d81bbebea3cd95b9df44` |
 | `harness-lab/fixtures/buck-v2/buck-v2-contract.json` | `eb69d057cdf0801f7257095e5818352408de183ead1d20dacab050df78569959` |
 | `harness-lab/fixtures/buck-v2/buck-dev-a/witness.kicad_pcb` | `65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f` |
@@ -167,6 +167,12 @@ The production board and all benchmark fixtures were left unchanged.
 - **rev A (this freeze):** global labels, board↔schematic field sync, and
   H1–H4 schematic symbols added; DRC now runs with `--schematic-parity` and
   reports 0. Manifest digest above.
+- **rev A (this freeze):** C11/C12 changed from unavailable Murata
+  `GRM32ER71E226KE15L` to Samsung `CL32B226KAJNNWE`, preserving the 1210 land,
+  nominal 22 uF / 25 V / X7R specification and placement. Samsung DC-bias
+  behavior is unverified; prior Murata curves and sensitivity assumptions are
+  not carried over as a Samsung minimum. New source hashes and exports are
+  required for this superseding freeze.
 
 ## Outstanding items (explicit)
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -37,17 +38,34 @@ def inventory(directory: Path) -> dict[str, str]:
             raise ValueError(f"symlink is not an evidence artifact: {path}")
         if path.is_file():
             path.resolve().relative_to(root)
-            result[path.relative_to(directory).as_posix()] = harness.file_hash(path)
+            result[path.relative_to(directory).as_posix()] = _stream_hash(path)
     return result
 
 
-def judge(payload: dict) -> dict:
+def _stream_hash(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def judge(payload: dict, *, simulation_raw_root: Path | None = None) -> dict:
+    env = os.environ.copy()
+    if simulation_raw_root is None:
+        env.pop("TEMPER_SIMULATION_RAW_ROOT", None)
+    else:
+        env["TEMPER_SIMULATION_RAW_ROOT"] = str(simulation_raw_root.resolve())
+    binary_simulation = payload.get("profile") == "engineering-simulation" and any(
+        isinstance(s, dict) and "raw_file" in s for s in payload.get("scenarios", [])
+    )
     result = subprocess.run(
         [str(harness.JUDGE)],
         input=json.dumps(payload, allow_nan=False),
         text=True,
         capture_output=True,
-        timeout=30,
+        env=env,
+        timeout=3600 if binary_simulation else 30,
         check=False,
     )
     if result.returncode not in (0, 2):
@@ -74,7 +92,12 @@ def collect_stage(stage: str, output: Path, collect) -> tuple[dict, list[Path]]:
     try:
         raw = collect()
         write_json(raw_path, raw)
-        result = judge(raw)
+        result = judge(
+            raw,
+            simulation_raw_root=output / "simulation"
+            if stage == "simulation"
+            else None,
+        )
     except (
         OSError,
         ValueError,
@@ -112,7 +135,9 @@ def run(
     output.mkdir(parents=True, exist_ok=False)
     requirement_path = requirements or ROOT / "engineering/requirements.json"
     shutil.copyfile(requirement_path, output / "requirements.json")
-    manifest = json.loads((output / "requirements.json").read_text())
+    requirement_bytes = (output / "requirements.json").read_bytes()
+    requirement_text = requirement_bytes.decode("utf-8")
+    manifest = json.loads(requirement_text)
     source_inventory = sources()
     write_json(output / "sources.json", source_inventory)
     if not harness.JUDGE.is_file():
@@ -133,7 +158,7 @@ def run(
     )
     candidate = candidate_dir / "candidate.kicad_pcb"
     current = {
-        "requirements_sha256": harness.file_hash(output / "requirements.json"),
+        "requirements_sha256": hashlib.sha256(requirement_bytes).hexdigest(),
         "sources_sha256": identity(
             {
                 path: digest
@@ -151,7 +176,9 @@ def run(
     }
 
     def circuit_collection() -> dict:
-        payload = circuit_native.collect(REPO, output / "circuit", candidate)
+        payload = circuit_native.collect(
+            REPO, output / "circuit", candidate, adapter=qualify_buck.ADAPTER
+        )
         payload["circuit_source_sha256"] = current["sources_sha256"]
         if component_qualification:
             qualification = json.loads(component_qualification.read_text())
@@ -183,6 +210,7 @@ def run(
                 "circuit_result": harness.file_hash(circuit_files[-1]),
             },
             requirements_identity=current["requirements_sha256"],
+            requirements_manifest_text=requirement_text,
         ),
     )
 

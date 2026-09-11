@@ -1,0 +1,24 @@
+{
+  "instrument": "instrument.cir",
+  "simulator": "ngspice-45.2",
+  "qualification_claim": false,
+  "window_s": [0.0, 0.001],
+  "ideal_sink": {
+    "mean_current_a": 0.4999998,
+    "current_at_1ms_a": 0.5,
+    "minimum_output_v": -11.3551,
+    "output_at_1ms_v": -11.36363
+  },
+  "voltage_compliant_sink": {
+    "mean_current_a": 0.0,
+    "current_at_1ms_a": 0.0,
+    "minimum_output_v": 0.0,
+    "output_at_1ms_v": 0.0
+  },
+  "artifacts": [
+    "instrument.cir",
+    "instrument.log",
+    "instrument.raw",
+    "sha256.txt"
+  ]
+}

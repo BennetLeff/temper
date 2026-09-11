@@ -1,0 +1,33 @@
+{
+  "board_sha256": "6652f7904fb0ff63da856a3cf229ad7d4f5754f4b7a6ec39dd4d5ba1ae2ece90",
+  "findings": [
+    {
+      "id": "unrouted:C11.2:gnd"
+    },
+    {
+      "id": "unrouted:C12.2:gnd"
+    },
+    {
+      "id": "unrouted:C13.2:gnd"
+    },
+    {
+      "id": "unrouted:J2.1:gnd"
+    },
+    {
+      "id": "unrouted:J2.2:gnd"
+    },
+    {
+      "id": "unrouted:R17.2:gnd"
+    },
+    {
+      "id": "unrouted:U3.1:gnd"
+    },
+    {
+      "distance_mm": null,
+      "id": "ground_return:C11.2"
+    }
+  ],
+  "open_connection_evidence": [],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

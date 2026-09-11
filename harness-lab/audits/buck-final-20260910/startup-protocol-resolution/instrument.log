@@ -1,0 +1,23 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: * startup protocol instrument: ideal sink versus voltage-compliant sink.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 20039
+ideal_load_pre      =  4.999998e-01 from=  0.000000e+00 to=  1.000249e-03
+compliant_load_pre  =  0.000000e+00 from=  0.000000e+00 to=  1.000249e-03
+ideal_vmin          =  -1.135510e+01 at=  9.992493e-04
+compliant_vmin      =  0.000000e+00 at=  9.992493e-04
+ideal_load_end      =  5.000000e-01
+compliant_load_end  =  0.000000e+00
+ideal_v_end         =  -1.136363e+01
+compliant_v_end     =  0.000000e+00
+ASCII raw file "instrument.raw"
+ngspice-45.2 done

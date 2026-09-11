@@ -1,0 +1,32 @@
+{
+  "board_sha256": "9fef307c77bb3115e5bc459adea93336f4f7b97cdb7da7face15af6b276a3682",
+  "findings": [
+    {
+      "id": "protected_state_changed"
+    },
+    {
+      "id": "terminal_moved:J1"
+    },
+    {
+      "evidence": {
+        "description": "Track has unconnected end",
+        "items": [
+          {
+            "description": "Track [+15V] on F.Cu, length 1.5500 mm",
+            "pos": {
+              "x": 2.225,
+              "y": 26.0
+            },
+            "uuid": "66c0614e-6432-4dc4-84e3-78b3d0942809"
+          }
+        ],
+        "severity": "warning",
+        "type": "track_dangling"
+      },
+      "id": "kicad:track_dangling:66c0614e-6432-4dc4-84e3-78b3d0942809"
+    }
+  ],
+  "open_connection_evidence": [],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

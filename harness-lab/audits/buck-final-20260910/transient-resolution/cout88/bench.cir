@@ -1,0 +1,42 @@
+* LMR51430 datasheet-model load-step exercise; exploratory only.
+.include ../model.lib
+.param VINSET=15 CIN=10u COUT=88u LVAL=5.6u ILOW=.05 IHIGH=.5
+V_IN in 0 PWL(0 0 1m {VINSET} 20m {VINSET})
+R_SOURCE in vin_node 100m
+C_IN vin_node 0 {CIN}
+V_LOAD out load 0
+V_LOADCMD loadcmd 0 PWL(0 {ILOW} 6m {ILOW} {6m+(IHIGH-ILOW)/100k} {IHIGH} 9m {IHIGH} {9m+(IHIGH-ILOW)/100k} {ILOW} 12m {ILOW})
+B_LOAD load 0 I={max(0,min(1,v(load)/0.1))*v(loadcmd)}
+R_ESR out cap 5m
+C_OUT cap 0 {COUT}
+C_HF out 0 100n
+L_OUT sw l_out {LVAL}
+R_DCR l_out out 10m
+R_FBTOP out fb 100k
+R_FBBOT fb 0 22.1k
+C_BOOT boot sw 100n
+V_GND0 GND0 0 0
+X_U3 vin_node sw GND0 fb vin_node boot LMR51430XDDCR PARAMS: KP=5 KI=10u CCTRL=1n
+.save time v(out) v(in) v(vin_node) i(V_IN) i(V_LOAD) i(L_OUT) v(fb) v(sw) v(X_U3.ipk) v(X_U3.ctrl) v(X_U3.ref) v(X_U3.gh) v(X_U3.ena)
+.options method=gear reltol=1e-4 abstol=1e-9 vntol=1e-6
+.temp 25
+.tran 20n 11m 0 20n uic
+.control
+set filetype=binary
+run
+let pin = -v(in)*i(V_IN)
+let pout = v(out)*i(V_LOAD)
+meas tran vout_pre AVG v(out) FROM=5m TO=5.9m
+meas tran vout_high AVG v(out) FROM=7.5m TO=8.5m
+meas tran vout_post AVG v(out) FROM=9.5m TO=11m
+meas tran iload_pre AVG i(V_LOAD) FROM=5m TO=5.9m
+meas tran iload_high AVG i(V_LOAD) FROM=7.5m TO=8.5m
+meas tran iload_post AVG i(V_LOAD) FROM=9.5m TO=11m
+meas tran vout_min MIN v(out) FROM=6m TO=9m
+meas tran vout_max MAX v(out) FROM=6m TO=11m
+meas tran pin_energy INTEG pin FROM=0 TO=11m
+meas tran pout_energy INTEG pout FROM=0 TO=11m
+write waveform.raw time v(out) v(in) v(vin_node) i(V_IN) i(V_LOAD) i(L_OUT) v(fb) v(sw)
+quit
+.endc
+.end

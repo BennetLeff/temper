@@ -3,8 +3,8 @@
 **Status: procedure only. No board has been powered; no test has passed.**
 Verify every connector pin and test point against the final assembly drawing
 before energizing. Figures (`images/connector-probe-map-provisional.svg`,
-`images/bench-wiring-provisional.svg`) are **PROVISIONAL** until bound to the
-board freeze (`pcb/prototypes/buck-reva/verification/board-freeze.md`).
+`images/bench-wiring-provisional.svg`) are bound to frozen Rev A and its
+source-manifest digest; they remain procedural aids and do not prove hardware.
 
 Board at planning: standalone 15 V-to-3.3 V buck (LMR51430, U3), inductor L2,
 output capacitors C11/C12. Operating connection: **J1.1 VIN / J1.2 GND** input,

@@ -19,7 +19,7 @@ representation and the authority for prototype-only I/O (J1, J2, TP1–TP4).
 ## 2. Core pin map check
 
 Explicit checklist from the board plan, rechecked against the exported
-schematic netlist (`verification/buck-reva.net`).
+current schematic netlist (`release/verification/schematic-netlist.kicadsexpr`).
 
 | Net | Required core pins | Present on board net | Result |
 |---|---|---|---|
@@ -52,7 +52,7 @@ rather than assumed:
 ## 4. Schematic ↔ board comparison
 
 Run with KiCad CLI 10.0.6. Source:
-`verification/buck-reva.net` (schematic export) and the board's pad nets
+`release/verification/schematic-netlist.kicadsexpr` (current schematic export) and the board's pad nets
 (extracted with pcbnew 10.0.6).
 
 | Net | Schematic `(ref.pin)` set | Board pad set | Result |
@@ -64,7 +64,7 @@ Run with KiCad CLI 10.0.6. Source:
 | gnd | C11.2, C12.2, C13.2, C9.2, J1.2, J2.2, R17.2, TP2.1, TP4.1, U3.1 | identical | MATCH |
 | sw | C10.2, L2.1, U3.2 | identical | MATCH |
 
-Native DRC's schematic-parity check (`verification/buck-reva-drc.json`,
+Native DRC's schematic-parity check (`release/verification/drc-report.txt`,
 `schematic_parity`) reports 0 mismatches on the same files.
 
 ## 5. Component census

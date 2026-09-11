@@ -1,0 +1,71 @@
+{
+  "kind": "model-development-verification/v1",
+  "model_sha256": "62d3bda599e7f7a301b9cc7115e305d33e48edb07957e7f5602c19b92956e096",
+  "artifact_hashes_verified": true,
+  "source_snapshots_current": true,
+  "shellcheck": "pass",
+  "shell_syntax": "pass",
+  "existing_output_exit_code": 2,
+  "missing_simulator_exit_code": 2,
+  "load_slew_a_per_us": {
+    "rise": 0.09999999999999154,
+    "fall": 0.10000000000001563
+  },
+  "qualified": false,
+  "hardware_validated": false,
+  "development_only": true,
+  "complete_default_matrix_run": false,
+  "cases": [
+    {
+      "case": "nominal-steady",
+      "rows": 3772966,
+      "finite": true,
+      "monotonic_time": true,
+      "duration_s": 0.019999999999999997,
+      "metrics": {
+        "vout_end": 3.309604,
+        "vout_avg": 3.315226,
+        "vout_min": 3.307127,
+        "vout_max": 3.320963,
+        "il_avg": 0.5023147,
+        "pin_energy": 0.0321632,
+        "pout_energy": 0.0282101
+      }
+    },
+    {
+      "case": "load-step-0p05-to-0p5",
+      "rows": 3192680,
+      "finite": true,
+      "monotonic_time": true,
+      "duration_s": 0.019999999999999997,
+      "metrics": {
+        "vout_pre": 3.316562,
+        "vout_high": 3.30157,
+        "vout_post": 3.323654,
+        "iload_pre": 0.05,
+        "iload_high": 0.5,
+        "iload_post": 0.05,
+        "vout_min": 2.880473,
+        "vout_max": 3.335566,
+        "pin_energy": 0.0094942,
+        "pout_energy": 0.00728125
+      }
+    },
+    {
+      "case": "sensitivity-L-4.48u",
+      "rows": 3926220,
+      "finite": true,
+      "monotonic_time": true,
+      "duration_s": 0.019999999999999997,
+      "metrics": {
+        "vout_end": 3.322365,
+        "vout_avg": 3.305104,
+        "vout_min": 3.269143,
+        "vout_max": 3.335965,
+        "il_avg": 0.5008316,
+        "pin_energy": 0.0309742,
+        "pout_energy": 0.0280637
+      }
+    }
+  ]
+}

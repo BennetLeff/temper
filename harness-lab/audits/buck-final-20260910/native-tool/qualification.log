@@ -1,0 +1,35 @@
+buck-dev-a witness-1 pass
+buck-dev-a witness-2 pass
+buck-dev-a witness-3 pass
+buck-dev-b witness-1 pass
+buck-dev-b witness-2 pass
+buck-dev-b witness-3 pass
+buck-res-a witness-1 pass
+buck-res-a witness-2 pass
+buck-res-a witness-3 pass
+buck-res-b witness-1 pass
+buck-res-b witness-2 pass
+buck-res-b witness-3 pass
+buck-dev-a missing-terminal-connection fail-as-intended (unrouted:)
+buck-dev-a wrong-raw-copper-net fail-as-intended (wrong_net:)
+buck-dev-a moved-protected-terminal fail-as-intended (terminal_moved:J1)
+buck-dev-a changed-rules fail-as-intended (protected_context_changed)
+buck-dev-b missing-terminal-connection fail-as-intended (unrouted:)
+buck-dev-b wrong-raw-copper-net fail-as-intended (wrong_net:)
+buck-dev-b moved-protected-terminal fail-as-intended (terminal_moved:J1)
+buck-dev-b changed-rules fail-as-intended (protected_context_changed)
+buck-res-a missing-terminal-connection fail-as-intended (unrouted:)
+buck-res-a wrong-raw-copper-net fail-as-intended (wrong_net:)
+buck-res-a moved-protected-terminal fail-as-intended (terminal_moved:J1)
+buck-res-a changed-rules fail-as-intended (protected_context_changed)
+buck-res-b missing-terminal-connection fail-as-intended (unrouted:)
+buck-res-b wrong-raw-copper-net fail-as-intended (wrong_net:)
+buck-res-b moved-protected-terminal fail-as-intended (terminal_moved:J1)
+buck-res-b changed-rules fail-as-intended (protected_context_changed)
+buck-dev-a short fail-as-intended
+buck-dev-a clearance fail-as-intended
+buck-dev-a outside-footprint fail-as-intended
+buck-dev-a drc-clean-locality fail-as-intended
+missing-buck-evidence indeterminate
+truncated-connectivity indeterminate
+Qualified 36 buck controls

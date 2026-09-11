@@ -1,0 +1,29 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: * lmr51430 datasheet-model load-step exercise; exploratory only.
+
+Reducing trtol to 1 for xspice 'A' devices
+Doing analysis at TEMP = 25.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  3.08837e-04 Reference value :  4.29573e-04 Reference value :  5.48333e-04 Reference value :  6.66108e-04 Reference value :  7.78027e-04 Reference value :  8.88750e-04 Reference value :  9.97831e-04 Reference value :  1.10400e-03 Reference value :  1.20810e-03 Reference value :  1.30902e-03 Reference value :  1.40795e-03 Reference value :  1.50291e-03 Reference value :  1.59697e-03 Reference value :  1.68821e-03 Reference value :  1.77861e-03 Reference value :  1.86735e-03 Reference value :  1.95381e-03 Reference value :  2.03897e-03 Reference value :  2.12521e-03 Reference value :  2.21221e-03 Reference value :  2.29792e-03 Reference value :  2.38073e-03 Reference value :  2.46386e-03 Reference value :  2.54623e-03 Reference value :  2.62859e-03 Reference value :  2.70627e-03 Reference value :  2.78384e-03 Reference value :  2.85858e-03 Reference value :  2.93344e-03 Reference value :  3.00800e-03 Reference value :  3.08036e-03 Reference value :  3.15223e-03 Reference value :  3.22423e-03 Reference value :  3.29423e-03 Reference value :  3.36387e-03 Reference value :  3.43200e-03 Reference value :  3.50010e-03 Reference value :  3.56823e-03 Reference value :  3.63551e-03 Reference value :  3.70283e-03 Reference value :  3.77142e-03 Reference value :  3.84000e-03 Reference value :  3.90581e-03 Reference value :  3.97200e-03 Reference value :  4.03600e-03 Reference value :  4.09908e-03 Reference value :  4.16266e-03 Reference value :  4.22504e-03 Reference value :  4.29025e-03 Reference value :  4.35938e-03 Reference value :  4.42880e-03 Reference value :  4.49731e-03 Reference value :  4.56809e-03 Reference value :  4.63701e-03 Reference value :  4.70645e-03 Reference value :  4.77543e-03 Reference value :  4.84209e-03 Reference value :  4.91106e-03 Reference value :  4.98024e-03 Reference value :  5.05000e-03 Reference value :  5.11851e-03 Reference value :  5.19025e-03 Reference value :  5.26047e-03 Reference value :  5.33000e-03 Reference value :  5.39766e-03 Reference value :  5.46688e-03 Reference value :  5.53625e-03 Reference value :  5.60531e-03 Reference value :  5.67586e-03 Reference value :  5.74359e-03 Reference value :  5.81385e-03 Reference value :  5.88200e-03 Reference value :  5.95107e-03 Reference value :  6.01600e-03 Reference value :  6.08839e-03 Reference value :  6.17000e-03 Reference value :  6.25000e-03 Reference value :  6.33041e-03 Reference value :  6.41200e-03 Reference value :  6.49226e-03 Reference value :  6.57240e-03 Reference value :  6.65241e-03 Reference value :  6.73242e-03 Reference value :  6.81200e-03 Reference value :  6.89245e-03 Reference value :  6.97243e-03 Reference value :  7.05245e-03 Reference value :  7.13230e-03 Reference value :  7.21200e-03 Reference value :  7.29043e-03 Reference value :  7.37045e-03 Reference value :  7.45000e-03 Reference value :  7.53000e-03 Reference value :  7.60826e-03 Reference value :  7.68602e-03 Reference value :  7.76453e-03 Reference value :  7.84387e-03 Reference value :  7.92247e-03 Reference value :  8.00045e-03 Reference value :  8.07847e-03 Reference value :  8.15645e-03 Reference value :  8.23401e-03 Reference value :  8.31047e-03 Reference value :  8.38801e-03 Reference value :  8.46402e-03 Reference value :  8.54202e-03 Reference value :  8.62002e-03 Reference value :  8.69845e-03 Reference value :  8.77645e-03 Reference value :  8.85447e-03 Reference value :  8.93247e-03 Reference value :  9.01302e-03 Reference value :  9.11093e-03 Reference value :  9.20923e-03 Reference value :  9.30669e-03 Reference value :  9.40402e-03 Reference value :  9.50085e-03 Reference value :  9.59898e-03 Reference value :  9.69385e-03 Reference value :  9.79106e-03 Reference value :  9.88582e-03 Reference value :  9.98221e-03 Reference value :  1.00776e-02 Reference value :  1.01743e-02 Reference value :  1.02702e-02 Reference value :  1.03659e-02 Reference value :  1.04620e-02 Reference value :  1.05572e-02 Reference value :  1.06552e-02 Reference value :  1.07498e-02 Reference value :  1.08464e-02 Reference value :  1.09405e-02
+No. of Data Rows : 1873657
+vout_pre            =  3.317829e+00 from=  5.000000e-03 to=  5.900000e-03
+vout_high           =  3.299078e+00 from=  7.500000e-03 to=  8.500000e-03
+vout_post           =  3.331166e+00 from=  9.500000e-03 to=  1.100000e-02
+iload_pre           =  5.000000e-02 from=  5.000000e-03 to=  5.900000e-03
+iload_high          =  5.000000e-01 from=  7.500000e-03 to=  8.500000e-03
+iload_post          =  5.000000e-02 from=  9.500000e-03 to=  1.100000e-02
+vout_min            =  2.800349e+00 at=  6.082082e-03
+vout_max            =  3.355074e+00 at=  9.171870e-03
+pin_energy          =  7.68149e-03 from=  1.00000e-11 to=  1.10000e-02
+pout_energy         =  5.77495e-03 from=  1.00000e-11 to=  1.10000e-02
+binary raw file "waveform.raw"
+ngspice-45.2 done
+real 33.72
+user 33.07
+sys 0.63

@@ -1,0 +1,62 @@
+cargo build --locked
+   Compiling temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.43s
+cargo test --locked
+   Compiling temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.01s
+     Running unittests src/main.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/temper_harness_e00-96e5d11f0b25e276)
+
+running 38 tests
+test buck::tests::partial_digest_is_not_a_content_identity ... ok
+test buck::tests::parallel_tracks_never_touch ... ok
+test buck::tests::crossing_tracks_measure_zero ... ok
+test buck::tests::asymmetric_oracle_probe_uses_kicad_clockwise_rotation ... ok
+test buck_operations::tests::replace_copper_rejects_non_ground_zone ... ok
+test buck_operations::tests::execute_rejects_code_over_byte_limit ... ok
+test buck_operations::tests::place_rejects_protected_reference ... ok
+test buck_operations::tests::execute_admits_utf8_bytes_and_rejects_unknown_keys ... ok
+test buck_operations::tests::replace_copper_rejects_nested_unknown_key ... ok
+test continual::tests::provider_failure_sticks_even_when_worker_alive ... ok
+test continual::tests::strict_json_rejects_duplicate_fields ... ok
+test continual::tests::only_verified_driver_interrupt_resumes ... ok
+test continual::tests::start_accepts_frozen_slot ... ok
+test buck_operations::tests::schema_contains_nested_shapes ... ok
+test continual::tests::mutation_fail_is_progress_not_terminal ... ok
+test qualification::tests::only_exact_reviewed_receipt_is_admitted ... ok
+test engineering::tests::missing_receipts_fail_closed_and_hardware_is_unverified ... ok
+test engineering::tests::stale_and_synthetic_receipts_cannot_pass ... ok
+test continual::tests::changed_provenance_changes_revision_identity ... ok
+test engineering::tests::complete_resolved_chain_passes_stages_one_to_four ... ok
+test simulation_validation::tests::adopted_load_protocol_rejects_missing_falling_edge_and_wrong_slew ... ok
+test simulation_validation::tests::adopted_load_protocol_accepts_three_bidirectional_pulses ... ok
+test simulation_validation::tests::bad_raw_and_missing_limits_are_rejected ... ok
+test simulation_validation::tests::prebiased_startup_and_false_zero_load_are_rejected ... ok
+test simulation_validation::tests::adopted_load_holds_and_transient_controls_reject_bad_measurements ... ok
+test simulation_validation::tests::load_endpoints_reject_shifted_waveforms_and_relaxed_tolerances ... ok
+test simulation_validation::tests::native_ngspice_rc_control_matches_analytic_response ... ok
+test tests::partial_digest_is_not_a_content_identity ... ok
+test tests::missing_evidence_cannot_deserialize_as_a_pass ... ok
+test simulation_validation::tests::raw_measurements_pass_and_defect_fails ... ok
+test simulation_validation::tests::adopted_requirements_without_vin_max_cannot_fall_back_to_defaults ... ok
+test engineering::tests::malformed_identity_dependencies_and_missing_limits_cannot_pass ... ok
+test engineering::tests::missing_identity_or_inventory_blocks ... ok
+test engineering::tests::thermal_targets_require_distinct_component_measurements ... ok
+test simulation_validation::tests::adopted_startup_matrix_uses_requirements_continuous_load ... ok
+test engineering::tests::explicit_load_profiles_cannot_fall_back_to_legacy_endpoints ... ok
+test simulation_validation::tests::complete_software_chain_and_independent_negative_controls ... ok
+test simulation_validation::tests::adopted_evaluate_accepts_thirteen_raw_waveform_cases ... ok
+
+test result: ok. 38 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+cargo clippy --all-targets --all-features --locked -- -D warnings
+    Checking temper-harness-e00 v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.87s
+cargo fmt -- --check
+ruff check --isolated --select E4,E7,E9,F,I *.py
+All checks passed!
+ruff format --isolated --check *.py
+Would reformat: run_buck_trials.py
+Would reformat: telemetry.py
+Would reformat: test_telemetry.py
+3 files would be reformatted, 44 files already formatted
+make: *** [check] Error 1

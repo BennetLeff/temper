@@ -1,0 +1,18 @@
+{
+  "kind": "lmr51430-datasheet-exercise/v1",
+  "development_only": true,
+  "hardware_validated": false,
+  "qualified": false,
+  "simulator_version_file": "ngspice-version.txt",
+  "simulator_version_sha256": "614d453975d15f1d0dfa69b0ed2fa6ad729e5977f1097b26d119b745f3b66196",
+  "model": "model.lib",
+  "model_sha256": "62d3bda599e7f7a301b9cc7115e305d33e48edb07957e7f5602c19b92956e096",
+  "parameter_provenance": "parameter-provenance.json",
+  "parameter_provenance_sha256": "1ab506ab456056d63e50083b7ccc3094058412b5ffe62b4f630747aed5462273",
+  "git_commit": "a75ca538d87d6578917d0cb3a50da7f14ebdc210",
+  "cases": [
+    {"name":"nominal-steady","deck_sha256":"1524ad9ddf21b554e4f6d44495eee4764a0661eb07187e078ac17b6e250e0546","log_sha256":"f43987cac518a2bcafc106cf434596b2c479d0037dc6ea91181106bb6b0fd43f","raw_sha256":"6ab7f79703477770cade4a8788e45d7174a330076483715ea59241b8cf90d61e"},
+    {"name":"load-step-0p05-to-0p5","deck_sha256":"842ea851e029e1631463700f8842d0e4c0147104d1b4220db2a92829e7f7afd0","log_sha256":"25540762cc76e1609085280633e29761f8bb7b7efa9f30194f5179440273f132","raw_sha256":"04cb21d46cae18fb5c3112b07048a8b8d9d957144450d87a0af7129249c0c40c"},
+    {"name":"sensitivity-L-4.48u","deck_sha256":"a9bfd6cc3b740b348f7d1d0b492a2e2ed1d26a2e93798bba8d11c0086f050726","log_sha256":"6ba2726149bd98c9152173a8f3e4263c50c3a19008d25ad8ffb6a83578612b85","raw_sha256":"9d20981c78e3edbd9e449022c22b7b32645a30a41dcaea865165bc4d31184bbf"}
+  ]
+}

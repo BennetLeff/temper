@@ -2,8 +2,9 @@
 
 No telemetry SDK/runtime is required. Point this at an OTLP JSON collector;
 its normal exporter can forward to LangSmith. Direct SaaS delivery is unverified.
-The subprocess receives metadata and export credentials only, never a receipt
-path or authority to change a trial. It performs one bounded HTTP request.
+The subprocess receives finalized trace data and export credentials only, never
+a receipt path or authority to change a trial. It performs one bounded HTTP
+request. API credentials are transport-only and never enter span data.
 """
 
 from __future__ import annotations
@@ -25,8 +26,10 @@ LANGSMITH_ENDPOINT = "https://api.smith.langchain.com/otel/v1/traces"
 KEYCHAIN_SERVICE = "com.temper.harness.langsmith"
 KEYCHAIN_ACCOUNT = "temper-harness"
 
-MAX_BYTES = 128 * 1024
+SCHEMA_VERSION = 2
+MAX_BYTES = 4 * 1024 * 1024
 MAX_EVENTS = 1024
+MAX_VALUE_BYTES = 4 * 1024 * 1024
 ATTRIBUTES = {
     "run_id",
     "attempt_id",
@@ -37,7 +40,28 @@ ATTRIBUTES = {
     "tool",
     "classification",
     "duration_ms",
+    "operation",
+    "request_sha256",
+    "response_status",
+    "mutation_committed",
+    "native_verdict",
+    "measurement_ref",
+    "successful_mutations",
+    "history_count",
+    "refinement_count",
+    "resume_count",
+    "returncode",
+    "error_category",
 }
+
+
+def _json_value(value: object) -> str | None:
+    """Serialize complete trace values without silently truncating content."""
+    try:
+        encoded = json.dumps(value, allow_nan=False, separators=(",", ":"))
+    except (TypeError, ValueError):
+        return None
+    return encoded if len(encoded.encode()) <= MAX_VALUE_BYTES else None
 
 
 def endpoint_from_env(env: dict[str, str]) -> str | None:
@@ -89,17 +113,21 @@ def local_destination(deadline: float) -> tuple[str, dict[str, str]]:
     }
 
 
-def packet(events: list[dict], receipt_digest: str) -> dict:
+def packet(
+    events: list[dict],
+    receipt_digest: str,
+    *,
+    inputs: dict | None = None,
+    outputs: dict | None = None,
+    trace_name: str = "temper.harness",
+) -> dict:
     if len(events) > MAX_EVENTS:
         raise ValueError("too many spans")
     spans = []
+    root_span_id = hashlib.sha256(f"{receipt_digest}:root".encode()).hexdigest()[:16]
     for index, event in enumerate(events):
         start, end = event["started_unix_ns"], event["ended_unix_ns"]
-        if (
-            type(start) is not int
-            or type(end) is not int
-            or not 0 <= start <= end < 2**64
-        ):
+        if type(start) is not int or type(end) is not int or not 0 <= start <= end < 2**64:
             raise ValueError("invalid span time")
         attributes = []
         for key in sorted(ATTRIBUTES & event.keys()):
@@ -109,32 +137,56 @@ def packet(events: list[dict], receipt_digest: str) -> dict:
                 and len(value) <= 256
                 and re.fullmatch(r"[a-zA-Z0-9_./: -]*", value)
             ):
-                attributes.append(
-                    {"key": "temper." + key, "value": {"stringValue": value}}
-                )
+                attributes.append({"key": "temper." + key, "value": {"stringValue": value}})
             elif (
                 key == "duration_ms"
                 and type(value) in (int, float)
                 and math.isfinite(value)
                 and value >= 0
             ):
-                attributes.append(
-                    {"key": "temper.duration_ms", "value": {"doubleValue": value}}
-                )
-        # Untrusted event names, prompts, tool payloads and code are never sent.
+                attributes.append({"key": "temper.duration_ms", "value": {"doubleValue": value}})
+        for field, key in (("input", "input.value"), ("output", "output.value")):
+            value = _json_value(event[field]) if field in event else None
+            if value is not None:
+                attributes.append({"key": key, "value": {"stringValue": value}})
+        if event.get("error_category"):
+            attributes.append(
+                {
+                    "key": "error.type",
+                    "value": {"stringValue": str(event["error_category"])[:128]},
+                }
+            )
         spans.append(
             {
                 "traceId": receipt_digest[:32],
-                "spanId": hashlib.sha256(
-                    f"{receipt_digest}:{index}".encode()
-                ).hexdigest()[:16],
-                "name": "temper.harness",
-                "kind": 1,
+                "spanId": event.get("span_id")
+                or hashlib.sha256(f"{receipt_digest}:{index}".encode()).hexdigest()[:16],
+                "parentSpanId": event.get("parent_span_id") or root_span_id,
+                "name": event.get("span_name", "temper.harness"),
+                "kind": event.get("span_kind", 1),
                 "startTimeUnixNano": str(start),
                 "endTimeUnixNano": str(end),
                 "attributes": attributes,
             }
         )
+    root_attributes = [
+        {"key": "langsmith.trace.name", "value": {"stringValue": trace_name}},
+        {"key": "langsmith.span.kind", "value": {"stringValue": "chain"}},
+    ]
+    for field, key in (("input", "input.value"), ("output", "output.value")):
+        source = inputs if field == "input" else outputs
+        value = _json_value(source) if source is not None else None
+        if value is not None:
+            root_attributes.append({"key": key, "value": {"stringValue": value}})
+    root = {
+        "traceId": receipt_digest[:32],
+        "spanId": root_span_id,
+        "name": trace_name,
+        "kind": 1,
+        "startTimeUnixNano": str(events[0]["started_unix_ns"] if events else 0),
+        "endTimeUnixNano": str(events[-1]["ended_unix_ns"] if events else 0),
+        "attributes": root_attributes,
+    }
     return {
         "resourceSpans": [
             {
@@ -148,8 +200,11 @@ def packet(events: list[dict], receipt_digest: str) -> dict:
                 },
                 "scopeSpans": [
                     {
-                        "scope": {"name": "temper.harness", "version": "1"},
-                        "spans": spans,
+                        "scope": {
+                            "name": "temper.harness",
+                            "version": str(SCHEMA_VERSION),
+                        },
+                        "spans": [root, *spans],
                     }
                 ],
             }
@@ -164,6 +219,9 @@ def export(
     enabled: bool = False,
     endpoint: str | None = None,
     timeout: float = 5.0,
+    inputs: dict | None = None,
+    outputs: dict | None = None,
+    trace_name: str = "temper.harness",
 ) -> dict:
     if not enabled:
         return {"status": "disabled"}
@@ -174,7 +232,15 @@ def export(
         deadline = time.monotonic() + timeout
         digest = hashlib.sha256(receipt.read_bytes()).hexdigest()
         body = json.dumps(
-            packet(events, digest), allow_nan=False, separators=(",", ":")
+            packet(
+                events,
+                digest,
+                inputs=inputs,
+                outputs=outputs,
+                trace_name=trace_name,
+            ),
+            allow_nan=False,
+            separators=(",", ":"),
         )
         if len(body.encode()) > MAX_BYTES:
             return {"status": "dropped", "reason": "payload_limit"}
@@ -244,11 +310,7 @@ def _send(payload: dict) -> None:
         "::1",
     }:
         raise ValueError("remote collector requires HTTPS")
-    cls = (
-        http.client.HTTPSConnection
-        if target.scheme == "https"
-        else http.client.HTTPConnection
-    )
+    cls = http.client.HTTPSConnection if target.scheme == "https" else http.client.HTTPConnection
     connection = cls(target.hostname, port=target.port, timeout=payload["timeout"])
     try:
         connection.request(
@@ -278,4 +340,4 @@ if __name__ == "__main__":
         _send(json.loads(sys.stdin.read(MAX_BYTES * 2)))
     except Exception:
         # Never emit endpoint, headers, body, or exception messages containing them.
-        raise SystemExit(1)
+        raise SystemExit(1) from None

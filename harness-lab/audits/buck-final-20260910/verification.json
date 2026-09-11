@@ -1,0 +1,13 @@
+{
+  "qualification_sources_current": true,
+  "qualification_evaluator_current": true,
+  "retained_engineering_inventory_verified": true,
+  "native_cases": 36,
+  "python_tests": 132,
+  "rust_tests": 38,
+  "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "approved_registry_sha256": "99d23e692550345dc0e036083e4f0ee29ed8837cb39392eff58b01c84b5550fd",
+  "engineering_eligible": false,
+  "preflight_status": "blocked",
+  "telemetry": "disabled"
+}

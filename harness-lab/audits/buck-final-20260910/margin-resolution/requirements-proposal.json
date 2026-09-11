@@ -1,0 +1,104 @@
+{
+  "schema_version": "buck-margin-resolution-proposal/v1",
+  "date": "2026-09-10",
+  "status": "proposal-for-parent-review",
+  "authority": "parent audit only; no automatic adoption",
+  "sources": {
+    "ti_lmr51430": "https://www.ti.com/lit/ds/symlink/lmr51430.pdf",
+    "bourns_srp1265a": "https://www.bourns.com/docs/product-datasheets/srp1265a.pdf",
+    "samsung_c9": "https://product.samsungsem.com/mlcc/CL32B106KBJZW6E.do",
+    "meanwell_irm10_spec": "https://www.meanwell.com/Upload/PDF/IRM-10/IRM-10-SPEC.PDF",
+    "meanwell_irm10_spec_sha256": "1aab6b30492328818e4d0900416676891eeb1076f409d56dc2277d7119ed208a",
+    "murata_bias": "../components/sources/cout-bias-25-lowac.json",
+    "murata_temperature": "../components/sources/cout-temperature-3v465-lowac.json"
+  },
+  "proposed_requirements": [
+    {
+      "id": "vin_ripple_pp_candidate_rejected_for_closure",
+      "value": 125,
+      "units": "mVpp",
+      "conditions": "VIN 13.5/15.0/16.5 V; IOUT 0.5 A continuous and 1.0 A for 10 ms; 20 MHz bandwidth",
+      "verification": "bench",
+      "kind": "unapproved engineering sensitivity point; rejected as closure criterion pending upstream/system budget",
+      "manufacturer_guarantee": false
+    },
+    {
+      "id": "c9_effective_sensitivity_assumption",
+      "value": 4.54,
+      "units": "uF",
+      "conditions": "retained audit approximation ~7 uF at 16.5 V x 0.90 temperature x 0.90 tolerance x 0.80 aging",
+      "verification": "circuit_then_bench",
+      "kind": "reviewed sensitivity input",
+      "manufacturer_guarantee": false
+    },
+    {
+      "id": "c10_effective_sensitivity_assumption",
+      "value": 0.064,
+      "units": "uF",
+      "conditions": "100 nF C0603C104K5RACTU; 0.90 tolerance x 0.90 temperature x 0.80 aging",
+      "verification": "bench_or_vendor_curve",
+      "kind": "placeholder sensitivity input",
+      "manufacturer_guarantee": false
+    },
+    {
+      "id": "c13_effective_sensitivity_assumption",
+      "value": 0.064,
+      "units": "uF",
+      "conditions": "100 nF C0603C104K5RACTU; 0.90 tolerance x 0.90 temperature x 0.80 aging",
+      "verification": "bench_or_vendor_curve",
+      "kind": "placeholder sensitivity input",
+      "manufacturer_guarantee": false
+    },
+    {
+      "id": "c11_effective_sensitivity_assumption",
+      "value": 11.00,
+      "units": "uF",
+      "conditions": "GRM32ER71E226KE15L; retained 15.288456 uF temperature minimum x 0.90 tolerance x 0.80 aging = 11.00768832 uF, conservatively represented as 11.00 uF",
+      "verification": "bench_or_vendor_curve",
+      "kind": "reviewed sensitivity input",
+      "manufacturer_guarantee": false
+    },
+    {
+      "id": "c12_effective_sensitivity_assumption",
+      "value": 11.00,
+      "units": "uF",
+      "conditions": "GRM32ER71E226KE15L; retained 15.288456 uF temperature minimum x 0.90 tolerance x 0.80 aging = 11.00768832 uF, conservatively represented as 11.00 uF",
+      "verification": "bench_or_vendor_curve",
+      "kind": "reviewed sensitivity input",
+      "manufacturer_guarantee": false
+    },
+    {
+      "id": "l2_normal_peak_max",
+      "value": 1.70,
+      "units": "A",
+      "conditions": "candidate normal screen: 1.0 A output, 450 kHz minimum, 4.48 uH (-20%), VOUT up to 3.465 V, VIN 13.5-16.5 V; parent review required",
+      "verification": "circuit_and_bench",
+      "kind": "initial-build normal-operation screen",
+      "manufacturer_guarantee": false
+    },
+    {
+      "id": "l2_fault_hot_bias_screen",
+      "value": 8.35,
+      "units": "A",
+      "conditions": "standalone DC-bias fixture, 105 C hotspot; 1.25 x 6.68 A U3 fault-current ceiling",
+      "verification": "standalone_fixture_or_exact_hot_curve",
+      "kind": "existing fault criterion; scope change proposal awaiting parent review",
+      "manufacturer_guarantee": false,
+      "initial_harness_gate": "pending-parent-review"
+    }
+  ],
+  "calculation_summary": {
+    "c9_450kHz_Lmin_ripple_mVpp_without_source_vout3p3": {"iout_0p5A": [50.7, 56.4], "iout_1A": [94.9, 106.6]},
+    "c9_450kHz_Lmin_ripple_mVpp_without_source_vout3p465": {"iout_0p5A": [52.4, 58.1], "iout_1A": [98.0, 109.8]},
+    "c9_100mOhm_source": "requires RLC/time-domain source transfer; do not add I_L_peak x R",
+    "normal_l2_peak_range_A_at_450kHz_Lmin_vout3p3": [1.618, 1.655],
+    "normal_l2_peak_range_A_at_450kHz_Lmin_vout3p465": [1.639, 1.679],
+    "l2_dcr_at_105C_model_mOhm": 13.1,
+    "l2_copper_loss_at_8p35A_model_W": 0.92
+  },
+  "open_evidence": [
+    "VIN-pin ripple and upstream source impedance at six operating points",
+    "combined-condition effective capacitance for all five capacitors",
+    "SRP1265A-5R6M hot L(I,T), core loss, and hotspot at 8.35 A"
+  ]
+}

@@ -34,6 +34,15 @@ class EngineeringControls(unittest.TestCase):
         self.assertEqual(result["status"], "blocked")
         self.assertFalse(result["hardware_validated"])
         self.assertEqual(result["stages"][-1]["status"], "not_run")
+        requirements_stage = result["stages"][0]
+        unresolved = {
+            finding["requirement"]
+            for finding in requirements_stage["findings"]
+            if finding["id"] == "mandatory_limit_unresolved"
+        }
+        self.assertEqual(
+            unresolved, {"capacitor_effective_value", "inductor_current_rating"}
+        )
 
     def test_wrong_profile_is_rejected(self) -> None:
         requirements = json.loads((ROOT / "engineering/requirements.json").read_text())

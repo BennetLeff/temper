@@ -1,0 +1,438 @@
+{
+  "schema": "buck-full-scenario-readiness/v1",
+  "status": "schedule_proposal_not_qualification_manifest",
+  "requirements_revision": "temper-buck-requirements-2026-09-10-startup-compliance",
+  "model_sha256": "62d3bda599e7f7a301b9cc7115e305d33e48edb07957e7f5602c19b92956e096",
+  "qualified": false,
+  "cases": [
+    {
+      "case_id": "startup-13.5V-0A",
+      "name": "startup",
+      "vin_corner_v": 13.5,
+      "load_a": 0,
+      "vin_ramp_start_s": 1e-06,
+      "vin_ramp_end_s": 0.001001,
+      "expected_crossing_s": 0.001001,
+      "capture_end_s": 0.021100999999999998,
+      "en_tied_to_vin": true,
+      "startup_load_contract": "zero-current load",
+      "execution": "not_run"
+    },
+    {
+      "case_id": "startup-13.5V-0.5A",
+      "name": "startup",
+      "vin_corner_v": 13.5,
+      "load_a": 0.5,
+      "vin_ramp_start_s": 1e-06,
+      "vin_ramp_end_s": 0.001001,
+      "expected_crossing_s": 0.001001,
+      "capture_end_s": 0.021100999999999998,
+      "en_tied_to_vin": true,
+      "startup_load_contract": "0.5 A * clamp(VOUT / 0.1 V, 0, 1), within 2% rated-load tolerance",
+      "execution": "not_run"
+    },
+    {
+      "case_id": "load-13.5V-0.5A",
+      "name": "load_variation",
+      "profile_id": "continuous_50mA_to_500mA",
+      "vin_corner_v": 13.5,
+      "load_low_a": 0.05,
+      "load_high_a": 0.5,
+      "edges": [
+        {
+          "start_s": 0.12,
+          "end_s": 0.1200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.13,
+          "end_s": 0.1300045,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.22,
+          "end_s": 0.2200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.23,
+          "end_s": 0.2300045,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.32,
+          "end_s": 0.3200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.33,
+          "end_s": 0.33000450000000003,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        }
+      ],
+      "warmup_start_s": 0,
+      "capture_start_s": 0.0199,
+      "capture_end_s": 0.431,
+      "execution": "not_run",
+      "capture_note": "100 us extra initial hold avoids losing required coverage to the first saved sample"
+    },
+    {
+      "case_id": "load-13.5V-1A",
+      "name": "load_variation",
+      "profile_id": "pulse_50mA_to_1A",
+      "vin_corner_v": 13.5,
+      "load_low_a": 0.05,
+      "load_high_a": 1,
+      "edges": [
+        {
+          "start_s": 0.12,
+          "end_s": 0.12000949999999999,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.13,
+          "end_s": 0.1300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.22,
+          "end_s": 0.2200095,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.23,
+          "end_s": 0.2300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.32,
+          "end_s": 0.3200095,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.33,
+          "end_s": 0.3300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        }
+      ],
+      "warmup_start_s": 0,
+      "capture_start_s": 0.0199,
+      "capture_end_s": 0.431,
+      "execution": "not_run",
+      "capture_note": "100 us extra initial hold avoids losing required coverage to the first saved sample"
+    },
+    {
+      "case_id": "startup-15V-0A",
+      "name": "startup",
+      "vin_corner_v": 15,
+      "load_a": 0,
+      "vin_ramp_start_s": 1e-06,
+      "vin_ramp_end_s": 0.001001,
+      "expected_crossing_s": 0.000901,
+      "capture_end_s": 0.021001,
+      "en_tied_to_vin": true,
+      "startup_load_contract": "zero-current load",
+      "execution": "not_run"
+    },
+    {
+      "case_id": "startup-15V-0.5A",
+      "name": "startup",
+      "vin_corner_v": 15,
+      "load_a": 0.5,
+      "vin_ramp_start_s": 1e-06,
+      "vin_ramp_end_s": 0.001001,
+      "expected_crossing_s": 0.000901,
+      "capture_end_s": 0.021001,
+      "en_tied_to_vin": true,
+      "startup_load_contract": "0.5 A * clamp(VOUT / 0.1 V, 0, 1), within 2% rated-load tolerance",
+      "execution": "native_development_protocol_pass_not_qualified",
+      "evidence": "native-startup-15v-500ma/protocol-v2/verified-judge-result.json"
+    },
+    {
+      "case_id": "load-15V-0.5A",
+      "name": "load_variation",
+      "profile_id": "continuous_50mA_to_500mA",
+      "vin_corner_v": 15,
+      "load_low_a": 0.05,
+      "load_high_a": 0.5,
+      "edges": [
+        {
+          "start_s": 0.12,
+          "end_s": 0.1200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.13,
+          "end_s": 0.1300045,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.22,
+          "end_s": 0.2200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.23,
+          "end_s": 0.2300045,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.32,
+          "end_s": 0.3200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.33,
+          "end_s": 0.33000450000000003,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        }
+      ],
+      "warmup_start_s": 0,
+      "capture_start_s": 0.0199,
+      "capture_end_s": 0.431,
+      "execution": "not_run",
+      "capture_note": "100 us extra initial hold avoids losing required coverage to the first saved sample"
+    },
+    {
+      "case_id": "load-15V-1A",
+      "name": "load_variation",
+      "profile_id": "pulse_50mA_to_1A",
+      "vin_corner_v": 15,
+      "load_low_a": 0.05,
+      "load_high_a": 1,
+      "edges": [
+        {
+          "start_s": 0.12,
+          "end_s": 0.12000949999999999,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.13,
+          "end_s": 0.1300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.22,
+          "end_s": 0.2200095,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.23,
+          "end_s": 0.2300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.32,
+          "end_s": 0.3200095,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.33,
+          "end_s": 0.3300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        }
+      ],
+      "warmup_start_s": 0,
+      "capture_start_s": 0.0199,
+      "capture_end_s": 0.431,
+      "execution": "not_run",
+      "capture_note": "100 us extra initial hold avoids losing required coverage to the first saved sample"
+    },
+    {
+      "case_id": "startup-16.5V-0A",
+      "name": "startup",
+      "vin_corner_v": 16.5,
+      "load_a": 0,
+      "vin_ramp_start_s": 1e-06,
+      "vin_ramp_end_s": 0.001001,
+      "expected_crossing_s": 0.0008191818181818182,
+      "capture_end_s": 0.02091918181818182,
+      "en_tied_to_vin": true,
+      "startup_load_contract": "zero-current load",
+      "execution": "not_run"
+    },
+    {
+      "case_id": "startup-16.5V-0.5A",
+      "name": "startup",
+      "vin_corner_v": 16.5,
+      "load_a": 0.5,
+      "vin_ramp_start_s": 1e-06,
+      "vin_ramp_end_s": 0.001001,
+      "expected_crossing_s": 0.0008191818181818182,
+      "capture_end_s": 0.02091918181818182,
+      "en_tied_to_vin": true,
+      "startup_load_contract": "0.5 A * clamp(VOUT / 0.1 V, 0, 1), within 2% rated-load tolerance",
+      "execution": "not_run"
+    },
+    {
+      "case_id": "load-16.5V-0.5A",
+      "name": "load_variation",
+      "profile_id": "continuous_50mA_to_500mA",
+      "vin_corner_v": 16.5,
+      "load_low_a": 0.05,
+      "load_high_a": 0.5,
+      "edges": [
+        {
+          "start_s": 0.12,
+          "end_s": 0.1200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.13,
+          "end_s": 0.1300045,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.22,
+          "end_s": 0.2200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.23,
+          "end_s": 0.2300045,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.32,
+          "end_s": 0.3200045,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 0.5
+        },
+        {
+          "start_s": 0.33,
+          "end_s": 0.33000450000000003,
+          "direction": "falling",
+          "from_a": 0.5,
+          "to_a": 0.05
+        }
+      ],
+      "warmup_start_s": 0,
+      "capture_start_s": 0.0199,
+      "capture_end_s": 0.431,
+      "execution": "not_run",
+      "capture_note": "100 us extra initial hold avoids losing required coverage to the first saved sample"
+    },
+    {
+      "case_id": "load-16.5V-1A",
+      "name": "load_variation",
+      "profile_id": "pulse_50mA_to_1A",
+      "vin_corner_v": 16.5,
+      "load_low_a": 0.05,
+      "load_high_a": 1,
+      "edges": [
+        {
+          "start_s": 0.12,
+          "end_s": 0.12000949999999999,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.13,
+          "end_s": 0.1300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.22,
+          "end_s": 0.2200095,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.23,
+          "end_s": 0.2300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        },
+        {
+          "start_s": 0.32,
+          "end_s": 0.3200095,
+          "direction": "rising",
+          "from_a": 0.05,
+          "to_a": 1
+        },
+        {
+          "start_s": 0.33,
+          "end_s": 0.3300095,
+          "direction": "falling",
+          "from_a": 1,
+          "to_a": 0.05
+        }
+      ],
+      "warmup_start_s": 0,
+      "capture_start_s": 0.0199,
+      "capture_end_s": 0.431,
+      "execution": "not_run",
+      "capture_note": "100 us extra initial hold avoids losing required coverage to the first saved sample"
+    },
+    {
+      "case_id": "input-variation-generic",
+      "name": "input_variation",
+      "vin_min_v": 13.5,
+      "vin_max_v": 16.5,
+      "execution": "not_run",
+      "protocol_status": "generic voltage span only; line-edge protocol unadopted"
+    }
+  ]
+}

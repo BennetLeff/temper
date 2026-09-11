@@ -13,7 +13,7 @@ resemblance.
 | U3 | LMR51430XDDCR | `SOT-23-6` | Pads byte-identical to KiCad `Package_TO_SOT_SMD:SOT-23-6` (IPC/JEDEC MO-178). Pin map 1 GND, 2 SW, 3 VIN, 4 FB, 5 EN, 6 BOOT checked against the TI LMR51430 datasheet (SLUSF4A) and the KiCad `Regulator_Switching:LMR51430` symbol. | PASS |
 | L2 | SRP1265A-5R6M | `L_Bourns_SRP1265A` | Reviewed v5 land: pads 3.1 × 5.0 mm at ±5.55 mm, inner land gap 8.0 mm, outer span 14.2 mm, pad height 5.0 mm; body 13.5 × 12.5 mm, maximum envelope 14.0 × 12.8 mm, courtyard 15.0 × 13.8 mm. Verified against the retained Bourns SRP1265A drawing by the prior audit (`harness-lab/audits/buck-20260910-followup/layout.md`; PDF SHA-256 `30b470999b737a6350ce5b09a917a5f12090c2e0895a78ddc15285e3d44ec649`). No generic smaller inductor land is used. | PASS |
 | C9 | CL32B106KBJZW6E | `C_1210_3225Metric` | Pads byte-identical to KiCad `Capacitor_SMD:C_1210_3225Metric` (IPC-7351 nominal 1210 / 3225 metric). Samsung product page and assembly-guidance link retained in `current-buck-bom.md`. | PASS (see limit 1) |
-| C11, C12 | GRM32ER71E226KE15L | `C_1210_3225Metric` | As C9. | PASS (see limit 1) |
+| C11, C12 | CL32B226KAJNNWE | `C_1210_3225Metric` | Same 1210 land pattern as C9; Samsung drawing confirms 3.2 × 2.5 mm nominal body and 2.7 mm maximum height. DC-bias behavior remains unverified. | PASS (see limit 1) |
 | C10, C13 | C0603C104K5RACTU | `C_0603_1608Metric` | Pads byte-identical to KiCad `Capacitor_SMD:C_0603_1608Metric` (IPC-7351 nominal 0603). | PASS |
 | R16, R17 | RC0603FR-07100KL / RC0603FR-0722K1L | `R_0603_1608Metric` | Pads byte-identical to KiCad `Resistor_SMD:R_0603_1608Metric` (IPC-7351 nominal 0603). | PASS |
 

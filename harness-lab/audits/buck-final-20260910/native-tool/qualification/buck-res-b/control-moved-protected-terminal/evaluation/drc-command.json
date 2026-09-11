@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "kicad-cli",
+    "pcb",
+    "drc",
+    "--format",
+    "json",
+    "--all-track-errors",
+    "--severity-all",
+    "--output",
+    "/private/tmp/temper-buck-final-v2-qualification-6/buck-res-b/control-moved-protected-terminal/evaluation/drc.json",
+    "/private/tmp/temper-buck-final-v2-qualification-6/buck-res-b/control-moved-protected-terminal/candidate.kicad_pcb"
+  ],
+  "returncode": 0,
+  "stdout": "Found 1 violations\nFound 0 unconnected items\nSaved DRC Report to /private/tmp/temper-buck-final-v2-qualification-6/buck-res-b/control-moved-protected-terminal/evaluation/drc.json\n",
+  "stderr": ""
+}

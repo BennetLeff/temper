@@ -1,0 +1,60 @@
+{
+  "schema": "exploratory-spice-model-provenance/v1",
+  "model": "LMR51430XDDCR",
+  "variant": "500 kHz PFM X, DDCR",
+  "model_sha256": "62d3bda599e7f7a301b9cc7115e305d33e48edb07957e7f5602c19b92956e096",
+  "qualified": false,
+  "evidence_boundary": "design exploration only; not vendor model, hardware qualification, stability, efficiency, thermal, or fault evidence",
+  "source": {
+    "kind": "primary manufacturer datasheet",
+    "title": "LMR51430 SIMPLE SWITCHER Power Converter datasheet, SLUSEF4A Rev. A",
+    "url": "https://www.ti.com/lit/ds/symlink/lmr51430.pdf",
+    "retained_path": "harness-lab/audits/buck-20260909/sources/ti-lmr51430.pdf",
+    "sha256": "f7d8053844fb07ae773844f023373c0c570507ca61603fe28dda15364987296c",
+    "inspected": "2026-09-10"
+  },
+  "pins": {"VIN": 3, "SW": 2, "GND": 1, "FB": 4, "EN": 5, "CB": 6},
+  "parameters": {
+    "VREF": {"value": 0.6, "unit": "V", "status": "source-backed-typical", "datasheet": "electrical characteristics, Vfb typ"},
+    "FSW": {"value": 500000, "unit": "Hz", "status": "source-backed-typical", "datasheet": "500-kHz trim option"},
+    "RHS": {"value": 0.12, "unit": "ohm", "status": "source-backed-typical-at-25C", "datasheet": "RDSON(HS)"},
+    "RLS": {"value": 0.07, "unit": "ohm", "status": "source-backed-typical-at-25C", "datasheet": "RDSON(LS)"},
+    "TSS": {"value": 0.004, "unit": "s", "status": "source-backed-typical", "datasheet": "internal fixed soft-start time"},
+    "I_PK_MAX": {"value": 4.76, "unit": "A", "status": "source-backed-typical", "datasheet": "IHS_PK(OC), LMR51430"},
+    "I_MIN": {"value": 0.48, "unit": "A", "status": "source-backed-typical", "datasheet": "minimum PFM peak current"},
+    "EN_rise": {"value": 1.227, "unit": "V", "status": "source-backed-typical", "datasheet": "EN rising threshold"},
+    "EN_fall": {"value": 1.08, "unit": "V", "status": "source-backed-typical", "datasheet": "EN falling threshold"},
+    "VIN_UVLO_rise": {"value": 3.89, "unit": "V", "status": "source-backed-typical", "datasheet": "VIN UVLO rising threshold"},
+    "VIN_UVLO_fall": {"value": 3.58, "unit": "V", "status": "source-backed-typical", "datasheet": "VIN UVLO falling threshold"},
+    "TBLANK": {"value": 70e-9, "unit": "s", "status": "source-backed-minimum-on-time", "datasheet": "electrical characteristics, tON(min), VIN=12 V, IOUT=3 A"},
+    "T_OFF_MIN": {"value": 150e-9, "unit": "s", "status": "source-backed-minimum-off-time-used-as-simplified-periodic-reset", "datasheet": "electrical characteristics, tOFF(min), VIN=4.5 V", "modeling_caveat": "the model's forced periodic reset is a simplification, not complete device duty/frequency-foldback behavior"},
+    "KP": {"value": 5.0, "unit": "A/V", "status": "assumed", "reason": "unpublished compensation represented by PI current command"},
+    "KI": {"value": 1e-5, "unit": "A/V", "status": "assumed", "reason": "unpublished compensation represented by PI current command; effective state slope is KI/CCTRL"},
+    "CCTRL": {"value": 1e-9, "unit": "F", "status": "assumed", "reason": "control-state numerical scaling; internal compensation unpublished"},
+    "RLEAK": {"value": 1e12, "unit": "ohm", "status": "numerical-grounding-assumption", "reason": "prevents floating integrator without changing intended DC gain"},
+    "ZCD_THRESHOLD": {"value": 0.02, "unit": "A", "status": "source-backed-typical", "datasheet": "section 8.4.4: IZC = 20 mA typical; no guaranteed corner range supplied"},
+    "ZCD_SMOOTHING": {"value": 0.002, "unit": "A", "status": "numerical-assumption", "reason": "tanh smoothing width for low-side turnoff; not a published device characteristic"}
+  },
+  "external_temper_reference": {
+    "module": "elec/src/modules.ato",
+    "module_sha256": "d3873898d65300b5982eeba66d61b1ec4938c63ec29ce869d34a3ac8d11cc547",
+    "component": "BuckConverter3V3",
+    "mapping_lines": "1422-1526",
+    "bom": {
+      "U3": "LMR51430XDDCR",
+      "L2": {"mpn": "SRP1265A-5R6M", "nominal_uH": 5.6, "dcr_max_ohm": 0.01, "tolerance_percent": 20},
+      "C9": {"mpn": "CL32B106KBJZW6E", "nominal_uF": 10, "effective_sensitivity_uF": 4.54},
+      "C11_C12": {"mpn": "GRM32ER71E226KE15L", "nominal_total_uF": 44, "conservative_effective_sensitivity_uF": 22.01},
+      "R16": {"mpn": "RC0603FR-07100KL", "ohm": 100000, "tolerance_percent": 1},
+      "R17": {"mpn": "RC0603FR-0722K1L", "ohm": 22100, "tolerance_percent": 1}
+    },
+    "topology": "VIN-C9-GND; VIN pin 3, SW pin 2 to L2, FB divider R16/R17, EN tied to VIN, CB to external 100 nF C10 and SW"
+  },
+  "numerical_assumptions": {
+    "RSNUB": {"value": 1, "unit": "ohm", "reason": "switch-node stabilization; energy-bearing and not a device loss estimate"},
+    "CSNUB": {"value": 1e-9, "unit": "F", "reason": "switch-node stabilization; energy-bearing and not a device loss estimate"},
+    "R_OFF": {"value": 1e8, "unit": "ohm", "reason": "finite off-path for convergence"},
+    "R_BOOT": {"value": 1e9, "unit": "ohm", "reason": "bootstrap pin convergence path; does not model driver dynamics"}
+  },
+  "omitted_or_unqualified": ["internal compensation values", "bootstrap driver dynamics", "detailed dead time", "PFM hysteresis", "valley/current-limit timing", "hiccup", "thermal shutdown", "temperature dependence", "inductor saturation", "capacitor DC-bias dynamics", "package and PCB parasitics"]
+}

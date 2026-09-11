@@ -1,0 +1,165 @@
+{
+  "board_sha256": "c97e3fd2ace4e1c08c000d9becbc4437e034c90030a2c6d968f2abc8e69c74e7",
+  "findings": [
+    {
+      "id": "unrouted:C11.2:gnd"
+    },
+    {
+      "id": "unrouted:C12.2:gnd"
+    },
+    {
+      "id": "unrouted:C13.2:gnd"
+    },
+    {
+      "id": "unrouted:R17.2:gnd"
+    },
+    {
+      "id": "unrouted:U3.1:gnd"
+    },
+    {
+      "distance_mm": null,
+      "id": "ground_return:C11.2"
+    },
+    {
+      "evidence": {
+        "description": "Track has unconnected end",
+        "items": [
+          {
+            "description": "Track [gnd] on B.Cu, length 8.0000 mm",
+            "pos": {
+              "x": 43.475,
+              "y": 16.0
+            },
+            "uuid": "f665e1a6-3a01-4808-a329-45b938d40f1e"
+          }
+        ],
+        "severity": "warning",
+        "type": "track_dangling"
+      },
+      "id": "kicad:track_dangling:f665e1a6-3a01-4808-a329-45b938d40f1e"
+    },
+    {
+      "count": 5,
+      "id": "open_connections"
+    }
+  ],
+  "open_connection_evidence": [
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [gnd] on B.Cu, length 7.0644 mm",
+          "pos": {
+            "x": 13.175,
+            "y": 21.0
+          },
+          "uuid": "8b18fb8b-cf2c-4f64-a345-eb12946ca51a"
+        },
+        {
+          "description": "Pad 2 [gnd] of R17 on F.Cu",
+          "pos": {
+            "x": 13.175,
+            "y": 21.0
+          },
+          "uuid": "07de072c-f965-413b-8443-7b0e35f641bf"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [gnd] on B.Cu, length 4.4577 mm",
+          "pos": {
+            "x": 21.1375,
+            "y": 20.95
+          },
+          "uuid": "9fd4d6fb-d4b5-44b5-ad24-80284ebe50cc"
+        },
+        {
+          "description": "Pad 1 [gnd] of U3 on F.Cu",
+          "pos": {
+            "x": 21.1375,
+            "y": 20.95
+          },
+          "uuid": "69d8b7ef-4d5e-4c9b-984f-91aa29996ab5"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [gnd] on B.Cu, length 4.0608 mm",
+          "pos": {
+            "x": 42.775,
+            "y": 20.0
+          },
+          "uuid": "c701d79a-b8aa-44e0-a11f-4873da364965"
+        },
+        {
+          "description": "Pad 2 [gnd] of C13 on F.Cu",
+          "pos": {
+            "x": 42.775,
+            "y": 20.0
+          },
+          "uuid": "62c7cb6a-c4d0-4f5e-8dc0-0476898539eb"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [gnd] on B.Cu, length 8.0000 mm",
+          "pos": {
+            "x": 43.475,
+            "y": 16.0
+          },
+          "uuid": "f665e1a6-3a01-4808-a329-45b938d40f1e"
+        },
+        {
+          "description": "Pad 2 [gnd] of C11 on F.Cu",
+          "pos": {
+            "x": 43.475,
+            "y": 16.0
+          },
+          "uuid": "d23e7335-9c1e-417a-8077-68b842442ca2"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [gnd] on B.Cu, length 8.0000 mm",
+          "pos": {
+            "x": 43.475,
+            "y": 16.0
+          },
+          "uuid": "f665e1a6-3a01-4808-a329-45b938d40f1e"
+        },
+        {
+          "description": "Pad 2 [gnd] of C12 on F.Cu",
+          "pos": {
+            "x": 43.475,
+            "y": 24.0
+          },
+          "uuid": "5c19de26-2607-474d-b94b-6450fef9a8dd"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    }
+  ],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

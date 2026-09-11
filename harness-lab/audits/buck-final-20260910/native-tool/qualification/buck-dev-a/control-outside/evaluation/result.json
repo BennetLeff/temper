@@ -1,0 +1,121 @@
+{
+  "board_sha256": "7c2b465be8678e98c490cef388a263950e37d3016fa728b8efb3cbe808a02ae4",
+  "findings": [
+    {
+      "id": "outside_outline:C9"
+    },
+    {
+      "id": "unrouted:J1.1:+15V"
+    },
+    {
+      "id": "unrouted:J1.2:+15V"
+    },
+    {
+      "id": "unrouted:U3.3:+15V"
+    },
+    {
+      "id": "unrouted:U3.5:+15V"
+    },
+    {
+      "id": "unrouted:C11.2:gnd"
+    },
+    {
+      "id": "unrouted:C12.2:gnd"
+    },
+    {
+      "id": "unrouted:C13.2:gnd"
+    },
+    {
+      "id": "unrouted:J2.1:gnd"
+    },
+    {
+      "id": "unrouted:J2.2:gnd"
+    },
+    {
+      "id": "unrouted:R17.2:gnd"
+    },
+    {
+      "id": "unrouted:U3.1:gnd"
+    },
+    {
+      "distance_mm": 55.450226836776785,
+      "id": "input_locality:C9.1:U3.3"
+    },
+    {
+      "distance_mm": 56.142821502396906,
+      "id": "input_locality:C9.2:U3.1"
+    },
+    {
+      "evidence": {
+        "description": "Via is not connected or connected on only one layer",
+        "items": [
+          {
+            "description": "Via [gnd] on F.Cu - B.Cu",
+            "pos": {
+              "x": 20.0,
+              "y": 14.525
+            },
+            "uuid": "5177049a-f638-44de-b2b7-468cf6751e71"
+          }
+        ],
+        "severity": "warning",
+        "type": "via_dangling"
+      },
+      "id": "kicad:via_dangling:5177049a-f638-44de-b2b7-468cf6751e71"
+    },
+    {
+      "count": 2,
+      "id": "open_connections"
+    }
+  ],
+  "open_connection_evidence": [
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [+15V] on F.Cu, length 1.5750 mm",
+          "pos": {
+            "x": 22.5,
+            "y": 17.475
+          },
+          "uuid": "7bc5ad0a-f6af-4e07-ad15-49e8625d4c98"
+        },
+        {
+          "description": "Pad 1 [+15V] of C9 on F.Cu",
+          "pos": {
+            "x": 58.525,
+            "y": 60.0
+          },
+          "uuid": "db00e9a7-f128-4deb-b17e-6cbddb0114c6"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [gnd] on B.Cu, length 21.5000 mm",
+          "pos": {
+            "x": 44.5,
+            "y": 28.0
+          },
+          "uuid": "05497cea-5c0a-440a-aba2-42622eccee21"
+        },
+        {
+          "description": "Pad 2 [gnd] of C9 on F.Cu",
+          "pos": {
+            "x": 61.475,
+            "y": 60.0
+          },
+          "uuid": "4cae0e99-4cd1-4be1-a483-c750da71c226"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    }
+  ],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

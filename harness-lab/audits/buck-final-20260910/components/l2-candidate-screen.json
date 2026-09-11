@@ -1,0 +1,38 @@
+{
+  "retrieved_on": "2026-09-10",
+  "purpose": "bounded public-data screen; not an approval or drop-in substitution",
+  "current": {
+    "mpn": "SRP1265A-5R6M",
+    "manufacturer": "Bourns",
+    "inductance_uH": 5.6,
+    "dcr_max_mOhm": 10.0,
+    "irms_a_at_40C_rise_25C_ambient": 12.5,
+    "isat_a_at_20_percent_drop_25C": 23.0,
+    "source_file": "sources/SRP1265A.pdf",
+    "source_sha256": "30b470999b737a6350ce5b09a917a5f12090c2e0895a78ddc15285e3d44ec649"
+  },
+  "candidates": [
+    {
+      "mpn": "XGL1712-562MED",
+      "manufacturer": "Coilcraft",
+      "published": {"inductance_uH": 5.6, "tolerance_percent": 20, "dcr_max_mOhm": 2.8, "isat_a_at_10_20_30_percent_drop": [12.0, 18.2, 32.0], "irms_a_at_20_40C_rise": [24.6, 33.9], "max_part_temperature_C": 165, "aec_q200": true},
+      "source": "https://www.coilcraft.com/en-us/products/power/high-voltage-inductors/xgl/xgl1712/xgl1712-562/",
+      "disposition": "No substitution: different package/land and no exact assembled hot L(I,T) proof retained."
+    },
+    {
+      "mpn": "744373965056",
+      "manufacturer": "Wurth Elektronik",
+      "published": {"inductance_uH": 5.6, "dcr_mOhm": 10.0, "performance_current_a": 13.3, "isat_a_at_10_percent_drop": 18.3, "isat_a_at_30_percent_drop": 33.0, "status": "Active production"},
+      "source": "https://www.we-online.com/en/components/products/WE-LHMI?sq=74437346033",
+      "disposition": "No substitution: package/land not established and page does not publish combined hot L(I,T) guarantee."
+    },
+    {
+      "mpn": "SRP1038CC-5R6M",
+      "manufacturer": "Bourns",
+      "published": {"inductance_uH": 5.6, "dcr_max_mOhm": 19.3, "current_rating_a": 12.0, "shielded": true},
+      "source": "https://www.digikey.com/en/products/detail/bourns-inc/SRP1038CC-5R6M/21263826",
+      "disposition": "No substitution: lower published current and different package; no benefit over the exact current part."
+    }
+  ],
+  "decision": "Retain SRP1265A-5R6M. Review the proposed 8.35 A hot criterion using an exact-part hot L(I,T) curve or a standalone DC-bias inductance fixture at 105 C. This is not a regulated buck operating point. Do not infer a combined-corner floor from 25 C Isat or Irms."
+}

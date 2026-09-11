@@ -57,3 +57,18 @@ either promotion or a conclusive negative certificate.
 
 It preserves the measured family result while forbidding uncertainty from
 authorizing wider scope or being restated as physical impossibility.
+
+## Simulation evidence
+
+### Development cross-check
+
+A simulation case used to expose or diagnose a model defect, then rerun after
+the model changes; it remains useful evidence about the model but is no longer
+a blind holdout or independent qualification receipt.
+
+### Behavioral model evidence boundary
+
+The explicit limit between what a runnable approximate model can support (such
+as feedback, power-path, convergence, and restart checks) and claims that need
+independent model or hardware evidence (such as transient accuracy, stability,
+efficiency, thermal behavior, and fault performance).

@@ -1,0 +1,100 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-10T05:04:32",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.6",
+    "schematic_parity": [],
+    "source": "candidate.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+15V] on F.Cu, length 1.5750 mm",
+                    "pos": {
+                        "x": 22.5,
+                        "y": 17.475
+                    },
+                    "uuid": "7bc5ad0a-f6af-4e07-ad15-49e8625d4c98"
+                },
+                {
+                    "description": "Pad 1 [+15V] of C9 on F.Cu",
+                    "pos": {
+                        "x": 58.525,
+                        "y": 60.0
+                    },
+                    "uuid": "db00e9a7-f128-4deb-b17e-6cbddb0114c6"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [gnd] on B.Cu, length 21.5000 mm",
+                    "pos": {
+                        "x": 44.5,
+                        "y": 28.0
+                    },
+                    "uuid": "05497cea-5c0a-440a-aba2-42622eccee21"
+                },
+                {
+                    "description": "Pad 2 [gnd] of C9 on F.Cu",
+                    "pos": {
+                        "x": 61.475,
+                        "y": 60.0
+                    },
+                    "uuid": "4cae0e99-4cd1-4be1-a483-c750da71c226"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Via is not connected or connected on only one layer",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 14.525
+                    },
+                    "uuid": "5177049a-f638-44de-b2b7-468cf6751e71"
+                }
+            ],
+            "severity": "warning",
+            "type": "via_dangling"
+        }
+    ]
+}

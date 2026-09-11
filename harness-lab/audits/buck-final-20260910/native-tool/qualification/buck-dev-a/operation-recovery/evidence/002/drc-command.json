@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "kicad-cli",
+    "pcb",
+    "drc",
+    "--format",
+    "json",
+    "--all-track-errors",
+    "--severity-all",
+    "--output",
+    "/private/tmp/temper-buck-final-v2-qualification-6/buck-dev-a/operation-recovery/evidence/002/drc.json",
+    "/private/tmp/temper-buck-final-v2-qualification-6/buck-dev-a/operation-recovery/candidate.kicad_pcb"
+  ],
+  "returncode": 0,
+  "stdout": "Found 0 violations\nFound 7 unconnected items\nSaved DRC Report to /private/tmp/temper-buck-final-v2-qualification-6/buck-dev-a/operation-recovery/evidence/002/drc.json\n",
+  "stderr": ""
+}

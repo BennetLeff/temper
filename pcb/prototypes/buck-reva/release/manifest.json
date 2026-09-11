@@ -1,0 +1,172 @@
+{
+  "artifact": "buck-reva prototype release",
+  "created_utc": "2026-09-10T18:55:04Z",
+  "kicad_version": "10.0.6",
+  "status": "READY FOR ORDER REVIEW \u2014 package inspection recorded in verification/visual-review.md",
+  "source_manifest_sha256": "83b462c4bbce39b1c367fa2e1965e4a937db26d7e301f505736e2aec8f52cd52",
+  "board_freeze_sha256": "11b489e77354819cce20fa549a35872c73b6ce67c2760db534343146b32ed5ec",
+  "inputs": [
+    {
+      "path": "buck-reva.kicad_sch",
+      "sha256": "a9a1df53251c9d9352035494bdf2e2d8407d2f0f9e73117046ddc9867ea2501e"
+    },
+    {
+      "path": "buck-reva.kicad_pcb",
+      "sha256": "8da3f73444f803e389f38864ba5278f9987533d4e597fa5b40823ad2d0c8d2b3"
+    },
+    {
+      "path": "buck-reva.kicad_pro",
+      "sha256": "b5a93ddb50cef2d550aaacdff28a67ecfa6ed2e060b945ca82bec222a287196b"
+    },
+    {
+      "path": "verification/board-freeze.md",
+      "sha256": "11b489e77354819cce20fa549a35872c73b6ce67c2760db534343146b32ed5ec"
+    },
+    {
+      "path": "source-manifest.json",
+      "sha256": "83b462c4bbce39b1c367fa2e1965e4a937db26d7e301f505736e2aec8f52cd52"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "release-checklist.md",
+      "sha256": "fd9f878ff2b286c0270ac5ebb4d67e1c88404084f0e05b317613b7ed2beaebc9"
+    },
+    {
+      "path": "drill/buck-reva-NPTH-drl_map.pdf",
+      "sha256": "82cdb17b0f562e6821475842c85b2968fb4274d9be475127ac22f79ba8c0c039"
+    },
+    {
+      "path": "drill/buck-reva-NPTH.drl",
+      "sha256": "b013fa1b3942f79b434448475e631ff5e60da46c9343244b16fe3988d57c0e67"
+    },
+    {
+      "path": "drill/buck-reva-PTH-drl_map.pdf",
+      "sha256": "2a6bc2b537589927b9fce62e35b0f48912d7b15eb28cc3e32c51b7acfc07f45f"
+    },
+    {
+      "path": "drill/buck-reva-PTH.drl",
+      "sha256": "deb9d9cd91c847f422fe2a192e82a5f851fb3b11b23aeba320d1ebe5a48614b5"
+    },
+    {
+      "path": "assembly/positions-full.csv",
+      "sha256": "30efbe49a483e84e6919f3c026163560fb80b6d35bb68fbe6e9a4f57489d5b2e"
+    },
+    {
+      "path": "assembly/positions-smt.csv",
+      "sha256": "1b8331eec99b87fa70429ffd83861cd00228dc32cc1386a427d5c45ca60f78cc"
+    },
+    {
+      "path": "assembly/schematic-bom.csv",
+      "sha256": "8600c85ec1915ebf740940df59c057966095c8ae6960fd817579dba27ace684d"
+    },
+    {
+      "path": "assembly/tht-manual-list.csv",
+      "sha256": "a1cdc28715a3ebb80db87fd00196f1d95638ef8b262883ff8e46c5cd8167387b"
+    },
+    {
+      "path": "docs/assembly-drawing.pdf",
+      "sha256": "8eaf7382a74824f68f7a804f8f62832441b4d7ea7304fa0ac259b033e115f6ef"
+    },
+    {
+      "path": "docs/assembly-notes.md",
+      "sha256": "603fb81a7583c1b8cc04c57465c6234086355a672fa6d3505602b2481d6f023a"
+    },
+    {
+      "path": "docs/fabrication-notes.md",
+      "sha256": "d281a5872019a2df1b6d9e8c3abf2847bbe47f808f175fdbbc42c0ec313a1f5a"
+    },
+    {
+      "path": "docs/schematic.pdf",
+      "sha256": "0a85acec3413ffb8c7cc9f7c11751672a1206faf2daafee36fec47a732221ce2"
+    },
+    {
+      "path": "verification/bom-reconciliation.md",
+      "sha256": "e013d423d00556792d036288f1f31a017f127225906523dc6d524ff65c3e36ea"
+    },
+    {
+      "path": "verification/buck-reva-B_Cu.svg",
+      "sha256": "56b480209af97ed8426fb433e9ecd461be4bdbd5b871097f40107b62ad00bb9d"
+    },
+    {
+      "path": "verification/buck-reva-B_Mask.svg",
+      "sha256": "6dc239e189534919e4e1c3f856bf7417af499b381f182db2c52556c8d84c3dd6"
+    },
+    {
+      "path": "verification/buck-reva-Edge_Cuts.svg",
+      "sha256": "509496e21177344fc36a24cebb57b3f9f59e739bc27f16e9683785ad65346f40"
+    },
+    {
+      "path": "verification/buck-reva-F_Cu.svg",
+      "sha256": "eaca97c76cce121f60bba7d86abbd41522d393ec27ba50424ee886eeeb7765c0"
+    },
+    {
+      "path": "verification/buck-reva-F_Mask.svg",
+      "sha256": "1e118d840d66a1f4880699e862c5e4dcf90546061c212cd37a7d23efbfacbe49"
+    },
+    {
+      "path": "verification/buck-reva-F_Silkscreen.svg",
+      "sha256": "41e04c16c57884066334be51ccb906ca79dc8c6e4392a95e1923477c2682be5c"
+    },
+    {
+      "path": "verification/drc-errors.txt",
+      "sha256": "9757f05ca6563304e05556eb33fd087963514e7a018b4f7445b2e5b26de996ae"
+    },
+    {
+      "path": "verification/drc-report.txt",
+      "sha256": "7122a699f771b071c571016c1621fcbd4ff65b5d3e5fb32530e5ccf467eb5eb1"
+    },
+    {
+      "path": "verification/erc-errors.txt",
+      "sha256": "6847f1d72a4d91b6eca1b786b9030d103226d41f5d448b374650e4849e121ad7"
+    },
+    {
+      "path": "verification/erc-report.txt",
+      "sha256": "783cd8be14975dc167f1087bb88371e7dbbda1a2aa424f37f2cc3d5d86a48417"
+    },
+    {
+      "path": "verification/schematic-netlist.kicadsexpr",
+      "sha256": "e2f0b1f869f893ed3f6eae24272d9af5e043de5c81d8a8732f7d701011220c95"
+    },
+    {
+      "path": "verification/visual-review.md",
+      "sha256": "e93347e02326bf6af848dfbda00f86b4dd224e23e3f6c9be872e5a6374a3bd24"
+    },
+    {
+      "path": "gerbers/buck-reva-B_Cu.gbl",
+      "sha256": "979da32edd61264d39a494f787dc8fce973fc14c4100f28a176277a6db80ab94"
+    },
+    {
+      "path": "gerbers/buck-reva-B_Mask.gbs",
+      "sha256": "91e74cf97ae355d8eaa061efb0bea9aef30143398c2eeba50424eea143bf25f9"
+    },
+    {
+      "path": "gerbers/buck-reva-B_Silkscreen.gbo",
+      "sha256": "db144a67351b857cb9b9b4fb08632978d400c08857bf6ffee2dc0c0da10ef7a8"
+    },
+    {
+      "path": "gerbers/buck-reva-Edge_Cuts.gm1",
+      "sha256": "ad3586edaa241d6e91ca1c4d58048402eab3e3a1a236c3800fed828107d19c14"
+    },
+    {
+      "path": "gerbers/buck-reva-F_Cu.gtl",
+      "sha256": "bd49e1b6acba695bb69eb5ec1716da0b115469394d24fc0949eb6432e3d1dfbf"
+    },
+    {
+      "path": "gerbers/buck-reva-F_Mask.gts",
+      "sha256": "261452fdf84cc851f238e74e9b64c0908557745675fcdee3cd07af0d816b1e45"
+    },
+    {
+      "path": "gerbers/buck-reva-F_Paste.gtp",
+      "sha256": "bca714c569e498bb12cd079c9fb5af59cb4d76b78ce8ea13155139bf063333c4"
+    },
+    {
+      "path": "gerbers/buck-reva-F_Silkscreen.gto",
+      "sha256": "b99635b8be5480b8973a1a7a845f212ff5b551c85d2f9695951cb5a6c15293a2"
+    },
+    {
+      "path": "gerbers/buck-reva-job.gbrjob",
+      "sha256": "69c762ec85da1d4872a401f92f150a6ccbe7ac9215946cec3d332d8dda47273b"
+    }
+  ]
+}

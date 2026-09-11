@@ -1,0 +1,239 @@
+{
+  "board_sha256": "84898d722fcec67845bfa4380c049580538f0a0475b608fd90957764ceaaffff",
+  "findings": [
+    {
+      "id": "unrouted:R16.2:fb"
+    },
+    {
+      "id": "unrouted:R17.1:fb"
+    },
+    {
+      "id": "extraneous_copper:41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+    },
+    {
+      "evidence": {
+        "description": "Tracks crossing",
+        "items": [
+          {
+            "description": "Track [fb] on F.Cu, length 7.2750 mm",
+            "pos": {
+              "x": 19.5,
+              "y": 18.5
+            },
+            "uuid": "41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+          },
+          {
+            "description": "Track [+15V] on F.Cu, length 1.5750 mm",
+            "pos": {
+              "x": 22.5,
+              "y": 17.475
+            },
+            "uuid": "7bc5ad0a-f6af-4e07-ad15-49e8625d4c98"
+          }
+        ],
+        "severity": "error",
+        "type": "tracks_crossing"
+      },
+      "id": "kicad:tracks_crossing:41a099bc-28ef-4a35-bcfa-6a171e9c41ac:7bc5ad0a-f6af-4e07-ad15-49e8625d4c98"
+    },
+    {
+      "evidence": {
+        "description": "Clearance violation (rule 'buck copper clearance' clearance 0.2000 mm; actual 0.1000 mm)",
+        "items": [
+          {
+            "description": "Track [fb] on F.Cu, length 7.2750 mm",
+            "pos": {
+              "x": 19.5,
+              "y": 18.5
+            },
+            "uuid": "41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+          },
+          {
+            "description": "Track [+15V] on F.Cu, length 1.3625 mm",
+            "pos": {
+              "x": 22.5,
+              "y": 19.05
+            },
+            "uuid": "9a220470-d83e-482f-9e8b-dda6c68b22f7"
+          }
+        ],
+        "severity": "error",
+        "type": "clearance"
+      },
+      "id": "kicad:clearance:41a099bc-28ef-4a35-bcfa-6a171e9c41ac:9a220470-d83e-482f-9e8b-dda6c68b22f7"
+    },
+    {
+      "evidence": {
+        "description": "Items shorting two nets (nets fb and sw)",
+        "items": [
+          {
+            "description": "Track [fb] on F.Cu, length 7.2750 mm",
+            "pos": {
+              "x": 19.5,
+              "y": 18.5
+            },
+            "uuid": "41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+          },
+          {
+            "description": "Pad 1 [sw] of L2 on F.Cu",
+            "pos": {
+              "x": 25.45,
+              "y": 20.0
+            },
+            "uuid": "b5daf6d5-9992-4fb8-be8e-0282513e5ac0"
+          }
+        ],
+        "severity": "error",
+        "type": "shorting_items"
+      },
+      "id": "kicad:shorting_items:41a099bc-28ef-4a35-bcfa-6a171e9c41ac:b5daf6d5-9992-4fb8-be8e-0282513e5ac0"
+    },
+    {
+      "evidence": {
+        "description": "Clearance violation (rule 'buck copper clearance' clearance 0.2000 mm; actual 0.1000 mm)",
+        "items": [
+          {
+            "description": "Track [fb] on F.Cu, length 7.2750 mm",
+            "pos": {
+              "x": 19.5,
+              "y": 18.5
+            },
+            "uuid": "41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+          },
+          {
+            "description": "Pad 3 [+15V] of U3 on F.Cu",
+            "pos": {
+              "x": 21.1375,
+              "y": 19.05
+            },
+            "uuid": "50ef0e80-201d-4188-99c8-14e0284ab468"
+          }
+        ],
+        "severity": "error",
+        "type": "clearance"
+      },
+      "id": "kicad:clearance:41a099bc-28ef-4a35-bcfa-6a171e9c41ac:50ef0e80-201d-4188-99c8-14e0284ab468"
+    },
+    {
+      "evidence": {
+        "description": "Front solder mask aperture bridges items with different nets",
+        "items": [
+          {
+            "description": "Track [fb] on F.Cu, length 7.2750 mm",
+            "pos": {
+              "x": 19.5,
+              "y": 18.5
+            },
+            "uuid": "41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+          },
+          {
+            "description": "Pad 1 [sw] of L2 on F.Cu",
+            "pos": {
+              "x": 25.45,
+              "y": 20.0
+            },
+            "uuid": "b5daf6d5-9992-4fb8-be8e-0282513e5ac0"
+          }
+        ],
+        "severity": "error",
+        "type": "solder_mask_bridge"
+      },
+      "id": "kicad:solder_mask_bridge:41a099bc-28ef-4a35-bcfa-6a171e9c41ac:b5daf6d5-9992-4fb8-be8e-0282513e5ac0"
+    },
+    {
+      "evidence": {
+        "description": "Track has unconnected end",
+        "items": [
+          {
+            "description": "Track [fb] on F.Cu, length 7.2750 mm",
+            "pos": {
+              "x": 19.5,
+              "y": 18.5
+            },
+            "uuid": "41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+          }
+        ],
+        "severity": "warning",
+        "type": "track_dangling"
+      },
+      "id": "kicad:track_dangling:41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+    },
+    {
+      "count": 3,
+      "id": "open_connections"
+    }
+  ],
+  "open_connection_evidence": [
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Pad 2 [fb] of R16 on F.Cu",
+          "pos": {
+            "x": 14.825,
+            "y": 17.0
+          },
+          "uuid": "b9e7fca6-8274-4fb8-8822-16e38565a3b7"
+        },
+        {
+          "description": "Pad 1 [fb] of R17 on F.Cu",
+          "pos": {
+            "x": 14.825,
+            "y": 21.0
+          },
+          "uuid": "57bfa20a-b060-4d06-8845-eafca110098a"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Pad 1 [fb] of R17 on F.Cu",
+          "pos": {
+            "x": 14.825,
+            "y": 21.0
+          },
+          "uuid": "57bfa20a-b060-4d06-8845-eafca110098a"
+        },
+        {
+          "description": "Pad 4 [fb] of U3 on F.Cu",
+          "pos": {
+            "x": 18.8625,
+            "y": 19.05
+          },
+          "uuid": "c3ec42f6-5cda-448a-8f07-5ce7a40d00eb"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Pad 4 [fb] of U3 on F.Cu",
+          "pos": {
+            "x": 18.8625,
+            "y": 19.05
+          },
+          "uuid": "c3ec42f6-5cda-448a-8f07-5ce7a40d00eb"
+        },
+        {
+          "description": "Track [fb] on F.Cu, length 7.2750 mm",
+          "pos": {
+            "x": 19.5,
+            "y": 18.5
+          },
+          "uuid": "41a099bc-28ef-4a35-bcfa-6a171e9c41ac"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    }
+  ],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

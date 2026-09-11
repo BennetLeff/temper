@@ -13,7 +13,7 @@ been assembled or measured. See the deferred-qualification list at the end.
 | Item | State |
 |---|---|
 | Board | **Frozen**, revision A, 2026-09-10 |
-| Source-manifest digest | `3f77b285623adf3fcdc1ccea152fedbf86431f3404f8b9c7b36003c398beebcb` |
+| Source-manifest digest | `83b462c4bbce39b1c367fa2e1965e4a937db26d7e301f505736e2aec8f52cd52` |
 | Native ERC / DRC | 0 violations / 0 violations, 0 unconnected (KiCad 10.0.6) |
 | Schematic ↔ board connectivity | exact match |
 | Manufacturing export | release owner; waits on this freeze |
@@ -54,9 +54,9 @@ All artifacts were produced with **KiCad CLI 10.0.6** at
 
 ```sh
 K=/Volumes/KiCad/KiCad/KiCad.app/Contents/MacOS/kicad-cli
-$K sch erc --format json --severity-all buck-reva.kicad_sch -o verification/buck-reva-erc.json
-$K sch export netlist buck-reva.kicad_sch -o verification/buck-reva.net
-$K pcb drc --all-track-errors --schematic-parity --severity-all --format json -o verification/buck-reva-drc.json buck-reva.kicad_pcb
+$K sch erc --format report --severity-all buck-reva.kicad_sch -o release/verification/erc-report.txt
+$K sch export netlist --format kicadsexpr buck-reva.kicad_sch -o release/verification/schematic-netlist.kicadsexpr
+$K pcb drc --all-track-errors --schematic-parity --severity-all --format report -o release/verification/drc-report.txt buck-reva.kicad_pcb
 ```
 
 The board was derived once from the reviewed witness fixture; see

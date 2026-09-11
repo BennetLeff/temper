@@ -1,0 +1,67 @@
+{
+  "board": "/tmp/temper-buck-followup-20260910/layout/candidate-v5/candidate.kicad_pcb",
+  "board_sha256": "1d1ae546a0e78fe4c923b5cee736bc0811ca13a7cca33853274052f556d13ac3",
+  "kicad_cli": "/opt/homebrew/bin/kicad-cli",
+  "kicad_cli_version": "10.0.4",
+  "settings_dirname": "10.0",
+  "source_user_config_root": "/Users/bennet/Library/Preferences/kicad",
+  "temporary_kicad_config_home": "/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/temper-kicad-cfg-6wdyck21",
+  "thread_pin": "MaximumThreads=1 in temporary kicad_advanced",
+  "library_context": "candidate directory contains fp-lib-table and fixture.pretty sibling",
+  "results": [
+    {
+      "index": 1,
+      "argv": [
+        "/opt/homebrew/bin/kicad-cli",
+        "pcb",
+        "drc",
+        "--all-track-errors",
+        "--format",
+        "json",
+        "--output",
+        "/tmp/temper-buck-followup-20260910/layout/candidate-v5/drc-v5-pinned-1.json",
+        "/tmp/temper-buck-followup-20260910/layout/candidate-v5/candidate.kicad_pcb"
+      ],
+      "returncode": 0,
+      "stdout": "Found 0 violations\nFound 0 unconnected items\nSaved DRC Report to /tmp/temper-buck-followup-20260910/layout/candidate-v5/drc-v5-pinned-1.json\n",
+      "stderr": "",
+      "output_sha256": "78d738a63a1826ebf1a1314291f6725a762a3bfeea00aaf6bab8af4dcdb22e8e"
+    },
+    {
+      "index": 2,
+      "argv": [
+        "/opt/homebrew/bin/kicad-cli",
+        "pcb",
+        "drc",
+        "--all-track-errors",
+        "--format",
+        "json",
+        "--output",
+        "/tmp/temper-buck-followup-20260910/layout/candidate-v5/drc-v5-pinned-2.json",
+        "/tmp/temper-buck-followup-20260910/layout/candidate-v5/candidate.kicad_pcb"
+      ],
+      "returncode": 0,
+      "stdout": "Found 0 violations\nFound 0 unconnected items\nSaved DRC Report to /tmp/temper-buck-followup-20260910/layout/candidate-v5/drc-v5-pinned-2.json\n",
+      "stderr": "",
+      "output_sha256": "b414998411f978e555f19c649be5417f6816bd71d6531a33b104766aa03d005c"
+    },
+    {
+      "index": 3,
+      "argv": [
+        "/opt/homebrew/bin/kicad-cli",
+        "pcb",
+        "drc",
+        "--all-track-errors",
+        "--format",
+        "json",
+        "--output",
+        "/tmp/temper-buck-followup-20260910/layout/candidate-v5/drc-v5-pinned-3.json",
+        "/tmp/temper-buck-followup-20260910/layout/candidate-v5/candidate.kicad_pcb"
+      ],
+      "returncode": 0,
+      "stdout": "Found 0 violations\nFound 0 unconnected items\nSaved DRC Report to /tmp/temper-buck-followup-20260910/layout/candidate-v5/drc-v5-pinned-3.json\n",
+      "stderr": "",
+      "output_sha256": "7102815da52881f24b1a64facc178bd3cd52d7f180f4a1e60ed0d1f24bcf60de"
+    }
+  ]
+}

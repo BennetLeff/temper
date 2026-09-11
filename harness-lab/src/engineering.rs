@@ -45,6 +45,35 @@ fn receipt_for<'a>(receipts: &'a Value, stage: &str) -> Option<&'a Value> {
         .or_else(|| receipts.get("stage_receipts").and_then(|v| v.get(stage)))
 }
 
+fn valid_thermal_limits(item: &Value) -> bool {
+    let Some(ambient) = item["conditions"]["ambient_max_degC"].as_f64() else {
+        return false;
+    };
+    if !ambient.is_finite()
+        || ambient <= -273.15
+        || !item["conditions"]["iout_a"]
+            .as_f64()
+            .is_some_and(|load| load.is_finite() && load >= 0.0)
+    {
+        return false;
+    }
+    let mut quantities = BTreeSet::new();
+    item["limits"].as_array().is_some_and(|limits| {
+        limits.len() == 2
+            && limits.iter().all(|limit| {
+                let pair = (
+                    limit["component"].as_str().unwrap_or(""),
+                    limit["quantity"].as_str().unwrap_or(""),
+                );
+                [("U3", "junction"), ("L2", "hotspot")].contains(&pair)
+                && quantities.insert(pair)
+                // This design uses passive cooling, so an upper limit below
+                // ambient cannot serve as the continuous-load thermal target.
+                && limit["value"].as_f64().is_some_and(|v| v.is_finite() && v >= ambient)
+            })
+    })
+}
+
 fn validate_manifest(requirements: &Value, findings: &mut Vec<Value>) -> Option<String> {
     if requirements.get("schema_version").and_then(Value::as_str)
         != Some("engineering-requirements/v1")
@@ -207,6 +236,27 @@ fn validate_manifest(requirements: &Value, findings: &mut Vec<Value>) -> Option<
             }
         }
         let resolved = match id {
+            "thermal_limit" if item.get("limits").is_some() => valid_thermal_limits(item),
+            "load_step_endpoints" if item.get("profiles").is_some() => {
+                let mut profile_ids = BTreeSet::new();
+                item["profiles"].as_array().is_some_and(|profiles| {
+                    !profiles.is_empty()
+                        && profiles.iter().all(|profile| {
+                            profile["id"]
+                                .as_str()
+                                .is_some_and(|id| !id.is_empty() && profile_ids.insert(id))
+                                && profile["low_a"]
+                                    .as_f64()
+                                    .zip(profile["high_a"].as_f64())
+                                    .is_some_and(|(low, high)| {
+                                        low.is_finite()
+                                            && high.is_finite()
+                                            && low >= 0.0
+                                            && high > low
+                                    })
+                        })
+                })
+            }
             "load_step_endpoints" => numeric("min")
                 .zip(numeric("max"))
                 .is_some_and(|(a, b)| a >= 0.0 && b > a),
@@ -646,6 +696,104 @@ mod tests {
             .iter()
             .all(|s| s["status"] == "pass"));
         assert_eq!(out["stages"][4]["status"], "not_run");
+    }
+
+    #[test]
+    fn thermal_targets_require_distinct_component_measurements() {
+        let mut input = valid_chain();
+        let thermal = input["requirements"]["requirements"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|item| item["id"] == "thermal_limit")
+            .unwrap();
+        thermal.as_object_mut().unwrap().remove("value");
+        thermal["limits"] = json!([
+            {"component":"U3", "quantity":"junction", "value":125.0},
+            {"component":"L2", "quantity":"hotspot", "value":105.0}
+        ]);
+        thermal["conditions"] = json!({"iout_a":0.5,"ambient_max_degC":70.0});
+        assert_eq!(
+            evaluate(input.clone()).unwrap()["stages"][0]["status"],
+            "pass"
+        );
+
+        for mutation in [
+            "duplicate",
+            "quantity",
+            "missing",
+            "null",
+            "string",
+            "below_ambient",
+            "conditions",
+            "load",
+            "ambient",
+        ] {
+            let mut bad = input.clone();
+            let thermal = bad["requirements"]["requirements"]
+                .as_array_mut()
+                .unwrap()
+                .iter_mut()
+                .find(|item| item["id"] == "thermal_limit")
+                .unwrap();
+            // A legacy scalar must not hide a malformed explicit limits list.
+            thermal["value"] = json!(125.0);
+            match mutation {
+                "duplicate" => thermal["limits"][1] = thermal["limits"][0].clone(),
+                "quantity" => thermal["limits"][0]["quantity"] = json!("case"),
+                "missing" => {
+                    thermal["limits"].as_array_mut().unwrap().pop();
+                }
+                "null" => thermal["limits"][1]["value"] = Value::Null,
+                "below_ambient" => thermal["limits"][1]["value"] = json!(0.0),
+                "conditions" => thermal["conditions"] = Value::Null,
+                "load" => thermal["conditions"]["iout_a"] = json!(-0.5),
+                "ambient" => thermal["conditions"]["ambient_max_degC"] = json!("70"),
+                _ => thermal["limits"] = json!("125,105"),
+            }
+            assert_eq!(
+                evaluate(bad).unwrap()["stages"][0]["status"],
+                "blocked",
+                "{mutation}"
+            );
+        }
+    }
+
+    #[test]
+    fn explicit_load_profiles_cannot_fall_back_to_legacy_endpoints() {
+        for (profiles, expected) in [
+            (
+                json!([{"id":"continuous", "low_a":0.05, "high_a":0.5},
+                    {"id":"peak", "low_a":0.05, "high_a":1.0}]),
+                "pass",
+            ),
+            (json!([]), "blocked"),
+            (
+                json!([{"id":"same", "low_a":0.05, "high_a":0.5},
+                    {"id":"same", "low_a":0.05, "high_a":1.0}]),
+                "blocked",
+            ),
+            (
+                json!([{"id":"reversed", "low_a":1.0, "high_a":0.5}]),
+                "blocked",
+            ),
+            (
+                json!([{"id":"negative", "low_a":-1.0, "high_a":0.5}]),
+                "blocked",
+            ),
+            (json!([{"id":"missing", "low_a":0.05}]), "blocked"),
+            (Value::Null, "blocked"),
+        ] {
+            let mut input = valid_chain();
+            let load = input["requirements"]["requirements"]
+                .as_array_mut()
+                .unwrap()
+                .iter_mut()
+                .find(|item| item["id"] == "load_step_endpoints")
+                .unwrap();
+            load["profiles"] = profiles;
+            assert_eq!(evaluate(input).unwrap()["stages"][0]["status"], expected);
+        }
     }
 
     #[test]

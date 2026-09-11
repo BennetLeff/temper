@@ -1,0 +1,11 @@
+{
+  "board_sha256": "2e7668f798d82b7e4addd894f6de07bc08bd4a1ebed4668f9b3676865ef46eb9",
+  "findings": [
+    {
+      "id": "wrong_net:1c04a87a-566e-4141-aece-12edfca99846"
+    }
+  ],
+  "open_connection_evidence": [],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

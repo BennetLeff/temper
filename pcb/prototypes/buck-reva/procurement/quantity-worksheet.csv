@@ -1,0 +1,10 @@
+MPN,References,QtyPerBoard,BoardsBare_Planning,BoardsPopulated_Planning,InstalledQty_2populated,Spares_Planning,OrderQty_Planning,MOQHandling,Notes
+LMR51430XDDCR,U3,1,5,2,2,1,3,"If MOQ/multiple exceeds 3 show delta as cost impact; do not silently round",Active IC; 1 spare for hand-assembly risk
+SRP1265A-5R6M,L2,1,5,2,2,1,3,"Same; check tray vs single-unit packaging",Inductor; 1 spare
+CL32B106KBJZW6E,C9,1,5,2,2,3,5,"Cut-tape minimum often 5-10; record actual multiple",Small passive; spares cheap - order strip
+C0603C104K5RACTU,"C10,C13",2,5,2,4,6,10,"Cut-tape minimum drives order qty; show impact",2 per board x2 boards=4 installed + spares
+CL32B226KAJNNWE,"C11,C12",2,5,2,4,6,10,"Samsung replacement; DC-bias behavior unverified",2 per board x2 boards=4 installed + spares
+RC0603FR-07100KL,R16,1,5,2,2,3,5,"Same",Cheap passive; strip quantity
+RC0603FR-0722K1L,R17,1,5,2,2,3,5,"Same",Cheap passive; strip quantity
+691253500002,"J1,J2",1,5,2,2,2,4,"Bulk min/order multiple 1",Würth 732-691253500002-ND; hand-soldered terminals; two installed plus two spares
+BARE-BOARD-ONLY,,,,,,,,5 bare boards is a planning assumption for quoting fabrication; no qty committed

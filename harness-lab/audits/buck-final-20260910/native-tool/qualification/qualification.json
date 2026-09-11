@@ -1,0 +1,589 @@
+{
+  "status": "qualified",
+  "scope": "buck_3v3",
+  "rerun": "python3 harness-lab/buck_v2.py qualify <fresh-output>",
+  "kicad_version": "10.0.6",
+  "variants": {
+    "buck-dev-a": {
+      "id": "buck-dev-a",
+      "split": "development",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            18.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            21.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            18.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          22.0,
+          30.0,
+          0
+        ],
+        "C11": [
+          28.0,
+          30.0,
+          0
+        ],
+        "C12": [
+          10.0,
+          35.0,
+          0
+        ],
+        "C13": [
+          16.0,
+          35.0,
+          0
+        ],
+        "C9": [
+          16.0,
+          30.0,
+          0
+        ],
+        "L2": [
+          42.0,
+          32.0,
+          0
+        ],
+        "R16": [
+          22.0,
+          35.0,
+          0
+        ],
+        "R17": [
+          28.0,
+          35.0,
+          0
+        ],
+        "U3": [
+          10.0,
+          30.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "854bb6e5ea5ee439d12eee573e120dab1537b27f528303a679e49d0abb61ccb5",
+      "witness_board_sha256": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",
+      "protected_sha256": "b62353a47c6d99b4be2401c96eb8c95c9db20c48186d19c53827f62d7da14464",
+      "context_sha256": "a0393e289ec25c20b94476f51ff77bacd4b4aaf8faf2232767316dea2f75080a"
+    },
+    "buck-dev-b": {
+      "id": "buck-dev-b",
+      "split": "development",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            10.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            13.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            28.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          24.0,
+          32.0,
+          0
+        ],
+        "C11": [
+          30.0,
+          32.0,
+          0
+        ],
+        "C12": [
+          12.0,
+          37.0,
+          0
+        ],
+        "C13": [
+          18.0,
+          37.0,
+          0
+        ],
+        "C9": [
+          18.0,
+          32.0,
+          0
+        ],
+        "L2": [
+          40.0,
+          30.0,
+          0
+        ],
+        "R16": [
+          24.0,
+          37.0,
+          0
+        ],
+        "R17": [
+          30.0,
+          37.0,
+          0
+        ],
+        "U3": [
+          12.0,
+          32.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "780c2c450f88de0cbd8c88b8737795520abcc2395749b9915afe841b03bfde6e",
+      "witness_board_sha256": "d47d216452ce10572ac408f6f6bd6716a7d6d85a53542014b22a64bde55a5902",
+      "protected_sha256": "808a3263867ad1e268c50c0d9e82867bafa74907bfe96abf94f9c7c6f32ec622",
+      "context_sha256": "a0393e289ec25c20b94476f51ff77bacd4b4aaf8faf2232767316dea2f75080a"
+    },
+    "buck-res-a": {
+      "id": "buck-res-a",
+      "split": "reserved",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            26.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            29.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            32.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          22.0,
+          32.0,
+          0
+        ],
+        "C11": [
+          28.0,
+          32.0,
+          0
+        ],
+        "C12": [
+          34.0,
+          32.0,
+          0
+        ],
+        "C13": [
+          16.0,
+          37.0,
+          0
+        ],
+        "C9": [
+          16.0,
+          32.0,
+          0
+        ],
+        "L2": [
+          42.0,
+          30.0,
+          0
+        ],
+        "R16": [
+          22.0,
+          37.0,
+          0
+        ],
+        "R17": [
+          28.0,
+          37.0,
+          0
+        ],
+        "U3": [
+          10.0,
+          32.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "af8786055f4c2030ea7119426fc5e7eeeb8fdba025f19e59777eaa7039936549",
+      "witness_board_sha256": "bc65c1a182296f923d46ed8651abedeb0b7d7213d159715e31d209711eaf2bf5",
+      "protected_sha256": "79b260491f5b7c480d3c8511f58afc715792f59d6e6d1ba80c51e076d4c2f5f7",
+      "context_sha256": "a0393e289ec25c20b94476f51ff77bacd4b4aaf8faf2232767316dea2f75080a"
+    },
+    "buck-res-b": {
+      "id": "buck-res-b",
+      "split": "reserved",
+      "terminals": {
+        "J1": {
+          "net": "+15V",
+          "position_mm": [
+            3.0,
+            32.0
+          ]
+        },
+        "J2": {
+          "net": "gnd",
+          "position_mm": [
+            3.0,
+            35.0
+          ]
+        },
+        "J3": {
+          "net": "+3V3",
+          "position_mm": [
+            47.0,
+            10.0
+          ]
+        }
+      },
+      "staging": {
+        "C10": [
+          26.0,
+          30.0,
+          0
+        ],
+        "C11": [
+          32.0,
+          30.0,
+          0
+        ],
+        "C12": [
+          14.0,
+          35.0,
+          0
+        ],
+        "C13": [
+          20.0,
+          35.0,
+          0
+        ],
+        "C9": [
+          20.0,
+          30.0,
+          0
+        ],
+        "L2": [
+          44.0,
+          34.0,
+          0
+        ],
+        "R16": [
+          26.0,
+          35.0,
+          0
+        ],
+        "R17": [
+          32.0,
+          35.0,
+          0
+        ],
+        "U3": [
+          14.0,
+          30.0,
+          0
+        ]
+      },
+      "initial_board_sha256": "cb622bb29b5e99e70305264a243e914289944e07cf7b335ccd7d418e937abd92",
+      "witness_board_sha256": "ab894b238064c6f2861ffbe2ef0774d76a00d7facb6e867254691bfa8b47640e",
+      "protected_sha256": "d6d8faa0112b795100fcb913b98926aa5ad94163cc90a1b849ee6d0a75072da8",
+      "context_sha256": "a0393e289ec25c20b94476f51ff77bacd4b4aaf8faf2232767316dea2f75080a"
+    }
+  },
+  "witness_passes": {
+    "buck-dev-a": 3,
+    "buck-dev-b": 3,
+    "buck-res-a": 3,
+    "buck-res-b": 3
+  },
+  "cases": [
+    {
+      "case": "buck-dev-a-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-a-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-a-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-b-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-b-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-b-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-a-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-a-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-a-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-b-witness-1",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-b-witness-2",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-res-b-witness-3",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-dev-a-missing-terminal-connection",
+      "expected": "fail",
+      "required_id": "unrouted:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-wrong-raw-copper-net",
+      "expected": "fail",
+      "required_id": "wrong_net:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-moved-protected-terminal",
+      "expected": "fail",
+      "required_id": "terminal_moved:J1",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-changed-rules",
+      "expected": "fail",
+      "required_id": "protected_context_changed",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-b-missing-terminal-connection",
+      "expected": "fail",
+      "required_id": "unrouted:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-b-wrong-raw-copper-net",
+      "expected": "fail",
+      "required_id": "wrong_net:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-b-moved-protected-terminal",
+      "expected": "fail",
+      "required_id": "terminal_moved:J1",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-b-changed-rules",
+      "expected": "fail",
+      "required_id": "protected_context_changed",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-a-missing-terminal-connection",
+      "expected": "fail",
+      "required_id": "unrouted:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-a-wrong-raw-copper-net",
+      "expected": "fail",
+      "required_id": "wrong_net:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-a-moved-protected-terminal",
+      "expected": "fail",
+      "required_id": "terminal_moved:J1",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-a-changed-rules",
+      "expected": "fail",
+      "required_id": "protected_context_changed",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-b-missing-terminal-connection",
+      "expected": "fail",
+      "required_id": "unrouted:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-b-wrong-raw-copper-net",
+      "expected": "fail",
+      "required_id": "wrong_net:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-b-moved-protected-terminal",
+      "expected": "fail",
+      "required_id": "terminal_moved:J1",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-res-b-changed-rules",
+      "expected": "fail",
+      "required_id": "protected_context_changed",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-short",
+      "expected": "fail",
+      "required_id": "kicad:shorting_items:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-clearance",
+      "expected": "fail",
+      "required_id": "kicad:clearance:",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-outside-footprint",
+      "expected": "fail",
+      "required_id": "outside_outline:C9",
+      "actual": "fail"
+    },
+    {
+      "case": "buck-dev-a-drc-clean-locality",
+      "expected": "fail",
+      "required_id": "input_locality:",
+      "actual": "fail"
+    },
+    {
+      "case": "missing-buck-evidence",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "truncated-connectivity",
+      "actual": "indeterminate"
+    },
+    {
+      "case": "native-remove-replace-gnd-spine",
+      "actual": "pass"
+    },
+    {
+      "case": "buck-budgets-invalid-inputs-preflight",
+      "actual": "pass"
+    }
+  ],
+  "contract_sha256": "eb69d057cdf0801f7257095e5818352408de183ead1d20dacab050df78569959",
+  "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "source_sha256": {
+    "Cargo.lock": "35998ce882f0f2cd2e210c23327bd637b7678d497afe5d131eedc26462ab7b39",
+    "artifacts.py": "3ba0845b6741962931e6a1f2dd5ad43086f6c0373545562034ac186d5322cd22",
+    "buck_host.py": "9136fa7a18225285bfbaede3e0e254b70687f95712bdca56363b6181335fe432",
+    "buck_native.py": "0a308bbc6606e46a7b8d8fa06c346680bd3ed4f7371efffc25d5182c4fdefaca",
+    "buck_native_v2.py": "d93b8a9df3dfe61e8d5846f0c262fd6d2741ee00ece37fb88c390c4ceaa3b4e3",
+    "buck_v2.py": "3d9d5a1345179f2224d6db4bf347993de20b0be6f3df07370177f8b111b2e42b",
+    "build_buck.py": "e7b8bdd8f45ca71e626d79a21d4e2b49c45f29037e78782fce0c1c656c373508",
+    "build_combined.py": "60fcdb155dd8a10b2f61b2865a7e1a10a437de0ddc4959b0b879c7e4d5a62716",
+    "build_obstacle.py": "e95479ad35d05c81a2207a63025b7cb8c4bbe4396b8e818cc648bdbcaab807e7",
+    "build_repair.py": "84738df471d5761f5559e5acb96ab5237e34a7cc03fbe674420ed7c1dca15c0f",
+    "circuit_export.py": "12166cd0d1a430b25640aabbc68bf699a957d067abe273afcd96a287eb39e862",
+    "circuit_native.py": "a5a1cb9a8f3d5165401fdffb4d22cfee61f22f7eca3b97316c36a146867782f4",
+    "combined_host.py": "bac5c68d565e126ba2dac0f312f44d2360d2086826e161170fab4958855d544d",
+    "combined_native.py": "9de339272deb5efca67c03cdaf1adb18965dd100aa6a1550dd94af0ea9282cb6",
+    "continual_host.py": "bffc4fe1917ee008a8c3e1422cb0fe65d703dda2e717812faaa0b1d8dc2ee330",
+    "engineering_host.py": "010100c5e73caee2538da22892e0b0b09aa252360ecba3f912ac89b102e10ddd",
+    "harness.py": "f40eae739cf4fdc022d222d7736f7ab2ffc78b7b3fba32a2c75168f3866d3794",
+    "layout_native.py": "70d2caf558993d5b4613f92b71fea1c86b1b80068d2a4c24badfd74e5519bd72",
+    "native.py": "dab7abaef33481ab4ca8c7603250431d1ad3fc9b5a8c3f614df18453ef56b7ec",
+    "qualify.py": "261f544d6b38fa19dba2741a370edcfd369ffd02b6240a0bb726f9e9ecac0197",
+    "qualify_buck.py": "38c53881217ff161a71beff438a59ae651ef0a001e0baf59947cf62ba647d48a",
+    "qualify_combined.py": "3037c367ca9ba60f05bb89cd04d29b8640622424d2482fccc1622e44a151eb19",
+    "qualify_obstacle.py": "ea0db533feda52002f14e763153559d983b606a37775d1f60259e9aa65510139",
+    "qualify_repair.py": "dab57b2c34029e4744259951340c02ad5e76e2b45c2966016ff4c6ed41ff7469",
+    "qualify_routing.py": "0b033a8c05326157927d47278608871f21a4afef84cde7041095fe8230acccf5",
+    "refinement.py": "a72216b94aa1954a59d1801177c57b6bc37216ded21f70c43f6d3d926c038547",
+    "routing_host.py": "122131c7687f6e668ebd3439a7586dc7b4546f1e7eedf48b7c05697a67d4b225",
+    "routing_native.py": "1b7577db7014ea75efc6be1e8e444f610d7da707b272825233e211de9ba51c2a",
+    "run_buck_trials.py": "f755fd77469d5a812f3f29bbf29f8d1cce8cf742d6536bf2748031c988628b7c",
+    "run_trials.py": "b52ece2cd5906e3884cbb7ea1606ec44b53af1f83d3203216918f49831c8fc3b",
+    "run_zen_trials.py": "fef09f869ef0a808737987b407e10c61ee82e27f2655048fae9324d6a864718e",
+    "simulation_host.py": "46bd0036dc1b0837d00d191930491fd128def15aed3532008d8f219d5b588630",
+    "src/buck.rs": "e8df7f1a237166df65c1d8986d463643dff56667d0d97360c93e3db5b7b57152",
+    "src/buck_operations.rs": "df224584ed408c2b69b92165ca71badf2f075cac1ccd422e0bf7a5708611ee7c",
+    "src/circuit_validation.rs": "323c4ee6a10ce66497083b27e4f92a233a89d6da0fc76459b918bb1aee436117",
+    "src/continual.rs": "f0b28c64d871db903f2c83e568e1b365e8bfdeb23a73f0548d0868581aaa853f",
+    "src/engineering.rs": "802625b6a943e05abb43cb5857f47cbe5dfbc86ac39423033093b80e4791fed9",
+    "src/layout_validation.rs": "605b7a2cd44df8f40e1baf02882a44f53dc61439c766495e60fa7de79eddc0ed",
+    "src/main.rs": "fc3893348407d261c14b6186f5c7e494abc117171cffb8b83cf7872fb4027bf0",
+    "src/qualification.rs": "de04a1001b83e0baee4276e784360c6d84ebfa666d56670c3b9bd2a7231fc50d",
+    "src/routing.rs": "822fa3be4cb43eb30b975a3404203c24cefc335f62dcf5a534594a4dba7d4d7e",
+    "src/simulation_validation.rs": "385ab5b2120a12039b97e55bafb613736ddc5ebf1011dfd8650fae73443ab3d6",
+    "telemetry.py": "39a0e6c73782ba057c51b092b79a0b07081dca1f42d53097df0767419da89c1e",
+    "test_artifacts.py": "2b6634d1da40b85db517d0d145ccebd49f969b8a67e0a3f49f83993447290c8f",
+    "test_buck_boundary.py": "e949dbf1981a768e7ea79f8f7f8d86392476cc742c4a23c05f003e97e13ed93b",
+    "test_buck_runner.py": "8e6467c3f8ac6977fd03167bdbef5a54ba976e030b8291690a4f4da7bda27816",
+    "test_circuit_validation.py": "507da40e6f7110d02a7f5195a7b97c97dfbc39a4dcc9b9fc2839e0ca93a118c1",
+    "test_combined_boundary.py": "e537e1913c2196b900a933bf8a7b7ac686fbff5ccb992e173fee010d84604a86",
+    "test_continual_contract.py": "53c0689950a443206075bfdae3bb72de9496ff6723c35ac08a3a29684b7f1a40",
+    "test_continual_integration.py": "2c00d4e31d257ee24b6e321ee375cbe5b8f4e6cf8801ca112c947f58c91964d7",
+    "test_engineering.py": "4b9d0d10bc2e293691d70f5ed65d34d55cc86fc8606f6ac15dfd638b912eface",
+    "test_layout_validation.py": "6c09a9bec513965516ddc6e3509781a77a0e6683c592f2de57883a4f9c48222e",
+    "test_refinement.py": "bf4ed4828a1da7299bfb018a558de0d1f4aa5976e5f1b800d8dc02ce538123bf",
+    "test_routing_boundary.py": "8a01856d9e0eeea7f4f7d116857b582bfd3e662096f1a221948aaeb121e3a826",
+    "test_simulation.py": "6378e1c2518f756837c8f5de424aac118b0ea3640a2c8c9a687884fe3033e35e",
+    "test_telemetry.py": "bc3eaa97924710b66c61f0c25626a39fcb1487b3821ca96a58e612955591a266",
+    "test_workspace.py": "39e71e178f997d3451faf413e884976cdbcfc1b6346b9e1dfb5f9909e405b545",
+    "test_zen_runner.py": "b977d83662bba31f270a6ca5143ccff5d95851ab7f49b15dc4946291cab50e66",
+    "workspace.py": "d42c8a8d65a70aedf5b9bffda111623b1e2d27eae71a76ee642718055b9940e4",
+    "workspace_worker.py": "d96e8a8ba17905201106b63b0d29f7a9e2e77ef9cf8db456020386a1491ce555"
+  },
+  "evaluator_sha256": "79eba5aa18b1b7217f09092d065529185e7259bf75eb77df17349f06add86140"
+}

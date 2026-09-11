@@ -282,7 +282,7 @@ def vendor_candidate_libs(
         dest_dir = lib_dir / f"{lib}.pretty"
         dest_dir.mkdir(exist_ok=True)
         dest = dest_dir / f"{fp}.kicad_mod"
-        if lib in ("lib", "temper"):
+        if lib in ("lib", "temper", "Temper_RTD"):
             source = repo / "pcb" / "libs" / f"{lib}.pretty" / f"{fp}.kicad_mod"
             origin = f"pcb/libs/{lib}.pretty/{fp}.kicad_mod"
         else:

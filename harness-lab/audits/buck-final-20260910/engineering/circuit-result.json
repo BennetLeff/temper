@@ -1,0 +1,15 @@
+{
+  "component_count": 9,
+  "findings": [
+    {
+      "id": "component_qualification_missing",
+      "message": "reviewed capacitor DC-bias derating and inductor saturation evidence is required"
+    }
+  ],
+  "hardware_validated": false,
+  "integrity": {
+    "status": "pass"
+  },
+  "stage": "circuit",
+  "status": "blocked"
+}

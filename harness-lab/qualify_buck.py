@@ -499,7 +499,7 @@ def pad_map(measurement: dict) -> dict:
     }
 
 
-def qualify(output: Path) -> None:
+def qualify(output: Path, *, rerun: str | None = None) -> None:
     if not __debug__:
         raise RuntimeError("Qualification requires assertions; do not use Python -O")
     output.mkdir(parents=True, exist_ok=False)
@@ -770,6 +770,22 @@ def qualify(output: Path) -> None:
         gnd_pads[pad]
         for pad in ["J2.1", "J2.2", "C9.2", "R17.2", "C11.2", "C12.2", "C13.2"]
     ] + [[30.0, 16.0], gnd_pads["U3.1"]]
+    if contract.get("fixture_revision") == "buck-v2-reference-v5":
+        # Same remove/replace/eight-via control, through the v2 clear corridors.
+        ordered = [
+            gnd_pads["J2.1"],
+            gnd_pads["J2.2"],
+            gnd_pads["R17.2"],
+            [16.0, 14.525],
+            gnd_pads["C9.2"],
+            [23.0, 14.525],
+            [23.0, 20.95],
+            gnd_pads["U3.1"],
+            [23.0, 25.0],
+            gnd_pads["C13.2"],
+            gnd_pads["C11.2"],
+            gnd_pads["C12.2"],
+        ]
     # route() replaces the net's copper, so the spine goes down first and the
     # vias that stitch it to each pad are re-added afterwards.
     assert (
@@ -870,7 +886,8 @@ def qualify(output: Path) -> None:
     receipt = {
         "status": "qualified",
         "scope": "buck_3v3",
-        "rerun": "python3 harness-lab/qualify_buck.py harness-lab/runs/<fresh-output>",
+        "rerun": rerun
+        or "python3 harness-lab/qualify_buck.py harness-lab/runs/<fresh-output>",
         "kicad_version": contract["kicad_version"],
         "variants": {v["id"]: v for v in contract["variants"]},
         "witness_passes": witness_passes,
@@ -900,6 +917,30 @@ def qualify(output: Path) -> None:
 
 def _reroute_locality_mutant(directory: Path, centers: dict) -> None:
     board = directory / "candidate.kicad_pcb"
+    if (
+        json.loads(CONTRACT.read_text()).get("fixture_revision")
+        == "buck-v2-reference-v5"
+    ):
+        # Extend the existing v2 VIN/GND islands to the displaced C9. Do not
+        # reuse the old witness's corridor through the new bootstrap location.
+        mutate(
+            board,
+            f"c91={centers['C9.1']!r}\nc92={centers['C9.2']!r}\n"
+            "[b.Delete(t) for t in list(b.GetTracks()) if t.Type()==pcbnew.PCB_VIA_T and t.GetNetname()=='gnd' and abs(pcbnew.ToMM(t.GetPosition().x)-20.0)<0.001 and abs(pcbnew.ToMM(t.GetPosition().y)-14.525)<0.001]\n"
+            "[b.Delete(t) for t in list(b.GetTracks()) if t.Type()==pcbnew.PCB_TRACE_T and t.GetNetname()=='gnd' and t.GetLayer()==pcbnew.B_Cu and any(abs(pcbnew.ToMM(p.y)-14.525)<0.001 for p in (t.GetStart(),t.GetEnd()))]\n"
+            "def seg(net, a, z, layer):\n"
+            " t=pcbnew.PCB_TRACK(b)\n"
+            " t.SetStart(pcbnew.VECTOR2I(pcbnew.FromMM(a[0]),pcbnew.FromMM(a[1])))\n"
+            " t.SetEnd(pcbnew.VECTOR2I(pcbnew.FromMM(z[0]),pcbnew.FromMM(z[1])))\n"
+            " t.SetWidth(pcbnew.FromMM(0.6)); t.SetLayer(layer); t.SetNet(b.FindNet(net)); b.Add(t)\n"
+            "vin=[c91,[0.8,c91[1]],[0.8,18.0],[2.225,18.0]]\n"
+            "for a,z in zip(vin,vin[1:]): seg('+15V',a,z,pcbnew.F_Cu)\n"
+            "gnd=[c92,[c92[0],28.0],[10.0,28.0]]\n"
+            "for a,z in zip(gnd,gnd[1:]): seg('gnd',a,z,pcbnew.B_Cu)\n"
+            "v=pcbnew.PCB_VIA(b); v.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(c92[0]),pcbnew.FromMM(c92[1])))\n"
+            "v.SetWidth(pcbnew.FromMM(0.8)); v.SetDrill(pcbnew.FromMM(0.4)); v.SetNet(b.FindNet('gnd')); b.Add(v)\n",
+        )
+        return
     c91 = centers["C9.1"]
     c92 = centers["C9.2"]
     u33 = centers["U3.3"]

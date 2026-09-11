@@ -13,9 +13,10 @@ import tempfile
 import threading
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import artifacts
 import buck_host
@@ -110,9 +111,7 @@ def verify_qualification(path: Path) -> dict[str, Any]:
     if set(receipt.get("source_sha256", {})) != current_paths:
         raise ValueError("qualified source inventory changed")
     production = ROOT.parent / "pcb" / "temper.kicad_pcb"
-    if not production.is_file() or receipt.get("production_board_sha256") != _hash(
-        production
-    ):
+    if not production.is_file() or receipt.get("production_board_sha256") != _hash(production):
         raise ValueError("production board changed since qualification")
     return receipt
 
@@ -125,11 +124,7 @@ def verify_engineering(path: Path) -> dict[str, Any]:
     input_path = evidence / "engineering-input.json"
     sources_path = evidence / "sources.json"
     toolchain_path = evidence / "toolchain.json"
-    if (
-        not input_path.is_file()
-        or not sources_path.is_file()
-        or not toolchain_path.is_file()
-    ):
+    if not input_path.is_file() or not sources_path.is_file() or not toolchain_path.is_file():
         raise ValueError("engineering retained inputs are incomplete")
     payload = _json(input_path)
     identity = payload.get("current_identity")
@@ -154,9 +149,7 @@ def verify_engineering(path: Path) -> dict[str, Any]:
         raise ValueError("engineering artifact inventory changed")
     if _json(toolchain_path).get("judge_sha256") != _hash(JUDGE):
         raise ValueError("engineering judge changed")
-    if _hash(evidence / "requirements.json") != _hash(
-        ROOT / "engineering/requirements.json"
-    ):
+    if _hash(evidence / "requirements.json") != _hash(ROOT / "engineering/requirements.json"):
         raise ValueError("engineering requirements are not current")
     for relative, digest in retained_inventory.items():
         artifact = (evidence / relative).resolve()
@@ -172,10 +165,7 @@ def verify_engineering(path: Path) -> dict[str, Any]:
         raise ValueError("current engineering stage admission is blocked")
     for stage in ("circuit", "simulation", "layout"):
         raw = evidence / f"{stage}-input.json"
-        if (
-            not raw.is_file()
-            or engineering_host.judge(_json(raw)).get("status") != "pass"
-        ):
+        if not raw.is_file() or engineering_host.judge(_json(raw)).get("status") != "pass":
             raise ValueError(f"retained {stage} input cannot be re-evaluated")
     return report
 
@@ -207,9 +197,7 @@ def runtime_identity() -> dict[str, Any]:
     executable = shutil.which("opencode")
     if executable is None:
         raise ValueError("OpenCode unavailable")
-    version = subprocess.check_output(
-        [executable, "--version"], text=True, timeout=10
-    ).strip()
+    version = subprocess.check_output([executable, "--version"], text=True, timeout=10).strip()
     if version != OPENCODE_VERSION:
         raise ValueError("OpenCode version differs from the pinned runtime")
     return {
@@ -227,10 +215,7 @@ def verify_preflight(path: Path, identity: dict[str, str]) -> dict[str, Any]:
     receipt = _json(path)
     if receipt.get("status") != "preflight_pass":
         raise ValueError("preflight did not pass")
-    if (
-        receipt.get("identity") != identity
-        or receipt.get("runtime") != runtime_identity()
-    ):
+    if receipt.get("identity") != identity or receipt.get("runtime") != runtime_identity():
         raise ValueError("preflight source, evidence, tools, or runtime changed")
     results = path.parent / "results.json"
     if receipt.get("results_sha256") != _hash(results):
@@ -306,10 +291,7 @@ def verify_inheritance(
     # Rebuild eligibility from retained source results, application receipts and
     # byte-verified artifact stores, rather than trusting candidate booleans.
     source_report = _json(path.parent / "results.json")
-    if (
-        source_report.get("phase") != "development"
-        or source_report.get("identity") != identity
-    ):
+    if source_report.get("phase") != "development" or source_report.get("identity") != identity:
         raise ValueError("inheritance source run identity mismatch")
     for candidate in manifest.get("revisions", []):
         attempt_id = candidate["source_attempt_id"]
@@ -323,10 +305,7 @@ def verify_inheritance(
             "fail",
         }:
             raise ValueError("inheritance source outcome is not qualified")
-        if (
-            result.get("condition") != "updating_base"
-            or result.get("phase") != "development"
-        ):
+        if result.get("condition") != "updating_base" or result.get("phase") != "development":
             raise ValueError("inheritance source is not updating development")
         store = artifacts.Store(path.parent / attempt_id / "artifacts")
         child = store.read(candidate["revision_sha256"])
@@ -340,17 +319,13 @@ def verify_inheritance(
         if not applied or child["payload"].get("attempt_id") != attempt_id:
             raise ValueError("inherited artifact was not applied by its source attempt")
         retained = [
-            _json(p)
-            for p in (path.parent / attempt_id / "refinement").glob("*/receipt.json")
+            _json(p) for p in (path.parent / attempt_id / "refinement").glob("*/receipt.json")
         ]
         if any(r not in retained for r in applied):
             raise ValueError("application receipt changed or missing")
         for application in applied:
             boundary = (
-                path.parent
-                / attempt_id
-                / "refinement"
-                / f"boundary-{application['boundary']}"
+                path.parent / attempt_id / "refinement" / f"boundary-{application['boundary']}"
             )
             transport = application["transport"]
             relative = Path(transport["reference"])
@@ -468,9 +443,7 @@ def _config(
     return config
 
 
-def _run_refiner(
-    context: dict[str, Any], deadline: float, destination: Path
-) -> dict[str, Any]:
+def _run_refiner(context: dict[str, Any], deadline: float, destination: Path) -> dict[str, Any]:
     """Fresh OpenCode context, exact one-tool catalog, retained verified wire."""
     destination = destination.resolve()
     destination.mkdir(parents=True, exist_ok=True)
@@ -510,9 +483,7 @@ def _run_refiner(
                 + artifacts.canonical(context).decode()
             )
             config["permission"] = {"*": "deny", "pcb_update_artifacts": "allow"}
-            config["mcp"]["pcb"]["timeout"] = max(
-                1, int((deadline - time.monotonic()) * 1000)
-            )
+            config["mcp"]["pcb"]["timeout"] = max(1, int((deadline - time.monotonic()) * 1000))
             artifacts.write_once(destination / "config.json", config)
             command = [
                 executable,
@@ -537,9 +508,7 @@ def _run_refiner(
                 1,
             )
             owner.quiesce(deadline)
-            verified, wire, normalized = _wire(
-                destination, events, recorder, REFINER_TOOLS
-            )
+            verified, wire, normalized = _wire(destination, events, recorder, REFINER_TOOLS)
             artifacts.write_once(
                 destination / "transport.json", {"verified": verified, "wire": wire}
             )
@@ -600,9 +569,7 @@ def _run_driver(
                 os.killpg(process.pid, signal.SIGKILL)
                 process.wait()
             returncode = 124
-    events = [
-        json.loads(line) for line in model_path.read_text().splitlines() if line.strip()
-    ]
+    events = [json.loads(line) for line in model_path.read_text().splitlines() if line.strip()]
     return returncode, events
 
 
@@ -635,9 +602,7 @@ class Attempt:
         self.history: list[dict] = []
         self.deadline_ms = started_ms + 1_200_000
         self.store = artifacts.Store(directory / "artifacts")
-        self.initial = (
-            self.store.import_record(initial) if initial else _base_artifact(self.store)
-        )
+        self.initial = self.store.import_record(initial) if initial else _base_artifact(self.store)
         # import_record returns the verified record; no parent runtime crosses attempts.
         self.header = {
             "run_id": directory.parent.name,
@@ -669,9 +634,7 @@ class Attempt:
         }
         artifacts.write_once(directory / "attempt-header.json", self.header)
         try:
-            self.worker = workspace.Workspace(
-                self.session, scratch=directory / "workspace"
-            )
+            self.worker = workspace.Workspace(self.session, scratch=directory / "workspace")
             capability = self.worker.qualify_denials()
             artifacts.write_once(directory / "sandbox-capability.json", capability)
             if not capability.get("qualified"):
@@ -740,9 +703,7 @@ class Attempt:
                 successful_mutations=self.session.actions,
             )
             if result.get("mutation_committed"):
-                fields.update(
-                    native_verdict=result["native_verdict"], measurement_ref=reference
-                )
+                fields.update(native_verdict=result["native_verdict"], measurement_ref=reference)
         elif kind == "measurement":
             fields.update(board_sha256=self.session.revision, measurement_ref=reference)
         self.event(kind, **fields)
@@ -764,9 +725,7 @@ class Attempt:
         if self.worker.execute("").get("status") != "pass":
             raise ValueError("worker could not acknowledge the current host state")
         proof = self.worker.liveness()
-        artifacts.write_once(
-            self.directory / f"liveness-{uuid.uuid4().hex}.json", proof
-        )
+        artifacts.write_once(self.directory / f"liveness-{uuid.uuid4().hex}.json", proof)
         return proof
 
     def classify(
@@ -968,9 +927,7 @@ def run_attempt(
                 )
                 owner.quiesce(min(deadline, time.monotonic() + 125))
                 events.extend(current)
-                verified, wire, normalized = _wire(
-                    directory, events, recorder, buck_host.TOOLS
-                )
+                verified, wire, normalized = _wire(directory, events, recorder, buck_host.TOOLS)
                 if preflight:
                     calls = [e for e in normalized if e["type"] == "item.completed"]
                     valid = (
@@ -982,9 +939,7 @@ def run_attempt(
                         and session.terminal_error is None
                         and any(e["type"] == "turn.completed" for e in normalized)
                     )
-                    result.update(
-                        status="preflight_pass" if valid else "indeterminate", wire=wire
-                    )
+                    result.update(status="preflight_pass" if valid else "indeterminate", wire=wire)
                     break
                 # Independent final/current measurement also supplies a native
                 # boundary for safe recovery when the driver ended after inspect.
@@ -1016,9 +971,7 @@ def run_attempt(
                 status = {"record_passed": "pass", "record_failed": "fail"}.get(
                     classification["decision"], "indeterminate"
                 )
-                if returncode == 0 and not any(
-                    e["type"] == "turn.completed" for e in normalized
-                ):
+                if returncode == 0 and not any(e["type"] == "turn.completed" for e in normalized):
                     status = "indeterminate"
                 result.update(
                     status=status,
@@ -1031,9 +984,7 @@ def run_attempt(
                 )
                 break
         result["board_sha256"] = session.revision
-        result["revision_sha256"] = (
-            attempt.worker.current_revision if attempt else "0" * 64
-        )
+        result["revision_sha256"] = attempt.worker.current_revision if attempt else "0" * 64
     except Exception as error:
         result.update(status="indeterminate", error=f"{type(error).__name__}: {error}")
     finally:
@@ -1060,6 +1011,211 @@ def run_attempt(
     directory.mkdir(parents=True, exist_ok=True)
     artifacts.write_once(directory / "result.json", result)
     return result
+
+
+def _telemetry_events(
+    output: Path, phase: str, results: list[dict]
+) -> tuple[list[dict], dict, dict]:
+    """Build a bounded, structured trace from finalized local evidence.
+
+    This deliberately reads only the runner's judged event ledger. Provider
+    prompts, completions, tool arguments, and raw operation files remain local.
+    """
+    events: list[dict] = []
+    attempts: list[dict] = []
+    for result in results:
+        started_ms = result.get("started_unix_ms", int(time.time() * 1000))
+        ended_ms = started_ms + result.get("elapsed_wall_ms", result.get("elapsed_ms", 0))
+        attempt_id = str(result.get("attempt_id", "unknown"))
+        attempts.append(
+            {
+                "attempt_id": attempt_id,
+                "slot": result.get("slot"),
+                "condition": result.get("condition"),
+                "variant": result.get("variant"),
+                "status": result.get("status"),
+                "board_sha256": result.get("board_sha256"),
+                "revision_sha256": result.get("revision_sha256"),
+                "elapsed_ms": result.get("elapsed_ms"),
+                "successful_mutations": result.get("successful_mutations", 0),
+                "history_count": result.get("history_count", 0),
+                "refinement_count": len(result.get("refinements", [])),
+                "has_error": "error" in result,
+            }
+        )
+        events.append(
+            {
+                "span_name": f"temper.attempt.{result.get('slot', 'unknown')}",
+                "span_kind": 1,
+                "attempt_id": attempt_id,
+                "phase": phase,
+                "condition": result.get("condition", ""),
+                "classification": result.get("status", "indeterminate"),
+                "started_unix_ns": started_ms * 1_000_000,
+                "ended_unix_ns": ended_ms * 1_000_000,
+                "input": {
+                    "phase": phase,
+                    "slot": result.get("slot"),
+                    "condition": result.get("condition"),
+                    "variant": result.get("variant"),
+                },
+                "output": attempts[-1],
+            }
+        )
+        event_dir = output / attempt_id
+        for path in sorted(event_dir.glob("event-*.json")):
+            try:
+                ledger_event = _json(path)
+            except (OSError, ValueError, RuntimeError, TypeError):
+                continue
+            try:
+                recorded_ms = int(path.stat().st_mtime * 1000)
+            except OSError:
+                recorded_ms = started_ms
+            if type(recorded_ms) is not int:
+                continue
+            fields = {key: ledger_event[key] for key in telemetry.ATTRIBUTES if key in ledger_event}
+            operation_input: dict[str, Any] = {
+                key: ledger_event[key]
+                for key in ("operation", "request_sha256")
+                if key in ledger_event
+            }
+            operation_ref = ledger_event.get("measurement_ref")
+            if isinstance(operation_ref, str) and operation_ref.startswith("operation-"):
+                try:
+                    operation = _json(event_dir / operation_ref)
+                    name = operation.get("operation")
+                    arguments = operation.get("arguments", {})
+                    if name == "place" and isinstance(arguments, dict):
+                        operation_input.update(
+                            {
+                                key: arguments[key]
+                                for key in ("reference", "x_mm", "y_mm", "angle_deg")
+                                if key in arguments
+                            }
+                        )
+                    elif name == "replace_copper" and isinstance(arguments, dict):
+                        operation_input["net"] = arguments.get("net")
+                        segments = arguments.get("segments", [])
+                        operation_input["segment_count"] = (
+                            len(segments) if isinstance(segments, list) else 0
+                        )
+                    operation_result = operation.get("result", {})
+                except (OSError, ValueError, RuntimeError, TypeError):
+                    operation_result = {}
+            else:
+                operation_result = {}
+            operation_output = {
+                key: ledger_event[key]
+                for key in (
+                    "response_status",
+                    "mutation_committed",
+                    "native_verdict",
+                    "successful_mutations",
+                )
+                if key in ledger_event
+            }
+            if isinstance(operation_result, dict):
+                findings = operation_result.get("findings", [])
+                if isinstance(findings, list):
+                    operation_output["finding_count"] = len(findings)
+                    operation_output["finding_types"] = sorted(
+                        {
+                            item.get("evidence", {}).get("type")
+                            for item in findings
+                            if isinstance(item, dict)
+                            and isinstance(item.get("evidence"), dict)
+                            and isinstance(item["evidence"].get("type"), str)
+                        }
+                    )
+                distances = operation_result.get("distances", [])
+                if isinstance(distances, list):
+                    values = [
+                        item.get("distance_mm")
+                        for item in distances
+                        if isinstance(item, dict) and type(item.get("distance_mm")) in (int, float)
+                    ]
+                    if values:
+                        operation_output["min_distance_mm"] = min(values)
+                        operation_output["max_distance_mm"] = max(values)
+            events.append(
+                {
+                    **fields,
+                    "span_name": f"temper.{ledger_event.get('kind', 'event')}",
+                    "span_kind": 1,
+                    "started_unix_ns": recorded_ms * 1_000_000,
+                    "ended_unix_ns": max(
+                        recorded_ms * 1_000_000,
+                        min(ended_ms * 1_000_000, (recorded_ms + 1) * 1_000_000),
+                    ),
+                    "input": operation_input,
+                    "output": operation_output,
+                }
+            )
+    if not events:
+        now = int(time.time() * 1000)
+        events.append({"started_unix_ns": now * 1_000_000, "ended_unix_ns": now * 1_000_000})
+    inputs = {"phase": phase, "attempt_count": len(results)}
+    outputs = {
+        "status": "blocked"
+        if any(a["status"] == "blocked" for a in attempts)
+        else (
+            "fail" if any(a["status"] in {"fail", "indeterminate"} for a in attempts) else "pass"
+        ),
+        "attempts": attempts,
+    }
+    return events, inputs, outputs
+
+
+def _full_trace_data(output: Path, results: list[dict], report: dict) -> tuple[dict, dict]:
+    """Attach complete local conversations and PCB artifacts to the finalized trace."""
+    conversations: list[dict[str, str]] = []
+    pcb_artifacts: list[dict[str, str]] = []
+    for result in results:
+        attempt_id = str(result.get("attempt_id", "unknown"))
+        attempt_dir = output / attempt_id
+        if not attempt_dir.is_dir():
+            continue
+        for path in sorted(attempt_dir.glob("model*.jsonl")):
+            try:
+                conversations.append(
+                    {
+                        "attempt_id": attempt_id,
+                        "file": path.relative_to(output).as_posix(),
+                        "content": path.read_text(),
+                    }
+                )
+            except (OSError, UnicodeError):
+                continue
+        for path in sorted(attempt_dir.rglob("*")):
+            if path.is_symlink() or not path.is_file():
+                continue
+            if path.suffix not in {".kicad_pcb", ".kicad_pro", ".kicad_dru", ".kicad_mod"} and path.name != "fp-lib-table":
+                continue
+            try:
+                pcb_artifacts.append(
+                    {
+                        "attempt_id": attempt_id,
+                        "file": path.relative_to(output).as_posix(),
+                        "content": path.read_text(),
+                    }
+                )
+            except (OSError, UnicodeError):
+                continue
+    inputs = {
+        "full_fidelity": True,
+        "phase": report.get("phase"),
+        "attempt_count": len(results),
+        "pcb_artifact_count": len(pcb_artifacts),
+        "pcb_artifacts": pcb_artifacts,
+    }
+    outputs = {
+        **report,
+        "full_fidelity": True,
+        "conversation_count": len(conversations),
+        "raw_conversations": conversations,
+    }
+    return inputs, outputs
 
 
 def run(
@@ -1100,8 +1256,7 @@ def run(
                 admission = {
                     **admission,
                     "status": "blocked",
-                    "findings": ["admission changed during the run"]
-                    + fresh["findings"],
+                    "findings": ["admission changed during the run"] + fresh["findings"],
                 }
 
         if admission["status"] != "pass" or (
@@ -1114,8 +1269,7 @@ def run(
                 "attempt_id": f"blocked-{slot.slot}",
                 "board_sha256": "0" * 64,
                 "revision_sha256": "0" * 64,
-                "findings": admission["findings"]
-                or ["no usable frozen development revision"],
+                "findings": admission["findings"] or ["no usable frozen development revision"],
             }
             artifacts.write_once(output / f"slot-{slot.slot}.claim.json", blocked)
             results.append(blocked)
@@ -1125,9 +1279,7 @@ def run(
                     output,
                     slot,
                     identity=identity,
-                    initial=selected
-                    if slot.condition.startswith("inherited")
-                    else None,
+                    initial=selected if slot.condition.startswith("inherited") else None,
                 )
             )
     status = (
@@ -1136,10 +1288,7 @@ def run(
         else "indeterminate"
         if any(r["status"] == "indeterminate" for r in results)
         else "pass"
-        if all(
-            r["status"] in {"pass", "fail", "preflight_pass", "blocked"}
-            for r in results
-        )
+        if all(r["status"] in {"pass", "fail", "preflight_pass", "blocked"} for r in results)
         else "fail"
     )
     report = {
@@ -1188,27 +1337,16 @@ def run(
                 "results_sha256": _hash(output / "results.json"),
             },
         )
-    events = [
-        {
-            "name": "buck.attempt",
-            "run_id": output.name,
-            "attempt_id": r["attempt_id"],
-            "phase": phase,
-            "condition": r["condition"],
-            "classification": r["status"],
-            "started_unix_ns": r.get("started_unix_ms", int(time.time() * 1000))
-            * 1_000_000,
-            "ended_unix_ns": (
-                r.get("started_unix_ms", int(time.time() * 1000))
-                + r.get("elapsed_wall_ms", 0)
-            )
-            * 1_000_000,
-        }
-        for r in results
-    ]
+    events, trace_inputs, trace_outputs = _telemetry_events(output, phase, results)
+    trace_inputs, trace_outputs = _full_trace_data(output, results, report)
     try:
         diagnostic = telemetry.export(
-            output / "results.json", events, enabled=export_telemetry
+            output / "results.json",
+            events,
+            enabled=export_telemetry,
+            inputs=trace_inputs,
+            outputs=trace_outputs,
+            trace_name=f"temper.harness.{phase}",
         )
         artifacts.write_once(output / "telemetry.json", diagnostic)
     except Exception:
@@ -1250,9 +1388,7 @@ def main(argv: list[str] | None = None) -> int:
         export_telemetry=args.telemetry,
     )
     try:
-        tracing = _json(args.output.resolve() / "telemetry.json").get(
-            "status", "unavailable"
-        )
+        tracing = _json(args.output.resolve() / "telemetry.json").get("status", "unavailable")
         if not isinstance(tracing, str) or tracing not in {
             "exported",
             "disabled",

@@ -1,0 +1,39 @@
+* LMR51430 datasheet-model exercise; exploratory only.
+.include ../model.lib
+.param VINSET=15 CIN=10u COUT=44u LVAL=5.6u RLOAD=6.6
+V_IN in 0 PWL(0 0 1m {VINSET} 20m {VINSET})
+R_SOURCE in vin_node 100m
+C_IN vin_node 0 {CIN}
+V_LOAD out load 0
+R_LOAD load 0 {RLOAD}
+R_ESR out cap 5m
+C_OUT cap 0 {COUT}
+C_HF out 0 100n
+L_OUT sw l_out {LVAL}
+R_DCR l_out out 10m
+R_FBTOP out fb 100k
+R_FBBOT fb 0 22.1k
+C_BOOT boot sw 100n
+* External model ground is deliberately explicit and tied to circuit ground.
+V_GND0 GND0 0 0
+X_U3 vin_node sw GND0 fb vin_node boot LMR51430XDDCR
+.save time v(out) v(in) v(vin_node) i(V_IN) i(V_LOAD) i(L_OUT) v(fb) v(sw)
+.options method=gear reltol=1e-4 abstol=1e-9 vntol=1e-6
+.temp 25
+.tran 20n 20m 0 20n uic
+.control
+set filetype=binary
+run
+let pin = -v(in)*i(V_IN)
+let pout = v(out)*i(V_LOAD)
+meas tran vout_end FIND v(out) AT=19m
+meas tran vout_avg AVG v(out) FROM=15m TO=19m
+meas tran vout_min MIN v(out) FROM=15m TO=19m
+meas tran vout_max MAX v(out) FROM=15m TO=19m
+meas tran il_avg AVG i(L_OUT) FROM=15m TO=19m
+meas tran pin_energy INTEG pin FROM=0 TO=20m
+meas tran pout_energy INTEG pout FROM=0 TO=20m
+write waveform.raw time v(out) v(in) v(vin_node) i(V_IN) i(V_LOAD) i(L_OUT) v(fb) v(sw)
+quit
+.endc
+.end

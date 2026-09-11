@@ -1,0 +1,27 @@
+* Startup protocol instrument: ideal sink versus voltage-compliant sink.
+.param IREQ=0.5 COUT=44u
+V_CMD cmd 0 PULSE(0 {IREQ} 0 1n 1n 20m 40m)
+B_IDEAL out_ideal ideal_sink I={v(cmd)}
+V_IDEAL ideal_sink 0 0
+B_COMPLIANT out_compliant compliant_sink I={max(0,min(1,v(out_compliant)/0.1))*v(cmd)}
+V_COMPLIANT compliant_sink 0 0
+C_IDEAL out_ideal 0 {COUT} ic=0
+C_COMPLIANT out_compliant 0 {COUT} ic=0
+.save time v(out_ideal) v(out_compliant) i(V_IDEAL) i(V_COMPLIANT) v(cmd)
+.options method=gear reltol=1e-5 abstol=1e-10 vntol=1e-7
+.tran 1u 20m 0 1u uic
+.control
+set filetype=ascii
+run
+meas tran ideal_load_pre AVG i(V_IDEAL) FROM=0 TO=1m
+meas tran compliant_load_pre AVG i(V_COMPLIANT) FROM=0 TO=1m
+meas tran ideal_vmin MIN v(out_ideal) FROM=0 TO=1m
+meas tran compliant_vmin MIN v(out_compliant) FROM=0 TO=1m
+meas tran ideal_load_end FIND i(V_IDEAL) AT=1m
+meas tran compliant_load_end FIND i(V_COMPLIANT) AT=1m
+meas tran ideal_v_end FIND v(out_ideal) AT=1m
+meas tran compliant_v_end FIND v(out_compliant) AT=1m
+write instrument.raw time v(out_ideal) v(out_compliant) i(V_IDEAL) i(V_COMPLIANT) v(cmd)
+quit
+.endc
+.end

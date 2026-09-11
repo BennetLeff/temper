@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "kicad-cli",
+    "pcb",
+    "drc",
+    "--format",
+    "json",
+    "--all-track-errors",
+    "--severity-all",
+    "--output",
+    "/private/tmp/temper-buck-final-v2-qualification-6/buck-dev-b/control-wrong-raw-copper-net/evaluation/drc.json",
+    "/private/tmp/temper-buck-final-v2-qualification-6/buck-dev-b/control-wrong-raw-copper-net/candidate.kicad_pcb"
+  ],
+  "returncode": 0,
+  "stdout": "Found 0 violations\nFound 0 unconnected items\nSaved DRC Report to /private/tmp/temper-buck-final-v2-qualification-6/buck-dev-b/control-wrong-raw-copper-net/evaluation/drc.json\n",
+  "stderr": ""
+}

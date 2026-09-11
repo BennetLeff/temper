@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "pcbnew_version": "10.0.4",
+  "path": "/tmp/temper-buck-followup-20260910/layout/proposal.pretty",
+  "footprint_name": "SRP1265A-5R6M_PROPOSAL",
+  "pad_count": 2,
+  "pads": [
+    {
+      "number": "1",
+      "x_mm": -5.55,
+      "y_mm": 0.0,
+      "width_mm": 3.1,
+      "height_mm": 5.0
+    },
+    {
+      "number": "2",
+      "x_mm": 5.55,
+      "y_mm": 0.0,
+      "width_mm": 3.1,
+      "height_mm": 5.0
+    }
+  ],
+  "pad_numbers": [
+    "1",
+    "2"
+  ],
+  "checks": {
+    "two_pads": true,
+    "numbers_1_2": true,
+    "centers_pm_5_55": true,
+    "sizes_3_1x5": true
+  }
+}

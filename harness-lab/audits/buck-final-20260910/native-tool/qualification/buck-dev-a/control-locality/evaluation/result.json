@@ -1,0 +1,16 @@
+{
+  "board_sha256": "3bfa21adb1a87fce2332c53bbe59ea305c0053f8986d53eb0000d2725ba4d819",
+  "findings": [
+    {
+      "distance_mm": 19.525052016576037,
+      "id": "input_locality:C9.1:U3.3"
+    },
+    {
+      "distance_mm": 16.066001563861494,
+      "id": "input_locality:C9.2:U3.1"
+    }
+  ],
+  "open_connection_evidence": [],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

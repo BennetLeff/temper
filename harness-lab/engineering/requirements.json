@@ -1,6 +1,6 @@
 {
   "schema_version": "engineering-requirements/v1",
-  "revision": "temper-buck-requirements-2026-09-09-audit2",
+  "revision": "temper-buck-requirements-2026-09-10-startup-compliance",
   "source_authority": "elec/src/modules.ato::BuckConverter3V3",
   "requirements": [
     {
@@ -19,7 +19,7 @@
       "label": "Minimum input voltage",
       "value": 13.5,
       "units": "V",
-      "source": "elec/src/modules.ato:1617 (15 V auxiliary output assertion, ±10%; source sha256 b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5)",
+      "source": "elec/src/modules.ato:1617 (15 V auxiliary output assertion, \u00b110%; source sha256 b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5)",
       "approval": "source-backed",
       "verification": "bench",
       "stage": "physical",
@@ -30,7 +30,7 @@
       "label": "Maximum input voltage",
       "value": 16.5,
       "units": "V",
-      "source": "elec/src/modules.ato:1617 (15 V auxiliary output assertion, ±10%; source sha256 b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5)",
+      "source": "elec/src/modules.ato:1617 (15 V auxiliary output assertion, \u00b110%; source sha256 b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5)",
       "approval": "source-backed",
       "verification": "bench",
       "stage": "physical",
@@ -53,7 +53,7 @@
       "min": 3.135,
       "max": 3.465,
       "units": "V",
-      "source": "Atopile assertion in BuckConverter3V3 (±5%)",
+      "source": "Atopile assertion in BuckConverter3V3 (\u00b15%)",
       "approval": "source-backed",
       "verification": "simulation",
       "stage": "simulation",
@@ -74,134 +74,169 @@
     {
       "id": "iout_peak",
       "label": "Peak output current",
-      "value": null,
       "units": "A",
-      "source": "unresolved Temper load budget",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "bench",
       "stage": "physical",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 1.0
     },
     {
       "id": "iout_peak_duration",
       "label": "Peak current duration",
-      "value": null,
       "units": "s",
-      "source": "unresolved Temper load profile",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "bench",
       "stage": "physical",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 0.01
     },
     {
       "id": "ripple_amplitude",
       "label": "Output ripple amplitude",
-      "value": null,
       "units": "mVpp",
-      "source": "unresolved product requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "bench",
       "stage": "physical",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 50.0
     },
     {
       "id": "ripple_bandwidth",
       "label": "Ripple measurement bandwidth",
-      "value": null,
       "units": "MHz",
-      "source": "unresolved measurement procedure",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "bench",
       "stage": "physical",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 20.0
     },
     {
       "id": "startup_ramp",
       "label": "Startup ramp",
-      "value": null,
       "units": "ms",
-      "source": "unresolved startup requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "simulation",
       "stage": "simulation",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 8.0
     },
     {
       "id": "startup_overshoot",
       "label": "Startup overshoot",
-      "value": null,
       "units": "mV",
-      "source": "unresolved startup requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "simulation",
       "stage": "simulation",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 100.0
     },
     {
       "id": "startup_settling",
       "label": "Startup settling time",
-      "value": null,
       "units": "ms",
-      "source": "unresolved startup requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "simulation",
       "stage": "simulation",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 10.0
+    },
+    {
+      "id": "startup_load_compliance_voltage",
+      "label": "Startup load compliance voltage",
+      "value": 0.1,
+      "units": "V",
+      "source": "Harness stimulus contract: a discharged output cannot supply the continuous-load budget until VOUT reaches 0.1 V; fixed validator law is max(0, min(1, VOUT/0.1 V)) * load_a",
+      "approval": "approved",
+      "verification": "simulation",
+      "stage": "simulation",
+      "mandatory": true,
+      "evidence_kind": "fixture semantics; not an IC specification"
     },
     {
       "id": "load_step_endpoints",
       "label": "Load-step endpoints",
-      "value": null,
       "units": "A",
-      "source": "unresolved load profile",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "simulation",
       "stage": "simulation",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "profiles": [
+        {
+          "id": "continuous_50mA_to_500mA",
+          "low_a": 0.05,
+          "high_a": 0.5
+        },
+        {
+          "id": "pulse_50mA_to_1A",
+          "low_a": 0.05,
+          "high_a": 1.0
+        }
+      ]
     },
     {
       "id": "load_step_slew",
       "label": "Load-step slew",
-      "value": null,
       "units": "A/us",
-      "source": "unresolved load profile",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "simulation",
       "stage": "simulation",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 0.1
     },
     {
       "id": "load_step_undershoot",
       "label": "Load-step undershoot",
-      "value": null,
       "units": "mV",
-      "source": "unresolved transient requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "simulation",
       "stage": "simulation",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 100.0
     },
     {
       "id": "load_step_overshoot",
       "label": "Load-step overshoot",
-      "value": null,
       "units": "mV",
-      "source": "unresolved transient requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "simulation",
       "stage": "simulation",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 100.0
     },
     {
       "id": "load_step_recovery",
       "label": "Load-step recovery",
-      "value": null,
       "units": "us",
-      "source": "unresolved transient requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "simulation",
       "stage": "simulation",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "value": 1000.0
     },
     {
       "id": "ambient_temperature",
@@ -210,7 +245,7 @@
       "max": 40.0,
       "derated_max": 70.0,
       "units": "degC",
-      "source": "docs/specs/REQUIREMENTS.md:79-106 (0–40°C normal full-power; 40–70°C derated; >75°C shutdown), with board-level design declaration elec/src/main.ato:490-492 (0–50°C) recorded separately in the audit",
+      "source": "docs/specs/REQUIREMENTS.md:79-106 (0\u201340\u00b0C normal full-power; 40\u201370\u00b0C derated; >75\u00b0C shutdown), with board-level design declaration elec/src/main.ato:490-492 (0\u201350\u00b0C) recorded separately in the audit",
       "approval": "source-backed",
       "verification": "bench",
       "stage": "physical",
@@ -219,24 +254,78 @@
     {
       "id": "thermal_limit",
       "label": "Thermal limit",
-      "value": null,
       "units": "degC",
-      "source": "unresolved product thermal requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "bench",
       "stage": "physical",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "limits": [
+        {
+          "component": "U3",
+          "quantity": "junction",
+          "value": 125.0
+        },
+        {
+          "component": "L2",
+          "quantity": "hotspot",
+          "value": 105.0
+        }
+      ],
+      "conditions": {
+        "iout_a": 0.5,
+        "ambient_max_degC": 70.0
+      }
     },
     {
       "id": "efficiency_operating_points",
       "label": "Efficiency operating points",
-      "value": null,
       "units": "V,A",
-      "source": "unresolved product requirement",
-      "approval": "unresolved",
+      "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+      "approval": "approved",
       "verification": "bench",
       "stage": "physical",
-      "mandatory": true
+      "mandatory": true,
+      "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+      "points": [
+        {
+          "vin_v": 13.5,
+          "iout_a": 0.1,
+          "min_efficiency_percent": 80.0,
+          "ambient_degC": 25.0
+        },
+        {
+          "vin_v": 15.0,
+          "iout_a": 0.1,
+          "min_efficiency_percent": 80.0,
+          "ambient_degC": 25.0
+        },
+        {
+          "vin_v": 16.5,
+          "iout_a": 0.1,
+          "min_efficiency_percent": 80.0,
+          "ambient_degC": 25.0
+        },
+        {
+          "vin_v": 13.5,
+          "iout_a": 0.5,
+          "min_efficiency_percent": 85.0,
+          "ambient_degC": 25.0
+        },
+        {
+          "vin_v": 15.0,
+          "iout_a": 0.5,
+          "min_efficiency_percent": 85.0,
+          "ambient_degC": 25.0
+        },
+        {
+          "vin_v": 16.5,
+          "iout_a": 0.5,
+          "min_efficiency_percent": 85.0,
+          "ambient_degC": 25.0
+        }
+      ]
     },
     {
       "id": "capacitor_effective_value",
@@ -256,7 +345,7 @@
       "units": "A",
       "rating_irms": 12.5,
       "rating_isat": 23.0,
-      "source": "Bourns SRP1265A datasheet retained at harness-lab/audits/buck-20260909/sources/bourns-srp1265a.pdf, SRP1265A-5R6M row; Irms 12.5A at 40°C rise and Isat 23A at 20% inductance drop; effective Temper current remains unresolved",
+      "source": "Bourns SRP1265A datasheet retained at harness-lab/audits/buck-20260909/sources/bourns-srp1265a.pdf, SRP1265A-5R6M row; Irms 12.5A at 40\u00b0C rise and Isat 23A at 20% inductance drop; effective Temper current remains unresolved",
       "approval": "unresolved",
       "verification": "circuit",
       "stage": "circuit",

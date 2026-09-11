@@ -1,0 +1,21 @@
+** Drc report for candidate.kicad_pcb **
+** Created on 2026-09-09T23:04:01 **
+** Report includes: Errors, Warnings **
+
+** Found 1 DRC violations **
+[lib_footprint_mismatch]: Footprint 'L2' does not match copy in library 'fixture'
+    Local override; warning
+    @(31.0000 mm, 20.0000 mm): Footprint L2
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** Ignored checks **
+    - Footprint has no courtyard defined
+    - Track endpoint not centered on via
+    - Tuning profile track geometries
+    - Footprint doesn't match symbol's footprint filters
+    - Footprint component type doesn't match footprint pads
+
+** End of Report **

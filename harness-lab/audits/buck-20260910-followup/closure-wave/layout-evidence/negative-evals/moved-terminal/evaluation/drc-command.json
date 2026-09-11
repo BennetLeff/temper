@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "kicad-cli",
+    "pcb",
+    "drc",
+    "--format",
+    "json",
+    "--all-track-errors",
+    "--severity-all",
+    "--output",
+    "/tmp/temper-buck-close-20260910/layout/negative-evals/moved-terminal/evaluation/drc.json",
+    "/tmp/temper-buck-close-20260910/layout/negative-evals/moved-terminal/candidate.kicad_pcb"
+  ],
+  "returncode": 0,
+  "stdout": "Found 0 violations\nFound 0 unconnected items\nSaved DRC Report to /tmp/temper-buck-close-20260910/layout/negative-evals/moved-terminal/evaluation/drc.json\n",
+  "stderr": ""
+}

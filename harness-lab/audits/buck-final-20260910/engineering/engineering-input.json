@@ -1,0 +1,833 @@
+{
+  "artifact_inventory": {
+    "candidate/candidate.kicad_dru": "e53161ef573ffc1623e5f4751f32a11e23d65479c83230e49e41cf93273cacf5",
+    "candidate/candidate.kicad_pcb": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",
+    "candidate/candidate.kicad_prl": "94e008de06328751884a592b98da2b6533a14f8144eefaf93b0002d473a91d75",
+    "candidate/candidate.kicad_pro": "bfb1686aaed1c17c30393cb8679d5dc26c7d8c7774e7700675ecc4c489d1315a",
+    "candidate/fixture.pretty/C10.kicad_mod": "0cc9ae728cf190cafbec1549606e14f8fabdb205965b72968b706b51bf295ec0",
+    "candidate/fixture.pretty/C11.kicad_mod": "b71187969c5b97166e358caee514b2a747a73983e58374e77e07af6d02dc35c0",
+    "candidate/fixture.pretty/C12.kicad_mod": "942d141d78272920f6a80dbc867e9a8317669b8f268679e92aa8d6b8c93bd3fd",
+    "candidate/fixture.pretty/C13.kicad_mod": "4d7c0c438d1b38c178a22c086417466e8c5feed6b5766d898c52a7bd11b712a2",
+    "candidate/fixture.pretty/C9.kicad_mod": "05a864f3dc26e24d138e02e27bbe7e28d0c8ccd6cf66f6d7bd887d31fc1b87f6",
+    "candidate/fixture.pretty/J1.kicad_mod": "829fb85ad368efa70c1ddce8c7df45372b828ac459bf4b3fc152b7efc819c77f",
+    "candidate/fixture.pretty/J2.kicad_mod": "baf3d43713c558eefadaf99ce6b100689bb459ab13a419865c1735d54261002e",
+    "candidate/fixture.pretty/J3.kicad_mod": "76538bb9860414cfc4d2bd3f13cca0aca0d6fdb3f89b4acb91fc14953bd3e3bf",
+    "candidate/fixture.pretty/L2.kicad_mod": "a5ffab1e57b2940fb1c3c7f7a721900839c1dff9f922349ab09c7de4de2ab997",
+    "candidate/fixture.pretty/R16.kicad_mod": "c6e8754162d2f20b057dc1e8250a83f1fad3b265b8080d31825903e5fd433be5",
+    "candidate/fixture.pretty/R17.kicad_mod": "3693a05bd54c88dbc34d61b49157cffcb269494a9c461d036a70c8e7203b6809",
+    "candidate/fixture.pretty/U3.kicad_mod": "f7b68aaf6a4fe453f5fe49036e981d6f91b9f282491a2355535cf17b5ba71ef7",
+    "candidate/fp-lib-table": "bf24dac31ded69729a088472d6a679bf11b26300f9d5680e36ea3cb7fb210749",
+    "candidate/initial.kicad_pcb": "854bb6e5ea5ee439d12eee573e120dab1537b27f528303a679e49d0abb61ccb5",
+    "candidate/source.json": "690995f3513ae94bf08e9fdef4fe7fce519363e83626474a21a11b8381591a23",
+    "candidate/start.kicad_pcb": "854bb6e5ea5ee439d12eee573e120dab1537b27f528303a679e49d0abb61ccb5",
+    "candidate/witness.kicad_pcb": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",
+    "circuit-input.json": "a7b314c69f38c8841b3734760cd135fc48bdf6fe8d6dab440c45517b67d37143",
+    "circuit-result.json": "bf1ccbccb9669bec4e16d8aef2b1612d6d960e3e865520d3dad3e534ece01690",
+    "circuit/workspace/ato.yaml": "0b4a28d17837eafc25b6a1da05a65e377378caa484338faeb448ac8100771ed8",
+    "circuit/workspace/buck.ato": "543bbd96da7c16a17dc2139f5769e4054c38f035970b25cd6169fdbfef0f4339",
+    "circuit/workspace/build/default.csv": "4590729e8db55ceaca854725dc1804ff5e0bb5ab9dff9be8bc679cde8e6cd20a",
+    "circuit/workspace/build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "circuit/workspace/build/default.net": "d1f688240246d61b26cd063f55a1ade22a9414b2106f0423c3af79b7a327bfe1",
+    "circuit/workspace/build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
+    "circuit/workspace/elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+    "circuit/workspace/elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "circuit/workspace/elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "circuit/workspace/elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "circuit/workspace/elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "circuit/workspace/elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "circuit/workspace/elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+    "circuit/workspace/elec/src/modules.ato": "d3873898d65300b5982eeba66d61b1ec4938c63ec29ce869d34a3ac8d11cc547",
+    "circuit/workspace/export-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "circuit/workspace/export-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "circuit/workspace/resolved-components.json": "4c1ee810023514f4627261f188aa1ed7ba32ea6a59f92ef67b498414fc6636e3",
+    "circuit/workspace/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "circuit/workspace/stdout.txt": "0d03c14a33d966c88efc8bb26ae8bd65d46e392f756cac90db00289e3e1dc3b4",
+    "layout-input.json": "da790c0c69438506f5aa91d30e1984a777f8fdb0f521b7c392fc9c2a3b24c4f0",
+    "layout-result.json": "996290ae7b572d4620e57eb1857898285f6ab7a5fe8ce45626f87311624e2787",
+    "layout/input.json": "da790c0c69438506f5aa91d30e1984a777f8fdb0f521b7c392fc9c2a3b24c4f0",
+    "layout/measurement.json": "44f68c6da5c18f60df3c867825d0ee6edfd66d4f13be670e6c047aae05152540",
+    "layout/presentation.json": "2fcf41557977f966abd21fc133170ae669cf5b5e305e352107d9875e21f9bcfd",
+    "native/drc-command.json": "a4dddad640cd80a226a0ee0e60ab54fb515dfaca7aeb2398fdeea3d03db7a7a6",
+    "native/drc.json": "dd11963b4e39d3b760b581486f130b160891eddf11e83d0a973a3f9bf8094baa",
+    "native/kicad-config/10.0/3d_viewer.json": "3dc0ebcb073ef8496323d4c2a835532d13e2bc7bf45890f602e6bbef1a3ba56f",
+    "native/kicad-config/10.0/cvpcb.json": "b93174a3b1470f1ce0e43c90268ce83976432c5210d906a3846ee7976ea9d272",
+    "native/kicad-config/10.0/fpedit.json": "9e940a9a57528403a4e62739f3bd0813a6226c20528540ce0a7843dc5f86d947",
+    "native/kicad-config/10.0/kicad.json": "0c77c3a8316704bdc547268578f0fd50520863ebc8567e67ce2c6efe5a3b1f36",
+    "native/kicad-config/10.0/kicad_common.json": "fa0095b0aa0b1c0d7b46586aa9f3d69a4dd59e8944f86f9f6fa913c5587e837a",
+    "native/kicad-config/10.0/pcbnew.json": "86e6a78eed5b9e9ebddecf9851f39203b0f1716c0b85c4f554d92523c5d04744",
+    "native/kicad-config/kicad_advanced": "bad2e642ee870969407d373715a255540d0781254b434ba92eaeadadfbe99446",
+    "native/kicad-config/kicad_common.json": "50092d544bfdcae210fc0b769cf1afc00ee0a8e2dcd84008e95ed18b3db8f440",
+    "native/measurement.json": "3157d0728f5ed0030f38fbbb8d014385e9b2b3db06c900f08a46ab69fc02aeed",
+    "native/result.json": "d8b6983b7a4af3e5dd3f293f826a7206845561784d44452381db42b2dfa5032b",
+    "requirements.json": "0fadbec44eec04a05ad92d7727f3bdcbf070895ee5cffceb3ffc19dd3bbf90f2",
+    "simulation-input.json": "ef2fa3f80147ad30eb6fe69230913628556a37671340a3ba98754c6d7e1974ef",
+    "simulation-result.json": "cb66c727b62b9e9166f21d3a8e123d306f3fb7019989d0f65d724917dd3f2d96",
+    "sources.json": "2fbcdfd85d53dfff0f69a84aae32c78701469174ee4b4c8ec57cfc2f8fd0dd60",
+    "toolchain.json": "b6b0d11f379ae7f6d85f8ce8ed52cd90ce8ff4df0e7e83bf1edff3974bc61fc4"
+  },
+  "current_identity": {
+    "board_sha256": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",
+    "requirements_sha256": "0fadbec44eec04a05ad92d7727f3bdcbf070895ee5cffceb3ffc19dd3bbf90f2",
+    "sources_sha256": "b2a2b71094b6ec8c30fd37761b6345b11815009d2f1df2308663c51c25f6eff0"
+  },
+  "profile": "engineering",
+  "requirements": {
+    "requirements": [
+      {
+        "approval": "source-backed",
+        "id": "vin_nominal",
+        "label": "Nominal input voltage",
+        "mandatory": true,
+        "source": "Temper source design; BuckConverter3V3",
+        "stage": "circuit",
+        "units": "V",
+        "value": 15.0,
+        "verification": "circuit"
+      },
+      {
+        "approval": "source-backed",
+        "id": "vin_min",
+        "label": "Minimum input voltage",
+        "mandatory": true,
+        "source": "elec/src/modules.ato:1617 (15 V auxiliary output assertion, \u00b110%; source sha256 b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5)",
+        "stage": "physical",
+        "units": "V",
+        "value": 13.5,
+        "verification": "bench"
+      },
+      {
+        "approval": "source-backed",
+        "id": "vin_max",
+        "label": "Maximum input voltage",
+        "mandatory": true,
+        "source": "elec/src/modules.ato:1617 (15 V auxiliary output assertion, \u00b110%; source sha256 b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5)",
+        "stage": "physical",
+        "units": "V",
+        "value": 16.5,
+        "verification": "bench"
+      },
+      {
+        "approval": "source-backed",
+        "id": "vout_nominal",
+        "label": "Nominal output voltage",
+        "mandatory": true,
+        "source": "Atopile assertion in BuckConverter3V3",
+        "stage": "circuit",
+        "units": "V",
+        "value": 3.3,
+        "verification": "circuit"
+      },
+      {
+        "approval": "source-backed",
+        "id": "vout_tolerance",
+        "label": "Output voltage tolerance",
+        "mandatory": true,
+        "max": 3.465,
+        "min": 3.135,
+        "source": "Atopile assertion in BuckConverter3V3 (\u00b15%)",
+        "stage": "simulation",
+        "units": "V",
+        "verification": "simulation"
+      },
+      {
+        "approval": "source-backed",
+        "evidence_kind": "source design budget; not a measured maximum",
+        "id": "iout_continuous",
+        "label": "Continuous output current",
+        "mandatory": true,
+        "source": "elec/src/modules.ato:1619-1622 (MCU+logic budget explicitly 500mA @ 3.3V; source sha256 b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5)",
+        "stage": "physical",
+        "units": "A",
+        "value": 0.5,
+        "verification": "bench"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "iout_peak",
+        "label": "Peak output current",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "physical",
+        "units": "A",
+        "value": 1.0,
+        "verification": "bench"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "iout_peak_duration",
+        "label": "Peak current duration",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "physical",
+        "units": "s",
+        "value": 0.01,
+        "verification": "bench"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "ripple_amplitude",
+        "label": "Output ripple amplitude",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "physical",
+        "units": "mVpp",
+        "value": 50.0,
+        "verification": "bench"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "ripple_bandwidth",
+        "label": "Ripple measurement bandwidth",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "physical",
+        "units": "MHz",
+        "value": 20.0,
+        "verification": "bench"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "startup_ramp",
+        "label": "Startup ramp",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "simulation",
+        "units": "ms",
+        "value": 8.0,
+        "verification": "simulation"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "startup_overshoot",
+        "label": "Startup overshoot",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "simulation",
+        "units": "mV",
+        "value": 100.0,
+        "verification": "simulation"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "startup_settling",
+        "label": "Startup settling time",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "simulation",
+        "units": "ms",
+        "value": 10.0,
+        "verification": "simulation"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "load_step_endpoints",
+        "label": "Load-step endpoints",
+        "mandatory": true,
+        "profiles": [
+          {
+            "high_a": 0.5,
+            "id": "continuous_50mA_to_500mA",
+            "low_a": 0.05
+          },
+          {
+            "high_a": 1.0,
+            "id": "pulse_50mA_to_1A",
+            "low_a": 0.05
+          }
+        ],
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "simulation",
+        "units": "A",
+        "verification": "simulation"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "load_step_slew",
+        "label": "Load-step slew",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "simulation",
+        "units": "A/us",
+        "value": 0.1,
+        "verification": "simulation"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "load_step_undershoot",
+        "label": "Load-step undershoot",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "simulation",
+        "units": "mV",
+        "value": 100.0,
+        "verification": "simulation"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "load_step_overshoot",
+        "label": "Load-step overshoot",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "simulation",
+        "units": "mV",
+        "value": 100.0,
+        "verification": "simulation"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "load_step_recovery",
+        "label": "Load-step recovery",
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "simulation",
+        "units": "us",
+        "value": 1000.0,
+        "verification": "simulation"
+      },
+      {
+        "approval": "source-backed",
+        "derated_max": 70.0,
+        "id": "ambient_temperature",
+        "label": "Ambient temperature",
+        "mandatory": true,
+        "max": 40.0,
+        "min": 0.0,
+        "source": "docs/specs/REQUIREMENTS.md:79-106 (0\u201340\u00b0C normal full-power; 40\u201370\u00b0C derated; >75\u00b0C shutdown), with board-level design declaration elec/src/main.ato:490-492 (0\u201350\u00b0C) recorded separately in the audit",
+        "stage": "physical",
+        "units": "degC",
+        "verification": "bench"
+      },
+      {
+        "approval": "approved",
+        "conditions": {
+          "ambient_max_degC": 70.0,
+          "iout_a": 0.5
+        },
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "thermal_limit",
+        "label": "Thermal limit",
+        "limits": [
+          {
+            "component": "U3",
+            "quantity": "junction",
+            "value": 125.0
+          },
+          {
+            "component": "L2",
+            "quantity": "hotspot",
+            "value": 105.0
+          }
+        ],
+        "mandatory": true,
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "physical",
+        "units": "degC",
+        "verification": "bench"
+      },
+      {
+        "approval": "approved",
+        "evidence_kind": "design target; not measured performance or a manufacturer guarantee",
+        "id": "efficiency_operating_points",
+        "label": "Efficiency operating points",
+        "mandatory": true,
+        "points": [
+          {
+            "ambient_degC": 25.0,
+            "iout_a": 0.1,
+            "min_efficiency_percent": 80.0,
+            "vin_v": 13.5
+          },
+          {
+            "ambient_degC": 25.0,
+            "iout_a": 0.1,
+            "min_efficiency_percent": 80.0,
+            "vin_v": 15.0
+          },
+          {
+            "ambient_degC": 25.0,
+            "iout_a": 0.1,
+            "min_efficiency_percent": 80.0,
+            "vin_v": 16.5
+          },
+          {
+            "ambient_degC": 25.0,
+            "iout_a": 0.5,
+            "min_efficiency_percent": 85.0,
+            "vin_v": 13.5
+          },
+          {
+            "ambient_degC": 25.0,
+            "iout_a": 0.5,
+            "min_efficiency_percent": 85.0,
+            "vin_v": 15.0
+          },
+          {
+            "ambient_degC": 25.0,
+            "iout_a": 0.5,
+            "min_efficiency_percent": 85.0,
+            "vin_v": 16.5
+          }
+        ],
+        "source": "Design targets adopted for the user-authorized buck closeout on 2026-09-10; procedures in harness-lab/audits/buck-20260910-followup/requirements-proposal.md",
+        "stage": "physical",
+        "units": "V,A",
+        "verification": "bench"
+      },
+      {
+        "approval": "unresolved",
+        "id": "capacitor_effective_value",
+        "label": "Capacitor effective capacitance under bias/tolerance",
+        "mandatory": true,
+        "source": "unresolved component derating evidence",
+        "stage": "circuit",
+        "units": "uF",
+        "value": null,
+        "verification": "circuit"
+      },
+      {
+        "approval": "unresolved",
+        "evidence_kind": "manufacturer-rating",
+        "id": "inductor_current_rating",
+        "label": "Inductor current and saturation assumption",
+        "mandatory": true,
+        "rating_irms": 12.5,
+        "rating_isat": 23.0,
+        "source": "Bourns SRP1265A datasheet retained at harness-lab/audits/buck-20260909/sources/bourns-srp1265a.pdf, SRP1265A-5R6M row; Irms 12.5A at 40\u00b0C rise and Isat 23A at 20% inductance drop; effective Temper current remains unresolved",
+        "stage": "circuit",
+        "units": "A",
+        "value": null,
+        "verification": "circuit"
+      }
+    ],
+    "revision": "temper-buck-requirements-2026-09-10-closure",
+    "schema_version": "engineering-requirements/v1",
+    "source_authority": "elec/src/modules.ato::BuckConverter3V3"
+  },
+  "stage_receipts": {
+    "circuit": {
+      "artifacts": [
+        {
+          "path": "circuit-input.json",
+          "sha256": "a7b314c69f38c8841b3734760cd135fc48bdf6fe8d6dab440c45517b67d37143"
+        },
+        {
+          "path": "circuit-result.json",
+          "sha256": "bf1ccbccb9669bec4e16d8aef2b1612d6d960e3e865520d3dad3e534ece01690"
+        }
+      ],
+      "component_count": 9,
+      "dependencies": {},
+      "findings": [
+        {
+          "id": "component_qualification_missing",
+          "message": "reviewed capacitor DC-bias derating and inductor saturation evidence is required"
+        }
+      ],
+      "hardware_validated": false,
+      "identity": {
+        "board_sha256": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",
+        "requirements_sha256": "0fadbec44eec04a05ad92d7727f3bdcbf070895ee5cffceb3ffc19dd3bbf90f2",
+        "sources_sha256": "b2a2b71094b6ec8c30fd37761b6345b11815009d2f1df2308663c51c25f6eff0"
+      },
+      "integrity": {
+        "status": "pass"
+      },
+      "requirements_revision": "temper-buck-requirements-2026-09-10-closure",
+      "schema_version": "engineering/v1",
+      "stage": "circuit",
+      "status": "blocked"
+    },
+    "layout": {
+      "artifacts": [
+        {
+          "path": "layout-input.json",
+          "sha256": "da790c0c69438506f5aa91d30e1984a777f8fdb0f521b7c392fc9c2a3b24c4f0"
+        },
+        {
+          "path": "layout-result.json",
+          "sha256": "996290ae7b572d4620e57eb1857898285f6ab7a5fe8ce45626f87311624e2787"
+        }
+      ],
+      "dependencies": {
+        "circuit_sha256": "bf1ccbccb9669bec4e16d8aef2b1612d6d960e3e865520d3dad3e534ece01690"
+      },
+      "findings": [],
+      "hardware_validated": false,
+      "identity": {
+        "board_sha256": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",
+        "requirements_sha256": "0fadbec44eec04a05ad92d7727f3bdcbf070895ee5cffceb3ffc19dd3bbf90f2",
+        "sources_sha256": "b2a2b71094b6ec8c30fd37761b6345b11815009d2f1df2308663c51c25f6eff0"
+      },
+      "layout": {
+        "electrical": "pass",
+        "presentation": "pass",
+        "status": "pass"
+      },
+      "measurements": {
+        "copper_path_mm": {
+          "ground_return": {
+            "from": "C9.2",
+            "length_mm": 11.2875,
+            "net": "gnd",
+            "to": "U3.1"
+          },
+          "input_path": {
+            "from": "C9.1",
+            "length_mm": 5.4375,
+            "net": "+15V",
+            "to": "U3.3"
+          }
+        },
+        "power_bottleneck_width_mm": 0.6
+      },
+      "presentation_observations": {
+        "labels": [
+          {
+            "bounds_mm": [
+              18.422619,
+              25.15175,
+              21.577381,
+              26.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "C10"
+          },
+          {
+            "bounds_mm": [
+              40.422619,
+              12.15175,
+              43.577381,
+              13.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "C11"
+          },
+          {
+            "bounds_mm": [
+              40.422619,
+              26.15175,
+              43.577381,
+              27.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "C12"
+          },
+          {
+            "bounds_mm": [
+              44.422619,
+              20.15175,
+              47.577381,
+              21.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "C13"
+          },
+          {
+            "bounds_mm": [
+              18.89881,
+              11.15175,
+              21.101191,
+              12.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "C9"
+          },
+          {
+            "bounds_mm": [
+              2.017857,
+              14.65175,
+              3.982143,
+              16.34825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "J1"
+          },
+          {
+            "bounds_mm": [
+              1.94762,
+              12.8214,
+              4.052381,
+              14.1786
+            ],
+            "height_mm": 0.8,
+            "layer": "F.Silkscreen",
+            "text": "VIN"
+          },
+          {
+            "bounds_mm": [
+              2.017857,
+              23.15175,
+              3.982143,
+              24.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "J2"
+          },
+          {
+            "bounds_mm": [
+              4.680953,
+              22.8214,
+              7.319048,
+              24.1786
+            ],
+            "height_mm": 0.8,
+            "layer": "F.Silkscreen",
+            "text": "GND"
+          },
+          {
+            "bounds_mm": [
+              46.017857,
+              14.65175,
+              47.982143,
+              16.34825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "J3"
+          },
+          {
+            "bounds_mm": [
+              45.795238,
+              12.8214,
+              48.204762,
+              14.1786
+            ],
+            "height_mm": 0.8,
+            "layer": "F.Silkscreen",
+            "text": "3V3"
+          },
+          {
+            "bounds_mm": [
+              29.994048,
+              27.15175,
+              32.005953,
+              28.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "L2"
+          },
+          {
+            "bounds_mm": [
+              12.422619,
+              14.15175,
+              15.577381,
+              15.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "R16"
+          },
+          {
+            "bounds_mm": [
+              12.422619,
+              22.15175,
+              15.577381,
+              23.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "R17"
+          },
+          {
+            "bounds_mm": [
+              15.875,
+              24.15175,
+              18.125,
+              25.84825
+            ],
+            "height_mm": 1.0,
+            "layer": "F.Silkscreen",
+            "text": "U3"
+          }
+        ],
+        "missing_3d_models": [
+          "J1",
+          "J2",
+          "J3",
+          "L2"
+        ],
+        "model_files_resolved": false,
+        "model_paths": {
+          "C10": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+          ],
+          "C11": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "C12": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "C13": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+          ],
+          "C9": [
+            "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_1210_3225Metric.step"
+          ],
+          "J1": [],
+          "J2": [],
+          "J3": [],
+          "L2": [],
+          "R16": [
+            "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+          ],
+          "R17": [
+            "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+          ],
+          "U3": [
+            "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-6.step"
+          ]
+        }
+      },
+      "profile": "engineering-layout",
+      "requirements_revision": "temper-buck-requirements-2026-09-10-closure",
+      "schema_version": "engineering/v1",
+      "stage": "layout",
+      "status": "pass"
+    },
+    "simulation": {
+      "artifacts": [
+        {
+          "path": "simulation-input.json",
+          "sha256": "ef2fa3f80147ad30eb6fe69230913628556a37671340a3ba98754c6d7e1974ef"
+        },
+        {
+          "path": "simulation-result.json",
+          "sha256": "cb66c727b62b9e9166f21d3a8e123d306f3fb7019989d0f65d724917dd3f2d96"
+        }
+      ],
+      "dependencies": {
+        "circuit_sha256": "bf1ccbccb9669bec4e16d8aef2b1612d6d960e3e865520d3dad3e534ece01690"
+      },
+      "findings": [
+        {
+          "id": "exact_model_missing",
+          "message": "exact LMR51430XDDCR 500 kHz PFM, 0.6 V model identity is required"
+        },
+        {
+          "id": "qualification_not_approved",
+          "message": "exact model receipt is absent from the trusted approval registry"
+        },
+        {
+          "id": "model_not_qualified",
+          "message": "reviewed independent qualification evidence bound to the exact model is required"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "startup"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "input_variation"
+        },
+        {
+          "id": "unsupported_coverage",
+          "message": "load_variation"
+        },
+        {
+          "id": "identity_missing",
+          "message": "settings_sha256"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "startup"
+        },
+        {
+          "id": "mandatory_scenario_missing",
+          "message": "input_variation"
+        },
+        {
+          "id": "mandatory_load_profile_missing",
+          "message": "continuous_50mA_to_500mA"
+        },
+        {
+          "id": "mandatory_load_profile_missing",
+          "message": "pulse_50mA_to_1A"
+        },
+        {
+          "id": "scenario_coverage_missing",
+          "message": "adopted protocol requires six startup, six load, and one input case"
+        },
+        {
+          "id": "load_matrix_missing",
+          "message": "VIN 13500 mV, continuous_50mA_to_500mA"
+        },
+        {
+          "id": "load_matrix_missing",
+          "message": "VIN 13500 mV, pulse_50mA_to_1A"
+        },
+        {
+          "id": "startup_matrix_missing",
+          "message": "VIN 13500 mV, load 0 mA"
+        },
+        {
+          "id": "startup_matrix_missing",
+          "message": "VIN 13500 mV, load 500 mA"
+        },
+        {
+          "id": "load_matrix_missing",
+          "message": "VIN 15000 mV, continuous_50mA_to_500mA"
+        },
+        {
+          "id": "load_matrix_missing",
+          "message": "VIN 15000 mV, pulse_50mA_to_1A"
+        },
+        {
+          "id": "startup_matrix_missing",
+          "message": "VIN 15000 mV, load 0 mA"
+        },
+        {
+          "id": "startup_matrix_missing",
+          "message": "VIN 15000 mV, load 500 mA"
+        },
+        {
+          "id": "load_matrix_missing",
+          "message": "VIN 16500 mV, continuous_50mA_to_500mA"
+        },
+        {
+          "id": "load_matrix_missing",
+          "message": "VIN 16500 mV, pulse_50mA_to_1A"
+        },
+        {
+          "id": "startup_matrix_missing",
+          "message": "VIN 16500 mV, load 0 mA"
+        },
+        {
+          "id": "startup_matrix_missing",
+          "message": "VIN 16500 mV, load 500 mA"
+        }
+      ],
+      "hardware_validated": false,
+      "identity": {
+        "board_sha256": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",
+        "requirements_sha256": "0fadbec44eec04a05ad92d7727f3bdcbf070895ee5cffceb3ffc19dd3bbf90f2",
+        "sources_sha256": "b2a2b71094b6ec8c30fd37761b6345b11815009d2f1df2308663c51c25f6eff0"
+      },
+      "layout_sensitive": false,
+      "requirements_revision": "temper-buck-requirements-2026-09-10-closure",
+      "scenarios": [],
+      "schema_version": "engineering/v1",
+      "stage": "simulation",
+      "status": "blocked"
+    }
+  }
+}

@@ -38,9 +38,7 @@ class TelemetryTests(unittest.TestCase):
                     (
                         self.path,
                         dict(self.headers),
-                        json.loads(
-                            self.rfile.read(int(self.headers["Content-Length"]))
-                        ),
+                        json.loads(self.rfile.read(int(self.headers["Content-Length"]))),
                     )
                 )
                 if self.path == "/slow":
@@ -87,7 +85,13 @@ class TelemetryTests(unittest.TestCase):
 
     def test_collector_receives_otlp_allowlisted_metadata(self):
         result = telemetry.export(
-            self.receipt, self.events, enabled=True, endpoint=self.url + "/v1/traces"
+            self.receipt,
+            self.events,
+            enabled=True,
+            endpoint=self.url + "/v1/traces",
+            inputs={"phase": "development", "attempt_count": 1},
+            outputs={"status": "fail", "next_action": "inspect"},
+            trace_name="temper.harness.development",
         )
         self.assertEqual(result["status"], "exported", result)
         path, headers, packet = self.received[0]
@@ -98,6 +102,12 @@ class TelemetryTests(unittest.TestCase):
         self.assertEqual(len(span["spanId"]), 16)
         self.assertEqual(span["startTimeUnixNano"], "1000000000")
         self.assertNotIn("secret", json.dumps(packet))
+        root = packet["resourceSpans"][0]["scopeSpans"][0]["spans"][0]
+        self.assertEqual(root["name"], "temper.harness.development")
+        root_attributes = {item["key"]: item["value"] for item in root["attributes"]}
+        self.assertIn("input.value", root_attributes)
+        self.assertIn("output.value", root_attributes)
+        self.assertEqual(len(packet["resourceSpans"][0]["scopeSpans"][0]["spans"]), 2)
         self.assertEqual(self.receipt.read_bytes(), self.original)
 
     def test_timeout_and_bad_endpoint_preserve_receipt(self):
@@ -115,19 +125,40 @@ class TelemetryTests(unittest.TestCase):
                 "unavailable",
             )
         self.assertEqual(
-            telemetry.export(
-                self.receipt, self.events * 2000, enabled=True, endpoint=self.url
-            )["status"],
-            "dropped",
-        )
-        invalid = [{**self.events[0], "started_unix_ns": float("nan")}]
-        self.assertEqual(
-            telemetry.export(self.receipt, invalid, enabled=True, endpoint=self.url)[
+            telemetry.export(self.receipt, self.events * 10000, enabled=True, endpoint=self.url)[
                 "status"
             ],
             "dropped",
         )
+        invalid = [{**self.events[0], "started_unix_ns": float("nan")}]
+        self.assertEqual(
+            telemetry.export(self.receipt, invalid, enabled=True, endpoint=self.url)["status"],
+            "dropped",
+        )
         self.assertEqual(self.received, [])
+
+    def test_full_fidelity_input_and_output_are_preserved(self):
+        result = telemetry.export(
+            self.receipt,
+            self.events,
+            enabled=True,
+            endpoint=self.url + "/v1/traces",
+            inputs={
+                "full_fidelity": True,
+                "pcb_artifacts": [{"file": "candidate.kicad_pcb", "content": "(board)"}],
+            },
+            outputs={
+                "raw_conversations": [
+                    {"file": "model.jsonl", "content": '{"type":"turn.completed"}'}
+                ]
+            },
+        )
+        self.assertEqual(result["status"], "exported", result)
+        payload = self.received[-1][2]
+        spans = payload["resourceSpans"][0]["scopeSpans"][0]["spans"]
+        root = {item["key"]: item["value"] for item in spans[0]["attributes"]}
+        self.assertIn("candidate.kicad_pcb", root["input.value"]["stringValue"])
+        self.assertIn("turn.completed", root["output.value"]["stringValue"])
 
     def test_local_keychain_configuration_is_bounded_and_not_logged(self):
         self.config.write_text(
@@ -238,9 +269,7 @@ class TelemetryTests(unittest.TestCase):
 
     def test_endpoint_resolution(self):
         self.assertEqual(
-            telemetry.endpoint_from_env(
-                {"OTEL_EXPORTER_OTLP_ENDPOINT": "https://collector/otel"}
-            ),
+            telemetry.endpoint_from_env({"OTEL_EXPORTER_OTLP_ENDPOINT": "https://collector/otel"}),
             "https://collector/otel/v1/traces",
         )
         self.assertEqual(

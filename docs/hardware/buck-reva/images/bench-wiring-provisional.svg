@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" font-family="sans-serif">
-<rect x="0" y="0" width="640" height="48" fill="#a00"/>
-<text x="320" y="30" fill="#fff" font-size="18" text-anchor="middle" font-weight="bold">PROVISIONAL — verify against frozen assembly drawing before use</text>
+<rect x="0" y="0" width="640" height="48" fill="#064"/>
+<text x="320" y="30" fill="#fff" font-size="18" text-anchor="middle" font-weight="bold">BUCK REV A — FROZEN PINOUT; VERIFY ASSEMBLY BEFORE ENERGIZING</text>
 <!-- supply -->
 <rect x="30" y="120" width="130" height="120" fill="#eef" stroke="#333"/>
 <text x="95" y="145" font-size="13" text-anchor="middle" font-weight="bold">DC supply</text>
@@ -31,5 +31,5 @@
 <text x="320" y="295" font-size="13" text-anchor="middle" font-weight="bold">Scope + DMM</text>
 <text x="320" y="313" font-size="11" text-anchor="middle">short-return ripple probe</text>
 <text x="320" y="329" font-size="11" text-anchor="middle">clips only on verified GND</text>
-<text x="320" y="372" font-size="12" text-anchor="middle">Sense VIN/VOUT at board terminals. Check earth connections before probing.</text>
+<text x="320" y="372" font-size="12" text-anchor="middle">Rev A: J1.1 VIN/J1.2 GND; J2.1 3V3/J2.2 GND. Sense at board terminals.</text>
 </svg>

@@ -48,19 +48,19 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
-    (symbol "buck-reva:GRM32ER71E226KE15L"
+    (symbol "buck-reva:CL32B226KAJNNWE"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
       (in_bom yes)
       (on_board yes)
       (property "Reference" "REF" (at 0 10.16 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "GRM32ER71E226KE15L" (at 0 -10.16 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "CL32B226KAJNNWE" (at 0 -10.16 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Description" "Murata 22 uF 25 V X7R 1210 output capacitor." (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "GRM32ER71E226KE15L_0_1"
+      (property "Description" "Samsung 22 uF 25 V X7R 1210 output capacitor; DC-bias behavior unverified." (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "CL32B226KAJNNWE_0_1"
         (rectangle (start -12.70 -7.62) (end 12.70 7.62) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "GRM32ER71E226KE15L_1_1"
+      (symbol "CL32B226KAJNNWE_1_1"
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
@@ -408,7 +408,7 @@
   )
 
   (symbol
-    (lib_id "buck-reva:GRM32ER71E226KE15L")
+    (lib_id "buck-reva:CL32B226KAJNNWE")
     (at 250.19 129.54 0)
     (unit 1)
     (exclude_from_sim no)
@@ -419,10 +419,10 @@
     (property "Reference" "C11" (at 250.19 125.73 0) (effects (font (size 1.27 1.27))))
     (property "Value" "22uF 25V X7R" (at 250.19 133.35 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:C_1210_3225Metric" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
-    (property "Description" "Murata 22 uF 25 V X7R 1210 output capacitor." (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
-    (property "Manufacturer" "Murata" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
-    (property "MPN" "GRM32ER71E226KE15L" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/658/CL32B226KAJNNWE.pdf" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Samsung 22 uF 25 V X7R 1210 output capacitor; DC-bias behavior unverified." (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Samsung Electro-Mechanics" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "CL32B226KAJNNWE" (at 250.19 129.54 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "dcd4ef28-ccae-3042-c201-a0ef9ecbb83e"))
     (pin "2" (uuid "4363d49b-f1f9-9938-b447-52055ce8919a"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "C11") (unit 1))))
@@ -451,7 +451,7 @@
   )
 
   (symbol
-    (lib_id "buck-reva:GRM32ER71E226KE15L")
+    (lib_id "buck-reva:CL32B226KAJNNWE")
     (at 250.19 200.66 0)
     (unit 1)
     (exclude_from_sim no)
@@ -462,10 +462,10 @@
     (property "Reference" "C12" (at 250.19 196.85 0) (effects (font (size 1.27 1.27))))
     (property "Value" "22uF 25V X7R" (at 250.19 204.47 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "buck-reva:C_1210_3225Metric" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "https://www.murata.com/en-global/products/productdetail?partno=GRM32ER71E226KE15L" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
-    (property "Description" "Murata 22 uF 25 V X7R 1210 output capacitor." (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
-    (property "Manufacturer" "Murata" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
-    (property "MPN" "GRM32ER71E226KE15L" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/658/CL32B226KAJNNWE.pdf" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Samsung 22 uF 25 V X7R 1210 output capacitor; DC-bias behavior unverified." (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Samsung Electro-Mechanics" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "CL32B226KAJNNWE" (at 250.19 200.66 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "75a93c6a-099f-157f-88cf-acfbeb0d1d7e"))
     (pin "2" (uuid "010a6b56-f1b6-4c68-d4ed-e453972f524f"))
     (instances (project "buck-reva" (path "/b0c0a1e5-0000-4000-9000-buckreva0001" (reference "C12") (unit 1))))

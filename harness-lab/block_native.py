@@ -124,6 +124,10 @@ def replace_copper(
 ) -> None:
     """Replace mutable copper for one net on an already staged board."""
     board = buck_native.load(path)
+    # Filled polygons describe the previous copper. Discard that cache before
+    # editing so native connectivity cannot adopt a new via into an old pour.
+    for zone in board.Zones():
+        zone.UnFill()
     if board.FindNet(net) is None:
         raise ValueError(f"Unknown net {net}")
     buck_native.clear_net(board, net)
@@ -152,11 +156,13 @@ def replace_copper(
         # Build the zone through its native outline API. AddOutline expects a
         # SHAPE_LINE_CHAIN; passing a polygon set here silently produced an
         # empty/unfillable zone on KiCad 10.
-        outline = zone.Outline()
+        # KiCad 10.0.4 macOS exposes Outline as an untyped SWIG pointer.
+        outline = pcbnew.Cast_to_SHAPE_POLY_SET(zone.Outline())
         outline.NewOutline()
         for x, y in zone_spec["outline_mm"]:
             outline.Append(pcbnew.VECTOR2I(pcbnew.FromMM(x), pcbnew.FromMM(y)))
-        zone.SetLocalClearance(pcbnew.FromMM(0.2))
+        zone.SetLocalClearance(pcbnew.FromMM(zone_spec.get("clearance_mm", 0.2)))
+        zone.SetAssignedPriority(int(zone_spec.get("priority", 0)))
         zone.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
         board.Add(zone)
     # Zone filling is deliberately left to KiCad's native reload/DRC path.

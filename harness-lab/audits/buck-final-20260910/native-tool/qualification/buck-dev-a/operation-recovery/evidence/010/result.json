@@ -1,0 +1,43 @@
+{
+  "board_sha256": "0981fdf26ff7448255977101d9ba72b530c541431eccc3c7b95569cc8a1bb127",
+  "findings": [
+    {
+      "id": "unrouted:C11.2:gnd"
+    },
+    {
+      "distance_mm": null,
+      "id": "ground_return:C11.2"
+    },
+    {
+      "count": 1,
+      "id": "open_connections"
+    }
+  ],
+  "open_connection_evidence": [
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [gnd] on B.Cu, length 8.0000 mm",
+          "pos": {
+            "x": 43.475,
+            "y": 16.0
+          },
+          "uuid": "f665e1a6-3a01-4808-a329-45b938d40f1e"
+        },
+        {
+          "description": "Pad 2 [gnd] of C11 on F.Cu",
+          "pos": {
+            "x": 43.475,
+            "y": 16.0
+          },
+          "uuid": "d23e7335-9c1e-417a-8077-68b842442ca2"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    }
+  ],
+  "scope": "buck_3v3",
+  "status": "fail"
+}

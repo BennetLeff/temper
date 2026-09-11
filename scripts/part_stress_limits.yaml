@@ -149,15 +149,15 @@ entries:
 
   - id: buck3v3_c_in_dc_bias
     designators: [C9]
-    mpn: GRM32ER71E106KA12L
+    mpn: CL32B106KBJZW6E
     domain: voltage_ceramic_dc_bias
     unit: V
-    rated: 25.0
+    rated: 50.0
     applied: 15.0
     guideline_margin: 0.50
     conditional: false
-    source: "Murata GRM32ER71E106KA12L, 1210, X7R, 25V. modules.ato:1474-1479, sees +15V rail (BuckConverter3V3.power_in)."
-    notes: "docs/hardware/PART_STRESS_AUDIT.md Sec 2.1. Same 60% bias as the two already-flagged c_vdda/c_vddb parts, but unflagged."
+    source: "Samsung CL32B106KBJZW6E, exact product page and Samsung ADS catalog: 1210, X7R, 50V, 10uF +/-10%, soft termination. modules.ato:1450-1457, sees +15V rail (BuckConverter3V3.power_in)."
+    notes: "Typical DC-bias curve is screening evidence only; effective capacitance at the actual input ripple, tolerance, temperature and aging corner remains unresolved. Existing IPC 1210 land requires board-level assembly review; soft termination alone does not require a footprint redesign."
 
   - id: auxsupply_c_out_dc_bias
     designators: [C15]

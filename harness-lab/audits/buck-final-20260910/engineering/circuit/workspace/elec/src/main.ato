@@ -1,0 +1,969 @@
+# main.ato
+# Temper Induction Cooker - Top Level Design
+# Reference: pcb/temper.kicad_sch
+#
+# System Overview:
+# - AC Input (120V) -> Voltage Doubler -> DC Bus (340V)
+# - DC Bus -> Half-Bridge -> Resonant Tank -> Coil
+# - ESP32-S3 controls PWM, monitors sensors, kicks watchdog
+# - Hardware safety interlock: OCP, OVP, Thermal, Watchdog -> SHUTDOWN_N
+#
+# Power Rails:
+# - DC_BUS: 340V nominal (rectified mains)
+# - +15V: Gate driver, safety logic (from auxiliary supply)
+# - +3.3V: MCU, digital logic (from LDO)
+
+# Module imports
+import HalfBridge from "modules.ato"
+import ResonantTank from "modules.ato"
+import PowerInput from "modules.ato"
+import BusDischarge from "modules.ato"
+import PowerManagement from "modules.ato"
+import AuxSupply from "modules.ato"
+import CurrentSensing from "modules.ato"
+import RTDSensing from "modules.ato"
+import SafetyInterlock from "modules.ato"
+import ThermalSystem from "modules.ato"
+import MCU from "modules.ato"
+import HighVoltageConstraints from "constraints.ato"
+import ThermalZonesConstraints from "constraints.ato"
+
+# Footprint imports for FAC
+import IGBT_TO247 from "footprints.ato"
+import SOIC16W_Isolated from "footprints.ato"
+import LitzPad_15A from "footprints.ato"
+import CST1005_Footprint from "footprints.ato"
+
+# ==============================================================================
+# TOP-LEVEL MODULE: Complete Induction Cooker System
+# ==============================================================================
+
+module Top:
+    """Top-level Temper induction cooker assembly."""
+
+    constraints = new HighVoltageConstraints
+    thermal_constraints = new ThermalZonesConstraints
+
+    
+    # --- System Operating Conditions ---
+    v_bus_max = 340V
+    v_bus_abs_max = 400V
+    i_peak_max = 25A
+    v_ac_nominal = 120V
+    power_max = 1800W
+    
+    # --- Operating Envelope Assertions (temper-ofq.4) ---
+    assert v_ac_nominal within 100V to 130V  # NEMA 5-15 tolerance
+    
+    # Verify against constraints (temper-ofq.6)
+    assert v_bus_max <= constraints.v_max
+    assert i_peak_max <= constraints.i_max
+    
+    f_line: frequency = 60Hz
+    assert f_line within 59Hz to 61Hz  # US grid tolerance
+    
+    v_bus_nominal: voltage = 340V
+    assert v_bus_nominal within 280V to 380V  # Doubler output range
+    
+    v_bus_ripple_max: voltage = 20V
+    assert v_bus_ripple_max < v_bus_nominal * 0.1  # <10% ripple
+    
+    # CORRECTED 2026-07-27 (docs/evidence/2026-07-27-zvs-operating-point.md,
+    # docs/evidence/2026-07-27-pan-preset-correction.md): the previous value
+    # here, 35kHz, was found to lose ZVS COMPLETELY for ferromagnetic pans
+    # (cast_iron/stainless) once the pan-coupling model was corrected to
+    # Infineon AN235020's measured K=0.79 -- 100.7% margin lost, i.e. full
+    # hard switching of a 1200V IGBT half-bridge, not a tuning shortfall.
+    # aluminum/no_pan were unaffected (their K was not raised).
+    #
+    # 47kHz is the best-evidenced replacement: at ratio~=1.25 over the
+    # LOADED resonance (37.56kHz) it delivers ~1804W, holds ZVS (0.8%
+    # margin, re-verified 2026-07-27 for ALL FOUR pan presets, not just
+    # cast_iron), and clears OCP-01's 50.1A peak trip by 43% (28.76A vs.
+    # 48.18A at the old 35kHz/same-L point).
+    #
+    # WHAT THIS NUMBER IS CONTINGENT ON, RESTATED 2026-07-29
+    # (docs/evidence/2026-07-29-tank-coil-specification.md). It used to
+    # read "CONTINGENT on L=150uH", with 150uH an assumption and
+    # inductor_conn a Resistor placeholder carrying no inductance at all.
+    # The coil is now declared -- modules.ato ResonantTank.inductor_conn
+    # is an `Inductor`, 88uH +/-10%, and docs/hardware/TANK_COIL_
+    # SPECIFICATION.md is a supplier-issuable spec with an acceptance
+    # test. 47kHz DID NOT MOVE, and that is the point:
+    #
+    #   only the LOADED inductance resonates with c_tank_total, and
+    #     150uH x 0.399 = 59.850uH -> f_res = 37560.2Hz   (declared until
+    #                                                      2026-07-29)
+    #      88uH x 0.68  = 59.840uH -> f_res = 37563.3Hz   (declared now)
+    #
+    # a 0.008% move. The old pair was a geometry-estimated coil times a
+    # coupling ratio measured at 90-150kHz; the new pair is one 2kW
+    # cooking coil measured by one manufacturer across 15-50kHz, i.e.
+    # THIS design's band. The two errors in the old pair cancelled --
+    # 1.7x high on the coil, 1.7x low on the coupling -- which is exactly
+    # why neither factor may be "corrected" alone. See docs/solutions/
+    # design-patterns/resonant-tank-only-loaded-inductance-resonates-
+    # 2026-07-28.md.
+    #
+    # So f_switching is now contingent on L_LOADED ~= 59.8uH rather than
+    # on any one coil value, and the incoming acceptance test in the
+    # specification doc (L_loaded >= 0.60 x L_unloaded at 40kHz) is what
+    # keeps a delivered coil inside that. A coil that passes on unloaded
+    # inductance and fails that ratio invalidates this line.
+    #
+    # LOWER BOUND ON THIS VALUE IS NOW MACHINE-DERIVED (2026-07-29,
+    # docs/evidence/2026-07-29-pll-floor-above-resonance.md, corrected the
+    # same day by docs/evidence/2026-07-29-pll-floor-cap-tolerance.md to
+    # also worst-case the capacitor): f_switching must stay above
+    # f_pll_tracking_min, which scripts/check_pll_range_consistency.py
+    # derives from l_tank_assumed / l_pan_loaded_ratio / c_tank_total /
+    # l_tank_tolerance / c_tank_tolerance below as 1.05 x the WORST-CASE
+    # (minimum-L, minimum-C) loaded resonance. Below the loaded resonance
+    # the series tank is CAPACITIVE and the bridge hard-switches; 47kHz
+    # sits at ratio 1.2512 over the nominal loaded resonance (37563Hz)
+    # and at 1.1261 over the -10%-L/-10%-C worst case (41737Hz). Do not
+    # lower f_switching without re-running that gate.
+    # (Before c_tank_tolerance rose to 0.10 (PR #410, CDE 942C16P1K-F
+    # re-source, 2026-07-29), the worst-case figure was 1.1570 / 40624Hz
+    # at c_tank_tolerance=0.05 (WIMA FKP 1). Before c_tank_tolerance was
+    # declared at all, it was 1.1870 / 39595Hz -- nominal C only. Before
+    # the 2026-07-29 coil respecification, all three were
+    # 1.2513 / 37560Hz / 39592Hz under the pre-2026-07-29 150uH x 0.399
+    # pair -- see the block above for why respecifying the coil moved the
+    # nominal figure by 0.008%.)
+    f_switching: frequency = 47kHz
+    # NOTE (2026-07-28, docs/evidence/2026-07-28-pll-defaults-and-range-
+    # gate.md): this 20-100kHz window is an LC-TANK THEORETICAL bound, not
+    # the firmware's actual capability -- it overstates what the PLL can
+    # deliver by 5x at the top end. See f_pll_tracking_min/max immediately
+    # below for the real, firmware-matched range and the gate that
+    # cross-checks both.
+    assert f_switching within 20kHz to 100kHz  # LC tank theoretical bound (NOT firmware capability)
+
+    # --- PLL frequency tracking range: the firmware's ACTUAL capability ---
+    # DECLARED 2026-07-28 (docs/evidence/2026-07-28-pll-defaults-and-range-
+    # gate.md, docs/evidence/2026-07-28-pll-ratio-tracking-check.md). This
+    # mirrors firmware/components/control/pll_control.h's PLL_MIN_FREQ_HZ /
+    # PLL_MAX_FREQ_HZ exactly -- NOT the 20-100kHz "LC tank theoretical
+    # bound" above, which the firmware cannot reach.
+    # scripts/check_pll_range_consistency.py enforces that these two stay
+    # equal and that f_switching falls inside them; it fails the build if
+    # this file and pll_control.h ever disagree again.
+    #
+    # FLOOR RAISED 30kHz -> 42kHz -> 43kHz -> 44kHz. 30->42kHz on
+    # 2026-07-29 (docs/evidence/2026-07-29-pll-floor-above-resonance.md);
+    # 42->43kHz later the same day (docs/evidence/2026-07-29-pll-floor-cap-
+    # tolerance.md, see below); 43->44kHz later still the same day, when
+    # PR #410 re-sourced c_tank1/c_tank2 to CDE 942C16P1K-F and added
+    # c_tank3, raising c_tank_tolerance 0.05 -> 0.10. The original 30kHz floor sat 7.6kHz BELOW
+    # the loaded resonance (37.56kHz at the declared L/ratio/C below;
+    # 37.58kHz under the 150uH x 0.399 pair declared until 2026-07-29).
+    # This is a SERIES-resonant inverter: above resonance the tank is
+    # inductive and the bridge switches at zero voltage; below resonance
+    # the tank is CAPACITIVE and the bridge hard-switches -- turn-on loss
+    # plus diode reverse recovery on a 1200V IGBT half-bridge at full bus.
+    # The old range therefore declared a device-destroying regime legal.
+    # Worse, 30kHz delivers ~1783W under this repo's own committed
+    # T-model, i.e. essentially the rated 1800W: a power-seeking control
+    # loop could settle there and read as nominal while hard-switching.
+    #
+    # 44kHz IS NOT HAND-PICKED. scripts/check_pll_range_consistency.py
+    # DERIVES the required floor from l_tank_assumed, l_pan_loaded_ratio,
+    # c_tank_total, l_tank_tolerance AND c_tank_tolerance (all declared
+    # below/above) as
+    #     1.05 x 1/(2*pi*sqrt(l_tank_assumed*(1-l_tank_tolerance)
+    #                         * l_pan_loaded_ratio
+    #                         * c_tank_total*(1-c_tank_tolerance)))
+    # = 1.05 x 41737Hz = 43824Hz, and FAILS if PLL_MIN_FREQ_HZ is below
+    # it. (This is a SECOND worst-casing, added 2026-07-29 alongside the
+    # first: f_res ~ 1/sqrt(C) too, so a capacitor at the bottom of its
+    # OWN tolerance also raises resonance. At the previously-committed
+    # nominal-C derivation the floor was only 41575Hz. c_tank_tolerance
+    # was 0.05 -- WIMA FKP 1's ordering-table tolerance letter -- until PR
+    # #410 re-sourced c_tank1/c_tank2 to CDE 942C16P1K-F and added c_tank3,
+    # at which point the MPN's own tolerance letter (`K`, confirmed +/-10%
+    # from BOTH CDE's own 942C.pdf catalog and DigiKey's distributor
+    # listing -- see c_tank_tolerance's comment below) raised this to 0.10.
+    # 44000Hz is the smallest round kHz value at or above the corrected
+    # 43824Hz floor; margin at PLL_MIN_FREQ_HZ = 44000Hz: 176Hz.) The 1.05
+    # is the ZVS cliff from docs/hardware/TANK_COIL_SPECIFICATION.md,
+    # confirmed a threshold (not a gradient) in docs/evidence/2026-07-27-
+    # inductance-range-sweep.md Sec 2.3. The gate keys off the WORST-CASE
+    # (minimum) coil inductance AND the WORST-CASE (minimum) tank
+    # capacitance, not nominal, because f_res scales as 1/sqrt(L*C): a
+    # low-tolerance part on EITHER side raises resonance, so nominal would
+    # under-protect exactly the unit that needs protecting most.
+    #
+    # WHAT THE RAISED FLOOR COSTS: for a series-resonant inverter lower
+    # f_sw means MORE power, so the floor caps maximum deliverable power.
+    # It does not threaten 1800W -- that point is at 47.1kHz nominal, and
+    # the ZVS margin there (1.126x the worst-case loaded resonance,
+    # including the capacitor tolerance) is comfortably above the 1.05
+    # cliff. The 43-44kHz band newly excluded by this change was already
+    # inside the "admits several kW, not the safety-relevant regime"
+    # territory the 2026-07-29 evidence doc characterized for 30-42kHz;
+    # re-simulating the exact deliverable power at 43-44kHz was not done
+    # for this change (T-model re-run is out of scope; see
+    # docs/evidence/2026-07-29-pll-floor-cap-tolerance.md) but the
+    # direction (a 1kHz-higher floor delivers marginally LESS turndown
+    # power, not more, and does not touch the 1800W point) is unaffected.
+    #
+    # WHAT THIS FLOOR REQUIRES OF A DELIVERED COIL (2026-07-29, corrected
+    # same day for the CDE 942C16P1K-F capacitor re-source). Inverting the
+    # derivation gives the acceptance criterion, now also worst-casing C,
+    # and it is tighter than a ratio screen:
+    #     44000Hz / 1.05 = 41904.8Hz  (highest loaded resonance still
+    #                                  guarded, worst-case C)
+    #     C_worst = 300nF * (1 - 0.10) = 270nF
+    #     L_loaded_min = 1/((2*pi*41904.8)^2 * 270nF) = 53.43uH
+    # scripts/check_pll_range_consistency.py check 8 computes this value
+    # and fails the build if docs/hardware/TANK_COIL_SPECIFICATION.md's
+    # written acceptance threshold ever disagrees with it -- the number is
+    # emitted by the gate, not hand-copied, so it moves automatically
+    # whenever L, C, either tolerance, or PLL_MIN_FREQ_HZ moves. A coil at
+    # -10% inductance (79.2uH) whose loaded/unloaded ratio is only 0.60 --
+    # both individually inside spec -- gives L_loaded = 47.5uH, resonating
+    # at 42.15kHz, i.e. ABOVE this floor: the firmware would again declare
+    # a hard-switching regime legal. The gate CANNOT see that, because it
+    # applies l_tank_tolerance (and now c_tank_tolerance) to L and C and
+    # treats l_pan_loaded_ratio as exact. Incoming inspection carries it
+    # instead: docs/hardware/TANK_COIL_SPECIFICATION.md Sec 2 accepts on
+    # the gate-derived L_loaded_min measured, not on the ratio.
+    #
+    # OPEN HARDWARE QUESTION -- NOT RESOLVED BY THIS DECLARATION:
+    # docs/evidence/2026-07-27-inductance-range-sweep.md Sec 3 finds that
+    # the ratio-tracking ZVS mitigation (retuning f_sw in real time to hold
+    # f_sw/f_res_loaded ~= 1.25 as L varies) needs 35.7-83.0kHz agility to
+    # hold ZVS across the plausible L in [50, 250]uH range. That sweep
+    # cited "every comparable real coil ... (Infineon AN235020, Wurth
+    # 760308101303, APHO2025) measures 47-50uH" -- CORRECTED 2026-07-28 by
+    # docs/evidence/2026-07-28-coil-selection-research.md Sec 2.4: the
+    # Wurth part is a 26mm/1.5A/20W Qi wireless-power receiver coil and
+    # APHO2025's bench coil was validated against it, so that "cluster of
+    # three independent sources" is ONE comparable coil, measured only at
+    # 90-150kHz for a 100-140kHz inverter. At this design's 20-50kHz band
+    # the same manufacturer publishes ~88uH unloaded / ~60uH loaded for a
+    # 2kW cooking coil -- which lands on the SAME L_loaded ~= 60uH this
+    # file assumed via 150uH x 0.399, and which this file now declares
+    # directly (88uH x 0.68, 2026-07-29). The capability gap above is
+    # therefore weaker evidenced than when written, but it is deliberately
+    # NOT declared closed here: the [50, 250]uH agility requirement was
+    # computed over "which coil might we get", and specifying one coil
+    # narrows that question without answering whether the bridge can
+    # track it.
+    #
+    # Raising PLL_MAX_FREQ_HZ toward 83-100kHz is explicitly NOT done here
+    # and must not be done by silently editing a constant: whether the
+    # bridge, gate drive and snubber network tolerate that frequency is a
+    # switching-loss / hardware question a human must decide, informed by
+    # bench data this project does not yet have. Widening the firmware to
+    # an unvalidated range just to make f_switching's assertion agree with
+    # the mitigation's requirement would recreate the exact failure mode
+    # (a declared value later readers trust) this gate exists to prevent.
+    # The 2026-07-29 floor change did NOT widen the top of the window to
+    # compensate: f_pll_tracking_max is unchanged at 50kHz. One consequence
+    # is recorded rather than fixed -- at -10% coil the 1800W point moves
+    # to 50.05kHz, i.e. marginally ABOVE the ceiling, so a low-tolerance
+    # coil trades full power, not ZVS. That is the correct direction to
+    # fail, and widening the ceiling to recover it is a separate decision.
+    f_pll_tracking_min: frequency = 44kHz
+    f_pll_tracking_max: frequency = 50kHz
+    assert f_pll_tracking_min < f_pll_tracking_max
+    assert f_switching >= f_pll_tracking_min
+    assert f_switching <= f_pll_tracking_max
+
+    # THIS IS THE UNLOADED RESONANCE (L_unloaded with c_tank_total, no pan
+    # on the coil). It is NOT the loaded resonance the ZVS ratio must be
+    # referenced against -- loaded and unloaded differ by ~1.2x here, and
+    # confusing the two already caused a real bug: run_tank_coil_sweep.py
+    # referenced its ratio against the UNLOADED resonance and silently
+    # reintroduced the under-loading error the moment K was corrected. It
+    # needed a self-consistent f_res_loaded_hz() fixed-point solver to fix.
+    #
+    # 25kHz -> 31kHz, 2026-07-29 (docs/evidence/2026-07-29-tank-coil-
+    # specification.md). THIS VALUE IS NOW DERIVED, NOT ASSERTED. It is
+    # exactly what l_tank_assumed and c_tank_total below say it is:
+    #     1/(2*pi*sqrt(88uH * 300nF)) = 30 975 Hz
+    # declared as 31kHz nominal (a 0.08% rounding). Over the coil's
+    # +/-10% acceptance tolerance it spans 29.5-32.7kHz, inside the
+    # assertion band below.
+    #
+    # WHY IT WAS 25kHz, AND WHY THAT WAS RIGHT UNTIL NOW. 25kHz at 300nF
+    # algebraically implies L=135.1uH -- a THIRD coil inductance, agreeing
+    # with neither the simulation harness's 80uH PANLOAD_TRANSFORMER
+    # default (32.5kHz unloaded) nor the 150uH behind f_switching (23.7kHz
+    # unloaded). The 2026-07-27 pass deliberately refused to change it,
+    # reasoning that "doing so would just be inventing the same
+    # unspecified L via a different variable" -- correct at the time,
+    # because no coil was specified and every candidate value was a guess.
+    # That reason is now gone: modules.ato ResonantTank.inductor_conn is a
+    # declared 88uH +/-10% Inductor, so the unloaded resonance is
+    # arithmetic over two declared quantities rather than a fourth guess.
+    # Leaving 25kHz would have made this file assert 88uH in one place and
+    # imply 135.1uH in another.
+    #
+    # NOT GATED. scripts/check_pll_range_consistency.py does not read this
+    # line -- it derives the LOADED resonance, which is the safety-bearing
+    # one. This mirror can therefore drift if l_tank_assumed or
+    # c_tank_total change without it. Recorded as a known gap rather than
+    # closed here (evidence doc Sec 7); the honest fix is a seventh check,
+    # not a comment.
+    f_resonant_nominal: frequency = 31kHz
+    assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range, UNLOADED
+
+    # THE COIL'S UNLOADED INDUCTANCE. 150uH -> 88uH, 2026-07-29
+    # (docs/evidence/2026-07-29-tank-coil-specification.md). The variable
+    # keeps the name `l_tank_assumed` because it is still not a
+    # measurement of THIS project's coil -- but it is no longer an
+    # assumption pulled from a formula either, and it is no longer
+    # invisible: modules.ato ResonantTank.inductor_conn is now a declared
+    # `Inductor`, `value = 88uH +/- 10%`, and scripts/check_pll_range_
+    # consistency.py check 7 fails the build if that declaration and this
+    # one ever disagree. Until 2026-07-29 the coil was `new Resistor` with
+    # no value at all, so this line had nothing to be checked against.
+    #
+    # PROVENANCE OF 88uH: Infineon EVAL-IHW25N140R5L user guide rev 1.0
+    # (2023-08-04), Fig. 16, the 2kW cooking coil shipped with that kit --
+    # ~87uH flat across 15-50kHz, i.e. MEASURED IN THIS DESIGN'S BAND.
+    # It is a CHART READING (+/-5% on the read) of a coil with no
+    # published part number, dimensions or current rating; it is the
+    # best-evidenced figure this project has found and it is still not a
+    # datasheet line item. Full search (Infineon, Wurth, OEM appliance
+    # spares, the custom-wind channel): docs/evidence/2026-07-28-coil-
+    # selection-research.md Sec 2.
+    #
+    # WHY 150uH WAS REPLACED, AND WHY IT COST NOTHING. 150uH was a
+    # Wheeler/current-sheet geometry estimate cross-checked against coils
+    # that turned out not to be comparable -- Wurth 760308101303 is a
+    # 26mm/1.5A/20W Qi receiver coil, and Infineon AN235020's 48uH is a
+    # 90-150kHz characterization of a 100-140kHz inverter (coil-selection-
+    # research Sec 2.4). It was paired with l_pan_loaded_ratio = 0.399,
+    # itself solved against that same out-of-band 90-150kHz measurement.
+    # Both were wrong by ~1.7x in OPPOSITE directions, so their product --
+    # the only quantity that resonates with c_tank_total -- was right:
+    #     150uH x 0.399 = 59.850uH   ->  f_res,loaded = 37560.2Hz
+    #      88uH x 0.68  = 59.840uH   ->  f_res,loaded = 37563.3Hz
+    # This line and l_pan_loaded_ratio below MOVED TOGETHER, as a matched
+    # pair, and must always move together. Changing this value alone with
+    # the old 0.399 would put the worst-case loaded resonance at 51.7kHz
+    # and the derived PLL floor at 54.3kHz -- above PLL_MIN_FREQ_HZ, so
+    # the gate WOULD catch it (that is the hazardous direction). Changing
+    # the ratio alone would drop f_res to 28.8kHz, which the gate CANNOT
+    # catch because it fails toward more ZVS margin and less power. Read
+    # docs/solutions/design-patterns/resonant-tank-only-loaded-inductance-
+    # resonates-2026-07-28.md before touching either.
+    #
+    # THE ASSERTION BAND IS UNCHANGED AND STILL MEANS "WHICH COIL MIGHT WE
+    # END UP WITH", not "how much does one coil vary" -- that second
+    # question is l_tank_tolerance below. docs/evidence/2026-07-27-
+    # inductance-range-sweep.md's finding that ZVS is lost below ~97uH
+    # inside this band is NOT a reason to distrust 88uH: that threshold
+    # was computed by applying the 90-150kHz coupling ratio (0.40) to a
+    # 47kHz design, and dissolves once the in-band ratio is used (coil-
+    # selection-research Sec 4.4). At 88uH x 0.68 the tank sits at ratio
+    # 1.25, comfortably ZVS-holding.
+    l_tank_assumed: inductance = 88uH
+    assert l_tank_assumed within 50uH to 250uH  # coil-class band, NOT a part tolerance -- see l_tank_tolerance below
+
+    # --- Inputs to the DERIVED PLL floor (2026-07-29, docs/evidence/
+    # 2026-07-29-pll-floor-above-resonance.md) ---
+    # These three make the loaded resonance computable from THIS file.
+    # Before they existed, f_res lived only in simulation-harness constants
+    # and evidence prose, so f_pll_tracking_min / PLL_MIN_FREQ_HZ could be
+    # (and were) set 7.6kHz below it with nothing able to notice.
+    # scripts/check_pll_range_consistency.py reads all three plus
+    # l_tank_assumed above and fails closed if any is missing, unparseable,
+    # or outside its sanity band -- it never skips.
+
+    # Total series tank capacitance. MIRRORS modules.ato's c_tank1.value +
+    # c_tank2.value (150nF + 150nF in parallel) and the gate CROSS-CHECKS
+    # it against those two declarations, so this mirror cannot drift into
+    # the same class of untethered restatement that produced the +340V_BUS
+    # and 20-100kHz defects. UNCHANGED VALUE -- the 300nF commitment is
+    # under separate review (docs/evidence/2026-07-28-coil-selection-
+    # research.md Sec 5.2 proposes 470nF); this only makes it visible here.
+    c_tank_total: capacitance = 300nF
+    assert c_tank_total within 150nF to 600nF  # tank-design band, not a part tolerance
+
+    # Loaded/unloaded coil-inductance ratio with a ferromagnetic pan --
+    # the ONLY way pan coupling enters the resonance. L_loaded =
+    # l_tank_assumed * this, and L_loaded is what resonates with
+    # c_tank_total.
+    #
+    # 0.399 -> 0.68, 2026-07-29 (docs/evidence/2026-07-29-tank-coil-
+    # specification.md), AS A MATCHED PAIR WITH l_tank_assumed ABOVE.
+    # Neither may be changed without the other; the arithmetic and the
+    # failure modes are spelled out in that block.
+    #
+    # PROVENANCE OF 0.68: the SAME chart as the 88uH -- Infineon EVAL-
+    # IHW25N140R5L Fig. 16, which plots the 2kW cooking coil with and
+    # without a vessel over 0-50kHz. At 40kHz: ~60uH loaded against ~88uH
+    # unloaded = 0.68 (0.71 at 30kHz, 0.66 at 50kHz). Implied coupling
+    # k = sqrt(1-0.68) = 0.57.
+    #
+    # WHAT 0.399 WAS, AND WHY IT WAS THE WRONG NUMBER FOR THIS BAND. It
+    # was the fixed point of simulation/harness/run_tank_coil_sweep.py's
+    # f_res_loaded_hz() T-model relation
+    #   L_app/L1 = 1 - K^2*x^2/(RPAN^2+x^2),  x = omega*L2
+    # at run_zvs_sweep.py's cast_iron/stainless preset (K=0.79, RPAN=10,
+    # L2=218uH). That preset was solved to reproduce Infineon AN235020's
+    # measured 0.40 loaded/unloaded ratio -- measured at 90-150kHz, on a
+    # different coil, for a 100-140kHz inverter. Applied at 47kHz it
+    # overstates coupling by ~1.7x (coil-selection-research Sec 4.4).
+    # 0.68 is the same manufacturer's number for a comparable 2kW coil at
+    # this design's own frequency, so it replaces an extrapolation with an
+    # in-band reading.
+    #
+    # CONSEQUENCE, RECORDED NOT FIXED: simulation/harness/run_zvs_sweep.py
+    # still runs PAN_PRESETS at K=0.79, so this file and that harness now
+    # describe pan coupling differently. That divergence is REAL and is
+    # the correct direction -- the harness preset is the one anchored to
+    # out-of-band data (coil-selection-research Sec 7.2 names re-solving
+    # it as required work) -- but re-solving K and re-running the ZVS/OCP
+    # sweeps would restate every committed ZVS number in this file, and
+    # doing that on the back of a chart reading is a bigger claim than
+    # this change is entitled to make. It is out of scope here and named
+    # in the evidence doc Sec 7 instead of being done quietly.
+    #
+    # WEAK L-DEPENDENCE, unchanged in character: the old ratio moved
+    # +-0.6% over +-10% L (0.3963 to 0.4009), propagating -+0.3% into
+    # f_res -- an order of magnitude inside the 1.05 ZVS margin the
+    # derived floor carries. Infineon's chart gives 0.66-0.71 over
+    # 30-50kHz, a comparable spread. Declaring the ratio rather than
+    # (K, RPAN, L2) keeps ONE mirrored quantity instead of three.
+    l_pan_loaded_ratio: dimensionless = 0.68
+    assert l_pan_loaded_ratio within 0.2 to 0.8  # ferromagnetic-pan coupling band
+
+    # Coil inductance tolerance used ONLY to pick the worst case for the
+    # PLL floor. f_res scales as 1/sqrt(L), so MINIMUM L is the hazardous
+    # end (highest resonance, so the floor must be highest) -- the gate
+    # derives against l_tank_assumed*(1-this), never against nominal.
+    # +-10% is the acceptance tolerance docs/evidence/2026-07-28-coil-
+    # selection-research.md Sec 5.1 recommends specifying the coil to, and
+    # since 2026-07-29 it is the tolerance actually specified: modules.ato
+    # declares `inductor_conn.value = 88uH +/- 10%` and docs/hardware/
+    # TANK_COIL_SPECIFICATION.md issues it to a supplier. It
+    # is NOT the [50,250]uH assumption band asserted above: that band is
+    # "which coil might we end up with", this is "how much does one
+    # specified coil vary". Both matter; only this one belongs in a
+    # unit-to-unit safety guard.
+    l_tank_tolerance: dimensionless = 0.10
+    assert l_tank_tolerance within 0.05 to 0.30  # a plausible part tolerance, never 0
+
+    # Tank capacitance tolerance used ONLY to pick the worst case for the
+    # PLL floor, same reasoning as l_tank_tolerance above but on the OTHER
+    # factor in f_res = 1/(2*pi*sqrt(L*C)): a low-tolerance capacitor ALSO
+    # raises resonance (f_res ~ 1/sqrt(C) too), so the gate must derive
+    # against c_tank_total*(1-this), never against nominal, for the same
+    # reason it already does that for L. Added 2026-07-29 (docs/evidence/
+    # 2026-07-29-pll-floor-cap-tolerance.md): until this change the gate
+    # worst-cased L but took C at nominal, so a capacitor at the bottom of
+    # its tolerance band raised f_res without the floor moving to cover it.
+    #
+    # VALUE: 0.10 (+/-10%), decoded from the MPN actually on c_tank1/c_tank2/
+    # c_tank3 (elec/src/modules.ato) since PR #410 (re-source WIMA FKP 1
+    # -> 3x CDE 942C16P1K-F, 2026-07-29): `942C16P1K-F`. Confirmed from TWO
+    # independent primary sources, not pattern-matched off the trailing
+    # `K`:
+    #   (1) CDE's own catalog (942C.pdf, cde.com/resources/catalogs/
+    #       942C.pdf) p.1 Specifications table states outright:
+    #       "Capacitance Tolerance: +/-10% (K) Standard; +/-5% (J) Optional".
+    #       p.2's "Part Numbering System" diagram maps the 6-character
+    #       ordering-key field explicitly: `K = +/-10%`, `J = +/-5%` --
+    #       and the field the `K` in `942C16P1K-F` occupies IS that
+    #       tolerance field per the diagram's own annotated example
+    #       (942-C-6-P-22-K--F).
+    #   (2) DigiKey's distributor listing for this exact part (product
+    #       1929475) independently states "Tolerance: +/-10%".
+    # Both agree, so this is not a single-source read. (Was 0.05 for the
+    # WIMA FKP 1 part this replaces -- see git history for that decode.)
+    #
+    # This regressed the ZVS floor UP when it changed (2026-07-29,
+    # docs/evidence/2026-07-29-pll-floor-cap-tolerance.md follow-up):
+    # PLL_MIN_FREQ_HZ had to be re-raised 43000 -> 44000 in the same change
+    # that raised this value, per scripts/check_pll_range_consistency.py's
+    # re-derivation -- see that file's history and firmware/components/
+    # control/pll_control.h for the corrected arithmetic.
+    c_tank_tolerance: dimensionless = 0.10
+    assert c_tank_tolerance within 0.01 to 0.30  # a plausible part tolerance, never 0
+
+    t_ambient_max: temperature = 323.15K  # 50°C
+    t_ambient_min: temperature = 273.15K  # 0°C
+    assert t_ambient_max within 313.15K to 333.15K  # 40°C to 60°C
+    
+    p_output_max: power = 1800W
+    assert p_output_max within 1500W to 1800W  # 15A circuit limit
+    
+    p_standby_max: power = 1W
+    assert p_standby_max < 5W  # Energy Star standby
+    
+    eta_min: dimensionless = 0.90
+    assert eta_min >= 0.85  # Minimum efficiency target
+    
+    # --- Power Rails ---
+    signal gnd          # SELV control-domain ground. Floated from
+    # power_return (the HV domain's internal reference) and DC-bonded to
+    # protective earth instead -- see the GROUND ARCHITECTURE block below
+    # and docs/hardware/SELV_ISOLATION_REDESIGN.md.
+    # The shared ground is named by the generated netlist; assigning an
+    # override here conflicts with nested ElectricPower reference nets.
+    signal pe            # Protective earth, from the external AC connector
+    signal dc_bus_plus  # +170V half-bus (positive rail of the Delon/cascade
+    # voltage doubler in PowerInput), referenced to power_return -- the
+    # doubler MIDPOINT -- not to dc_bus_minus. dc_bus_plus - dc_bus_minus
+    # spans the full 340V bus; this node ALONE is +170V nominal, not 340V.
+    # This net used to be named "+340V_BUS" with a "+340V" comment here;
+    # that was wrong (dc_bus_plus cannot reach 340V) and had already caused
+    # OVP-01's reference divider to be tuned for a voltage this node can
+    # never reach in at least one revision of this design -- see
+    # OVPComparator's docstring and docs/hardware/SELV_ISOLATION_REDESIGN.md.
+    dc_bus_plus.override_net_name = "+170V_BUS"
+    signal dc_bus_minus # Ground reference for DC bus
+    dc_bus_minus.override_net_name = "DC_BUS_RTN"
+    signal vcc_15v      # Gate driver supply
+    vcc_15v.override_net_name = "+15V"
+    signal vcc_3v3      # MCU supply
+    vcc_3v3.override_net_name = "+3V3"
+    signal power_return  # High-current tank/power return path (doubler midpoint)
+    power_return.override_net_name = "PWR_RTN"
+    signal vcc_15v_ls    # Isolated low-side gate driver supply (plan 005)
+    vcc_15v_ls.override_net_name = "+15V_LS"
+    signal usb_dn        # USB D-
+    signal usb_dp        # USB D+
+    signal i2c_sda_ui    # I2C expansion header for UI
+    signal i2c_scl_ui
+    
+    # --- Module Instances ---
+    
+    # Power input (AC -> DC)
+    power_in = new PowerInput
+
+    # Active bus discharge (fail-safe, relay NC contacts; plan 2026-07-16-001)
+    discharge = new BusDischarge
+
+    # Power management (DC_BUS -> 15V -> 3.3V)
+    power_mgmt = new PowerManagement
+    
+    # Auxiliary supply (HV -> isolated 15V SELV)
+    aux_supply = new AuxSupply
+    
+    # Half-bridge (power stage)
+    hb = new HalfBridge
+    
+    # Resonant tank (LC network + coil)
+    tank = new ResonantTank
+    
+    # Current sensing (CT on DC bus)
+    ct_sense = new CurrentSensing
+    
+    # Temperature sensing (RTD for pan/heatsink)
+    rtd_pan = new RTDSensing
+    
+    # Safety interlock
+    safety = new SafetyInterlock
+    
+    # Microcontroller
+    mcu = new MCU
+
+    # Forced-air cooling (fan power circuit; heatsink/TIM are chassis BOM)
+    thermal = new ThermalSystem
+    
+    # ===========================================================================
+    # SAFETY ASSERTIONS
+    # These must pass at compile-time to ensure design safety margins
+    # ===========================================================================
+    
+    # IGBT Voltage Margin (>= 1.5x operating voltage)
+    assert hb.power_loop.q_high.voltage_rating >= v_bus_max * 1.5
+    assert hb.power_loop.q_low.voltage_rating >= v_bus_max * 1.5
+    
+    # IGBT Current Margin (>= 1.5x peak current)
+    assert hb.power_loop.q_high.current_rating >= i_peak_max * 1.5
+    assert hb.power_loop.q_low.current_rating >= i_peak_max * 1.5
+    
+    # Bootstrap Diode Rating (must withstand full bus voltage)
+    assert hb.gate_hs.boot_diode.voltage_rating >= v_bus_max
+    
+    # Resonant Tank Capacitor Voltage (>= 2x bus for resonant overshoot)
+    # Using 1000V minimum per design decision
+    assert tank.c_tank1.voltage_rating >= 1000V
+    assert tank.c_tank2.voltage_rating >= 1000V
+    
+    # Bus capacitor voltage rating
+    assert power_in.c_bus1.voltage_rating >= v_bus_max * 0.7
+    assert power_in.c_bus2.voltage_rating >= v_bus_max * 0.7
+    
+    # Rectifier diode rating
+    assert power_in.d1.voltage_rating >= v_bus_max * 1.5
+    assert power_in.d2.voltage_rating >= v_bus_max * 1.5
+    
+    # Design bus voltage limit
+    assert v_bus_max <= 400V
+    
+    # ===========================================================================
+    # SAFETY INTERLOCK ASSERTIONS (temper-ip1.6)
+    # Verify protection trips BEFORE component limits
+    # Critical for IEC 60335-1 compliance
+    # ===========================================================================
+    
+    # OCP must trip before IGBT SOA limit.
+    # IGBT rated 40A continuous, SOA allows 60A pulsed.
+    #
+    # OCP-01 is specified as a PEAK threshold (FUNCTIONAL_TEST_CRITERIA §2.1
+    # gives "50A Peak"), and there is no rectifier in the sense path, so the
+    # comparator trips on instantaneous tank current. Both quantities are
+    # carried here because the two limits they must clear are in different
+    # bases: the SOA pulsed limit is a peak rating, the 40A device rating is
+    # continuous.
+    #
+    # The previous form asserted a 37.6A trip against BOTH limits. That value
+    # was stale after the burden was corrected to 4.99R, and comparing a peak
+    # trip against a continuous rating was the wrong comparison regardless --
+    # at the true 50.1A peak it would fail 50.1 < 40 while the design is
+    # actually sound, because 50.1A peak is 35.4A RMS.
+    i_ocp_trip_peak: current = 50.1A          # 2.500V / 4.99R * 100
+    i_ocp_trip_rms: current = 35.4A           # peak / sqrt(2), sinusoidal tank
+    i_igbt_soa_limit: current = 60A
+
+    # Peak trip must clear the pulsed SOA limit.
+    assert i_ocp_trip_peak < i_igbt_soa_limit
+    # RMS-equivalent trip must clear the continuous device rating.
+    assert i_ocp_trip_rms < hb.power_loop.q_high.current_rating
+    
+    # OVP must trip before bus capacitor ratings exceeded
+    # Bus caps rated 250V each, in series = 500V total
+    # OVP trips at 390V
+    v_ovp_trip: voltage = 390V
+    v_cap_max: voltage = 500V  # Series combination
+    assert v_ovp_trip < v_cap_max
+    assert v_ovp_trip > v_bus_max  # But after normal operation
+    
+    # Thermal protection must trip before component limits
+    # IGBT max junction: 150°C, derate at 125°C
+    # Thermal comparator set for 85°C ambient
+    t_thermal_trip: temperature = 358.15K
+    assert t_thermal_trip < thermal_constraints.igbt_derate_temp
+    
+    # Watchdog timeout must allow system response but catch stuck states
+    # 1.6s timeout per TPS3823-33
+    t_wdt_timeout: time = 1.6s
+    t_fault_response_max: time = 0.1s  # System should respond in <100ms
+    assert t_wdt_timeout > t_fault_response_max * 10  # Margin for normal operation
+    
+    # ===========================================================================
+    # TIMING BUDGET CONSTRAINTS (temper-ip1.4)
+    # System-level timing verification
+    # ===========================================================================
+    
+    # MCU boot time must complete before any safety-critical operation
+    # MCU boots in ~14ms (per EN RC delay), relay engages after ~500ms
+    t_mcu_boot: time = 14ms
+    t_soft_start_delay: time = 500ms  # Time before relay bypass
+    assert t_mcu_boot < t_soft_start_delay  # MCU ready before power stage
+    
+    # Dead-time budget (system-level)
+    # Hardware programmed nominal: 305.4ns from the 34-kΩ RDT resistor.
+    # Software configured: 300ns (in MCPWM registers)
+    # IGBT turn-off: 245ns
+    # Total margin: 300 - 245 = 55ns (>50ns minimum margin)
+    t_dt_hw_nominal: time = 305.4ns
+    t_dt_sw: time = 300ns
+    t_igbt_off: time = 245ns
+    assert t_dt_sw > t_igbt_off + 50ns  # Software dead-time provides margin
+    
+    # ===========================================================================
+    # POWER CONNECTIONS
+    # ===========================================================================
+    
+    # AC Input (external connectors)
+    # Note: AC_L, AC_N, PE come from external connector
+    
+    # Power input outputs
+    power_in.dc_bus.hv_plus ~ dc_bus_plus
+    power_in.dc_bus.hv_minus ~ dc_bus_minus
+    # The doubler midpoint (gnd_ref) is the high-current power return node.
+    # It must NOT be shorted directly to logic/signal ground to prevent
+    # AC mains potential on user-accessible circuits (S1) and to keep
+    # tank return current out of the signal ground net (S3).
+    power_return ~ power_in.dc_bus.gnd_ref  # Doubler midpoint = power return
+    power_in.gnd ~ gnd  # PowerInput relay control return (SELV side)
+    power_in.power_15v.vcc ~ vcc_15v
+    # power_in already ties power_15v.gnd ~ gnd internally; redundant
+    power_in.pe ~ pe  # Protective earth, from the external AC connector
+    
+    # Auxiliary supply: 170VDC half-bus -> isolated 15V SELV rail
+    # Replaces the floating power_mgmt.power_in_hv (P0-3)
+    aux_supply.power_in.vcc ~ dc_bus_plus    # Half-bus input (~170VDC)
+    aux_supply.power_in.gnd ~ power_return   # Referenced to doubler midpoint
+    aux_supply.power_out.vcc ~ vcc_15v       # Isolated 15V output -> all downstream rails
+    aux_supply.power_out.gnd ~ gnd           # SELV ground
+    
+    # Power management chain — 15V -> 3.3V
+    # Note: 15V now comes from isolated AuxSupply, not from DC bus directly
+    power_mgmt.power_15v.vcc ~ vcc_15v
+    power_mgmt.power_15v.gnd ~ gnd
+    
+    power_mgmt.power_3v3.vcc ~ vcc_3v3
+    # power_mgmt.power_3v3.gnd is already tied to power_mgmt.power_15v.gnd
+    # inside PowerManagement; connect the shared ground once.
+    
+    # ===========================================================================
+    # GROUND ARCHITECTURE — Floated SELV domain, PE-bonded (2026-07-26)
+    #
+    # REMOVED: the star join (`power_return ~ gnd`) that used to sit here.
+    # That join made the AuxSupply transformer's SELV output ground (gnd) the
+    # SAME NET as power_return -- the doubler midpoint, which tracks AC
+    # Neutral through the common-mode choke (modules.ato: ac_n ~ cmc.W2_1 ~
+    # dc_bus.gnd_ref). It shorted the IRM-10-15's 4.2kVAC isolation barrier
+    # across, and is documented in full in
+    # docs/hardware/IEC60335_CRITICAL_COMPONENTS.md and the "isolation
+    # barrier is shorted" entry in docs/STRATEGY.md. See
+    # docs/hardware/SELV_ISOLATION_REDESIGN.md for the complete fix,
+    # including the exhaustive crossing survey this join's removal required.
+    #
+    # gnd is now referenced instead by bonding it DIRECTLY to protective
+    # earth (pe), which already exists at the AC input connector and already
+    # has a bond point on the power_return side (the Y1 capacitor,
+    # modules.ato: dc_bus.gnd_ref ~ y_cap_pe ~ pe). Rationale:
+    #   - A floating, unreferenced SELV domain is not safe either -- it
+    #     capacitively couples to nearby HV nodes and drifts with EMI. A
+    #     solid DC bond to a real, low-impedance reference (PE/chassis) is
+    #     the standard answer for a Class I appliance (has PE) with an
+    #     internal SELV domain, and it means a single HV->SELV insulation
+    #     fault has a low-impedance path to trip branch overcurrent
+    #     protection, rather than energizing an ungrounded domain that
+    #     includes the user-touchable RTD probe.
+    #   - This does NOT reintroduce the shorted-barrier problem: the Y1 cap
+    #     bond (power_return -> PE) stays exactly as it was, a 2.2nF
+    #     high-impedance AC/EMI-only path, doing its original common-mode
+    #     job undisturbed. The new gnd -> PE bond is a separate, direct
+    #     (0 ohm) DC path that never touches power_return. power_return and
+    #     gnd remain two different nets, coupled only through whatever
+    #     impedance exists from PE, through the Y-cap, back to power_return
+    #     -- i.e. still isolated at DC, unlike before.
+    #   - EMC: referencing the low-power digital domain to PE/chassis
+    #     (rather than to the internally-generated, AC-N-tracking
+    #     power_return) is the more common, generally quieter choice.
+    #     LAYOUT REQUIREMENT (UNVERIFIED at the schematic level -- this is a
+    #     PCB-layout concern, not a netlist one): the gnd->PE bond and the
+    #     Y-cap's power_return->PE bond should land at the same physical PE
+    #     stud/point near the AC inlet to keep the loop area between them
+    #     small; this schematic cannot enforce that.
+    # ===========================================================================
+    gnd ~ pe  # SELV ground reference: bonded to protective earth, NOT to power_return
+
+    # ===========================================================================
+    # HALF-BRIDGE CONNECTIONS
+    # ===========================================================================
+    
+    hb.dc_bus.hv_plus ~ dc_bus_plus
+    # OCP-02 IS WIRED IN (2026-08-07, Option A -- second current
+    # transformer). History: docs/hardware/OCP02_DESIGN.md originally
+    # claimed a low-side INA240 shunt in DC_BUS_RTN keeps common mode near
+    # ground. That was wrong -- this is a voltage-doubler topology:
+    # `power_return` IS the doubler midpoint and IS signal ground, so
+    # DC_BUS_RTN sits at roughly -170 V with respect to it, ~2x the
+    # INA240's -4..+80 V common-mode range -- far outside its absolute
+    # maximum. See docs/hardware/OCP02_DECISION_BRIEF.md (the A/B/C/D
+    # options considered) and docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md
+    # (the quantified evidence that settled it) for the full decision
+    # record; SecondaryOCPComparator's own docstring has the current
+    # derivation and worst-case arithmetic.
+    #
+    # A current transformer sidesteps the common-mode problem entirely
+    # (magnetically isolated secondary, referenced to signal ground
+    # regardless of DC_BUS_RTN's absolute potential) -- the same technique
+    # OCP-01's own CT (ct_sense) already uses on the tank-return path.
+    # SecondaryOCPComparator's CT primary is spliced IN SERIES in the
+    # DC_BUS_RTN conductor, at the same point the original shunt design
+    # used: between the half-bridge (this connection, below) and the
+    # shared dc_bus_minus net that power_in/discharge sit on. This mirrors
+    # ct_sense's own tank-return splice (tank.out ~ ct_sense.primary_in;
+    # ct_sense.primary_out ~ power_return, above).
+    #
+    # KNOWN, PENDING BOARD FOLLOW-ON (elec/ only in this change; pcb/ is
+    # out of scope): the second CST3015-100ED footprint has not been placed
+    # on pcb/temper.kicad_pcb. docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md
+    # SS3 measured (real kicad-cli DRC, scratch board copies) a ~44mm HV
+    # run from this splice to a domain-safe candidate site costing 9 new
+    # creepage violations (7 after correcting an unrelated, pre-existing
+    # netclass-pattern gap), 6 against U7 (the high-side gate driver) --
+    # known and attributed, not yet remediated. A BOM row is also still
+    # needed (docs/hardware/BOM.md untouched by this change, per
+    # instruction).
+    hb.dc_bus.hv_minus ~ safety.ocp2_bus_in
+    safety.ocp2_bus_out ~ dc_bus_minus
+    hb.power_15v.vcc ~ vcc_15v
+    hb.power_15v.gnd ~ gnd
+    hb.power_3v3.vcc ~ vcc_3v3
+    # hb already ties power_3v3.gnd ~ gnd internally; redundant
+    
+    # Low-side gate driver supply: vcc_15v_ls must come from an isolated 
+    # aux winding on the flyback transformer, referenced to hv_minus.
+    # Until the transformer winding is specified (plan 005 magnetics
+    # follow-up), this net is a placeholder.
+    hb.power_15v_ls.vcc ~ vcc_15v_ls
+    
+    # PWM from MCU
+    mcu.pwm_h ~ hb.pwm_h
+    mcu.pwm_l ~ hb.pwm_l
+    hb.pwm_h.override_net_name = "PWM_HS"
+    hb.pwm_l.override_net_name = "PWM_LS"
+    
+    # ===========================================================================
+    # RESONANT TANK CONNECTIONS
+    # ===========================================================================
+    
+    hb.switch_node ~ tank.in
+    hb.switch_node.override_net_name = "SW_NODE"
+    # tank.in is the same electrical net as hb.switch_node; keep one
+    # authoritative override name (SW_NODE).
+    # CT primary: current transformer measures tank return current
+    # The primary wire (tank return) passes through the CT core
+    tank.out ~ ct_sense.primary_in
+    ct_sense.primary_out ~ power_return  # Tank return passes THROUGH the CT primary
+    
+    # ===========================================================================
+    # SENSING CONNECTIONS
+    # ===========================================================================
+    
+    # Current sensing
+    ct_sense.vcc_3v3_ct ~ vcc_3v3  # Bias supply for CT output
+    ct_sense.i_sense.reference ~ gnd
+    ct_sense.i_sense.line ~ mcu.adc_i_sense
+    ct_sense.i_sense ~ safety.i_sense
+    ct_sense.i_sense.line.override_net_name = "I_SENSE"
+    
+    # RTD temperature sensing (pan temperature)
+    rtd_pan.power.vcc ~ vcc_3v3
+    rtd_pan.power.gnd ~ gnd
+    rtd_pan.cs.line ~ mcu.cs_rtd.line
+    rtd_pan.spi.sclk ~ mcu.spi.sclk
+    rtd_pan.spi.mosi ~ mcu.spi.mosi
+    rtd_pan.spi.miso ~ mcu.spi.miso
+    rtd_pan.drdy.line ~ mcu.rtd_drdy.line
+    rtd_pan.drdy.line.override_net_name = "RTD_DRDY"
+    rtd_pan.rtd_hw_fault.line ~ safety.rtd_hw_fault.line
+    rtd_pan.rtd_hw_fault.line.override_net_name = "RTD_HW_FAULT"
+    
+    rtd_pan.spi.sclk.override_net_name = "RTD_SCK"
+    rtd_pan.spi.mosi.override_net_name = "RTD_SDI"
+    rtd_pan.spi.miso.override_net_name = "RTD_SDO"
+    rtd_pan.cs.line.override_net_name = "RTD_CS_N"
+    
+    # ===========================================================================
+    # SAFETY INTERLOCK CONNECTIONS
+    # ===========================================================================
+    
+    safety.power_3v3.vcc ~ vcc_3v3
+    safety.power_3v3.gnd ~ gnd
+    safety.power_15v.vcc ~ vcc_15v
+    safety.power_15v.gnd ~ gnd
+    
+    # Sensor inputs to safety system
+    safety.dc_bus.line ~ dc_bus_plus
+    safety.dc_bus.reference ~ gnd
+    # safety.i_sense already connected above
+    # NTC for heatsink temperature monitoring
+    safety.ntc_sense.line ~ mcu.adc_ntc
+    # safety already ties ntc_sense.reference ~ gnd internally; redundant
+    mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
+    safety.ovp.adc_v_bus.line ~ mcu.adc_v_bus
+
+    # OVP-01 REF2025 re-reference (Option C, 2026-07-27, docs/evidence/
+    # 2026-07-27-ovp01-ref2025-implementation.md): OVPComparator's comp.INN
+    # is referenced to RTDSensing's REF2025.VREF (2.5V, +/-0.05%/8ppm/C)
+    # instead of a resistor divider off vcc_3v3 -- see OVPComparator's
+    # docstring and r_div_bot's comment for the full derivation.
+    safety.ovp.vref_ext.line ~ rtd_pan.reference.VREF
+    safety.ovp.vref_ext.line.override_net_name = "OVP_VREF_2V5"
+
+    # OCP-02 REF2025 reference (Option A implementation, 2026-08-07): same
+    # pattern as OVP-01 above -- SecondaryOCPComparator's comp.INN is
+    # referenced to the SAME REF2025.VREF (a second load on this buffered,
+    # actively-driven output; its 20mA rating has enormous headroom against
+    # a second TLV3201's ~pA CMOS input bias current) rather than a
+    # resistor divider off vcc_3v3. See SecondaryOCPComparator's docstring
+    # ("WHY REF2025") for the full derivation.
+    safety.ocp2.vref_ext.line ~ rtd_pan.reference.VREF
+    safety.ocp2.vref_ext.line.override_net_name = "OCP2_VREF_2V5"
+
+    # Watchdog
+    mcu.wdt_kick.line ~ safety.wdt_kick.line
+    mcu.wdt_kick.line.override_net_name = "WDT_KICK"
+    safety.wdt_reset_n.line ~ mcu.wdt_reset_in.line
+    safety.wdt_reset_n.line.override_net_name = "WDT_RESET_N"
+    
+    # Shutdown output is active-high per the UCC21550 contract.
+    safety.shutdown.line ~ hb.gate_hs.driver.DIS
+    safety.shutdown.line.override_net_name = "SHUTDOWN"
+    
+    # Fault status to MCU
+    safety.fault_status.line ~ mcu.fault_status_in.line
+    # fault_status is the MCU sense alias of the same latched SHUTDOWN net;
+    # do not assign a competing net name here.
+    safety.reset_n_in.line ~ mcu.reset_n.line
+    safety.runaway_cut.line ~ mcu.runaway_cut.line
+    
+    # Gate HS/LS
+    hb.gate_hs.driver.OUTA.override_net_name = "GATE_HS"
+    # Gate LS is RG_ON.p2 in the task description
+    # hb.gate_ls.rg_on.p2 doesn't exist directly in Top, but we can access it via hb
+    hb.gate_ls.rg_on.p2.override_net_name = "GATE_LS"
+    
+    # ===========================================================================
+    # MCU CONNECTIONS
+    # ===========================================================================
+    
+    mcu.power.vcc ~ vcc_3v3
+    mcu.power.gnd ~ gnd
+
+    # Fan supply
+    thermal.power_15v.vcc ~ vcc_15v
+    thermal.power_15v.gnd ~ gnd
+    
+    # Relay control for soft-start bypass
+    mcu.relay_ctrl.line ~ power_in.relay_ctrl
+    mcu.relay_ctrl.line.override_net_name = "RELAY_CTRL"
+
+    # ===========================================================================
+    # ACTIVE BUS DISCHARGE CONNECTIONS
+    # One 2x4.7k/5W string + relay NC contact across each half-bus.
+    # Coils held from the 15V rail while running; any power loss (or MCU
+    # dead: IO47 boots Hi-Z) de-energizes the coils and the NC contacts
+    # engage discharge -- <60s to <34V per half-bus, no MCU involvement.
+    # ===========================================================================
+    discharge.hv_plus ~ dc_bus_plus
+    discharge.mid ~ power_return
+    discharge.hv_minus ~ dc_bus_minus
+    discharge.power_15v.vcc ~ vcc_15v
+    # discharge already ties power_15v.gnd ~ gnd internally; connect once
+    discharge.gnd ~ gnd
+    mcu.discharge_ctrl.line ~ discharge.ctrl
+    mcu.discharge_ctrl.line.override_net_name = "DISCHARGE_CTRL"
+
+    # USB connections
+    mcu.usb_dn ~ usb_dn
+    mcu.usb_dp ~ usb_dp
+    
+    # I2C UI connections
+    mcu.i2c.sda ~ i2c_sda_ui
+    mcu.i2c.scl ~ i2c_scl_ui
+
+# ==============================================================================
+# FOOTPRINT COMPILATION
+# Instantiate generative footprints to ensure they compile
+# ==============================================================================
+
+module Footprints:
+    igbt_fac = new IGBT_TO247
+    driver_fac = new SOIC16W_Isolated
+    litz_fac = new LitzPad_15A
+    ct_fac = new CST1005_Footprint
+
+# ==============================================================================
+# TOP-LEVEL INSTANCES
+# ==============================================================================
+
+temper = new Top
+footprints = new Footprints

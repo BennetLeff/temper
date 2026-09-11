@@ -8,11 +8,11 @@
     "kicad_cli_path": "/Volumes/KiCad/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
   },
   "files": {
-    "buck-reva.kicad_sch": "f0a48a4c707a90fd7aa51a36d1879652492e78d1f08f8a87a944e9e9ee920a26",
-    "buck-reva.kicad_pcb": "308131c56e3af2c9f40ee526018c6af945e92f42ad9db4c4d89710911c85390b",
+    "buck-reva.kicad_sch": "a9a1df53251c9d9352035494bdf2e2d8407d2f0f9e73117046ddc9867ea2501e",
+    "buck-reva.kicad_pcb": "8da3f73444f803e389f38864ba5278f9987533d4e597fa5b40823ad2d0c8d2b3",
     "buck-reva.kicad_pro": "b5a93ddb50cef2d550aaacdff28a67ecfa6ed2e060b945ca82bec222a287196b",
     "buck-reva.kicad_dru": "e53161ef573ffc1623e5f4751f32a11e23d65479c83230e49e41cf93273cacf5",
-    "buck-reva.kicad_sym": "64406f8d76017d988a2e1f5c6a678c20fd38351862ea2d2f8b254c358986b268",
+    "buck-reva.kicad_sym": "07494d5628b2b45665e5d0732d82864aa99e9b7922695eec30e87edffb56667d",
     "fp-lib-table": "80201c126689b71db1a36ec47614f8e89423df249797ac259c98e76428d584ae",
     "sym-lib-table": "410cee4cb805a90e2df5ca1b1686b36e05d93a9a3829e5f8c04c9fad47f9ce85",
     "buck-reva.pretty/C_0603_1608Metric.kicad_mod": "7533b5bc39ffc20f7fa30362d8e299f64306ce4aa022bce462c1e5234d60260c",
@@ -25,7 +25,7 @@
     "buck-reva.pretty/TestPoint_Probe_2mm.kicad_mod": "6ce59bc58c0121304efafabd3d2c653d0621af394f8ce36e8c7a8e4ef596ce78"
   },
   "source_provenance": {
-    "elec/src/modules.ato": "d3873898d65300b5982eeba66d61b1ec4938c63ec29ce869d34a3ac8d11cc547",
+    "elec/src/modules.ato": "272f7f9604771d44255e8cbd9c3f3b7dd6c68bd16a0bad7b48a03b665e0a16cc",
     "harness-lab/engineering/circuit-contract.json": "2866d51e6176239275f945b97e560c75abbd2475ca22d81bbebea3cd95b9df44",
     "harness-lab/fixtures/buck-v2/buck-v2-contract.json": "eb69d057cdf0801f7257095e5818352408de183ead1d20dacab050df78569959",
     "harness-lab/fixtures/buck-v2/buck-dev-a/witness.kicad_pcb": "65143d7a6e7691ffed3c053bc767fa14fe4db14c768cc9eecbeae52db4cfdb5f",

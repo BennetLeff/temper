@@ -1,0 +1,78 @@
+[05:06:16] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-buck-final-engineering-v2-2             
+                    /circuit/workspace                                          
+           INFO     Building default                                 build.py:38
+[05:06:24] INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /private/tmp/temper-buck-final-engineering-v2-2/            
+                    circuit/workspace/build                                     
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+                                   Assertions                                   
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Status ┃ Assertion                        ┃ Numeric                          ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ PASSED │ assert power_out.voltage within  │ 3.3V within 3.13 to 3.46 V       │
+│        │ 3.3V +/- 5%                      │                                  │
+│ PASSED │ assert v_out_calculated within   │ 3.26 to 3.37 V within 3.13 to    │
+│        │ 3.135V to 3.465V                 │ 3.46 V                           │
+└────────┴──────────────────────────────────┴──────────────────────────────────┘
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name          ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│           C1 │ buck.c_in     │
+│           C2 │ buck.c_boot   │
+│           C3 │ buck.c_out1   │
+│           C4 │ buck.c_out2   │
+│           C5 │ buck.c_out_hf │
+│           L1 │ buck.l_out    │
+│           R1 │ buck.r_fb_top │
+│           R2 │ buck.r_fb_bot │
+│           U1 │ buck.buck     │
+└──────────────┴───────────────┘
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓        ┃ Designator ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ buck.buck     │ U1         │
+│ buck.c_boot   │ C2         │
+│ buck.c_in     │ C1         │
+│ buck.c_out1   │ C3         │
+│ buck.c_out2   │ C4         │
+│ buck.c_out_hf │ C5         │
+│ buck.l_out    │ L1         │
+│ buck.r_fb_bot │ R2         │
+│ buck.r_fb_top │ R1         │
+└───────────────┴────────────┘
+           INFO     Building 'variable-report' for 'default' config build.py:100
+                  Variable Values                   
+┏━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Address               ┃ Value          ┃ Comment ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ buck.v_out_calculated │ 3.32V ± 54.3mV │         │
+└───────────────────────┴────────────────┴─────────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment          ┃ Designator ┃ Footprint        ┃ LCSC              ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ LMR51430XDDCR    │ U1         │ Package_TO_SOT_… │ LMR51430XDDCR     │ 0.00  │
+│ CL32B106KBJZW6E  │ C1         │ Capacitor_SMD:C… │ CL32B106KBJZW6E   │ 0.00  │
+│ C0603C104K5RACTU │ C2,C5      │ Capacitor_SMD:C… │ C0603C104K5RACTU  │ 0.00  │
+│ SRP1265A-5R6M    │ L1         │ Inductor_SMD:L_… │ SRP1265A-5R6M     │ 0.00  │
+│ GRM32ER71E226KE… │ C3,C4      │ Capacitor_SMD:C… │ GRM32ER71E226KE1… │ 0.00  │
+│ RC0603FR-07100KL │ R1         │ Resistor_SMD:R_… │ RC0603FR-07100KL  │ 0.00  │
+│ RC0603FR-0722K1L │ R2         │ Resistor_SMD:R_… │ RC0603FR-0722K1L  │ 0.00  │
+└──────────────────┴────────────┴──────────────────┴───────────────────┴───────┘
+           INFO     Successfully built 'assertions-report,          build.py:105
+                    layout-module-map, copy-3dmodels, netlist,                  
+                    clone-footprints, designator-map,                           
+                    variable-report, copy-footprints, bom' for                  
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

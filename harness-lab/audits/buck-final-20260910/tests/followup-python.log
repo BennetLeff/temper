@@ -1,0 +1,190 @@
+.........E...E..FE.E....E.....usage: python3.14 -m unittest [-h] --phase {preflight,development,evaluation}
+                              [--qualification QUALIFICATION]
+                              [--engineering ENGINEERING]
+                              [--preflight-receipt PREFLIGHT_RECEIPT]
+                              [--inheritance INHERITANCE]
+                              [--telemetry | --no-telemetry]
+                              output
+python3.14 -m unittest: error: unrecognized arguments: --override
+....FFFF....................................F............................................F..................
+======================================================================
+ERROR: test_asymmetric_rotation_oracle_uses_kicad_clockwise_convention (test_buck_boundary.BuckBoundaryTests.test_asymmetric_rotation_oracle_uses_kicad_clockwise_convention)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_boundary.py", line 520, in test_asymmetric_rotation_oracle_uses_kicad_clockwise_convention
+    before = harness.native("measure", board, adapter=ADAPTER)
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/harness.py", line 93, in native
+    result = subprocess.run(
+        [KICAD_PYTHON, str(adapter), command, str(path), *map(str, args)],
+    ...<3 lines>...
+        check=True,
+    )
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/Volumes/KiCad/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9', '/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/buck_native.py', 'measure', '/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/tmpu07jeiog/trial/candidate.kicad_pcb']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_full_buck_placement_leaves_existing_copper_stationary (test_buck_boundary.BuckBoundaryTests.test_full_buck_placement_leaves_existing_copper_stationary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_boundary.py", line 148, in test_full_buck_placement_leaves_existing_copper_stationary
+    before = harness.native(
+             ~~~~~~~~~~~~~~^
+        "measure", directory / "candidate.kicad_pcb", adapter=ADAPTER
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )["buck"]["tracks"]
+    ^
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/harness.py", line 93, in native
+    result = subprocess.run(
+        [KICAD_PYTHON, str(adapter), command, str(path), *map(str, args)],
+    ...<3 lines>...
+        check=True,
+    )
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/Volumes/KiCad/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9', '/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/buck_native.py', 'measure', '/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/tmpt_tblo4j/trial/candidate.kicad_pcb']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_full_buck_replace_one_net_preserves_other_nets (test_buck_boundary.BuckBoundaryTests.test_full_buck_replace_one_net_preserves_other_nets)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_boundary.py", line 179, in test_full_buck_replace_one_net_preserves_other_nets
+    before = harness.native(
+             ~~~~~~~~~~~~~~^
+        "measure", directory / "candidate.kicad_pcb", adapter=ADAPTER
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )["buck"]["tracks"]
+    ^
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/harness.py", line 93, in native
+    result = subprocess.run(
+        [KICAD_PYTHON, str(adapter), command, str(path), *map(str, args)],
+    ...<3 lines>...
+        check=True,
+    )
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/Volumes/KiCad/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9', '/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/buck_native.py', 'measure', '/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/tmpy9xz47nq/trial/candidate.kicad_pcb']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_full_buck_witness_replays_through_public_operations (test_buck_boundary.BuckBoundaryTests.test_full_buck_witness_replays_through_public_operations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_boundary.py", line 351, in test_full_buck_witness_replays_through_public_operations
+    witness = harness.native(
+        "measure", directory / "witness.kicad_pcb", adapter=ADAPTER
+    )
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/harness.py", line 93, in native
+    result = subprocess.run(
+        [KICAD_PYTHON, str(adapter), command, str(path), *map(str, args)],
+    ...<3 lines>...
+        check=True,
+    )
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/Volumes/KiCad/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9', '/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/buck_native.py', 'measure', '/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/tmpj6y6vtjx/trial/witness.kicad_pcb']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_staging_boards_carry_no_copper (test_buck_boundary.BuckBoundaryTests.test_staging_boards_carry_no_copper)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_boundary.py", line 487, in test_staging_boards_carry_no_copper
+    measured = harness.native(
+        "measure", directory / "candidate.kicad_pcb", adapter=ADAPTER
+    )
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/harness.py", line 93, in native
+    result = subprocess.run(
+        [KICAD_PYTHON, str(adapter), command, str(path), *map(str, args)],
+    ...<3 lines>...
+        check=True,
+    )
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/Volumes/KiCad/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9', '/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/buck_native.py', 'measure', '/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/tmp117dyppr/trial/candidate.kicad_pcb']' returned non-zero exit status 1.
+
+======================================================================
+FAIL: test_full_buck_replace_copper_uses_native_zone_and_through_via (test_buck_boundary.BuckBoundaryTests.test_full_buck_replace_copper_uses_native_zone_and_through_via)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_boundary.py", line 247, in test_full_buck_replace_copper_uses_native_zone_and_through_via
+    self.assertIn(result["status"], ("pass", "fail"))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'indeterminate' not found in ('pass', 'fail')
+
+======================================================================
+FAIL: test_preflight_requires_admission_and_one_inspect (test_buck_runner.RunnerIntegrationTests.test_preflight_requires_admission_and_one_inspect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_runner.py", line 487, in test_preflight_requires_admission_and_one_inspect
+    self.assertEqual(result["status"], "preflight_pass", result)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'indeterminate' != 'preflight_pass'
+- indeterminate
++ preflight_pass
+ : {'attempt_id': 'slot-0-be0f2688a929446b88c880f5020af8b3', 'phase': 'preflight', 'variant': 'buck-dev-a', 'condition': 'fixed_base', 'slot': 0, 'slot_consumed': True, 'started_unix_ms': 1789058457198, 'identity': {'engineering_inventory_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'qualification_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'approved_evidence_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'native_judge_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}, 'software_control': True, 'status': 'indeterminate', 'board_sha256': '0000000000000000000000000000000000000000000000000000000000000000', 'revision_sha256': '0000000000000000000000000000000000000000000000000000000000000000', 'error': 'AssertionError: \'indeterminate\' != \'pass\'\n- indeterminate\n+ pass\n : {"status": "indeterminate", "error": "RuntimeError: native measure exited 1: Traceback (most recent call last):\\n  File \\"/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/buck_native.py\\", line 389, in <module>\\n    main()\\n  File \\"/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/buck_native.py\\", line 361, in main\\n    raise RuntimeError(f\\"Buck adapter requires KiCad {required_version}\\")\\nRuntimeError: Buck adapter requires KiCad 10.0.4", "mutation_committed": false, "native_verdict": "indeterminate", "board_sha256": "cdb5fafef061b08d2933f3706ed3be79d3597c1d8b3e0de0cb03cc61a1d59b6c", "revision": "cdb5fafef061b08d2933f3706ed3be79d3597c1d8b3e0de0cb03cc61a1d59b6c", "remaining_actions": 200, "sequence": 1, "after_sha256": "cdb5fafef061b08d2933f3706ed3be79d3597c1d8b3e0de0cb03cc61a1d59b6c", "elapsed_s": 0.39058812498115003}', 'elapsed_ms': 511, 'elapsed_wall_ms': 511}
+
+======================================================================
+FAIL: test_real_driver_resume_retains_python_state_and_native_ledger (test_buck_runner.RunnerIntegrationTests.test_real_driver_resume_retains_python_state_and_native_ledger)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_runner.py", line 323, in test_real_driver_resume_retains_python_state_and_native_ledger
+    self.assertEqual(result["status"], "fail", result)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'indeterminate' != 'fail'
+- indeterminate
++ fail
+ : {'attempt_id': 'slot-0-52b4c6e5881e48e3bc45dd522beadd77', 'phase': 'development', 'variant': 'buck-dev-a', 'condition': 'fixed_base', 'slot': 0, 'slot_consumed': True, 'started_unix_ms': 1789058457714, 'identity': {'engineering_inventory_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'qualification_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'approved_evidence_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'native_judge_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}, 'software_control': True, 'status': 'indeterminate', 'board_sha256': 'cdb5fafef061b08d2933f3706ed3be79d3597c1d8b3e0de0cb03cc61a1d59b6c', 'revision_sha256': '7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190', 'initial_revision_sha256': '7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190', 'classification': {'attempt_id': 'slot-0-52b4c6e5881e48e3bc45dd522beadd77', 'command': 'attempt.classify', 'decision': 'record_indeterminate', 'evidence_refs': [], 'native_status': None, 'reason': 'missing external measurement', 'schema': 'continual/v1', 'slot_consumed': True, 'status': 'indeterminate'}, 'wire': {'request_count': 2, 'served_models': ['muse-spark-1.3-contributor-free'], 'tool_catalog': ['pcb_check', 'pcb_execute', 'pcb_inspect', 'pcb_place', 'pcb_replace_copper']}, 'resume_count': 0, 'returncode': 130, 'refinements': [], 'history_count': 2, 'successful_mutations': 0, 'deadline_unix_ms': 1789059657714, 'elapsed_ms': 1109, 'elapsed_wall_ms': 1109}
+
+======================================================================
+FAIL: test_real_native_twenty_edit_refinement_continues_same_cell (test_buck_runner.RunnerIntegrationTests.test_real_native_twenty_edit_refinement_continues_same_cell)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_runner.py", line 446, in test_real_native_twenty_edit_refinement_continues_same_cell
+    self.refinement_control(Path(temp))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_runner.py", line 381, in refinement_control
+    self.assertEqual(result["status"], "fail", result)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'indeterminate' != 'fail'
+- indeterminate
++ fail
+ : {'attempt_id': 'slot-1-82b0e0bbc28143419c94c698e3caaa38', 'phase': 'development', 'variant': 'buck-dev-a', 'condition': 'updating_base', 'slot': 1, 'slot_consumed': True, 'started_unix_ms': 1789058458837, 'identity': {'engineering_inventory_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'qualification_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'approved_evidence_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'native_judge_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}, 'software_control': True, 'status': 'indeterminate', 'board_sha256': 'cdb5fafef061b08d2933f3706ed3be79d3597c1d8b3e0de0cb03cc61a1d59b6c', 'revision_sha256': '7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190', 'initial_revision_sha256': '7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190', 'error': 'AssertionError: \'error\' != \'pass\'\n- error\n+ pass\n : {"kind": "cell_result", "nonce": "4c9ecd0beaf356cadc665f25810c6c3b", "pid": 33049, "cell_seq": 2, "status": "error", "error": "AssertionError: ", "stdout": "", "output_bytes": 0, "revision": "7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190", "host_ack": {"revision": "cdb5fafef061b08d2933f3706ed3be79d3597c1d8b3e0de0cb03cc61a1d59b6c", "actions": 0, "sequence": 1, "remaining_actions": 200}, "learned_revision": "7a48985ae6ffeb9f135cf75de0cdc5e18051b60c8da8734217cb8105768eb190", "notes": "Use native inspection and checks as evidence. Place and route the complete buck within the admitted operations and budget. Keep ordinary working variables in the persistent interpreter; reusable helpers belong in skills.py. A construction pass does not qualify electrical performance or hardware.\\n"}', 'refinements': [], 'successful_mutations': 0, 'history_count': 2, 'deadline_unix_ms': 1789059658837, 'elapsed_ms': 606, 'elapsed_wall_ms': 606}
+
+======================================================================
+FAIL: test_worker_crash_retains_completed_native_edit (test_buck_runner.RunnerIntegrationTests.test_worker_crash_retains_completed_native_edit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_buck_runner.py", line 458, in test_worker_crash_retains_completed_native_edit
+    self.assertEqual(result["successful_mutations"], 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_native_saved_pad_coordinates_and_labels (test_layout_validation.LayoutJudgeControls.test_native_saved_pad_coordinates_and_labels)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_layout_validation.py", line 271, in test_native_saved_pad_coordinates_and_labels
+    self.fail("native witness unavailable: " + self.base["error"])
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: native witness unavailable: Command '['/Volumes/KiCad/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9', '/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/buck_native.py', 'measure', '/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/layout-native-gkmrlyed/witness/candidate.kicad_pcb']' returned non-zero exit status 1.
+
+======================================================================
+FAIL: test_real_full_buck_host_composition_across_cells (test_workspace.WorkspaceTests.test_real_full_buck_host_composition_across_cells)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/test_workspace.py", line 106, in test_real_full_buck_host_composition_across_cells
+    self.assertEqual(first["status"], "pass")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error' != 'pass'
+- error
++ pass
+
+
+----------------------------------------------------------------------
+Ran 138 tests in 92.108s
+
+FAILED (failures=7, errors=5)

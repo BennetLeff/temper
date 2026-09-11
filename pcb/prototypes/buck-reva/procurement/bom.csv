@@ -1,0 +1,14 @@
+Manufacturer,MPN,References,QtyPerBoard,Value,Footprint_Package,Datasheet,DNP,SMT_THT,AssemblyInclusion,Notes
+Texas Instruments,LMR51430XDDCR,U3,1,500kHz PFM buck 4.5-36V 3A,SOT-23-6 (DDC),https://www.ti.com/lit/ds/symlink/lmr51430.pdf,No,SMT,Populated,Core fixed per elec/src/modules.ato BuckConverter3V3 and current-buck-bom.md
+Bourns,SRP1265A-5R6M,L2,1,5.6uH +/-20% 12.5A Irms 10mOhm max,SRP1265A 13.5x12.5mm nom,retained harness-lab/audits/buck-final-20260910/components/sources/SRP1265A.pdf,No,SMT,Populated,No generic smaller inductor footprint
+Samsung Electro-Mechanics,CL32B106KBJZW6E,C9,1,10uF +/-10% 50V X7R soft-termination,1210 / C_1210_3225Metric,https://product.samsungsem.com/mlcc/CL32B106KBJZW6.do,No,SMT,Populated,MPN ends in E; do not use shortened ledger suffix as identity proof
+KEMET,C0603C104K5RACTU,"C10,C13",2,100nF +/-10% 50V X7R,0603 / C_0603_1608Metric,https://www.kemet.com (see DigiKey listing for datasheet link),No,SMT,Populated,"Grouped: identical MPN/value/footprint/population; 2 physical parts, not 1 row = 1 part"
+Samsung Electro-Mechanics,CL32B226KAJNNWE,"C11,C12",2,22uF +/-10% 25V X7R,1210 / C_1210_3225Metric,https://product.samsungsem.com/mlcc/CL32B226KAJNNW.do,No,SMT,Populated,Grouped 2 physical parts; approved prototype substitution for unavailable Murata; Samsung DC-bias behavior is unverified and prior Murata sensitivity is not a Samsung minimum
+Yageo,RC0603FR-07100KL,R16,1,100kohm +/-1%,0603 / R_0603_1608Metric,Yageo datasheet via DigiKey listing,No,SMT,Populated,FB top
+Yageo,RC0603FR-0722K1L,R17,1,22.1kohm +/-1%,0603 / R_0603_1608Metric,Yageo datasheet via DigiKey listing,No,SMT,Populated,FB bottom
+Würth Elektronik,691253500002,J1,1,"2-pos 5.08mm vertical TH screw terminal, 16A/300V","WR-TBL Series 2535; 5.08mm pitch; vertical top-entry",https://www.we-online.com/en/components/products/691253500002,No,THT,"Populated (hand-solder)","DigiKey 732-691253500002-ND; J1.1 VIN (+15V), J1.2 GND; rising-cage screw"
+Würth Elektronik,691253500002,J2,1,"2-pos 5.08mm vertical TH screw terminal, 16A/300V","WR-TBL Series 2535; 5.08mm pitch; vertical top-entry",https://www.we-online.com/en/components/products/691253500002,No,THT,"Populated (hand-solder)","DigiKey 732-691253500002-ND; J2.1 3V3 (+3V3), J2.2 GND; rising-cage screw"
+,,,,,,,,,,Non-purchased items below carry no MPN/price
+None (bare copper),N/A,"TP1,TP2,TP3,TP4",4,Bare probe pads (TP1 VIN TP2 GND TP3 VOUT TP4 GND),Bare SMD pads,N/A,No,SMT (copper only),Not purchased,Explicitly non-purchased; no line item
+None (bare copper),N/A,TP5,0,No TP5 on frozen Rev A; SW accessible at U3.2/L2.1 pads only,N/A,N/A,No,No footprint,Not purchased,Explicitly absent from frozen schematic and PCB
+None,N/A,"Mounting holes / mechanical (H1-H4)",4,"NPTH 3.2 mm M3 clearance holes; isolated and excluded from purchased population",N/A,N/A,N/A,No,Mechanical only,Not purchased,Present on frozen PCB; no hardware included in this BOM

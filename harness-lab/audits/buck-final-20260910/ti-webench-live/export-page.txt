@@ -1,0 +1,1199 @@
+Browser tab: 11, Title: "Power Designer", URL: "https://webench.ti.com/power-designer/switching-regulator/export/1".
+1 AXWebArea Power Designer, URL: webench.ti.com/power-designer/switching-regulator/export/1
+	2 container
+		1345 button
+		1346 link Description: WEBENCH® POWER DESIGNER , Value: webench.ti.com/power-designer/, ID: link-power-designer
+		1347 button NEW DESIGN
+			1348 text NEW DESIGN
+		1349 button MY DESIGNS, ID: btn-my-designs
+			1350 text MY DESIGNS
+		1351 pop up button
+		7 container
+			139 container
+				178 text Export  LMR51430XDDCR  ‑ 
+				189 text 13.5V-16.5V to 3.30V @ 1A
+				190 container
+					191 container
+						192 text Input: 
+					193 text DC 13.5 V - 16.5 V
+					194 container
+						195 text Output: 
+					196 text 3.3 V at 1 A
+					197 container
+						198 text Temp: 
+					199 text 70 °C
+				179 link Change
+					180 text Change
+				153 container
+					154 button SELECT, ID: btn-header-nav-select
+						155 text SELECT
+					156 button CUSTOMIZE, ID: btn-header-nav-customize
+						157 text CUSTOMIZE
+					158 button SIMULATE, ID: btn-header-nav-simulate
+						159 text SIMULATE
+					160 button EXPORT, ID: btn-header-nav-export
+						161 text EXPORT
+				181 pop up button
+				177 container
+					183 text Summary
+					200 container
+						201 container Efficiency:  
+							202 text Efficiency: 
+						203 container 91.3%
+							204 text 91.3%
+					205 container
+						206 container BOM Cost:  
+							207 text BOM Cost: 
+						208 container NA
+							209 text NA
+					210 container
+						211 container Footprint:  
+							212 text Footprint: 
+						213 container NA
+							214 text NA
+					215 container
+						216 container BOM Count:  
+							217 text BOM Count: 
+						218 container 10
+							219 text 10
+					220 container
+						221 container Topology:  
+							222 text Topology: 
+						223 container Buck
+							224 text Buck
+					225 container
+						226 container Frequency:  
+							227 text Frequency: 
+						228 container 500 kHz
+							229 text 500 kHz
+					230 container
+						231 container IC Cost:  
+							232 text IC Cost: 
+						233 container $0.65 | 1ku
+							234 text $0.65 | 1ku
+					184 button PRINT REPORT, ID: btn-print-design
+						185 text PRINT REPORT
+					186 heading Design Information, Value: 2
+						187 text Design Information
+					188 text Schematic
+					235 image
+						236 text LMR51430XDDC
+						237 text GND
+						238 text SW
+						239 text VIN
+						240 text FB
+						241 text EN
+						242 text CB
+						243 text Cin
+						244 text 1uF
+						245 text 56.714mOhm
+						246 text Qty=3
+						247 text U1
+						248 text Cout
+						249 text 100uF
+						250 text 1mOhm
+						251 text Cinx
+						252 text 100nF
+						253 text 1uOhm
+						254 text L1
+						255 text 4.7uH
+						256 text 13.1mOhm
+						257 text Rfbb
+						258 text 22.1kOhm
+						259 text Rfbt
+						260 text 100kOhm
+						261 text Cboot
+						262 text 100nF
+						263 text 1mOhm
+						264 text Vin
+						265 text Iout
+					266 heading Bill of materials, Value: 2
+						267 text Bill of materials
+					268 button btn-bom-download
+					269 text *Footprint is component footprint plus 1 mm per side.
+					270 table
+						271 row Change sorting for partName Change sorting for manufacturer Change sorting for partNumber Change sorting for quantity Change sorting for price Attribute Change sorting for footprint Top View
+							272 cell
+								273 button Change sorting for partName
+							274 cell
+								275 button Change sorting for manufacturer
+							276 cell
+								277 button Change sorting for partNumber
+							278 cell
+								279 button Change sorting for quantity
+							280 cell
+								281 button Change sorting for price
+							282 cell
+								283 text Attribute
+							284 cell
+								285 button Change sorting for footprint
+							286 cell
+								287 text Top View
+						288 row Rfbb Vishay-Dale CRCW040222K1FKED 1 0.01 Resistance = 22.1 kΩ Tolerance = 1.0% Power = 63 mW 3
+							289 cell
+								290 text Rfbb
+							291 cell
+								292 text Vishay-Dale
+							293 cell
+								294 link CRCW040222K1FKED
+									295 text CRCW040222K1FKED
+							296 cell
+								297 text 1
+							298 cell
+								299 text 0.01
+							300 cell
+								301 text Resistance = 22.1 kΩ
+								302 text Tolerance = 1.0%
+								303 text Power = 63 mW
+							304 cell
+								305 text 3
+						306 row Rfbt Vishay-Dale CRCW0402100KFKED 1 0.01 Resistance = 100 kΩ Tolerance = 1.0% Power = 63 mW 3
+							307 cell
+								308 text Rfbt
+							309 cell
+								310 text Vishay-Dale
+							311 cell
+								312 link CRCW0402100KFKED
+									313 text CRCW0402100KFKED
+							314 cell
+								315 text 1
+							316 cell
+								317 text 0.01
+							318 cell
+								319 text Resistance = 100 kΩ
+								320 text Tolerance = 1.0%
+								321 text Power = 63 mW
+							322 cell
+								323 text 3
+						324 row Cin Taiyo Yuden MSAST16KTB5105KTNA01 3 0.11 Cap = 1 µF Total Derated Cap = 410 nF VDC = 25 V ESR = 56.71 mΩ Package = 0603 14.04
+							325 cell
+								326 text Cin
+							327 cell
+								328 text Taiyo Yuden
+							329 cell
+								330 link MSAST16KTB5105KTNA01
+									331 text MSAST16KTB5105KTNA01
+							332 cell
+								333 text 3
+							334 cell
+								335 text 0.11
+							336 cell
+								337 text Cap = 1 µF
+								338 text Total Derated Cap = 410 nF
+								339 text VDC = 25 V
+								340 text ESR = 56.71 mΩ
+								341 text Package = 0603
+							342 cell
+								343 text 14.04
+						344 row U1 Texas Instruments LMR51430XDDCR 1 0.65 14.82
+							345 cell
+								346 text U1
+							347 cell
+								348 text Texas Instruments
+							349 cell
+								350 link LMR51430XDDCR
+									351 text LMR51430XDDCR
+							352 cell
+								353 text 1
+							354 cell
+								355 text 0.65
+							356 cell
+								357 text 14.82
+						358 row Cout MuRata GRM32EC80J107ME20L 1 0.17 Cap = 100 µF Total Derated Cap = 63 µF VDC = 6.3 V ESR = 1 mΩ Package = 1210 14.7
+							359 cell
+								360 text Cout
+							361 cell
+								362 text MuRata
+							363 cell
+								364 link GRM32EC80J107ME20L
+									365 text GRM32EC80J107ME20L
+							366 cell
+								367 text 1
+							368 cell
+								369 text 0.17
+							370 cell
+								371 text Cap = 100 µF
+								372 text Total Derated Cap = 63 µF
+								373 text VDC = 6.3 V
+								374 text ESR = 1 mΩ
+								375 text Package = 1210
+							376 cell
+								377 text 14.7
+						378 row Cinx CUSTOM CUSTOM 1 NA Cap = 100 nF Total Derated Cap = 100 nF VDC = 24.75 V ESR = 1 µΩ Package = NA
+							379 cell
+								380 text Cinx
+							381 cell
+								382 text CUSTOM
+							383 cell
+								384 text CUSTOM
+							385 cell
+								386 text 1
+							387 cell
+								388 text NA
+							389 cell
+								390 text Cap = 100 nF
+								391 text Total Derated Cap = 100 nF
+								392 text VDC = 24.75 V
+								393 text ESR = 1 µΩ
+								394 text Package =
+							395 cell
+								396 text NA
+						397 row L1 Coilcraft XAL6060-472MEB 1 0.82 L = 4.7 µH DCR = 13.1 mΩ IDC = 10.5 A 71.56
+							398 cell
+								399 text L1
+							400 cell
+								401 text Coilcraft
+							402 cell
+								403 link XAL6060-472MEB
+									404 text XAL6060-472MEB
+							405 cell
+								406 text 1
+							407 cell
+								408 text 0.82
+							409 cell
+								410 text L = 4.7 µH
+								411 text DCR = 13.1 mΩ
+								412 text IDC = 10.5 A
+							413 cell
+								414 text 71.56
+						415 row Cboot MuRata GRM155R71C104KA88D 1 0.01 Cap = 100 nF Total Derated Cap = 100 nF VDC = 16 V ESR = 1 mΩ Package = 0402 3
+							416 cell
+								417 text Cboot
+							418 cell
+								419 text MuRata
+							420 cell
+								421 link GRM155R71C104KA88D
+									422 text GRM155R71C104KA88D
+							423 cell
+								424 text 1
+							425 cell
+								426 text 0.01
+							427 cell
+								428 text Cap = 100 nF
+								429 text Total Derated Cap = 100 nF
+								430 text VDC = 16 V
+								431 text ESR = 1 mΩ
+								432 text Package = 0402
+							433 cell
+								434 text 3
+					435 container div-chart-container
+						436 heading Charts, Value: 2
+							437 text Charts
+						438 button VIEW MORE CHARTS, ID: btn-view-more-charts
+							439 text VIEW MORE CHARTS
+						440 text Hover chart to view exact data points. Select area on a chart to zoom.
+						441 heading Duty Cycle, Value: 3
+							442 text Duty Cycle
+						443 container
+							444 image JavaScript chart by amCharts 3.21.12
+								445 image Vin=13.5V 
+								446 image Vin=13.5V 
+								447 image Vin=13.5V 
+								448 image Vin=13.5V 
+								449 image Vin=13.5V 
+								450 image Vin=13.5V 
+								451 image Vin=13.5V 
+								452 image Vin=13.5V 
+								453 image Vin=13.5V 
+								454 image Vin=13.5V 
+								455 image Vin=15V 
+								456 image Vin=15V 
+								457 image Vin=15V 
+								458 image Vin=15V 
+								459 image Vin=15V 
+								460 image Vin=15V 
+								461 image Vin=15V 
+								462 image Vin=15V 
+								463 image Vin=15V 
+								464 image Vin=15V 
+								465 image Vin=16.5V 
+								466 image Vin=16.5V 
+								467 image Vin=16.5V 
+								468 image Vin=16.5V 
+								469 image Vin=16.5V 
+								470 image Vin=16.5V 
+								471 image Vin=16.5V 
+								472 image Vin=16.5V 
+								473 image Vin=16.5V 
+								474 image Vin=16.5V 
+								475 text 0
+								476 text 1
+								477 text 2
+								478 text Output Current
+								479 text 0
+								480 text 5
+								481 text 10
+								482 text 15
+								483 text 20
+								484 text 25
+								485 text 30
+								486 text Duty Cycle (%)
+							487 image JavaScript chart by amCharts 3.21.12
+								488 container Vin=13.5V
+									489 image
+									490 text Vin=13.5V
+									491 image
+								492 container Vin=15V
+									493 image
+									494 text Vin=15V
+									495 image
+								496 container Vin=16.5V
+									497 image
+									498 text Vin=16.5V
+									499 image
+							500 content list
+								501 link Description: menu.label.undefined, Value: webench.ti.com/power-designer/#
+						502 heading Efficiency, Value: 3
+							503 text Efficiency
+						504 container
+							505 image JavaScript chart by amCharts 3.21.12
+								506 image Vin=13.5V 
+								507 image Vin=13.5V 
+								508 image Vin=13.5V 
+								509 image Vin=13.5V 
+								510 image Vin=13.5V 
+								511 image Vin=13.5V 
+								512 image Vin=13.5V 
+								513 image Vin=13.5V 
+								514 image Vin=13.5V 
+								515 image Vin=13.5V 
+								516 image Vin=15V 
+								517 image Vin=15V 
+								518 image Vin=15V 
+								519 image Vin=15V 
+								520 image Vin=15V 
+								521 image Vin=15V 
+								522 image Vin=15V 
+								523 image Vin=15V 
+								524 image Vin=15V 
+								525 image Vin=15V 
+								526 image Vin=16.5V 
+								527 image Vin=16.5V 
+								528 image Vin=16.5V 
+								529 image Vin=16.5V 
+								530 image Vin=16.5V 
+								531 image Vin=16.5V 
+								532 image Vin=16.5V 
+								533 image Vin=16.5V 
+								534 image Vin=16.5V 
+								535 image Vin=16.5V 
+								536 text 0
+								537 text 1
+								538 text 2
+								539 text Output Current
+								540 text 86
+								541 text 88
+								542 text 90
+								543 text 92
+								544 text 94
+								545 text Efficiency (%)
+							546 image JavaScript chart by amCharts 3.21.12
+								547 container Vin=13.5V
+									548 image
+									549 text Vin=13.5V
+									550 image
+								551 container Vin=15V
+									552 image
+									553 text Vin=15V
+									554 image
+								555 container Vin=16.5V
+									556 image
+									557 text Vin=16.5V
+									558 image
+							559 content list
+								560 link Description: menu.label.undefined, Value: webench.ti.com/power-designer/#
+						561 heading Loop Response, Value: 3
+							562 text Loop Response
+						563 container
+							564 image JavaScript chart by amCharts 3.21.12
+								565 image Gain 
+								566 image Gain 
+								567 image Gain 
+								568 image Gain 
+								569 image Gain 
+								570 image Gain 
+								571 image Gain 
+								572 image Gain 
+								573 image Gain 
+								574 image Gain 
+								575 image Gain 
+								576 image Gain 
+								577 image Gain 
+								578 image Gain 
+								579 image Gain 
+								580 image Gain 
+								581 image Gain 
+								582 image Gain 
+								583 image Gain 
+								584 image Gain 
+								585 image Gain 
+								586 image Gain 
+								587 image Gain 
+								588 image Gain 
+								589 image Gain 
+								590 image Gain 
+								591 image Gain 
+								592 image Gain 
+								593 image Gain 
+								594 image Gain 
+								595 image Gain 
+								596 image Gain 
+								597 image Gain 
+								598 image Gain 
+								599 image Gain 
+								600 image Gain 
+								601 image Gain 
+								602 image Gain 
+								603 image Gain 
+								604 image Gain 
+								605 image Gain 
+								606 image Gain 
+								607 image Gain 
+								608 image Gain 
+								609 image Gain 
+								610 image Gain 
+								611 image Gain 
+								612 image Gain 
+								613 image Gain 
+								614 image Gain 
+								615 image Gain 
+								616 image Gain 
+								617 image Gain 
+								618 image Gain 
+								619 image Gain 
+								620 image Gain 
+								621 image Gain 
+								622 image Gain 
+								623 image Gain 
+								624 image Gain 
+								625 image Gain 
+								626 image Gain 
+								627 image Gain 
+								628 image Gain 
+								629 image Gain 
+								630 image Gain 
+								631 image Gain 
+								632 image Gain 
+								633 image Gain 
+								634 image Gain 
+								635 image Gain 
+								636 image Gain 
+								637 image Gain 
+								638 image Gain 
+								639 image Gain 
+								640 image Gain 
+								641 image Gain 
+								642 image Gain 
+								643 image Gain 
+								644 image Gain 
+								645 image Gain 
+								646 image Gain 
+								647 image Gain 
+								648 image Gain 
+								649 image Gain 
+								650 image Gain 
+								651 image Gain 
+								652 image Gain 
+								653 image Gain 
+								654 image Gain 
+								655 image Gain 
+								656 image Gain 
+								657 image Gain 
+								658 image Gain 
+								659 image Gain 
+								660 image Gain 
+								661 image Gain 
+								662 image Gain 
+								663 image Gain 
+								664 image Gain 
+								665 image Gain 
+								666 image Gain 
+								667 image Gain 
+								668 image Gain 
+								669 image Gain 
+								670 image Gain 
+								671 image Gain 
+								672 image Gain 
+								673 image Gain 
+								674 image Gain 
+								675 image Gain 
+								676 image Gain 
+								677 image Gain 
+								678 image Gain 
+								679 image Gain 
+								680 image Gain 
+								681 image Gain 
+								682 image Gain 
+								683 image Gain 
+								684 image Gain 
+								685 image Gain 
+								686 image Gain 
+								687 image Gain 
+								688 image Gain 
+								689 image Gain 
+								690 image Gain 
+								691 image Gain 
+								692 image Gain 
+								693 image Gain 
+								694 image Gain 
+								695 image Gain 
+								696 image Gain 
+								697 image Gain 
+								698 image Gain 
+								699 image Gain 
+								700 image Gain 
+								701 image Gain 
+								702 image Gain 
+								703 image Gain 
+								704 image Gain 
+								705 image Gain 
+								706 image Gain 
+								707 image Gain 
+								708 image Gain 
+								709 image Gain 
+								710 image Gain 
+								711 image Gain 
+								712 image Gain 
+								713 image Gain 
+								714 image Gain 
+								715 image Gain 
+								716 image Gain 
+								717 image Phase + 180 
+								718 image Phase + 180 
+								719 image Phase + 180 
+								720 image Phase + 180 
+								721 image Phase + 180 
+								722 image Phase + 180 
+								723 image Phase + 180 
+								724 image Phase + 180 
+								725 image Phase + 180 
+								726 image Phase + 180 
+								727 image Phase + 180 
+								728 image Phase + 180 
+								729 image Phase + 180 
+								730 image Phase + 180 
+								731 image Phase + 180 
+								732 image Phase + 180 
+								733 image Phase + 180 
+								734 image Phase + 180 
+								735 image Phase + 180 
+								736 image Phase + 180 
+								737 image Phase + 180 
+								738 image Phase + 180 
+								739 image Phase + 180 
+								740 image Phase + 180 
+								741 image Phase + 180 
+								742 image Phase + 180 
+								743 image Phase + 180 
+								744 image Phase + 180 
+								745 image Phase + 180 
+								746 image Phase + 180 
+								747 image Phase + 180 
+								748 image Phase + 180 
+								749 image Phase + 180 
+								750 image Phase + 180 
+								751 image Phase + 180 
+								752 image Phase + 180 
+								753 image Phase + 180 
+								754 image Phase + 180 
+								755 image Phase + 180 
+								756 image Phase + 180 
+								757 image Phase + 180 
+								758 image Phase + 180 
+								759 image Phase + 180 
+								760 image Phase + 180 
+								761 image Phase + 180 
+								762 image Phase + 180 
+								763 image Phase + 180 
+								764 image Phase + 180 
+								765 image Phase + 180 
+								766 image Phase + 180 
+								767 image Phase + 180 
+								768 image Phase + 180 
+								769 image Phase + 180 
+								770 image Phase + 180 
+								771 image Phase + 180 
+								772 image Phase + 180 
+								773 image Phase + 180 
+								774 image Phase + 180 
+								775 image Phase + 180 
+								776 image Phase + 180 
+								777 image Phase + 180 
+								778 image Phase + 180 
+								779 image Phase + 180 
+								780 image Phase + 180 
+								781 image Phase + 180 
+								782 image Phase + 180 
+								783 image Phase + 180 
+								784 image Phase + 180 
+								785 image Phase + 180 
+								786 image Phase + 180 
+								787 image Phase + 180 
+								788 image Phase + 180 
+								789 image Phase + 180 
+								790 image Phase + 180 
+								791 image Phase + 180 
+								792 image Phase + 180 
+								793 image Phase + 180 
+								794 image Phase + 180 
+								795 image Phase + 180 
+								796 image Phase + 180 
+								797 image Phase + 180 
+								798 image Phase + 180 
+								799 image Phase + 180 
+								800 image Phase + 180 
+								801 image Phase + 180 
+								802 image Phase + 180 
+								803 image Phase + 180 
+								804 image Phase + 180 
+								805 image Phase + 180 
+								806 image Phase + 180 
+								807 image Phase + 180 
+								808 image Phase + 180 
+								809 image Phase + 180 
+								810 image Phase + 180 
+								811 image Phase + 180 
+								812 image Phase + 180 
+								813 image Phase + 180 
+								814 image Phase + 180 
+								815 image Phase + 180 
+								816 image Phase + 180 
+								817 image Phase + 180 
+								818 image Phase + 180 
+								819 image Phase + 180 
+								820 image Phase + 180 
+								821 image Phase + 180 
+								822 image Phase + 180 
+								823 image Phase + 180 
+								824 image Phase + 180 
+								825 image Phase + 180 
+								826 image Phase + 180 
+								827 image Phase + 180 
+								828 image Phase + 180 
+								829 image Phase + 180 
+								830 image Phase + 180 
+								831 image Phase + 180 
+								832 image Phase + 180 
+								833 image Phase + 180 
+								834 image Phase + 180 
+								835 image Phase + 180 
+								836 image Phase + 180 
+								837 image Phase + 180 
+								838 image Phase + 180 
+								839 image Phase + 180 
+								840 image Phase + 180 
+								841 image Phase + 180 
+								842 image Phase + 180 
+								843 image Phase + 180 
+								844 image Phase + 180 
+								845 image Phase + 180 
+								846 image Phase + 180 
+								847 image Phase + 180 
+								848 image Phase + 180 
+								849 image Phase + 180 
+								850 image Phase + 180 
+								851 image Phase + 180 
+								852 image Phase + 180 
+								853 image Phase + 180 
+								854 image Phase + 180 
+								855 image Phase + 180 
+								856 image Phase + 180 
+								857 image Phase + 180 
+								858 image Phase + 180 
+								859 image Phase + 180 
+								860 image Phase + 180 
+								861 image Phase + 180 
+								862 image Phase + 180 
+								863 image Phase + 180 
+								864 image Phase + 180 
+								865 image Phase + 180 
+								866 image Phase + 180 
+								867 image Phase + 180 
+								868 image Phase + 180 
+								869 text 100k
+								870 text Frequency (Hz)
+								871 text -100
+								872 text -50
+								873 text 0
+								874 text 50
+								875 text 100
+								876 text Gain (dB)
+								877 text -200
+								878 text -100
+								879 text 0
+								880 text 100
+								881 text 200
+								882 text Phase + 180 (degree)
+							883 image JavaScript chart by amCharts 3.21.12
+								884 container Gain
+									885 image
+									886 text Gain
+									887 image
+								888 container Phase + 180
+									889 image
+									890 text Phase + 180
+									891 image
+							892 content list
+								893 link Description: menu.label.undefined, Value: webench.ti.com/power-designer/#
+						894 heading Efficiency (Log-Scale), Value: 3
+							895 text Efficiency (Log-Scale)
+						896 container
+							897 image JavaScript chart by amCharts 3.21.12
+								898 image Vin=13.5V 
+								899 image Vin=13.5V 
+								900 image Vin=13.5V 
+								901 image Vin=13.5V 
+								902 image Vin=13.5V 
+								903 image Vin=13.5V 
+								904 image Vin=13.5V 
+								905 image Vin=13.5V 
+								906 image Vin=13.5V 
+								907 image Vin=13.5V 
+								908 image Vin=13.5V 
+								909 image Vin=13.5V 
+								910 image Vin=13.5V 
+								911 image Vin=13.5V 
+								912 image Vin=13.5V 
+								913 image Vin=13.5V 
+								914 image Vin=13.5V 
+								915 image Vin=13.5V 
+								916 image Vin=13.5V 
+								917 image Vin=13.5V 
+								918 image Vin=13.5V 
+								919 image Vin=13.5V 
+								920 image Vin=13.5V 
+								921 image Vin=13.5V 
+								922 image Vin=13.5V 
+								923 image Vin=13.5V 
+								924 image Vin=13.5V 
+								925 image Vin=13.5V 
+								926 image Vin=13.5V 
+								927 image Vin=13.5V 
+								928 image Vin=13.5V 
+								929 image Vin=13.5V 
+								930 image Vin=13.5V 
+								931 image Vin=13.5V 
+								932 image Vin=13.5V 
+								933 image Vin=13.5V 
+								934 image Vin=13.5V 
+								935 image Vin=13.5V 
+								936 image Vin=13.5V 
+								937 image Vin=13.5V 
+								938 image Vin=13.5V 
+								939 image Vin=13.5V 
+								940 image Vin=13.5V 
+								941 image Vin=13.5V 
+								942 image Vin=13.5V 
+								943 image Vin=13.5V 
+								944 image Vin=13.5V 
+								945 image Vin=13.5V 
+								946 image Vin=13.5V 
+								947 image Vin=13.5V 
+								948 image Vin=13.5V 
+								949 image Vin=13.5V 
+								950 image Vin=13.5V 
+								951 image Vin=13.5V 
+								952 image Vin=13.5V 
+								953 image Vin=15V 
+								954 image Vin=15V 
+								955 image Vin=15V 
+								956 image Vin=15V 
+								957 image Vin=15V 
+								958 image Vin=15V 
+								959 image Vin=15V 
+								960 image Vin=15V 
+								961 image Vin=15V 
+								962 image Vin=15V 
+								963 image Vin=15V 
+								964 image Vin=15V 
+								965 image Vin=15V 
+								966 image Vin=15V 
+								967 image Vin=15V 
+								968 image Vin=15V 
+								969 image Vin=15V 
+								970 image Vin=15V 
+								971 image Vin=15V 
+								972 image Vin=15V 
+								973 image Vin=15V 
+								974 image Vin=15V 
+								975 image Vin=15V 
+								976 image Vin=15V 
+								977 image Vin=15V 
+								978 image Vin=15V 
+								979 image Vin=15V 
+								980 image Vin=15V 
+								981 image Vin=15V 
+								982 image Vin=15V 
+								983 image Vin=15V 
+								984 image Vin=15V 
+								985 image Vin=15V 
+								986 image Vin=15V 
+								987 image Vin=15V 
+								988 image Vin=15V 
+								989 image Vin=15V 
+								990 image Vin=15V 
+								991 image Vin=15V 
+								992 image Vin=15V 
+								993 image Vin=15V 
+								994 image Vin=15V 
+								995 image Vin=15V 
+								996 image Vin=15V 
+								997 image Vin=15V 
+								998 image Vin=15V 
+								999 image Vin=15V 
+								1000 image Vin=15V 
+								1001 image Vin=15V 
+								1002 image Vin=15V 
+								1003 image Vin=15V 
+								1004 image Vin=15V 
+								1005 image Vin=15V 
+								1006 image Vin=15V 
+								1007 image Vin=15V 
+								1008 image Vin=16.5V 
+								1009 image Vin=16.5V 
+								1010 image Vin=16.5V 
+								1011 image Vin=16.5V 
+								1012 image Vin=16.5V 
+								1013 image Vin=16.5V 
+								1014 image Vin=16.5V 
+								1015 image Vin=16.5V 
+								1016 image Vin=16.5V 
+								1017 image Vin=16.5V 
+								1018 image Vin=16.5V 
+								1019 image Vin=16.5V 
+								1020 image Vin=16.5V 
+								1021 image Vin=16.5V 
+								1022 image Vin=16.5V 
+								1023 image Vin=16.5V 
+								1024 image Vin=16.5V 
+								1025 image Vin=16.5V 
+								1026 image Vin=16.5V 
+								1027 image Vin=16.5V 
+								1028 image Vin=16.5V 
+								1029 image Vin=16.5V 
+								1030 image Vin=16.5V 
+								1031 image Vin=16.5V 
+								1032 image Vin=16.5V 
+								1033 image Vin=16.5V 
+								1034 image Vin=16.5V 
+								1035 image Vin=16.5V 
+								1036 image Vin=16.5V 
+								1037 image Vin=16.5V 
+								1038 image Vin=16.5V 
+								1039 image Vin=16.5V 
+								1040 image Vin=16.5V 
+								1041 image Vin=16.5V 
+								1042 image Vin=16.5V 
+								1043 image Vin=16.5V 
+								1044 image Vin=16.5V 
+								1045 image Vin=16.5V 
+								1046 image Vin=16.5V 
+								1047 image Vin=16.5V 
+								1048 image Vin=16.5V 
+								1049 image Vin=16.5V 
+								1050 image Vin=16.5V 
+								1051 image Vin=16.5V 
+								1052 image Vin=16.5V 
+								1053 image Vin=16.5V 
+								1054 image Vin=16.5V 
+								1055 image Vin=16.5V 
+								1056 image Vin=16.5V 
+								1057 image Vin=16.5V 
+								1058 image Vin=16.5V 
+								1059 image Vin=16.5V 
+								1060 image Vin=16.5V 
+								1061 image Vin=16.5V 
+								1062 image Vin=16.5V 
+								1063 text 1m
+								1064 text 0.01
+								1065 text 0.1
+								1066 text 1
+								1067 text Output Current
+								1068 text 40
+								1069 text 60
+								1070 text 80
+								1071 text 100
+								1072 text Efficiency (%)
+								1073 text Show all
+							1074 image JavaScript chart by amCharts 3.21.12
+								1075 container Vin=13.5V
+									1076 image
+									1077 text Vin=13.5V
+									1078 image
+								1079 container Vin=15V
+									1080 image
+									1081 text Vin=15V
+									1082 image
+								1083 container Vin=16.5V
+									1084 image
+									1085 text Vin=16.5V
+									1086 image
+							1087 content list
+								1088 link Description: menu.label.undefined, Value: webench.ti.com/power-designer/#
+					1089 text Operating Values
+					1090 button btn-opvals-download
+					1091 table
+						1092 row Change sorting for name Change sorting for value Change sorting for description
+							1093 cell
+								1094 button Change sorting for name
+							1095 cell
+								1096 button Change sorting for value
+							1097 cell
+								1098 button Change sorting for description
+						1099 row Vout 3.3 V Operational Output Voltage
+							1100 cell
+								1101 text Vout
+							1102 cell
+								1103 text 3.3 V
+							1104 cell
+								1105 text Operational Output Voltage
+						1106 row IC Tolerance 10 mV IC Feedback Tolerance
+							1107 cell
+								1108 text IC Tolerance
+							1109 cell
+								1110 text 10 mV
+							1111 cell
+								1112 text IC Feedback Tolerance
+						1113 row Cin IRMS 347.09 mA Input capacitor RMS ripple current
+							1114 cell
+								1115 text Cin IRMS
+							1116 cell
+								1117 text 347.09 mA
+							1118 cell
+								1119 text Input capacitor RMS ripple current
+						1120 row Cin Pd 2.28 mW Input capacitor power dissipation
+							1121 cell
+								1122 text Cin Pd
+							1123 cell
+								1124 text 2.28 mW
+							1125 cell
+								1126 text Input capacitor power dissipation
+						1127 row Cout IRMS 331.67 mA Output capacitor RMS ripple current
+							1128 cell
+								1129 text Cout IRMS
+							1130 cell
+								1131 text 331.67 mA
+							1132 cell
+								1133 text Output capacitor RMS ripple current
+						1134 row Cout Pd 110.01 µW Output capacitor power dissipation
+							1135 cell
+								1136 text Cout Pd
+							1137 cell
+								1138 text 110.01 µW
+							1139 cell
+								1140 text Output capacitor power dissipation
+						1141 row Cinx IRMS 85.03 mA Bulk capacitor RMS ripple current
+							1142 cell
+								1143 text Cinx IRMS
+							1144 cell
+								1145 text 85.03 mA
+							1146 cell
+								1147 text Bulk capacitor RMS ripple current
+						1148 row Cinx Pd 7.23 nW Bulk capacitor power dissipation
+							1149 cell
+								1150 text Cinx Pd
+							1151 cell
+								1152 text 7.23 nW
+							1153 cell
+								1154 text Bulk capacitor power dissipation
+						1155 row L Ipp 1.15 A Peak-to-peak inductor ripple current
+							1156 cell
+								1157 text L Ipp
+							1158 cell
+								1159 text 1.15 A
+							1160 cell
+								1161 text Peak-to-peak inductor ripple current
+						1162 row L Pd 14.54 mW Inductor power dissipation
+							1163 cell
+								1164 text L Pd
+							1165 cell
+								1166 text 14.54 mW
+							1167 cell
+								1168 text Inductor power dissipation
+						1169 row Ipp percentage 114.90% Inductor ripple current percentage (with respect to average inductor current)
+							1170 cell
+								1171 text Ipp percentage
+							1172 cell
+								1173 text 114.90%
+							1174 cell
+								1175 text Inductor ripple current percentage (with respect to average inductor current)
+						1176 row Duty Cycle 20.67% Duty cycle
+							1177 cell
+								1178 text Duty Cycle
+							1179 cell
+								1180 text 20.67%
+							1181 cell
+								1182 text Duty cycle
+						1183 row Efficiency 91.3% Steady state efficiency
+							1184 cell
+								1185 text Efficiency
+							1186 cell
+								1187 text 91.3%
+							1188 cell
+								1189 text Steady state efficiency
+						1190 row Frequency 500 kHz Switching frequency
+							1191 cell
+								1192 text Frequency
+							1193 cell
+								1194 text 500 kHz
+							1195 cell
+								1196 text Switching frequency
+						1197 row IC Tj 91.51 °C IC junction temperature
+							1198 cell
+								1199 text IC Tj
+							1200 cell
+								1201 text 91.51 °C
+							1202 cell
+								1203 text IC junction temperature
+						1204 row IC Pd 298.78 mW IC power dissipation
+							1205 cell
+								1206 text IC Pd
+							1207 cell
+								1208 text 298.78 mW
+							1209 cell
+								1210 text IC power dissipation
+						1211 row Pout 3.3 W Total output power
+							1212 cell
+								1213 text Pout
+							1214 cell
+								1215 text 3.3 W
+							1216 cell
+								1217 text Total output power
+						1218 row Iin Avg 219.14 mA Average input current
+							1219 cell
+								1220 text Iin Avg
+							1221 cell
+								1222 text 219.14 mA
+							1223 cell
+								1224 text Average input current
+						1225 row IC Ipk 1.57 A Peak switch current in IC
+							1226 cell
+								1227 text IC Ipk
+							1228 cell
+								1229 text 1.57 A
+							1230 cell
+								1231 text Peak switch current in IC
+						1232 row Mode CCM Conduction Mode
+							1233 cell
+								1234 text Mode
+							1235 cell
+								1236 text CCM
+							1237 cell
+								1238 text Conduction Mode
+						1239 row Vout p-p 4.64 mV Peak-to-peak output ripple voltage
+							1240 cell
+								1241 text Vout p-p
+							1242 cell
+								1243 text 4.64 mV
+							1244 cell
+								1245 text Peak-to-peak output ripple voltage
+						1246 row Vin p-p 669.06 mV Peak-to-peak input voltage
+							1247 cell
+								1248 text Vin p-p
+							1249 cell
+								1250 text 669.06 mV
+							1251 cell
+								1252 text Peak-to-peak input voltage
+						1253 row Phase Marg 52.66 ° Bode Plot Phase Margin
+							1254 cell
+								1255 text Phase Marg
+							1256 cell
+								1257 text 52.66 °
+							1258 cell
+								1259 text Bode Plot Phase Margin
+						1260 row Cross Freq 13.18 kHz Bode plot crossover frequency
+							1261 cell
+								1262 text Cross Freq
+							1263 cell
+								1264 text 13.18 kHz
+							1265 cell
+								1266 text Bode plot crossover frequency
+						1267 row Low Freq Gain 56.29 dB Gain at 1Hz
+							1268 cell
+								1269 text Low Freq Gain
+							1270 cell
+								1271 text 56.29 dB
+							1272 cell
+								1273 text Gain at 1Hz
+						1274 row Gain Marg -27.71 dB Bode Plot Gain Margin
+							1275 cell
+								1276 text Gain Marg
+							1277 cell
+								1278 text -27.71 dB
+							1279 cell
+								1280 text Bode Plot Gain Margin
+						1281 row ICThetaJA Effective 72 °C/W Effective IC Junction-to-Ambient Thermal Resistance
+							1282 cell
+								1283 text ICThetaJA Effective
+							1284 cell
+								1285 text 72 °C/W
+							1286 cell
+								1287 text Effective IC Junction-to-Ambient Thermal Resistance
+						1288 row FootPrint NA Total Foot Print Area of BOM components
+							1289 cell
+								1290 text FootPrint
+							1291 cell
+								1292 text NA
+							1293 cell
+								1294 text Total Foot Print Area of BOM components
+						1295 row Vout Actual 3.31 V Vout Actual calculated based on selected voltage divider resistors
+							1296 cell
+								1297 text Vout Actual
+							1298 cell
+								1299 text 3.31 V
+							1300 cell
+								1301 text Vout Actual calculated based on selected voltage divider resistors
+						1302 row Vout Tolerance 3.35% Vout Tolerance based on IC Tolerance (no load) and voltage divider resistors if applicable
+							1303 cell
+								1304 text Vout Tolerance
+							1305 cell
+								1306 text 3.35%
+							1307 cell
+								1308 text Vout Tolerance based on IC Tolerance (no load) and voltage divider resistors if applicable
+						1309 row Vin 16.5 V Vin operating point
+							1310 cell
+								1311 text Vin
+							1312 cell
+								1313 text 16.5 V
+							1314 cell
+								1315 text Vin operating point
+						1316 row Iout 1 A Iout operating point
+							1317 cell
+								1318 text Iout
+							1319 cell
+								1320 text 1 A
+							1321 cell
+								1322 text Iout operating point
+						1323 row Total BOM NA Total BOM Cost
+							1324 cell
+								1325 text Total BOM
+							1326 cell
+								1327 text NA
+							1328 cell
+								1329 text Total BOM Cost
+						1330 row Total Pd 315.8 mW Total Power Dissipation
+							1331 cell
+								1332 text Total Pd
+							1333 cell
+								1334 text 315.8 mW
+							1335 cell
+								1336 text Total Power Dissipation
+						1337 row BOM Count 10 Total Design BOM count
+							1338 cell
+								1339 text BOM Count
+							1340 cell
+								1341 text 10
+							1342 cell
+								1343 text Total Design BOM count
+					1344 text Note: All above values are estimates. For more accurate values, please run electrical simulation.
+			127 image Texas Instruments
+			128 text © Copyright 1995-2026 Texas Instruments Incorporated. All rights reserved. |
+			129 link Description: Privacy Policy, Value: ti.com/corp/docs/legal/privacy.shtml
+			130 text |
+			131 link Description: Terms of Use, Value: ti.com/corp/docs/legal/termsofuse.shtml
+			132 text |
+			133 link Description: Important Notice, Value: ti.com/design-tools/disclaimer.html
+			134 text |
+			135 link Description: Send Feedback, Value: e2e.ti.com/webench
+
+The focused UI element is 1 AXWebArea Power Designer, URL: webench.ti.com/power-designer/switching-regulator/export/1
