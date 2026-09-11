@@ -1,0 +1,27 @@
+{
+  "admission_authorized": false,
+  "candidate_family": [],
+  "candidate_id": "split-board-feasibility-u1-admission",
+  "cause_class": "missing-authority",
+  "domain_results": {
+    "ct07": "stopped-indeterminate",
+    "iso": "rejected"
+  },
+  "evaluator_identity": "split-board-feasibility-admission-v1",
+  "geometry_admitted": false,
+  "joint_contract_digest": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f",
+  "partial_result": null,
+  "reasons": [
+    "admission.upstream_joint_not_eligible",
+    "combined.candidate_not_materialized",
+    "ct07.u8_handoff_missing",
+    "evidence.direct_captures_missing",
+    "evidence.rows_incomplete",
+    "iso.u7_approval_missing",
+    "signoffs.combined_matrix_missing"
+  ],
+  "schema_version": 1,
+  "scope": "admission",
+  "upstream_verdict": "stopped-indeterminate",
+  "verdict": "stopped-indeterminate"
+}

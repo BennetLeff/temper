@@ -1,0 +1,73 @@
+{
+  "schema_version": "temper-regional-topology-design-basis/v1",
+  "status": "authorized",
+  "author_role": "pcb-designer",
+  "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+  "topology_authority_digest": "98a1bce1bb615213c6de07df066fb50bc6f06b65bee68f1690c44fabdeb13c43",
+  "predecessor": {
+    "manifest_sha256": "3f817f26da0f075f9a0354d73e360676f51519ad10806955278ad45ad5c1e8a9",
+    "receipt_sha256": "b047399e59c9c3dc529b4445a000c30bc684c14958468864056927a16e1b8b0c",
+    "status": "stopped-indeterminate",
+    "placement_selector": "one row per predecessor_placement_id at east_shift_mm == 4.0",
+    "placement_count": 60,
+    "revalidated_count": 60
+  },
+  "geometry": {
+    "net_index": 41,
+    "net_name": "discharge.r_snub1-p2",
+    "layer": "In3.Cu",
+    "fixed_start": [112.0, 206.0],
+    "endpoint_y_mm": 252.5225,
+    "endpoint_x_mm": [122.64, 123.14, 123.64, 124.14],
+    "corridor_x_mm": [120.0, 120.5, 121.0, 121.5],
+    "entry_y_mm": [226.0, 230.0, 234.0],
+    "knee_y_mm": 250.0,
+    "route_width_mm": 0.5,
+    "via": {
+      "type": "blind",
+      "diameter_mm": 0.9,
+      "drill_mm": 0.3,
+      "span": ["In3.Cu", "F.Cu"]
+    },
+    "connector_access_direction": "top-edge vertical mating; unchanged",
+    "fixed_geometry_basis": "the replacement starts at the exact C7.1 pad, repairing the production predecessor's 12 mm open before entering corridor centerlines west of the four R14 endpoint alternatives"
+  },
+  "current_capacity": {
+    "width_mm": 0.5,
+    "copper_layer": "In3.Cu",
+    "via_diameter_mm": 0.9,
+    "via_drill_mm": 0.3,
+    "basis": "preserves the production route width and terminal blind-via geometry; no ampacity credit or reduction is introduced"
+  },
+  "fixed_copper_categories": ["all non-net-41 pads", "all non-net-41 tracks", "all non-net-41 vias", "all zones"],
+  "necessary_bound": {
+    "method": "Rust pad-to-capsule distance over every LV_CONTROL pad intersecting In3.Cu/all-copper for all 60 predecessor placements and all 12 corridor/portal templates at the admitted 122.64 mm endpoint column",
+    "placement_template_pairs": 720,
+    "selv_pads_per_placement": 19,
+    "minimum_straight_line_selv_gap_mm": 12.9,
+    "maximum_straight_line_selv_gap_mm": 15.4,
+    "required_clearance_mm": 6.0,
+    "required_creepage_mm": 12.6,
+    "potentially_feasible_pairs": 720,
+    "admitted_endpoint_x_mm": [122.64],
+    "unbounded_candidates_requiring_full_screening": 2160,
+    "closest_relationship": "J1.1 to the vertical corridor segment",
+    "interpretation": "A surface path cannot be shorter than its straight-line endpoint separation, so this necessary bound proves one complete 720-candidate endpoint column remains eligible and satisfies the plan's at-least-one-template admission rule. It does not claim the other 2,160 candidates pass this bound; every candidate requires the full scratch screen, and this is not a routed-board safety verdict."
+  },
+  "authority_roles": [
+    "clearance.hv_lv.project.target",
+    "creepage.hv_lv.pd3.production"
+  ],
+  "authorization": {
+    "scope": "bounded-scratch-screening-and-routing-only",
+    "fabrication_release": false,
+    "production_promotion": false,
+    "qualified_safety_approval": false
+  },
+  "limitations": [
+    "Current-edition IEC 60335-1 and IEC 60335-2-6 review remains required.",
+    "The bound is an admission test; every materialized survivor still requires complete SELV, mechanics, connectivity, containment, and KiCad DRC vetoes.",
+    "No enclosure, connector access, new via span, layer change, or manufacturing-slot authority is granted.",
+    "The production predecessor is disconnected at C7.1; this campaign replaces the full route from C7.1 and must prove connectivity before any promotion."
+  ]
+}

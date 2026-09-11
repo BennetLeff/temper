@@ -10,6 +10,8 @@ Covers:
 
 import hashlib
 import json
+import sys
+from pathlib import Path
 
 import pytest
 
@@ -19,6 +21,9 @@ try:
     HAS_RUST_ORACLE = True
 except ImportError:
     HAS_RUST_ORACLE = False
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "scripts"))
+from check_pyo3_duplicate_registration import run as run_pyo3_registration_gate  # noqa: E402
 
 
 def require_oracle():
@@ -33,6 +38,61 @@ def evaluate_quality(netlist, placement, spec, metrics):
 
 
 class TestOracleModule:
+    @staticmethod
+    def _corridor_evidence():
+        root = Path(__file__).resolve().parents[4]
+        evidence = root / "docs/evidence/net41-route-layer-corridor-20260831"
+        predecessor = root / "docs/evidence/r14-hv-domain-refloorplan-20260831"
+        return root, evidence, predecessor
+
+    def _validated_screen(self, *, mutate_evidence=None):
+        root, evidence, predecessor = self._corridor_evidence()
+        scripts_dir = root / "scripts"
+        if str(scripts_dir) not in sys.path:
+            sys.path.insert(0, str(scripts_dir))
+        import generate_kicad_dru
+
+        declaration = (evidence / "declaration.json").read_bytes()
+        manifest = (predecessor / "pre-route-manifest.json").read_bytes()
+        candidate_set = json.loads(
+            temper_quality_oracle.declare_corridor_candidates_from_evidence_json_py(
+                declaration, manifest
+            )
+        )
+        kwargs = {
+            "declaration_bytes": declaration,
+            "basis_bytes": (evidence / "design-basis.json").read_bytes(),
+            "board_bytes": (root / "pcb/temper.kicad_pcb").read_bytes(),
+            "predecessor_receipt_bytes": (predecessor / "terminal-receipt.json").read_bytes(),
+            "predecessor_manifest_bytes": manifest,
+            "domain_manifest_bytes": (root / "elec/domain_manifest.yaml").read_bytes(),
+            "netlist_bytes": (root / "elec/build/default.net").read_bytes(),
+            # The DRU is generated and gitignored, so a clean CI checkout has
+            # no pcb/temper.kicad_dru to read. Exercise the same SSOT output
+            # without making the integration test depend on local residue.
+            "kicad_dru_bytes": generate_kicad_dru.generate_dru().encode(),
+            "screening_request_json": json.dumps(
+                {
+                    "schema_version": "temper-regional-validated-screen-request/v4",
+                    "candidates": [
+                        {
+                            "candidate_id": row["candidate_id"],
+                            "minimum_clearance_mm": 6.0,
+                            "minimum_creepage_mm": 12.6,
+                            "route_length_mm": float(row["ordinal"]),
+                        }
+                        for row in candidate_set["candidates"]
+                    ],
+                    "route_budget": 12,
+                }
+            ),
+        }
+        if mutate_evidence is not None:
+            mutate_evidence(kwargs)
+        return json.loads(
+            temper_quality_oracle.validate_and_screen_corridor_evidence_json_py(**kwargs)
+        )
+
     def test_module_imports(self):
         require_oracle()
         assert callable(temper_quality_oracle.prepare_quality_py)
@@ -206,6 +266,64 @@ class TestOracleModule:
         ]
         with pytest.raises(ValueError, match="missing required evidence axis"):
             temper_quality_oracle.evaluate_isolation_qualification_json(json.dumps(missing))
+
+    @staticmethod
+    def _corridor_evidence():
+        root = Path(__file__).resolve().parents[4]
+        evidence = root / "docs/evidence/net41-route-layer-corridor-20260831"
+        predecessor = root / "docs/evidence/r14-hv-domain-refloorplan-20260831"
+        return root, evidence, predecessor
+
+    def _validated_screen(self, *, mutate_evidence=None):
+        root, evidence, predecessor = self._corridor_evidence()
+        declaration = (evidence / "declaration.json").read_bytes()
+        manifest = (predecessor / "pre-route-manifest.json").read_bytes()
+        candidate_set = json.loads(
+            temper_quality_oracle.declare_corridor_candidates_from_evidence_json_py(
+                declaration, manifest
+            )
+        )
+        kwargs = {
+            "declaration_bytes": declaration,
+            "basis_bytes": (evidence / "design-basis.json").read_bytes(),
+            "board_bytes": (root / "pcb/temper.kicad_pcb").read_bytes(),
+            "predecessor_receipt_bytes": (predecessor / "terminal-receipt.json").read_bytes(),
+            "predecessor_manifest_bytes": manifest,
+            "domain_manifest_bytes": (root / "elec/domain_manifest.yaml").read_bytes(),
+            "netlist_bytes": (root / "elec/build/default.net").read_bytes(),
+            "kicad_dru_bytes": (root / "pcb/temper.kicad_dru").read_bytes(),
+            "screening_request_json": json.dumps({
+                "schema_version": "temper-regional-validated-screen-request/v4",
+                "candidates": [
+                    {
+                        "candidate_id": row["candidate_id"],
+                        "minimum_clearance_mm": 6.0,
+                        "minimum_creepage_mm": 12.6,
+                        "route_length_mm": float(row["ordinal"]),
+                    }
+                    for row in candidate_set["candidates"]
+                ],
+                "route_budget": 12,
+            }),
+        }
+        if mutate_evidence is not None:
+            mutate_evidence(kwargs)
+        return json.loads(
+            temper_quality_oracle.validate_and_screen_corridor_evidence_json_py(**kwargs)
+        )
+
+    def test_corridor_screening_validates_raw_evidence_atomically(self):
+        require_oracle()
+        verdict = self._validated_screen()
+        assert verdict["schema_version"] == "temper-regional-validated-screen-verdict/v4"
+        assert verdict["evaluated_count"] == 2880
+        assert len(verdict["results"]) == 2880
+        assert len(verdict["clearance_creepage_prefilter_subset"]) == 2880
+
+    def test_free_form_corridor_authority_seams_are_absent(self):
+        require_oracle()
+        assert not hasattr(temper_quality_oracle, "declare_corridor_candidates_json_py")
+        assert not hasattr(temper_quality_oracle, "screen_declared_corridor_candidates_json_py")
 
 
 def _qualification_manifest():
@@ -640,3 +758,52 @@ class TestPrepareEvaluateSplit:
         result = temper_quality_oracle.evaluate_prepared_py(prepared, placement, bad_metrics)
         assert result["verdict"] == "Fail"
         assert any(v["type"] == "invalid_metric" for v in result["violations"])
+
+
+def test_split_board_admission_registration_is_unique():
+    require_oracle()
+    name = "evaluate_split_board_feasibility_json"
+    assert callable(getattr(temper_quality_oracle, name))
+    report = run_pyo3_registration_gate()
+    assert report.duplicates == {}
+    sites = [
+        site
+        for unit in report.units
+        if unit.crate == "temper-quality-oracle"
+        for site in unit.sites
+        if site.python_name == name
+    ]
+    assert len(sites) == 1
+    assert sites[0].rust_name == name
+
+
+def test_split_board_live_admission_stops_before_geometry():
+    require_oracle()
+    decision = {
+        "verdict": "stopped-indeterminate",
+        "domain_results": {"iso": "rejected", "ct07": "stopped-indeterminate"},
+        "reasons": ["upstream.missing-authority"],
+    }
+    decision_bytes = json.dumps(decision, separators=(",", ":")).encode()
+    contract_bytes = b"split-board-contract"
+    manifest_bytes = b"split-board-manifest"
+    package = {
+        "schema_version": 1,
+        "candidate_id": "split-board-u1",
+        "evaluator_identity": "split-board-feasibility-admission-v1",
+        "joint_contract_digest": hashlib.sha256(contract_bytes).hexdigest(),
+        "joint_contract_bytes": list(contract_bytes),
+        "upstream_manifest_digest": hashlib.sha256(manifest_bytes).hexdigest(),
+        "upstream_manifest_bytes": list(manifest_bytes),
+        "upstream_decision": decision,
+        "replayed_decision": decision,
+        "published_decision": decision,
+        "published_decision_bytes": list(decision_bytes),
+        "published_decision_digest": hashlib.sha256(decision_bytes).hexdigest(),
+        "candidate_family": {"members": [], "exhausted": False},
+    }
+    result = json.loads(
+        temper_quality_oracle.evaluate_split_board_feasibility_json(json.dumps(package))
+    )
+    assert result["verdict"] == "stopped-indeterminate"
+    assert result["geometry_admitted"] is False

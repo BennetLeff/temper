@@ -19,7 +19,7 @@ thiserror = "1"
 # only typed geometry into the shared pure-Rust distance kernels.  Both
 # dependencies have empty default features, so this does not add pyo3 to the
 # no-default-features/WASM tier.
-temper-design-bundle = { path = "../temper-design-bundle" }
+temper-design-bundle = { path = "../temper-design-bundle", default-features = false }
 temper-geometry = { path = "../temper-geometry" }
 
 [features]

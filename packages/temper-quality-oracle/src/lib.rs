@@ -24,6 +24,7 @@ pub mod derivation;
 pub mod ipc2221;
 pub mod owner_iso7741;
 pub mod owner_joint_candidate;
+pub mod split_board_feasibility;
 pub mod isolation_qualification;
 pub mod oracle;
 pub mod placement_metrics;
@@ -1035,6 +1036,17 @@ fn evaluate_isolation_joint_u9_json(package_json: &str) -> PyResult<String> {
     })
 }
 
+/// Evaluate the split-board admission lifecycle through the Rust-owned
+/// schema, identity, and fail-closed verdict kernel.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn evaluate_split_board_feasibility_json(package_json: &str) -> PyResult<String> {
+    temper_py_bridge::catch_panic(|| {
+        split_board_feasibility::evaluate_json(package_json)
+            .map_err(|error| PyValueError::new_err(error.to_string()))
+    })
+}
+
 /// Evaluate the ISO7741 gate-drive package through the Rust-owned kernel.
 /// Repository replay and publication remain in the sealed Python boundary.
 #[cfg(feature = "python")]
@@ -1094,6 +1106,58 @@ fn evaluate_ct07_u8_handoff_json(input_json: &str) -> PyResult<String> {
 }
 
 #[cfg(feature = "python")]
+#[pyfunction]
+fn declare_corridor_candidates_from_evidence_json_py(
+    declaration_bytes: &[u8],
+    predecessor_manifest_bytes: &[u8],
+) -> PyResult<String> {
+    fn decode(bytes: &[u8]) -> PyResult<&str> {
+        std::str::from_utf8(bytes).map_err(|error| PyValueError::new_err(error.to_string()))
+    }
+    let declaration = regional_feasibility::declare_corridor_candidates_from_evidence(
+        decode(declaration_bytes)?,
+        decode(predecessor_manifest_bytes)?,
+    )
+    .map_err(PyValueError::new_err)?;
+    serde_json::to_string(&declaration).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (*, declaration_bytes, basis_bytes, board_bytes, predecessor_receipt_bytes, predecessor_manifest_bytes, domain_manifest_bytes, netlist_bytes, kicad_dru_bytes, screening_request_json))]
+#[allow(clippy::too_many_arguments)] // one atomic seam intentionally owns all bound evidence
+fn validate_and_screen_corridor_evidence_json_py(
+    declaration_bytes: &[u8],
+    basis_bytes: &[u8],
+    board_bytes: &[u8],
+    predecessor_receipt_bytes: &[u8],
+    predecessor_manifest_bytes: &[u8],
+    domain_manifest_bytes: &[u8],
+    netlist_bytes: &[u8],
+    kicad_dru_bytes: &[u8],
+    screening_request_json: &str,
+) -> PyResult<String> {
+    fn decode(bytes: &[u8]) -> PyResult<&str> {
+        std::str::from_utf8(bytes).map_err(|error| PyValueError::new_err(error.to_string()))
+    }
+    let request = serde_json::from_str(screening_request_json)
+        .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    let evidence = regional_feasibility::CorridorEvidenceInputs {
+        declaration_json: decode(declaration_bytes)?,
+        basis_json: decode(basis_bytes)?,
+        board_text: decode(board_bytes)?,
+        predecessor_receipt_json: decode(predecessor_receipt_bytes)?,
+        predecessor_manifest_json: decode(predecessor_manifest_bytes)?,
+        domain_manifest_text: decode(domain_manifest_bytes)?,
+        netlist_text: decode(netlist_bytes)?,
+        kicad_dru_text: decode(kicad_dru_bytes)?,
+    };
+    let verdict = regional_feasibility::validate_and_screen_corridor_evidence(&evidence, request)
+        .map_err(PyValueError::new_err)?;
+    serde_json::to_string(&verdict).map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(prepare_quality_py, m)?)?;
@@ -1124,6 +1188,7 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(evaluate_isolation_joint_u9_json, m)?)?;
+    m.add_function(wrap_pyfunction!(evaluate_split_board_feasibility_json, m)?)?;
     m.add_function(wrap_pyfunction!(
         evaluate_iso7741_gate_drive_qualification_json,
         m
@@ -1132,6 +1197,14 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evaluate_ct07_u7_a_identity_json, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_ct07_u7_b_closure_json, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_ct07_u8_handoff_json, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        declare_corridor_candidates_from_evidence_json_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        validate_and_screen_corridor_evidence_json_py,
+        m
+    )?)?;
 
     cluster_f::bindings::register(m)?;
     Ok(())

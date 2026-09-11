@@ -310,7 +310,7 @@ pub enum Num {
 }
 
 impl Num {
-    fn as_f64(&self) -> f64 {
+    pub(crate) fn as_f64(&self) -> f64 {
         match self {
             Num::I(v) => *v as f64,
             Num::F(v) => *v,
@@ -601,12 +601,38 @@ pub enum RawGrItem {
     },
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum KeepoutSetting {
+    Allowed,
+    NotAllowed,
+}
+
+/// Typed keepout policy attached to a KiCad `(zone ... (keepout ...))`.
+/// KiCad serializes copper-pour exclusion under `copperpour`; callers may
+/// use `zones_setting()` as the semantic zones/pour alias without storing a
+/// second mutable value.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct RawKeepoutSettings {
+    pub tracks: Option<KeepoutSetting>,
+    pub vias: Option<KeepoutSetting>,
+    pub pads: Option<KeepoutSetting>,
+    pub copperpour: Option<KeepoutSetting>,
+    pub footprints: Option<KeepoutSetting>,
+}
+
+impl RawKeepoutSettings {
+    pub fn zones_setting(&self) -> Option<&KeepoutSetting> {
+        self.copperpour.as_ref()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct RawZone {
     pub name: Option<String>,
     pub net_name: Option<String>,
     pub layers: Vec<String>,
     pub polygons: Vec<Vec<RawPos>>,
+    pub keepout: Option<RawKeepoutSettings>,
 }
 
 #[derive(Clone, Debug)]
@@ -1049,11 +1075,106 @@ fn parse_gr_item(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawGrItem
     }
 }
 
+fn parse_keepout_setting(category: &str, item: &[KiNode], errors: &mut Vec<String>) -> Option<KeepoutSetting> {
+    if item.len() != 2 {
+        errors.push(format!("keepout setting '{category}' must have exactly two operands"));
+        return None;
+    }
+    match item.get(1) {
+        Some(KiNode::Atom(KiAtom::Bare(value))) | Some(KiNode::Atom(KiAtom::Str(value))) => match value.as_str() {
+            "allowed" => Some(KeepoutSetting::Allowed),
+            "not_allowed" => Some(KeepoutSetting::NotAllowed),
+            _ => {
+                errors.push(format!("unknown keepout setting '{category} {value}'"));
+                None
+            }
+        },
+        _ => {
+            errors.push(format!("keepout setting '{category}' must have exactly two operands"));
+            None
+        }
+    }
+}
+
+fn parse_keepout(items: &[KiNode], errors: &mut Vec<String>) -> RawKeepoutSettings {
+    let mut settings = RawKeepoutSettings::default();
+    for item in items.iter().skip(1) {
+        let KiNode::List(sub) = item else {
+            errors.push("keepout setting must be a list".to_string());
+            continue;
+        };
+        let Some(KiNode::Atom(KiAtom::Bare(category))) = sub.first() else {
+            errors.push("keepout setting must have a bare category".to_string());
+            continue;
+        };
+        let slot = match category.as_str() {
+            "tracks" => &mut settings.tracks,
+            "vias" => &mut settings.vias,
+            "pads" => &mut settings.pads,
+            "copperpour" => &mut settings.copperpour,
+            "footprints" => &mut settings.footprints,
+            _ => {
+                errors.push(format!("unknown keepout category '{category}'"));
+                continue;
+            }
+        };
+        if slot.is_some() {
+            errors.push(format!("duplicate keepout category '{category}'"));
+            continue;
+        }
+        *slot = parse_keepout_setting(category, sub, errors);
+    }
+    settings
+}
+
+fn parse_keepout_polygon(items: &[KiNode], errors: &mut Vec<String>) -> Option<Vec<RawPos>> {
+    let mut coords = Vec::new();
+    for child in items.iter().skip(1) {
+        let KiNode::List(pts) = child else {
+            errors.push("keepout polygon contains an unsupported primitive".to_string());
+            continue;
+        };
+        let Some(KiNode::Atom(KiAtom::Bare(head))) = pts.first() else {
+            errors.push("keepout polygon contains an unsupported primitive".to_string());
+            continue;
+        };
+        if head != "pts" {
+            errors.push(format!("unsupported keepout polygon primitive '{head}'"));
+            continue;
+        }
+        for point in pts.iter().skip(1) {
+            let KiNode::List(xy) = point else {
+                errors.push("keepout polygon point must be an xy list".to_string());
+                continue;
+            };
+            if !matches!(xy.first(), Some(KiNode::Atom(KiAtom::Bare(head))) if head == "xy") {
+                errors.push("keepout polygon point must be an xy list".to_string());
+                continue;
+            }
+            if let Some(pos) = parse_pos(xy, errors) {
+                coords.push(pos);
+            }
+        }
+    }
+    if coords.is_empty() {
+        errors.push("keepout polygon has no points".to_string());
+        None
+    } else {
+        Some(coords)
+    }
+}
+
 fn parse_zone(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawZone> {
     let mut name = None;
     let mut net_name = None;
     let mut layers: Vec<String> = Vec::new();
     let mut polygons: Vec<Vec<RawPos>> = Vec::new();
+    let keepout_count = items.iter().filter(|item| matches!(item, KiNode::List(sub) if matches!(sub.first(), Some(KiNode::Atom(KiAtom::Bare(head))) if head == "keepout"))).count();
+    let is_keepout = keepout_count > 0;
+    let mut keepout = None;
+    if keepout_count > 1 {
+        errors.push("duplicate keepout block".to_string());
+    }
     for item in &items[1..] {
         let KiNode::List(sub) = item else { continue };
         let head = match sub.first() {
@@ -1081,6 +1202,12 @@ fn parse_zone(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawZone> {
                 }
             }
             "polygon" => {
+                if is_keepout {
+                    if let Some(coords) = parse_keepout_polygon(sub, errors) {
+                        polygons.push(coords);
+                    }
+                    continue;
+                }
                 let mut coords: Vec<RawPos> = Vec::new();
                 for child in sub.iter().skip(1) {
                     if let KiNode::List(ptsub) = child
@@ -1096,10 +1223,29 @@ fn parse_zone(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawZone> {
                 }
                 polygons.push(coords);
             }
+            "keepout" => {
+                keepout = Some(parse_keepout(sub, errors));
+            }
+            head if is_keepout && matches!(head, "arc" | "circle" | "curve" | "segment" | "gr_arc" | "gr_circle" | "gr_curve" | "gr_line" | "gr_poly" | "filled_polygon") => {
+                errors.push(format!("unsupported keepout zone primitive '{head}'"));
+            }
             _ => {}
         }
     }
-    Some(RawZone { name, net_name, layers, polygons })
+    if let Some(settings) = &keepout {
+        for (category, value) in [
+            ("tracks", &settings.tracks),
+            ("vias", &settings.vias),
+            ("pads", &settings.pads),
+            ("copperpour", &settings.copperpour),
+            ("footprints", &settings.footprints),
+        ] {
+            if value.is_none() {
+                errors.push(format!("missing keepout category '{category}'"));
+            }
+        }
+    }
+    Some(RawZone { name, net_name, layers, polygons, keepout })
 }
 
 fn parse_stackup_layer(items: &[KiNode]) -> Option<RawStackupLayer> {
@@ -3995,6 +4141,92 @@ pub(crate) mod tests {
         RawPos { x: Num::F(x), y: Num::F(y), angle: None, unlocked: false }
     }
 
+    fn keepout_zone_doc(keepout: &str, extra: &str) -> String {
+        format!(
+            r#"(kicad_pcb (version 20240108) (generator pcbnew)
+              (zone (net 0) (net_name "") (layer "F.Cu")
+                (polygon (pts (xy 0 0) (xy 10 0) (xy 10 10) (xy 0 10)))
+                {keepout} {extra}))"#
+        )
+    }
+
+    fn complete_keepout() -> &'static str {
+        "(keepout (tracks not_allowed) (vias allowed) (pads not_allowed) (copperpour not_allowed) (footprints allowed))"
+    }
+
+    #[cfg_attr(test, test)]
+    fn keepout_zone_settings_are_typed_and_retained() {
+        let raw = parse_kicad_document(&keepout_zone_doc(complete_keepout(), "")).expect("valid keepout zone");
+        let settings = raw.zones[0].keepout.as_ref().expect("keepout settings");
+        assert_eq!(settings.tracks, Some(KeepoutSetting::NotAllowed));
+        assert_eq!(settings.vias, Some(KeepoutSetting::Allowed));
+        assert_eq!(settings.pads, Some(KeepoutSetting::NotAllowed));
+        assert_eq!(settings.copperpour, Some(KeepoutSetting::NotAllowed));
+        assert_eq!(settings.footprints, Some(KeepoutSetting::Allowed));
+        assert_eq!(settings.zones_setting(), Some(&KeepoutSetting::NotAllowed));
+    }
+
+    #[cfg_attr(test, test)]
+    fn ordinary_zone_retains_legacy_permissiveness() {
+        let doc = keepout_zone_doc("", "(arc (start 0 0) (mid 2 2) (end 4 0))");
+        let raw = parse_kicad_document(&doc).expect("ordinary zones retain legacy permissiveness");
+        assert!(raw.zones[0].keepout.is_none());
+    }
+
+    #[cfg_attr(test, test)]
+    fn unsupported_keepout_zone_primitive_fails_explicitly() {
+        let error = parse_kicad_document(&keepout_zone_doc(complete_keepout(), "(arc (start 0 0) (mid 2 2) (end 4 0))"))
+            .expect_err("keepout primitive must fail closed");
+        assert!(error.contains("unsupported keepout zone primitive 'arc'"), "{error}");
+    }
+
+    #[cfg_attr(test, test)]
+    fn unknown_keepout_setting_fails_explicitly() {
+        let error = parse_kicad_document(&keepout_zone_doc(
+            "(keepout (tracks forbidden) (vias allowed) (pads not_allowed) (copperpour not_allowed) (footprints allowed))",
+            "",
+        ))
+        .expect_err("unknown keepout setting must fail closed");
+        assert!(error.contains("unknown keepout setting 'tracks forbidden'"), "{error}");
+    }
+
+    #[cfg_attr(test, test)]
+    fn keepout_requires_each_category_exactly_once() {
+        let missing = keepout_zone_doc(
+            "(keepout (tracks not_allowed) (vias allowed) (pads not_allowed) (copperpour not_allowed))",
+            "",
+        );
+        let error = parse_kicad_document(&missing).expect_err("missing keepout category must fail closed");
+        assert!(error.contains("missing keepout category 'footprints'"), "{error}");
+
+        let duplicate = keepout_zone_doc(
+            "(keepout (tracks not_allowed) (tracks allowed) (vias allowed) (pads not_allowed) (copperpour not_allowed) (footprints allowed))",
+            "",
+        );
+        let error = parse_kicad_document(&duplicate).expect_err("duplicate keepout category must fail closed");
+        assert!(error.contains("duplicate keepout category 'tracks'"), "{error}");
+    }
+
+    #[cfg_attr(test, test)]
+    fn keepout_setting_rejects_trailing_operands() {
+        let doc = keepout_zone_doc(
+            "(keepout (tracks not_allowed extra) (vias allowed) (pads not_allowed) (copperpour not_allowed) (footprints allowed))",
+            "",
+        );
+        let error = parse_kicad_document(&doc).expect_err("trailing setting operand must fail closed");
+        assert!(error.contains("keepout setting 'tracks' must have exactly two operands"), "{error}");
+    }
+
+    #[cfg_attr(test, test)]
+    fn keepout_rejects_duplicate_blocks() {
+        let doc = keepout_zone_doc(
+            "(keepout (tracks not_allowed) (vias allowed) (pads not_allowed) (copperpour not_allowed) (footprints allowed)) (keepout (tracks not_allowed) (vias allowed) (pads not_allowed) (copperpour not_allowed) (footprints allowed))",
+            "",
+        );
+        let error = parse_kicad_document(&doc).expect_err("duplicate keepout block must fail closed");
+        assert!(error.contains("duplicate keepout block"), "{error}");
+    }
+
     /// Regression for the bug this module was built to fix: a footprint
     /// whose ONLY graphic item is an `fp_circle` must produce bounds that
     /// cover that circle, not the `(2.0, 2.0)` empty-footprint fallback.
@@ -4156,6 +4388,13 @@ pub(crate) mod tests {
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("parse_engine::tests::decimal_integral_token_is_int", decimal_integral_token_is_int),
         ("parse_engine::tests::extract_nets_pure_keeps_single_pad_nets", extract_nets_pure_keeps_single_pad_nets),
+        ("parse_engine::tests::keepout_zone_settings_are_typed_and_retained", keepout_zone_settings_are_typed_and_retained),
+        ("parse_engine::tests::ordinary_zone_retains_legacy_permissiveness", ordinary_zone_retains_legacy_permissiveness),
+        ("parse_engine::tests::unsupported_keepout_zone_primitive_fails_explicitly", unsupported_keepout_zone_primitive_fails_explicitly),
+        ("parse_engine::tests::unknown_keepout_setting_fails_explicitly", unknown_keepout_setting_fails_explicitly),
+        ("parse_engine::tests::keepout_requires_each_category_exactly_once", keepout_requires_each_category_exactly_once),
+        ("parse_engine::tests::keepout_setting_rejects_trailing_operands", keepout_setting_rejects_trailing_operands),
+        ("parse_engine::tests::keepout_rejects_duplicate_blocks", keepout_rejects_duplicate_blocks),
         ("parse_engine::tests::circle_only_courtyard_produces_circle_bounds", circle_only_courtyard_produces_circle_bounds),
         ("parse_engine::tests::real_cp_radial_d35_courtyard_matches_kicad_diameter", real_cp_radial_d35_courtyard_matches_kicad_diameter),
         ("parse_engine::tests::poly_only_fab_outline_produces_poly_bounds", poly_only_fab_outline_produces_poly_bounds),

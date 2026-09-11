@@ -277,9 +277,12 @@ from __future__ import annotations
 
 import argparse
 import ast
+import json
 import re
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from hashlib import sha256
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -502,6 +505,7 @@ class Report:
     files_scanned: int = 0
     parse_errors: list[tuple[str, str]] = field(default_factory=list)
     declarations: list[Declaration] = field(default_factory=list)
+    role_resolutions: dict[tuple[str, str], dict[str, object]] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -1362,6 +1366,160 @@ def _check_accepted_drift(families: list[FamilyResult]) -> None:
             )
 
 
+def _resolve_reinforced_clearance_authority(
+    family: FamilyResult,
+    *,
+    contract_json: str | None = None,
+    evaluator: Callable[[str], str] | None = None,
+) -> dict[str, object]:
+    """Ask Rust to adjudicate the closed production clearance family.
+
+    Python owns only discovery and defensive transport checks. The mapping,
+    roles, compatibility matrix, current values, and review status all come
+    from ``temper-design-bundle``.
+    """
+
+    try:
+        if (contract_json is None) != (evaluator is None):
+            raise GateError(
+                "Rust isolation authority transport must provide both contract_json "
+                "and evaluator, or neither"
+            )
+        if contract_json is None:
+            import temper_design_bundle_python as rust_authority
+
+            contract_json = rust_authority.isolation_authority_contract_json_py()
+            evaluator = rust_authority.evaluate_isolation_authority_json_py
+    except (ImportError, AttributeError) as exc:
+        raise GateError(
+            "Rust isolation authority is unavailable; rebuild extensions and rerun "
+            f"the gate ({exc})"
+        ) from exc
+
+    try:
+        contract = json.loads(contract_json)
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise GateError(f"Rust isolation contract returned invalid JSON: {exc}") from exc
+    if not isinstance(contract, dict):
+        raise GateError("Rust isolation contract must be a JSON object")
+    contract_schema = contract.get("schema_version")
+    contract_digest = contract.get("contract_digest")
+    topology_digest = contract.get("topology_authority_digest")
+    if contract_schema != "temper-isolation-authority/v1":
+        raise GateError(f"unsupported Rust isolation contract schema: {contract_schema!r}")
+    for name, digest in (
+        ("contract_digest", contract_digest),
+        ("topology_authority_digest", topology_digest),
+    ):
+        if not isinstance(digest, str) or len(digest) != 64:
+            raise GateError(f"Rust isolation contract has invalid {name}")
+    projections = contract.get("projections")
+    rows = contract.get("rows")
+    if not isinstance(projections, list) or not isinstance(rows, list):
+        raise GateError("Rust isolation contract omitted rows or projections")
+    try:
+        authority_by_key = {str(row["key"]): row for row in rows}
+        projection_by_identity = {
+            (str(row["file"]), str(row["name"])): row for row in projections
+        }
+    except (KeyError, TypeError) as exc:
+        raise GateError("Rust isolation contract contains malformed authority rows") from exc
+    if len(authority_by_key) != len(rows) or len(projection_by_identity) != len(projections):
+        raise GateError("Rust isolation contract contains duplicate row identities")
+
+    request_json = json.dumps(
+        {
+            "schema_version": "temper-isolation-discovery/v1",
+            "rows": [
+                {"file": row.file, "name": row.name, "value_mm": row.value_mm}
+                for row in family.members
+            ],
+        },
+        sort_keys=True,
+        allow_nan=False,
+    )
+    try:
+        verdict = json.loads(evaluator(request_json))
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise GateError(f"Rust role-aware isolation evaluation failed: {exc}") from exc
+    if not isinstance(verdict, dict):
+        raise GateError("Rust isolation verdict must be a JSON object")
+    if verdict.get("schema_version") != "temper-isolation-verdict/v1":
+        raise GateError(f"unsupported Rust isolation verdict schema: {verdict.get('schema_version')!r}")
+    if verdict.get("contract_schema_version") != contract_schema:
+        raise GateError("Rust isolation verdict contract schema does not match the accessor")
+    if verdict.get("contract_digest") != contract_digest:
+        raise GateError("Rust isolation verdict contract digest does not match the accessor")
+    if verdict.get("topology_authority_digest") != topology_digest:
+        raise GateError("Rust isolation verdict topology digest does not match the accessor")
+
+    canonical_request = verdict.get("canonical_request_json")
+    request_digest = verdict.get("request_digest")
+    if not isinstance(canonical_request, str) or not isinstance(request_digest, str):
+        raise GateError("Rust isolation verdict omitted canonical request identity")
+    if sha256(canonical_request.encode()).hexdigest() != request_digest:
+        raise GateError("Rust isolation verdict request digest does not match canonical request bytes")
+    if verdict.get("role_resolved") is not True:
+        raise GateError("Rust isolation verdict did not role-resolve the governed family")
+
+    results = verdict.get("results")
+    if not isinstance(results, list):
+        raise GateError("Rust isolation verdict results must be a list")
+    expected_identities = {(row.file, row.name) for row in family.members}
+    try:
+        result_identities = {(str(row["file"]), str(row["name"])) for row in results}
+    except (KeyError, TypeError) as exc:
+        raise GateError("Rust isolation verdict contains malformed result identities") from exc
+    if result_identities != expected_identities or len(results) != len(expected_identities):
+        raise GateError("Rust isolation verdict lost, added, or duplicated a discovered projection")
+    for result in results:
+        identity = (str(result["file"]), str(result["name"]))
+        projection = projection_by_identity.get(identity)
+        if not isinstance(projection, dict):
+            raise GateError(f"Rust isolation verdict returned unmapped projection {identity!r}")
+        authority = authority_by_key.get(str(projection.get("authority_key")))
+        if not isinstance(authority, dict):
+            raise GateError(f"Rust isolation contract lost authority for {identity!r}")
+        expected_relation = (
+            "at_or_above_applicable_minimum"
+            if authority.get("applicable_minimum_key") is not None
+            else "exact_authority_value"
+        )
+        expected = {
+            "authority_key": projection.get("authority_key"),
+            "role": authority.get("role"),
+            "value_mm": projection.get("value_mm"),
+            "relation": expected_relation,
+            "source": authority.get("source"),
+            "review_status": authority.get("review_status"),
+        }
+        for key, value in expected.items():
+            if result.get(key) != value:
+                raise GateError(
+                    f"Rust isolation verdict changed {key} for {identity!r}: "
+                    f"{result.get(key)!r} != {value!r}"
+                )
+        if not isinstance(result.get("source"), str) or not result["source"].strip():
+            raise GateError(f"Rust isolation verdict omitted source for {identity!r}")
+        if result.get("review_status") != "current_edition_review_required":
+            raise GateError(f"Rust isolation verdict hid review-required status for {identity!r}")
+    review_required = verdict.get("review_required")
+    if not isinstance(review_required, list) or not review_required:
+        raise GateError("Rust isolation verdict hid the required current-edition review marker")
+    return verdict
+
+
+def _is_production_authority_tree(repo_root: Path) -> bool:
+    return all(
+        (repo_root / relative).is_file()
+        for relative in (
+            "pcb/temper.kicad_pcb",
+            "elec/src/constraints.ato",
+            "packages/temper-placer/configs/netclass_rules.yaml",
+        )
+    )
+
+
 # ---------------------------------------------------------------------------
 # Orchestration
 # ---------------------------------------------------------------------------
@@ -1401,11 +1559,29 @@ def run(
     # reviewed set -- see ACCEPTED_DRIFT/_check_accepted_drift.
     _check_accepted_drift(families)
 
+    if _is_production_authority_tree(repo_root):
+        governed_family = next(
+            (
+                family
+                for family in families
+                if (family.metric, family.tier) == ("clearance", "reinforced")
+            ),
+            None,
+        )
+        if governed_family is None:
+            raise GateError("production reinforced-clearance family was not discovered")
+        report.role_resolutions[("clearance", "reinforced")] = (
+            _resolve_reinforced_clearance_authority(governed_family)
+        )
+
     state = "clean"
     if report.parse_errors:
         state = "violation"
     for fam in families:
-        if not fam.is_consistent and (fam.metric, fam.tier) not in ACCEPTED_DRIFT:
+        if not fam.is_consistent and (
+            (fam.metric, fam.tier) not in ACCEPTED_DRIFT
+            and (fam.metric, fam.tier) not in report.role_resolutions
+        ):
             state = "violation"
 
     return state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced
@@ -1443,8 +1619,11 @@ def _print_report(
     print(f"\n=== FAMILIES: {len(families)} ===")
     violations = 0
     for fam in families:
+        role_resolution = report.role_resolutions.get((fam.metric, fam.tier))
         accepted = (fam.metric, fam.tier) in ACCEPTED_DRIFT
-        if not fam.is_consistent:
+        if role_resolution is not None:
+            tag = f"ROLE-RESOLVED ({len(role_resolution['results'])} governed projections)"
+        elif not fam.is_consistent:
             if accepted:
                 entry = ACCEPTED_DRIFT[(fam.metric, fam.tier)]
                 tag = f"MISMATCH (ACCEPTED, documented drift -- {entry.justification})"
@@ -1458,6 +1637,18 @@ def _print_report(
             print(f"    {value}mm:")
             for m in members:
                 print(f"      {m.site}")
+        if role_resolution is not None:
+            for result in role_resolution["results"]:
+                print(
+                    "    ROLE: "
+                    f"{result['file']} ({result['name']}) = {result['value_mm']}mm; "
+                    f"role={result.get('role')}; relation={result.get('relation')}; "
+                    f"source={result.get('source')}"
+                )
+            print(
+                "    REVIEW REQUIRED: "
+                + ", ".join(str(key) for key in role_resolution["review_required"])
+            )
 
     if flagged:
         print(f"\n=== FLAGGED (needs human classification): {len(flagged)} ===")
@@ -1500,7 +1691,7 @@ def _print_report(
         msg = (
             f"PASSED -- {len(report.declarations)} declaration(s) discovered across "
             f"{report.files_scanned} file(s); {len(families)} comparable famil(y/ies), "
-            f"0 mismatched. {len(flagged)} flagged for human classification, "
+            f"0 unresolved mismatched. {len(flagged)} flagged for human classification, "
             f"{len(unresolved)} unresolved, {len(known_blind_spots)} known blind spot(s), "
             f"{len(declared_not_enforced)} declared-but-not-enforced candidate(s)."
         )

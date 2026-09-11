@@ -25,11 +25,20 @@ A board-layout process that partitions voltage domains and reserves their
 isolation corridors before individual component placement and routing are
 optimized.
 
+### Power-board SELV edge strip
+
+The sole SELV region permitted on Temper's high-voltage power board, placed along a board edge and separated from the HV region by one continuous isolation barrier.
+It contains only the SELV-side terminals of approved isolation constructions, local SELV rail generation and signal conditioning, and the SELV-only control-board interface.
+
 ### Safety signature
 
 A documentation-and-evidence identity for one clearance or creepage finding,
 including the involved components, metric, insulation boundary, and pair kind,
 used as a set so resolving one hazard cannot hide the introduction of another.
+
+### Isolation authority role
+
+The purpose and decision weight of one clearance or creepage value, such as a scoped standards derivation, a project design floor, a fabrication constraint, or a governing production requirement. Values with different roles are not interchangeable merely because they share a metric or insulation-tier label.
 
 ### DRC ceiling
 
@@ -43,6 +52,11 @@ A predeclared staged family of scratch placement variants, with routing only
 for candidates that survive earlier vetoes, evaluated against the applicable
 independent safety, connectivity, mechanical, and DRC gates before any
 production-board change is allowed.
+
+A candidate inherits only the authority of the stage it passed. In particular,
+a clearance/creepage prefilter result is neither route-ready nor a complete
+hard-veto survivor; those labels require the later materialized connectivity,
+mechanical, containment, safety-signature, and DRC verdicts.
 
 Its reported denominator includes only candidates produced by a validated
 family and authoritative measurement instruments; a calibration run that uses

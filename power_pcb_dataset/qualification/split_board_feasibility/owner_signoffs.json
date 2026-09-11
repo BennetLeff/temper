@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "campaign": "split-board-interface-feasibility",
+  "candidate_id": "split-board-feasibility-u1-admission",
+  "status": "not-required-after-prior-stop",
+  "decision_scope": "admission",
+  "production_authorized": false,
+  "construction_envelope_digest": null,
+  "signed_scope_digest": null,
+  "signature_artifacts": [],
+  "signoffs": [],
+  "axis_statuses": [
+    {"axis": "admission.identity_and_limitations", "status": "reached-no-signoff-required", "reason": "U1 stopped before a candidate construction existed."},
+    {"axis": "crossing_inventory_and_domains", "status": "not-reached", "reason": "U2 was not reached."},
+    {"axis": "bulk_power_shutdown_and_fault", "status": "not-reached", "reason": "U3 was not reached."},
+    {"axis": "pwm_analog_and_return_integrity", "status": "not-reached", "reason": "U3 was not reached."},
+    {"axis": "connector_mating_and_sourcing", "status": "not-reached", "reason": "U4 was not reached."},
+    {"axis": "topology_geometry_route_capacity_and_drc", "status": "not-reached", "reason": "U6 was not reached."},
+    {"axis": "aggregate_fit_service_loop_and_thermal_reserves", "status": "not-reached", "reason": "U6 was not reached."},
+    {"axis": "terminal_verdict_reproducibility", "status": "reached-no-signoff-required", "reason": "U7 records the U1 early terminal stop."}
+  ],
+  "required_role_matrix": [
+    {
+      "axis": "admission.identity_and_limitations",
+      "owner_role": "split.qualification_integration",
+      "independent_verifier_role": "split.verification_qualification"
+    },
+    {
+      "axis": "crossing_inventory_and_domains",
+      "owner_role": "split.system_architecture",
+      "independent_verifier_role": "split.verification_safety"
+    },
+    {
+      "axis": "bulk_power_shutdown_and_fault",
+      "owner_role": "split.electrical_power_protection",
+      "independent_verifier_role": "split.verification_electrical"
+    },
+    {
+      "axis": "pwm_analog_and_return_integrity",
+      "owner_role": "split.electrical_signal_integrity",
+      "independent_verifier_role": "split.verification_electrical"
+    },
+    {
+      "axis": "connector_mating_and_sourcing",
+      "owner_role": "split.connector_mechanical_sourcing",
+      "independent_verifier_role": "split.verification_mechanical_sourcing"
+    },
+    {
+      "axis": "topology_geometry_route_capacity_and_drc",
+      "owner_role": "split.pcb_safety_layout",
+      "independent_verifier_role": "split.verification_pcb_safety"
+    },
+    {
+      "axis": "aggregate_fit_service_loop_and_thermal_reserves",
+      "owner_role": "split.mechanical_thermal_integration",
+      "independent_verifier_role": "split.verification_mechanical"
+    },
+    {
+      "axis": "terminal_verdict_reproducibility",
+      "owner_role": "split.qualification_integration",
+      "independent_verifier_role": "split.verification_qualification"
+    }
+  ],
+  "bindings": {
+    "admission_decision": {
+      "path": "power_pcb_dataset/qualification/split_board_feasibility/admission_decision.json",
+      "sha256": "f5c55a33fad9d03287847b7cd2a74135f9bcc569c85d006bdc0d07425944e1af"
+    },
+    "manifest": {
+      "path": "power_pcb_dataset/qualification/split_board_feasibility/manifest.json",
+      "sha256": "7cf4540bf0bd4f35f21a79f059cf3798f18fdca4f01edf6691c44ed6aee6ac32"
+    },
+    "upstream_joint_decision": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/decision.json",
+      "sha256": "05de8d00f4fb1a33c4c49048b3bb82ed2c749c2496e6c6da8318203c5f03501c"
+    },
+    "upstream_joint_contract": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/contract.json",
+      "sha256": "68c5762c584d5abb1728e45fb34bfa22f23dc110b47b3f5fd79ee898f2f73f1f"
+    },
+    "upstream_joint_manifest": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/manifest.json",
+      "sha256": "107fec540404057fd0f4bdf7dc8edab9c593fe33a504f3dc0b372358e3de13df"
+    },
+    "upstream_combined_candidate": {
+      "path": "power_pcb_dataset/qualification/isolation_joint/combined_candidate.json",
+      "sha256": "afd893ffb812ae0f1803f8d2ab95e0b1e4ef0e636b1535f072fd9234be0ea9ff"
+    }
+  },
+  "blocking_reason": "U1 stopped at admission. No downstream axis reached a signer, so no human identity, signature bytes, evidence digest, or approval is present."
+}

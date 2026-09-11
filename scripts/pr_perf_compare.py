@@ -151,7 +151,9 @@ NOISE_HEADROOM = 2.0
 MIN_SEPARATION = 1.5
 MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 
-# Derived by the procedure above from the committed baseline. Only entries that
+# Derived by the procedure above from the committed baseline. Capture manifest
+# hashes identify the extracted payload bytes, not the enclosing artifact ZIP.
+# Only entries that
 # differ from TIMING_MARGIN are listed; everything else uses the 20% default.
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
     # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.8 -> 22%
