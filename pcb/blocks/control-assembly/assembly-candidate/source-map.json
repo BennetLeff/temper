@@ -68,13 +68,13 @@
     },
     "mcu.btn_boot": {
       "block": "mcu",
-      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "footprint": "Button_Switch_SMD:SW_SPST_EVQP7A",
       "packaged_ref": "SW2",
       "reference": "SW2"
     },
     "mcu.btn_reset": {
       "block": "mcu",
-      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "footprint": "Button_Switch_SMD:SW_SPST_EVQP7A",
       "packaged_ref": "SW1",
       "reference": "SW1"
     },

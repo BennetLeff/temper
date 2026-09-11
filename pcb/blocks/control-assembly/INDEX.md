@@ -17,6 +17,7 @@ open integration debt (see below). Human-readable entry point:
 | Source-path identity map | `assembly-candidate/source-map.json` | `control-assembly.source-map.v1` |
 | Layer map | `assembly-candidate/layer-map.json` | `control-assembly.layer-map.v1` |
 | Via recreation | `assembly-candidate/via-recreation.json` | `control-assembly.via-recreation.v1` |
+| Library provenance | `assembly-candidate/library-provenance.json` | `control-assembly.library-provenance.v1` |
 | Prototype exclusion | `assembly-candidate/prototype-exclusion.json` | `control-assembly.prototype-exclusion.v1` |
 | Replacement ledger | `assembly-candidate/replacement-ledger.json` | (U1 ledger + after identities) |
 | Owned-region guard | `assembly-candidate/owned-region-guard.json` | (U1 envelopes) |
@@ -60,15 +61,25 @@ Sets are compared, never counts, and each view is sampled 3x with the
 intersection used (kicad-cli is nondeterministic run-to-run).
 
 - **Local section** — DRC (all-track-errors + schematic-parity +
-  all-severity): baseline 126 -> routed 113, **introduced 0**, resolved 13,
-  persistent 113. ERC 55 -> 55, introduced 0 (0 errors). Schematic parity
-  98 -> 98 (persistent). Unconnected 20 -> 7.
-- **Scratch full-board overlay** — base copy 599 -> overlay 798, **introduced
-  313**, resolved 114, persistent 485. The section is not overlay-clean: the
-  board-wide F.Cu `gnd` pour shorts against production copper (`shorting_items`
-  99, `clearance` 44, etc.). Outside-region geometry is exact; 10 production
-  tracks are re-netted by KiCad load/save propagation (recorded). This is an
-  open blocker, not suppressed. Cross-view comparison: 0 mismatches.
+  all-severity): baseline 39 -> routed 26, **introduced 0**, resolved 13,
+  persistent 26. ERC 89 -> 89, introduced 0 (0 errors). **Schematic parity
+  0 -> 0** (the flat strict-candidate schematic + BOM-sourced board `Value`
+  removed all 98). Unconnected 23 -> 9 (the residual 9 are MCU-local
+  `en`/`io0`/`scl`/`sda` signals, outside the shared supply/return scope).
+- **Scratch full-board overlay** — base copy 599 -> overlay 808, **introduced
+  323**, resolved 114, persistent 485. The section is not overlay-clean: the
+  introduced set is dominated by section-placement conflicts with production
+  copper still inside the owned regions (`shorting_items` 103,
+  `solder_mask_bridge` 50, `clearance` 44, `hole_clearance` 24,
+  `track_dangling` 21, `tracks_crossing` 19, `courtyards_overlap` 19), not by
+  the section's ground pour. Outside-region geometry is exact. Production
+  track nets silently re-propagated by the KiCad refill are **re-asserted by
+  name** after refill (10 tracks; `net_reassigned` 0). Clipping the section
+  pour to the owned envelopes was implemented and measured: it breaks the
+  cross-view endpoint comparison and *raises* introduced findings, so the
+  pour is retained (recorded decision, not an omission). This is an open
+  blocker, kept visible. Cross-view comparison: 0 mismatches; ground
+  continuity across the boundary measured (gnd islands 40 -> 7).
 
 `power_width`: the +3V3 (`buck-vcc-1`) net was widened to 0.6 mm (0
 introduced findings); 8 inherited `fb`/`boot` 0.3 mm prototype segments are

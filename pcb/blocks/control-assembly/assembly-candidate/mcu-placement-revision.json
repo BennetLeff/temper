@@ -54,32 +54,6 @@
     },
     {
       "from_mm": [
-        45.5,
-        31.0
-      ],
-      "instance_path": "mcu.btn_reset",
-      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
-      "reference": "SW1",
-      "to_mm": [
-        45.5,
-        35.0
-      ]
-    },
-    {
-      "from_mm": [
-        49.0,
-        31.0
-      ],
-      "instance_path": "mcu.btn_boot",
-      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
-      "reference": "SW2",
-      "to_mm": [
-        49.0,
-        35.0
-      ]
-    },
-    {
-      "from_mm": [
         38.5,
         31.0
       ],
@@ -114,6 +88,32 @@
       "reference": "C7",
       "to_mm": [
         24.5,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        45.5,
+        31.0
+      ],
+      "instance_path": "mcu.btn_reset",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "SW1",
+      "to_mm": [
+        45.5,
+        35.0
+      ]
+    },
+    {
+      "from_mm": [
+        49.0,
+        31.0
+      ],
+      "instance_path": "mcu.btn_boot",
+      "reason": "delivered neutral staging overlaps the assumed antenna keepout",
+      "reference": "SW2",
+      "to_mm": [
+        49.0,
         35.0
       ]
     }

@@ -24,6 +24,8 @@ ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent
 sys.path.insert(0, str(ROOT))
 
+import block_source  # noqa: E402
+import compose_assembly  # noqa: E402
 import compose_blocks  # noqa: E402
 from compose_blocks import CompositionError  # noqa: E402
 
@@ -416,6 +418,101 @@ class StagingReadiness(unittest.TestCase):
         self.assertEqual(len(contract["source_identity"]["functional_refs"]), 10)
         self.assertEqual(contract["source_identity"]["instance_path_prefix"], "mcu.")
         self.assertIn("source-manifest.json", contract["package"]["required_files"])
+
+
+class PrototypeFootprintVendoring(unittest.TestCase):
+    """P1 vendorer falls back to the buck prototype library, honestly."""
+
+    def test_stock_footprint_resolves_from_kicad_stock(self) -> None:
+        source, origin = block_source._stock_footprint_source(
+            "Button_Switch_SMD:SW_SPST_EVQP7A", REPO
+        )
+        self.assertTrue(source.is_file())
+        self.assertTrue(origin.startswith("kicad-stock:"))
+
+    def test_prototype_only_footprint_falls_back_with_real_provenance(self) -> None:
+        # L_Bourns_SRP1265A is in neither KiCad stock nor pcb/libs; the buck
+        # prototype library authored it. The fallback must resolve the bytes
+        # and record prototype provenance, not relabel them as stock.
+        source, origin = block_source._stock_footprint_source(
+            "Inductor_SMD:L_Bourns_SRP1265A", REPO
+        )
+        self.assertTrue(source.is_file())
+        self.assertEqual(
+            source,
+            REPO
+            / "pcb/prototypes/buck-reva/buck-reva.pretty/L_Bourns_SRP1265A.kicad_mod",
+        )
+        self.assertTrue(origin.startswith("prototype-lib:"))
+
+    def test_absent_footprint_names_every_searched_root(self) -> None:
+        with self.assertRaises(block_source.BlockSourceError) as ctx:
+            block_source._stock_footprint_source("NoSuchLib:NoSuchFootprint", REPO)
+        message = str(ctx.exception)
+        self.assertIn("NoSuchLib.pretty", message)
+        self.assertIn("buck-reva.pretty", message)
+
+    def test_compose_assembly_no_longer_overrides_the_stock_root(self) -> None:
+        # The P3-local staging override (_stock_root_with_overrides) became
+        # redundant once the P1 vendorer learned the prototype fallback.
+        self.assertFalse(hasattr(compose_assembly, "_stock_root_with_overrides"))
+
+
+class FlatCandidateLayout(unittest.TestCase):
+    """The combined strict candidate is a single flat sheet."""
+
+    def test_combined_layout_is_flat(self) -> None:
+        layout = compose_assembly.combined_candidate_layout()
+        self.assertTrue(layout.flat)
+        self.assertEqual(layout.root_sheet, "control-assembly.kicad_sch")
+        self.assertEqual(set(layout.module_to_sheet), {"buck", "mcu"})
+
+    def test_package_carries_only_the_flat_root_schematic(self) -> None:
+        package = REPO / "pcb/blocks/control-assembly/assembly-candidate"
+        self.assertTrue((package / "control-assembly.kicad_sch").is_file())
+        # A hierarchical envelope would emit buck/mcu sub-sheets; the flat one
+        # must not, or parity net names are scoped as /BUCK/<net>.
+        self.assertFalse((package / "buck.kicad_sch").exists())
+        self.assertFalse((package / "mcu.kicad_sch").exists())
+
+    def test_library_provenance_records_the_prototype_source(self) -> None:
+        package = REPO / "pcb/blocks/control-assembly/assembly-candidate"
+        provenance = json.loads(
+            (package / "library-provenance.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            provenance["schema"], "control-assembly.library-provenance.v1"
+        )
+        bourns = provenance["footprints"]["Inductor_SMD:L_Bourns_SRP1265A"]
+        self.assertTrue(bourns["source"].startswith("prototype-lib:"))
+        self.assertEqual(len(bourns["sha256"]), 64)
+
+
+class CrossViewZoneSubdivision(unittest.TestCase):
+    """A zone's identity is (net, layer, filled), not its polygon count."""
+
+    def _extract(self, zones: list) -> dict:
+        return {
+            "pads": {},
+            "tracks": [],
+            "vias": [],
+            "zones": zones,
+            "endpoints": {},
+        }
+
+    def test_one_pour_subdivided_into_two_still_agrees(self) -> None:
+        z = {"uuid": "z", "net": "gnd", "layer": "F.Cu", "filled": True}
+        self.assertEqual(
+            compose_blocks.compare_views(self._extract([z]), self._extract([z, z])),
+            [],
+        )
+
+    def test_a_different_zone_identity_still_fails(self) -> None:
+        a = {"uuid": "z", "net": "gnd", "layer": "F.Cu", "filled": True}
+        b = {"uuid": "z", "net": "gnd", "layer": "B.Cu", "filled": True}
+        self.assertTrue(
+            compose_blocks.compare_views(self._extract([a]), self._extract([b]))
+        )
 
 
 if __name__ == "__main__":

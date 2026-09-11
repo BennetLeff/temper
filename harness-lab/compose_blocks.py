@@ -462,9 +462,19 @@ def canonicalize_extract(extract: dict) -> dict:
             "y_mm": round(float(pad["y_mm"]), 6),
         }
     for kind in ("tracks", "vias", "zones"):
-        canonical[kind] = sorted(
+        items = [
             json.dumps(item, sort_keys=True) for item in extract.get(kind, [])
-        )
+        ]
+        if kind == "zones":
+            # A zone's identity is (net, layer, filled); how many disjoint
+            # polygons implement it is a context-dependent fill detail (e.g. a
+            # single pour subdivided across envelopes). Compare the distinct
+            # identities, not the subdivision. A zone present in one view only
+            # (different net/layer/fill) still fails.
+            items = sorted(set(items))
+        else:
+            items = sorted(items)
+        canonical[kind] = items
     for key in sorted(extract.get("endpoints", {})):
         canonical["endpoints"][key] = json.loads(
             json.dumps(extract["endpoints"][key], sort_keys=True)

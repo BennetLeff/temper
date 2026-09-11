@@ -1,0 +1,38 @@
+{
+  "footprints": {
+    "Button_Switch_SMD:SW_SPST_EVQP7A": {
+      "sha256": "5054a9ea0fd5020b765d793470383f518c271ca7e965ce8ecd0e9a255d8d89ac",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Button_Switch_SMD.pretty/SW_SPST_EVQP7A.kicad_mod"
+    },
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod"
+    },
+    "Capacitor_SMD:C_0805_2012Metric": {
+      "sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0805_2012Metric.kicad_mod"
+    },
+    "Capacitor_SMD:C_1210_3225Metric": {
+      "sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod"
+    },
+    "Inductor_SMD:L_Bourns_SRP1265A": {
+      "sha256": "d5ff9e60249c5215983beaa8a32d3e98070646daca522f473cc45b47ad605ba8",
+      "source": "prototype-lib:pcb/prototypes/buck-reva/buck-reva.pretty/L_Bourns_SRP1265A.kicad_mod"
+    },
+    "Package_TO_SOT_SMD:SOT-23-6": {
+      "sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_TO_SOT_SMD.pretty/SOT-23-6.kicad_mod"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod"
+    },
+    "lib:ESP32-S3-WROOM-1": {
+      "sha256": "9c5a41379d7255f50ce1b7efb060994b700847c8aafe400b160dca7ccc5fd7dd",
+      "source": "pcb/libs/lib.pretty/ESP32-S3-WROOM-1.kicad_mod"
+    }
+  },
+  "rule": "each footprint's recorded source is the library the bytes actually came from (kicad-stock / pcb/libs / prototype-lib)",
+  "schema": "control-assembly.library-provenance.v1"
+}

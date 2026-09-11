@@ -298,12 +298,22 @@ def build_assembly_task_contract(
     extract = _assembly_geometry(board)
 
     net_mapping: dict[str, str] = {}
-    pad_census: dict[str, int] = {}
     for footprint in extract["footprints"]:
         reference = footprint["reference"]
-        pad_census[reference] = len(footprint["pads"])
         for pad in footprint["pads"]:
             net_mapping[f"{reference}.{pad['number']}"] = pad["net"]
+    # Derive the census from the exact pad *identities*, never from the raw
+    # physical pad count: a footprint may repeat a pad number across several
+    # physical pads (``SW_SPST_EVQP7A`` exposes ``1,1,2,2``), and those repeat
+    # one electrical identity. The Rust judge rebuilds its expected census from
+    # ``net_mapping`` keys, so counting ``len(footprint["pads"])`` here reads
+    # as ``unexpected_pad_census`` for a real switch and is a contract/judge
+    # inconsistency, not a hidden part. Mirrors the accepted MCU-profile fix
+    # (``build_task_contract`` already counts unique strict-map pads).
+    pad_census: dict[str, int] = {}
+    for pad_identity in net_mapping:
+        reference = pad_identity.split(".")[0]
+        pad_census[reference] = pad_census.get(reference, 0) + 1
     if sorted(pad_census) != combined_refs:
         raise ValueError(
             f"assembly board census {sorted(pad_census)} differs from the source "

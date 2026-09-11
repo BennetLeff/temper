@@ -1,11 +1,12 @@
 {
+  "flat": true,
   "module_to_sheet": {
     "buck": "BUCK",
     "mcu": "MCU"
   },
   "root_sheet": "control-assembly.kicad_sch",
   "schema_version": 1,
-  "sheet_description": "CONTROL ASSEMBLY CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP3 U2 source-derived composition of the buck functional nine and the MCU ten; apparatus-only, live model blocked\\n\\n2 Sheets:\\nBUCK\\nMCU",
+  "sheet_description": "CONTROL ASSEMBLY CANDIDATE\\n\\nGENERATED -- do not hand-edit\\nP3 U2 source-derived composition of the buck functional nine and the MCU ten; apparatus-only, live model blocked\\n\\n1 Sheet (flat):\\nBUCK+MCU",
   "sheet_files": {
     "BUCK": "buck.kicad_sch",
     "MCU": "mcu.kicad_sch"

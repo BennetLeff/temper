@@ -33,7 +33,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -406,11 +405,16 @@ def assembly_placements(
 
 
 def combined_candidate_layout():
-    """Two-sheet strict-candidate schematic layout for the combined assembly.
+    """Single-sheet flat strict-candidate schematic layout.
 
-    ``buck`` and ``mcu`` compiled module prefixes land on separate sheets so
-    the generated schematic mirrors the two source blocks rather than
-    flattening them.
+    A hierarchical envelope scopes every local label to ``/<Sheet>/<net>``
+    (``/BUCK/vcc``) and the assembly candidate board carries the plain
+    compiled names (``vcc``), so schematic parity can never agree. A flat
+    envelope emits one root sheet with unscoped global labels, exactly the
+    MCU candidate's pattern (``gen_schematics.mcu_candidate_layout``). The
+    ``sheets``/``module_to_sheet`` mapping is still declared so component
+    grouping validates, but ``flat=True`` makes every symbol live directly in
+    the root sheet.
     """
     from gen_schematics import SchematicLayout
 
@@ -423,39 +427,10 @@ def combined_candidate_layout():
         sheet_description=(
             "CONTROL ASSEMBLY CANDIDATE\\n\\nGENERATED -- do not hand-edit\\n"
             "P3 U2 source-derived composition of the buck functional nine and the "
-            "MCU ten; apparatus-only, live model blocked\\n\\n2 Sheets:\\nBUCK\\nMCU"
+            "MCU ten; apparatus-only, live model blocked\\n\\n1 Sheet (flat):\\nBUCK+MCU"
         ),
+        flat=True,
     )
-
-
-def _stock_root_with_overrides(bridge: dict, root: Path) -> Path:
-    """Stage the stock footprints the combined netlist needs, plus any
-    prototype-vendored override P1's vendorer cannot resolve.
-
-    ``block_source.vendor_candidate_libs`` only knows KiCad's application
-    stock and ``pcb/libs``; the buck's custom ``L_Bourns_SRP1265A`` lives in
-    the prototype library. That is a P1-owned gap reported in the
-    integration report; this P3-local root lets the assembly build proceed
-    without editing P1 code.
-    """
-    prototype_pretty = PROTOTYPE_BOARD.parent / "buck-reva.pretty"
-    for comp in bridge["components"]:
-        nickname = comp["footprint"]
-        lib, _, fp = nickname.partition(":")
-        if not lib or not fp or lib in ("lib", "temper"):
-            continue
-        stock = block_source.KICAD_STOCK_FOOTPRINT_DIR / f"{lib}.pretty" / f"{fp}.kicad_mod"
-        proto = prototype_pretty / f"{fp}.kicad_mod"
-        source = stock if stock.is_file() else (proto if proto.is_file() else None)
-        if source is None:
-            raise AssemblyCompositionError(
-                f"footprint {nickname!r} is in neither KiCad stock nor the prototype library; "
-                f"vendor it (P1-owned block_source gap)"
-            )
-        dest = root / f"{lib}.pretty" / f"{fp}.kicad_mod"
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, dest)
-    return root
 
 
 def generate_board(
@@ -495,15 +470,11 @@ def generate_board(
             )
         )
         lib_dir = output_dir / "candidate-libs"
-        stock_root = _stock_root_with_overrides(bridge, Path(tmp) / "stock")
-        original_stock = block_source.KICAD_STOCK_FOOTPRINT_DIR
-        block_source.KICAD_STOCK_FOOTPRINT_DIR = stock_root
-        try:
-            table_path, lib_provenance = block_source.vendor_candidate_libs(
-                converted, bridge, REPO, lib_dir
-            )
-        finally:
-            block_source.KICAD_STOCK_FOOTPRINT_DIR = original_stock
+        # block_source resolves each used footprint from KiCad stock, then
+        # pcb/libs, then the buck prototype library, recording real provenance.
+        table_path, lib_provenance = block_source.vendor_candidate_libs(
+            converted, bridge, REPO, lib_dir
+        )
         nick_by_ref = {c["reference"]: c["footprint"] for c in bridge["components"]}
         census = block_source.footprint_pad_census(table_path, set(nick_by_ref.values()))
         entries, unconnected = block_source.build_strict_pin_map(
@@ -542,6 +513,13 @@ def generate_board(
         ]
         outline_mm = (outline["x1"], outline["y1"], outline["x2"], outline["y2"])
         board_path = output_dir / "control-assembly.kicad_pcb"
+        schematics = block_source.schematics
+        # Authoritative per-designator identity comes from default.csv, never
+        # the footprint-aliased netlist value. Load it once, before board
+        # generation, so the footprint Value and the schematic symbol Value
+        # are the same identity (otherwise schematic parity reports every
+        # footprint_symbol_mismatch).
+        bom_values = schematics.load_bom_values(csv_path)
         summary = skeleton.generate_candidate_board(
             skeleton.parse_netlist(net_path),
             pin_map,
@@ -550,18 +528,17 @@ def generate_board(
             outline_mm,
             {ref: tuple(pos) for ref, pos in placements.items()},
             board_path,
+            values=bom_values,
         )
         if not skeleton.candidate_oracle_verify(
             board_path, skeleton.parse_netlist(net_path), pin_map, outline_mm
         ):
             raise AssemblyCompositionError("assembly candidate PCB oracle failed")
-        schematics = block_source.schematics
         layout = combined_candidate_layout()
         schematics.write_candidate_layout_config(
             layout, output_dir / "schematic_layout.json"
         )
         sch_netlist = schematics.parse_netlist(net_path)
-        bom_values = schematics.load_bom_values(csv_path)
         schematics.apply_bom_values(sch_netlist, bom_values)
         files = schematics._generate_all_sheets(sch_netlist, output_dir, layout=layout)
         schematics._write_schematics(files, output_dir)
@@ -885,6 +862,19 @@ def compose(
     _write_json(package_dir / "replacement-ledger.json", ledger)
     _write_json(package_dir / "owned-region-guard.json", guard)
     _write_json(package_dir / "cross-view-scaffold.json", cross_view_scaffold())
+    # Real vendoring provenance: block_source resolves every used footprint
+    # from KiCad stock, then ``pcb/libs``, then the buck prototype library,
+    # and records the actual source bytes. ``prototype-lib:`` entries are parts
+    # absent from stock (e.g. the Bourns SRP1265A), not silently relabelled.
+    _write_json(
+        package_dir / "library-provenance.json",
+        {
+            "schema": "control-assembly.library-provenance.v1",
+            "rule": "each footprint's recorded source is the library the bytes "
+            "actually came from (kicad-stock / pcb/libs / prototype-lib)",
+            "footprints": board["lib_provenance"],
+        },
+    )
     _write_json(
         package_dir / "mcu-placement-revision.json",
         {
@@ -916,6 +906,9 @@ def compose(
             "cross-view-scaffold.json": _sha256(package_dir / "cross-view-scaffold.json"),
             "mcu-placement-revision.json": _sha256(
                 package_dir / "mcu-placement-revision.json"
+            ),
+            "library-provenance.json": _sha256(
+                package_dir / "library-provenance.json"
             ),
         },
         "combined_bridge": {

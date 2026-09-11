@@ -14,5 +14,5 @@
   ],
   "returncode": 0,
   "stdout": "Found 604 violations\nFound 274 unconnected items\nSaved DRC Report to /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/pcb/blocks/control-assembly/verification/apparatus-only/overlay/baseline/run-0/drc.json\n",
-  "stderr": "05:15:58\u202fPM: Warning: Library table '/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/pcb/blocks/control-assembly/verification/apparatus-only/overlay/fp-lib-table' has type UNINITIALIZED but expected FOOTPRINT; skipping\nFailed to fetch schematic netlist for parity tests.\nSchematic parity tests require a fully annotated schematic.\n"
+  "stderr": "06:04:00\u202fPM: Warning: Library table '/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/pcb/blocks/control-assembly/verification/apparatus-only/overlay/fp-lib-table' has type UNINITIALIZED but expected FOOTPRINT; skipping\nFailed to fetch schematic netlist for parity tests.\nSchematic parity tests require a fully annotated schematic.\n"
 }

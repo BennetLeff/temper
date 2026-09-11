@@ -3,6 +3,7 @@
   (lib (name "Capacitor_SMD")(type "KiCad")(uri "${KIPRJMOD}/fixture.pretty/Capacitor_SMD.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "Inductor_SMD")(type "KiCad")(uri "${KIPRJMOD}/fixture.pretty/Inductor_SMD.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "Resistor_SMD")(type "KiCad")(uri "${KIPRJMOD}/fixture.pretty/Resistor_SMD.pretty")(options "")(descr "U2 candidate-local vendored copy"))
+  (lib (name "Button_Switch_SMD")(type "KiCad")(uri "${KIPRJMOD}/fixture.pretty/Button_Switch_SMD.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "Package_TO_SOT_SMD")(type "KiCad")(uri "${KIPRJMOD}/fixture.pretty/Package_TO_SOT_SMD.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "lib")(type "KiCad")(uri "${KIPRJMOD}/fixture.pretty/lib.pretty")(options "")(descr "U2 candidate-local vendored copy"))
 )

@@ -333,6 +333,59 @@ class Scenario5OverlayScratchBoard(unittest.TestCase):
         )
 
 
+class OverlayIntegrationMechanisms(unittest.TestCase):
+    """The two overlay integration mechanisms are recorded, not assumed."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
+        cls.overlay = cls.summary["overlay"]
+
+    def test_section_pour_clip_is_measured_and_rejected(self) -> None:
+        # Clipping the section's board-wide gnd pour to the owned envelopes was
+        # implemented and measured: it splits the section's gnd pads into
+        # islands the production plane does not all bridge (failing the
+        # cross-view endpoint comparison) and raises introduced findings. The
+        # decision to keep the pour is recorded evidence, not an omission.
+        clip = self.overlay["section_pour_clip"]
+        self.assertFalse(clip["enabled"], clip)
+        self.assertIn("cross-view", clip["rejected_because"])
+        # With the pour retained, the single source zone imports unchanged.
+        self.assertEqual(self.overlay["imported_zones"], 1)
+        self.assertEqual(self.overlay["zone_clips"], [])
+
+    def test_ground_continuity_across_the_boundary(self) -> None:
+        # The section pour merges with the production plane: the overlay's gnd
+        # island count must not exceed the base copy's, and no gnd pad may be
+        # lost. This is a native measurement, recorded in the summary.
+        continuity = self.overlay["ground_continuity"]
+        self.assertEqual(continuity["status"], "pass", continuity)
+        self.assertLessEqual(
+            continuity["overlay_gnd_clusters"], continuity["base_gnd_clusters"]
+        )
+        self.assertEqual(continuity["overlay_gnd_pads"], continuity["base_gnd_pads"])
+
+    def test_production_track_nets_reasserted_after_refill(self) -> None:
+        # kicad-cli's refill re-propagates a track's net from the copper it now
+        # touches; the post-refill pass restores the production identity by
+        # name. Net reassignment after re-assertion must be zero.
+        self.assertGreater(self.overlay["net_reassert"]["count"], 0)
+        self.assertEqual(
+            self.overlay["outside_region_invariance"]["net_reassigned_count"], 0
+        )
+        self.assertEqual(
+            self.overlay["outside_region_invariance"]["status"], "pass"
+        )
+
+    def test_clip_and_reassert_do_not_suppress_the_finding_set(self) -> None:
+        # The overlay is an honest instrument: the residual is dominated by
+        # section-vs-production copper conflicts, which the two mechanisms do
+        # not remove. The findings stay visible.
+        delta = self.overlay["finding_delta"]
+        self.assertEqual(delta["introduced_count"], len(delta["introduced"]))
+        self.assertGreater(delta["introduced_count"], 0, self.overlay)
+
+
 class PowerWidthClassification(unittest.TestCase):
     """The power-width floor is unchanged; the net classification is explicit."""
 

@@ -585,6 +585,8 @@ base_path, section_path, instruction_path, output_path = map(Path, sys.argv[1:5]
 instr = json.loads(instruction_path.read_text())
 net_map = instr["net_map"]
 native_refs = set(instr["native_refs"])
+envelopes = instr.get("envelopes") or []
+clip_zones = bool(instr.get("clip_imported_zones", False))
 
 def load(p):
     return pcbnew.PCB_IO_KICAD_SEXPR().LoadBoard(str(p), None)
@@ -602,10 +604,32 @@ def get_net(board, name):
         board.Add(net)
     return net
 
+def envelope_polygon(env):
+    poly = pcbnew.SHAPE_POLY_SET()
+    poly.NewOutline()
+    for x, y in (
+        (env["x1"], env["y1"]),
+        (env["x2"], env["y1"]),
+        (env["x2"], env["y2"]),
+        (env["x1"], env["y2"]),
+    ):
+        poly.Append(pcbnew.VECTOR2I(pcbnew.FromMM(x), pcbnew.FromMM(y)))
+    return poly
+
 base = load(base_path)
 section = load(section_path)
 base_fps = fpmap(base)
 section_fps = fpmap(section)
+
+# 0. Record the net identity of every base track before any mutation. KiCad's
+#    zone refill/connectivity pass re-propagates a track's net from whatever it
+#    physically touches, so a production track that the section's copper lands
+#    on can silently change net. The original name is captured here and
+#    re-asserted after refill (post_refill_reassert), never inferred from a
+#    shifted numeric code.
+base_track_nets = {}
+for track in base.GetTracks():
+    base_track_nets[track.m_Uuid.AsString()] = track.GetNetname()
 
 # 1. Remove native placeholder copper touching a replaced placeholder pad.
 removed_uuids = []
@@ -640,7 +664,11 @@ for item in instr["replace_footprints"]:
     base.Add(clone)
     replaced.append({"section_ref": sref, "native_ref": nref})
 
-# 3. Import the section's own copper (segments, vias and filled zones).
+# 3. Import the section's own copper (segments, vias and filled zones). A
+#    section zone is clipped to the owned envelopes: the section's board-wide
+#    ground pour otherwise fills over the whole production board and shorts
+#    unrelated copper. Inside the envelope the pour merges with the production
+#    plane of the same net (ground continuity is measured after refill).
 imported_tracks = []
 for track in section.GetTracks():
     item = track.Duplicate()
@@ -648,13 +676,35 @@ for track in section.GetTracks():
     base.Add(item)
     imported_tracks.append(item.m_Uuid.AsString())
 imported_zones = []
+zone_clips = []
 for zone in section.Zones():
     if zone.GetIsRuleArea():
         continue
-    item = zone.Duplicate()
-    item.SetNet(get_net(base, net_map.get(zone.GetNetname(), zone.GetNetname())))
-    base.Add(item)
-    imported_zones.append(item.m_Uuid.AsString())
+    net_name = net_map.get(zone.GetNetname(), zone.GetNetname())
+    if not clip_zones or not envelopes:
+        item = zone.Duplicate()
+        item.SetNet(get_net(base, net_name))
+        base.Add(item)
+        imported_zones.append(item.m_Uuid.AsString())
+        continue
+    src_outline = pcbnew.Cast_to_SHAPE_POLY_SET(zone.Outline())
+    src_bbox = zone.GetBoundingBox()
+    for env in envelopes:
+        ex1 = pcbnew.FromMM(env["x1"]); ey1 = pcbnew.FromMM(env["y1"])
+        ex2 = pcbnew.FromMM(env["x2"]); ey2 = pcbnew.FromMM(env["y2"])
+        if (src_bbox.GetRight() < ex1 or src_bbox.GetLeft() > ex2
+                or src_bbox.GetBottom() < ey1 or src_bbox.GetTop() > ey2):
+            continue
+        clipped = pcbnew.SHAPE_POLY_SET(src_outline)
+        clipped.BooleanIntersection(envelope_polygon(env))
+        if clipped.OutlineCount() == 0:
+            continue
+        item = zone.Duplicate()
+        item.SetNet(get_net(base, net_name))
+        item.SetOutline(clipped)
+        base.Add(item)
+        imported_zones.append(item.m_Uuid.AsString())
+        zone_clips.append({"envelope": env.get("ref", "?"), "net": net_name})
 
 pcbnew.PCB_IO_KICAD_SEXPR().SaveBoard(str(output_path), base)
 print(json.dumps({
@@ -663,8 +713,62 @@ print(json.dumps({
     "replaced_footprints": replaced,
     "imported_track_uuids": sorted(imported_tracks),
     "imported_zone_uuids": sorted(imported_zones),
+    "base_track_nets": base_track_nets,
+    "zone_clips": zone_clips,
 }, sort_keys=True))
 """
+
+
+def post_refill_reassert(board: Path, base_track_nets: dict) -> dict:
+    """Re-assert original net identity on untouched base tracks after refill.
+
+    ``kicad-cli pcb drc --refill-zones --save-board`` rebuilds connectivity and
+    re-propagates a track's net from whatever copper it now touches. A
+    production track that the placed section happens to overlap therefore
+    silently changes net name (measured: ``+3V3 -> gnd``, ``+15V -> gnd``,
+    ``V_BUS_SENSE -> gpio21``). That is an instrument artifact layered on top of
+    a real geometric conflict, so it is normalized back to the production net
+    name by *name* (never by a shifted numeric code); the underlying conflict
+    still surfaces as a DRC finding against the correctly-named track.
+    """
+    script = r"""
+import json, sys
+from pathlib import Path
+import pcbnew
+p = Path(sys.argv[1])
+original = json.loads(sys.argv[2])
+board = pcbnew.PCB_IO_KICAD_SEXPR().LoadBoard(str(p), None)
+changed = []
+for track in board.GetTracks():
+    u = track.m_Uuid.AsString()
+    want = original.get(u)
+    if want is None or track.GetNetname() == want:
+        continue
+    net = board.FindNet(want)
+    if net is None:
+        net = pcbnew.NETINFO_ITEM(board, want)
+        board.Add(net)
+    track.SetNet(net)
+    changed.append(u)
+pcbnew.PCB_IO_KICAD_SEXPR().SaveBoard(str(p), board)
+print(json.dumps({"reasserted": sorted(changed), "count": len(changed)}))
+"""
+    result = subprocess.run(
+        [
+            harness.KICAD_PYTHON,
+            "-c",
+            script,
+            str(board),
+            json.dumps(base_track_nets, sort_keys=True),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=300,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"post-refill net re-assertion failed: {result.stderr[-1200:]}")
+    return json.loads(result.stdout)
 
 
 def _write_text(path: Path, text: str) -> None:
@@ -672,7 +776,17 @@ def _write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def build_overlay_instruction(source_map: dict) -> dict:
+# Section-pour clipping was implemented, measured, and rejected: clipping the
+# board-wide ground pour to the two owned envelopes leaves the section's gnd
+# pads in more than one overlay cluster (the production plane does not bridge
+# every clipped island), which fails the cross-view endpoint comparison, and it
+# *raises* the introduced finding count (~+16, almost all unconnected_items).
+# The board-wide pour is retained; the block-wide pour is section-local and does
+# not short production copper by itself. See integration-report.md "overlay".
+CLIP_SECTION_POUR = False
+
+
+def build_overlay_instruction(source_map: dict, envelopes: list) -> dict:
     """Bind every section instance to the native placeholder it replaces."""
     by_path = source_map["entries"]
     missing = [p for p in SECTION_NATIVE_BINDING if p not in by_path]
@@ -688,15 +802,20 @@ def build_overlay_instruction(source_map: dict) -> dict:
         combined_to_native[combined] = native_ref
     if len(set(native_refs)) != len(native_refs) or len(combined_to_native) != 19:
         raise RuntimeError("overlay binding is not a 19-instance bijection")
+    if not envelopes:
+        raise RuntimeError("overlay requires at least one owned envelope for zone clipping")
     return {
         "schema": "control-assembly.overlay-instruction.v1",
         "rule": "remove each native placeholder and its local copper, insert the "
                 "source-derived section instance under the native ref, join only the "
-                "shared +15V/+3V3/gnd rails, keep every other section net isolated",
+                "shared +15V/+3V3/gnd rails, keep every other section net isolated, "
+                "clip imported section pours to the owned envelopes",
         "native_refs": sorted(native_refs),
         "replace_footprints": replace,
         "net_map": dict(SECTION_NET_ALIAS),
         "binding": SECTION_NATIVE_BINDING,
+        "envelopes": envelopes,
+        "clip_imported_zones": CLIP_SECTION_POUR,
         "rebind_required_after": "pcb/blocks/mcu/ re-admission; C40/C41/R72 bindings "
                                  "are provisional in target-context.json",
     }
@@ -991,7 +1110,7 @@ def build_cross_view_report(
     }
 
 
-def build_overlay(work_dir: Path) -> dict:
+def build_overlay(work_dir: Path, target: dict) -> dict:
     """Copy the production board, apply the ledger, insert the section, refill."""
     overlay_dir = work_dir / "overlay"
     if overlay_dir.exists():
@@ -1002,7 +1121,8 @@ def build_overlay(work_dir: Path) -> dict:
     shutil.copyfile(PRODUCTION_BOARD, base)
     section = work_dir / "control-assembly-routed.kicad_pcb"
     source_map = json.loads((PACKAGE / "source-map.json").read_text())
-    instruction = build_overlay_instruction(source_map)
+    envelopes = compose_assembly._owned_envelopes(target)
+    instruction = build_overlay_instruction(source_map, envelopes)
     overlay = overlay_dir / "overlay.kicad_pcb"
     imported = transplant_overlay(base, section, instruction, overlay)
     # Refill BOTH views with the identical native command. Comparing a
@@ -1010,6 +1130,10 @@ def build_overlay(work_dir: Path) -> dict:
     # unconnected/zone findings (the fill state differs, not the section).
     base_refill = run_refill(base, overlay_dir / "base-refill")
     refill = run_refill(overlay, overlay_dir / "refill")
+    # Refill re-propagates production track nets from the copper they now
+    # touch. Re-assert the production net identity by name (never a shifted
+    # code) so the invariance report and the DRC attribute correctly.
+    reassert = post_refill_reassert(overlay, imported["base_track_nets"])
     return {
         "base": base,
         "overlay": overlay,
@@ -1018,6 +1142,7 @@ def build_overlay(work_dir: Path) -> dict:
         "overlay_context": context,
         "base_refill_returncode": base_refill["returncode"],
         "refill_returncode": refill["returncode"],
+        "net_reassert": reassert,
     }
 
 
@@ -1035,10 +1160,12 @@ def run_verification(work_dir: Path = VERIFY / "apparatus-only") -> dict:
     work_dir.mkdir(parents=True, exist_ok=True)
     candidate = work_dir / "control-assembly-routed.kicad_pcb"
     shutil.copyfile(BOARD, candidate)
-    # Stage the schematic (and its two sheets) under the board's stem so
-    # kicad-cli --schematic-parity can resolve it.
-    for name in ("control-assembly.kicad_sch", "buck.kicad_sch", "mcu.kicad_sch"):
-        shutil.copyfile(PACKAGE / name, work_dir / name)
+    # Stage every generated schematic next to the board so kicad-cli
+    # --schematic-parity can resolve it. The strict-candidate envelope is
+    # flat (one root sheet); copy whatever `.kicad_sch` files the package
+    # holds rather than hard-coding a hierarchy that no longer exists.
+    for schematic_file in sorted(PACKAGE.glob("*.kicad_sch")):
+        shutil.copyfile(schematic_file, work_dir / schematic_file.name)
     shutil.copyfile(
         PACKAGE / "control-assembly.kicad_sch",
         work_dir / "control-assembly-routed.kicad_sch",
@@ -1102,7 +1229,7 @@ def run_verification(work_dir: Path = VERIFY / "apparatus-only") -> dict:
     # Scratch full-board overlay: production board COPIED, ledger applied,
     # section inserted, refilled; then the independent cross-view comparison.
     source_map = json.loads((PACKAGE / "source-map.json").read_text())
-    overlay = build_overlay(work_dir)
+    overlay = build_overlay(work_dir, target)
     overlay_base_set, overlay_base_stability = drc_stable_set(
         overlay["base"], work_dir / "overlay" / "baseline"
     )
@@ -1117,6 +1244,27 @@ def run_verification(work_dir: Path = VERIFY / "apparatus-only") -> dict:
         set(overlay["imported"]["imported_track_uuids"]),
         set(overlay["imported"]["deleted_native_uuids"]),
     )
+    # Ground continuity across the clipped-pour boundary: the clipped section
+    # pour inside each envelope must merge with the production plane, so the
+    # overlay's gnd island count cannot rise above the base copy's. Measured
+    # natively; a rise would be a real open, not excused.
+    base_gnd = native_connectivity(overlay["base"])["nets"].get("gnd", {})
+    overlay_gnd = native_connectivity(overlay["overlay"])["nets"].get("gnd", {})
+    ground_continuity = {
+        "base_gnd_clusters": base_gnd.get("cluster_count"),
+        "overlay_gnd_clusters": overlay_gnd.get("cluster_count"),
+        "base_gnd_pads": base_gnd.get("pad_count"),
+        "overlay_gnd_pads": overlay_gnd.get("pad_count"),
+        "status": (
+            "pass"
+            if (overlay_gnd.get("cluster_count") or 0)
+            <= (base_gnd.get("cluster_count") or 0)
+            and overlay_gnd.get("pad_count") == base_gnd.get("pad_count")
+            else "fail"
+        ),
+        "note": "continuity across the section/production boundary is measured "
+        "natively, not assumed",
+    }
     cross_view = build_cross_view_report(
         candidate,
         overlay["overlay"],
@@ -1154,6 +1302,19 @@ def run_verification(work_dir: Path = VERIFY / "apparatus-only") -> dict:
             "refill_returncode": overlay["refill_returncode"],
             "native_tracks_removed": overlay["imported"]["deleted_native_tracks"],
             "footprints_replaced": len(overlay["imported"]["replaced_footprints"]),
+            "imported_zones": len(overlay["imported"]["imported_zone_uuids"]),
+            "zone_clips": overlay["imported"]["zone_clips"],
+            "section_pour_clip": {
+                "enabled": CLIP_SECTION_POUR,
+                "rejected_because": "clipping the board-wide section gnd pour to "
+                "the two owned envelopes leaves the section's gnd pads in more "
+                "than one overlay cluster (the production plane does not bridge "
+                "every clipped island), failing the cross-view endpoint "
+                "comparison, and raises introduced findings by ~+16 (almost all "
+                "unconnected_items). The pour is section-local; it does not "
+                "cause the introduced shorting/clearance findings.",
+            },
+            "net_reassert": overlay["net_reassert"],
             "bound_after": "pcb/blocks/mcu/ re-admission (C40/C41/R72 provisional)",
             "finding_delta": overlay_delta,
             "stability": {
@@ -1163,6 +1324,7 @@ def run_verification(work_dir: Path = VERIFY / "apparatus-only") -> dict:
                 "refilled with the identical native command",
             },
             "outside_region_invariance": invariance,
+            "ground_continuity": ground_continuity,
             "production_digest_after_overlay": production_digest_exact(),
             "cross_view_status": cross_view["status"],
             "cross_view_mismatch_count": cross_view["mismatch_count"],

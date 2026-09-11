@@ -211,10 +211,10 @@
   ],
   "profile": "block",
   "protected_ports": {},
-  "protected_sha256": "5e5a1878515ae4cc696dfef2a5edd5f73f2aede2b480422ef26ad50bcd71daf8",
+  "protected_sha256": "7dba88469b2515df7d3d29f1560e13cfdbe2fe14c26cbc81943623931c44553c",
   "provenance": {
-    "assembly_source_map_sha256": "c6c8fa7d9cc8e7da2e993172b25ba11cd2d2f933c1451c18ef424fa392e49758",
-    "board_sha256": "bde0b0055397e06c72cb8c6f5dbe4e6f30474af132616ea60eb4502c24d1649d",
+    "assembly_source_map_sha256": "375164ca1bf851d354acef73ab1b27cd65a952cb3cf1ab801f16839eaacb466d",
+    "board_sha256": "3aa4b786f129dcc4f6cd3847e4d90e5f6d6de2d240adaefd961f2df6daef91a2",
     "target_context_sha256": "db3e07b6fcb70ccedc4791a55d32ad37ae3c6177c6a4de82dee0c04206241c79"
   },
   "schema": "temper.assembly-task-contract.v1",

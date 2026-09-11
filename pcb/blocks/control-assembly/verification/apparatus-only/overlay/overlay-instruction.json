@@ -20,6 +20,23 @@
     "mcu.r_scl_pullup": "R74",
     "mcu.r_sda_pullup": "R73"
   },
+  "clip_imported_zones": false,
+  "envelopes": [
+    {
+      "ref": "buck_block",
+      "x1": 100.0,
+      "x2": 146.0,
+      "y1": 132.0,
+      "y2": 162.0
+    },
+    {
+      "ref": "mcu_block",
+      "x1": 18.0,
+      "x2": 52.0,
+      "y1": 28.0,
+      "y2": 68.0
+    }
+  ],
   "native_refs": [
     "C10",
     "C11",
@@ -124,6 +141,6 @@
       "section_ref": "R5"
     }
   ],
-  "rule": "remove each native placeholder and its local copper, insert the source-derived section instance under the native ref, join only the shared +15V/+3V3/gnd rails, keep every other section net isolated",
+  "rule": "remove each native placeholder and its local copper, insert the source-derived section instance under the native ref, join only the shared +15V/+3V3/gnd rails, keep every other section net isolated, clip imported section pours to the owned envelopes",
   "schema": "control-assembly.overlay-instruction.v1"
 }

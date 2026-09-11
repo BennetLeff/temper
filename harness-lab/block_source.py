@@ -50,6 +50,16 @@ COMBO_ENTRY_MODULE = "ControlAssemblyCandidate"
 # recorded in the source manifest; bytes are hashed like every other input.
 KICAD_STOCK_FOOTPRINT_DIR = Path("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints")
 
+# Last-resort footprint source: the buck prototype library. Some parts (e.g.
+# the Bourns SRP1265A power inductor) were authored for the prototype and
+# exist in neither KiCad stock nor ``pcb/libs``. They are resolved by
+# footprint stem, because the prototype nickname (``buck-reva``) differs from
+# the netlist nickname (``Inductor_SMD``); provenance records this as a
+# prototype source, never as stock. Overriding resolution globally (staging
+# files and swapping ``KICAD_STOCK_FOOTPRINT_DIR``) was the old workaround and
+# is no longer needed.
+PROTOTYPE_FOOTPRINT_LIB = Path("pcb") / "prototypes" / "buck-reva" / "buck-reva.pretty"
+
 _PAD_RE = re.compile(r'\(pad\s+"([^"]+)"\s+(\S+)')
 
 
@@ -214,15 +224,30 @@ def bridge_netlist(net_path: Path, entry_module: str) -> dict[str, Any]:
     return {"components": components, "nets": nets}
 
 
-def _stock_footprint_source(nickname: str) -> Path:
+def _stock_footprint_source(nickname: str, repo: Path | None = None) -> tuple[Path, str]:
+    """Resolve a non ``lib``/``temper`` footprint to bytes plus honest origin.
+
+    Search order: KiCad application stock, then the buck prototype library
+    (matched by footprint *stem*, since its nickname differs from the
+    netlist's). Returns ``(path, origin)`` where ``origin`` is the recorded
+    provenance string. Raises naming every root that was searched when the
+    footprint is absent -- a missing footprint is a vendoring gap, never a
+    silent drop.
+    """
     lib, _, fp = nickname.partition(":")
     candidate = KICAD_STOCK_FOOTPRINT_DIR / f"{lib}.pretty" / f"{fp}.kicad_mod"
-    if not candidate.is_file():
-        raise BlockSourceError(
-            f"stock footprint {nickname!r} not found at {candidate}; "
-            f"vendor it under pcb/libs or set a hermetic checkout"
-        )
-    return candidate
+    if candidate.is_file():
+        return candidate, f"kicad-stock:{candidate}"
+    prototype = (repo / PROTOTYPE_FOOTPRINT_LIB / f"{fp}.kicad_mod") if repo else None
+    if prototype is not None and prototype.is_file():
+        return prototype, f"prototype-lib:{PROTOTYPE_FOOTPRINT_LIB}/{fp}.kicad_mod"
+    searched = [str(candidate)]
+    if prototype is not None:
+        searched.append(str(prototype))
+    raise BlockSourceError(
+        f"footprint {nickname!r} not found in {', '.join(searched)}; "
+        f"vendor it under pcb/libs or set a hermetic checkout"
+    )
 
 
 def vendor_candidate_libs(
@@ -261,8 +286,7 @@ def vendor_candidate_libs(
             source = repo / "pcb" / "libs" / f"{lib}.pretty" / f"{fp}.kicad_mod"
             origin = f"pcb/libs/{lib}.pretty/{fp}.kicad_mod"
         else:
-            source = _stock_footprint_source(nickname)
-            origin = f"kicad-stock:{source}"
+            source, origin = _stock_footprint_source(nickname, repo)
         if not source.is_file():
             raise BlockSourceError(f"footprint source missing: {source}")
         if dest.is_file() and sha256_file(dest) != sha256_file(source):

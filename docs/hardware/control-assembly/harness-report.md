@@ -6,6 +6,17 @@ Child plans: `2026-09-10-1322-feat-atopile-mcu-flow-plan.md` (P1),
 `2026-09-10-1322-feat-buck-mcu-composition-plan.md` (P3).
 Run: `harness-lab/runs/mcu-20260910-a` (`mcu-20260910-a`).
 
+> **Superseding update (2026-09-10, P3 apparatus pass).** Two blockers named
+> below are now closed and this report's older parity/vendoring numbers are
+> historical: schematic parity is **0** on both the MCU package and the
+> combined assembly (flat strict-candidate schematic + BOM-sourced board
+> `Value`), and `L_Bourns_SRP1265A` resolves through a P1-owned prototype
+> fallback recorded in `assembly-candidate/library-provenance.json`. The
+> live-model transport blocker and the scratch-overlay introduced findings
+> remain open. Current numbers live in
+> [`integration-report.md`](integration-report.md) and
+> `pcb/blocks/control-assembly/verification/apparatus-only/summary.json`.
+
 **Milestone status: INCOMPLETE.** The coordinator accepts the owner contracts
 (U1) and joins the delivered evidence (this report), but two plan-required
 child deliverables are blocked or unverified and the milestone cannot be

@@ -1,7 +1,7 @@
 {
     "$schema": "https://schemas.kicad.org/erc.v1.json",
     "coordinate_units": "mm",
-    "date": "2026-09-10T17:15:44",
+    "date": "2026-09-10T18:03:46",
     "ignored_checks": [
         {
             "description": "Global label only appears once in the schematic",
@@ -28,19 +28,49 @@
     "kicad_version": "10.0.4",
     "sheets": [
         {
-            "path": "/BUCK/",
-            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/6b12487b-c4c2-3d81-f7b5-021aa58263e0",
+            "path": "/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55",
             "violations": [
                 {
                     "description": "Symbol pin or wire end off connection grid",
                     "items": [
                         {
-                            "description": "Symbol L1 Pin 1 [1, Bidirectional, Line]",
+                            "description": "Symbol C6 Pin 1 [1, Bidirectional, Line]",
                             "pos": {
                                 "x": 0.3556,
                                 "y": 0.808
                             },
-                            "uuid": "31647a68-d54d-8197-b840-967b0f8a1635"
+                            "uuid": "263d6a79-0651-c29f-d3a8-532d08a9644b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.3556,
+                                "y": 1.108
+                            },
+                            "uuid": "f8850431-b989-d056-317f-981bc43f08a7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol SW1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.3556,
+                                "y": 1.408
+                            },
+                            "uuid": "56df5f0c-dd32-86e6-9126-60dffaec724d"
                         }
                     ],
                     "severity": "warning",
@@ -55,7 +85,7 @@
                                 "x": 0.508,
                                 "y": 0.508
                             },
-                            "uuid": "836dd14e-e8a7-4b1f-33a2-16dba2a3c342"
+                            "uuid": "e5376e16-9dc6-f4db-6f42-b09b88277b9a"
                         }
                     ],
                     "severity": "warning",
@@ -70,22 +100,22 @@
                                 "x": 0.508,
                                 "y": 0.508
                             },
-                            "uuid": "836dd14e-e8a7-4b1f-33a2-16dba2a3c342"
+                            "uuid": "e5376e16-9dc6-f4db-6f42-b09b88277b9a"
                         }
                     ],
                     "severity": "warning",
                     "type": "lib_symbol_issues"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Inductor_SMD'",
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol L1 [SRP1265A-5R6M]",
+                            "description": "Symbol C6 [C0603C104K5RACTU]",
                             "pos": {
                                 "x": 0.508,
                                 "y": 0.808
                             },
-                            "uuid": "a32d697e-337b-976e-17c0-7eaa0371ec08"
+                            "uuid": "1a56c20b-a3d8-c90f-3789-7e30b1bb8afd"
                         }
                     ],
                     "severity": "warning",
@@ -95,12 +125,72 @@
                     "description": "The current configuration does not include the symbol library ''",
                     "items": [
                         {
-                            "description": "Symbol L1 [SRP1265A-5R6M]",
+                            "description": "Symbol C6 [C0603C104K5RACTU]",
                             "pos": {
                                 "x": 0.508,
                                 "y": 0.808
                             },
-                            "uuid": "a32d697e-337b-976e-17c0-7eaa0371ec08"
+                            "uuid": "1a56c20b-a3d8-c90f-3789-7e30b1bb8afd"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol R2 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 1.108
+                            },
+                            "uuid": "8cdaffa4-645e-d6aa-fd64-609e46ec00e8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R2 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 1.108
+                            },
+                            "uuid": "8cdaffa4-645e-d6aa-fd64-609e46ec00e8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Button_Switch_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol SW1 [EVQ-P7A01P]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 1.408
+                            },
+                            "uuid": "2c9e102e-b51f-5ba6-9219-949dbad7280c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol SW1 [EVQ-P7A01P]",
+                            "pos": {
+                                "x": 0.508,
+                                "y": 1.408
+                            },
+                            "uuid": "2c9e102e-b51f-5ba6-9219-949dbad7280c"
                         }
                     ],
                     "severity": "warning",
@@ -115,7 +205,7 @@
                                 "x": 0.7556,
                                 "y": 0.508
                             },
-                            "uuid": "94f5112c-1066-0612-5f4d-d514a91c950f"
+                            "uuid": "442565cd-f0bf-dfbf-0677-b44ac46c0c67"
                         }
                     ],
                     "severity": "warning",
@@ -125,12 +215,42 @@
                     "description": "Symbol pin or wire end off connection grid",
                     "items": [
                         {
-                            "description": "Symbol R1 Pin 1 [1, Bidirectional, Line]",
+                            "description": "Symbol C7 Pin 1 [1, Bidirectional, Line]",
                             "pos": {
                                 "x": 0.7556,
                                 "y": 0.808
                             },
-                            "uuid": "5e84fd31-348a-8542-e610-3464f13f545f"
+                            "uuid": "6b2855a7-4fe9-2a6a-6597-38fd7cc27b51"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R3 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.7556,
+                                "y": 1.108
+                            },
+                            "uuid": "0d54085c-dabd-ac58-2f6c-b8fdf7fa2660"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol SW2 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 0.7556,
+                                "y": 1.408
+                            },
+                            "uuid": "7bd2db38-97ab-3cbf-c011-10b3c32a88bc"
                         }
                     ],
                     "severity": "warning",
@@ -145,7 +265,7 @@
                                 "x": 0.908,
                                 "y": 0.508
                             },
-                            "uuid": "e49280a0-fb86-3e8d-bd31-f5f888c91996"
+                            "uuid": "8ca943ea-2e53-e760-8418-e8f4006045b7"
                         }
                     ],
                     "severity": "warning",
@@ -160,22 +280,22 @@
                                 "x": 0.908,
                                 "y": 0.508
                             },
-                            "uuid": "e49280a0-fb86-3e8d-bd31-f5f888c91996"
+                            "uuid": "8ca943ea-2e53-e760-8418-e8f4006045b7"
                         }
                     ],
                     "severity": "warning",
                     "type": "lib_symbol_issues"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol R1 [RC0603FR-07100KL]",
+                            "description": "Symbol C7 [GRM21BR71A106KE51L]",
                             "pos": {
                                 "x": 0.908,
                                 "y": 0.808
                             },
-                            "uuid": "031112f3-1d1e-6303-0593-3760f222de85"
+                            "uuid": "40378f36-d6c9-0c79-c6c7-baff194c3ea3"
                         }
                     ],
                     "severity": "warning",
@@ -185,12 +305,72 @@
                     "description": "The current configuration does not include the symbol library ''",
                     "items": [
                         {
-                            "description": "Symbol R1 [RC0603FR-07100KL]",
+                            "description": "Symbol C7 [GRM21BR71A106KE51L]",
                             "pos": {
                                 "x": 0.908,
                                 "y": 0.808
                             },
-                            "uuid": "031112f3-1d1e-6303-0593-3760f222de85"
+                            "uuid": "40378f36-d6c9-0c79-c6c7-baff194c3ea3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol R3 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 1.108
+                            },
+                            "uuid": "46e1fd7b-7509-5c5a-b018-edc1babca55c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R3 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 1.108
+                            },
+                            "uuid": "46e1fd7b-7509-5c5a-b018-edc1babca55c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Button_Switch_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol SW2 [EVQ-P7A01P]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 1.408
+                            },
+                            "uuid": "f3fbd215-7827-f5a6-1cdb-f97b79e92a29"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol SW2 [EVQ-P7A01P]",
+                            "pos": {
+                                "x": 0.908,
+                                "y": 1.408
+                            },
+                            "uuid": "f3fbd215-7827-f5a6-1cdb-f97b79e92a29"
                         }
                     ],
                     "severity": "warning",
@@ -205,7 +385,7 @@
                                 "x": 1.1556,
                                 "y": 0.508
                             },
-                            "uuid": "a136a9eb-d74c-5237-6e03-b335f642208f"
+                            "uuid": "302faad4-e234-6956-cd3d-78a0061a89f8"
                         }
                     ],
                     "severity": "warning",
@@ -215,12 +395,42 @@
                     "description": "Symbol pin or wire end off connection grid",
                     "items": [
                         {
-                            "description": "Symbol R2 Pin 1 [1, Bidirectional, Line]",
+                            "description": "Symbol C8 Pin 1 [1, Bidirectional, Line]",
                             "pos": {
                                 "x": 1.1556,
                                 "y": 0.808
                             },
-                            "uuid": "01db69e4-8d75-07fb-7125-809fa3071dc0"
+                            "uuid": "061f9adb-6af9-67a0-08af-2894cb29c7e6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R4 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.1556,
+                                "y": 1.108
+                            },
+                            "uuid": "0b48b5e7-4cf4-2dae-df28-6f98723848a9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol U1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.1556,
+                                "y": 1.4588
+                            },
+                            "uuid": "89f6f12d-ca8d-c316-cb34-0972bf5c87d6"
                         }
                     ],
                     "severity": "warning",
@@ -235,7 +445,7 @@
                                 "x": 1.308,
                                 "y": 0.508
                             },
-                            "uuid": "14d592c4-9c66-fce7-e035-8a64cb9ed609"
+                            "uuid": "139a0e67-1890-2787-ea6f-595211da7f98"
                         }
                     ],
                     "severity": "warning",
@@ -250,22 +460,22 @@
                                 "x": 1.308,
                                 "y": 0.508
                             },
-                            "uuid": "14d592c4-9c66-fce7-e035-8a64cb9ed609"
+                            "uuid": "139a0e67-1890-2787-ea6f-595211da7f98"
                         }
                     ],
                     "severity": "warning",
                     "type": "lib_symbol_issues"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol R2 [RC0603FR-07100KL]",
+                            "description": "Symbol C8 [C0603C104K5RACTU]",
                             "pos": {
                                 "x": 1.308,
                                 "y": 0.808
                             },
-                            "uuid": "beac16b8-a265-093d-dd42-aa46589024c3"
+                            "uuid": "0ff4915d-7fef-384f-efa3-e0400dd9d278"
                         }
                     ],
                     "severity": "warning",
@@ -275,12 +485,72 @@
                     "description": "The current configuration does not include the symbol library ''",
                     "items": [
                         {
-                            "description": "Symbol R2 [RC0603FR-07100KL]",
+                            "description": "Symbol C8 [C0603C104K5RACTU]",
                             "pos": {
                                 "x": 1.308,
                                 "y": 0.808
                             },
-                            "uuid": "beac16b8-a265-093d-dd42-aa46589024c3"
+                            "uuid": "0ff4915d-7fef-384f-efa3-e0400dd9d278"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol R4 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 1.108
+                            },
+                            "uuid": "df552236-a411-e51b-1afd-a98f9ef6a3d4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R4 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 1.108
+                            },
+                            "uuid": "df552236-a411-e51b-1afd-a98f9ef6a3d4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Package_TO_SOT_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol U1 [LMR51430XDDCR]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 1.408
+                            },
+                            "uuid": "88533a19-0534-d776-4327-ad55ae3d40a6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol U1 [LMR51430XDDCR]",
+                            "pos": {
+                                "x": 1.308,
+                                "y": 1.408
+                            },
+                            "uuid": "88533a19-0534-d776-4327-ad55ae3d40a6"
                         }
                     ],
                     "severity": "warning",
@@ -295,7 +565,7 @@
                                 "x": 1.5556,
                                 "y": 0.508
                             },
-                            "uuid": "8ba39e66-e15b-65dc-ad7b-e334634393db"
+                            "uuid": "c7cdc276-f98a-856d-4744-58b64e32e2f7"
                         }
                     ],
                     "severity": "warning",
@@ -305,121 +575,76 @@
                     "description": "Symbol pin or wire end off connection grid",
                     "items": [
                         {
-                            "description": "Symbol U1 Pin 1 [1, Bidirectional, Line]",
+                            "description": "Symbol L1 Pin 1 [1, Bidirectional, Line]",
                             "pos": {
                                 "x": 1.5556,
-                                "y": 0.8588
+                                "y": 0.808
                             },
-                            "uuid": "04aa89b9-5b3c-18fb-3ae4-7280af7692bc"
+                            "uuid": "3b603aad-01a3-1d57-927a-0e4c21cfd87d"
                         }
                     ],
                     "severity": "warning",
                     "type": "endpoint_off_grid"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol C4 [CL32B106KBJZW6E]",
+                            "description": "Global Label 'gpio37'",
                             "pos": {
-                                "x": 1.708,
-                                "y": 0.508
+                                "x": 1.5556,
+                                "y": 0.9254
                             },
-                            "uuid": "99d272fe-e5d1-7b40-d5b1-6f9bfdd81a4a"
+                            "uuid": "d29b9cdb-8c78-5c96-035c-eb35173a3150"
                         }
                     ],
                     "severity": "warning",
-                    "type": "footprint_link_issues"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "The current configuration does not include the symbol library ''",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol C4 [CL32B106KBJZW6E]",
+                            "description": "Global Label 'gpio36'",
                             "pos": {
-                                "x": 1.708,
-                                "y": 0.508
+                                "x": 1.5556,
+                                "y": 0.9762
                             },
-                            "uuid": "99d272fe-e5d1-7b40-d5b1-6f9bfdd81a4a"
+                            "uuid": "eceeb612-74ae-76b2-5765-4a09d432c3b4"
                         }
                     ],
                     "severity": "warning",
-                    "type": "lib_symbol_issues"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Package_TO_SOT_SMD'",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol U1 [LMR51430XDDCR]",
+                            "description": "Global Label 'gpio35'",
                             "pos": {
-                                "x": 1.708,
-                                "y": 0.808
+                                "x": 1.5556,
+                                "y": 1.027
                             },
-                            "uuid": "ef7db294-d8b6-d8c2-7e2a-28060b200d43"
+                            "uuid": "e953ec03-b770-e61f-5ebb-14f4c710ca2b"
                         }
                     ],
                     "severity": "warning",
-                    "type": "footprint_link_issues"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "The current configuration does not include the symbol library ''",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol U1 [LMR51430XDDCR]",
+                            "description": "Global Label 'gpio21'",
                             "pos": {
-                                "x": 1.708,
-                                "y": 0.808
+                                "x": 1.5556,
+                                "y": 1.0778
                             },
-                            "uuid": "ef7db294-d8b6-d8c2-7e2a-28060b200d43"
+                            "uuid": "04bd397f-1054-d5dc-6d47-0bc992ad59a8"
                         }
                     ],
                     "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "Symbol pin or wire end off connection grid",
-                    "items": [
-                        {
-                            "description": "Symbol C5 Pin 1 [1, Bidirectional, Line]",
-                            "pos": {
-                                "x": 1.9556,
-                                "y": 0.508
-                            },
-                            "uuid": "a592c6ef-0085-5c8f-129d-fe3e73b502be"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "endpoint_off_grid"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C5 [C0603C104K5RACTU]",
-                            "pos": {
-                                "x": 2.108,
-                                "y": 0.508
-                            },
-                            "uuid": "862b0fc6-ea11-0daf-c1dc-f9388ad81560"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library ''",
-                    "items": [
-                        {
-                            "description": "Symbol C5 [C0603C104K5RACTU]",
-                            "pos": {
-                                "x": 2.108,
-                                "y": 0.508
-                            },
-                            "uuid": "862b0fc6-ea11-0daf-c1dc-f9388ad81560"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
+                    "type": "isolated_pin_label"
                 },
                 {
                     "description": "Symbol pin or wire end off connection grid",
@@ -427,359 +652,224 @@
                         {
                             "description": "Symbol R5 Pin 1 [1, Bidirectional, Line]",
                             "pos": {
-                                "x": 0.3556,
-                                "y": 0.808
+                                "x": 1.5556,
+                                "y": 1.108
                             },
-                            "uuid": "e753b615-6e0a-1f72-7e42-d093c1538ad7"
+                            "uuid": "b145117f-d092-2a13-1930-ad65b98e5bbf"
                         }
                     ],
                     "severity": "warning",
                     "type": "endpoint_off_grid"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol C6 [C0603C104K5RACTU]",
-                            "pos": {
-                                "x": 0.508,
-                                "y": 0.508
-                            },
-                            "uuid": "139fe58c-62db-93b8-adc9-baa39734bff2"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library ''",
-                    "items": [
-                        {
-                            "description": "Symbol C6 [C0603C104K5RACTU]",
-                            "pos": {
-                                "x": 0.508,
-                                "y": 0.508
-                            },
-                            "uuid": "139fe58c-62db-93b8-adc9-baa39734bff2"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol R5 [RC0603FR-07100KL]",
-                            "pos": {
-                                "x": 0.508,
-                                "y": 0.808
-                            },
-                            "uuid": "49e59e68-a15f-6e4d-4594-67e30d733814"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library ''",
-                    "items": [
-                        {
-                            "description": "Symbol R5 [RC0603FR-07100KL]",
-                            "pos": {
-                                "x": 0.508,
-                                "y": 0.808
-                            },
-                            "uuid": "49e59e68-a15f-6e4d-4594-67e30d733814"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "Symbol pin or wire end off connection grid",
-                    "items": [
-                        {
-                            "description": "Symbol C7 Pin 1 [1, Bidirectional, Line]",
-                            "pos": {
-                                "x": 0.7556,
-                                "y": 0.508
-                            },
-                            "uuid": "45bd7891-2f36-06ed-2652-5e5d68a5cb63"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "endpoint_off_grid"
-                },
-                {
-                    "description": "Symbol pin or wire end off connection grid",
-                    "items": [
-                        {
-                            "description": "Symbol R6 Pin 1 [1, Bidirectional, Line]",
-                            "pos": {
-                                "x": 0.7556,
-                                "y": 0.808
-                            },
-                            "uuid": "f2993e29-0d86-7b63-646f-02af2648d492"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "endpoint_off_grid"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C7 [GRM21BR71A106KE51L]",
-                            "pos": {
-                                "x": 0.908,
-                                "y": 0.508
-                            },
-                            "uuid": "c9c8cabe-d4ba-75c5-3986-8899e50822b1"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library ''",
-                    "items": [
-                        {
-                            "description": "Symbol C7 [GRM21BR71A106KE51L]",
-                            "pos": {
-                                "x": 0.908,
-                                "y": 0.508
-                            },
-                            "uuid": "c9c8cabe-d4ba-75c5-3986-8899e50822b1"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol R6 [RC0603FR-07100KL]",
-                            "pos": {
-                                "x": 0.908,
-                                "y": 0.808
-                            },
-                            "uuid": "4c04980b-b4c1-ae9d-2ff2-579f3a30ba4d"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library ''",
-                    "items": [
-                        {
-                            "description": "Symbol R6 [RC0603FR-07100KL]",
-                            "pos": {
-                                "x": 0.908,
-                                "y": 0.808
-                            },
-                            "uuid": "4c04980b-b4c1-ae9d-2ff2-579f3a30ba4d"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "Symbol pin or wire end off connection grid",
-                    "items": [
-                        {
-                            "description": "Symbol C8 Pin 1 [1, Bidirectional, Line]",
-                            "pos": {
-                                "x": 1.1556,
-                                "y": 0.508
-                            },
-                            "uuid": "227c39af-507e-dd0a-d217-7cab46c9ebf0"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "endpoint_off_grid"
-                },
-                {
-                    "description": "Symbol pin or wire end off connection grid",
-                    "items": [
-                        {
-                            "description": "Symbol SW1 Pin 1 [1, Bidirectional, Line]",
-                            "pos": {
-                                "x": 1.1556,
-                                "y": 0.808
-                            },
-                            "uuid": "03396a5f-768d-c30b-a884-011f8237e2d9"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "endpoint_off_grid"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C8 [C0603C104K5RACTU]",
-                            "pos": {
-                                "x": 1.308,
-                                "y": 0.508
-                            },
-                            "uuid": "55abf757-01bf-96de-f636-073f0d1258ea"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library ''",
-                    "items": [
-                        {
-                            "description": "Symbol C8 [C0603C104K5RACTU]",
-                            "pos": {
-                                "x": 1.308,
-                                "y": 0.508
-                            },
-                            "uuid": "55abf757-01bf-96de-f636-073f0d1258ea"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol SW1 [RC0603FR-07100KL]",
-                            "pos": {
-                                "x": 1.308,
-                                "y": 0.808
-                            },
-                            "uuid": "d4a56fff-5fee-d541-a4d1-a9f096420d42"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library ''",
-                    "items": [
-                        {
-                            "description": "Symbol SW1 [RC0603FR-07100KL]",
-                            "pos": {
-                                "x": 1.308,
-                                "y": 0.808
-                            },
-                            "uuid": "d4a56fff-5fee-d541-a4d1-a9f096420d42"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "Symbol pin or wire end off connection grid",
-                    "items": [
-                        {
-                            "description": "Symbol R3 Pin 1 [1, Bidirectional, Line]",
+                            "description": "Global Label 'rx'",
                             "pos": {
                                 "x": 1.5556,
-                                "y": 0.508
+                                "y": 1.1286
                             },
-                            "uuid": "0292c856-e498-3a6e-a784-100e7d33c80d"
+                            "uuid": "e238a09c-5ca0-98da-c879-3bb1b3f90ac2"
                         }
                     ],
                     "severity": "warning",
-                    "type": "endpoint_off_grid"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "Symbol pin or wire end off connection grid",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol SW2 Pin 1 [1, Bidirectional, Line]",
+                            "description": "Global Label 'tx'",
                             "pos": {
                                 "x": 1.5556,
-                                "y": 0.808
+                                "y": 1.1794
                             },
-                            "uuid": "2ecb87ef-f52b-3e93-e20c-bc1467d574a8"
+                            "uuid": "cd691a46-5983-6229-6b91-c3a1d5bfc592"
                         }
                     ],
                     "severity": "warning",
-                    "type": "endpoint_off_grid"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol R3 [RC0603FR-07100KL]",
+                            "description": "Global Label 'usb_dp'",
                             "pos": {
-                                "x": 1.708,
-                                "y": 0.508
+                                "x": 1.5556,
+                                "y": 1.2302
                             },
-                            "uuid": "40d6e426-3f33-cbce-135e-2611de8441b8"
+                            "uuid": "76f88bb1-30ea-1072-c198-2b443936a658"
                         }
                     ],
                     "severity": "warning",
-                    "type": "footprint_link_issues"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "The current configuration does not include the symbol library ''",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol R3 [RC0603FR-07100KL]",
+                            "description": "Global Label 'usb_dn'",
                             "pos": {
-                                "x": 1.708,
-                                "y": 0.508
+                                "x": 1.5556,
+                                "y": 1.281
                             },
-                            "uuid": "40d6e426-3f33-cbce-135e-2611de8441b8"
+                            "uuid": "b883d1ea-6177-4c68-ce6f-198c80324bae"
                         }
                     ],
                     "severity": "warning",
-                    "type": "lib_symbol_issues"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol SW2 [RC0603FR-07100KL]",
+                            "description": "Global Label 'gpio18'",
                             "pos": {
-                                "x": 1.708,
-                                "y": 0.808
+                                "x": 1.5556,
+                                "y": 1.3318
                             },
-                            "uuid": "37190e15-87e1-e706-ea3c-4b9da0f7831d"
+                            "uuid": "c74d7b6d-999c-7c04-072b-12fa3e222b64"
                         }
                     ],
                     "severity": "warning",
-                    "type": "footprint_link_issues"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "The current configuration does not include the symbol library ''",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol SW2 [RC0603FR-07100KL]",
+                            "description": "Global Label 'adc_ntc_stub'",
                             "pos": {
-                                "x": 1.708,
-                                "y": 0.808
+                                "x": 1.5556,
+                                "y": 1.3826
                             },
-                            "uuid": "37190e15-87e1-e706-ea3c-4b9da0f7831d"
+                            "uuid": "55ece74b-77c2-5eae-1f58-cf80c2b3dd6d"
                         }
                     ],
                     "severity": "warning",
-                    "type": "lib_symbol_issues"
+                    "type": "isolated_pin_label"
                 },
                 {
-                    "description": "Symbol pin or wire end off connection grid",
+                    "description": "Label connected to only one pin",
                     "items": [
                         {
-                            "description": "Symbol R4 Pin 1 [1, Bidirectional, Line]",
+                            "description": "Global Label 'adc_v_bus_stub'",
                             "pos": {
-                                "x": 1.9556,
-                                "y": 0.508
+                                "x": 1.5556,
+                                "y": 1.4334
                             },
-                            "uuid": "f4c8b6b5-c20a-ff77-a81b-238e2d6bd9c0"
+                            "uuid": "610fcbda-7e80-35d9-d71d-05e1f6999eda"
                         }
                     ],
                     "severity": "warning",
-                    "type": "endpoint_off_grid"
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'adc_i_sense_stub'",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.4842
+                            },
+                            "uuid": "768bbc6a-6ba5-865d-b923-f6f9d832106c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-5'",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.535
+                            },
+                            "uuid": "9ada4805-b132-fbd5-8465-7574ea460da2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-3'",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.5858
+                            },
+                            "uuid": "c2bde34b-23d7-e94b-a119-a94f5fe4cb3e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'miso'",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.6366
+                            },
+                            "uuid": "321427b7-9aca-7fdc-8630-47be48f5cef2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mosi'",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.6874
+                            },
+                            "uuid": "ca2b4035-03cc-6b87-954a-f2aee9da8580"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line'",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.7382
+                            },
+                            "uuid": "112e6205-faeb-e388-481f-76014b8bb29d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'sclk'",
+                            "pos": {
+                                "x": 1.5556,
+                                "y": 1.789
+                            },
+                            "uuid": "87f70097-6d4c-d03f-c354-fd184dbe2c85"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
                 },
                 {
                     "description": "Symbol pin or wire end off connection grid",
@@ -787,25 +877,25 @@
                         {
                             "description": "Symbol U2 Pin 1 [1, Bidirectional, Line]",
                             "pos": {
-                                "x": 1.9556,
-                                "y": 1.2906
+                                "x": 1.5556,
+                                "y": 1.8906
                             },
-                            "uuid": "29fdc725-5089-be9b-5f6f-7e98c38e6a29"
+                            "uuid": "0b5d9a0a-40fc-48d1-5dae-f44e99064fc3"
                         }
                     ],
                     "severity": "warning",
                     "type": "endpoint_off_grid"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol R4 [RC0603FR-07100KL]",
+                            "description": "Symbol C4 [CL32B106KBJZW6E]",
                             "pos": {
-                                "x": 2.108,
+                                "x": 1.708,
                                 "y": 0.508
                             },
-                            "uuid": "bfeac704-0715-d194-f3a4-2e336f13a6da"
+                            "uuid": "b96f5d1b-105a-4145-f851-16e07a01bc1a"
                         }
                     ],
                     "severity": "warning",
@@ -815,12 +905,72 @@
                     "description": "The current configuration does not include the symbol library ''",
                     "items": [
                         {
-                            "description": "Symbol R4 [RC0603FR-07100KL]",
+                            "description": "Symbol C4 [CL32B106KBJZW6E]",
                             "pos": {
-                                "x": 2.108,
+                                "x": 1.708,
                                 "y": 0.508
                             },
-                            "uuid": "bfeac704-0715-d194-f3a4-2e336f13a6da"
+                            "uuid": "b96f5d1b-105a-4145-f851-16e07a01bc1a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Inductor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol L1 [SRP1265A-5R6M]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 0.808
+                            },
+                            "uuid": "ae1a355a-df26-a4e7-335f-2b330e89a67a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol L1 [SRP1265A-5R6M]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 0.808
+                            },
+                            "uuid": "ae1a355a-df26-a4e7-335f-2b330e89a67a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol R5 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 1.108
+                            },
+                            "uuid": "98600adb-07ef-0540-43b1-65c6636fc4fe"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R5 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 1.708,
+                                "y": 1.108
+                            },
+                            "uuid": "98600adb-07ef-0540-43b1-65c6636fc4fe"
                         }
                     ],
                     "severity": "warning",
@@ -832,10 +982,10 @@
                         {
                             "description": "Symbol U2 [ESP32-S3-WROOM-1-N8R8]",
                             "pos": {
-                                "x": 2.108,
-                                "y": 0.808
+                                "x": 1.708,
+                                "y": 1.408
                             },
-                            "uuid": "4906a98a-e38a-aee2-9d83-8f7589ff0197"
+                            "uuid": "0a50b267-d69f-481b-386a-20b1275bb084"
                         }
                     ],
                     "severity": "warning",
@@ -847,26 +997,376 @@
                         {
                             "description": "Symbol U2 [ESP32-S3-WROOM-1-N8R8]",
                             "pos": {
+                                "x": 1.708,
+                                "y": 1.408
+                            },
+                            "uuid": "0a50b267-d69f-481b-386a-20b1275bb084"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io48'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 0.9508
+                            },
+                            "uuid": "d45da8b9-ca6a-bd2f-3a38-e1793a5bb77a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-4'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.0016
+                            },
+                            "uuid": "0f186a41-622f-6b2d-4227-a99c98b6f9d2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io46'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.0524
+                            },
+                            "uuid": "e080f512-cb7d-280a-56e5-f04f7a57cc22"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io45'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.1032
+                            },
+                            "uuid": "d48bfc90-b815-a1c3-909b-5198ddc128d1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io42'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.154
+                            },
+                            "uuid": "d92c0ded-d3ea-c80a-ce70-4dc178cc10df"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io41'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.2048
+                            },
+                            "uuid": "e40bc3b9-045b-d14a-deb1-aefd6e3e06a2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io40'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.2556
+                            },
+                            "uuid": "7edad407-911e-52cb-b0f2-a670c8cc79d8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-8'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.408
+                            },
+                            "uuid": "7939deb1-3104-a7ca-7ba3-76c8bd9b1b1e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-6'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.4588
+                            },
+                            "uuid": "c436fe68-9266-b24e-d7b8-e53f48d29317"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'io13'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.5096
+                            },
+                            "uuid": "306d57d2-b008-2d63-3ef2-ef7cc41ff0a1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-1'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.5604
+                            },
+                            "uuid": "b74c7091-2f91-86ad-9928-575e253aa2c8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-2'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.6112
+                            },
+                            "uuid": "32e859b6-ad4f-fdf3-342e-0dce4939cf9a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'mcu-line-7'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.662
+                            },
+                            "uuid": "e9582511-9763-1a8a-dd63-44cf98741f68"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'pwm_l'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.8144
+                            },
+                            "uuid": "9592c8a5-7aee-d7a8-de86-145c97509594"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'pwm_h'",
+                            "pos": {
+                                "x": 1.8604,
+                                "y": 1.8652
+                            },
+                            "uuid": "1088ce88-b8cf-244f-c843-0ef3bc89e8b6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol C5 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.508
+                            },
+                            "uuid": "63e8a411-76f7-d0be-fd7f-cbd20f65ded9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R1 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 0.808
+                            },
+                            "uuid": "043199b8-633b-e7c8-49be-380c5b5692ab"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Symbol R6 Pin 1 [1, Bidirectional, Line]",
+                            "pos": {
+                                "x": 1.9556,
+                                "y": 1.108
+                            },
+                            "uuid": "d099161d-90ab-452f-08a3-e35cbc6eaf64"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C5 [C0603C104K5RACTU]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 0.508
+                            },
+                            "uuid": "b1ef6e0e-c679-1261-178d-f7aacd2f70e4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol C5 [C0603C104K5RACTU]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 0.508
+                            },
+                            "uuid": "b1ef6e0e-c679-1261-178d-f7aacd2f70e4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol R1 [RC0603FR-07100KL]",
+                            "pos": {
                                 "x": 2.108,
                                 "y": 0.808
                             },
-                            "uuid": "4906a98a-e38a-aee2-9d83-8f7589ff0197"
+                            "uuid": "5207602a-602f-7e62-c20f-1a27ef1dab00"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R1 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 0.808
+                            },
+                            "uuid": "5207602a-602f-7e62-c20f-1a27ef1dab00"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol R6 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 1.108
+                            },
+                            "uuid": "ded0dc06-a45b-07b9-3000-3544d78cd39a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library ''",
+                    "items": [
+                        {
+                            "description": "Symbol R6 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 2.108,
+                                "y": 1.108
+                            },
+                            "uuid": "ded0dc06-a45b-07b9-3000-3544d78cd39a"
                         }
                     ],
                     "severity": "warning",
                     "type": "lib_symbol_issues"
                 }
             ]
-        },
-        {
-            "path": "/MCU/",
-            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/342ceefe-d4ef-f24b-854a-f51698d00808",
-            "violations": []
-        },
-        {
-            "path": "/",
-            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55",
-            "violations": []
         }
     ],
     "source": "control-assembly.kicad_sch"

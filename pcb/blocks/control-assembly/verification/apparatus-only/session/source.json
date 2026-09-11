@@ -1,7 +1,7 @@
 {
   "assembly_package": "pcb/blocks/control-assembly/assembly-candidate",
   "candidate_board": "control-assembly.kicad_pcb",
-  "context_sha256": "19a91ff9b4e1072a517d413dc4f1a6e9016666fccffbf451c703ced714515c47",
+  "context_sha256": "e2019db714423e2ac1f9cfbd080a9508883d7fcc997995d15abfa76696e8045b",
   "schema": "temper.assembly-trial-source.v1",
   "staging": {
     "C1": [
@@ -101,5 +101,5 @@
     ]
   },
   "staging_only": true,
-  "task_contract_sha256": "21deba0d30151f3c7d51a81090713ac79a4b48c919b966e9b9598a8268f1e6a5"
+  "task_contract_sha256": "ae48f5f043558e8a99c0056e6c1efaec6419fb4beca425b827993436bd7cccc2"
 }
