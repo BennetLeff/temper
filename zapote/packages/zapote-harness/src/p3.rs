@@ -109,7 +109,7 @@ mod tests {
                 |v| v.as_bytes().to_vec(),
             );
             let report = run(unit, &source, &native, &board);
-            if unit == "current-sense" {
+            if unit == "current-sense" || unit == "interlock" {
                 assert!(
                     report
                         .findings
@@ -237,7 +237,7 @@ pub fn run(unit: &str, source: &str, native: &str, board: &[u8]) -> zapote_core:
         "gate-drive" => (
             zapote_erc::gate_drive::ENTRY,
             vec!["gate_h_out"],
-            "driver.1",
+            "ctrl_gnd",
         ),
         "pfc" | "power-entry" => (zapote_erc::power_entry::ENTRY, vec!["q_boost-g"], "minus"),
         "current-sense" => (
