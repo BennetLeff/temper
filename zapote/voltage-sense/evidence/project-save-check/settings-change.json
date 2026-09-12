@@ -1,0 +1,11 @@
+{
+  "schema": "zapote.voltage.project-save.v1",
+  "prior_frozen_commit": "2561adc94d12b35d431a07e4d1e68d40d38db2d3",
+  "old_project_sha256": "5f0b5f62d91511452a3aa5b4aa7b3f7c69c29532a6e565fdd71a895a0e5005c0",
+  "new_project_sha256": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+  "existing_electrical_and_routing_settings": "unchanged",
+  "changes": "KiCad defaults/settings expanded; schema version1\u21923; Default netclass display/priority additions",
+  "board_and_schematic": "byte-identical to prior commit",
+  "native_verification": "one ERC/DRC/parity run, zero findings",
+  "scope": "saved project checkpoint; old final-manifest remains historical evidence at prior commit"
+}
