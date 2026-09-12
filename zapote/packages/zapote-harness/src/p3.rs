@@ -2,6 +2,7 @@
 //! The adapter performs no classification by name: every path is a reviewed
 //! list of exact source endpoints supplied by the caller.
 
+use sha2::Digest;
 use zapote_core::unit::UnitNativeEvidence;
 use zapote_drc::switching::{
     CommutationPath, NoisePair, SwitchingBoard, SwitchingContract, SwitchingTrace, SwitchingVia,
@@ -82,6 +83,55 @@ mod tests {
             zapote_core::Status::Fail
         );
     }
+
+    #[test]
+    fn four_saved_units_report_measured_geometry_and_missing_limits() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        for (unit, dir, native_name) in [
+            ("gate-drive", "gate-drive", "native-09.json"),
+            ("power-entry", "power-entry", "native-11.json"),
+            ("current-sense", "current-sense", "native-final.json"),
+            ("interlock", "interlock", "native-final.json"),
+        ] {
+            let source = std::fs::read_to_string(
+                root.join(format!("../../{dir}/candidate/source-manifest.json")),
+            )
+            .unwrap();
+            let native =
+                std::fs::read_to_string(root.join(format!("../../{dir}/evidence/{native_name}")))
+                    .unwrap();
+            let json = serde_json::from_str::<serde_json::Value>(&native).unwrap();
+            let board = json["board_file_utf8"].as_str().map_or_else(
+                || {
+                    std::fs::read(root.join(format!("../../{dir}/candidate/section.kicad_pcb")))
+                        .unwrap()
+                },
+                |v| v.as_bytes().to_vec(),
+            );
+            let report = run(unit, &source, &native, &board);
+            if unit == "current-sense" {
+                assert!(
+                    report
+                        .findings
+                        .iter()
+                        .any(|f| f.rule == "DRC.P3.SOURCE_BINDING"),
+                    "{unit}: {report:?}"
+                );
+                continue;
+            }
+            assert!(
+                report
+                    .checked_rules
+                    .iter()
+                    .any(|r| r == "DRC.P3.SWITCHING_LOOP_AREA"),
+                "{unit}: {report:?}"
+            );
+            assert!(report
+                .findings
+                .iter()
+                .any(|f| f.rule == "ERC.P3.THERMAL_OPERATING_LIMIT"));
+        }
+    }
 }
 
 /// Bind exact source endpoint names to native geometry and construct the P3
@@ -98,8 +148,12 @@ pub fn switching_input(
     circuit.bind_native(native)?;
     let native_json: serde_json::Value =
         serde_json::from_str(native).map_err(|e| format!("native JSON: {e}"))?;
-    if native_json["board_file_utf8"].as_str().map(str::as_bytes) != Some(board_bytes) {
-        return Err("native export board bytes do not match supplied saved board".into());
+    let embedded_matches =
+        native_json["board_file_utf8"].as_str().map(str::as_bytes) == Some(board_bytes);
+    let hashed_matches = native_json["board_sha256"].as_str()
+        == Some(&format!("{:x}", sha2::Sha256::digest(board_bytes)));
+    if !embedded_matches && !hashed_matches {
+        return Err("native export does not identify supplied saved board bytes".into());
     }
     let evidence: UnitNativeEvidence =
         serde_json::from_str(native).map_err(|e| format!("native evidence: {e}"))?;
@@ -146,4 +200,120 @@ pub fn switching_input(
             noise_pairs,
         },
     ))
+}
+
+fn append(dst: &mut zapote_core::CheckReport, src: zapote_core::CheckReport) {
+    dst.findings.extend(src.findings);
+    dst.checked_rules.extend(src.checked_rules);
+    dst.coverage_gaps.extend(src.coverage_gaps);
+}
+
+/// Run the P3 subset against one saved unit. Net names are an explicit
+/// source-contract table; endpoint membership is resolved from `Circuit` and
+/// native binding is required before geometry is evaluated.
+pub fn run(unit: &str, source: &str, native: &str, board: &[u8]) -> zapote_core::CheckReport {
+    let (entry, current, return_net) = match unit {
+        "gate-drive" => (
+            zapote_erc::gate_drive::ENTRY,
+            vec!["gate_h_out", "gate_h_kelvin"],
+            "ctrl_gnd",
+        ),
+        "pfc" | "power-entry" => (
+            zapote_erc::power_entry::ENTRY,
+            vec!["q_boost-g", "gate"],
+            "minus",
+        ),
+        "current-sense" => (
+            "elec/src/current_sense_unit.ato:CurrentSenseUnit",
+            vec!["PRIMARY_IN", "PRIMARY_OUT"],
+            "gnd",
+        ),
+        "interlock" => (
+            "elec/src/interlock_unit.ato:InterlockUnit",
+            vec!["ocp_fault", "ovp_fault"],
+            "gnd",
+        ),
+        _ => {
+            return zapote_core::CheckReport::from_findings(
+                vec![zapote_core::Finding::indeterminate(
+                    "DRC.P3.APPLICABILITY",
+                    "unknown P3 unit",
+                    unit,
+                )],
+                vec!["DRC.P3.APPLICABILITY".into()],
+                vec![],
+            )
+        }
+    };
+    let circuit = match zapote_erc::source_circuit::Circuit::parse(source, entry) {
+        Ok(c) => c,
+        Err(e) => {
+            return zapote_core::CheckReport::from_findings(
+                vec![zapote_core::Finding::indeterminate(
+                    "DRC.P3.SOURCE_BINDING",
+                    e,
+                    unit,
+                )],
+                vec!["DRC.P3.SOURCE_BINDING".into()],
+                vec![],
+            )
+        }
+    };
+    let endpoint_for = |net: &str| {
+        circuit
+            .pins
+            .iter()
+            .find(|(_, value)| value.as_str() == net)
+            .map(|(endpoint, _)| endpoint.clone())
+    };
+    let Some(return_endpoint) = endpoint_for(return_net) else {
+        return zapote_core::CheckReport::from_findings(
+            vec![zapote_core::Finding::indeterminate(
+                "DRC.P3.SOURCE_BINDING",
+                format!("source return net {return_net} has no endpoint"),
+                unit,
+            )],
+            vec!["DRC.P3.SOURCE_BINDING".into()],
+            vec![],
+        );
+    };
+    let Some(current_endpoints) = current
+        .iter()
+        .map(|net| endpoint_for(net))
+        .collect::<Option<Vec<_>>>()
+    else {
+        return zapote_core::CheckReport::from_findings(
+            vec![zapote_core::Finding::indeterminate(
+                "DRC.P3.SOURCE_BINDING",
+                "one or more explicit switching nets have no source endpoint",
+                unit,
+            )],
+            vec!["DRC.P3.SOURCE_BINDING".into()],
+            vec![],
+        );
+    };
+    let path = SourcePath {
+        name: format!("{unit}_commutation"),
+        current_endpoints,
+        return_endpoint,
+        max_bbox_area_mm2: None,
+        required_return_stitches: None,
+    };
+    let mut report = zapote_core::CheckReport::from_findings(vec![], vec![], vec![]);
+    match switching_input(source, entry, native, board, &[path], vec![]) {
+        Ok((geometry, contract)) => append(
+            &mut report,
+            zapote_drc::switching::validate(&geometry, &contract),
+        ),
+        Err(e) => report.findings.push(zapote_core::Finding::fail(
+            "DRC.P3.SOURCE_NATIVE_BINDING",
+            e,
+            unit,
+        )),
+    }
+    append(
+        &mut report,
+        zapote_erc::operating_limits::validate(None, None),
+    );
+    report
 }
