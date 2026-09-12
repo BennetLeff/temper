@@ -1,0 +1,75 @@
+{
+  "before_sha256": "03ffcdd48a74e9dbe122221620db11197c79cd45a0783557cb69d6461fda51ac",
+  "after_sha256": "b5de47c807a662b8ad1aa42a2d90bd01043f43c3e0190fff4ae9a984b25753c2",
+  "labels": {
+    "input": [
+      6,
+      29
+    ],
+    "host": [
+      70,
+      24
+    ],
+    "r_ovp_top1": [
+      20,
+      9
+    ],
+    "r_ovp_top2": [
+      30,
+      9
+    ],
+    "r_ovp_top3": [
+      40,
+      9
+    ],
+    "r_adc_top1": [
+      20,
+      25
+    ],
+    "r_adc_top2": [
+      30,
+      25
+    ],
+    "r_adc_top3": [
+      40,
+      25
+    ],
+    "r_ovp_bottom": [
+      45,
+      20
+    ],
+    "r_hyst": [
+      53,
+      7
+    ],
+    "r_adc_bottom": [
+      46,
+      35
+    ],
+    "comp": [
+      54,
+      20
+    ],
+    "reference": [
+      54,
+      23
+    ],
+    "c_adc": [
+      51,
+      36
+    ],
+    "c_comp": [
+      59,
+      10
+    ],
+    "c_ref_in": [
+      59,
+      32
+    ],
+    "c_ref_out": [
+      61,
+      22
+    ]
+  },
+  "scope": "fields and labels only"
+}

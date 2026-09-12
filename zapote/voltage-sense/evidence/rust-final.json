@@ -1,0 +1,920 @@
+{
+  "check_report": {
+    "checked_rules": [
+      "ERC.VOLTAGE.ADC_RANGE",
+      "ERC.VOLTAGE.CONNECTIVITY",
+      "ERC.VOLTAGE.OVP_APPLICABILITY",
+      "ERC.VOLTAGE.OVP_MODEL",
+      "ERC.VOLTAGE.PARTS",
+      "ERC.VOLTAGE.QUALIFICATION",
+      "ERC.VOLTAGE.SOURCE",
+      "ERC.VOLTAGE.STRESS",
+      "ERC.VOLTAGE.TOPOLOGY",
+      "DRC.BOARD.STACKUP",
+      "DRC.NATIVE.DOCUMENT_BINDING",
+      "DRC.VOLTAGE.LOCALITY",
+      "DRC.NATIVE.CLEARANCE"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding c_adc",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding c_comp",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding c_ref_in",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding c_ref_out",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding input",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding host",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_ovp_top1",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_ovp_top2",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_ovp_top3",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_ovp_bottom",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_hyst",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_adc_top1",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_adc_top2",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_adc_top3",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding r_adc_bottom",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding comp",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled component/attribute binding reference",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact 17-component source census",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact 17-component native census",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity input: 691253500002",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity host: B4B-XH-A(LF)(SN)",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity comp: TLV3201AIDBVR",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity reference: REF2025AIDDCR",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_ovp_top1: RC1206FR-07430KL",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_ovp_top2: RC1206FR-07430KL",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_ovp_top3: RC1206FR-07430KL",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_ovp_bottom: RT0603BRD0716K9L",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_hyst: RT0603BRD07487KL",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_adc_top1: RC1206FR-07300KL",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_adc_top2: RC1206FR-07300KL",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_adc_top3: RC1206FR-07300KL",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity r_adc_bottom: RC0603FR-0710KL",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity c_adc: C0603C104K5RACTU",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity c_comp: C0603C104K5RACTU",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity c_ref_in: C0603C104K5RACTU",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "qualified part identity c_ref_out: C0603C104K5RACTU",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_ovp_top1",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_ovp_top2",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_ovp_top3",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_ovp_bottom",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_hyst",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_adc_top1",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_adc_top2",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_adc_top3",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "value/tolerance matches exact MPN for r_adc_bottom",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled source equals complete independent pin/net intent",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.TOPOLOGY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native pad and connection census equals complete pin/net intent",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.TOPOLOGY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "strict source map covers every physical pin exactly once",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all BUS_PLUS endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all BUS_RETURN endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all +3V3 endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all OVP_MID1 endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all OVP_MID2 endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all OVP_SENSE endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all OVP_FAULT endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all VREF_2V5 endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all BUS_MON endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all ADC_MID1 endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all ADC_MID2 endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "all vbias endpoints in exactly one native copper cluster",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "no extra or fragmented native connectivity clusters",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native routed copper exists",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "ADC monitor at 250V, tolerance/tempco bounds [2.661651,2.835576] V <=3.1V",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.ADC_RANGE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "ideal comparator rising trip, resistor/reference bounds [196.126035,203.823744] V within195..205V",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.OVP_MODEL",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "ideal comparator external hysteresis [8.151449,9.349100] V within5..10V",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.OVP_MODEL",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "sensitivity scenario +/-5mV effective offset, VOL0..0.4V: rising [194.693341,204.230993] V; excludes unbounded internal hysteresis and is not a guaranteed device certificate",
+        "object": "comp",
+        "required": null,
+        "rule": "ERC.VOLTAGE.OVP_APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top1 short=None: conservative 85.121V/0.016945W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top2 short=None: conservative 85.121V/0.016945W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top3 short=None: conservative 85.121V/0.016945W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top2 short=Some(0): conservative 127.000V/0.038127W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top3 short=Some(0): conservative 127.000V/0.038127W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top1 short=Some(1): conservative 127.000V/0.038127W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top3 short=Some(1): conservative 127.000V/0.038127W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top1 short=Some(2): conservative 127.000V/0.038127W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_ovp_top2 short=Some(2): conservative 127.000V/0.038127W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top1 short=None: conservative 85.121V/0.024288W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top2 short=None: conservative 85.121V/0.024288W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top3 short=None: conservative 85.121V/0.024288W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top2 short=Some(0): conservative 127.000V/0.054648W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top3 short=Some(0): conservative 127.000V/0.054648W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top1 short=Some(1): conservative 127.000V/0.054648W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top3 short=Some(1): conservative 127.000V/0.054648W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top1 short=Some(2): conservative 127.000V/0.054648W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "r_adc_top2 short=Some(2): conservative 127.000V/0.054648W <=200V/50% of0.25W",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.STRESS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "capacitor source rating/value c_adc",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "capacitor source rating/value c_comp",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "capacitor source rating/value c_ref_in",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "capacitor source rating/value c_ref_out",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "TLV3201 internal hysteresis has no guaranteed maximum; 3.3V/common-mode output and offset applicability require qualification",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "nonisolated BUS_RETURN/host return must be reconciled with cooker PE and doubler midpoint before integration",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "receiver loading/acquisition and effective filter capacitance",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "power-off, bottom-resistor-open, brownout, surge/clamp behavior and assembled insulation",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "physical accuracy and end-to-end shutdown timing: NOT RUN",
+        "object": "VoltageSenseUnit",
+        "required": null,
+        "rule": "ERC.VOLTAGE.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+        "object": "board.setup.stackup",
+        "required": null,
+        "rule": "DRC.BOARD.STACKUP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "c_comp.1 to comp.5 pad-centre locality Some(4.0674969268580865) mm; required <=5 mm (not a loop-inductance claim)",
+        "object": "c_comp",
+        "required": null,
+        "rule": "DRC.VOLTAGE.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "c_ref_in.1 to reference.4 pad-centre locality Some(3.394780000235653) mm; required <=5 mm (not a loop-inductance claim)",
+        "object": "c_ref_in",
+        "required": null,
+        "rule": "DRC.VOLTAGE.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "c_ref_out.1 to reference.5 pad-centre locality Some(2.8756792675818326) mm; required <=5 mm (not a loop-inductance claim)",
+        "object": "c_ref_out",
+        "required": null,
+        "rule": "DRC.VOLTAGE.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native copper clears 0.2 mm fabrication floor",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.CLEARANCE",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "input_hash": "5243d1b7e887c0d1a7aaae7efbf5b8bf3dd1ca8a2ab3e56f04438f073dd89b8c",
+  "native_export": "zapote/voltage-sense/evidence/native-final.json",
+  "schema": "zapote.voltage-sense.check.v1",
+  "scope": "Standalone nonisolated 170 V half-bus monitor; model applicability and physical qualification remain indeterminate",
+  "source_manifest": "zapote/voltage-sense/candidate/source-manifest.json",
+  "status": "indeterminate"
+}

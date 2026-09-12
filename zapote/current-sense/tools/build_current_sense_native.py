@@ -146,6 +146,9 @@ def build(
     poses_path: Path,
     outline_path: Path,
     modules: tuple[str, ...],
+    entry_module: str = ENTRY_MODULE,
+    entry_file: str = "elec/src/current_sense_unit.ato",
+    title: str = "Standalone Current-Sensing Unit",
 ) -> None:
     if output.exists():
         raise FileExistsError(f"refusing to overwrite native output: {output}")
@@ -187,7 +190,7 @@ def build(
     export = json.loads(export_path.read_text(encoding="utf-8"))
     _require_source_hashes(repo, source, export)
 
-    bridge = block_source.bridge_netlist(net_path, ENTRY_MODULE)
+    bridge = block_source.bridge_netlist(net_path, entry_module)
     bom = block_source.parse_bom_mpn(csv_path.read_text(encoding="utf-8"))
     bundle = block_source._design_bundle()
     converted = json.loads(
@@ -195,7 +198,7 @@ def build(
             json.dumps(export, sort_keys=True),
             json.dumps(bridge, sort_keys=True),
             json.dumps(bom, sort_keys=True),
-            ENTRY_MODULE,
+            entry_module,
         )
     )
     by_path = {component["instance_path"]: component["reference"] for component in bridge["components"]}
@@ -285,8 +288,8 @@ def build(
         sheets=("CurrentSense",),
         sheet_files={"CurrentSense": "section.kicad_sch"},
         module_to_sheet=dict.fromkeys(modules, "CurrentSense"),
-        title="Standalone Current-Sensing Unit",
-        sheet_description="Generated from CurrentSenseUnit Atopile source",
+        title=title,
+        sheet_description=f"Generated from {entry_module} Atopile source",
         flat=True,
     )
     files = schematics._generate_all_sheets(sch, output, layout)
@@ -297,7 +300,7 @@ def build(
         raise ValueError("strict source bridge artifact changed during generation")
     manifest = {
         "schema": "zapote.current-sense.native-source-manifest.v1",
-        "entry": f"elec/src/current_sense_unit.ato:{ENTRY_MODULE}",
+        "entry": f"{entry_file}:{entry_module}",
         "source": str(source),
         "module_prefixes": list(modules),
         "component_scope": "all components in the standalone entry",

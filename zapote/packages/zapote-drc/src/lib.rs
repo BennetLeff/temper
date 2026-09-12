@@ -5,6 +5,7 @@ pub(crate) mod donor_clearance;
 mod donor_geometry;
 mod donor_sexpr;
 mod ipc;
+pub mod native_binding;
 pub mod stackup;
 
 use zapote_core::{CheckReport, Finding, Pad, RunInput};

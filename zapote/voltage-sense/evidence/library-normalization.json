@@ -1,0 +1,36 @@
+{
+  "native": "10.0.4",
+  "scope": "native round-trip of original library files; board not read",
+  "files": [
+    {
+      "path": "candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod",
+      "before_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "after_sha256": "4cbfc933e73b2bbf99db031f49f31fe3694172ddfe03d3ebe63a4326f6af3355"
+    },
+    {
+      "path": "candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod",
+      "before_sha256": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+      "after_sha256": "2b2e297ab9db7a84603fcb74c9817ce447b53be525b08162839712d6d941f6be"
+    },
+    {
+      "path": "candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod",
+      "before_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "after_sha256": "c38b99a29fdd267643c938ddb60878c50dd0fe71138dd1af66249b868fb16676"
+    },
+    {
+      "path": "candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod",
+      "before_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "after_sha256": "cc177dfc23159ab73b7ee0c83db4e9dad09d2f9d2ca789762655f176ed194710"
+    },
+    {
+      "path": "candidate/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod",
+      "before_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "after_sha256": "f79918c759b897bf3c0f09f4161a6dc1036aee0556c50de5cb65cf06cbb38c6c"
+    },
+    {
+      "path": "candidate/candidate-libs/lib.pretty/VoltageInput_691253500002.kicad_mod",
+      "before_sha256": "d04b7aa4ede412d2535d3bf3052d6a1289f51bd8c7ab6c2b5b7e20e5bc413de2",
+      "after_sha256": "737779cb32aa98c6ec30e7abf3bbd7967aeaf1db830226d06c76605f97e55038"
+    }
+  ]
+}

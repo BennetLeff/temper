@@ -1,0 +1,144 @@
+[17:17:52] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04                                           
+           INFO     Building default                                 build.py:38
+[17:17:54] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04/elec/src/voltage_sense_unit.a             
+                    to:148:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04/elec/src/voltage_sense_unit.a             
+                    to:VoltageSenseUnit::bus. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04/elec/src/voltage_sense_unit.a             
+                    to:149:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04/elec/src/voltage_sense_unit.a             
+                    to:VoltageSenseUnit::gnd. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04/elec/src/voltage_sense_unit.a             
+                    to:150:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04/elec/src/voltage_sense_unit.a             
+                    to:VoltageSenseUnit::vcc. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04/elec/src/voltage_sense_unit.a             
+                    to:151:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/voltage-sens             
+                    e/source-build-04/elec/src/voltage_sense_unit.a             
+                    to:VoltageSenseUnit::ovp_sense. Declaring                   
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/.worktrees/codex/bu            
+                    ck-harness-experiment-plan/zapote/voltage-sense/            
+                    source-build-04/build                                       
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name         ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│           C1 │ c_adc        │
+│           C2 │ c_comp       │
+│           C3 │ c_ref_in     │
+│           C4 │ c_ref_out    │
+│           J1 │ input        │
+│           J2 │ host         │
+│           R1 │ r_ovp_top1   │
+│           R2 │ r_ovp_top2   │
+│           R3 │ r_ovp_top3   │
+│           R4 │ r_ovp_bottom │
+│           R5 │ r_hyst       │
+│           R6 │ r_adc_top1   │
+│           R7 │ r_adc_top2   │
+│           R8 │ r_adc_top3   │
+│           R9 │ r_adc_bottom │
+│           U1 │ comp         │
+│           U2 │ reference    │
+└──────────────┴──────────────┘
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓       ┃ Designator ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ c_adc        │ C1         │
+│ c_comp       │ C2         │
+│ c_ref_in     │ C3         │
+│ c_ref_out    │ C4         │
+│ comp         │ U1         │
+│ host         │ J2         │
+│ input        │ J1         │
+│ r_adc_bottom │ R9         │
+│ r_adc_top1   │ R6         │
+│ r_adc_top2   │ R7         │
+│ r_adc_top3   │ R8         │
+│ r_hyst       │ R5         │
+│ r_ovp_bottom │ R4         │
+│ r_ovp_top1   │ R1         │
+│ r_ovp_top2   │ R2         │
+│ r_ovp_top3   │ R3         │
+│ reference    │ U2         │
+└──────────────┴────────────┘
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment          ┃ Designator  ┃ Footprint        ┃ LCSC             ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ 691253500002     │ J1          │ lib:VoltageInpu… │ 691253500002     │ 0.00  │
+│ B4B-XH-A(LF)(SN) │ J2          │ Connector_JST:J… │ B4B-XH-A(LF)(SN) │ 0.00  │
+│ TLV3201AIDBVR    │ U1          │ Package_TO_SOT_… │ TLV3201AIDBVR    │ 0.00  │
+│ REF2025AIDDCR    │ U2          │ Package_TO_SOT_… │ REF2025AIDDCR    │ 0.00  │
+│ RC1206FR-07430KL │ R1,R2,R3    │ Resistor_SMD:R_… │ RC1206FR-07430KL │ 0.00  │
+│ RT0603BRD0716K9L │ R4          │ Resistor_SMD:R_… │ RT0603BRD0716K9L │ 0.00  │
+│ RT0603BRD07487KL │ R5          │ Resistor_SMD:R_… │ RT0603BRD07487KL │ 0.00  │
+│ RC1206FR-07300KL │ R6,R7,R8    │ Resistor_SMD:R_… │ RC1206FR-07300KL │ 0.00  │
+│ RC0603FR-0710KL  │ R9          │ Resistor_SMD:R_… │ RC0603FR-0710KL  │ 0.00  │
+│ C0603C104K5RACTU │ C1,C2,C3,C4 │ Capacitor_SMD:C… │ C0603C104K5RACTU │ 0.00  │
+└──────────────────┴─────────────┴──────────────────┴──────────────────┴───────┘
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Successfully built 'designator-map, netlist,    build.py:105
+                    variable-report, clone-footprints,                          
+                    assertions-report, bom, copy-3dmodels,                      
+                    layout-module-map, copy-footprints' for                     
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

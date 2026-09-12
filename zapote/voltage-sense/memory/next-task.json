@@ -1,0 +1,14 @@
+{
+  "attempt_id": "voltage-next-unit-preparation",
+  "capabilities": [
+    "datasheet-land-pattern-review",
+    "simulation-evidence-scoping",
+    "assumption-ledger-reading"
+  ],
+  "source_identities": {},
+  "required_ids": [
+    "rtd-mem-001",
+    "current-sense-mem-001",
+    "voltage-sense-mem-001"
+  ]
+}

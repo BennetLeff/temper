@@ -1,0 +1,612 @@
+{
+  "author": "root explicit route decisions; no path search",
+  "nets": [
+    {
+      "net": "BUS_PLUS",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "input.1",
+            [
+              12,
+              18
+            ],
+            [
+              12,
+              12
+            ],
+            "r_ovp_top1.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              12,
+              18
+            ],
+            [
+              12,
+              28
+            ],
+            "r_adc_top1.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "OVP_MID1",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_ovp_top1.2",
+            "r_ovp_top2.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "OVP_MID2",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_ovp_top2.2",
+            "r_ovp_top3.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "ADC_MID1",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_adc_top1.2",
+            "r_adc_top2.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "ADC_MID2",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_adc_top2.2",
+            "r_adc_top3.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "OVP_SENSE",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_ovp_top3.2",
+            [
+              45,
+              12
+            ],
+            [
+              49.95,
+              16.95
+            ],
+            "comp.3"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              45,
+              12
+            ],
+            [
+              45,
+              10
+            ],
+            "r_hyst.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_ovp_bottom.1",
+            [
+              49.075,
+              17.825
+            ],
+            [
+              49.95,
+              16.95
+            ]
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "OVP_FAULT",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "comp.1",
+            [
+              51.5,
+              15.05
+            ],
+            [
+              50.4,
+              13.95
+            ],
+            [
+              50.4,
+              12
+            ],
+            [
+              54.5,
+              12
+            ],
+            [
+              54.5,
+              10
+            ],
+            "r_hyst.2"
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              50.4,
+              13.2
+            ],
+            [
+              50.4,
+              8
+            ],
+            [
+              64,
+              8
+            ],
+            [
+              64,
+              17
+            ],
+            "host.3"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            50.4,
+            13.2
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        }
+      ],
+      "zones": []
+    },
+    {
+      "net": "+3V3",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "host.1",
+            [
+              66,
+              12
+            ],
+            [
+              62,
+              16
+            ],
+            [
+              59,
+              16
+            ],
+            "c_comp.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "comp.5",
+            [
+              56.4125,
+              13.775
+            ],
+            "c_comp.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            [
+              62,
+              16
+            ],
+            [
+              62,
+              28.775
+            ],
+            "c_ref_in.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "reference.3",
+            [
+              53.8625,
+              29.8
+            ],
+            [
+              57.975,
+              29.8
+            ],
+            "c_ref_in.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "reference.4",
+            [
+              57.1,
+              27.9125
+            ],
+            [
+              57.1,
+              29.8
+            ]
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "VREF_2V5",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "comp.4",
+            [
+              56.8,
+              18.6125
+            ],
+            [
+              56.8,
+              24.3875
+            ],
+            "reference.5"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "reference.5",
+            [
+              57.4,
+              25.05
+            ],
+            [
+              57.675,
+              24.775
+            ],
+            "c_ref_out.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "BUS_MON",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_adc_top3.2",
+            [
+              43,
+              28
+            ],
+            [
+              43,
+              32.825
+            ],
+            "r_adc_bottom.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_adc_bottom.1",
+            [
+              48.175,
+              34
+            ],
+            [
+              49.775,
+              34
+            ],
+            "c_adc.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "host.4",
+            [
+              67,
+              22.5
+            ],
+            [
+              67,
+              34
+            ],
+            [
+              52.225,
+              34
+            ],
+            "c_adc.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "BUS_RETURN",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "input.2",
+            [
+              6,
+              37
+            ],
+            [
+              46,
+              37
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "comp.2",
+            [
+              51.5,
+              16
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "reference.2",
+            [
+              52.5,
+              26
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_ovp_bottom.2",
+            [
+              45.5,
+              16.175
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_adc_bottom.2",
+            [
+              45.7,
+              31.175
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "c_adc.2",
+            [
+              52.3,
+              31.225
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "c_comp.2",
+            [
+              60.3,
+              12.225
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "c_ref_in.2",
+            [
+              60.3,
+              27.225
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "c_ref_out.2",
+            [
+              60.3,
+              23.225
+            ]
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            46,
+            37
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            51.5,
+            16
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            52.5,
+            26
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            45.5,
+            16.175
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            45.7,
+            31.175
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            52.3,
+            31.225
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            60.3,
+            12.225
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            60.3,
+            27.225
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            60.3,
+            23.225
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3
+        }
+      ],
+      "zones": [
+        {
+          "layer": "B.Cu",
+          "outline_mm": [
+            [
+              44,
+              3
+            ],
+            [
+              76,
+              3
+            ],
+            [
+              76,
+              39
+            ],
+            [
+              44,
+              39
+            ]
+          ],
+          "clearance_mm": 0.25
+        }
+      ]
+    }
+  ]
+}

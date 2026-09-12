@@ -1,0 +1,58 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "HEAD",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "71114007faaee12724097fe08a560525c82ab641",
+    "pr_url": null,
+    "files_changed": 10,
+    "reviewed_files": [
+      "zapote/packages/zapote-drc/src/native_binding.rs",
+      "zapote/packages/zapote-drc/src/current_sense.rs",
+      "zapote/packages/zapote-drc/src/lib.rs",
+      "zapote/packages/zapote-harness/src/bin/zapote-board.rs",
+      "zapote/packages/zapote-harness/tests/board_cli.rs",
+      "zapote/packages/zapote-harness/src/lib.rs",
+      "zapote/packages/zapote-erc/src/lib.rs",
+      "zapote/Makefile",
+      "zapote/README.md",
+      "docs/plans/2026-09-11-zapote-voltage-sensing-plan.md"
+    ],
+    "additional_context_reviewed": [
+      "zapote/packages/zapote-harness/src/voltage_sense.rs",
+      "zapote/packages/zapote-harness/src/bin/zapote-voltage.rs",
+      "zapote/packages/zapote-harness/tests/voltage_sense.rs"
+    ]
+  },
+  "intent": "Verify that shared native copper clearance, saved-board binding, board CLI, and test changes preserve fail-closed behavior and support the standalone voltage harness. The strict voltage CLI exit-1 behavior is intentional for Indeterminate qualification status and is now covered by a command-level test and planned validation documentation.",
+  "intent_confidence": "explicit",
+  "reviewers": ["code-reuse", "code-quality", "efficiency", "correctness", "security"],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "This review does not certify the voltage schematic, physical insulation, ADC acquisition behavior, transients, brownout behavior, or cooker integration.",
+    "native_binding intentionally rejects arcs for this entrypoint and validates straight segments and vias only; that limitation is explicit in the checked code."
+  ],
+  "testing_gaps": [
+    "No additional tests were run in this read-only review; parent reports strict Clippy, workspace tests, and native evidence checks passing.",
+    "Board CLI tests cover RTD and malformed/missing stackup cases; current-sense and voltage boards are registered in Makefile check-boards but were not independently executed here."
+  ],
+  "coverage": {
+    "prior_finding_withdrawn": "The earlier voltage CLI status finding is withdrawn because strict exit1 is an intentional existing-unit convention and now has command-level test coverage.",
+    "simplify_review": "completed read-only; dense formatting is readability-only and no safe simplification was applied",
+    "code_review": "completed in mode:agent report-only",
+    "cross_model_review": "not run; no configured cross-model route was available",
+    "validators": "not run by this read-only follow-up",
+    "untracked_context": "Reviewed the requested untracked voltage files and listed tracked shared changes; unrelated uncommitted files were excluded.",
+    "schematic_status": "not approved or independently re-reviewed in this follow-up"
+  },
+  "artifact_path": "docs/reviews/2026-09-11-zapote-voltage-sensing-shared-followup.json",
+  "run_id": "2026-09-11-zapote-voltage-sensing-shared-followup"
+}

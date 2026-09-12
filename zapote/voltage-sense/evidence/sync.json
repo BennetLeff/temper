@@ -1,0 +1,131 @@
+{
+  "component_count": 17,
+  "input_board_sha256": "c30822a871f91c0dd5e9f22396a8a41d87466b80a66c16758bdbaf3a28df9198",
+  "kicad_version": "10.0.4",
+  "manifest_sha256": "c4fb48afe08a0c5588eaba1c8dd79d70b7daba2e42425d7dddab2c3d0ce9999f",
+  "operations": [
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_adc",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C1",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_comp",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C2",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_ref_in",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C3",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_ref_out",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C4",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "lib:VoltageInput_691253500002",
+      "instance_path": "input",
+      "mpn": "691253500002",
+      "reference": "J1",
+      "source_value": ""
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "instance_path": "host",
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "reference": "J2",
+      "source_value": ""
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_ovp_top1",
+      "mpn": "RC1206FR-07430KL",
+      "reference": "R1",
+      "source_value": "430kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_ovp_top2",
+      "mpn": "RC1206FR-07430KL",
+      "reference": "R2",
+      "source_value": "430kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_ovp_top3",
+      "mpn": "RC1206FR-07430KL",
+      "reference": "R3",
+      "source_value": "430kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_ovp_bottom",
+      "mpn": "RT0603BRD0716K9L",
+      "reference": "R4",
+      "source_value": "16.9kohm +/- 0.1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_hyst",
+      "mpn": "RT0603BRD07487KL",
+      "reference": "R5",
+      "source_value": "487kohm +/- 0.1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_adc_top1",
+      "mpn": "RC1206FR-07300KL",
+      "reference": "R6",
+      "source_value": "300kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_adc_top2",
+      "mpn": "RC1206FR-07300KL",
+      "reference": "R7",
+      "source_value": "300kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_adc_top3",
+      "mpn": "RC1206FR-07300KL",
+      "reference": "R8",
+      "source_value": "300kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_adc_bottom",
+      "mpn": "RC0603FR-0710KL",
+      "reference": "R9",
+      "source_value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "comp",
+      "mpn": "TLV3201AIDBVR",
+      "reference": "U1",
+      "source_value": ""
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "reference",
+      "mpn": "REF2025AIDDCR",
+      "reference": "U2",
+      "source_value": ""
+    }
+  ],
+  "output_board_sha256": "d50245adc25e2c9b40ca84cece695dab212852961fe36641c00817c42725adde",
+  "physical_tests": "NOT RUN",
+  "schema": "zapote.current-sense.source-property-sync-receipt.v1",
+  "status": "source-properties-synchronized"
+}

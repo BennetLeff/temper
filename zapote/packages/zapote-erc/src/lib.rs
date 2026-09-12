@@ -876,3 +876,5 @@ mod tests {
         );
     }
 }
+
+pub mod voltage_sense;

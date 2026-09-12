@@ -1,0 +1,21 @@
+{
+  "status": "emitted-native-verification-required",
+  "source_netlist_sha256": "af507a0ec305506e8b6dfce45bfa7b225d6fcea1f29e0a384e1c7167ef8b8f6c",
+  "helper_sha256": "012af1ace7d2e0e9c9a5cb2fa2fa67560e9825c4869d7234135d2558f9459e3f",
+  "outputs": {
+    "section.kicad_sch": "cc3ccc209c374951f767f46bd63621ba1426570323b7580df16ca4f9bef5b796",
+    "VoltageSenseUnit.kicad_sym": "1eb5db3ec0992c987dfb8699041916092286eca5a17dd09460d1feb9165debfe",
+    "sym-lib-table": "589985163e275ae9263cc4d4a28e7ce798210cae464e0ae7f516e1456ad6463b"
+  },
+  "intentional_open_pins": [
+    [
+      "U2",
+      "1",
+      "vbias"
+    ]
+  ],
+  "component_count": 17,
+  "native_erc": "NOT RUN",
+  "native_netlist_equality": "NOT RUN",
+  "pcb_touched": false
+}

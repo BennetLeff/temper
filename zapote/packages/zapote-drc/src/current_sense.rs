@@ -211,8 +211,39 @@ fn all_pads(input: &CurrentSenseInput) -> Vec<(&str, &Pad)> {
 }
 
 fn check_clearance(input: &CurrentSenseInput, findings: &mut Vec<Finding>) {
-    let pads = all_pads(input);
-    let required = input.profile.geometry.clearance_mm;
+    let report = native_clearance(&input.native, input.profile.geometry.clearance_mm);
+    findings.extend(
+        report
+            .findings
+            .into_iter()
+            .filter(|f| f.status != zapote_core::Status::Pass)
+            .map(|mut f| {
+                f.rule = RULE_CLEARANCE.into();
+                f
+            }),
+    );
+}
+
+/// Shared native-copper checks, using the existing donor geometry kernel.
+/// This is a fabrication spacing floor, not an insulation qualification.
+pub fn native_clearance(
+    native: &zapote_core::unit::UnitNativeEvidence,
+    required: f64,
+) -> CheckReport {
+    const RULE: &str = "DRC.NATIVE.CLEARANCE";
+    let mut findings = Vec::new();
+    if !required.is_finite() || required <= 0.0 {
+        return CheckReport::from_findings(
+            vec![Finding::fail(RULE, "invalid clearance floor", "native")],
+            vec![RULE.into()],
+            vec![],
+        );
+    }
+    let pads: Vec<_> = native
+        .components
+        .iter()
+        .flat_map(|c| c.footprint_pads.iter().map(move |p| (c.id.as_str(), p)))
+        .collect();
 
     for (index, (first_component, first)) in pads.iter().enumerate() {
         for (second_component, second) in pads.iter().skip(index + 1) {
@@ -222,7 +253,7 @@ fn check_clearance(input: &CurrentSenseInput, findings: &mut Vec<Finding>) {
             let actual = pad_clearance_mm(first, second);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("pad clearance {actual:.6} mm is below {required:.6} mm"),
                     format!(
                         "{first_component}.{} / {second_component}.{}",
@@ -233,15 +264,15 @@ fn check_clearance(input: &CurrentSenseInput, findings: &mut Vec<Finding>) {
         }
     }
 
-    for (index, first) in input.native.traces.iter().enumerate() {
-        for second in input.native.traces.iter().skip(index + 1) {
+    for (index, first) in native.traces.iter().enumerate() {
+        for second in native.traces.iter().skip(index + 1) {
             if first.net == second.net || first.layer != second.layer {
                 continue;
             }
             let actual = trace_clearance_mm(first, second);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("trace clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{} / {}", first.id, second.id),
                 ));
@@ -250,27 +281,27 @@ fn check_clearance(input: &CurrentSenseInput, findings: &mut Vec<Finding>) {
     }
 
     for (component_id, pad) in &pads {
-        for trace in &input.native.traces {
+        for trace in &native.traces {
             if pad.net == trace.net || !pad.layers.iter().any(|layer| layer == &trace.layer) {
                 continue;
             }
             let actual = pad_trace_clearance_mm(pad, trace);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("pad/trace clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{component_id}.{} / {}", pad.pad, trace.id),
                 ));
             }
         }
-        for via in &input.native.vias {
+        for via in &native.vias {
             if pad.net == via.net || !pad_via_layers_overlap(pad, via) {
                 continue;
             }
             let actual = pad_via_clearance_mm(pad, via);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("pad/via clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{component_id}.{} / {}", pad.pad, via.id),
                 ));
@@ -280,30 +311,30 @@ fn check_clearance(input: &CurrentSenseInput, findings: &mut Vec<Finding>) {
 
     // A via is a copper circle on every layer it spans.  This pair was absent
     // from the former native scan, so a crossing trace/via short could pass.
-    for trace in &input.native.traces {
-        for via in &input.native.vias {
+    for trace in &native.traces {
+        for via in &native.vias {
             if trace.net == via.net || !via_touches_layer(via, &trace.layer) {
                 continue;
             }
             let actual = trace_via_clearance_mm(trace, via);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("trace/via clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{} / {}", trace.id, via.id),
                 ));
             }
         }
     }
-    for (index, first) in input.native.vias.iter().enumerate() {
-        for second in input.native.vias.iter().skip(index + 1) {
+    for (index, first) in native.vias.iter().enumerate() {
+        for second in native.vias.iter().skip(index + 1) {
             if first.net == second.net || !via_layers_overlap(first, second) {
                 continue;
             }
             let actual = via_via_clearance_mm(first, second);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("via clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{} / {}", first.id, second.id),
                 ));
@@ -314,7 +345,7 @@ fn check_clearance(input: &CurrentSenseInput, findings: &mut Vec<Finding>) {
     // Filled polygons are copper geometry, not just a set of sampled points.
     // Check the complete boundary and interior for every primitive and zone
     // pair, including holes and routes which cross between vertices.
-    for zone in &input.native.zones {
+    for zone in &native.zones {
         for (component_id, pad) in &pads {
             if pad.net == zone.net || !pad.layers.iter().any(|layer| layer == &zone.layer) {
                 continue;
@@ -322,54 +353,62 @@ fn check_clearance(input: &CurrentSenseInput, findings: &mut Vec<Finding>) {
             let actual = zone_pad_clearance_mm(zone, pad);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("pad/zone clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{component_id}.{} / {}", pad.pad, zone.id),
                 ));
             }
         }
-        for trace in &input.native.traces {
+        for trace in &native.traces {
             if trace.net == zone.net || trace.layer != zone.layer {
                 continue;
             }
             let actual = zone_trace_clearance_mm(zone, trace);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("trace/zone clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{} / {}", trace.id, zone.id),
                 ));
             }
         }
-        for via in &input.native.vias {
+        for via in &native.vias {
             if via.net == zone.net || !via_touches_layer(via, &zone.layer) {
                 continue;
             }
             let actual = zone_via_clearance_mm(zone, via);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("via/zone clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{} / {}", via.id, zone.id),
                 ));
             }
         }
     }
-    for (index, first) in input.native.zones.iter().enumerate() {
-        for second in input.native.zones.iter().skip(index + 1) {
+    for (index, first) in native.zones.iter().enumerate() {
+        for second in native.zones.iter().skip(index + 1) {
             if first.net == second.net || first.layer != second.layer {
                 continue;
             }
             let actual = zone_zone_clearance_mm(first, second);
             if actual < required {
                 findings.push(Finding::fail(
-                    RULE_CLEARANCE,
+                    RULE,
                     format!("zone clearance {actual:.6} mm is below {required:.6} mm"),
                     format!("{} / {}", first.id, second.id),
                 ));
             }
         }
     }
+    if findings.is_empty() {
+        findings.push(Finding::pass(
+            RULE,
+            format!("native copper clears {required} mm fabrication floor"),
+            "native",
+        ));
+    }
+    CheckReport::from_findings(findings, vec![RULE.into()], vec![])
 }
 
 fn check_primary_secondary(

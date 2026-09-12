@@ -1,0 +1,1 @@
+Build standalone voltage sensing from Temper OVP intent. Check half-bus node identity, resistor stress and tolerance, ADC range through 250V, exact pins and land patterns. Apply Rust source/model and physical stackup gates. Keep analog-return versus earth/isolation assumptions explicit. No bench or certification claims.

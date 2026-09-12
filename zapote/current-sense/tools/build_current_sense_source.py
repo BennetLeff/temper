@@ -35,8 +35,8 @@ def load_block_source(repo: Path):
     return block_source
 
 
-def build(repo: Path, output: Path) -> None:
-    source = repo / ENTRY_FILE
+def build(repo: Path, output: Path, entry_file: str = ENTRY_FILE, entry_module: str = ENTRY_MODULE) -> None:
+    source = repo / entry_file
     if not source.is_file():
         raise FileNotFoundError(
             f"pending source entry is absent: {source}; refusing pretend build"
@@ -49,11 +49,11 @@ def build(repo: Path, output: Path) -> None:
     shutil.copytree(repo / "elec" / "src", output / "elec" / "src")
     (output / "ato.yaml").write_text(
         f"ato-version: {PINNED_ATOPILE}\nbuilds:\n"
-        f"  default:\n    entry: {ENTRY_FILE}:{ENTRY_MODULE}\n",
+        f"  default:\n    entry: {entry_file}:{entry_module}\n",
         encoding="utf-8",
     )
 
-    proc = block_source.run_atopile_build(output, ENTRY_FILE, ENTRY_MODULE)
+    proc = block_source.run_atopile_build(output, entry_file, entry_module)
     (output / "stdout.txt").write_text(proc.stdout, encoding="utf-8")
     (output / "stderr.txt").write_text(proc.stderr, encoding="utf-8")
     receipt = {
@@ -61,9 +61,9 @@ def build(repo: Path, output: Path) -> None:
         "status": "compiled" if proc.returncode == 0 else "compiler-failed",
         "command": (
             f"uv tool run --offline --from atopile=={PINNED_ATOPILE} "
-            f"ato --non-interactive build {ENTRY_FILE}:{ENTRY_MODULE}"
+            f"ato --non-interactive build {entry_file}:{entry_module}"
         ),
-        "entry": f"{ENTRY_FILE}:{ENTRY_MODULE}",
+        "entry": f"{entry_file}:{entry_module}",
         "returncode": proc.returncode,
         "build_report_failed": "FAILED" in proc.stdout,
         "adapter_sha256": sha256(Path(__file__).resolve()),
@@ -77,7 +77,7 @@ def build(repo: Path, output: Path) -> None:
 
     export_path = output / "resolved-components.json"
     block_source.run_resolved_export(
-        output, ENTRY_FILE, ENTRY_MODULE, export_path
+        output, entry_file, entry_module, export_path
     )
     receipt["status"] = "compiled-and-exported"
     receipt["export_sha256"] = sha256(export_path)

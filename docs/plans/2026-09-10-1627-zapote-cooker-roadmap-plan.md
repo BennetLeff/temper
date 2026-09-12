@@ -1,7 +1,7 @@
 # Zapote: from validated units to the complete cooker
 Created: 2026-09-10
 
-Milestone 2 standalone RTD design/layout is accepted; see [the acceptance record](../../zapote/rtd/unit/ACCEPTANCE.md). Physical qualification and procurement are distinct remaining obligations. The next unit is current sensing, under its own goal.
+Milestone 2 standalone RTD design/layout is accepted; see [the acceptance record](../../zapote/rtd/unit/ACCEPTANCE.md). Physical qualification and procurement are distinct remaining obligations. Standalone current sensing has also reached its digital milestone with recorded qualification gaps; see [its acceptance record](../../zapote/current-sense/ACCEPTANCE.md). Standalone voltage sensing has reached its digital milestone with qualification gaps; the next separate unit is thermal protection.
 
 This is the high-level delivery order. Detail only the next milestone as we
 approach it. Milestone-specific plans sit underneath this roadmap; the rows
@@ -79,7 +79,7 @@ milestone; one coordinator accepts the combined result. Advance through the
 milestones in order, carrying forward unresolved obligations explicitly.
 
 Reconcile existing owner outputs rather than restarting accepted buck/MCU work.
-The current goal is the standalone RTD unit. Earlier composition plans and
+The standalone voltage-sensing digital construction milestone is complete; see [acceptance](../../zapote/voltage-sense/ACCEPTANCE.md). The next construction goal is the standalone thermal-protection unit. Earlier composition plans and
 integrated RTD attempts are retained as historical work, not current goal gates.
 
 Existing milestone 1 plans:

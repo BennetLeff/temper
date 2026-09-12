@@ -12,7 +12,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for package boundaries and
 ambition. Replacing the Python adapter is deferred.
 
 The [cooker delivery roadmap](../docs/plans/2026-09-10-1627-zapote-cooker-roadmap-plan.md)
-sets the order from buck/MCU integration through the complete routed board and
+sets the order from standalone buck/MCU units through the complete routed board and
 physical bring-up. Each milestone adds cooker circuitry, Rust validation coverage
 and reusable engineering lessons; implementation detail is added as it approaches.
 
@@ -30,6 +30,8 @@ transformer land pattern, bounded electrical model and Rust source/geometry
 checks. Its acceptance record separates digital verification from unrun
 physical qualification and procurement gaps.
 
+The [standalone voltage-sense / OVP unit](voltage-sense/README.md) adds the next separately compiled, routed unit, a corrected ADC divider, source-derived electrical checks and saved-document consistency controls. Its digital construction passes while qualification remains explicit.
+
 [Engineering memory](skills/README.md) connects reviewed, versioned lessons to
 construction inputs through Rust selection and a thin process transport. The
 existing `harness-lab/` remains available for legacy experiments. The old Python
@@ -41,7 +43,7 @@ migration outline is superseded by [MIGRATION.md](MIGRATION.md).
 |---|---|
 | `project.toml` | Zapote identity and shared Temper resource map |
 | `AGENTS.md` | Local operating rules for work in this project |
-| `Makefile` | Transitional commands delegating to `harness-lab/` |
+| `Makefile` | Rust build/test and common saved-board gates |
 | `Cargo.toml`, `packages/` | Rust workspace, validators and harness |
 | `ports.toml` | Donor hashes, copied tests and extraction changes |
 | `ARCHITECTURE.md` | Rust package ownership and agent/validator contract |
@@ -51,7 +53,7 @@ migration outline is superseded by [MIGRATION.md](MIGRATION.md).
 | `runs/` | Git-ignored runtime output |
 | `docs/` | Design, migration, and operating notes |
 
-## Transitional commands
+## Commands
 
 ```sh
 make -C zapote setup
@@ -59,9 +61,16 @@ make -C zapote check
 make -C zapote build
 ```
 
-These commands still delegate to the legacy harness. Build and test Zapote's
-implemented Rust suite with `cargo build --manifest-path zapote/Cargo.toml` and
-`cargo test --manifest-path zapote/Cargo.toml` from the repository root.
+`setup` checks Rust workspace metadata, `build` builds its binaries/examples,
+and `check` runs the Rust tests followed by common checks on every registered
+maintained Zapote board. `check-boards` runs just the saved-board checks.
+
+Check any new board with `make -C zapote board-check BOARD=/absolute/path/to/board.kicad_pcb`.
+The `zapote-board` Rust CLI reads the actual PCB bytes, hashes them and runs
+`DRC.BOARD.STACKUP`; its pass is not a substitute for unit electrical checks
+or native ERC/DRC. Register new maintained unit paths in `UNIT_BOARDS` before
+acceptance. Historical/frozen artifacts are not modified by these commands.
+Legacy buck `qualify-buck` and `engineering` commands remain explicitly delegated.
 
 ## Direction
 

@@ -1,0 +1,1572 @@
+{
+  "board": {
+    "footprints": 17,
+    "layers": [
+      "F.Cu",
+      "In3.Cu",
+      "In1.Cu",
+      "In2.Cu",
+      "In4.Cu",
+      "B.Cu"
+    ],
+    "nets": 12,
+    "outline_mm": [
+      0.0,
+      0.0,
+      78.0,
+      42.0
+    ]
+  },
+  "board_sha256": "65a5d254837afe2112c9360db55299977b9b3275c65b75478cc800e71eb71083",
+  "bridge": {
+    "components": [
+      {
+        "footprint": "lib:VoltageInput_691253500002",
+        "instance_path": "input",
+        "reference": "J1",
+        "tstamp": "64a2f3c8-05ed-2745-21c1-cb007146b4f5"
+      },
+      {
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+        "instance_path": "host",
+        "reference": "J2",
+        "tstamp": "40bcdc6f-6bef-dede-7813-e6017ef8354f"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "comp",
+        "reference": "U1",
+        "tstamp": "2dc6fd15-900c-157f-2894-a628c9461750"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "reference",
+        "reference": "U2",
+        "tstamp": "9145650f-b285-e442-3e02-db0a995253aa"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_ovp_top1",
+        "reference": "R1",
+        "tstamp": "a6ffe729-cc10-4aa5-cfa8-2fcee4b476c8"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_ovp_top2",
+        "reference": "R2",
+        "tstamp": "e041b25b-2a38-be49-d861-ded99596fd54"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_ovp_top3",
+        "reference": "R3",
+        "tstamp": "24c38184-e2d2-0b8c-470d-df25f2244e8d"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_adc_top1",
+        "reference": "R6",
+        "tstamp": "495e59c7-5c18-3973-aa7d-a5dfeebdcf41"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_adc_top2",
+        "reference": "R7",
+        "tstamp": "e1548b88-5612-e364-a00e-220636613758"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_adc_top3",
+        "reference": "R8",
+        "tstamp": "7677864d-c547-39ef-2589-f1241de8906c"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "r_ovp_bottom",
+        "reference": "R4",
+        "tstamp": "daf85542-99ef-ab52-eb56-31de3bbe3e3a"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "r_hyst",
+        "reference": "R5",
+        "tstamp": "fb52d445-3344-cadc-607b-ce38790fab8d"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "r_adc_bottom",
+        "reference": "R9",
+        "tstamp": "c5c64f2d-2767-ffd2-d518-2b21464d3b17"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "c_adc",
+        "reference": "C1",
+        "tstamp": "47d7ff15-a9a8-fc5d-53e3-50bade1f616d"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "c_comp",
+        "reference": "C2",
+        "tstamp": "32523f6d-28df-9641-349a-fac6ec953618"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "c_ref_in",
+        "reference": "C3",
+        "tstamp": "95fdfea9-cdf4-4fc2-87ca-da248044bf70"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "c_ref_out",
+        "reference": "C4",
+        "tstamp": "7fed10e8-3664-472b-32f0-efdf454298e5"
+      }
+    ],
+    "nets": [
+      {
+        "name": "BUS_PLUS",
+        "nodes": [
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "J1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "BUS_RETURN",
+        "nodes": [
+          [
+            "J1",
+            "2"
+          ],
+          [
+            "J2",
+            "2"
+          ],
+          [
+            "R4",
+            "2"
+          ],
+          [
+            "U1",
+            "2"
+          ],
+          [
+            "U2",
+            "2"
+          ],
+          [
+            "C2",
+            "2"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "R9",
+            "2"
+          ],
+          [
+            "C1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "+3V3",
+        "nodes": [
+          [
+            "J2",
+            "1"
+          ],
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "U2",
+            "4"
+          ],
+          [
+            "U2",
+            "3"
+          ],
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "C3",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "OVP_SENSE",
+        "nodes": [
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "R3",
+            "2"
+          ],
+          [
+            "U1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "VREF_2V5",
+        "nodes": [
+          [
+            "U1",
+            "4"
+          ],
+          [
+            "U2",
+            "5"
+          ],
+          [
+            "C4",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "OVP_FAULT",
+        "nodes": [
+          [
+            "J2",
+            "3"
+          ],
+          [
+            "R5",
+            "2"
+          ],
+          [
+            "U1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "BUS_MON",
+        "nodes": [
+          [
+            "R9",
+            "1"
+          ],
+          [
+            "J2",
+            "4"
+          ],
+          [
+            "R8",
+            "2"
+          ],
+          [
+            "C1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "OVP_MID1",
+        "nodes": [
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "R1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "OVP_MID2",
+        "nodes": [
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "R2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ADC_MID1",
+        "nodes": [
+          [
+            "R7",
+            "1"
+          ],
+          [
+            "R6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ADC_MID2",
+        "nodes": [
+          [
+            "R8",
+            "1"
+          ],
+          [
+            "R7",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "vbias",
+        "nodes": [
+          [
+            "U2",
+            "1"
+          ]
+        ]
+      }
+    ]
+  },
+  "component_scope": "all components in the standalone entry",
+  "components": [
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_adc",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C1",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_comp",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C2",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_ref_in",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C3",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_ref_out",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C4",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "lib:VoltageInput_691253500002",
+      "instance_path": "input",
+      "mpn": "691253500002",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J1",
+      "value": null
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "instance_path": "host",
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J2",
+      "value": null
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_ovp_top1",
+      "mpn": "RC1206FR-07430KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R1",
+      "value": "430kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_ovp_top2",
+      "mpn": "RC1206FR-07430KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R2",
+      "value": "430kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_ovp_top3",
+      "mpn": "RC1206FR-07430KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R3",
+      "value": "430kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_ovp_bottom",
+      "mpn": "RT0603BRD0716K9L",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R4",
+      "value": "16.9kohm +/- 0.1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_hyst",
+      "mpn": "RT0603BRD07487KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R5",
+      "value": "487kohm +/- 0.1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_adc_top1",
+      "mpn": "RC1206FR-07300KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R6",
+      "value": "300kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_adc_top2",
+      "mpn": "RC1206FR-07300KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R7",
+      "value": "300kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "r_adc_top3",
+      "mpn": "RC1206FR-07300KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R8",
+      "value": "300kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_adc_bottom",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R9",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "comp",
+      "mpn": "TLV3201AIDBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U1",
+      "value": null
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "reference",
+      "mpn": "REF2025AIDDCR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U2",
+      "value": null
+    }
+  ],
+  "entry": "elec/src/voltage_sense_unit.ato:VoltageSenseUnit",
+  "footprint_census": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405"
+    },
+    "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "sha256": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86"
+    },
+    "Package_TO_SOT_SMD:SOT-23-5": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23"
+    },
+    "Resistor_SMD:R_1206_3216Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37"
+    },
+    "lib:VoltageInput_691253500002": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "d04b7aa4ede412d2535d3bf3052d6a1289f51bd8c7ab6c2b5b7e20e5bc413de2"
+    }
+  },
+  "full_bridge": {
+    "components": [
+      {
+        "footprint": "lib:VoltageInput_691253500002",
+        "instance_path": "input",
+        "reference": "J1",
+        "tstamp": "64a2f3c8-05ed-2745-21c1-cb007146b4f5"
+      },
+      {
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+        "instance_path": "host",
+        "reference": "J2",
+        "tstamp": "40bcdc6f-6bef-dede-7813-e6017ef8354f"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "comp",
+        "reference": "U1",
+        "tstamp": "2dc6fd15-900c-157f-2894-a628c9461750"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "reference",
+        "reference": "U2",
+        "tstamp": "9145650f-b285-e442-3e02-db0a995253aa"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_ovp_top1",
+        "reference": "R1",
+        "tstamp": "a6ffe729-cc10-4aa5-cfa8-2fcee4b476c8"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_ovp_top2",
+        "reference": "R2",
+        "tstamp": "e041b25b-2a38-be49-d861-ded99596fd54"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_ovp_top3",
+        "reference": "R3",
+        "tstamp": "24c38184-e2d2-0b8c-470d-df25f2244e8d"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_adc_top1",
+        "reference": "R6",
+        "tstamp": "495e59c7-5c18-3973-aa7d-a5dfeebdcf41"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_adc_top2",
+        "reference": "R7",
+        "tstamp": "e1548b88-5612-e364-a00e-220636613758"
+      },
+      {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "instance_path": "r_adc_top3",
+        "reference": "R8",
+        "tstamp": "7677864d-c547-39ef-2589-f1241de8906c"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "r_ovp_bottom",
+        "reference": "R4",
+        "tstamp": "daf85542-99ef-ab52-eb56-31de3bbe3e3a"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "r_hyst",
+        "reference": "R5",
+        "tstamp": "fb52d445-3344-cadc-607b-ce38790fab8d"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "r_adc_bottom",
+        "reference": "R9",
+        "tstamp": "c5c64f2d-2767-ffd2-d518-2b21464d3b17"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "c_adc",
+        "reference": "C1",
+        "tstamp": "47d7ff15-a9a8-fc5d-53e3-50bade1f616d"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "c_comp",
+        "reference": "C2",
+        "tstamp": "32523f6d-28df-9641-349a-fac6ec953618"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "c_ref_in",
+        "reference": "C3",
+        "tstamp": "95fdfea9-cdf4-4fc2-87ca-da248044bf70"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "c_ref_out",
+        "reference": "C4",
+        "tstamp": "7fed10e8-3664-472b-32f0-efdf454298e5"
+      }
+    ],
+    "nets": [
+      {
+        "name": "BUS_PLUS",
+        "nodes": [
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "J1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "BUS_RETURN",
+        "nodes": [
+          [
+            "J1",
+            "2"
+          ],
+          [
+            "J2",
+            "2"
+          ],
+          [
+            "R4",
+            "2"
+          ],
+          [
+            "U1",
+            "2"
+          ],
+          [
+            "U2",
+            "2"
+          ],
+          [
+            "C2",
+            "2"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "R9",
+            "2"
+          ],
+          [
+            "C1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "+3V3",
+        "nodes": [
+          [
+            "J2",
+            "1"
+          ],
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "U2",
+            "4"
+          ],
+          [
+            "U2",
+            "3"
+          ],
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "C3",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "OVP_SENSE",
+        "nodes": [
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "R3",
+            "2"
+          ],
+          [
+            "U1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "VREF_2V5",
+        "nodes": [
+          [
+            "U1",
+            "4"
+          ],
+          [
+            "U2",
+            "5"
+          ],
+          [
+            "C4",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "OVP_FAULT",
+        "nodes": [
+          [
+            "J2",
+            "3"
+          ],
+          [
+            "R5",
+            "2"
+          ],
+          [
+            "U1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "BUS_MON",
+        "nodes": [
+          [
+            "R9",
+            "1"
+          ],
+          [
+            "J2",
+            "4"
+          ],
+          [
+            "R8",
+            "2"
+          ],
+          [
+            "C1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "OVP_MID1",
+        "nodes": [
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "R1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "OVP_MID2",
+        "nodes": [
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "R2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ADC_MID1",
+        "nodes": [
+          [
+            "R7",
+            "1"
+          ],
+          [
+            "R6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ADC_MID2",
+        "nodes": [
+          [
+            "R8",
+            "1"
+          ],
+          [
+            "R7",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "vbias",
+        "nodes": [
+          [
+            "U2",
+            "1"
+          ]
+        ]
+      }
+    ]
+  },
+  "input_hashes": {
+    "default.csv": "bcae247330740a761a0892e0668b5d9fdd9b0007547d75fbde892067eeeff5d7",
+    "default.net": "af507a0ec305506e8b6dfce45bfa7b225d6fcea1f29e0a384e1c7167ef8b8f6c",
+    "outline.json": "a13962a5825f3272e1073bb5c81d8fc8ed6254506d7f4fcb1402361a97ef836b",
+    "poses.json": "05ea6f232f0aa2fcf060a4dd1a296fba2e929da0a9c614f326b585e32c30131c",
+    "resolved-components.json": "ae02f8ef23f92b48ebad9d5f2e0e9524e7386820c727425150bbfa2e40a1a171"
+  },
+  "libraries": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod"
+    },
+    "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical": {
+      "sha256": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod"
+    },
+    "Package_TO_SOT_SMD:SOT-23-5": {
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod"
+    },
+    "Resistor_SMD:R_1206_3216Metric": {
+      "sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod"
+    },
+    "lib:VoltageInput_691253500002": {
+      "sha256": "d04b7aa4ede412d2535d3bf3052d6a1289f51bd8c7ab6c2b5b7e20e5bc413de2",
+      "source": "pcb/libs/lib.pretty/VoltageInput_691253500002.kicad_mod"
+    }
+  },
+  "module_prefixes": [
+    "VoltageSenseUnit"
+  ],
+  "outline_mm": [
+    0.0,
+    0.0,
+    78.0,
+    42.0
+  ],
+  "poses": {
+    "c_adc": [
+      51.0,
+      32.0,
+      90.0
+    ],
+    "c_comp": [
+      59.0,
+      13.0,
+      90.0
+    ],
+    "c_ref_in": [
+      59.0,
+      28.0,
+      90.0
+    ],
+    "c_ref_out": [
+      59.0,
+      24.0,
+      90.0
+    ],
+    "comp": [
+      54.0,
+      16.0,
+      0.0
+    ],
+    "host": [
+      70.0,
+      12.0,
+      270.0
+    ],
+    "input": [
+      6.0,
+      18.0,
+      270.0
+    ],
+    "r_adc_bottom": [
+      47.0,
+      32.0,
+      90.0
+    ],
+    "r_adc_top1": [
+      20.0,
+      28.0,
+      0.0
+    ],
+    "r_adc_top2": [
+      30.0,
+      28.0,
+      0.0
+    ],
+    "r_adc_top3": [
+      40.0,
+      28.0,
+      0.0
+    ],
+    "r_hyst": [
+      53.0,
+      10.0,
+      0.0
+    ],
+    "r_ovp_bottom": [
+      47.0,
+      17.0,
+      90.0
+    ],
+    "r_ovp_top1": [
+      20.0,
+      12.0,
+      0.0
+    ],
+    "r_ovp_top2": [
+      30.0,
+      12.0,
+      0.0
+    ],
+    "r_ovp_top3": [
+      40.0,
+      12.0,
+      0.0
+    ],
+    "reference": [
+      55.0,
+      26.0,
+      0.0
+    ]
+  },
+  "schema": "zapote.current-sense.native-source-manifest.v1",
+  "schematic_files": [
+    "section.kicad_sch"
+  ],
+  "source": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/source-build-04",
+  "source_attributes": {
+    "c_adc": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "c_comp": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "c_ref_in": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "c_ref_out": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "comp": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "t_pd": "40ns",
+      "v_supply_max": "5.5V"
+    },
+    "host": {
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "manufacturer": "JST Sales America Inc.",
+      "mpn": "B4B-XH-A(LF)(SN)"
+    },
+    "input": {
+      "designator_prefix": "J",
+      "footprint": "lib:VoltageInput_691253500002",
+      "manufacturer": "Wurth Elektronik",
+      "mpn": "691253500002"
+    },
+    "r_adc_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "r_adc_top1": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "mpn": "RC1206FR-07300KL",
+      "power_rating": "0.25W",
+      "value": "300kohm +/- 1%",
+      "voltage_rating": "200V"
+    },
+    "r_adc_top2": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "mpn": "RC1206FR-07300KL",
+      "power_rating": "0.25W",
+      "value": "300kohm +/- 1%",
+      "voltage_rating": "200V"
+    },
+    "r_adc_top3": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "mpn": "RC1206FR-07300KL",
+      "power_rating": "0.25W",
+      "value": "300kohm +/- 1%",
+      "voltage_rating": "200V"
+    },
+    "r_hyst": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RT0603BRD07487KL",
+      "power_rating": null,
+      "value": "487kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "r_ovp_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RT0603BRD0716K9L",
+      "power_rating": null,
+      "value": "16.9kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "r_ovp_top1": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "mpn": "RC1206FR-07430KL",
+      "power_rating": "0.25W",
+      "value": "430kohm +/- 1%",
+      "voltage_rating": "200V"
+    },
+    "r_ovp_top2": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "mpn": "RC1206FR-07430KL",
+      "power_rating": "0.25W",
+      "value": "430kohm +/- 1%",
+      "voltage_rating": "200V"
+    },
+    "r_ovp_top3": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "mpn": "RC1206FR-07430KL",
+      "power_rating": "0.25W",
+      "value": "430kohm +/- 1%",
+      "voltage_rating": "200V"
+    },
+    "reference": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "REF2025AIDDCR"
+    }
+  },
+  "strict_bridge_extension": {
+    "detail": "temper_design_bundle_python: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so (built 2026-09-10T16:55:48) is fresh (no build stamp; mtime comparison)",
+    "freshness_method": "mtime",
+    "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so",
+    "sha256": "cf484372789b29926beadcc9a45d93254caa3a9941d333c3d370f2f6deca8fd7"
+  },
+  "strict_pin_map": [
+    {
+      "alias_note": "",
+      "instance_path": "c_adc",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_adc",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_comp",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_comp",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_ref_in",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_ref_in",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_ref_out",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_ref_out",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "input",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "input",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_ovp_top1",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_ovp_top1",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_ovp_top2",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_ovp_top2",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_ovp_top3",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_ovp_top3",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_ovp_bottom",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_ovp_bottom",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_hyst",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_hyst",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_adc_top1",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_adc_top1",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_adc_top2",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_adc_top2",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_adc_top3",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_adc_top3",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_adc_bottom",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R9"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_adc_bottom",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R9"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "comp",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "comp",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "comp",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "comp",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "comp",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "reference",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "reference",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "reference",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "reference",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "reference",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U2"
+    }
+  ],
+  "unconnected_pads": []
+}

@@ -1,0 +1,13 @@
+{
+  "board": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/section.kicad_pcb",
+  "drc_report": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/evidence/native-03/drc.json",
+  "drc_schematic_parity": 0,
+  "drc_unconnected_items": 9,
+  "drc_violations": 342,
+  "erc_report": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/evidence/native-03/erc.json",
+  "erc_sheets": 1,
+  "schema": "zapote.current-sense.native-check-receipt.v1",
+  "schematic": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/section.kicad_sch",
+  "scope": "native transport only; findings require independent review",
+  "status": "reports-generated"
+}

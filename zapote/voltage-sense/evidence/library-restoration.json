@@ -1,0 +1,342 @@
+{
+  "before_sha256": "1d962d377d59f3c5e84463f42783e628378a24743268922f12712ca74306ae5a",
+  "after_sha256": "9c2769bf22ec2b8a0b4a5a87ca01f32846abd46c326e1f5add691047971c74da",
+  "pad_changes": [
+    {
+      "ref": "J2",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 270.0,
+      "remove_unconnected_before": true,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "J2",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 270.0,
+      "remove_unconnected_before": true,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "J2",
+      "pad": "3",
+      "angle_before": 0.0,
+      "angle_after": 270.0,
+      "remove_unconnected_before": true,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "J2",
+      "pad": "4",
+      "angle_before": 0.0,
+      "angle_after": 270.0,
+      "remove_unconnected_before": true,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R3",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R3",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "C2",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "C2",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R8",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R8",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U1",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U1",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U1",
+      "pad": "3",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U1",
+      "pad": "4",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U1",
+      "pad": "5",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "J1",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 270.0,
+      "remove_unconnected_before": true,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "J1",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 270.0,
+      "remove_unconnected_before": true,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R7",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R7",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U2",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U2",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U2",
+      "pad": "3",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U2",
+      "pad": "4",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "U2",
+      "pad": "5",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R5",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R5",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "C1",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "C1",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R1",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R1",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R6",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R6",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R9",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R9",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "C4",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "C4",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R2",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R2",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 0.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "C3",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "C3",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R4",
+      "pad": "1",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    },
+    {
+      "ref": "R4",
+      "pad": "2",
+      "angle_before": 0.0,
+      "angle_after": 90.0,
+      "remove_unconnected_before": false,
+      "remove_unconnected_after": false
+    }
+  ]
+}

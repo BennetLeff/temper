@@ -524,3 +524,5 @@ mod tests {
         assert!(error.to_string().contains("identity"));
     }
 }
+
+pub mod voltage_sense;

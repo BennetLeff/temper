@@ -1,0 +1,1998 @@
+{
+  "board_file_utf8": "(kicad_pcb\n\t(version 20260206)\n\t(generator \"pcbnew\")\n\t(generator_version \"10.0\")\n\t(general\n\t\t(thickness 1.6)\n\t\t(legacy_teardrops no)\n\t)\n\t(paper \"A4\")\n\t(layers\n\t\t(0 \"F.Cu\" signal)\n\t\t(2 \"B.Cu\" signal)\n\t\t(9 \"F.Adhes\" user \"F.Adhesive\")\n\t\t(11 \"B.Adhes\" user \"B.Adhesive\")\n\t\t(13 \"F.Paste\" user)\n\t\t(15 \"B.Paste\" user)\n\t\t(5 \"F.SilkS\" user \"F.Silkscreen\")\n\t\t(7 \"B.SilkS\" user \"B.Silkscreen\")\n\t\t(1 \"F.Mask\" user)\n\t\t(3 \"B.Mask\" user)\n\t\t(17 \"Dwgs.User\" user \"User.Drawings\")\n\t\t(19 \"Cmts.User\" user \"User.Comments\")\n\t\t(21 \"Eco1.User\" user \"User.Eco1\")\n\t\t(23 \"Eco2.User\" user \"User.Eco2\")\n\t\t(25 \"Edge.Cuts\" user)\n\t\t(27 \"Margin\" user)\n\t\t(31 \"F.CrtYd\" user \"F.Courtyard\")\n\t\t(29 \"B.CrtYd\" user \"B.Courtyard\")\n\t\t(35 \"F.Fab\" user)\n\t\t(33 \"B.Fab\" user)\n\t)\n\t(setup\n\t\t(stackup\n\t\t\t(layer \"F.SilkS\"\n\t\t\t\t(type \"Top Silk Screen\")\n\t\t\t)\n\t\t\t(layer \"F.Paste\"\n\t\t\t\t(type \"Top Solder Paste\")\n\t\t\t)\n\t\t\t(layer \"F.Mask\"\n\t\t\t\t(type \"Top Solder Mask\")\n\t\t\t\t(thickness 0.01)\n\t\t\t)\n\t\t\t(layer \"F.Cu\"\n\t\t\t\t(type \"copper\")\n\t\t\t\t(thickness 0.07)\n\t\t\t)\n\t\t\t(layer \"dielectric 1\"\n\t\t\t\t(type \"core\")\n\t\t\t\t(thickness 1.44)\n\t\t\t\t(material \"FR4\")\n\t\t\t\t(epsilon_r 4.5)\n\t\t\t\t(loss_tangent 0.02)\n\t\t\t)\n\t\t\t(layer \"B.Cu\"\n\t\t\t\t(type \"copper\")\n\t\t\t\t(thickness 0.07)\n\t\t\t)\n\t\t\t(layer \"B.Mask\"\n\t\t\t\t(type \"Bottom Solder Mask\")\n\t\t\t\t(thickness 0.01)\n\t\t\t)\n\t\t\t(layer \"B.Paste\"\n\t\t\t\t(type \"Bottom Solder Paste\")\n\t\t\t)\n\t\t\t(layer \"B.SilkS\"\n\t\t\t\t(type \"Bottom Silk Screen\")\n\t\t\t)\n\t\t\t(copper_finish \"ENIG\")\n\t\t\t(dielectric_constraints no)\n\t\t)\n\t\t(pad_to_mask_clearance 0)\n\t\t(allow_soldermask_bridges_in_footprints no)\n\t\t(tenting\n\t\t\t(front yes)\n\t\t\t(back yes)\n\t\t)\n\t\t(covering\n\t\t\t(front no)\n\t\t\t(back no)\n\t\t)\n\t\t(plugging\n\t\t\t(front no)\n\t\t\t(back no)\n\t\t)\n\t\t(capping no)\n\t\t(filling no)\n\t\t(pcbplotparams\n\t\t\t(layerselection 0x00000000_00000000_55555555_5755f5ff)\n\t\t\t(plot_on_all_layers_selection 0x00000000_00000000_00000000_00000000)\n\t\t\t(disableapertmacros no)\n\t\t\t(usegerberextensions no)\n\t\t\t(usegerberattributes yes)\n\t\t\t(usegerberadvancedattributes yes)\n\t\t\t(creategerberjobfile yes)\n\t\t\t(dashed_line_dash_ratio 12)\n\t\t\t(dashed_line_gap_ratio 3)\n\t\t\t(svgprecision 4)\n\t\t\t(plotframeref no)\n\t\t\t(mode 1)\n\t\t\t(useauxorigin no)\n\t\t\t(pdf_front_fp_property_popups yes)\n\t\t\t(pdf_back_fp_property_popups yes)\n\t\t\t(pdf_metadata yes)\n\t\t\t(pdf_single_document no)\n\t\t\t(dxfpolygonmode yes)\n\t\t\t(dxfimperialunits yes)\n\t\t\t(dxfusepcbnewfont yes)\n\t\t\t(psnegative no)\n\t\t\t(psa4output no)\n\t\t\t(plot_black_and_white yes)\n\t\t\t(sketchpadsonfab no)\n\t\t\t(plotpadnumbers no)\n\t\t\t(hidednponfab no)\n\t\t\t(sketchdnponfab yes)\n\t\t\t(crossoutdnponfab yes)\n\t\t\t(subtractmaskfromsilk no)\n\t\t\t(outputformat 1)\n\t\t\t(mirror no)\n\t\t\t(drillshape 1)\n\t\t\t(scaleselection 1)\n\t\t\t(outputdirectory \"\")\n\t\t)\n\t)\n\t(footprint \"Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"0123b52e-e2a1-8bdb-9543-a5c019857b93\")\n\t\t(at 70 12 -90)\n\t\t(descr \"JST XH series connector, B4B-XH-A (http://www.jst-mfg.com/product/pdf/eng/eXH.pdf)\")\n\t\t(tags \"connector JST XH vertical\")\n\t\t(property \"Reference\" \"J2\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d20fc93d-ec0b-456c-9803-6391cf90bdcc\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"B4B-XH-A(LF)(SN)\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"655ebe7e-8c27-4668-9833-bd68c7c89a37\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6fc57056-df80-4644-b9a9-b289467b51b5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"ea2c310e-b6de-4525-a7e1-baeda6dde559\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"host\"\n\t\t\t(at 58 82 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"5f4b156e-9d06-4de2-b805-7e719de737a8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"B4B-XH-A(LF)(SN)\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"ff76ec8e-4969-410e-83d9-eb24d084b47c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"host\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"1a902e8d-37f5-4f78-b010-3563ba8dbaf1\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"b294a743-c915-4e3e-ac67-46b5a9a63af3\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr through_hole)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -1.8 2.75)\n\t\t\t(end 3.75 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"60f9e336-d228-44f6-8442-05873e0828cf\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 9.3 2.75)\n\t\t\t(end 3.75 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"e2f343cf-90df-4a08-938e-f18970b7b59d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.55 -0.2)\n\t\t\t(end -1.8 -0.2)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"fb23c2e0-227c-44d4-aa7c-d2a7585c92e6\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.8 -0.2)\n\t\t\t(end -1.8 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"39aa3e98-7149-468c-9d68-294aaa2fb148\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 9.3 -0.2)\n\t\t\t(end 9.3 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"4d92d84e-c42a-4ec6-82ca-4aaef775068a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 10.05 -0.2)\n\t\t\t(end 9.3 -0.2)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"4c187374-698a-4a5a-97c3-2e0aa7f33018\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.85 -2.75)\n\t\t\t(end -2.85 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"0603b0ea-5341-45bf-bcb6-db9160003649\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.6 -2.75)\n\t\t\t(end -2.85 -2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6035107b-d69a-440c-a880-fa0e4311f707\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.55 -2.45)\n\t\t\t(end -0.75 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"d426262e-c66f-4d9f-a84f-e8dd5705d4ee\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start 0.75 -2.45)\n\t\t\t(end 6.75 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"567512c9-74a1-4664-8404-1b0858340d11\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start 8.25 -2.45)\n\t\t\t(end 10.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"2f912c37-3cb8-45b9-a111-83daaffb8b4e\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.56 -2.46)\n\t\t\t(end 10.06 3.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"edc994a0-2dfd-4539-a2c6-4ab96d5158e2\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.95 -2.85)\n\t\t\t(end 10.45 3.9)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"8a3c23f3-cf11-4d38-85c8-9d512021baa4\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0 -1.35)\n\t\t\t(end 0.625 -2.35)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"28cb3723-3478-4cb6-be1f-c146176f7644\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.625 -2.35)\n\t\t\t(end 0 -1.35)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"69b10828-3ccc-4731-88eb-1f2fdf4b2a58\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.45 -2.35)\n\t\t\t(end 9.95 3.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"6d488f59-a5bd-4db8-bf9d-a4ca7af42f68\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 3.75 2.7 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"d00ef62a-a86a-479d-a39d-92aa3bc59ea9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" thru_hole roundrect\n\t\t\t(at 0 0)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers yes)\n\t\t\t(keep_end_layers no)\n\t\t\t(zone_layer_connections)\n\t\t\t(roundrect_rratio 0.147059)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"962f17f1-1c61-4e78-ab62-84ac0d17c118\")\n\t\t)\n\t\t(pad \"2\" thru_hole oval\n\t\t\t(at 2.5 0)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers yes)\n\t\t\t(keep_end_layers no)\n\t\t\t(zone_layer_connections)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"9bb2b005-99ea-4ed4-a36c-9358547c212e\")\n\t\t)\n\t\t(pad \"3\" thru_hole oval\n\t\t\t(at 5 0)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers yes)\n\t\t\t(keep_end_layers no)\n\t\t\t(zone_layer_connections)\n\t\t\t(net \"OVP_FAULT\")\n\t\t\t(uuid \"b8152574-2084-4739-b16c-7e1f527e68c1\")\n\t\t)\n\t\t(pad \"4\" thru_hole oval\n\t\t\t(at 7.5 0)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers yes)\n\t\t\t(keep_end_layers no)\n\t\t\t(zone_layer_connections)\n\t\t\t(net \"BUS_MON\")\n\t\t\t(uuid \"9b8cd8a8-d4c1-4bc7-b119-0c176985789a\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_1206_3216Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"09ef4c9d-0b80-0a76-0333-6d7696ccf49f\")\n\t\t(at 40 12)\n\t\t(descr \"Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R3\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"64bb420c-b76d-4924-badb-295dd761c722\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC1206FR-07430KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"52aaa425-b215-475b-8b3e-9734fa4da934\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"77dde5a6-3bd9-4824-9cf7-fa7523b2b614\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"db4dd8d3-c8d6-4207-9f30-cd405ebdf854\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_ovp_top3\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"f7659d27-7e70-4f99-9bc7-85ba8b485d83\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC1206FR-07430KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"1c2a783c-ccdd-403b-9983-d8bd61e7271d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_ovp_top3\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"ba22fe52-44ea-4d6b-9085-66837d7ff2df\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"430kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"792648f9-b886-42dd-b964-a77dabff61cc\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.727064 -0.91)\n\t\t\t(end 0.727064 -0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c0773d4e-3ef4-446b-bc8b-e97127e8755d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.727064 0.91)\n\t\t\t(end 0.727064 0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"740ccbe5-90db-45ff-b6c6-eedee01be2c4\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.28 -1.13)\n\t\t\t(end 2.28 1.13)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"3535e382-a671-420f-8a8e-2de50380a8e8\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.6 -0.8)\n\t\t\t(end 1.6 0.8)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"db0696e6-32a0-4817-bfa0-e7f9e52d5ac5\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"8a38ff93-b852-4fa4-958f-b03961a90ffc\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.8 0.8)\n\t\t\t\t\t(thickness 0.12)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"OVP_MID2\")\n\t\t\t(uuid \"d101794e-b05b-439b-b907-fa6892d0ee95\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"OVP_SENSE\")\n\t\t\t(uuid \"1bea692a-9959-497f-aa37-1bbbb64080ab\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1206_3216Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Capacitor_SMD:C_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"2fb6a462-cc3e-3923-de6d-dc8e84178cda\")\n\t\t(at 59 13 90)\n\t\t(descr \"Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"capacitor\")\n\t\t(property \"Reference\" \"C2\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d0eee73c-4576-404d-8717-707a314de72a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"9e5affe2-b9e6-428d-90af-37e28eece2c0\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"156374fa-7f85-4921-b1fe-3cd904af9d86\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"1943c4e9-c248-408c-ac02-47dc69c6d987\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"c_comp\"\n\t\t\t(at 72 -46 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"4c075b6f-ac3a-4720-962d-f26397c1b218\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a8325224-3cac-4cb3-bb90-0cbd1567954c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"c_comp\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"9d0a97f7-0acb-41e9-8142-44f173d0e84e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"100nF +/- 10%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a4823a34-fefe-49a6-ae62-ceb2604baa7f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.14058 -0.51)\n\t\t\t(end 0.14058 -0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"566caa89-e0d5-437b-a7fc-69802434229d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.14058 0.51)\n\t\t\t(end 0.14058 0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c29739d5-79b7-4de0-af7c-b36424bfd0be\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"9078ebf0-7452-4ba8-a51d-0581d32a09f5\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4)\n\t\t\t(end 0.8 0.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"42da031f-425e-4aaa-a2a1-e0247abd40dd\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"7724f107-6d44-4aee-af10-c84681212a62\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.775 0)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"7ddf4dc7-89f4-4b49-98ea-b63e110c8928\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.775 0)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"83a42584-9091-44bf-81bb-81d4a294f4de\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_1206_3216Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"3b054a74-9352-39ed-88ad-600d578e4607\")\n\t\t(at 40 28)\n\t\t(descr \"Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R8\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"965ecca8-b26c-408f-8c33-292b3c1ca6b1\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC1206FR-07300KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2261ee7b-389f-4c36-9f40-64f8ffc69e39\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"7ce655c4-0b2e-4f7a-8860-4963d3595505\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"057a9be9-419b-4fb2-83b8-65bc68669d24\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_adc_top3\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"94305ae6-bfc6-4134-8a93-72719e4a9991\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC1206FR-07300KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"40215e42-75c2-4ff9-90c7-d7dc0c941ee9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_adc_top3\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"98b013ba-58b7-4c11-8fa5-5780dfdf28c2\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"300kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a314270e-39b7-4e94-9662-767aab1482df\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.727064 -0.91)\n\t\t\t(end 0.727064 -0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"1496308a-3b4c-413b-9bca-594d2d9c2b68\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.727064 0.91)\n\t\t\t(end 0.727064 0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"3093ddf2-7f29-4217-bfa9-2d5f35a28833\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.28 -1.13)\n\t\t\t(end 2.28 1.13)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"6ebe65f7-dcba-4808-97c4-7f571e1fe4f2\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.6 -0.8)\n\t\t\t(end 1.6 0.8)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"00244c0b-76ec-45d8-b730-a64135319403\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"78205b23-a54a-42eb-8dde-0a490570e674\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.8 0.8)\n\t\t\t\t\t(thickness 0.12)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"ADC_MID2\")\n\t\t\t(uuid \"d89bacc1-0b4d-4850-bd8b-aea674c4d971\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"BUS_MON\")\n\t\t\t(uuid \"3ef1d54d-e779-43be-a73c-d6b13401012b\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1206_3216Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Package_TO_SOT_SMD:SOT-23-5\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"681f190d-9049-4531-d0a8-3be5fbb0cbfd\")\n\t\t(at 54 16)\n\t\t(descr \"SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)\")\n\t\t(tags \"SOT TO_SOT_SMD\")\n\t\t(property \"Reference\" \"U1\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d3cff788-c787-4bff-895c-2f5d98bc4e9d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"TLV3201AIDBVR\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"7178e5ff-abc3-4426-abac-e5edd0c04b87\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"0ce1ce82-98a7-410e-9590-324d2f205cf2\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"47fedd61-4f5f-4a85-87ec-6955d5c3530f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"comp\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"2806efb3-b2a4-449d-9bc6-6005947e565a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"TLV3201AIDBVR\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"154d932b-ef9e-4c70-bc2b-d4f4d142dbf6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"comp\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"46a3e647-0706-44f3-b4d6-cef0b5253d10\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c0c4f276-cd87-4b84-b3a2-697ef8fc45aa\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.91 -1.56)\n\t\t\t(end 0.91 -1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"ed947ebd-c2e5-460f-a724-e49964d1ca44\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.91 -1.51)\n\t\t\t(end -0.91 -1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"9e1a4698-73f2-424d-a7dc-fca3e199cb57\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.91 1.56)\n\t\t\t(end -0.91 1.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"e2388c27-5b34-493f-b8e9-890d342b8565\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 -1.56)\n\t\t\t(end 0.91 -1.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"abf60523-9ca4-40d8-84ee-245aa7208bfd\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 -0.39)\n\t\t\t(end 0.91 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"d2fecdac-b0aa-4095-a986-deb366032e7c\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 1.51)\n\t\t\t(end 0.91 1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"d9ebcc0b-bf86-4f1a-b05d-c6d71caec87d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 1.56)\n\t\t\t(end -0.91 1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6d0a415b-44d5-4bfb-afbc-12a7f201fa13\")\n\t\t)\n\t\t(fp_poly\n\t\t\t(pts\n\t\t\t\t(xy -1.45 -1.51) (xy -1.69 -1.84) (xy -1.21 -1.84)\n\t\t\t)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill yes)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"41b7de75-1dc0-49b5-a049-43dc4669b07e\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.05 -1.5)\n\t\t\t(end -1.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"cf69c527-c6ab-4446-8ca0-83c7edfe7198\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.05 1.5)\n\t\t\t(end -2.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"0bb261f0-2cad-40e8-9054-032b42522fba\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 -1.7)\n\t\t\t(end 1.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"2dce8c68-3be1-4800-82d7-f1adf4e462e0\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 -1.5)\n\t\t\t(end -1.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"268ad1e6-6fca-4c5e-b63b-ac5ac4973d94\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 1.5)\n\t\t\t(end -2.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"7a6bd82e-4cb5-4bae-9104-bf9e7bba8d86\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 1.7)\n\t\t\t(end -1.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"0338d5f1-5e1a-455c-a878-aeb5a747a9cc\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -1.7)\n\t\t\t(end 1.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"6aca670e-0843-4da5-91d1-15fc97ae50fe\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -1.5)\n\t\t\t(end 2.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"ff150e7f-7bb6-4dcf-9db5-d18383426207\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -0.39)\n\t\t\t(end 1.05 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"f309a53a-3452-46e6-85a1-e4ccea0c6cde\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 0.39)\n\t\t\t(end 2.05 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"d6ed2fe4-8c3a-4046-958f-9b0cd558226e\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 1.5)\n\t\t\t(end 1.05 1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"d6337151-ad3c-46e7-9255-9739b4228444\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 1.7)\n\t\t\t(end -1.05 1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"66893417-c362-44a0-91b4-d0ef8dc0b5d6\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 -1.5)\n\t\t\t(end 2.05 -0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"9e88ae98-ce8f-4456-bd28-9eae7aca8b53\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 -0.39)\n\t\t\t(end 1.05 -0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"cd5cdad5-837d-4acd-a493-94a50d8e7f31\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 0.39)\n\t\t\t(end 2.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"808db11a-de64-49f9-9a6e-5b173b36e027\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 1.5)\n\t\t\t(end 1.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"b084c224-3c59-4b19-b7b1-5c74d5e241e0\")\n\t\t)\n\t\t(fp_poly\n\t\t\t(pts\n\t\t\t\t(xy -0.4 -1.45) (xy 0.8 -1.45) (xy 0.8 1.45) (xy -0.8 1.45) (xy -0.8 -1.05)\n\t\t\t)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"02077c67-6bea-4986-a476-c4b15ee4522d\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"3ab5cf66-9192-451f-a20b-0e6a847d0d07\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.72 0.72)\n\t\t\t\t\t(thickness 0.11)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.1375 -0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"OVP_FAULT\")\n\t\t\t(uuid \"5b585466-7cc5-40f5-8cf8-41934d2a77f2\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at -1.1375 0)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"97d61689-daf3-4bf1-8a47-541e8481e6ec\")\n\t\t)\n\t\t(pad \"3\" smd roundrect\n\t\t\t(at -1.1375 0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"OVP_SENSE\")\n\t\t\t(uuid \"890719f9-087e-4b93-b155-e34f9e0674a8\")\n\t\t)\n\t\t(pad \"4\" smd roundrect\n\t\t\t(at 1.1375 0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"VREF_2V5\")\n\t\t\t(uuid \"71f1b8a8-6d06-4f4e-877d-8bdfa9711a50\")\n\t\t)\n\t\t(pad \"5\" smd roundrect\n\t\t\t(at 1.1375 -0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"5c4ebd21-10be-4a09-a921-5e1d3a0e8bec\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"lib:VoltageInput_691253500002\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"7d12363d-2398-5028-60af-9a08f4be62f2\")\n\t\t(at 6 18 -90)\n\t\t(descr \"Wurth Elektronik 691253500002, WR-TBL Series 2535, 2-pos 5.08 mm vertical (top) wire-entry screw terminal. Recommended PCB hole \u00d81.5 mm, pitch 5.08 mm, pin 1 centre 2.54 mm from the end, body 10.16 x 5.3 mm, height 11.2 mm. Source: Wurth datasheet 691253500002.pdf (WR-TBL 2535), rev 26-AUG-14, sheet 1/2, 2026-09-10.\")\n\t\t(tags \"terminal block screw vertical top entry 5.08mm THT\")\n\t\t(property \"Reference\" \"J1\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"4eca0668-b927-4658-8248-58ad3d28bc77\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"691253500002\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"cd5d022f-9fa2-4233-a4fe-d716630e0015\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e6d04157-7323-4b58-9133-22a79b4d4fe6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"212df363-df63-42b6-83a5-bcb19a8ead4c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"input\"\n\t\t\t(at -12 24 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"533c0937-cb8d-4531-b4c6-789dbbdd8575\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"691253500002\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c5dd5396-148b-471b-9c70-4b884c0c7153\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"input\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"fa117b25-04bd-4b08-8c96-a0d44c977a18\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"59be573c-e09c-423f-806a-0a2b69eaea9e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr through_hole)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -2.54 2.65)\n\t\t\t(end -2.54 1.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type default)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"bc176379-7443-4865-87f7-ef34bf2115bb\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.54 -2.65)\n\t\t\t(end 7.62 2.65)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type default)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"1e139333-dd3b-4549-b4f6-91983faa653f\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.79 -2.9)\n\t\t\t(end 7.87 2.9)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type default)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"b836a35a-118f-407a-be01-e30cc8a4f5da\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.54 -2.65)\n\t\t\t(end 7.62 2.65)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type default)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"ca93d9d7-4584-410c-bd23-cf8613f21233\")\n\t\t)\n\t\t(fp_text user \"1\"\n\t\t\t(at -1.6 1.9 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"697ff216-7e61-4a78-8bd5-49f6451b1221\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.8 0.8)\n\t\t\t\t\t(thickness 0.12)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" thru_hole roundrect\n\t\t\t(at 0 0)\n\t\t\t(size 2.8 2.8)\n\t\t\t(drill 1.5)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers yes)\n\t\t\t(keep_end_layers no)\n\t\t\t(zone_layer_connections)\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_PLUS\")\n\t\t\t(uuid \"988e090c-5e5d-4e34-a5be-172dcb50458d\")\n\t\t)\n\t\t(pad \"2\" thru_hole circle\n\t\t\t(at 5.08 0)\n\t\t\t(size 2.8 2.8)\n\t\t\t(drill 1.5)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers yes)\n\t\t\t(keep_end_layers no)\n\t\t\t(zone_layer_connections)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"9c845132-fa20-4656-9f74-f463043f4b07\")\n\t\t)\n\t\t(embedded_fonts no)\n\t)\n\t(footprint \"Resistor_SMD:R_1206_3216Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"85aec409-8004-0d80-8247-7b1557c10e79\")\n\t\t(at 30 28)\n\t\t(descr \"Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R7\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"8c3a500e-ad3f-461f-ad40-59c75eedf3ae\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC1206FR-07300KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2e28ca87-6a7a-4b23-ab6d-8840d098fbca\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"de7b7114-461c-444c-95c5-846ab68afafe\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"c8415231-db65-43b8-85a8-246190406c98\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_adc_top2\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"8d8dc130-7791-4a1f-839d-10b0d93502fc\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC1206FR-07300KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"23a77c76-8172-4b97-bafc-b78a721978ec\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_adc_top2\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a45e5e8b-5b91-427e-b271-b387f206d04d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"300kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"9a206064-00f6-4a5d-9df1-6367c6d40694\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.727064 -0.91)\n\t\t\t(end 0.727064 -0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6731cf33-425b-437d-8992-ebf91af8590b\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.727064 0.91)\n\t\t\t(end 0.727064 0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"4342ffb7-a04f-466f-9f49-43822118524d\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.28 -1.13)\n\t\t\t(end 2.28 1.13)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"e62eb84e-0465-41e1-b929-36738d685a8d\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.6 -0.8)\n\t\t\t(end 1.6 0.8)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"b069c9df-8508-431a-9f7d-9cb792292e21\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"e5eebdbe-6dec-4bb7-8a79-4801613319ad\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.8 0.8)\n\t\t\t\t\t(thickness 0.12)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"ADC_MID1\")\n\t\t\t(uuid \"be9730a0-aee9-46ab-999b-6cbba4f3b1dd\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"ADC_MID2\")\n\t\t\t(uuid \"65e3a88a-433f-479c-9dac-edee8174686e\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1206_3216Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Package_TO_SOT_SMD:SOT-23-5\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"9c5c6669-b27b-9716-9a55-98800e403eb4\")\n\t\t(at 55 26)\n\t\t(descr \"SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)\")\n\t\t(tags \"SOT TO_SOT_SMD\")\n\t\t(property \"Reference\" \"U2\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f5035b35-dd40-4ff7-9827-8b4fb6e6dec5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"REF2025AIDDCR\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d919a3c9-c3ef-4623-9bc4-135dfdd863d0\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d3f78915-bf3e-44a9-b108-522487efb320\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"82044d43-232d-4231-90b4-2888c4d045eb\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"reference\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"3c70cde8-d601-4129-b428-0999fb607442\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"REF2025AIDDCR\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"420799d3-1895-4834-97a5-92a4ee16b42e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"reference\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"dd1409c2-c86f-4578-97c8-9093e6b29e23\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8617c8bc-a7a3-4e80-9bb5-d2a725ceb2d8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.91 -1.56)\n\t\t\t(end 0.91 -1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"9a2c8a5b-1b3b-43f7-8768-a1d2dcab6350\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.91 -1.51)\n\t\t\t(end -0.91 -1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"504da829-ccf8-48fb-9ceb-0c8af61de17a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.91 1.56)\n\t\t\t(end -0.91 1.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"7adcef8e-965d-493b-9efa-a07130e38715\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 -1.56)\n\t\t\t(end 0.91 -1.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c1cc5050-dda3-418d-a89f-a433b54381d2\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 -0.39)\n\t\t\t(end 0.91 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8501b072-bbd3-4993-a877-3228ae20ea6d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 1.51)\n\t\t\t(end 0.91 1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"b074ed8c-c13c-4534-ae36-c721acb736c5\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 1.56)\n\t\t\t(end -0.91 1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"b52ebcbe-7a81-4c45-8244-cda338152f37\")\n\t\t)\n\t\t(fp_poly\n\t\t\t(pts\n\t\t\t\t(xy -1.45 -1.51) (xy -1.69 -1.84) (xy -1.21 -1.84)\n\t\t\t)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill yes)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"0b75c377-f69e-4af4-a53b-073304c3b3ab\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.05 -1.5)\n\t\t\t(end -1.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"710727d8-be42-4160-8516-83576e05670c\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.05 1.5)\n\t\t\t(end -2.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"af6c9378-56b1-4afb-a34c-da2e5963a277\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 -1.7)\n\t\t\t(end 1.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"6a234a92-0006-4070-9d4b-6929c385b03d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 -1.5)\n\t\t\t(end -1.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"58373d34-5724-444b-9a0d-ffdd2f2c25f4\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 1.5)\n\t\t\t(end -2.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"8d6e666d-6313-48f9-9e50-874a68f275f6\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 1.7)\n\t\t\t(end -1.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"35a04958-c667-4320-9cd3-04ec9bd692b9\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -1.7)\n\t\t\t(end 1.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"07b161fb-6045-479e-9ab8-3d359516e92d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -1.5)\n\t\t\t(end 2.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"12ee2257-3fb4-4e6f-a0a3-652f7d3adfb3\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -0.39)\n\t\t\t(end 1.05 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"2ad1944b-0c86-41c7-8fc1-eb8b56a08ac9\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 0.39)\n\t\t\t(end 2.05 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"21a30558-ddaf-46dc-95b8-a69ccaadc5cc\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 1.5)\n\t\t\t(end 1.05 1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"b1b84054-bc26-4590-860b-caf88eab4178\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 1.7)\n\t\t\t(end -1.05 1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"cf559181-c908-4db9-9201-d9d32b4c5232\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 -1.5)\n\t\t\t(end 2.05 -0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"639c5c3b-9206-4db3-9180-c4d25ee89459\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 -0.39)\n\t\t\t(end 1.05 -0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"68a4be5c-aebc-4386-9d4d-ee0e35fc2961\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 0.39)\n\t\t\t(end 2.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"17b4bc92-19ed-45f0-a645-73a9138f038a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 1.5)\n\t\t\t(end 1.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"9e083b64-84af-4dab-8e75-6e43fb37d2c4\")\n\t\t)\n\t\t(fp_poly\n\t\t\t(pts\n\t\t\t\t(xy -0.4 -1.45) (xy 0.8 -1.45) (xy 0.8 1.45) (xy -0.8 1.45) (xy -0.8 -1.05)\n\t\t\t)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"502b2209-8744-42cd-947d-9c2bff4f0cf7\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"73cafc12-bebe-4b89-bc76-1a1bfd1a07c4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.72 0.72)\n\t\t\t\t\t(thickness 0.11)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.1375 -0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"vbias\")\n\t\t\t(uuid \"2e8d8560-b73d-4205-9759-71d3c2986012\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at -1.1375 0)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"30703c15-e198-493f-9d4d-05d0b19b7197\")\n\t\t)\n\t\t(pad \"3\" smd roundrect\n\t\t\t(at -1.1375 0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"97a5f735-a0cf-42cf-8ab6-82f53b194b60\")\n\t\t)\n\t\t(pad \"4\" smd roundrect\n\t\t\t(at 1.1375 0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"90f8e3f7-e5cd-47ba-9c1f-8aa65dcccc75\")\n\t\t)\n\t\t(pad \"5\" smd roundrect\n\t\t\t(at 1.1375 -0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"VREF_2V5\")\n\t\t\t(uuid \"e2019d86-3c20-42a7-a368-9179eb900295\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"a264b6fe-8a0c-bb54-8066-1735c3fc57bb\")\n\t\t(at 53 10)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R5\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"54f1fa3d-cd0d-4eef-84e1-2e284df99a81\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RT0603BRD07487KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"96207190-8e4b-4336-afa3-8063c71ec73f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"86cb3ecc-57a5-43d4-a01a-a92e3c6df144\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"085abc76-0204-4a8c-b33e-ebc739199e97\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_hyst\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"1acae3f1-2957-460e-b23e-39d0d0b25d97\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RT0603BRD07487KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"0c9725eb-1121-4401-b496-8db2ed081885\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_hyst\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"867e33da-f922-4fac-84c1-c2dfeb410641\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"487kohm +/- 0.1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"31a4c643-437c-4dc2-99a4-cf2b060203ee\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f3c4c0e4-c1a7-41c4-99d4-3f079fae574a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"92a4b0b3-0de0-4b40-89a2-6499d9fa32a5\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"cc71c4fd-9822-4b9a-8623-5af68b23f4a0\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"b6d4b739-7ce0-4a53-aaae-3e69c9a23c98\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"5e9d6337-f2c5-404b-b012-015e71cf54a8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"OVP_SENSE\")\n\t\t\t(uuid \"1f7d9cdd-01bd-459f-b508-149127bf6cf9\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"OVP_FAULT\")\n\t\t\t(uuid \"f8fabbc8-952c-4b94-ae98-f4478b158c02\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Capacitor_SMD:C_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"ac559a47-02b5-8358-841c-d7e356c3688b\")\n\t\t(at 51 32 90)\n\t\t(descr \"Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"capacitor\")\n\t\t(property \"Reference\" \"C1\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"eedc17b8-2f6b-4da9-9f59-8a65209b0051\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"930fac1c-83c0-4a8c-be32-24432c3d6cc9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"b403a293-e31f-48aa-b1c6-3761139f19c4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"5a5e8b55-b672-4e9b-ac1b-014311cbdce5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"c_adc\"\n\t\t\t(at 83 -19 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"df4998fb-1911-49cc-b72a-416d867be269\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"81b36a06-86e4-4990-ba81-a21c0200c24e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"c_adc\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f611f0a1-4a0e-40c3-90e4-02d9595ad633\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"100nF +/- 10%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"e31148c6-c24c-479b-8c34-60bc7e488020\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.14058 -0.51)\n\t\t\t(end 0.14058 -0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"16d5ea3f-24f4-4dfd-b912-b1d147f99a37\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.14058 0.51)\n\t\t\t(end 0.14058 0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8bd4807a-12f6-4947-ae27-20917537cee6\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"1471bcce-d736-42a6-9dc3-4f09c958d879\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4)\n\t\t\t(end 0.8 0.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"1dffab77-deb3-47fb-9e34-b5aa5a2ca0be\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"90da1eb0-cb4e-4bf2-bc93-2fc078c4c411\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.775 0)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_MON\")\n\t\t\t(uuid \"c54c6ffd-b673-4e22-b647-0e0b0ebd0e10\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.775 0)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"e2e1d68f-bfd8-4cb6-9bea-cf21569aa0fc\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_1206_3216Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"aeeaab20-a6ba-beb3-ad0d-dddbc07c7eb3\")\n\t\t(at 20 12)\n\t\t(descr \"Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R1\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"4db35509-bb00-474b-95aa-8cba073b65ee\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC1206FR-07430KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"101700ac-13a8-42a6-b128-cc23e9b66c30\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"12f38816-0dc3-493c-9ec9-3091d4ccc281\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"4c5e2f51-f0bc-4445-aa6e-9f412e332def\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_ovp_top1\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"433723d7-8ce9-4489-af43-5775476c298f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC1206FR-07430KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"46e8fdef-daa3-489c-91b0-bd84613fcec5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_ovp_top1\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f8457f5e-5160-4261-aeb4-4bc8cb8bb81a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"430kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"b433e8dd-4a97-4767-bbf8-9ee06a5b3ac3\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.727064 -0.91)\n\t\t\t(end 0.727064 -0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"62c5cc97-e1d1-417c-837d-52dcb30e4f40\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.727064 0.91)\n\t\t\t(end 0.727064 0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"2a763913-b6ba-469a-b019-52bcc8f3727b\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.28 -1.13)\n\t\t\t(end 2.28 1.13)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"b06fc2c3-7929-441f-91d3-8a42b276fae1\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.6 -0.8)\n\t\t\t(end 1.6 0.8)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"b0db29c5-7d5a-4f80-990d-50f92b2fe4e6\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"f039a872-abb1-4c19-a67f-5d0553364590\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.8 0.8)\n\t\t\t\t\t(thickness 0.12)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"BUS_PLUS\")\n\t\t\t(uuid \"774dbd15-3ede-47cd-b151-f2713803c11f\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"OVP_MID1\")\n\t\t\t(uuid \"435204f5-0fb8-4c9a-8fee-3b2127cd1069\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1206_3216Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_1206_3216Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"b7e3e380-6203-5be1-983a-6726c67a4459\")\n\t\t(at 20 28)\n\t\t(descr \"Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R6\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"61ceff9c-840d-498a-b9d5-4eeb14331eed\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC1206FR-07300KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"781d246d-0bb0-4000-b389-fcf993f358fd\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e442ffa3-328c-4886-b89b-334790cef6c4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"9746836d-7f77-443e-a9c3-0f9120fd54b1\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_adc_top1\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"535de7f4-1132-4f61-8e50-326a99696fd4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC1206FR-07300KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"5fa31a82-bae3-420b-9515-1fb1c798c870\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_adc_top1\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"2f83cca4-3dbd-42d8-8d35-eff905fbaf02\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"300kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"cdaecbb4-7a91-4649-aef6-208855b45f7d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.727064 -0.91)\n\t\t\t(end 0.727064 -0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"0e17ec79-5c06-4da7-8fea-7ed936e52f5d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.727064 0.91)\n\t\t\t(end 0.727064 0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"49b7e491-ca6d-4b7c-b307-0d0dfcb50dda\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.28 -1.13)\n\t\t\t(end 2.28 1.13)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"6e332e00-40be-4679-b462-91c6dedc20a4\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.6 -0.8)\n\t\t\t(end 1.6 0.8)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"8e998b90-771f-4d11-9e64-f27ece7db65e\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"abae4e34-524b-41ab-92d2-302cbe1d7b6e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.8 0.8)\n\t\t\t\t\t(thickness 0.12)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"BUS_PLUS\")\n\t\t\t(uuid \"7ffb9641-d89e-427b-a96a-43dfadbeccf5\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"ADC_MID1\")\n\t\t\t(uuid \"277d00e0-d4df-4c0e-868c-bee3fb05c2a3\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1206_3216Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"bd043752-06c6-4c9d-b3ac-60aeef7efddd\")\n\t\t(at 47 32 90)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R9\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"ee0cd53d-fdd8-4bdc-9b34-c519ef4eaca6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-0710KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"4e739fe6-5a3e-4620-88bc-b9db9b0051d8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"94d661b6-5b4b-4f26-adb8-7f9adac2bdff\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"a924115a-f261-40fb-8025-9435285a9a16\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_adc_bottom\"\n\t\t\t(at 79 -15 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"53440ef3-2d25-44c7-abc2-32d4517b6b27\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-0710KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"5064b762-ea0c-403a-ad9c-aa2b0dd3900f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_adc_bottom\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f2ef90fc-7e0e-4125-ab70-c89a7e21ed68\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"10kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"dbc1dcb9-68da-4491-91a7-5116388236e8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"0062583a-a855-4749-84e5-ed75b8324b9c\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f04b6778-cb13-476a-9604-aef911ce6796\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"f765647c-a6fc-4554-bfdd-0f9931e777d2\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"b47e0741-f520-4c07-8d90-29d5982f220b\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"91fe14b6-71cb-4cca-8401-52a9ce19b5d3\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_MON\")\n\t\t\t(uuid \"c76dc312-14f3-45c2-bdd1-c6c8a055d568\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"b8efe641-3516-4f05-bc7c-c5cbf904dd6a\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Capacitor_SMD:C_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"bdc8fef8-4e18-9d8e-24c1-668eba2c2516\")\n\t\t(at 59 24 90)\n\t\t(descr \"Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"capacitor\")\n\t\t(property \"Reference\" \"C4\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"c62b6900-7f7c-4f73-bf51-79d1ba82a402\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"25b0129d-9584-4a5d-961c-52f057cd316e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d845ffba-d2d3-4100-88a6-78b1603a6d8f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"0c57aee2-e286-401e-97b0-df910c7e4683\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"c_ref_out\"\n\t\t\t(at 83 -35 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"3f5a77b1-bb5f-46a8-8cee-d2549eefa455\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a328e5b7-0755-4d97-9109-d984d328ae30\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"c_ref_out\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"40ac25c9-de03-4799-91d6-296f54bfb095\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"100nF +/- 10%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"695e83e9-3e30-4abe-8433-85bffcd64db8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.14058 -0.51)\n\t\t\t(end 0.14058 -0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a0b16021-a6d5-4c74-a122-ee9ad896cc52\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.14058 0.51)\n\t\t\t(end 0.14058 0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"246ec8e9-26e1-47c9-ad5d-c1a3dbcc3778\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"fa83fc28-d7e9-49aa-aed0-2f54851f4cc7\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4)\n\t\t\t(end 0.8 0.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"695bc6d9-1b9c-42c8-9363-57593c23f39d\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"6b4ef7d7-bcd0-4c39-881c-f29672d02a88\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.775 0)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"VREF_2V5\")\n\t\t\t(uuid \"2b48908a-0fa6-410d-ad7a-564de0d420d5\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.775 0)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"9d4daa4a-fd87-4003-8198-2a93b1365ad6\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_1206_3216Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"c132e29f-1539-b3ca-d01b-a7ddbce75ce1\")\n\t\t(at 30 12)\n\t\t(descr \"Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R2\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"bc6a5711-65ee-4cc1-b384-bb18918d1bfa\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC1206FR-07430KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"50d2a0b2-4661-49c6-a06b-6a00d0bd796e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"ebf0516a-378b-4d17-af24-7c473629cb3a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"855e7f40-4572-4b10-aff8-f094ec9f3a70\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_ovp_top2\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"dffdf914-9c0d-48ed-ad06-356c1fa9c0c8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC1206FR-07430KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"ec05fe31-4638-438c-bf26-f31a142a3858\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_ovp_top2\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8a59259c-06be-4287-888d-9cb0994c4e4d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"430kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"b45dbe55-e449-4b4c-acef-cae72320a393\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.727064 -0.91)\n\t\t\t(end 0.727064 -0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a0e62ef1-21c4-448a-89a7-79eee7eb4fda\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.727064 0.91)\n\t\t\t(end 0.727064 0.91)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"9b211bfa-a99b-403f-bd93-79883aa06a97\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.28 -1.13)\n\t\t\t(end 2.28 1.13)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"ac83186c-41c4-45d2-a8e1-137c6a936a24\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.6 -0.8)\n\t\t\t(end 1.6 0.8)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"059b9f37-c70f-41b4-bb4e-2c654302a6c9\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"84a44b58-6b18-4367-a57f-9eab3fa315d3\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.8 0.8)\n\t\t\t\t\t(thickness 0.12)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"OVP_MID1\")\n\t\t\t(uuid \"5437a06b-4458-4b5d-becd-cab55736f816\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 1.4625 0)\n\t\t\t(size 1.125 1.75)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.222222)\n\t\t\t(net \"OVP_MID2\")\n\t\t\t(uuid \"ef28ca75-122c-4b89-8240-9123bc33e2db\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1206_3216Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Capacitor_SMD:C_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"c7554b85-733d-7f16-712a-beb571406fed\")\n\t\t(at 59 28 90)\n\t\t(descr \"Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"capacitor\")\n\t\t(property \"Reference\" \"C3\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"868f5661-89d9-4452-9ea5-cbb1c23adb64\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2ca0a1a5-db5b-4a7b-b8d4-9b6a4b9c7fc5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"692ebdc3-577a-4bcb-890c-88f6acf87e01\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2a30bc62-0dfc-4ac2-95f1-0d5b8d81067d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"c_ref_in\"\n\t\t\t(at 87 -31 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"d722700a-69e0-4652-97da-f3d00696d719\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"3d291b31-f5b6-43d7-8f56-e7a942689469\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"c_ref_in\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8247aa71-2ab8-4c5e-8f7b-0e4747219676\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"100nF +/- 10%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"13e7300c-1a9f-43e4-a7a8-5fb16f978831\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.14058 -0.51)\n\t\t\t(end 0.14058 -0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"7ddcdfbb-e14e-4ca5-94d7-d25a413454a2\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.14058 0.51)\n\t\t\t(end 0.14058 0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a53335bb-aa98-461f-8aaa-61636a8d3a19\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"c4beb437-9d11-409b-9154-731e2e5e0cb5\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4)\n\t\t\t(end 0.8 0.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"0334661d-e993-46f5-82c4-1c5254c43a41\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"c5a0d329-b557-41eb-aa7c-61034cb4b351\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.775 0)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"f5dcf267-9616-4c23-b84d-89cfb1c8dc4c\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.775 0)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"370dd4e8-066f-4e59-8799-4c3bced26174\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"f43a84be-4da8-fc57-2d8e-7e3b3f828818\")\n\t\t(at 47 17 90)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R4\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f32f7554-8cc9-4beb-9f64-2c9381fde08f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RT0603BRD0716K9L\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"a1bd453e-2f60-498f-a83e-985c6b0cffb8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"3aa351e6-f412-4bbe-9591-6fb89603af56\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f29b06ac-fec0-42a0-a79f-4d7f7c1860a0\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"r_ovp_bottom\"\n\t\t\t(at 64 -30 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"b15fd628-8d04-46e9-a62b-2ea015e9cc6d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RT0603BRD0716K9L\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"b2cfa136-d214-488b-9345-2e3116113b2c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"r_ovp_bottom\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"50f091fb-a86e-452a-a98e-a518835b5873\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"16.9kohm +/- 0.1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c2411959-457d-493b-91a2-123f3a977282\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"4fab3997-6b43-4c9d-bbd2-fc259f9cd01c\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"91125897-47b3-4bc2-b9fb-5f8e8358715a\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"fb107cb4-2883-42a8-9687-53eeffb81c8a\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"2df2ec41-892d-40e2-9322-78d1744d64bf\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"856cb4d6-c2de-426a-8a40-50c258def736\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"OVP_SENSE\")\n\t\t\t(uuid \"35d5c206-317b-416d-9386-675f12ab5f56\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"BUS_RETURN\")\n\t\t\t(uuid \"4b3f2f18-de36-4a0b-91eb-7071d77c612d\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(gr_poly\n\t\t(pts\n\t\t\t(xy 0 0) (xy 78 0) (xy 78 42) (xy 0 42)\n\t\t)\n\t\t(stroke\n\t\t\t(width 0.1)\n\t\t\t(type solid)\n\t\t)\n\t\t(fill no)\n\t\t(layer \"Edge.Cuts\")\n\t\t(uuid \"2c9086de-d6a5-4c63-8324-d4d4f84f00e1\")\n\t)\n\t(embedded_fonts no)\n)\n",
+  "components": [
+    {
+      "id": "host",
+      "uuid": "0123b52e-e2a1-8bdb-9543-a5c019857b93",
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "kind": "JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "position_mm": [
+        70.0,
+        12.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "962f17f1-1c61-4e78-ab62-84ac0d17c118",
+          "net": "+3V3",
+          "position_mm": [
+            70.0,
+            12.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.147059,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "9bb2b005-99ea-4ed4-a36c-9358547c212e",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            70.0,
+            14.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 0.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "b8152574-2084-4739-b16c-7e1f527e68c1",
+          "net": "OVP_FAULT",
+          "position_mm": [
+            70.0,
+            17.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 0.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "9b8cd8a8-d4c1-4bc7-b119-0c176985789a",
+          "net": "BUS_MON",
+          "position_mm": [
+            70.0,
+            19.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 0.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_ovp_top3",
+      "uuid": "09ef4c9d-0b80-0a76-0333-6d7696ccf49f",
+      "mpn": "RC1206FR-07430KL",
+      "kind": "R_1206_3216Metric",
+      "position_mm": [
+        40.0,
+        12.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "d101794e-b05b-439b-b907-fa6892d0ee95",
+          "net": "OVP_MID2",
+          "position_mm": [
+            38.5375,
+            12.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "1bea692a-9959-497f-aa37-1bbbb64080ab",
+          "net": "OVP_SENSE",
+          "position_mm": [
+            41.4625,
+            12.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c_comp",
+      "uuid": "2fb6a462-cc3e-3923-de6d-dc8e84178cda",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        59.0,
+        13.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "7ddf4dc7-89f4-4b49-98ea-b63e110c8928",
+          "net": "+3V3",
+          "position_mm": [
+            59.0,
+            13.775
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "83a42584-9091-44bf-81bb-81d4a294f4de",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            59.0,
+            12.225
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_adc_top3",
+      "uuid": "3b054a74-9352-39ed-88ad-600d578e4607",
+      "mpn": "RC1206FR-07300KL",
+      "kind": "R_1206_3216Metric",
+      "position_mm": [
+        40.0,
+        28.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "d89bacc1-0b4d-4850-bd8b-aea674c4d971",
+          "net": "ADC_MID2",
+          "position_mm": [
+            38.5375,
+            28.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "3ef1d54d-e779-43be-a73c-d6b13401012b",
+          "net": "BUS_MON",
+          "position_mm": [
+            41.4625,
+            28.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comp",
+      "uuid": "681f190d-9049-4531-d0a8-3be5fbb0cbfd",
+      "mpn": "TLV3201AIDBVR",
+      "kind": "SOT-23-5",
+      "position_mm": [
+        54.0,
+        16.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "5b585466-7cc5-40f5-8cf8-41934d2a77f2",
+          "net": "OVP_FAULT",
+          "position_mm": [
+            52.8625,
+            15.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "97d61689-daf3-4bf1-8a47-541e8481e6ec",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            52.8625,
+            16.0
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "890719f9-087e-4b93-b155-e34f9e0674a8",
+          "net": "OVP_SENSE",
+          "position_mm": [
+            52.8625,
+            16.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "71f1b8a8-6d06-4f4e-877d-8bdfa9711a50",
+          "net": "VREF_2V5",
+          "position_mm": [
+            55.1375,
+            16.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "5",
+          "uuid": "5c4ebd21-10be-4a09-a921-5e1d3a0e8bec",
+          "net": "+3V3",
+          "position_mm": [
+            55.1375,
+            15.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "input",
+      "uuid": "7d12363d-2398-5028-60af-9a08f4be62f2",
+      "mpn": "691253500002",
+      "kind": "VoltageInput_691253500002",
+      "position_mm": [
+        6.0,
+        18.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "988e090c-5e5d-4e34-a5be-172dcb50458d",
+          "net": "BUS_PLUS",
+          "position_mm": [
+            6.0,
+            18.0
+          ],
+          "size_mm": [
+            2.8,
+            2.8
+          ],
+          "drill_mm": [
+            1.5,
+            1.5
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "9c845132-fa20-4656-9f74-f463043f4b07",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            6.0,
+            23.08
+          ],
+          "size_mm": [
+            2.8,
+            2.8
+          ],
+          "drill_mm": [
+            1.5,
+            1.5
+          ],
+          "orientation_deg": 0.0,
+          "shape": 0,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_adc_top2",
+      "uuid": "85aec409-8004-0d80-8247-7b1557c10e79",
+      "mpn": "RC1206FR-07300KL",
+      "kind": "R_1206_3216Metric",
+      "position_mm": [
+        30.0,
+        28.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "be9730a0-aee9-46ab-999b-6cbba4f3b1dd",
+          "net": "ADC_MID1",
+          "position_mm": [
+            28.5375,
+            28.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "65e3a88a-433f-479c-9dac-edee8174686e",
+          "net": "ADC_MID2",
+          "position_mm": [
+            31.4625,
+            28.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reference",
+      "uuid": "9c5c6669-b27b-9716-9a55-98800e403eb4",
+      "mpn": "REF2025AIDDCR",
+      "kind": "SOT-23-5",
+      "position_mm": [
+        55.0,
+        26.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "2e8d8560-b73d-4205-9759-71d3c2986012",
+          "net": "vbias",
+          "position_mm": [
+            53.8625,
+            25.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "30703c15-e198-493f-9d4d-05d0b19b7197",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            53.8625,
+            26.0
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "97a5f735-a0cf-42cf-8ab6-82f53b194b60",
+          "net": "+3V3",
+          "position_mm": [
+            53.8625,
+            26.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "90f8e3f7-e5cd-47ba-9c1f-8aa65dcccc75",
+          "net": "+3V3",
+          "position_mm": [
+            56.1375,
+            26.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "5",
+          "uuid": "e2019d86-3c20-42a7-a368-9179eb900295",
+          "net": "VREF_2V5",
+          "position_mm": [
+            56.1375,
+            25.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_hyst",
+      "uuid": "a264b6fe-8a0c-bb54-8066-1735c3fc57bb",
+      "mpn": "RT0603BRD07487KL",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        53.0,
+        10.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "1f7d9cdd-01bd-459f-b508-149127bf6cf9",
+          "net": "OVP_SENSE",
+          "position_mm": [
+            52.175,
+            10.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "f8fabbc8-952c-4b94-ae98-f4478b158c02",
+          "net": "OVP_FAULT",
+          "position_mm": [
+            53.825,
+            10.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c_adc",
+      "uuid": "ac559a47-02b5-8358-841c-d7e356c3688b",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        51.0,
+        32.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "c54c6ffd-b673-4e22-b647-0e0b0ebd0e10",
+          "net": "BUS_MON",
+          "position_mm": [
+            51.0,
+            32.775
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "e2e1d68f-bfd8-4cb6-9bea-cf21569aa0fc",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            51.0,
+            31.225
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_ovp_top1",
+      "uuid": "aeeaab20-a6ba-beb3-ad0d-dddbc07c7eb3",
+      "mpn": "RC1206FR-07430KL",
+      "kind": "R_1206_3216Metric",
+      "position_mm": [
+        20.0,
+        12.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "774dbd15-3ede-47cd-b151-f2713803c11f",
+          "net": "BUS_PLUS",
+          "position_mm": [
+            18.5375,
+            12.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "435204f5-0fb8-4c9a-8fee-3b2127cd1069",
+          "net": "OVP_MID1",
+          "position_mm": [
+            21.4625,
+            12.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_adc_top1",
+      "uuid": "b7e3e380-6203-5be1-983a-6726c67a4459",
+      "mpn": "RC1206FR-07300KL",
+      "kind": "R_1206_3216Metric",
+      "position_mm": [
+        20.0,
+        28.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "7ffb9641-d89e-427b-a96a-43dfadbeccf5",
+          "net": "BUS_PLUS",
+          "position_mm": [
+            18.5375,
+            28.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "277d00e0-d4df-4c0e-868c-bee3fb05c2a3",
+          "net": "ADC_MID1",
+          "position_mm": [
+            21.4625,
+            28.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_adc_bottom",
+      "uuid": "bd043752-06c6-4c9d-b3ac-60aeef7efddd",
+      "mpn": "RC0603FR-0710KL",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        47.0,
+        32.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "c76dc312-14f3-45c2-bdd1-c6c8a055d568",
+          "net": "BUS_MON",
+          "position_mm": [
+            47.0,
+            32.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "b8efe641-3516-4f05-bc7c-c5cbf904dd6a",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            47.0,
+            31.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c_ref_out",
+      "uuid": "bdc8fef8-4e18-9d8e-24c1-668eba2c2516",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        59.0,
+        24.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "2b48908a-0fa6-410d-ad7a-564de0d420d5",
+          "net": "VREF_2V5",
+          "position_mm": [
+            59.0,
+            24.775
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "9d4daa4a-fd87-4003-8198-2a93b1365ad6",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            59.0,
+            23.225
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_ovp_top2",
+      "uuid": "c132e29f-1539-b3ca-d01b-a7ddbce75ce1",
+      "mpn": "RC1206FR-07430KL",
+      "kind": "R_1206_3216Metric",
+      "position_mm": [
+        30.0,
+        12.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "5437a06b-4458-4b5d-becd-cab55736f816",
+          "net": "OVP_MID1",
+          "position_mm": [
+            28.5375,
+            12.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "ef28ca75-122c-4b89-8240-9123bc33e2db",
+          "net": "OVP_MID2",
+          "position_mm": [
+            31.4625,
+            12.0
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.222222,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c_ref_in",
+      "uuid": "c7554b85-733d-7f16-712a-beb571406fed",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        59.0,
+        28.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "f5dcf267-9616-4c23-b84d-89cfb1c8dc4c",
+          "net": "+3V3",
+          "position_mm": [
+            59.0,
+            28.775
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "370dd4e8-066f-4e59-8799-4c3bced26174",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            59.0,
+            27.225
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_ovp_bottom",
+      "uuid": "f43a84be-4da8-fc57-2d8e-7e3b3f828818",
+      "mpn": "RT0603BRD0716K9L",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        47.0,
+        17.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "35d5c206-317b-416d-9386-675f12ab5f56",
+          "net": "OVP_SENSE",
+          "position_mm": [
+            47.0,
+            17.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "4b3f2f18-de36-4a0b-91eb-7071d77c612d",
+          "net": "BUS_RETURN",
+          "position_mm": [
+            47.0,
+            16.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "component": "host",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "host",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "host",
+      "pin": "3",
+      "net": "OVP_FAULT"
+    },
+    {
+      "component": "host",
+      "pin": "4",
+      "net": "BUS_MON"
+    },
+    {
+      "component": "r_ovp_top3",
+      "pin": "1",
+      "net": "OVP_MID2"
+    },
+    {
+      "component": "r_ovp_top3",
+      "pin": "2",
+      "net": "OVP_SENSE"
+    },
+    {
+      "component": "c_comp",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "c_comp",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "r_adc_top3",
+      "pin": "1",
+      "net": "ADC_MID2"
+    },
+    {
+      "component": "r_adc_top3",
+      "pin": "2",
+      "net": "BUS_MON"
+    },
+    {
+      "component": "comp",
+      "pin": "1",
+      "net": "OVP_FAULT"
+    },
+    {
+      "component": "comp",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "comp",
+      "pin": "3",
+      "net": "OVP_SENSE"
+    },
+    {
+      "component": "comp",
+      "pin": "4",
+      "net": "VREF_2V5"
+    },
+    {
+      "component": "comp",
+      "pin": "5",
+      "net": "+3V3"
+    },
+    {
+      "component": "input",
+      "pin": "1",
+      "net": "BUS_PLUS"
+    },
+    {
+      "component": "input",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "r_adc_top2",
+      "pin": "1",
+      "net": "ADC_MID1"
+    },
+    {
+      "component": "r_adc_top2",
+      "pin": "2",
+      "net": "ADC_MID2"
+    },
+    {
+      "component": "reference",
+      "pin": "1",
+      "net": "vbias"
+    },
+    {
+      "component": "reference",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "reference",
+      "pin": "3",
+      "net": "+3V3"
+    },
+    {
+      "component": "reference",
+      "pin": "4",
+      "net": "+3V3"
+    },
+    {
+      "component": "reference",
+      "pin": "5",
+      "net": "VREF_2V5"
+    },
+    {
+      "component": "r_hyst",
+      "pin": "1",
+      "net": "OVP_SENSE"
+    },
+    {
+      "component": "r_hyst",
+      "pin": "2",
+      "net": "OVP_FAULT"
+    },
+    {
+      "component": "c_adc",
+      "pin": "1",
+      "net": "BUS_MON"
+    },
+    {
+      "component": "c_adc",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "r_ovp_top1",
+      "pin": "1",
+      "net": "BUS_PLUS"
+    },
+    {
+      "component": "r_ovp_top1",
+      "pin": "2",
+      "net": "OVP_MID1"
+    },
+    {
+      "component": "r_adc_top1",
+      "pin": "1",
+      "net": "BUS_PLUS"
+    },
+    {
+      "component": "r_adc_top1",
+      "pin": "2",
+      "net": "ADC_MID1"
+    },
+    {
+      "component": "r_adc_bottom",
+      "pin": "1",
+      "net": "BUS_MON"
+    },
+    {
+      "component": "r_adc_bottom",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "c_ref_out",
+      "pin": "1",
+      "net": "VREF_2V5"
+    },
+    {
+      "component": "c_ref_out",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "r_ovp_top2",
+      "pin": "1",
+      "net": "OVP_MID1"
+    },
+    {
+      "component": "r_ovp_top2",
+      "pin": "2",
+      "net": "OVP_MID2"
+    },
+    {
+      "component": "c_ref_in",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "c_ref_in",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    },
+    {
+      "component": "r_ovp_bottom",
+      "pin": "1",
+      "net": "OVP_SENSE"
+    },
+    {
+      "component": "r_ovp_bottom",
+      "pin": "2",
+      "net": "BUS_RETURN"
+    }
+  ],
+  "traces": [],
+  "net_names": [
+    "+3V3",
+    "ADC_MID1",
+    "ADC_MID2",
+    "BUS_MON",
+    "BUS_PLUS",
+    "BUS_RETURN",
+    "OVP_FAULT",
+    "OVP_MID1",
+    "OVP_MID2",
+    "OVP_SENSE",
+    "VREF_2V5",
+    "vbias"
+  ],
+  "copper_layer_count": 2,
+  "polygon_max_error_mm": 0.005,
+  "copper_layers": [
+    "F.Cu",
+    "B.Cu"
+  ],
+  "vias": [],
+  "zones": [],
+  "connectivity_clusters": [
+    {
+      "net": "+3V3",
+      "nodes": [
+        "c_comp.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "c_ref_in.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "host.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "comp.5"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "reference.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "reference.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "ADC_MID1",
+      "nodes": [
+        "r_adc_top1.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "ADC_MID1",
+      "nodes": [
+        "r_adc_top2.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "ADC_MID2",
+      "nodes": [
+        "r_adc_top2.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "ADC_MID2",
+      "nodes": [
+        "r_adc_top3.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_MON",
+      "nodes": [
+        "c_adc.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_MON",
+      "nodes": [
+        "host.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_MON",
+      "nodes": [
+        "r_adc_top3.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_MON",
+      "nodes": [
+        "r_adc_bottom.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_PLUS",
+      "nodes": [
+        "input.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_PLUS",
+      "nodes": [
+        "r_ovp_top1.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_PLUS",
+      "nodes": [
+        "r_adc_top1.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "c_adc.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "c_comp.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "c_ref_in.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "c_ref_out.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "input.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "host.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "r_ovp_bottom.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "r_adc_bottom.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "comp.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "BUS_RETURN",
+      "nodes": [
+        "reference.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_FAULT",
+      "nodes": [
+        "host.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_FAULT",
+      "nodes": [
+        "r_hyst.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_FAULT",
+      "nodes": [
+        "comp.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_MID1",
+      "nodes": [
+        "r_ovp_top1.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_MID1",
+      "nodes": [
+        "r_ovp_top2.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_MID2",
+      "nodes": [
+        "r_ovp_top2.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_MID2",
+      "nodes": [
+        "r_ovp_top3.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_SENSE",
+      "nodes": [
+        "r_ovp_top3.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_SENSE",
+      "nodes": [
+        "r_ovp_bottom.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_SENSE",
+      "nodes": [
+        "r_hyst.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OVP_SENSE",
+      "nodes": [
+        "comp.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VREF_2V5",
+      "nodes": [
+        "c_ref_out.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VREF_2V5",
+      "nodes": [
+        "comp.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VREF_2V5",
+      "nodes": [
+        "reference.5"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "vbias",
+      "nodes": [
+        "reference.1"
+      ],
+      "source": "native"
+    }
+  ],
+  "kicad_version": "10.0.4",
+  "reference_to_instance": {
+    "J2": "host",
+    "R3": "r_ovp_top3",
+    "C2": "c_comp",
+    "R8": "r_adc_top3",
+    "U1": "comp",
+    "J1": "input",
+    "R7": "r_adc_top2",
+    "U2": "reference",
+    "R5": "r_hyst",
+    "C1": "c_adc",
+    "R1": "r_ovp_top1",
+    "R6": "r_adc_top1",
+    "R9": "r_adc_bottom",
+    "C4": "c_ref_out",
+    "R2": "r_ovp_top2",
+    "C3": "c_ref_in",
+    "R4": "r_ovp_bottom"
+  },
+  "board_sha256": "d50245adc25e2c9b40ca84cece695dab212852961fe36641c00817c42725adde",
+  "extractor_sha256": "d349d658ad969e3132c53783d872122b9f933c41e133b4bf5bd69b89c6033549"
+}

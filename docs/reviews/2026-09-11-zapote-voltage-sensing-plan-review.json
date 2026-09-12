@@ -1,0 +1,97 @@
+{
+  "status": "complete",
+  "verdict": "Not ready",
+  "scope": {
+    "base": "HEAD",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "71114007faaee12724097fe08a560525c82ab641",
+    "pr_url": null,
+    "files_changed": 1,
+    "reviewed_context": [
+      "docs/plans/2026-09-11-zapote-voltage-sensing-plan.md",
+      "elec/src/voltage_sense_unit.ato",
+      "zapote/packages/zapote-erc/src/voltage_sense.rs",
+      "zapote/packages/zapote-harness/src/voltage_sense.rs",
+      "zapote/packages/zapote-harness/src/bin/zapote-voltage.rs",
+      "zapote/packages/zapote-harness/tests/voltage_sense.rs"
+    ],
+    "untracked_in_scope": true
+  },
+  "intent": "Review the standalone voltage sensing plan and its new Atopile, Rust ERC, native evidence, and harness path. Confirm source-to-native construction checks while preserving explicit indeterminate status for physical qualification gaps.",
+  "intent_confidence": "explicit",
+  "reviewers": ["code-reuse", "code-quality", "efficiency", "correctness", "security"],
+  "findings": [
+    {
+      "#": 1,
+      "title": "Standalone voltage CLI treats the intentionally indeterminate result as a process failure",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-harness/src/bin/zapote-voltage.rs",
+      "line": 26,
+      "confidence": "high",
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Define the CLI exit contract explicitly. If this plan's milestone is construction-pass plus disclosed qualification gaps, return success when the report has no Fail findings and preserve status indeterminate in JSON; otherwise add a separate strict qualification command and make the existing command's expected failure explicit in its tests and Make target.",
+      "first_evidence": "zapote/packages/zapote-harness/src/bin/zapote-voltage.rs:26",
+      "why_it_matters": "The real routed unit is asserted to have Status::Indeterminate with no failures in zapote/packages/zapote-harness/tests/voltage_sense.rs:11, while passed() returns true only for Status::Pass. Running the documented standalone checker therefore exits 1 for the intended healthy artifact, making command/shared-gate closeout appear failed and preventing automation from distinguishing construction failures from deliberately unqualified physical behavior.",
+      "evidence": [
+        "zapote/packages/zapote-harness/src/voltage_sense.rs:48-50",
+        "zapote/packages/zapote-harness/tests/voltage_sense.rs:10-13",
+        "docs/plans/2026-09-11-zapote-voltage-sensing-plan.md:47-52"
+      ],
+      "reviewers": ["correctness", "code-quality"],
+      "independent_reviewers": ["correctness"]
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "title": "Standalone voltage CLI treats the intentionally indeterminate result as a process failure",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-harness/src/bin/zapote-voltage.rs",
+      "line": 26,
+      "confidence": "high",
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Separate construction-gate success from physical-qualification status, or make the strict exit behavior and expected indeterminate result explicit in the command contract and tests."
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan_source": "explicit",
+    "assessment": "partially addressed",
+    "notes": [
+      "The plan explicitly permits qualification gaps and requires a routed construction-pass milestone.",
+      "Source/native/Rust checks and negative controls are present in the reviewed context.",
+      "The command exit behavior does not yet represent that stated completion boundary." 
+    ]
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Physical qualification is intentionally indeterminate: ADC acquisition settling, hot leakage, transients, power-off/brownout, internal comparator hysteresis, and assembled insulation remain outside digital evidence.",
+    "The 250 V analytical envelope and nonisolated return architecture require integration review before cooker use."
+  ],
+  "testing_gaps": [
+    "No command-level test asserts the intended exit code for a no-Fail Status::Indeterminate report.",
+    "No external physical or bench qualification was performed."
+  ],
+  "coverage": {
+    "scope_mode": "base:HEAD with requested plan plus directly referenced untracked voltage implementation context",
+    "simplify_review": "completed read-only; no safe simplification applied",
+    "code_review": "completed in mode:agent report-only",
+    "cross_model_review": "not run; no configured cross-model route was available in this session",
+    "validators": "not run; requested review was read-only and no implementation changes were authorized",
+    "untracked_excluded_by_scope_helper": 3,
+    "reviewed_untracked_context": true,
+    "suppressed_findings": 0,
+    "failed_reviewers": [],
+    "scope_limit": "The repository has additional unrelated uncommitted files; they were not reviewed."
+  },
+  "artifact_path": "docs/reviews/2026-09-11-zapote-voltage-sensing-plan-review.json",
+  "run_id": "2026-09-11-zapote-voltage-sensing-plan-review"
+}
