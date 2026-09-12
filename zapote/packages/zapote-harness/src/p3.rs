@@ -14,7 +14,7 @@ pub struct SourcePath {
     pub current_endpoints: Vec<String>,
     pub return_endpoint: String,
     pub max_bbox_area_mm2: Option<f64>,
-    pub required_return_stitches: u32,
+    pub required_return_stitches: Option<u32>,
 }
 
 #[cfg(test)]
@@ -33,13 +33,20 @@ mod tests {
             name: "gate_h_commutation".into(),
             current_endpoints: vec!["driver.14".into(), "gate_h.1".into()],
             return_endpoint: "driver.1".into(),
-            max_bbox_area_mm2: Some(500.0),
-            required_return_stitches: 0,
+            max_bbox_area_mm2: None,
+            required_return_stitches: None,
         }];
+        let board_bytes = serde_json::from_str::<serde_json::Value>(&native).unwrap()
+            ["board_file_utf8"]
+            .as_str()
+            .unwrap()
+            .as_bytes()
+            .to_vec();
         let (board, contract) = switching_input(
             &source,
             zapote_erc::gate_drive::ENTRY,
             &native,
+            &board_bytes,
             &paths,
             vec![],
         )
@@ -58,6 +65,22 @@ mod tests {
             .findings
             .iter()
             .any(|f| f.rule == "DRC.P3.SWITCHING_LOOP_AREA"));
+        assert_eq!(report.status, zapote_core::Status::Indeterminate);
+        let mut enlarged = board.clone();
+        enlarged.traces[0].points_mm.push([100.0, 100.0]);
+        let mut bounded = contract.clone();
+        bounded.paths[0].max_bbox_area_mm2 = Some(10.0);
+        assert_eq!(
+            zapote_drc::switching::validate(&enlarged, &bounded).status,
+            zapote_core::Status::Fail
+        );
+        let mut disconnected = board;
+        let return_net = contract.paths[0].return_net.clone();
+        disconnected.traces.retain(|t| t.net != return_net);
+        assert_eq!(
+            zapote_drc::switching::validate(&disconnected, &contract).status,
+            zapote_core::Status::Fail
+        );
     }
 }
 
@@ -67,10 +90,17 @@ pub fn switching_input(
     source: &str,
     entry: &str,
     native: &str,
+    board_bytes: &[u8],
     paths: &[SourcePath],
     noise_pairs: Vec<NoisePair>,
 ) -> Result<(SwitchingBoard, SwitchingContract), String> {
     let circuit = Circuit::parse(source, entry)?;
+    circuit.bind_native(native)?;
+    let native_json: serde_json::Value =
+        serde_json::from_str(native).map_err(|e| format!("native JSON: {e}"))?;
+    if native_json["board_file_utf8"].as_str().map(str::as_bytes) != Some(board_bytes) {
+        return Err("native export board bytes do not match supplied saved board".into());
+    }
     let evidence: UnitNativeEvidence =
         serde_json::from_str(native).map_err(|e| format!("native evidence: {e}"))?;
     let board = SwitchingBoard {
@@ -106,7 +136,7 @@ pub fn switching_input(
             current_nets,
             return_net,
             max_bbox_area_mm2: path.max_bbox_area_mm2,
-            required_return_stitches: path.required_return_stitches,
+            required_return_stitches: path.required_return_stitches.unwrap_or(0),
         });
     }
     Ok((
