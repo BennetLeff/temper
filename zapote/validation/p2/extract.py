@@ -30,9 +30,9 @@ def polygons(poly_set: Any) -> list[dict[str, Any]]:
     return [ring(copy.Outline(i)) for i in range(copy.OutlineCount())]
 
 
-def shape_polygons(item: Any, layer: int) -> list[dict[str, Any]]:
+def shape_polygons(item: Any, layer: int, error_location: Any = pcbnew.ERROR_OUTSIDE) -> list[dict[str, Any]]:
     poly_set = pcbnew.SHAPE_POLY_SET()
-    item.TransformShapeToPolygon(poly_set, layer, 0, ERROR_IU, pcbnew.ERROR_OUTSIDE)
+    item.TransformShapeToPolygon(poly_set, layer, 0, ERROR_IU, error_location)
     return polygons(poly_set)
 
 
@@ -49,6 +49,10 @@ def body_polygons(footprint: Any) -> tuple[list[dict[str, Any]], list[str]]:
             result.append({"vertices_mm": [[pcbnew.ToMM(p.x), pcbnew.ToMM(p.y)] for p in item.GetRectCorners()]})
         elif kind == "Polygon":
             result.extend(polygons(item.GetPolyShape()))
+        elif kind in {"Circle", "Arc", "Bezier", "Curve"}:
+            # A circle can be a pin-1 marker. Native line art alone does not
+            # establish a package body; retain the exact unresolved object.
+            gaps.append(f"{item.m_Uuid.AsString()}: F.Fab {kind} detail/body role requires reviewed library semantics")
         elif kind == "Line":
             a, b = item.GetStart(), item.GetEnd()
             segments.append(((a.x, a.y), (b.x, b.y)))
@@ -102,12 +106,13 @@ def extract(path: Path) -> dict[str, Any]:
                 if not pad.IsOnLayer(layer):
                     continue
                 shapes = shape_polygons(pad, layer)
+                inner_shapes = shape_polygons(pad, layer, pcbnew.ERROR_INSIDE)
                 if not shapes:
                     unsupported.append(uid + "@" + pcbnew.LayerName(layer) + ": missing copper polygon")
                 for index, polygon in enumerate(shapes):
                     identity = uid + "@" + pcbnew.LayerName(layer) + f":{index}"
                     copper.append({"id": identity, "layer": pcbnew.LayerName(layer), "polygon": polygon})
-                    pads.append({"id": identity, "copper": polygon, "drill_mm": None, "drill_center_mm": None, "drill_polygon": drill, "plated": pad.GetAttribute() == pcbnew.PAD_ATTRIB_PTH})
+                    pads.append({"id": identity, "copper": polygon, "inner_copper_polygons": inner_shapes, "drill_mm": None, "drill_center_mm": None, "drill_polygon": drill, "plated": pad.GetAttribute() == pcbnew.PAD_ATTRIB_PTH})
     for item in board.GetTracks():
         uid = item.m_Uuid.AsString()
         via = isinstance(item, pcbnew.PCB_VIA)
@@ -135,7 +140,7 @@ def extract(path: Path) -> dict[str, Any]:
                 identity = uid + "@" + pcbnew.LayerName(layer) + f":{index}"
                 copper.append({"id": identity, "layer": pcbnew.LayerName(layer), "polygon": polygon})
                 if via:
-                    pads.append({"id": identity, "copper": polygon, "drill_mm": None, "drill_center_mm": None, "drill_polygon": drill, "plated": True})
+                    pads.append({"id": identity, "copper": polygon, "inner_copper_polygons": shape_polygons(item, layer, pcbnew.ERROR_INSIDE), "drill_mm": None, "drill_center_mm": None, "drill_polygon": drill, "plated": True})
     for zone in board.Zones():
         if zone.GetIsRuleArea():
             continue

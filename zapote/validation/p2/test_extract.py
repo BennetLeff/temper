@@ -40,6 +40,12 @@ class NativeExtraction(unittest.TestCase):
             pad.SetPosition(xy(20, 24))
             fp.Add(pad)
             fp.SetOrientationDegrees(45)
+            marker = pcbnew.PCB_SHAPE(fp)
+            marker.SetShape(pcbnew.SHAPE_T_CIRCLE)
+            marker.SetLayer(pcbnew.F_Fab)
+            marker.SetCenter(xy(10.5, 20.5))
+            marker.SetRadius(pcbnew.FromMM(0.4))
+            fp.Add(marker)
             # pcbnew is the external position oracle: the asymmetric R(-theta)
             # probe distinguishes the opposite-sign convention.
             position = pad.GetPosition()
@@ -60,7 +66,12 @@ class NativeExtraction(unittest.TestCase):
             pcbnew.SaveBoard(str(path), board)
             data = extract(path)
             self.assertEqual(data["native_census"], {"footprints": 1, "pads": 1, "tracks": 1, "vias": 1, "zones": 0})
+            self.assertNotIn("p2_population", data)  # Only Rust evaluates rules.
             geometry = data["input"]
+            for physical in geometry["pads"]:
+                self.assertTrue(physical["inner_copper_polygons"])
+            self.assertEqual(len(geometry["bodies"]), 0)
+            self.assertTrue(any("Circle detail/body role" in gap for gap in geometry["unsupported"]))
             self.assertEqual(len(geometry["holes"]), 2)
             slot = next(h for h in geometry["holes"] if h["id"].startswith("J1.1"))
             self.assertGreater(len(slot["polygon"]["vertices_mm"]), 8)

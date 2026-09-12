@@ -889,3 +889,4 @@ pub mod voltage_sense;
 pub mod domain_contract;
 
 pub mod operating_limits;
+pub mod pfc_currents;

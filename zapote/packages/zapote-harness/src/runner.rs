@@ -67,7 +67,10 @@ pub struct UnitRunReport {
     pub common_checks: CheckReport,
     pub native_checks: CheckReport,
     pub power_checks: Option<CheckReport>,
+    pub pfc_power: Option<crate::pfc_power::Report>,
     pub manufacturing_checks: CheckReport,
+    /// Rule populations emitted by the Rust manufacturing evaluator.
+    pub manufacturing_population: zapote_drc::manufacturing::P2Population,
     pub operating_checks: Option<CheckReport>,
     pub manufacturing_receipt_sha256: String,
     pub native_execution: Vec<NativeCommand>,
@@ -378,7 +381,7 @@ fn manufacturing_run(
     out: &Path,
     python: &Path,
     native: &UnitNativeEvidence,
-) -> Result<(CheckReport, String)> {
+) -> Result<(CheckReport, String, zapote_drc::manufacturing::P2Population)> {
     fs::create_dir_all(out).map_err(|e| e.to_string())?;
     let extractor = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../validation/p2/extract.py");
     let extractor_hash = hash_file(&extractor)?;
@@ -427,7 +430,8 @@ fn manufacturing_run(
         }
     }
     let input = serde_json::from_value(receipt["input"].clone()).map_err(|e| e.to_string())?;
-    Ok((zapote_drc::manufacturing::validate(&input), digest(&bytes)))
+    let (report, population) = zapote_drc::manufacturing::validate_with_population(&input);
+    Ok((report, digest(&bytes), population))
 }
 
 pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Result<UnitRunReport> {
@@ -468,9 +472,14 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         )),
         _ => None,
     };
-    let (manufacturing_checks, manufacturing_receipt_sha256) =
+    let (manufacturing_checks, manufacturing_receipt_sha256, manufacturing_population) =
         manufacturing_run(spec, out, python, &native)?;
+    let pfc_power = if spec.unit == UnitKind::PowerEntry {
+        let receipt = json(&read(&out.join("manufacturing-input.json"))?)?;
+        Some(crate::pfc_power::run(&source, &native_text, text(&board)?, &receipt)?)
+    } else { None };
     let mut required = required_rules(spec.unit)?;
+    if pfc_power.is_some() { required.extend(crate::pfc_power::RULES.map(str::to_owned)); }
     required.extend(
         [
             "DRC.P2.BODY_COLLISION",
@@ -516,6 +525,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     }
     let mut parts = vec![&unit_checks, &manufacturing_checks];
     parts.extend(power_checks.iter());
+    parts.extend(pfc_power.iter().map(|r|&r.checks));
     parts.extend(operating_checks.iter());
     let coverage = enforce_required(&required, &combine(&parts));
     let common = combine(&[&stack, &binding, &coverage]);
@@ -536,5 +546,5 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         ("zones".into(), native.zones.len()),
     ]);
     let executable_sha256 = hash_file(&std::env::current_exe().map_err(|e| e.to_string())?)?;
-    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,manufacturing_checks,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"Native input census, not per-rule evaluated-object counts. Unit rules do not uniformly expose those counts; do not infer them from IDs.",qualification})
+    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
 }

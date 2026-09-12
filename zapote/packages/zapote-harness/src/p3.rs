@@ -66,6 +66,10 @@ mod tests {
             .findings
             .iter()
             .any(|f| f.rule == "DRC.P3.SWITCHING_LOOP_AREA"));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.rule == "DRC.P3.AGGRESSOR_VICTIM_SPACING"));
         assert_eq!(report.status, zapote_core::Status::Indeterminate);
         let mut enlarged = board.clone();
         enlarged.traces[0].points_mm.push([100.0, 100.0]);
@@ -82,6 +86,61 @@ mod tests {
             zapote_drc::switching::validate(&disconnected, &contract).status,
             zapote_core::Status::Fail
         );
+    }
+
+    #[test]
+    fn actual_gate_noise_measurement_responds_to_native_geometry() {
+        let source = include_str!("../../../gate-drive/candidate/source-manifest.json");
+        let native = include_str!("../../../gate-drive/evidence/native-09.json");
+        let json: serde_json::Value = serde_json::from_str(native).unwrap();
+        let circuit = Circuit::parse(source, zapote_erc::gate_drive::ENTRY).unwrap();
+        let aggressor = circuit.net("driver.15").unwrap().to_owned();
+        let victim = circuit.net("driver.1").unwrap().to_owned();
+        let pairs = vec![NoisePair {
+            aggressor_net: aggressor.clone(),
+            victim_net: victim.clone(),
+            max_parallel_mm: Some(0.1),
+            max_spacing_mm: Some(0.5),
+        }];
+        let (mut board, contract) = switching_input(
+            source,
+            zapote_erc::gate_drive::ENTRY,
+            native,
+            json["board_file_utf8"].as_str().unwrap().as_bytes(),
+            &[],
+            pairs,
+        )
+        .unwrap();
+        let original = zapote_drc::switching::validate(&board, &contract);
+        assert!(original
+            .findings
+            .iter()
+            .any(|f| f.rule == "DRC.P3.AGGRESSOR_VICTIM_SPACING"
+                && f.message.contains("parallel overlap")));
+        // Mutate the transported geometry in memory, never the saved PCB.
+        let a = board
+            .traces
+            .iter_mut()
+            .find(|t| t.net == aggressor)
+            .unwrap();
+        a.points_mm = vec![[0., 0.], [100., 0.]];
+        a.layer = "F.Cu".into();
+        let v = board.traces.iter_mut().find(|t| t.net == victim).unwrap();
+        v.points_mm = vec![[0., 0.1], [100., 0.1]];
+        v.layer = "F.Cu".into();
+        let changed = zapote_drc::switching::validate(&board, &contract);
+        let before = original
+            .findings
+            .iter()
+            .find(|f| f.rule == "DRC.P3.AGGRESSOR_VICTIM_SPACING")
+            .unwrap();
+        let after = changed
+            .findings
+            .iter()
+            .find(|f| f.rule == "DRC.P3.AGGRESSOR_VICTIM_SPACING")
+            .unwrap();
+        assert_ne!(before.message, after.message);
+        assert_eq!(after.status, zapote_core::Status::Fail);
     }
 
     #[test]
@@ -129,6 +188,13 @@ mod tests {
                     .iter()
                     .any(|r| r == "DRC.P3.SWITCHING_LOOP_AREA"),
                 "{unit}: {report:?}"
+            );
+            assert!(
+                report
+                    .findings
+                    .iter()
+                    .any(|f| f.rule == "DRC.P3.AGGRESSOR_VICTIM_SPACING"),
+                "{unit}: noise geometry was not evaluated: {report:?}"
             );
             assert!(report
                 .findings
@@ -193,6 +259,8 @@ pub fn switching_input(
             .map(|t| SwitchingTrace {
                 id: t.id,
                 net: t.net,
+                layer: t.layer,
+                width_mm: t.width_mm,
                 points_mm: t.points_mm,
             })
             .collect(),
@@ -287,7 +355,50 @@ pub fn run(unit: &str, source: &str, native: &str, board: &[u8]) -> zapote_core:
             )
         }
     };
-    let geometry = match switching_input(source, entry, native, board, &paths, vec![]) {
+    // Reviewed signal endpoints, separate from the intentional Kelvin returns.
+    // These candidates screen switching outputs against control/sense inputs.
+    let endpoint_pairs: &[(&str, &str)] = match unit {
+        "gate-drive" => &[
+            ("driver.15", "driver.1"),
+            ("driver.10", "driver.2"),
+            ("gate_h.1", "driver.5"),
+            ("gate_l.1", "driver.5"),
+        ],
+        "power-entry" => &[
+            ("q_boost.2", "pfc.3"),
+            ("q_boost.2", "pfc.6"),
+            ("pfc.8", "pfc.3"),
+            ("pfc.8", "pfc.6"),
+        ],
+        _ => &[],
+    };
+    let noise_pairs = Circuit::parse(source, entry).and_then(|circuit| {
+        endpoint_pairs
+            .iter()
+            .map(|(a, v)| {
+                Ok(NoisePair {
+                    aggressor_net: circuit.net(a)?.to_owned(),
+                    victim_net: circuit.net(v)?.to_owned(),
+                    max_parallel_mm: None,
+                    max_spacing_mm: None,
+                })
+            })
+            .collect::<Result<Vec<_>, String>>()
+    });
+    let noise_pairs = match noise_pairs {
+        Ok(pairs) => pairs,
+        Err(error) => {
+            return crate::runner::combine(&[
+                &operating,
+                &CheckReport::from_findings(
+                    vec![Finding::fail("DRC.P3.SOURCE_NATIVE_BINDING", error, unit)],
+                    vec!["DRC.P3.SOURCE_NATIVE_BINDING".into()],
+                    vec![],
+                ),
+            ])
+        }
+    };
+    let geometry = match switching_input(source, entry, native, board, &paths, noise_pairs) {
         Ok((geometry, contract)) => zapote_drc::switching::validate(&geometry, &contract),
         Err(e) => CheckReport::from_findings(
             vec![Finding::fail("DRC.P3.SOURCE_NATIVE_BINDING", e, unit)],

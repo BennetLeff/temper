@@ -80,13 +80,63 @@ pub enum AnglePolicy {
     QuadrantsOnly,
 }
 
+/// Per-rule population accounting owned by P2. `CheckReport` is shared by
+/// every Zapote unit and intentionally keeps its historical shape; callers
+/// that need object-level completeness can consume this separate value.
+#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
+pub struct P2Population {
+    pub evaluated: std::collections::BTreeMap<String, Vec<String>>,
+    pub skipped: std::collections::BTreeMap<String, Vec<String>>,
+}
+
+impl P2Population {
+    fn candidate(&mut self, rule: &str, id: String) {
+        self.skipped.entry(rule.into()).or_default().push(id);
+    }
+    fn evaluated(&mut self, rule: &str, id: String) {
+        self.skipped.get_mut(rule).unwrap().retain(|v| v != &id);
+        self.evaluated.get_mut(rule).unwrap().push(id);
+    }
+    fn candidates(input: &ManufacturingInput) -> Self {
+        let mut result = Self::default();
+        for rule in [BODY, RING, DRILL, OUTLINE, ANGLE] {
+            result.evaluated.insert(rule.into(), vec![]);
+            result.skipped.insert(rule.into(), vec![]);
+        }
+        for (i, a) in input.bodies.iter().enumerate() {
+            result.candidate(ANGLE, format!("{}#{i}", a.component));
+            for (j, b) in input.bodies.iter().enumerate().skip(i + 1) {
+                result.candidate(BODY, format!("{}#{i} / {}#{j}", a.component, b.component));
+            }
+        }
+        for pad in &input.pads {
+            result.candidate(RING, pad.id.clone());
+        }
+        for (i, a) in input.holes.iter().enumerate() {
+            for b in input.holes.iter().skip(i + 1) {
+                result.candidate(DRILL, format!("{} / {}", a.id, b.id));
+            }
+        }
+        for copper in &input.copper {
+            result.candidate(OUTLINE, copper.id.clone());
+        }
+        result
+    }
+}
+
+/// Existing callers retain the report-only API; both APIs execute the same loops.
+pub fn validate(input: &ManufacturingInput) -> CheckReport {
+    validate_with_population(input).0
+}
+
 const BODY: &str = "DRC.P2.BODY_COLLISION";
 const RING: &str = "DRC.P2.ANNULAR_RING";
 const DRILL: &str = "DRC.P2.DRILL_CONFLICT";
 const OUTLINE: &str = "DRC.P2.COPPER_OUTLINE";
 const ANGLE: &str = "DRC.P2.SUPPORTED_ANGLE";
 
-pub fn validate(input: &ManufacturingInput) -> CheckReport {
+pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2Population) {
+    let mut population = P2Population::candidates(input);
     let mut findings = Vec::new();
     let mut checked = vec![
         BODY.into(),
@@ -138,6 +188,10 @@ pub fn validate(input: &ManufacturingInput) -> CheckReport {
     if polygons
         .into_iter()
         .any(|p| p.vertices_mm.len() < 3 || p.vertices_mm.iter().flatten().any(|v| !v.is_finite()))
+        || input
+            .bodies
+            .iter()
+            .any(|b| b.position_mm.iter().any(|v| !v.is_finite()))
         || [
             input.limits.minimum_annular_ring_mm,
             input.limits.minimum_hole_clearance_mm,
@@ -155,10 +209,13 @@ pub fn validate(input: &ManufacturingInput) -> CheckReport {
             "malformed polygon, drill, or fabrication limit",
             &input.board_id,
         ));
-        return CheckReport::from_findings(findings, checked, gaps);
+        return (
+            CheckReport::from_findings(findings, checked, gaps),
+            population,
+        );
     }
     let mut world = Vec::new();
-    for body in &input.bodies {
+    for (body_index, body) in input.bodies.iter().enumerate() {
         if body.local_polygon.vertices_mm.len() < 3 {
             continue;
         }
@@ -178,14 +235,26 @@ pub fn validate(input: &ManufacturingInput) -> CheckReport {
             ));
             continue;
         }
+        population.evaluated(ANGLE, format!("{}#{body_index}", body.component));
         world.push((
             body.component.as_str(),
             transform(&body.local_polygon, body.position_mm, body.rotation_deg),
+            body_index,
         ));
     }
     for i in 0..world.len() {
         for j in (i + 1)..world.len() {
-            if world[i].0 != world[j].0 && polygons_intersect(&world[i].1, &world[j].1) {
+            if world[i].0 == world[j].0 {
+                continue;
+            }
+            population.evaluated(
+                BODY,
+                format!(
+                    "{}#{} / {}#{}",
+                    world[i].0, world[i].2, world[j].0, world[j].2
+                ),
+            );
+            if polygons_intersect(&world[i].1, &world[j].1) {
                 findings.push(finding(
                     BODY,
                     format!(
@@ -233,6 +302,7 @@ pub fn validate(input: &ManufacturingInput) -> CheckReport {
                 min_boundary_distance(center, &pad.copper) - drill / 2.0
             }
         };
+        population.evaluated(RING, pad.id.clone());
         if !ring.is_finite() || ring < input.limits.minimum_annular_ring_mm {
             findings.push(finding(
                 RING,
@@ -265,6 +335,7 @@ pub fn validate(input: &ManufacturingInput) -> CheckReport {
                     continue;
                 }
             };
+            population.evaluated(DRILL, format!("{} / {}", a.id, b.id));
             if !gap.is_finite() || gap < input.limits.minimum_hole_clearance_mm {
                 findings.push(finding(
                     DRILL,
@@ -277,6 +348,7 @@ pub fn validate(input: &ManufacturingInput) -> CheckReport {
         }
     }
     for copper in &input.copper {
+        population.evaluated(OUTLINE, copper.id.clone());
         if !polygon_inside(&copper.polygon, &input.outline)
             || input
                 .cutouts
@@ -305,7 +377,10 @@ pub fn validate(input: &ManufacturingInput) -> CheckReport {
     if !input.limits.qualified {
         findings.push(indeterminate("DRC.P2.FABRICATION_QUALIFICATION", "mechanical findings use source-declared prototype limits; vendor/process qualification is pending", "fabrication-envelope"));
     }
-    CheckReport::from_findings(findings, checked, gaps)
+    (
+        CheckReport::from_findings(findings, checked, gaps),
+        population,
+    )
 }
 
 fn indeterminate(rule: &str, message: impl Into<String>, object: impl Into<String>) -> Finding {
@@ -505,6 +580,56 @@ mod tests {
         let mut i = base();
         i.pads[0].copper = rect(0., 0., 1., 1.);
         assert_eq!(validate(&i).status, Status::Pass);
+    }
+
+    #[test]
+    fn population_reports_rule_objects_without_changing_check_report() {
+        let mut i = base();
+        i.pads.push(PadGeometry {
+            id: "J1.2".into(),
+            copper: rect(2., 0., 1., 1.),
+            drill_mm: None,
+            drill_center_mm: None,
+            plated: false,
+            drill_polygon: None,
+        });
+        let (_, p) = validate_with_population(&i);
+        assert_eq!(p.evaluated[RING], vec!["J1.1"]);
+        assert_eq!(p.skipped[RING], vec!["J1.2"]);
+        assert!(p.evaluated[BODY].is_empty());
+        assert_eq!(p.evaluated[OUTLINE], vec!["T1"]);
+        assert!(p.evaluated[DRILL].is_empty());
+        assert_eq!(p.evaluated[ANGLE], vec!["U1#0"]);
+    }
+
+    #[test]
+    fn population_tracks_actual_early_returns_and_pair_skips() {
+        let mut i = base();
+        i.bodies.push(i.bodies[0].clone());
+        i.holes.push(DrillHole {
+            id: "H2".into(),
+            center_mm: [8., 8.],
+            diameter_mm: 0.5,
+            polygon: Some(rect(8., 8., 0.5, 0.5)),
+        });
+        i.pads[0].drill_center_mm = None;
+        let (_, p) = validate_with_population(&i);
+        assert!(p.evaluated[BODY].is_empty());
+        assert_eq!(p.skipped[BODY], vec!["U1#0 / U1#1"]);
+        assert!(p.evaluated[DRILL].is_empty());
+        assert_eq!(p.skipped[DRILL], vec!["H1 / H2"]);
+        assert!(p.evaluated[RING].is_empty());
+        assert_eq!(p.skipped[RING], vec!["J1.1"]);
+        i.outline.vertices_mm.clear();
+        let (report, p) = validate_with_population(&i);
+        assert_eq!(report.status, Status::Fail);
+        assert!(p.evaluated.values().all(Vec::is_empty));
+        assert_eq!(p.skipped[OUTLINE], vec!["T1"]);
+        let mut invalid_pose = base();
+        invalid_pose.bodies[0].position_mm[0] = f64::NAN;
+        let (report, population) = validate_with_population(&invalid_pose);
+        assert_eq!(report.status, Status::Fail);
+        assert!(population.evaluated.values().all(Vec::is_empty));
     }
     #[test]
     fn body_collision_is_exact_and_object_identified() {

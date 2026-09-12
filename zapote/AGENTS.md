@@ -135,5 +135,9 @@ Read the relevant detailed record before changing behavior in that area:
 - [Parallel-edit collision failure](../docs/solutions/workflow-issues/parallel-batch-agents-same-file-edit-clobber-2026-07-31.md)
 - [Import-boundary ratchet](../docs/solutions/tooling-decisions/import-linter-boundary-enforcement-ratchet-2026-06-22.md)
 - [Current harness contract](../harness-lab/CONTINUAL-HARNESS.md)
+- [PFC current and copper model lessons](validation/p1-current/README.md) —
+  preserve switching-state moments, physical pad UUIDs, signed sharing
+  sensitivity and explicit area-current gaps; a graph tree or pad-size proxy
+  cannot certify native current distribution.
 - [Model certificate semantic binding](../docs/solutions/best-practices/model-certificates-need-semantic-binding.md)
 - [Buck harness refinement plan](../docs/plans/2026-09-09-1945-feat-buck-harness-refinement-plan.md)

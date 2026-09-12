@@ -1969,3 +1969,5 @@ pub mod manufacturing;
 pub mod power_integrity;
 
 pub mod switching;
+pub mod power_contact;
+pub mod power_branches;

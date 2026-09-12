@@ -30,6 +30,18 @@ fn real_pfc_and_gate_drive_baselines_preserve_incomplete_p1() {
         zapote_harness::p1::P1Unit::GateDrive,
     );
     assert_eq!(gate.status, zapote_core::Status::Indeterminate);
+    for report in [&pfc, &gate] {
+        assert!(report.findings.iter().any(|f| f.object.starts_with("via:")));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.object.starts_with("pad-entry:")));
+        assert!(!report
+            .coverage_gaps
+            .iter()
+            .any(|g| g == "pad-entry population is empty"
+                || g == "via-current branch population is empty"));
+    }
 }
 
 #[test]

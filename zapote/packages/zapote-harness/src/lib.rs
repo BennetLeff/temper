@@ -10,6 +10,8 @@ pub mod interlock;
 pub mod memory;
 pub mod native_reports;
 pub mod power_entry;
+pub mod pfc_paths;
+pub mod pfc_power;
 pub mod runner;
 pub use current_sense::{build_current_sense_input, parse_current_sense_input, run_current_sense};
 mod model_qualification;

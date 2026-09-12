@@ -15,6 +15,10 @@ const NOISE_RULE: &str = "DRC.P3.AGGRESSOR_VICTIM_SPACING";
 pub struct SwitchingTrace {
     pub id: String,
     pub net: String,
+    /// Native copper layer. Coupling is evaluated only for traces on the
+    /// same physical layer; a layer mismatch is not silently flattened.
+    pub layer: String,
+    pub width_mm: f64,
     pub points_mm: Vec<[f64; 2]>,
 }
 
@@ -45,7 +49,10 @@ pub struct CommutationPath {
 pub struct NoisePair {
     pub aggressor_net: String,
     pub victim_net: String,
-    pub max_parallel_mm: f64,
+    pub max_parallel_mm: Option<f64>,
+    /// Maximum same-layer gap at which parallel overlap is considered
+    /// coupled. This is a geometric screen, not an EMC or inductance limit.
+    pub max_spacing_mm: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -71,6 +78,64 @@ fn bbox(board: &SwitchingBoard, nets: &BTreeSet<String>) -> Option<(f64, f64, f6
     Some(result)
 }
 
+fn parallel_overlap(
+    aggressors: &[&SwitchingTrace],
+    victims: &[&SwitchingTrace],
+    max_spacing_mm: Option<f64>,
+) -> f64 {
+    // Measure covered length along each aggressor segment. Victim projections
+    // are unioned in that segment's own coordinate system; directions and
+    // separate layers must never be mixed into a global projection.
+    // Coincident duplicate aggressor copper is conservatively counted twice.
+    let mut total = 0.0;
+    for a in aggressors {
+        for ap in a.points_mm.windows(2) {
+            let (ax, ay) = (ap[1][0] - ap[0][0], ap[1][1] - ap[0][1]);
+            let al = ax.hypot(ay);
+            if !al.is_finite() || al == 0.0 {
+                continue;
+            }
+            let mut intervals = Vec::new();
+            for v in victims.iter().filter(|v| v.layer == a.layer) {
+                for vp in v.points_mm.windows(2) {
+                    let (vx, vy) = (vp[1][0] - vp[0][0], vp[1][1] - vp[0][1]);
+                    let vl = vx.hypot(vy);
+                    if !vl.is_finite() || vl == 0.0 {
+                        continue;
+                    }
+                    let cross = (ax * vy - ay * vx).abs() / (al * vl);
+                    if cross > 1e-9 {
+                        continue;
+                    }
+                    let center_distance =
+                        ((vp[0][0] - ap[0][0]) * ay - (vp[0][1] - ap[0][1]) * ax).abs() / al;
+                    let edge_gap = center_distance - (a.width_mm + v.width_mm) / 2.0;
+                    if !edge_gap.is_finite() || max_spacing_mm.is_some_and(|s| edge_gap > s) {
+                        continue;
+                    }
+                    let ux = ax / al;
+                    let uy = ay / al;
+                    let project = |p: [f64; 2]| (p[0] - ap[0][0]) * ux + (p[1] - ap[0][1]) * uy;
+                    let b0 = project(vp[0]);
+                    let b1 = project(vp[1]);
+                    let start = b0.min(b1).max(0.0);
+                    let end = b0.max(b1).min(al);
+                    if end > start {
+                        intervals.push((start, end));
+                    }
+                }
+            }
+            intervals.sort_by(|a, b| a.0.total_cmp(&b.0));
+            let mut covered_until = 0.0_f64;
+            for (start, end) in intervals {
+                total += (end - start.max(covered_until)).max(0.0);
+                covered_until = covered_until.max(end);
+            }
+        }
+    }
+    total
+}
+
 /// Evaluate explicit switching paths and noise pairs. Missing geometry is a
 /// coverage gap; it never becomes an empty-success result.
 pub fn validate(board: &SwitchingBoard, contract: &SwitchingContract) -> CheckReport {
@@ -80,6 +145,29 @@ pub fn validate(board: &SwitchingBoard, contract: &SwitchingContract) -> CheckRe
     let mut traces_by_net: BTreeMap<&str, Vec<&SwitchingTrace>> = BTreeMap::new();
     for trace in &board.traces {
         traces_by_net.entry(&trace.net).or_default().push(trace);
+        if trace.layer.trim().is_empty()
+            || trace.points_mm.len() < 2
+            || trace.points_mm.windows(2).any(|p| p[0] == p[1])
+            || !trace.width_mm.is_finite()
+            || trace.width_mm <= 0.0
+            || trace
+                .points_mm
+                .iter()
+                .any(|p| !p[0].is_finite() || !p[1].is_finite())
+        {
+            findings.push(Finding::fail(
+                NOISE_RULE,
+                "native trace layer, positive width, and finite points are required",
+                trace.id.clone(),
+            ));
+        }
+    }
+    if !findings.is_empty() {
+        return CheckReport::from_findings(
+            findings,
+            checked,
+            vec!["malformed native trace geometry prevents switching evaluation".into()],
+        );
     }
 
     if contract.paths.is_empty() {
@@ -193,10 +281,7 @@ pub fn validate(board: &SwitchingBoard, contract: &SwitchingContract) -> CheckRe
         ));
     }
     for pair in &contract.noise_pairs {
-        if pair.aggressor_net == pair.victim_net
-            || !pair.max_parallel_mm.is_finite()
-            || pair.max_parallel_mm <= 0.0
-        {
+        if pair.aggressor_net == pair.victim_net {
             findings.push(Finding::indeterminate(
                 NOISE_RULE,
                 "aggressor/victim pair and positive parallel-run limit are required",
@@ -214,8 +299,41 @@ pub fn validate(board: &SwitchingBoard, contract: &SwitchingContract) -> CheckRe
             ));
             continue;
         };
-        let _ = (a, v);
-        findings.push(Finding::indeterminate(NOISE_RULE, "parallel-run limit is declared, but this bounded adapter does not claim segment spacing/overlap geometry", format!("{} -> {}", pair.aggressor_net, pair.victim_net)));
+        let overlap = parallel_overlap(a, v, pair.max_spacing_mm);
+        let malformed = pair
+            .max_parallel_mm
+            .is_some_and(|v| !v.is_finite() || v <= 0.0)
+            || pair
+                .max_spacing_mm
+                .is_some_and(|v| !v.is_finite() || v < 0.0);
+        if malformed {
+            findings.push(Finding::fail(
+                NOISE_RULE,
+                "authored spacing/overlap limits must be finite, with nonnegative spacing and positive overlap bound",
+                format!("{} -> {}", pair.aggressor_net, pair.victim_net),
+            ));
+        } else if let (Some(limit), Some(_)) = (pair.max_parallel_mm, pair.max_spacing_mm) {
+            if overlap > limit {
+                findings.push(Finding::fail(
+                    NOISE_RULE,
+                    format!("same-layer parallel overlap {overlap:.3} mm exceeds {limit:.3} mm"),
+                    format!("{} -> {}", pair.aggressor_net, pair.victim_net),
+                ));
+            } else {
+                findings.push(Finding::pass(
+                    NOISE_RULE,
+                    format!(
+                        "same-layer parallel overlap {overlap:.3} mm is within {:.3} mm",
+                        limit
+                    ),
+                    format!("{} -> {}", pair.aggressor_net, pair.victim_net),
+                ));
+            }
+        } else {
+            findings.push(Finding::indeterminate(NOISE_RULE,
+                format!("measured same-layer parallel overlap {overlap:.3} mm; authored spacing/overlap limits are required"),
+                format!("{} -> {}", pair.aggressor_net, pair.victim_net)));
+        }
     }
     CheckReport::from_findings(findings, checked, gaps)
 }
@@ -230,11 +348,15 @@ mod tests {
                     SwitchingTrace {
                         id: "sw".into(),
                         net: "SW".into(),
+                        layer: "F.Cu".into(),
+                        width_mm: 0.3,
                         points_mm: vec![[0.0, 0.0], [4.0, 0.0]],
                     },
                     SwitchingTrace {
                         id: "ret".into(),
                         net: "PGND".into(),
+                        layer: "F.Cu".into(),
+                        width_mm: 0.3,
                         points_mm: vec![[0.0, 1.0], [4.0, 1.0]],
                     },
                 ],
@@ -256,7 +378,8 @@ mod tests {
                 noise_pairs: vec![NoisePair {
                     aggressor_net: "SW".into(),
                     victim_net: "PGND".into(),
-                    max_parallel_mm: 5.0,
+                    max_parallel_mm: Some(5.0),
+                    max_spacing_mm: Some(0.5),
                 }],
             },
         )
@@ -265,7 +388,7 @@ mod tests {
     fn baseline_passes() {
         assert_eq!(
             validate(&baseline().0, &baseline().1).status,
-            zapote_core::Status::Indeterminate
+            zapote_core::Status::Pass
         );
     }
     #[test]
@@ -297,5 +420,90 @@ mod tests {
         let (b, mut c) = baseline();
         c.noise_pairs.clear();
         assert_eq!(validate(&b, &c).status, zapote_core::Status::Indeterminate);
+    }
+
+    #[test]
+    fn parallel_overlap_fails_only_when_same_layer_and_close() {
+        let (mut b, mut c) = baseline();
+        b.traces.push(SwitchingTrace {
+            id: "victim".into(),
+            net: "V".into(),
+            layer: "F.Cu".into(),
+            width_mm: 0.3,
+            points_mm: vec![[0.0, 0.2], [4.0, 0.2]],
+        });
+        c.noise_pairs = vec![NoisePair {
+            aggressor_net: "SW".into(),
+            victim_net: "V".into(),
+            max_parallel_mm: Some(2.0),
+            max_spacing_mm: Some(0.5),
+        }];
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Fail);
+        c.noise_pairs[0].max_parallel_mm = Some(5.0);
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Pass);
+    }
+
+    #[test]
+    fn perpendicular_remote_and_different_layer_do_not_count_as_parallel() {
+        let (mut b, mut c) = baseline();
+        b.traces.push(SwitchingTrace {
+            id: "victim".into(),
+            net: "V".into(),
+            layer: "B.Cu".into(),
+            width_mm: 0.3,
+            points_mm: vec![[0.0, 0.2], [0.0, 4.2]],
+        });
+        c.noise_pairs = vec![NoisePair {
+            aggressor_net: "SW".into(),
+            victim_net: "V".into(),
+            max_parallel_mm: Some(0.001),
+            max_spacing_mm: Some(0.5),
+        }];
+        // max_parallel=0 is invalid as a contract, so use a tiny positive
+        // bound while still proving no same-layer parallel overlap.
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Pass);
+    }
+
+    #[test]
+    fn splitting_native_traces_preserves_measured_overlap() {
+        let (mut b, mut c) = baseline();
+        b.traces[1].points_mm = vec![[0.0, 0.5], [4.0, 0.5]];
+        c.noise_pairs[0].max_parallel_mm = Some(3.0);
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Fail);
+        let mut split = b.traces[0].clone();
+        split.id = "second-half".into();
+        split.points_mm = vec![[2.0, 0.0], [4.0, 0.0]];
+        b.traces[0].points_mm = vec![[0.0, 0.0], [2.0, 0.0]];
+        b.traces.push(split);
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Fail);
+        let a: Vec<_> = b.traces.iter().filter(|t| t.net == "SW").collect();
+        assert_eq!(parallel_overlap(&a, &[&b.traces[1]], Some(0.5)), 4.0);
+    }
+
+    #[test]
+    fn projection_axes_and_duplicate_victims_do_not_manufacture_overlap() {
+        let (b, _) = baseline();
+        let a = &b.traces[0];
+        let mut v = b.traces[1].clone();
+        v.points_mm = vec![[0.0, 0.5], [2.0, 0.5], [2.0, 4.0]];
+        assert_eq!(parallel_overlap(&[a], &[&v, &v], Some(0.5)), 2.0);
+        v.points_mm = vec![[0.0, 5.0], [4.0, 5.0]];
+        assert_eq!(parallel_overlap(&[a], &[&v], Some(0.5)), 0.0);
+        v.points_mm = vec![[2.0, -2.0], [2.0, 2.0]];
+        assert_eq!(parallel_overlap(&[a], &[&v], Some(0.5)), 0.0);
+        v.points_mm = vec![[4.0, 0.5], [0.0, 0.5]];
+        assert_eq!(parallel_overlap(&[a], &[&v], Some(0.5)), 4.0);
+    }
+
+    #[test]
+    fn missing_spacing_and_malformed_limits_cannot_pass() {
+        let (mut b, mut c) = baseline();
+        c.noise_pairs[0].max_spacing_mm = None;
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Indeterminate);
+        c.noise_pairs[0].max_spacing_mm = Some(f64::NAN);
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Fail);
+        c.noise_pairs[0].max_spacing_mm = Some(0.5);
+        b.traces[0].points_mm.clear();
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Fail);
     }
 }

@@ -4,6 +4,30 @@ P0 now executes the maintained unit suites and adopted P1–P3 implementations
 through one command. **The full P1–P3 implementation plan remains incomplete.**
 A subagent final message is a handback for review, not acceptance of the batch.
 
+## Latest working-tree checkpoint
+
+The [PFC current-screen implementation](p1-current/README.md) now runs through
+the common runner: source-bound switching waveforms, native branch graphs,
+repeated-pad identity, sharing bounds and actual pad/drill contact polygons.
+It finds five nominal trace-capacity screening failures on the unchanged PFC
+board. This supersedes the statement below that all adopted checks have no
+failure findings. The [new receipt](runs/2026-09-12-pfc-current/verification.json)
+records the final results and remaining software/model gaps. P1–P3 as a whole
+remain incomplete; zone/side-contact sharing and pad minimum cuts are not
+silently reclassified as hardware-only work.
+
+The [handoff-repair receipt](runs/2026-09-12-handoff-repair/verification.json)
+records 287 passing Rust tests, a passing live KiCad geometry oracle, and all
+seven boards passing fresh native ERC/DRC and common binding checks. All seven
+overall verdicts remain INDETERMINATE. Saved PCBs were not edited.
+
+These changes are uncommitted. This is a tested integration checkpoint, not a
+completed P1–P3 or shipping review. Formatting and whitespace checks pass;
+strict Clippy fails on diagnostics in unchanged files, retained in the receipt.
+The raw archive retains both board runs and the logs retain rejected build
+attempts. Exact source hashes bind the final run; its source did not change
+during execution.
+
 ## Reproduce
 
 From the repository root on this host:
@@ -28,9 +52,9 @@ not registered here. Both are explicit deferrals, not implied suite passes.
 | Batch | Adopted behavior | Remaining implementation / contract work |
 |---|---|---|
 | P0 | Seven required units; actual source/native/PCB/contract identity; current truth functions; missing-rule rejection; fresh ERC/DRC with dependency/report hashes; every outcome retained | Uniform per-rule candidate/evaluated/skipped counts are not yet exposed by the older unit functions. Counts in output are explicitly native input censuses. |
-| P1 | PFC and gate-drive source/native package pins; explicit gate-domain mapping; nominal outer copper from parsed stackup; selected bus/bias trace width screens; explicit via/pad/isolation incompleteness | All power branches, RMS/peak waveform contracts, via current sharing, pad-entry current geometry, surface creepage/material/barrier modeling. Extend to other interfaces after these are sound. |
-| P2 | Current native F.Fab polygons, pad/track/via copper, native round/slot drills, filled zones and Edge.Cuts/cutouts; Rust body overlap, annular ring, drill conflicts, outline containment and malformed-input checks | Curved and open F.Fab detail interpretation remains explicit per-object incompleteness. Authored fabrication/assembly limits are absent. 3D body/height checks and fabrication qualification are not claimed. |
-| P3 | Correct HS/LS Kelvin gate returns and boost gate/source return; native cluster population binding; current/return bounding-box screen; thermal/timing scalar kernels | Full commutation paths, actual layer-aware parallel coupling/spacing, approved loop bounds, populated loss/thermal and worst-case delay contracts. Current sense/interlock run the operating-input obligations; they are not mislabeled power commutation loops. |
+| P1 | PFC and gate-drive source/native package pins; explicit gate-domain mapping; nominal outer copper; rectifier/choke/switch/bus and gate-net candidates; nonempty native via/pad associations; optional declared RMS via-barrel screen with net binding | Actual branch-current extraction, RMS/peak waveform and plating/sharing contracts, exact pad-entry current geometry, surface creepage/material/barrier modeling. Native candidates are not a solved current graph. |
+| P2 | Current native F.Fab polygons, pad/track/via copper, native round/slot drills, filled zones and Edge.Cuts/cutouts; Rust body overlap, annular ring, drill conflicts, outline containment and malformed-input checks; evaluated/skipped IDs emitted from actual Rust loops | Curved/open F.Fab detail interpretation remains per-object incompleteness. Unresolved native geometry is retained separately in coverage gaps. Authored fabrication/assembly limits, mask checks and 3D body/height checks remain open. |
+| P3 | Correct HS/LS Kelvin and boost gate/source return; native cluster binding; current/return bounding-box screen; same-layer parallel overlap on exact switching-output/control-or-sense net pairs, aggregated across split native traces; thermal/timing scalar kernels | Full commutation paths, cross-layer and nonparallel coupling models, authored noise/loop bounds, populated loss/thermal and worst-case delay contracts. Current sense/interlock retain operating-input obligations. |
 
 P1 uses a nominal 20 °C-rise external-trace screening equation, not a qualified
 ampacity model. It does not distribute a whole bus current through every branch.
@@ -66,11 +90,22 @@ common command against the current maintained boards. A test count or a
 callable library function alone does not finish a batch. Handbacks must name
 remaining software gaps as software gaps, not only as physical qualification.
 
-The next bounded implementation is P1 branch-current and current-sharing
-coverage, followed by P3 geometric coupling and populated operating contracts.
-P2 body interpretation and per-rule population counts remain separately owned
-software work. These tasks must preserve the existing board verdicts and may
-not relax limits or rewrite the PCB to accommodate an unverified instrument.
+The nominal PFC branch-current/native contact screen is now implemented.
+Its next board follow-up is the five recorded capacity-screen failures, with
+remaining area-sharing and pad-minimum-cut models kept explicit. P3 populated
+thermal/shutdown contracts remain the next separate validation workstream.
+P2 body interpretation and authored fabrication limits remain separate work.
+The new same-layer overlap screen is geometric, not an EMC model: when its
+spacing threshold is absent, the observed overlap is not filtered by distance
+and remains INDETERMINATE. Tests split native trace objects and change actual
+transported board geometry; they do not mutate saved PCB files.
+
+Coordinator review rejected untested handback code that did not compile,
+unpopulated runtime checks, a full-pad-width proxy for entry geometry, a
+duplicated scalar creepage helper, rule-count claims in Python transport, and
+projection aggregation that could change when a trace was split. The corrected
+P2 counts originate in the evaluation loops. The P1 candidate scope is described
+in [its evidence note](p1-final/README.md). Full P1–P3 completion is still open.
 
 ## Verified committed-source run
 
