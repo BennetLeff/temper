@@ -34,7 +34,12 @@ The [standalone voltage-sense / OVP unit](voltage-sense/README.md) adds the next
 
 The [standalone thermal unit](thermal-sense/README.md) adds two external-NTC channels, loaded-feedback trip/release modeling, exact connectivity controls and a routed native PCB. Rev B adds conditional open-wire detection; physical qualification remains separate.
 
-The [isolated gate-drive unit](gate-drive/README.md) has a routed 100 × 80 mm candidate with clean native ERC/DRC and passing Rust construction checks; physical qualification is unrun. The [active PFC power-entry unit](power-entry/README.md) preserves the 1,800 W nominal AC-input target. Its 230 × 190 mm candidate is placed but unrouted: 94 native unconnected links and a Rust connectivity failure prevent acceptance. See the [two-board demo](demo-gate-power/index.html).
+The [isolated gate-drive unit](gate-drive/README.md) has a routed 100 × 80 mm candidate with clean native ERC/DRC and passing Rust construction checks; physical qualification is unrun. The [active PFC power-entry unit](power-entry/README.md) preserves the 1,800 W nominal AC-input target. Its 54-component, 230 × 210 mm candidate is routed with zero native ERC/DRC findings or unconnected nets and seven passing Rust construction findings. Qualification remains INDETERMINATE. See the [two-board demo](demo-gate-power/index.html).
+
+The [Rust coverage inventory](validation/README.md) maps Temper donors to Zapote,
+lists the checks recorded for each maintained unit, and orders the next ports.
+The common saved-board command currently checks only physical stackup; separate
+unit commands provide electrical and routing validation.
 
 [Engineering memory](skills/README.md) connects reviewed, versioned lessons to
 construction inputs through Rust selection and a thin process transport. The
@@ -50,6 +55,7 @@ migration outline is superseded by [MIGRATION.md](MIGRATION.md).
 | `Makefile` | Rust build/test and common saved-board gates |
 | `Cargo.toml`, `packages/` | Rust workspace, validators and harness |
 | `ports.toml` | Donor hashes, copied tests and extraction changes |
+| `validation/` | Dated donor inventory, per-unit coverage and next-port sequence |
 | `ARCHITECTURE.md` | Rust package ownership and agent/validator contract |
 | `experiments/` | Experiment definitions and frozen inputs |
 | `skills/` | Versioned agent skills and learned artifacts |
@@ -83,4 +89,4 @@ behavior measurable, repeatable, inspectable, and improvable across Temper's
 engineering domains. See `MIGRATION.md` for the planned boundary and the
 current source-of-truth decisions.
 
-The [standalone interlock](interlock/README.md) adds seven fault inputs, watchdog/liveness gating and a stateful reset latch. Its source-driven Rust checks evaluate 4,096 gate/state/clock combinations and reject physical connectivity and model mutations. The next separate unit is isolated gate drive; sensor-liveness production and receiver behavior remain integration obligations.
+The [standalone interlock](interlock/README.md) adds seven fault inputs, watchdog/liveness gating and a stateful reset latch. Its source-driven Rust checks evaluate 4,096 gate/state/clock combinations and reject physical connectivity and model mutations. Sensor-liveness production and receiver behavior remain integration obligations.

@@ -1,0 +1,216 @@
+{
+  "schema": "zapote.validation-inventory-execution.v1",
+  "utc": "2026-09-12T15:22:17.777554+00:00",
+  "source_commit": "6226537c9ae2a30e41a5fbd71c656cda94ef138e",
+  "command": [
+    "make",
+    "-C",
+    "zapote",
+    "check-boards"
+  ],
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/tmp/zapote-rtd-target"
+  },
+  "exit_code": 0,
+  "runtime": "cargo 1.92.0 (344c4567c 2025-10-21)",
+  "binary": {
+    "path": "/private/tmp/zapote-rtd-target/debug/zapote-board",
+    "sha256": "4d75449139c0a846197fdce26c5153c787de86b0d632859c944e4a985401adb4"
+  },
+  "stdout": {
+    "path": "zapote/validation/common-board-checks-2026-09-12.txt",
+    "sha256": "9238f27a9b98f34f8eecca2394618b5354d68ce04243dcc92ac9dd5566090b2a"
+  },
+  "boards": [
+    {
+      "board": "rtd/unit/candidate/section.kicad_pcb",
+      "board_sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+      "checks": [
+        {
+          "checked_rules": [
+            "DRC.BOARD.STACKUP"
+          ],
+          "coverage_gaps": [],
+          "findings": [
+            {
+              "actual": null,
+              "message": "4 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+              "object": "board.setup.stackup",
+              "required": null,
+              "rule": "DRC.BOARD.STACKUP",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "status": "pass"
+        }
+      ],
+      "schema": "zapote.board-checks.v1",
+      "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+      "status": "pass"
+    },
+    {
+      "board": "current-sense/candidate/section.kicad_pcb",
+      "board_sha256": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+      "checks": [
+        {
+          "checked_rules": [
+            "DRC.BOARD.STACKUP"
+          ],
+          "coverage_gaps": [],
+          "findings": [
+            {
+              "actual": null,
+              "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+              "object": "board.setup.stackup",
+              "required": null,
+              "rule": "DRC.BOARD.STACKUP",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "status": "pass"
+        }
+      ],
+      "schema": "zapote.board-checks.v1",
+      "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+      "status": "pass"
+    },
+    {
+      "board": "voltage-sense/candidate/section.kicad_pcb",
+      "board_sha256": "ef9853e9fb03df4f7723076ac8eb77c17743465a0b2e146cec11d2da54876e1f",
+      "checks": [
+        {
+          "checked_rules": [
+            "DRC.BOARD.STACKUP"
+          ],
+          "coverage_gaps": [],
+          "findings": [
+            {
+              "actual": null,
+              "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+              "object": "board.setup.stackup",
+              "required": null,
+              "rule": "DRC.BOARD.STACKUP",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "status": "pass"
+        }
+      ],
+      "schema": "zapote.board-checks.v1",
+      "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+      "status": "pass"
+    },
+    {
+      "board": "thermal-sense/candidate/section.kicad_pcb",
+      "board_sha256": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+      "checks": [
+        {
+          "checked_rules": [
+            "DRC.BOARD.STACKUP"
+          ],
+          "coverage_gaps": [],
+          "findings": [
+            {
+              "actual": null,
+              "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+              "object": "board.setup.stackup",
+              "required": null,
+              "rule": "DRC.BOARD.STACKUP",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "status": "pass"
+        }
+      ],
+      "schema": "zapote.board-checks.v1",
+      "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+      "status": "pass"
+    },
+    {
+      "board": "interlock/candidate/section.kicad_pcb",
+      "board_sha256": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+      "checks": [
+        {
+          "checked_rules": [
+            "DRC.BOARD.STACKUP"
+          ],
+          "coverage_gaps": [],
+          "findings": [
+            {
+              "actual": null,
+              "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+              "object": "board.setup.stackup",
+              "required": null,
+              "rule": "DRC.BOARD.STACKUP",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "status": "pass"
+        }
+      ],
+      "schema": "zapote.board-checks.v1",
+      "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+      "status": "pass"
+    },
+    {
+      "board": "gate-drive/candidate/section.kicad_pcb",
+      "board_sha256": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+      "checks": [
+        {
+          "checked_rules": [
+            "DRC.BOARD.STACKUP"
+          ],
+          "coverage_gaps": [],
+          "findings": [
+            {
+              "actual": null,
+              "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+              "object": "board.setup.stackup",
+              "required": null,
+              "rule": "DRC.BOARD.STACKUP",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "status": "pass"
+        }
+      ],
+      "schema": "zapote.board-checks.v1",
+      "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+      "status": "pass"
+    },
+    {
+      "board": "power-entry/candidate/section.kicad_pcb",
+      "board_sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf",
+      "checks": [
+        {
+          "checked_rules": [
+            "DRC.BOARD.STACKUP"
+          ],
+          "coverage_gaps": [],
+          "findings": [
+            {
+              "actual": null,
+              "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+              "object": "board.setup.stackup",
+              "required": null,
+              "rule": "DRC.BOARD.STACKUP",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "status": "pass"
+        }
+      ],
+      "schema": "zapote.board-checks.v1",
+      "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+      "status": "pass"
+    }
+  ],
+  "scope": "Reexecuted common stackup gate only. Historical unit reports inventoried, not replayed. No native DRC/ERC or hardware tests rerun."
+}
