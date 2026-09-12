@@ -1,0 +1,47 @@
+[
+  {
+    "actual": null,
+    "message": "determined nominal power-stage RMS 15.0000 A exceeds 14.6513 A external-copper screen at 4.0000 mm / 70.0 um / assumed 20 C rise",
+    "object": "e45ca754-66c7-4204-987e-e69d5ed1af44:3",
+    "required": null,
+    "rule": "DRC.PFC.BRANCH_COPPER",
+    "severity": "error",
+    "status": "fail"
+  },
+  {
+    "actual": null,
+    "message": "determined nominal power-stage RMS 15.0000 A exceeds 10.4205 A external-copper screen at 2.5000 mm / 70.0 um / assumed 20 C rise",
+    "object": "1a8c9e36-4bbf-486e-a8a9-34985b0b249e:2",
+    "required": null,
+    "rule": "DRC.PFC.BRANCH_COPPER",
+    "severity": "error",
+    "status": "fail"
+  },
+  {
+    "actual": null,
+    "message": "determined nominal power-stage RMS 15.0000 A exceeds 10.4205 A external-copper screen at 2.5000 mm / 70.0 um / assumed 20 C rise",
+    "object": "6be299ab-3af0-4444-8bb5-c26c3d6443f6:2",
+    "required": null,
+    "rule": "DRC.PFC.BRANCH_COPPER",
+    "severity": "error",
+    "status": "fail"
+  },
+  {
+    "actual": null,
+    "message": "determined nominal power-stage RMS 15.0000 A exceeds 10.4205 A external-copper screen at 2.5000 mm / 70.0 um / assumed 20 C rise",
+    "object": "44d2e757-cc34-46a2-88aa-5ae29db62817:0",
+    "required": null,
+    "rule": "DRC.PFC.BRANCH_COPPER",
+    "severity": "error",
+    "status": "fail"
+  },
+  {
+    "actual": null,
+    "message": "determined nominal power-stage RMS 15.0000 A exceeds 10.4205 A external-copper screen at 2.5000 mm / 70.0 um / assumed 20 C rise",
+    "object": "e7dc2c72-d7b2-4456-afa6-efe227e0f8f8:2",
+    "required": null,
+    "rule": "DRC.PFC.BRANCH_COPPER",
+    "severity": "error",
+    "status": "fail"
+  }
+]

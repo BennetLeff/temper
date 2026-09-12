@@ -1,0 +1,140 @@
+{
+  "schema": "zapote.pfc-independent-oracle-verification.v1",
+  "recorded_at": "2026-09-12T19:31:16.423106+00:00",
+  "source_revision": "7b89ff0b4d8ae155b8d434dbcce49bb739a15be8",
+  "clean_source_run": true,
+  "source_hashes": "suite-identity.json",
+  "tests": {
+    "passed": 320,
+    "failed": 0,
+    "ignored": 0,
+    "log": "zapote-oracle-workspace-final.log"
+  },
+  "spice": {
+    "status": "pass",
+    "solver": "ngspice 45.2",
+    "live_solves": 6,
+    "frozen_phases": 3,
+    "timesteps_per_phase": 2,
+    "maximum_observed_rms_relative_error": 4.027244992995729e-06,
+    "relative_tolerance": 0.0005,
+    "receipt": "spice/result.json",
+    "replay_pin": "f30ac7a2d6e954101a6d34d96cc46f3b4b36160b90ae18a89fc604d5dfb5c249"
+  },
+  "native_geometry": {
+    "status": "pass",
+    "comparison": "Fresh KiCad pad,drill,trace,version,extractor hash exactly match retained asymmetric fixture",
+    "archive": "development.tar.gz"
+  },
+  "graph_oracle": {
+    "status": "pass",
+    "exhaustive_simple_graphs": 1024,
+    "additional_cases": "parallel edges, subdivision and reordering"
+  },
+  "defects_fixed": [
+    "CCM near-zero-crossing validity missed by coarse phase samples",
+    "unchanged-copper subdivision changed side-contact diagnostic and hid findings",
+    "approximate ounce round trip in physical thickness conversion",
+    "replay summary not bound to actual solver decks/logs"
+  ],
+  "tamper_evidence": {
+    "mutation": "1000x inductor value in retained solver deck",
+    "before_exit": 0,
+    "after_exit": 101,
+    "archive": "development.tar.gz"
+  },
+  "units": {
+    "rtd": {
+      "native_checks": "pass",
+      "common_checks": "pass",
+      "overall": "indeterminate"
+    },
+    "current-sense": {
+      "native_checks": "pass",
+      "common_checks": "pass",
+      "overall": "indeterminate"
+    },
+    "voltage-sense": {
+      "native_checks": "pass",
+      "common_checks": "pass",
+      "overall": "indeterminate"
+    },
+    "thermal-sense": {
+      "native_checks": "pass",
+      "common_checks": "pass",
+      "overall": "indeterminate"
+    },
+    "interlock": {
+      "native_checks": "pass",
+      "common_checks": "pass",
+      "overall": "indeterminate"
+    },
+    "gate-drive": {
+      "native_checks": "pass",
+      "common_checks": "pass",
+      "overall": "indeterminate"
+    },
+    "power-entry": {
+      "native_checks": "pass",
+      "common_checks": "pass",
+      "overall": "fail"
+    }
+  },
+  "pfc_screening_failures": 5,
+  "product_board_hashes_unchanged": {
+    "rtd": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+    "current-sense": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+    "voltage-sense": "ef9853e9fb03df4f7723076ac8eb77c17743465a0b2e146cec11d2da54876e1f",
+    "thermal-sense": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+    "interlock": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+    "gate-drive": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+    "power-entry": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf"
+  },
+  "review": {
+    "initial_receipt": "development.tar.gz:review/review.json",
+    "resolved_receipt": "review-followup.json",
+    "unresolved_actionable_findings": 0
+  },
+  "simplification": {
+    "reuse": "no findings",
+    "quality": "no findings",
+    "efficiency": "removed whole-polyline clones and per-pair allocation; spatial-index rewrite deferred outside this bounded board population"
+  },
+  "lint": "rustfmt and whitespace checks pass; Clippy completes with pre-existing warnings outside changed code; strict warning gate is not green",
+  "limits": [
+    "PFC checks only, not every custom ERC/DRC rule",
+    "Ideal initialized frozen-phase CCM plus analytic full-line integration, not a real controller/device simulation",
+    "Nominal IPC-2221 screen assumes 70um copper and20C rise; no thermal qualification",
+    "Zone area sharing, pad minimum cuts, losses, faults and physical hardware remain unqualified",
+    "Some early Luna solver attempts retained only their available logs/deck states, not every intermediate overwritten file"
+  ],
+  "artifact_sha256": {
+    "README.md": "0c2a3ab19bef98182ae0ba1c3c05318746d1c650f8b627a62b2e609168c4c347",
+    "board-run.log": "34a8d11172fe04ab49ca6379f87ab75e9ebb7d83a61b361e0a78de6c8ea75851",
+    "board-runs-index.json": "712259396735d8d89aacaa15a36620a21b6fd9e59825aa369b57249b1d7ac5b3",
+    "board-runs.tar.gz": "3a4f46fba0070c60f90b09d03ffe615210fc5ea7775c3897984e54bb923b92a5",
+    "development-index.json": "d67cd1bef6fe0b9e94234be650fbc75f18814d97a5cd5dae4422b4747c56c511",
+    "development.tar.gz": "f98f6dc567f62be6601edaa2963c3fbd4bcb536a80570c5db440db55a906e653",
+    "pfc-findings.json": "05d0a5eb7dcbac8aa19767ac2be1b6da2da83d7f20d820d844977351e7d42165",
+    "review-followup.json": "73b9317cc8f18a8b78265020cfa01f23a9387952902f01aead560d879c88d9ec",
+    "spice/ngspice-version.txt": "614d453975d15f1d0dfa69b0ed2fa6ad729e5977f1097b26d119b745f3b66196",
+    "spice/phase-2-step-2.5e-9.cir": "0e0ae19b813cbb097868f71e99ed438a8f1c53ef9e73904185c8aa58f49f57fb",
+    "spice/phase-2-step-2.5e-9.log": "a7503aa04bd8c65b97f69fd6b406465fc620b35b82341ba2da78413782f0a211",
+    "spice/phase-2-step-5.0e-9.cir": "733cb353b8912ba77c1b6d560e0894ee2130a7d299aa162c06ae16b5ee49de76",
+    "spice/phase-2-step-5.0e-9.log": "73edba2eae90fc1176043f55f4c17a3c76a596e8a70e0755d56ede20558b916d",
+    "spice/phase-23-step-2.5e-9.cir": "6ea591ea054b550516b2a7c524eefe0d6dc0e516b350185f527b859f5f2a9875",
+    "spice/phase-23-step-2.5e-9.log": "ae23f8982fd059a2c41eb2f502d4f8dd58c06f71d6ff9ef88ebc9d85dc565a37",
+    "spice/phase-23-step-5.0e-9.cir": "53c61b5b99ee05ba88183b2f2c0246318b333fdfddc6509b5b4fd2bd771e21b7",
+    "spice/phase-23-step-5.0e-9.log": "3c0cd7c99b2c7d4a437b22884b95eb81f0e87b09342d8c3e820cb329e9b06ed0",
+    "spice/phase-55-step-2.5e-9.cir": "d32663f211b1c9d18d2ec81c01867a19e42e95d4e9e9e5dfd9ac01a98cefadb2",
+    "spice/phase-55-step-2.5e-9.log": "0d00e05489b12a351048a126db907fcbdee17c4c1e29370420a51370a4d90671",
+    "spice/phase-55-step-5.0e-9.cir": "2f5c003be144bc9132ca99f9d169f15dfa8f7daf37728ace228f46b0b70b2354",
+    "spice/phase-55-step-5.0e-9.log": "57ba057e7fc6f3f579280ca488fe77d28c79ad377105553151190e4c5ad13ea8",
+    "spice/result.json": "8de3ca016a29402feb981e75dbf8599f3d6a52caabc0759e1c05cf7326296e5e",
+    "suite-identity.json": "f7506d3d527b0d93b3dfe7073c603aef3552ec5c95519bbbff870d9edd90ef97",
+    "summary.json": "0692f36800bdd13c3a1f10f4fb44e212e00a89f171d1790972daba12b95d7553",
+    "zapote-oracle-clippy-01.log": "624181d210e857faafeed08bb3e25e296a99c7f70e0945f8418fcc64a65190f8",
+    "zapote-oracle-clippy-final.log": "395156acdaf153e8773caa531afa97a1f753f48fd33e4bc541b1b765cce1333c",
+    "zapote-oracle-workspace-final.log": "813f730501162fb1ac873a4f892666ca061b6b01e4b6f1c75810833232c9429e"
+  }
+}

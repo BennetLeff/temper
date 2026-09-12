@@ -4,6 +4,13 @@ The PFC findings must be assessed against a verified instrument before they
 justify changing copper. This work checks the nominal model and its software
 implementation; it does not qualify temperatures or the physical power supply.
 
+The [final receipt](verification.json) records **320 passing Rust tests**, six
+passing live SPICE solves, and fresh native ERC/DRC plus common binding passes
+for all seven boards on clean source commit `7b89ff0b4`. The same
+[five nominal PFC screening findings](pfc-findings.json) remain. No product PCB
+bytes changed. The complete board runs and development evidence are archived
+with member hashes; the review's evidence-binding finding is resolved.
+
 ## Independent references and failure cases
 
 | Check | Independent reference | What it establishes |
