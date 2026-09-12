@@ -26,15 +26,16 @@ and missing crossing evidence.
 
 ## Baseline evidence
 
-The saved candidate inputs are the routed PFC at
+The executable adapter and fresh run summary are `packages/zapote-drc/examples/p1_adapter.rs` and
+`execution-2026-09-12.json`. The saved candidate inputs are the routed PFC at
 `zapote/power-entry/candidate/section.kicad_pcb` and the routed gate-drive
 candidate at `zapote/gate-drive/candidate/section.kicad_pcb` (their hashes and
 existing native receipts are retained in each unit's `evidence/` directory).
-The pre-P1 unit reports remain `INDETERMINATE`: they do not contain the
-explicit current-path or complete insulation populations required by these
-owners. That result is preserved in `baseline-2026-09-12.json`; no physical
-qualification pass is inferred from the existing native DRC or clearance
-reports.
+The adapter evaluated 20 actual PFC traces at 15 A RMS and 20 actual
+gate-drive traces at 2.5 A RMS. PFC fails on seven measured narrow necks;
+gate-drive passes its evaluated trace population. Both domain pin contracts
+pass from explicit net classifications. Isolation remains indeterminate
+because the native receipts contain no barrier/cutout surface-path census.
 
 The tests cover a passing reviewed contract, a narrow real trace, a removed
 via annulus, a missing barrier, a missing observed crossing, a misclassified
