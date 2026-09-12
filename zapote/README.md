@@ -32,7 +32,7 @@ physical qualification and procurement gaps.
 
 The [standalone voltage-sense / OVP unit](voltage-sense/README.md) adds the next separately compiled, routed unit, a corrected ADC divider, source-derived electrical checks and saved-document consistency controls. Its digital construction passes while qualification remains explicit.
 
-The [standalone thermal unit](thermal-sense/README.md) adds two external-NTC channels, loaded-feedback trip/release modeling, exact connectivity controls and a routed native PCB. Digital construction is complete; sensor diagnostics and physical qualification remain explicit integration obligations.
+The [standalone thermal unit](thermal-sense/README.md) adds two external-NTC channels, loaded-feedback trip/release modeling, exact connectivity controls and a routed native PCB. Rev B adds conditional open-wire detection; physical qualification remains separate.
 
 [Engineering memory](skills/README.md) connects reviewed, versioned lessons to
 construction inputs through Rust selection and a thin process transport. The
@@ -80,3 +80,5 @@ Zapote is not another PCB optimizer. It is the harness layer that makes agent
 behavior measurable, repeatable, inspectable, and improvable across Temper's
 engineering domains. See `MIGRATION.md` for the planned boundary and the
 current source-of-truth decisions.
+
+The [standalone interlock](interlock/README.md) adds seven fault inputs, watchdog/liveness gating and a stateful reset latch. Its source-driven Rust checks evaluate 4,096 gate/state/clock combinations and reject physical connectivity and model mutations. The next separate unit is isolated gate drive; sensor-liveness production and receiver behavior remain integration obligations.

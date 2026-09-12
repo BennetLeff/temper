@@ -17,3 +17,7 @@ thiserror.workspace = true
 [[bin]]
 name = "zapote-rtd"
 path = "src/main.rs"
+
+[[bin]]
+name = "zapote-interlock"
+path = "src/bin/zapote-interlock.rs"

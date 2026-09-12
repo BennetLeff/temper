@@ -1,0 +1,41 @@
+{
+  "schema": "zapote.interlock.contract.v1",
+  "supply_v": [
+    3.135,
+    3.465
+  ],
+  "fault_inputs": [
+    "ocp",
+    "ovp",
+    "hs",
+    "coil",
+    "rtd",
+    "runaway",
+    "aux"
+  ],
+  "fault_active_high": true,
+  "reset_active_low_edge": true,
+  "sensor_live_required": true,
+  "sensor_live_producer": "integration-obligation-not-yet-implemented",
+  "permit_active_high": true,
+  "receiver_pulldown_required": true,
+  "watchdog_timeout_s": [
+    0.9,
+    1.6,
+    2.5
+  ],
+  "power_on_reset_delay_s": [
+    0.12,
+    0.2,
+    0.3
+  ],
+  "logic_inputs_v": {
+    "low_max": 0.3,
+    "high_min": 2.7
+  },
+  "aggregate_input_leakage_a": 2e-05,
+  "reset_pulse_min_s": 1e-06,
+  "reset_after_all_good_s": 0.001,
+  "qualification": "indeterminate",
+  "physical_tests": "NOT RUN"
+}

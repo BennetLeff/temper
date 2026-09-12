@@ -1,0 +1,36 @@
+{
+  "status": "emitted-native-verification-required",
+  "source_netlist_sha256": "25fb96c7da83921cb33ec57c3a4ac8ddae4f2a3fb59ec5c0ac542440dee4fc37",
+  "helper_sha256": "b1ab462e3c3ef9e10f3d313d4411d7f859f365f269cfd8ffb906343501d1180b",
+  "outputs": {
+    "section.kicad_sch": "705542db81c7b689bb3b4d48cf9f7b5a79dc6cf9120d466e1f535f293976e595",
+    "InterlockUnit.kicad_sym": "25b9e1550cd548d2208b8bc5eeed3274632d76d63a46d9b44948453414968e45",
+    "sym-lib-table": "c6c27c035349bd76288f8ed62de02251c5b03284f5f5d559398f117ec8b0009b"
+  },
+  "intentional_open_pins": [
+    [
+      "U2",
+      "12",
+      "y6"
+    ],
+    [
+      "U3",
+      "9",
+      "nc9"
+    ],
+    [
+      "U3",
+      "10",
+      "nc10"
+    ],
+    [
+      "U3",
+      "13",
+      "nc13"
+    ]
+  ],
+  "component_count": 25,
+  "native_erc": "NOT RUN",
+  "native_netlist_equality": "NOT RUN",
+  "pcb_touched": false
+}

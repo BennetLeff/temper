@@ -1,0 +1,5116 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-11T20:25:38",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [gnd] on F.Cu, length 1.2000 mm",
+                    "pos": {
+                        "x": 37.275,
+                        "y": 39.2
+                    },
+                    "uuid": "a49a6f6f-2485-4ca9-9243-504f397bceb3"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 40.46
+                    },
+                    "uuid": "0c714b85-414d-4759-93e2-e25c29ef2ca9"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 46.0,
+                        "y": 45.3
+                    },
+                    "uuid": "2ff76b4a-5004-4bfa-a88f-de60b04ef640"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.3,
+                        "y": 50.175
+                    },
+                    "uuid": "01e90a95-1175-4d0a-9bc3-aa828c145580"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [gnd] on F.Cu, length 1.0250 mm",
+                    "pos": {
+                        "x": 53.775,
+                        "y": 42.05
+                    },
+                    "uuid": "b882298d-3e7b-4c6c-94f0-dc67d3b1c751"
+                },
+                {
+                    "description": "Track [gnd] on F.Cu, length 2.3003 mm",
+                    "pos": {
+                        "x": 47.8625,
+                        "y": 43.95
+                    },
+                    "uuid": "20c818af-f53d-47a6-865f-f5240b6a4e8f"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0600 mm)",
+            "items": [
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 38.0,
+                        "y": 22.0
+                    },
+                    "uuid": "135952fe-f099-4cbb-b60a-b467885b9e53"
+                },
+                {
+                    "description": "Track [ocp_healthy] on B.Cu, length 11.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 22.46
+                    },
+                    "uuid": "7be52651-e58c-483d-a1c5-56ccd615c186"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2100 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_healthy] on B.Cu, length 11.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 22.46
+                    },
+                    "uuid": "7be52651-e58c-483d-a1c5-56ccd615c186"
+                },
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 38.0,
+                        "y": 22.0
+                    },
+                    "uuid": "135952fe-f099-4cbb-b60a-b467885b9e53"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0600 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 30.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 22.0
+                    },
+                    "uuid": "b2090fc7-7fb4-4880-9495-f6f5e7378d7c"
+                },
+                {
+                    "description": "Via [ocp_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 22.46
+                    },
+                    "uuid": "ec762ee0-98d2-479b-b12f-1b1174f2024c"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2100 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 30.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 22.0
+                    },
+                    "uuid": "b2090fc7-7fb4-4880-9495-f6f5e7378d7c"
+                },
+                {
+                    "description": "Via [ocp_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 22.46
+                    },
+                    "uuid": "ec762ee0-98d2-479b-b12f-1b1174f2024c"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [permit] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 82.0,
+                        "y": 44.5
+                    },
+                    "uuid": "16a39d9f-7bfa-4627-a398-c62ceed4df56"
+                },
+                {
+                    "description": "Track [latched_fault] on F.Cu, length 3.7500 mm",
+                    "pos": {
+                        "x": 83.0,
+                        "y": 43.25
+                    },
+                    "uuid": "6d850291-7119-4932-ae84-43fb87ed5fdf"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Track [sensor_live] on B.Cu, length 8.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 45.54
+                    },
+                    "uuid": "673384a4-182d-4054-a2f0-019ff5ff3e67"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets wdt_good and gnd)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 3.4500 mm",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 15.05
+                    },
+                    "uuid": "f79ad741-218e-4cf8-af70-90425643ce7e"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 63.2,
+                        "y": 16.0
+                    },
+                    "uuid": "fabab3f3-8a76-4a01-b9e7-b977edb5b0cc"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets reset_clock and sensor_live)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [sensor_live] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 45.54
+                    },
+                    "uuid": "b027f6d4-ae85-4dbc-835b-be9a6d5f22a0"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 3.4500 mm",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 15.05
+                    },
+                    "uuid": "f79ad741-218e-4cf8-af70-90425643ce7e"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 63.2,
+                        "y": 16.0
+                    },
+                    "uuid": "fabab3f3-8a76-4a01-b9e7-b977edb5b0cc"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [all_good] on F.Cu, length 4.7500 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 48.0
+                    },
+                    "uuid": "3a171f8b-8a82-4bdf-89c4-f42ffbad4a19"
+                },
+                {
+                    "description": "Track [permit] on F.Cu, length 5.3000 mm",
+                    "pos": {
+                        "x": 68.7,
+                        "y": 46.0
+                    },
+                    "uuid": "c48094dc-8d5f-47b1-b952-3dedc33f0ac7"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [sensor_live] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 45.54
+                    },
+                    "uuid": "b027f6d4-ae85-4dbc-835b-be9a6d5f22a0"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets gnd and sensor_live)",
+            "items": [
+                {
+                    "description": "Pad 2 [gnd] of R10 on F.Cu",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 50.175
+                    },
+                    "uuid": "3aa05f40-c1e6-4a2e-aa2e-d9800ba69aa0"
+                },
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 6.2850 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 45.54
+                    },
+                    "uuid": "49471316-b1bb-42cc-b7a2-dad794477557"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets reset_clock and sensor_live)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [sensor_live] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 45.54
+                    },
+                    "uuid": "dae63596-d160-4e08-87c6-6b633052363c"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets runaway_fault and vcc)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on B.Cu, length 20.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 37.7
+                    },
+                    "uuid": "8c9ff69b-bee5-4893-ab6c-874e32a43aad"
+                },
+                {
+                    "description": "Via [vcc] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 37.5
+                    },
+                    "uuid": "ba37ae33-bfe2-4e00-9972-a6bfe43fd6b8"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on B.Cu, length 20.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 37.7
+                    },
+                    "uuid": "8c9ff69b-bee5-4893-ab6c-874e32a43aad"
+                },
+                {
+                    "description": "Via [vcc] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 37.5
+                    },
+                    "uuid": "ba37ae33-bfe2-4e00-9972-a6bfe43fd6b8"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [sensor_live] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 45.54
+                    },
+                    "uuid": "dae63596-d160-4e08-87c6-6b633052363c"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets coil_fault and ocp_fault)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 18.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "9de4286a-70f3-49c2-8213-d8f0d72987cf"
+                },
+                {
+                    "description": "Via [ocp_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 21.0,
+                        "y": 29.5
+                    },
+                    "uuid": "a410975b-9cc1-4ffc-8caf-f29ad513d509"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 18.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "9de4286a-70f3-49c2-8213-d8f0d72987cf"
+                },
+                {
+                    "description": "Via [ocp_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 21.0,
+                        "y": 29.5
+                    },
+                    "uuid": "a410975b-9cc1-4ffc-8caf-f29ad513d509"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets ocp_fault and coil_fault)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on B.Cu, length 13.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 29.5
+                    },
+                    "uuid": "4628551f-66ff-487b-9f3f-147a0c3cd5b5"
+                },
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 18.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "9de4286a-70f3-49c2-8213-d8f0d72987cf"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ocp_fault and coil_fault)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on B.Cu, length 13.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 29.5
+                    },
+                    "uuid": "4628551f-66ff-487b-9f3f-147a0c3cd5b5"
+                },
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "a4deda87-2ad7-4a28-bc8e-aa0b156c2cf3"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on B.Cu, length 13.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 29.5
+                    },
+                    "uuid": "4628551f-66ff-487b-9f3f-147a0c3cd5b5"
+                },
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "a4deda87-2ad7-4a28-bc8e-aa0b156c2cf3"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets runaway_fault and vcc)",
+            "items": [
+                {
+                    "description": "Via [runaway_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 40.0,
+                        "y": 37.7
+                    },
+                    "uuid": "62983301-14a0-4f06-8414-fca31a913be0"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 37.5
+                    },
+                    "uuid": "905fd6c6-b85a-4b61-9343-e6dd1810ad34"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets vcc and all_good)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Via [all_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 43.0
+                    },
+                    "uuid": "698d2161-6c50-4401-bd11-6b33f7dae50b"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Via [all_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 43.0
+                    },
+                    "uuid": "698d2161-6c50-4401-bd11-6b33f7dae50b"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Via [wdi] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 12.0
+                    },
+                    "uuid": "422c912f-afce-4565-9af3-4fb00e600aeb"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 70.0,
+                        "y": 12.5
+                    },
+                    "uuid": "6c72d5d1-7d95-43a2-b4a6-91b4f1c7ee52"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 37.5
+                    },
+                    "uuid": "905fd6c6-b85a-4b61-9343-e6dd1810ad34"
+                },
+                {
+                    "description": "Via [runaway_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 40.0,
+                        "y": 37.7
+                    },
+                    "uuid": "62983301-14a0-4f06-8414-fca31a913be0"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1000 mm)",
+            "items": [
+                {
+                    "description": "Via [vcc] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 37.5
+                    },
+                    "uuid": "5de6eb06-7b56-4626-8759-fd9a38b96a44"
+                },
+                {
+                    "description": "Track [wdi] on F.Cu, length 14.0000 mm",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 37.0
+                    },
+                    "uuid": "968ac17e-aca2-4194-af7b-6203ba91b080"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets vcc and all_good)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Via [all_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 62.0,
+                        "y": 43.0
+                    },
+                    "uuid": "6de21089-b985-43f0-8e7b-c50328457f4b"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 70.0,
+                        "y": 12.5
+                    },
+                    "uuid": "6c72d5d1-7d95-43a2-b4a6-91b4f1c7ee52"
+                },
+                {
+                    "description": "Via [wdi] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 12.0
+                    },
+                    "uuid": "422c912f-afce-4565-9af3-4fb00e600aeb"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Via [all_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 62.0,
+                        "y": 43.0
+                    },
+                    "uuid": "6de21089-b985-43f0-8e7b-c50328457f4b"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1000 mm)",
+            "items": [
+                {
+                    "description": "Via [vcc] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 19.0
+                    },
+                    "uuid": "09e10ef3-987b-4dac-b77f-00dccdf7c511"
+                },
+                {
+                    "description": "Track [rtd_fault] on B.Cu, length 31.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 19.5
+                    },
+                    "uuid": "c8f6d583-0057-45da-bbb0-a8023c4d9ea4"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Via [wdt_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 18.5
+                    },
+                    "uuid": "4ff8f1b1-4684-4945-b7ff-94b1a26b5410"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 19.0
+                    },
+                    "uuid": "c4ed8b1a-3392-4617-bb3b-6434cc5f56d5"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets runaway_fault and vcc)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on B.Cu, length 20.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 37.7
+                    },
+                    "uuid": "8c9ff69b-bee5-4893-ab6c-874e32a43aad"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 37.5
+                    },
+                    "uuid": "905fd6c6-b85a-4b61-9343-e6dd1810ad34"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 19.0
+                    },
+                    "uuid": "c4ed8b1a-3392-4617-bb3b-6434cc5f56d5"
+                },
+                {
+                    "description": "Via [wdt_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 18.5
+                    },
+                    "uuid": "4ff8f1b1-4684-4945-b7ff-94b1a26b5410"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 2.9500 mm",
+                    "pos": {
+                        "x": 65.8,
+                        "y": 16.95
+                    },
+                    "uuid": "027f639f-df55-4c31-9143-7745402132c8"
+                },
+                {
+                    "description": "Pad 1 [wdt_good] of U5 on F.Cu",
+                    "pos": {
+                        "x": 64.8625,
+                        "y": 15.05
+                    },
+                    "uuid": "824342e3-e316-40b5-ab1c-f7ef2196ae5a"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 19.0
+                    },
+                    "uuid": "c4ed8b1a-3392-4617-bb3b-6434cc5f56d5"
+                },
+                {
+                    "description": "Via [wdt_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 18.5
+                    },
+                    "uuid": "f4b2098a-e34d-41fc-ab0d-a4f48107329e"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdi] on B.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 58.0,
+                        "y": 12.0
+                    },
+                    "uuid": "2fd3dfa8-95ce-47b2-a7f3-475ed3c32bd2"
+                },
+                {
+                    "description": "Via [vcc] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 70.0,
+                        "y": 12.5
+                    },
+                    "uuid": "3a997644-00a2-44c5-80cf-b8e97ecfb44d"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0600 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [common_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 51.0,
+                        "y": 46.0
+                    },
+                    "uuid": "f84c246a-464f-4aa8-92d7-d3ee0bc5f2a8"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 19.0
+                    },
+                    "uuid": "c4ed8b1a-3392-4617-bb3b-6434cc5f56d5"
+                },
+                {
+                    "description": "Via [wdt_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 18.5
+                    },
+                    "uuid": "f4b2098a-e34d-41fc-ab0d-a4f48107329e"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 11.0000 mm",
+                    "pos": {
+                        "x": 81.0,
+                        "y": 42.0
+                    },
+                    "uuid": "98bf60dc-9cdf-4b98-b466-1685be3a577c"
+                },
+                {
+                    "description": "Track [vcc] on F.Cu, length 21.0000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 32.0
+                    },
+                    "uuid": "b3d762fb-3b5f-4551-9bfe-22e341398bcb"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0600 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [common_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 57.0,
+                        "y": 46.0
+                    },
+                    "uuid": "514e56a6-0656-40e6-ad4d-ec06530abb98"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2100 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [common_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 51.0,
+                        "y": 46.0
+                    },
+                    "uuid": "f84c246a-464f-4aa8-92d7-d3ee0bc5f2a8"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets vcc and aux_healthy)",
+            "items": [
+                {
+                    "description": "Via [vcc] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "01f032f0-5f2c-458a-841e-6281afbb8bb4"
+                },
+                {
+                    "description": "Track [aux_healthy] on B.Cu, length 26.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 40.46
+                    },
+                    "uuid": "bd8a1d4d-4a42-4944-90ef-33948d7c1f70"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets aux_healthy and vcc)",
+            "items": [
+                {
+                    "description": "Via [aux_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 56.0,
+                        "y": 40.46
+                    },
+                    "uuid": "2e8403fe-925e-4c17-aeac-e4bccff4553d"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 32.7750 mm",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "7f07ad60-b6d0-438d-bf77-ba5ba2b369e5"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2100 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [common_good] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 57.0,
+                        "y": 46.0
+                    },
+                    "uuid": "514e56a6-0656-40e6-ad4d-ec06530abb98"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 32.7750 mm",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "7f07ad60-b6d0-438d-bf77-ba5ba2b369e5"
+                },
+                {
+                    "description": "Via [aux_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 56.0,
+                        "y": 40.46
+                    },
+                    "uuid": "2e8403fe-925e-4c17-aeac-e4bccff4553d"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 2.9500 mm",
+                    "pos": {
+                        "x": 65.8,
+                        "y": 16.95
+                    },
+                    "uuid": "027f639f-df55-4c31-9143-7745402132c8"
+                },
+                {
+                    "description": "Pad 2 [gnd] of U5 on F.Cu",
+                    "pos": {
+                        "x": 64.8625,
+                        "y": 16.0
+                    },
+                    "uuid": "516b87f1-245d-44f2-b414-e0429a110ee2"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_healthy] on B.Cu, length 26.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 40.46
+                    },
+                    "uuid": "bd8a1d4d-4a42-4944-90ef-33948d7c1f70"
+                },
+                {
+                    "description": "Via [vcc] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "01f032f0-5f2c-458a-841e-6281afbb8bb4"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets any_fault and coil_fault)",
+            "items": [
+                {
+                    "description": "Track [any_fault] on B.Cu, length 27.5000 mm",
+                    "pos": {
+                        "x": 53.5,
+                        "y": 30.0
+                    },
+                    "uuid": "8a560daf-c9e2-4af5-8bb8-a9f0079939b1"
+                },
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 38.0,
+                        "y": 29.7
+                    },
+                    "uuid": "d6c53955-eeab-45c5-8055-4de504cb3b7e"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 39.0,
+                        "y": 19.5
+                    },
+                    "uuid": "5d507f4f-3ca6-4c7d-bac1-e0f17059ecd2"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 19.0
+                    },
+                    "uuid": "c4ed8b1a-3392-4617-bb3b-6434cc5f56d5"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 19.0
+                    },
+                    "uuid": "c4ed8b1a-3392-4617-bb3b-6434cc5f56d5"
+                },
+                {
+                    "description": "Via [rtd_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 39.0,
+                        "y": 19.5
+                    },
+                    "uuid": "5d507f4f-3ca6-4c7d-bac1-e0f17059ecd2"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets reset_n and gnd)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on F.Cu, length 5.9050 mm",
+                    "pos": {
+                        "x": 27.0,
+                        "y": 44.27
+                    },
+                    "uuid": "4e641a11-1103-4a87-b559-b21bc79b078f"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 27.0,
+                        "y": 46.81
+                    },
+                    "uuid": "59dcd7ab-5a39-4bf5-b99c-cff250d30246"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets vcc and latched_fault)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Via [latched_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 63.2,
+                        "y": 43.25
+                    },
+                    "uuid": "4e8980cc-8a17-4267-a9e0-20a2999aa4c3"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 37.275,
+                        "y": 38.0
+                    },
+                    "uuid": "625320d4-ebc9-44ec-b65f-7d44e92136e6"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 37.5
+                    },
+                    "uuid": "905fd6c6-b85a-4b61-9343-e6dd1810ad34"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on F.Cu, length 5.9050 mm",
+                    "pos": {
+                        "x": 27.0,
+                        "y": 44.27
+                    },
+                    "uuid": "4e641a11-1103-4a87-b559-b21bc79b078f"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 27.0,
+                        "y": 46.81
+                    },
+                    "uuid": "59dcd7ab-5a39-4bf5-b99c-cff250d30246"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets vcc and aux_healthy)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 32.7750 mm",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "7f07ad60-b6d0-438d-bf77-ba5ba2b369e5"
+                },
+                {
+                    "description": "Track [aux_healthy] on B.Cu, length 26.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 40.46
+                    },
+                    "uuid": "bd8a1d4d-4a42-4944-90ef-33948d7c1f70"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Via [latched_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 63.2,
+                        "y": 43.25
+                    },
+                    "uuid": "4e8980cc-8a17-4267-a9e0-20a2999aa4c3"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets any_fault and coil_fault)",
+            "items": [
+                {
+                    "description": "Via [any_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 30.0
+                    },
+                    "uuid": "30fa986d-c7cf-4eab-8f39-bd890ffddb78"
+                },
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 18.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "9de4286a-70f3-49c2-8213-d8f0d72987cf"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets vcc and latched_fault)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Track [latched_fault] on B.Cu, length 19.8000 mm",
+                    "pos": {
+                        "x": 63.2,
+                        "y": 43.25
+                    },
+                    "uuid": "d87057b5-e8bc-470f-8abd-bd72238e3e68"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [wdi] on F.Cu, length 14.0000 mm",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 37.0
+                    },
+                    "uuid": "968ac17e-aca2-4194-af7b-6203ba91b080"
+                },
+                {
+                    "description": "Track [vcc] on F.Cu, length 21.0000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 32.0
+                    },
+                    "uuid": "b3d762fb-3b5f-4551-9bfe-22e341398bcb"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 49.2750 mm",
+                    "pos": {
+                        "x": 35.725,
+                        "y": 37.5
+                    },
+                    "uuid": "905fd6c6-b85a-4b61-9343-e6dd1810ad34"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 37.275,
+                        "y": 38.0
+                    },
+                    "uuid": "625320d4-ebc9-44ec-b65f-7d44e92136e6"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Track [all_good] on B.Cu, length 32.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 43.0
+                    },
+                    "uuid": "afe94f5f-a97b-4587-83d7-48a01587ae7b"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [reset_n] on F.Cu, length 12.0000 mm",
+                    "pos": {
+                        "x": 80.0,
+                        "y": 39.5
+                    },
+                    "uuid": "916084cc-88ec-49fc-a918-a70ecb5387b6"
+                },
+                {
+                    "description": "Track [vcc] on F.Cu, length 21.0000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 32.0
+                    },
+                    "uuid": "b3d762fb-3b5f-4551-9bfe-22e341398bcb"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 76.0,
+                        "y": 41.0
+                    },
+                    "uuid": "45fad4b6-10cb-4eaf-bd0a-c15ae3006ee9"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 32.7750 mm",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "7f07ad60-b6d0-438d-bf77-ba5ba2b369e5"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets vcc and latched_fault)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Via [latched_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 83.0,
+                        "y": 43.25
+                    },
+                    "uuid": "ee451681-ed9d-4308-b1eb-feb16759db5c"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Track [any_fault] on B.Cu, length 27.5000 mm",
+                    "pos": {
+                        "x": 53.5,
+                        "y": 30.0
+                    },
+                    "uuid": "8a560daf-c9e2-4af5-8bb8-a9f0079939b1"
+                },
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 38.0,
+                        "y": 29.7
+                    },
+                    "uuid": "d6c53955-eeab-45c5-8055-4de504cb3b7e"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1000 mm)",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 37.275,
+                        "y": 20.0
+                    },
+                    "uuid": "96ca3a76-985d-4094-9f06-de1b3e56b562"
+                },
+                {
+                    "description": "Track [rtd_fault] on B.Cu, length 31.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 19.5
+                    },
+                    "uuid": "c8f6d583-0057-45da-bbb0-a8023c4d9ea4"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets gnd and reset_clock)",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 46.0,
+                        "y": 45.3
+                    },
+                    "uuid": "2ff76b4a-5004-4bfa-a88f-de60b04ef640"
+                },
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets wdt_good and gnd)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on B.Cu, length 13.0000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 42.05
+                    },
+                    "uuid": "0059b90b-952c-42ea-8cd6-449b579a937d"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 54.8,
+                        "y": 42.05
+                    },
+                    "uuid": "1c1d853d-8748-42ae-b019-c7d23de57744"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 69.0000 mm",
+                    "pos": {
+                        "x": 16.0,
+                        "y": 43.0
+                    },
+                    "uuid": "12c7ba62-ab8a-4b5f-a4fc-67789dafd1d3"
+                },
+                {
+                    "description": "Via [latched_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 83.0,
+                        "y": 43.25
+                    },
+                    "uuid": "ee451681-ed9d-4308-b1eb-feb16759db5c"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 46.0,
+                        "y": 45.3
+                    },
+                    "uuid": "2ff76b4a-5004-4bfa-a88f-de60b04ef640"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 40.0
+                    },
+                    "uuid": "0b12b968-6f06-41ae-be4b-76464421712a"
+                },
+                {
+                    "description": "Track [vcc] on B.Cu, length 32.7750 mm",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "7f07ad60-b6d0-438d-bf77-ba5ba2b369e5"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets gnd and aux_healthy)",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 40.46
+                    },
+                    "uuid": "0c714b85-414d-4759-93e2-e25c29ef2ca9"
+                },
+                {
+                    "description": "Track [aux_healthy] on B.Cu, length 26.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 40.46
+                    },
+                    "uuid": "bd8a1d4d-4a42-4944-90ef-33948d7c1f70"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets gnd and reset_n)",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.3,
+                        "y": 50.175
+                    },
+                    "uuid": "01e90a95-1175-4d0a-9bc3-aa828c145580"
+                },
+                {
+                    "description": "Track [reset_n] on B.Cu, length 40.0000 mm",
+                    "pos": {
+                        "x": 40.0,
+                        "y": 50.175
+                    },
+                    "uuid": "1289b62f-0712-4da9-b4ec-72a3ec5026fd"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets gnd and wdt_good)",
+            "items": [
+                {
+                    "description": "Track [gnd] on F.Cu, length 1.6625 mm",
+                    "pos": {
+                        "x": 64.8625,
+                        "y": 16.0
+                    },
+                    "uuid": "b8eacee3-bb7e-4b33-a22c-d5f8087e1dfd"
+                },
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 3.4500 mm",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 15.05
+                    },
+                    "uuid": "f79ad741-218e-4cf8-af70-90425643ce7e"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on B.Cu, length 13.0000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 42.05
+                    },
+                    "uuid": "0059b90b-952c-42ea-8cd6-449b579a937d"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 54.8,
+                        "y": 42.05
+                    },
+                    "uuid": "1c1d853d-8748-42ae-b019-c7d23de57744"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets gnd and runaway_fault)",
+            "items": [
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 37.275,
+                        "y": 38.0
+                    },
+                    "uuid": "625320d4-ebc9-44ec-b65f-7d44e92136e6"
+                },
+                {
+                    "description": "Track [runaway_fault] on B.Cu, length 20.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 37.7
+                    },
+                    "uuid": "8c9ff69b-bee5-4893-ab6c-874e32a43aad"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on B.Cu, length 40.0000 mm",
+                    "pos": {
+                        "x": 40.0,
+                        "y": 50.175
+                    },
+                    "uuid": "1289b62f-0712-4da9-b4ec-72a3ec5026fd"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.3,
+                        "y": 50.175
+                    },
+                    "uuid": "01e90a95-1175-4d0a-9bc3-aa828c145580"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [permit] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 82.0,
+                        "y": 44.5
+                    },
+                    "uuid": "16a39d9f-7bfa-4627-a398-c62ceed4df56"
+                },
+                {
+                    "description": "Track [vcc] on F.Cu, length 21.0000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 32.0
+                    },
+                    "uuid": "b3d762fb-3b5f-4551-9bfe-22e341398bcb"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 6.2850 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 45.54
+                    },
+                    "uuid": "49471316-b1bb-42cc-b7a2-dad794477557"
+                },
+                {
+                    "description": "Track [gnd] on F.Cu, length 1.3000 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 50.175
+                    },
+                    "uuid": "e9643cdc-883e-4b97-97fe-34eb9f5dec3a"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 8.0000 mm",
+                    "pos": {
+                        "x": 84.0,
+                        "y": 49.5
+                    },
+                    "uuid": "4c1ac38c-7cfb-4fcd-9d59-016f325b429e"
+                },
+                {
+                    "description": "Track [vcc] on F.Cu, length 21.0000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 32.0
+                    },
+                    "uuid": "b3d762fb-3b5f-4551-9bfe-22e341398bcb"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 21.0000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 32.0
+                    },
+                    "uuid": "b3d762fb-3b5f-4551-9bfe-22e341398bcb"
+                },
+                {
+                    "description": "Track [latched_fault] on F.Cu, length 9.0000 mm",
+                    "pos": {
+                        "x": 83.0,
+                        "y": 47.0
+                    },
+                    "uuid": "d6a11b68-c739-4a13-8c98-601e17df8583"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_healthy] on B.Cu, length 26.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 40.46
+                    },
+                    "uuid": "bd8a1d4d-4a42-4944-90ef-33948d7c1f70"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 40.46
+                    },
+                    "uuid": "0c714b85-414d-4759-93e2-e25c29ef2ca9"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 18.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "9de4286a-70f3-49c2-8213-d8f0d72987cf"
+                },
+                {
+                    "description": "Via [any_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 30.0
+                    },
+                    "uuid": "30fa986d-c7cf-4eab-8f39-bd890ffddb78"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0500 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on B.Cu, length 20.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 37.7
+                    },
+                    "uuid": "8c9ff69b-bee5-4893-ab6c-874e32a43aad"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 37.275,
+                        "y": 38.0
+                    },
+                    "uuid": "625320d4-ebc9-44ec-b65f-7d44e92136e6"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 32.7750 mm",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "7f07ad60-b6d0-438d-bf77-ba5ba2b369e5"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 76.0,
+                        "y": 41.0
+                    },
+                    "uuid": "45fad4b6-10cb-4eaf-bd0a-c15ae3006ee9"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0300 mm)",
+            "items": [
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.73
+                    },
+                    "uuid": "879131c3-0192-4486-92ae-e831f871fbfe"
+                },
+                {
+                    "description": "Via [runaway_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.1
+                    },
+                    "uuid": "a2bdffea-6e9f-4134-acec-0561c0b309d2"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [reset_n] on F.Cu, length 5.9050 mm",
+                    "pos": {
+                        "x": 27.0,
+                        "y": 44.27
+                    },
+                    "uuid": "4e641a11-1103-4a87-b559-b21bc79b078f"
+                },
+                {
+                    "description": "Track [gnd] on F.Cu, length 1.5250 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 46.81
+                    },
+                    "uuid": "c8d65c89-9919-4a3c-9855-93386ed564f2"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1800 mm)",
+            "items": [
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.73
+                    },
+                    "uuid": "879131c3-0192-4486-92ae-e831f871fbfe"
+                },
+                {
+                    "description": "Via [runaway_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.1
+                    },
+                    "uuid": "a2bdffea-6e9f-4134-acec-0561c0b309d2"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1000 mm)",
+            "items": [
+                {
+                    "description": "Track [any_fault] on B.Cu, length 27.5000 mm",
+                    "pos": {
+                        "x": 53.5,
+                        "y": 30.0
+                    },
+                    "uuid": "8a560daf-c9e2-4af5-8bb8-a9f0079939b1"
+                },
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 18.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "9de4286a-70f3-49c2-8213-d8f0d72987cf"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 32.7750 mm",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 40.5
+                    },
+                    "uuid": "7f07ad60-b6d0-438d-bf77-ba5ba2b369e5"
+                },
+                {
+                    "description": "Via [gnd] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 40.0
+                    },
+                    "uuid": "0b12b968-6f06-41ae-be4b-76464421712a"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0700 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 25.6
+                    },
+                    "uuid": "3c70a1f0-012d-45c4-ae9c-715cff6e1335"
+                },
+                {
+                    "description": "Via [rtd_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 26.27
+                    },
+                    "uuid": "4cf0d95c-c353-4a83-b718-9e7cbcf8f2bc"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets ovp_healthy and runaway_healthy)",
+            "items": [
+                {
+                    "description": "Via [ovp_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 41.6,
+                        "y": 23.7
+                    },
+                    "uuid": "b3133fc5-b084-4c6d-8e43-8c67a8c56115"
+                },
+                {
+                    "description": "Track [runaway_healthy] on B.Cu, length 9.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.73
+                    },
+                    "uuid": "b593f483-43bb-4eb5-9ed7-a31c1e2f7194"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2200 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 25.6
+                    },
+                    "uuid": "3c70a1f0-012d-45c4-ae9c-715cff6e1335"
+                },
+                {
+                    "description": "Via [rtd_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 26.27
+                    },
+                    "uuid": "4cf0d95c-c353-4a83-b718-9e7cbcf8f2bc"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0007 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 43.4,
+                        "y": 26.27
+                    },
+                    "uuid": "ac9041d5-2952-49f0-b788-e31902f6e10d"
+                },
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 26.3
+                    },
+                    "uuid": "e561224b-0550-4233-9138-10e499a3200d"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_healthy] on B.Cu, length 9.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.73
+                    },
+                    "uuid": "b593f483-43bb-4eb5-9ed7-a31c1e2f7194"
+                },
+                {
+                    "description": "Via [ovp_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 41.6,
+                        "y": 23.7
+                    },
+                    "uuid": "b3133fc5-b084-4c6d-8e43-8c67a8c56115"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0600 mm)",
+            "items": [
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.15
+                    },
+                    "uuid": "7f940ac4-8a94-4965-a265-0156e568f264"
+                },
+                {
+                    "description": "Via [coil_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.81
+                    },
+                    "uuid": "e957c338-053f-4ab2-96ce-7adfa2e76a5a"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0700 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 25.6
+                    },
+                    "uuid": "3c70a1f0-012d-45c4-ae9c-715cff6e1335"
+                },
+                {
+                    "description": "Via [rtd_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 26.27
+                    },
+                    "uuid": "4cf0d95c-c353-4a83-b718-9e7cbcf8f2bc"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1507 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 43.4,
+                        "y": 26.27
+                    },
+                    "uuid": "ac9041d5-2952-49f0-b788-e31902f6e10d"
+                },
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 26.3
+                    },
+                    "uuid": "e561224b-0550-4233-9138-10e499a3200d"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2200 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 25.6
+                    },
+                    "uuid": "3c70a1f0-012d-45c4-ae9c-715cff6e1335"
+                },
+                {
+                    "description": "Via [rtd_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 26.27
+                    },
+                    "uuid": "4cf0d95c-c353-4a83-b718-9e7cbcf8f2bc"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0300 mm)",
+            "items": [
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.73
+                    },
+                    "uuid": "879131c3-0192-4486-92ae-e831f871fbfe"
+                },
+                {
+                    "description": "Via [runaway_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.1
+                    },
+                    "uuid": "a2bdffea-6e9f-4134-acec-0561c0b309d2"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2100 mm)",
+            "items": [
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.15
+                    },
+                    "uuid": "7f940ac4-8a94-4965-a265-0156e568f264"
+                },
+                {
+                    "description": "Via [coil_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.81
+                    },
+                    "uuid": "e957c338-053f-4ab2-96ce-7adfa2e76a5a"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0007 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 43.4,
+                        "y": 26.27
+                    },
+                    "uuid": "ac9041d5-2952-49f0-b788-e31902f6e10d"
+                },
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 26.3
+                    },
+                    "uuid": "e561224b-0550-4233-9138-10e499a3200d"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1800 mm)",
+            "items": [
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.73
+                    },
+                    "uuid": "879131c3-0192-4486-92ae-e831f871fbfe"
+                },
+                {
+                    "description": "Via [runaway_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.1
+                    },
+                    "uuid": "a2bdffea-6e9f-4134-acec-0561c0b309d2"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1507 mm)",
+            "items": [
+                {
+                    "description": "Via [rtd_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 43.4,
+                        "y": 26.27
+                    },
+                    "uuid": "ac9041d5-2952-49f0-b788-e31902f6e10d"
+                },
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 26.3
+                    },
+                    "uuid": "e561224b-0550-4233-9138-10e499a3200d"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0600 mm)",
+            "items": [
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.15
+                    },
+                    "uuid": "7f940ac4-8a94-4965-a265-0156e568f264"
+                },
+                {
+                    "description": "Via [coil_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.81
+                    },
+                    "uuid": "e957c338-053f-4ab2-96ce-7adfa2e76a5a"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.2100 mm)",
+            "items": [
+                {
+                    "description": "Via [coil_fault] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.15
+                    },
+                    "uuid": "7f940ac4-8a94-4965-a265-0156e568f264"
+                },
+                {
+                    "description": "Via [coil_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.81
+                    },
+                    "uuid": "e957c338-053f-4ab2-96ce-7adfa2e76a5a"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets ovp_healthy and runaway_healthy)",
+            "items": [
+                {
+                    "description": "Track [ovp_healthy] on B.Cu, length 6.8000 mm",
+                    "pos": {
+                        "x": 41.6,
+                        "y": 23.7
+                    },
+                    "uuid": "48305069-93dc-4757-a85c-31ea5e5468ca"
+                },
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 23.73
+                    },
+                    "uuid": "b6c2f7da-18e2-4a90-ae20-cf222f00f753"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_healthy] on B.Cu, length 6.8000 mm",
+                    "pos": {
+                        "x": 41.6,
+                        "y": 23.7
+                    },
+                    "uuid": "48305069-93dc-4757-a85c-31ea5e5468ca"
+                },
+                {
+                    "description": "Via [runaway_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 23.73
+                    },
+                    "uuid": "b6c2f7da-18e2-4a90-ae20-cf222f00f753"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets ovp_healthy and runaway_healthy)",
+            "items": [
+                {
+                    "description": "Track [ovp_healthy] on B.Cu, length 6.8000 mm",
+                    "pos": {
+                        "x": 41.6,
+                        "y": 23.7
+                    },
+                    "uuid": "48305069-93dc-4757-a85c-31ea5e5468ca"
+                },
+                {
+                    "description": "Track [runaway_healthy] on B.Cu, length 9.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.73
+                    },
+                    "uuid": "b593f483-43bb-4eb5-9ed7-a31c1e2f7194"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 1 [reset_clock] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 42.25
+                    },
+                    "uuid": "4c6afa77-1fdb-4b29-9cd4-ab0c753bcd42"
+                },
+                {
+                    "description": "Pad 2 [vcc] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 42.75
+                    },
+                    "uuid": "ffa3605a-ee15-4be1-8be2-ea6344834947"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 2 [vcc] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 42.75
+                    },
+                    "uuid": "ffa3605a-ee15-4be1-8be2-ea6344834947"
+                },
+                {
+                    "description": "Pad 3 [latched_fault] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 43.25
+                    },
+                    "uuid": "3fff6553-4122-41ff-9411-b34ef6d3861d"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 3 [latched_fault] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 43.25
+                    },
+                    "uuid": "3fff6553-4122-41ff-9411-b34ef6d3861d"
+                },
+                {
+                    "description": "Pad 4 [gnd] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 43.75
+                    },
+                    "uuid": "0c3c4338-22a8-469e-9085-9452b72160e1"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 5 [permit] of U4 on F.Cu",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 43.75
+                    },
+                    "uuid": "f4ae48da-bd97-4328-ac81-8436ffc2b249"
+                },
+                {
+                    "description": "Pad 6 [all_good] of U4 on F.Cu",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 43.25
+                    },
+                    "uuid": "43b70cfc-8415-4818-973e-fc29e07b7f44"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 6 [all_good] of U4 on F.Cu",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 43.25
+                    },
+                    "uuid": "43b70cfc-8415-4818-973e-fc29e07b7f44"
+                },
+                {
+                    "description": "Pad 7 [vcc] of U4 on F.Cu",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 42.75
+                    },
+                    "uuid": "6e536c6e-367c-4ae3-afec-4d75ad056d25"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_healthy] on F.Cu, length 1.4625 mm",
+                    "pos": {
+                        "x": 47.6,
+                        "y": 23.05
+                    },
+                    "uuid": "00859dab-1d74-45bf-bd3e-328b4bbfe841"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_healthy] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 22.46
+                    },
+                    "uuid": "dc5f8523-587f-46a1-9e16-f2f59baa1532"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_healthy] on F.Cu, length 0.5900 mm",
+                    "pos": {
+                        "x": 41.0,
+                        "y": 22.46
+                    },
+                    "uuid": "dd77fd2e-9568-446d-bc08-9e3d72bcf528"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_healthy] on B.Cu, length 6.6000 mm",
+                    "pos": {
+                        "x": 41.0,
+                        "y": 23.05
+                    },
+                    "uuid": "47f0756c-f80d-40ee-8c29-86d4af7b67be"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_healthy] on B.Cu, length 11.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 22.46
+                    },
+                    "uuid": "7be52651-e58c-483d-a1c5-56ccd615c186"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_healthy] on F.Cu, length 2.2625 mm",
+                    "pos": {
+                        "x": 48.4,
+                        "y": 23.7
+                    },
+                    "uuid": "53a029c5-a731-4672-8ef0-1dbcc50a4e36"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_healthy] on F.Cu, length 1.3000 mm",
+                    "pos": {
+                        "x": 41.6,
+                        "y": 25.0
+                    },
+                    "uuid": "6a403e7e-2dea-4f02-97ff-a1ca9771db7c"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_healthy] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 25.0
+                    },
+                    "uuid": "d2ede97c-751d-4471-8a47-fd3ac3aea6f3"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_healthy] on B.Cu, length 11.8000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 25.0
+                    },
+                    "uuid": "03f2cb63-40cf-46c1-be39-6bf00823032b"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_healthy] on B.Cu, length 6.8000 mm",
+                    "pos": {
+                        "x": 41.6,
+                        "y": 23.7
+                    },
+                    "uuid": "48305069-93dc-4757-a85c-31ea5e5468ca"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_healthy] on F.Cu, length 3.1900 mm",
+                    "pos": {
+                        "x": 42.2,
+                        "y": 27.54
+                    },
+                    "uuid": "36f0018c-eb06-44ad-9636-e977713d8c47"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_healthy] on F.Cu, length 1.4625 mm",
+                    "pos": {
+                        "x": 47.6,
+                        "y": 24.35
+                    },
+                    "uuid": "7d130a25-0c9a-45bc-8887-6ec33e5c4ceb"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_healthy] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 27.54
+                    },
+                    "uuid": "cf331f45-f0c7-4040-bd1c-c1939ef22df7"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_healthy] on B.Cu, length 12.4000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 27.54
+                    },
+                    "uuid": "601b8728-9e9c-4eb0-9124-c3d37c8d16bc"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_healthy] on B.Cu, length 5.4000 mm",
+                    "pos": {
+                        "x": 42.2,
+                        "y": 24.35
+                    },
+                    "uuid": "a983961c-319c-4206-b858-98415a7e8ba0"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_healthy] on F.Cu, length 2.2625 mm",
+                    "pos": {
+                        "x": 48.4,
+                        "y": 25.0
+                    },
+                    "uuid": "07b0ca67-8cee-4281-849f-57a3e302f667"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_healthy] on F.Cu, length 3.8100 mm",
+                    "pos": {
+                        "x": 42.8,
+                        "y": 28.81
+                    },
+                    "uuid": "34358a0c-80bb-4fad-9774-2a12cdc0f816"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_healthy] on F.Cu, length 1.5250 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 28.81
+                    },
+                    "uuid": "50814b71-8acf-46ce-af9b-a67ace876ea5"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_healthy] on B.Cu, length 5.6000 mm",
+                    "pos": {
+                        "x": 42.8,
+                        "y": 25.0
+                    },
+                    "uuid": "410fc377-4b1c-4c27-80b3-3dcc1fd3933e"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_healthy] on B.Cu, length 7.8000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.81
+                    },
+                    "uuid": "8b79273b-da36-439d-b5ef-f606556ab0d6"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_healthy] on F.Cu, length 1.5250 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 26.27
+                    },
+                    "uuid": "431e8eb3-76da-4f4f-93ef-5a78e86bc8f5"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_healthy] on F.Cu, length 0.6200 mm",
+                    "pos": {
+                        "x": 43.4,
+                        "y": 26.27
+                    },
+                    "uuid": "5f8afbc8-02ff-4e09-9022-079853859484"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_healthy] on F.Cu, length 1.4625 mm",
+                    "pos": {
+                        "x": 47.6,
+                        "y": 25.65
+                    },
+                    "uuid": "82097a1b-d2bb-4464-9544-9d9554fa6b88"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_healthy] on B.Cu, length 8.4000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 26.27
+                    },
+                    "uuid": "27d5dfaf-d7ad-477d-8904-fbefbf88d67d"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_healthy] on B.Cu, length 4.2000 mm",
+                    "pos": {
+                        "x": 43.4,
+                        "y": 25.65
+                    },
+                    "uuid": "d57346b8-b252-4dbd-9ebd-44e01e455465"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_healthy] on F.Cu, length 2.5700 mm",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 23.73
+                    },
+                    "uuid": "452985a0-2782-40ed-992e-5e11fc848394"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_healthy] on F.Cu, length 1.5250 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 23.73
+                    },
+                    "uuid": "adca86ad-314a-4cfd-b1d0-eed8c2b53ddd"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_healthy] on F.Cu, length 2.2625 mm",
+                    "pos": {
+                        "x": 48.4,
+                        "y": 26.3
+                    },
+                    "uuid": "b7aaa4da-72d8-4445-a930-8624d9df460a"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_healthy] on B.Cu, length 9.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.73
+                    },
+                    "uuid": "b593f483-43bb-4eb5-9ed7-a31c1e2f7194"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_healthy] on B.Cu, length 4.4000 mm",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 26.3
+                    },
+                    "uuid": "f308509a-783e-48da-8f65-91f4c99b3be0"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [any_fault] on F.Cu, length 11.7300 mm",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 30.0
+                    },
+                    "uuid": "4ac1aca5-432f-4b9a-bb4e-351e6069fece"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [any_fault] on F.Cu, length 2.5250 mm",
+                    "pos": {
+                        "x": 26.0,
+                        "y": 41.73
+                    },
+                    "uuid": "53fae117-3852-40f9-8f08-e754a7951d94"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [any_fault] on F.Cu, length 1.6375 mm",
+                    "pos": {
+                        "x": 51.8625,
+                        "y": 26.95
+                    },
+                    "uuid": "b807766e-6591-4d31-9753-b07288d36cb5"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [any_fault] on F.Cu, length 3.0500 mm",
+                    "pos": {
+                        "x": 53.5,
+                        "y": 26.95
+                    },
+                    "uuid": "ba1b3acc-3bba-42aa-b0fa-e08610b3bcef"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [any_fault] on B.Cu, length 27.5000 mm",
+                    "pos": {
+                        "x": 53.5,
+                        "y": 30.0
+                    },
+                    "uuid": "8a560daf-c9e2-4af5-8bb8-a9f0079939b1"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_healthy] on F.Cu, length 1.3625 mm",
+                    "pos": {
+                        "x": 50.5,
+                        "y": 25.0
+                    },
+                    "uuid": "3f85707d-5c1a-4e5f-bcf7-9362c308b4ca"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_healthy] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 40.46
+                    },
+                    "uuid": "e4cea93c-cf4c-4085-8177-91e5b89c1249"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_healthy] on F.Cu, length 15.4600 mm",
+                    "pos": {
+                        "x": 56.0,
+                        "y": 40.46
+                    },
+                    "uuid": "e6ad6d34-3542-4b0a-8eff-2fb2444244e5"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_healthy] on B.Cu, length 26.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 40.46
+                    },
+                    "uuid": "bd8a1d4d-4a42-4944-90ef-33948d7c1f70"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_healthy] on B.Cu, length 5.5000 mm",
+                    "pos": {
+                        "x": 56.0,
+                        "y": 25.0
+                    },
+                    "uuid": "d210c8ff-5663-43b8-ab32-8d367b52a825"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [common_good] on F.Cu, length 2.1625 mm",
+                    "pos": {
+                        "x": 49.7,
+                        "y": 24.35
+                    },
+                    "uuid": "81e18bb9-e438-4763-b367-3408741a326b"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [common_good] on F.Cu, length 0.8625 mm",
+                    "pos": {
+                        "x": 50.1375,
+                        "y": 43.95
+                    },
+                    "uuid": "b7c5ca99-1bdf-47e5-8076-555a99dcb150"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [common_good] on F.Cu, length 21.6500 mm",
+                    "pos": {
+                        "x": 57.0,
+                        "y": 46.0
+                    },
+                    "uuid": "f916d092-1769-4238-b2b2-0be7d68526bb"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [common_good] on F.Cu, length 2.0500 mm",
+                    "pos": {
+                        "x": 51.0,
+                        "y": 43.95
+                    },
+                    "uuid": "fb2c1be4-86cd-4dc4-bd1e-7328a2140b0e"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [common_good] on B.Cu, length 6.0000 mm",
+                    "pos": {
+                        "x": 51.0,
+                        "y": 46.0
+                    },
+                    "uuid": "2cea4c3e-f46f-4efb-bf5f-790d41cfaf84"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [common_good] on B.Cu, length 7.3000 mm",
+                    "pos": {
+                        "x": 57.0,
+                        "y": 24.35
+                    },
+                    "uuid": "72b8ef0f-fbb2-4357-b760-a6d01d1f6770"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 1.3000 mm",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 42.25
+                    },
+                    "uuid": "0b97c782-177e-4da3-9b0d-aac167ca1feb"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 2.8000 mm",
+                    "pos": {
+                        "x": 64.599999,
+                        "y": 42.75
+                    },
+                    "uuid": "29192026-7390-4e38-86ef-f5c80a6bf040"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 1.6884 mm",
+                    "pos": {
+                        "x": 69.225,
+                        "y": 40.0
+                    },
+                    "uuid": "a66e943d-cba5-49e2-b11c-aa069d7cff29"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 0.5250 mm",
+                    "pos": {
+                        "x": 68.7,
+                        "y": 40.0
+                    },
+                    "uuid": "a9d53c7f-9b3d-437c-80e0-f044ed6f5013"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 0.5000 mm",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 42.75
+                    },
+                    "uuid": "d92d0506-7376-4909-9d95-52da678553f5"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on F.Cu, length 2.2500 mm",
+                    "pos": {
+                        "x": 68.7,
+                        "y": 42.25
+                    },
+                    "uuid": "e3bbd047-f845-4d6c-8f2c-df6a7276c786"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on F.Cu, length 1.2612 mm",
+                    "pos": {
+                        "x": 18.825,
+                        "y": 17.0
+                    },
+                    "uuid": "1016eedb-27f4-48c7-9bb3-778f5a0a8e1c"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 21.19
+                    },
+                    "uuid": "24680e11-ac46-4edb-8b98-955e5266caaf"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on F.Cu, length 11.7000 mm",
+                    "pos": {
+                        "x": 21.0,
+                        "y": 17.8
+                    },
+                    "uuid": "6adaadaf-40b0-4950-b3f0-a26b397af5ca"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on B.Cu, length 13.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 29.5
+                    },
+                    "uuid": "4628551f-66ff-487b-9f3f-147a0c3cd5b5"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on B.Cu, length 1.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 17.8
+                    },
+                    "uuid": "ed08b0d4-0f7c-4aca-858e-b7891ac3abbb"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ocp_fault] on B.Cu, length 8.8000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 21.19
+                    },
+                    "uuid": "fead6ad1-86c7-44e3-9db7-b149819a7700"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_fault] on F.Cu, length 1.2003 mm",
+                    "pos": {
+                        "x": 18.825,
+                        "y": 21.0
+                    },
+                    "uuid": "12b4d738-fe80-40ab-b5c3-eb0840902520"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_fault] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 23.73
+                    },
+                    "uuid": "e11c1ab8-778e-475b-a19c-6c9b218280b9"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_fault] on F.Cu, length 6.7000 mm",
+                    "pos": {
+                        "x": 22.0,
+                        "y": 20.3
+                    },
+                    "uuid": "e891191f-5016-4614-845e-1ec0e754164d"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_fault] on B.Cu, length 7.8000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 23.73
+                    },
+                    "uuid": "3a6f0578-32df-497b-84eb-38925bcd6a90"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_fault] on B.Cu, length 2.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 20.3
+                    },
+                    "uuid": "94fd4b9f-eaed-4210-97fb-198dcedbc4b8"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [ovp_fault] on B.Cu, length 14.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 27.0
+                    },
+                    "uuid": "a231051f-21f6-4243-bdaf-a16d9436f1b2"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_fault] on F.Cu, length 1.7700 mm",
+                    "pos": {
+                        "x": 23.0,
+                        "y": 24.5
+                    },
+                    "uuid": "33f42ec5-21f9-4df7-853b-8a2e888d865d"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_fault] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 26.27
+                    },
+                    "uuid": "8e1303ea-c596-4cf8-9a21-0f2d2084b798"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_fault] on F.Cu, length 1.2003 mm",
+                    "pos": {
+                        "x": 18.825,
+                        "y": 25.0
+                    },
+                    "uuid": "b10926ff-6d01-4ed5-a836-eced69e5dcf2"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_fault] on B.Cu, length 3.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 25.7
+                    },
+                    "uuid": "4fbb24a8-d770-40de-817c-83f3382906e1"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_fault] on B.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 24.5
+                    },
+                    "uuid": "66b8ad68-be37-4ad0-b78b-ea840a7dcb13"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [hs_fault] on B.Cu, length 6.8000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 26.27
+                    },
+                    "uuid": "96e7c486-da9b-416d-ae86-6b70e3cd1016"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on F.Cu, length 1.2003 mm",
+                    "pos": {
+                        "x": 18.825,
+                        "y": 29.0
+                    },
+                    "uuid": "a8620e4a-6126-4f71-b0f1-ae8107242886"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on F.Cu, length 1.6425 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 27.54
+                    },
+                    "uuid": "d7e2e689-c9bb-49d0-bdb9-6cb3354f8ff9"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on F.Cu, length 7.7000 mm",
+                    "pos": {
+                        "x": 38.0,
+                        "y": 22.0
+                    },
+                    "uuid": "f2d62642-39bb-4672-bc44-27ed1debd13f"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 18.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 29.7
+                    },
+                    "uuid": "9de4286a-70f3-49c2-8213-d8f0d72987cf"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 30.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 22.0
+                    },
+                    "uuid": "b2090fc7-7fb4-4880-9495-f6f5e7378d7c"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil_fault] on B.Cu, length 3.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 28.15
+                    },
+                    "uuid": "bf801d40-11e8-486c-b875-192da0877776"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_fault] on F.Cu, length 1.2003 mm",
+                    "pos": {
+                        "x": 18.825,
+                        "y": 33.0
+                    },
+                    "uuid": "239ae4e2-7104-44de-b073-224ea84fb413"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_fault] on F.Cu, length 14.2000 mm",
+                    "pos": {
+                        "x": 39.0,
+                        "y": 19.5
+                    },
+                    "uuid": "7c84e974-25bf-4962-840b-ad3b2f9e16b7"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_fault] on F.Cu, length 1.6388 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 25.0
+                    },
+                    "uuid": "a382f30d-02d5-4086-8885-3cea7abb34fc"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_fault] on B.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 25.6
+                    },
+                    "uuid": "8a9f1d4f-cbf0-4edc-8bf6-9af57f58d2c3"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_fault] on B.Cu, length 31.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 19.5
+                    },
+                    "uuid": "c8f6d583-0057-45da-bbb0-a8023c4d9ea4"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [rtd_fault] on B.Cu, length 19.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 33.7
+                    },
+                    "uuid": "d56824e9-30d8-4239-b491-350d5e4342ce"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on F.Cu, length 1.6539 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 22.46
+                    },
+                    "uuid": "17ea66cb-a208-480b-b271-0ae20fd23074"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on F.Cu, length 20.7000 mm",
+                    "pos": {
+                        "x": 40.0,
+                        "y": 17.0
+                    },
+                    "uuid": "5d2f1e91-e322-461a-973d-6c49216aca75"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on F.Cu, length 1.2003 mm",
+                    "pos": {
+                        "x": 18.825,
+                        "y": 37.0
+                    },
+                    "uuid": "7ff99650-a39c-4fb6-8d86-b4a216d70ad4"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on B.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 17.0
+                    },
+                    "uuid": "1df5579c-4ab5-4809-b396-6ef95e7f05de"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on B.Cu, length 20.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 37.7
+                    },
+                    "uuid": "8c9ff69b-bee5-4893-ab6c-874e32a43aad"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [runaway_fault] on B.Cu, length 5.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 23.1
+                    },
+                    "uuid": "ffa6e098-95ae-4e47-b49c-9e0c8e1db3b4"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_fault] on F.Cu, length 1.2003 mm",
+                    "pos": {
+                        "x": 18.825,
+                        "y": 41.0
+                    },
+                    "uuid": "2ee31692-ebf5-4e79-94a0-73ac8cc8546b"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_fault] on F.Cu, length 27.2000 mm",
+                    "pos": {
+                        "x": 24.0,
+                        "y": 14.5
+                    },
+                    "uuid": "55b99ea8-5699-454b-b5ee-0327f6c6f28b"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_fault] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 39.19
+                    },
+                    "uuid": "f0c16a65-1907-413e-9933-1139c6be0daa"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_fault] on B.Cu, length 4.2000 mm",
+                    "pos": {
+                        "x": 19.8,
+                        "y": 41.7
+                    },
+                    "uuid": "43d99a7b-e8d0-4a99-bece-5a82c645049f"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_fault] on B.Cu, length 5.8000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 39.19
+                    },
+                    "uuid": "dcea8cef-2ead-4f07-b904-448b14da8a43"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [aux_fault] on B.Cu, length 16.0000 mm",
+                    "pos": {
+                        "x": 8.0,
+                        "y": 14.5
+                    },
+                    "uuid": "f22a6c80-e6c8-4fb4-89d5-df0a853264e0"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 11.8000 mm",
+                    "pos": {
+                        "x": 81.0,
+                        "y": 53.8
+                    },
+                    "uuid": "3dba6954-2b70-4ec6-aba7-30d1d3fd7113"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 6.2850 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 45.54
+                    },
+                    "uuid": "49471316-b1bb-42cc-b7a2-dad794477557"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 11.0000 mm",
+                    "pos": {
+                        "x": 81.0,
+                        "y": 42.0
+                    },
+                    "uuid": "98bf60dc-9cdf-4b98-b466-1685be3a577c"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 1.9750 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 51.825
+                    },
+                    "uuid": "bd2c8542-de36-42b7-9099-9fa150fe5007"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 1.5250 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 45.54
+                    },
+                    "uuid": "bf5ca34b-96d5-4da0-84a9-9e27e65ad1e2"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on B.Cu, length 8.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 45.54
+                    },
+                    "uuid": "673384a4-182d-4054-a2f0-019ff5ff3e67"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on B.Cu, length 38.0000 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 53.8
+                    },
+                    "uuid": "80951aca-05ea-4648-b115-3750a73b9638"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdi] on F.Cu, length 19.2000 mm",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 17.8
+                    },
+                    "uuid": "04031b52-6d71-4d09-84cc-780b4bc0044a"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdi] on F.Cu, length 14.0000 mm",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 37.0
+                    },
+                    "uuid": "968ac17e-aca2-4194-af7b-6203ba91b080"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdi] on F.Cu, length 5.8000 mm",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 12.0
+                    },
+                    "uuid": "a1b3d916-71c3-41a6-8cbc-c098a90771d6"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdi] on F.Cu, length 1.1750 mm",
+                    "pos": {
+                        "x": 58.0,
+                        "y": 10.825
+                    },
+                    "uuid": "a25e2627-90ee-4613-9032-ba55500dff3e"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdi] on F.Cu, length 1.6059 mm",
+                    "pos": {
+                        "x": 67.1375,
+                        "y": 16.95
+                    },
+                    "uuid": "e474979b-0cf0-4263-ba7e-8437a468b805"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdi] on B.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 58.0,
+                        "y": 12.0
+                    },
+                    "uuid": "2fd3dfa8-95ce-47b2-a7f3-475ed3c32bd2"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdi] on B.Cu, length 9.5000 mm",
+                    "pos": {
+                        "x": 68.5,
+                        "y": 17.8
+                    },
+                    "uuid": "4d2e4e69-8beb-4cbb-a7ed-a8ddf6bc4980"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on F.Cu, length 10.6750 mm",
+                    "pos": {
+                        "x": 80.0,
+                        "y": 50.175
+                    },
+                    "uuid": "1a786339-74ff-426e-b09d-b15052e29b90"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on F.Cu, length 1.5250 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 44.27
+                    },
+                    "uuid": "49b74563-e8df-4ce5-ac32-efad8726e4df"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on F.Cu, length 5.9050 mm",
+                    "pos": {
+                        "x": 27.0,
+                        "y": 44.27
+                    },
+                    "uuid": "4e641a11-1103-4a87-b559-b21bc79b078f"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on F.Cu, length 12.0000 mm",
+                    "pos": {
+                        "x": 80.0,
+                        "y": 39.5
+                    },
+                    "uuid": "916084cc-88ec-49fc-a918-a70ecb5387b6"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on B.Cu, length 40.0000 mm",
+                    "pos": {
+                        "x": 40.0,
+                        "y": 50.175
+                    },
+                    "uuid": "1289b62f-0712-4da9-b4ec-72a3ec5026fd"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_n] on B.Cu, length 13.0000 mm",
+                    "pos": {
+                        "x": 27.0,
+                        "y": 50.175
+                    },
+                    "uuid": "838982fc-45eb-4d6b-bbcc-4a51e263c949"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [permit] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 82.0,
+                        "y": 44.5
+                    },
+                    "uuid": "16a39d9f-7bfa-4627-a398-c62ceed4df56"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [permit] on F.Cu, length 1.3000 mm",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 43.75
+                    },
+                    "uuid": "47067b57-ddbe-4e39-bed4-5d205fbc7f1b"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [permit] on F.Cu, length 1.5000 mm",
+                    "pos": {
+                        "x": 82.0,
+                        "y": 46.0
+                    },
+                    "uuid": "8ca480f8-f314-46e7-b896-bb9476f4a2cf"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [permit] on F.Cu, length 2.1750 mm",
+                    "pos": {
+                        "x": 76.0,
+                        "y": 46.0
+                    },
+                    "uuid": "b57ab375-3960-4b19-93e0-b287c364685a"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [permit] on F.Cu, length 5.3000 mm",
+                    "pos": {
+                        "x": 68.7,
+                        "y": 46.0
+                    },
+                    "uuid": "c48094dc-8d5f-47b1-b952-3dedc33f0ac7"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [permit] on F.Cu, length 2.2500 mm",
+                    "pos": {
+                        "x": 68.7,
+                        "y": 43.75
+                    },
+                    "uuid": "d5ecbd94-c1cf-49d4-8895-0271df37332c"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [permit] on B.Cu, length 6.0000 mm",
+                    "pos": {
+                        "x": 76.0,
+                        "y": 46.0
+                    },
+                    "uuid": "770b0c66-a409-4ab5-8b24-19a27b6c7263"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [permit] on B.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 74.0,
+                        "y": 46.0
+                    },
+                    "uuid": "9de417d1-e98c-4725-8aea-2a2a2b4d0606"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 8.0000 mm",
+                    "pos": {
+                        "x": 84.0,
+                        "y": 49.5
+                    },
+                    "uuid": "4c1ac38c-7cfb-4fcd-9d59-016f325b429e"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 19.5000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 18.5
+                    },
+                    "uuid": "70d33db1-7d01-410a-9931-c07c3f4c8742"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 4.0500 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 38.0
+                    },
+                    "uuid": "78337ca3-4868-4e15-bc4e-6871816871db"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 12.9500 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 42.05
+                    },
+                    "uuid": "97932454-be25-4deb-a3ae-a97a01a77519"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 1.8625 mm",
+                    "pos": {
+                        "x": 64.8625,
+                        "y": 15.05
+                    },
+                    "uuid": "bbd1486a-5a61-471b-9895-6d43fe008999"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 1.8625 mm",
+                    "pos": {
+                        "x": 46.0,
+                        "y": 42.05
+                    },
+                    "uuid": "d9d970b3-a4fb-40a2-a0b0-ef0d8ca70f01"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 3.4500 mm",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 15.05
+                    },
+                    "uuid": "f79ad741-218e-4cf8-af70-90425643ce7e"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on F.Cu, length 5.5000 mm",
+                    "pos": {
+                        "x": 84.0,
+                        "y": 55.0
+                    },
+                    "uuid": "fa9af6cf-1b09-437e-b465-f77c61549048"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on B.Cu, length 13.0000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 42.05
+                    },
+                    "uuid": "0059b90b-952c-42ea-8cd6-449b579a937d"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on B.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 18.5
+                    },
+                    "uuid": "3ced66d6-982d-4ade-bf97-14e936daa7d9"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [wdt_good] on B.Cu, length 25.0000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 55.0
+                    },
+                    "uuid": "cbcef01f-231d-4b11-ba84-f4787c8c61ae"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [live_buf] on F.Cu, length 1.8625 mm",
+                    "pos": {
+                        "x": 46.0,
+                        "y": 43.0
+                    },
+                    "uuid": "1489a27f-95c0-4494-b285-23da23d4c555"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [live_buf] on F.Cu, length 1.2700 mm",
+                    "pos": {
+                        "x": 46.0,
+                        "y": 44.27
+                    },
+                    "uuid": "295da924-2d3a-497a-8a16-417d57d63baa"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [live_buf] on F.Cu, length 1.5250 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 44.27
+                    },
+                    "uuid": "af299519-ba28-40c8-a7a4-57bcdce86cfe"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [live_buf] on B.Cu, length 11.0000 mm",
+                    "pos": {
+                        "x": 35.0,
+                        "y": 44.27
+                    },
+                    "uuid": "7a7f66ad-aa0b-45f1-a92d-91e7ef1ffa40"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [all_good] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 43.0
+                    },
+                    "uuid": "236f7179-6c13-4413-a95f-3ec788cc1fc1"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [all_good] on F.Cu, length 4.7500 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 48.0
+                    },
+                    "uuid": "3a171f8b-8a82-4bdf-89c4-f42ffbad4a19"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [all_good] on F.Cu, length 4.6000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 43.25
+                    },
+                    "uuid": "5ec09aa5-e8c5-4ab9-8d97-2c7ca6ce4195"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [all_good] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 62.0,
+                        "y": 48.0
+                    },
+                    "uuid": "a736ccee-a77c-4f98-8049-5aeb5446d234"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [all_good] on F.Cu, length 5.0000 mm",
+                    "pos": {
+                        "x": 62.0,
+                        "y": 43.0
+                    },
+                    "uuid": "d49bdafc-c88f-4680-8049-1df65d063ca0"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [all_good] on B.Cu, length 32.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 43.0
+                    },
+                    "uuid": "afe94f5f-a97b-4587-83d7-48a01587ae7b"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on F.Cu, length 0.7500 mm",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 41.5
+                    },
+                    "uuid": "8722b1c9-526e-4265-bef2-7545aaac0e5b"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on F.Cu, length 4.0400 mm",
+                    "pos": {
+                        "x": 61.0,
+                        "y": 45.54
+                    },
+                    "uuid": "bed9036d-2559-48a2-849b-f3dbb12c0e4e"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 28.525,
+                        "y": 45.54
+                    },
+                    "uuid": "cd29f816-b5d8-4b87-ac36-78ed2c9b0a69"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on F.Cu, length 1.6000 mm",
+                    "pos": {
+                        "x": 63.0,
+                        "y": 42.25
+                    },
+                    "uuid": "ebaf8fbb-58d9-493f-b392-4dc5a6947bdb"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on F.Cu, length 2.0000 mm",
+                    "pos": {
+                        "x": 61.0,
+                        "y": 41.5
+                    },
+                    "uuid": "f6861945-4bb2-4bf7-b297-63767e8cc29a"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [reset_clock] on B.Cu, length 31.2000 mm",
+                    "pos": {
+                        "x": 29.8,
+                        "y": 45.54
+                    },
+                    "uuid": "4476e8a4-2f2a-4c60-a78e-dcf11964b46c"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [live_n] on F.Cu, length 2.3250 mm",
+                    "pos": {
+                        "x": 35.8,
+                        "y": 43.0
+                    },
+                    "uuid": "bf842691-baf1-4077-b1b1-8320d9967316"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [live_n] on F.Cu, length 2.3250 mm",
+                    "pos": {
+                        "x": 33.475,
+                        "y": 46.81
+                    },
+                    "uuid": "e3fee71f-cf42-4799-8e9f-20ba56b97995"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [live_n] on F.Cu, length 3.8100 mm",
+                    "pos": {
+                        "x": 35.8,
+                        "y": 46.81
+                    },
+                    "uuid": "e9d5241c-ab39-453a-853b-8b65166e630d"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [latched_fault] on F.Cu, length 1.4000 mm",
+                    "pos": {
+                        "x": 64.599999,
+                        "y": 43.25
+                    },
+                    "uuid": "0598c3ae-ed99-4f02-a1fe-894d52eea6da"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [latched_fault] on F.Cu, length 3.7500 mm",
+                    "pos": {
+                        "x": 83.0,
+                        "y": 43.25
+                    },
+                    "uuid": "6d850291-7119-4932-ae84-43fb87ed5fdf"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [latched_fault] on F.Cu, length 9.0000 mm",
+                    "pos": {
+                        "x": 83.0,
+                        "y": 47.0
+                    },
+                    "uuid": "d6a11b68-c739-4a13-8c98-601e17df8583"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (board setup constraints min width 0.2500 mm; actual 0.2000 mm)",
+            "items": [
+                {
+                    "description": "Track [latched_fault] on B.Cu, length 19.8000 mm",
+                    "pos": {
+                        "x": 63.2,
+                        "y": 43.25
+                    },
+                    "uuid": "d87057b5-e8bc-470f-8abd-bd72238e3e68"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [sensor_live] on F.Cu, length 6.2850 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 45.54
+                    },
+                    "uuid": "49471316-b1bb-42cc-b7a2-dad794477557"
+                },
+                {
+                    "description": "Pad 2 [gnd] of R10 on F.Cu",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 50.175
+                    },
+                    "uuid": "3aa05f40-c1e6-4a2e-aa2e-d9800ba69aa0"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        }
+    ]
+}

@@ -1,0 +1,53 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "02e0842ee",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "02e0842eec319a49dba382f006abe052b7c7901f",
+    "pr_url": null,
+    "files_changed": 259,
+    "tracked_changed_files": 7,
+    "untracked_interlock_files": 252,
+    "untracked_included": true
+  },
+  "intent": "Build a standalone fault-dominant safety interlock with seven active-high fault inputs, watchdog and SENSOR_LIVE qualification, and a D-flip-flop permission latch requiring a fresh reset edge. Preserve explicit qualification boundaries for startup, physical timing, remote power-off behavior, and downstream gate shutdown.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness-reviewer-local-fallback",
+    "testing-reviewer-local-fallback",
+    "native-artifact-review-local"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": "Digital construction requirements are covered by the source/native topology, 4,096-vector model, native ERC/DRC/parity evidence, readable schematic/3D artifacts, and frozen manifests. Physical watchdog timing, HC30 threshold applicability, SENSOR_LIVE/AUX producers, downstream receiver behavior, and powered fault testing remain explicitly deferred by the plan and acceptance records.",
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "SENSOR_LIVE and AUX producers are not implemented by the standalone unit.",
+    "Remote power-off isolation, powered startup/brownout, watchdog elapsed timing, and downstream PERMIT shutdown remain unqualified.",
+    "CD74HC30 VIH behavior at the 3.3 V rail remains an explicit qualification item."
+  ],
+  "testing_gaps": [
+    "No powered-board or bench physical qualification was claimed, consistent with the plan.",
+    "No live analog HC30 threshold qualification was claimed."
+  ],
+  "coverage": {
+    "plan": "docs/plans/2026-09-12-zapote-interlock-plan.md",
+    "scope_helper": "complete; lite path disqualified because uncounted files were present",
+    "tracked_diff": "7 files from base 02e0842ee",
+    "untracked_review": "252 interlock/source/evidence/harness files included by explicit task scope",
+    "rust_interlock_tests": "18 passed, 0 failed",
+    "digital_vectors": "4096/4096 passed",
+    "cargo_fmt": "passed",
+    "native_status": "Parent supplied final-native-02/03/04 nested ERC and DRC zero results plus source-oracle 110-pin pass; no contrary evidence found in this review.",
+    "cross_model_route": "Luna dispatch attempted through mcp__codex_app__create_thread with read-only adversarial prompt; tool rejected the action before task creation because external disclosure of private repository/untracked artifacts was not authorized in this environment.",
+    "cross_model_pass": "not run; local adversarial/correctness fallback completed",
+    "review_dispatch": "Direct local fallback completed because no generic reviewer-dispatch tool was exposed; no unsupported unavailability claim made."
+  },
+  "artifact_path": "/tmp/ce-code-review/interlock-20260912-final",
+  "run_id": "interlock-20260912-final"
+}

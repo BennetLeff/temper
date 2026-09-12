@@ -1,0 +1,27 @@
+   Compiling zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.80s
+     Running tests/interlock.rs (/private/tmp/zapote-rtd-target/debug/deps/interlock-564e9aab9a86519c)
+
+running 18 tests
+test bypassing_reset_inverter_breaks_actual_clock_behavior ... ok
+test missing_pull_component_fails_census ... ok
+test bypassing_actual_clear_pin_breaks_graph_behavior ... ok
+test d_tied_low_cannot_grant_permission ... ok
+test nand_input_bypass_hides_fault_and_is_rejected ... ok
+test reset_retains_permission_and_recovery_needs_a_new_edge ... ok
+test swapped_q_outputs_break_connector_behavior ... ok
+test malformed_input_is_a_hard_failure ... ok
+test nc_connected_to_ground_is_rejected ... ok
+test split_native_cluster_with_all_nodes_present_is_rejected ... ok
+test changed_resistance_fails_electrical_margin_not_just_part_identity ... ok
+test strict_pin_mapping_cannot_be_deleted ... ok
+test wdi_bias_substitution_is_rejected ... ok
+test wrong_bypass_value_is_rejected ... ok
+test actual_artifacts_have_no_hard_failure_and_all_4096_graph_vectors_pass ... ok
+test native_fields_cannot_contradict_saved_board_bytes ... ok
+test stale_embedded_board_digest_is_rejected ... ok
+test timing_polarity_leakage_and_qualification_cannot_be_relaxed ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.37s
+

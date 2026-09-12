@@ -5,6 +5,7 @@ use zapote_core::unit::UnitInput;
 use zapote_core::{CheckReport, Finding, RunInput, Status};
 
 pub mod current_sense;
+pub mod interlock;
 pub mod memory;
 pub use current_sense::{build_current_sense_input, parse_current_sense_input, run_current_sense};
 mod model_qualification;

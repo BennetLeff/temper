@@ -103,3 +103,5 @@ The [voltage-sense-lessons-v1](revisions/voltage-sense-lessons-v1/catalog.json) 
 The [thermal-sense-lessons-v1](revisions/thermal-sense-lessons-v1/catalog.json) revision adds complete-connectivity and assembly-rating checks. [Thermal memory evidence](../thermal-sense/memory/README.md) separates selected notes, reported use and the incomplete initial dispatch capture.
 
 The [thermal-sense-lessons-v2](revisions/thermal-sense-lessons-v2/catalog.json) revision adds analog open-wire margin, threshold-crossing timing and fault-injection procedures from Rev B. Earlier exact thermal behavior remains historical, not a reusable board fact.
+
+The [interlock-lessons-v1](revisions/interlock-lessons-v1/catalog.json) revision adds stateful compiled-graph counterexamples, package-pin review and the correct nested KiCad ERC report boundary. The [interlock memory record](../interlock/memory/README.md) preserves the preceding catalog selection and review limits.

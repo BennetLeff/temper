@@ -1,0 +1,191 @@
+{
+  "schema": "zapote.memory.catalog.v1",
+  "revision": "interlock-lessons-v1",
+  "entries": [
+    {
+      "id": "rtd-mem-001",
+      "title": "Qualify model meaning before accepting model output",
+      "path": "zapote/skills/revisions/rtd-lessons-v1/entries/model-semantic-binding.md",
+      "content_sha256": "850c1a22af0dc1a4fed5f78c94a4070c788abcd71837ff2c3e7aacba74851d80",
+      "applicability": {
+        "board_specific": false,
+        "exact_fact_transfer": false,
+        "required_capabilities": [
+          "simulation-evidence-scoping",
+          "assumption-ledger-reading"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "docs/solutions/best-practices/model-certificates-need-semantic-binding.md",
+          "hash": "sha256:a2944b95210f8b438a616cb03339e48b873b12ec8d65ce17298599a8e3cb5158"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed"
+    },
+    {
+      "id": "rtd-mem-002",
+      "title": "RTD conditional passive-network timing result",
+      "path": "zapote/skills/revisions/rtd-lessons-v1/entries/rtd-conditional-bound.md",
+      "content_sha256": "8def7c6eb02754848bd5fc56f28f79d9839e2a38a93244270af6a9863d2288ca",
+      "applicability": {
+        "board_specific": true,
+        "exact_fact_transfer": true,
+        "required_capabilities": [
+          "simulation-evidence-scoping",
+          "assumption-ledger-reading"
+        ],
+        "source_dependencies": [
+          "rtd_board",
+          "rtd_source_manifest",
+          "rtd_model_source",
+          "rtd_certificate"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "zapote/rtd/model-correctness/qualification/full_network_bound.json",
+          "hash": "sha256:8c6d1a303e125b1c1e9156548afe0f1f296aee37c423b9b5894c612d948378f6"
+        },
+        {
+          "path": "zapote/rtd/model-correctness/applicability-review.json",
+          "hash": "sha256:4b56eaa33300c9d4eb3a01b8bf6ae291f4874a97d4063055a27cedb2faf96db4"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed",
+      "current_sources": {
+        "rtd_board": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+        "rtd_source_manifest": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+        "rtd_model_source": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554",
+        "rtd_certificate": "8c6d1a303e125b1c1e9156548afe0f1f296aee37c423b9b5894c612d948378f6"
+      }
+    },
+    {
+      "id": "current-sense-mem-001",
+      "title": "Verify land-pattern dimensions before interpreting clearance",
+      "path": "zapote/skills/revisions/current-sense-lessons-v1/entries/land-pattern-evidence.md",
+      "content_sha256": "900dba6b266d7aaa0754ca40805c16577a29fd9f3f05d8985837c4ebe022a8b6",
+      "applicability": {
+        "board_specific": false,
+        "exact_fact_transfer": false,
+        "required_capabilities": [
+          "datasheet-land-pattern-review"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "docs/solutions/logic-errors/cst3015-land-pattern-edge-gap.md",
+          "hash": "sha256:ad6feaf6bce97f4371b254df51cc20335accee4936e5b78c9e0a542aca1ceb99"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed"
+    },
+    {
+      "id": "voltage-sense-mem-001",
+      "title": "Keep electrical and evidence identities independent",
+      "path": "zapote/skills/revisions/voltage-sense-lessons-v1/entries/independent-identities.md",
+      "content_sha256": "525016cff681dcdb59e50123823b03a7f13d3916aaef9c44ca33f4c60f31a082",
+      "applicability": {
+        "board_specific": false,
+        "exact_fact_transfer": false,
+        "required_capabilities": [
+          "simulation-evidence-scoping",
+          "assumption-ledger-reading"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "docs/solutions/logic-errors/voltage-unit-evidence-boundaries.md",
+          "hash": "sha256:24ae49878f2b290325513bc018ce8f1213a053051df0c18f18a69e41e8abf359"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed"
+    },
+    {
+      "id": "thermal-sense-mem-001",
+      "title": "Check complete connectivity and assembly rating scope",
+      "path": "zapote/skills/revisions/thermal-sense-lessons-v1/entries/complete-connectivity-and-rating-scope.md",
+      "content_sha256": "8d54bfe8192acdf679ddfc821509d897caa492e42626c808f46e751b57f4b237",
+      "applicability": {
+        "board_specific": false,
+        "exact_fact_transfer": false,
+        "required_capabilities": [
+          "simulation-evidence-scoping",
+          "assumption-ledger-reading"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "docs/solutions/logic-errors/thermal-model-rating-and-connectivity-boundaries.md",
+          "hash": "sha256:78a00a9b028d5b9bc1371939eca69e8c182dedf1e1ceebc61f612e341c9f514e"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed"
+    },
+    {
+      "id": "thermal-sense-mem-002",
+      "title": "Test analog fault boundaries and threshold-crossing time",
+      "path": "zapote/skills/revisions/thermal-sense-lessons-v2/entries/open-wire-margin-and-timing.md",
+      "content_sha256": "f84c9b3c87d920fe9019e6829732f7a5702c12eb7ded3f90803d27d1de483a63",
+      "applicability": {
+        "board_specific": false,
+        "exact_fact_transfer": false,
+        "required_capabilities": [
+          "simulation-evidence-scoping",
+          "assumption-ledger-reading"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "zapote/thermal-sense/MODEL.md",
+          "hash": "sha256:7f25286cc2e2ddd5745dc3b2f3d6c1766487fb697d881fd5b08ff9ffeebe1293"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed"
+    },
+    {
+      "id": "interlock-mem-001",
+      "title": "Test stored permission on compiled pins and read nested ERC findings",
+      "path": "zapote/skills/revisions/interlock-lessons-v1/entries/stateful-graph-and-native-reports.md",
+      "content_sha256": "40092dac5e401839b4c27bc0e7d90c7fdb9d05a0d6da0b5db3d1c36efaa4aa8e",
+      "applicability": {
+        "board_specific": false,
+        "exact_fact_transfer": false,
+        "required_capabilities": [
+          "simulation-evidence-scoping",
+          "assumption-ledger-reading"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "zapote/packages/zapote-harness/tests/interlock.rs",
+          "hash": "sha256:237a175129c754a3016666c19a6b702eb2abc3812a459b5210667db9ec4a72fc"
+        },
+        {
+          "path": "zapote/interlock/evidence/rust-final.json",
+          "hash": "sha256:ba94fb9273e3b535207ac3a3df4dc9c7a32b0a11c9beba9a8fbc4aefa1828d1f"
+        },
+        {
+          "path": "zapote/interlock/evidence/final-native-01/erc.json",
+          "hash": "sha256:27dc1d325ed34d2fd58185f1ac1811e5d74a4f429c3522dce91ce2a4b1048589"
+        },
+        {
+          "path": "zapote/interlock/evidence/final-native-summary.json",
+          "hash": "sha256:fdfe07c0544103bda1e66b7c76b02ebddc23bdecf6fc2c8bc2c3103a081828c0"
+        },
+        {
+          "path": "zapote/interlock/ACCEPTANCE.md",
+          "hash": "sha256:9c45dc673f3fac542241924f04fcd07e0be369454181fd46954237bc88f87b02"
+        }
+      ],
+      "provenance_class": "expert-curated",
+      "validation_state": "source-reviewed"
+    }
+  ]
+}

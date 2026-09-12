@@ -1,0 +1,442 @@
+cargo test --locked --workspace
+   Compiling zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.47s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_core-01adb91ab1bcbbff)
+
+running 6 tests
+test unit::tests::deferred_contracts_cannot_be_reported_as_run ... ok
+test unit::tests::connector_qualification_cannot_be_filled_by_fixture_mutation ... ok
+test unit::tests::standalone_profile_matches_source_and_manufacturing_contract ... ok
+test unit::tests::typed_unit_input_rejects_incomplete_unit_native_transport ... ok
+test unit::tests::typed_unit_input_rejects_duplicate_native_components ... ok
+test current_sense::tests::captured_source_manifest_uses_bridge_and_strict_pin_map_shape ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_drc-d50527b1ac0a9dab)
+
+running 33 tests
+test donor_geometry::tests::crossing_segments_are_intersecting ... ok
+test donor_geometry::tests::separated_segments_are_not_intersecting ... ok
+test donor_clearance::tests::raw_pcbnew_shape_codes_are_explicitly_mapped ... ok
+test donor_clearance::tests::unsupported_shape_is_rejected_fail_closed ... ok
+test donor_clearance::tests::oval_and_through_hole_shapes_are_supported ... ok
+test ipc::tests::capacity_increases_with_width_and_finished_thickness ... ok
+test ipc::tests::seven_tenths_millimeter_seventy_um_carries_low_current_branch ... ok
+test current_sense::tests::pad_rotation_uses_kicad_clockwise_child_transform ... ok
+test donor_clearance::tests::shape_aware_pad_to_capsule_uses_rectangular_corners ... ok
+test donor_clearance::tests::mapped_roundrect_uses_its_radius_ratio ... ok
+test stackup::tests::four_layer_stackup_checks_each_dielectric_and_copper_order ... ok
+test current_sense::tests::trace_via_crossing_is_checked_as_a_native_pair ... ok
+test current_sense::tests::trace_entirely_in_zone_hole_is_not_treated_as_filled_copper ... ok
+test current_sense::tests::zone_crossing_is_detected_without_a_vertex_inside ... ok
+test current_sense::tests::primary_secondary_pad_clearance_is_measured_from_native_geometry ... ok
+test current_sense::tests::primary_secondary_separation_checks_cross_layer_xy ... ok
+test tests::filled_corridor_accepts_connected_route_with_terminal_clearance ... ok
+test tests::crossing_segment_is_detected_without_vertex_inside ... ok
+test tests::filled_corridor_rejects_hole_crossing_even_when_endpoints_are_covered ... ok
+test tests::copper_width_is_included_at_boundary ... ok
+test tests::filled_corridor_rejects_island_gap_between_valid_entries ... ok
+test tests::narrow_slot_between_old_sample_positions_fails ... ok
+test tests::region_predicate_uses_authored_margin ... ok
+test tests::own_antipad_requires_one_envelope_and_connected_ground_entry ... ok
+test tests::nearby_return_via_with_long_copper_detour_fails ... ok
+test tests::three_terminal_samples_cannot_hide_long_slot ... ok
+test stackup::tests::native_zero_core_is_rejected ... ok
+test stackup::tests::physical_total_includes_mask ... ok
+test stackup::tests::string_contents_cannot_spoof_structural_fields ... ok
+test stackup::tests::excessive_nesting_and_unicode_are_handled_without_panics ... ok
+test stackup::tests::duplicate_fields_and_trailing_documents_are_rejected ... ok
+test stackup::tests::missing_stackup_or_copper_cannot_pass ... ok
+test stackup::tests::missing_and_invalid_thicknesses_fail_closed ... ok
+
+test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_erc-dbd8f8788bab9350)
+
+running 8 tests
+test tests::low_threshold_strictly_exceeds_exact_code ... ok
+test tests::threshold_encoding_matches_board_words ... ok
+test tests::asymmetric_fault_cases_keep_documented_blind_spot ... ok
+test thermal_sense::tests::thermal_math_matches_independent_loaded_network_audit ... ok
+test thermal_sense::tests::open_detection_numeric_corner_reference_is_independent ... ok
+test current_sense::tests::recomputation_uses_profile_values_without_rtd_constants ... ok
+test current_sense::tests::missing_independent_electrical_claims_fail_closed ... ok
+test current_sense::tests::owner_model_fixture_matches_floating_burden_topology ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_harness-2a77e22c7fc7e10f)
+
+running 8 tests
+test model_qualification::tests::generalized_formula_is_stable ... ok
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test model_qualification::tests::schur_graph_is_positive ... ok
+test model_qualification::tests::narrowed_capacitance_is_rejected_by_required_envelope ... ok
+test tests::missing_input_identity_cannot_be_a_pass ... ok
+test model_qualification::tests::expected_case_builder_covers_exactly_five_cases ... ok
+test model_qualification::tests::expected_cases_match_independent_reference_scalars ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-board.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_board-9890a5c2777fd19e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-interlock.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_interlock-77a6b5827720f2f9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_rtd-7caea6543bde9866)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-thermal.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_thermal-0443c2b71ae446fa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-voltage.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_voltage-3b056f1cc74d647f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/board_cli.rs (/private/tmp/zapote-rtd-target/debug/deps/board_cli-3917ba5eaaebd792)
+
+running 4 tests
+test no_arguments_cannot_skip_the_board_gate ... ok
+test missing_board_is_not_an_empty_pass ... ok
+test real_board_without_explicit_stackup_is_rejected ... ok
+test saved_rtd_board_passes_the_public_gate ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+     Running tests/current_sense_defect_corpus.rs (/private/tmp/zapote-rtd-target/debug/deps/current_sense_defect_corpus-2aa96ff61e5e2e05)
+
+running 17 tests
+test real_source_and_native_artifacts_resolve_complete_census ... ok
+test real_source_burden_to_ground_topology_mutation_is_rejected ... ok
+test copper_open_fails_required_physical_copper ... ok
+test duplicate_component_fails_exact_census ... ok
+test clearance_violation_is_measured_from_actual_pads ... ok
+test changed_threshold_and_filter_claims_fail_recomputed_model ... ok
+test source_net_rehash_and_native_net_swap_fail ... ok
+test unsupported_measurement_remains_indeterminate ... ok
+test real_source_bias_value_mutation_is_rejected_by_quantity_binding ... ok
+test missing_native_pad_shape_cannot_pass_with_a_rehashed_export ... ok
+test removing_placement_guards_cannot_retain_owner_identity ... ok
+test back_layer_ground_is_checked_against_front_transformer_primary ... ok
+test real_route_via_through_supply_track_is_rejected ... ok
+test real_zero_core_board_is_rejected_by_the_normal_harness ... ok
+test real_input_json_roundtrip_preserves_exact_owner_projection ... ok
+test real_artifacts_build_current_sense_transport_without_synthetic_census ... ok
+test missing_or_changed_stackup_bytes_cannot_retain_board_identity ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+     Running tests/interlock.rs (/private/tmp/zapote-rtd-target/debug/deps/interlock-564e9aab9a86519c)
+
+running 18 tests
+test bypassing_reset_inverter_breaks_actual_clock_behavior ... ok
+test missing_pull_component_fails_census ... ok
+test bypassing_actual_clear_pin_breaks_graph_behavior ... ok
+test d_tied_low_cannot_grant_permission ... ok
+test nand_input_bypass_hides_fault_and_is_rejected ... ok
+test reset_retains_permission_and_recovery_needs_a_new_edge ... ok
+test swapped_q_outputs_break_connector_behavior ... ok
+test malformed_input_is_a_hard_failure ... ok
+test changed_resistance_fails_electrical_margin_not_just_part_identity ... ok
+test split_native_cluster_with_all_nodes_present_is_rejected ... ok
+test nc_connected_to_ground_is_rejected ... ok
+test wrong_bypass_value_is_rejected ... ok
+test strict_pin_mapping_cannot_be_deleted ... ok
+test wdi_bias_substitution_is_rejected ... ok
+test actual_artifacts_have_no_hard_failure_and_all_4096_graph_vectors_pass ... ok
+test stale_embedded_board_digest_is_rejected ... ok
+test native_fields_cannot_contradict_saved_board_bytes ... ok
+test timing_polarity_leakage_and_qualification_cannot_be_relaxed ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.04s
+
+     Running tests/memory_policy.rs (/private/tmp/zapote-rtd-target/debug/deps/memory_policy-59dcde32f1bb6c9f)
+
+running 12 tests
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test context_prepare_requires_matching_exact_source_when_required ... ok
+test ordering_stable_and_limits_explicit ... ok
+test promotion_gates ... ok
+test selection_cannot_forge_historical_receipt ... ok
+test evidence_tamper_rejects_while_unrelated_changes_do_not ... ok
+test general_procedure_selects_exact_fact_does_not ... ok
+test unselectable_states_and_malformed_inputs_cannot_enter_selection ... ok
+test context_prepare_transfers_procedure_but_excludes_mismatched_exact_fact ... ok
+test context_prepare_is_deterministic_and_exposes_bound_hashes ... ok
+test context_prepare_rejects_tamper_duplicate_keys_and_oversize_notes ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/rtd_defect_corpus.rs (/private/tmp/zapote-rtd-target/debug/deps/rtd_defect_corpus-c64f6124426fe4e3)
+
+running 20 tests
+test local_escape_rejects_overlapping_pads_and_disconnected_fragment ... ok
+test connector_swap_is_detected_against_board_bound_contract ... ok
+test local_escape_requires_native_membership_and_same_ic_pads ... ok
+test broken_rref_and_reference_topology_are_detected ... ok
+test each_conductor_open_is_classified_without_name_only_coverage ... ok
+test local_escape_empty_population_is_indeterminate ... ok
+test local_escape_accepts_explicit_short_same_layer_branch ... ok
+test local_escape_accepts_gnd_stub_to_declared_mcu_junction ... ok
+test missing_identity_field_is_indeterminate_and_never_passes ... ok
+test native_export_bound_to_different_board_cannot_pass ... ok
+test sense_force_short_is_detected_from_typed_net_identity ... ok
+test native_binding_without_extraction_hash_cannot_pass ... ok
+test local_escape_rejects_closed_cycle_wrong_anchor_and_long_detour ... ok
+test stale_well_formed_digest_is_rejected_by_artifact_binding ... ok
+test wrong_rail_and_wrong_cs_are_detected ... ok
+test actual_board_mutations_fail_with_contract_unchanged ... ok
+test actual_capacitor_and_return_cluster_mutations_fail ... ok
+test real_native_sensitive_trace_intruding_switch_region_fails ... ok
+test each_real_conductor_expectation_is_independent ... ok
+test real_native_board_mutations_fail_with_source_contract_unchanged ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.69s
+
+     Running tests/thermal_sense.rs (/private/tmp/zapote-rtd-target/debug/deps/thermal_sense-3751dbd63b5eee3a)
+
+running 21 tests
+test rev_a_source_is_rejected_as_missing_open_detection_components ... ok
+test independent_gate_pin_map_rejects_swapped_open_input ... ok
+test corrupt_contract_supply_fails_contract_rule ... ok
+test missing_strict_pin_fails_pin_map_rule ... ok
+test real_routed_baseline_is_conditional_indeterminate_without_hard_failures ... ok
+test missing_component_fails_native_census ... ok
+test oversized_filter_capacitor_fails_settling_rule ... ok
+test fragmented_cluster_fails_exact_connectivity_rule ... ok
+test original_coil_bias_is_rejected ... ok
+test coherently_changed_source_value_still_rejects_wrong_mpn_binding ... ok
+test rev_b_open_contract_is_checked_independently_of_native_fixture ... ok
+test unrouted_fixture_fails_connectivity ... ok
+test source_resistor_change_fails_source_and_threshold_rules ... ok
+test duplicate_or_remapped_strict_pin_fails ... ok
+test split_net_with_complete_union_still_fails_connectivity ... ok
+test unsafe_open_reference_fails_margin_rule ... ok
+test duplicate_or_malformed_cluster_node_is_not_silently_discarded ... ok
+test wrong_sensor_identity_fails_contract_rule ... ok
+test swapped_comparator_input_fails_topology_rule ... ok
+test wrong_capacitor_and_qualification_contract_fail ... ok
+test strict_cli_retains_indeterminate_exit_status ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.52s
+
+     Running tests/unit_profile.rs (/private/tmp/zapote-rtd-target/debug/deps/unit_profile-bcbb75a51368f912)
+
+running 14 tests
+test unit_adapter_reaches_existing_aggressor_geometry_rule ... ok
+test unit_mutated_observed_mpn_is_a_targeted_failure ... ok
+test unit_cli_rules_evaluate_actual_native_shape ... ok
+test unit_fault_observations_are_compared_without_legacy_blind_spot_classification ... ok
+test unit_consistent_native_pad_and_connection_swap_hits_source_binding ... ok
+test unit_mutated_observed_adc_connection_is_a_targeted_failure ... ok
+test unit_model_budget_is_numeric_and_fails_above_authored_limit ... ok
+test qualified_receipt_passes_math_gate_but_device_stays_indeterminate ... ok
+test unit_adapter_rejects_observed_adc_net_mutation_against_source ... ok
+test unit_partial_source_binding_is_rejected_before_shared_rules ... ok
+test qualification_gate_rejects_coordinated_source_hash_change ... ok
+test unit_source_component_omission_and_extra_are_census_failures ... ok
+test qualification_gate_fails_closed_for_malformed_missing_case_and_zero_cap ... ok
+test qualified_receipt_rejects_raw_model_drift_and_forged_bound ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/voltage_sense.rs (/private/tmp/zapote-rtd-target/debug/deps/voltage_sense-6d6682fc6bfa1945)
+
+running 15 tests
+test real_unrouted_board_fails_connectivity ... ok
+test missing_board_bytes_fail_closed ... ok
+test duplicated_source_pin_is_rejected ... ok
+test missing_native_geometry_fails ... ok
+test real_routed_unit_has_no_failures_but_retains_qualification_gaps ... ok
+test changed_embedded_bytes_without_digest_fail ... ok
+test old_adc_divider_fails_even_with_consistently_changed_source_values ... ok
+test independent_corner_results_remain_visible ... ok
+test missing_component_is_rejected ... ok
+test crossing_wrong_net_trace_fails_geometry_and_document_binding ... ok
+test rehashed_saved_board_net_change_cannot_hide_behind_old_export ... ok
+test remote_bypass_fails_locality ... ok
+test rehashed_zero_dielectric_still_fails ... ok
+test swapped_comparator_input_is_rejected ... ok
+test cli_is_strict_about_qualification_and_preserves_structured_status ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+   Doc-tests zapote_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_drc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_erc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_harness
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+/Library/Developer/CommandLineTools/usr/bin/make check-boards
+{
+  "board": "rtd/unit/candidate/section.kicad_pcb",
+  "board_sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "4 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "pass"
+}
+{
+  "board": "current-sense/candidate/section.kicad_pcb",
+  "board_sha256": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "pass"
+}
+{
+  "board": "voltage-sense/candidate/section.kicad_pcb",
+  "board_sha256": "ef9853e9fb03df4f7723076ac8eb77c17743465a0b2e146cec11d2da54876e1f",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "pass"
+}
+{
+  "board": "thermal-sense/candidate/section.kicad_pcb",
+  "board_sha256": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "pass"
+}
+{
+  "board": "interlock/candidate/section.kicad_pcb",
+  "board_sha256": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "pass"
+}

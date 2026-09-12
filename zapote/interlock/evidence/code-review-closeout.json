@@ -1,0 +1,20 @@
+{
+  "schema": "zapote.interlock.review-closeout.v1",
+  "status": "local-review-complete",
+  "worker_artifact": "evidence/code-review-worker.json",
+  "code_review_skill_receipt_status": "complete",
+  "independent_cross_model_review": false,
+  "coverage": [
+    "coordinator source/native/render review",
+    "Luna local correctness, testing and adversarial review",
+    "176 workspace tests",
+    "18 interlock graph/state/mutation tests",
+    "4096 compiled graph vectors",
+    "three native ERC/DRC/parity runs",
+    "source/schematic 110-pin oracle"
+  ],
+  "findings_remaining": [],
+  "qualification": "INDETERMINATE",
+  "review_limitation": "A requested separate Luna task was rejected before creation by automatic approval review for unapproved external disclosure. No external review occurred. Luna is not a different serving-family reviewer; the attempted task was not the configured cross-model CLI route. Local read-only review and tests supplied the safer available coverage. Worker dispatch availability statements are not independent capability evidence.",
+  "scope_note": "Freeze manifest is a coordinator closeout artifact issued after this code review, not an artifact the worker verified."
+}

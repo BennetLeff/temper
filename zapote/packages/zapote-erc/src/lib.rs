@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 use zapote_core::{CheckReport, FaultScenario, Finding, RunInput};
 
 pub mod current_sense;
+pub mod interlock;
 
 const ADC_PINS: [&str; 8] = [
     "BIAS", "REFIN_P", "REFIN_N", "ISENSOR", "FORCE_P", "FORCE_N", "RTDIN_P", "RTDIN_N",

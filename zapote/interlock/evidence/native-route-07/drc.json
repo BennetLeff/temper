@@ -1,0 +1,99 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-11T20:38:03",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Via is not connected or connected on only one layer",
+            "items": [
+                {
+                    "description": "Via [permit] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 82.0,
+                        "y": 44.5
+                    },
+                    "uuid": "637ec819-843b-4af4-a8ff-f911a539b96b"
+                }
+            ],
+            "severity": "warning",
+            "type": "via_dangling"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1000 mm; actual 0.0385 mm)",
+            "items": [
+                {
+                    "description": "Reference field of J2",
+                    "pos": {
+                        "x": 92.0,
+                        "y": 29.0
+                    },
+                    "uuid": "90913493-11de-4771-81f8-46b652dadf1e"
+                },
+                {
+                    "description": "Rectangle of J2 on F.Silkscreen",
+                    "pos": {
+                        "x": 94.46,
+                        "y": 29.44
+                    },
+                    "uuid": "cff3f18f-2adb-40ae-8bc4-a13b19f38c5a"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1000 mm; actual 0.0193 mm)",
+            "items": [
+                {
+                    "description": "Segment of J2 on F.Silkscreen",
+                    "pos": {
+                        "x": 92.2,
+                        "y": 29.45
+                    },
+                    "uuid": "7665c460-aba4-4fa6-b70f-6184e9c84fd3"
+                },
+                {
+                    "description": "Reference field of J2",
+                    "pos": {
+                        "x": 92.0,
+                        "y": 29.0
+                    },
+                    "uuid": "90913493-11de-4771-81f8-46b652dadf1e"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        }
+    ]
+}

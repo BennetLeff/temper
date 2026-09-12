@@ -1,0 +1,28 @@
+{
+  "schema": "zapote.interlock.final-native-summary.v1",
+  "status": "PASS",
+  "erc_location": "sheets[].violations",
+  "runs": [
+    {
+      "run": "zapote/interlock/evidence/final-native-02",
+      "erc_violations": 0,
+      "drc_violations": 0,
+      "unconnected": 0
+    },
+    {
+      "run": "zapote/interlock/evidence/final-native-03",
+      "erc_violations": 0,
+      "drc_violations": 0,
+      "unconnected": 0
+    },
+    {
+      "run": "zapote/interlock/evidence/final-native-04",
+      "erc_violations": 0,
+      "drc_violations": 0,
+      "unconnected": 0
+    }
+  ],
+  "board_sha256": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+  "schematic_sha256": "705542db81c7b689bb3b4d48cf9f7b5a79dc6cf9120d466e1f535f293976e595",
+  "physical_tests": "NOT RUN"
+}

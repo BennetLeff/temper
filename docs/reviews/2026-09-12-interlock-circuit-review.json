@@ -1,0 +1,52 @@
+{
+  "review": "standalone Zapote interlock circuit",
+  "date": "2026-09-11",
+  "scope": "Read-only review of elec/src/interlock_unit.ato and zapote/interlock documentation at the canonical worktree HEAD. No native/ERC/DRC/powered-board acceptance claimed.",
+  "findings": [
+    {
+      "severity": "verified",
+      "title": "Flip-flop Q and QBAR mapping corrected",
+      "detail": "SN74LVC1G74 uses Q=pin 5 and QBAR=pin 3; the local source matches the manufacturer map. Earlier plain-text assumptions had these reversed."
+    },
+    {
+      "severity": "verified",
+      "title": "TPS3823 pin map corrected locally",
+      "detail": "TPS3823 uses RESET_N=1, GND=2, MR_N=3, WDI=4, VDD=5. The standalone definition is correct; the legacy shared definition remains outside this review."
+    },
+    {
+      "severity": "verified",
+      "title": "Fault-dominant no-autorestart behavior",
+      "detail": "Seven active-high faults are inverted into healthy inputs; the eighth NAND input is watchdog-good AND SENSOR_LIVE. The NAND output is inverted into CLR_N. With D and PRE_N high, fault removal releases clear without setting Q; only a fresh falling RESET_N request creates the inverted positive CLK edge."
+    },
+    {
+      "severity": "verified",
+      "title": "Watchdog pull-down and timing",
+      "detail": "The 1 kΩ WDI pulldown is the value TI Rev O recommends to prevent high-impedance WDI from disabling the watchdog. WDI is retriggered by negative transitions. TPS3823 timeout is 0.9–2.5 s, typical 1.6 s; reset delay is 120–300 ms, typical 200 ms. The 10 kΩ claim from an earlier review was incorrect and is superseded by this record."
+    },
+    {
+      "severity": "qualification",
+      "title": "HC30 3.3 V VIH is not directly tabulated",
+      "detail": "CD74HC30 guaranteed VIH points are specified at 2 V, 4.5 V, and 6 V, not 3.3 V. Do not apply the 2 V row to this rail. LVC14A-to-HC30 operation is plausible but needs interface qualification or a gate with an explicit 3.3 V VIH guarantee."
+    },
+    {
+      "severity": "qualification",
+      "title": "SENSOR_LIVE producer and remote power-off behavior remain open",
+      "detail": "SENSOR_LIVE is correctly receiver-pulldown biased but has no qualified producer in the existing units. Remote push-pull fault outputs are not power-off isolation; a receiver pullup can source approximately 346.5 µA into an unpowered output."
+    }
+  ],
+  "conditional_calculation": {
+    "fault_pullup_low_rail": "3.135 V - 10.1 kOhm * 20 uA = 2.933 V",
+    "wdi_pulldown_high_current": "3.135–3.465 mA"
+  },
+  "primary_sources": [
+    "https://www.ti.com/lit/ds/symlink/sn74lvc14a.pdf",
+    "https://www.ti.com/lit/ds/symlink/cd74hc30.pdf",
+    "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf",
+    "https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf",
+    "https://www.ti.com/lit/gpn/TPS3823"
+  ],
+  "limits": [
+    "No files other than this review JSON and zapote/interlock/memory/closeout-review.md were edited.",
+    "No native/ERC/DRC, powered startup, brownout, watchdog elapsed-time, metastability, or downstream gate-shutdown result is claimed."
+  ]
+}
