@@ -4,11 +4,11 @@ use std::collections::BTreeMap;
 use zapote_core::{CheckReport, FaultScenario, Finding, RunInput};
 
 pub mod current_sense;
-pub mod interlock;
 pub mod gate_drive;
-pub mod power_stage_models;
+pub mod interlock;
 pub mod pfc_control;
 pub mod power_entry;
+pub mod power_stage_models;
 pub mod source_circuit;
 
 const ADC_PINS: [&str; 8] = [
@@ -885,3 +885,7 @@ mod tests {
 
 pub mod thermal_sense;
 pub mod voltage_sense;
+
+pub mod domain_contract;
+
+pub mod operating_limits;

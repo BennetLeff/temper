@@ -1,6 +1,11 @@
 # Rust validator coverage and next ports
 
-Audit date: 2026-09-12. Source baseline: `6226537c9`.
+Audit date: 2026-09-12. Historical inventory baseline: `6226537c9`.
+
+**Current integration:** [coordinator checkpoint](integration-2026-09-12.md).
+The historical inventory below remains evidence of the earlier state; P0 now
+runs all seven maintained unit suites, native ERC/DRC, and the adopted P1–P3
+subsets. The full P1–P3 plan is **not complete**.
 
 Zapote uses selected copied Temper kernels and new unit-specific contracts. It
 does **not** run the complete Temper Rust DRC/ERC engine. This inventory records
@@ -39,11 +44,16 @@ PCB checks. Physical qualification remains separate from all these counts.
 
 ## What executes today
 
-`make -C zapote check` runs the workspace tests and `check-boards`.
-`check-boards` invokes `zapote-board` for the seven paths in `UNIT_BOARDS`.
-**That shared board command runs only `DRC.BOARD.STACKUP`.** It does not invoke
-the complete unit suites or native KiCad ERC/DRC. Unit-specific Rust entrypoints
-and the separate native-report validator provide the richer checks.
+`make -C zapote check` runs workspace tests followed by `check-units`.
+`check-units` invokes the maintained [seven-unit manifest](units.json), calls
+current unit truth functions, extracts current manufacturing geometry through
+pcbnew, captures new native ERC/DRC, and preserves all outcomes. See the
+[run command and limits](integration-2026-09-12.md).
+
+`check-boards` remains an explicitly narrow stackup-only diagnostic. It is no
+longer the complete-board step called by `check`.
+
+The following table describes the historical inventory, before integration:
 
 | Unit | Distinct rule IDs in retained unit report | Examples of recorded scope | Fresh shared gate |
 |---|---:|---|---|
@@ -109,7 +119,8 @@ are not asserted as current facts here.
 
 ## Next-port sequence
 
-These are ordered implementation batches, not completed work. Keep engineering
+These are the approved implementation batches. Their current completion and
+remaining implementation gaps are tracked in the coordinator checkpoint. Keep engineering
 logic in Rust, retain the working KiCad adapter, and let agents choose edits.
 Do not port placer/router search, auto-repair logic, or the entire donor graph.
 

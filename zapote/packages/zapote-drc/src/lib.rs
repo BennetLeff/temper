@@ -1963,3 +1963,9 @@ mod tests {
         assert_eq!(reference_layer("F.Cu"), Some("In1.Cu"));
     }
 }
+
+pub mod manufacturing;
+
+pub mod power_integrity;
+
+pub mod switching;

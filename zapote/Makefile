@@ -2,6 +2,9 @@
 
 HARNESS_DIR := ../harness-lab
 CARGO ?= cargo
+KICAD_CLI ?= kicad-cli
+KICAD_PYTHON ?= python3
+RUN_DIR ?= validation/runs/$(shell date -u +%Y%m%dT%H%M%SZ)
 # Register each maintained Zapote unit here. Missing files fail closed.
 UNIT_BOARDS := rtd/unit/candidate/section.kicad_pcb current-sense/candidate/section.kicad_pcb voltage-sense/candidate/section.kicad_pcb thermal-sense/candidate/section.kicad_pcb interlock/candidate/section.kicad_pcb gate-drive/candidate/section.kicad_pcb power-entry/candidate/section.kicad_pcb
 
@@ -14,7 +17,16 @@ build:
 
 check:
 	$(CARGO) test --locked --workspace
-	$(MAKE) check-boards
+	$(MAKE) check-units
+
+# Exit 2 means incomplete engineering evidence, never a qualified pass.
+.PHONY: check-units check-native-oracle
+check-units:
+	@mkdir -p "$(dir $(RUN_DIR))"
+	$(CARGO) run --quiet --locked --bin zapote-unit-run -- validation/units.json "$(RUN_DIR)" "$(KICAD_CLI)" "$(KICAD_PYTHON)" --all
+
+check-native-oracle:
+	$(KICAD_PYTHON) validation/p2/test_extract.py
 
 check-boards:
 	@set -e; for board in $(UNIT_BOARDS); do \

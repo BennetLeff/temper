@@ -267,3 +267,21 @@ mod tests {
         )));
     }
 }
+
+/// Minimum nominal outer-layer copper from the validated saved stackup.
+/// This is not a fabricator guarantee of minimum finished copper.
+pub fn nominal_outer_copper_um(text: &str) -> Result<f64, String> {
+    inspect(text)?;
+    let board = parse_document(text, "KiCad PCB")?;
+    let stackup = one(one(&board, "setup")?, "stackup")?;
+    let mut values = Vec::new();
+    for layer in children(stackup, "layer")? {
+        if ["F.Cu", "B.Cu"].contains(&atom(list(layer)?.get(1))?.as_str()) {
+            values.push(thickness(layer, true)? * 1000.);
+        }
+    }
+    if values.len() != 2 {
+        return Err("requires both nominal outer copper layers".into());
+    }
+    Ok(values.into_iter().fold(f64::INFINITY, f64::min))
+}

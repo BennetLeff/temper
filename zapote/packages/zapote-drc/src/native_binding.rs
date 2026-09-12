@@ -89,7 +89,10 @@ fn inspect(n: &Value) -> Result<(), String> {
             if uuid_nodes.len() > 1 {
                 return Err("duplicate pad UUID field".into());
             }
-            let uuid = uuid_nodes.first().map(|_| scalar(pad, "uuid")).transpose()?;
+            let uuid = uuid_nodes
+                .first()
+                .map(|_| scalar(pad, "uuid"))
+                .transpose()?;
             if let Some(uuid) = &uuid {
                 if uuid.trim().is_empty() || !saved_uuids.insert(uuid.clone()) {
                     return Err("empty or duplicate saved pad UUID".into());
@@ -99,11 +102,19 @@ fn inspect(n: &Value) -> Result<(), String> {
                 if !pin.is_empty() || !children(pad, "net")?.is_empty() {
                     return Err("mechanical hole has electrical pin/net".into());
                 }
-                put(&mut saved_holes, uuid.ok_or("mechanical hole requires UUID")?, json!({"component":id}))?;
+                put(
+                    &mut saved_holes,
+                    uuid.ok_or("mechanical hole requires UUID")?,
+                    json!({"component":id}),
+                )?;
                 continue;
             }
             let key = if counts[&pin] > 1 {
-                format!("{}#{}", pin, uuid.ok_or("repeated physical pin requires UUID")?)
+                format!(
+                    "{}#{}",
+                    pin,
+                    uuid.ok_or("repeated physical pin requires UUID")?
+                )
             } else {
                 pin.clone()
             };
@@ -141,7 +152,14 @@ fn inspect(n: &Value) -> Result<(), String> {
                 if !pin.is_empty() || p["net"].as_str() != Some("") {
                     return Err("exported mechanical hole has electrical pin/net".into());
                 }
-                put(&mut exported_holes, p["uuid"].as_str().ok_or("mechanical hole requires UUID")?.to_owned(), json!({"component":c["id"]}))?;
+                put(
+                    &mut exported_holes,
+                    p["uuid"]
+                        .as_str()
+                        .ok_or("mechanical hole requires UUID")?
+                        .to_owned(),
+                    json!({"component":c["id"]}),
+                )?;
                 continue;
             }
             let key = if counts[pin] > 1 {

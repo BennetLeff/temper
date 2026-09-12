@@ -6,10 +6,11 @@ use zapote_core::{CheckReport, Finding, RunInput, Status};
 
 pub mod current_sense;
 pub mod gate_drive;
-pub mod power_entry;
 pub mod interlock;
 pub mod memory;
 pub mod native_reports;
+pub mod power_entry;
+pub mod runner;
 pub use current_sense::{build_current_sense_input, parse_current_sense_input, run_current_sense};
 mod model_qualification;
 pub use model_qualification::derive_expected_case_values;
@@ -531,3 +532,7 @@ mod tests {
 
 pub mod thermal_sense;
 pub mod voltage_sense;
+
+pub mod p1;
+
+pub mod p3;
