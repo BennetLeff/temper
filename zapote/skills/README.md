@@ -110,3 +110,11 @@ The [gate-power-lessons-v1](revisions/gate-power-lessons-v1/catalog.json) revisi
 adds a portable note separating assigned pin nets, physical pad census and actual
 copper connectivity. It links the accepted gate-drive construction checkpoint and
 the explicitly rejected unrouted PFC candidate. Earlier revisions remain unchanged.
+
+## PFC routing checkpoint
+
+[pfc-routing-lessons-v1](revisions/pfc-routing-lessons-v1/catalog.json) adds the
+voltage-profile, exact-part and non-vacuous-counterexample lesson. It preserves
+old evidence at its original bytes and binds the new lesson to the routed
+checkpoint. This is a reviewed memory artifact; it is not a claim that a future
+agent has received it or that it improves routing performance.

@@ -411,6 +411,99 @@ pub fn native_clearance(
     CheckReport::from_findings(findings, vec![RULE.into()], vec![])
 }
 
+/// Apply per-net fabrication floors while retaining the native layer geometry.
+/// This intentionally filters each net pair and delegates all shape-distance
+/// work to `native_clearance`; it does not project or collapse copper layers.
+pub fn native_clearance_profile(
+    native: &zapote_core::unit::UnitNativeEvidence,
+    hv_nets: &BTreeSet<String>,
+    pe_net: &str,
+    hv_clearance_mm: f64,
+    pe_clearance_mm: f64,
+    default_clearance_mm: f64,
+) -> CheckReport {
+    const RULE: &str = "DRC.NATIVE.CLEARANCE_PROFILE";
+    if !hv_clearance_mm.is_finite()
+        || !pe_clearance_mm.is_finite()
+        || !default_clearance_mm.is_finite()
+        || hv_clearance_mm <= 0.0
+        || pe_clearance_mm <= 0.0
+        || default_clearance_mm <= 0.0
+    {
+        return CheckReport::from_findings(
+            vec![Finding::fail(RULE, "invalid clearance profile", "profile")],
+            vec![RULE.into()],
+            vec![],
+        );
+    }
+    let nets: BTreeSet<String> = native
+        .components
+        .iter()
+        .flat_map(|c| c.footprint_pads.iter().map(|p| p.net.clone()))
+        .chain(native.traces.iter().map(|t| t.net.clone()))
+        .chain(native.vias.iter().map(|v| v.net.clone()))
+        .chain(native.zones.iter().map(|z| z.net.clone()))
+        .filter(|n| !n.is_empty())
+        .collect();
+    let nets: Vec<_> = nets.into_iter().collect();
+    if !hv_nets
+        .iter()
+        .all(|net| nets.iter().any(|observed| observed == net))
+        || !nets.iter().any(|net| net == pe_net)
+    {
+        return CheckReport::from_findings(
+            vec![Finding::fail(
+                RULE,
+                "profile net set is absent from native geometry",
+                "profile",
+            )],
+            vec![RULE.into()],
+            vec![],
+        );
+    }
+    let mut failures = Vec::new();
+    for (index, left) in nets.iter().enumerate() {
+        for right in nets.iter().skip(index + 1) {
+            let required = if left == pe_net || right == pe_net {
+                pe_clearance_mm
+            } else if hv_nets.contains(left) || hv_nets.contains(right) {
+                hv_clearance_mm
+            } else {
+                default_clearance_mm
+            };
+            let mut pair = native.clone();
+            let keep = |net: &str| net == left || net == right;
+            for component in &mut pair.components {
+                component.footprint_pads.retain(|p| keep(&p.net));
+            }
+            pair.traces.retain(|t| keep(&t.net));
+            pair.vias.retain(|v| keep(&v.net));
+            pair.zones.retain(|z| keep(&z.net));
+            let report = native_clearance(&pair, required);
+            failures.extend(
+                report
+                    .findings
+                    .into_iter()
+                    .filter(|f| f.status != zapote_core::Status::Pass)
+                    .map(|mut f| {
+                        f.rule = RULE.into();
+                        f
+                    }),
+            );
+        }
+    }
+    let finding = if failures.is_empty() {
+        Finding::pass(
+            RULE,
+            "all observed native copper net pairs meet their profile floors",
+            "native",
+        )
+    } else {
+        return CheckReport::from_findings(failures, vec![RULE.into()], vec![]);
+    };
+    CheckReport::from_findings(vec![finding], vec![RULE.into()], vec![])
+}
+
 fn check_primary_secondary(
     input: &CurrentSenseInput,
     findings: &mut Vec<Finding>,

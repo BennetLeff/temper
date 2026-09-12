@@ -1,0 +1,245 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-12T00:31:04",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.3356 mm)",
+            "items": [
+                {
+                    "description": "Track [a1] on F.Cu, length 15.2000 mm",
+                    "pos": {
+                        "x": 125.9,
+                        "y": 106.8
+                    },
+                    "uuid": "3c7925ed-9fe0-4ab2-9a7e-187716d9ca24"
+                },
+                {
+                    "description": "Pad 1 [r_vtop4-p2] of U24 on F.Cu",
+                    "pos": {
+                        "x": 127.9625,
+                        "y": 126.0
+                    },
+                    "uuid": "80f8b369-9da0-4fce-bad4-9544d82a79ea"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.9609 mm)",
+            "items": [
+                {
+                    "description": "Track [vsense] on F.Cu, length 5.8876 mm",
+                    "pos": {
+                        "x": 122.0375,
+                        "y": 126.0
+                    },
+                    "uuid": "1cf27e89-f09b-404a-b78d-c5fdf6327cf1"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_PLUS_390V] of U10",
+                    "pos": {
+                        "x": 120.45,
+                        "y": 122.0
+                    },
+                    "uuid": "83e3bc79-b857-4f1e-a8f3-f8d27729dd39"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 0.8175 mm)",
+            "items": [
+                {
+                    "description": "Pad 1 [r_vtop4-p2] of U24 on F.Cu",
+                    "pos": {
+                        "x": 127.9625,
+                        "y": 126.0
+                    },
+                    "uuid": "80f8b369-9da0-4fce-bad4-9544d82a79ea"
+                },
+                {
+                    "description": "PTH pad 3 [a1] of U10",
+                    "pos": {
+                        "x": 125.9,
+                        "y": 122.0
+                    },
+                    "uuid": "75145691-a3cd-4cc7-812d-a75bdaa45cb8"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 0.4953 mm)",
+            "items": [
+                {
+                    "description": "Pad 2 [vsense] of U24 on F.Cu",
+                    "pos": {
+                        "x": 122.0375,
+                        "y": 126.0
+                    },
+                    "uuid": "c8e6648f-1aa8-4926-9185-6198ca1c8b9b"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_PLUS_390V] of U10",
+                    "pos": {
+                        "x": 120.45,
+                        "y": 122.0
+                    },
+                    "uuid": "83e3bc79-b857-4f1e-a8f3-f8d27729dd39"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Courtyards overlap",
+            "items": [
+                {
+                    "description": "Footprint U24",
+                    "pos": {
+                        "x": 125.0,
+                        "y": 126.0
+                    },
+                    "uuid": "0a1871a6-26a3-b24c-a112-5e66f15911a1"
+                },
+                {
+                    "description": "Footprint U10",
+                    "pos": {
+                        "x": 115.0,
+                        "y": 122.0
+                    },
+                    "uuid": "911aea84-d5dd-86d6-eb7e-a0ac23fa2c7b"
+                }
+            ],
+            "severity": "error",
+            "type": "courtyards_overlap"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Segment of U10 on F.Silkscreen",
+                    "pos": {
+                        "x": 128.51,
+                        "y": 124.81
+                    },
+                    "uuid": "fb5c09a6-9cbe-401e-819e-b59ad03a3ab9"
+                },
+                {
+                    "description": "Pad 1 [r_vtop4-p2] of U24 on F.Cu",
+                    "pos": {
+                        "x": 127.9625,
+                        "y": 126.0
+                    },
+                    "uuid": "80f8b369-9da0-4fce-bad4-9544d82a79ea"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Segment of U10 on F.Silkscreen",
+                    "pos": {
+                        "x": 128.51,
+                        "y": 124.81
+                    },
+                    "uuid": "fb5c09a6-9cbe-401e-819e-b59ad03a3ab9"
+                },
+                {
+                    "description": "Pad 2 [vsense] of U24 on F.Cu",
+                    "pos": {
+                        "x": 122.0375,
+                        "y": 126.0
+                    },
+                    "uuid": "c8e6648f-1aa8-4926-9185-6198ca1c8b9b"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Segment of U24 on F.Silkscreen",
+                    "pos": {
+                        "x": 127.177064,
+                        "y": 124.29
+                    },
+                    "uuid": "c44aefa0-b28f-461f-a454-aeb0ae0088d9"
+                },
+                {
+                    "description": "PTH pad 3 [a1] of U10",
+                    "pos": {
+                        "x": 125.9,
+                        "y": 122.0
+                    },
+                    "uuid": "75145691-a3cd-4cc7-812d-a75bdaa45cb8"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Segment of U10 on F.Silkscreen",
+                    "pos": {
+                        "x": 128.51,
+                        "y": 119.56
+                    },
+                    "uuid": "3a2f06ca-fa3f-4e5d-95a8-d1a16d12838c"
+                },
+                {
+                    "description": "Pad 1 [r_vtop4-p2] of U24 on F.Cu",
+                    "pos": {
+                        "x": 127.9625,
+                        "y": 126.0
+                    },
+                    "uuid": "80f8b369-9da0-4fce-bad4-9544d82a79ea"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        }
+    ]
+}

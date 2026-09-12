@@ -100,10 +100,7 @@ pub fn run(source: &str, native: &str, board: &[u8]) -> CheckReport {
                         Finding::fail("DRC.POWER_ENTRY.CONNECTIVITY", e, "connectivity_clusters")
                     }
                 });
-            append(
-                &mut r,
-                zapote_drc::current_sense::native_clearance(&evidence, 0.2),
-            );
+            append(&mut r, power_entry_clearance_profile(&evidence));
         }
         Err(e) => r.findings.push(Finding::fail(
             "DRC.POWER_ENTRY.NATIVE_INPUT",
@@ -122,6 +119,30 @@ pub fn run(source: &str, native: &str, board: &[u8]) -> CheckReport {
         "Bus bleeder decay, relay timing, semiconductor/capacitor thermal limits, EMC, insulation and mains qualification are NOT RUN.",
     ].map(str::to_owned));
     CheckReport::from_findings(r.findings, r.checked_rules, r.coverage_gaps)
+}
+
+fn power_entry_clearance_profile(evidence: &UnitNativeEvidence) -> CheckReport {
+    let hv: BTreeSet<String> = [
+        "AC_L_RECTIFIED_INPUT",
+        "AC_N_RECTIFIED_INPUT",
+        "l1",
+        "l2",
+        "ac1",
+        "ac2",
+        "plus",
+        "a1",
+        "PFC_BUS_PLUS_390V",
+        // Elevated-voltage feedback ladder taps; do not waive their pad
+        // spacing merely because the ladder is a functional signal.
+        "r_vtop-p2",
+        "r_vtop2-p2",
+        "r_vtop3-p2",
+        "r_vtop4-p2",
+    ]
+    .into_iter()
+    .map(str::to_owned)
+    .collect();
+    zapote_drc::current_sense::native_clearance_profile(evidence, &hv, "PE_CHASSIS", 2.0, 6.0, 0.2)
 }
 
 pub fn exit_code(status: Status) -> i32 {

@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "render",
+    "--width",
+    "1600",
+    "--height",
+    "1200",
+    "--side",
+    "top",
+    "--quality",
+    "high",
+    "--rotate",
+    "325,0,35",
+    "--output",
+    "zapote/power-entry/evidence/power-entry-routed.png",
+    "zapote/power-entry/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "board_sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf",
+  "output_sha256": "673dca07369517fc50913a5bddc5c289f367f8082b9d7221e49dd899618b2ab0"
+}

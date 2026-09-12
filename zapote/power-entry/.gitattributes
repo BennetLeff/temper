@@ -7,3 +7,9 @@ stderr.txt -whitespace
 *.log -whitespace
 source-build-18/** -whitespace
 libraries/** -whitespace
+source-build-20/** -whitespace
+source-build-21/** -whitespace
+source-build-22/** -whitespace
+
+# Preserve the exact captured test log and its receipt hash.
+evidence/workspace-tests-11.txt -whitespace

@@ -1,0 +1,14 @@
+{
+  "status": "emitted-native-verification-required",
+  "source_netlist_sha256": "9bd67c8cf10678284e6483f7b6eb904761702de5ebe2d8bd19aa3892cd84517e",
+  "source_bom_sha256": "da5902fc05b0de9673f3572bc9069333ff5fe4e1b01b7075b239b7800cbb0135",
+  "helper_sha256": "65a4cb8cbd058423b76bb45d21f743d64652cec4db8944f87db4d33ac61c29ff",
+  "outputs": {
+    "section.kicad_sch": "64f5d2df2784637b5d24905ee12cf45d2382c764734d64ea509bac5244860069",
+    "power-entry-unit.kicad_sym": "e776ad934a2f0817da1ddbcbd7ae96223db4f956200d048fa74d5ad4d2fce68a",
+    "sym-lib-table": "e7b51920b5da9a709f7189283736d2653d496cf1c476c926b869135dd0ef3688"
+  },
+  "component_count": 54,
+  "native_erc": "NOT RUN",
+  "pcb_touched": false
+}

@@ -1,0 +1,291 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-12T00:25:55",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.2497 mm)",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on B.Cu, length 14.1421 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 158.0
+                    },
+                    "uuid": "98d87087-ca8e-4a1c-afef-0968b94bfd0d"
+                },
+                {
+                    "description": "Via [l1] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 150.0
+                    },
+                    "uuid": "af24331c-d5fc-450c-93a4-34306c2e9538"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.1997 mm)",
+            "items": [
+                {
+                    "description": "Track [l1] on B.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 150.0
+                    },
+                    "uuid": "876eab31-9667-41f7-9361-1321df43a615"
+                },
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on B.Cu, length 14.1421 mm",
+                    "pos": {
+                        "x": 43.0,
+                        "y": 158.0
+                    },
+                    "uuid": "98d87087-ca8e-4a1c-afef-0968b94bfd0d"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 0.3000 mm)",
+            "items": [
+                {
+                    "description": "Track [l1] on F.Cu, length 36.3800 mm",
+                    "pos": {
+                        "x": 17.62,
+                        "y": 160.0
+                    },
+                    "uuid": "14bb7d26-d54a-4c3c-9bfb-24a7bc5e09da"
+                },
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U3",
+                    "pos": {
+                        "x": 36.0,
+                        "y": 165.0
+                    },
+                    "uuid": "36c05159-e14d-49f3-929e-477abb163606"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 0.5000 mm)",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on B.Cu, length 8.4853 mm",
+                    "pos": {
+                        "x": 53.0,
+                        "y": 136.0
+                    },
+                    "uuid": "95cd9e89-6e48-4840-8211-12cc17776500"
+                },
+                {
+                    "description": "Track [minus] on B.Cu, length 41.1000 mm",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 123.5
+                    },
+                    "uuid": "96664137-1618-4b07-b1ca-d1479eb8bf65"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.8000 mm)",
+            "items": [
+                {
+                    "description": "Pad 1 [PFC_BUS_PLUS_390V] of U20 on F.Cu",
+                    "pos": {
+                        "x": 145.4625,
+                        "y": 128.0
+                    },
+                    "uuid": "5c30fa3f-d3ec-4932-9208-999789a0e5ed"
+                },
+                {
+                    "description": "Pad 2 [r_vtop-p2] of U20 on F.Cu",
+                    "pos": {
+                        "x": 142.5375,
+                        "y": 128.0
+                    },
+                    "uuid": "42f70804-b558-49e3-8021-b28bdb140688"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.8800 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [minus] of U1",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 115.0
+                    },
+                    "uuid": "b4feb579-8128-4305-b260-c3515dc5d4f3"
+                },
+                {
+                    "description": "PTH pad 2 [ac1] of U1",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 115.0
+                    },
+                    "uuid": "5d6c08fe-81e4-4bf7-93c7-bd87b0c926c8"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.8800 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [minus] of U1",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 115.0
+                    },
+                    "uuid": "b4feb579-8128-4305-b260-c3515dc5d4f3"
+                },
+                {
+                    "description": "PTH pad 2 [ac1] of U1",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 115.0
+                    },
+                    "uuid": "5d6c08fe-81e4-4bf7-93c7-bd87b0c926c8"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.8800 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [ac1] of U1",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 115.0
+                    },
+                    "uuid": "5d6c08fe-81e4-4bf7-93c7-bd87b0c926c8"
+                },
+                {
+                    "description": "PTH pad 3 [ac2] of U1",
+                    "pos": {
+                        "x": 40.16,
+                        "y": 115.0
+                    },
+                    "uuid": "18f1ebda-72ea-4de3-ae1b-396ef455ef96"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.8800 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [ac1] of U1",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 115.0
+                    },
+                    "uuid": "5d6c08fe-81e4-4bf7-93c7-bd87b0c926c8"
+                },
+                {
+                    "description": "PTH pad 3 [ac2] of U1",
+                    "pos": {
+                        "x": 40.16,
+                        "y": 115.0
+                    },
+                    "uuid": "18f1ebda-72ea-4de3-ae1b-396ef455ef96"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.8800 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 3 [ac2] of U1",
+                    "pos": {
+                        "x": 40.16,
+                        "y": 115.0
+                    },
+                    "uuid": "18f1ebda-72ea-4de3-ae1b-396ef455ef96"
+                },
+                {
+                    "description": "PTH pad 4 [plus] of U1",
+                    "pos": {
+                        "x": 45.24,
+                        "y": 115.0
+                    },
+                    "uuid": "06060be3-5661-4bf6-a8b3-eb05995e8735"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'PFC high-voltage copper' clearance 2.0000 mm; actual 1.8800 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 3 [ac2] of U1",
+                    "pos": {
+                        "x": 40.16,
+                        "y": 115.0
+                    },
+                    "uuid": "18f1ebda-72ea-4de3-ae1b-396ef455ef96"
+                },
+                {
+                    "description": "PTH pad 4 [plus] of U1",
+                    "pos": {
+                        "x": 45.24,
+                        "y": 115.0
+                    },
+                    "uuid": "06060be3-5661-4bf6-a8b3-eb05995e8735"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        }
+    ]
+}

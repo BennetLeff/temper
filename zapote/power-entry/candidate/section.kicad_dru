@@ -1,2 +1,4 @@
 (version 1)
-# CurrentSenseUnit native DRC sidecar; requirements are in the project.
+# Prototype construction spacing; not an insulation coordination certification.
+(rule "PFC high-voltage copper" (condition "A.NetName != B.NetName && ((A.NetName == 'AC_L_RECTIFIED_INPUT' || A.NetName == 'AC_N_RECTIFIED_INPUT' || A.NetName == 'l1' || A.NetName == 'l2' || A.NetName == 'ac1' || A.NetName == 'ac2' || A.NetName == 'plus' || A.NetName == 'a1' || A.NetName == 'r_vtop-p2' || A.NetName == 'r_vtop2-p2' || A.NetName == 'r_vtop3-p2' || A.NetName == 'r_vtop4-p2' || A.NetName == 'PFC_BUS_PLUS_390V') || (B.NetName == 'AC_L_RECTIFIED_INPUT' || B.NetName == 'AC_N_RECTIFIED_INPUT' || B.NetName == 'l1' || B.NetName == 'l2' || B.NetName == 'ac1' || B.NetName == 'ac2' || B.NetName == 'plus' || B.NetName == 'a1' || B.NetName == 'r_vtop-p2' || B.NetName == 'r_vtop2-p2' || B.NetName == 'r_vtop3-p2' || B.NetName == 'r_vtop4-p2' || B.NetName == 'PFC_BUS_PLUS_390V'))") (constraint clearance (min 2mm)))
+(rule "Protective earth copper" (condition "A.NetName != B.NetName && (A.NetName == 'PE_CHASSIS' || B.NetName == 'PE_CHASSIS')") (constraint clearance (min 6mm)))

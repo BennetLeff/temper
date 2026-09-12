@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "cargo",
+    "run",
+    "--manifest-path",
+    "zapote/Cargo.toml",
+    "-q",
+    "-p",
+    "zapote-harness",
+    "--bin",
+    "zapote-power-entry",
+    "--",
+    "zapote/power-entry/candidate/source-manifest.json",
+    "zapote/power-entry/evidence/native-11.json",
+    "zapote/power-entry/candidate/section.kicad_pcb"
+  ],
+  "returncode": 2,
+  "cargo_target_dir": "/private/tmp/zapote-rtd-target",
+  "source_manifest_sha256": "e81f9551d767dc61ac70222388e08b408adc4238bc6d3fcb845adb8661460ba3",
+  "native_export_sha256": "446b69c6c35436e6ffe5fd2daeb9227fc574f548ce62771b22ac8c87c85e15f4",
+  "board_sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf",
+  "report_sha256": "769d19183867714bc4d9b65537ad56b1558b4b19a556784a884b5c204250c872"
+}

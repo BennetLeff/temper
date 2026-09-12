@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "zapote/Cargo.toml",
+    "--workspace"
+  ],
+  "cargo_target_dir": "/private/tmp/zapote-rtd-target",
+  "passed": 228,
+  "failed": 0,
+  "log_sha256": "ffc15f2d70cb1bee7bf47fa7f19c0b2c663121b950692699a464746f1194c6d4"
+}

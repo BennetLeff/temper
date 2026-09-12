@@ -5,7 +5,7 @@ fn malformed_source_fails_closed() {
 }
 
 #[test]
-fn actual_unrouted_candidate_has_correct_pin_nets_but_fails_copper_connectivity() {
+fn historical_source_18_is_rejected_and_unrouted_candidate_fails_copper_connectivity() {
     let source = include_str!("../../../power-entry/candidate/native-02/source-manifest.json");
     let native = include_str!("../../../power-entry/evidence/native-05.json");
     let json: serde_json::Value = serde_json::from_str(native).unwrap();
@@ -16,7 +16,7 @@ fn actual_unrouted_candidate_has_correct_pin_nets_but_fails_copper_connectivity(
             .findings
             .iter()
             .any(|f| f.rule == "ERC.POWER_ENTRY.SOURCE_GRAPH"
-                && f.status == zapote_core::Status::Pass)
+                && f.status == zapote_core::Status::Fail)
     );
     assert!(report
         .findings
@@ -29,6 +29,9 @@ fn actual_unrouted_candidate_has_correct_pin_nets_but_fails_copper_connectivity(
             .any(|f| f.rule == "DRC.POWER_ENTRY.CONNECTIVITY"
                 && f.status == zapote_core::Status::Fail)
     );
+    assert!(report.findings.iter().any(|f| {
+        f.rule == "DRC.NATIVE.CLEARANCE_PROFILE" && f.status == zapote_core::Status::Fail
+    }));
     assert_eq!(report.status, zapote_core::Status::Fail);
 }
 

@@ -1,0 +1,1137 @@
+{
+  "author": "root; explicit reviewed polylines for controller and relay, no route search",
+  "status": "candidate pending native DRC",
+  "nets": [
+    {
+      "net": "icomp",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "pfc.2",
+            [
+              92,
+              139.365
+            ],
+            "c_icomp.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "isense",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "pfc.3",
+            [
+              92.8,
+              140.635
+            ],
+            [
+              91.485,
+              141.95
+            ],
+            "c_isense.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "c_isense.1",
+            [
+              86,
+              143.95
+            ],
+            "r_isense.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "freq",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "pfc.4",
+            [
+              92.905,
+              143.525
+            ],
+            [
+              90.5375,
+              143.525
+            ],
+            "r_freq.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "vcomp",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "pfc.5",
+            [
+              101,
+              143.43
+            ],
+            "r_vcomp.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_vcomp.1",
+            "c_vcomp_p.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "r_vcomp-p2",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "r_vcomp.2",
+            [
+              110.475,
+              146
+            ],
+            "c_vcomp.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "vsense",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "pfc.6",
+            [
+              103,
+              140.635
+            ],
+            [
+              105.685,
+              143.32
+            ],
+            [
+              109,
+              143.32
+            ],
+            "c_vfeed.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "c_vfeed.1",
+            [
+              111.975,
+              140.95
+            ],
+            "r_vbottom.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_vbottom.1",
+            [
+              116.6,
+              141.4625
+            ],
+            "q_inhibit.3"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_vtop5.2",
+            [
+              116.5,
+              128
+            ]
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              116.5,
+              128
+            ],
+            [
+              116.5,
+              139.2
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              116.5,
+              139.2
+            ],
+            [
+              116.5,
+              141.3625
+            ],
+            "r_vbottom.1"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            116.5,
+            128
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            116.5,
+            139.2
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        }
+      ],
+      "zones": []
+    },
+    {
+      "net": "gate",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.6,
+          "points": [
+            "pfc.8",
+            [
+              101,
+              136.57
+            ]
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "width_mm": 0.6,
+          "points": [
+            [
+              101,
+              136.57
+            ],
+            [
+              100,
+              135.57
+            ],
+            [
+              89,
+              135.57
+            ],
+            [
+              89,
+              134.8
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.6,
+          "points": [
+            [
+              89,
+              134.8
+            ],
+            "r_gate.1"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            101,
+            136.57
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            89,
+            134.8
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        }
+      ],
+      "zones": []
+    },
+    {
+      "net": "q_boost-g",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.8,
+          "points": [
+            "q_boost.1",
+            [
+              90,
+              124
+            ],
+            [
+              89,
+              125
+            ],
+            "r_gate.2"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            [
+              90,
+              124
+            ],
+            "r_gate_pd.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "AUX_15V_IN",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.6,
+          "points": [
+            "pfc.7",
+            [
+              101.2,
+              139.365
+            ],
+            [
+              104.05,
+              136.515
+            ],
+            "c_vcc.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.6,
+          "points": [
+            "c_vcc.1",
+            [
+              104.05,
+              133.5
+            ],
+            [
+              108,
+              129.55
+            ],
+            [
+              113,
+              129.55
+            ],
+            [
+              117.5,
+              134.05
+            ],
+            [
+              117.5,
+              135
+            ],
+            "r_inhibit_pullup.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.6,
+          "points": [
+            "r_inhibit_pullup.1",
+            [
+              119,
+              134.7
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.6,
+          "points": [
+            [
+              153,
+              139
+            ],
+            [
+              159,
+              145
+            ],
+            [
+              166,
+              145
+            ],
+            "r_relay_drop.1"
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "width_mm": 0.6,
+          "points": [
+            [
+              119,
+              134.7
+            ],
+            [
+              139,
+              134.7
+            ],
+            [
+              143.3,
+              139
+            ],
+            [
+              153,
+              139
+            ],
+            "aux.1"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            119,
+            134.7
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            153,
+            139
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        }
+      ],
+      "zones": []
+    },
+    {
+      "net": "q_inhibit-g",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_inhibit_pullup.2",
+            [
+              123.8,
+              135
+            ],
+            [
+              123.8,
+              138
+            ],
+            "q_inhibit.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "q_inhibit.1",
+            [
+              123.8,
+              142
+            ],
+            [
+              123.8,
+              147
+            ],
+            "r_inhibit_pulldown.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              123.8,
+              142
+            ],
+            [
+              124.8,
+              142
+            ]
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              124.8,
+              142
+            ],
+            [
+              129.2,
+              142
+            ],
+            [
+              130,
+              142.8
+            ],
+            [
+              130,
+              145
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              130,
+              145
+            ],
+            [
+              129,
+              145
+            ],
+            "q_permit.3"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            124.8,
+            142
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            130,
+            145
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        }
+      ],
+      "zones": []
+    },
+    {
+      "net": "HOT_PERMIT_EXTERNAL",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "permit.1",
+            [
+              147,
+              170
+            ],
+            [
+              143,
+              166
+            ],
+            [
+              143,
+              143
+            ],
+            "r_permit_gate.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "q_permit-g",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            "r_permit_gate.2",
+            [
+              130,
+              143
+            ],
+            "q_permit.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.3,
+          "points": [
+            [
+              130,
+              143
+            ],
+            "r_permit_pd.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "RELAY_BYPASS_CTRL",
+      "paths": [
+        {
+          "layer": "B.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "control.1",
+            [
+              158,
+              160
+            ],
+            [
+              172.5375,
+              174
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            [
+              172.5375,
+              174
+            ],
+            "r_relay_gate.1"
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            172.5375,
+            174
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        }
+      ],
+      "zones": []
+    },
+    {
+      "net": "r_relay_gate-g",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "r_relay_gate.2",
+            [
+              180,
+              178
+            ],
+            "relay_driver.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            [
+              179.5,
+              178
+            ],
+            [
+              179.5,
+              181.5375
+            ],
+            "r_relay_pd.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "coil1",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.8,
+          "points": [
+            "r_relay_drop.2",
+            "relay_flyback.1"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.8,
+          "points": [
+            [
+              166,
+              178
+            ],
+            [
+              162,
+              178
+            ],
+            "bypass.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "coil2",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.8,
+          "points": [
+            "bypass.2",
+            [
+              163,
+              186.5
+            ],
+            [
+              164,
+              187.5
+            ],
+            [
+              181,
+              187.5
+            ],
+            [
+              184,
+              184.5
+            ],
+            "relay_driver.3"
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.8,
+          "points": [
+            "relay_flyback.2",
+            [
+              169,
+              182
+            ],
+            [
+              170,
+              183
+            ],
+            [
+              170,
+              187.5
+            ]
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "r_vtop-p2",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "r_vtop.2",
+            "r_vtop2.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "r_vtop2-p2",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "r_vtop2.2",
+            "r_vtop3.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "r_vtop3-p2",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "r_vtop3.2",
+            "r_vtop4.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "r_vtop4-p2",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.4,
+          "points": [
+            "r_vtop4.2",
+            "r_vtop5.1"
+          ]
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "PFC_BUS_MINUS",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "pfc.1",
+            [
+              93.7,
+              136.8
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "c_icomp.2",
+            [
+              92,
+              135.2
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "c_isense.2",
+            [
+              87,
+              140.05
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "r_freq.2",
+            [
+              94.6,
+              145
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "c_vcomp_p.2",
+            [
+              104,
+              151
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "c_vcomp.2",
+            [
+              111,
+              151
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "c_vfeed.2",
+            [
+              110.3,
+              139.05
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "r_vbottom.2",
+            [
+              115.2,
+              139.5375
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "q_inhibit.2",
+            [
+              119.9375,
+              137.85
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "q_permit.2",
+            [
+              125,
+              144.95
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "r_inhibit_pulldown.2",
+            [
+              117.3,
+              147
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "r_permit_pd.2",
+            [
+              133.2,
+              150.4625
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "c_vcc.2",
+            [
+              107,
+              136
+            ]
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.5,
+          "points": [
+            "r_gate_pd.2",
+            [
+              97.6,
+              127
+            ]
+          ]
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            93.7,
+            136.8
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            92,
+            135.2
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            87,
+            140.05
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            94.6,
+            145
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            104,
+            151
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            111,
+            151
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            110.3,
+            139.05
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            115.2,
+            139.5375
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            119.9375,
+            137.85
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            125,
+            144.95
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            117.3,
+            147
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            133.2,
+            150.4625
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            107,
+            136
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            97.6,
+            127
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        }
+      ],
+      "zones": [
+        {
+          "layer": "B.Cu",
+          "clearance_mm": 0.3,
+          "outline_mm": [
+            [
+              83,
+              134.5
+            ],
+            [
+              141,
+              134.5
+            ],
+            [
+              141,
+              156
+            ],
+            [
+              83,
+              156
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

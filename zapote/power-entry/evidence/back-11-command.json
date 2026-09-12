@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "export",
+    "svg",
+    "--mode-single",
+    "--layers",
+    "B.Cu,F.Fab,Edge.Cuts",
+    "--fit-page-to-board",
+    "--exclude-drawing-sheet",
+    "--output",
+    "zapote/power-entry/evidence/power-entry-back.svg",
+    "zapote/power-entry/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "board_sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf",
+  "output_sha256": "51dd07accef70dd6f813a80abbed040d10b1db1a3ffe1f3a8ae1bec0ca609a9e"
+}

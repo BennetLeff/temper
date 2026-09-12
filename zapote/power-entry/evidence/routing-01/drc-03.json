@@ -1,0 +1,4025 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-12T00:17:04",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 2 [minus] of U12 on F.Cu",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 132.0
+                    },
+                    "uuid": "025aa615-6183-46fb-a7fe-de8e272012b2"
+                },
+                {
+                    "description": "Track [minus] on B.Cu, length 6.0000 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 126.0
+                    },
+                    "uuid": "373f9d4f-0a0a-47b0-91ef-b3e2bb2478ad"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and r_relay_gate-g)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 2.8284 mm",
+                    "pos": {
+                        "x": 174.0,
+                        "y": 177.0
+                    },
+                    "uuid": "2b3e4e5f-c613-4748-ba25-5ddf4481e1be"
+                },
+                {
+                    "description": "Pad 2 [r_relay_gate-g] of U15 on F.Cu",
+                    "pos": {
+                        "x": 175.4625,
+                        "y": 178.0
+                    },
+                    "uuid": "fd12c9c5-723c-4f12-bdd6-3357dba73128"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and r_relay_gate-g)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 5.4625 mm",
+                    "pos": {
+                        "x": 176.0,
+                        "y": 179.0
+                    },
+                    "uuid": "667824a1-0024-4dbc-8533-7149965a119a"
+                },
+                {
+                    "description": "Pad 2 [r_relay_gate-g] of U15 on F.Cu",
+                    "pos": {
+                        "x": 175.4625,
+                        "y": 178.0
+                    },
+                    "uuid": "fd12c9c5-723c-4f12-bdd6-3357dba73128"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 3.3364 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "aa564316-7472-4ce6-a752-9f46afc979d0"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 3.3364 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "aa564316-7472-4ce6-a752-9f46afc979d0"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 8.5400 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 154.0
+                    },
+                    "uuid": "b17333bf-e805-4f7d-ba77-7c957f8c447a"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 3.0000 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "d320d8b8-725f-4f3b-ada7-de287ec33c01"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 3.0000 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "d320d8b8-725f-4f3b-ada7-de287ec33c01"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1541 mm)",
+            "items": [
+                {
+                    "description": "Track [minus] on F.Cu, length 6.6468 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 134.0
+                    },
+                    "uuid": "6019e215-7bb4-4ff9-8296-9f5c5e2492a7"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 3.4750 mm",
+                    "pos": {
+                        "x": 80.7,
+                        "y": 135.0
+                    },
+                    "uuid": "d8a25074-5d3d-4167-af49-204826377fc6"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil1] on F.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 166.0,
+                        "y": 178.0
+                    },
+                    "uuid": "c112d22c-cd46-4c7f-af82-3fdba9f87163"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 18.0000 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 177.0
+                    },
+                    "uuid": "ed40cd61-65c5-4dfd-a158-15dfe2836bab"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1000 mm)",
+            "items": [
+                {
+                    "description": "Track [coil1] on F.Cu, length 2.2361 mm",
+                    "pos": {
+                        "x": 162.0,
+                        "y": 178.0
+                    },
+                    "uuid": "c7a1582d-3d20-4896-88ec-e808c692f9bf"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 18.0000 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 177.0
+                    },
+                    "uuid": "ed40cd61-65c5-4dfd-a158-15dfe2836bab"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets coil1 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Pad 1 [coil1] of U34 on F.Cu",
+                    "pos": {
+                        "x": 166.0,
+                        "y": 178.0
+                    },
+                    "uuid": "cafb1e2c-13e2-44a0-a4e8-cd4ebebe0a9c"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 18.0000 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 177.0
+                    },
+                    "uuid": "ed40cd61-65c5-4dfd-a158-15dfe2836bab"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [RELAY_BYPASS_CTRL] on F.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 172.5375,
+                        "y": 174.0
+                    },
+                    "uuid": "27abae03-77a6-4580-a38c-6ddf49b8cd1c"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 18.0000 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 177.0
+                    },
+                    "uuid": "ed40cd61-65c5-4dfd-a158-15dfe2836bab"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets RELAY_BYPASS_CTRL and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Pad 1 [RELAY_BYPASS_CTRL] of U15 on F.Cu",
+                    "pos": {
+                        "x": 172.5375,
+                        "y": 178.0
+                    },
+                    "uuid": "d029a0f4-3233-49a1-81bf-4e89d498772f"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 18.0000 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 177.0
+                    },
+                    "uuid": "ed40cd61-65c5-4dfd-a158-15dfe2836bab"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [coil1] on F.Cu, length 3.0375 mm",
+                    "pos": {
+                        "x": 166.0,
+                        "y": 174.9625
+                    },
+                    "uuid": "e92279bf-da84-447c-8ce6-c83589f18fa1"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 18.0000 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 177.0
+                    },
+                    "uuid": "ed40cd61-65c5-4dfd-a158-15dfe2836bab"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and q_boost-g)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 10.9000 mm",
+                    "pos": {
+                        "x": 100.9,
+                        "y": 128.0
+                    },
+                    "uuid": "5eac72a8-7c5c-4743-9cea-139aaa39eea5"
+                },
+                {
+                    "description": "PTH pad 1 [q_boost-g] of U9",
+                    "pos": {
+                        "x": 90.0,
+                        "y": 122.0
+                    },
+                    "uuid": "d7e3f649-8897-4d61-b722-66758776f315"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets a1 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [a1] of U9",
+                    "pos": {
+                        "x": 95.45,
+                        "y": 122.0
+                    },
+                    "uuid": "0075610d-10cd-44ab-8af4-cac39cc98039"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 10.9000 mm",
+                    "pos": {
+                        "x": 100.9,
+                        "y": 128.0
+                    },
+                    "uuid": "5eac72a8-7c5c-4743-9cea-139aaa39eea5"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and q_boost-g)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 6.4031 mm",
+                    "pos": {
+                        "x": 90.0,
+                        "y": 128.0
+                    },
+                    "uuid": "4e757783-27e4-4c9d-a925-1fdfa7d50db2"
+                },
+                {
+                    "description": "PTH pad 1 [q_boost-g] of U9",
+                    "pos": {
+                        "x": 90.0,
+                        "y": 122.0
+                    },
+                    "uuid": "d7e3f649-8897-4d61-b722-66758776f315"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 2.0954 mm",
+                    "pos": {
+                        "x": 77.225,
+                        "y": 135.0
+                    },
+                    "uuid": "5e589d60-7b43-44d0-9b3a-78932924f4e3"
+                },
+                {
+                    "description": "Track [minus] on F.Cu, length 6.6468 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 134.0
+                    },
+                    "uuid": "6019e215-7bb4-4ff9-8296-9f5c5e2492a7"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets minus and l2)",
+            "items": [
+                {
+                    "description": "Track [minus] on F.Cu, length 6.7625 mm",
+                    "pos": {
+                        "x": 82.0,
+                        "y": 140.7
+                    },
+                    "uuid": "17b06bfb-350b-45ad-981c-fe2ce706d1f2"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0571 mm)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 17.3000 mm",
+                    "pos": {
+                        "x": 77.0,
+                        "y": 136.7
+                    },
+                    "uuid": "481dac84-156c-4929-b0f1-0cf6dada4c91"
+                },
+                {
+                    "description": "Track [minus] on F.Cu, length 6.6468 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 134.0
+                    },
+                    "uuid": "6019e215-7bb4-4ff9-8296-9f5c5e2492a7"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [minus] on F.Cu, length 6.6468 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 134.0
+                    },
+                    "uuid": "6019e215-7bb4-4ff9-8296-9f5c5e2492a7"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 5.2326 mm",
+                    "pos": {
+                        "x": 80.7,
+                        "y": 133.0
+                    },
+                    "uuid": "90eef135-5f5c-4b69-ac06-02aee5d90c7b"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_N_RECTIFIED_INPUT and minus)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U7",
+                    "pos": {
+                        "x": 73.5,
+                        "y": 117.3
+                    },
+                    "uuid": "4fa1da20-4e87-4ad3-8d78-c83802fea9fc"
+                },
+                {
+                    "description": "Track [minus] on B.Cu, length 5.0000 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 121.0
+                    },
+                    "uuid": "c38d7cf8-0066-4db2-bd2c-f99ca77978ec"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_N_RECTIFIED_INPUT and minus)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U7",
+                    "pos": {
+                        "x": 73.5,
+                        "y": 117.3
+                    },
+                    "uuid": "4fa1da20-4e87-4ad3-8d78-c83802fea9fc"
+                },
+                {
+                    "description": "Track [minus] on B.Cu, length 45.3000 mm",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 121.0
+                    },
+                    "uuid": "f37be4b0-1cdd-4457-ae03-8461cd5f2180"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and minus)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Track [minus] on F.Cu, length 4.0000 mm",
+                    "pos": {
+                        "x": 82.0,
+                        "y": 147.4625
+                    },
+                    "uuid": "e82f4705-c009-4b42-b699-44df55d616b1"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [minus] on B.Cu, length 5.0000 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 121.0
+                    },
+                    "uuid": "c38d7cf8-0066-4db2-bd2c-f99ca77978ec"
+                },
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U7",
+                    "pos": {
+                        "x": 73.5,
+                        "y": 117.3
+                    },
+                    "uuid": "4fa1da20-4e87-4ad3-8d78-c83802fea9fc"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [minus] on B.Cu, length 45.3000 mm",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 121.0
+                    },
+                    "uuid": "f37be4b0-1cdd-4457-ae03-8461cd5f2180"
+                },
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U7",
+                    "pos": {
+                        "x": 73.5,
+                        "y": 117.3
+                    },
+                    "uuid": "4fa1da20-4e87-4ad3-8d78-c83802fea9fc"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [AUX_15V_IN] on F.Cu, length 24.0375 mm",
+                    "pos": {
+                        "x": 166.0,
+                        "y": 145.0
+                    },
+                    "uuid": "7b40e5b6-cd2d-4722-9b38-eeb40cef6106"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets AUX_15V_IN and l2)",
+            "items": [
+                {
+                    "description": "Track [AUX_15V_IN] on F.Cu, length 11.0000 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 139.0
+                    },
+                    "uuid": "9f2b2077-e5b1-47e6-845a-378ebca0e7e7"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and AUX_15V_IN)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                },
+                {
+                    "description": "Track [AUX_15V_IN] on F.Cu, length 11.0000 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 139.0
+                    },
+                    "uuid": "9f2b2077-e5b1-47e6-845a-378ebca0e7e7"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [HOT_PERMIT_EXTERNAL] on F.Cu, length 23.0000 mm",
+                    "pos": {
+                        "x": 143.0,
+                        "y": 166.0
+                    },
+                    "uuid": "2706d872-8707-49cc-9a5f-c879cc177b9e"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 152.54
+                    },
+                    "uuid": "54fc4708-ea07-4db2-b031-67543e70b106"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [HOT_PERMIT_EXTERNAL] on F.Cu, length 23.0000 mm",
+                    "pos": {
+                        "x": 143.0,
+                        "y": 166.0
+                    },
+                    "uuid": "2706d872-8707-49cc-9a5f-c879cc177b9e"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets HOT_PERMIT_EXTERNAL and l2)",
+            "items": [
+                {
+                    "description": "Track [HOT_PERMIT_EXTERNAL] on F.Cu, length 5.6569 mm",
+                    "pos": {
+                        "x": 147.0,
+                        "y": 170.0
+                    },
+                    "uuid": "1da50ee7-5f4a-4f5e-878e-92733823552f"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets HOT_PERMIT_EXTERNAL and l2)",
+            "items": [
+                {
+                    "description": "Track [HOT_PERMIT_EXTERNAL] on F.Cu, length 23.0000 mm",
+                    "pos": {
+                        "x": 143.0,
+                        "y": 166.0
+                    },
+                    "uuid": "2706d872-8707-49cc-9a5f-c879cc177b9e"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 21.7000 mm",
+                    "pos": {
+                        "x": 118.0,
+                        "y": 164.0
+                    },
+                    "uuid": "fe4eea10-9797-432f-97db-8c6ab8cf70cf"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets HOT_PERMIT_EXTERNAL and l2)",
+            "items": [
+                {
+                    "description": "Track [HOT_PERMIT_EXTERNAL] on F.Cu, length 5.6569 mm",
+                    "pos": {
+                        "x": 147.0,
+                        "y": 170.0
+                    },
+                    "uuid": "1da50ee7-5f4a-4f5e-878e-92733823552f"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 21.7000 mm",
+                    "pos": {
+                        "x": 118.0,
+                        "y": 164.0
+                    },
+                    "uuid": "fe4eea10-9797-432f-97db-8c6ab8cf70cf"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_PLUS_390V and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 42.0000 mm",
+                    "pos": {
+                        "x": 135.0,
+                        "y": 93.0
+                    },
+                    "uuid": "015d1b6d-5c56-4583-b9e2-7eb9fbd77628"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U38",
+                    "pos": {
+                        "x": 145.0,
+                        "y": 93.0
+                    },
+                    "uuid": "76abe364-ebdb-4e5e-a405-7125d819294d"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [a1] on F.Cu, length 14.5000 mm",
+                    "pos": {
+                        "x": 125.9,
+                        "y": 107.5
+                    },
+                    "uuid": "3f1fec0d-5fe9-4813-8674-84b4750775e3"
+                },
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 135.0,
+                        "y": 113.0
+                    },
+                    "uuid": "50445120-1938-4249-bbc9-2371e4457a6c"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 42.0000 mm",
+                    "pos": {
+                        "x": 135.0,
+                        "y": 93.0
+                    },
+                    "uuid": "015d1b6d-5c56-4583-b9e2-7eb9fbd77628"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U38",
+                    "pos": {
+                        "x": 145.0,
+                        "y": 93.0
+                    },
+                    "uuid": "76abe364-ebdb-4e5e-a405-7125d819294d"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_PLUS_390V and a1)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 135.0,
+                        "y": 113.0
+                    },
+                    "uuid": "50445120-1938-4249-bbc9-2371e4457a6c"
+                },
+                {
+                    "description": "Track [a1] on F.Cu, length 3.0000 mm",
+                    "pos": {
+                        "x": 125.9,
+                        "y": 104.5
+                    },
+                    "uuid": "86f25f8d-7e6d-4af4-ae8f-33bcdd65e0fe"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 17.3000 mm",
+                    "pos": {
+                        "x": 77.0,
+                        "y": 136.7
+                    },
+                    "uuid": "481dac84-156c-4929-b0f1-0cf6dada4c91"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0623 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 7.0000 mm",
+                    "pos": {
+                        "x": 119.0,
+                        "y": 172.0
+                    },
+                    "uuid": "8032b97a-6db7-4cff-8424-0194827dd201"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and PFC_BUS_PLUS_390V)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U39",
+                    "pos": {
+                        "x": 187.0,
+                        "y": 93.0
+                    },
+                    "uuid": "4cb1fdf9-a6be-4e16-a083-5ae71af78e1d"
+                },
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 26.0000 mm",
+                    "pos": {
+                        "x": 177.0,
+                        "y": 93.0
+                    },
+                    "uuid": "d68bb02f-8d01-4b92-9d36-d72b9236c6e9"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and l2)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and l2)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 11.3137 mm",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "da791485-bc88-4474-a832-a12678f7973b"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and l2)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 11.3137 mm",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "da791485-bc88-4474-a832-a12678f7973b"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and l2)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 25.4558 mm",
+                    "pos": {
+                        "x": 101.0,
+                        "y": 154.0
+                    },
+                    "uuid": "50d56d06-3e06-4420-854e-4ab3bb035ae1"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and l2)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 7.0000 mm",
+                    "pos": {
+                        "x": 119.0,
+                        "y": 172.0
+                    },
+                    "uuid": "8032b97a-6db7-4cff-8424-0194827dd201"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 21.7000 mm",
+                    "pos": {
+                        "x": 118.0,
+                        "y": 164.0
+                    },
+                    "uuid": "fe4eea10-9797-432f-97db-8c6ab8cf70cf"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and ac1)",
+            "items": [
+                {
+                    "description": "PTH pad 4 [l2] of U3",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "44c3e063-4311-40eb-9b0c-db7f32c6d3fe"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 139.0
+                    },
+                    "uuid": "d990e7e8-7ceb-4d7d-a803-558d808c0954"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l1 and ac1)",
+            "items": [
+                {
+                    "description": "Track [l1] on F.Cu, length 7.0000 mm",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 130.0
+                    },
+                    "uuid": "58d35973-9bc3-400c-9a10-b2065d62eafb"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and l2)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 8.0000 mm",
+                    "pos": {
+                        "x": 126.0,
+                        "y": 172.0
+                    },
+                    "uuid": "a802e613-007e-4621-a7ae-ebd0e54e0385"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 21.7000 mm",
+                    "pos": {
+                        "x": 118.0,
+                        "y": 164.0
+                    },
+                    "uuid": "fe4eea10-9797-432f-97db-8c6ab8cf70cf"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 139.0
+                    },
+                    "uuid": "d990e7e8-7ceb-4d7d-a803-558d808c0954"
+                },
+                {
+                    "description": "PTH pad 4 [l2] of U3",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "44c3e063-4311-40eb-9b0c-db7f32c6d3fe"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 8.0000 mm",
+                    "pos": {
+                        "x": 77.0,
+                        "y": 154.0
+                    },
+                    "uuid": "06f9e76c-9fba-4ca4-b278-7d4cb3744b0d"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and ac1)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 139.0
+                    },
+                    "uuid": "d990e7e8-7ceb-4d7d-a803-558d808c0954"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 139.0
+                    },
+                    "uuid": "d990e7e8-7ceb-4d7d-a803-558d808c0954"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 11.3137 mm",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "da791485-bc88-4474-a832-a12678f7973b"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and ac1)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 25.4558 mm",
+                    "pos": {
+                        "x": 101.0,
+                        "y": 154.0
+                    },
+                    "uuid": "50d56d06-3e06-4420-854e-4ab3bb035ae1"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 164.0
+                    },
+                    "uuid": "13260750-4e49-4214-9b31-3ea1131a335a"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 154.0
+                    },
+                    "uuid": "cfdcbd9f-31f7-4b63-a52c-0367122f8684"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [l1] on F.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 48.0,
+                        "y": 149.0
+                    },
+                    "uuid": "9a3602e5-5687-4fd7-9778-6387245496fb"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets RELAY_BYPASS_CTRL and ac1)",
+            "items": [
+                {
+                    "description": "Track [RELAY_BYPASS_CTRL] on B.Cu, length 5.0000 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 160.0
+                    },
+                    "uuid": "314dfa4a-3e7a-4e6f-b6d6-7212e052550a"
+                },
+                {
+                    "description": "Track [ac1] on B.Cu, length 47.0000 mm",
+                    "pos": {
+                        "x": 128.0,
+                        "y": 163.0
+                    },
+                    "uuid": "cb68e7d6-6987-4066-b197-c9772504b5fb"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [RELAY_BYPASS_CTRL] on B.Cu, length 20.1826 mm",
+                    "pos": {
+                        "x": 158.0,
+                        "y": 160.0
+                    },
+                    "uuid": "85495b83-984d-435f-ad80-6e384c9bd9b7"
+                },
+                {
+                    "description": "Track [ac1] on B.Cu, length 47.0000 mm",
+                    "pos": {
+                        "x": 128.0,
+                        "y": 163.0
+                    },
+                    "uuid": "cb68e7d6-6987-4066-b197-c9772504b5fb"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets l1 and ac1)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [l1] of U6",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 130.0
+                    },
+                    "uuid": "204fadc8-02ec-4375-88e2-aabc6d930830"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 22.5175 mm",
+                    "pos": {
+                        "x": 214.52,
+                        "y": 153.4825
+                    },
+                    "uuid": "4e633f03-7ef0-4400-b0f0-b5f6bc531bf2"
+                },
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 21.2132 mm",
+                    "pos": {
+                        "x": 220.0,
+                        "y": 161.0
+                    },
+                    "uuid": "ab53b323-7aab-4ea5-8b79-3f3a33ed8bf3"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and RELAY_BYPASS_CTRL)",
+            "items": [
+                {
+                    "description": "Track [ac1] on B.Cu, length 47.0000 mm",
+                    "pos": {
+                        "x": 128.0,
+                        "y": 163.0
+                    },
+                    "uuid": "cb68e7d6-6987-4066-b197-c9772504b5fb"
+                },
+                {
+                    "description": "PTH pad 1 [RELAY_BYPASS_CTRL] of U44",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 160.0
+                    },
+                    "uuid": "d7a18da6-a38b-4aa3-828d-5904d7c9212d"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l1 and ac1)",
+            "items": [
+                {
+                    "description": "Track [l1] on F.Cu, length 5.6569 mm",
+                    "pos": {
+                        "x": 48.0,
+                        "y": 134.0
+                    },
+                    "uuid": "2cfc95e9-5e62-448d-9240-fa51255b47c7"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 26.0000 mm",
+                    "pos": {
+                        "x": 177.0,
+                        "y": 93.0
+                    },
+                    "uuid": "d68bb02f-8d01-4b92-9d36-d72b9236c6e9"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U39",
+                    "pos": {
+                        "x": 187.0,
+                        "y": 93.0
+                    },
+                    "uuid": "4cb1fdf9-a6be-4e16-a083-5ae71af78e1d"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0400 mm)",
+            "items": [
+                {
+                    "description": "PTH pad 4 [l2] of U5",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 179.0
+                    },
+                    "uuid": "8bac4c59-7d93-4a01-8174-baa4440be2ce"
+                },
+                {
+                    "description": "Track [ac1] on B.Cu, length 9.4187 mm",
+                    "pos": {
+                        "x": 134.66,
+                        "y": 179.0
+                    },
+                    "uuid": "fe78aaa9-3e6d-4b32-8a04-d197a07a8d62"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [ac1] on B.Cu, length 47.0000 mm",
+                    "pos": {
+                        "x": 128.0,
+                        "y": 163.0
+                    },
+                    "uuid": "cb68e7d6-6987-4066-b197-c9772504b5fb"
+                },
+                {
+                    "description": "PTH pad 1 [RELAY_BYPASS_CTRL] of U44",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 160.0
+                    },
+                    "uuid": "d7a18da6-a38b-4aa3-828d-5904d7c9212d"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 154.0
+                    },
+                    "uuid": "cfdcbd9f-31f7-4b63-a52c-0367122f8684"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [ac1] on B.Cu, length 47.0000 mm",
+                    "pos": {
+                        "x": 128.0,
+                        "y": 163.0
+                    },
+                    "uuid": "cb68e7d6-6987-4066-b197-c9772504b5fb"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U44",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 162.54
+                    },
+                    "uuid": "d0228622-12a0-4da8-9afa-525552c253e3"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 17.3000 mm",
+                    "pos": {
+                        "x": 77.0,
+                        "y": 136.7
+                    },
+                    "uuid": "481dac84-156c-4929-b0f1-0cf6dada4c91"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and ac1)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 1.0500 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 149.95
+                    },
+                    "uuid": "3c5719db-de05-4af5-9921-b7acef6312d8"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 25.4558 mm",
+                    "pos": {
+                        "x": 101.0,
+                        "y": 154.0
+                    },
+                    "uuid": "50d56d06-3e06-4420-854e-4ab3bb035ae1"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_PLUS_390V and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 42.0000 mm",
+                    "pos": {
+                        "x": 135.0,
+                        "y": 50.0
+                    },
+                    "uuid": "c9630de7-5113-4285-acf3-3851252b57a9"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U36",
+                    "pos": {
+                        "x": 145.0,
+                        "y": 50.0
+                    },
+                    "uuid": "f624b7a4-4b70-4a3e-845b-7c6753e48e4b"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [ac1] on B.Cu, length 47.0000 mm",
+                    "pos": {
+                        "x": 128.0,
+                        "y": 163.0
+                    },
+                    "uuid": "cb68e7d6-6987-4066-b197-c9772504b5fb"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U44",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 162.54
+                    },
+                    "uuid": "d0228622-12a0-4da8-9afa-525552c253e3"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets minus and l2)",
+            "items": [
+                {
+                    "description": "Pad 2 [minus] of U18 on F.Cu",
+                    "pos": {
+                        "x": 86.0,
+                        "y": 147.4625
+                    },
+                    "uuid": "40c3c318-6a5f-4ad8-b521-70a5b42ae62f"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and ac1)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and ac1)",
+            "items": [
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 151.0
+                    },
+                    "uuid": "28ba9c0f-d830-48d1-9241-3f3d4c551148"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 25.4558 mm",
+                    "pos": {
+                        "x": 101.0,
+                        "y": 154.0
+                    },
+                    "uuid": "50d56d06-3e06-4420-854e-4ab3bb035ae1"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 1.0500 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 149.95
+                    },
+                    "uuid": "3c5719db-de05-4af5-9921-b7acef6312d8"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_N_RECTIFIED_INPUT and ac1)",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on F.Cu, length 14.5000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 130.0
+                    },
+                    "uuid": "2c3d0ae6-883d-48ba-9a2b-9139b401bcba"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and ac1)",
+            "items": [
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 151.0
+                    },
+                    "uuid": "28ba9c0f-d830-48d1-9241-3f3d4c551148"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and l2)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 152.54
+                    },
+                    "uuid": "54fc4708-ea07-4db2-b031-67543e70b106"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1250 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Pad 1 [freq] of U19 on F.Cu",
+                    "pos": {
+                        "x": 90.5375,
+                        "y": 145.0
+                    },
+                    "uuid": "ed15cc95-1386-4c5d-9a62-1d5339d83f55"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_N_RECTIFIED_INPUT and ac1)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U6",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 130.0
+                    },
+                    "uuid": "149c0b5f-e2e7-463a-8ca8-50cb8c20a3ec"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0426 mm)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 25.4558 mm",
+                    "pos": {
+                        "x": 101.0,
+                        "y": 154.0
+                    },
+                    "uuid": "50d56d06-3e06-4420-854e-4ab3bb035ae1"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 151.0
+                    },
+                    "uuid": "28ba9c0f-d830-48d1-9241-3f3d4c551148"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and ac1)",
+            "items": [
+                {
+                    "description": "PTH pad 4 [l2] of U3",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "44c3e063-4311-40eb-9b0c-db7f32c6d3fe"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 5.6569 mm",
+                    "pos": {
+                        "x": 65.0,
+                        "y": 135.0
+                    },
+                    "uuid": "bae8422f-5191-4dc5-9f93-91ad01faec1d"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0426 mm)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 154.0
+                    },
+                    "uuid": "3bccfc55-ff13-4c45-b184-c8d17c000b06"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 151.0
+                    },
+                    "uuid": "28ba9c0f-d830-48d1-9241-3f3d4c551148"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and l2)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 5.6569 mm",
+                    "pos": {
+                        "x": 65.0,
+                        "y": 135.0
+                    },
+                    "uuid": "bae8422f-5191-4dc5-9f93-91ad01faec1d"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 11.3137 mm",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "da791485-bc88-4474-a832-a12678f7973b"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_N_RECTIFIED_INPUT and AC_L_RECTIFIED_INPUT)",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on B.Cu, length 5.3283 mm",
+                    "pos": {
+                        "x": 39.52,
+                        "y": 180.0
+                    },
+                    "uuid": "42da548c-cd69-41be-b774-97db77ebf073"
+                },
+                {
+                    "description": "Track [AC_L_RECTIFIED_INPUT] on B.Cu, length 28.2843 mm",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 157.0
+                    },
+                    "uuid": "d0524ee8-61eb-4bdc-a1c8-dfd30c54e77f"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_N_RECTIFIED_INPUT and ac1)",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on F.Cu, length 14.5000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 130.0
+                    },
+                    "uuid": "2c3d0ae6-883d-48ba-9a2b-9139b401bcba"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 5.6569 mm",
+                    "pos": {
+                        "x": 65.0,
+                        "y": 135.0
+                    },
+                    "uuid": "bae8422f-5191-4dc5-9f93-91ad01faec1d"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AUX_15V_IN and l2)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [AUX_15V_IN] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 150.0
+                    },
+                    "uuid": "71263ae2-9fbc-4eba-9d77-846170ce0e56"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and vcomp)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 1 [vcomp] of U26 on F.Cu",
+                    "pos": {
+                        "x": 103.5375,
+                        "y": 146.0
+                    },
+                    "uuid": "7003fb6e-5457-4dc7-ae80-b7ef1cb1241e"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 42.0000 mm",
+                    "pos": {
+                        "x": 135.0,
+                        "y": 50.0
+                    },
+                    "uuid": "c9630de7-5113-4285-acf3-3851252b57a9"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U36",
+                    "pos": {
+                        "x": 145.0,
+                        "y": 50.0
+                    },
+                    "uuid": "f624b7a4-4b70-4a3e-845b-7c6753e48e4b"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and r_vcomp-p2)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 2 [r_vcomp-p2] of U26 on F.Cu",
+                    "pos": {
+                        "x": 106.4625,
+                        "y": 146.0
+                    },
+                    "uuid": "1bfcbcfd-8039-481d-a23f-8ea293feba9e"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_N_RECTIFIED_INPUT and AC_L_RECTIFIED_INPUT)",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on B.Cu, length 11.0000 mm",
+                    "pos": {
+                        "x": 36.0,
+                        "y": 176.0
+                    },
+                    "uuid": "8d889bd4-9f9d-49c1-ba43-8c8cb26f7bf8"
+                },
+                {
+                    "description": "Track [AC_L_RECTIFIED_INPUT] on B.Cu, length 28.2843 mm",
+                    "pos": {
+                        "x": 10.0,
+                        "y": 157.0
+                    },
+                    "uuid": "d0524ee8-61eb-4bdc-a1c8-dfd30c54e77f"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and l2)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 8.0000 mm",
+                    "pos": {
+                        "x": 77.0,
+                        "y": 154.0
+                    },
+                    "uuid": "06f9e76c-9fba-4ca4-b278-7d4cb3744b0d"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets vcomp and l2)",
+            "items": [
+                {
+                    "description": "Track [vcomp] on F.Cu, length 2.1015 mm",
+                    "pos": {
+                        "x": 103.5375,
+                        "y": 146.0
+                    },
+                    "uuid": "0d3d4bc9-da1d-461f-9833-61cecf926cb2"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_N_RECTIFIED_INPUT and AC_L_RECTIFIED_INPUT)",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on B.Cu, length 5.3283 mm",
+                    "pos": {
+                        "x": 39.52,
+                        "y": 180.0
+                    },
+                    "uuid": "42da548c-cd69-41be-b774-97db77ebf073"
+                },
+                {
+                    "description": "Track [AC_L_RECTIFIED_INPUT] on B.Cu, length 3.0000 mm",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 177.0
+                    },
+                    "uuid": "6a423592-60cc-4a64-9b18-b60bf5667fd5"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                },
+                {
+                    "description": "PTH pad 1 [AUX_15V_IN] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 150.0
+                    },
+                    "uuid": "71263ae2-9fbc-4eba-9d77-846170ce0e56"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and l2)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 164.0
+                    },
+                    "uuid": "13260750-4e49-4214-9b31-3ea1131a335a"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets AC_L_RECTIFIED_INPUT and AC_N_RECTIFIED_INPUT)",
+            "items": [
+                {
+                    "description": "Track [AC_L_RECTIFIED_INPUT] on B.Cu, length 3.0000 mm",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 177.0
+                    },
+                    "uuid": "6a423592-60cc-4a64-9b18-b60bf5667fd5"
+                },
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on B.Cu, length 11.0000 mm",
+                    "pos": {
+                        "x": 36.0,
+                        "y": 176.0
+                    },
+                    "uuid": "8d889bd4-9f9d-49c1-ba43-8c8cb26f7bf8"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and vcomp)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 1 [vcomp] of U30 on F.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 148.05
+                    },
+                    "uuid": "4d10abf2-c4f7-411e-b4d6-901f6e2479f3"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 154.0
+                    },
+                    "uuid": "cfdcbd9f-31f7-4b63-a52c-0367122f8684"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets ac1 and l2)",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 25.4558 mm",
+                    "pos": {
+                        "x": 101.0,
+                        "y": 154.0
+                    },
+                    "uuid": "50d56d06-3e06-4420-854e-4ab3bb035ae1"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 21.7000 mm",
+                    "pos": {
+                        "x": 118.0,
+                        "y": 164.0
+                    },
+                    "uuid": "fe4eea10-9797-432f-97db-8c6ab8cf70cf"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 1.5250 mm",
+                    "pos": {
+                        "x": 111.0,
+                        "y": 149.475
+                    },
+                    "uuid": "67da1460-7640-43ee-a34e-3d987c694f05"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets minus and AC_N_RECTIFIED_INPUT)",
+            "items": [
+                {
+                    "description": "Pad 2 [minus] of U12 on F.Cu",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 132.0
+                    },
+                    "uuid": "025aa615-6183-46fb-a7fe-de8e272012b2"
+                },
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on F.Cu, length 14.5000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 130.0
+                    },
+                    "uuid": "2c3d0ae6-883d-48ba-9a2b-9139b401bcba"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and r_relay_gate-g)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 2.8284 mm",
+                    "pos": {
+                        "x": 174.0,
+                        "y": 177.0
+                    },
+                    "uuid": "2b3e4e5f-c613-4748-ba25-5ddf4481e1be"
+                },
+                {
+                    "description": "Track [r_relay_gate-g] on F.Cu, length 4.5375 mm",
+                    "pos": {
+                        "x": 175.4625,
+                        "y": 178.0
+                    },
+                    "uuid": "993dc80d-70b7-4481-be66-69150f527575"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 111.0,
+                        "y": 151.0
+                    },
+                    "uuid": "cfd02502-b140-438e-b342-ccf9699e40f0"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and l2)",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 10.0000 mm",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 152.54
+                    },
+                    "uuid": "54fc4708-ea07-4db2-b031-67543e70b106"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 154.0
+                    },
+                    "uuid": "cfdcbd9f-31f7-4b63-a52c-0367122f8684"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0426 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 111.0,
+                        "y": 151.0
+                    },
+                    "uuid": "cfd02502-b140-438e-b342-ccf9699e40f0"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets minus and AC_N_RECTIFIED_INPUT)",
+            "items": [
+                {
+                    "description": "Pad 2 [minus] of U12 on F.Cu",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 132.0
+                    },
+                    "uuid": "025aa615-6183-46fb-a7fe-de8e272012b2"
+                },
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on F.Cu, length 12.7000 mm",
+                    "pos": {
+                        "x": 73.5,
+                        "y": 130.0
+                    },
+                    "uuid": "f7fa1f42-e2fe-456e-b5f9-785074b5a15f"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and l2)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "3c0f8fce-04c1-4894-9327-565794cfda7c"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets vcomp and l2)",
+            "items": [
+                {
+                    "description": "Pad 1 [vcomp] of U26 on F.Cu",
+                    "pos": {
+                        "x": 103.5375,
+                        "y": 146.0
+                    },
+                    "uuid": "7003fb6e-5457-4dc7-ae80-b7ef1cb1241e"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 1.0500 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 149.95
+                    },
+                    "uuid": "3c5719db-de05-4af5-9921-b7acef6312d8"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 152.54
+                    },
+                    "uuid": "e7ac0fdb-d1e7-4813-9afc-db01596345d2"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "3c0f8fce-04c1-4894-9327-565794cfda7c"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 151.0
+                    },
+                    "uuid": "28ba9c0f-d830-48d1-9241-3f3d4c551148"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 152.54
+                    },
+                    "uuid": "e7ac0fdb-d1e7-4813-9afc-db01596345d2"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 151.0
+                    },
+                    "uuid": "28ba9c0f-d830-48d1-9241-3f3d4c551148"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets AUX_15V_IN and l2)",
+            "items": [
+                {
+                    "description": "PTH pad 1 [AUX_15V_IN] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 150.0
+                    },
+                    "uuid": "71263ae2-9fbc-4eba-9d77-846170ce0e56"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets r_vcomp-p2 and l2)",
+            "items": [
+                {
+                    "description": "Pad 2 [r_vcomp-p2] of U26 on F.Cu",
+                    "pos": {
+                        "x": 106.4625,
+                        "y": 146.0
+                    },
+                    "uuid": "1bfcbcfd-8039-481d-a23f-8ea293feba9e"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets vcomp and l2)",
+            "items": [
+                {
+                    "description": "Track [vcomp] on F.Cu, length 3.6116 mm",
+                    "pos": {
+                        "x": 101.0,
+                        "y": 143.43
+                    },
+                    "uuid": "03cccfdf-3b18-4747-8777-12488e6a0cda"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets vcomp and l2)",
+            "items": [
+                {
+                    "description": "Track [vcomp] on F.Cu, length 2.1015 mm",
+                    "pos": {
+                        "x": 103.5375,
+                        "y": 146.0
+                    },
+                    "uuid": "0d3d4bc9-da1d-461f-9833-61cecf926cb2"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 2 [PFC_BUS_MINUS] of U30 on F.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 149.95
+                    },
+                    "uuid": "fef4c90b-2a8f-4eb0-8b1e-acc6f25f5f81"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets vcomp and l2)",
+            "items": [
+                {
+                    "description": "Pad 1 [vcomp] of U30 on F.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 148.05
+                    },
+                    "uuid": "4d10abf2-c4f7-411e-b4d6-901f6e2479f3"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "PTH pad 1 [AUX_15V_IN] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 150.0
+                    },
+                    "uuid": "71263ae2-9fbc-4eba-9d77-846170ce0e56"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and l2)",
+            "items": [
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "3c0f8fce-04c1-4894-9327-565794cfda7c"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0634 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 2 [PFC_BUS_MINUS] of U29 on F.Cu",
+                    "pos": {
+                        "x": 111.0,
+                        "y": 149.475
+                    },
+                    "uuid": "22a86263-a5cc-4fdd-be53-40469bcbe523"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1250 mm)",
+            "items": [
+                {
+                    "description": "Pad 2 [PFC_BUS_MINUS] of U19 on F.Cu",
+                    "pos": {
+                        "x": 93.4625,
+                        "y": 145.0
+                    },
+                    "uuid": "6a4ccbd2-a34b-4a61-bfe0-c664bf07dadd"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "3c0f8fce-04c1-4894-9327-565794cfda7c"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 1.0500 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 149.95
+                    },
+                    "uuid": "3c5719db-de05-4af5-9921-b7acef6312d8"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and l2)",
+            "items": [
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 151.0
+                    },
+                    "uuid": "28ba9c0f-d830-48d1-9241-3f3d4c551148"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Via [PFC_BUS_MINUS] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 151.0
+                    },
+                    "uuid": "28ba9c0f-d830-48d1-9241-3f3d4c551148"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets vcomp and l2)",
+            "items": [
+                {
+                    "description": "Track [vcomp] on F.Cu, length 3.6116 mm",
+                    "pos": {
+                        "x": 101.0,
+                        "y": 143.43
+                    },
+                    "uuid": "03cccfdf-3b18-4747-8777-12488e6a0cda"
+                },
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets l2 and PFC_BUS_MINUS)",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Pad 2 [PFC_BUS_MINUS] of U30 on F.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 149.95
+                    },
+                    "uuid": "fef4c90b-2a8f-4eb0-8b1e-acc6f25f5f81"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.2000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Polygon on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "f646633d-088b-4cbf-8066-2b1ca7b912ab"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 22.6274 mm",
+                    "pos": {
+                        "x": 210.0,
+                        "y": 99.0
+                    },
+                    "uuid": "0baaf6e5-eeed-4bdb-b476-85dca862f798"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.2000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Polygon on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "f646633d-088b-4cbf-8066-2b1ca7b912ab"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 49.0000 mm",
+                    "pos": {
+                        "x": 226.0,
+                        "y": 115.0
+                    },
+                    "uuid": "6f61bd5c-9022-436f-8909-8d74c0e52efd"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.2000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Polygon on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "f646633d-088b-4cbf-8066-2b1ca7b912ab"
+                },
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 16.6069 mm",
+                    "pos": {
+                        "x": 226.0,
+                        "y": 164.0
+                    },
+                    "uuid": "ea8b0020-a69e-4309-a631-1adf71bded26"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.2000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Polygon on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "f646633d-088b-4cbf-8066-2b1ca7b912ab"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 0.5000 mm",
+                    "pos": {
+                        "x": 132.0,
+                        "y": 186.0
+                    },
+                    "uuid": "09e2b5a1-895b-485a-ae5b-cf75701dce00"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Board edge clearance violation (board setup constraints edge clearance 0.2000 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Polygon on Edge.Cuts",
+                    "pos": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "uuid": "f646633d-088b-4cbf-8066-2b1ca7b912ab"
+                },
+                {
+                    "description": "Track [ac1] on F.Cu, length 8.4853 mm",
+                    "pos": {
+                        "x": 126.0,
+                        "y": 180.0
+                    },
+                    "uuid": "432dcb3e-e315-4578-825f-912227f0eceb"
+                }
+            ],
+            "severity": "error",
+            "type": "copper_edge_clearance"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 2.8284 mm",
+                    "pos": {
+                        "x": 174.0,
+                        "y": 177.0
+                    },
+                    "uuid": "2b3e4e5f-c613-4748-ba25-5ddf4481e1be"
+                },
+                {
+                    "description": "Pad 2 [r_relay_gate-g] of U15 on F.Cu",
+                    "pos": {
+                        "x": 175.4625,
+                        "y": 178.0
+                    },
+                    "uuid": "fd12c9c5-723c-4f12-bdd6-3357dba73128"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 18.0000 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 177.0
+                    },
+                    "uuid": "ed40cd61-65c5-4dfd-a158-15dfe2836bab"
+                },
+                {
+                    "description": "Pad 1 [RELAY_BYPASS_CTRL] of U15 on F.Cu",
+                    "pos": {
+                        "x": 172.5375,
+                        "y": 178.0
+                    },
+                    "uuid": "d029a0f4-3233-49a1-81bf-4e89d498772f"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 5.4625 mm",
+                    "pos": {
+                        "x": 176.0,
+                        "y": 179.0
+                    },
+                    "uuid": "667824a1-0024-4dbc-8533-7149965a119a"
+                },
+                {
+                    "description": "Pad 2 [r_relay_gate-g] of U15 on F.Cu",
+                    "pos": {
+                        "x": 175.4625,
+                        "y": 178.0
+                    },
+                    "uuid": "fd12c9c5-723c-4f12-bdd6-3357dba73128"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on F.Cu, length 18.0000 mm",
+                    "pos": {
+                        "x": 156.0,
+                        "y": 177.0
+                    },
+                    "uuid": "ed40cd61-65c5-4dfd-a158-15dfe2836bab"
+                },
+                {
+                    "description": "Pad 1 [coil1] of U34 on F.Cu",
+                    "pos": {
+                        "x": 166.0,
+                        "y": 178.0
+                    },
+                    "uuid": "cafb1e2c-13e2-44a0-a4e8-cd4ebebe0a9c"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                },
+                {
+                    "description": "PTH pad 1 [l1] of U6",
+                    "pos": {
+                        "x": 44.0,
+                        "y": 130.0
+                    },
+                    "uuid": "204fadc8-02ec-4375-88e2-aabc6d930830"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 29.9200 mm",
+                    "pos": {
+                        "x": 35.08,
+                        "y": 135.0
+                    },
+                    "uuid": "9cbb07b1-7d11-46b6-94ae-dff70473d3ee"
+                },
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U6",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 130.0
+                    },
+                    "uuid": "149c0b5f-e2e7-463a-8ca8-50cb8c20a3ec"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 5.6569 mm",
+                    "pos": {
+                        "x": 65.0,
+                        "y": 135.0
+                    },
+                    "uuid": "bae8422f-5191-4dc5-9f93-91ad01faec1d"
+                },
+                {
+                    "description": "PTH pad 4 [l2] of U3",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "44c3e063-4311-40eb-9b0c-db7f32c6d3fe"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 42.0000 mm",
+                    "pos": {
+                        "x": 135.0,
+                        "y": 93.0
+                    },
+                    "uuid": "015d1b6d-5c56-4583-b9e2-7eb9fbd77628"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U38",
+                    "pos": {
+                        "x": 145.0,
+                        "y": 93.0
+                    },
+                    "uuid": "76abe364-ebdb-4e5e-a405-7125d819294d"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on F.Cu, length 14.5000 mm",
+                    "pos": {
+                        "x": 59.0,
+                        "y": 130.0
+                    },
+                    "uuid": "2c3d0ae6-883d-48ba-9a2b-9139b401bcba"
+                },
+                {
+                    "description": "Pad 2 [minus] of U12 on F.Cu",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 132.0
+                    },
+                    "uuid": "025aa615-6183-46fb-a7fe-de8e272012b2"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [ac1] on F.Cu, length 15.0000 mm",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 139.0
+                    },
+                    "uuid": "d990e7e8-7ceb-4d7d-a803-558d808c0954"
+                },
+                {
+                    "description": "PTH pad 4 [l2] of U3",
+                    "pos": {
+                        "x": 64.0,
+                        "y": 142.0
+                    },
+                    "uuid": "44c3e063-4311-40eb-9b0c-db7f32c6d3fe"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [minus] on B.Cu, length 5.0000 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 121.0
+                    },
+                    "uuid": "c38d7cf8-0066-4db2-bd2c-f99ca77978ec"
+                },
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U7",
+                    "pos": {
+                        "x": 73.5,
+                        "y": 117.3
+                    },
+                    "uuid": "4fa1da20-4e87-4ad3-8d78-c83802fea9fc"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 42.0000 mm",
+                    "pos": {
+                        "x": 135.0,
+                        "y": 50.0
+                    },
+                    "uuid": "c9630de7-5113-4285-acf3-3851252b57a9"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U36",
+                    "pos": {
+                        "x": 145.0,
+                        "y": 50.0
+                    },
+                    "uuid": "f624b7a4-4b70-4a3e-845b-7c6753e48e4b"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [ac1] on B.Cu, length 47.0000 mm",
+                    "pos": {
+                        "x": 128.0,
+                        "y": 163.0
+                    },
+                    "uuid": "cb68e7d6-6987-4066-b197-c9772504b5fb"
+                },
+                {
+                    "description": "PTH pad 1 [RELAY_BYPASS_CTRL] of U44",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 160.0
+                    },
+                    "uuid": "d7a18da6-a38b-4aa3-828d-5904d7c9212d"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_PLUS_390V] on F.Cu, length 26.0000 mm",
+                    "pos": {
+                        "x": 177.0,
+                        "y": 93.0
+                    },
+                    "uuid": "d68bb02f-8d01-4b92-9d36-d72b9236c6e9"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U39",
+                    "pos": {
+                        "x": 187.0,
+                        "y": 93.0
+                    },
+                    "uuid": "4cb1fdf9-a6be-4e16-a083-5ae71af78e1d"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [AC_N_RECTIFIED_INPUT] on F.Cu, length 12.7000 mm",
+                    "pos": {
+                        "x": 73.5,
+                        "y": 130.0
+                    },
+                    "uuid": "f7fa1f42-e2fe-456e-b5f9-785074b5a15f"
+                },
+                {
+                    "description": "Pad 2 [minus] of U12 on F.Cu",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 132.0
+                    },
+                    "uuid": "025aa615-6183-46fb-a7fe-de8e272012b2"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [ac1] on B.Cu, length 47.0000 mm",
+                    "pos": {
+                        "x": 128.0,
+                        "y": 163.0
+                    },
+                    "uuid": "cb68e7d6-6987-4066-b197-c9772504b5fb"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U44",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 162.54
+                    },
+                    "uuid": "d0228622-12a0-4da8-9afa-525552c253e3"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 6.4031 mm",
+                    "pos": {
+                        "x": 90.0,
+                        "y": 128.0
+                    },
+                    "uuid": "4e757783-27e4-4c9d-a925-1fdfa7d50db2"
+                },
+                {
+                    "description": "PTH pad 1 [q_boost-g] of U9",
+                    "pos": {
+                        "x": 90.0,
+                        "y": 122.0
+                    },
+                    "uuid": "d7e3f649-8897-4d61-b722-66758776f315"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [minus] on B.Cu, length 45.3000 mm",
+                    "pos": {
+                        "x": 30.0,
+                        "y": 121.0
+                    },
+                    "uuid": "f37be4b0-1cdd-4457-ae03-8461cd5f2180"
+                },
+                {
+                    "description": "PTH pad 2 [AC_N_RECTIFIED_INPUT] of U7",
+                    "pos": {
+                        "x": 73.5,
+                        "y": 117.3
+                    },
+                    "uuid": "4fa1da20-4e87-4ad3-8d78-c83802fea9fc"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 1 [vcomp] of U30 on F.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 148.05
+                    },
+                    "uuid": "4d10abf2-c4f7-411e-b4d6-901f6e2479f3"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 2 [PFC_BUS_MINUS] of U30 on F.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 149.95
+                    },
+                    "uuid": "fef4c90b-2a8f-4eb0-8b1e-acc6f25f5f81"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 10.9000 mm",
+                    "pos": {
+                        "x": 100.9,
+                        "y": 128.0
+                    },
+                    "uuid": "5eac72a8-7c5c-4743-9cea-139aaa39eea5"
+                },
+                {
+                    "description": "PTH pad 1 [q_boost-g] of U9",
+                    "pos": {
+                        "x": 90.0,
+                        "y": 122.0
+                    },
+                    "uuid": "d7e3f649-8897-4d61-b722-66758776f315"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 1 [vcomp] of U26 on F.Cu",
+                    "pos": {
+                        "x": 103.5375,
+                        "y": 146.0
+                    },
+                    "uuid": "7003fb6e-5457-4dc7-ae80-b7ef1cb1241e"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 19.7990 mm",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 150.0
+                    },
+                    "uuid": "0ec5522c-eeae-432a-a8f6-67fd6c57edb1"
+                },
+                {
+                    "description": "Pad 2 [r_vcomp-p2] of U26 on F.Cu",
+                    "pos": {
+                        "x": 106.4625,
+                        "y": 146.0
+                    },
+                    "uuid": "1bfcbcfd-8039-481d-a23f-8ea293feba9e"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 10.9000 mm",
+                    "pos": {
+                        "x": 100.9,
+                        "y": 128.0
+                    },
+                    "uuid": "5eac72a8-7c5c-4743-9cea-139aaa39eea5"
+                },
+                {
+                    "description": "PTH pad 2 [a1] of U9",
+                    "pos": {
+                        "x": 95.45,
+                        "y": 122.0
+                    },
+                    "uuid": "0075610d-10cd-44ab-8af4-cac39cc98039"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                },
+                {
+                    "description": "PTH pad 1 [AUX_15V_IN] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 150.0
+                    },
+                    "uuid": "71263ae2-9fbc-4eba-9d77-846170ce0e56"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 15.9806 mm",
+                    "pos": {
+                        "x": 139.7,
+                        "y": 164.0
+                    },
+                    "uuid": "9460ff0e-e236-4a1d-9376-2dc668bd2265"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "3c0f8fce-04c1-4894-9327-565794cfda7c"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Pad 1 [vcomp] of U30 on F.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 148.05
+                    },
+                    "uuid": "4d10abf2-c4f7-411e-b4d6-901f6e2479f3"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Pad 2 [PFC_BUS_MINUS] of U30 on F.Cu",
+                    "pos": {
+                        "x": 104.0,
+                        "y": 149.95
+                    },
+                    "uuid": "fef4c90b-2a8f-4eb0-8b1e-acc6f25f5f81"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Pad 2 [minus] of U18 on F.Cu",
+                    "pos": {
+                        "x": 86.0,
+                        "y": 147.4625
+                    },
+                    "uuid": "40c3c318-6a5f-4ad8-b521-70a5b42ae62f"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Pad 1 [vcomp] of U26 on F.Cu",
+                    "pos": {
+                        "x": 103.5375,
+                        "y": 146.0
+                    },
+                    "uuid": "7003fb6e-5457-4dc7-ae80-b7ef1cb1241e"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 32.0000 mm",
+                    "pos": {
+                        "x": 72.0,
+                        "y": 150.0
+                    },
+                    "uuid": "94747791-9771-4a11-bc2e-81d895510e09"
+                },
+                {
+                    "description": "Pad 2 [r_vcomp-p2] of U26 on F.Cu",
+                    "pos": {
+                        "x": 106.4625,
+                        "y": 146.0
+                    },
+                    "uuid": "1bfcbcfd-8039-481d-a23f-8ea293feba9e"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "PTH pad 1 [AUX_15V_IN] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 150.0
+                    },
+                    "uuid": "71263ae2-9fbc-4eba-9d77-846170ce0e56"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [l2] on F.Cu, length 20.0000 mm",
+                    "pos": {
+                        "x": 151.0,
+                        "y": 152.7
+                    },
+                    "uuid": "a80be39b-c6a0-47b1-9005-d70f5e96b0a9"
+                },
+                {
+                    "description": "PTH pad 2 [PFC_BUS_MINUS] of U43",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 152.54
+                    },
+                    "uuid": "3c0f8fce-04c1-4894-9327-565794cfda7c"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 4.3000 mm",
+                    "pos": {
+                        "x": 85.0,
+                        "y": 132.0
+                    },
+                    "uuid": "987f3e93-2257-458c-ada1-22b3d1cb8885"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        },
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [minus] on B.Cu, length 6.0000 mm",
+                    "pos": {
+                        "x": 75.3,
+                        "y": 126.0
+                    },
+                    "uuid": "373f9d4f-0a0a-47b0-91ef-b3e2bb2478ad"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        }
+    ]
+}

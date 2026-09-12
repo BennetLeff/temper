@@ -1,18 +1,39 @@
-# Power-entry unit
+# Active-PFC power-entry unit
 
-Source-build-18 is the current 53-component candidate for a standalone 120 VAC, 1,800 W nominal AC input. The target is 15 A RMS at PF 0.99 (about 1,782 W real input), with active CCM boost PFC regulating a nominal 389.615 V bus. The source is `elec/src/power_entry_unit.ato`.
+The standalone 54-component board is routed. Source-build-22, the native23
+source manifest, and the saved candidate agree on all 33 nets. Native ERC and
+DRC report zero findings, including zero unconnected links and zero schematic
+parity findings. All seven Rust construction findings pass; the overall verdict
+is **INDETERMINATE** because hardware qualification has not been run.
 
-The bus is a single PFC output with no capacitor midpoint. AUX, CONTROL, and PERMIT returns reference HOT bus-minus and are never MCU or SELV grounds. External isolated bias, precharge, permit sequencing, and RMS foldback are integration requirements; default state is off. Passive discharge uses two 150 kOhm bleeders and is approximately 21 minutes nominal, so active discharge and timing qualification remain open.
+The design targets the 1,800 W nominal AC-input class at 120 VAC. At 15 A RMS
+and PF 0.99, real input is 1,782 W before conversion losses. The nominal bus
+setpoint is 389.615 V. This does not claim 1,800 W delivered to the pan.
 
-The 53-part candidate is unrouted and unaccepted. ERC, DRC, schematic parity, ampacity, inrush, ripple, thermal, EMI, insulation, and discharge checks have not established a construction pass.
+## Inspect the result
 
-## Coordinator construction checkpoint
+- [Native KiCad PCB](candidate/section.kicad_pcb) and [schematic](candidate/section.kicad_sch)
+- [Routed checkpoint and hashes](evidence/routed-checkpoint.json)
+- [Native DRC](evidence/drc-11.json), [ERC](evidence/erc-11.json), [Rust report](evidence/rust-11.json)
+- [3D render](evidence/power-entry-routed.png), [front copper](evidence/power-entry-front.svg), [back copper](evidence/power-entry-back.svg)
+- [Construction review and limits](evidence/routing-review.md)
+- [Exact source BOM](source-build-22/build/default.csv), [interfaces](INTERFACES.md), [acceptance scope](ACCEPTANCE.md)
 
-Source-build-18 and candidate/source-manifest.json govern the 53-component circuit.
-Native ERC (erc-04.json): zero findings. Native DRC (drc-05.json): zero geometry
-violations, zero schematic-parity findings, **94 unconnected links**. Rust
-(rust-05.json) rejects disconnected copper while accepting the exact source/pad
-graph and saved-document binding. No copper routing has been accepted.
-The 230 × 190 mm outline is a prototype allowance; component models, heatsinks,
-service space and final enclosure fit remain incomplete. The render omits bodies
-for several parts without local 3D models. It is not an assembly-clearance proof.
+The prototype outline is **230 × 210 mm**, two copper layers, 70 µm copper,
+1.6 mm total thickness. It grew 20 mm from the placed candidate to provide a
+separate earth/Y-capacitor corridor. This is an engineering prototype allowance;
+heatsinks, missing component models, service access and final cooker enclosure
+fit are not established by this render.
+
+The agent authored placements and explicit routes; the existing KiCad adapter
+applied them. Rust checks the result. No placer or router search was added.
+
+All auxiliary, permit and relay-control headers are HOT bus-minus referenced.
+They require external isolated bias and control. Precharge/bypass sequencing,
+15 A RMS foldback, active discharge, loaded switching, thermal behavior and EMC
+remain integration/qualification work. Passive discharge alone takes about
+21 minutes nominal to reach 60 V. No purchase, fabrication order or powered
+measurement has been performed.
+
+The previous [unrouted checkpoint](evidence/construction-checkpoint.json) and
+native05 fixture remain historical counterexamples, not the current board.

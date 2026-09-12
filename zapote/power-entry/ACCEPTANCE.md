@@ -1,5 +1,26 @@
-# Acceptance status
+# Acceptance scope
 
-Source-build-18 compiles as a 53-component active-PFC candidate targeting 120 VAC / 1,800 W nominal input, 15 A RMS, PF 0.99, and 389.615 V bus.
+Source-build-22 is the current 54-component active-PFC circuit. The routed
+230 × 210 mm native candidate passes the recorded construction checks:
 
-The candidate is unrouted and not accepted. Native ERC/DRC, schematic parity, ampacity, inrush, ripple, thermal, EMI, isolation, active discharge timing, and low-line RMS foldback remain unproven. AUX, CONTROL, and PERMIT interfaces are HOT bus-minus referenced and require external isolated bias/sequencing; they are not MCU or SELV interfaces. Default permit state is off.
+| Check | Actual result |
+|---|---|
+| Atopile compile/export | PASS |
+| Native ERC, all severities | 0 findings |
+| Native DRC, all track errors and schematic parity | 0 violations / 0 unconnected / 0 parity |
+| Rust exact source/component/pad graph | PASS |
+| Rust saved-byte binding and physical stackup | PASS |
+| Rust native copper connectivity | PASS, all 33 source nets |
+| Rust voltage-domain copper spacing | PASS, 2 mm HV / 6 mm PE / 0.2 mm other pairs |
+| Overall qualification | INDETERMINATE |
+
+See [routed-checkpoint.json](evidence/routed-checkpoint.json) for exact hashes
+and [routing-review.md](evidence/routing-review.md) for the geometry and limits.
+
+The spacing profile is a prototype construction screen, not an insulation
+coordination or product certification. Ampacity calculations do not replace
+thermal measurements. External isolated bias, default-off HOT permit, precharge
+and relay sequencing, low-line RMS foldback, switching/loop stability, inrush,
+capacitor ripple, thermal, EMC, insulation, active discharge and mains
+qualification remain open. Physical tests are **NOT RUN**. This is not a
+fabrication release or an authorization to energize the board.

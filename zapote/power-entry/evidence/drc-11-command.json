@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "drc",
+    "--refill-zones",
+    "--save-board",
+    "--all-track-errors",
+    "--schematic-parity",
+    "--severity-all",
+    "--format",
+    "json",
+    "--output",
+    "zapote/power-entry/evidence/drc-11.json",
+    "zapote/power-entry/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "input_sha256": "99d7fb9be20d5ce64cd93a055b889f00a8ca8de65af5258611b3c984d6f965d0",
+  "saved_input_sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf",
+  "report_sha256": "537804f1d00793feef04c1521e03628b109f6205c825c54543df3e13eeca9622",
+  "utc": "2026-09-12T06:35:07.007328+00:00"
+}

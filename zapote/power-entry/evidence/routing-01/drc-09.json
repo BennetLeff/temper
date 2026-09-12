@@ -1,0 +1,77 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-12T00:32:22",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [AUX_15V_IN] on B.Cu, length 11.0000 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 139.0
+                    },
+                    "uuid": "17f3964f-ca77-451b-aac6-9204e3abef75"
+                },
+                {
+                    "description": "Track [AUX_15V_IN] on F.Cu, length 8.4853 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 139.0
+                    },
+                    "uuid": "d02d9622-8f7d-456f-b979-4eea97704aaa"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Track has unconnected end",
+            "items": [
+                {
+                    "description": "Track [AUX_15V_IN] on F.Cu, length 8.4853 mm",
+                    "pos": {
+                        "x": 153.0,
+                        "y": 139.0
+                    },
+                    "uuid": "d02d9622-8f7d-456f-b979-4eea97704aaa"
+                }
+            ],
+            "severity": "warning",
+            "type": "track_dangling"
+        }
+    ]
+}
