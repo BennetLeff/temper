@@ -1,0 +1,92 @@
+ELMER SOLVER (v 26.2) STARTED AT: 2026/09/12 15:38:49
+ParCommInit: Initialize #PEs: 1
+MAIN: 
+MAIN: =============================================================
+MAIN: ElmerSolver finite element software, Welcome!
+MAIN: This program is free software licensed under (L)GPL
+MAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.
+MAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi
+MAIN: Version: 26.2-unknown (Rev: a19504a, Compiled: 2026-09-12)
+MAIN:  Running one task without MPI parallelization.
+MAIN:  Running with just one thread per task.
+MAIN: =============================================================
+MAIN: 
+MAIN: 
+MAIN: -------------------------------------
+MAIN: Reading Model: case.sif
+LoadInputFile: Scanning input file: case.sif
+LoadInputFile: Scanning only size info
+LoadInputFile: First time visiting
+LoadInputFile: Reading base load of sif file
+LoadInputFile: Loading input file: case.sif
+LoadInputFile: Reading base load of sif file
+LoadInputFile: Number of BCs: 5
+LoadInputFile: Number of Body Forces: 0
+LoadInputFile: Number of Initial Conditions: 0
+LoadInputFile: Number of Materials: 1
+LoadInputFile: Number of Equations: 1
+LoadInputFile: Number of Solvers: 2
+LoadInputFile: Number of Bodies: 1
+ElmerMeshReader: Base mesh name: ./cross
+LoadMesh: Elapsed REAL time:     0.0010 (s)
+MAIN: -------------------------------------
+AddVtuOutputSolverHack: Adding ResultOutputSolver to write VTU output in file: case
+OptimizeBandwidth: Initial bandwidth for heat equation: 53
+OptimizeBandwidth: Optimized bandwidth for heat equation: 53
+FluxSolver_init: Saving flux to: temperature Flux
+OptimizeBandwidth: Initial bandwidth for computeflux: 53
+OptimizeBandwidth: Optimized bandwidth for computeflux: 53
+MAIN: Number of timesteps to be saved: 1
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            1
+MAIN: -------------------------------------
+MAIN: 
+HeatSolver: Solving the energy equation for temperature
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+      10 0.1611E-05 0.1611E-05
+BiCGStabl:       12 0.3324E-08 0.3324E-08
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.93065875      2.0000000     ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    0.01    0.01
+HeatSolve: iter:    1 Solve:    (s)    0.00    0.00
+HeatSolve:  Result Norm   :   0.93065874953893124
+HeatSolve:  Relative Change :    2.0000000000000000
+ComputeChange: SS (ITER=1) (NRM,RELC): ( 0.93065875      2.0000000     ) :: heat equation
+FluxSolver: -------------------------------------
+FluxSolver: Computing the flux and/or gradient
+FluxSolver: -------------------------------------
+FluxSolver:  Assembly Time:    1.5850067138671875E-003
+      10 0.8913E-05
+      20 0.8762E-08
+      27 0.6599E-10
+      10 0.3463E-04
+      20 0.2925E-07
+      29 0.5337E-10
+ComputeChange: NS (ITER=2) (NRM,RELC): ( 0.84518908      2.0000000     ) :: computeflux
+FluxSolver:  Solution Time:    1.4770030975341797E-003
+FluxSolver:  Result Norm:   0.84518907664932219
+ComputeChange: SS (ITER=1) (NRM,RELC): ( 0.84518908      2.0000000     ) :: computeflux
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Saving with prefix: case
+CreateListForSaving: Field Variables for Saving
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Saving results in VTK XML format with prefix: case
+VtuOutputSolver: Saving number of partitions: 1
+ResultOutputSolver: -------------------------------------
+CompareToReferenceSolution: Solver 1 PASSED:  Norm = 9.30658750E-01  RefNorm = 9.30658750E-01
+CompareToReferenceSolution: Relative Error to reference norm: 4.954219E-10
+CompareToReferenceSolution: Solver 2 PASSED:  Norm = 8.45189077E-01  RefNorm = 8.45189077E-01
+CompareToReferenceSolution: Relative Error to reference norm: 4.149105E-10
+CompareToReferenceSolution: PASSED all 2 tests!
+MAIN: *** Elmer Solver: ALL DONE ***
+MAIN: The end
+SOLVER TOTAL TIME(CPU,REAL):         0.11        0.36
+ELMER SOLVER FINISHED AT: 2026/09/12 15:38:50

@@ -1,0 +1,211 @@
+Test project /private/tmp/zapote-elmer-26.2.1-build-gcc
+    Start  76: ConstantUnknownPotStatCurrent
+1/3 Test  #76: ConstantUnknownPotStatCurrent ....***Failed    0.65 sec
+==================================================================
+ElmerGrid mesh conversion and manipulation utility, Welcome!
+Version: 26.2 (Rev: NA, Compiled: NA)
+This program is free software licensed under GPL
+==================================================================
+Elmergrid reading in-line arguments
+Output will be saved to file beam.
+
+Elmergrid loading data:
+-----------------------
+Loading the geometry from file 'beam.grd'.
+Loading ElmerGrid file version: 210903
+Defining the coordinate system (2-DIM).
+Loading 1 subcell sizes in X-direction
+Loading 1 subcell sizes in Y-direction
+Loading material structure
+LoadElmergrid: materials interval is [1,1]
+Loading boundary conditions
+Found 2 boundaries
+Reached the end of command file
+Found 1 divisions for grid
+
+Loading ElmerGrid commands from file 'beam.grd'.
+Reached the end of command file
+Read commands from a file
+
+Elmergrid creating and manipulating meshes:
+-------------------------------------------
+1 cells were created.
+Numbered 126 knots in 100 4-node elements.
+Numbering order was <x><y> and max levelwidth 23.
+5 element sides between materials -4 and 1 were located to type 1.
+5 element sides between materials -2 and 1 were located to type 2.
+Coordinates defined in 2 dimensions
+Bounding box of all nodes in mesh:
+X:[0,1] Y:[0,0.2] Z:[0,0]
+Calculate Mesh Pieces in mesh:
+There is a single piece in the mesh, so the mesh is conforming.
+
+Elmergrid saving data with method 2:
+-------------------------------------
+Saving mesh in ElmerSolver format to directory beam.
+Saving 126 coordinates to mesh.nodes.
+Saving 100 element topologies to mesh.elements.
+Saving boundary elements to mesh.boundary.
+Saving header info to mesh.header.
+
+Thank you for using Elmergrid!
+Send bug reports and feature wishes to elmeradm@csc.fi
+-- BINARY_DIR = /private/tmp/zapote-elmer-26.2.1-build-gcc
+-- Extra library directories 
+CMake Error at /private/tmp/zapote-elmer-26.2.1-src/cmake/Modules/test_macros.cmake:193 (FILE):
+  FILE failed to open for reading (No such file or directory):
+
+    /private/tmp/zapote-elmer-26.2.1-build-gcc/fem/tests/ConstantUnknownPotStatCurrent/TEST.PASSED
+Call Stack (most recent call first):
+  /private/tmp/zapote-elmer-26.2.1-src/fem/tests/ConstantUnknownPotStatCurrent/runtest.cmake:4 (RUN_ELMER_TEST)
+
+
+
+    Start 267: HeatAniso
+2/3 Test #267: HeatAniso ........................***Failed    0.06 sec
+==================================================================
+ElmerGrid mesh conversion and manipulation utility, Welcome!
+Version: 26.2 (Rev: NA, Compiled: NA)
+This program is free software licensed under GPL
+==================================================================
+Elmergrid reading in-line arguments
+Output will be saved to file cross.
+
+Elmergrid loading data:
+-----------------------
+Loading the geometry from file 'cross.grd'.
+Loading ElmerGrid file version: 210903
+Defining the coordinate system (2-DIM).
+Loading 5 subcell sizes in X-direction
+Loading 5 subcell sizes in Y-direction
+Loading material structure
+LoadElmergrid: materials interval is [0,5]
+Loading boundary conditions
+Found 5 boundaries
+Reached the end of command file
+Found 1 divisions for grid
+
+Loading ElmerGrid commands from file 'cross.grd'.
+Reached the end of command file
+Read commands from a file
+
+Elmergrid creating and manipulating meshes:
+-------------------------------------------
+5 cells were created.
+Numbered 1001 knots in 900 4-node elements.
+Numbering order was <x><y> and max levelwidth 53.
+160 element sides between materials 0 and 1 were located to type 1.
+10 element sides between materials 2 and 1 were located to type 2.
+10 element sides between materials 3 and 1 were located to type 3.
+10 element sides between materials 4 and 1 were located to type 4.
+10 element sides between materials 5 and 1 were located to type 5.
+Coordinates defined in 2 dimensions
+Bounding box of all nodes in mesh:
+X:[0,5] Y:[0,5] Z:[0,0]
+Calculate Mesh Pieces in mesh:
+There is a single piece in the mesh, so the mesh is conforming.
+
+Elmergrid saving data with method 2:
+-------------------------------------
+Saving mesh in ElmerSolver format to directory cross.
+Saving 1001 coordinates to mesh.nodes.
+Saving 900 element topologies to mesh.elements.
+Saving boundary elements to mesh.boundary.
+Saving header info to mesh.header.
+
+Thank you for using Elmergrid!
+Send bug reports and feature wishes to elmeradm@csc.fi
+-- BINARY_DIR = /private/tmp/zapote-elmer-26.2.1-build-gcc
+-- Extra library directories 
+CMake Error at /private/tmp/zapote-elmer-26.2.1-src/cmake/Modules/test_macros.cmake:193 (FILE):
+  FILE failed to open for reading (No such file or directory):
+
+    /private/tmp/zapote-elmer-26.2.1-build-gcc/fem/tests/HeatAniso/TEST.PASSED
+Call Stack (most recent call first):
+  /private/tmp/zapote-elmer-26.2.1-src/fem/tests/HeatAniso/runtest.cmake:3 (RUN_ELMER_TEST)
+
+
+
+    Start 659: ThermalActuator
+3/3 Test #659: ThermalActuator ..................***Failed    0.06 sec
+==================================================================
+ElmerGrid mesh conversion and manipulation utility, Welcome!
+Version: 26.2 (Rev: NA, Compiled: NA)
+This program is free software licensed under GPL
+==================================================================
+Elmergrid reading in-line arguments
+Output will be saved to file actuator.
+
+Elmergrid loading data:
+-----------------------
+Format chosen using the first line: $MeshFormat
+Gmsh input file format is type   2.2 in ASCII.
+Loading mesh in Gmsh format 2.0 from file actuator.msh
+Allocating for 8498 knots and 3937 elements.
+Moving bulk elements to boundary elements
+Leading bulk elementtype is 510
+Trailing bulk elementtype is 306
+There are 208 (out of 3937) lower dimensional elements.
+Node 1751 belongs to maximum of 33 elements
+Found correctly 208 side elements.
+Parent elements were reordered up to index 3729.
+Moved 3729 elements (out of 3937) to new positions
+Successfully read the mesh from the Gmsh input file.
+Using physical numbering of entities
+
+Elmergrid creating and manipulating meshes:
+-------------------------------------------
+Bounding box of all nodes in mesh:
+X:[-76,200] Y:[-39,39] Z:[5.6,9.6]
+
+Notice: the longest bounding box side length of [276] is greater than 50.
+ElmerGUI includes a library of material properties, defined in SI units.  If using ElmerGUI, 
+then the geometry is expected to have meters as length.  Geometry that exceeds 50 meters 
+in length or width or height may not be intended.  Many Geometry generators assume 
+millimeters as the basic unit of length.  Scaling the geometry from millimeters to meters 
+may be the desired action.  For more help, search the Elmer users forum for posts 
+about SI units, or for posts about Coordinate Scaling.
+Scaling can be accomplished in at least three ways, as follows:
+ 1. Define the original geometry in meters, not millimeters.
+ 2. Call ElmerGrid with -scale 0.001 0.001 0.001 as an option.
+ 3. Add Coordinate Scaling = 0.001 to the simulation section of the sif file.
+If using Elmer to analyze large geometry, such as a glacier, then ignore this notice.
+
+Calculate Mesh Pieces in mesh:
+There is a single piece in the mesh, so the mesh is conforming.
+
+Elmergrid saving data with method 2:
+-------------------------------------
+Saving mesh in ElmerSolver format to directory actuator.
+Saving 8498 coordinates to mesh.nodes.
+Saving 3729 element topologies to mesh.elements.
+Saving boundary elements to mesh.boundary.
+Saving header info to mesh.header.
+
+Thank you for using Elmergrid!
+Send bug reports and feature wishes to elmeradm@csc.fi
+-- BINARY_DIR = /private/tmp/zapote-elmer-26.2.1-build-gcc
+-- Extra library directories 
+CMake Error at /private/tmp/zapote-elmer-26.2.1-src/cmake/Modules/test_macros.cmake:193 (FILE):
+  FILE failed to open for reading (No such file or directory):
+
+    /private/tmp/zapote-elmer-26.2.1-build-gcc/fem/tests/ThermalActuator/TEST.PASSED
+Call Stack (most recent call first):
+  /private/tmp/zapote-elmer-26.2.1-src/fem/tests/ThermalActuator/runtest.cmake:3 (RUN_ELMER_TEST)
+
+
+
+
+0% tests passed, 3 tests failed out of 3
+
+Label Time Summary:
+quick     =   0.65 sec*proc (1 test)
+serial    =   0.78 sec*proc (3 tests)
+
+Total Test time (real) =   0.91 sec
+
+The following tests FAILED:
+	 76 - ConstantUnknownPotStatCurrent (Failed)            quick serial
+	267 - HeatAniso (Failed)                                serial
+	659 - ThermalActuator (Failed)                          serial
+Errors while running CTest

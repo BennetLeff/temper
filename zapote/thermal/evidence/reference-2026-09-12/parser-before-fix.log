@@ -1,0 +1,48 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling syn v3.0.5
+   Compiling serde_derive v1.0.229
+   Compiling serde v1.0.229
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.28s
+     Running tests/strict_evidence.rs (/private/tmp/zapote-rtd-target/debug/deps/strict_evidence-8344ad77cf43e9b3)
+
+running 4 tests
+test rejects_duplicate_measurement_in_log ... FAILED
+test rejects_trailing_malformed_or_extra_scalar_row ... FAILED
+test rejects_other_variable_named_max ... FAILED
+test rejects_scalar_power_disagreeing_with_raw_log ... FAILED
+
+failures:
+
+---- rejects_duplicate_measurement_in_log stdout ----
+
+thread 'rejects_duplicate_measurement_in_log' (15939010) panicked at packages/zapote-thermal/tests/strict_evidence.rs:17:5:
+assertion failed: parse_elmer_outputs_named(&log, DATA, Some(NAMES)).is_err()
+
+---- rejects_trailing_malformed_or_extra_scalar_row stdout ----
+
+thread 'rejects_trailing_malformed_or_extra_scalar_row' (15939013) panicked at packages/zapote-thermal/tests/strict_evidence.rs:25:9:
+assertion failed: parse_elmer_outputs_named(LOG, &data, Some(NAMES)).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- rejects_other_variable_named_max stdout ----
+
+thread 'rejects_other_variable_named_max' (15939011) panicked at packages/zapote-thermal/tests/strict_evidence.rs:10:5:
+assertion failed: parse_elmer_outputs_named(LOG, DATA, Some(names.as_bytes())).is_err()
+
+---- rejects_scalar_power_disagreeing_with_raw_log stdout ----
+
+thread 'rejects_scalar_power_disagreeing_with_raw_log' (15939012) panicked at packages/zapote-thermal/tests/strict_evidence.rs:32:5:
+assertion failed: parse_elmer_outputs_named(LOG, data.as_bytes(), Some(NAMES)).is_err()
+
+
+failures:
+    rejects_duplicate_measurement_in_log
+    rejects_other_variable_named_max
+    rejects_scalar_power_disagreeing_with_raw_log
+    rejects_trailing_malformed_or_extra_scalar_row
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p zapote-thermal --test strict_evidence`

@@ -22,11 +22,14 @@ packages under `zapote/packages/`:
 | `zapote-erc` | Applicable circuit/connectivity checks | Existing ERC rules and source-pin identity checks |
 | `zapote-kicad` (later) | Rust client to KiCad; not a replacement editor | Existing editing contract; migration only when needed |
 | `zapote-harness` | Rust validation composition, task policy, memory and evidence interfaces | Pure Rust policy; retained Python host provides current transport/editing |
+| `zapote-thermal` | Gmsh/Elmer reference execution, evidence and analytic acceptance checks | External Gmsh and Elmer executables; no new FEM implementation |
 
 DRC and ERC depend on core; the harness composes them. Core never
 depends on those consumers. Keep one shared board/constraint/finding model.
-Additional packages such as `zapote-thermal` are extracted only when a real
-requirement needs them. Do not copy the optimizer workspace wholesale.
+Additional packages are introduced only when a real requirement needs them.
+`zapote-thermal` starts with the [electrothermal reference](thermal/README.md)
+needed before modeling power-entry terminal necks. It does not yet supply a
+board thermal qualification gate. Do not copy the optimizer workspace wholesale.
 
 ## Rust validators; working KiCad transport retained
 

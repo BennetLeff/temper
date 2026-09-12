@@ -5,6 +5,7 @@ members = [
   "packages/zapote-erc",
   "packages/zapote-drc",
   "packages/zapote-harness",
+  "packages/zapote-thermal",
 ]
 
 [workspace.package]

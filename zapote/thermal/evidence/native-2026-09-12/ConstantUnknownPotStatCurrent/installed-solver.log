@@ -1,0 +1,133 @@
+ELMER SOLVER (v 26.2) STARTED AT: 2026/09/12 15:38:49
+ParCommInit: Initialize #PEs: 1
+MAIN: 
+MAIN: =============================================================
+MAIN: ElmerSolver finite element software, Welcome!
+MAIN: This program is free software licensed under (L)GPL
+MAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.
+MAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi
+MAIN: Version: 26.2-unknown (Rev: a19504a, Compiled: 2026-09-12)
+MAIN:  Running one task without MPI parallelization.
+MAIN:  Running with just one thread per task.
+MAIN: =============================================================
+MAIN: 
+MAIN: 
+MAIN: -------------------------------------
+MAIN: Reading Model: case.sif
+LoadInputFile: Scanning input file: case.sif
+LoadInputFile: Scanning only size info
+LoadInputFile: First time visiting
+LoadInputFile: Reading base load of sif file
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+LoadInputFile: Loading input file: case.sif
+LoadInputFile: Reading base load of sif file
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword:  Unlisted keyword: [potential constant] in section: [boundary condition 2]
+CheckKeyword:  Unlisted keyword: [potential constant resistance] in section: [boundary condition 2]
+CheckKeyword:  Unlisted keyword: [potential constant flux] in section: [boundary condition 2]
+CheckKeyword:  Unlisted keyword: [potential constant coefficient] in section: [boundary condition 2]
+LoadInputFile: Number of BCs: 2
+LoadInputFile: Number of Body Forces: 0
+LoadInputFile: Number of Initial Conditions: 0
+LoadInputFile: Number of Materials: 1
+LoadInputFile: Number of Equations: 1
+LoadInputFile: Number of Solvers: 2
+LoadInputFile: Number of Bodies: 1
+Loading user function library: [StatCurrentSolveVec]...[StatCurrentSolver_Init0]
+Loading user function library: [StatCurrentSolveVec]...[StatCurrentSolver_Init0]
+Loading user function library: [SaveData]...[SaveScalars_Init0]
+Loading user function library: [SaveData]...[SaveScalars_Init0]
+ElmerMeshReader: Base mesh name: ./beam
+PermuteNodeNumbering: Performing node mapping
+MapBodiesAndBCs: Minimum initial boundary index: 1
+MapBodiesAndBCs: Maximum initial boundary index: 2
+LoadMesh: Elapsed REAL time:     0.0019 (s)
+MeshStabParams: Computing stabilization parameters
+MeshStabParams: Elapsed REAL time:     0.0000 (s)
+MAIN: -------------------------------------
+AddVtuOutputSolverHack: Adding ResultOutputSolver to write VTU output in file: case
+ListCopyPrefixedKeywords: Copied 1 keywords with prefix: vtu:
+Loading user function library: [StatCurrentSolveVec]...[StatCurrentSolver_Init]
+Loading user function library: [StatCurrentSolveVec]...[StatCurrentSolver_bulk]
+Loading user function library: [StatCurrentSolveVec]...[StatCurrentSolver_bulk]
+Loading user function library: [StatCurrentSolveVec]...[StatCurrentSolver]
+OptimizeBandwidth: ---------------------------------------------------------
+OptimizeBandwidth: Computing matrix structure for: statcurrent
+OptimizeBandwidth: Initial bandwidth for statcurrent: 23
+OptimizeBandwidth: Optimized bandwidth for statcurrent: 13
+OptimizeBandwidth: ---------------------------------------------------------
+Loading user function library: [SaveData]...[SaveScalars_Init]
+Loading user function library: [SaveData]...[SaveScalars_bulk]
+Loading user function library: [SaveData]...[SaveScalars_bulk]
+Loading user function library: [SaveData]...[SaveScalars]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_Init]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_Init]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_bulk]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_bulk]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver]
+MAIN: Number of timesteps to be saved: 1
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            1
+MAIN: -------------------------------------
+MAIN: 
+StatCurrentSolver: ------------------------------------------------
+StatCurrentSolver: Solving static current conduction solver
+StatCurrentSolver: Performing non-vectorized bulk element assembly
+StatCurrentSolverBulkAssembly: Elapsed REAL time:     0.0014 (s)
+StatCurrentSolverBCAssembly: Elapsed REAL time:     0.0000 (s)
+SetDirichletBoundaries: Found BC constraint: potential Constant
+List_ToListMatrix: Matrix format changed from CRS to List
+SetDirichletBoundaries: Previous bc 2 lumped flux:    0.000E+00
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 6
+CRS_IncompleteLU: ILU(2) (Real), Performing Factorization:
+CRS_IncompleLU: Recursive round: 1
+CRS_IncompleteLU: ILU(2) (Real), NOF nonzeros:      1604
+CRS_IncompleteLU: ILU(2) (Real), filling (%) :       162
+CRS_IncompleteLU: ILU(2) (Real), Factorization time (s):     0.00
+       6 0.6050E-10
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.58452260      2.0000000     ) :: statcurrent
+ComputeChange: SS (ITER=1) (NRM,RELC): ( 0.58452260      2.0000000     ) :: statcurrent
+SaveScalars: -----------------------------------------
+SaveScalars: Saving scalar values of various kinds
+SaveScalars: Performed 2 reduction operations
+SaveScalars: Found 2 values to save in total
+SaveScalars: Saving names of values to file: ./f.dat.names
+SaveScalars: Saving values to file: ./f.dat
+ComputeChange: SS (ITER=1) (NRM,RELC): (  1.0000000      0.0000000     ) :: savescalars
+SaveScalars: -----------------------------------------
+ComputeChange: SS (ITER=1) (NRM,RELC): (  1.0000000      2.0000000     ) :: savescalars
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Saving with prefix: case
+ResultOutputSolver: Creating list for saving - if not present
+CreateListForSaving: Field Variables for Saving
+CreateListForSaving: Scalar Field 1: potential
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Saving results in VTK XML format with prefix: case
+VtuOutputSolver: Saving number of partitions: 1
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: beam/case_t0001.vtu
+ResultOutputSolver: -------------------------------------
+CompareToReferenceSolution: Solver 1 PASSED:  Norm = 5.84522597E-01  RefNorm = 5.84522597E-01
+CompareToReferenceSolution: Relative Error to reference norm: 1.658011E-10
+CompareToReferenceSolution: Solver 2 PASSED:  Norm = 1.00000000E+00  RefNorm = 1.00000000E+00
+CompareToReferenceSolution: Relative Error to reference norm: 2.014613E-10
+ReloadInputFile: Reloading input file
+LoadInputFile: Loading input file:
+CompareToReferenceSolution: PASSED all 2 tests!
+MAIN: *** Elmer Solver: ALL DONE ***
+Loading user function library: [StatCurrentSolveVec]...[StatCurrentSolver_Finalize]
+Loading user function library: [StatCurrentSolveVec]...[StatCurrentSolver_Finalize]
+Loading user function library: [SaveData]...[SaveScalars_Finalize]
+Loading user function library: [SaveData]...[SaveScalars_Finalize]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_Finalize]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_Finalize]
+MAIN: The end
+SOLVER TOTAL TIME(CPU,REAL):         0.10        0.35
+ELMER SOLVER FINISHED AT: 2026/09/12 15:38:49

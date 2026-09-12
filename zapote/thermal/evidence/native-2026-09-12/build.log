@@ -1,0 +1,2080 @@
+[  0%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_analyze.c.o
+[  0%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_2by2.c.o
+[  0%] Building C object umfpack/src/umfpack/CMakeFiles/hsolve_di.dir/umf_ltsolve.c.o
+[  0%] Building C object matc/src/CMakeFiles/matc.dir/c3d.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_analyze.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_2by2.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_2by2.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_2by2.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_assemble.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_apply_order.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_assemble.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_assemble.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_assemble.c.o
+[  1%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_apply_order.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/hsolve_di.dir/umf_utsolve.c.o
+[  2%] Building C object matc/src/CMakeFiles/matc.dir/clip.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_colamd.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_colamd.c.o
+[  2%] Built target hsolve_di
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_blas3_update.c.o
+[  2%] Building C object matc/src/CMakeFiles/matc.dir/dri_ps.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_blas3_update.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_blas3_update.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_free.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_blas3_update.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_build_tuples.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/hsolve_dl.dir/umf_ltsolve.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_build_tuples.c.o
+[  2%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_build_tuples.c.o
+[  3%] Building C object matc/src/CMakeFiles/matc.dir/eig.c.o
+[  3%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_build_tuples.c.o
+[  3%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_free.c.o
+[  3%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_create_element.c.o
+[  3%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_fsize.c.o
+[  3%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_create_element.c.o
+[  3%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_create_element.c.o
+[  3%] Building C object umfpack/src/umfpack/CMakeFiles/hsolve_dl.dir/umf_utsolve.c.o
+[  4%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_create_element.c.o
+[  4%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_fsize.c.o
+[  4%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_is_permutation.c.o
+[  4%] Building C object matc/src/CMakeFiles/matc.dir/error.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_dump.c.o
+[  5%] Built target hsolve_dl
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_dump.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_dump.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_is_permutation.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_dump.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/hsolve_zi.dir/umf_ltsolve.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_malloc.c.o
+[  5%] Building C object matc/src/CMakeFiles/matc.dir/eval.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_extend_front.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_extend_front.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_extend_front.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_extend_front.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_malloc.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_realloc.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/hsolve_zi.dir/umf_utsolve.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_garbage_collection.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_realloc.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_garbage_collection.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_report_perm.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_garbage_collection.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_garbage_collection.c.o
+[  5%] Building C object matc/src/CMakeFiles/matc.dir/files.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_report_perm.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_i.dir/umf_singletons.c.o
+[  5%] Built target hsolve_zi
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_get_memory.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/hsolve_zl.dir/umf_ltsolve.c.o
+[  5%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_get_memory.c.o
+[  6%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_get_memory.c.o
+[  6%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_get_memory.c.o
+[  6%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_l.dir/umf_singletons.c.o
+[  6%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_grow_front.c.o
+[  6%] Building C object matc/src/CMakeFiles/matc.dir/funcs.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_grow_front.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_grow_front.c.o
+[  7%] Built target umfpack_i
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/hsolve_zl.dir/umf_utsolve.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_grow_front.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_init_front.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_init_front.c.o
+[  7%] Built target umfpack_l
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_init_front.c.o
+[  7%] Building C object matc/src/CMakeFiles/matc.dir/gra.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_kernel.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_init_front.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_kernel.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_kernel_init.c.o
+[  7%] Built target hsolve_zl
+[  7%] Building C object matc/src/CMakeFiles/matc.dir/gra_com.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_kernel.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_kernel.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_kernel_init.c.o
+[  7%] Building C object matc/src/CMakeFiles/matc.dir/jacobi.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_kernel_init.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_kernel_wrapup.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_kernel_wrapup.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_kernel_init.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_local_search.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_kernel_wrapup.c.o
+[  7%] Building C object matc/src/CMakeFiles/matc.dir/lists.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_lsolve.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_kernel_wrapup.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_local_search.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_map_nox_di.dir/umf_triplet.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_local_search.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_local_search.c.o
+[  7%] Building C object matc/src/CMakeFiles/matc.dir/lu.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_ltsolve.c.o
+[  7%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_lsolve.c.o
+[  7%] Built target triplet_map_nox_di
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_mem_alloc_element.c.o
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_map_nox_dl.dir/umf_triplet.c.o
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_lsolve.c.o
+[  8%] Building C object matc/src/CMakeFiles/matc.dir/matc.c.o
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_ltsolve.c.o
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_mem_alloc_head_block.c.o
+[  8%] Building C object matc/src/CMakeFiles/matc.dir/matrix.c.o
+[  8%] Built target triplet_map_nox_dl
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_lsolve.c.o
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_mem_alloc_element.c.o
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_ltsolve.c.o
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_map_nox_zi.dir/umf_triplet.c.o
+[  8%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_mem_alloc_tail_block.c.o
+[  9%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_mem_alloc_head_block.c.o
+[  9%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_ltsolve.c.o
+[  9%] Building C object matc/src/CMakeFiles/matc.dir/oper.c.o
+[  9%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_mem_alloc_tail_block.c.o
+[  9%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_mem_alloc_element.c.o
+[  9%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_mem_free_tail_block.c.o
+[  9%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_map_nox_zl.dir/umf_triplet.c.o
+[  9%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_mem_free_tail_block.c.o
+[  9%] Built target triplet_map_nox_zi
+[ 10%] Building C object matc/src/CMakeFiles/matc.dir/optim.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_mem_alloc_element.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_nomap_x_di.dir/umf_triplet.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_mem_alloc_head_block.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_mem_init_memoryspace.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_mem_init_memoryspace.c.o
+[ 10%] Built target triplet_map_nox_zl
+[ 10%] Building C object matc/src/CMakeFiles/matc.dir/parser.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_mem_alloc_tail_block.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_mem_alloc_head_block.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_report_vector.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_nomap_x_dl.dir/umf_triplet.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_report_vector.c.o
+[ 10%] Built target triplet_nomap_x_di
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_nomap_x_zi.dir/umf_triplet.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_mem_free_tail_block.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_mem_alloc_tail_block.c.o
+[ 10%] Building C object matc/src/CMakeFiles/matc.dir/str.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_row_search.c.o
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_row_search.c.o
+[ 10%] Built target triplet_nomap_x_dl
+[ 10%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_mem_init_memoryspace.c.o
+[ 10%] Built target triplet_nomap_x_zi
+[ 11%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_report_vector.c.o
+[ 11%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_mem_free_tail_block.c.o
+[ 12%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_nomap_x_zl.dir/umf_triplet.c.o
+[ 12%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_row_search.c.o
+[ 12%] Building C object matc/src/CMakeFiles/matc.dir/urand.c.o
+[ 12%] Building C object matc/src/CMakeFiles/matc.dir/variable.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_mem_init_memoryspace.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_scale.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_scale.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_map_x_di.dir/umf_triplet.c.o
+[ 13%] Built target triplet_nomap_x_zl
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_scale.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_report_vector.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_map_x_dl.dir/umf_triplet.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_scale_column.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_scale_column.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_map_x_zi.dir/umf_triplet.c.o
+[ 13%] Built target triplet_map_x_di
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_scale_column.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/triplet_map_x_zl.dir/umf_triplet.c.o
+[ 13%] Linking C shared library libmatc.dylib
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_row_search.c.o
+[ 13%] Built target triplet_map_x_dl
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_set_stats.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_set_stats.c.o
+[ 13%] Built target matc
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/assemble_fixq_di.dir/umf_assemble.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_set_stats.c.o
+[ 13%] Built target triplet_map_x_zi
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_solve.c.o
+[ 13%] Built target triplet_map_x_zl
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_scale.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/assemble_fixq_dl.dir/umf_assemble.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_solve.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_solve.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_scale_column.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_start_front.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_set_stats.c.o
+[ 13%] Built target assemble_fixq_di
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_start_front.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_store_lu.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_start_front.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_solve.c.o
+[ 13%] Built target assemble_fixq_dl
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/assemble_fixq_zi.dir/umf_assemble.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_symbolic_usage.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_store_lu.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_store_lu.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_transpose.c.o
+[ 13%] Built target assemble_fixq_zi
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_start_front.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/assemble_fixq_zl.dir/umf_assemble.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_triplet.c.o
+[ 13%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_tuple_lengths.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_symbolic_usage.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/store_lu_drop_di.dir/umf_store_lu.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_store_lu.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_usolve.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/store_lu_drop_dl.dir/umf_store_lu.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_symbolic_usage.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_transpose.c.o
+[ 14%] Built target assemble_fixq_zl
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/store_lu_drop_zi.dir/umf_store_lu.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_symbolic_usage.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_utsolve.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_transpose.c.o
+[ 14%] Built target store_lu_drop_di
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_triplet.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/store_lu_drop_zl.dir/umf_store_lu.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_transpose.c.o
+[ 14%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_tuple_lengths.c.o
+[ 14%] Built target store_lu_drop_dl
+[ 15%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_valid_numeric.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_triplet.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umf_valid_symbolic.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/wsolve_di.dir/umfpack_solve.c.o
+[ 16%] Built target store_lu_drop_zi
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_triplet.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_usolve.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_tuple_lengths.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/wsolve_dl.dir/umfpack_solve.c.o
+[ 16%] Built target store_lu_drop_zl
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_col_to_triplet.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_tuple_lengths.c.o
+[ 16%] Built target wsolve_di
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_utsolve.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/wsolve_zi.dir/umfpack_solve.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_usolve.c.o
+[ 16%] Built target wsolve_dl
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_valid_numeric.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umf_valid_symbolic.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_utsolve.c.o
+[ 16%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_defaults.c.o
+[ 17%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_usolve.c.o
+[ 17%] Built target wsolve_zi
+[ 17%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_valid_numeric.c.o
+[ 17%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_1.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_aat.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/wsolve_zl.dir/umfpack_solve.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_free_numeric.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_col_to_triplet.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_utsolve.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umf_valid_symbolic.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_aat.c.o
+[ 18%] Built target wsolve_zl
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_valid_numeric.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_2.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_1.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_free_symbolic.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_defaults.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_col_to_triplet.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umf_valid_symbolic.c.o
+[ 18%] Building Fortran object umfpack/src/amd/CMakeFiles/amdf77.dir/amd.f.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_dump.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_free_numeric.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_get_determinant.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_2.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_defaults.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_col_to_triplet.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_postorder.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_free_symbolic.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_get_lunz.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_free_numeric.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_post_tree.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_defaults.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_get_determinant.c.o
+[ 18%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_aux.F90.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_get_numeric.c.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_free_symbolic.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_dump.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_free_numeric.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_defaults.c.o
+[ 18%] Building Fortran object umfpack/src/amd/CMakeFiles/amdf77.dir/amdbar.f.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_get_determinant.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_postorder.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_get_lunz.c.o
+[ 18%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_order.c.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_free_symbolic.c.o
+[ 18%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_interfaces.F90.o
+[ 18%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_get_symbolic.c.o
+[ 19%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_get_numeric.c.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 19%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_post_tree.c.o
+[ 19%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_control.c.o
+[ 19%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_get_determinant.c.o
+[ 19%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_get_lunz.c.o
+[ 19%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_bicgstab.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 19%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_defaults.c.o
+[ 19%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_load_numeric.c.o
+[ 19%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_info.c.o
+[ 19%] Linking Fortran static library libamdf77.a
+[ 19%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_get_numeric.c.o
+[ 19%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_get_lunz.c.o
+[ 19%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_order.c.o
+[ 19%] Built target amdf77
+[ 19%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_get_symbolic.c.o
+[ 20%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_valid.c.o
+[ 20%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_load_symbolic.c.o
+[ 20%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_get_numeric.c.o
+[ 20%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_bicgstab_2.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 20%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_control.c.o
+[ 20%] Building C object umfpack/src/amd/CMakeFiles/amd_i.dir/amd_preprocess.c.o
+[ 20%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_load_numeric.c.o
+[ 20%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_numeric.c.o
+[ 21%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_get_symbolic.c.o
+[ 21%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_info.c.o
+[ 21%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_load_symbolic.c.o
+[ 21%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_get_symbolic.c.o
+[ 21%] Built target amd_i
+[ 21%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/BGGridMesh.cpp.o
+[ 21%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_load_numeric.c.o
+[ 21%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_valid.c.o
+[ 22%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_qsymbolic.c.o
+[ 23%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_cg.F90.o
+[ 23%] Building C object umfpack/src/amd/CMakeFiles/amd_l.dir/amd_preprocess.c.o
+[ 23%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_numeric.c.o
+[ 23%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_load_numeric.c.o
+[ 23%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_load_symbolic.c.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 23%] Built target amd_l
+[ 23%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/BGTriangleMesh.cpp.o
+[ 23%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_load_symbolic.c.o
+[ 23%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_numeric.c.o
+[ 23%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_qsymbolic.c.o
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_numeric.c.o
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_qsymbolic.c.o
+[ 24%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_cgs.F90.o
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_control.c.o
+[ 24%] Building Fortran object fem/src/CMakeFiles/mpi_stubs.dir/mpif_stubs.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_qsymbolic.c.o
+[ 24%] Linking Fortran shared library libmpi_stubs.dylib
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_info.c.o
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_control.c.o
+[ 24%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/BGVertex.cpp.o
+[ 24%] Built target mpi_stubs
+[ 24%] Building Fortran object fem/src/binio/CMakeFiles/binio.dir/kinds.f90.o
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_control.c.o
+[ 24%] Building C object fem/src/binio/CMakeFiles/binio.dir/binio.c.o
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_info.c.o
+[ 24%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_matrix.c.o
+[ 25%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_gmres.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 26%] Building Fortran object fem/src/binio/CMakeFiles/binio.dir/biniomod.f90.o
+[ 26%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/Body.cpp.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_info.c.o
+[ 26%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_qmr.F90.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_numeric.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_matrix.c.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 26%] Linking Fortran static library libbinio.a
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_control.c.o
+[ 26%] Built target binio
+[ 26%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/BoundaryElement.cpp.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_matrix.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_numeric.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_info.c.o
+[ 26%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_tfqmr.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_perm.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_numeric.c.o
+[ 26%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/BoundaryLayer.cpp.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_status.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_matrix.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_perm.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_symbolic.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_status.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_numeric.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_perm.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_triplet.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_symbolic.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_status.c.o
+[ 26%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_report_vector.c.o
+[ 26%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/Connect.cpp.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_triplet.c.o
+[ 27%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cgetv0.f.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_symbolic.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_perm.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_save_numeric.c.o
+[ 27%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/Element.cpp.o
+[ 27%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cnaitr.f.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_report_vector.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_triplet.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_status.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_save_symbolic.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_save_numeric.c.o
+[ 27%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cnapps.f.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_report_vector.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_symbolic.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_scale.c.o
+[ 27%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_save_symbolic.c.o
+[ 27%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/ViewFactors.c.o
+[ 28%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_save_numeric.c.o
+[ 28%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_solve.c.o
+[ 28%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_triplet.c.o
+[ 28%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_scale.c.o
+[ 28%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_save_symbolic.c.o
+[ 28%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cnaup2.f.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_symbolic.c.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_report_vector.c.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_scale.c.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_solve.c.o
+[ 29%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/GeometryEdge.cpp.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_transpose.c.o
+[ 29%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cnaupd.f.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_save_numeric.c.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_symbolic.c.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_solve.c.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_dl.dir/umfpack_triplet_to_col.c.o
+[ 29%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cneigh.f.o
+[ 29%] Building Fortran object fhutiter/src/CMakeFiles/fhuti.dir/huti_sfe.F90.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_save_symbolic.c.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_transpose.c.o
+[ 29%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_symbolic.c.o
+[ 29%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cneupd.f.o
+[ 29%] Built target umfpack_dl
+[ 30%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/main.cpp.o
+[ 31%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_scale.c.o
+[ 31%] Linking Fortran shared library libfhuti.dylib
+[ 31%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zi.dir/umfpack_triplet_to_col.c.o
+[ 31%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_transpose.c.o
+[ 31%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_solve.c.o
+[ 31%] Built target fhuti
+[ 31%] Building CXX object fem/src/viewaxis/CMakeFiles/viewaxis.dir/viewfact.cpp.o
+[ 31%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_zl.dir/umfpack_triplet_to_col.c.o
+[ 31%] Built target umfpack_zi
+[ 31%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/b64.c.o
+[ 31%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cngets.f.o
+[ 31%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_symbolic.c.o
+[ 31%] Built target umfpack_zl
+[ 31%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/TestModel.c.o
+[ 31%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/csortc.f.o
+[ 31%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_transpose.c.o
+[ 31%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/LineUtil.c.o
+[ 31%] Building C object matc/src/CMakeFiles/Matc_bin.dir/main.c.o
+[ 31%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/blas.c.o
+[ 31%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cstatn.f.o
+[ 31%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack_di.dir/umfpack_triplet_to_col.c.o
+[ 31%] Linking C executable matc
+[ 32%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dgetv0.f.o
+[ 32%] Built target Matc_bin
+[ 32%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/Mesh.cpp.o
+[ 32%] Built target umfpack_di
+[ 32%] Linking CXX static library libviewaxis.a
+[ 32%] Linking C static library libamd.a
+[ 32%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/TriangleUtil.c.o
+[ 32%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/csr.c.o
+[ 32%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/MeshNode.cpp.o
+[ 32%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dlaqrb.f.o
+[ 32%] Built target viewaxis
+[ 32%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/BiLinearUtil.c.o
+[ 32%] Built target amd
+[ 32%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/error.c.o
+[ 32%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack.dir/umfpack_timer.c.o
+[ 32%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dnaitr.f.o
+[ 32%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/MeshParser.cpp.o
+[ 32%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/evaluate.c.o
+[ 32%] Building C object umfpack/src/umfpack/CMakeFiles/umfpack.dir/umfpack_tictoc.c.o
+[ 32%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/BiQuadraticUtil.c.o
+[ 33%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/BiCubicUtil.c.o
+[ 33%] Linking C static library libumfpack.a
+[ 33%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dnapps.f.o
+[ 33%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/Node.cpp.o
+[ 33%] Built target umfpack
+[ 33%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/RayTrace.c.o
+[ 33%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/VectorUtil.c.o
+[ 33%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dnaup2.f.o
+[ 33%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/LUDecomp.c.o
+[ 33%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dnaupd.f.o
+[ 33%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/fkvkselect.c.o
+[ 33%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/PQ.cpp.o
+[ 33%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dnconv.f.o
+[ 33%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dneigh.f.o
+[ 33%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/fs.c.o
+[ 33%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/QuadElement.cpp.o
+[ 33%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dneupd.f.o
+[ 33%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/QuadLayer.cpp.o
+[ 33%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/2d_4node.c.o
+[ 33%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/getopt.c.o
+[ 33%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dngets.f.o
+[ 33%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/SSSFVoronoiSegment.cpp.o
+[ 33%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/16node_quad.c.o
+[ 34%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/SSMFVoronoiSegment.cpp.o
+[ 34%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/gkregex.c.o
+[ 34%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsaitr.f.o
+[ 34%] Building C object fem/src/view3d/CMakeFiles/view3d.dir/second.c.o
+[ 34%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/graph.c.o
+[ 34%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/TriangleElement.cpp.o
+[ 34%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/htable.c.o
+[ 34%] Linking C static library libview3d.a
+[ 34%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsapps.f.o
+[ 34%] Built target view3d
+[ 34%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/TriangleNELayer.cpp.o
+[ 34%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/Vertex.cpp.o
+[ 34%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/io.c.o
+[ 34%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsaup2.f.o
+[ 34%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/VoronoiSegment.cpp.o
+[ 34%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/itemsets.c.o
+[ 35%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/VoronoiVertex.cpp.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsaupd.f.o
+[ 36%] Building CXX object meshgen2d/src/CMakeFiles/Mesh2D.dir/VSVertex.cpp.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsconv.f.o
+[ 36%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/mcore.c.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dseigt.f.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsesrt.f.o
+[ 36%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/memory.c.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dseupd.f.o
+[ 36%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/omp.c.o
+[ 36%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/pdb.c.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsgets.f.o
+[ 36%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/pqueue.c.o
+[ 36%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/random.c.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsortc.f.o
+[ 36%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/rw.c.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dsortr.f.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dstatn.f.o
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dstats.f.o
+[ 36%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/seq.c.o
+[ 36%] Linking CXX executable Mesh2D
+[ 36%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dstqrb.f.o
+[ 37%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/sort.c.o
+[ 37%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sgetv0.f.o
+[ 37%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/string.c.o
+[ 37%] Built target Mesh2D
+[ 37%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/slaqrb.f.o
+[ 37%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/timers.c.o
+[ 37%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/tokenizer.c.o
+[ 37%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/snaitr.f.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/snapps.f.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/__/GKlib/util.c.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/auxapi.c.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/balance.c.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/bucketsort.c.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/snaup2.f.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/snaupd.f.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/checkgraph.c.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/coarsen.c.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/compress.c.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/snconv.f.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sneigh.f.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sneupd.f.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sngets.f.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/contig.c.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/debug.c.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssaitr.f.o
+[ 38%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/fm.c.o
+[ 38%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssapps.f.o
+[ 39%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/fortran.c.o
+[ 39%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/frename.c.o
+[ 39%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssaup2.f.o
+[ 39%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/gklib.c.o
+[ 39%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssaupd.f.o
+[ 39%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/graph.c.o
+[ 39%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/initpart.c.o
+[ 39%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/kmetis.c.o
+[ 39%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/kwayfm.c.o
+[ 39%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssconv.f.o
+[ 39%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/kwayrefine.c.o
+[ 39%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sseigt.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssesrt.f.o
+[ 40%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/mcutil.c.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sseupd.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssgets.f.o
+[ 40%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/mesh.c.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssortc.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ssortr.f.o
+[ 40%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/meshpart.c.o
+[ 40%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/minconn.c.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sstatn.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sstats.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/sstqrb.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/zgetv0.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/znaitr.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/znapps.f.o
+[ 40%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/znaup2.f.o
+[ 40%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/mincover.c.o
+[ 41%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/mmd.c.o
+[ 41%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/ometis.c.o
+[ 41%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/znaupd.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/zneigh.f.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/options.c.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/parmetis.c.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/zneupd.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/zngets.f.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/pmetis.c.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/refine.c.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/zsortc.f.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/separator.c.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/sfm.c.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/srefine.c.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/stat.c.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/zstatn.f.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/timing.c.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/util.c.o
+[ 42%] Building C object elmergrid/src/metis-5.1.0/libmetis/CMakeFiles/metis.dir/wspace.c.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cmout.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/cvout.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dmout.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/dvout.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/icnteq.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/icopy.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/iset.f.o
+[ 42%] Linking C static library libmetis.a
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/iswap.f.o
+[ 42%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/ivout.f.o
+[ 43%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/second.f.o
+[ 43%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/smout.f.o
+[ 43%] Built target metis
+[ 43%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/svout.f.o
+[ 43%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/zmout.f.o
+[ 43%] Building Fortran object mathlibs/src/arpack/CMakeFiles/arpack.dir/zvout.f.o
+[ 43%] Building C object elmergrid/src/CMakeFiles/ElmerGrid.dir/egparallel.c.o
+[ 43%] Building C object elmergrid/src/CMakeFiles/ElmerGrid.dir/egnative.c.o
+[ 43%] Building C object elmergrid/src/CMakeFiles/ElmerGrid.dir/egconvert.c.o
+[ 43%] Building C object elmergrid/src/CMakeFiles/ElmerGrid.dir/egexport.c.o
+[ 43%] Building C object elmergrid/src/CMakeFiles/ElmerGrid.dir/egextra.c.o
+[ 43%] Building C object elmergrid/src/CMakeFiles/ElmerGrid.dir/egmesh.c.o
+[ 43%] Building C object elmergrid/src/CMakeFiles/ElmerGrid.dir/fempre.c.o
+[ 43%] Linking Fortran shared library libarpack.dylib
+[ 43%] Built target arpack
+[ 43%] Building C object elmergrid/src/CMakeFiles/ElmerGrid.dir/egutils.c.o
+[ 43%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcgetv0.f.o
+[ 43%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pclarnv.f.o
+[ 43%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcnaitr.f.o
+[ 43%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcnapps.f.o
+/private/tmp/zapote-elmer-26.2.1-src/mathlibs/src/parpack/pcgetv0.f:366:38:
+
+  335 |           call MPI_ALLREDUCE( cnorm_buf, cnorm, 1,
+      |                                         2
+......
+  366 |       call MPI_ALLREDUCE( workl(j+1), workl, j-1,
+      |                                      1
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcnaup2.f.o
+/private/tmp/zapote-elmer-26.2.1-src/mathlibs/src/parpack/pcnaitr.f:603:29:
+
+  580 |             call MPI_ALLREDUCE( cnorm_buf, cnorm, 1,
+      |                                2
+......
+  603 |          call MPI_ALLREDUCE( workl, h(1,j), j,
+      |                             1
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcnaupd.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcneigh.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcneupd.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcngets.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdgetv0.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdlamch.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdlarnv.f.o
+/private/tmp/zapote-elmer-26.2.1-src/mathlibs/src/parpack/pdgetv0.f:352:38:
+
+  321 |           call MPI_ALLREDUCE( rnorm_buf, rnorm0, 1,
+      |                                         2
+......
+  352 |       call MPI_ALLREDUCE( workl(j+1), workl, j-1,
+      |                                      1
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdnaitr.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdnapps.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdnaup2.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdnaupd.f.o
+/private/tmp/zapote-elmer-26.2.1-src/mathlibs/src/parpack/pdnaitr.f:592:29:
+
+  569 |             call MPI_ALLREDUCE( rnorm_buf, wnorm, 1,
+      |                                2
+......
+  592 |          call MPI_ALLREDUCE( workl, h(1,j), j,
+      |                             1
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdneigh.f.o
+[ 44%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdneupd.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdngets.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdnorm2.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdsaitr.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdsapps.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdsaup2.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdsaupd.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdseigt.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdseupd.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdsgets.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdznorm2.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pscnorm2.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psgetv0.f.o
+[ 45%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pslamch.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pslarnv.f.o
+/private/tmp/zapote-elmer-26.2.1-src/mathlibs/src/parpack/psgetv0.f:352:38:
+
+  321 |           call MPI_ALLREDUCE( rnorm_buf, rnorm0, 1,
+      |                                         2
+......
+  352 |       call MPI_ALLREDUCE( workl(j+1), workl, j-1,
+      |                                      1
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psnaitr.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psnapps.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psnaup2.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psnaupd.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psneigh.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psneupd.f.o
+/private/tmp/zapote-elmer-26.2.1-src/mathlibs/src/parpack/psnaitr.f:592:29:
+
+  569 |             call MPI_ALLREDUCE( rnorm_buf, wnorm, 1,
+      |                                2
+......
+  592 |          call MPI_ALLREDUCE( workl, h(1,j), j,
+      |                             1
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psngets.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psnorm2.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pssaitr.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pssapps.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pssaup2.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pssaupd.f.o
+[ 46%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psseigt.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psseupd.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pssgets.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pzgetv0.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pzlarnv.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pznaitr.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pznapps.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pznaup2.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pznaupd.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pzneigh.f.o
+/private/tmp/zapote-elmer-26.2.1-src/mathlibs/src/parpack/pzgetv0.f:366:38:
+
+  335 |           call MPI_ALLREDUCE( cnorm_buf, cnorm, 1,
+      |                                         2
+......
+  366 |       call MPI_ALLREDUCE( workl(j+1), workl, j-1,
+      |                                      1
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
+/private/tmp/zapote-elmer-26.2.1-src/mathlibs/src/parpack/pznaitr.f:603:29:
+
+  580 |             call MPI_ALLREDUCE( cnorm_buf, cnorm, 1,
+      |                                2
+......
+  603 |          call MPI_ALLREDUCE( workl, h(1,j), j,
+      |                             1
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-1)
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pzneupd.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pzngets.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcmout.f.o
+[ 47%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pcvout.f.o
+[ 48%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdmout.f.o
+[ 48%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pdvout.f.o
+[ 48%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pivout.f.o
+[ 48%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psmout.f.o
+[ 48%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/psvout.f.o
+[ 48%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pzmout.f.o
+[ 48%] Building Fortran object mathlibs/src/parpack/CMakeFiles/parpack.dir/pzvout.f.o
+[ 48%] Linking Fortran shared library libparpack.dylib
+[ 48%] Built target parpack
+[ 48%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Messages.F90.o
+[ 48%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Lua.F90.o
+[ 48%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ExchangeCorrelations.F90.o
+[ 48%] Building C object fem/src/CMakeFiles/elmersolver.dir/fft.c.o
+[ 48%] Building C object fem/src/CMakeFiles/elmersolver.dir/Load.c.o
+[ 48%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Walls.F90.o
+[ 48%] Building C object fem/src/CMakeFiles/elmersolver.dir/CPUTime.c.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 48%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/solve_real.F90.o
+[ 48%] Building C object fem/src/CMakeFiles/elmersolver.dir/f_stubs.c.o
+[ 48%] Building C object fem/src/CMakeFiles/elmersolver.dir/SolveHypre.c.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 48%] Building C object fem/src/CMakeFiles/elmersolver.dir/amgx.c.o
+[ 48%] Building CXX object fem/src/CMakeFiles/elmersolver.dir/rocalution.cpp.o
+[ 48%] Building C object fem/src/CMakeFiles/elmersolver.dir/SolveSuperLU.c.o
+[ 49%] Building C object fem/src/CMakeFiles/elmersolver.dir/umf4_f77wrapper.c.o
+[ 49%] Building C object fem/src/CMakeFiles/elmersolver.dir/cholmod.c.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Types.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 49%] Linking C executable ElmerGrid
+[ 49%] Built target ElmerGrid
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SParIterGlobals.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/LoadMod.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/CoordinateSystems.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/LinearAlgebra.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/AddrFunc.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/H1Basis.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/LinearForms.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SolveBand.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:505:32:
+
+  505 |     !_ELMER_OMP _ELMER_LINEAR_REF(u) _ELMER_LINEAR_REF(v) NOTINBRANCH
+      |                                1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(v : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:789:30:
+
+  789 |     !_ELMER_OMP_DECLARE_SIMD _ELMER_LINEAR_REF(x) UNIFORM(j) NOTINBRANCH
+      |                              1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(x : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/LinearForms.F90:414:31:
+
+  414 |     CALL DGEMV('N', m, n, 1D0, U, SIZE(U,1), F, 1, 0D0, ProjectToU, 1)
+      |                               1
+......
+  480 |               1D0, U(ii,1), SIZE(U,1), wrk, 1, 1D0, UdotF, 1)
+      |                   2            
+Warning: Rank mismatch between actual argument at (1) and actual argument at (2) (scalar and rank-2)
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/LinearForms.F90:401:20:
+
+  401 |                1D0, U(ii,1), ldbasis, &
+      |                    1
+......
+  424 |     CALL DGEMM('N', 'N', m, SIZE(F,2), n, 1D0, U, SIZE(U,1), F, SIZE(F,1), &
+      |                                               2
+Warning: Element of assumed-shape or pointer array as actual argument at (1) cannot correspond to actual argument at (2)
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/LinearForms.F90:329:20:
+
+  329 |                1D0, U(ii,1), ldbasis, &
+      |                    1
+......
+  424 |     CALL DGEMM('N', 'N', m, SIZE(F,2), n, 1D0, U, SIZE(U,1), F, SIZE(F,1), &
+      |                                               2
+Warning: Element of assumed-shape or pointer array as actual argument at (1) cannot correspond to actual argument at (2)
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/LinearForms.F90:255:21:
+
+  255 |                 1D0, U(ii,1), lbasis, &
+      |                     1
+......
+  424 |     CALL DGEMM('N', 'N', m, SIZE(F,2), n, 1D0, U, SIZE(U,1), F, SIZE(F,1), &
+      |                                               2
+Warning: Element of assumed-shape or pointer array as actual argument at (1) cannot correspond to actual argument at (2)
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/LinearForms.F90:133:21:
+
+  133 |                 1D0, GradU(ii,1,k), ldbasis, &
+      |                     1
+......
+  424 |     CALL DGEMM('N', 'N', m, SIZE(F,2), n, 1D0, U, SIZE(U,1), F, SIZE(F,1), &
+      |                                               2
+Warning: Element of assumed-shape or pointer array as actual argument at (1) cannot correspond to actual argument at (2)
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:1255:32:
+
+ 1255 |     !_ELMER_OMP _ELMER_LINEAR_REF(u) _ELMER_LINEAR_REF(v) NOTINBRANCH
+      |                                1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(v : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:1331:47:
+
+ 1331 |     !_ELMER_OMP _ELMER_LINEAR_REF(u) _ELMER_LINEAR_REF(v) _ELMER_LINEAR_REF(w) NOTINBRANCH
+      |                                               1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(w : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:2192:32:
+
+ 2192 |     !_ELMER_OMP _ELMER_LINEAR_REF(u) _ELMER_LINEAR_REF(v) NOTINBRANCH
+      |                                1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(v : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:2232:44:
+
+ 2232 |     !_ELMER_OMP_DECLARE_SIMD UNIFORM(node) _ELMER_LINEAR_REF(w) NOTINBRANCH
+      |                                            1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(w : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:3395:32:
+
+ 3395 |     !_ELMER_OMP _ELMER_LINEAR_REF(v) _ELMER_LINEAR_REF(w) NOTINBRANCH
+      |                                1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(w : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:3453:48:
+
+ 3453 |     !_ELMER_OMP _ELMER_LINEAR_REF(w) _ELMER_LINEAR_REF(La) _ELMER_LINEAR_REF(Lb) NOTINBRANCH
+      |                                                1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(lb : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:4062:41:
+
+ 4062 |     !_ELMER_OMP_DECLARE_SIMD UNIFORM(k) _ELMER_LINEAR_REF(x) NOTINBRANCH
+      |                                         1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(x : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:4133:41:
+
+ 4133 |     !_ELMER_OMP_DECLARE_SIMD UNIFORM(k) _ELMER_LINEAR_REF(x) NOTINBRANCH
+      |                                         1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(x : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:4186:41:
+
+ 4186 |     !_ELMER_OMP_DECLARE_SIMD UNIFORM(k) _ELMER_LINEAR_REF(x) NOTINBRANCH
+      |                                         1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(x : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:4238:41:
+
+ 4238 |     !_ELMER_OMP_DECLARE_SIMD UNIFORM(k) _ELMER_LINEAR_REF(x) NOTINBRANCH
+      |                                         1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(x : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:4288:41:
+
+ 4288 |     !_ELMER_OMP_DECLARE_SIMD UNIFORM(k) _ELMER_LINEAR_REF(x) NOTINBRANCH
+      |                                         1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(x : ref)' [-Wdeprecated-openmp]
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/H1Basis.F90:4359:41:
+
+ 4359 |     !_ELMER_OMP_DECLARE_SIMD UNIFORM(k) _ELMER_LINEAR_REF(x) NOTINBRANCH
+      |                                         1
+Warning: Specification of the list items as arguments to the modifiers at (1) is deprecated; since OpenMP 5.2, use 'linear(x : ref)' [-Wdeprecated-openmp]
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SolveSBand.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/solve_cmplx.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/GeneralUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ListMatrixArray.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/PElementMaps.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/BandMatrix.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SParIterComm.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Lists.F90.o
+[ 49%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Integration.F90.o
+[ 50%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/PElementBase.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 50%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SParIterPrecond.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 50%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/TimeIntegrate.F90.o
+[ 50%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ElementDescription.F90.o
+[ 50%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/HashTable.F90.o
+[ 50%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/CRSMatrix.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 50%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ListMatrix.F90.o
+[ 50%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/IterativeMethods.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MatrixAssembly.F90.o
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/BandwidthOptimize.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/IterSolve.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/IterSolve.F90:1251:29:
+
+  748 |           StopcProc = AddrFunc(ComponentwiseBackwardError)
+      |                               2
+......
+ 1251 |           dotProc = AddrFunc(MaskedDotProd)
+      |                             1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'maskeddotprod' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/IterSolve.F90:1252:30:
+
+  748 |           StopcProc = AddrFunc(ComponentwiseBackwardError)
+      |                               2
+......
+ 1252 |           normproc = AddrFunc(MaskedNorm)
+      |                              1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'maskednorm' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/IterSolve.F90:1256:32:
+
+  748 |           StopcProc = AddrFunc(ComponentwiseBackwardError)
+      |                               2 
+......
+ 1256 |             dotProc = AddrFunc( PseudoZDotProd )
+      |                                1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'pseudozdotprod' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/IterSolve.F90:1259:32:
+
+  748 |           StopcProc = AddrFunc(ComponentwiseBackwardError)
+      |                               2 
+......
+ 1259 |             dotProc = AddrFunc( PseudoZDotProd2 )
+      |                                1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'pseudozdotprod2' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/IterSolve.F90:1264:49:
+
+  748 |           StopcProc = AddrFunc(ComponentwiseBackwardError)
+      |                               2                  
+......
+ 1264 |         IF ( normProc == 0 ) normproc = AddrFunc(dnrm2)
+      |                                                 1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'dnrm2' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/IterSolve.F90:1268:46:
+
+  748 |           StopcProc = AddrFunc(ComponentwiseBackwardError)
+      |                               2               
+......
+ 1268 |       IF ( dotProc  == 0 ) dotProc = AddrFunc(Otmp_ddot)
+      |                                              1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'otmp_ddot' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/IterSolve.F90:1303:49:
+
+  748 |           StopcProc = AddrFunc(ComponentwiseBackwardError)
+      |                               2                  
+......
+ 1303 |         IF ( normProc == 0 ) normproc = AddrFunc(dznrm2)
+      |                                                 1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'dznrm2' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/IterSolve.F90:1307:46:
+
+  748 |           StopcProc = AddrFunc(ComponentwiseBackwardError)
+      |                               2               
+......
+ 1307 |       IF ( dotProc  == 0 ) dotProc = AddrFunc(Otmp_zdotc)
+      |                                              1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'otmp_zdotc' is not a subroutine
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SParIterSolver.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/SParIterSolver.F90:2499:27:
+
+ 2498 |         TmpRHSVec, Solver, DotF=AddrFunc(SParDotProd), NormF=AddrFunc(SParNorm), &
+      |                                         2
+ 2499 |           matVecF=AddrFunc(SParMatrixVector) )
+      |                           1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'sparmatrixvector' is not a function
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/SParIterSolver.F90:2502:40:
+
+ 2498 |         TmpRHSVec, Solver, DotF=AddrFunc(SParDotProd), NormF=AddrFunc(SParNorm), &
+      |                                         2
+......
+ 2502 |        TmpRHSVec, Solver, DotF=AddrFunc(SParCDotProd), NormF=AddrFunc(SParCNorm), &
+      |                                        1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): Type mismatch in function result (REAL(8)/COMPLEX(8))
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/SParIterSolver.F90:2503:26:
+
+ 2498 |         TmpRHSVec, Solver, DotF=AddrFunc(SParDotProd), NormF=AddrFunc(SParNorm), &
+      |                                         2
+......
+ 2503 |          MatVecF=AddrFunc(SParCMatrixVector) )
+      |                          1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'sparcmatrixvector' is not a function
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/DirectSolve.F90.o
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ParallelUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/BackwardError.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/StressGeneral.F90.o
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Differentials.F90.o
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Interpolation.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ElementUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MeshAllocations.F90.o
+[ 51%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/GeometryFitting.F90.o
+[ 52%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/VectorHelmholtzUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 52%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/LumpingUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 52%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MortarUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MeshUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Smoothers.F90.o
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ClusteringMethods.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MeshPartition.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ModelDescription.F90.o
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MeshRemeshing.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SaveUtils.F90.o
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Multigrid.F90.o
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/OptimizationUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/EigenSolve.F90.o
+[ 53%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ParallelEigenSolve.F90.o
+[ 54%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MGPrec.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 54%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SolverUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 54%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/CutFEMUtils.F90.o
+[ 54%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MeshGenerate.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 54%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/DefUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 54%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MaterialModels.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/FreeSurface.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/CircuitUtils.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/BlockSolve.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/InterpVarToVar.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ParticleUtils.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Feti.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Radiation.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/Feti.F90:2207:23:
+
+ 2205 |       precProc=AddrFunc(FetiPrec)
+      |                        2
+ 2206 |       mvProc=AddrFunc(FetiMV)
+ 2207 |       nrmProc=AddrFunc(SParNorm)
+      |                       1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'sparnorm' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/Feti.F90:2208:23:
+
+ 2205 |       precProc=AddrFunc(FetiPrec)
+      |                        2
+......
+ 2208 |       dotProc=AddrFunc(SParDotProd)
+      |                       1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'spardotprod' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/BlockSolve.F90:4578:24:
+
+ 4531 |     precProc = AddrFunc(BlockMatrixPrec)
+      |                        2
+......
+ 4578 |           DotF=AddrFunc(SParDotProd), NormF=AddrFunc(SParNorm))
+      |                        1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'spardotprod' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/BlockSolve.F90:4578:53:
+
+ 4531 |     precProc = AddrFunc(BlockMatrixPrec)
+      |                        2                             
+......
+ 4578 |           DotF=AddrFunc(SParDotProd), NormF=AddrFunc(SParNorm))
+      |                                                     1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'sparnorm' is not a subroutine
+/private/tmp/zapote-elmer-26.2.1-src/fem/src/BlockSolve.F90:4595:26:
+
+ 4531 |     precProc = AddrFunc(BlockMatrixPrec)
+      |                        2  
+......
+ 4595 |             DotF=AddrFunc(PseudoZDotProd) )
+      |                          1
+Warning: Interface mismatch in dummy procedure at (1) conflicts with (2): 'pseudozdotprod' is not a subroutine
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SolidMechanicsUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/RadiationFactors.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/VankaCreate.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/InterpolateMeshToMesh.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/NavierStokes.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/NavierStokesCylindrical.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/NavierStokesGeneral.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Stress.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/DiffuseConvectiveAnisotropic.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/DiffuseConvectiveGeneralAnisotropic.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MagnetoDynamicsUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/MainUtils.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/Adaptive.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ZirkaHysteresis.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/ElmerSolver.F90.o
+[ 55%] Building Fortran object fem/src/CMakeFiles/elmersolver.dir/SolverActivate_x.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 55%] Linking Fortran shared library libelmersolver.dylib
+[ 55%] Built target elmersolver
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/AllocateSolver.dir/AllocateSolver.F90.o
+[ 56%] Building Fortran object fem/src/CMakeFiles/Radiators.dir/Radiators.F90.o
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/AdvectionReaction.dir/AdvectionReaction.F90.o
+[ 56%] Building Fortran object fem/src/CMakeFiles/Solver_TGT.dir/Solver.F90.o
+[ 56%] Building Fortran object fem/src/CMakeFiles/ViewFactors.dir/ViewFactors.F90.o
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/ArteryOutlet.dir/ArteryOutlet.F90.o
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/AdvectionDiffusion.dir/AdvectionDiffusion.F90.o
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/Acoustics.dir/Acoustics.F90.o
+f951: Warning: command-line option '-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks' is valid for C/C++/ObjC/ObjC++ but not for Fortran
+[ 56%] Linking Fortran executable ElmerSolver_mpi
+[ 56%] Built target Solver_TGT
+[ 56%] Linking Fortran shared library AllocateSolver.dylib
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/ArtificialCompressibility.dir/ArtificialCompressibility.F90.o
+[ 56%] Built target AllocateSolver
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/BeamSolver3D.dir/BeamSolver3D.F90.o
+[ 56%] Linking Fortran executable Radiators
+[ 56%] Built target Radiators
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/CahnHilliard.dir/CahnHilliard.F90.o
+[ 56%] Linking Fortran shared library BeamSolver3D.dylib
+[ 56%] Built target BeamSolver3D
+[ 56%] Building Fortran object fem/src/modules/CMakeFiles/CircuitsAndDynamics.dir/CircuitsAndDynamics.F90.o
+[ 56%] Linking Fortran shared library AdvectionReaction.dylib
+[ 56%] Linking Fortran executable ViewFactors
+[ 56%] Built target AdvectionReaction
+[ 56%] Linking Fortran shared library CahnHilliard.dylib
+[ 57%] Building Fortran object fem/src/modules/CMakeFiles/CoilSolver.dir/CoilSolver.F90.o
+[ 57%] Built target CahnHilliard
+[ 57%] Built target ViewFactors
+[ 57%] Building Fortran object fem/src/modules/CMakeFiles/CompressibleNS.dir/CompressibleNS.F90.o
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/CoordinateTransform.dir/CoordinateTransform.F90.o
+[ 58%] Linking Fortran shared library ArtificialCompressibility.dylib
+[ 58%] Built target ArtificialCompressibility
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/CraigBamptonSolver.dir/CraigBamptonSolver.F90.o
+[ 58%] Linking Fortran shared library CraigBamptonSolver.dylib
+[ 58%] Built target CraigBamptonSolver
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/CyclicConvergence.dir/CyclicConvergence.F90.o
+[ 58%] Linking Fortran shared library CoordinateTransform.dylib
+[ 58%] Linking Fortran shared library CompressibleNS.dylib
+[ 58%] Linking Fortran shared library CyclicConvergence.dylib
+[ 58%] Built target CoordinateTransform
+[ 58%] Built target CompressibleNS
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/DCRComplexSolve.dir/DCRComplexSolve.F90.o
+[ 58%] Built target CyclicConvergence
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/DFTSolver.dir/DFTSolver.F90.o
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/DataToFieldSolver.dir/DataToFieldSolver.F90.o
+[ 58%] Linking Fortran shared library AdvectionDiffusion.dylib
+[ 58%] Linking Fortran shared library CoilSolver.dylib
+[ 58%] Built target AdvectionDiffusion
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/DirectionSolver.dir/DirectionSolver.F90.o
+[ 58%] Built target CoilSolver
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/DistanceSolve.dir/DistanceSolve.F90.o
+[ 58%] Linking Fortran shared library DFTSolver.dylib
+[ 58%] Built target DFTSolver
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/DistributeSource.dir/DistributeSource.F90.o
+[ 58%] Linking Fortran shared library DataToFieldSolver.dylib
+[ 58%] Linking Fortran shared library ArteryOutlet.dylib
+[ 58%] Built target DataToFieldSolver
+[ 58%] Built target ArteryOutlet
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/DivProjection.dir/DivProjection.F90.o
+[ 58%] Building Fortran object fem/src/modules/CMakeFiles/DivergenceSolver.dir/DivergenceSolver.F90.o
+[ 58%] Linking Fortran shared library DirectionSolver.dylib
+[ 59%] Linking Fortran shared library DistanceSolve.dylib
+[ 59%] Built target DirectionSolver
+[ 59%] Building Fortran object fem/src/modules/CMakeFiles/EMPort.dir/EMPort.F90.o
+[ 59%] Linking Fortran shared library DistributeSource.dylib
+[ 59%] Built target DistanceSolve
+[ 59%] Building Fortran object fem/src/modules/CMakeFiles/EMWaveSolver.dir/EMWaveSolver.F90.o
+[ 59%] Built target DistributeSource
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/EdgeFEInterpolationTest.dir/EdgeFEInterpolationTest.F90.o
+[ 60%] Linking Fortran shared library DivergenceSolver.dylib
+[ 60%] Linking Fortran shared library DCRComplexSolve.dylib
+[ 60%] Linking Fortran shared library DivProjection.dylib
+[ 60%] Built target DivergenceSolver
+[ 60%] Built target DCRComplexSolve
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/ElectricForce.dir/ElectricForce.F90.o
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/ElasticSolve.dir/ElasticSolve.F90.o
+[ 60%] Built target DivProjection
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/Electrokinetics.dir/Electrokinetics.F90.o
+[ 60%] Linking Fortran shared library EdgeFEInterpolationTest.dylib
+[ 60%] Built target EdgeFEInterpolationTest
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/ElementSizeSolver.dir/ElementSizeSolver.F90.o
+[ 60%] Linking Fortran shared library ElementSizeSolver.dylib
+[ 60%] Built target ElementSizeSolver
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/ElementStats.dir/ElementStats.F90.o
+[ 60%] Linking Fortran shared library CircuitsAndDynamics.dylib
+[ 60%] Built target CircuitsAndDynamics
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/EliminateDirichlet.dir/EliminateDirichlet.F90.o
+[ 60%] Linking Fortran shared library EMPort.dylib
+[ 60%] Built target EMPort
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/Elmer2OpenFoamIO.dir/Elmer2OpenFoamIO.F90.o
+[ 60%] Linking Fortran shared library ElementStats.dylib
+[ 60%] Built target ElementStats
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/EnergyRelease.dir/EnergyRelease.F90.o
+[ 60%] Linking Fortran shared library Electrokinetics.dylib
+[ 60%] Linking Fortran shared library ElectricForce.dylib
+[ 60%] Linking Fortran shared library EMWaveSolver.dylib
+[ 60%] Built target Electrokinetics
+[ 60%] Linking Fortran shared library EnergyRelease.dylib
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/FDiffusion.dir/FDiffusion.F90.o
+[ 60%] Built target ElectricForce
+[ 60%] Built target EMWaveSolver
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/FDiffusion3D.dir/FDiffusion3D.F90.o
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/FacetShellSolve.dir/FacetShellSolve.F90.o
+[ 60%] Built target EnergyRelease
+[ 60%] Linking Fortran shared library EliminateDirichlet.dylib
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/FilmFlowSolver.dir/FilmFlowSolver.F90.o
+[ 60%] Built target EliminateDirichlet
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/FilterTimeSeries.dir/FilterTimeSeries.F90.o
+[ 60%] Linking Fortran shared library FilterTimeSeries.dylib
+[ 60%] Built target FilterTimeSeries
+[ 60%] Building Fortran object fem/src/modules/CMakeFiles/FindOptimum.dir/FindOptimum.F90.o
+[ 61%] Linking Fortran shared library Elmer2OpenFoamIO.dylib
+[ 61%] Built target Elmer2OpenFoamIO
+[ 61%] Building Fortran object fem/src/modules/CMakeFiles/FixTangentVelo.dir/FixTangentVelo.F90.o
+[ 61%] Linking Fortran shared library FDiffusion.dylib
+[ 61%] Linking Fortran shared library FixTangentVelo.dylib
+[ 61%] Built target FDiffusion
+[ 61%] Building Fortran object fem/src/modules/CMakeFiles/FlowSolve.dir/FlowSolve.F90.o
+[ 61%] Built target FixTangentVelo
+[ 61%] Building Fortran object fem/src/modules/CMakeFiles/FluidicForce.dir/FluidicForce.F90.o
+[ 61%] Linking Fortran shared library FDiffusion3D.dylib
+[ 61%] Built target FDiffusion3D
+[ 61%] Building Fortran object fem/src/modules/CMakeFiles/FluxSolver.dir/FluxSolver.F90.o
+[ 62%] Linking Fortran shared library FilmFlowSolver.dylib
+[ 62%] Built target FilmFlowSolver
+[ 62%] Linking Fortran shared library Acoustics.dylib
+[ 62%] Building Fortran object fem/src/modules/CMakeFiles/MagnetoDynamics.dir/MagnetoDynamics/Utils.F90.o
+[ 62%] Built target Acoustics
+[ 62%] Building Fortran object fem/src/modules/CMakeFiles/FreeSurfaceReduced.dir/FreeSurfaceReduced.F90.o
+[ 62%] Linking Fortran shared library FindOptimum.dylib
+[ 62%] Built target FindOptimum
+[ 62%] Linking Fortran shared library FreeSurfaceReduced.dylib
+[ 62%] Building Fortran object fem/src/modules/CMakeFiles/FreeSurfaceSolver.dir/FreeSurfaceSolver.F90.o
+[ 62%] Built target FreeSurfaceReduced
+[ 62%] Building Fortran object fem/src/modules/CMakeFiles/GmshOutputReader.dir/GmshOutputReader.F90.o
+[ 62%] Linking Fortran shared library FluxSolver.dylib
+[ 62%] Built target FluxSolver
+[ 62%] Building Fortran object fem/src/modules/CMakeFiles/HarmonicSignals.dir/HarmonicSignals.F90.o
+[ 62%] Building Fortran object fem/src/modules/CMakeFiles/MagnetoDynamics.dir/MagnetoDynamics/APrecSolver.F90.o
+[ 62%] Linking Fortran shared library HarmonicSignals.dylib
+[ 62%] Built target HarmonicSignals
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/HeatSolve.dir/HeatSolve.F90.o
+[ 63%] Linking Fortran shared library GmshOutputReader.dylib
+[ 63%] Built target GmshOutputReader
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/HeatSolveVec.dir/HeatSolveVec.F90.o
+[ 63%] Linking Fortran shared library FacetShellSolve.dylib
+[ 63%] Built target FacetShellSolve
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/HelmholtzBEM.dir/HelmholtzBEM.F90.o
+[ 63%] Linking Fortran shared library FluidicForce.dylib
+[ 63%] Built target FluidicForce
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/HelmholtzProjection.dir/HelmholtzProjection.F90.o
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/MagnetoDynamics.dir/MagnetoDynamics/PlatiseFerroModel.F90.o
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/MagnetoDynamics.dir/MagnetoDynamics/CalcFields.F90.o
+[ 63%] Linking Fortran shared library HelmholtzBEM.dylib
+[ 63%] Built target HelmholtzBEM
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/HelmholtzSolve.dir/HelmholtzSolve.F90.o
+[ 63%] Linking Fortran shared library HelmholtzProjection.dylib
+[ 63%] Built target HelmholtzProjection
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/MagnetoDynamics.dir/MagnetoDynamics/JfixPotentialSolver.F90.o
+[ 63%] Linking Fortran shared library FreeSurfaceSolver.dylib
+[ 63%] Built target FreeSurfaceSolver
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/HydrostaticNSVec.dir/HydrostaticNSVec.F90.o
+[ 63%] Building Fortran object fem/src/modules/CMakeFiles/MagnetoDynamics.dir/MagnetoDynamics/WhitneyAVHarmonicSolver.F90.o
+[ 64%] Linking Fortran shared library HelmholtzSolve.dylib
+[ 64%] Built target HelmholtzSolve
+[ 64%] Building Fortran object fem/src/modules/CMakeFiles/IncompressibleNSVec.dir/IncompressibleNSVec.F90.o
+[ 64%] Linking Fortran shared library ElasticSolve.dylib
+[ 64%] Built target ElasticSolve
+[ 64%] Building Fortran object fem/src/modules/CMakeFiles/Isosurface.dir/Isosurface.F90.o
+[ 64%] Linking Fortran shared library HeatSolveVec.dylib
+[ 64%] Built target HeatSolveVec
+[ 64%] Building Fortran object fem/src/modules/CMakeFiles/KESolver.dir/KESolver.F90.o
+[ 64%] Linking Fortran shared library HydrostaticNSVec.dylib
+[ 64%] Built target HydrostaticNSVec
+[ 64%] Building Fortran object fem/src/modules/CMakeFiles/Komega.dir/Komega.F90.o
+[ 64%] Linking Fortran shared library FlowSolve.dylib
+[ 64%] Built target FlowSolve
+[ 64%] Building Fortran object fem/src/modules/CMakeFiles/MagnetoDynamics2D.dir/MagnetoDynamics2D.F90.o
+[ 64%] Linking Fortran shared library Isosurface.dylib
+[ 64%] Linking Fortran shared library Komega.dylib
+[ 64%] Built target Isosurface
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/MarchingODESolver.dir/MarchingODESolver.F90.o
+[ 65%] Built target Komega
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/Mesh2MeshSolver.dir/Mesh2MeshSolver.F90.o
+[ 65%] Linking Fortran shared library KESolver.dylib
+[ 65%] Built target KESolver
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/MeshChecksum.dir/MeshChecksum.F90.o
+[ 65%] Linking Fortran shared library Mesh2MeshSolver.dylib
+[ 65%] Built target Mesh2MeshSolver
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/MeshSolve.dir/MeshSolve.F90.o
+[ 65%] Linking Fortran shared library IncompressibleNSVec.dylib
+[ 65%] Linking Fortran shared library MeshChecksum.dylib
+[ 65%] Built target IncompressibleNSVec
+[ 65%] Built target MeshChecksum
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/MagnetoDynamics.dir/MagnetoDynamics/WhitneyAVSolver.F90.o
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/ModelMixedPoisson.dir/ModelMixedPoisson.F90.o
+[ 65%] Linking Fortran shared library HeatSolve.dylib
+[ 65%] Built target HeatSolve
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/ModelPDE.dir/ModelPDE.F90.o
+[ 65%] Linking Fortran shared library MarchingODESolver.dylib
+[ 65%] Built target MarchingODESolver
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/ModelPDECutFEM.dir/ModelPDECutFEM.F90.o
+[ 65%] Linking Fortran shared library MeshSolve.dylib
+[ 65%] Built target MeshSolve
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/ModelPDEhandle.dir/ModelPDEhandle.F90.o
+[ 65%] Linking Fortran shared library ModelPDE.dylib
+[ 65%] Linking Fortran shared library ModelMixedPoisson.dylib
+[ 65%] Built target ModelPDE
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/NodeToEdgeSolver.dir/NodeToEdgeSolver.F90.o
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/NonphysicalMeshSolve.dir/NonphysicalMeshSolve.F90.o
+[ 65%] Built target ModelMixedPoisson
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/NormalSolver.dir/NormalSolver.F90.o
+[ 65%] Linking Fortran shared library ModelPDEhandle.dylib
+[ 65%] Linking Fortran shared library ModelPDECutFEM.dylib
+[ 65%] Built target ModelPDEhandle
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/OdeSolver.dir/OdeSolver.F90.o
+[ 65%] Built target ModelPDECutFEM
+[ 65%] Building Fortran object fem/src/modules/CMakeFiles/OpenFoam2ElmerIO.dir/OpenFoam2ElmerIO.F90.o
+[ 66%] Linking Fortran shared library NormalSolver.dylib
+[ 66%] Built target NormalSolver
+[ 66%] Linking Fortran shared library OdeSolver.dylib
+[ 66%] Building Fortran object fem/src/modules/CMakeFiles/ParStokes.dir/ParStokes.F90.o
+[ 66%] Built target OdeSolver
+[ 66%] Building Fortran object fem/src/modules/CMakeFiles/ParallelRemesh.dir/ParallelRemesh.F90.o
+[ 66%] Linking Fortran shared library NodeToEdgeSolver.dylib
+[ 66%] Built target NodeToEdgeSolver
+[ 66%] Building Fortran object fem/src/modules/CMakeFiles/ParticleAdvector.dir/ParticleAdvector.F90.o
+[ 66%] Linking Fortran shared library NonphysicalMeshSolve.dylib
+[ 66%] Built target NonphysicalMeshSolve
+[ 66%] Building Fortran object fem/src/modules/CMakeFiles/ParticleDynamics.dir/ParticleDynamics.F90.o
+[ 66%] Linking Fortran shared library ParallelRemesh.dylib
+[ 66%] Built target ParallelRemesh
+[ 66%] Building Fortran object fem/src/modules/CMakeFiles/PartitionMesh.dir/PartitionMesh.F90.o
+[ 66%] Linking Fortran shared library OpenFoam2ElmerIO.dylib
+[ 66%] Built target OpenFoam2ElmerIO
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/PhaseChangeSolve.dir/PhaseChangeSolve.F90.o
+[ 67%] Linking Fortran shared library PartitionMesh.dylib
+[ 67%] Built target PartitionMesh
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/Poisson.dir/Poisson.F90.o
+[ 67%] Linking Fortran shared library Poisson.dylib
+[ 67%] Built target Poisson
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/PoissonBEM.dir/PoissonBEM.F90.o
+[ 67%] Linking Fortran shared library MagnetoDynamics2D.dylib
+[ 67%] Linking Fortran shared library PoissonBEM.dylib
+[ 67%] Built target MagnetoDynamics2D
+[ 67%] Linking Fortran shared library PhaseChangeSolve.dylib
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/PoissonBoltzmannSolve.dir/PoissonBoltzmannSolve.F90.o
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/PoissonDG.dir/PoissonDG.F90.o
+[ 67%] Built target PoissonBEM
+[ 67%] Linking Fortran shared library ParticleAdvector.dylib
+[ 67%] Built target PhaseChangeSolve
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/PressurePrecond.dir/PressurePrecond.F90.o
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/Probes.dir/Probes.F90.o
+[ 67%] Built target ParticleAdvector
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/ProjectToPlane.dir/ProjectToPlane.F90.o
+[ 67%] Linking Fortran shared library Probes.dylib
+[ 67%] Built target Probes
+[ 67%] Linking Fortran shared library MagnetoDynamics.dylib
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/RateOfChange.dir/RateOfChange.F90.o
+[ 67%] Built target MagnetoDynamics
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/ReloadData.dir/ReloadData.F90.o
+[ 67%] Linking Fortran shared library PoissonDG.dylib
+[ 67%] Built target PoissonDG
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/ReloadInput.dir/ReloadInput.F90.o
+[ 67%] Linking Fortran shared library ReloadData.dylib
+[ 67%] Built target ReloadData
+[ 67%] Linking Fortran shared library ReloadInput.dylib
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/ReynoldsSolver.dir/ReynoldsSolver.F90.o
+[ 67%] Built target ReloadInput
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/RichardsSolver.dir/RichardsSolver.F90.o
+[ 67%] Linking Fortran shared library PressurePrecond.dylib
+[ 67%] Built target PressurePrecond
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/RigidBodyReduction.dir/RigidBodyReduction.F90.o
+[ 67%] Linking Fortran shared library RateOfChange.dylib
+[ 67%] Linking Fortran shared library ParticleDynamics.dylib
+[ 67%] Built target RateOfChange
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/RigidMeshMapper.dir/RigidMeshMapper.F90.o
+[ 67%] Built target ParticleDynamics
+[ 67%] Building Fortran object fem/src/modules/CMakeFiles/SSTKomega.dir/SSTKomega.F90.o
+[ 68%] Linking Fortran shared library ParStokes.dylib
+[ 68%] Built target ParStokes
+[ 68%] Building Fortran object fem/src/modules/CMakeFiles/SaveGridData.dir/SaveGridData.F90.o
+[ 68%] Linking Fortran shared library SSTKomega.dylib
+[ 68%] Built target SSTKomega
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/SaveMesh.dir/SaveMesh.F90.o
+[ 69%] Linking Fortran shared library ProjectToPlane.dylib
+[ 69%] Linking Fortran shared library PoissonBoltzmannSolve.dylib
+[ 69%] Built target ProjectToPlane
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/ScalarPotentialSolver.dir/ScalarPotentialSolver.F90.o
+[ 69%] Built target PoissonBoltzmannSolve
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/ScannedFieldSolver.dir/ScannedFieldSolver.F90.o
+[ 69%] Linking Fortran shared library SaveMesh.dylib
+[ 69%] Built target SaveMesh
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/ShallowWaterNS.dir/ShallowWaterNS.F90.o
+[ 69%] Linking Fortran shared library ScalarPotentialSolver.dylib
+[ 69%] Linking Fortran shared library RichardsSolver.dylib
+[ 69%] Linking Fortran shared library ScannedFieldSolver.dylib
+[ 69%] Linking Fortran shared library SaveGridData.dylib
+[ 69%] Built target ScalarPotentialSolver
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/ShearrateSolver.dir/ShearrateSolver.F90.o
+[ 69%] Linking Fortran shared library RigidMeshMapper.dylib
+[ 69%] Built target RichardsSolver
+[ 69%] Built target SaveGridData
+[ 69%] Built target ScannedFieldSolver
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/ShellSolver.dir/ShellSolver.F90.o
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/SimpleCircuits.dir/SimpleCircuits.F90.o
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/Smitc.dir/Smitc.F90.o
+[ 69%] Built target RigidMeshMapper
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/Spalart-Allmaras.dir/Spalart-Allmaras.F90.o
+[ 69%] Linking Fortran shared library ShallowWaterNS.dylib
+[ 69%] Built target ShallowWaterNS
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/SpringAssembly.dir/SpringAssembly.F90.o
+[ 69%] Linking Fortran shared library RigidBodyReduction.dylib
+[ 69%] Built target RigidBodyReduction
+[ 69%] Building Fortran object fem/src/modules/CMakeFiles/StatCurrentSolve.dir/StatCurrentSolve.F90.o
+[ 70%] Linking Fortran shared library Spalart-Allmaras.dylib
+[ 71%] Linking Fortran shared library ShearrateSolver.dylib
+[ 71%] Linking Fortran shared library ReynoldsSolver.dylib
+[ 71%] Built target Spalart-Allmaras
+[ 71%] Linking Fortran shared library SpringAssembly.dylib
+[ 71%] Building Fortran object fem/src/modules/CMakeFiles/StatCurrentSolveVec.dir/StatCurrentSolveVec.F90.o
+[ 71%] Built target ReynoldsSolver
+[ 71%] Built target ShearrateSolver
+[ 71%] Building Fortran object fem/src/modules/CMakeFiles/StatElecSolve.dir/StatElecSolve.F90.o
+[ 71%] Building Fortran object fem/src/modules/CMakeFiles/StatElecBoundary.dir/StatElecBoundary.F90.o
+[ 71%] Built target SpringAssembly
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/StatElecSolveVec.dir/StatElecSolveVec.F90.o
+[ 72%] Linking Fortran shared library Smitc.dylib
+[ 72%] Built target Smitc
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/StatMagSolve.dir/StatMagSolve.F90.o
+[ 72%] Linking Fortran shared library SimpleCircuits.dylib
+[ 72%] Built target SimpleCircuits
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/SteadyPhaseChange.dir/SteadyPhaseChange.F90.o
+[ 72%] Linking Fortran shared library StatElecBoundary.dylib
+[ 72%] Built target StatElecBoundary
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/Stokes.dir/Stokes.F90.o
+[ 72%] Linking Fortran shared library StatMagSolve.dylib
+[ 72%] Built target StatMagSolve
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/StreamSolver.dir/StreamSolver.F90.o
+[ 72%] Linking Fortran shared library SteadyPhaseChange.dylib
+[ 72%] Built target SteadyPhaseChange
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/StressSolve.dir/StressSolve.F90.o
+[ 72%] Linking Fortran shared library StatCurrentSolve.dylib
+[ 72%] Built target StatCurrentSolve
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/StructuredFlowLine.dir/StructuredFlowLine.F90.o
+[ 72%] Linking Fortran shared library StreamSolver.dylib
+[ 72%] Linking Fortran shared library StatCurrentSolveVec.dylib
+[ 72%] Built target StreamSolver
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/StructuredMeshMapper.dir/StructuredMeshMapper.F90.o
+[ 72%] Built target StatCurrentSolveVec
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/StructuredProjectToPlane.dir/StructuredProjectToPlane.F90.o
+[ 72%] Linking Fortran shared library StatElecSolveVec.dylib
+[ 72%] Built target StatElecSolveVec
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/SunAngle.dir/SunAngle.F90.o
+[ 72%] Linking Fortran shared library Stokes.dylib
+[ 72%] Built target Stokes
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/ThermoElectricSolver.dir/ThermoElectricSolver.F90.o
+[ 72%] Linking Fortran shared library StructuredFlowLine.dylib
+[ 72%] Linking Fortran shared library SunAngle.dylib
+[ 72%] Built target StructuredFlowLine
+[ 72%] Built target SunAngle
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/TopoOpt.dir/TopoOpt.F90.o
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/TransientCost.dir/TransientCost.F90.o
+[ 72%] Linking Fortran shared library StructuredMeshMapper.dylib
+[ 72%] Linking Fortran shared library TransientCost.dylib
+[ 72%] Built target StructuredMeshMapper
+[ 72%] Building Fortran object fem/src/modules/CMakeFiles/TransientPhaseChange.dir/TransientPhaseChange.F90.o
+[ 73%] Linking Fortran shared library ThermoElectricSolver.dylib
+[ 73%] Built target TransientCost
+[ 73%] Linking Fortran shared library StatElecSolve.dylib
+[ 73%] Building Fortran object fem/src/modules/CMakeFiles/TransportEquation.dir/TransportEquation.F90.o
+[ 73%] Built target ThermoElectricSolver
+[ 73%] Building Fortran object fem/src/modules/CMakeFiles/UMATLib.dir/UMATLib.F90.o
+[ 73%] Built target StatElecSolve
+[ 73%] Building Fortran object fem/src/modules/CMakeFiles/V2FSolver.dir/V2FSolver.F90.o
+[ 73%] Linking Fortran shared library StructuredProjectToPlane.dylib
+[ 73%] Built target StructuredProjectToPlane
+[ 73%] Building Fortran object fem/src/modules/CMakeFiles/VectorHelmholtz.dir/VectorHelmholtz.F90.o
+[ 73%] Linking Fortran shared library UMATLib.dylib
+[ 73%] Built target UMATLib
+[ 73%] Building Fortran object fem/src/modules/CMakeFiles/VectorHelmholtzLumping.dir/VectorHelmholtzLumping.F90.o
+[ 73%] Linking Fortran shared library TransientPhaseChange.dylib
+[ 73%] Linking Fortran shared library TopoOpt.dylib
+[ 73%] Built target TransientPhaseChange
+[ 74%] Building Fortran object fem/src/modules/CMakeFiles/VectorHelmholtzNodal.dir/VectorHelmholtzNodal.F90.o
+[ 74%] Built target TopoOpt
+[ 74%] Building Fortran object fem/src/modules/CMakeFiles/VelocityPrecond.dir/VelocityPrecond.F90.o
+[ 74%] Linking Fortran shared library VectorHelmholtzLumping.dylib
+[ 74%] Linking Fortran shared library TransportEquation.dylib
+[ 74%] Built target VectorHelmholtzLumping
+[ 74%] Building Fortran object fem/src/modules/CMakeFiles/VorticitySolver.dir/VorticitySolver.F90.o
+[ 74%] Built target TransportEquation
+[ 74%] Building Fortran object fem/src/modules/CMakeFiles/WPotentialSolver.dir/WPotentialSolver.F90.o
+[ 74%] Linking Fortran shared library V2FSolver.dylib
+[ 74%] Built target V2FSolver
+[ 74%] Building Fortran object fem/src/modules/CMakeFiles/WVectorFix.dir/WVectorFix.F90.o
+[ 74%] Linking Fortran shared library VorticitySolver.dylib
+[ 74%] Linking Fortran shared library VelocityPrecond.dylib
+[ 74%] Built target VorticitySolver
+[ 74%] Linking Fortran shared library VectorHelmholtzNodal.dylib
+[ 74%] Building Fortran object fem/src/modules/CMakeFiles/WaveSolver.dir/WaveSolver.F90.o
+[ 74%] Built target VelocityPrecond
+[ 74%] Building Fortran object fem/src/modules/CMakeFiles/BatterySolver.dir/BatterySolver/BatteryUtils.F90.o
+[ 74%] Linking Fortran shared library WVectorFix.dylib
+[ 74%] Built target VectorHelmholtzNodal
+[ 74%] Building Fortran object fem/src/modules/CMakeFiles/ConsistentSplitting.dir/ConsistentSplitting/CompressibilitySolver.F90.o
+[ 74%] Built target WVectorFix
+[ 75%] Building Fortran object fem/src/modules/CMakeFiles/LevelSet.dir/LevelSet/LevelSetCurvature.F90.o
+[ 75%] Building Fortran object fem/src/modules/CMakeFiles/ConsistentSplitting.dir/ConsistentSplitting/OptimalSolutionUpdate.F90.o
+[ 75%] Linking Fortran shared library WPotentialSolver.dylib
+[ 75%] Built target WPotentialSolver
+[ 76%] Linking Fortran shared library WaveSolver.dylib
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/MagneticSolve.dir/MagneticSolve/Maxwell.F90.o
+[ 77%] Built target WaveSolver
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/ResultOutputSolve.dir/ResultOutputSolve/DXOutputSolver.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/BatterySolver.dir/BatterySolver/BatteryPost.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/LevelSet.dir/LevelSet/LevelSetDistance.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/MagneticSolve.dir/MagneticSolve/MaxwellAxiS.F90.o
+[ 77%] Linking Fortran shared library VectorHelmholtz.dylib
+[ 77%] Built target VectorHelmholtz
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/SaveData.dir/SaveData/SaveBoundaryValues.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/MagneticSolve.dir/MagneticSolve/MaxwellGeneral.F90.o
+[ 77%] Linking Fortran shared library StressSolve.dylib
+[ 77%] Built target StressSolve
+[ 77%] Building Fortran object fem/tests/1dtests/CMakeFiles/1dtests_Poisson.dir/Poisson.f90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/ResultOutputSolve.dir/ResultOutputSolve/VtkOutputSolver.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/BatterySolver.dir/BatterySolver/ElectrolyteCons.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/ConsistentSplitting.dir/ConsistentSplitting/PressureSolver.F90.o
+[ 77%] Linking Fortran shared module Poisson.dylib
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/MagneticSolve.dir/MagneticSolve/MagneticSolve.F90.o
+[ 77%] Built target 1dtests_Poisson
+[ 77%] Building Fortran object fem/tests/1dtests/CMakeFiles/1dtests_Source.dir/Source.f90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/SaveData.dir/SaveData/SaveDependence.F90.o
+[ 77%] Linking Fortran shared module Source.dylib
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/LevelSet.dir/LevelSet/LevelSetIntegrate.F90.o
+[ 77%] Built target 1dtests_Source
+[ 77%] Building Fortran object fem/tests/1dtests_MeshLevels/CMakeFiles/1dtests_MeshLevels_Poisson.dir/Poisson.f90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/SaveData.dir/SaveData/SaveLine.F90.o
+[ 77%] Linking Fortran shared module Poisson.dylib
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/BatterySolver.dir/BatterySolver/ElectrolytePot.F90.o
+[ 77%] Built target 1dtests_MeshLevels_Poisson
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/ResultOutputSolve.dir/ResultOutputSolve/VtuOutputSolver.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/LevelSet.dir/LevelSet/LevelSetSolver.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/ResultOutputSolve.dir/ResultOutputSolve/ElmerPostOutputSolver.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/ConsistentSplitting.dir/ConsistentSplitting/VelocitySolver.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/ResultOutputSolve.dir/ResultOutputSolve/GidOutputSolver.F90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/BatterySolver.dir/BatterySolver/SolidPhaseCons.F90.o
+[ 77%] Linking Fortran shared library MagneticSolve.dylib
+[ 77%] Built target MagneticSolve
+[ 77%] Building Fortran object fem/tests/1dtests_MeshLevels/CMakeFiles/1dtests_MeshLevels_Source.dir/Source.f90.o
+[ 77%] Linking Fortran shared module Source.dylib
+[ 77%] Built target 1dtests_MeshLevels_Source
+[ 77%] Building Fortran object fem/tests/1sttime/CMakeFiles/1sttime_Source.dir/Source.f90.o
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/LevelSet.dir/LevelSet/LevelSetTimestep.F90.o
+[ 77%] Linking Fortran shared module Source.dylib
+[ 77%] Building Fortran object fem/src/modules/CMakeFiles/SaveData.dir/SaveData/SaveMaterials.F90.o
+[ 77%] Built target 1sttime_Source
+[ 77%] Building Fortran object fem/tests/1sttime/CMakeFiles/1sttime_TimeIntegrate.dir/TimeIntegrate.f90.o
+[ 77%] Linking Fortran shared library LevelSet.dylib
+[ 77%] Built target LevelSet
+[ 77%] Linking Fortran shared library ConsistentSplitting.dylib
+[ 77%] Building Fortran object fem/tests/2ndtime/CMakeFiles/2ndtime_Source.dir/Source.f90.o
+[ 77%] Linking Fortran shared module TimeIntegrate.dylib
+[ 77%] Built target ConsistentSplitting
+[ 77%] Building Fortran object fem/tests/2ndtime/CMakeFiles/2ndtime_TimeIntegrate.dir/TimeIntegrate.f90.o
+[ 77%] Built target 1sttime_TimeIntegrate
+[ 78%] Building Fortran object fem/tests/AdvDiffFCT/CMakeFiles/AdvDiffFCT_InitDist.dir/InitDist.f90.o
+[ 78%] Linking Fortran shared module Source.dylib
+[ 78%] Built target 2ndtime_Source
+[ 78%] Building Fortran object fem/src/modules/CMakeFiles/SaveData.dir/SaveData/SaveProjection.F90.o
+[ 78%] Building Fortran object fem/src/modules/CMakeFiles/BatterySolver.dir/BatterySolver/SolidPhasePot.F90.o
+[ 78%] Linking Fortran shared module InitDist.dylib
+[ 78%] Linking Fortran shared module TimeIntegrate.dylib
+[ 78%] Built target AdvDiffFCT_InitDist
+[ 78%] Building Fortran object fem/tests/AdvReactDG_P/CMakeFiles/AdvReactDG_P_AdvReactDG_P.dir/AdvReactDG_P.F90.o
+[ 78%] Built target 2ndtime_TimeIntegrate
+[ 78%] Building Fortran object fem/src/modules/CMakeFiles/SaveData.dir/SaveData/SaveScalars.F90.o
+[ 78%] Building Fortran object fem/tests/ArteryOutlet/CMakeFiles/ArteryOutlet_Motion.dir/Motion.f90.o
+[ 78%] Linking Fortran shared module Motion.dylib
+[ 78%] Building Fortran object fem/src/modules/CMakeFiles/ResultOutputSolve.dir/ResultOutputSolve/ResultOutputSolver.F90.o
+[ 78%] Built target ArteryOutlet_Motion
+[ 78%] Building Fortran object fem/tests/BDM2D/CMakeFiles/BDM2D_Source.dir/Source.F90.o
+[ 78%] Linking Fortran shared module Source.dylib
+[ 78%] Linking Fortran shared library BatterySolver.dylib
+[ 78%] Built target BDM2D_Source
+[ 78%] Building Fortran object fem/tests/BDM2D/CMakeFiles/BDM2D_ComputeError.dir/ComputeError.F90.o
+[ 78%] Built target BatterySolver
+[ 79%] Building Fortran object fem/tests/BDM3D/CMakeFiles/BDM3D_ComputeError.dir/ComputeError.F90.o
+[ 79%] Linking Fortran shared module AdvReactDG_P.dylib
+[ 79%] Building Fortran object fem/tests/BDM3D/CMakeFiles/BDM3D_Source.dir/Source.F90.o
+[ 79%] Built target AdvReactDG_P_AdvReactDG_P
+[ 79%] Linking Fortran shared module ComputeError.dylib
+[ 80%] Building Fortran object fem/tests/BlockLinElast1/CMakeFiles/BlockLinElast1_BlockLinElast.dir/BlockLinElast.f90.o
+[ 80%] Built target BDM2D_ComputeError
+[ 80%] Linking Fortran shared module ComputeError.dylib
+[ 80%] Building Fortran object fem/tests/BlockPoisson1/CMakeFiles/BlockPoisson1_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 80%] Linking Fortran shared module Source.dylib
+[ 80%] Built target BDM3D_ComputeError
+[ 80%] Built target BDM3D_Source
+[ 80%] Building Fortran object fem/tests/BlockPoisson2/CMakeFiles/BlockPoisson2_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 80%] Building Fortran object fem/tests/BlockPoisson3/CMakeFiles/BlockPoisson3_BlockPoissonAssembly.dir/BlockPoissonAssembly.f90.o
+[ 80%] Linking Fortran shared module BlockLinElast.dylib
+[ 80%] Built target BlockLinElast1_BlockLinElast
+[ 80%] Linking Fortran shared module PoissonAssembly.dylib
+[ 80%] Building Fortran object fem/tests/Classical2DShell/CMakeFiles/Classical2DShell_BenchmarkShell.dir/BenchmarkShell.F90.o
+[ 80%] Linking Fortran shared module PoissonAssembly.dylib
+[ 80%] Built target BlockPoisson1_PoissonAssembly
+[ 80%] Building Fortran object fem/tests/CompressIdealGas2/CMakeFiles/CompressIdealGas2_DensityFun.dir/DensityFun.F90.o
+[ 80%] Linking Fortran shared module BlockPoissonAssembly.dylib
+[ 80%] Built target BlockPoisson2_PoissonAssembly
+[ 80%] Building Fortran object fem/tests/ConstantParamFunc/CMakeFiles/ConstantParamFunc_MySource.dir/MySource.F90.o
+[ 80%] Built target BlockPoisson3_BlockPoissonAssembly
+[ 80%] Building Fortran object fem/tests/CoupledPoisson1/CMakeFiles/CoupledPoisson1_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 80%] Building Fortran object fem/tests/CoupledPoisson2/CMakeFiles/CoupledPoisson2_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 80%] Linking Fortran shared module MySource.dylib
+[ 80%] Linking Fortran shared module BenchmarkShell.dylib
+[ 80%] Linking Fortran shared module DensityFun.dylib
+[ 81%] Linking Fortran shared library ResultOutputSolve.dylib
+[ 81%] Built target ConstantParamFunc_MySource
+[ 81%] Built target Classical2DShell_BenchmarkShell
+[ 81%] Building Fortran object fem/tests/CoupledPoisson3/CMakeFiles/CoupledPoisson3_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 81%] Built target CompressIdealGas2_DensityFun
+[ 81%] Building Fortran object fem/tests/CoupledPoisson4/CMakeFiles/CoupledPoisson4_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 82%] Building Fortran object fem/tests/CoupledPoisson5/CMakeFiles/CoupledPoisson5_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 82%] Built target ResultOutputSolve
+[ 82%] Building Fortran object fem/tests/CoupledPoisson6/CMakeFiles/CoupledPoisson6_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 82%] Linking Fortran shared module PoissonAssembly.dylib
+[ 82%] Linking Fortran shared module PoissonAssembly.dylib
+[ 82%] Built target CoupledPoisson1_PoissonAssembly
+[ 82%] Building Fortran object fem/tests/CoupledPoisson7/CMakeFiles/CoupledPoisson7_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 82%] Built target CoupledPoisson2_PoissonAssembly
+[ 82%] Building Fortran object fem/tests/CoupledPoisson8/CMakeFiles/CoupledPoisson8_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 82%] Linking Fortran shared module PoissonAssembly.dylib
+[ 82%] Linking Fortran shared module PoissonAssembly.dylib
+[ 82%] Linking Fortran shared module PoissonAssembly.dylib
+[ 82%] Built target CoupledPoisson4_PoissonAssembly
+[ 82%] Building Fortran object fem/tests/CoupledPoisson9/CMakeFiles/CoupledPoisson9_PoissonAssembly.dir/PoissonAssembly.f90.o
+[ 82%] Built target CoupledPoisson5_PoissonAssembly
+[ 82%] Building Fortran object fem/tests/CurvedBndryPFEM/CMakeFiles/CurvedBndryPFEM_Poisson.dir/Poisson.f90.o
+[ 82%] Built target CoupledPoisson6_PoissonAssembly
+[ 82%] Building Fortran object fem/tests/CurvedBndryPFEM2/CMakeFiles/CurvedBndryPFEM2_Poisson.dir/Poisson.f90.o
+[ 82%] Linking Fortran shared module PoissonAssembly.dylib
+[ 82%] Linking Fortran shared module PoissonAssembly.dylib
+[ 82%] Built target CoupledPoisson7_PoissonAssembly
+[ 82%] Built target CoupledPoisson8_PoissonAssembly
+[ 82%] Building Fortran object fem/tests/EdgeElementInterpolation/CMakeFiles/EdgeElementInterpolation_EdgeElementSolve.dir/EdgeElementSolve.f90.o
+[ 82%] Building Fortran object fem/tests/ElementUnitTest_edge/CMakeFiles/ElementUnitTest_edge_SingleEdgeElements.dir/SingleEdgeElements.F90.o
+[ 82%] Linking Fortran shared module PoissonAssembly.dylib
+[ 83%] Linking Fortran shared module Poisson.dylib
+[ 83%] Linking Fortran shared module Poisson.dylib
+[ 83%] Linking Fortran shared module PoissonAssembly.dylib
+[ 83%] Built target CoupledPoisson3_PoissonAssembly
+[ 83%] Built target CurvedBndryPFEM2_Poisson
+[ 83%] Built target CurvedBndryPFEM_Poisson
+[ 83%] Building Fortran object fem/tests/ElementUnitTest_edge_piola/CMakeFiles/ElementUnitTest_edge_piola_SingleEdgeElements.dir/SingleEdgeElements.F90.o
+[ 83%] Building Fortran object fem/tests/ElementUnitTest_edge_quadratic/CMakeFiles/ElementUnitTest_edge_quadratic_SingleEdgeElements.dir/SingleEdgeElements.F90.o
+[ 83%] Building Fortran object fem/tests/ElementUnitTest_h1/CMakeFiles/ElementUnitTest_h1_SingleElements.dir/SingleElements.F90.o
+[ 83%] Built target CoupledPoisson9_PoissonAssembly
+[ 83%] Building Fortran object fem/tests/ElementUnitTest_p1/CMakeFiles/ElementUnitTest_p1_SingleElements.dir/SingleElements.F90.o
+[ 84%] Linking Fortran shared module SingleEdgeElements.dylib
+[ 84%] Built target ElementUnitTest_edge_SingleEdgeElements
+[ 84%] Building Fortran object fem/tests/ExtrudedMesh/CMakeFiles/ExtrudedMesh_Poisson.dir/Poisson.f90.o
+[ 84%] Linking Fortran shared library SaveData.dylib
+[ 84%] Linking Fortran shared module EdgeElementSolve.dylib
+[ 84%] Built target SaveData
+[ 84%] Linking Fortran shared module SingleEdgeElements.dylib
+[ 84%] Linking Fortran shared module SingleEdgeElements.dylib
+[ 84%] Building Fortran object fem/tests/ExtrudedMeshBaseline1/CMakeFiles/ExtrudedMeshBaseline1_Poisson.dir/Poisson.f90.o
+[ 84%] Built target EdgeElementInterpolation_EdgeElementSolve
+[ 84%] Linking Fortran shared module SingleElements.dylib
+[ 84%] Building Fortran object fem/tests/FaceElement2D_BCs/CMakeFiles/FaceElement2D_BCs_FaceFEInterpolationTest.dir/FaceFEInterpolationTest.F90.o
+[ 84%] Linking Fortran shared module SingleElements.dylib
+[ 84%] Built target ElementUnitTest_edge_piola_SingleEdgeElements
+[ 84%] Built target ElementUnitTest_edge_quadratic_SingleEdgeElements
+[ 84%] Building Fortran object fem/tests/FaceElement3D_BCs/CMakeFiles/FaceElement3D_BCs_FaceFEInterpolationTest.dir/FaceFEInterpolationTest.F90.o
+[ 84%] Building Fortran object fem/tests/H1BasisEvaluation/CMakeFiles/H1BasisEvaluation_H1BasisEvaluation.dir/H1BasisEvaluation.F90.o
+[ 84%] Built target ElementUnitTest_h1_SingleElements
+[ 84%] Building Fortran object fem/tests/HeatAnisoUDF/CMakeFiles/HeatAnisoUDF_HeatCondAniso.dir/HeatCondAniso.F90.o
+[ 84%] Built target ElementUnitTest_p1_SingleElements
+[ 84%] Building Fortran object fem/tests/HeatControlExplicit/CMakeFiles/AlternatingSource_AlternatingSource.dir/AlternatingSource.F90.o
+[ 84%] Linking Fortran shared module Poisson.dylib
+[ 84%] Linking Fortran shared module HeatCondAniso.dylib
+[ 84%] Linking Fortran shared module AlternatingSource.dylib
+[ 84%] Built target ExtrudedMesh_Poisson
+[ 84%] Built target HeatAnisoUDF_HeatCondAniso
+[ 84%] Building Fortran object fem/tests/HelmholtzEdge/CMakeFiles/HelmholtzEdge_Hrot.dir/Hrot.f90.o
+[ 84%] Linking Fortran shared module FaceFEInterpolationTest.dylib
+[ 84%] Building Fortran object fem/tests/HelmholtzFace/CMakeFiles/HelmholtzFace_Helmholtz.dir/Helmholtz.f90.o
+[ 85%] Linking Fortran shared module Poisson.dylib
+[ 85%] Built target AlternatingSource_AlternatingSource
+[ 85%] Linking Fortran shared module FaceFEInterpolationTest.dylib
+[ 85%] Building Fortran object fem/tests/HydrostaticNSVec-ISMIP-HOM-C/CMakeFiles/HydrostaticNSVec-ISMIP-HOM-C_ismip_c.dir/ismip_c.F90.o
+[ 85%] Built target FaceElement2D_BCs_FaceFEInterpolationTest
+[ 85%] Built target ExtrudedMeshBaseline1_Poisson
+[ 85%] Building Fortran object fem/tests/KeywordCompare/CMakeFiles/KeywordCompare_KeywordCompare.dir/KeywordCompare.F90.o
+[ 85%] Built target FaceElement3D_BCs_FaceFEInterpolationTest
+[ 85%] Building Fortran object fem/tests/KeywordCompare2/CMakeFiles/KeywordCompareReal_KeywordCompareReal.dir/KeywordCompareReal.F90.o
+[ 86%] Building Fortran object fem/tests/KeywordCompare2/CMakeFiles/RealFunctionTests_RealFunctionTests.dir/RealFunctionTests.F90.o
+[ 86%] Linking Fortran shared module KeywordCompareReal.dylib
+[ 86%] Linking Fortran shared module KeywordCompare.dylib
+[ 86%] Built target KeywordCompareReal_KeywordCompareReal
+[ 86%] Building Fortran object fem/tests/KeywordCompare3/CMakeFiles/KeywordCompareRealVec_KeywordCompareRealVec.dir/KeywordCompareRealVec.F90.o
+[ 86%] Built target KeywordCompare_KeywordCompare
+[ 86%] Building Fortran object fem/tests/KeywordCompare3/CMakeFiles/RealVecFunctionTests_RealVecFunctionTests.dir/RealVecFunctionTests.F90.o
+[ 86%] Linking Fortran shared module RealFunctionTests.dylib
+[ 86%] Linking Fortran shared module Helmholtz.dylib
+[ 86%] Linking Fortran shared module Hrot.dylib
+[ 86%] Built target RealFunctionTests_RealFunctionTests
+[ 86%] Built target HelmholtzFace_Helmholtz
+[ 86%] Building Fortran object fem/tests/KeywordCompare4/CMakeFiles/KeywordCompareBC_KeywordCompareBC.dir/KeywordCompareBC.F90.o
+[ 86%] Built target HelmholtzEdge_Hrot
+[ 86%] Building Fortran object fem/tests/KeywordCompare5/CMakeFiles/KeywordCompareTensor_KeywordCompareTensor.dir/KeywordCompareTensor.F90.o
+[ 86%] Building Fortran object fem/tests/L2ndDerivatives/CMakeFiles/L2ndDerivatives_L2ndDerivativesTest.dir/L2ndDerivativesTest.f90.o
+[ 87%] Linking Fortran shared module KeywordCompareRealVec.dylib
+[ 87%] Linking Fortran shared library ShellSolver.dylib
+[ 87%] Built target KeywordCompareRealVec_KeywordCompareRealVec
+[ 87%] Building Fortran object fem/tests/L2norm/CMakeFiles/L2norm_Difference.dir/Difference.f90.o
+[ 87%] Built target ShellSolver
+[ 87%] Building Fortran object fem/tests/LevelsetFallingDrop/CMakeFiles/LevelsetFallingDrop_DropStuff.dir/DropStuff.F90.o
+[ 87%] Linking Fortran shared module RealVecFunctionTests.dylib
+[ 87%] Linking Fortran shared module KeywordCompareBC.dylib
+[ 87%] Linking Fortran shared module KeywordCompareTensor.dylib
+[ 87%] Built target RealVecFunctionTests_RealVecFunctionTests
+[ 87%] Built target KeywordCompareBC_KeywordCompareBC
+[ 87%] Building Fortran object fem/tests/LimitDisplacement2/CMakeFiles/LimitDisplacement2_ContactBC.dir/ContactBC.f90.o
+[ 87%] Building Fortran object fem/tests/LinearFormsAssembly/CMakeFiles/LinearFormsAssembly_LinearFormsAssembly.dir/LinearFormsAssembly.F90.o
+[ 87%] Built target KeywordCompareTensor_KeywordCompareTensor
+[ 87%] Building Fortran object fem/tests/MeshColour/CMakeFiles/MeshColour_MeshColour.dir/MeshColour.F90.o
+[ 87%] Linking Fortran shared module Difference.dylib
+[ 87%] Built target L2norm_Difference
+[ 87%] Linking Fortran shared module ContactBC.dylib
+[ 87%] Building Fortran object fem/tests/MeshSolverCubeToSphere/CMakeFiles/SphereDistance_SphereDistance.dir/SphereDistance.F90.o
+[ 87%] Built target LimitDisplacement2_ContactBC
+[ 87%] Linking Fortran shared module L2ndDerivativesTest.dylib
+[ 87%] Building Fortran object fem/tests/MixedPoisson2D/CMakeFiles/MixedPoisson2D_Source.dir/Source.F90.o
+[ 87%] Built target L2ndDerivatives_L2ndDerivativesTest
+[ 87%] Building Fortran object fem/tests/MixedPoisson3D/CMakeFiles/MixedPoisson3D_Source.dir/Source.F90.o
+[ 87%] Linking Fortran shared module SphereDistance.dylib
+[ 87%] Linking Fortran shared module DropStuff.dylib
+[ 87%] Linking Fortran shared module MeshColour.dylib
+[ 87%] Linking Fortran shared module H1BasisEvaluation.dylib
+[ 87%] Built target SphereDistance_SphereDistance
+[ 87%] Built target LevelsetFallingDrop_DropStuff
+[ 87%] Linking Fortran shared module Source.dylib
+[ 88%] Building Fortran object fem/tests/MixedPoisson3D_Brick/CMakeFiles/MixedPoisson3D_Brick_Source.dir/Source.F90.o
+[ 88%] Building Fortran object fem/tests/ModelPDEevol/CMakeFiles/ModelPDEevol_ModelPDEevol.dir/ModelPDEevol.F90.o
+[ 88%] Built target MeshColour_MeshColour
+[ 88%] Built target H1BasisEvaluation_H1BasisEvaluation
+[ 89%] Building Fortran object fem/tests/ModelPDEhandle/CMakeFiles/ModelPDEhandle_ModelPDEhandle.dir/ModelPDEhandle.F90.o
+[ 89%] Built target MixedPoisson2D_Source
+[ 89%] Linking Fortran shared module Source.dylib
+[ 89%] Building Fortran object fem/tests/ModelPDEipadapt/CMakeFiles/ModelPDEipadapt_Capacity.dir/Capacity.F90.o
+[ 89%] Building Fortran object fem/tests/ModelPDEsplitted/CMakeFiles/ModelPDEsplitted_ModelPDEsplitted.dir/ModelPDEsplitted.f90.o
+[ 89%] Built target MixedPoisson3D_Source
+[ 89%] Building Fortran object fem/tests/ModelPDEthreaded/CMakeFiles/ModelPDEthreaded_ModelPDEthreaded.dir/ModelPDEthreaded.F90.o
+[ 89%] Linking Fortran shared module Source.dylib
+[ 89%] Linking Fortran shared module LinearFormsAssembly.dylib
+[ 89%] Linking Fortran shared module Capacity.dylib
+[ 89%] Built target MixedPoisson3D_Brick_Source
+[ 89%] Building Fortran object fem/tests/NormalTangentialDisplacement/CMakeFiles/NormalTangentialDisplacement_TangentForce.dir/TangentForce.f90.o
+[ 89%] Built target LinearFormsAssembly_LinearFormsAssembly
+[ 89%] Building Fortran object fem/tests/OptimizeSimplexFourHeaters/CMakeFiles/OptimizeSimplexFourHeaters_CostFunction.dir/CostFunction.f90.o
+[ 89%] Built target ModelPDEipadapt_Capacity
+[ 89%] Building Fortran object fem/tests/OptimizeSimplexFourHeatersInt/CMakeFiles/OptimizeSimplexFourHeatersInt_CostFunction.dir/CostFunction.f90.o
+[ 89%] Linking Fortran shared module ModelPDEevol.dylib
+[ 89%] Linking Fortran shared module TangentForce.dylib
+[ 89%] Linking Fortran shared module ismip_c.dylib
+[ 89%] Built target ModelPDEevol_ModelPDEevol
+[ 89%] Built target NormalTangentialDisplacement_TangentForce
+[ 89%] Building Fortran object fem/tests/P2ndDerivatives/CMakeFiles/P2ndDerivatives_P2ndDerivativesTest.dir/P2ndDerivativesTest.f90.o
+[ 89%] Building Fortran object fem/tests/ParticleAdvectorZalesak/CMakeFiles/ParticleAdvectorZalesak_Zalesak.dir/Zalesak.f90.o
+[ 89%] Linking Fortran shared module ModelPDEhandle.dylib
+[ 89%] Built target HydrostaticNSVec-ISMIP-HOM-C_ismip_c
+[ 89%] Building Fortran object fem/tests/ParticleFallingBlock/CMakeFiles/ParticleFallingBlock_CalculateFraction.dir/CalculateFraction.F90.o
+[ 89%] Built target ModelPDEhandle_ModelPDEhandle
+[ 89%] Linking Fortran shared module CostFunction.dylib
+[ 89%] Linking Fortran shared module ModelPDEsplitted.dylib
+[ 89%] Building Fortran object fem/tests/PoissonML/CMakeFiles/PoissonML_PoissonML.dir/PoissonML.f90.o
+[ 89%] Linking Fortran shared module CostFunction.dylib
+[ 89%] Linking Fortran shared module ModelPDEthreaded.dylib
+[ 89%] Built target OptimizeSimplexFourHeaters_CostFunction
+[ 89%] Built target ModelPDEsplitted_ModelPDEsplitted
+[ 89%] Built target OptimizeSimplexFourHeatersInt_CostFunction
+[ 89%] Building Fortran object fem/tests/PoissonPFEM/CMakeFiles/PoissonPFEM_Poisson.dir/Poisson.f90.o
+[ 89%] Building Fortran object fem/tests/PoissonThreaded/CMakeFiles/PoissonThreaded_Poisson.dir/Poisson.F90.o
+[ 89%] Built target ModelPDEthreaded_ModelPDEthreaded
+[ 90%] Building Fortran object fem/tests/PoissonThreaded2/CMakeFiles/PoissonThreaded2_Poisson.dir/Poisson.F90.o
+[ 90%] Building Fortran object fem/tests/PoissonThreaded3/CMakeFiles/PoissonThreaded3_Poisson.dir/Poisson.F90.o
+[ 90%] Linking Fortran shared module CalculateFraction.dylib
+[ 90%] Built target ParticleFallingBlock_CalculateFraction
+[ 90%] Building Fortran object fem/tests/Q1Q0/CMakeFiles/Q1Q0_Q1Q0.dir/Q1Q0.f90.o
+[ 90%] Linking Fortran shared module Zalesak.dylib
+[ 90%] Built target ParticleAdvectorZalesak_Zalesak
+[ 90%] Linking Fortran shared module Poisson.dylib
+[ 90%] Linking Fortran shared module Poisson.dylib
+[ 90%] Linking Fortran shared module Poisson.dylib
+[ 90%] Building Fortran object fem/tests/RaviartThomas2D/CMakeFiles/RaviartThomas2D_Source.dir/Source.F90.o
+[ 90%] Linking Fortran shared module P2ndDerivativesTest.dylib
+[ 90%] Built target PoissonThreaded_Poisson
+[ 90%] Built target PoissonThreaded2_Poisson
+[ 90%] Built target PoissonThreaded3_Poisson
+[ 90%] Building Fortran object fem/tests/RaviartThomas2D/CMakeFiles/RaviartThomas2D_ComputeError.dir/ComputeError.F90.o
+[ 90%] Building Fortran object fem/tests/RaviartThomas3D/CMakeFiles/RaviartThomas3D_ComputeError.dir/ComputeError.F90.o
+[ 90%] Building Fortran object fem/tests/RaviartThomas3D/CMakeFiles/RaviartThomas3D_Source.dir/Source.F90.o
+[ 90%] Built target P2ndDerivatives_P2ndDerivativesTest
+[ 90%] Linking Fortran shared module Poisson.dylib
+[ 90%] Building Fortran object fem/tests/RigidMeshMapperCatenary/CMakeFiles/RigidMeshMapperCatenary_CatenaryCurve.dir/CatenaryCurve.F90.o
+[ 90%] Built target PoissonPFEM_Poisson
+[ 90%] Linking Fortran shared module Source.dylib
+[ 90%] Building Fortran object fem/tests/SD_BlockLinElast1/CMakeFiles/SD_BlockLinElast1_BlockLinElast.dir/BlockLinElast.f90.o
+[ 90%] Built target RaviartThomas2D_Source
+[ 90%] Linking Fortran shared module Source.dylib
+[ 91%] Building Fortran object fem/tests/SD_Classical2DShell/CMakeFiles/SD_Classical2DShell_BenchmarkShell.dir/BenchmarkShell.F90.o
+[ 91%] Linking Fortran shared module CatenaryCurve.dylib
+[ 91%] Built target RaviartThomas3D_Source
+[ 91%] Linking Fortran shared module ComputeError.dylib
+[ 91%] Linking Fortran shared module ComputeError.dylib
+[ 91%] Building Fortran object fem/tests/SD_CurvedBndryPFEM/CMakeFiles/SD_CurvedBndryPFEM_Poisson.dir/Poisson.f90.o
+[ 91%] Built target RigidMeshMapperCatenary_CatenaryCurve
+[ 91%] Building Fortran object fem/tests/SD_CurvedBndryPFEM2/CMakeFiles/SD_CurvedBndryPFEM2_Poisson.dir/Poisson.f90.o
+[ 91%] Built target RaviartThomas2D_ComputeError
+[ 91%] Built target RaviartThomas3D_ComputeError
+[ 91%] Linking Fortran shared module PoissonML.dylib
+[ 91%] Building Fortran object fem/tests/SD_H1BasisEvaluation/CMakeFiles/SD_H1BasisEvaluation_H1BasisEvaluation.dir/H1BasisEvaluation.F90.o
+[ 91%] Building Fortran object fem/tests/SD_ElementUnitTest_p1/CMakeFiles/SD_ElementUnitTest_p1_SingleElements.dir/SingleElements.F90.o
+[ 92%] Linking Fortran shared module Q1Q0.dylib
+[ 92%] Built target PoissonML_PoissonML
+[ 92%] Building Fortran object fem/tests/SD_LinearFormsAssembly/CMakeFiles/SD_LinearFormsAssembly_LinearFormsAssembly.dir/LinearFormsAssembly.F90.o
+[ 92%] Built target Q1Q0_Q1Q0
+[ 92%] Building Fortran object fem/tests/SD_ModelPDEevol/CMakeFiles/SD_ModelPDEevol_ModelPDEevol.dir/ModelPDEevol.F90.o
+[ 92%] Linking Fortran shared module BlockLinElast.dylib
+[ 92%] Linking Fortran shared module BenchmarkShell.dylib
+[ 92%] Built target SD_BlockLinElast1_BlockLinElast
+[ 93%] Building Fortran object fem/tests/SD_ModelPDEsplitted/CMakeFiles/SD_ModelPDEsplitted_ModelPDEsplitted.dir/ModelPDEsplitted.f90.o
+[ 93%] Built target SD_Classical2DShell_BenchmarkShell
+[ 93%] Linking Fortran shared module Poisson.dylib
+[ 93%] Linking Fortran shared module Poisson.dylib
+[ 93%] Building Fortran object fem/tests/SD_ModelPDEthreaded/CMakeFiles/SD_ModelPDEthreaded_ModelPDEthreaded.dir/ModelPDEthreaded.F90.o
+[ 93%] Built target SD_CurvedBndryPFEM_Poisson
+[ 93%] Built target SD_CurvedBndryPFEM2_Poisson
+[ 93%] Building Fortran object fem/tests/SD_P2ndDerivatives/CMakeFiles/SD_P2ndDerivatives_P2ndDerivativesTest.dir/P2ndDerivativesTest.f90.o
+[ 93%] Linking Fortran shared module SingleElements.dylib
+[ 93%] Building Fortran object fem/tests/SD_PoissonPFEM/CMakeFiles/SD_PoissonPFEM_Poisson.dir/Poisson.f90.o
+[ 93%] Built target SD_ElementUnitTest_p1_SingleElements
+[ 93%] Building Fortran object fem/tests/SD_SolverSpecificMeshes/CMakeFiles/SD_SolverSpecificMeshes_Poisson.dir/Poisson.f90.o
+[ 93%] Linking Fortran shared module ModelPDEevol.dylib
+[ 93%] Built target SD_ModelPDEevol_ModelPDEevol
+[ 93%] Building Fortran object fem/tests/SD_p-FEM_two_solvers/CMakeFiles/SD_p-FEM_two_solvers_BenchmarkShell.dir/BenchmarkShell.F90.o
+[ 93%] Linking Fortran shared module LinearFormsAssembly.dylib
+[ 93%] Linking Fortran shared module Poisson.dylib
+[ 93%] Built target SD_LinearFormsAssembly_LinearFormsAssembly
+[ 93%] Linking Fortran shared module ModelPDEsplitted.dylib
+[ 93%] Building Fortran object fem/tests/SD_p-FEM_with_varying_p/CMakeFiles/SD_p-FEM_with_varying_p_BenchmarkShell.dir/BenchmarkShell.F90.o
+[ 93%] Linking Fortran shared module ModelPDEthreaded.dylib
+[ 93%] Built target SD_PoissonPFEM_Poisson
+[ 93%] Building Fortran object fem/tests/SD_pmultg/CMakeFiles/SD_pmultg_Poisson.dir/Poisson.f90.o
+[ 93%] Built target SD_ModelPDEsplitted_ModelPDEsplitted
+[ 93%] Linking Fortran shared module Poisson.dylib
+[ 93%] Built target SD_ModelPDEthreaded_ModelPDEthreaded
+[ 93%] Building Fortran object fem/tests/SecondOrderEdgeElement2D/CMakeFiles/SecondOrderEdgeElement2D_EdgeElementTest.dir/EdgeElementTest.F90.o
+[ 93%] Building Fortran object fem/tests/SecondOrderEdgeElement3D/CMakeFiles/SecondOrderEdgeElement3D_EdgeElementTest.dir/EdgeElementTest.F90.o
+[ 93%] Linking Fortran shared module P2ndDerivativesTest.dylib
+[ 93%] Built target SD_SolverSpecificMeshes_Poisson
+[ 93%] Building Fortran object fem/tests/Shell_With_NormalSolver/CMakeFiles/Shell_With_NormalSolver_CylinderNormalSolver.dir/CylinderNormalSolver.F90.o
+[ 93%] Built target SD_P2ndDerivatives_P2ndDerivativesTest
+[ 93%] Linking Fortran shared module BenchmarkShell.dylib
+[ 93%] Building Fortran object fem/tests/SlaveSolverSlots/CMakeFiles/CountSolver_CountSolver.dir/CountSolver.F90.o
+[ 93%] Built target SD_p-FEM_two_solvers_BenchmarkShell
+[ 93%] Building Fortran object fem/tests/SlaveSolverSlotsScan/CMakeFiles/CountSolver2_CountSolver2.dir/CountSolver2.F90.o
+[ 94%] Linking Fortran shared module BenchmarkShell.dylib
+[ 94%] Linking Fortran shared module CountSolver.dylib
+[ 94%] Built target SD_p-FEM_with_varying_p_BenchmarkShell
+[ 94%] Linking Fortran shared module EdgeElementTest.dylib
+[ 94%] Building Fortran object fem/tests/SolverSpecificMeshes/CMakeFiles/SolverSpecificMeshes_Poisson.dir/Poisson.f90.o
+[ 94%] Built target CountSolver_CountSolver
+[ 94%] Linking Fortran shared module Poisson.dylib
+[ 94%] Linking Fortran shared module CountSolver2.dylib
+[ 94%] Building Fortran object fem/tests/StokesPFEM/CMakeFiles/StokesPFEM_Stokes1.dir/Stokes.f90.o
+[ 94%] Built target SecondOrderEdgeElement3D_EdgeElementTest
+[ 94%] Built target SD_pmultg_Poisson
+[ 94%] Building Fortran object fem/tests/StokesProj/CMakeFiles/StokesProj_Velocity.dir/Velocity.f90.o
+[ 94%] Built target CountSolver2_CountSolver2
+[ 94%] Building Fortran object fem/tests/StokesProj/CMakeFiles/StokesProj_Pressure.dir/Pressure.f90.o
+[ 94%] Building Fortran object fem/tests/TimeProfileBC/CMakeFiles/TimeProfileBC_TimeProfile.dir/TimeProfile.F90.o
+[ 94%] Linking Fortran shared module CylinderNormalSolver.dylib
+[ 94%] Linking Fortran shared module H1BasisEvaluation.dylib
+[ 94%] Linking Fortran shared module EdgeElementTest.dylib
+[ 94%] Built target Shell_With_NormalSolver_CylinderNormalSolver
+[ 94%] Built target SecondOrderEdgeElement2D_EdgeElementTest
+[ 94%] Built target SD_H1BasisEvaluation_H1BasisEvaluation
+[ 95%] Building Fortran object fem/tests/TravellingHeater/CMakeFiles/TravellingHeater_HeatSource.dir/HeatSource.F90.o
+[ 95%] Building Fortran object fem/tests/TravellingHeater2/CMakeFiles/TravellingHeater2_HeatSource.dir/HeatSource.F90.o
+[ 95%] Building Fortran object fem/tests/UMAT_StVenant_2D/CMakeFiles/UMAT_StVenant_2D_MyUMAT.dir/MyUMAT.F90.o
+[ 95%] Linking Fortran shared module TimeProfile.dylib
+[ 95%] Built target TimeProfileBC_TimeProfile
+[ 95%] Building Fortran object fem/tests/UMAT_StVenant_axials/CMakeFiles/UMAT_StVenant_axials_LocalUMAT.dir/LocalUMAT.F90.o
+[ 95%] Linking Fortran shared module Poisson.dylib
+[ 95%] Built target SolverSpecificMeshes_Poisson
+[ 95%] Linking Fortran shared module MyUMAT.dylib
+[ 95%] Linking Fortran shared module Pressure.dylib
+[ 95%] Building Fortran object fem/tests/Zirka/CMakeFiles/udfs_udfs.dir/udfs.F90.o
+[ 95%] Built target UMAT_StVenant_2D_MyUMAT
+[ 95%] Built target StokesProj_Pressure
+[ 95%] Building Fortran object fem/tests/Zirka/CMakeFiles/ZirkaTest_ZirkaTest.dir/ZirkaTest.F90.o
+[ 95%] Building Fortran object fem/tests/bentonite/CMakeFiles/bentonite_BentoniteSolver.dir/BentoniteSolver.F90.o
+[ 95%] Linking Fortran shared module HeatSource.dylib
+[ 95%] Linking Fortran shared module HeatSource.dylib
+[ 95%] Linking Fortran shared module Stokes1.dylib
+[ 95%] Built target TravellingHeater2_HeatSource
+[ 95%] Built target TravellingHeater_HeatSource
+[ 95%] Building Fortran object fem/tests/bodydir2/CMakeFiles/bodydir2_Blowers.dir/Blowers.f90.o
+[ 95%] Building Fortran object fem/tests/fsi_beam/CMakeFiles/fsi_beam_FsiStuff.dir/FsiStuff.f90.o
+[ 96%] Linking Fortran shared module Velocity.dylib
+[ 96%] Built target StokesPFEM_Stokes1
+[ 96%] Building Fortran object fem/tests/fsi_beam_nodalforce/CMakeFiles/fsi_beam_nodalforce_FsiStuff.dir/FsiStuff.f90.o
+[ 96%] Built target StokesProj_Velocity
+[ 96%] Linking Fortran shared module FsiStuff.dylib
+[ 96%] Building Fortran object fem/tests/fsi_beam_optimize/CMakeFiles/fsi_beam_optimize_WallProfiles.dir/WallProfiles.f90.o
+[ 96%] Linking Fortran shared module FsiStuff.dylib
+[ 96%] Built target fsi_beam_FsiStuff
+[ 96%] Building Fortran object fem/tests/levelset1/CMakeFiles/levelset1_InitSquare.dir/InitSquare.f90.o
+[ 96%] Built target fsi_beam_nodalforce_FsiStuff
+[ 96%] Linking Fortran shared module LocalUMAT.dylib
+[ 96%] Building Fortran object fem/tests/levelset2/CMakeFiles/levelset2_MyStuff.dir/MyStuff.f90.o
+[ 96%] Linking Fortran shared module udfs.dylib
+[ 96%] Built target UMAT_StVenant_axials_LocalUMAT
+[ 97%] Building Fortran object fem/tests/mgdyn2D_bh_relfun/CMakeFiles/mgdyn2D_bh_relfun_reluctivity.dir/reluctivity.F90.o
+[ 97%] Built target udfs_udfs
+[ 97%] Building Fortran object fem/tests/mgdyn_anisotropic_cond/CMakeFiles/mgdyn_anisotropic_cond_currents.dir/currents.f90.o
+[ 97%] Linking Fortran shared module InitSquare.dylib
+[ 97%] Linking Fortran shared module BentoniteSolver.dylib
+[ 97%] Built target levelset1_InitSquare
+[ 97%] Building Fortran object fem/tests/mgdyn_anisotropic_rel/CMakeFiles/mgdyn_anisotropic_rel_reluctivity.dir/reluctivity.F90.o
+[ 97%] Built target bentonite_BentoniteSolver
+[ 97%] Building Fortran object fem/tests/mgdyn_anisotropic_rel2/CMakeFiles/mgdyn_anisotropic_rel2_reluctivity.dir/reluctivity.F90.o
+[ 97%] Linking Fortran shared module reluctivity.dylib
+[ 97%] Linking Fortran shared module MyStuff.dylib
+[ 97%] Built target mgdyn2D_bh_relfun_reluctivity
+[ 97%] Built target levelset2_MyStuff
+[ 97%] Building Fortran object fem/tests/mgdyn_bh_relfun/CMakeFiles/mgdyn_bh_relfun_reluctivity.dir/reluctivity.F90.o
+[ 97%] Building Fortran object fem/tests/mgdyn_harmonic_wire_Cgauge/CMakeFiles/mgdyn_harmonic_wire_Cgauge_HelmholtzProjectionHarmonic.dir/HelmholtzProjectionHarmonic.F90.o
+[ 97%] Linking Fortran shared module reluctivity.dylib
+[ 97%] Linking Fortran shared module reluctivity.dylib
+[ 97%] Built target mgdyn_anisotropic_rel_reluctivity
+[ 97%] Building Fortran object fem/tests/mgdyn_lamstack_lowfreq_transient/CMakeFiles/mgdyn_lamstack_lowfreq_transient_currents.dir/currents.f90.o
+[ 97%] Built target mgdyn_anisotropic_rel2_reluctivity
+[ 97%] Building Fortran object fem/tests/mhd/CMakeFiles/mhd_exmag.dir/exmag.f90.o
+[ 97%] Linking Fortran shared module currents.dylib
+[ 97%] Linking Fortran shared module reluctivity.dylib
+[ 97%] Linking Fortran shared module ZirkaTest.dylib
+[ 97%] Linking Fortran shared module exmag.dylib
+[ 97%] Built target mgdyn_anisotropic_cond_currents
+[ 97%] Built target ZirkaTest_ZirkaTest
+[ 97%] Built target mgdyn_bh_relfun_reluctivity
+[ 97%] Building Fortran object fem/tests/p-FEM_two_solvers/CMakeFiles/p-FEM_two_solvers_BenchmarkShell.dir/BenchmarkShell.F90.o
+[ 97%] Building Fortran object fem/tests/p-FEM_with_varying_p/CMakeFiles/p-FEM_with_varying_p_BenchmarkShell.dir/BenchmarkShell.F90.o
+[ 97%] Building Fortran object fem/tests/pmultg/CMakeFiles/pmultg_Poisson.dir/Poisson.f90.o
+[ 97%] Built target mhd_exmag
+[ 98%] Building Fortran object fem/tests/tresca/CMakeFiles/tresca_Tresca.dir/Tresca.f90.o
+[ 98%] Linking Fortran shared module Blowers.dylib
+[ 98%] Linking Fortran shared module Tresca.dylib
+[ 98%] Built target bodydir2_Blowers
+[ 99%] Linking Fortran shared module currents.dylib
+[ 99%] Built target elmersolver_link
+[ 99%] Built target tresca_Tresca
+[ 99%] Building Fortran object fem/src/modules/CMakeFiles/EliminatePeriodic.dir/EliminatePeriodic.F90.o
+[100%] Linking Fortran shared module BenchmarkShell.dylib
+[100%] Building Fortran object fem/src/modules/CMakeFiles/FourierLoss.dir/FourierLoss.F90.o
+[100%] Built target mgdyn_lamstack_lowfreq_transient_currents
+[100%] Linking Fortran shared module BenchmarkShell.dylib
+[100%] Built target p-FEM_two_solvers_BenchmarkShell
+[100%] Built target p-FEM_with_varying_p_BenchmarkShell
+[100%] Linking Fortran shared module Poisson.dylib
+[100%] Built target pmultg_Poisson
+[100%] Linking Fortran shared module HelmholtzProjectionHarmonic.dylib
+[100%] Built target mgdyn_harmonic_wire_Cgauge_HelmholtzProjectionHarmonic
+[100%] Linking Fortran shared module WallProfiles.dylib
+[100%] Built target fsi_beam_optimize_WallProfiles
+[100%] Linking Fortran shared library EliminatePeriodic.dylib
+[100%] Linking Fortran shared library FourierLoss.dylib
+[100%] Built target EliminatePeriodic
+[100%] Built target FourierLoss

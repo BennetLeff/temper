@@ -46,6 +46,11 @@ construction inputs through Rust selection and a thin process transport. The
 existing `harness-lab/` remains available for legacy experiments. The old Python
 migration outline is superseded by [MIGRATION.md](MIGRATION.md).
 
+The [Gmsh + Elmer thermal backend](thermal/README.md) adds a separate external
+electrothermal reference path, orchestrated and checked in Rust. Its copper-bar
+benchmark establishes solver setup; it does not qualify the power-entry necks
+or replace existing board findings.
+
 ## Layout
 
 | Path | Purpose |
@@ -56,6 +61,7 @@ migration outline is superseded by [MIGRATION.md](MIGRATION.md).
 | `Cargo.toml`, `packages/` | Rust workspace, validators and harness |
 | `ports.toml` | Donor hashes, copied tests and extraction changes |
 | `validation/` | Dated donor inventory, per-unit coverage and next-port sequence |
+| `thermal/` | Gmsh + Elmer backend scope, native installation and reference evidence |
 | `ARCHITECTURE.md` | Rust package ownership and agent/validator contract |
 | `experiments/` | Experiment definitions and frozen inputs |
 | `skills/` | Versioned agent skills and learned artifacts |

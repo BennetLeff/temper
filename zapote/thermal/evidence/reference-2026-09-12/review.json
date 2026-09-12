@@ -1,0 +1,93 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "cb80a1df1246cd9227431baa57d9f42381489fd9",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "cb80a1df1246cd9227431baa57d9f42381489fd9",
+    "pr_url": null,
+    "files_changed": 46
+  },
+  "intent": "Add a bounded Rust reference orchestrator around Gmsh and Elmer for a canonical copper-bar analytic benchmark across three meshes. It must fail closed on malformed or missing evidence, retain exact input, output, log, and hash identity, and never imply PCB thermal qualification.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "reliability",
+    "security",
+    "adversarial",
+    "learnings"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "MMS proves solver correctness only for its narrow manufactured case",
+      "citation": "docs/solutions/best-practices/mms-proves-correctness-converge-to-right-answer-2026-07-09.md",
+      "note": "The new documentation correctly limits this bar benchmark to reference setup."
+    },
+    {
+      "type": "known_pattern",
+      "title": "External FEM corroboration is a validity proxy",
+      "citation": "docs/solutions/best-practices/external-fem-corroboration-validity-proxy-2026-07-09.md",
+      "note": "The new documentation correctly avoids treating reference_pass as PCB thermal qualification."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The final native Gmsh and Elmer rerun was still active when this report was finalized, so no fresh native-run receipt was available for this review artifact."
+  ],
+  "testing_gaps": [
+    "No committed integration fixture executes run() through the complete live Gmsh and Elmer process chain and asserts the emitted identity and artifact inventories."
+  ],
+  "coverage": {
+    "cross_model": "Cross-model pass not run: path filtering could not exclude unrelated dirty PCB, power-entry, and validation scope; the adversarial lens used the in-process fallback.",
+    "scope_notes": [
+      "Scoped untracked and gitignored thermal files were explicitly included by caller instruction.",
+      "Runtime solver binaries and versions were reviewed as recorded evidence, not as a hard allowlist, because this benchmark validates new installations.",
+      "No plan was discovered; settlement suppression was not evaluated."
+    ],
+    "validation": {
+      "shortcut_count": 0,
+      "batch_outcome": "verdicts",
+      "selected": 6,
+      "dropped": 6,
+      "degraded_blockers": 0,
+      "verdicts": [
+        {"#": 1, "validated": false, "reason": "Git identity probes now use the timeout-aware process helper."},
+        {"#": 2, "validated": false, "reason": "Every post-directory failure now finalizes report.json with failure state and partial evidence."},
+        {"#": 3, "validated": false, "reason": "Malformed nonblank scalar-name rows are now rejected."},
+        {"#": 4, "validated": false, "reason": "The CLI supplies bundled fixtures and reference_pass rejects changed canonical deck bytes."},
+        {"#": 5, "validated": false, "reason": "Required fixture and retained evidence logs are staged with scoped gitignore exceptions."},
+        {"#": 6, "validated": false, "reason": "Timeout handling kills the Unix process group and a descendant-writer regression test covers it."}
+      ]
+    },
+    "tests": [
+      "Clean staged-index snapshot: all 15 zapote-thermal tests passed.",
+      "Full workspace validation: all 335 tests passed.",
+      "Final native Gmsh and Elmer rerun was pending at report time."
+    ],
+    "suppressed_by_confidence": {},
+    "first_evidence_backfilled": 15,
+    "missing_first_evidence_demotions": 0,
+    "malformed_findings": 0,
+    "malformed_returns": 0,
+    "mode_aware_demotions": 0,
+    "failed_reviewers": [],
+    "bound_exceeded": [],
+    "compound_packs": {
+      "roots": [],
+      "warnings": [],
+      "errors": []
+    }
+  },
+  "artifact_path": "/private/tmp/ce-code-review/thermal-20260912-001",
+  "run_id": "thermal-20260912-001"
+}

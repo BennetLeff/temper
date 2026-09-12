@@ -1,0 +1,1694 @@
+ELMER SOLVER (v 26.2) STARTED AT: 2026/09/12 15:38:50
+ParCommInit: Initialize #PEs: 1
+MAIN: 
+MAIN: =============================================================
+MAIN: ElmerSolver finite element software, Welcome!
+MAIN: This program is free software licensed under (L)GPL
+MAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.
+MAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi
+MAIN: Version: 26.2-unknown (Rev: a19504a, Compiled: 2026-09-12)
+MAIN:  Running one task without MPI parallelization.
+MAIN:  Running with just one thread per task.
+MAIN: =============================================================
+MAIN: 
+MAIN: 
+MAIN: -------------------------------------
+MAIN: Reading Model: thermal_actuator.sif
+LoadInputFile: Scanning input file: thermal_actuator.sif
+LoadInputFile: Scanning only size info
+LoadInputFile: First time visiting
+LoadInputFile: Reading base load of sif file
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+LoadInputFile: Loading input file: thermal_actuator.sif
+LoadInputFile: Reading base load of sif file
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+LoadInputFile: Number of BCs: 2
+LoadInputFile: Number of Body Forces: 1
+LoadInputFile: Number of Initial Conditions: 1
+LoadInputFile: Number of Materials: 1
+LoadInputFile: Number of Equations: 1
+LoadInputFile: Number of Solvers: 4
+LoadInputFile: Number of Bodies: 1
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Init0]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Init0]
+Loading user function library: [HeatSolve]...[HeatSolver_Init0]
+Loading user function library: [HeatSolve]...[HeatSolver_Init0]
+Loading user function library: [StressSolve]...[StressSolver_Init0]
+Loading user function library: [SaveData]...[SaveScalars_Init0]
+Loading user function library: [SaveData]...[SaveScalars_Init0]
+LoadMesh: Loading serial mesh!
+ElmerMeshReader: Performing step: 1
+ElmerMeshReader: Base mesh name: ./actuator
+ReadHeaderFile: Reading header info from file: ./actuator/mesh.header
+InitializeMesh: Number of nodes in mesh: 8498
+InitializeMesh: Number of bulk elements in mesh: 3729
+InitializeMesh: Number of boundary elements in mesh: 208
+InitializeMesh: Initial number of max element nodes: 10
+ElmerMeshReader: Performing step: 2
+ReadNodesFile: Reading nodes from file: ./actuator/mesh.nodes
+SetMeshDimension: Dimension of mesh is: 3
+SetMeshDimension: Max dimension of mesh is: 3
+MapCoordinates: Scaling coordinates: 1.000E-06 1.000E-06 1.000E-06
+ElmerMeshReader: Performing step: 3
+ReadElementsFile: Reading bulk elements from file: ./actuator/mesh.elements
+ElmerMeshReader: Performing step: 4
+ReadBoundaryFile: Reading boundary elements from file: ./actuator/mesh.boundary
+PermuteNodeNumbering: Performing node mapping
+MapBodiesAndBCs: Skipping remapping of bodies
+MapBodiesAndBCs: Remapping boundaries
+MapBodiesAndBCs: Minimum initial boundary index: 1
+MapBodiesAndBCs: Maximum initial boundary index: 2
+ElmerMeshReader: Performing step: 5
+ElmerMeshReader: Performing step: 6
+LoadMesh: Loading mesh done
+LoadMesh: Preparing mesh done
+LoadMesh: Elapsed REAL time:     0.0153 (s)
+MeshStabParams: Computing stabilization parameters
+MeshStabParams: Elapsed REAL time:     0.0008 (s)
+LoadModel: Defined radiation solver by Procedure containing "HeatSolver"
+MAIN: -------------------------------------
+AddMeshCoordinates: Setting mesh coordinates and time
+AddSolvers: Setting up 4 solvers
+AddSolvers: Setting up solver 1: stat current solver
+AddEquationBasics: Using procedure: StatCurrentSolve StatCurrentSolver
+AddEquationBasics: Setting up solver: stat current solver
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Init]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_bulk]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_bulk]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver]
+AddEquationBasics: Creating standard variable: potential
+OptimizeBandwidth: ---------------------------------------------------------
+OptimizeBandwidth: Computing matrix structure for: stat current solver
+OptimizeBandwidth: Initial bandwidth for stat current solver: 8447
+OptimizeBandwidth: Optimized bandwidth for stat current solver: 370
+OptimizeBandwidth: ---------------------------------------------------------
+AddSolvers: Setting up solver 2: heateq
+AddEquationBasics: Using procedure: HeatSolve HeatSolver
+AddEquationBasics: Setting up solver: heateq
+Loading user function library: [HeatSolve]...[HeatSolver_Init]
+Loading user function library: [HeatSolve]...[HeatSolver_bulk]
+Loading user function library: [HeatSolve]...[HeatSolver_bulk]
+Loading user function library: [HeatSolve]...[HeatSolver]
+AddEquationBasics: Creating standard variable: temperature
+OptimizeBandwidth: ---------------------------------------------------------
+OptimizeBandwidth: Computing matrix structure for: heateq
+OptimizeBandwidth: Initial bandwidth for heateq: 8447
+OptimizeBandwidth: Optimized bandwidth for heateq: 370
+OptimizeBandwidth: ---------------------------------------------------------
+AddSolvers: Setting up solver 3: stress analysis
+AddEquationBasics: Setting up keywords internally for legacy solver: stress analysis
+AddEquationBasics: Using procedure: StressSolve StressSolver
+AddEquationBasics: Setting up solver: stress analysis
+Loading user function library: [StressSolve]...[StressSolver_Init]
+StressSolve_init: --------------------------------------------------
+StressSolve_init: Solving displacements from linear elasticity model
+StressSolve_init: --------------------------------------------------
+Loading user function library: [StressSolve]...[StressSolver_bulk]
+Loading user function library: [StressSolve]...[StressSolver_bulk]
+Loading user function library: [StressSolve]...[StressSolver]
+AddEquationBasics: Creating standard variable: displacement
+OptimizeBandwidth: ---------------------------------------------------------
+OptimizeBandwidth: Computing matrix structure for: stress analysis
+OptimizeBandwidth: Initial bandwidth for stress analysis: 8447
+OptimizeBandwidth: Optimized bandwidth for stress analysis: 370
+OptimizeBandwidth: ---------------------------------------------------------
+AddSolvers: Setting up solver 4: savescalars
+AddEquationBasics: Using procedure: SaveData SaveScalars
+AddEquationBasics: Setting up solver: savescalars
+Loading user function library: [SaveData]...[SaveScalars_Init]
+Loading user function library: [SaveData]...[SaveScalars_bulk]
+Loading user function library: [SaveData]...[SaveScalars_bulk]
+Loading user function library: [SaveData]...[SaveScalars]
+AddTimeEtc: Setting time and other global variables
+MAIN: Random seed initialized to: 314159265
+SetInitialConditions: Setting up initial conditions (if any)
+MAIN: Number of timesteps to be saved: 51
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            1
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   9.0170000000000028E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: Allocated LU matrix of size: 299316
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.01
+Prec-ilu1: Elapsed REAL time:     0.0123 (s)
+      10 0.8968E-04 0.8968E-04
+BiCGStabl:       19 0.7731E-09 0.7731E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  4.9129576      2.0000000     ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   5.2928000000000031E-002
+StatCurrentSolve:  Total Heating Power   :   3.1621819017324589E-002
+StatCurrentSolve:  Effective Resistance  :   1549.5629765370063
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=1) (NRM,RELC): (  4.9129576      2.0000000     ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: Allocated LU matrix of size: 299316
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.01
+Prec-ilu1: Elapsed REAL time:     0.0123 (s)
+      10 0.1363E-03 0.1363E-03
+BiCGStabl:       19 0.4760E-09 0.4760E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  1839.7354      2.0000000     ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.21    0.21
+HeatSolve: iter:    1 Solve:    (s)    0.05    0.05
+HeatSolve:  Result Norm   :    1839.7353650708528
+HeatSolve:  Relative Change :    2.0000000000000000
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=1) (NRM,RELC): (  1839.7354      2.0000000     ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            2
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.0907000000000062E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0049 (s)
+      10 0.1744E-06 0.1744E-06
+BiCGStabl:       18 0.6575E-08 0.6575E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  4.9601631     0.95624407E-02 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   4.4574000000000003E-002
+StatCurrentSolve:  Total Heating Power   :   8.6957364324240206E-004
+StatCurrentSolve:  Effective Resistance  :   56349.453989074937
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=2) (NRM,RELC): (  4.9601631     0.95624407E-02 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0052 (s)
+      10 0.4347E-04 0.4347E-04
+BiCGStabl:       18 0.9093E-09 0.9093E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  1071.7774     0.52753195     ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    1071.7773659564102
+HeatSolve:  Relative Change :   0.52753195335916370
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=2) (NRM,RELC): (  1071.7774     0.52753195     ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            3
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.4921000000000024E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0052 (s)
+      10 0.2720E-06 0.2720E-06
+BiCGStabl:       15 0.7369E-08 0.7369E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.0117922     0.10354854E-01 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   3.8634000000000057E-002
+StatCurrentSolve:  Total Heating Power   :   9.5316556717172339E-004
+StatCurrentSolve:  Effective Resistance  :   51407.648038939391
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=3) (NRM,RELC): (  5.0117922     0.10354854E-01 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0049 (s)
+      10 0.9248E-05 0.9248E-05
+BiCGStabl:       18 0.7033E-09 0.7033E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  705.62100     0.41201384     ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    705.62100198031885
+HeatSolve:  Relative Change :   0.41201384065761176
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=3) (NRM,RELC): (  705.62100     0.41201384     ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            4
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.4915999999999991E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+      10 0.3494E-06 0.3494E-06
+BiCGStabl:       14 0.8796E-08 0.8796E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1157489     0.20529495E-01 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   3.6147999999999847E-002
+StatCurrentSolve:  Total Heating Power   :   1.1794027615689973E-003
+StatCurrentSolve:  Effective Resistance  :   41546.451811604828
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=4) (NRM,RELC): (  5.1157489     0.20529495E-01 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.01
+Prec-ilu1: Elapsed REAL time:     0.0052 (s)
+      10 0.3451E-04 0.3451E-04
+BiCGStabl:       17 0.5759E-09 0.5759E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  547.65223     0.25208992     ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    547.65223000405865
+HeatSolve:  Relative Change :   0.25208991614085524
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=4) (NRM,RELC): (  547.65223     0.25208992     ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            5
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.6225000000000218E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+      10 0.1169E-06 0.1169E-06
+BiCGStabl:       14 0.3241E-08 0.3241E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1350325     0.37623819E-02 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   3.6893000000000065E-002
+StatCurrentSolve:  Total Heating Power   :   2.1058250059929596E-003
+StatCurrentSolve:  Effective Resistance  :   23268.790075410390
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=5) (NRM,RELC): (  5.1350325     0.37623819E-02 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0050 (s)
+      10 0.4577E-05 0.4577E-05
+BiCGStabl:       19 0.2637E-09 0.2637E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  525.60027     0.41093710E-01 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.05    0.05
+HeatSolve:  Result Norm   :    525.60026674473215
+HeatSolve:  Relative Change :    4.1093709683655291E-002
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=5) (NRM,RELC): (  525.60027     0.41093710E-01 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            6
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.5024000000000211E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.01
+Prec-ilu1: Elapsed REAL time:     0.0053 (s)
+      10 0.2067E-07 0.2067E-07
+BiCGStabl:       13 0.4687E-08 0.4687E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1392552     0.82198103E-03 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   3.3558000000000199E-002
+StatCurrentSolve:  Total Heating Power   :   2.3816081957713639E-003
+StatCurrentSolve:  Effective Resistance  :   20574.332959972748
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=6) (NRM,RELC): (  5.1392552     0.82198103E-03 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0050 (s)
+      10 0.1173E-05 0.1173E-05
+BiCGStabl:       19 0.3605E-09 0.3605E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  530.84308     0.99253972E-02 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.05    0.05
+HeatSolve:  Result Norm   :    530.84307663525124
+HeatSolve:  Relative Change :    9.9253971798340737E-003
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=6) (NRM,RELC): (  530.84308     0.99253972E-02 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            7
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.4747000000000128E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+BiCGStabl:       10 0.7715E-08 0.7715E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1461459     0.13399098E-02 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   2.7776999999999941E-002
+StatCurrentSolve:  Total Heating Power   :   2.2576991919497557E-003
+StatCurrentSolve:  Effective Resistance  :   21703.511333448925
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=7) (NRM,RELC): (  5.1461459     0.13399098E-02 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0050 (s)
+      10 0.1436E-05 0.1436E-05
+BiCGStabl:       18 0.6895E-09 0.6895E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.95578     0.73497825E-02 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.05    0.05
+HeatSolve:  Result Norm   :    526.95578087981710
+HeatSolve:  Relative Change :    7.3497824805105038E-003
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=7) (NRM,RELC): (  526.95578     0.73497825E-02 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            8
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.9380999999999933E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.01
+Prec-ilu1: Elapsed REAL time:     0.0052 (s)
+BiCGStabl:        9 0.6963E-08 0.6963E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1481912     0.39735498E-03 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   2.6328999999999603E-002
+StatCurrentSolve:  Total Heating Power   :   2.2968221295969339E-003
+StatCurrentSolve:  Effective Resistance  :   21333.824403981576
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=8) (NRM,RELC): (  5.1481912     0.39735498E-03 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0050 (s)
+      10 0.7810E-08 0.7810E-08
+BiCGStabl:       17 0.8682E-09 0.8682E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  527.48546     0.10046597E-02 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    527.48545819769913
+HeatSolve:  Relative Change :    1.0046597159751153E-003
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=8) (NRM,RELC): (  527.48546     0.10046597E-02 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            9
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.5104999999999986E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0052 (s)
+BiCGStabl:        9 0.8560E-08 0.8560E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1502165     0.39333103E-03 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   2.5143999999999611E-002
+StatCurrentSolve:  Total Heating Power   :   2.2780657308103698E-003
+StatCurrentSolve:  Effective Resistance  :   21509.475928321597
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=9) (NRM,RELC): (  5.1502165     0.39333103E-03 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0048 (s)
+      10 0.3666E-06 0.3666E-06
+BiCGStabl:       18 0.2776E-09 0.2776E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.85414     0.11975680E-02 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    526.85413652801412
+HeatSolve:  Relative Change :    1.1975679806452613E-003
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=9) (NRM,RELC): (  526.85414     0.11975680E-02 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:           10
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.6204000000000391E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0049 (s)
+BiCGStabl:        9 0.6691E-08 0.6691E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1509497     0.14234070E-03 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   2.4174999999999613E-002
+StatCurrentSolve:  Total Heating Power   :   2.2813132288498185E-003
+StatCurrentSolve:  Effective Resistance  :   21478.856730561540
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=10) (NRM,RELC): (  5.1509497     0.14234070E-03 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0050 (s)
+      10 0.9876E-07 0.9876E-07
+BiCGStabl:       17 0.3562E-09 0.3562E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.77289     0.15421793E-03 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    526.77289243753660
+HeatSolve:  Relative Change :    1.5421793147674104E-004
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=10) (NRM,RELC): (  526.77289     0.15421793E-03 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:           11
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.6465999999999710E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0049 (s)
+BiCGStabl:        7 0.7356E-08 0.7356E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1515669     0.11982270E-03 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   2.0900000000000141E-002
+StatCurrentSolve:  Total Heating Power   :   2.2789980101979579E-003
+StatCurrentSolve:  Effective Resistance  :   21500.676955722207
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=11) (NRM,RELC): (  5.1515669     0.11982270E-03 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+      10 0.8781E-07 0.8781E-07
+BiCGStabl:       17 0.2097E-09 0.2097E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.66512     0.20461097E-03 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    526.66511995128587
+HeatSolve:  Relative Change :    2.0461096900487624E-004
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=11) (NRM,RELC): (  526.66512     0.20461097E-03 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:           12
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.3394000000000190E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+BiCGStabl:        2 0.9689E-08 0.9689E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1515916     0.47910419E-05 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   9.7640000000005500E-003
+StatCurrentSolve:  Total Heating Power   :   2.2785799098488202E-003
+StatCurrentSolve:  Effective Resistance  :   21504.622150052692
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=12) (NRM,RELC): (  5.1515916     0.47910419E-05 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+      10 0.8147E-07 0.8147E-07
+BiCGStabl:       14 0.4616E-09 0.4616E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.58690     0.14853006E-03 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    526.58690015594277
+HeatSolve:  Relative Change :    1.4853006469456184E-004
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=12) (NRM,RELC): (  526.58690     0.14853006E-03 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:           13
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.4762000000000448E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0049 (s)
+BiCGStabl:        3 0.8822E-08 0.8822E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1516461     0.10590445E-04 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   1.2211999999999890E-002
+StatCurrentSolve:  Total Heating Power   :   2.2787024216684298E-003
+StatCurrentSolve:  Effective Resistance  :   21503.465978731430
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=13) (NRM,RELC): (  5.1516461     0.10590445E-04 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0049 (s)
+      10 0.1368E-07 0.1368E-07
+BiCGStabl:       13 0.4517E-09 0.4517E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.58177     0.97423897E-05 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.03    0.03
+HeatSolve:  Result Norm   :    526.58176996612372
+HeatSolve:  Relative Change :    9.7423897322378127E-006
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=13) (NRM,RELC): (  526.58177     0.97423897E-05 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:           14
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.6094000000000115E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+BiCGStabl:        5 0.9247E-08 0.9247E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1521771     0.10306672E-03 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   1.5779000000000210E-002
+StatCurrentSolve:  Total Heating Power   :   2.2783040249022444E-003
+StatCurrentSolve:  Effective Resistance  :   21507.226193002251
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=14) (NRM,RELC): (  5.1521771     0.10306672E-03 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+      10 0.1028E-07 0.1028E-07
+BiCGStabl:       15 0.7918E-09 0.7918E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.57326     0.16158215E-04 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    526.57326141321346
+HeatSolve:  Relative Change :    1.6158215375210769E-005
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=14) (NRM,RELC): (  526.57326     0.16158215E-04 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:           15
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.6685000000000123E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0050 (s)
+BiCGStabl:        1 0.3909E-08 0.3909E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1521876     0.20286306E-05 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   8.5100000000002396E-003
+StatCurrentSolve:  Total Heating Power   :   2.2779011655745295E-003
+StatCurrentSolve:  Effective Resistance  :   21511.029864037704
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=15) (NRM,RELC): (  5.1521876     0.20286306E-05 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+      10 0.3379E-07 0.3379E-07
+BiCGStabl:       15 0.8628E-09 0.8628E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.54556     0.52610334E-04 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.04    0.04
+HeatSolve:  Result Norm   :    526.54555894655175
+HeatSolve:  Relative Change :    5.2610334420278185E-005
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=15) (NRM,RELC): (  526.54556     0.52610334E-04 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:           16
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.6759999999999948E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1521876      0.0000000     ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   5.4800000000003735E-003
+StatCurrentSolve:  Total Heating Power   :   2.2780024414183323E-003
+StatCurrentSolve:  Effective Resistance  :   21510.073522788487
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=16) (NRM,RELC): (  5.1521876      0.0000000     ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0052 (s)
+      10 0.7101E-08 0.7101E-08
+BiCGStabl:       13 0.2069E-09 0.2069E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.53585     0.18442942E-04 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.03    0.03
+HeatSolve:  Result Norm   :    526.53584798682152
+HeatSolve:  Relative Change :    1.8442942143488510E-005
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=16) (NRM,RELC): (  526.53585     0.18442942E-04 ) :: heateq
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:           17
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current solver
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current solver
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+StatCurrentSolve:  Assembly (s)          :   8.6202000000000112E-002
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.01
+Prec-ilu1: Elapsed REAL time:     0.0054 (s)
+BiCGStabl:        1 0.9187E-08 0.9187E-08
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  5.1521883     0.13337354E-06 ) :: stat current solver
+StatCurrentSolve:  Solve (s)             :   7.0639999999997372E-003
+StatCurrentSolve:  Total Heating Power   :   2.2780211390710579E-003
+StatCurrentSolve:  Effective Resistance  :   21509.896971360613
+DefaultFinish: Finished solver: stat current solver
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=17) (NRM,RELC): (  5.1521883     0.13337354E-06 ) :: stat current solver
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heateq
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heateq
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 510 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 510
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveSystem: Previous solution must be stored before system is solved
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 8498
+SolveLinearSystem: Linear System Preconditioning: ilu1
+Prec0-ilu1: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstabl
+CRS_IncompleteLU: ILU(1) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(1) (Real), NOF nonzeros:    299317
+CRS_IncompleteLU: ILU(1) (Real), filling (%) :       165
+CRS_IncompleteLU: ILU(1) (Real), Factorization time (s):     0.00
+Prec-ilu1: Elapsed REAL time:     0.0051 (s)
+      10 0.2837E-08 0.2837E-08
+BiCGStabl:       13 0.2812E-09 0.2812E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): (  526.53133     0.85754652E-05 ) :: heateq
+HeatSolve: iter:    1 Assembly: (s)    0.22    0.22
+HeatSolve: iter:    1 Solve:    (s)    0.03    0.03
+HeatSolve:  Result Norm   :    526.53133271633669
+HeatSolve:  Relative Change :    8.5754652078619077E-006
+DefaultFinish: Finished solver: heateq
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=17) (NRM,RELC): (  526.53133     0.85754652E-05 ) :: heateq
+SingleSolver: Attempting to call solver: 3
+SingleSolver: Solver Equation string is: stress analysis
+StressSolve: 
+StressSolve: --------------------------------------------------
+StressSolve: Solving displacements from linear elasticity model
+StressSolve: --------------------------------------------------
+DefaultStart: Starting solver: stress analysis
+StressSolve: Starting assembly...
+StressSolve: Assembly:
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 1530 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 25494
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 1530
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 25494
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: Nonlinear iteration did not converge to tolerance
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.61508173E-06  2.0000000     ) :: stress analysis
+DefaultFinish: Finished solver: stress analysis
+StressSolver: All done
+StressSolver: ------------------------------------------
+SingleSolver: Attempting to call solver: 4
+SingleSolver: Solver Equation string is: savescalars
+SaveScalars: -----------------------------------------
+SaveScalars: Saving scalar values of various kinds
+SaveScalars: Performed 2 reduction operations
+SaveScalars: Found 2 result scalars in simulation section
+SaveScalars: Found 4 values to save in total
+SaveScalars: Showing computed results:
+SaveScalars:    1: max abs: temperature   1.121290584020E+003
+SaveScalars:    2: max abs: displacement   3.338934862093E-006
+SaveScalars:    3: res: total joule heating   2.278021139071E-003
+SaveScalars:    4: res: effective resistance   2.150989697136E+004
+SaveScalars: -----------------------------------------
+CompareToReferenceSolution: Solver 3 PASSED:  Norm = 6.15081726E-07  RefNorm = 6.14355600E-07
+CompareToReferenceSolution: Relative Error to reference norm: 1.181931E-03
+ReloadInputFile: Reloading input file
+LoadInputFile: Loading input file:
+CompareToReferenceSolution: PASSED all 1 tests!
+MAIN: Reporting unused list entries for sif improvement!
+MAIN: If you do not want these lines undefine > DEVEL_LISTUSAGE < !
+   Unused keywords:
+       Solver 1              calculate electric conductivity
+       Solver 3              steady state convergence tolerance
+MAIN: *** Elmer Solver: ALL DONE ***
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Finalize]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Finalize]
+Loading user function library: [HeatSolve]...[HeatSolver_Finalize]
+Loading user function library: [HeatSolve]...[HeatSolver_Finalize]
+Loading user function library: [StressSolve]...[StressSolver_Finalize]
+Loading user function library: [StressSolve]...[StressSolver_Finalize]
+Loading user function library: [SaveData]...[SaveScalars_Finalize]
+Loading user function library: [SaveData]...[SaveScalars_Finalize]
+MAIN: The end
+SOLVER TOTAL TIME(CPU,REAL):         8.22        8.69
+ELMER SOLVER FINISHED AT: 2026/09/12 15:38:59

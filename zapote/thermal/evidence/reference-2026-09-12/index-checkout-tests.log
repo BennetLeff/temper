@@ -1,0 +1,56 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling libc v0.2.189
+   Compiling serde_json v1.0.151
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling syn v3.0.5
+   Compiling serde_derive v1.0.229
+   Compiling serde v1.0.229
+   Compiling zapote-thermal v0.1.0 (/private/tmp/zapote-thermal-index-20260912/zapote/packages/zapote-thermal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.36s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_thermal-1a09dd6a8e723685)
+
+running 8 tests
+test tests::parser_rejects_missing_nonfinite_and_malformed_measurements ... ok
+test tests::validator_rejects_duplicate_mesh_measurements ... ok
+test tests::parse_real_elmer_labels_and_scalars ... ok
+test tests::captured_live_fixture_replay_fails_closed_when_scalar_or_log_changes ... ok
+test tests::runner_refuses_stale_output_directory_before_launching_solver ... ok
+test tests::process_failure_and_timeout_are_reported ... ok
+test tests::failed_preflight_retains_authoritative_report_and_command ... ok
+test tests::timeout_stops_descendant_writers ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+     Running unittests src/main.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_thermal_reference-ae7961e3e355222e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pinned_reference.rs (/private/tmp/zapote-rtd-target/debug/deps/pinned_reference-5eb7900bae9e37df)
+
+running 2 tests
+test replay_all_three_live_meshes_with_exact_inputs_and_raw_outputs ... ok
+test edited_deck_or_raw_result_cannot_retain_reference_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/strict_evidence.rs (/private/tmp/zapote-rtd-target/debug/deps/strict_evidence-8ebbe380949c4547)
+
+running 5 tests
+test rejects_malformed_column_trailer ... ok
+test rejects_trailing_malformed_or_extra_scalar_row ... ok
+test rejects_other_variable_named_max ... ok
+test rejects_duplicate_measurement_in_log ... ok
+test rejects_scalar_power_disagreeing_with_raw_log ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_thermal
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

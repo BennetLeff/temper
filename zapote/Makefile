@@ -1,4 +1,4 @@
-.PHONY: setup build check check-boards board-check qualify-buck engineering
+.PHONY: setup build check check-boards board-check qualify-buck engineering check-thermal-oracle
 
 HARNESS_DIR := ../harness-lab
 CARGO ?= cargo
@@ -36,6 +36,16 @@ ORACLE_RUN_DIR ?= validation/runs/pfc-oracle-$(shell date -u +%Y%m%dT%H%M%SZ)
 check-pfc-oracle:
 	@mkdir -p "$(dir $(ORACLE_RUN_DIR))"
 	$(CARGO) run --locked -p zapote-erc --example verify_pfc_spice -- "$(NGSPICE)" "$(ORACLE_RUN_DIR)"
+
+# Explicit live reference verification. Uses the bundled bar templates.
+GMSH ?= gmsh
+ELMERGRID ?= ElmerGrid
+ELMERSOLVER ?= ElmerSolver
+THERMAL_ORACLE_RUN_DIR ?= $(CURDIR)/validation/runs/thermal-oracle-$(shell date -u +%Y%m%dT%H%M%SZ)
+.PHONY: check-thermal-oracle
+check-thermal-oracle:
+	@mkdir -p "$(dir $(THERMAL_ORACLE_RUN_DIR))"
+	$(CARGO) run --locked -p zapote-thermal --bin zapote-thermal-reference -- "$(GMSH)" "$(ELMERGRID)" "$(ELMERSOLVER)" "$(THERMAL_ORACLE_RUN_DIR)"
 
 check-boards:
 	@set -e; for board in $(UNIT_BOARDS); do \

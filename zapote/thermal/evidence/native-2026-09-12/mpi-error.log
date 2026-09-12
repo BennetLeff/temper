@@ -1,0 +1,11 @@
+************************************************
+We have detected that the runtime version
+of the PMIx library we were given is binary
+incompatible with the version we were built against:
+
+    Runtime: 0x60100
+    Build:   0x50009
+
+Please update your LD_LIBRARY_PATH to point
+us to the same PMIx version used to build PRRTE.
+************************************************

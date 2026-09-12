@@ -1,0 +1,171 @@
+-- The Fortran compiler identification is GNU 16.2.0
+-- The C compiler identification is GNU 16.2.0
+-- The CXX compiler identification is GNU 16.2.0
+-- Checking whether Fortran compiler has -isysroot
+-- Checking whether Fortran compiler has -isysroot - no
+-- Checking whether Fortran compiler supports OSX deployment target flag
+-- Checking whether Fortran compiler supports OSX deployment target flag - no
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Check for working Fortran compiler: /opt/homebrew/bin/gfortran - skipped
+-- Checking whether C compiler has -isysroot
+-- Checking whether C compiler has -isysroot - no
+-- Checking whether C compiler supports OSX deployment target flag
+-- Checking whether C compiler supports OSX deployment target flag - no
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/homebrew/bin/gcc-16 - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Checking whether CXX compiler has -isysroot
+-- Checking whether CXX compiler has -isysroot - no
+-- Checking whether CXX compiler supports OSX deployment target flag
+-- Checking whether CXX compiler supports OSX deployment target flag - no
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/homebrew/bin/g++-16 - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detected Homebrew install at /opt/homebrew
+-- Checking whether GFortran version >= 7 -- yes
+-- Found OpenMP_C: -fopenmp (found version "5.2")
+-- Found OpenMP_CXX: -fopenmp (found version "5.2")
+-- Found OpenMP_Fortran: -fopenmp (found version "5.2")
+-- Found OpenMP: TRUE (found version "5.2")
+-- Found MPI_C: /opt/homebrew/Cellar/open-mpi/5.0.9/lib/libmpi.dylib (found version "3.1")
+-- Found MPI_CXX: /opt/homebrew/Cellar/open-mpi/5.0.9/lib/libmpi.dylib (found version "3.1")
+-- Found MPI_Fortran: /opt/homebrew/Cellar/open-mpi/5.0.9/lib/libmpi_usempif08.dylib (found version "3.1")
+-- Found MPI: TRUE (found version "3.1")
+-- Checking whether MPI_IN_PLACE is supported with /opt/homebrew/bin/mpif90
+-- Checking whether MPI_IN_PLACE is supported with /opt/homebrew/bin/mpif90 -- yes
+-- ------------------------------------------------
+-- Looking for Fortran sgemm
+-- Looking for Fortran sgemm - not found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Looking for Fortran dgemm
+-- Looking for Fortran dgemm - found
+-- Found BLAS: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework
+-- Looking for Fortran cheev
+-- Looking for Fortran cheev - found
+-- Found LAPACK: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;-lm;-ldl
+-- Checking whether /opt/homebrew/bin/gfortran supports PROCEDURE POINTER
+-- Checking whether /opt/homebrew/bin/gfortran supports PROCEDURE POINTER -- yes
+-- Checking whether /opt/homebrew/bin/gfortran supports CONTIGUOUS
+-- Checking whether /opt/homebrew/bin/gfortran supports CONTIGUOUS -- yes
+-- Checking whether /opt/homebrew/bin/gfortran supports EXECUTE_COMMAND_LINE
+-- Checking whether /opt/homebrew/bin/gfortran supports EXECUTE_COMMAND_LINE -- yes
+CMake Warning (policy) at /opt/homebrew/share/cmake/Modules/CheckIncludeFiles.cmake:172 (cmake_policy):
+  Policy CMP0075 is not set: Include file check macros honor
+  CMAKE_REQUIRED_LIBRARIES.  Run "cmake --help-policy CMP0075" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  CMAKE_REQUIRED_LIBRARIES is set to:
+
+    /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;-lm;-ldl
+
+  For compatibility with CMake 3.11 and below this check is ignoring it.
+Call Stack (most recent call first):
+  matc/CMakeLists.txt:4 (CHECK_INCLUDE_FILES)
+This warning is for project developers.  Use -Wno-author or -Wno-policy to
+suppress it.
+
+-- Looking for include file inttypes.h
+-- Looking for include file inttypes.h - found
+-- Using built-in UMFPACK
+-- Could NOT find LATEX (missing: LATEX_COMPILER PDFLATEX) 
+-- No PdfLaTeX found, hutidoc.pdf cannot be generated.
+-- Looking for sys/types.h
+CMake Warning (policy) at /opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:148 (cmake_policy):
+  Policy CMP0075 is not set: Include file check macros honor
+  CMAKE_REQUIRED_LIBRARIES.  Run "cmake --help-policy CMP0075" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  CMAKE_REQUIRED_LIBRARIES is set to:
+
+    /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;-lm;-ldl
+
+  For compatibility with CMake 3.11 and below this check is ignoring it.
+Call Stack (most recent call first):
+  /opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:457 (check_include_file)
+  fem/CMakeLists.txt:47 (CHECK_TYPE_SIZE)
+This warning is for project developers.  Use -Wno-author or -Wno-policy to
+suppress it.
+
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of long
+-- Check size of long - done
+-- Found 141 modules from /private/tmp/zapote-elmer-26.2.1-src/fem/src/modules
+--  ELMERSOLVER_RPATH_STRING_MOD @loader_path/../lib/elmersolver
+--  ELMERLIB_RPATH_STRING @loader_path/
+-- Skipping test ExtrudedMeshSlices with 12 procs
+-- Skipping test PoissonDG with 16 procs
+-- Skipping test WinkelPoissonMetisKwayDual with 16 procs
+-- Skipping test WinkelPoissonMetisKwayNodal with 16 procs
+-- Found 965 tests
+-- Looking for execinfo.h
+CMake Warning (policy) at /opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:148 (cmake_policy):
+  Policy CMP0075 is not set: Include file check macros honor
+  CMAKE_REQUIRED_LIBRARIES.  Run "cmake --help-policy CMP0075" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  CMAKE_REQUIRED_LIBRARIES is set to:
+
+    /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;-lm;-ldl
+
+  For compatibility with CMake 3.11 and below this check is ignoring it.
+Call Stack (most recent call first):
+  elmergrid/src/metis-5.1.0/GKlib/GKlibSystem.cmake:97 (check_include_file)
+  elmergrid/src/metis-5.1.0/CMakeLists.txt:21 (include)
+This warning is for project developers.  Use -Wno-author or -Wno-policy to
+suppress it.
+
+-- Looking for execinfo.h - found
+-- Looking for getline
+-- Looking for getline - found
+-- checking for thread-local storage - found
+-- ------------------------------------------------
+--   BLAS library:   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework
+--   LAPACK library: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;-lm;-ldl
+-- ------------------------------------------------
+--  UMFPACK library: Using internal Elmer library
+--  ARPACK library: Using internal Elmer library
+--  PARPACK library: Using internal Elmer library
+-- ------------------------------------------------
+--   Fortran compiler:        /opt/homebrew/bin/gfortran
+--   Fortran flags:            -fopenmp -fallow-argument-mismatch -O3
+-- ------------------------------------------------
+--   C compiler:              /opt/homebrew/bin/gcc-16
+--   C flags:                  -fopenmp -O3 -DNDEBUG
+-- ------------------------------------------------
+--   CXX compiler:            /opt/homebrew/bin/g++-16
+--   CXX flags:                -fopenmp -O3 -DNDEBUG
+-- ------------------------------------------------
+--   MPI Fortran:             TRUE
+--   MPI Fortran compiler:    /opt/homebrew/bin/mpif90
+--   MPI Fortran flags:       
+--   MPI Fortran include dir: /opt/homebrew/Cellar/open-mpi/5.0.9/include;/opt/homebrew/Cellar/open-mpi/5.0.9/lib
+--   MPI Fortran libraries:   /opt/homebrew/Cellar/open-mpi/5.0.9/lib/libmpi_usempif08.dylib;/opt/homebrew/Cellar/open-mpi/5.0.9/lib/libmpi_usempi_ignore_tkr.dylib;/opt/homebrew/Cellar/open-mpi/5.0.9/lib/libmpi_mpifh.dylib;/opt/homebrew/Cellar/open-mpi/5.0.9/lib/libmpi.dylib
+--   MPI Fortran link flags:  -Wl,-flat_namespace
+-- ------------------------------------------------
+--   MPI C:             TRUE
+--   MPI C compiler:    /opt/homebrew/bin/mpicc
+--   MPI C flags:       
+--   MPI C include dir: /opt/homebrew/Cellar/open-mpi/5.0.9/include
+--   MPI C libraries:   /opt/homebrew/Cellar/open-mpi/5.0.9/lib/libmpi.dylib
+--   MPI C flags:       
+-- ------------------------------------------------
+-- ------------------------------------------------
+--   Package filename: elmerfem-26.2-a19504a-20260912_Darwin-arm64 
+--   Patch version: 26.2-a19504a 
+-- Configuring done (16.2s)
+-- Generating done (2.4s)
+-- Build files have been written to: /private/tmp/zapote-elmer-26.2.1-build-gcc
