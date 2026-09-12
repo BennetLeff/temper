@@ -1,0 +1,16 @@
+{
+  "flat": true,
+  "module_to_sheet": {
+    "power_entry": "PowerEntry"
+  },
+  "root_sheet": "section.kicad_sch",
+  "schema_version": 1,
+  "sheet_description": "Generated from PowerEntryUnit Atopile source",
+  "sheet_files": {
+    "PowerEntry": "section.kicad_sch"
+  },
+  "sheets": [
+    "PowerEntry"
+  ],
+  "title": "Standalone PFC Power-Entry Unit"
+}

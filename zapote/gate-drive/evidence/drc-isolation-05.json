@@ -1,0 +1,268 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-11T22:14:25",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.8236 mm)",
+            "items": [
+                {
+                    "description": "Via [v15_ls] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.5,
+                        "y": 40.5
+                    },
+                    "uuid": "aee23c8a-1927-48b6-866e-aaedd2554dbb"
+                },
+                {
+                    "description": "Track [gate_h_kelvin] on F.Cu, length 1.3250 mm",
+                    "pos": {
+                        "x": 56.875,
+                        "y": 38.095
+                    },
+                    "uuid": "dc16b0b5-b09a-438a-9db3-22414e8fb2ee"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.9917 mm)",
+            "items": [
+                {
+                    "description": "Track [gate_h_kelvin] on F.Cu, length 1.3250 mm",
+                    "pos": {
+                        "x": 56.875,
+                        "y": 38.095
+                    },
+                    "uuid": "dc16b0b5-b09a-438a-9db3-22414e8fb2ee"
+                },
+                {
+                    "description": "Pad 1 [v15_ls] of C2 on F.Cu",
+                    "pos": {
+                        "x": 59.725,
+                        "y": 40.5
+                    },
+                    "uuid": "f6146402-7fca-4ab5-bbfd-33077e0005f6"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.8236 mm)",
+            "items": [
+                {
+                    "description": "Track [v15_ls] on B.Cu, length 2.1213 mm",
+                    "pos": {
+                        "x": 60.0,
+                        "y": 42.0
+                    },
+                    "uuid": "64819ce6-1541-46e4-bb32-45dbec55ba49"
+                },
+                {
+                    "description": "Via [gate_h_kelvin] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.2,
+                        "y": 38.095
+                    },
+                    "uuid": "e8f5c0a1-8df2-472f-901e-9d4b1099b474"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.8736 mm)",
+            "items": [
+                {
+                    "description": "Track [v15_ls] on F.Cu, length 1.2250 mm",
+                    "pos": {
+                        "x": 58.5,
+                        "y": 40.5
+                    },
+                    "uuid": "575201a6-a491-4d62-b1fc-cc1d1108cf8a"
+                },
+                {
+                    "description": "Track [gate_h_kelvin] on F.Cu, length 1.3250 mm",
+                    "pos": {
+                        "x": 56.875,
+                        "y": 38.095
+                    },
+                    "uuid": "dc16b0b5-b09a-438a-9db3-22414e8fb2ee"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.8736 mm)",
+            "items": [
+                {
+                    "description": "Track [v15_ls] on F.Cu, length 1.2250 mm",
+                    "pos": {
+                        "x": 58.5,
+                        "y": 40.5
+                    },
+                    "uuid": "575201a6-a491-4d62-b1fc-cc1d1108cf8a"
+                },
+                {
+                    "description": "Via [gate_h_kelvin] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.2,
+                        "y": 38.095
+                    },
+                    "uuid": "e8f5c0a1-8df2-472f-901e-9d4b1099b474"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.8236 mm)",
+            "items": [
+                {
+                    "description": "Via [v15_ls] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.5,
+                        "y": 40.5
+                    },
+                    "uuid": "aee23c8a-1927-48b6-866e-aaedd2554dbb"
+                },
+                {
+                    "description": "Via [gate_h_kelvin] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.2,
+                        "y": 38.095
+                    },
+                    "uuid": "e8f5c0a1-8df2-472f-901e-9d4b1099b474"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.9969 mm)",
+            "items": [
+                {
+                    "description": "Pad 14 [gate_h_kelvin] of U1 on F.Cu",
+                    "pos": {
+                        "x": 56.875,
+                        "y": 38.095
+                    },
+                    "uuid": "904d64b4-3be0-41b7-b608-f7bb7d1863b5"
+                },
+                {
+                    "description": "Via [v15_ls] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.5,
+                        "y": 40.5
+                    },
+                    "uuid": "aee23c8a-1927-48b6-866e-aaedd2554dbb"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.9917 mm)",
+            "items": [
+                {
+                    "description": "Via [gate_h_kelvin] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.2,
+                        "y": 38.095
+                    },
+                    "uuid": "e8f5c0a1-8df2-472f-901e-9d4b1099b474"
+                },
+                {
+                    "description": "Pad 1 [v15_ls] of C2 on F.Cu",
+                    "pos": {
+                        "x": 59.725,
+                        "y": 40.5
+                    },
+                    "uuid": "f6146402-7fca-4ab5-bbfd-33077e0005f6"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.8236 mm)",
+            "items": [
+                {
+                    "description": "Via [v15_ls] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.5,
+                        "y": 40.5
+                    },
+                    "uuid": "aee23c8a-1927-48b6-866e-aaedd2554dbb"
+                },
+                {
+                    "description": "Via [gate_h_kelvin] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 58.2,
+                        "y": 38.095
+                    },
+                    "uuid": "e8f5c0a1-8df2-472f-901e-9d4b1099b474"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'HS_LS_WORKING_SPACING' clearance 2.0000 mm; actual 1.5000 mm)",
+            "items": [
+                {
+                    "description": "Pad 1 [vdda] of D1 on F.Cu",
+                    "pos": {
+                        "x": 65.0,
+                        "y": 22.0
+                    },
+                    "uuid": "669883fb-90dd-4a3c-861c-3a473d86931a"
+                },
+                {
+                    "description": "Pad 2 [v15_ls] of D1 on F.Cu",
+                    "pos": {
+                        "x": 69.0,
+                        "y": 22.0
+                    },
+                    "uuid": "edbe450f-8f0c-40c3-bf0d-18af756172ed"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        }
+    ]
+}

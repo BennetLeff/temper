@@ -1,0 +1,112 @@
+{
+  "status": "indeterminate",
+  "findings": [
+    {
+      "rule": "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+      "severity": "info",
+      "status": "pass",
+      "message": "reviewed parts and all package-pin nets match the native export",
+      "object": "GateDriveUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.BOARD.STACKUP",
+      "severity": "info",
+      "status": "pass",
+      "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+      "object": "board.setup.stackup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+      "severity": "info",
+      "status": "pass",
+      "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.GATE_DRIVE.SAVED_BYTES",
+      "severity": "info",
+      "status": "pass",
+      "message": "native evidence contains these exact PCB bytes",
+      "object": "board",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.CLEARANCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "native copper clears 0.2 mm fabrication floor",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.DOMAIN_SEPARATION",
+      "severity": "info",
+      "status": "pass",
+      "message": "native copper clears 8 mm fabrication floor",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.DOMAIN_SEPARATION",
+      "severity": "info",
+      "status": "pass",
+      "message": "native copper clears 2 mm fabrication floor",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.GATE_DRIVE.BYPASS_LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "c_vcci.1 to driver.3: Some(2.625) mm <=5 mm",
+      "object": "c_vcci",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.GATE_DRIVE.BYPASS_LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "c_ls.1 to driver.11: Some(3.056718011200905) mm <=5 mm",
+      "object": "c_ls",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.GATE_DRIVE.BYPASS_LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "c_boot.1 to driver.16: Some(3.6811037746849777) mm <=5 mm",
+      "object": "c_boot",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.GATE_DRIVE.SAVED_BYTES",
+    "DRC.NATIVE.CLEARANCE",
+    "DRC.NATIVE.DOMAIN_SEPARATION",
+    "DRC.NATIVE.DOMAIN_SEPARATION",
+    "DRC.GATE_DRIVE.BYPASS_LOCALITY"
+  ],
+  "coverage_gaps": [
+    "unlisted native nets are out of scope: ctrl_gnd, dis, dt, g, nc_7, permit, pwm_h, pwm_l, v3v3",
+    "Spacing thresholds are prototype requirements; insulation system certification is not established.",
+    "Dead-time interpolation uses an assumed characterization envelope; measured timing is NOT RUN.",
+    "Bootstrap effective capacitance, diode recovery, gate charge, ringing and loaded thermal performance are NOT RUN.",
+    "Native ERC/DRC reports must additionally pass zapote-native-reports with their command receipts."
+  ]
+}

@@ -1,0 +1,271 @@
+{
+  "before_sha256": "be74986d93bd912156d57b55abd5acbe64237e610053c718bdecc5004b3db700",
+  "after_sha256": "f23c746af965ae0160d53120195548350192386718437632e06bab4ff6d7256f",
+  "footprints": [
+    {
+      "reference": "U12",
+      "library_sha256": "0db985f3635e55a37c193d0cbc0ca4e8b9c896e81c11342c1d9ded8897ca33f4",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U24",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U22",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U42",
+      "library_sha256": "5301303268f72ba9cc94b7fdbac355951933e6854272ce8d300b679b86b5d45d",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U27",
+      "library_sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U49",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U47",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U5",
+      "library_sha256": "11ba1c700e9c3debcda5229804e41d78760ca13d1a151f24497c6dabccb8bd1e",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U17",
+      "library_sha256": "abab4bf8eeb3ed03061d8eeb56b542cdac074ce8a0ace0f9b06e933c0b48f297",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U26",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U46",
+      "library_sha256": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U7",
+      "library_sha256": "c6b5831416e48d4c246920931abb928dfa61ef85043d57d131d0a3166fdd0496",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U40",
+      "library_sha256": "2c9b91fdffde233a81589e34a2c83cee2d2619e8612e3643ed3c0644b73beab9",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U32",
+      "library_sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U52",
+      "library_sha256": "abab4bf8eeb3ed03061d8eeb56b542cdac074ce8a0ace0f9b06e933c0b48f297",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U9",
+      "library_sha256": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U30",
+      "library_sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U25",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U29",
+      "library_sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U28",
+      "library_sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U1",
+      "library_sha256": "1957edb1157d8bd6da2457fc5f50c0c60d4e8ca4fba4e968952d28ad79c9b38b",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U15",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U19",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U4",
+      "library_sha256": "3c13cecd040b04f5375270474337fa637683b981abf5532c87bb7ab735cff447",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U18",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U21",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U44",
+      "library_sha256": "5301303268f72ba9cc94b7fdbac355951933e6854272ce8d300b679b86b5d45d",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U48",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U34",
+      "library_sha256": "f7cba3b52ed8b34dce89170722de58324eac04e9e61a095e0eab37b9ca93cb7f",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U43",
+      "library_sha256": "5301303268f72ba9cc94b7fdbac355951933e6854272ce8d300b679b86b5d45d",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U2",
+      "library_sha256": "3c7f5dcc040d26bc6efc3afb7ee8f0ccf20b220a39fa82e75e89a0122313d0ea",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U10",
+      "library_sha256": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U50",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U35",
+      "library_sha256": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U45",
+      "library_sha256": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U37",
+      "library_sha256": "1c82628a22ea923253d7f967ca092d216088e65ef2ee77345f162fb20cfde011",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U36",
+      "library_sha256": "1c82628a22ea923253d7f967ca092d216088e65ef2ee77345f162fb20cfde011",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U14",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U31",
+      "library_sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U8",
+      "library_sha256": "abe60a9abc33e089fb8531686a05f7f5b970bca42b591c4fd5aebf1db1f8cf19",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U53",
+      "library_sha256": "abab4bf8eeb3ed03061d8eeb56b542cdac074ce8a0ace0f9b06e933c0b48f297",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U20",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U16",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U23",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U39",
+      "library_sha256": "1c82628a22ea923253d7f967ca092d216088e65ef2ee77345f162fb20cfde011",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U38",
+      "library_sha256": "1c82628a22ea923253d7f967ca092d216088e65ef2ee77345f162fb20cfde011",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U51",
+      "library_sha256": "120239f9f4ff837cd8970353c813e81818cc5f208922d06884e6fde30975f436",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U41",
+      "library_sha256": "f1ae86ba0c0cd52b24a15821f512bed2c4f09874e4611575300d5313c7e7e173",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U6",
+      "library_sha256": "2f92ccd67ea3637987cf4f30be131d98245ffb81edb3de2ae547e8d68864abd4",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U11",
+      "library_sha256": "074ecb2092b24fa4b4b9cdd7c926fc587b0d7d6d21e7341e57935fd42d36894f",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U13",
+      "library_sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U3",
+      "library_sha256": "f71b3cd9c6b744b313106d18f0d68eff37eadc8125b4571d8267890293cbaab0",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U33",
+      "library_sha256": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+      "pad_centres_preserved": true
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{"author":"gate-drive: explicit point-to-point first candidate; no path search","nets":[
+ {"net":"pwm_h","paths":[{"points":["J1.1","U1.1"],"layer":"F.Cu","width_mm":0.25}]},
+ {"net":"pwm_l","paths":[{"points":["J1.2","U1.2"],"layer":"F.Cu","width_mm":0.25}]},
+ {"net":"permit","paths":[{"points":["J1.3","R1.1"],"layer":"F.Cu","width_mm":0.25}]},
+ {"net":"ctrl_gnd","paths":[{"points":["J1.4","J5.2"],"layer":"B.Cu","width_mm":0.3},{"points":["J5.2","C1.2"],"layer":"B.Cu","width_mm":0.3},{"points":["C1.2","U1.4"],"layer":"B.Cu","width_mm":0.3},{"points":["U1.4","Q1.2"],"layer":"B.Cu","width_mm":0.3},{"points":["Q1.2","R4.2"],"layer":"B.Cu","width_mm":0.3}]},
+ {"net":"v15_ls","paths":[{"points":["J2.1","C3.1"],"layer":"B.Cu","width_mm":0.5},{"points":["C3.1","C2.1"],"layer":"B.Cu","width_mm":0.5},{"points":["C2.1","D1.2"],"layer":"F.Cu","width_mm":0.5},{"points":["D1.2","U1.11"],"layer":"F.Cu","width_mm":0.5}]},
+ {"net":"gate_l_kelvin","paths":[{"points":["J2.2","J4.2"],"layer":"B.Cu","width_mm":0.5},{"points":["J4.2","R8.2"],"layer":"B.Cu","width_mm":0.5},{"points":["R8.2","U1.9"],"layer":"B.Cu","width_mm":0.5},{"points":["U1.9","C2.2"],"layer":"B.Cu","width_mm":0.5}]},
+ {"net":"gate_h_kelvin","paths":[{"points":["J3.2","R6.2"],"layer":"B.Cu","width_mm":0.5},{"points":["R6.2","U1.14"],"layer":"B.Cu","width_mm":0.5},{"points":["U1.14","C4.2"],"layer":"B.Cu","width_mm":0.5}]},
+ {"net":"gate_h_out","paths":[{"points":["J3.1","R6.1"],"layer":"F.Cu","width_mm":0.5},{"points":["R6.1","R5.2"],"layer":"F.Cu","width_mm":0.5}]},
+ {"net":"gate_l_out","paths":[{"points":["J4.1","R8.1"],"layer":"F.Cu","width_mm":0.5},{"points":["R8.1","R7.2"],"layer":"F.Cu","width_mm":0.5}]},
+ {"net":"v3v3","paths":[{"points":["J5.1","C1.1"],"layer":"F.Cu","width_mm":0.3},{"points":["C1.1","U1.3"],"layer":"F.Cu","width_mm":0.3},{"points":["U1.3","R3.2"],"layer":"F.Cu","width_mm":0.3},{"points":["R3.2","U1.8"],"layer":"F.Cu","width_mm":0.3}]},
+ {"net":"dis","paths":[{"points":["R3.1","U1.5"],"layer":"F.Cu","width_mm":0.25},{"points":["U1.5","Q1.3"],"layer":"F.Cu","width_mm":0.25}]},
+ {"net":"dt","paths":[{"points":["U1.6","R4.1"],"layer":"F.Cu","width_mm":0.25}]},
+ {"net":"g","paths":[{"points":["R1.2","Q1.1"],"layer":"F.Cu","width_mm":0.25},{"points":["Q1.1","R2.1"],"layer":"F.Cu","width_mm":0.25}]},
+ {"net":"outa","paths":[{"points":["U1.15","R5.1"],"layer":"F.Cu","width_mm":0.5}]},
+ {"net":"outb","paths":[{"points":["U1.10","R7.1"],"layer":"F.Cu","width_mm":0.5}]},
+ {"net":"vdda","paths":[{"points":["U1.16","C4.1"],"layer":"F.Cu","width_mm":0.5},{"points":["C4.1","D1.1"],"layer":"F.Cu","width_mm":0.5}]}
+]}

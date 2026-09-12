@@ -1,0 +1,31 @@
+{
+  "attempt_id": "power-entry-001",
+  "architecture": "single-phase CCM boost PFC",
+  "source_revision": "bb0fcd6de784231c16af49f6716f7186e33bb80c",
+  "source": "elec/src/power_entry_unit.ato:PowerEntryUnit",
+  "atopile_version": "0.2.69",
+  "source_sha256": "cfa7865343b735788025564bc1a1f9efd4cd321ffb43022c9694f9a5dc8974f2",
+  "reference": "TI SLUP348, Design review of a 2-kW parallelable power-supply module, pp. 9-13",
+  "parts": {
+    "controller": "UCC28180D",
+    "boost_inductor": "Vishay IHV30EB150 (150 uH / 30 A; hot/core-loss at 130 kHz pending)",
+    "mosfet": "STW65N65DM2 (650 V)",
+    "sic_diode": "C3D20065D (650 V)",
+    "bridge": "GBU2510A (1000 V / 25 A)",
+    "bulk": "B43504A5567M000 x4 (560 uF / 450 V)",
+    "shunt": "WSL2726R0100FEA (10 mOhm / 3 W)"
+  },
+  "open_controls": [
+    "15 A RMS ceiling and low-line power foldback control law",
+    "inductor hot-current and saturation verification",
+    "capacitor 120 Hz plus switching-frequency ripple-current margin",
+    "MOSFET/SiC diode thermal and switching stress",
+    "UCC28180 compensation, current-limit and voltage-loop design",
+    "bridge/NTC/bypass/EMI integration and connector ratings",
+    "native schematic/PCB placement, ERC/DRC and saved-board stackup"
+  ],
+  "compiled_output": "source-build-16",
+  "resolved_components_sha256": "1191f03cbd0dfd506c76257169eb85d780c1761909b2799f28e7d67649cd9208",
+  "status": "source compiled and native 2-layer board initialized with manufacturer-derived exact-part footprints; unrouted and not qualified",
+  "native_output": "native-04/power_entry.kicad_pcb"
+}

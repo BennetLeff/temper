@@ -1,0 +1,14 @@
+{
+  "status": "emitted-native-verification-required",
+  "source_netlist_sha256": "30691aa4b45076d41fbf77153d4b52c79922838e0de0bddf2fc6e01ea000b3f7",
+  "source_bom_sha256": "66756034574330c1ec941b41c52ea4e29571bad39134e4e40e8bbc408341d688",
+  "helper_sha256": "f9bc6512f0aca9df257de1afad976df20ccd2d67e58ebecc15154c0301a4320e",
+  "outputs": {
+    "section.kicad_sch": "c7c60f0232794d294f56f3c296595c1ff7f642017f6e5b033d7c2329949bcfc3",
+    "gate-drive-unit.kicad_sym": "6d631c2c9e18b0123bef1012f655820a6931650e59badc52a6ebd32c73080e7d",
+    "sym-lib-table": "a989a3b1ba4170e74abeecb4c923dbe6b1c87291d42431a9126b3a7325f9ce04"
+  },
+  "component_count": 20,
+  "native_erc": "NOT RUN",
+  "pcb_touched": false
+}

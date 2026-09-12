@@ -1,0 +1,23 @@
+{
+  "schema": "zapote.construction-checkpoint.v1",
+  "construction_status": "pass",
+  "physical_tests": "NOT RUN",
+  "qualification": "indeterminate",
+  "board_size_mm": [
+    100,
+    80
+  ],
+  "native_erc_findings": 0,
+  "native_drc_geometry_findings": 0,
+  "native_schematic_parity_findings": 0,
+  "native_unconnected_links": 0,
+  "files": {
+    "zapote/gate-drive/candidate/section.kicad_pcb": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+    "zapote/gate-drive/candidate/section.kicad_sch": "c7c60f0232794d294f56f3c296595c1ff7f642017f6e5b033d7c2329949bcfc3",
+    "zapote/gate-drive/candidate/source-manifest.json": "dd201269a944141d9351bf62d380ae3eca1f8100cf1891f85f0fe9af8e2ac09b",
+    "zapote/gate-drive/evidence/native-09.json": "064fbfab09a823b401ca2e1d949a5e83ce2a8121d2523ba667cb477259c57805",
+    "zapote/gate-drive/evidence/rust-09.json": "1e6b6b5a3073fc9a119441178b0c925306b1e0a3f375934130f5016f72a1c7d0",
+    "zapote/gate-drive/evidence/drc-09.json": "126211beb13b2389d24328a25f73c807329a5f2432d4a7daec8a082aa7708ac1",
+    "elec/src/gate_drive_unit.ato": "6e81398feb135f9a7382033173beda50f7a9cb8b7602ccab00a032f4fe40b2b1"
+  }
+}

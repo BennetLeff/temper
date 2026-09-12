@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "sch",
+    "erc",
+    "--severity-all",
+    "--format",
+    "json",
+    "--output",
+    "zapote/gate-drive/evidence/erc-09.json",
+    "zapote/gate-drive/candidate/section.kicad_sch"
+  ],
+  "returncode": 0,
+  "input_sha256": "c7c60f0232794d294f56f3c296595c1ff7f642017f6e5b033d7c2329949bcfc3"
+}

@@ -1,0 +1,10 @@
+{
+  "mpn": "1714971",
+  "manufacturer": "Phoenix Contact",
+  "family": "MKDS 5/2-9,5",
+  "source": "https://www.phoenixcontact.com/us/products/1714971/pdf",
+  "dimensions_mm": {"width": 19.04, "length": 12.05, "installed_height": 21.5, "pitch": 9.52, "hole_diameter": 1.3, "pin": "0.9 x 0.9"},
+  "ratings": {"current_a": 32, "voltage_v_iii2": 1000},
+  "footprint": "zapote/power-entry/libraries/temper.pretty/Phoenix_1714971.kicad_mod",
+  "status": "manufacturer-derived; native source rebuild not rerun"
+}

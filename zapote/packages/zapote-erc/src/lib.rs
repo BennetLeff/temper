@@ -5,6 +5,11 @@ use zapote_core::{CheckReport, FaultScenario, Finding, RunInput};
 
 pub mod current_sense;
 pub mod interlock;
+pub mod gate_drive;
+pub mod power_stage_models;
+pub mod pfc_control;
+pub mod power_entry;
+pub mod source_circuit;
 
 const ADC_PINS: [&str; 8] = [
     "BIAS", "REFIN_P", "REFIN_N", "ISENSOR", "FORCE_P", "FORCE_N", "RTDIN_P", "RTDIN_N",

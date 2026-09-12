@@ -1,0 +1,107 @@
+{
+  "attempt_id": "power-entry-001",
+  "source_revision": "bb0fcd6de784231c16af49f6716f7186e33bb80c",
+  "prepared_context": {
+    "path": "zapote/power-entry/memory/attempt-001/prepared-context.json",
+    "required_note_ids": [
+      "interlock-mem-001"
+    ],
+    "used_note_ids": [
+      "rtd-mem-001",
+      "current-sense-mem-001",
+      "voltage-sense-mem-001",
+      "thermal-sense-mem-001",
+      "thermal-sense-mem-002",
+      "interlock-mem-001"
+    ],
+    "decisions": [
+      "Used interlock-mem-001 to require nested sheets[].violations parsing and actual compiled-pin connectivity checks.",
+      "Used current-sense-mem-001 to require a package-specific land-pattern review before interpreting geometry.",
+      "Used voltage-sense-mem-001 to keep electrical identity independent from footprint identity and preserve source/native hashes.",
+      "Used rtd-mem-001, thermal-sense-mem-001 and thermal-sense-mem-002 as portable guidance to keep omitted physical behavior INDETERMINATE and avoid accepting nominal arithmetic as qualification."
+    ]
+  },
+  "source": {
+    "status": "authored",
+    "atopile_version": "0.2.69",
+    "entry": "source-build-12/elec/src/power_entry_unit.ato:PowerEntryUnit"
+  },
+  "construction": {
+    "status": "source-compiled",
+    "attempts": [
+      {
+        "directory": "source-build-02",
+        "status": "blocked-before-generation",
+        "reason": "initial online uvx path could not fetch Atopile: sandbox DNS/PyPI unavailable"
+      },
+      {
+        "directory": "source-build-05",
+        "status": "compiled-and-exported",
+        "architecture": "rejected voltage doubler prototype",
+        "returncode": 0
+      },
+      {
+        "directory": "source-build-06",
+        "status": "compiled-and-exported",
+        "architecture": "active CCM boost PFC prototype without input stage",
+        "returncode": 0
+      },
+      {
+        "directory": "source-build-07",
+        "status": "compiled-and-exported",
+        "architecture": "active CCM boost PFC with fused EMI/NTC/bypass input stage",
+        "returncode": 0
+      },
+      {
+        "directory": "source-build-08",
+        "status": "compiled-and-exported",
+        "architecture": "full UCC28180 control graph with initial wrong rectifier/shunt pin maps; retained rejected",
+        "returncode": 0
+      },
+      {
+        "directory": "source-build-09",
+        "status": "compiled-and-exported",
+        "architecture": "audited UCC28180 control graph with corrected GBU2510/C3D20065D pin maps, shunt polarity, ISENSE clamp and 10 kOhm gate pulldown",
+        "command": "uv tool run --offline --from atopile==0.2.69 ato --non-interactive build elec/src/power_entry_unit.ato:PowerEntryUnit",
+        "returncode": 0
+      },
+      {
+        "directory": "source-build-10",
+        "status": "compiled-and-exported",
+        "architecture": "active PFC with explicit chassis Y1 and external connectors; superseded by source-build-11 after fuse logical-footprint correction",
+        "returncode": 0
+      },
+      {
+        "directory": "source-build-11",
+        "status": "compiled-and-exported",
+        "architecture": "active PFC with single physical fuse holder and logical replaceable link",
+        "returncode": 0
+      },
+      {
+        "directory": "source-build-12",
+        "status": "compiled-and-exported",
+        "architecture": "active PFC with explicit passive MPN fields; native transport blocked by absent custom 2725 shunt footprint and strict bridge freshness environment",
+        "returncode": 0
+      },
+      {
+        "directory": "source-build-16",
+        "status": "compiled-and-exported",
+        "architecture": "audited active PFC with corrected relay drop, split HV feedback, HOT auxiliary return, and manufacturer-derived footprints",
+        "returncode": 0
+      }
+    ],
+    "note": "The rejected doubler and wrong-control source are retained; source-build-09 is the current audited PFC prototype."
+  },
+  "native_erc": {
+    "status": "not-run",
+    "native_board": "native-04/power_entry.kicad_pcb"
+  },
+  "native_drc": {
+    "status": "not-run",
+    "native_board": "native-04/power_entry.kicad_pcb"
+  },
+  "rust_validation": {
+    "status": "not-run"
+  },
+  "qualification": "PFC source prototype only; 15 A RMS low-line foldback, magnetics hot-current, ripple, thermal, EMI and native geometry qualification remain unrun"
+}

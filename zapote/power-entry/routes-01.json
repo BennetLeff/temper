@@ -1,0 +1,26 @@
+{
+  "attempt_id": "power-entry-001",
+  "candidate_index": 1,
+  "status": "source-only",
+  "board": null,
+  "policy": "explicit-authored-paths-only",
+  "outline_mm": {"width": 180, "height": 140},
+  "domains": {
+    "mains": ["AC_L_IN", "AC_N_IN"],
+    "pe": ["PE_CHASSIS"],
+    "control": ["RELAY_BYPASS_CTRL", "CONTROL_GND"],
+    "hv": ["DC_BUS_PLUS", "DC_BUS_MIDPOINT", "DC_BUS_MINUS"]
+  },
+  "paths": [
+    {"name":"line", "sequence":["AC_L_IN","FH1","F1","RV1/Cx1","L1.W1_1","L1.W1_2","RT1/K1.COM","D1.A","D1.K","DC_BUS_PLUS"]},
+    {"name":"neutral", "sequence":["AC_N_IN","L1.W2_1","L1.W2_2","DC_BUS_MIDPOINT"]},
+    {"name":"lower-rectifier", "sequence":["DC_BUS_MIDPOINT","D2.K","D2.A","DC_BUS_MINUS"]},
+    {"name":"bleed-upper", "sequence":["DC_BUS_PLUS","R1","DC_BUS_MIDPOINT"]},
+    {"name":"bleed-lower", "sequence":["DC_BUS_MIDPOINT","R2","DC_BUS_MINUS"]},
+    {"name":"pe-y1", "sequence":["DC_BUS_MIDPOINT","CY1","PE_CHASSIS"]},
+    {"name":"relay-control", "sequence":["RELAY_BYPASS_CTRL","R_GATE","Q1.G","Q1.S","CONTROL_GND"]},
+    {"name":"aux-relay-supply", "sequence":["AUX_15V_IN","R_RELAY_DROP","K1.coil1","K1.coil2","CONTROL_GND","AUX_15V_RETURN"]}
+  ],
+  "high_current": {"declared_rms_a": 15.0, "minimum_route_width_mm": "to be derived from copper stackup", "minimum_connector_rating_a": 16.0},
+  "result": "HARDFAIL for 1800 W / 120 VAC qualification pending derived input RMS/PFC decision; source prototype retained, native board not yet generated"
+}

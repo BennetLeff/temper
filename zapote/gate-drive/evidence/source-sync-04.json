@@ -1,0 +1,152 @@
+{
+  "component_count": 20,
+  "input_board_sha256": "010691c84810f1608ffd7f7e0c066bd6582316356ee1e588d135512f3b4d3ace",
+  "kicad_version": "10.0.4",
+  "manifest_sha256": "02e4065dc702c6f003ffe1249ab5f5fc13e7f8472a8ae5fec8d87168b7685942",
+  "operations": [
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_vcci",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C1",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "c_ls",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C2",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "instance_path": "c_ls_bulk",
+      "mpn": "GRM32ER71H106KA12L",
+      "reference": "C3",
+      "source_value": "10uF +/- 20%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "instance_path": "c_boot",
+      "mpn": "GRM32ER71H106KA12L",
+      "reference": "C4",
+      "source_value": "10uF +/- 20%"
+    },
+    {
+      "footprint": "Diode_SMD:D_SMA",
+      "instance_path": "d_boot",
+      "mpn": "ES1J",
+      "reference": "D1",
+      "source_value": ""
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "instance_path": "host",
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "reference": "J1",
+      "source_value": ""
+    },
+    {
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "instance_path": "supply",
+      "mpn": "61300211121",
+      "reference": "J2",
+      "source_value": ""
+    },
+    {
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "instance_path": "gate_h",
+      "mpn": "61300211121",
+      "reference": "J3",
+      "source_value": ""
+    },
+    {
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "instance_path": "gate_l",
+      "mpn": "61300211121",
+      "reference": "J4",
+      "source_value": ""
+    },
+    {
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "instance_path": "vcc_3v3",
+      "mpn": "61300211121",
+      "reference": "J5",
+      "source_value": ""
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "instance_path": "permit_sw",
+      "mpn": "AO3400A",
+      "reference": "Q1",
+      "source_value": ""
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_permit_series",
+      "mpn": "RC0603FR-071KL",
+      "reference": "R1",
+      "source_value": "1kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_permit_pd",
+      "mpn": "RC0603FR-07100KL",
+      "reference": "R2",
+      "source_value": "100kohm +/- 5%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_dis_pu",
+      "mpn": "RC0603FR-0710KL",
+      "reference": "R3",
+      "source_value": "10kohm +/- 5%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "dt",
+      "mpn": "RC0603FR-0739KL",
+      "reference": "R4",
+      "source_value": "39kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "rg_h",
+      "mpn": "RC1206FR-073R9L",
+      "reference": "R5",
+      "source_value": "3.9ohm +/- 5%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "rgs_h",
+      "mpn": "RC0603FR-072K2L",
+      "reference": "R6",
+      "source_value": "2.2kohm +/- 5%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "instance_path": "rg_l",
+      "mpn": "RC1206FR-073R9L",
+      "reference": "R7",
+      "source_value": "3.9ohm +/- 5%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "rgs_l",
+      "mpn": "RC0603FR-072K2L",
+      "reference": "R8",
+      "source_value": "2.2kohm +/- 5%"
+    },
+    {
+      "footprint": "lib:SOIC16W_Isolated",
+      "instance_path": "driver",
+      "mpn": "UCC21550BDWKR",
+      "reference": "U1",
+      "source_value": ""
+    }
+  ],
+  "output_board_sha256": "9bb25f6d4f42c201c0a9955ac141287c195bab5a69ee39e42c3581d2f7c05986",
+  "physical_tests": "NOT RUN",
+  "schema": "zapote.current-sense.source-property-sync-receipt.v1",
+  "status": "source-properties-synchronized"
+}

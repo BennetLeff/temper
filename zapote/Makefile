@@ -3,7 +3,7 @@
 HARNESS_DIR := ../harness-lab
 CARGO ?= cargo
 # Register each maintained Zapote unit here. Missing files fail closed.
-UNIT_BOARDS := rtd/unit/candidate/section.kicad_pcb current-sense/candidate/section.kicad_pcb voltage-sense/candidate/section.kicad_pcb thermal-sense/candidate/section.kicad_pcb interlock/candidate/section.kicad_pcb
+UNIT_BOARDS := rtd/unit/candidate/section.kicad_pcb current-sense/candidate/section.kicad_pcb voltage-sense/candidate/section.kicad_pcb thermal-sense/candidate/section.kicad_pcb interlock/candidate/section.kicad_pcb gate-drive/candidate/section.kicad_pcb power-entry/candidate/section.kicad_pcb
 
 setup:
 	$(CARGO) metadata --locked --offline --no-deps --format-version 1 > /dev/null

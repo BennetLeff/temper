@@ -1,0 +1,23 @@
+{
+  "schema": "zapote.construction-checkpoint.v1",
+  "construction_status": "fail",
+  "physical_tests": "NOT RUN",
+  "qualification": "indeterminate",
+  "board_size_mm": [
+    230,
+    190
+  ],
+  "native_erc_findings": 0,
+  "native_drc_geometry_findings": 0,
+  "native_schematic_parity_findings": 0,
+  "native_unconnected_links": 94,
+  "files": {
+    "zapote/power-entry/candidate/section.kicad_pcb": "3520fd3feebae42d092fc3b6ed4f9940b37b24d06c780d63c6c148996f6df24c",
+    "zapote/power-entry/candidate/section.kicad_sch": "dc4d0b7825dcc3aafd29ebc59227f01fec0e5748747d99100fddd0b2bd7124ec",
+    "zapote/power-entry/candidate/source-manifest.json": "9bc7bbcd3c31b4f9ce600e15f10c3c68e7ad67b9c89160bec337c9fefeb5bb9c",
+    "zapote/power-entry/evidence/native-05.json": "70c247d3ca9fd043c117e0e68f5ca7756861ee1f1cfca8b80da4cd2fa5cebfc7",
+    "zapote/power-entry/evidence/rust-05.json": "b95fd797bb87e99f3cee8eabbbb2bd20a170d13297e8af2f25e9a45691e6b484",
+    "zapote/power-entry/evidence/drc-05.json": "c29a6d0e706471ba182854c2111e3c586d04b348e730041a71c088ae9169b033",
+    "elec/src/power_entry_unit.ato": "bee418e281a8601bb75c8681a4fb122e551ab5dfd242ef0c7d4bb6e39840fff8"
+  }
+}

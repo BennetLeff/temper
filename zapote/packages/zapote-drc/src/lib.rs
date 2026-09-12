@@ -1,6 +1,7 @@
 //! RTD physical placement, rail, decoupling, locality, and noise checks.
 
 pub mod current_sense;
+pub mod domain_clearance;
 pub(crate) mod donor_clearance;
 mod donor_geometry;
 mod donor_sexpr;

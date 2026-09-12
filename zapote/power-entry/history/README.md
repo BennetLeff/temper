@@ -1,0 +1,1 @@
+Historical attempt directories are compressed to avoid maintaining repeated copies of the source tree. The archive preserves unit-relative paths and their original bytes. Extract from the unit directory when investigating an old receipt. The current candidate and latest source-build directory remain expanded.

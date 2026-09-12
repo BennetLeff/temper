@@ -255,6 +255,7 @@ def vendor_candidate_libs(
     bridge: dict[str, Any],
     repo: Path,
     lib_dir: Path,
+    local_libraries: Path | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     """Copy every used footprint into the candidate; return the fp-lib-table
     plus per-footprint provenance (source path + bytes hash).
@@ -282,9 +283,14 @@ def vendor_candidate_libs(
         dest_dir = lib_dir / f"{lib}.pretty"
         dest_dir.mkdir(exist_ok=True)
         dest = dest_dir / f"{fp}.kicad_mod"
-        if lib in ("lib", "temper", "Temper_RTD"):
-            source = repo / "pcb" / "libs" / f"{lib}.pretty" / f"{fp}.kicad_mod"
-            origin = f"pcb/libs/{lib}.pretty/{fp}.kicad_mod"
+        local_source = (local_libraries / f"{lib}.pretty" / f"{fp}.kicad_mod") if local_libraries else None
+        if local_source is not None and local_source.is_file():
+            source = local_source
+            origin = str(source.relative_to(repo))
+        elif lib in ("lib", "temper", "Temper_RTD"):
+            root = local_libraries if local_libraries is not None else repo / "pcb" / "libs"
+            source = root / f"{lib}.pretty" / f"{fp}.kicad_mod"
+            origin = str(source.relative_to(repo))
         else:
             source, origin = _stock_footprint_source(nickname, repo)
         if not source.is_file():

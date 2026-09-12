@@ -2,7 +2,7 @@
 //! World pad geometry and connectivity remain outputs of the pinned KiCad extractor.
 use crate::donor_sexpr::{parse_document, unquote, Sexpr};
 use serde_json::{json, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use zapote_core::{CheckReport, Finding};
 const RULE: &str = "DRC.NATIVE.DOCUMENT_BINDING";
 fn items(n: &Sexpr) -> Result<&[Sexpr], String> {
@@ -71,12 +71,49 @@ fn inspect(n: &Value) -> Result<(), String> {
     }
     let mut saved = BTreeMap::new();
     let mut exported = BTreeMap::new();
+    let mut saved_holes = BTreeMap::new();
+    let mut exported_holes = BTreeMap::new();
+    let mut saved_uuids = BTreeSet::new();
+    let mut exported_uuids = BTreeSet::new();
     for fp in children(&board, "footprint")? {
         let id = property(fp, "SourceInstance")?;
         let mut pins = BTreeMap::new();
-        for pad in children(fp, "pad")? {
+        let pads = children(fp, "pad")?;
+        let mut counts = BTreeMap::<String, usize>::new();
+        for pad in &pads {
+            *counts.entry(atom(items(pad)?.get(1))?).or_default() += 1;
+        }
+        for pad in pads {
             let pin = atom(items(pad)?.get(1))?;
-            put(&mut pins, pin, json!(scalar(pad, "net")?))?;
+            let uuid_nodes = children(pad, "uuid")?;
+            if uuid_nodes.len() > 1 {
+                return Err("duplicate pad UUID field".into());
+            }
+            let uuid = uuid_nodes.first().map(|_| scalar(pad, "uuid")).transpose()?;
+            if let Some(uuid) = &uuid {
+                if uuid.trim().is_empty() || !saved_uuids.insert(uuid.clone()) {
+                    return Err("empty or duplicate saved pad UUID".into());
+                }
+            }
+            if atom(items(pad)?.get(2))? == "np_thru_hole" {
+                if !pin.is_empty() || !children(pad, "net")?.is_empty() {
+                    return Err("mechanical hole has electrical pin/net".into());
+                }
+                put(&mut saved_holes, uuid.ok_or("mechanical hole requires UUID")?, json!({"component":id}))?;
+                continue;
+            }
+            let key = if counts[&pin] > 1 {
+                format!("{}#{}", pin, uuid.ok_or("repeated physical pin requires UUID")?)
+            } else {
+                pin.clone()
+            };
+            let net = scalar(pad, "net")?;
+            let value = if counts[&pin] > 1 {
+                json!({"pin":pin,"net":net})
+            } else {
+                json!(net)
+            };
+            put(&mut pins, key, value)?;
         }
         put(
             &mut saved,
@@ -86,12 +123,44 @@ fn inspect(n: &Value) -> Result<(), String> {
     }
     for c in n["components"].as_array().ok_or("missing components")? {
         let mut pins = BTreeMap::new();
-        for p in c["footprint_pads"].as_array().ok_or("missing pads")? {
-            put(
-                &mut pins,
-                p["pad"].as_str().ok_or("missing pin")?.into(),
-                p["net"].clone(),
-            )?;
+        let pads = c["footprint_pads"].as_array().ok_or("missing pads")?;
+        let mut counts = BTreeMap::<&str, usize>::new();
+        for p in pads {
+            *counts
+                .entry(p["pad"].as_str().ok_or("missing pin")?)
+                .or_default() += 1;
+        }
+        for p in pads {
+            let pin = p["pad"].as_str().ok_or("missing pin")?;
+            if let Some(uuid) = p["uuid"].as_str() {
+                if uuid.trim().is_empty() || !exported_uuids.insert(uuid.to_owned()) {
+                    return Err("empty or duplicate exported pad UUID".into());
+                }
+            }
+            if p["pad_type"].as_str() == Some("np_thru_hole") {
+                if !pin.is_empty() || p["net"].as_str() != Some("") {
+                    return Err("exported mechanical hole has electrical pin/net".into());
+                }
+                put(&mut exported_holes, p["uuid"].as_str().ok_or("mechanical hole requires UUID")?.to_owned(), json!({"component":c["id"]}))?;
+                continue;
+            }
+            let key = if counts[pin] > 1 {
+                format!(
+                    "{}#{}",
+                    pin,
+                    p["uuid"]
+                        .as_str()
+                        .ok_or("duplicate physical pin requires UUID")?
+                )
+            } else {
+                pin.to_owned()
+            };
+            let value = if counts[pin] > 1 {
+                json!({"pin":pin,"net":p["net"]})
+            } else {
+                p["net"].clone()
+            };
+            put(&mut pins, key, value)?;
         }
         put(
             &mut exported,
@@ -99,7 +168,7 @@ fn inspect(n: &Value) -> Result<(), String> {
             json!({"mpn":c["mpn"],"pins":pins}),
         )?;
     }
-    if saved != exported {
+    if saved != exported || saved_holes != exported_holes {
         return Err("exported component/MPN/pad nets differ from saved board".into());
     }
     saved.clear();

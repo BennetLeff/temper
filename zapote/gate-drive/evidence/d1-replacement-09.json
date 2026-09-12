@@ -1,0 +1,13 @@
+{
+  "old_footprint": "Diode_SMD:D_SMA",
+  "new_footprint": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
+  "reference": "D1",
+  "old_block_sha256": "80cf14bf998e37d71d16cda37bddc751904676c9b72c70f13481ff9fd5366b9f",
+  "new_block_sha256": "ecefb3d26df5cdce6441c81dc9e6def05e5ae565bb91bb44581440afa3356880",
+  "anchor_mm": [
+    63.0,
+    22.0
+  ],
+  "angle_deg": 0.0,
+  "source": "native-build-09/section.kicad_pcb"
+}

@@ -71,6 +71,47 @@ def initialize(repo: Path, board_path: Path, receipt_path: Path) -> None:
     if list(board.GetTracks()) or list(board.Zones()):
         raise ValueError("initialization requires a source-generated board without copper")
     board.SetCopperLayerCount(2)
+    # The donor text skeleton rotates pad positions but leaves each pad body's
+    # angle at its library-local value. Ask KiCad to place a fresh library copy
+    # at the authored pose; only repair body angles once positions and the full
+    # numbered-pad census agree with that external oracle.
+    pad_orientation_repairs = []
+    for footprint in board.GetFootprints():
+        if footprint.GetLayer() != pcbnew.F_Cu:
+            raise ValueError("source initialization supports front-side footprints only")
+        identity = footprint.GetFPID()
+        library = board_path.parent / "candidate-libs" / (str(identity.GetLibNickname()) + ".pretty")
+        oracle = pcbnew.FootprintLoad(str(library), str(identity.GetLibItemName()))
+        if oracle is None:
+            raise ValueError(f"native library oracle missing for {identity.GetLibNickname()}:{identity.GetLibItemName()}")
+        oracle.SetOrientationDegrees(footprint.GetOrientationDegrees())
+        oracle.SetPosition(footprint.GetPosition())
+        def physical_key(pad):
+            position = pad.GetPosition()
+            return pad.GetNumber(), position.x, position.y
+
+        observed = {physical_key(pad): pad for pad in footprint.Pads()}
+        expected = {physical_key(pad): pad for pad in oracle.Pads()}
+        if (len(observed) != len(list(footprint.Pads()))
+                or len(expected) != len(list(oracle.Pads()))):
+            raise ValueError("coincident duplicate physical pads cannot be disambiguated")
+        if observed.keys() != expected.keys():
+            raise ValueError(f"pad-position oracle mismatch: {footprint.GetReference()}")
+        uuids = [pad.m_Uuid.AsString() for pad in footprint.Pads()]
+        if len(set(uuids)) != len(uuids):
+            raise ValueError("duplicate physical pad UUID")
+        for key, pad in observed.items():
+            number = key[0]
+            target = expected[key]
+            old_angle = pad.GetOrientationDegrees()
+            new_angle = target.GetOrientationDegrees()
+            if abs((old_angle - new_angle + 180.0) % 360.0 - 180.0) > 1e-7:
+                pad.SetOrientationDegrees(new_angle)
+                pad_orientation_repairs.append({
+                    "reference": footprint.GetReference(), "pad": number,
+                    "before_deg": old_angle, "after_deg": new_angle,
+                    "library_sha256": sha256(library / (str(identity.GetLibItemName()) + ".kicad_mod")),
+                })
     settings = board.GetDesignSettings()
     settings.m_MinClearance = pcbnew.FromMM(MIN_CLEARANCE_MM)
     settings.m_TrackMinWidth = pcbnew.FromMM(MIN_TRACK_WIDTH_MM)
@@ -153,6 +194,8 @@ def initialize(repo: Path, board_path: Path, receipt_path: Path) -> None:
         "via_drill_mm": VIA_DRILL_MM,
         "physical_tests": "NOT RUN",
         "placement_and_routing": "operator-owned; no functional copper authored",
+        "pad_body_orientation_oracle": "KiCad native placement of the vendored footprint",
+        "pad_orientation_repairs": pad_orientation_repairs,
     }
     receipt_path.parent.mkdir(parents=True, exist_ok=True)
     receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")

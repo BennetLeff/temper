@@ -23,6 +23,7 @@ io = pcbnew.PCB_IO_KICAD_SEXPR()
 board = io.LoadBoard(str(p), None)
 before = hashlib.sha256(p.read_bytes()).hexdigest()
 record = []
+uuid_replacements = {}
 for old in list(board.GetFootprints()):
     if old.GetLayer() != pcbnew.F_Cu:
         raise ValueError("only front-side footprint refresh is supported")
@@ -34,21 +35,34 @@ for old in list(board.GetFootprints()):
     fp.SetOrientation(old.GetOrientation())
     old_pads = list(old.Pads())
     new_pads = list(fp.Pads())
-    pads = {q.GetNumber(): q for q in old_pads}
-    new_numbers = [q.GetNumber() for q in new_pads]
-    if (
-        len(pads) != len(old_pads)
-        or len(set(new_numbers)) != len(new_numbers)
-        or set(pads) != set(new_numbers)
-        or "" in pads
-    ):
-        raise ValueError("pad census differs or contains unsupported duplicate/unnumbered pads")
-    for q in fp.Pads():
-        prior = pads[q.GetNumber()]
+    # GetPosition() is already in board/world coordinates after placement and
+    # orientation.  Number alone is insufficient for relays and other
+    # multi-pad packages with repeated physical numbers; NPTH uses "".
+    def key(q):
+        pos = q.GetPosition()
+        return (str(q.GetNumber()), int(pos.x), int(pos.y))
+
+    old_keys = [key(q) for q in old_pads]
+    new_keys = [key(q) for q in new_pads]
+    if len(set(old_keys)) != len(old_keys):
+        raise ValueError("saved footprint has coincident duplicate pad centres")
+    if len(set(new_keys)) != len(new_keys):
+        raise ValueError("native library has coincident duplicate pad centres")
+    old_by_key = dict(zip(old_keys, old_pads))
+    new_by_key = dict(zip(new_keys, new_pads))
+    if set(old_by_key) != set(new_by_key):
+        raise ValueError("pad census differs by number/world centre; routing must be redone")
+    for k, q in new_by_key.items():
+        prior = old_by_key[k]
         if q.GetPosition() != prior.GetPosition():
             raise ValueError("pad centre differs; routing must be redone")
-        q.SetNet(prior.GetNet())
+        # KiCad's Python binding exposes KIID read-only.  Record the mapping
+        # and apply it to the serialized board after the native replacement.
+        uuid_replacements[q.m_Uuid.AsString()] = prior.m_Uuid.AsString()
+        if q.GetNumber() != "" and prior.GetNet():
+            q.SetNet(prior.GetNet())
     fp.SetPath(old.GetPath())
+    uuid_replacements[fp.m_Uuid.AsString()] = old.m_Uuid.AsString()
     fp.SetReference(old.GetReference())
     fp.SetValue(old.GetValue())
     for f in old.GetFields():
@@ -58,7 +72,7 @@ for old in list(board.GetFootprints()):
         f.SetVisible(False)
     ref = fp.Reference()
     ref.SetVisible(True)
-    ref.SetLayer(pcbnew.F_SilkS)
+    ref.SetLayer(old.Reference().GetLayer())
     ref.SetTextAngle(old.Reference().GetTextAngle())
     ref.SetPosition(old.Reference().GetPosition())
     ref.SetTextSize(old.Reference().GetTextSize())
@@ -75,6 +89,12 @@ for old in list(board.GetFootprints()):
     board.Remove(old)
     board.Add(fp)
 io.SaveBoard(str(p), board)
+data = p.read_bytes()
+for i, (new_uuid, old_uuid) in enumerate(uuid_replacements.items()):
+    marker = f"00000000-0000-0000-0000-{i:012d}"
+    data = data.replace(new_uuid.encode(), marker.encode())
+    data = data.replace(marker.encode(), old_uuid.encode())
+p.write_bytes(data)
 args.receipt.write_text(
     json.dumps(
         {

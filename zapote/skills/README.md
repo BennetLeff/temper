@@ -105,3 +105,8 @@ The [thermal-sense-lessons-v1](revisions/thermal-sense-lessons-v1/catalog.json) 
 The [thermal-sense-lessons-v2](revisions/thermal-sense-lessons-v2/catalog.json) revision adds analog open-wire margin, threshold-crossing timing and fault-injection procedures from Rev B. Earlier exact thermal behavior remains historical, not a reusable board fact.
 
 The [interlock-lessons-v1](revisions/interlock-lessons-v1/catalog.json) revision adds stateful compiled-graph counterexamples, package-pin review and the correct nested KiCad ERC report boundary. The [interlock memory record](../interlock/memory/README.md) preserves the preceding catalog selection and review limits.
+
+The [gate-power-lessons-v1](revisions/gate-power-lessons-v1/catalog.json) revision
+adds a portable note separating assigned pin nets, physical pad census and actual
+copper connectivity. It links the accepted gate-drive construction checkpoint and
+the explicitly rejected unrouted PFC candidate. Earlier revisions remain unchanged.

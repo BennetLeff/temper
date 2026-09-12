@@ -1,0 +1,141 @@
+ERC report (2026-09-11T21:56:26, Encoding UTF8)
+Report includes: Errors, Warnings, Exclusions
+
+***** Sheet /
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(35.56 mm, 83.34 mm): Symbol J1 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(35.56 mm, 113.34 mm): Symbol Q1 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(35.56 mm, 140.80 mm): Symbol R5 Pin 1 [1, Bidirectional, Line]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(50.80 mm, 50.80 mm): Symbol C1 [C0603C104K5RACTU]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Connector_JST'
+    ; warning
+    @(50.80 mm, 80.80 mm): Symbol J1 [B4B-XH-A_LF__SN_]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(50.80 mm, 80.80 mm): Symbol J1 [B4B-XH-A_LF__SN_]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(50.80 mm, 110.80 mm): Symbol Q1 [AO3400A]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(50.80 mm, 140.80 mm): Symbol R5 [RC1206FR-073R9L]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(75.56 mm, 50.80 mm): Symbol C2 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(75.56 mm, 80.80 mm): Symbol J2 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(75.56 mm, 110.80 mm): Symbol R1 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(75.56 mm, 140.80 mm): Symbol R6 Pin 1 [1, Bidirectional, Line]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(90.80 mm, 50.80 mm): Symbol C2 [C0603C104K5RACTU]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(90.80 mm, 80.80 mm): Symbol J2 [61300211121]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(90.80 mm, 110.80 mm): Symbol R1 [RC0603FR-071KL]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(90.80 mm, 140.80 mm): Symbol R6 [RC0603FR-071KL]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(115.56 mm, 50.80 mm): Symbol C3 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(115.56 mm, 80.80 mm): Symbol J3 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(115.56 mm, 110.80 mm): Symbol R2 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(115.56 mm, 140.80 mm): Symbol R7 Pin 1 [1, Bidirectional, Line]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(130.80 mm, 50.80 mm): Symbol C3 [GRM32ER71H106KA12L]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(130.80 mm, 80.80 mm): Symbol J3 [61300211121]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(130.80 mm, 110.80 mm): Symbol R2 [RC0603FR-071KL]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(130.80 mm, 140.80 mm): Symbol R7 [RC1206FR-073R9L]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(155.56 mm, 50.80 mm): Symbol C4 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(155.56 mm, 80.80 mm): Symbol J4 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(155.56 mm, 110.80 mm): Symbol R3 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(155.56 mm, 140.80 mm): Symbol R8 Pin 1 [1, Bidirectional, Line]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(170.80 mm, 50.80 mm): Symbol C4 [GRM32ER71H106KA12L]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(170.80 mm, 80.80 mm): Symbol J4 [61300211121]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(170.80 mm, 110.80 mm): Symbol R3 [RC0603FR-071KL]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(170.80 mm, 140.80 mm): Symbol R8 [RC0603FR-071KL]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(195.56 mm, 50.80 mm): Symbol D1 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(195.56 mm, 80.80 mm): Symbol J5 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(195.56 mm, 110.80 mm): Symbol R4 Pin 1 [1, Bidirectional, Line]
+[isolated_pin_label]: Label connected to only one pin
+    ; warning
+    @(195.56 mm, 125.56 mm): Global Label 'nc_7'
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(195.56 mm, 156.04 mm): Symbol U1 Pin 1 [1, Bidirectional, Line]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Diode_SMD'
+    ; warning
+    @(210.80 mm, 50.80 mm): Symbol D1 [ES1J]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(210.80 mm, 50.80 mm): Symbol D1 [ES1J]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(210.80 mm, 80.80 mm): Symbol J5 [61300211121]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(210.80 mm, 110.80 mm): Symbol R4 [RC0603FR-071KL]
+[footprint_link_issues]: The current configuration does not include the footprint library 'lib'
+    ; warning
+    @(210.80 mm, 140.80 mm): Symbol U1 [UCC21550BDWKR]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(210.80 mm, 140.80 mm): Symbol U1 [UCC21550BDWKR]
+
+ ** ERC messages: 43  Errors 0  Warnings 43
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters

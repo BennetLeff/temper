@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "drc",
+    "--refill-zones",
+    "--save-board",
+    "--all-track-errors",
+    "--schematic-parity",
+    "--severity-all",
+    "--format",
+    "json",
+    "--output",
+    "zapote/gate-drive/evidence/drc-08.json",
+    "zapote/gate-drive/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "board_sha256": "6f5594eda78618eaf4e11cf49429c05aea4c652e9894cd527d79d6108c99c5e7"
+}

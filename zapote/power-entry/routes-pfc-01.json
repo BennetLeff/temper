@@ -1,0 +1,56 @@
+{
+  "schema": "zapote.power-entry.reviewed-routing-plan.v1",
+  "status": "REJECTED: prose incorrectly bypassed boost stage; never replay as copper",
+  "candidate": "candidate/native-02/section.kicad_pcb",
+  "corridors": [
+    {
+      "net_group": "AC_L_RECTIFIED_INPUT",
+      "layer": "F.Cu",
+      "width_mm": 3.0,
+      "path": "mains -> fuse -> CMC -> NTC -> bridge AC1"
+    },
+    {
+      "net_group": "AC_N_RECTIFIED_INPUT",
+      "layer": "F.Cu",
+      "width_mm": 3.0,
+      "path": "mains -> CMC -> bridge AC2"
+    },
+    {
+      "net_group": "PFC_BUS_PLUS_390V",
+      "layer": "F.Cu",
+      "width_mm": 8.0,
+      "path": "bridge PLUS -> bulk PLUS; local branch to boost diode"
+    },
+    {
+      "net_group": "PFC_SWITCH_LOOP",
+      "layer": "F.Cu",
+      "width_mm": 8.0,
+      "path": "bulk PLUS -> boost choke -> MOSFET drain -> boost diode -> bulk PLUS"
+    },
+    {
+      "net_group": "PFC_BUS_MINUS",
+      "layer": "B.Cu",
+      "width_mm": 8.0,
+      "path": "bridge MINUS -> shunt -> bulk MINUS; Kelvin branch at shunt"
+    },
+    {
+      "net_group": "PE_CHASSIS",
+      "layer": "F.Cu",
+      "width_mm": 1.0,
+      "path": "mains PE -> Y1 only; keep >=6mm from HOT copper"
+    },
+    {
+      "net_group": "CONTROL_HOT",
+      "layer": "F.Cu",
+      "width_mm": 0.25,
+      "path": "PFC controller and sensing; keep >=3.2mm from unrelated HOT nets"
+    }
+  ],
+  "constraints": [
+    "No auto-router",
+    "No straight-line all-net routing",
+    "8mm high-current trunk with short pad necks only",
+    "Keep heatsink/thermal keepouts provisional"
+  ],
+  "rejection": "Bridge PLUS connects only to choke input. Choke output/MOSFET drain/diode anodes form SW. Only diode cathode connects bulk PLUS. All AC high-current trunks also need current/thermal sizing, not the former 3mm assumption."
+}

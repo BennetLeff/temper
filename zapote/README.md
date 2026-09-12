@@ -34,6 +34,8 @@ The [standalone voltage-sense / OVP unit](voltage-sense/README.md) adds the next
 
 The [standalone thermal unit](thermal-sense/README.md) adds two external-NTC channels, loaded-feedback trip/release modeling, exact connectivity controls and a routed native PCB. Rev B adds conditional open-wire detection; physical qualification remains separate.
 
+The [isolated gate-drive unit](gate-drive/README.md) has a routed 100 × 80 mm candidate with clean native ERC/DRC and passing Rust construction checks; physical qualification is unrun. The [active PFC power-entry unit](power-entry/README.md) preserves the 1,800 W nominal AC-input target. Its 230 × 190 mm candidate is placed but unrouted: 94 native unconnected links and a Rust connectivity failure prevent acceptance. See the [two-board demo](demo-gate-power/index.html).
+
 [Engineering memory](skills/README.md) connects reviewed, versioned lessons to
 construction inputs through Rust selection and a thin process transport. The
 existing `harness-lab/` remains available for legacy experiments. The old Python

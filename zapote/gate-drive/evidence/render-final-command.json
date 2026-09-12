@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "render",
+    "--width",
+    "1600",
+    "--height",
+    "1000",
+    "--side",
+    "top",
+    "--quality",
+    "high",
+    "--rotate",
+    "325,0,35",
+    "--output",
+    "zapote/gate-drive/evidence/gate-drive-final.png",
+    "zapote/gate-drive/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "board_sha256": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+  "png_sha256": "1d44c1f777702df1cae9f387229b3c6bf2ea1c94d57e592ba837ac277e68954d"
+}

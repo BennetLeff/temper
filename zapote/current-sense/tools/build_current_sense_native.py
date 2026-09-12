@@ -149,6 +149,7 @@ def build(
     entry_module: str = ENTRY_MODULE,
     entry_file: str = "elec/src/current_sense_unit.ato",
     title: str = "Standalone Current-Sensing Unit",
+    local_libraries: Path | None = None,
 ) -> None:
     if output.exists():
         raise FileExistsError(f"refusing to overwrite native output: {output}")
@@ -230,7 +231,7 @@ def build(
     }
     output.mkdir(parents=True)
     table, libraries = block_source.vendor_candidate_libs(
-        section, bridge, repo, output / "candidate-libs"
+        section, bridge, repo, output / "candidate-libs", local_libraries=local_libraries
     )
     nicknames = {component["reference"]: component["footprint"] for component in section_bridge["components"]}
     census = block_source.footprint_pad_census(table, set(nicknames.values()))

@@ -1,0 +1,553 @@
+{
+  "candidate": "native-02",
+  "source": "source-build-18",
+  "board": "candidate/native-02/section.kicad_pcb",
+  "schematic": "candidate/native-02/section.kicad_sch",
+  "outline_mm": [
+    0,
+    0,
+    230,
+    190
+  ],
+  "source_hashes": {
+    "resolved-components.json": "67bb3457a80e36fbd806239350dfb0d3b80a10469fa687ef85c3dea45fdc8444",
+    "default.net": "59fc3796aa840732069a4f85e74958440844bf766a4d5bf87360e0d56a1ac787",
+    "default.csv": "eaad73fa1f8aa1514350508754cd9cffef40cacbbfdd2fcac243e24b54a4c02a"
+  },
+  "checks": {
+    "erc": {
+      "command": "kicad-cli sch erc --severity-all --format json",
+      "returncode": 0,
+      "violations": 118
+    },
+    "drc": {
+      "command": "kicad-cli pcb drc --all-track-errors --severity-all --schematic-parity --format json",
+      "returncode": 0,
+      "violations": 336,
+      "unconnected": 94,
+      "schematic_parity": [
+        {
+          "description": "Value (U6) doesn't match symbol value (0.22uF)",
+          "items": [
+            {
+              "description": "Footprint U6",
+              "pos": {
+                "x": 155.0,
+                "y": 25.0
+              },
+              "uuid": "df9beb96-0d49-d3b9-7ee4-1e0ae16dc019"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Missing footprint U8 (760800301)",
+          "items": [],
+          "severity": "warning",
+          "type": "missing_footprint"
+        },
+        {
+          "description": "Value (U12) doesn't match symbol value (10mohm)",
+          "items": [
+            {
+              "description": "Footprint U12",
+              "pos": {
+                "x": 130.0,
+                "y": 110.0
+              },
+              "uuid": "0806cfd7-cf67-35e3-5dd1-1b1accb2a887"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U13) doesn't match symbol value (10ohm)",
+          "items": [
+            {
+              "description": "Footprint U13",
+              "pos": {
+                "x": 130.0,
+                "y": 50.0
+              },
+              "uuid": "e92bbc38-1ad3-1cca-d3c7-74078ab00ab8"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U14) doesn't match symbol value (10kohm)",
+          "items": [
+            {
+              "description": "Footprint U14",
+              "pos": {
+                "x": 155.0,
+                "y": 50.0
+              },
+              "uuid": "a0fc607a-3a2f-6a2a-bc21-8093582ddfcb"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U15) doesn't match symbol value (1kohm)",
+          "items": [
+            {
+              "description": "Footprint U15",
+              "pos": {
+                "x": 180.0,
+                "y": 50.0
+              },
+              "uuid": "6a3a06a2-9b43-c818-71ee-de65d7ca3316"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U16) doesn't match symbol value (100kohm)",
+          "items": [
+            {
+              "description": "Footprint U16",
+              "pos": {
+                "x": 205.0,
+                "y": 50.0
+              },
+              "uuid": "bf1b1375-905a-8774-84de-491c7e9bdabe"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U17) doesn't match symbol value (91ohm)",
+          "items": [
+            {
+              "description": "Footprint U17",
+              "pos": {
+                "x": 30.0,
+                "y": 75.0
+              },
+              "uuid": "35324ce9-d161-ef64-9676-9569d5a85092"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U18) doesn't match symbol value (220ohm)",
+          "items": [
+            {
+              "description": "Footprint U18",
+              "pos": {
+                "x": 55.0,
+                "y": 75.0
+              },
+              "uuid": "7b58e29d-438a-8282-0668-81075b829a70"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U19) doesn't match symbol value (16.2kohm)",
+          "items": [
+            {
+              "description": "Footprint U19",
+              "pos": {
+                "x": 80.0,
+                "y": 75.0
+              },
+              "uuid": "755a9f1f-59f7-9b84-cb07-67db3366b50c"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U20) doesn't match symbol value (200kohm)",
+          "items": [
+            {
+              "description": "Footprint U20",
+              "pos": {
+                "x": 105.0,
+                "y": 75.0
+              },
+              "uuid": "b528260c-8170-9abd-c1bf-3500e20542d7"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U21) doesn't match symbol value (200kohm)",
+          "items": [
+            {
+              "description": "Footprint U21",
+              "pos": {
+                "x": 130.0,
+                "y": 75.0
+              },
+              "uuid": "7c3ec589-39ff-b930-3b99-d64c69b24832"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U22) doesn't match symbol value (200kohm)",
+          "items": [
+            {
+              "description": "Footprint U22",
+              "pos": {
+                "x": 155.0,
+                "y": 75.0
+              },
+              "uuid": "11ee1922-5ab0-6d44-aa0a-c79b3b22c06d"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U23) doesn't match symbol value (200kohm)",
+          "items": [
+            {
+              "description": "Footprint U23",
+              "pos": {
+                "x": 180.0,
+                "y": 75.0
+              },
+              "uuid": "c1f013b1-03ec-b4ed-d9aa-ac35ab78bf88"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U24) doesn't match symbol value (200kohm)",
+          "items": [
+            {
+              "description": "Footprint U24",
+              "pos": {
+                "x": 205.0,
+                "y": 75.0
+              },
+              "uuid": "0a1871a6-26a3-b24c-a112-5e66f15911a1"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U25) doesn't match symbol value (13kohm)",
+          "items": [
+            {
+              "description": "Footprint U25",
+              "pos": {
+                "x": 30.0,
+                "y": 100.0
+              },
+              "uuid": "5ebcd29e-6063-1dbf-a55d-a6134e730e18"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U26) doesn't match symbol value (40.2kohm)",
+          "items": [
+            {
+              "description": "Footprint U26",
+              "pos": {
+                "x": 55.0,
+                "y": 100.0
+              },
+              "uuid": "3ca2027f-5d39-8951-ac05-b11f7cfd9455"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U27) doesn't match symbol value (1uF)",
+          "items": [
+            {
+              "description": "Footprint U27",
+              "pos": {
+                "x": 80.0,
+                "y": 100.0
+              },
+              "uuid": "211557b0-7f95-d341-9d22-b23724fe20cc"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U28) doesn't match symbol value (2.7nF)",
+          "items": [
+            {
+              "description": "Footprint U28",
+              "pos": {
+                "x": 105.0,
+                "y": 100.0
+              },
+              "uuid": "665766a8-a0ab-7839-a061-ea6ae4272c65"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U29) doesn't match symbol value (4.7uF)",
+          "items": [
+            {
+              "description": "Footprint U29",
+              "pos": {
+                "x": 130.0,
+                "y": 100.0
+              },
+              "uuid": "5f6b6bb7-7ce6-8c70-5c69-128c149b3966"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U30) doesn't match symbol value (220nF)",
+          "items": [
+            {
+              "description": "Footprint U30",
+              "pos": {
+                "x": 155.0,
+                "y": 100.0
+              },
+              "uuid": "5aad4c79-8bd9-d186-7f7b-f377a46ff2b1"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U31) doesn't match symbol value (1nF)",
+          "items": [
+            {
+              "description": "Footprint U31",
+              "pos": {
+                "x": 180.0,
+                "y": 100.0
+              },
+              "uuid": "a3978c8e-703d-f412-8758-c4e328bf40be"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U32) doesn't match symbol value (680pF)",
+          "items": [
+            {
+              "description": "Footprint U32",
+              "pos": {
+                "x": 205.0,
+                "y": 100.0
+              },
+              "uuid": "4f589c16-9b24-e30b-cf05-81c03e3b219c"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U36) doesn't match symbol value (560uF)",
+          "items": [
+            {
+              "description": "Footprint U36",
+              "pos": {
+                "x": 135.0,
+                "y": 50.0
+              },
+              "uuid": "9db73a23-0727-7f0d-9f2c-cd3d4fe16e67"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U37) doesn't match symbol value (560uF)",
+          "items": [
+            {
+              "description": "Footprint U37",
+              "pos": {
+                "x": 177.0,
+                "y": 50.0
+              },
+              "uuid": "9892d8cb-a2d2-745b-ef0c-7fad2f851221"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U38) doesn't match symbol value (560uF)",
+          "items": [
+            {
+              "description": "Footprint U38",
+              "pos": {
+                "x": 135.0,
+                "y": 93.0
+              },
+              "uuid": "c365fe03-e018-1dfe-f4bc-4e544f46e84a"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U39) doesn't match symbol value (560uF)",
+          "items": [
+            {
+              "description": "Footprint U39",
+              "pos": {
+                "x": 177.0,
+                "y": 93.0
+              },
+              "uuid": "c2542375-63dc-1072-283a-1a1d4ac07198"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U40) doesn't match symbol value (1nF)",
+          "items": [
+            {
+              "description": "Footprint U40",
+              "pos": {
+                "x": 160.0,
+                "y": 165.0
+              },
+              "uuid": "4bada7e5-be3d-f2ee-e54d-a6b428b6f069"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U47) doesn't match symbol value (100kohm)",
+          "items": [
+            {
+              "description": "Footprint U47",
+              "pos": {
+                "x": 180.0,
+                "y": 150.0
+              },
+              "uuid": "276ae882-125d-a368-ebf8-3867a6f3db58"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U48) doesn't match symbol value (100kohm)",
+          "items": [
+            {
+              "description": "Footprint U48",
+              "pos": {
+                "x": 205.0,
+                "y": 150.0
+              },
+              "uuid": "86aa9693-c637-6678-0ea0-6256799c19e3"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U49) doesn't match symbol value (1kohm)",
+          "items": [
+            {
+              "description": "Footprint U49",
+              "pos": {
+                "x": 30.0,
+                "y": 175.0
+              },
+              "uuid": "228fdb61-86d6-abe2-a3fc-7819fde9067c"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U50) doesn't match symbol value (100kohm)",
+          "items": [
+            {
+              "description": "Footprint U50",
+              "pos": {
+                "x": 55.0,
+                "y": 175.0
+              },
+              "uuid": "928a4345-ff3c-9291-3964-712212afc825"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U52) doesn't match symbol value (150kohm)",
+          "items": [
+            {
+              "description": "Footprint U52",
+              "pos": {
+                "x": 105.0,
+                "y": 175.0
+              },
+              "uuid": "4f9ad41c-039a-011c-8287-a3b35896d234"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Value (U53) doesn't match symbol value (150kohm)",
+          "items": [
+            {
+              "description": "Footprint U53",
+              "pos": {
+                "x": 130.0,
+                "y": 175.0
+              },
+              "uuid": "b4cfab72-1aea-499f-f1a5-f25129074166"
+            }
+          ],
+          "severity": "warning",
+          "type": "footprint_symbol_mismatch"
+        },
+        {
+          "description": "Extra footprint",
+          "items": [
+            {
+              "description": "Footprint REF**",
+              "pos": {
+                "x": 58.0,
+                "y": 58.0
+              },
+              "uuid": "a4da122e-d7e2-3eba-7c60-a333401f6ed1"
+            }
+          ],
+          "severity": "warning",
+          "type": "extra_footprint"
+        }
+      ]
+    }
+  },
+  "renders": {
+    "pfc-top.png": "0be9a370c0739931728179ff56915499fc95354c5e16622fbb2eea94045c96c3",
+    "section.svg": "def45cea11627f830632e9f7a28ffb319c7d5bc107fc0f2bcf36d1257a874d10"
+  },
+  "status": "candidate generated; unrouted DRC findings retained; not construction pass"
+}

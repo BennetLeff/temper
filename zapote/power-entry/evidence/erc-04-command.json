@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "sch",
+    "erc",
+    "--severity-all",
+    "--format",
+    "json",
+    "--output",
+    "zapote/power-entry/evidence/erc-04.json",
+    "zapote/power-entry/candidate/section.kicad_sch"
+  ],
+  "returncode": 0,
+  "input_sha256": "dc4d0b7825dcc3aafd29ebc59227f01fec0e5748747d99100fddd0b2bd7124ec"
+}

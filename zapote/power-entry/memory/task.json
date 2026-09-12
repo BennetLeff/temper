@@ -1,0 +1,12 @@
+{
+  "attempt_id": "power-entry-001",
+  "capabilities": [
+    "simulation-evidence-scoping",
+    "assumption-ledger-reading",
+    "datasheet-land-pattern-review"
+  ],
+  "source_identities": {},
+  "required_ids": [
+    "interlock-mem-001"
+  ]
+}

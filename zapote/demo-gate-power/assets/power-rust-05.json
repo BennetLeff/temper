@@ -1,0 +1,82 @@
+{
+  "status": "fail",
+  "findings": [
+    {
+      "rule": "ERC.POWER_ENTRY.SOURCE_GRAPH",
+      "severity": "info",
+      "status": "pass",
+      "message": "reviewed PFC component and net graph matches the construction contract",
+      "object": "PowerEntryUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.BOARD.STACKUP",
+      "severity": "info",
+      "status": "pass",
+      "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+      "object": "board.setup.stackup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+      "severity": "info",
+      "status": "pass",
+      "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.POWER_ENTRY.SAVED_BYTES",
+      "severity": "info",
+      "status": "pass",
+      "message": "native evidence contains the supplied board bytes",
+      "object": "board",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.POWER_ENTRY.CONNECTIVITY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native net AC_L_RECTIFIED_INPUT is split across multiple connectivity clusters",
+      "object": "connectivity_clusters",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.CLEARANCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "native copper clears 0.2 mm fabrication floor",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.POWER_ENTRY.NOMINAL_MODEL",
+      "severity": "info",
+      "status": "pass",
+      "message": "nominal control/bleeder model constructed: bus 389.6 V, bleed 0.253 W each, external HOT permit required",
+      "object": "PowerEntryUnit",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "ERC.POWER_ENTRY.SOURCE_GRAPH",
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.POWER_ENTRY.SAVED_BYTES",
+    "DRC.POWER_ENTRY.CONNECTIVITY",
+    "DRC.NATIVE.CLEARANCE",
+    "ERC.POWER_ENTRY.NOMINAL_MODEL"
+  ],
+  "coverage_gaps": [
+    "External isolated bias supply, HOT permit, precharge and bypass sequencing are required; this harness does not implement them.",
+    "15 A RMS foldback/PF behavior is a declared input constraint, not a measured result.",
+    "Bus bleeder decay, relay timing, semiconductor/capacitor thermal limits, EMC, insulation and mains qualification are NOT RUN."
+  ]
+}

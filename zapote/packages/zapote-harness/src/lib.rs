@@ -5,8 +5,11 @@ use zapote_core::unit::UnitInput;
 use zapote_core::{CheckReport, Finding, RunInput, Status};
 
 pub mod current_sense;
+pub mod gate_drive;
+pub mod power_entry;
 pub mod interlock;
 pub mod memory;
+pub mod native_reports;
 pub use current_sense::{build_current_sense_input, parse_current_sense_input, run_current_sense};
 mod model_qualification;
 pub use model_qualification::derive_expected_case_values;

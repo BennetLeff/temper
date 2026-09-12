@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/tools/build_source.py", line 9, in <module>
+    build(REPO, Path(sys.argv[1]).resolve(), "elec/src/gate_drive_unit.ato", "GateDriveUnit")
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/tools/build_current_sense_source.py", line 76, in build
+    block_source.gate_build(proc)
+  File "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/harness-lab/block_source.py", line 125, in gate_build
+    raise BlockSourceError(
+block_source.BlockSourceError: compiler exited 2; artifacts unqualified (tail: )

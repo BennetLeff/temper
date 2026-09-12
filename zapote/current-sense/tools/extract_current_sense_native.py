@@ -66,6 +66,7 @@ def extract(repo: Path, board_path: Path) -> dict:
             pads.append(
                 {
                     "pad": pad.GetNumber(),
+                    "pad_type": "np_thru_hole" if pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH else "electrical",
                     "uuid": pad.m_Uuid.AsString(),
                     "net": pad.GetNetname(),
                     "position_mm": xy(pad.GetPosition()),
