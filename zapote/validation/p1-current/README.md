@@ -9,6 +9,12 @@ The [verification receipt](../runs/2026-09-12-pfc-current/verification.json)
 retains the final seven-board run, tests, source/input hashes, review records,
 failed development runs and native geometry evidence. No product PCB was edited.
 
+The subsequent [independent-oracle validation](oracle-2026-09-12/README.md)
+checks these instruments against closed-form math, actual ngspice solves,
+native KiCad geometry and exhaustive cut-graph references. It exposed and
+fixed CCM validity, segmentation-invariance and dimensional-conversion defects.
+The same five nominal screening findings remain after correction.
+
 ## Model and source binding
 
 - Exact source validation pins the current Würth **760800301**, rather than
@@ -42,7 +48,7 @@ UUID-bound polygons. Auxiliary conductor links are never reported as traces.
 
 Five sections violate the nominal **70 µm external copper / assumed 20 °C
 rise** IPC screening equation already copied from Temper's Rust DRC. The four
-2.5 mm sections screen at 10.420 A, and the 4 mm section screens at 14.651 A;
+2.5 mm sections screen at 10.4205 A, and the 4 mm section screens at 14.6513 A;
 the determined nominal contribution is 15 A in each case.
 
 | Native segment UUID | Net | Layer | Width | Start → end, mm |

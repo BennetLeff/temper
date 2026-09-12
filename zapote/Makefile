@@ -28,6 +28,15 @@ check-units:
 check-native-oracle:
 	$(KICAD_PYTHON) validation/p2/test_extract.py
 
+# Explicit live solver verification. Requires ngspice and a new output directory;
+# the normal workspace tests also replay the pinned external measurements.
+NGSPICE ?= ngspice
+ORACLE_RUN_DIR ?= validation/runs/pfc-oracle-$(shell date -u +%Y%m%dT%H%M%SZ)
+.PHONY: check-pfc-oracle
+check-pfc-oracle:
+	@mkdir -p "$(dir $(ORACLE_RUN_DIR))"
+	$(CARGO) run --locked -p zapote-erc --example verify_pfc_spice -- "$(NGSPICE)" "$(ORACLE_RUN_DIR)"
+
 check-boards:
 	@set -e; for board in $(UNIT_BOARDS); do \
 		$(CARGO) run --quiet --locked --bin zapote-board -- "$$board"; \

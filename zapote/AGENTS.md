@@ -139,5 +139,11 @@ Read the relevant detailed record before changing behavior in that area:
   preserve switching-state moments, physical pad UUIDs, signed sharing
   sensitivity and explicit area-current gaps; a graph tree or pad-size proxy
   cannot certify native current distribution.
+- [Independent PFC validator references](validation/p1-current/oracle-2026-09-12/README.md) —
+  a passing self-consistency test is insufficient. Keep closed-form and external
+  solver references independent; enforce CCM validity over the continuous phase
+  domain, and require unchanged-copper subdivision to preserve verdicts. SPICE
+  probes need correct initial conditions, integer-cycle windows and timestep
+  refinement before their measurements become reference evidence.
 - [Model certificate semantic binding](../docs/solutions/best-practices/model-certificates-need-semantic-binding.md)
 - [Buck harness refinement plan](../docs/plans/2026-09-09-1945-feat-buck-harness-refinement-plan.md)

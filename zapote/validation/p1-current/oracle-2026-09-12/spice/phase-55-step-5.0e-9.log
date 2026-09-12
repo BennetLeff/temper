@@ -1,0 +1,36 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: independent initialized boost, frozen line phase 55
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 32114
+
+  Measurements for Transient Analysis
+
+inductor_rms        =   2.07457e+01 from=  7.75194e-05 to=  1.55039e-04
+switch_rms          =   1.57157e+01 from=  7.75194e-05 to=  1.55039e-04
+diode_rms           =   1.35425e+01 from=  7.75194e-05 to=  1.55039e-04
+capacitor_rms       =   1.11027e+01 from=  7.75194e-05 to=  1.55039e-04
+inductor_avg        =  2.071185e+01 from=  7.751938e-05 to=  1.550388e-04
+diode_avg           =  8.825942e+00 from=  7.751938e-05 to=  1.550388e-04
+inductor_min        =  1.866021e+01 at=  1.550388e-04
+inductor_max        =  2.276347e+01 at=  8.196800e-05
+
+
+Total analysis time (seconds) = 0.061588
+
+Total elapsed time (seconds) = 0.066 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  369.750 MB.
+Maximum ngspice program size =   11.688 MB.
+Current ngspice program size =   11.703 MB.
+
+

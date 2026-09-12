@@ -6,6 +6,12 @@ A subagent final message is a handback for review, not acceptance of the batch.
 
 ## Latest committed checkpoint
 
+The subsequent [independent PFC instrument validation](p1-current/oracle-2026-09-12/README.md)
+adds closed-form, live-SPICE and exhaustive-graph references and repairs three
+instrument defects. The fresh seven-board run retains the same five PFC
+screening failures. Its receipt records the exact source identity; this does
+not close thermal or area-current qualification gaps.
+
 The [PFC current-screen implementation](p1-current/README.md) now runs through
 the common runner: source-bound switching waveforms, native branch graphs,
 repeated-pad identity, sharing bounds and actual pad/drill contact polygons.

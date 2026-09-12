@@ -76,6 +76,70 @@ fn intersection(a: Point, b: Point, c: Point, d: Point) -> Option<Point> {
 fn copper(layer: &str) -> bool {
     layer == "F.Cu" || layer == "B.Cu" || layer.ends_with(".Cu")
 }
+
+// A split straight track has exactly the same copper as the unsplit track.
+// Coalesce only equal-width, collinear, touching spans for the side-contact
+// diagnostic. The current graph retains every original native UUID/segment.
+fn side_contact_spans(traces: &[zapote_core::Trace]) -> Vec<zapote_core::Trace> {
+    let mut spans: Vec<_> = traces
+        .iter()
+        .flat_map(|t| {
+            t.points_mm.windows(2).map(|w| zapote_core::Trace {
+                id: t.id.clone(),
+                net: t.net.clone(),
+                layer: t.layer.clone(),
+                width_mm: t.width_mm,
+                points_mm: w.to_vec(),
+            })
+        })
+        .collect();
+    spans.sort_by(|a, b| a.id.cmp(&b.id));
+    loop {
+        let mut merged = false;
+        'search: for i in 0..spans.len() {
+            for j in i + 1..spans.len() {
+                let (a, b) = (&spans[i], &spans[j]);
+                if a.net != b.net || a.layer != b.layer || a.width_mm != b.width_mm {
+                    continue;
+                }
+                let p = a.points_mm[0];
+                let dx = a.points_mm[1][0] - p[0];
+                let dy = a.points_mm[1][1] - p[1];
+                let length = dx.hypot(dy);
+                if length <= EPS {
+                    continue;
+                }
+                if b.points_mm
+                    .iter()
+                    .any(|q| ((q[0] - p[0]) * dy - (q[1] - p[1]) * dx).abs() / length > EPS)
+                {
+                    continue;
+                }
+                let project = |q: [f64; 2]| ((q[0] - p[0]) * dx + (q[1] - p[1]) * dy) / length;
+                let (first, last) = (project(b.points_mm[0]), project(b.points_mm[1]));
+                let lo = first.min(last);
+                let hi = first.max(last);
+                if lo > length + EPS || hi < -EPS {
+                    continue;
+                }
+                let start = lo.min(0.);
+                let end = hi.max(length);
+                let id = format!("{}+{}", a.id, b.id);
+                spans[i].points_mm = vec![
+                    [p[0] + start * dx / length, p[1] + start * dy / length],
+                    [p[0] + end * dx / length, p[1] + end * dy / length],
+                ];
+                spans[i].id = id;
+                spans.remove(j);
+                merged = true;
+                break 'search;
+            }
+        }
+        if !merged {
+            return spans;
+        }
+    }
+}
 fn key(net: &str, layer: &str, p: Point) -> (String, String, i64, i64) {
     (
         net.into(),
@@ -295,8 +359,9 @@ fn build_contacts(native: &UnitNativeEvidence, contacts: &[Contact]) -> Result<B
     let mut uncertified_nets = std::collections::BTreeSet::new();
     // Side contacts can create parallel copper without a centerline junction.
     // Report affected nets; do not manufacture an exact current from a tree.
-    for (i, a) in native.traces.iter().enumerate() {
-        for b in &native.traces[i + 1..] {
+    let spans = side_contact_spans(&native.traces);
+    for (i, a) in spans.iter().enumerate() {
+        for b in &spans[i + 1..] {
             if a.net != b.net || a.layer != b.layer {
                 continue;
             }
@@ -634,6 +699,43 @@ mod tests {
     }
 
     #[test]
+    fn span_coalescing_keeps_real_side_contacts_and_width_layer_net_boundaries() {
+        let trace = |id: &str, points: Vec<[f64; 2]>| zapote_core::Trace {
+            id: id.into(),
+            net: "N".into(),
+            layer: "F.Cu".into(),
+            width_mm: 1.,
+            points_mm: points,
+        };
+        let a = trace("a", vec![[0., 0.], [5., 0.]]);
+        let b = trace("b", vec![[10., 0.], [5., 0.]]);
+        assert_eq!(side_contact_spans(&[a.clone(), b.clone()]).len(), 1);
+        for property in ["width", "layer", "net", "gap", "angle"] {
+            let mut changed = b.clone();
+            match property {
+                "width" => changed.width_mm = 0.5,
+                "layer" => changed.layer = "B.Cu".into(),
+                "net" => changed.net = "OTHER".into(),
+                "gap" => changed.points_mm[1] = [5.1, 0.],
+                "angle" => changed.points_mm[0] = [10., 1.],
+                _ => unreachable!(),
+            }
+            assert_eq!(
+                side_contact_spans(&[a.clone(), changed]).len(),
+                2,
+                "{property}"
+            );
+        }
+        let parallel = trace("parallel", vec![[1., 0.7], [9., 0.7]]);
+        let native = evidence(
+            serde_json::json!({"board_sha256":"fixture","extractor_sha256":"fixture",
+            "components":[],"connections":[],"traces":[a,b,parallel],"vias":[],"zones":[],
+            "connectivity_clusters":[],"copper_layer_count":2}),
+        );
+        assert!(build(&native).unwrap().uncertified_nets.contains("N"));
+    }
+
+    #[test]
     fn repeated_package_pin_keeps_each_physical_barrel_and_separate_pin_stays_separate() {
         let mut native = evidence(
             serde_json::json!({"board_sha256":"fixture","extractor_sha256":"fixture","components":[
@@ -664,28 +766,32 @@ mod tests {
         let mut values = vec![0.; bound.graph.node_count];
         values[bound.terminal_nodes["package.1"]] = 1.;
         values[bound.terminal_nodes["load.1"]] = -1.;
-        assert!(zapote_drc::power_branches::analyze(
-            &bound.graph,
-            &[zapote_drc::power_branches::Sample {
-                weight: 1.,
-                injections_a: values
-            }]
-        )
-        .is_ok());
+        assert!(
+            zapote_drc::power_branches::analyze(
+                &bound.graph,
+                &[zapote_drc::power_branches::Sample {
+                    weight: 1.,
+                    injections_a: values
+                }]
+            )
+            .is_ok()
+        );
         native.components[0].footprint_pads[1].pad = "2".into();
         let bound = build(&native).unwrap();
         assert!(!bound.edge_kind.values().any(|k| k == "package-pin"));
         let mut values = vec![0.; bound.graph.node_count];
         values[bound.terminal_nodes["package.1"]] = 1.;
         values[bound.terminal_nodes["load.1"]] = -1.;
-        assert!(zapote_drc::power_branches::analyze(
-            &bound.graph,
-            &[zapote_drc::power_branches::Sample {
-                weight: 1.,
-                injections_a: values
-            }]
-        )
-        .is_err());
+        assert!(
+            zapote_drc::power_branches::analyze(
+                &bound.graph,
+                &[zapote_drc::power_branches::Sample {
+                    weight: 1.,
+                    injections_a: values
+                }]
+            )
+            .is_err()
+        );
     }
 
     #[test]
@@ -695,10 +801,12 @@ mod tests {
         let bound = build(&native).unwrap();
         assert!(bound.graph.edges.len() > native.traces.len());
         assert!(bound.terminal_nodes.len() > 20);
-        assert!(bound
-            .edge_width_mm
-            .keys()
-            .all(|id| bound.edge_kind.contains_key(id)));
+        assert!(
+            bound
+                .edge_width_mm
+                .keys()
+                .all(|id| bound.edge_kind.contains_key(id))
+        );
         let zone_ids: Vec<_> = bound
             .graph
             .edges
@@ -708,10 +816,12 @@ mod tests {
             .collect();
         let unique: std::collections::BTreeSet<_> = zone_ids.iter().copied().collect();
         assert_eq!(zone_ids.len(), unique.len());
-        assert!(bound
-            .coverage_gaps
-            .iter()
-            .any(|gap| gap.contains("PFC_BUS_MINUS is split")));
+        assert!(
+            bound
+                .coverage_gaps
+                .iter()
+                .any(|gap| gap.contains("PFC_BUS_MINUS is split"))
+        );
     }
 
     #[test]

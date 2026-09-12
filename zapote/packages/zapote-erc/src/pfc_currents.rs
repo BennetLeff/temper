@@ -100,6 +100,12 @@ pub fn calculate(config: Config) -> Result<Profile, String> {
     }
     let fundamental_rms = fundamental_rms_sq.sqrt();
     let input_peak = fundamental_rms * SQRT_2;
+    // valley = |sin(theta)| * [Ipeak - Vpeak/(2Lf) *
+    // (1 - Vpeak/Vbus * |sin(theta)|)]. Its bracket is minimized at
+    // the line zero crossing, which finite midpoint sampling never visits.
+    if input_peak < line_peak / (2.0 * config.inductance_h * config.switching_hz) {
+        return Err("calculated inductor valley enters DCM near the line zero crossing".into());
+    }
     let input_power = config.line_rms_v * fundamental_rms;
     let load_a = input_power / config.bus_v;
 

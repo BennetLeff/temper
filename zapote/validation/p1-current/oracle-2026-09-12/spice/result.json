@@ -1,0 +1,142 @@
+{
+  "comparison_relative_tolerance": 0.0005,
+  "config": {
+    "bus_v": 389.615,
+    "inductance_h": 0.00018,
+    "input_rms_limit_a": 15.0,
+    "line_rms_v": 120.0,
+    "phase_samples": 256,
+    "switching_hz": 129000.0
+  },
+  "refinement_relative_tolerance": 0.0001,
+  "results": [
+    {
+      "average_a": 1.2982149222783996,
+      "deck": "phase-2-step-5.0e-9.cir",
+      "log": "phase-2-step-5.0e-9.log",
+      "max_timestep_s": 5e-9,
+      "ngspice_rms_a": [
+        1.30431,
+        1.28677,
+        0.213164,
+        4.58089
+      ],
+      "phase_index": 2,
+      "rust_rms_a": [
+        1.3043073715566322,
+        1.2867706932229552,
+        0.21316402735800882,
+        4.580887404560249
+      ],
+      "vin_v": 10.406474031994508
+    },
+    {
+      "average_a": 1.2982149222783996,
+      "deck": "phase-2-step-2.5e-9.cir",
+      "log": "phase-2-step-2.5e-9.log",
+      "max_timestep_s": 2.5e-9,
+      "ngspice_rms_a": [
+        1.30431,
+        1.28677,
+        0.213164,
+        4.58089
+      ],
+      "phase_index": 2,
+      "rust_rms_a": [
+        1.3043073715566322,
+        1.2867706932229552,
+        0.21316402735800882,
+        4.580887404560249
+      ],
+      "vin_v": 10.406474031994508
+    },
+    {
+      "average_a": 11.545018539434892,
+      "deck": "phase-23-step-5.0e-9.cir",
+      "log": "phase-23-step-5.0e-9.log",
+      "max_timestep_s": 5e-9,
+      "ngspice_rms_a": [
+        11.5783,
+        10.1101,
+        5.64291,
+        5.27385
+      ],
+      "phase_index": 23,
+      "rust_rms_a": [
+        11.578299398760171,
+        10.11012545124842,
+        5.642905309089378,
+        5.273846813593941
+      ],
+      "vin_v": 92.5447193432891
+    },
+    {
+      "average_a": 11.545018539434892,
+      "deck": "phase-23-step-2.5e-9.cir",
+      "log": "phase-23-step-2.5e-9.log",
+      "max_timestep_s": 2.5e-9,
+      "ngspice_rms_a": [
+        11.5783,
+        10.1101,
+        5.64292,
+        5.27385
+      ],
+      "phase_index": 23,
+      "rust_rms_a": [
+        11.578299398760171,
+        10.11012545124842,
+        5.642905309089378,
+        5.273846813593941
+      ],
+      "vin_v": 92.5447193432891
+    },
+    {
+      "average_a": 20.711855172988944,
+      "deck": "phase-55-step-5.0e-9.cir",
+      "log": "phase-55-step-5.0e-9.log",
+      "max_timestep_s": 5e-9,
+      "ngspice_rms_a": [
+        20.7457,
+        15.7157,
+        13.5425,
+        11.1027
+      ],
+      "phase_index": 55,
+      "rust_rms_a": [
+        20.74569844449184,
+        15.715763291229026,
+        13.54248087035198,
+        11.102696111271902
+      ],
+      "vin_v": 166.02596327722614
+    },
+    {
+      "average_a": 20.711855172988944,
+      "deck": "phase-55-step-2.5e-9.cir",
+      "log": "phase-55-step-2.5e-9.log",
+      "max_timestep_s": 2.5e-9,
+      "ngspice_rms_a": [
+        20.7457,
+        15.7157,
+        13.5425,
+        11.1027
+      ],
+      "phase_index": 55,
+      "rust_rms_a": [
+        20.74569844449184,
+        15.715763291229026,
+        13.54248087035198,
+        11.102696111271902
+      ],
+      "vin_v": 166.02596327722614
+    }
+  ],
+  "rms_fields": [
+    "inductor",
+    "switch",
+    "diode",
+    "capacitor"
+  ],
+  "scope": "Three frozen line-phase initialized ideal CCM boost circuits; full line-cycle control and physical devices are not modeled",
+  "status": "pass"
+}

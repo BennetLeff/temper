@@ -54,7 +54,7 @@ source = "Temper IPC external-layer ampacity scalar"
 source_path = "packages/temper-drc-rs/src/ipc.rs"
 source_sha256 = "a11a99c85e30e1877b4faf3cefeb11952a9bfae352d569e21393a738f7e1d6a3"
 target = "zapote/packages/zapote-drc/src/ipc.rs"
-notes = "Independent copy of the IPC external-layer scalar for bounded low-current local escapes; no runtime dependency on donor packages."
+notes = "Independent copy of the IPC external-layer scalar for local escapes and nominal power-path screening; no runtime dependency on donor packages. On 2026-09-12, independent dimensional tests replaced the donor's approximate ounce conversion with exact mm/um-to-mil conversion. The source hash remains the original donor identity; see validation/p1-current/oracle-2026-09-12/README.md."
 
 [[port]]
 source = "Standalone RTDUnit source and manufacturing profile"

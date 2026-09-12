@@ -1,0 +1,60 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "5dd5ebd59fec8057e7e230dcbc5502e9bd3f11d4",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "5dd5ebd59fec8057e7e230dcbc5502e9bd3f11d4",
+    "pr_url": null,
+    "files_changed": 22
+  },
+  "intent": "Recheck the previously reported false-pass risk in the pinned ngspice replay after adding immutable evidence binding and raw-log parsing.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness-reviewer",
+    "testing-reviewer",
+    "adversarial-reviewer"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "Solver independence is not model independence",
+      "citation": "docs/solutions/best-practices/solver-independence-is-not-model-independence-2026-07-09.md",
+      "note": "The replay now enforces the external evidence boundary by pinning and parsing raw solver artifacts."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The live SPICE model remains intentionally limited to initialized ideal CCM frozen-phase behavior and does not qualify thermal ampacity, control-loop behavior, losses, saturation, transients, or local sharing."
+  ],
+  "testing_gaps": [
+    "No new build or test was run by this review; existing tamper, clean fixture, live-oracle, and full-suite artifacts were inspected."
+  ],
+  "coverage": {
+    "finding_resolved": {
+      "original_receipt": "/private/tmp/ce-code-review-pfc-wznBo1/review.json",
+      "location": "zapote/packages/zapote-erc/tests/pfc_current_reference.rs:87",
+      "resolution": "SHA-256 pin covers the six decks/logs, result summary, and ngspice version; raw logs are parsed and each summary measurement must match its log before comparison with fresh production moments."
+    },
+    "evidence": [
+      "/private/tmp/zapote-spice-tamper-before.log: old replay accepted the 1000x L-value mutation",
+      "/private/tmp/zapote-spice-tamper-after.log: strengthened replay rejected the identical mutation at the immutable hash assertion",
+      "/private/tmp/zapote-spice-binding-after-01.log: restored clean fixture test passed",
+      "/private/tmp/zapote-pfc-live-reference-02.log: live check-pfc-oracle rerun passed",
+      "/private/tmp/zapote-oracle-workspace-final.log: final suite completed successfully"
+    ],
+    "live_output_safety": "verify_pfc_spice uses fs::create_dir on the requested output directory, so an existing pinned fixture directory cannot be overwritten; Makefile creates only the parent.",
+    "review_limitations": [
+      "Read-only follow-up; no repository edits, builds, or git writes.",
+      "No additional reviewer roster was dispatched because this was a focused resolution check."
+    ]
+  },
+  "run_id": "ce-code-review-pfc-followup-Y4YDQ5",
+  "artifact_path": "/private/tmp/ce-code-review-pfc-followup-Y4YDQ5"
+}

@@ -1,0 +1,185 @@
+    Checking zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-drc)
+    Checking zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+warning: this expression creates a reference which is immediately dereferenced by the compiler
+   --> packages/zapote-erc/src/gate_drive.rs:134:28
+    |
+134 |     let driver = component(&circuit, "driver")?;
+    |                            ^^^^^^^^ help: change this to: `circuit`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#needless_borrow
+    = note: `#[warn(clippy::needless_borrow)]` on by default
+
+warning: this expression creates a reference which is immediately dereferenced by the compiler
+   --> packages/zapote-erc/src/gate_drive.rs:138:28
+    |
+138 |     let switch = component(&circuit, "permit_sw")?;
+    |                            ^^^^^^^^ help: change this to: `circuit`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#needless_borrow
+
+warning: this expression creates a reference which is immediately dereferenced by the compiler
+   --> packages/zapote-erc/src/gate_drive.rs:142:20
+    |
+142 |     exact_resistor(&circuit, "r_permit_series", 1_000.0, "RC0603FR-071KL")?;
+    |                    ^^^^^^^^ help: change this to: `circuit`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#needless_borrow
+
+warning: this expression creates a reference which is immediately dereferenced by the compiler
+   --> packages/zapote-erc/src/gate_drive.rs:143:20
+    |
+143 |     exact_resistor(&circuit, "r_permit_pd", 100_000.0, "RC0603FR-07100KL")?;
+    |                    ^^^^^^^^ help: change this to: `circuit`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#needless_borrow
+
+warning: this expression creates a reference which is immediately dereferenced by the compiler
+   --> packages/zapote-erc/src/gate_drive.rs:144:20
+    |
+144 |     exact_resistor(&circuit, "r_dis_pu", 10_000.0, "RC0603FR-0710KL")?;
+    |                    ^^^^^^^^ help: change this to: `circuit`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#needless_borrow
+
+warning: this expression creates a reference which is immediately dereferenced by the compiler
+   --> packages/zapote-erc/src/gate_drive.rs:145:20
+    |
+145 |     exact_resistor(&circuit, "dt", 39_000.0, "RC0603FR-0739KL")?;
+    |                    ^^^^^^^^ help: change this to: `circuit`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#needless_borrow
+
+warning: unnecessarily eager cloning of iterator items
+  --> packages/zapote-drc/src/domain_clearance.rs:62:29
+   |
+62 |        projected.connections = native
+   |  ______________________________^
+63 | |          .connections
+64 | |          .iter()
+   | | ________________-
+65 | ||         .cloned()
+66 | ||         .filter(|c| classify(&c.net, left, right).is_some())
+   | ||____________________________________________________________^
+   |  |____________________________________________________________|
+   |                                                               help: try: `.filter(|&c| classify(&c.net, left, right).is_some()).cloned()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#iter_overeager_cloned
+   = note: `#[warn(clippy::iter_overeager_cloned)]` on by default
+
+warning: unnecessarily eager cloning of iterator items
+  --> packages/zapote-drc/src/domain_clearance.rs:72:39
+   |
+72 |        projected.connectivity_clusters = native
+   |  ________________________________________^
+73 | |          .connectivity_clusters
+74 | |          .iter()
+   | | ________________-
+75 | ||         .cloned()
+76 | ||         .filter(|c| classify(&c.net, left, right).is_some())
+   | ||____________________________________________________________^
+   |  |____________________________________________________________|
+   |                                                               help: try: `.filter(|&c| classify(&c.net, left, right).is_some()).cloned()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#iter_overeager_cloned
+
+warning: unnecessarily eager cloning of iterator items
+  --> packages/zapote-drc/src/domain_clearance.rs:82:24
+   |
+82 |        projected.traces = native
+   |  _________________________^
+83 | |          .traces
+84 | |          .iter()
+   | | ________________-
+85 | ||         .cloned()
+86 | ||         .filter(|t| classify(&t.net, left, right).is_some())
+   | ||____________________________________________________________^
+   |  |____________________________________________________________|
+   |                                                               help: try: `.filter(|&t| classify(&t.net, left, right).is_some()).cloned()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#iter_overeager_cloned
+
+warning: unnecessarily eager cloning of iterator items
+  --> packages/zapote-drc/src/domain_clearance.rs:93:22
+   |
+93 |        projected.vias = native
+   |  _______________________^
+94 | |          .vias
+95 | |          .iter()
+   | | ________________-
+96 | ||         .cloned()
+97 | ||         .filter(|v| classify(&v.net, left, right).is_some())
+   | ||____________________________________________________________^
+   |  |____________________________________________________________|
+   |                                                               help: try: `.filter(|&v| classify(&v.net, left, right).is_some()).cloned()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#iter_overeager_cloned
+
+warning: unnecessarily eager cloning of iterator items
+   --> packages/zapote-drc/src/domain_clearance.rs:105:23
+    |
+105 |        projected.zones = native
+    |  ________________________^
+106 | |          .zones
+107 | |          .iter()
+    | | ________________-
+108 | ||         .cloned()
+109 | ||         .filter(|z| classify(&z.net, left, right).is_some())
+    | ||____________________________________________________________^
+    |  |____________________________________________________________|
+    |                                                               help: try: `.filter(|&z| classify(&z.net, left, right).is_some()).cloned()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#iter_overeager_cloned
+
+warning: manual `!RangeInclusive::contains` implementation
+  --> packages/zapote-erc/src/power_stage_models.rs:72:36
+   |
+72 |     if !raw_samples.is_finite() || raw_samples < 20.0 || raw_samples > 2_000_000.0 {
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `!(20.0..=2_000_000.0).contains(&raw_samples)`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#manual_range_contains
+   = note: `#[warn(clippy::manual_range_contains)]` on by default
+
+warning: manual `!Range::contains` implementation
+   --> packages/zapote-erc/src/power_stage_models.rs:229:12
+    |
+229 |           || tolerance < 0.0
+    |  ____________^
+230 | |         || tolerance >= 1.0
+    | |___________________________^ help: use: `!(0.0..1.0).contains(&tolerance)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#manual_range_contains
+
+warning: items after a test module
+   --> packages/zapote-drc/src/stackup.rs:162:1
+    |
+162 | mod tests {
+    | ^^^^^^^^^
+...
+273 | pub fn nominal_outer_copper_um(text: &str) -> Result<f64, String> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#items_after_test_module
+    = note: `#[warn(clippy::items_after_test_module)]` on by default
+    = help: move the items to before the test module was defined
+
+warning: `zapote-erc` (lib) generated 8 warnings (run `cargo clippy --fix --lib -p zapote-erc` to apply 8 suggestions)
+warning: `zapote-erc` (lib test) generated 8 warnings (8 duplicates)
+warning: `zapote-drc` (lib) generated 5 warnings (run `cargo clippy --fix --lib -p zapote-drc` to apply 5 suggestions)
+    Checking zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+warning: `zapote-drc` (lib test) generated 6 warnings (5 duplicates) (run `cargo clippy --fix --lib -p zapote-drc --tests` to apply 1 suggestion)
+warning: usage of `bool::then` in `filter_map`
+  --> packages/zapote-erc/tests/gate_drive.rs:21:67
+   |
+21 |                               n["nodes"].as_array().unwrap().iter().filter_map(move |node| {
+   |  ___________________________________________________________________^
+22 | |                         (node[0].as_str() == Some(c["reference"].as_str().unwrap())).then(|| {
+23 | |                             json!({"pad": node[1].as_str().unwrap(), "net": net})
+24 | |                         })
+25 | |                     })
+   | |______________________^ help: use `filter` then `map` instead: `filter(|&node| (node[0].as_str() == Some(c["reference"].as_str().unwrap()))).map(|node| json!({"pad": node[1].as_str().unwrap(), "net": net}))`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#filter_map_bool_then
+   = note: `#[warn(clippy::filter_map_bool_then)]` on by default
+
+warning: `zapote-erc` (test "gate_drive") generated 1 warning (run `cargo clippy --fix --test "gate_drive" -p zapote-erc` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.98s

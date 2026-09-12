@@ -270,7 +270,11 @@ pub fn run(
             }
         }
     }
-    let mut findings=vec![Finding::pass(RULES[0],"source-bound ON/OFF waveforms conserve current and feed native branches; sharing vertices and signed sensitivity evaluated","PFC")];
+    let mut findings = vec![Finding::pass(
+        RULES[0],
+        "source-bound ON/OFF waveforms conserve current and feed native branches; sharing vertices and signed sensitivity evaluated",
+        "PFC",
+    )];
     let mut gaps = bound.coverage_gaps.clone();
     let net_envelopes: BTreeMap<_, _> = net_samples
         .iter()
@@ -496,21 +500,27 @@ mod tests {
         .unwrap();
         assert!(!report.branches.is_empty());
         assert!(!report.pad_contacts.is_empty());
-        assert!(report
-            .branches
-            .iter()
-            .any(|b| b.determined_rms_a.is_some_and(|v| (v - 15.).abs() < 1e-6)));
+        assert!(
+            report
+                .branches
+                .iter()
+                .any(|b| b.determined_rms_a.is_some_and(|v| (v - 15.).abs() < 1e-6))
+        );
         assert_eq!(report.config.inductance_h, 180e-6);
-        assert!(report
-            .pad_contacts
-            .iter()
-            .all(|p| p.geometry.certified_chord_mm <= p.geometry.trace_width_mm + 1e-9));
+        assert!(
+            report
+                .pad_contacts
+                .iter()
+                .all(|p| p.geometry.certified_chord_mm <= p.geometry.trace_width_mm + 1e-9)
+        );
         assert!(report.checks.checked_rules.iter().any(|r| r == RULES[1]));
-        assert!(report
-            .branches
-            .iter()
-            .filter(|b| b.net == "PFC_BUS_MINUS")
-            .all(|b| b.determined_rms_a.is_none()));
+        assert!(
+            report
+                .branches
+                .iter()
+                .filter(|b| b.net == "PFC_BUS_MINUS")
+                .all(|b| b.determined_rms_a.is_none())
+        );
     }
 
     #[test]
@@ -523,11 +533,13 @@ mod tests {
         let board = native["board_file_utf8"].as_str().unwrap().to_string();
         let before = run(SOURCE, NATIVE, &board, &fixture).unwrap();
         let uuid = "3a21cb7f-1ccf-4dcc-886e-b105e79be599";
-        assert!(!before
-            .checks
-            .findings
-            .iter()
-            .any(|f| f.status == zapote_core::Status::Fail && f.object.starts_with(uuid)));
+        assert!(
+            !before
+                .checks
+                .findings
+                .iter()
+                .any(|f| f.status == zapote_core::Status::Fail && f.object.starts_with(uuid))
+        );
         let uuid_position = board.find(uuid).unwrap();
         let begin = board[..uuid_position].rfind("(segment").unwrap();
         let width_start = begin + board[begin..uuid_position].find("(width ").unwrap();
@@ -547,12 +559,101 @@ mod tests {
         // unchanged. Rebind this explicitly derived fixture to the mutant.
         fixture["board_sha256"] = crate::runner::digest(changed.as_bytes()).into();
         let after = run(SOURCE, &native.to_string(), &changed, &fixture).unwrap();
-        assert!(after
-            .checks
-            .findings
-            .iter()
-            .any(|f| f.status == zapote_core::Status::Fail
-                && f.rule == RULES[1]
-                && f.object.starts_with(uuid)));
+        assert!(
+            after
+                .checks
+                .findings
+                .iter()
+                .any(|f| f.status == zapote_core::Status::Fail
+                    && f.rule == RULES[1]
+                    && f.object.starts_with(uuid))
+        );
+        // Repair must restore a determined, adequate branch, not merely turn
+        // the failure into an unknown-current coverage gap.
+        let mut restored = changed.clone();
+        restored.replace_range(width_start..width_start + "(width 0.2)".len(), "(width 6)");
+        native["traces"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|t| t["uuid"] == uuid)
+            .unwrap()["width_mm"] = 6.0.into();
+        native["board_file_utf8"] = restored.clone().into();
+        native["board_sha256"] = crate::runner::digest(restored.as_bytes()).into();
+        fixture["board_sha256"] = crate::runner::digest(restored.as_bytes()).into();
+        let repaired = run(SOURCE, &native.to_string(), &restored, &fixture).unwrap();
+        assert!(
+            !repaired
+                .checks
+                .findings
+                .iter()
+                .any(|f| f.status == zapote_core::Status::Fail && f.object.starts_with(uuid))
+        );
+        assert!(repaired.branches.iter().any(|b| b.id.starts_with(uuid)
+            && b.determined_rms_a.is_some_and(|i| (i - 15.).abs() < 1e-8)
+            && b.nominal_external_capacity_a.is_some_and(|i| i > 15.)));
+    }
+
+    #[test]
+    fn subdividing_saved_copper_preserves_failure_set_and_determined_current() {
+        let mut native: serde_json::Value = serde_json::from_str(NATIVE).unwrap();
+        let mut fixture: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../validation/p1-current/pfc-pad-fixture.json"
+        ))
+        .unwrap();
+        let board = native["board_file_utf8"].as_str().unwrap().to_string();
+        let before = run(SOURCE, NATIVE, &board, &fixture).unwrap();
+        let uuid = "3a21cb7f-1ccf-4dcc-886e-b105e79be599";
+        let new_uuid = "2b80770a-cbae-4d53-9aa9-eef9947cd910";
+        let p = board.find(uuid).unwrap();
+        let start = board[..p].rfind("(segment").unwrap();
+        let end = p + board[p..].find("\n\t)").unwrap() + 3;
+        let original = &board[start..end];
+        assert!(original.contains("(start 71.1 123.5)"));
+        assert!(original.contains("(end 71.1 132)"));
+        let first = original.replace("(end 71.1 132)", "(end 71.1 127.75)");
+        let second = original
+            .replace("(start 71.1 123.5)", "(start 71.1 127.75)")
+            .replace(uuid, new_uuid);
+        let mut changed = board.clone();
+        changed.replace_range(start..end, &format!("{first}\n\t{second}"));
+        let traces = native["traces"].as_array_mut().unwrap();
+        let t = traces.iter_mut().find(|t| t["uuid"] == uuid).unwrap();
+        let mut second_trace = t.clone();
+        t["points_mm"][1] = serde_json::json!([71.1, 127.75]);
+        second_trace["points_mm"][0] = serde_json::json!([71.1, 127.75]);
+        second_trace["uuid"] = new_uuid.into();
+        traces.push(second_trace);
+        traces.reverse(); // Input enumeration is not physical evidence either.
+        native["board_file_utf8"] = changed.clone().into();
+        native["board_sha256"] = crate::runner::digest(changed.as_bytes()).into();
+        fixture["board_sha256"] = crate::runner::digest(changed.as_bytes()).into();
+        let after = run(SOURCE, &native.to_string(), &changed, &fixture).unwrap();
+        let failures = |r: &Report| {
+            r.checks
+                .findings
+                .iter()
+                .filter(|f| f.status == zapote_core::Status::Fail)
+                .map(|f| {
+                    (
+                        f.rule.clone(),
+                        f.object.split(':').next().unwrap().to_owned(),
+                    )
+                })
+                .collect::<BTreeSet<_>>()
+        };
+        assert_eq!(
+            failures(&before),
+            failures(&after),
+            "{:?}",
+            after.checks.coverage_gaps
+        );
+        for id in [uuid, new_uuid] {
+            assert!(
+                after.branches.iter().any(|b| b.id.starts_with(id)
+                    && b.determined_rms_a.is_some_and(|i| (i - 15.).abs() < 1e-8)),
+                "{id}"
+            );
+        }
     }
 }

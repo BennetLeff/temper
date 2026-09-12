@@ -1,0 +1,26 @@
+Independent initialized boost, frozen line phase 23
+.param VIN=9.254471934328910e1 BUS=3.896150000000000e2 LVAL=1.800000000000000e-4 FSW=1.290000000000000e5
+.param DUTY={1-VIN/BUS} PERIOD={1/FSW}
+Vline input 0 {VIN}
+Lboost input sw {LVAL} IC=1.002558058875672e1
+Sboost sw sense_switch gate 0 SWITCH
+Vsense_switch sense_switch 0 0
+Vgate gate 0 PULSE(0 5 0 1p 1p {DUTY*PERIOD-1p} {PERIOD})
+Bdiode_control diode_control 0 V=V(sw)-V(bus)
+Sdiode sw sense_diode diode_control 0 DIODE_SWITCH
+Vsense_diode sense_diode bus 0
+Vbus bus 0 {BUS}
+Iload bus 0 4.610731319689252e0
+.model SWITCH SW(Ron=1u Roff=1G Vt=2.5 Vh=0.01)
+.model DIODE_SWITCH SW(Ron=1u Roff=1G Vt=0 Vh=0.01)
+.options method=gear reltol=1e-7 abstol=1e-10 vntol=1e-7 maxord=2
+.tran 5.000000000000000e-9 {20*PERIOD} 0 5.000000000000000e-9 UIC
+.meas tran inductor_rms RMS I(Lboost) FROM={10*PERIOD} TO={20*PERIOD}
+.meas tran switch_rms RMS I(Vsense_switch) FROM={10*PERIOD} TO={20*PERIOD}
+.meas tran diode_rms RMS I(Vsense_diode) FROM={10*PERIOD} TO={20*PERIOD}
+.meas tran capacitor_rms RMS I(Vbus) FROM={10*PERIOD} TO={20*PERIOD}
+.meas tran inductor_avg AVG I(Lboost) FROM={10*PERIOD} TO={20*PERIOD}
+.meas tran diode_avg AVG I(Vsense_diode) FROM={10*PERIOD} TO={20*PERIOD}
+.meas tran inductor_min MIN I(Lboost) FROM={10*PERIOD} TO={20*PERIOD}
+.meas tran inductor_max MAX I(Lboost) FROM={10*PERIOD} TO={20*PERIOD}
+.end
