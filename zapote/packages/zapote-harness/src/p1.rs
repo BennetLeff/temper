@@ -36,6 +36,23 @@ fn finalize(report: &mut CheckReport) {
     };
 }
 
+fn saved_outer_copper_um(board: &[u8]) -> Option<f64> {
+    let text = std::str::from_utf8(board).ok()?;
+    let marker = "(layer \"F.Cu\"";
+    let start = text.find(marker)?;
+    let tail = &text[start..];
+    let value = tail
+        .split("(thickness ")
+        .nth(1)?
+        .split(')')
+        .next()?
+        .trim()
+        .parse::<f64>()
+        .ok()?;
+    let um = value * 1_000.0;
+    (um.is_finite() && um > 0.0).then_some(um)
+}
+
 fn expected_domain(unit: P1Unit, net: &str) -> (&'static str, &'static str) {
     match unit {
         P1Unit::Pfc if net == "PE_CHASSIS" => ("PE", "protective-earth"),
@@ -82,6 +99,7 @@ pub fn run(source: &str, native: &str, board: &[u8], unit: P1Unit) -> CheckRepor
         Err(e) => Finding::fail("ERC.POWER.P1_SOURCE_NATIVE_BINDING", e, entry),
     });
     let digest = format!("{:x}", Sha256::digest(board));
+    let copper_um = saved_outer_copper_um(board);
     r.checked_rules
         .push("DRC.POWER.P1_SAVED_BOARD_IDENTITY".into());
     let native_json: serde_json::Value = serde_json::from_str(native).unwrap_or_default();
@@ -192,7 +210,7 @@ pub fn run(source: &str, native: &str, board: &[u8], unit: P1Unit) -> CheckRepor
                     nets: vec![net.into()],
                     current_rms_a: None,
                     current_peak_a: None,
-                    copper_thickness_um: Some(70.0),
+                    copper_thickness_um: copper_um,
                     trace_ids: traces,
                     via_ids: vias,
                     pad_ids: pads,
