@@ -1,0 +1,57 @@
+{
+  "schema": "zapote.thermal.run-record.v1",
+  "base_commit": "2561adc94d12b35d431a07e4d1e68d40d38db2d3",
+  "branch": "codex/buck-harness-experiment-plan",
+  "model_provider": "OpenAI/Codex native collaboration",
+  "workers": [
+    {
+      "task": "/root/thermal_circuit_audit",
+      "model": "gpt-5.6-luna",
+      "role": "read-only circuit audit and completion review",
+      "reported_memory_use": [
+        "rtd-mem-001",
+        "current-sense-mem-001",
+        "voltage-sense-mem-001"
+      ],
+      "initial_dispatch_capture": "not retained in repository; host conversation only"
+    },
+    {
+      "task": "/root/thermal_rust",
+      "model": "gpt-5.6-luna",
+      "role": "Rust implementation in isolated worktree",
+      "worktree": "/private/tmp/temper-thermal-rust-20260912",
+      "initial_dispatch_capture": "not retained in repository; host conversation only",
+      "later_hardening_dispatch": {
+        "tool": "collaboration.followup_task",
+        "outbound_file": "memory/hardening-outbound.txt",
+        "sha256": "60fbd9f43cd2c5e1777ec4075862121fd034b93fe11d4eeb8e446970a1346774",
+        "host_tool_return": "successful empty acknowledgement",
+        "provider_forwarding_receipt": "not available"
+      }
+    }
+  ],
+  "sequence": [
+    "Rust memory selection; portable notes selected and RTD-specific fact excluded",
+    "Independent circuit audit/current exact sensor evidence",
+    "Atopile source-build-01 successful",
+    "Native strict skeleton, original library reload and explicit agent poses",
+    "routes-01 rejected wrong via field before any save",
+    "routes-02 routed; silk findings corrected",
+    "44-pin source/schematic oracle and three final zero-finding native passes",
+    "Rust draft hardening and independent counterexamples",
+    "Full workspace/native transport tests and completion review"
+  ],
+  "final_authority": {
+    "digital_construction": "complete",
+    "rust": "indeterminate, zero failures",
+    "native": "3 clean ERC/DRC/parity runs",
+    "physical": "NOT RUN"
+  },
+  "placement_routing": "coordinator-authored explicit poses/vertices, applied through native KiCad transport",
+  "failed_attempts": [
+    "evidence/routes-01-rejection.json",
+    "evidence/drc-first.json",
+    "evidence/native-check-01"
+  ],
+  "capture_limit": "Initial outbound prompts are not fully retained locally; selection and agent self-report do not prove provider consumption."
+}

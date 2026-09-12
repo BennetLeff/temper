@@ -32,6 +32,8 @@ physical qualification and procurement gaps.
 
 The [standalone voltage-sense / OVP unit](voltage-sense/README.md) adds the next separately compiled, routed unit, a corrected ADC divider, source-derived electrical checks and saved-document consistency controls. Its digital construction passes while qualification remains explicit.
 
+The [standalone thermal unit](thermal-sense/README.md) adds two external-NTC channels, loaded-feedback trip/release modeling, exact connectivity controls and a routed native PCB. Digital construction is complete; sensor diagnostics and physical qualification remain explicit integration obligations.
+
 [Engineering memory](skills/README.md) connects reviewed, versioned lessons to
 construction inputs through Rust selection and a thin process transport. The
 existing `harness-lab/` remains available for legacy experiments. The old Python

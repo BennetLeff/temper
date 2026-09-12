@@ -877,4 +877,5 @@ mod tests {
     }
 }
 
+pub mod thermal_sense;
 pub mod voltage_sense;

@@ -1,0 +1,52 @@
+{
+  "status": "complete",
+  "mode": "agent",
+  "base": "2561adc94",
+  "plan": "docs/plans/2026-09-11-zapote-thermal-sensing-plan.md",
+  "artifact_path": "/private/tmp/thermal-review/review.json",
+  "verdict": "ready-with-acknowledged-qualification-limits",
+  "findings": [],
+  "acknowledged_limitations": [
+    {
+      "id": "THERMAL-002",
+      "severity": "P2",
+      "title": "Qualification remains intentionally indeterminate and cannot support a fault-safe claim",
+      "file": "zapote/packages/zapote-erc/src/thermal_sense.rs",
+      "evidence": "The validator explicitly reports TLV3201 applicability, connector rating, sensor open/short behavior, analog loading, power-off, and integration as indeterminate; the source uses real two-pin JST probe connectors and no PCB sensor resistor.",
+      "assessment": "Acknowledged acceptance scope limitation, not a construction defect. An open probe reads cold and a ground short trips; the current circuit does not establish fault-safe behavior."
+    }
+  ],
+  "coverage": {
+    "personas": [
+      "correctness-reviewer",
+      "project-standards-reviewer",
+      "testing-reviewer",
+      "adversarial-reviewer",
+      "maintainability-reviewer"
+    ],
+    "inline_sequential": true,
+    "files_scope": [
+      "elec/src/thermal_sense_unit.ato",
+      "zapote/thermal-sense",
+      "zapote/packages/zapote-erc/src/thermal_sense.rs",
+      "zapote/packages/zapote-harness/src/thermal_sense.rs",
+      "zapote/packages/zapote-harness/src/bin/zapote-thermal.rs",
+      "zapote/packages/zapote-harness/tests/thermal_sense.rs",
+      "zapote/packages/zapote-erc/src/lib.rs",
+      "zapote/packages/zapote-harness/src/lib.rs",
+      "zapote/Makefile",
+      "zapote/tools/refresh_native_footprints.py"
+    ],
+    "excluded": ["zapote/voltage-sense/candidate/section.kicad_pro", "generated/evidence blobs"],
+    "verification": [
+      "Read source/native receipts and checked their actual identity fields and hashes.",
+      "Reviewed thermal topology, complete KCL corner implementation, strict pin/net checks, duplicate/split cluster checks, CLI status exits, and native library refresh safeguards.",
+      "Parent reports all 151 Rust workspace tests, strict Clippy, and five existing transport tests passing; thermal focused review used source inspection and the available receipt/test evidence.",
+      "No code or repository files were modified by this review."
+    ],
+    "peer_review": {
+      "attempted": false,
+      "reason": "No peer route/config verification was performed in this bounded follow-up; external independence is unverified. Local personas, including adversarial review, ran inline."
+    }
+  }
+}

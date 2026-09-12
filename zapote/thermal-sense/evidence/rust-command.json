@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/private/tmp/zapote-rtd-target/debug/zapote-thermal",
+    "zapote/thermal-sense/candidate/source-manifest.json",
+    "zapote/thermal-sense/evidence/native-final.json",
+    "zapote/thermal-sense/sensor-contract.json"
+  ],
+  "exit_code": 1,
+  "stderr": "",
+  "binary_sha256": "820dff31dee60f4e65fa50d1db90b5b6e83fb74ac52428936c35c79fab951c82",
+  "input_sha256": {
+    "zapote/thermal-sense/candidate/source-manifest.json": "29a57968e0c4c3db74068d30f776969e6009fd9455da4f3441bd26a0d2f071df",
+    "zapote/thermal-sense/evidence/native-final.json": "64b7e0822bf1e5db3dbd8b1503358a0f0846c8a41d147ee42205ab79c2ec1312",
+    "zapote/thermal-sense/sensor-contract.json": "e3c0b6ddea972a80f6c812a3845d8edb967b07db8230ae37f948c8c6acf42369"
+  }
+}

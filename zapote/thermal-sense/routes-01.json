@@ -1,0 +1,917 @@
+{
+  "author": "root explicit channel placement and polylines; no path search",
+  "nets": [
+    {
+      "net": "HS_SENSE",
+      "paths": [
+        {
+          "points": [
+            "heatsink_probe.1",
+            [
+              10,
+              10
+            ],
+            [
+              10,
+              17
+            ],
+            [
+              39,
+              17
+            ],
+            [
+              39,
+              12.95
+            ],
+            "hs_comp.4"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "hs_filter.1",
+            [
+              15,
+              17
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "hs_fixed.2",
+            [
+              18,
+              8
+            ],
+            [
+              18,
+              17
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            [
+              39,
+              17
+            ],
+            [
+              52,
+              17
+            ],
+            [
+              53,
+              16
+            ],
+            "host.5"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "HS_REF",
+      "paths": [
+        {
+          "points": [
+            "hs_top.2",
+            [
+              29,
+              5.175
+            ],
+            [
+              29,
+              6
+            ],
+            "hs_hyst.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "hs_top.2",
+            [
+              25,
+              5.175
+            ],
+            [
+              25,
+              13.825
+            ],
+            "hs_bottom.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "hs_hyst.1",
+            [
+              30,
+              8
+            ],
+            [
+              30,
+              14.5
+            ],
+            [
+              33,
+              14.5
+            ],
+            [
+              33,
+              12.95
+            ],
+            "hs_comp.3"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "hs_bottom.1",
+            [
+              30,
+              13.825
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "HS_FAULT",
+      "paths": [
+        {
+          "points": [
+            "hs_hyst.2",
+            [
+              34.8625,
+              6
+            ],
+            "hs_comp.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "hs_hyst.2",
+            [
+              33,
+              3.8
+            ],
+            [
+              49,
+              3.8
+            ],
+            [
+              49,
+              11
+            ],
+            "host.3"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "COIL_SENSE",
+      "paths": [
+        {
+          "points": [
+            "coil_probe.1",
+            [
+              10,
+              28
+            ],
+            [
+              10,
+              35
+            ],
+            [
+              39,
+              35
+            ],
+            [
+              39,
+              30.95
+            ],
+            "coil_comp.4"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "coil_filter.1",
+            [
+              15,
+              35
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "coil_fixed.2",
+            [
+              18,
+              26
+            ],
+            [
+              18,
+              35
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            [
+              39,
+              35
+            ],
+            [
+              51,
+              35
+            ],
+            [
+              51,
+              20
+            ],
+            [
+              53,
+              18.5
+            ],
+            "host.6"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "COIL_REF",
+      "paths": [
+        {
+          "points": [
+            "coil_top.2",
+            [
+              29,
+              23.175
+            ],
+            [
+              29,
+              24
+            ],
+            "coil_hyst.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "coil_top.2",
+            [
+              25,
+              23.175
+            ],
+            [
+              25,
+              31.825
+            ],
+            "coil_bottom.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "coil_hyst.1",
+            [
+              30,
+              26
+            ],
+            [
+              30,
+              32.5
+            ],
+            [
+              33,
+              32.5
+            ],
+            [
+              33,
+              30.95
+            ],
+            "coil_comp.3"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "coil_bottom.1",
+            [
+              30,
+              31.825
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        }
+      ],
+      "vias": [],
+      "zones": []
+    },
+    {
+      "net": "COIL_FAULT",
+      "paths": [
+        {
+          "points": [
+            "coil_hyst.2",
+            [
+              34.8625,
+              24
+            ],
+            "coil_comp.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            "coil_hyst.2",
+            [
+              33,
+              22
+            ],
+            [
+              48,
+              22
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            [
+              48,
+              22
+            ],
+            [
+              48,
+              13.5
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.25
+        },
+        {
+          "points": [
+            [
+              48,
+              13.5
+            ],
+            "host.4"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.25
+        }
+      ],
+      "vias": [
+        {
+          "at_mm": [
+            48,
+            22
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            48,
+            13.5
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        }
+      ],
+      "zones": []
+    },
+    {
+      "net": "+3V3",
+      "paths": [
+        {
+          "points": [
+            "host.1",
+            [
+              47,
+              6
+            ],
+            [
+              47,
+              29
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.4
+        },
+        {
+          "points": [
+            "hs_fixed.1",
+            [
+              13,
+              8
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            [
+              13,
+              8
+            ],
+            [
+              47,
+              8
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "hs_top.1",
+            [
+              27,
+              8
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            [
+              27,
+              8
+            ],
+            [
+              47,
+              8
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "hs_bypass.1",
+            [
+              42.5,
+              10.775
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            [
+              42.5,
+              10.775
+            ],
+            [
+              47,
+              10.775
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "hs_comp.5",
+            [
+              39,
+              11.05
+            ],
+            "hs_bypass.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "coil_fixed.1",
+            [
+              13,
+              26
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            [
+              13,
+              26
+            ],
+            [
+              47,
+              26
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "coil_top.1",
+            [
+              27,
+              26
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            [
+              27,
+              26
+            ],
+            [
+              47,
+              26
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "coil_bypass.1",
+            [
+              42.5,
+              28.775
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            [
+              42.5,
+              28.775
+            ],
+            [
+              47,
+              28.775
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "coil_comp.5",
+            [
+              39,
+              29.05
+            ],
+            "coil_bypass.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        }
+      ],
+      "vias": [
+        {
+          "at_mm": [
+            13,
+            8
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            27,
+            8
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            42.5,
+            10.775
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            13,
+            26
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            27,
+            26
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            42.5,
+            28.775
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        }
+      ],
+      "zones": []
+    },
+    {
+      "net": "gnd",
+      "paths": [
+        {
+          "points": [
+            "hs_filter.2",
+            [
+              13,
+              13.225
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "hs_bottom.2",
+            [
+              21.5,
+              12.175
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "hs_comp.2",
+            [
+              33,
+              12
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "hs_bypass.2",
+            [
+              42.5,
+              9.225
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "coil_filter.2",
+            [
+              13,
+              31.225
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "coil_bottom.2",
+            [
+              21.5,
+              30.175
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "coil_comp.2",
+            [
+              33,
+              30
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        },
+        {
+          "points": [
+            "coil_bypass.2",
+            [
+              42.5,
+              27.225
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.3
+        }
+      ],
+      "vias": [
+        {
+          "at_mm": [
+            13,
+            13.225
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            21.5,
+            12.175
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            33,
+            12
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            42.5,
+            9.225
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            13,
+            31.225
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            21.5,
+            30.175
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            33,
+            30
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "at_mm": [
+            42.5,
+            27.225
+          ],
+          "diameter_mm": 0.6,
+          "drill_mm": 0.3,
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "layer": "B.Cu",
+          "outline_mm": [
+            [
+              2,
+              2
+            ],
+            [
+              64,
+              2
+            ],
+            [
+              64,
+              41
+            ],
+            [
+              2,
+              41
+            ]
+          ],
+          "clearance_mm": 0.3,
+          "min_thickness_mm": 0.25
+        }
+      ]
+    }
+  ]
+}
