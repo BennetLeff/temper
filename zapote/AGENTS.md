@@ -108,6 +108,12 @@ documents contain the incident details and the evidence behind each rule.
 
 ### Workflow guardrails
 
+- A subagent handback is not batch completion. Accept validator work only after
+  reviewing and integrating its files, proving relevant failure cases, and
+  running the common `check-units` command on current maintained candidates.
+  Missing adapters, geometric models and evaluated-object counts are software
+  gaps; never relabel them as only hardware qualification. Track exact remaining
+  requirements in the [integration checkpoint](validation/integration-2026-09-12.md).
 - Use public module interfaces and keep import-boundary checks ratcheting
   monotonically: new violations fail, and fixed exceptions are removed rather
   than replaced with broader coupling.

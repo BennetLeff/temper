@@ -1,0 +1,1248 @@
+{
+  "common_checks": {
+    "checked_rules": [
+      "DRC.BOARD.STACKUP",
+      "DRC.NATIVE.DOCUMENT_BINDING",
+      "RUNNER.REQUIRED_CHECKS"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+        "object": "board.setup.stackup",
+        "required": null,
+        "rule": "DRC.BOARD.STACKUP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "declared_checked_rule_ids": [
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.CLEARANCE",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.P2.ANNULAR_RING",
+    "DRC.P2.BODY_COLLISION",
+    "DRC.P2.COPPER_OUTLINE",
+    "DRC.P2.DRILL_CONFLICT",
+    "DRC.P2.SUPPORTED_ANGLE",
+    "DRC.THERMAL.LOCALITY",
+    "ERC.THERMAL.ANALOG_FAULT_CASES",
+    "ERC.THERMAL.CONNECTIVITY",
+    "ERC.THERMAL.FAULT_CASES",
+    "ERC.THERMAL.FAULT_LOGIC",
+    "ERC.THERMAL.GATE_PIN_MAP",
+    "ERC.THERMAL.NATIVE_COMPONENTS",
+    "ERC.THERMAL.OPEN_CONTRACT",
+    "ERC.THERMAL.OPEN_MARGIN",
+    "ERC.THERMAL.OPEN_SETTLING",
+    "ERC.THERMAL.PARTS",
+    "ERC.THERMAL.QUALIFICATION",
+    "ERC.THERMAL.SENSOR_CONTRACT",
+    "ERC.THERMAL.SOURCE",
+    "ERC.THERMAL.STRICT_PIN_MAP",
+    "ERC.THERMAL.THRESHOLDS",
+    "ERC.THERMAL.THRESHOLD_CORNERS",
+    "ERC.THERMAL.TOPOLOGY",
+    "NATIVE.DRC",
+    "NATIVE.ERC",
+    "NATIVE.REPORT_CONTRACT",
+    "NATIVE.SCHEMATIC_PARITY",
+    "NATIVE.UNCONNECTED",
+    "QUALIFICATION.HARDWARE",
+    "RUNNER.REQUIRED_CHECKS"
+  ],
+  "executable_sha256": "35eab5947b32b06aad89e77b397d157fe986cb14d0e90b9d1a556d0b3f819210",
+  "input_hashes": {
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../thermal-sense/candidate/section.kicad_pcb": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../thermal-sense/candidate/section.kicad_sch": "9f563c0d3832d1c426bc45a47ac46b54329b7caea80670486132a3557415530c",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../thermal-sense/candidate/source-manifest.json": "81fa4ebb9c1a0094dc06746ffaee0c7d21c09614413aa5e2f318eac2fb00bd1c",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../thermal-sense/evidence/native-final-revb.json": "132918bb2581d61d80a63d1a9d9af8b40c93c0192ee9f9a66c9619200c723c8f",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../thermal-sense/sensor-contract.json": "71233f26f4592c77a105b075bad632e982584c5384fb032688eea308245481ca"
+  },
+  "manufacturing_checks": {
+    "checked_rules": [
+      "DRC.P2.BODY_COLLISION",
+      "DRC.P2.ANNULAR_RING",
+      "DRC.P2.DRILL_CONFLICT",
+      "DRC.P2.COPPER_OUTLINE",
+      "DRC.P2.SUPPORTED_ANGLE"
+    ],
+    "coverage_gaps": [
+      "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+      "unsupported native geometry: J2: open F.Fab detail lines are not a closed body polygon",
+      "unsupported native geometry: J3: open F.Fab detail lines are not a closed body polygon",
+      "source-declared fabrication limits are required",
+      "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+      "assembly process is required"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "mechanical findings use source-declared prototype limits; vendor/process qualification is pending",
+        "object": "fabrication-envelope",
+        "required": null,
+        "rule": "DRC.P2.FABRICATION_QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "manufacturing_receipt_sha256": "d4cdcbb499a24791fbae31ee0b6620d3d1cfffec0a99e9ae16279226d39df36b",
+  "native_checks": {
+    "checked_rules": [
+      "NATIVE.REPORT_CONTRACT",
+      "NATIVE.ERC",
+      "NATIVE.DRC",
+      "NATIVE.UNCONNECTED",
+      "NATIVE.SCHEMATIC_PARITY"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.ERC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.DRC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.UNCONNECTED",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.SCHEMATIC_PARITY",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "native_execution": [
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "erc",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/private/tmp/zapote-integrated-8648e2f77/thermal-sense/erc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_sch"
+      ],
+      "dependency_hashes": {
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/ThermalSenseUnit.kicad_sym": "8ef1abc1e256024743f5460feb4a8d0e7da13adc3a9e0c41a9403c0431c79f45",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.kicad_mod": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical.kicad_mod": "58598e38057ca81d58c6734ac37bb065506aa8a5bf443868be9520527c6a8635",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/fp-lib-table": "5bcc90abb4d0ed225a9e9319bb9df7a2abeb918498fc78b1e60bd922668c99f5",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_dru": "3a50d4365ed7b467d33c802017850081fcc7da982daa8e00036e6099affd2dc3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_pcb": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_sch": "9f563c0d3832d1c426bc45a47ac46b54329b7caea80670486132a3557415530c",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/sym-lib-table": "ab92f7085b117ef5dc4d6641069cd8baf3422c9c49f3c05e4085c205d8a20fbd"
+      },
+      "input_sha256": "9f563c0d3832d1c426bc45a47ac46b54329b7caea80670486132a3557415530c",
+      "report_path": "/private/tmp/zapote-integrated-8648e2f77/thermal-sense/erc.json",
+      "report_sha256": "3479e9661c39051cb277856626373f9292c194bcf9f4d6c7a8273b5507993799",
+      "returncode": 0,
+      "tool_version": "10.0.4"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "drc",
+        "--severity-all",
+        "--all-track-errors",
+        "--schematic-parity",
+        "--format",
+        "json",
+        "--output",
+        "/private/tmp/zapote-integrated-8648e2f77/thermal-sense/drc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_pcb"
+      ],
+      "dependency_hashes": {
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/ThermalSenseUnit.kicad_sym": "8ef1abc1e256024743f5460feb4a8d0e7da13adc3a9e0c41a9403c0431c79f45",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.kicad_mod": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical.kicad_mod": "58598e38057ca81d58c6734ac37bb065506aa8a5bf443868be9520527c6a8635",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/fp-lib-table": "5bcc90abb4d0ed225a9e9319bb9df7a2abeb918498fc78b1e60bd922668c99f5",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_dru": "3a50d4365ed7b467d33c802017850081fcc7da982daa8e00036e6099affd2dc3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_pcb": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_sch": "9f563c0d3832d1c426bc45a47ac46b54329b7caea80670486132a3557415530c",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/sym-lib-table": "ab92f7085b117ef5dc4d6641069cd8baf3422c9c49f3c05e4085c205d8a20fbd"
+      },
+      "input_sha256": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+      "report_path": "/private/tmp/zapote-integrated-8648e2f77/thermal-sense/drc.json",
+      "report_sha256": "c965ee70ac0a9a76be0a092adeac04cb1f295f5e9ab0c686b702bd15d00270ba",
+      "returncode": 0,
+      "tool_version": "10.0.4"
+    }
+  ],
+  "native_population": {
+    "components": 27,
+    "connections": 76,
+    "connectivity_clusters": 13,
+    "traces": 162,
+    "vias": 44,
+    "zones": 1
+  },
+  "operating_checks": null,
+  "population_scope": "Native input census, not per-rule evaluated-object counts. Unit rules do not uniformly expose those counts; do not infer them from IDs.",
+  "power_checks": null,
+  "qualification": {
+    "checked_rules": [
+      "QUALIFICATION.HARDWARE"
+    ],
+    "coverage_gaps": [
+      "hardware not run"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately",
+        "object": "unit",
+        "required": null,
+        "rule": "QUALIFICATION.HARDWARE",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "required_rule_ids": [
+    "ERC.THERMAL.ANALOG_FAULT_CASES",
+    "ERC.THERMAL.CONNECTIVITY",
+    "ERC.THERMAL.FAULT_CASES",
+    "ERC.THERMAL.FAULT_LOGIC",
+    "ERC.THERMAL.GATE_PIN_MAP",
+    "ERC.THERMAL.NATIVE_COMPONENTS",
+    "ERC.THERMAL.OPEN_CONTRACT",
+    "ERC.THERMAL.OPEN_MARGIN",
+    "ERC.THERMAL.OPEN_SETTLING",
+    "ERC.THERMAL.PARTS",
+    "ERC.THERMAL.QUALIFICATION",
+    "ERC.THERMAL.SENSOR_CONTRACT",
+    "ERC.THERMAL.SOURCE",
+    "ERC.THERMAL.STRICT_PIN_MAP",
+    "ERC.THERMAL.THRESHOLDS",
+    "ERC.THERMAL.THRESHOLD_CORNERS",
+    "ERC.THERMAL.TOPOLOGY",
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.THERMAL.LOCALITY",
+    "DRC.NATIVE.CLEARANCE",
+    "DRC.P2.BODY_COLLISION",
+    "DRC.P2.ANNULAR_RING",
+    "DRC.P2.DRILL_CONFLICT",
+    "DRC.P2.COPPER_OUTLINE",
+    "DRC.P2.SUPPORTED_ANGLE"
+  ],
+  "schema": "zapote.unit-run.v2",
+  "status": "indeterminate",
+  "unit": "thermal-sense",
+  "unit_checks": {
+    "checked_rules": [
+      "ERC.THERMAL.ANALOG_FAULT_CASES",
+      "ERC.THERMAL.CONNECTIVITY",
+      "ERC.THERMAL.FAULT_CASES",
+      "ERC.THERMAL.FAULT_LOGIC",
+      "ERC.THERMAL.GATE_PIN_MAP",
+      "ERC.THERMAL.NATIVE_COMPONENTS",
+      "ERC.THERMAL.OPEN_CONTRACT",
+      "ERC.THERMAL.OPEN_MARGIN",
+      "ERC.THERMAL.OPEN_SETTLING",
+      "ERC.THERMAL.PARTS",
+      "ERC.THERMAL.QUALIFICATION",
+      "ERC.THERMAL.SENSOR_CONTRACT",
+      "ERC.THERMAL.SOURCE",
+      "ERC.THERMAL.STRICT_PIN_MAP",
+      "ERC.THERMAL.THRESHOLDS",
+      "ERC.THERMAL.THRESHOLD_CORNERS",
+      "ERC.THERMAL.TOPOLOGY",
+      "DRC.BOARD.STACKUP",
+      "DRC.NATIVE.DOCUMENT_BINDING",
+      "DRC.THERMAL.LOCALITY",
+      "DRC.NATIVE.CLEARANCE"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "source attribute binding hs_filter",
+        "object": "hs_filter",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_bypass",
+        "object": "hs_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_filter",
+        "object": "coil_filter",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_bypass",
+        "object": "coil_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_open_bypass",
+        "object": "hs_open_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_open_bypass",
+        "object": "coil_open_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_or_bypass",
+        "object": "hs_or_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_or_bypass",
+        "object": "coil_or_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding heatsink_probe",
+        "object": "heatsink_probe",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_probe",
+        "object": "coil_probe",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding host",
+        "object": "host",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_fixed",
+        "object": "hs_fixed",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding open_bottom",
+        "object": "open_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_top",
+        "object": "hs_top",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_bottom",
+        "object": "hs_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_hyst",
+        "object": "hs_hyst",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_fixed",
+        "object": "coil_fixed",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_top",
+        "object": "coil_top",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_bottom",
+        "object": "coil_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_hyst",
+        "object": "coil_hyst",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding open_top",
+        "object": "open_top",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_comp",
+        "object": "hs_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_comp",
+        "object": "coil_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_open_comp",
+        "object": "hs_open_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_open_comp",
+        "object": "coil_open_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding hs_or",
+        "object": "hs_or",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "source attribute binding coil_or",
+        "object": "coil_or",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact 27-component source census",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.SOURCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact 27-component native census",
+        "object": "native",
+        "required": null,
+        "rule": "ERC.THERMAL.NATIVE_COMPONENTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN heatsink_probe: B2B-XH-A(LF)(SN)",
+        "object": "heatsink_probe",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_probe: B2B-XH-A(LF)(SN)",
+        "object": "coil_probe",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN host: B6B-XH-A(LF)(SN)",
+        "object": "host",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_comp: TLV3201AIDBVR",
+        "object": "hs_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_comp: TLV3201AIDBVR",
+        "object": "coil_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_fixed: RC0603FR-0710KL",
+        "object": "hs_fixed",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_top: RC0603FR-079K09L",
+        "object": "hs_top",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_bottom: RC0603FR-0711K5L",
+        "object": "hs_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_hyst: RC0603FR-0734K8L",
+        "object": "hs_hyst",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_fixed: RC0603FR-0710KL",
+        "object": "coil_fixed",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_top: RC0603FR-0720KL",
+        "object": "coil_top",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_bottom: RC0603FR-078K06L",
+        "object": "coil_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_hyst: RC0603FR-0742K2L",
+        "object": "coil_hyst",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN open_top: RC0603FR-071K21L",
+        "object": "open_top",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN open_bottom: RC0603FR-07100KL",
+        "object": "open_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_open_comp: TLV9031DBVR",
+        "object": "hs_open_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_open_comp: TLV9031DBVR",
+        "object": "coil_open_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_or: SN74LVC1G32DBVR",
+        "object": "hs_or",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_or: SN74LVC1G32DBVR",
+        "object": "coil_or",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_filter: C0603C104K5RACTU",
+        "object": "hs_filter",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_bypass: C0603C104K5RACTU",
+        "object": "hs_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_filter: C0603C104K5RACTU",
+        "object": "coil_filter",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_bypass: C0603C104K5RACTU",
+        "object": "coil_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_open_bypass: C0603C104K5RACTU",
+        "object": "hs_open_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_open_bypass: C0603C104K5RACTU",
+        "object": "coil_open_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN hs_or_bypass: C0603C104K5RACTU",
+        "object": "hs_or_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact MPN coil_or_bypass: C0603C104K5RACTU",
+        "object": "coil_or_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "compiled source equals complete pin/net intent",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.TOPOLOGY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native pads and connections equal complete pin/net intent",
+        "object": "native",
+        "required": null,
+        "rule": "ERC.THERMAL.TOPOLOGY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "strict source pin map validates reference, pin/pad identity, uniqueness, and complete coverage",
+        "object": "source",
+        "required": null,
+        "rule": "ERC.THERMAL.STRICT_PIN_MAP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "one native connectivity cluster per authored net with exact node sets",
+        "object": "native",
+        "required": null,
+        "rule": "ERC.THERMAL.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native routed copper exists",
+        "object": "native",
+        "required": null,
+        "rule": "ERC.THERMAL.CONNECTIVITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "exact sensor identity, rating scope, supply range, channel targets, and qualification contract",
+        "object": "sensor-contract",
+        "required": null,
+        "rule": "ERC.THERMAL.SENSOR_CONTRACT",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_filter capacitor value and 50V rating",
+        "object": "hs_filter",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_bypass capacitor value and 50V rating",
+        "object": "hs_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_filter capacitor value and 50V rating",
+        "object": "coil_filter",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_bypass capacitor value and 50V rating",
+        "object": "coil_bypass",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_fixed exact MPN/value/tolerance binding",
+        "object": "hs_fixed",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_top exact MPN/value/tolerance binding",
+        "object": "hs_top",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_bottom exact MPN/value/tolerance binding",
+        "object": "hs_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_hyst exact MPN/value/tolerance binding",
+        "object": "hs_hyst",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_fixed exact MPN/value/tolerance binding",
+        "object": "coil_fixed",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_top exact MPN/value/tolerance binding",
+        "object": "coil_top",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_bottom exact MPN/value/tolerance binding",
+        "object": "coil_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_hyst exact MPN/value/tolerance binding",
+        "object": "coil_hyst",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "open_top exact MPN/value/tolerance binding",
+        "object": "open_top",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "open_bottom exact MPN/value/tolerance binding",
+        "object": "open_bottom",
+        "required": null,
+        "rule": "ERC.THERMAL.PARTS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs nominal thresholds trip 84.96°C/release 69.79°C; expected 85/70",
+        "object": "hs",
+        "required": null,
+        "rule": "ERC.THERMAL.THRESHOLDS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs exhaustive 64-corner trip 82.40..87.62°C, release 67.65..72.01°C; conditional model only",
+        "object": "hs",
+        "required": null,
+        "rule": "ERC.THERMAL.THRESHOLD_CORNERS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil nominal thresholds trip 119.65°C/release 99.96°C; expected 120/100",
+        "object": "coil",
+        "required": null,
+        "rule": "ERC.THERMAL.THRESHOLDS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil exhaustive 64-corner trip 116.02..123.44°C, release 96.96..103.10°C; conditional model only",
+        "object": "coil",
+        "required": null,
+        "rule": "ERC.THERMAL.THRESHOLD_CORNERS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "open detection uses the v2 bounded engineering allowances and external reset ownership",
+        "object": "open_detection",
+        "required": null,
+        "rule": "ERC.THERMAL.OPEN_CONTRACT",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "heatsink 0°C/open worst-case comparator margins 0.0161/0.0103 V; IN+ sense > IN- OPEN_REF",
+        "object": "hs_open_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.OPEN_MARGIN",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil 0°C/open worst-case comparator margins 0.0161/0.0103 V; IN+ sense > IN- OPEN_REF",
+        "object": "coil_open_comp",
+        "required": null,
+        "rule": "ERC.THERMAL.OPEN_MARGIN",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "worst-case zero-charge threshold crossing hs=0.006352s coil=0.006352s <= 0.010000s",
+        "object": "open_detection",
+        "required": null,
+        "rule": "ERC.THERMAL.OPEN_SETTLING",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "independent TLV9031 and SN74LVC1G32 pin map preserves sense polarity and HOT/OPEN OR inputs",
+        "object": "open_detection",
+        "required": null,
+        "rule": "ERC.THERMAL.GATE_PIN_MAP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "each channel fault is the logical OR of independently wired HOT and OPEN comparator outputs",
+        "object": "fault_logic",
+        "required": null,
+        "rule": "ERC.THERMAL.FAULT_LOGIC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "SN74LVC1G32 truth table: each asserted input and both asserted inputs produce HIGH",
+        "object": "fault_logic",
+        "required": null,
+        "rule": "ERC.THERMAL.FAULT_CASES",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "analog sense/reference evaluation faults at hot, open, and both short conditions while remaining clear at 0°C and reconnect",
+        "object": "fault_logic",
+        "required": null,
+        "rule": "ERC.THERMAL.ANALOG_FAULT_CASES",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135–3.465 V monitor rail",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "TLV9031 input common-mode, output swing, offset and leakage applicability across the 3.135–3.465 V monitor rail",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "SN74LVC1G32 input/output thresholds and rail applicability across the 3.135–3.465 V monitor rail",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "beta extrapolation to coil 120°C and comparator hysteresis",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "external connector 85°C limit, mounting, thermal coupling, and self-heating",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "sensor harness open/short behavior and downstream latch integration",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "power-off behavior and system integration",
+        "object": "ThermalSenseUnit",
+        "required": null,
+        "rule": "ERC.THERMAL.QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+        "object": "board.setup.stackup",
+        "required": null,
+        "rule": "DRC.BOARD.STACKUP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_bypass.1 to hs_comp.5 pad-centre locality Some(3.872277269256423) mm; required <=5 mm",
+        "object": "hs_bypass",
+        "required": null,
+        "rule": "DRC.THERMAL.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_bypass.1 to coil_comp.5 pad-centre locality Some(3.872277269256423) mm; required <=5 mm",
+        "object": "coil_bypass",
+        "required": null,
+        "rule": "DRC.THERMAL.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_open_bypass.1 to hs_open_comp.5 pad-centre locality Some(4.697821968742534) mm; required <=5 mm",
+        "object": "hs_open_bypass",
+        "required": null,
+        "rule": "DRC.THERMAL.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_open_bypass.1 to coil_open_comp.5 pad-centre locality Some(4.697821968742533) mm; required <=5 mm",
+        "object": "coil_open_bypass",
+        "required": null,
+        "rule": "DRC.THERMAL.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "hs_or_bypass.1 to hs_or.5 pad-centre locality Some(3.872277269256423) mm; required <=5 mm",
+        "object": "hs_or_bypass",
+        "required": null,
+        "rule": "DRC.THERMAL.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "coil_or_bypass.1 to coil_or.5 pad-centre locality Some(3.872277269256423) mm; required <=5 mm",
+        "object": "coil_or_bypass",
+        "required": null,
+        "rule": "DRC.THERMAL.LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native copper clears 0.2 mm fabrication floor",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.CLEARANCE",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "indeterminate"
+  }
+}

@@ -1,0 +1,408 @@
+{
+  "common_checks": {
+    "checked_rules": [
+      "DRC.BOARD.STACKUP",
+      "DRC.NATIVE.DOCUMENT_BINDING",
+      "RUNNER.REQUIRED_CHECKS"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "4 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+        "object": "board.setup.stackup",
+        "required": null,
+        "rule": "DRC.BOARD.STACKUP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "declared_checked_rule_ids": [
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.P2.ANNULAR_RING",
+    "DRC.P2.BODY_COLLISION",
+    "DRC.P2.COPPER_OUTLINE",
+    "DRC.P2.DRILL_CONFLICT",
+    "DRC.P2.SUPPORTED_ANGLE",
+    "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+    "DRC.RTD.FERRITE_SEMANTICS",
+    "DRC.RTD.LOCAL_DECOUPLING",
+    "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+    "DRC.RTD.NATIVE_GEOMETRY",
+    "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+    "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+    "ERC.RTD.ADC_PIN_NETS",
+    "ERC.RTD.BOARD_COMPONENT_BINDING",
+    "ERC.RTD.EXACT_COMPONENTS",
+    "ERC.RTD.FAULT_CORNERS",
+    "ERC.RTD.FAULT_OUTPUT",
+    "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+    "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+    "ERC.RTD.FORCE_SENSE_SEPARATION",
+    "ERC.RTD.FOUR_WIRE_PINOUT",
+    "ERC.RTD.MODEL_DEVICE_APPLICABILITY",
+    "ERC.RTD.MODEL_QUALIFICATION",
+    "ERC.RTD.NATIVE_CONNECTIVITY",
+    "ERC.RTD.RREF_IDENTITY",
+    "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+    "ERC.RTD.SHARED_REFERENCE",
+    "ERC.RTD.SPI_SERIES_PLACEMENT",
+    "ERC.RTD.UNIT_COMPONENT_MPN",
+    "ERC.RTD.UNIT_CONNECTIONS",
+    "ERC.RTD.UNIT_FIRMWARE",
+    "ERC.RTD.UNIT_INTERFACE",
+    "ERC.RTD.UNIT_MODEL",
+    "ERC.RTD.UNIT_SOURCE_BINDING",
+    "NATIVE.DRC",
+    "NATIVE.ERC",
+    "NATIVE.REPORT_CONTRACT",
+    "NATIVE.SCHEMATIC_PARITY",
+    "NATIVE.UNCONNECTED",
+    "QUALIFICATION.HARDWARE",
+    "RUNNER.REQUIRED_CHECKS"
+  ],
+  "executable_sha256": "35eab5947b32b06aad89e77b397d157fe986cb14d0e90b9d1a556d0b3f819210",
+  "input_hashes": {
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../rtd/model-correctness/qualified-input/input.json": "eb8bda7ff794bdec30b36098a143e37c51febe5a3ad2925e058c454b88505427",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../rtd/unit/candidate/section.kicad_pcb": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../rtd/unit/candidate/section.kicad_sch": "b93db55b2b5af0829162d096a460b03763c68a9b70bdd73846d800937b0f8533",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../rtd/unit/candidate/source-manifest.json": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../rtd/unit/evidence/return-rust-01/native.json": "6babf49a5b4a3beab102f04035ef90b32f43c19c9c1d39f79768d732004cfc89"
+  },
+  "manufacturing_checks": {
+    "checked_rules": [
+      "DRC.P2.BODY_COLLISION",
+      "DRC.P2.ANNULAR_RING",
+      "DRC.P2.DRILL_CONFLICT",
+      "DRC.P2.COPPER_OUTLINE",
+      "DRC.P2.SUPPORTED_ANGLE"
+    ],
+    "coverage_gaps": [
+      "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+      "source-declared fabrication limits are required",
+      "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+      "assembly process is required"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "mechanical findings use source-declared prototype limits; vendor/process qualification is pending",
+        "object": "fabrication-envelope",
+        "required": null,
+        "rule": "DRC.P2.FABRICATION_QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "manufacturing_receipt_sha256": "2ffb8693df380d14de30b3eccad9bdde81061aa43b85738bdfe92bb5c008476a",
+  "native_checks": {
+    "checked_rules": [
+      "NATIVE.REPORT_CONTRACT",
+      "NATIVE.ERC",
+      "NATIVE.DRC",
+      "NATIVE.UNCONNECTED",
+      "NATIVE.SCHEMATIC_PARITY"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.ERC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.DRC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.UNCONNECTED",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.SCHEMATIC_PARITY",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "native_execution": [
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "erc",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/private/tmp/zapote-integrated-8648e2f77/rtd/erc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_sch"
+      ],
+      "dependency_hashes": {
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Inductor_SMD.pretty/L_0603_1608Metric.kicad_mod": "a2a9c562208496756e22f3ab19e0bd6db2341d14da92e7c767d5eafd1bb45d38",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Package_SO.pretty/SSOP-20_3.9x8.7mm_P0.635mm.kicad_mod": "38e1d013616514c692a593ab99a4327a30a98e91bfb4bc7a621bc2c0352d9008",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Resistor_SMD.pretty/R_0805_2012Metric.kicad_mod": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Temper_RTD.pretty/FTSH-105-01-F-D_2x5_P1.27mm.kicad_mod": "e7bb1532a01e30864dd947afe1a6b27613e0f4440c57c2f1a46d0ed885ba6c5b",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Temper_RTD.pretty/TPS389001DSER_WSON-6_DSE.kicad_mod": "42f4a408e86b82b26da7b4b1c68170c1214dedadff38dff5015ac55a23dd6401",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/fp-lib-table": "2a499806d6410b629b5b362162dd12098ad926ab692b95bbbe842d63448234a3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/rtd-unit.kicad_sym": "dcd83101ecb99814fc182ea4cf655e1945cd25df7a4975b41ee33c8da7f6a318",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_dru": "fb69fedd1be7e36b7e557817547607f6d73f126a15ff99fe9b0a16da0b083dc3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_pcb": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_pro": "add36658a0d765def5bd7630bc901efc1f96534b8f1e5e18b6b05534acf78b9f",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_sch": "b93db55b2b5af0829162d096a460b03763c68a9b70bdd73846d800937b0f8533",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/sym-lib-table": "7aba3087f37af31d6d1e7045220bc0702645de3781a91add46868c1822ffa32f"
+      },
+      "input_sha256": "b93db55b2b5af0829162d096a460b03763c68a9b70bdd73846d800937b0f8533",
+      "report_path": "/private/tmp/zapote-integrated-8648e2f77/rtd/erc.json",
+      "report_sha256": "cd8c5b7f18f897e31a5eaf0e3b1d9a9064c16626a0d8e312b7489492dc5496cd",
+      "returncode": 0,
+      "tool_version": "10.0.4"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "drc",
+        "--severity-all",
+        "--all-track-errors",
+        "--schematic-parity",
+        "--format",
+        "json",
+        "--output",
+        "/private/tmp/zapote-integrated-8648e2f77/rtd/drc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_pcb"
+      ],
+      "dependency_hashes": {
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Inductor_SMD.pretty/L_0603_1608Metric.kicad_mod": "a2a9c562208496756e22f3ab19e0bd6db2341d14da92e7c767d5eafd1bb45d38",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Package_SO.pretty/SSOP-20_3.9x8.7mm_P0.635mm.kicad_mod": "38e1d013616514c692a593ab99a4327a30a98e91bfb4bc7a621bc2c0352d9008",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Resistor_SMD.pretty/R_0805_2012Metric.kicad_mod": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Temper_RTD.pretty/FTSH-105-01-F-D_2x5_P1.27mm.kicad_mod": "e7bb1532a01e30864dd947afe1a6b27613e0f4440c57c2f1a46d0ed885ba6c5b",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/candidate-libs/Temper_RTD.pretty/TPS389001DSER_WSON-6_DSE.kicad_mod": "42f4a408e86b82b26da7b4b1c68170c1214dedadff38dff5015ac55a23dd6401",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/fp-lib-table": "2a499806d6410b629b5b362162dd12098ad926ab692b95bbbe842d63448234a3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/rtd-unit.kicad_sym": "dcd83101ecb99814fc182ea4cf655e1945cd25df7a4975b41ee33c8da7f6a318",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_dru": "fb69fedd1be7e36b7e557817547607f6d73f126a15ff99fe9b0a16da0b083dc3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_pcb": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_pro": "add36658a0d765def5bd7630bc901efc1f96534b8f1e5e18b6b05534acf78b9f",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/section.kicad_sch": "b93db55b2b5af0829162d096a460b03763c68a9b70bdd73846d800937b0f8533",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/candidate/sym-lib-table": "7aba3087f37af31d6d1e7045220bc0702645de3781a91add46868c1822ffa32f"
+      },
+      "input_sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+      "report_path": "/private/tmp/zapote-integrated-8648e2f77/rtd/drc.json",
+      "report_sha256": "bbfc89ee797e29a7ea787e9bb83ddf6e685d7e8ae083949f5f13e63b8e85cb78",
+      "returncode": 0,
+      "tool_version": "10.0.4"
+    }
+  ],
+  "native_population": {
+    "components": 36,
+    "connections": 119,
+    "connectivity_clusters": 31,
+    "traces": 207,
+    "vias": 55,
+    "zones": 4
+  },
+  "operating_checks": null,
+  "population_scope": "Native input census, not per-rule evaluated-object counts. Unit rules do not uniformly expose those counts; do not infer them from IDs.",
+  "power_checks": null,
+  "qualification": {
+    "checked_rules": [
+      "QUALIFICATION.HARDWARE"
+    ],
+    "coverage_gaps": [
+      "hardware not run"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately",
+        "object": "unit",
+        "required": null,
+        "rule": "QUALIFICATION.HARDWARE",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "required_rule_ids": [
+    "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+    "DRC.RTD.FERRITE_SEMANTICS",
+    "DRC.RTD.LOCAL_DECOUPLING",
+    "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+    "DRC.RTD.NATIVE_GEOMETRY",
+    "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+    "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+    "ERC.RTD.ADC_PIN_NETS",
+    "ERC.RTD.BOARD_COMPONENT_BINDING",
+    "ERC.RTD.EXACT_COMPONENTS",
+    "ERC.RTD.FAULT_CORNERS",
+    "ERC.RTD.FAULT_OUTPUT",
+    "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+    "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+    "ERC.RTD.FORCE_SENSE_SEPARATION",
+    "ERC.RTD.FOUR_WIRE_PINOUT",
+    "ERC.RTD.NATIVE_CONNECTIVITY",
+    "ERC.RTD.RREF_IDENTITY",
+    "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+    "ERC.RTD.SHARED_REFERENCE",
+    "ERC.RTD.SPI_SERIES_PLACEMENT",
+    "ERC.RTD.UNIT_COMPONENT_MPN",
+    "ERC.RTD.UNIT_CONNECTIONS",
+    "ERC.RTD.UNIT_FIRMWARE",
+    "ERC.RTD.UNIT_INTERFACE",
+    "ERC.RTD.UNIT_MODEL",
+    "ERC.RTD.UNIT_SOURCE_BINDING",
+    "DRC.P2.BODY_COLLISION",
+    "DRC.P2.ANNULAR_RING",
+    "DRC.P2.DRILL_CONFLICT",
+    "DRC.P2.COPPER_OUTLINE",
+    "DRC.P2.SUPPORTED_ANGLE"
+  ],
+  "schema": "zapote.unit-run.v2",
+  "status": "indeterminate",
+  "unit": "rtd",
+  "unit_checks": {
+    "checked_rules": [
+      "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+      "DRC.RTD.FERRITE_SEMANTICS",
+      "DRC.RTD.LOCAL_DECOUPLING",
+      "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+      "DRC.RTD.NATIVE_GEOMETRY",
+      "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+      "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+      "ERC.RTD.ADC_PIN_NETS",
+      "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "ERC.RTD.EXACT_COMPONENTS",
+      "ERC.RTD.FAULT_CORNERS",
+      "ERC.RTD.FAULT_OUTPUT",
+      "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+      "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+      "ERC.RTD.FORCE_SENSE_SEPARATION",
+      "ERC.RTD.FOUR_WIRE_PINOUT",
+      "ERC.RTD.MODEL_DEVICE_APPLICABILITY",
+      "ERC.RTD.MODEL_QUALIFICATION",
+      "ERC.RTD.NATIVE_CONNECTIVITY",
+      "ERC.RTD.RREF_IDENTITY",
+      "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+      "ERC.RTD.SHARED_REFERENCE",
+      "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "ERC.RTD.UNIT_COMPONENT_MPN",
+      "ERC.RTD.UNIT_CONNECTIONS",
+      "ERC.RTD.UNIT_FIRMWARE",
+      "ERC.RTD.UNIT_INTERFACE",
+      "ERC.RTD.UNIT_MODEL",
+      "ERC.RTD.UNIT_SOURCE_BINDING"
+    ],
+    "coverage_gaps": [
+      "device applicability remains indeterminate",
+      "local_rtd_avdd_loss has conditional nominal timing only; guaranteed maximum remains a physical integration obligation"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "Rust reconstructed the closed five-case full-network energy certificate from the fixed topology and complete envelope",
+        "object": "model_qualification",
+        "required": null,
+        "rule": "ERC.RTD.MODEL_QUALIFICATION",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified",
+        "object": "model_qualification.device_applicability",
+        "required": null,
+        "rule": "ERC.RTD.MODEL_DEVICE_APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "source-derived local load 8.448898 mA and reference boundary 100.000 uA/10.000 nF are within contract",
+        "object": "RTD_LOCAL_10MA",
+        "required": null,
+        "rule": "ERC.RTD.UNIT_MODEL",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "TPS389001 threshold/NAND ownership and powered-comparator static truth are observed",
+        "object": "local_rtd_avdd_loss",
+        "required": null,
+        "rule": "ERC.RTD.FAULT_CORNERS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured",
+        "object": "local_rtd_avdd_loss",
+        "required": null,
+        "rule": "ERC.RTD.FAULT_CORNERS",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "standalone RTD unit has no external HV/domain boundary population; cooker crossings are out of scope",
+        "object": "RTDUnit-applicability",
+        "required": null,
+        "rule": "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "standalone RTD unit has no local-escape exception population; external cooker paths are out of scope",
+        "object": "RTDUnit-applicability",
+        "required": null,
+        "rule": "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "indeterminate"
+  }
+}

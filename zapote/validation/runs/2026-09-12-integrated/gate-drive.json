@@ -1,0 +1,733 @@
+{
+  "common_checks": {
+    "checked_rules": [
+      "DRC.BOARD.STACKUP",
+      "DRC.NATIVE.DOCUMENT_BINDING",
+      "RUNNER.REQUIRED_CHECKS"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+        "object": "board.setup.stackup",
+        "required": null,
+        "rule": "DRC.BOARD.STACKUP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "declared_checked_rule_ids": [
+    "DRC.BOARD.STACKUP",
+    "DRC.GATE_DRIVE.BYPASS_LOCALITY",
+    "DRC.GATE_DRIVE.SAVED_BYTES",
+    "DRC.NATIVE.CLEARANCE",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.NATIVE.DOMAIN_SEPARATION",
+    "DRC.P2.ANNULAR_RING",
+    "DRC.P2.BODY_COLLISION",
+    "DRC.P2.COPPER_OUTLINE",
+    "DRC.P2.DRILL_CONFLICT",
+    "DRC.P2.SUPPORTED_ANGLE",
+    "DRC.P3.AGGRESSOR_VICTIM_SPACING",
+    "DRC.P3.RETURN_PATH_CONTINUITY",
+    "DRC.P3.SWITCHING_LOOP_AREA",
+    "DRC.POWER.ISOLATION_POPULATION",
+    "DRC.POWER.P1_SAVED_BOARD_IDENTITY",
+    "DRC.POWER.PATH_AMPACITY",
+    "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+    "ERC.P3.SHUTDOWN_TIMING_BOUND",
+    "ERC.P3.THERMAL_OPERATING_LIMIT",
+    "ERC.POWER.DOMAIN_PIN_CONTRACT",
+    "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+    "NATIVE.DRC",
+    "NATIVE.ERC",
+    "NATIVE.REPORT_CONTRACT",
+    "NATIVE.SCHEMATIC_PARITY",
+    "NATIVE.UNCONNECTED",
+    "QUALIFICATION.HARDWARE",
+    "RUNNER.REQUIRED_CHECKS"
+  ],
+  "executable_sha256": "35eab5947b32b06aad89e77b397d157fe986cb14d0e90b9d1a556d0b3f819210",
+  "input_hashes": {
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../gate-drive/candidate/section.kicad_pcb": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../gate-drive/candidate/section.kicad_sch": "c7c60f0232794d294f56f3c296595c1ff7f642017f6e5b033d7c2329949bcfc3",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../gate-drive/candidate/source-manifest.json": "dd201269a944141d9351bf62d380ae3eca1f8100cf1891f85f0fe9af8e2ac09b",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../gate-drive/evidence/native-09.json": "064fbfab09a823b401ca2e1d949a5e83ce2a8121d2523ba667cb477259c57805"
+  },
+  "manufacturing_checks": {
+    "checked_rules": [
+      "DRC.P2.BODY_COLLISION",
+      "DRC.P2.ANNULAR_RING",
+      "DRC.P2.DRILL_CONFLICT",
+      "DRC.P2.COPPER_OUTLINE",
+      "DRC.P2.SUPPORTED_ANGLE"
+    ],
+    "coverage_gaps": [
+      "unsupported native geometry: D1: open F.Fab detail lines are not a closed body polygon",
+      "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+      "source-declared fabrication limits are required",
+      "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+      "assembly process is required"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "mechanical findings use source-declared prototype limits; vendor/process qualification is pending",
+        "object": "fabrication-envelope",
+        "required": null,
+        "rule": "DRC.P2.FABRICATION_QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "manufacturing_receipt_sha256": "dcc11cc825a73f9f3e01e4902b64ada2fb87b2fcf21b7b02ed441f611ff6fccc",
+  "native_checks": {
+    "checked_rules": [
+      "NATIVE.REPORT_CONTRACT",
+      "NATIVE.ERC",
+      "NATIVE.DRC",
+      "NATIVE.UNCONNECTED",
+      "NATIVE.SCHEMATIC_PARITY"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.ERC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.DRC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.UNCONNECTED",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.SCHEMATIC_PARITY",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "native_execution": [
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "erc",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/private/tmp/zapote-integrated-8648e2f77/gate-drive/erc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_sch"
+      ],
+      "dependency_hashes": {
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Connector_PinHeader_2.54mm.pretty/PinHeader_1x02_P2.54mm_Vertical.kicad_mod": "5301303268f72ba9cc94b7fdbac355951933e6854272ce8d300b679b86b5d45d",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Diode_SMD.pretty/D_SMA.kicad_mod": "f7cba3b52ed8b34dce89170722de58324eac04e9e61a095e0eab37b9ca93cb7f",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Diode_THT.pretty/D_DO-41_SOD81_P10.16mm_Horizontal.kicad_mod": "f7a156e9b80a77d5d232d68b3f1b1e81b7bf99703017f9124da667d1d31af41e",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/lib.pretty/SOIC16W_Isolated.kicad_mod": "c336ba882801ba49a297df70d9d051d8aa3f1737d12d5f392cfe22816bb841ed",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/fp-lib-table": "c64c2ed341685754d09e98c5b8da65593211ee3d33779bea5166cfb7fb083cb3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/gate-drive-unit.kicad_sym": "6d631c2c9e18b0123bef1012f655820a6931650e59badc52a6ebd32c73080e7d",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_dru": "c68daace7b4ccb5f993b35243cbf8b0745871fada7e3623174dd49b8000944d5",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_pcb": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_sch": "c7c60f0232794d294f56f3c296595c1ff7f642017f6e5b033d7c2329949bcfc3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/sym-lib-table": "a989a3b1ba4170e74abeecb4c923dbe6b1c87291d42431a9126b3a7325f9ce04"
+      },
+      "input_sha256": "c7c60f0232794d294f56f3c296595c1ff7f642017f6e5b033d7c2329949bcfc3",
+      "report_path": "/private/tmp/zapote-integrated-8648e2f77/gate-drive/erc.json",
+      "report_sha256": "a2c21e5b4cfb9a87efe560be4d3084eba275f64ff8ea6117c77aab055ea16c92",
+      "returncode": 0,
+      "tool_version": "10.0.4"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "drc",
+        "--severity-all",
+        "--all-track-errors",
+        "--schematic-parity",
+        "--format",
+        "json",
+        "--output",
+        "/private/tmp/zapote-integrated-8648e2f77/gate-drive/drc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_pcb"
+      ],
+      "dependency_hashes": {
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Connector_PinHeader_2.54mm.pretty/PinHeader_1x02_P2.54mm_Vertical.kicad_mod": "5301303268f72ba9cc94b7fdbac355951933e6854272ce8d300b679b86b5d45d",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Diode_SMD.pretty/D_SMA.kicad_mod": "f7cba3b52ed8b34dce89170722de58324eac04e9e61a095e0eab37b9ca93cb7f",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Diode_THT.pretty/D_DO-41_SOD81_P10.16mm_Horizontal.kicad_mod": "f7a156e9b80a77d5d232d68b3f1b1e81b7bf99703017f9124da667d1d31af41e",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/candidate-libs/lib.pretty/SOIC16W_Isolated.kicad_mod": "c336ba882801ba49a297df70d9d051d8aa3f1737d12d5f392cfe22816bb841ed",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/fp-lib-table": "c64c2ed341685754d09e98c5b8da65593211ee3d33779bea5166cfb7fb083cb3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/gate-drive-unit.kicad_sym": "6d631c2c9e18b0123bef1012f655820a6931650e59badc52a6ebd32c73080e7d",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_dru": "c68daace7b4ccb5f993b35243cbf8b0745871fada7e3623174dd49b8000944d5",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_pcb": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/section.kicad_sch": "c7c60f0232794d294f56f3c296595c1ff7f642017f6e5b033d7c2329949bcfc3",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/candidate/sym-lib-table": "a989a3b1ba4170e74abeecb4c923dbe6b1c87291d42431a9126b3a7325f9ce04"
+      },
+      "input_sha256": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+      "report_path": "/private/tmp/zapote-integrated-8648e2f77/gate-drive/drc.json",
+      "report_sha256": "117360ac7f6fb2c7e459d7133175a03b299b7430eff303ef0a83f91f54af8ce8",
+      "returncode": 0,
+      "tool_version": "10.0.4"
+    }
+  ],
+  "native_population": {
+    "components": 20,
+    "connections": 55,
+    "connectivity_clusters": 17,
+    "traces": 91,
+    "vias": 17,
+    "zones": 3
+  },
+  "operating_checks": {
+    "checked_rules": [
+      "DRC.P3.AGGRESSOR_VICTIM_SPACING",
+      "DRC.P3.RETURN_PATH_CONTINUITY",
+      "DRC.P3.SWITCHING_LOOP_AREA",
+      "ERC.P3.SHUTDOWN_TIMING_BOUND",
+      "ERC.P3.THERMAL_OPERATING_LIMIT"
+    ],
+    "coverage_gaps": [
+      "no authored aggressor/victim pairs supplied",
+      "no device operating point supplied",
+      "no shutdown timing contract supplied",
+      "path high-side gate drive has no loop-area bound",
+      "path low-side gate drive has no loop-area bound"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "current/return trace bbox area=137.562 mm²; no authored bound, no inductance claim",
+        "object": "high-side gate drive",
+        "required": null,
+        "rule": "DRC.P3.SWITCHING_LOOP_AREA",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "return trace and 3 required stitching vias are present",
+        "object": "gate_h_kelvin",
+        "required": null,
+        "rule": "DRC.P3.RETURN_PATH_CONTINUITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "current/return trace bbox area=207.213 mm²; no authored bound, no inductance claim",
+        "object": "low-side gate drive",
+        "required": null,
+        "rule": "DRC.P3.SWITCHING_LOOP_AREA",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "return trace and 4 required stitching vias are present",
+        "object": "gate_l_kelvin",
+        "required": null,
+        "rule": "DRC.P3.RETURN_PATH_CONTINUITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "noise pair population is required",
+        "object": "noise_pairs",
+        "required": null,
+        "rule": "DRC.P3.AGGRESSOR_VICTIM_SPACING",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "device loss and thermal-path inputs are required",
+        "object": "device",
+        "required": null,
+        "rule": "ERC.P3.THERMAL_OPERATING_LIMIT",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "shutdown timing inputs are required",
+        "object": "timing",
+        "required": null,
+        "rule": "ERC.P3.SHUTDOWN_TIMING_BOUND",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "population_scope": "Native input census, not per-rule evaluated-object counts. Unit rules do not uniformly expose those counts; do not infer them from IDs.",
+  "power_checks": {
+    "checked_rules": [
+      "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+      "DRC.POWER.P1_SAVED_BOARD_IDENTITY",
+      "ERC.POWER.DOMAIN_PIN_CONTRACT",
+      "DRC.POWER.PATH_AMPACITY",
+      "DRC.POWER.ISOLATION_POPULATION"
+    ],
+    "coverage_gaps": [
+      "Capacity screening uses nominal saved outer copper and an assumed 20 C rise; finished copper and permitted rise are not qualified. Only the selected bus/bias net is inventoried, not all power branches."
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "source circuit and native package-pin membership agree",
+        "object": "elec/src/gate_drive_unit.ato:GateDriveUnit",
+        "required": null,
+        "rule": "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native receipt binds supplied board bytes (5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495)",
+        "object": "board",
+        "required": null,
+        "rule": "DRC.POWER.P1_SAVED_BOARD_IDENTITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": "width=0.500 mm, capacity=3.244 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "0caff1cf-6ca7-4eed-a5bc-e538097bcc5d",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.500 mm, capacity=3.244 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "7c431b07-b55c-425d-b100-4254de363046",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "b67501bf-91bb-40c0-bfdc-957bebae0974",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.500 mm, capacity=3.244 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "c4302a15-4cc8-49d3-b9bc-257eda919a0b",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.500 mm, capacity=3.244 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "e6ecbfab-105e-45ce-a1bf-dfdad2abef57",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "097d3d05-b30d-414b-a7ff-426c581e2a48",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "2a2fd305-5d28-40d5-8b4e-672ac66d2348",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "2a840eea-087e-4a2e-a207-b3d9d6361c6d",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.500 mm, capacity=3.244 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "2f990028-6e50-4a85-9c67-c33097267c5a",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "35fe4649-d2e1-4ce7-881a-e7c8b53e64fb",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "3b9da2f5-8fab-47ba-9984-d854978e0906",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "64610fdd-aa03-4931-9f15-9ed9539685d6",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "66598e5d-c086-45a3-abbe-ebdb7388e2f9",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "8680f67a-6cc7-490c-a7f1-f9fa3b150474",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "aceb45e4-4a33-41fa-b599-0a3e5c09ccbc",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "afcd28eb-b9db-4720-84cf-04d43750113b",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.500 mm, capacity=3.244 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "b77d6d29-0174-4a6f-803d-f22b5d3d2b9f",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.500 mm, capacity=3.244 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "e5b9a2a5-243f-4907-b6fc-b6ed0452bd2c",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.500 mm, capacity=3.244 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "ed3a76fa-3f60-4846-8de5-622faaffcd9b",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "width=0.600 mm, capacity=3.703 A",
+        "message": "actual trace geometry evaluated, but branch RMS current is unproven",
+        "object": "ff671649-2d9d-4e00-b439-1d68c23d4e84",
+        "required": "reviewed branch RMS waveform bound",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "via geometry is present but via current capacity is not modeled",
+        "object": "87ffc7d9-3818-4e86-9c53-21c71bb2e1ac",
+        "required": "validated via-current model",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "via geometry is present but via current capacity is not modeled",
+        "object": "bc3f69c3-578a-417a-86d4-0bb59cc24fe3",
+        "required": "validated via-current model",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "via geometry is present but via current capacity is not modeled",
+        "object": "e60d12b9-787c-4b12-bf71-0650273118b8",
+        "required": "validated via-current model",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": "5 native pads",
+        "message": "pad geometry is present but pad/current-sharing capacity is not modeled",
+        "object": "path:v15_ls.pads",
+        "required": "validated pad-current and sharing model",
+        "rule": "DRC.POWER.PATH_AMPACITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "required barrier has no evidence record",
+        "object": "P1.REQUIRED_BARRIER",
+        "required": "present barrier plus surface-path evidence",
+        "rule": "DRC.POWER.ISOLATION_POPULATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "qualification": {
+    "checked_rules": [
+      "QUALIFICATION.HARDWARE"
+    ],
+    "coverage_gaps": [
+      "hardware not run"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately",
+        "object": "unit",
+        "required": null,
+        "rule": "QUALIFICATION.HARDWARE",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "required_rule_ids": [
+    "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.GATE_DRIVE.SAVED_BYTES",
+    "DRC.NATIVE.CLEARANCE",
+    "DRC.NATIVE.DOMAIN_SEPARATION",
+    "DRC.GATE_DRIVE.BYPASS_LOCALITY",
+    "DRC.P2.BODY_COLLISION",
+    "DRC.P2.ANNULAR_RING",
+    "DRC.P2.DRILL_CONFLICT",
+    "DRC.P2.COPPER_OUTLINE",
+    "DRC.P2.SUPPORTED_ANGLE",
+    "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+    "DRC.POWER.P1_SAVED_BOARD_IDENTITY",
+    "ERC.POWER.DOMAIN_PIN_CONTRACT",
+    "DRC.POWER.PATH_AMPACITY",
+    "DRC.POWER.ISOLATION_POPULATION",
+    "ERC.P3.THERMAL_OPERATING_LIMIT",
+    "ERC.P3.SHUTDOWN_TIMING_BOUND",
+    "DRC.P3.SWITCHING_LOOP_AREA",
+    "DRC.P3.RETURN_PATH_CONTINUITY",
+    "DRC.P3.AGGRESSOR_VICTIM_SPACING"
+  ],
+  "schema": "zapote.unit-run.v2",
+  "status": "indeterminate",
+  "unit": "gate-drive",
+  "unit_checks": {
+    "checked_rules": [
+      "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+      "DRC.BOARD.STACKUP",
+      "DRC.NATIVE.DOCUMENT_BINDING",
+      "DRC.GATE_DRIVE.SAVED_BYTES",
+      "DRC.NATIVE.CLEARANCE",
+      "DRC.NATIVE.DOMAIN_SEPARATION",
+      "DRC.NATIVE.DOMAIN_SEPARATION",
+      "DRC.GATE_DRIVE.BYPASS_LOCALITY"
+    ],
+    "coverage_gaps": [
+      "unlisted native nets are out of scope: ctrl_gnd, dis, dt, g, nc_7, permit, pwm_h, pwm_l, v3v3",
+      "Spacing thresholds are prototype requirements; insulation system certification is not established.",
+      "Dead-time interpolation uses an assumed characterization envelope; measured timing is NOT RUN.",
+      "Bootstrap effective capacitance, diode recovery, gate charge, ringing and loaded thermal performance are NOT RUN.",
+      "Native ERC/DRC reports must additionally pass zapote-native-reports with their command receipts."
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "reviewed parts and all package-pin nets match the native export",
+        "object": "GateDriveUnit",
+        "required": null,
+        "rule": "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+        "object": "board.setup.stackup",
+        "required": null,
+        "rule": "DRC.BOARD.STACKUP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native evidence contains these exact PCB bytes",
+        "object": "board",
+        "required": null,
+        "rule": "DRC.GATE_DRIVE.SAVED_BYTES",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native copper clears 0.2 mm fabrication floor",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.CLEARANCE",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native copper clears 8 mm fabrication floor",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOMAIN_SEPARATION",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "native copper clears 2 mm fabrication floor",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOMAIN_SEPARATION",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "c_vcci.1 to driver.3: Some(2.625) mm <=5 mm",
+        "object": "c_vcci",
+        "required": null,
+        "rule": "DRC.GATE_DRIVE.BYPASS_LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "c_ls.1 to driver.11: Some(3.056718011200905) mm <=5 mm",
+        "object": "c_ls",
+        "required": null,
+        "rule": "DRC.GATE_DRIVE.BYPASS_LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "c_boot.1 to driver.16: Some(3.6811037746849777) mm <=5 mm",
+        "object": "c_boot",
+        "required": null,
+        "rule": "DRC.GATE_DRIVE.BYPASS_LOCALITY",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "indeterminate"
+  }
+}

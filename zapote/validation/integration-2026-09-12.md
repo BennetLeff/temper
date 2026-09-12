@@ -71,3 +71,24 @@ coverage, followed by P3 geometric coupling and populated operating contracts.
 P2 body interpretation and per-rule population counts remain separately owned
 software work. These tasks must preserve the existing board verdicts and may
 not relax limits or rewrite the PCB to accommodate an unverified instrument.
+
+## Verified committed-source run
+
+Code commit: `8648e2f77e89f321889957902b64efc7000d8d13`.
+The [verification receipt](runs/2026-09-12-integrated/verification.json) records
+**276 passing Rust tests, zero failures**, and a passing live KiCad transport
+oracle. All seven current boards passed fresh native ERC/DRC and the common
+identity/required-rule gates. No failure findings remain in the adopted checks;
+all seven overall verdicts are **INDETERMINATE**, not qualified passes.
+
+The [suite identity](runs/2026-09-12-integrated/suite-identity.json) binds the
+executable and 82 source files. The worktree was clean at run start, and the
+suite inputs did not change during the run. No board bytes changed.
+
+[Per-unit reports and logs](runs/2026-09-12-integrated/verification.json) sit
+alongside the verification receipt. The complete raw exports, native commands
+and reports, two preceding baselines and development logs are retained in
+[the evidence archive](runs/2026-09-12-integrated/raw-evidence.tar.gz), with
+[member hashes](runs/2026-09-12-integrated/raw-evidence-index.json).
+The final run is under archive prefix `committed-8648e2f77/`; absolute temporary
+paths inside receipts describe the original execution environment.

@@ -1,0 +1,423 @@
+{
+  "common_checks": {
+    "checked_rules": [
+      "DRC.BOARD.STACKUP",
+      "DRC.NATIVE.DOCUMENT_BINDING",
+      "RUNNER.REQUIRED_CHECKS"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+        "object": "board.setup.stackup",
+        "required": null,
+        "rule": "DRC.BOARD.STACKUP",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+        "object": "native",
+        "required": null,
+        "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "declared_checked_rule_ids": [
+    "DRC.BOARD.STACKUP",
+    "DRC.CURRENT_SENSE.CLEARANCE",
+    "DRC.CURRENT_SENSE.LOCALITY",
+    "DRC.CURRENT_SENSE.NATIVE_GEOMETRY",
+    "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION",
+    "DRC.CURRENT_SENSE.REQUIRED_COPPER",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.P2.ANNULAR_RING",
+    "DRC.P2.BODY_COLLISION",
+    "DRC.P2.COPPER_OUTLINE",
+    "DRC.P2.DRILL_CONFLICT",
+    "DRC.P2.SUPPORTED_ANGLE",
+    "DRC.P3.APPLICABILITY",
+    "ERC.CURRENT_SENSE.APPLICABILITY",
+    "ERC.CURRENT_SENSE.COMPONENT_ROLES",
+    "ERC.CURRENT_SENSE.ELECTRICAL_MODEL",
+    "ERC.CURRENT_SENSE.INPUT",
+    "ERC.CURRENT_SENSE.INTERFACES",
+    "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY",
+    "ERC.P3.SHUTDOWN_TIMING_BOUND",
+    "ERC.P3.THERMAL_OPERATING_LIMIT",
+    "NATIVE.DRC",
+    "NATIVE.ERC",
+    "NATIVE.REPORT_CONTRACT",
+    "NATIVE.SCHEMATIC_PARITY",
+    "NATIVE.UNCONNECTED",
+    "QUALIFICATION.HARDWARE",
+    "RUNNER.REQUIRED_CHECKS"
+  ],
+  "executable_sha256": "35eab5947b32b06aad89e77b397d157fe986cb14d0e90b9d1a556d0b3f819210",
+  "input_hashes": {
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../current-sense/candidate/section.kicad_pcb": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../current-sense/candidate/section.kicad_sch": "a00fc0bfa1f33c815dec88a5d33feb601968fb92b88182f4a3ad33377d8f5505",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../current-sense/candidate/source-manifest.json": "b115dc2cd566ba6a4ec515a67355a3dacbccdb8b74bfe1a94d51fb0c5851bb45",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../current-sense/evidence/acceptance-stackup-v2/input.json": "85ca1ef25b5610f27a9f057fcc0b1ba9d7f95ab4169cd1b21e5f138a47b2ff24",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/../current-sense/evidence/stackup-fix/native-fixed.json": "5cb75975aec1e23e6f866cbae46af7eb134fd44bc30aed8a96887f74d3d3361b"
+  },
+  "manufacturing_checks": {
+    "checked_rules": [
+      "DRC.P2.BODY_COLLISION",
+      "DRC.P2.ANNULAR_RING",
+      "DRC.P2.DRILL_CONFLICT",
+      "DRC.P2.COPPER_OUTLINE",
+      "DRC.P2.SUPPORTED_ANGLE"
+    ],
+    "coverage_gaps": [
+      "unsupported native geometry: D1: open F.Fab detail lines are not a closed body polygon",
+      "unsupported native geometry: D2: open F.Fab detail lines are not a closed body polygon",
+      "unsupported native geometry: J1: no closed native F.Fab body polygon",
+      "unsupported native geometry: J2: open F.Fab detail lines are not a closed body polygon",
+      "source-declared fabrication limits are required",
+      "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+      "assembly process is required"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "mechanical findings use source-declared prototype limits; vendor/process qualification is pending",
+        "object": "fabrication-envelope",
+        "required": null,
+        "rule": "DRC.P2.FABRICATION_QUALIFICATION",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "manufacturing_receipt_sha256": "bdfc593c47d5138f09019445f89c0c5fdac05537c200347c90c92b4667dcc95a",
+  "native_checks": {
+    "checked_rules": [
+      "NATIVE.REPORT_CONTRACT",
+      "NATIVE.ERC",
+      "NATIVE.DRC",
+      "NATIVE.UNCONNECTED",
+      "NATIVE.SCHEMATIC_PARITY"
+    ],
+    "coverage_gaps": [],
+    "findings": [
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.ERC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.DRC",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.UNCONNECTED",
+        "severity": "info",
+        "status": "pass"
+      },
+      {
+        "actual": null,
+        "message": "0 reported findings across all requested severities",
+        "object": "native report",
+        "required": null,
+        "rule": "NATIVE.SCHEMATIC_PARITY",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "native_execution": [
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "erc",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/private/tmp/zapote-integrated-8648e2f77/current-sense/erc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_sch"
+      ],
+      "dependency_hashes": {
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_1206_3216Metric.kicad_mod": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Diode_SMD.pretty/D_SOD-123F.kicad_mod": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Package_SO.pretty/SOIC-14_3.9x8.7mm_P1.27mm.kicad_mod": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/lib.pretty/LitzPad_15A.kicad_mod": "b433c013381f55c26320e0c6f900d104df3573b0906d462a052d155fe17e9535",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/temper.pretty/CST3015_Datasheet2025.kicad_mod": "a4541edc45c617a00a4318770853290197c8b10c80920026353b3550c99222cd",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/current-sense-unit.kicad_sym": "8a648b275475839cd04b5b8de25124a0b83f4cbddeedda429247def125c3110f",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/fp-lib-table": "efc13c1ba8deda1a61d9633c8cb554beee050b20d1a8c570ed6b800b3b51e6bb",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_dru": "4afe34c44a45179c179cc2a6ee6266fba5ba3de79b8cd6bc41d58dabe89f37ac",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pcb": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_sch": "a00fc0bfa1f33c815dec88a5d33feb601968fb92b88182f4a3ad33377d8f5505",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/sym-lib-table": "e164afa5dbed3ede58165d15676b4a27a892af20060ee6f8250ff3ee34b29b45"
+      },
+      "input_sha256": "a00fc0bfa1f33c815dec88a5d33feb601968fb92b88182f4a3ad33377d8f5505",
+      "report_path": "/private/tmp/zapote-integrated-8648e2f77/current-sense/erc.json",
+      "report_sha256": "b847d0128d5b92ea7b2721c3d95399fdc57b51f1e7294ada326d90254fc3c9d5",
+      "returncode": 0,
+      "tool_version": "10.0.4"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "drc",
+        "--severity-all",
+        "--all-track-errors",
+        "--schematic-parity",
+        "--format",
+        "json",
+        "--output",
+        "/private/tmp/zapote-integrated-8648e2f77/current-sense/drc.json",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pcb"
+      ],
+      "dependency_hashes": {
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_1206_3216Metric.kicad_mod": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Diode_SMD.pretty/D_SOD-123F.kicad_mod": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Package_SO.pretty/SOIC-14_3.9x8.7mm_P1.27mm.kicad_mod": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/lib.pretty/LitzPad_15A.kicad_mod": "b433c013381f55c26320e0c6f900d104df3573b0906d462a052d155fe17e9535",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/temper.pretty/CST3015_Datasheet2025.kicad_mod": "a4541edc45c617a00a4318770853290197c8b10c80920026353b3550c99222cd",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/current-sense-unit.kicad_sym": "8a648b275475839cd04b5b8de25124a0b83f4cbddeedda429247def125c3110f",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/fp-lib-table": "efc13c1ba8deda1a61d9633c8cb554beee050b20d1a8c570ed6b800b3b51e6bb",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_dru": "4afe34c44a45179c179cc2a6ee6266fba5ba3de79b8cd6bc41d58dabe89f37ac",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pcb": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_sch": "a00fc0bfa1f33c815dec88a5d33feb601968fb92b88182f4a3ad33377d8f5505",
+        "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/sym-lib-table": "e164afa5dbed3ede58165d15676b4a27a892af20060ee6f8250ff3ee34b29b45"
+      },
+      "input_sha256": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+      "report_path": "/private/tmp/zapote-integrated-8648e2f77/current-sense/drc.json",
+      "report_sha256": "4b2faa00a515a02fe0d5a5caf64878f8d4d0648e4702c3a38f18c640902288a4",
+      "returncode": 0,
+      "tool_version": "10.0.4"
+    }
+  ],
+  "native_population": {
+    "components": 21,
+    "connections": 64,
+    "connectivity_clusters": 14,
+    "traces": 88,
+    "vias": 28,
+    "zones": 2
+  },
+  "operating_checks": {
+    "checked_rules": [
+      "DRC.P3.APPLICABILITY",
+      "ERC.P3.SHUTDOWN_TIMING_BOUND",
+      "ERC.P3.THERMAL_OPERATING_LIMIT"
+    ],
+    "coverage_gaps": [
+      "no device operating point supplied",
+      "no shutdown timing contract supplied"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "device loss and thermal-path inputs are required",
+        "object": "device",
+        "required": null,
+        "rule": "ERC.P3.THERMAL_OPERATING_LIMIT",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "shutdown timing inputs are required",
+        "object": "timing",
+        "required": null,
+        "rule": "ERC.P3.SHUTDOWN_TIMING_BOUND",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "no on-board power-switch commutation loop; operating/timing checks remain required",
+        "object": "current-sense",
+        "required": null,
+        "rule": "DRC.P3.APPLICABILITY",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "population_scope": "Native input census, not per-rule evaluated-object counts. Unit rules do not uniformly expose those counts; do not infer them from IDs.",
+  "power_checks": null,
+  "qualification": {
+    "checked_rules": [
+      "QUALIFICATION.HARDWARE"
+    ],
+    "coverage_gaps": [
+      "hardware not run"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately",
+        "object": "unit",
+        "required": null,
+        "rule": "QUALIFICATION.HARDWARE",
+        "severity": "warning",
+        "status": "indeterminate"
+      }
+    ],
+    "status": "indeterminate"
+  },
+  "required_rule_ids": [
+    "DRC.BOARD.STACKUP",
+    "DRC.CURRENT_SENSE.CLEARANCE",
+    "DRC.CURRENT_SENSE.LOCALITY",
+    "DRC.CURRENT_SENSE.NATIVE_GEOMETRY",
+    "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION",
+    "DRC.CURRENT_SENSE.REQUIRED_COPPER",
+    "ERC.CURRENT_SENSE.APPLICABILITY",
+    "ERC.CURRENT_SENSE.COMPONENT_ROLES",
+    "ERC.CURRENT_SENSE.ELECTRICAL_MODEL",
+    "ERC.CURRENT_SENSE.INPUT",
+    "ERC.CURRENT_SENSE.INTERFACES",
+    "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY",
+    "DRC.P2.BODY_COLLISION",
+    "DRC.P2.ANNULAR_RING",
+    "DRC.P2.DRILL_CONFLICT",
+    "DRC.P2.COPPER_OUTLINE",
+    "DRC.P2.SUPPORTED_ANGLE",
+    "ERC.P3.THERMAL_OPERATING_LIMIT",
+    "ERC.P3.SHUTDOWN_TIMING_BOUND",
+    "DRC.P3.APPLICABILITY"
+  ],
+  "schema": "zapote.unit-run.v2",
+  "status": "indeterminate",
+  "unit": "current-sense",
+  "unit_checks": {
+    "checked_rules": [
+      "DRC.BOARD.STACKUP",
+      "DRC.CURRENT_SENSE.CLEARANCE",
+      "DRC.CURRENT_SENSE.LOCALITY",
+      "DRC.CURRENT_SENSE.NATIVE_GEOMETRY",
+      "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION",
+      "DRC.CURRENT_SENSE.REQUIRED_COPPER",
+      "ERC.CURRENT_SENSE.APPLICABILITY",
+      "ERC.CURRENT_SENSE.COMPONENT_ROLES",
+      "ERC.CURRENT_SENSE.ELECTRICAL_MODEL",
+      "ERC.CURRENT_SENSE.INPUT",
+      "ERC.CURRENT_SENSE.INTERFACES",
+      "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY"
+    ],
+    "coverage_gaps": [
+      "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+      "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+      "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+      "hardware applicability is unsupported: NOT_RUN",
+      "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+      "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+      "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC"
+    ],
+    "findings": [
+      {
+        "actual": null,
+        "message": "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+        "object": "both_polarities",
+        "required": null,
+        "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+        "object": "comparator_to_latch_timing",
+        "required": null,
+        "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+        "object": "ct_saturation_and_thermal",
+        "required": null,
+        "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "hardware applicability is unsupported: NOT_RUN",
+        "object": "hardware",
+        "required": null,
+        "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+        "object": "pd3_reinforced_12_6mm_isolation",
+        "required": null,
+        "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+        "object": "primary_copper_and_terminal",
+        "required": null,
+        "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+        "object": "rust_analytical_trip",
+        "required": null,
+        "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+        "severity": "warning",
+        "status": "indeterminate"
+      },
+      {
+        "actual": null,
+        "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+        "object": "board.setup.stackup",
+        "required": null,
+        "rule": "DRC.BOARD.STACKUP",
+        "severity": "info",
+        "status": "pass"
+      }
+    ],
+    "status": "indeterminate"
+  }
+}

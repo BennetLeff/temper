@@ -1,0 +1,59 @@
+{
+  "suite_revision": "8648e2f77e89f321889957902b64efc7000d8d13",
+  "rust_tests_passed": 276,
+  "rust_tests_failed": 0,
+  "native_transport_oracle": "PASS: one live test containing asymmetric rotated pad, slotted drill, via, diagonal track, missing body probes",
+  "units": [
+    {
+      "unit": "rtd",
+      "board_sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+      "native_status": "pass",
+      "common_status": "pass",
+      "overall_status": "indeterminate"
+    },
+    {
+      "unit": "current-sense",
+      "board_sha256": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+      "native_status": "pass",
+      "common_status": "pass",
+      "overall_status": "indeterminate"
+    },
+    {
+      "unit": "voltage-sense",
+      "board_sha256": "ef9853e9fb03df4f7723076ac8eb77c17743465a0b2e146cec11d2da54876e1f",
+      "native_status": "pass",
+      "common_status": "pass",
+      "overall_status": "indeterminate"
+    },
+    {
+      "unit": "thermal-sense",
+      "board_sha256": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+      "native_status": "pass",
+      "common_status": "pass",
+      "overall_status": "indeterminate"
+    },
+    {
+      "unit": "interlock",
+      "board_sha256": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+      "native_status": "pass",
+      "common_status": "pass",
+      "overall_status": "indeterminate"
+    },
+    {
+      "unit": "gate-drive",
+      "board_sha256": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+      "native_status": "pass",
+      "common_status": "pass",
+      "overall_status": "indeterminate"
+    },
+    {
+      "unit": "power-entry",
+      "board_sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf",
+      "native_status": "pass",
+      "common_status": "pass",
+      "overall_status": "indeterminate"
+    }
+  ],
+  "raw_archive_members_verified": 255,
+  "qualification": "NOT RUN; complete P1-P3 scope remains open"
+}
