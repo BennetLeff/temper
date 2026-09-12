@@ -29,6 +29,7 @@ pub struct SwitchingVia {
 pub struct SwitchingBoard {
     pub traces: Vec<SwitchingTrace>,
     pub vias: Vec<SwitchingVia>,
+    pub return_connectivity_evidence: BTreeSet<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -68,14 +69,6 @@ fn bbox(board: &SwitchingBoard, nets: &BTreeSet<String>) -> Option<(f64, f64, f6
         result.3 = result.3.max(p[1]);
     }
     Some(result)
-}
-
-fn trace_length(trace: &SwitchingTrace) -> f64 {
-    trace
-        .points_mm
-        .windows(2)
-        .map(|w| (w[1][0] - w[0][0]).hypot(w[1][1] - w[0][1]))
-        .sum()
 }
 
 /// Evaluate explicit switching paths and noise pairs. Missing geometry is a
@@ -157,7 +150,16 @@ pub fn validate(board: &SwitchingBoard, contract: &SwitchingContract) -> CheckRe
             .iter()
             .filter(|v| v.net == path.return_net)
             .count();
-        if return_traces == 0 {
+        if !board
+            .return_connectivity_evidence
+            .contains(&path.return_net)
+        {
+            findings.push(Finding::indeterminate(
+                RETURN_RULE,
+                "native connectivity-cluster evidence is required to establish return continuity",
+                path.return_net.clone(),
+            ));
+        } else if return_traces == 0 {
             findings.push(Finding::fail(
                 RETURN_RULE,
                 "explicit return net has no native trace evidence",
@@ -210,30 +212,8 @@ pub fn validate(board: &SwitchingBoard, contract: &SwitchingContract) -> CheckRe
             ));
             continue;
         };
-        let run: f64 = a
-            .iter()
-            .map(|t| trace_length(t))
-            .sum::<f64>()
-            .min(v.iter().map(|t| trace_length(t)).sum());
-        if run > pair.max_parallel_mm {
-            findings.push(Finding::fail(
-                NOISE_RULE,
-                format!(
-                    "aggressor/victim parallel-run screen is {run:.3} mm, above {:.3} mm",
-                    pair.max_parallel_mm
-                ),
-                format!("{} -> {}", pair.aggressor_net, pair.victim_net),
-            ));
-        } else {
-            findings.push(Finding::pass(
-                NOISE_RULE,
-                format!(
-                    "explicit aggressor/victim run {run:.3} mm is within {:.3} mm screen",
-                    pair.max_parallel_mm
-                ),
-                format!("{} -> {}", pair.aggressor_net, pair.victim_net),
-            ));
-        }
+        let _ = (a, v);
+        findings.push(Finding::indeterminate(NOISE_RULE, "parallel-run limit is declared, but this bounded adapter does not claim segment spacing/overlap geometry", format!("{} -> {}", pair.aggressor_net, pair.victim_net)));
     }
     CheckReport::from_findings(findings, checked, gaps)
 }
@@ -261,6 +241,7 @@ mod tests {
                     net: "PGND".into(),
                     position_mm: [2.0, 1.0],
                 }],
+                return_connectivity_evidence: ["PGND".into()].into_iter().collect(),
             },
             SwitchingContract {
                 paths: vec![CommutationPath {
@@ -282,7 +263,7 @@ mod tests {
     fn baseline_passes() {
         assert_eq!(
             validate(&baseline().0, &baseline().1).status,
-            zapote_core::Status::Pass
+            zapote_core::Status::Indeterminate
         );
     }
     #[test]

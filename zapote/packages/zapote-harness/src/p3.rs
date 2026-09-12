@@ -176,6 +176,11 @@ pub fn switching_input(
                 position_mm: v.position_mm,
             })
             .collect(),
+        return_connectivity_evidence: evidence
+            .connectivity_clusters
+            .iter()
+            .map(|c| c.net.clone())
+            .collect(),
     };
     let mut bound = Vec::with_capacity(paths.len());
     for path in paths {
@@ -206,6 +211,22 @@ fn append(dst: &mut zapote_core::CheckReport, src: zapote_core::CheckReport) {
     dst.findings.extend(src.findings);
     dst.checked_rules.extend(src.checked_rules);
     dst.coverage_gaps.extend(src.coverage_gaps);
+    dst.status = if dst
+        .findings
+        .iter()
+        .any(|f| f.status == zapote_core::Status::Fail)
+    {
+        zapote_core::Status::Fail
+    } else if dst
+        .findings
+        .iter()
+        .any(|f| f.status == zapote_core::Status::Indeterminate)
+        || !dst.coverage_gaps.is_empty()
+    {
+        zapote_core::Status::Indeterminate
+    } else {
+        zapote_core::Status::Pass
+    };
 }
 
 /// Run the P3 subset against one saved unit. Net names are an explicit
@@ -215,24 +236,26 @@ pub fn run(unit: &str, source: &str, native: &str, board: &[u8]) -> zapote_core:
     let (entry, current, return_net) = match unit {
         "gate-drive" => (
             zapote_erc::gate_drive::ENTRY,
-            vec!["gate_h_out", "gate_h_kelvin"],
-            "ctrl_gnd",
+            vec!["gate_h_out"],
+            "driver.1",
         ),
-        "pfc" | "power-entry" => (
-            zapote_erc::power_entry::ENTRY,
-            vec!["q_boost-g", "gate"],
-            "minus",
-        ),
+        "pfc" | "power-entry" => (zapote_erc::power_entry::ENTRY, vec!["q_boost-g"], "minus"),
         "current-sense" => (
             "elec/src/current_sense_unit.ato:CurrentSenseUnit",
             vec!["PRIMARY_IN", "PRIMARY_OUT"],
             "gnd",
         ),
-        "interlock" => (
-            "elec/src/interlock_unit.ato:InterlockUnit",
-            vec!["ocp_fault", "ovp_fault"],
-            "gnd",
-        ),
+        "interlock" => {
+            return zapote_core::CheckReport::from_findings(
+                vec![zapote_core::Finding::indeterminate(
+                    "DRC.P3.APPLICABILITY",
+                    "interlock is a shutdown/control unit; commutation geometry is not applicable",
+                    unit,
+                )],
+                vec!["DRC.P3.APPLICABILITY".into()],
+                vec!["interlock switching loop out of scope".into()],
+            )
+        }
         _ => {
             return zapote_core::CheckReport::from_findings(
                 vec![zapote_core::Finding::indeterminate(

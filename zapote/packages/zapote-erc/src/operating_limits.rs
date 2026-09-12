@@ -32,6 +32,14 @@ pub fn junction_temperature(point: &DeviceOperatingPoint) -> Option<f64> {
     let r = point.theta_cs_c_per_w? + point.theta_sa_c_per_w? + point.theta_jc_c_per_w;
     (point.loss_w.is_finite()
         && point.loss_w >= 0.0
+        && point.theta_jc_c_per_w.is_finite()
+        && point.theta_jc_c_per_w >= 0.0
+        && point
+            .theta_cs_c_per_w
+            .is_some_and(|v| v.is_finite() && v >= 0.0)
+        && point
+            .theta_sa_c_per_w
+            .is_some_and(|v| v.is_finite() && v >= 0.0)
         && r.is_finite()
         && point.ambient_c.is_finite())
     .then_some(point.ambient_c + point.loss_w * r)
@@ -43,12 +51,9 @@ pub fn response_time_ms(bound: &ShutdownTimingBound) -> Option<f64> {
         bound.actuation_ms?,
         bound.switching_off_ms?,
     ];
-    values
-        .iter()
-        .copied()
-        .sum::<f64>()
-        .is_finite()
-        .then_some(values.iter().sum())
+    (values.iter().all(|v| v.is_finite() && *v >= 0.0)
+        && values.iter().copied().sum::<f64>().is_finite())
+    .then_some(values.iter().sum())
 }
 
 /// Evaluate modeled thermal margin and a separately bounded shutdown path.
