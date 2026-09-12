@@ -309,4 +309,20 @@ mod tests {
         c.pins[1].net = Some("NC".into());
         assert_eq!(validate(&c).status, Status::Fail);
     }
+    #[test]
+    fn swapped_native_domain_membership_fails_against_fixed_expectation() {
+        let mut c = base();
+        c.pins[0].domain = "SELV".into();
+        c.pins[0].expected_domain = Some("HOT".into());
+        assert_eq!(validate(&c).status, Status::Fail);
+    }
+    #[test]
+    fn protective_earth_is_distinct_from_hot() {
+        let mut c = base();
+        c.domains.push("PE".into());
+        c.pins.push(PinContract { id: "J1.PE".into(), domain: "PE".into(), expected_domain: Some("PE".into()), role: "protective-earth".into(), net: Some("PE_CHASSIS".into()), intentional_nc: false });
+        assert_eq!(validate(&c).status, Status::Pass);
+        c.pins[2].domain = "HOT".into();
+        assert_eq!(validate(&c).status, Status::Fail);
+    }
 }

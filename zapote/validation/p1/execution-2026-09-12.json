@@ -1,6 +1,6 @@
 {
   "schema": "zapote.p1.execution-summary.v1",
-  "code_revision": "cfebc9f8d plus p1_adapter follow-up",
+  "code_revision": "corrected adapter follow-up",
   "command": "CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo run -q -p zapote-drc --example p1_adapter -- <unit> <native-receipt.json>",
   "runs": [
     {
@@ -8,18 +8,18 @@
       "native_receipt": "zapote/power-entry/evidence/native-11.json",
       "board_sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf",
       "extractor_sha256": "from native-11 receipt",
-      "populations": {"components": 54, "connections": 129, "traces": 250, "vias": 44, "target_net": "PFC_BUS_PLUS_390V", "evaluated_traces": 20, "ampacity_pass": 13, "ampacity_fail": 7},
-      "results": {"ampacity": "fail", "domain_pin_contract": "pass", "isolation": "indeterminate"},
-      "findings": ["actual 0.800 mm trace neck: 4.561 A capacity < 15 A RMS", "actual 0.600 mm trace neck: 3.703 A capacity < 15 A RMS", "required barrier has no native evidence record"]
+      "populations": {"components": 54, "connections": 129, "traces": 250, "vias": 44, "target_net": "PFC_BUS_PLUS_390V", "evaluated_traces": 20},
+      "results": {"ampacity": "indeterminate", "domain_pin_contract": "pass", "isolation": "indeterminate"},
+      "findings": ["actual trace widths/capacities evaluated; branch RMS waveform is unproven", "required barrier has no native evidence record"]
     },
     {
       "unit": "gate-drive",
       "native_receipt": "zapote/gate-drive/evidence/native-final-09.json",
       "board_sha256": "0a73bd8b9048fecb73395d311e7e6ed9b0cf583c50514ef90de2a0113547502f",
       "extractor_sha256": "from native-final-09 receipt",
-      "populations": {"components": 20, "connections": 55, "traces": 91, "vias": 17, "target_net": "v15_ls", "evaluated_traces": 20, "ampacity_pass": 20, "ampacity_fail": 0},
-      "results": {"ampacity": "pass", "domain_pin_contract": "pass", "isolation": "indeterminate"},
-      "findings": ["all evaluated v15_ls traces meet 2.5 A RMS IPC screening bound", "required barrier has no native evidence record"]
+      "populations": {"components": 20, "connections": 55, "traces": 91, "vias": 17, "target_net": "v15_ls", "evaluated_traces": 20},
+      "results": {"ampacity": "indeterminate", "domain_pin_contract": "pass", "isolation": "indeterminate"},
+      "findings": ["actual trace widths/capacities evaluated; gate RMS current is unproven", "required barrier has no native evidence record"]
     }
   ],
   "qualification": "P1 remains incomplete for insulation because native barrier, cutout and material surface-path extraction is unavailable; no clearance or package-size result is promoted to creepage proof."

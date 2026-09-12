@@ -103,26 +103,25 @@ pub fn validate_ampacity(native: &UnitNativeEvidence, contract: &AmpacityContrac
     }
     for path in &contract.paths {
         let object = format!("path:{}", path.id);
-        let (Some(current), Some(thickness)) = (path.current_rms_a, path.copper_thickness_um)
-        else {
+        let Some(thickness) = path.copper_thickness_um else {
             findings.push(finding(
                 Status::Indeterminate,
                 AMPACITY_RULE,
-                "current and finished copper are required; no value was inferred".into(),
+                "finished copper is required; no value was inferred".into(),
                 object,
                 None,
-                Some("explicit RMS current and copper thickness".into()),
+                Some("finished copper plus reviewed RMS current".into()),
             ));
             continue;
         };
-        if !current.is_finite() || current <= 0.0 || !thickness.is_finite() || thickness <= 0.0 {
+        if !thickness.is_finite() || thickness <= 0.0 {
             findings.push(finding(
                 Status::Fail,
                 AMPACITY_RULE,
                 "current and copper thickness must be finite and positive".into(),
                 object,
-                Some(format!("current_rms={current}, thickness_um={thickness}")),
-                Some("positive finite values".into()),
+                Some(format!("thickness_um={thickness}")),
+                Some("positive finite thickness".into()),
             ));
             continue;
         }
@@ -159,11 +158,25 @@ pub fn validate_ampacity(native: &UnitNativeEvidence, contract: &AmpacityContrac
         }
         for trace in traces {
             let capacity = external_capacity_a(trace.width_mm, thickness);
+            let Some(current) = path.current_rms_a else {
+                findings.push(finding(
+                    Status::Indeterminate,
+                    AMPACITY_RULE,
+                    "actual trace geometry evaluated, but branch RMS current is unproven".into(),
+                    trace.id.clone(),
+                    Some(format!(
+                        "width={:.3} mm, capacity={capacity:.3} A",
+                        trace.width_mm
+                    )),
+                    Some("reviewed branch RMS waveform bound".into()),
+                ));
+                continue;
+            };
             let actual = format!(
                 "width={:.3} mm, capacity={capacity:.3} A, rms={current:.3} A",
                 trace.width_mm
             );
-            if capacity + f64::EPSILON < current {
+            if !current.is_finite() || current <= 0.0 || capacity + f64::EPSILON < current {
                 findings.push(finding(
                     Status::Fail,
                     AMPACITY_RULE,

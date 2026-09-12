@@ -31,11 +31,14 @@ The executable adapter and fresh run summary are `packages/zapote-drc/examples/p
 `zapote/power-entry/candidate/section.kicad_pcb` and the routed gate-drive
 candidate at `zapote/gate-drive/candidate/section.kicad_pcb` (their hashes and
 existing native receipts are retained in each unit's `evidence/` directory).
-The adapter evaluated 20 actual PFC traces at 15 A RMS and 20 actual
-gate-drive traces at 2.5 A RMS. PFC fails on seven measured narrow necks;
-gate-drive passes its evaluated trace population. Both domain pin contracts
-pass from explicit net classifications. Isolation remains indeterminate
-because the native receipts contain no barrier/cutout surface-path census.
+The corrected adapter evaluates 20 actual PFC traces and 20 actual gate-drive
+traces. Width and IPC screening capacity are reported, while branch RMS
+waveforms remain unproven, so ampacity is indeterminate. Domain expectations
+are fixed source contracts and native observations are mapped independently;
+PFC auxiliary/control nets are HOT-referenced and PE is a distinct domain.
+Isolation remains indeterminate because the native receipts contain no
+barrier/cutout surface-path census. The rejected first run is preserved in
+`rejected-execution-2026-09-12.json`.
 
 The tests cover a passing reviewed contract, a narrow real trace, a removed
 via annulus, a missing barrier, a missing observed crossing, a misclassified
