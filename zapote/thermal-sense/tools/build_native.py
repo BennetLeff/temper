@@ -9,7 +9,7 @@ if __name__ == "__main__":
     u = REPO / "zapote/thermal-sense"
     build(
         REPO,
-        u / "source-build-01",
+        u / "source-build-02",
         Path(sys.argv[1]).resolve(),
         u / "poses.json",
         u / "outline.json",

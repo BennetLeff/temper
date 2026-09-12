@@ -1,0 +1,13 @@
+{
+  "requested_model": "gpt-5.6-luna",
+  "reported_memory_use": [
+    "rtd-mem-001",
+    "current-sense-mem-001",
+    "voltage-sense-mem-001",
+    "thermal-sense-mem-001"
+  ],
+  "initial_task_message": "Implement thermal Rev B Rust checks only in isolated /private/tmp/temper-thermal-open-rust-20260912 HEAD1ebacbfb8. Own zapote/packages/zapote-erc/src/thermal_sense.rs, zapote/packages/zapote-harness/src/thermal_sense.rs, zapote/packages/zapote-harness/tests/thermal_sense.rs (new thermal_open.rs ERC helper allowed+necessary mod registration). Candidate/native fixtures currently old RevA; parent will deliver actual RevB native soon. Need update exact 27 components 76 pins 13 nets; source-derived topology from new source is authority but independently hardcode expected gate pin map. TLV9031DBVR open comps U3/U4 OUT1 GND2 IN+3 IN-4 VCC5; SN74LVC1G32DBVR U5/U6 A1 B2 GND3 Y4 VCC5. HS_HOT/COIL_HOT remain hysteresis raw, separate from FAULT; OPEN signals to OR.B, HOT to OR.A, OR.Y to host 3/4. Coil fixed 10k, top20k, bottom8.06k, hyst42.2k; other hot Rs unchanged. Shared OPEN_REF top1.21k bottom100k +/-1%, no external hysteresis. Contract v2 open_detection explicit engineering allowances; exhaustive cold/open margins; 10ms settling; reset external interlock. Build real fault cases; negative tests targeted; preserve strict pin/cluster/native binding tests. Initial red test before implementation. Do not change old private curve to force pass.",
+  "follow_up_message": "Also retain your exact received initial task message and this follow-up under /private/tmp/thermal-open-rust-dispatch.json (outside repo, evidence-only), with requested model gpt-5.6-luna and reported memory use. Parent will copy. This avoids previous initial dispatch capture gap; do not claim provider forwarding bytes verified.",
+  "capture_scope": "agent-reported received instructions; exact match to initial host outbound not independently verified",
+  "provider_forwarding_verified": false
+}

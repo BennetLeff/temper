@@ -1,5 +1,5 @@
 {
-  "schema": "zapote.thermal.sensor-contract.v1",
+  "schema": "zapote.thermal.sensor-contract.v2",
   "mpn": "NTCALUG01A104GA",
   "off_board": true,
   "r25_ohm": 100000.0,
@@ -29,5 +29,15 @@
     }
   },
   "qualification": "indeterminate",
-  "temperature_rating_scope": "sensor assembly without connector"
+  "temperature_rating_scope": "sensor assembly without connector",
+  "open_detection": {
+    "minimum_valid_temperature_c": 0.0,
+    "comparator_error_v": 0.014,
+    "sense_leakage_a": 1e-06,
+    "reference_leakage_a": 2e-06,
+    "max_settling_s": 0.01,
+    "hot_or_open_asserts_fault": true,
+    "reset_owned_by": "external-interlock",
+    "model_scope": "conditional loading and comparator error allowances; physical qualification pending"
+  }
 }

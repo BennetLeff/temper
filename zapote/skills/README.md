@@ -101,3 +101,5 @@ the real-catalog controls, process-boundary replay and separate live Luna contro
 The [voltage-sense-lessons-v1](revisions/voltage-sense-lessons-v1/catalog.json) revision adds a portable procedure for worst-case substitutions, electrical symbol identities and saved-board evidence binding. Voltage attempt retrieval and its limits are recorded in [the memory record](../voltage-sense/memory/README.md).
 
 The [thermal-sense-lessons-v1](revisions/thermal-sense-lessons-v1/catalog.json) revision adds complete-connectivity and assembly-rating checks. [Thermal memory evidence](../thermal-sense/memory/README.md) separates selected notes, reported use and the incomplete initial dispatch capture.
+
+The [thermal-sense-lessons-v2](revisions/thermal-sense-lessons-v2/catalog.json) revision adds analog open-wire margin, threshold-crossing timing and fault-injection procedures from Rev B. Earlier exact thermal behavior remains historical, not a reusable board fact.

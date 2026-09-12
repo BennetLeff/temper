@@ -1,0 +1,141 @@
+{
+  "before_sha256": "6bf8d147396f46a3d08a63b78aaf6d748ca7f3b9dd55a7907958eae35dc42c81",
+  "after_sha256": "a6be85d11eb129928e82d24b970b8cd920407702379c0ea0427f107fbbfcee55",
+  "footprints": [
+    {
+      "reference": "J3",
+      "library_sha256": "58598e38057ca81d58c6734ac37bb065506aa8a5bf443868be9520527c6a8635",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "C4",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "C8",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U4",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R6",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U5",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R4",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R9",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R7",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U3",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R2",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R10",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "J2",
+      "library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U2",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R1",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "C1",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R5",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "C7",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "C5",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "J1",
+      "library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U6",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "C2",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R8",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "C3",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "R3",
+      "library_sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "C6",
+      "library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "pad_centres_preserved": true
+    },
+    {
+      "reference": "U1",
+      "library_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "pad_centres_preserved": true
+    }
+  ]
+}

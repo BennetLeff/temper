@@ -1,14 +1,14 @@
 {
   "status": "emitted-native-verification-required",
-  "source_netlist_sha256": "2d48d0ce7a16687558cd3ffcf620a094f641e0cd5657b41776d9e78a543bb88c",
-  "helper_sha256": "d5e81b439ad639b59f2b228dcde364cd510f5f4dfda091e16d16901c167b78cd",
+  "source_netlist_sha256": "fc4ce8928595157470d027fbf9aa318e46a95d7f621a81ecf856ffe561f74ced",
+  "helper_sha256": "8454a8ccd034a77cb029c15537e34f1a6dcd260bf5a49dee5a3da677b6c6476b",
   "outputs": {
-    "section.kicad_sch": "ed879e9980d261619fbbf29986ff67afac23288feb09fdb222d8a3895499adaa",
-    "ThermalSenseUnit.kicad_sym": "55e9e2a466f2e63735544659352e3f4391d2eb0d99e40dafb9613f7b122a2d08",
+    "section.kicad_sch": "9f563c0d3832d1c426bc45a47ac46b54329b7caea80670486132a3557415530c",
+    "ThermalSenseUnit.kicad_sym": "8ef1abc1e256024743f5460feb4a8d0e7da13adc3a9e0c41a9403c0431c79f45",
     "sym-lib-table": "ab92f7085b117ef5dc4d6641069cd8baf3422c9c49f3c05e4085c205d8a20fbd"
   },
   "intentional_open_pins": [],
-  "component_count": 17,
+  "component_count": 27,
   "native_erc": "NOT RUN",
   "native_netlist_equality": "NOT RUN",
   "pcb_touched": false

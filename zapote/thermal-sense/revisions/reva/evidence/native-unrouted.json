@@ -1,0 +1,2192 @@
+{
+  "board_file_utf8": "(kicad_pcb\n\t(version 20260206)\n\t(generator \"pcbnew\")\n\t(generator_version \"10.0\")\n\t(general\n\t\t(thickness 1.6)\n\t\t(legacy_teardrops no)\n\t)\n\t(paper \"A4\")\n\t(layers\n\t\t(0 \"F.Cu\" signal)\n\t\t(2 \"B.Cu\" signal)\n\t\t(9 \"F.Adhes\" user \"F.Adhesive\")\n\t\t(11 \"B.Adhes\" user \"B.Adhesive\")\n\t\t(13 \"F.Paste\" user)\n\t\t(15 \"B.Paste\" user)\n\t\t(5 \"F.SilkS\" user \"F.Silkscreen\")\n\t\t(7 \"B.SilkS\" user \"B.Silkscreen\")\n\t\t(1 \"F.Mask\" user)\n\t\t(3 \"B.Mask\" user)\n\t\t(17 \"Dwgs.User\" user \"User.Drawings\")\n\t\t(19 \"Cmts.User\" user \"User.Comments\")\n\t\t(21 \"Eco1.User\" user \"User.Eco1\")\n\t\t(23 \"Eco2.User\" user \"User.Eco2\")\n\t\t(25 \"Edge.Cuts\" user)\n\t\t(27 \"Margin\" user)\n\t\t(31 \"F.CrtYd\" user \"F.Courtyard\")\n\t\t(29 \"B.CrtYd\" user \"B.Courtyard\")\n\t\t(35 \"F.Fab\" user)\n\t\t(33 \"B.Fab\" user)\n\t)\n\t(setup\n\t\t(stackup\n\t\t\t(layer \"F.SilkS\"\n\t\t\t\t(type \"Top Silk Screen\")\n\t\t\t)\n\t\t\t(layer \"F.Paste\"\n\t\t\t\t(type \"Top Solder Paste\")\n\t\t\t)\n\t\t\t(layer \"F.Mask\"\n\t\t\t\t(type \"Top Solder Mask\")\n\t\t\t\t(thickness 0.01)\n\t\t\t)\n\t\t\t(layer \"F.Cu\"\n\t\t\t\t(type \"copper\")\n\t\t\t\t(thickness 0.07)\n\t\t\t)\n\t\t\t(layer \"dielectric 1\"\n\t\t\t\t(type \"core\")\n\t\t\t\t(thickness 1.44)\n\t\t\t\t(material \"FR4\")\n\t\t\t\t(epsilon_r 4.5)\n\t\t\t\t(loss_tangent 0.02)\n\t\t\t)\n\t\t\t(layer \"B.Cu\"\n\t\t\t\t(type \"copper\")\n\t\t\t\t(thickness 0.07)\n\t\t\t)\n\t\t\t(layer \"B.Mask\"\n\t\t\t\t(type \"Bottom Solder Mask\")\n\t\t\t\t(thickness 0.01)\n\t\t\t)\n\t\t\t(layer \"B.Paste\"\n\t\t\t\t(type \"Bottom Solder Paste\")\n\t\t\t)\n\t\t\t(layer \"B.SilkS\"\n\t\t\t\t(type \"Bottom Silk Screen\")\n\t\t\t)\n\t\t\t(copper_finish \"ENIG\")\n\t\t\t(dielectric_constraints no)\n\t\t)\n\t\t(pad_to_mask_clearance 0)\n\t\t(allow_soldermask_bridges_in_footprints no)\n\t\t(tenting\n\t\t\t(front yes)\n\t\t\t(back yes)\n\t\t)\n\t\t(covering\n\t\t\t(front no)\n\t\t\t(back no)\n\t\t)\n\t\t(plugging\n\t\t\t(front no)\n\t\t\t(back no)\n\t\t)\n\t\t(capping no)\n\t\t(filling no)\n\t\t(pcbplotparams\n\t\t\t(layerselection 0x00000000_00000000_55555555_5755f5ff)\n\t\t\t(plot_on_all_layers_selection 0x00000000_00000000_00000000_00000000)\n\t\t\t(disableapertmacros no)\n\t\t\t(usegerberextensions no)\n\t\t\t(usegerberattributes yes)\n\t\t\t(usegerberadvancedattributes yes)\n\t\t\t(creategerberjobfile yes)\n\t\t\t(dashed_line_dash_ratio 12)\n\t\t\t(dashed_line_gap_ratio 3)\n\t\t\t(svgprecision 4)\n\t\t\t(plotframeref no)\n\t\t\t(mode 1)\n\t\t\t(useauxorigin no)\n\t\t\t(pdf_front_fp_property_popups yes)\n\t\t\t(pdf_back_fp_property_popups yes)\n\t\t\t(pdf_metadata yes)\n\t\t\t(pdf_single_document no)\n\t\t\t(dxfpolygonmode yes)\n\t\t\t(dxfimperialunits yes)\n\t\t\t(dxfusepcbnewfont yes)\n\t\t\t(psnegative no)\n\t\t\t(psa4output no)\n\t\t\t(plot_black_and_white yes)\n\t\t\t(sketchpadsonfab no)\n\t\t\t(plotpadnumbers no)\n\t\t\t(hidednponfab no)\n\t\t\t(sketchdnponfab yes)\n\t\t\t(crossoutdnponfab yes)\n\t\t\t(subtractmaskfromsilk no)\n\t\t\t(outputformat 1)\n\t\t\t(mirror no)\n\t\t\t(drillshape 1)\n\t\t\t(scaleselection 1)\n\t\t\t(outputdirectory \"\")\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"02341820-5f1f-44f7-a58c-71d1a5cffbf0\")\n\t\t(at 15 8)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R1\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8ac23510-2d75-4b4f-a483-f7bbb30de6e4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-0710KL\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6974cab4-7191-486d-8d6b-2792f167cab9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"9d09175c-cf1c-4aaf-916e-21e10a21d336\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f8efaa24-c847-4343-8510-b33fd116a088\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"a49f593b-8114-4463-9bc1-156d6f3413b1\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"hs_fixed\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d8ed21a4-30dc-4aba-8385-0baf32cb8eca\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-0710KL\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"93ef01eb-db3d-4e06-b038-145d025c3810\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"hs_fixed\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"4f36df81-7d19-47b9-884d-60498b196dc9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"10kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6904c11d-32d6-4a7b-ade8-b8c98aa4a51c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"47ff9aa4-0585-4d66-a743-284c655c1d8e\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6534eaa1-8623-4951-ae9b-349261a74b9e\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"8bde0353-d250-46a9-b440-7f3553ad759d\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"5b8959f4-fa2c-455c-a0ee-a2b0fbdc6ba0\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"ff8c5b22-0ba9-4d16-a90b-a3b942d70cc7\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"049e1655-1852-4431-a0ae-898e8e35aad3\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_SENSE\")\n\t\t\t(uuid \"932f23a0-ab50-4e70-80ae-0fae1f719ac2\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"03956d4f-edf5-465d-abdd-275f04c97457\")\n\t\t(at 27 24 90)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R6\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"d3cf5110-57f5-424b-b4c5-d378c799c559\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-073K16L\"\n\t\t\t(at 0 1.43 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"74b6026b-e0e5-41a5-9c73-3af28b73cb37\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"55b208c6-38c1-463b-96f0-4afc37cf1ece\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"74b86b2c-7dd6-4b8b-861f-be2bdf598397\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"5fbd8d0e-5d1b-4cdc-9a8d-309527f01110\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"coil_top\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"528f6d9f-cc16-4498-97fc-dd4da2cb66ec\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-073K16L\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e8aa5013-876a-4052-b98c-cff9c02d96f0\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"coil_top\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"eeb2bca8-1b7a-4627-b0d9-5d00390315b5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"3.16kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"55dd3434-bb66-41e8-a2a4-10773a8b3c4e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"56ae9833-38cd-4b5d-8132-e76fd8a4535d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"7c4e022a-40ed-4ae9-a3ff-14d343a59deb\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"922cb753-02dd-40f8-a8f5-94d257d9ff2d\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"cffdeb82-af89-4864-b5ca-22da649d29eb\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"dd8a50bc-192d-4164-8215-f0f1d093d1bc\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0 90)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"c9b08e53-f8f3-4855-b650-cc609f98bda7\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0 90)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_REF\")\n\t\t\t(uuid \"28da2031-6e35-48d8-a55a-73d376c5c5f1\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Package_TO_SOT_SMD:SOT-23-5\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"08af39fe-1441-47d7-a4cd-3472c5470b1d\")\n\t\t(at 36 12)\n\t\t(descr \"SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)\")\n\t\t(tags \"SOT TO_SOT_SMD\")\n\t\t(property \"Reference\" \"U1\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a989ad03-2df3-4a21-8f69-6c735b23b81a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"TLV3201AIDBVR\"\n\t\t\t(at 0 2.4 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"c55423a4-296b-4439-ba91-d2f9352d5eb5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6d43aa29-1c18-4042-82c7-fb965cac7dce\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"3c2cd388-b9fb-4405-9390-457c5373e73a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"package/gullwing\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"b64a1fec-528e-4645-92ec-114398835e96\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"hs_comp\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d7c4f9ba-21a4-4253-ba9b-1f87184f35ae\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"TLV3201AIDBVR\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"04ac21f6-3a05-4a45-a926-a60260fc9f13\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"hs_comp\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"834c0dd2-8ff6-4e02-88bc-e1cdb0a24741\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"0114d201-f7a9-4677-b367-3dd1ac499af8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.91 -1.56)\n\t\t\t(end 0.91 -1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a6423f23-7bf5-4ca4-9924-58cf54349f02\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.91 -1.51)\n\t\t\t(end -0.91 -1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6bcdd912-177c-4b73-ae65-573ebd2841a9\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.91 1.56)\n\t\t\t(end -0.91 1.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"3df9f211-a22c-436f-978e-980553a55747\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 -1.56)\n\t\t\t(end 0.91 -1.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"69a72c13-e0e1-4633-8241-915f73ac5422\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 -0.39)\n\t\t\t(end 0.91 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c4aeba94-d765-4e17-8261-707e3ab567de\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 1.51)\n\t\t\t(end 0.91 1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"cacf9438-a1aa-46f5-8b1b-4f66dcf7f481\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 1.56)\n\t\t\t(end -0.91 1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"2640f57c-17c4-4605-96e4-d8bca5116187\")\n\t\t)\n\t\t(fp_poly\n\t\t\t(pts\n\t\t\t\t(xy -1.45 -1.51) (xy -1.69 -1.84) (xy -1.21 -1.84)\n\t\t\t)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill yes)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"0c69e792-c612-4d82-8c05-925789ef60fc\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.05 -1.5)\n\t\t\t(end -1.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"5b35bf78-8102-476d-a001-77a6e3017185\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.05 1.5)\n\t\t\t(end -2.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"18f936ad-7b6e-44f1-be04-cf8f974582b5\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 -1.7)\n\t\t\t(end 1.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"f53a7788-2eb9-4890-bcc8-3b25b89ada2e\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 -1.5)\n\t\t\t(end -1.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"20f208db-cadf-4d0a-8b3f-b6f4ca66de45\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 1.5)\n\t\t\t(end -2.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"a876503e-5c97-4d7c-8c1e-3cbead89889e\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 1.7)\n\t\t\t(end -1.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"75e78141-d602-4046-bde5-1b5da9a1395c\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -1.7)\n\t\t\t(end 1.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"ee8081d4-fb6b-4303-80da-dafbb6cdc02c\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -1.5)\n\t\t\t(end 2.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"8104bac3-cd46-429f-8d11-53f95ec72704\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -0.39)\n\t\t\t(end 1.05 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"98ed7cb8-9aff-46b7-87aa-ac6fe78fb866\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 0.39)\n\t\t\t(end 2.05 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"f628bf8f-99f9-4f93-a662-793c14af91f8\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 1.5)\n\t\t\t(end 1.05 1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"8a13eaa3-562d-4c53-8761-36efbc1cf755\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 1.7)\n\t\t\t(end -1.05 1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"483b0556-b8cf-4591-918e-ec63fe81e0f3\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 -1.5)\n\t\t\t(end 2.05 -0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"268af92b-fad5-4fbe-acea-fc121d654417\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 -0.39)\n\t\t\t(end 1.05 -0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"57eb0698-b727-4dc6-81d6-a0ce169e42c4\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 0.39)\n\t\t\t(end 2.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"3ce93f66-991d-4fd9-9ffc-35e8a7fb0522\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 1.5)\n\t\t\t(end 1.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"00f0df2f-d446-4ae1-965c-a7002eb228c2\")\n\t\t)\n\t\t(fp_poly\n\t\t\t(pts\n\t\t\t\t(xy -0.4 -1.45) (xy 0.8 -1.45) (xy 0.8 1.45) (xy -0.8 1.45) (xy -0.8 -1.05)\n\t\t\t)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"7205b881-34e2-4251-80e7-8653bf729a18\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"f41ee6e7-8301-4c38-bfc7-08aae264332d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.72 0.72)\n\t\t\t\t\t(thickness 0.11)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.1375 -0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_FAULT\")\n\t\t\t(uuid \"b4812740-3534-45cb-9d1b-7d6656a7b41c\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at -1.1375 0)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"015037b3-b50b-4c3c-ba81-29045c77a054\")\n\t\t)\n\t\t(pad \"3\" smd roundrect\n\t\t\t(at -1.1375 0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_REF\")\n\t\t\t(uuid \"6e522f7e-843e-4890-bcaf-06e5693ef57a\")\n\t\t)\n\t\t(pad \"4\" smd roundrect\n\t\t\t(at 1.1375 0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_SENSE\")\n\t\t\t(uuid \"f13e09d2-e5d5-4665-bed6-bc92bc6ba409\")\n\t\t)\n\t\t(pad \"5\" smd roundrect\n\t\t\t(at 1.1375 -0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"d9b43d58-7e3e-45ce-8967-4a7ce6056313\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Capacitor_SMD:C_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"0f4eabc2-9944-4484-8bad-bfad74b0f733\")\n\t\t(at 15 32 90)\n\t\t(descr \"Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"capacitor\")\n\t\t(property \"Reference\" \"C3\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"915e40fc-593d-482f-886c-379f2bc31104\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 1.43 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"4ecb352d-5dde-4bfd-bf7d-045409c2fe8f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"c74bd17f-5d8d-4e15-9ad9-4ea7968a46b6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e6a58c22-becd-437d-817f-ce9432941f4b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"b5fa65c5-2df6-435e-bc95-8c03745137c4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"coil_filter\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"af102f4e-a2e7-47e5-b31c-eebda35076a7\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"ef5a6162-38f7-4a78-b37e-73026ad86b85\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"coil_filter\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"0fde6a2a-b432-4947-b6eb-c9ed9a9e48f4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"100nF +/- 10%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2da9ed70-9023-45d9-8fc7-d1800770d9b6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.14058 -0.51)\n\t\t\t(end 0.14058 -0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"4ce6edd6-9566-4f48-b0e9-f0e586235e6a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.14058 0.51)\n\t\t\t(end 0.14058 0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"1ac29b90-a94b-4f43-9a51-f460b2b82528\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"bf0d0649-ceb2-4e46-a85f-65755b35a7b0\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4)\n\t\t\t(end 0.8 0.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"1d407a92-28c2-42f6-9089-941bf9a32db8\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"9e8d9cf3-d614-4f59-ac36-4c22327420a4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.775 0 90)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_SENSE\")\n\t\t\t(uuid \"b4522d90-5c2a-44bb-93e4-dd1177b3f577\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.775 0 90)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"1c462c5e-8888-4ca0-a432-8890c0d2ba01\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"1c6d9589-d659-44be-965d-b15ad6f24006\")\n\t\t(at 6 28 -90)\n\t\t(descr \"JST XH series connector, B2B-XH-A (http://www.jst-mfg.com/product/pdf/eng/eXH.pdf)\")\n\t\t(tags \"connector JST XH vertical\")\n\t\t(property \"Reference\" \"J2\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"85de9cf6-2a3d-4862-be12-5b01ba2d0647\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"B2B-XH-A(LF)(SN)\"\n\t\t\t(at 1.25 4.6 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"cd8a6f35-566d-4cd2-afb6-b035a3e68aee\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6924a029-80d6-4b73-b79b-55368a9e9513\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"30d68d1b-0b55-40d0-8e6e-b776c4547f99\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"connector/JST\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"cd0f19a2-356a-4e19-8418-7afdb863cc8c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"coil_probe\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"123e24db-0b93-4c2d-9c52-3df594d07d2d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"B2B-XH-A(LF)(SN)\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"a5320fd4-c387-42a8-8e6b-362ddd931238\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"coil_probe\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"fb2ec31c-d27f-4dd8-b844-519c79b9ce40\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"3383e251-e0d6-4eab-be3d-e29e69d88544\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr through_hole)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -1.8 2.75)\n\t\t\t(end 1.25 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"9b140a2c-5409-461f-a148-9ed9bd6ee38f\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 4.3 2.75)\n\t\t\t(end 1.25 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"d4a2c2dc-6868-4222-82af-8bb15761932d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.55 -0.2)\n\t\t\t(end -1.8 -0.2)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"eba9f3e6-ab08-49e2-a0e8-951e6540163d\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.8 -0.2)\n\t\t\t(end -1.8 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"7eb03876-f7d6-4152-a2d3-aac9edd08d12\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 4.3 -0.2)\n\t\t\t(end 4.3 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"10c97831-1bfa-4c9d-ad42-80c50cd0ff3a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 5.05 -0.2)\n\t\t\t(end 4.3 -0.2)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"334fc5f2-028a-40c1-ac5b-620b2cef000e\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.85 -2.75)\n\t\t\t(end -2.85 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c9b22fb3-6237-4909-9fe1-2273102a9c97\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.6 -2.75)\n\t\t\t(end -2.85 -2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"43d0cbdf-3e94-4fc0-859d-d835dfbed67a\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.55 -2.45)\n\t\t\t(end -0.75 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"9ebf195d-459b-4358-8cb0-d5811c6f7ff6\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start 0.75 -2.45)\n\t\t\t(end 1.75 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"331f6f5b-4800-4b12-8299-8023bec126b3\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start 3.25 -2.45)\n\t\t\t(end 5.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"44682c24-39de-49ad-a8e7-ce7e95b74189\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.56 -2.46)\n\t\t\t(end 5.06 3.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"14db2ade-3b20-4c78-bb7c-779af6ff7379\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.95 -2.85)\n\t\t\t(end 5.45 3.9)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"dd532329-a1e8-4d28-8519-2bdcc3db8f56\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0 -1.35)\n\t\t\t(end 0.625 -2.35)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"7e5a0c00-8d2f-44c3-92c9-8cd77b2fd7bb\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.625 -2.35)\n\t\t\t(end 0 -1.35)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"d8e4aad1-56ad-4dd9-9ee4-a773f5833a95\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.45 -2.35)\n\t\t\t(end 4.95 3.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"a3f6fb95-d24e-44ce-85c5-409b9d57e2dd\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 1.25 2.7 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"fc2cd281-77e6-42ab-b63e-857270f82bb0\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" thru_hole roundrect\n\t\t\t(at 0 0 270)\n\t\t\t(size 1.7 2)\n\t\t\t(drill 1)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(roundrect_rratio 0.147059)\n\t\t\t(net \"COIL_SENSE\")\n\t\t\t(uuid \"c72eedcb-d356-41da-a00b-ecf1887f6112\")\n\t\t)\n\t\t(pad \"2\" thru_hole oval\n\t\t\t(at 2.5 0 270)\n\t\t\t(size 1.7 2)\n\t\t\t(drill 1)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"4aa62105-fdd1-41da-b1bf-09e4394ed566\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"208f990d-100e-4aa2-aa99-ca131fafe990\")\n\t\t(at 32 6)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R4\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"e54a2fc2-58b5-4be0-9c64-69f56467a6e8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-0734K8L\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e70d3681-a4c4-4b8d-b455-688798114c0e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"72ac0ded-b337-4c61-9ede-397e2093dfe4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"1cada7fc-d4b7-4530-bd95-ff1f9a2ba45a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"7b368f34-4052-4550-9aae-949a9b5ff60b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"hs_hyst\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"a27f1254-8c19-4f9b-a139-bbb1571d2d3c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-0734K8L\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f5ce1997-09f3-446e-94bf-c80058a2f772\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"hs_hyst\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e515308e-c1e8-4ecc-8992-2dcf0fe020a3\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"34.8kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"8dac080c-c8bb-4e3a-bb93-0de8d54089c6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c9ba4a75-1a83-4b19-9cc9-ee98e76bc30f\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"dd371fa0-409a-41ee-892d-7f01c8183f41\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"500200ab-efac-4467-8a48-39a03ab430d6\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"42692373-25c3-4149-a9dc-5cf28785bb18\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"43db1946-02ed-410d-a1b4-1f4fa7a8a9ea\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_REF\")\n\t\t\t(uuid \"fce89657-f1a4-46b1-a72d-eaca39213714\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_FAULT\")\n\t\t\t(uuid \"bacba7c8-0b57-490c-a8be-e8f4632fe46b\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"2c980956-a4bb-4573-b7f5-a6ce8d75b54b\")\n\t\t(at 23 13 90)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R3\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"7ac69393-cbbc-406e-a29b-bacc62f5e457\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-0711K5L\"\n\t\t\t(at 0 1.43 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"ee64e7b6-2c60-4eac-a28c-bbee28083dd6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d4879aee-13bc-4d33-8bb5-428eb0ebe8f9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"7e11f06f-ce03-4aab-a2b8-adee39b1f0fa\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"8a72bf67-b642-457d-b0d2-4fdd48bb9c4e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"hs_bottom\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"1253cbb4-e1ad-4957-b7ee-45cd8f05d19e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-0711K5L\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e6ec369d-4b49-4976-8e90-412b3da5199f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"hs_bottom\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"b894a59e-8160-454e-93f1-2dc97d7d6472\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"11.5kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6a2fea03-cb67-4753-90c1-e3785427f74e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"823cd81d-84ae-4698-b36a-ed71fdd4ffaa\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"12204061-7eeb-4b62-92ec-8af053ce6b28\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"121fc9f5-2cd4-4c85-adec-e7e219276c80\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"f9dd3501-1af4-4ff3-af82-161735d1c799\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"54026f22-713e-45e0-b228-ff0dde5370d6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0 90)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_REF\")\n\t\t\t(uuid \"3a380684-5bad-48c0-b8aa-c1ff419d5c9d\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0 90)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"7cd8d7df-bba9-46f6-84cc-e45df80d606e\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"5139f938-804e-4bc5-a087-acba9b63754f\")\n\t\t(at 15 26)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R5\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c524f55c-2af9-4b4e-910c-faef9d805b11\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-073K32L\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"7fa6d6de-49d1-4847-955a-3edaad5bb115\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2c7e588d-f2db-4e4d-afcc-eea5af3acc64\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"0ddca2cd-3904-42ea-9b88-159f28ab844d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f404c6dd-3226-47c4-8dea-353d2316eb77\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"coil_fixed\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f703165c-1f58-41f5-bad4-37c0ba3229ac\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-073K32L\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"945f8bf8-9d30-4464-9eb0-e913c979ef2d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"coil_fixed\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"08624b2a-a6cf-4e6c-ab4d-2dd1309b50a1\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"3.32kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e1c5e9f6-6825-409c-8223-76c7ac718750\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"e67dcd89-b268-4165-ae02-551cc63f5a51\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"d9ae1be0-b04e-475a-a636-45bdd3f8f57f\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"0dc64b4a-5554-41dd-8e27-05c59822e381\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"899ac8b5-510f-4bad-b732-936bc2981123\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"39850c50-2276-48d3-a57d-585991cc7c8a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"91d1d048-d17b-4a30-a4b8-b643a0bb2aa7\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_SENSE\")\n\t\t\t(uuid \"47c08354-a57f-4815-a206-c599c80d08e4\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Capacitor_SMD:C_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"55fdd96c-e2d6-4592-907f-f40120387e68\")\n\t\t(at 41 10 90)\n\t\t(descr \"Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"capacitor\")\n\t\t(property \"Reference\" \"C2\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"930e46b1-411a-435b-9c95-d066d3c0e2ca\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 1.43 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"3bbf0d54-7b80-413f-9197-0e27d854d26d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"24c7f854-5242-4e9b-8cec-4e32df1b4b4e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"481c1a2e-93d1-43b7-9c4b-602bceff0eb7\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f98961f7-b6c2-43fd-adc6-0ba2199e6025\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"hs_bypass\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"4ae0d283-493e-40eb-acbf-14cdcc61e8e8\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e4ff37e9-6068-46e6-8f9f-1e18212b74ac\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"hs_bypass\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"1a285bce-57e1-4c0f-b1c4-7735a8e8ff3a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"100nF +/- 10%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"8f142cee-f828-48bf-802f-8cd743ca34d7\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.14058 -0.51)\n\t\t\t(end 0.14058 -0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8eb2817f-3345-4005-aeec-4757687ec110\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.14058 0.51)\n\t\t\t(end 0.14058 0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"e6adfc7f-fa2d-42f4-89c2-5b04856cb64d\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"f93fb5a2-296a-4996-9fa5-08fccf91c03d\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4)\n\t\t\t(end 0.8 0.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"6c0c6af3-97b2-422b-9355-165d67058671\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"3a933a55-6d8b-497a-a1f2-d0513ac32a88\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.775 0 90)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"37a0f021-7a76-4129-9734-80b0a86595ef\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.775 0 90)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"c79d31ae-532f-4bd6-9718-d3f42cea46a6\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Package_TO_SOT_SMD:SOT-23-5\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"87806dfc-fa07-406d-934a-5188067c386a\")\n\t\t(at 36 30)\n\t\t(descr \"SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)\")\n\t\t(tags \"SOT TO_SOT_SMD\")\n\t\t(property \"Reference\" \"U2\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"d40163e0-a880-49de-80aa-9376f3a6d942\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"TLV3201AIDBVR\"\n\t\t\t(at 0 2.4 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"8b21ee7d-69f0-4e26-bb16-e50200133ec5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"c9e6b1eb-24bb-4370-964d-d8af6eb6bc84\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"5f7edb0d-5b42-4b9a-b0e0-62fa2cd71664\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"package/gullwing\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"00b6799f-117f-4c93-9db1-d80961a75603\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"coil_comp\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"adaf88e2-72b5-4654-8035-5c092fbaba1c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"TLV3201AIDBVR\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e5da2ffd-841c-4c17-b477-523c742180c9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"coil_comp\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"7178fee4-2a0c-4015-a4ff-565ea374a105\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6d1b3e5f-7a1b-4ca8-9934-3e00dcb64414\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.91 -1.56)\n\t\t\t(end 0.91 -1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"40036ff5-aefd-4b1a-8a6e-b7b7e6ad5a6f\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.91 -1.51)\n\t\t\t(end -0.91 -1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6f76453f-108e-4e33-94da-e80f5a1b7c87\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.91 1.56)\n\t\t\t(end -0.91 1.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a5eb54c6-ef06-48c8-bef0-b48d236e9974\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 -1.56)\n\t\t\t(end 0.91 -1.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"115366ba-9f77-4eb2-945d-cdb75f451dcd\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 -0.39)\n\t\t\t(end 0.91 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8d7ccd0c-58ad-427d-91b9-bc250cf2f2a7\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 1.51)\n\t\t\t(end 0.91 1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"80a19ae4-efb9-4925-976b-0f64d7ffe6cc\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0.91 1.56)\n\t\t\t(end -0.91 1.56)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"dbe9345a-4ed8-4bed-b384-cb19bd234331\")\n\t\t)\n\t\t(fp_poly\n\t\t\t(pts\n\t\t\t\t(xy -1.45 -1.51) (xy -1.69 -1.84) (xy -1.21 -1.84)\n\t\t\t)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill yes)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"25a986de-05d4-405c-88ed-144153700185\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.05 -1.5)\n\t\t\t(end -1.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"2b44955b-b91c-486d-91c0-7ee6d77d1984\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.05 1.5)\n\t\t\t(end -2.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"0e352a4f-5e62-45fd-b488-07ba4f43b521\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 -1.7)\n\t\t\t(end 1.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"8cee6d41-a546-476d-bfd1-06057c17257c\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 -1.5)\n\t\t\t(end -1.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"8c469cc7-ceae-4b62-9897-ad77e0ec5ab2\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 1.5)\n\t\t\t(end -2.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"30e9c616-7652-443e-b261-da7bb16b929e\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.05 1.7)\n\t\t\t(end -1.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"de12b3b2-7261-4472-bfb5-547253be1939\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -1.7)\n\t\t\t(end 1.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"48a2c685-1804-4a41-8164-0f8f106ab449\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -1.5)\n\t\t\t(end 2.05 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"ad95b34b-15c5-459e-9e3f-e32f3604e889\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 -0.39)\n\t\t\t(end 1.05 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"bbf3bf23-1e1f-4400-8bf1-a0b409e74c5f\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 0.39)\n\t\t\t(end 2.05 0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"ebe3f2ec-2f86-4141-ac5f-0a4cec30f357\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 1.5)\n\t\t\t(end 1.05 1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"df12bde9-2de1-4560-b229-b42985ac00cc\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 1.05 1.7)\n\t\t\t(end -1.05 1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"38119707-6cc9-468e-b3a2-b5ccd811395a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 -1.5)\n\t\t\t(end 2.05 -0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"c45d331a-1ed9-42a0-b948-a551bced5882\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 -0.39)\n\t\t\t(end 1.05 -0.39)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"adb24ecb-b9fd-4433-b148-c56630b1d572\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 0.39)\n\t\t\t(end 2.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"b017fc9e-2d05-4c29-a0fd-4fb85f1b4186\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 2.05 1.5)\n\t\t\t(end 1.05 1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"6a71f0b7-7955-4b7e-8fd4-dfa03dc7937e\")\n\t\t)\n\t\t(fp_poly\n\t\t\t(pts\n\t\t\t\t(xy -0.4 -1.45) (xy 0.8 -1.45) (xy 0.8 1.45) (xy -0.8 1.45) (xy -0.8 -1.05)\n\t\t\t)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"49426891-1865-459f-a548-36ed9689cfab\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"484cc666-7ef8-4a59-b074-496198239e1c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.72 0.72)\n\t\t\t\t\t(thickness 0.11)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -1.1375 -0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_FAULT\")\n\t\t\t(uuid \"4655f01f-a186-4712-8c94-dc4c843a0521\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at -1.1375 0)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"7e158ed3-3a86-4073-a956-c6da62f3327b\")\n\t\t)\n\t\t(pad \"3\" smd roundrect\n\t\t\t(at -1.1375 0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_REF\")\n\t\t\t(uuid \"9cacc91c-430c-463b-851e-abf9f819ec18\")\n\t\t)\n\t\t(pad \"4\" smd roundrect\n\t\t\t(at 1.1375 0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_SENSE\")\n\t\t\t(uuid \"3bea9afe-7914-460e-b0f8-245d15a0d60c\")\n\t\t)\n\t\t(pad \"5\" smd roundrect\n\t\t\t(at 1.1375 -0.95)\n\t\t\t(size 1.325 0.6)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"78e6fdee-e204-4718-9fdd-dcc9a5a91ada\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"92581e7d-d997-489a-ab9e-5cd6a6363b8f\")\n\t\t(at 32 24)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R8\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c88cc147-893b-4fc2-a21c-4e8984dd98f1\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-0711K5L\"\n\t\t\t(at 0 1.43 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"857d881a-5a37-403c-a786-afde3d3f1dfa\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2c9c38d7-ed45-46e9-91d4-fceecbd5512c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"fffdec5d-d268-4737-9f05-2a1c17bbb64e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"08d51cfc-3434-4955-a82f-be70345cfc90\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"coil_hyst\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"132766b5-fa93-48e1-9eec-a76637c76a48\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-0711K5L\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"15bf239e-e947-4d64-a6cf-d34f398e9d5b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"coil_hyst\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"357594ff-a916-4a12-9bc2-089f340f04cb\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"11.5kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2782b584-06ad-44a0-90d6-804cd7e8a12e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"863e6ffb-a3ac-4b35-906c-0eca058d5844\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"18c5a68c-561f-437c-9166-dae41891fd16\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"95c231d0-8b05-403b-9b0b-51f4d627f035\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"0c320ca4-ecb9-495a-8cf5-f37735444f6b\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"bd8bcad0-fcb2-4728-a919-bd91f6233a16\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_REF\")\n\t\t\t(uuid \"367d9b58-775b-4382-91dd-a80129aef02a\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_FAULT\")\n\t\t\t(uuid \"51aa3e36-22a7-4dd5-a5b8-da213a4dc04a\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"cdd2c65c-7ce7-496a-b941-6d9629eece8d\")\n\t\t(at 23 31 90)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R7\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"54b27f54-aabf-477c-b2bc-d18e15bbb3f2\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-074K42L\"\n\t\t\t(at 0 1.43 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"711d8917-0d49-48f9-bcc5-964f62f2b123\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"5013e041-601d-4c4b-bf80-1edbb26decc3\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"13018fa0-e0a2-4889-b8a9-ac6fcca4ec6c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"aea36bc4-1cb5-4dee-b489-ac9de33f9b6b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"coil_bottom\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"714ad350-355a-4565-ab53-74eb1cee5dd0\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-074K42L\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"428ccf35-d6a6-48f5-96eb-bdba50e9a34b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"coil_bottom\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6a6b7bf3-7d0a-4ee8-b35a-21708b432cf4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"4.42kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"abbb78d9-4b48-4823-9e1c-f83479eb5044\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"dfe74a72-701e-4ce0-9169-06ea892d94f5\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6e5bc071-ed1d-4ab9-b7ac-36e921aebc4f\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"3902143a-da28-40b5-ba13-f73ad62db227\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"7c3cd53a-891d-4bba-8f65-547b34a1beaf\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"b5561be9-5be8-4a9a-a28e-3547d04f641b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0 90)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"COIL_REF\")\n\t\t\t(uuid \"15bc7195-1975-4480-b628-341b4bb30f9d\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0 90)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"085fb26f-4c38-4210-9226-b904d442512f\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Capacitor_SMD:C_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"d9c4273d-e3c9-4a85-9ea7-0ae8b689093c\")\n\t\t(at 41 28 90)\n\t\t(descr \"Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"capacitor\")\n\t\t(property \"Reference\" \"C4\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8852cba1-8d16-4c17-8631-6852890e7e05\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 1.43 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"ad0b9295-266e-4034-8d7b-144bc730cf1f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6bc9bfeb-2754-4efe-b60c-fdf5125e8fb4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"a7359bee-524a-427f-879f-4e42a3a92dc1\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"1a416dac-ae25-4d57-b99e-519935dcf51d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"coil_bypass\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"a3a6d359-d0e6-4c48-8588-1b6375acd0cf\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"8faa12e8-c39c-4477-8a93-efa5990d6f84\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"coil_bypass\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"ab65c288-33e2-4061-a6f8-fcc7728a945f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"100nF +/- 10%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"21b2e6a7-6bde-41b3-ab49-00c6cebd8354\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.14058 -0.51)\n\t\t\t(end 0.14058 -0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"ff11c234-3f27-45a0-bed7-0bcdd22002d8\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.14058 0.51)\n\t\t\t(end 0.14058 0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"3d02add1-002a-457f-81a3-a877f0fc1337\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"5a93d69b-91a0-414e-9881-acde57e490d2\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4)\n\t\t\t(end 0.8 0.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"e844a47c-55e3-4873-a572-1820254a1779\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"06d11c19-ea73-4e2f-b71c-51df6c475a5f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.775 0 90)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"966b7664-4f2d-4c6b-b633-823a5c714306\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.775 0 90)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"3de5cf44-512b-4af7-8250-e36f4a402b56\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"e45aa1ab-d1a0-433b-b339-f90b2ac742ed\")\n\t\t(at 6 10 -90)\n\t\t(descr \"JST XH series connector, B2B-XH-A (http://www.jst-mfg.com/product/pdf/eng/eXH.pdf)\")\n\t\t(tags \"connector JST XH vertical\")\n\t\t(property \"Reference\" \"J1\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"fd470d6d-d442-4b2b-8bbb-8e003a56e3e6\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"B2B-XH-A(LF)(SN)\"\n\t\t\t(at 1.25 4.6 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"269aa618-9451-4760-b096-d67d875a86f9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"84544fc5-b2d4-4850-a72f-b2f99d49d7e5\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"3c4892a5-f3e1-49d9-bf90-6621038cc920\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"connector/JST\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"4deab264-b3ef-4246-baad-9086543a2a3d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"heatsink_probe\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f87f51b0-8059-468c-af85-86c048cfcfe3\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"B2B-XH-A(LF)(SN)\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"8c6ff50e-ee8c-4d78-845a-531a0a8f499b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"heatsink_probe\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"7a17ca02-d5c8-40b9-b851-13937c6aa4f7\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"80baaf17-fbf9-4a32-9721-5fe2ab904043\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr through_hole)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -1.8 2.75)\n\t\t\t(end 1.25 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"239defe0-5033-4323-95e1-fdb2fdeb3762\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 4.3 2.75)\n\t\t\t(end 1.25 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f8079855-4462-4f04-aa93-601a400f041a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.55 -0.2)\n\t\t\t(end -1.8 -0.2)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f852ac51-c2d8-4cfd-a5a3-0f8e6956311c\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.8 -0.2)\n\t\t\t(end -1.8 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6fa3b04f-93da-4480-b5b1-a738e20accd0\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 4.3 -0.2)\n\t\t\t(end 4.3 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"2841f441-386c-42e3-bdb3-780e276961fc\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 5.05 -0.2)\n\t\t\t(end 4.3 -0.2)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"7d8dd47d-367e-48ce-9caf-a5c7f8c9603a\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.85 -2.75)\n\t\t\t(end -2.85 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"368ae4e0-fe7b-4428-b170-50202e7ae2bf\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.6 -2.75)\n\t\t\t(end -2.85 -2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"cf95016e-68c4-4de2-a74e-f0b6fa9ac8b7\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.55 -2.45)\n\t\t\t(end -0.75 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"5f13aea4-0935-4a32-bc3c-bd866fe6c3e6\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start 0.75 -2.45)\n\t\t\t(end 1.75 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"21f01fe2-c885-4aa5-b727-aae061aca1e2\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start 3.25 -2.45)\n\t\t\t(end 5.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"4931bedf-f325-4913-b82a-4470ac32aaad\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.56 -2.46)\n\t\t\t(end 5.06 3.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"622ee75a-1788-4f04-b84b-1800a1637790\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.95 -2.85)\n\t\t\t(end 5.45 3.9)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"74d5a266-f0b1-41da-9355-4de5816de4be\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0 -1.35)\n\t\t\t(end 0.625 -2.35)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"eee07dd5-6d93-4baf-ac19-e73e7e8fa1ae\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.625 -2.35)\n\t\t\t(end 0 -1.35)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"ae69a2fc-89f4-466c-8d80-85941a8bc65b\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.45 -2.35)\n\t\t\t(end 4.95 3.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"b2a2d5cf-e5a5-423a-a6be-50b4d2b60131\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 1.25 2.7 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"da890af0-c608-4f93-8af6-5d039a5c4a8e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" thru_hole roundrect\n\t\t\t(at 0 0 270)\n\t\t\t(size 1.7 2)\n\t\t\t(drill 1)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(roundrect_rratio 0.147059)\n\t\t\t(net \"HS_SENSE\")\n\t\t\t(uuid \"3b33412e-4b11-46d6-9113-e5559d0591f8\")\n\t\t)\n\t\t(pad \"2\" thru_hole oval\n\t\t\t(at 2.5 0 270)\n\t\t\t(size 1.7 2)\n\t\t\t(drill 1)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"34f36899-87c1-43aa-aac3-dd3956dd6e0a\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"e6154728-abfc-4f6e-8996-9d9b0d8730c2\")\n\t\t(at 57 6 -90)\n\t\t(descr \"JST XH series connector, B6B-XH-A (http://www.jst-mfg.com/product/pdf/eng/eXH.pdf)\")\n\t\t(tags \"connector JST XH vertical\")\n\t\t(property \"Reference\" \"J3\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"bd990f4a-06d5-462e-a5e9-bb2859342306\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"B6B-XH-A(LF)(SN)\"\n\t\t\t(at 6.25 4.6 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"247bcc79-ba68-4db4-a368-bdaadb26a06a\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"bc2c1115-4ad6-48d9-89dd-590ffee4a1e1\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"258f442a-d0b5-4135-9fea-4ced9b106de9\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"connector/JST\"\n\t\t\t(at 0 0 270)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"50f91ae4-e3c4-4108-b66f-e6832439f7af\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"host\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"6ac1ed1f-9db3-4d00-b03f-85178fc601da\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"B6B-XH-A(LF)(SN)\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"aff01466-4715-4598-b1da-ce1f2ecbdc90\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"host\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"cfc3d1d0-5d93-414d-a975-be798a5525f4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"efc4bed4-176e-46e0-bd57-d2023e76f89c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr through_hole)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -1.8 2.75)\n\t\t\t(end 6.25 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f51e249b-9e3b-4dda-9a97-0a931f9ba530\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 14.3 2.75)\n\t\t\t(end 6.25 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"47ecaad8-c741-476e-a694-f0995609490e\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.55 -0.2)\n\t\t\t(end -1.8 -0.2)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"6c4ed021-c19b-442d-97ba-633ab46058c2\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.8 -0.2)\n\t\t\t(end -1.8 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"f1af3929-b0bc-4758-932f-5b059537dbf6\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 14.3 -0.2)\n\t\t\t(end 14.3 2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"66edfac6-8766-4e0b-9463-b8a3b4348997\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 15.05 -0.2)\n\t\t\t(end 14.3 -0.2)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"d166f15a-e8db-4186-ab31-e0f513a77ea3\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -2.85 -2.75)\n\t\t\t(end -2.85 -1.5)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"08701da2-622d-46b6-b9c5-2914f42676f6\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -1.6 -2.75)\n\t\t\t(end -2.85 -2.75)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"1d7b63ae-d9ec-43a1-bd03-29984a63ac1f\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.55 -2.45)\n\t\t\t(end -0.75 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"e8535ef5-879b-4556-b023-83db40a22630\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start 0.75 -2.45)\n\t\t\t(end 11.75 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"b8f26013-c25a-46fb-be0c-6cbe1629c93a\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start 13.25 -2.45)\n\t\t\t(end 15.05 -1.7)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"8f0ca614-458a-4430-bb49-12b2aa22a152\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.56 -2.46)\n\t\t\t(end 15.06 3.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"a187e671-ea92-4d31-bd8b-0b89981a62e0\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.95 -2.85)\n\t\t\t(end 15.45 3.9)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"ebecef53-d1d8-4da8-b26b-83c18daf2140\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start 0 -1.35)\n\t\t\t(end 0.625 -2.35)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"acfeaf61-1fb2-4631-96d9-c875af1c36de\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.625 -2.35)\n\t\t\t(end 0 -1.35)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"b679876d-3ac6-4000-811b-aa807e4924fc\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -2.45 -2.35)\n\t\t\t(end 14.95 3.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"ec529e1c-7b6f-45d2-9ace-65f1ce70ec49\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 6.25 2.7 270)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"976449b2-48fc-4a4f-9a48-8c4ff9d19fc4\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" thru_hole roundrect\n\t\t\t(at 0 0 270)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(roundrect_rratio 0.147059)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"8a82bfa4-dba2-4502-a996-86ecc2167cd6\")\n\t\t)\n\t\t(pad \"2\" thru_hole oval\n\t\t\t(at 2.5 0 270)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"7a50f728-cf05-49db-b5f4-f3a1756eb8d3\")\n\t\t)\n\t\t(pad \"3\" thru_hole oval\n\t\t\t(at 5 0 270)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(net \"HS_FAULT\")\n\t\t\t(uuid \"7f918a86-4f60-4816-b699-9e08eb3e7742\")\n\t\t)\n\t\t(pad \"4\" thru_hole oval\n\t\t\t(at 7.5 0 270)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(net \"COIL_FAULT\")\n\t\t\t(uuid \"d25da9d0-bb8d-407c-ae36-61edfc3ca067\")\n\t\t)\n\t\t(pad \"5\" thru_hole oval\n\t\t\t(at 10 0 270)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(net \"HS_SENSE\")\n\t\t\t(uuid \"38eab5e1-529c-43b2-b07d-cb918d68f0fa\")\n\t\t)\n\t\t(pad \"6\" thru_hole oval\n\t\t\t(at 12.5 0 270)\n\t\t\t(size 1.7 1.95)\n\t\t\t(drill 0.95)\n\t\t\t(layers \"*.Cu\" \"*.Mask\")\n\t\t\t(remove_unused_layers no)\n\t\t\t(net \"COIL_SENSE\")\n\t\t\t(uuid \"448d15de-029c-47a7-90d6-bb2e6f191846\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Capacitor_SMD:C_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"ead04e19-0406-44b4-b8d4-83354f332a2b\")\n\t\t(at 15 14 90)\n\t\t(descr \"Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"capacitor\")\n\t\t(property \"Reference\" \"C1\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"935726bc-87e0-45ee-91d6-e4f5ca796e55\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 1.43 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"3483db43-16c4-46bc-b279-94a447de627c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d088ce95-b0c7-4e66-966f-af24ba7584cb\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"a4ad712b-9b78-4245-8118-b5e434dbe3d2\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"689e7beb-1fd4-4567-b9c0-7448feb3c978\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"hs_filter\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"35ae562e-8cff-4538-a297-7049f2c0f544\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"C0603C104K5RACTU\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"d0c98832-ee65-48bd-81b5-bf2c0e9c375c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"hs_filter\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"de1800a9-73f3-4e70-b75a-8967a8168893\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"100nF +/- 10%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"e8572f04-66ae-4d43-a614-63e943cc6991\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.14058 -0.51)\n\t\t\t(end 0.14058 -0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"c13d982b-34d9-4be4-8bb7-c605435aad44\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.14058 0.51)\n\t\t\t(end 0.14058 0.51)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"caf87cc8-c49d-4d94-8136-32bddcc40b37\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"a86bfceb-196c-4e0d-a86f-ece2d0f31d01\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4)\n\t\t\t(end 0.8 0.4)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"0cbd7199-e11c-40e2-ac67-1ba999ba7ad0\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"69900d62-c786-497f-a795-d78ef6c0ad38\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.775 0 90)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_SENSE\")\n\t\t\t(uuid \"e142b13c-8124-4349-ba61-5ff25567f194\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.775 0 90)\n\t\t\t(size 0.9 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"gnd\")\n\t\t\t(uuid \"e7ba8726-e8bc-4756-8851-e40a2f742578\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(footprint \"Resistor_SMD:R_0603_1608Metric\"\n\t\t(layer \"F.Cu\")\n\t\t(uuid \"ef9700a6-c230-43e9-9d60-3eaaf6ad13d0\")\n\t\t(at 27 6 90)\n\t\t(descr \"Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)\")\n\t\t(tags \"resistor\")\n\t\t(property \"Reference\" \"R2\"\n\t\t\t(at 0 -1.43 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"9baeb13f-fc5a-4b35-b363-091f4487648c\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Value\" \"RC0603FR-079K09L\"\n\t\t\t(at 0 1.43 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"dd2896e7-1d70-4029-923d-a4014fb01e9b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Datasheet\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"bbfeaee5-8c4c-4ebe-8f75-39350d89f5d2\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Description\" \"\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"8d8a4ffd-e22f-400f-9559-2f22e0d7067e\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"KiLib_Generator\" \"SMD_2terminal_chip_molded\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"10ec151b-9606-44dc-bdac-560efa5faa1f\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1 1)\n\t\t\t\t\t(thickness 0.15)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"Sheetpath\" \"hs_top\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"ef46d274-b177-4e48-99f8-179a22d17d1b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"MPN\" \"RC0603FR-079K09L\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"f69fd44e-990c-46f4-b950-7ff337ebc6b2\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceInstance\" \"hs_top\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"2b488308-9cd3-474b-b740-9e0d0441b83b\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(property \"SourceValue\" \"9.09kohm +/- 1%\"\n\t\t\t(at 0 0 0)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(hide yes)\n\t\t\t(uuid \"5b6d9ebe-31de-4796-a6f9-b9dab0c9e20d\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(attr smd)\n\t\t(duplicate_pad_numbers_are_jumpers no)\n\t\t(fp_line\n\t\t\t(start -0.237258 -0.5225)\n\t\t\t(end 0.237258 -0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"1d94f8ef-f90f-4999-a17e-235a77759bf5\")\n\t\t)\n\t\t(fp_line\n\t\t\t(start -0.237258 0.5225)\n\t\t\t(end 0.237258 0.5225)\n\t\t\t(stroke\n\t\t\t\t(width 0.12)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(layer \"F.SilkS\")\n\t\t\t(uuid \"772d38c5-2e9d-4b75-8b37-d6eb692930bd\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -1.48 -0.73)\n\t\t\t(end 1.48 0.73)\n\t\t\t(stroke\n\t\t\t\t(width 0.05)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.CrtYd\")\n\t\t\t(uuid \"7e847cdd-59b7-40c7-8f4d-48aa1b825282\")\n\t\t)\n\t\t(fp_rect\n\t\t\t(start -0.8 -0.4125)\n\t\t\t(end 0.8 0.4125)\n\t\t\t(stroke\n\t\t\t\t(width 0.1)\n\t\t\t\t(type solid)\n\t\t\t)\n\t\t\t(fill no)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"6c293ff7-65fe-4dda-91c5-c52bb9f4fbdf\")\n\t\t)\n\t\t(fp_text user \"${REFERENCE}\"\n\t\t\t(at 0 0 90)\n\t\t\t(layer \"F.Fab\")\n\t\t\t(uuid \"c85afb73-387f-4299-abce-5f167427ded0\")\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 0.4 0.4)\n\t\t\t\t\t(thickness 0.06)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t\t(pad \"1\" smd roundrect\n\t\t\t(at -0.825 0 90)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"+3V3\")\n\t\t\t(uuid \"792b8086-712e-4b64-ad61-e020196c4b79\")\n\t\t)\n\t\t(pad \"2\" smd roundrect\n\t\t\t(at 0.825 0 90)\n\t\t\t(size 0.8 0.95)\n\t\t\t(layers \"F.Cu\" \"F.Mask\" \"F.Paste\")\n\t\t\t(roundrect_rratio 0.25)\n\t\t\t(net \"HS_REF\")\n\t\t\t(uuid \"00874178-6ae1-4ac1-9ca9-02e3e4a851d8\")\n\t\t)\n\t\t(embedded_fonts no)\n\t\t(model \"${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step\"\n\t\t\t(offset\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n\t\t\t(rotate\n\t\t\t\t(xyz 0 0 0)\n\t\t\t)\n\t\t)\n\t)\n\t(gr_poly\n\t\t(pts\n\t\t\t(xy 0 0) (xy 66 0) (xy 66 43) (xy 0 43)\n\t\t)\n\t\t(stroke\n\t\t\t(width 0.1)\n\t\t\t(type solid)\n\t\t)\n\t\t(fill no)\n\t\t(layer \"Edge.Cuts\")\n\t\t(uuid \"0704d93a-b538-4a98-9cbb-9dae8704e5a2\")\n\t)\n\t(embedded_fonts no)\n)\n",
+  "components": [
+    {
+      "id": "hs_fixed",
+      "uuid": "02341820-5f1f-44f7-a58c-71d1a5cffbf0",
+      "mpn": "RC0603FR-0710KL",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        15.0,
+        8.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "049e1655-1852-4431-a0ae-898e8e35aad3",
+          "net": "+3V3",
+          "position_mm": [
+            14.175,
+            8.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "932f23a0-ab50-4e70-80ae-0fae1f719ac2",
+          "net": "HS_SENSE",
+          "position_mm": [
+            15.825,
+            8.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coil_top",
+      "uuid": "03956d4f-edf5-465d-abdd-275f04c97457",
+      "mpn": "RC0603FR-073K16L",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        27.0,
+        24.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "c9b08e53-f8f3-4855-b650-cc609f98bda7",
+          "net": "+3V3",
+          "position_mm": [
+            27.0,
+            24.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "28da2031-6e35-48d8-a55a-73d376c5c5f1",
+          "net": "COIL_REF",
+          "position_mm": [
+            27.0,
+            23.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hs_comp",
+      "uuid": "08af39fe-1441-47d7-a4cd-3472c5470b1d",
+      "mpn": "TLV3201AIDBVR",
+      "kind": "SOT-23-5",
+      "position_mm": [
+        36.0,
+        12.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "b4812740-3534-45cb-9d1b-7d6656a7b41c",
+          "net": "HS_FAULT",
+          "position_mm": [
+            34.8625,
+            11.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "015037b3-b50b-4c3c-ba81-29045c77a054",
+          "net": "gnd",
+          "position_mm": [
+            34.8625,
+            12.0
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "6e522f7e-843e-4890-bcaf-06e5693ef57a",
+          "net": "HS_REF",
+          "position_mm": [
+            34.8625,
+            12.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "f13e09d2-e5d5-4665-bed6-bc92bc6ba409",
+          "net": "HS_SENSE",
+          "position_mm": [
+            37.1375,
+            12.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "5",
+          "uuid": "d9b43d58-7e3e-45ce-8967-4a7ce6056313",
+          "net": "+3V3",
+          "position_mm": [
+            37.1375,
+            11.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coil_filter",
+      "uuid": "0f4eabc2-9944-4484-8bad-bfad74b0f733",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        15.0,
+        32.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "b4522d90-5c2a-44bb-93e4-dd1177b3f577",
+          "net": "COIL_SENSE",
+          "position_mm": [
+            15.0,
+            32.775
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "1c462c5e-8888-4ca0-a432-8890c0d2ba01",
+          "net": "gnd",
+          "position_mm": [
+            15.0,
+            31.225
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coil_probe",
+      "uuid": "1c6d9589-d659-44be-965d-b15ad6f24006",
+      "mpn": "B2B-XH-A(LF)(SN)",
+      "kind": "JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "position_mm": [
+        6.0,
+        28.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "c72eedcb-d356-41da-a00b-ecf1887f6112",
+          "net": "COIL_SENSE",
+          "position_mm": [
+            6.0,
+            28.0
+          ],
+          "size_mm": [
+            1.7,
+            2.0
+          ],
+          "drill_mm": [
+            1.0,
+            1.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "roundrect_ratio": 0.147059,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "4aa62105-fdd1-41da-b1bf-09e4394ed566",
+          "net": "gnd",
+          "position_mm": [
+            6.0,
+            30.5
+          ],
+          "size_mm": [
+            1.7,
+            2.0
+          ],
+          "drill_mm": [
+            1.0,
+            1.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hs_hyst",
+      "uuid": "208f990d-100e-4aa2-aa99-ca131fafe990",
+      "mpn": "RC0603FR-0734K8L",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        32.0,
+        6.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "fce89657-f1a4-46b1-a72d-eaca39213714",
+          "net": "HS_REF",
+          "position_mm": [
+            31.175,
+            6.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "bacba7c8-0b57-490c-a8be-e8f4632fe46b",
+          "net": "HS_FAULT",
+          "position_mm": [
+            32.825,
+            6.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hs_bottom",
+      "uuid": "2c980956-a4bb-4573-b7f5-a6ce8d75b54b",
+      "mpn": "RC0603FR-0711K5L",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        23.0,
+        13.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "3a380684-5bad-48c0-b8aa-c1ff419d5c9d",
+          "net": "HS_REF",
+          "position_mm": [
+            23.0,
+            13.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "7cd8d7df-bba9-46f6-84cc-e45df80d606e",
+          "net": "gnd",
+          "position_mm": [
+            23.0,
+            12.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coil_fixed",
+      "uuid": "5139f938-804e-4bc5-a087-acba9b63754f",
+      "mpn": "RC0603FR-073K32L",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        15.0,
+        26.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "91d1d048-d17b-4a30-a4b8-b643a0bb2aa7",
+          "net": "+3V3",
+          "position_mm": [
+            14.175,
+            26.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "47c08354-a57f-4815-a206-c599c80d08e4",
+          "net": "COIL_SENSE",
+          "position_mm": [
+            15.825,
+            26.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hs_bypass",
+      "uuid": "55fdd96c-e2d6-4592-907f-f40120387e68",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        41.0,
+        10.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "37a0f021-7a76-4129-9734-80b0a86595ef",
+          "net": "+3V3",
+          "position_mm": [
+            41.0,
+            10.775
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "c79d31ae-532f-4bd6-9718-d3f42cea46a6",
+          "net": "gnd",
+          "position_mm": [
+            41.0,
+            9.225
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coil_comp",
+      "uuid": "87806dfc-fa07-406d-934a-5188067c386a",
+      "mpn": "TLV3201AIDBVR",
+      "kind": "SOT-23-5",
+      "position_mm": [
+        36.0,
+        30.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "4655f01f-a186-4712-8c94-dc4c843a0521",
+          "net": "COIL_FAULT",
+          "position_mm": [
+            34.8625,
+            29.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "7e158ed3-3a86-4073-a956-c6da62f3327b",
+          "net": "gnd",
+          "position_mm": [
+            34.8625,
+            30.0
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "9cacc91c-430c-463b-851e-abf9f819ec18",
+          "net": "COIL_REF",
+          "position_mm": [
+            34.8625,
+            30.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "3bea9afe-7914-460e-b0f8-245d15a0d60c",
+          "net": "COIL_SENSE",
+          "position_mm": [
+            37.1375,
+            30.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "5",
+          "uuid": "78e6fdee-e204-4718-9fdd-dcc9a5a91ada",
+          "net": "+3V3",
+          "position_mm": [
+            37.1375,
+            29.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coil_hyst",
+      "uuid": "92581e7d-d997-489a-ab9e-5cd6a6363b8f",
+      "mpn": "RC0603FR-0711K5L",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        32.0,
+        24.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "367d9b58-775b-4382-91dd-a80129aef02a",
+          "net": "COIL_REF",
+          "position_mm": [
+            31.175,
+            24.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "51aa3e36-22a7-4dd5-a5b8-da213a4dc04a",
+          "net": "COIL_FAULT",
+          "position_mm": [
+            32.825,
+            24.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coil_bottom",
+      "uuid": "cdd2c65c-7ce7-496a-b941-6d9629eece8d",
+      "mpn": "RC0603FR-074K42L",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        23.0,
+        31.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "15bc7195-1975-4480-b628-341b4bb30f9d",
+          "net": "COIL_REF",
+          "position_mm": [
+            23.0,
+            31.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "085fb26f-4c38-4210-9226-b904d442512f",
+          "net": "gnd",
+          "position_mm": [
+            23.0,
+            30.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coil_bypass",
+      "uuid": "d9c4273d-e3c9-4a85-9ea7-0ae8b689093c",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        41.0,
+        28.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "966b7664-4f2d-4c6b-b633-823a5c714306",
+          "net": "+3V3",
+          "position_mm": [
+            41.0,
+            28.775
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "3de5cf44-512b-4af7-8250-e36f4a402b56",
+          "net": "gnd",
+          "position_mm": [
+            41.0,
+            27.225
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "heatsink_probe",
+      "uuid": "e45aa1ab-d1a0-433b-b339-f90b2ac742ed",
+      "mpn": "B2B-XH-A(LF)(SN)",
+      "kind": "JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "position_mm": [
+        6.0,
+        10.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "3b33412e-4b11-46d6-9113-e5559d0591f8",
+          "net": "HS_SENSE",
+          "position_mm": [
+            6.0,
+            10.0
+          ],
+          "size_mm": [
+            1.7,
+            2.0
+          ],
+          "drill_mm": [
+            1.0,
+            1.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "roundrect_ratio": 0.147059,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "34f36899-87c1-43aa-aac3-dd3956dd6e0a",
+          "net": "gnd",
+          "position_mm": [
+            6.0,
+            12.5
+          ],
+          "size_mm": [
+            1.7,
+            2.0
+          ],
+          "drill_mm": [
+            1.0,
+            1.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "host",
+      "uuid": "e6154728-abfc-4f6e-8996-9d9b0d8730c2",
+      "mpn": "B6B-XH-A(LF)(SN)",
+      "kind": "JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+      "position_mm": [
+        57.0,
+        6.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "8a82bfa4-dba2-4502-a996-86ecc2167cd6",
+          "net": "+3V3",
+          "position_mm": [
+            57.0,
+            6.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "roundrect_ratio": 0.147059,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "7a50f728-cf05-49db-b5f4-f3a1756eb8d3",
+          "net": "gnd",
+          "position_mm": [
+            57.0,
+            8.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 270.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "7f918a86-4f60-4816-b699-9e08eb3e7742",
+          "net": "HS_FAULT",
+          "position_mm": [
+            57.0,
+            11.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 270.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "d25da9d0-bb8d-407c-ae36-61edfc3ca067",
+          "net": "COIL_FAULT",
+          "position_mm": [
+            57.0,
+            13.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 270.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "5",
+          "uuid": "38eab5e1-529c-43b2-b07d-cb918d68f0fa",
+          "net": "HS_SENSE",
+          "position_mm": [
+            57.0,
+            16.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 270.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "6",
+          "uuid": "448d15de-029c-47a7-90d6-bb2e6f191846",
+          "net": "COIL_SENSE",
+          "position_mm": [
+            57.0,
+            18.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 270.0,
+          "shape": 2,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hs_filter",
+      "uuid": "ead04e19-0406-44b4-b8d4-83354f332a2b",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        15.0,
+        14.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "e142b13c-8124-4349-ba61-5ff25567f194",
+          "net": "HS_SENSE",
+          "position_mm": [
+            15.0,
+            14.775
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "e7ba8726-e8bc-4756-8851-e40a2f742578",
+          "net": "gnd",
+          "position_mm": [
+            15.0,
+            13.225
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hs_top",
+      "uuid": "ef9700a6-c230-43e9-9d60-3eaaf6ad13d0",
+      "mpn": "RC0603FR-079K09L",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        27.0,
+        6.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "792b8086-712e-4b64-ad61-e020196c4b79",
+          "net": "+3V3",
+          "position_mm": [
+            27.0,
+            6.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "00874178-6ae1-4ac1-9ca9-02e3e4a851d8",
+          "net": "HS_REF",
+          "position_mm": [
+            27.0,
+            5.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "roundrect_ratio": 0.25,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "component": "hs_fixed",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "hs_fixed",
+      "pin": "2",
+      "net": "HS_SENSE"
+    },
+    {
+      "component": "coil_top",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "coil_top",
+      "pin": "2",
+      "net": "COIL_REF"
+    },
+    {
+      "component": "hs_comp",
+      "pin": "1",
+      "net": "HS_FAULT"
+    },
+    {
+      "component": "hs_comp",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "hs_comp",
+      "pin": "3",
+      "net": "HS_REF"
+    },
+    {
+      "component": "hs_comp",
+      "pin": "4",
+      "net": "HS_SENSE"
+    },
+    {
+      "component": "hs_comp",
+      "pin": "5",
+      "net": "+3V3"
+    },
+    {
+      "component": "coil_filter",
+      "pin": "1",
+      "net": "COIL_SENSE"
+    },
+    {
+      "component": "coil_filter",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "coil_probe",
+      "pin": "1",
+      "net": "COIL_SENSE"
+    },
+    {
+      "component": "coil_probe",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "hs_hyst",
+      "pin": "1",
+      "net": "HS_REF"
+    },
+    {
+      "component": "hs_hyst",
+      "pin": "2",
+      "net": "HS_FAULT"
+    },
+    {
+      "component": "hs_bottom",
+      "pin": "1",
+      "net": "HS_REF"
+    },
+    {
+      "component": "hs_bottom",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "coil_fixed",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "coil_fixed",
+      "pin": "2",
+      "net": "COIL_SENSE"
+    },
+    {
+      "component": "hs_bypass",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "hs_bypass",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "coil_comp",
+      "pin": "1",
+      "net": "COIL_FAULT"
+    },
+    {
+      "component": "coil_comp",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "coil_comp",
+      "pin": "3",
+      "net": "COIL_REF"
+    },
+    {
+      "component": "coil_comp",
+      "pin": "4",
+      "net": "COIL_SENSE"
+    },
+    {
+      "component": "coil_comp",
+      "pin": "5",
+      "net": "+3V3"
+    },
+    {
+      "component": "coil_hyst",
+      "pin": "1",
+      "net": "COIL_REF"
+    },
+    {
+      "component": "coil_hyst",
+      "pin": "2",
+      "net": "COIL_FAULT"
+    },
+    {
+      "component": "coil_bottom",
+      "pin": "1",
+      "net": "COIL_REF"
+    },
+    {
+      "component": "coil_bottom",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "coil_bypass",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "coil_bypass",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "heatsink_probe",
+      "pin": "1",
+      "net": "HS_SENSE"
+    },
+    {
+      "component": "heatsink_probe",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "host",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "host",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "host",
+      "pin": "3",
+      "net": "HS_FAULT"
+    },
+    {
+      "component": "host",
+      "pin": "4",
+      "net": "COIL_FAULT"
+    },
+    {
+      "component": "host",
+      "pin": "5",
+      "net": "HS_SENSE"
+    },
+    {
+      "component": "host",
+      "pin": "6",
+      "net": "COIL_SENSE"
+    },
+    {
+      "component": "hs_filter",
+      "pin": "1",
+      "net": "HS_SENSE"
+    },
+    {
+      "component": "hs_filter",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "hs_top",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "hs_top",
+      "pin": "2",
+      "net": "HS_REF"
+    }
+  ],
+  "traces": [],
+  "net_names": [
+    "+3V3",
+    "COIL_FAULT",
+    "COIL_REF",
+    "COIL_SENSE",
+    "HS_FAULT",
+    "HS_REF",
+    "HS_SENSE",
+    "gnd"
+  ],
+  "copper_layer_count": 2,
+  "polygon_max_error_mm": 0.005,
+  "copper_layers": [
+    "F.Cu",
+    "B.Cu"
+  ],
+  "vias": [],
+  "zones": [],
+  "connectivity_clusters": [
+    {
+      "net": "+3V3",
+      "nodes": [
+        "hs_bypass.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "coil_bypass.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "host.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "hs_fixed.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "hs_top.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "coil_fixed.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "coil_top.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "hs_comp.5"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "coil_comp.5"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_FAULT",
+      "nodes": [
+        "host.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_FAULT",
+      "nodes": [
+        "coil_hyst.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_FAULT",
+      "nodes": [
+        "coil_comp.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_REF",
+      "nodes": [
+        "coil_top.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_REF",
+      "nodes": [
+        "coil_bottom.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_REF",
+      "nodes": [
+        "coil_hyst.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_REF",
+      "nodes": [
+        "coil_comp.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_SENSE",
+      "nodes": [
+        "coil_filter.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_SENSE",
+      "nodes": [
+        "coil_probe.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_SENSE",
+      "nodes": [
+        "host.6"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_SENSE",
+      "nodes": [
+        "coil_fixed.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "COIL_SENSE",
+      "nodes": [
+        "coil_comp.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_FAULT",
+      "nodes": [
+        "host.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_FAULT",
+      "nodes": [
+        "hs_hyst.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_FAULT",
+      "nodes": [
+        "hs_comp.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_REF",
+      "nodes": [
+        "hs_top.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_REF",
+      "nodes": [
+        "hs_bottom.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_REF",
+      "nodes": [
+        "hs_hyst.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_REF",
+      "nodes": [
+        "hs_comp.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_SENSE",
+      "nodes": [
+        "hs_filter.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_SENSE",
+      "nodes": [
+        "heatsink_probe.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_SENSE",
+      "nodes": [
+        "host.5"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_SENSE",
+      "nodes": [
+        "hs_fixed.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "HS_SENSE",
+      "nodes": [
+        "hs_comp.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "hs_filter.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "hs_bypass.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "coil_filter.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "coil_bypass.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "heatsink_probe.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "coil_probe.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "host.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "hs_bottom.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "coil_bottom.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "hs_comp.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "coil_comp.2"
+      ],
+      "source": "native"
+    }
+  ],
+  "kicad_version": "10.0.4",
+  "reference_to_instance": {
+    "R1": "hs_fixed",
+    "R6": "coil_top",
+    "U1": "hs_comp",
+    "C3": "coil_filter",
+    "J2": "coil_probe",
+    "R4": "hs_hyst",
+    "R3": "hs_bottom",
+    "R5": "coil_fixed",
+    "C2": "hs_bypass",
+    "U2": "coil_comp",
+    "R8": "coil_hyst",
+    "R7": "coil_bottom",
+    "C4": "coil_bypass",
+    "J1": "heatsink_probe",
+    "J3": "host",
+    "C1": "hs_filter",
+    "R2": "hs_top"
+  },
+  "board_sha256": "d243291331f5604875006b4f62197fed96a66efc140716f1dae24f7ae18c346e",
+  "extractor_sha256": "d349d658ad969e3132c53783d872122b9f933c41e133b4bf5bd69b89c6033549"
+}

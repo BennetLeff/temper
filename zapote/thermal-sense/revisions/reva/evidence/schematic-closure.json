@@ -1,0 +1,15 @@
+{
+  "status": "emitted-native-verification-required",
+  "source_netlist_sha256": "2d48d0ce7a16687558cd3ffcf620a094f641e0cd5657b41776d9e78a543bb88c",
+  "helper_sha256": "d5e81b439ad639b59f2b228dcde364cd510f5f4dfda091e16d16901c167b78cd",
+  "outputs": {
+    "section.kicad_sch": "ed879e9980d261619fbbf29986ff67afac23288feb09fdb222d8a3895499adaa",
+    "ThermalSenseUnit.kicad_sym": "55e9e2a466f2e63735544659352e3f4391d2eb0d99e40dafb9613f7b122a2d08",
+    "sym-lib-table": "ab92f7085b117ef5dc4d6641069cd8baf3422c9c49f3c05e4085c205d8a20fbd"
+  },
+  "intentional_open_pins": [],
+  "component_count": 17,
+  "native_erc": "NOT RUN",
+  "native_netlist_equality": "NOT RUN",
+  "pcb_touched": false
+}

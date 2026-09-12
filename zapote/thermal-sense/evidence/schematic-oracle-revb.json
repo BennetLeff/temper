@@ -1,0 +1,12 @@
+{
+  "component_count": 27,
+  "flat": true,
+  "global_labels": 76,
+  "layout_sha256": "287344f266c7ed0d8962d2ef40ce13e7139dd0dd007aa723aedd44faf44004b7",
+  "native_netlist_export": "kicad-cli sch export netlist",
+  "physical_tests": "NOT RUN",
+  "schema": "zapote.current-sense.schematic-closure-receipt.v1",
+  "schematic_sha256": "9f563c0d3832d1c426bc45a47ac46b54329b7caea80670486132a3557415530c",
+  "source_netlist_sha256": "fc4ce8928595157470d027fbf9aa318e46a95d7f621a81ecf856ffe561f74ced",
+  "status": "schematic-closed"
+}

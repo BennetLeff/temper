@@ -16,7 +16,7 @@ from close_current_sense_schematic_erc import library_symbol  # noqa: E402
 POSES = {
     "J1": (45.72, 50.8),
     "J2": (45.72, 142.24),
-    "J3": (340.36, 106.68),
+    "J3": (340.36, 228.6),
     "R1": (96.52, 50.8),
     "C1": (96.52, 76.2),
     "R2": (147.32, 35.56),
@@ -31,6 +31,16 @@ POSES = {
     "R8": (198.12, 127),
     "U2": (248.92, 152.4),
     "C4": (299.72, 152.4),
+    "U3": (248.92, 91.44),
+    "U4": (248.92, 182.88),
+    "U5": (340.36, 60.96),
+    "U6": (340.36, 152.4),
+    "C5": (299.72, 91.44),
+    "C6": (299.72, 182.88),
+    "C7": (381.0, 60.96),
+    "C8": (381.0, 152.4),
+    "R9": (96.52, 213.36),
+    "R10": (147.32, 213.36),
 }
 
 
@@ -52,7 +62,7 @@ def passive(part, capacitor):
 
 def main():
     unit = REPO / "zapote/thermal-sense"
-    src = unit / "source-build-01"
+    src = unit / "source-build-02"
     out = unit / "candidate"
     net = g.parse_netlist(src / "build/default.net")
     g.apply_bom_values(net, g.load_bom_values(src / "build/default.csv"))
@@ -69,7 +79,9 @@ def main():
             symbol = library_symbol(g, p)
             names = (
                 {"1": "OUT", "2": "GND", "3": "IN+", "4": "IN-", "5": "VCC"}
-                if c.ref in ("U1", "U2")
+                if c.ref in ("U1", "U2", "U3", "U4")
+                else {"1": "A", "2": "B", "3": "GND", "4": "Y", "5": "VCC"}
+                if c.ref in ("U5", "U6")
                 else {}
             )
             for pin, name in names.items():
@@ -78,7 +90,7 @@ def main():
         new_id = c.ref + "_" + original_id
         symbols[c.ref] = symbol.replace(original_id, new_id)
     d = [
-        g._schematic_header("Heatsink and Coil Thermal Detectors / Rev A", g.ROOT_UUID)
+        g._schematic_header("Heatsink and Coil Thermal Detectors / Rev B", g.ROOT_UUID)
         .replace("2026-07-15", "2026-09-11")
         .replace(
             "edit elec/src/*.ato and run make schematics",
@@ -104,7 +116,7 @@ def main():
             243.84,
         ),
         note(
-            "Sensor open or short to VCC reads cold. No latch or open-sensor diagnostic on this unit.",
+            "Hot OR open sensor asserts FAULT. Valid sensor >=0 C. Shutdown latch is external.",
             30.48,
             254,
         ),
@@ -163,7 +175,7 @@ def main():
     d.append(")")
     artifacts = {
         "section.kicad_sch": "\n".join(d) + "\n",
-        "ThermalSenseUnit.kicad_sym": '(kicad_symbol_lib (version 20231120) (generator "zapote_voltage_sense")\n'
+        "ThermalSenseUnit.kicad_sym": '(kicad_symbol_lib (version 20231120) (generator "zapote_thermal_sense")\n'
         + "\n".join(symbols.values())
         + "\n)\n",
         "sym-lib-table": '(sym_lib_table (version 7) (lib (name "ThermalSenseUnit")(type "KiCad")(uri "${KIPRJMOD}/ThermalSenseUnit.kicad_sym")(options "")(descr "Source-derived symbols")))\n',

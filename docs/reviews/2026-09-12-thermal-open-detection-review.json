@@ -1,0 +1,29 @@
+{
+  "scope": "thermal Rev B changes since 1ebacbfb8",
+  "local_review": "complete",
+  "dedicated_ce_review": "degraded",
+  "peer_independence": "unverified",
+  "dedicated_artifact": "/private/tmp/thermal-review-revb/review.json",
+  "shipping_gate": "Code review: skipped (ce-code-review unavailable)",
+  "reason": "Bounded top-level invocation terminated degraded without a completed dedicated workflow; no native review command is available. Local Luna review and coordinator manual diff/defect review completed.",
+  "fixed_findings": [
+    "Apply cold leakage in the worst direction using Thevenin resistance",
+    "Solve open threshold crossing rather than comparing RC time constant",
+    "Evaluate analog comparator inputs for both prior HOT states",
+    "Use source filter capacitance and a real capacitor mutation",
+    "Use actual archived Rev A source/native counterexample",
+    "Pin independent numerical results for current coil network"
+  ],
+  "unresolved_construction_findings": [],
+  "qualification": "INDETERMINATE; see MODEL.md and INTERFACES.md",
+  "tests": "158 workspace tests, 21 thermal, strict Clippy; no powered tests",
+  "simplification": {
+    "mode": "three rubric passes inline under repository sequential-agent mapping",
+    "applied": [
+      "Remove unused contract argument and repeated zero-temperature tuple",
+      "Reuse one NTC calculation per corner",
+      "Replace named-case hot output shortcuts with comparator voltage evaluation"
+    ],
+    "new_search_or_routing_logic": false
+  }
+}

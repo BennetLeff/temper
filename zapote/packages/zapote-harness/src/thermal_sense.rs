@@ -18,6 +18,10 @@ pub fn run_thermal_sense(source: &str, native: &str, contract: &str) -> CheckRep
             for (cap, ic, pin) in [
                 ("hs_bypass", "hs_comp", "5"),
                 ("coil_bypass", "coil_comp", "5"),
+                ("hs_open_bypass", "hs_open_comp", "5"),
+                ("coil_open_bypass", "coil_open_comp", "5"),
+                ("hs_or_bypass", "hs_or", "5"),
+                ("coil_or_bypass", "coil_or", "5"),
             ] {
                 let pad = |id: &str, number: &str| {
                     evidence
