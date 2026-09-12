@@ -1,0 +1,68 @@
+{
+  "schema": "zapote.unit-run-manifest.v1",
+  "units": [
+    {
+      "unit": "rtd",
+      "source": "../rtd/unit/candidate/source-manifest.json",
+      "native": "../rtd/unit/evidence/return-rust-01/native.json",
+      "board": "../rtd/unit/candidate/section.kicad_pcb",
+      "schematic": "../rtd/unit/candidate/section.kicad_sch",
+      "contract": null,
+      "composite": "../rtd/model-correctness/qualified-input/input.json"
+    },
+    {
+      "unit": "current-sense",
+      "source": "../current-sense/candidate/source-manifest.json",
+      "native": "../current-sense/evidence/stackup-fix/native-fixed.json",
+      "board": "../current-sense/candidate/section.kicad_pcb",
+      "schematic": "../current-sense/candidate/section.kicad_sch",
+      "contract": null,
+      "composite": "../current-sense/evidence/acceptance-stackup-v2/input.json"
+    },
+    {
+      "unit": "voltage-sense",
+      "source": "../voltage-sense/candidate/source-manifest.json",
+      "native": "../voltage-sense/evidence/native-final.json",
+      "board": "../voltage-sense/candidate/section.kicad_pcb",
+      "schematic": "../voltage-sense/candidate/section.kicad_sch",
+      "contract": null,
+      "composite": null
+    },
+    {
+      "unit": "thermal-sense",
+      "source": "../thermal-sense/candidate/source-manifest.json",
+      "native": "../thermal-sense/evidence/native-final-revb.json",
+      "board": "../thermal-sense/candidate/section.kicad_pcb",
+      "schematic": "../thermal-sense/candidate/section.kicad_sch",
+      "contract": "../thermal-sense/sensor-contract.json",
+      "composite": null
+    },
+    {
+      "unit": "interlock",
+      "source": "../interlock/candidate/source-manifest.json",
+      "native": "../interlock/evidence/native-final.json",
+      "board": "../interlock/candidate/section.kicad_pcb",
+      "schematic": "../interlock/candidate/section.kicad_sch",
+      "contract": "../interlock/interface-contract.json",
+      "composite": null
+    },
+    {
+      "unit": "gate-drive",
+      "source": "../gate-drive/candidate/source-manifest.json",
+      "native": "../gate-drive/evidence/native-09.json",
+      "board": "../gate-drive/candidate/section.kicad_pcb",
+      "schematic": "../gate-drive/candidate/section.kicad_sch",
+      "contract": null,
+      "composite": null
+    },
+    {
+      "unit": "power-entry",
+      "source": "../power-entry/candidate/source-manifest.json",
+      "native": "../power-entry/evidence/native-11.json",
+      "board": "../power-entry/candidate/section.kicad_pcb",
+      "schematic": "../power-entry/candidate/section.kicad_sch",
+      "contract": null,
+      "composite": null
+    }
+  ]
+}

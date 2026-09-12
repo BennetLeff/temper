@@ -1,0 +1,121 @@
+{
+  "schema": "zapote.pfc-current-verification.v1",
+  "recorded_at": "2026-09-12T18:41:02.503251+00:00",
+  "source_revision": "734435ed1bc7cfdd4df15b4ffd7b898f59f1c4a1",
+  "clean_source_run": true,
+  "tests": {
+    "passed": 312,
+    "failed": 0,
+    "ignored": 0,
+    "command": "CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo test --manifest-path zapote/Cargo.toml --locked --workspace",
+    "log": "zapote-pfc-workspace-03.log"
+  },
+  "native_geometry_oracle": {
+    "status": "pass",
+    "log": "zapote-pfc-native-oracle-final.log"
+  },
+  "lint": {
+    "clippy": "completed with pre-existing warnings in unchanged gate_drive.rs, power_stage_models.rs, domain_clearance.rs, stackup.rs and gate_drive test",
+    "new_pfc_files_have_diagnostics": false,
+    "strict_warning_gate": "not green; existing warnings are not suppressed",
+    "log": "zapote-pfc-clippy-final.log"
+  },
+  "units": {
+    "rtd": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "current-sense": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "voltage-sense": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "thermal-sense": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "interlock": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "gate-drive": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "power-entry": {
+      "overall": "fail",
+      "native": "pass",
+      "common": "pass"
+    }
+  },
+  "pfc": {
+    "screening_failures": 5,
+    "native_traces": 152,
+    "graph_edges": 814,
+    "determined_branches": 72,
+    "pad_trace_chords": 56,
+    "hardware": "NOT RUN",
+    "qualification": "not established"
+  },
+  "unchanged_product_board_sha256": {
+    "rtd": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+    "current-sense": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+    "voltage-sense": "ef9853e9fb03df4f7723076ac8eb77c17743465a0b2e146cec11d2da54876e1f",
+    "thermal-sense": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+    "interlock": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+    "gate-drive": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+    "power-entry": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf"
+  },
+  "review": {
+    "receipt": "development.tar.gz:reviews/20260912-122912/review.json",
+    "scope": "new PFC surfaces; previous pending integration repairs retain their earlier checkpoint evidence",
+    "limits": "Cross-model peer was not run in the network-disabled review environment. Root independently corrected several handback errors and verified final source; post-review changes were test/diagnostic and lint cleanups. Original partial/stale review retained separately."
+  },
+  "simplification": {
+    "applied": [
+      "remove unused Moments extrema state",
+      "remove identity wrapper",
+      "use existing width map for logarithmic duplicate lookup",
+      "parse native JSON once before typed projection"
+    ],
+    "retained": [
+      "two polygon boundary policies are not equivalent",
+      "both contact directions deliberately provide distinct witnesses",
+      "small fixed graph does not justify a new spatial index in this task"
+    ]
+  },
+  "evidence_limits": [
+    "Intermediate compiler/test logs and rejected worker snapshots are retained; not every transient working-tree version was separately snapshotted.",
+    "Screening is conditioned on nominal model assumptions; remaining software/model and hardware gaps are explicit in pfc-findings.json."
+  ],
+  "artifacts": {
+    "current-sense.json": "9dba99143c40aaecaa008801254027e6d397b701a980228b01c357d3243eeed0",
+    "development-index.json": "1d4358c04ba302f0bb7dd785a3ad7e11ad2c8e56bd994ef9e2471e15f2f8537a",
+    "development.tar.gz": "12e3a5f64bd4bfc5c3fc182ff0e9a9952d7f2f54c594abe213be4ba98c6674e1",
+    "gate-drive.json": "87f22e3ac73ba5ecfbf7a9c3992ad33a21db4c80d02fd7ec675f5662dd620a48",
+    "interlock.json": "1a87b456e6cd552e6124ede26e537f3820136bb7c95f1149832ba0a13ca38f36",
+    "manifest.json": "162989b902ed4d96f095ca1663c1a9b6295777367de6e7661381c00c6ac7fbe9",
+    "pfc-findings.json": "5c5a269fcec21935b42317222b042708d5217c8ffd0ef9c0a465113e8de31051",
+    "power-entry.json": "383d21861b626fbfa6724bf7582728b0e8ed005bab153c2b943b327e24fcf041",
+    "raw-evidence-index.json": "b644e53d6e0de7cb205d2c0ff9dec0f85f5aa97b47b54aa446d9907850012183",
+    "raw-evidence.tar.gz": "ffe64c62d5ddd498d1e6407f61210e579f80892485c1227c2cea461c9f447a22",
+    "rtd.json": "3d3e9e3d9596abdb98d2ccefd02f6e712446d85568e76907efbaa7a92e2a0d90",
+    "suite-identity.json": "37cb4ce24969f663dd1e65056925783a7c7a6c57dc5c95a73015c88400809b38",
+    "summary.json": "a0124445280a7fe65c5052776dfcd33d37925988cfe08b3729f091bb98e135e2",
+    "thermal-sense.json": "4397fe521f74f0de24bc2253619d462ae2e690faf133529ec5108b36dfe8e7f7",
+    "voltage-sense.json": "5a4c89592d0c14fe1388750538a9d497d30203c76f2229e6757fe23ed02160c5",
+    "zapote-pfc-clippy-final.log": "a674d5de3e3441a9ab39305bb972be7a3919f7d9b21ff52fb5c687834d311c3c",
+    "zapote-pfc-committed-units-734435ed1.log": "f9affd8df53ab7ca1d91b54c91de693e5b03f32cdac35ada8a213c6c672a9eb2",
+    "zapote-pfc-native-oracle-final.log": "1714530cc5246b893c15322116ae604f701df34517aff0949e0365668adcfa8f",
+    "zapote-pfc-workspace-03.log": "a2f422c0239412ea00dce1923f0cbeeafeeeafc76682888b4730a7f10dfafe8d"
+  }
+}

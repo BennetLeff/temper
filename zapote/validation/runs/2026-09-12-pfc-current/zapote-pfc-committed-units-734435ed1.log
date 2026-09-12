@@ -1,0 +1,30 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running `/private/tmp/zapote-rtd-target/debug/zapote-unit-run zapote/validation/units.json /private/tmp/zapote-pfc-committed-units-734435ed1 /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9 --all`
+checking rtd
+checking current-sense
+checking voltage-sense
+checking thermal-sense
+checking interlock
+checking gate-drive
+checking power-entry
+{
+  "deferred_units": {
+    "buck": "legacy delegated owner; no Zapote unit suite",
+    "mcu": "not in maintained Zapote registry"
+  },
+  "manifest_sha256": "162989b902ed4d96f095ca1663c1a9b6295777367de6e7661381c00c6ac7fbe9",
+  "output": "/private/tmp/zapote-pfc-committed-units-734435ed1",
+  "schema": "zapote.unit-run-summary.v1",
+  "status": "fail",
+  "suite_changed_during_run": false,
+  "unit_count": 7,
+  "unit_statuses": [
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "fail"
+  ]
+}

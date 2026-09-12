@@ -4,7 +4,7 @@ P0 now executes the maintained unit suites and adopted P1–P3 implementations
 through one command. **The full P1–P3 implementation plan remains incomplete.**
 A subagent final message is a handback for review, not acceptance of the batch.
 
-## Latest working-tree checkpoint
+## Latest committed checkpoint
 
 The [PFC current-screen implementation](p1-current/README.md) now runs through
 the common runner: source-bound switching waveforms, native branch graphs,
@@ -16,17 +16,21 @@ records the final results and remaining software/model gaps. P1–P3 as a whole
 remain incomplete; zone/side-contact sharing and pad minimum cuts are not
 silently reclassified as hardware-only work.
 
-The [handoff-repair receipt](runs/2026-09-12-handoff-repair/verification.json)
-records 287 passing Rust tests, a passing live KiCad geometry oracle, and all
-seven boards passing fresh native ERC/DRC and common binding checks. All seven
-overall verdicts remain INDETERMINATE. Saved PCBs were not edited.
+The implementation and preceding handoff repairs are committed in `734435ed1`.
+The final receipt records **312 passing Rust tests**, a passing live KiCad
+geometry oracle, and all seven boards passing fresh native ERC/DRC and common
+binding checks. Power-entry's overall verdict is **FAIL** from the five nominal
+capacity-screen findings; the other six remain **INDETERMINATE**. Saved PCBs
+were not edited. The final board run started with clean, committed source, and
+its recorded source hashes match the implementation.
 
-These changes are uncommitted. This is a tested integration checkpoint, not a
-completed P1–P3 or shipping review. Formatting and whitespace checks pass;
-strict Clippy fails on diagnostics in unchanged files, retained in the receipt.
-The raw archive retains both board runs and the logs retain rejected build
-attempts. Exact source hashes bind the final run; its source did not change
-during execution.
+The earlier [handoff-repair receipt](runs/2026-09-12-handoff-repair/verification.json)
+recorded 287 passing tests and seven INDETERMINATE verdicts before the new PFC
+screen. It is historical evidence, superseded by the final PFC receipt above.
+This checkpoint does not complete P1–P3 or a shipping review. Formatting and
+whitespace checks pass; Clippy retains warnings in unchanged files, so strict
+Clippy is not a passing gate. The archives retain both board runs, development
+logs and rejected attempts, with the remaining evidence limits in the receipt.
 
 ## Reproduce
 
@@ -52,7 +56,7 @@ not registered here. Both are explicit deferrals, not implied suite passes.
 | Batch | Adopted behavior | Remaining implementation / contract work |
 |---|---|---|
 | P0 | Seven required units; actual source/native/PCB/contract identity; current truth functions; missing-rule rejection; fresh ERC/DRC with dependency/report hashes; every outcome retained | Uniform per-rule candidate/evaluated/skipped counts are not yet exposed by the older unit functions. Counts in output are explicitly native input censuses. |
-| P1 | PFC and gate-drive source/native package pins; explicit gate-domain mapping; nominal outer copper; rectifier/choke/switch/bus and gate-net candidates; nonempty native via/pad associations; optional declared RMS via-barrel screen with net binding | Actual branch-current extraction, RMS/peak waveform and plating/sharing contracts, exact pad-entry current geometry, surface creepage/material/barrier modeling. Native candidates are not a solved current graph. |
+| P1 | PFC and gate-drive source/native package pins; explicit gate-domain mapping; nominal outer copper; rectifier/choke/switch/bus and gate-net candidates; nonempty native via/pad associations; optional declared RMS via-barrel screen with net binding | PFC nominal switching-state currents and native pad/drill contacts are now implemented (see the PFC receipt). Remaining: gate-drive branch waveforms, zone/side-contact area sharing, pad minimum cuts, plating/hot-current contracts, and surface creepage/material/barrier modeling. |
 | P2 | Current native F.Fab polygons, pad/track/via copper, native round/slot drills, filled zones and Edge.Cuts/cutouts; Rust body overlap, annular ring, drill conflicts, outline containment and malformed-input checks; evaluated/skipped IDs emitted from actual Rust loops | Curved/open F.Fab detail interpretation remains per-object incompleteness. Unresolved native geometry is retained separately in coverage gaps. Authored fabrication/assembly limits, mask checks and 3D body/height checks remain open. |
 | P3 | Correct HS/LS Kelvin and boost gate/source return; native cluster binding; current/return bounding-box screen; same-layer parallel overlap on exact switching-output/control-or-sense net pairs, aggregated across split native traces; thermal/timing scalar kernels | Full commutation paths, cross-layer and nonparallel coupling models, authored noise/loop bounds, populated loss/thermal and worst-case delay contracts. Current sense/interlock retain operating-input obligations. |
 
@@ -107,7 +111,7 @@ projection aggregation that could change when a trace was split. The corrected
 P2 counts originate in the evaluation loops. The P1 candidate scope is described
 in [its evidence note](p1-final/README.md). Full P1–P3 completion is still open.
 
-## Verified committed-source run
+## Earlier committed-source run (superseded above)
 
 Code commit: `8648e2f77e89f321889957902b64efc7000d8d13`.
 The [verification receipt](runs/2026-09-12-integrated/verification.json) records
