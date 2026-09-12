@@ -10,6 +10,7 @@ pub mod power_stage_models;
 pub mod pfc_control;
 pub mod power_entry;
 pub mod source_circuit;
+pub mod operating_limits;
 
 const ADC_PINS: [&str; 8] = [
     "BIAS", "REFIN_P", "REFIN_N", "ISENSOR", "FORCE_P", "FORCE_N", "RTDIN_P", "RTDIN_N",

@@ -8,6 +8,7 @@ mod donor_sexpr;
 mod ipc;
 pub mod native_binding;
 pub mod stackup;
+pub mod switching;
 
 use zapote_core::{CheckReport, Finding, Pad, RunInput};
 
