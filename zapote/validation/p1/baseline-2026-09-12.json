@@ -1,0 +1,25 @@
+{
+  "schema": "zapote.p1.baseline.v1",
+  "source_revision": "8d3208129",
+  "candidates": [
+    {
+      "unit": "pfc",
+      "board": "zapote/power-entry/candidate/section.kicad_pcb",
+      "board_sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf",
+      "existing_report": "zapote/power-entry/evidence/rust-11.json",
+      "result": "indeterminate",
+      "p1_status": "indeterminate",
+      "gaps": ["explicit per-path RMS/peak current and actual trace/pad/via membership are not present in the retained native contract", "surface-path/material/cutout evidence is absent"]
+    },
+    {
+      "unit": "gate-drive",
+      "board": "zapote/gate-drive/candidate/section.kicad_pcb",
+      "board_sha256": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+      "existing_report": "zapote/gate-drive/evidence/rust-final.json",
+      "result": "indeterminate",
+      "p1_status": "indeterminate",
+      "gaps": ["complete pin/domain contract and observed crossing population are not present in the retained native contract", "surface-path/material/cutout evidence is absent"]
+    }
+  ],
+  "qualification": "Physical power and insulation qualification remains incomplete; native clearance is not creepage proof."
+}

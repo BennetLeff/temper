@@ -1,0 +1,15 @@
+schema_version = 1
+
+[[port]]
+source = "Temper IPC external-layer ampacity scalar"
+source_path = "packages/temper-drc-rs/src/ipc.rs"
+source_sha256 = "a11a99c85e30e1877b4faf3cefeb11952a9bfae352d569e21393a738f7e1d6a3"
+target = "zapote/packages/zapote-drc/src/power_integrity.rs"
+notes = "Independent scalar copy used only with explicit RMS current, finished copper, and actual native trace/pad/via populations. It is a screening calculation, not thermal qualification or a package-size proxy."
+
+[[port]]
+source = "Temper isolation-barrier evidence policy"
+source_path = "packages/temper-quality-oracle/src/isolation_qualification.rs"
+source_sha256 = "UNVERIFIED-BASELINE-PORT"
+target = "zapote/packages/zapote-drc/src/power_integrity.rs"
+notes = "Only the obligation shape is re-authored: required barriers, explicit presence, measured surface path and allowed crossings. Donor constants and runtime dependencies were not copied."

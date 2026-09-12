@@ -7,6 +7,7 @@ mod donor_geometry;
 mod donor_sexpr;
 mod ipc;
 pub mod native_binding;
+pub mod power_integrity;
 pub mod stackup;
 
 use zapote_core::{CheckReport, Finding, Pad, RunInput};
