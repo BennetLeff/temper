@@ -49,7 +49,12 @@ fn expected_domain(unit: P1Unit, net: &str) -> (&'static str, &'static str) {
         P1Unit::GateDrive if ["gate_l_out", "gate_l_kelvin"].contains(&net) => {
             ("GATE_L", "floating-low-side")
         }
-        P1Unit::GateDrive => ("HOT", "isolated-bias"),
+        P1Unit::GateDrive
+            if ["dis", "dt", "g", "nc_7", "outa", "outb", "v15_ls", "vdda"].contains(&net) =>
+        {
+            ("HOT", "reviewed-isolated-bias")
+        }
+        P1Unit::GateDrive => ("UNCLASSIFIED", "unreviewed-net"),
     }
 }
 
@@ -201,6 +206,7 @@ pub fn run(source: &str, native: &str, board: &[u8], unit: P1Unit) -> CheckRepor
             required_barrier_ids: vec!["P1.REQUIRED_BARRIER".into()],
             barriers: vec![],
             allowed_crossings: vec![],
+            observed_crossings: vec![],
         }),
     );
     finalize(&mut r);

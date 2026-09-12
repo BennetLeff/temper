@@ -119,6 +119,15 @@ pub fn validate(contract: &DomainContract) -> CheckReport {
                     Some(expected.clone()),
                 );
             }
+        } else {
+            push(
+                &mut findings,
+                Status::Indeterminate,
+                "pin has no independently authored expected domain",
+                pin.id.clone(),
+                Some(pin.domain.clone()),
+                Some("expected domain".into()),
+            );
         }
         if pin.role.trim().is_empty() {
             push(
@@ -320,7 +329,14 @@ mod tests {
     fn protective_earth_is_distinct_from_hot() {
         let mut c = base();
         c.domains.push("PE".into());
-        c.pins.push(PinContract { id: "J1.PE".into(), domain: "PE".into(), expected_domain: Some("PE".into()), role: "protective-earth".into(), net: Some("PE_CHASSIS".into()), intentional_nc: false });
+        c.pins.push(PinContract {
+            id: "J1.PE".into(),
+            domain: "PE".into(),
+            expected_domain: Some("PE".into()),
+            role: "protective-earth".into(),
+            net: Some("PE_CHASSIS".into()),
+            intentional_nc: false,
+        });
         assert_eq!(validate(&c).status, Status::Pass);
         c.pins[2].domain = "HOT".into();
         assert_eq!(validate(&c).status, Status::Fail);

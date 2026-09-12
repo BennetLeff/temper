@@ -25,8 +25,10 @@ fn expected_domain(unit: &str, net: &str) -> (&'static str, &'static str) {
         ("GATE_H", "isolated-gate")
     } else if net == "gate_l_out" || net == "gate_l_kelvin" {
         ("GATE_L", "isolated-gate")
+    } else if ["dis", "dt", "g", "nc_7", "outa", "outb", "v15_ls", "vdda"].contains(&net) {
+        ("HOT", "reviewed-isolated-bias")
     } else {
-        ("HOT", "isolated-bias")
+        ("UNCLASSIFIED", "unreviewed-net")
     }
 }
 
@@ -144,6 +146,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         required_barrier_ids: vec!["p1-required-barrier".into()],
         barriers: vec![],
         allowed_crossings: vec![],
+        observed_crossings: vec![],
     });
     let status = if [ampacity.status, domain.status, isolation.status]
         .contains(&zapote_core::Status::Fail)

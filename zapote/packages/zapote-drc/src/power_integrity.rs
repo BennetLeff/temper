@@ -36,6 +36,8 @@ pub struct IsolationContract {
     pub required_barrier_ids: Vec<String>,
     pub barriers: Vec<BarrierEvidence>,
     pub allowed_crossings: Vec<AllowedCrossing>,
+    #[serde(default)]
+    pub observed_crossings: Vec<AllowedCrossing>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,6 +92,16 @@ pub fn external_capacity_a(width_mm: f64, copper_thickness_um: f64) -> f64 {
 pub fn validate_ampacity(native: &UnitNativeEvidence, contract: &AmpacityContract) -> CheckReport {
     let mut findings = Vec::new();
     let mut gaps = Vec::new();
+    if !contract.min_finished_copper_um.is_finite() || contract.min_finished_copper_um <= 0.0 {
+        findings.push(finding(
+            Status::Fail,
+            AMPACITY_RULE,
+            "minimum finished copper must be finite and positive".into(),
+            "contract.min_finished_copper_um".into(),
+            Some(contract.min_finished_copper_um.to_string()),
+            Some("positive finite thickness".into()),
+        ));
+    }
     if contract.paths.is_empty() {
         gaps.push("required power-path population is empty".into());
         findings.push(finding(
@@ -157,7 +169,29 @@ pub fn validate_ampacity(native: &UnitNativeEvidence, contract: &AmpacityContrac
             continue;
         }
         for trace in traces {
+            if !trace.width_mm.is_finite() || trace.width_mm <= 0.0 {
+                findings.push(finding(
+                    Status::Fail,
+                    AMPACITY_RULE,
+                    "trace width must be finite and positive".into(),
+                    trace.id.clone(),
+                    Some(trace.width_mm.to_string()),
+                    Some("positive finite width".into()),
+                ));
+                continue;
+            }
             let capacity = external_capacity_a(trace.width_mm, thickness);
+            if !capacity.is_finite() || capacity <= 0.0 {
+                findings.push(finding(
+                    Status::Fail,
+                    AMPACITY_RULE,
+                    "computed trace capacity is not finite and positive".into(),
+                    trace.id.clone(),
+                    Some(capacity.to_string()),
+                    Some("positive finite capacity".into()),
+                ));
+                continue;
+            }
             let Some(current) = path.current_rms_a else {
                 findings.push(finding(
                     Status::Indeterminate,
@@ -212,7 +246,12 @@ pub fn validate_ampacity(native: &UnitNativeEvidence, contract: &AmpacityContrac
                 ));
                 continue;
             };
-            if via.diameter_mm <= via.drill_mm || via.diameter_mm <= 0.0 || via.drill_mm <= 0.0 {
+            if !via.diameter_mm.is_finite()
+                || !via.drill_mm.is_finite()
+                || via.diameter_mm <= via.drill_mm
+                || via.diameter_mm <= 0.0
+                || via.drill_mm <= 0.0
+            {
                 findings.push(finding(
                     Status::Fail,
                     AMPACITY_RULE,
@@ -225,6 +264,14 @@ pub fn validate_ampacity(native: &UnitNativeEvidence, contract: &AmpacityContrac
                     Some("diameter > drill > 0".into()),
                 ));
             }
+            findings.push(finding(
+                Status::Indeterminate,
+                AMPACITY_RULE,
+                "via geometry is present but via current capacity is not modeled".into(),
+                id.clone(),
+                None,
+                Some("validated via-current model".into()),
+            ));
         }
         let resolved_pads: Vec<_> = native
             .components
@@ -246,6 +293,16 @@ pub fn validate_ampacity(native: &UnitNativeEvidence, contract: &AmpacityContrac
                 Some("at least one component.pad native pad".into()),
             ));
         }
+        if !path.pad_ids.is_empty() && resolved_pads.len() == path.pad_ids.len() {
+            findings.push(finding(
+                Status::Indeterminate,
+                AMPACITY_RULE,
+                "pad geometry is present but pad/current-sharing capacity is not modeled".into(),
+                format!("path:{}.pads", path.id),
+                Some(format!("{} native pads", resolved_pads.len())),
+                Some("validated pad-current and sharing model".into()),
+            ));
+        }
     }
     CheckReport::from_findings(findings, vec![AMPACITY_RULE.into()], gaps)
 }
@@ -253,6 +310,43 @@ pub fn validate_ampacity(native: &UnitNativeEvidence, contract: &AmpacityContrac
 pub fn validate_isolation(contract: &IsolationContract) -> CheckReport {
     let mut findings = Vec::new();
     let mut gaps = Vec::new();
+    let mut barrier_ids = BTreeSet::new();
+    for barrier in &contract.barriers {
+        if barrier.id.trim().is_empty() || !barrier_ids.insert(barrier.id.as_str()) {
+            findings.push(finding(
+                Status::Fail,
+                ISOLATION_RULE,
+                "barrier IDs must be unique and non-empty".into(),
+                "barriers".into(),
+                Some(barrier.id.clone()),
+                Some("unique non-empty barrier ID".into()),
+            ));
+        }
+        if let Some(value) = barrier.surface_path_mm {
+            if !value.is_finite() || value < 0.0 {
+                findings.push(finding(
+                    Status::Fail,
+                    ISOLATION_RULE,
+                    "observed surface path must be finite and non-negative".into(),
+                    barrier.id.clone(),
+                    Some(value.to_string()),
+                    Some("finite value >= 0".into()),
+                ));
+            }
+        }
+        if let Some(value) = barrier.required_surface_path_mm {
+            if !value.is_finite() || value < 0.0 {
+                findings.push(finding(
+                    Status::Fail,
+                    ISOLATION_RULE,
+                    "required surface path must be finite and non-negative".into(),
+                    barrier.id.clone(),
+                    Some(value.to_string()),
+                    Some("finite value >= 0".into()),
+                ));
+            }
+        }
+    }
     if contract.required_barrier_ids.is_empty() {
         gaps.push("required isolation barrier population is empty".into());
         findings.push(finding(
@@ -328,6 +422,51 @@ pub fn validate_isolation(contract: &IsolationContract) -> CheckReport {
                 crossing.id.clone(),
                 Some(crossing.barrier_id.clone()),
                 Some("required barrier ID".into()),
+            ));
+        }
+        if crossing.id.trim().is_empty()
+            || crossing.from_domain.trim().is_empty()
+            || crossing.to_domain.trim().is_empty()
+        {
+            findings.push(finding(
+                Status::Fail,
+                ISOLATION_RULE,
+                "crossing ID and both domains are required".into(),
+                crossing.id.clone(),
+                None,
+                Some("non-empty crossing tuple".into()),
+            ));
+        }
+    }
+    let mut observed_ids = BTreeSet::new();
+    for crossing in &contract.observed_crossings {
+        if crossing.id.trim().is_empty() || !observed_ids.insert(crossing.id.as_str()) {
+            findings.push(finding(
+                Status::Fail,
+                ISOLATION_RULE,
+                "observed crossing IDs must be unique and non-empty".into(),
+                crossing.id.clone(),
+                None,
+                Some("unique crossing ID".into()),
+            ));
+        }
+        let matching = contract.allowed_crossings.iter().any(|allowed| {
+            allowed.id == crossing.id
+                && allowed.from_domain == crossing.from_domain
+                && allowed.to_domain == crossing.to_domain
+                && allowed.barrier_id == crossing.barrier_id
+        });
+        if !matching {
+            findings.push(finding(
+                Status::Fail,
+                ISOLATION_RULE,
+                "observed crossing does not match an allowed ID/domain/barrier tuple".into(),
+                crossing.id.clone(),
+                Some(format!(
+                    "{} -> {} via {}",
+                    crossing.from_domain, crossing.to_domain, crossing.barrier_id
+                )),
+                Some("exact authored crossing tuple".into()),
             ));
         }
     }
@@ -417,6 +556,7 @@ mod tests {
             required_barrier_ids: vec!["iso".into()],
             barriers: vec![],
             allowed_crossings: vec![],
+            observed_crossings: vec![],
         });
         assert_eq!(report.status, Status::Indeterminate);
     }
@@ -431,6 +571,7 @@ mod tests {
                 required_surface_path_mm: Some(8.0),
             }],
             allowed_crossings: vec![],
+            observed_crossings: vec![],
         });
         assert_eq!(report.status, Status::Fail);
     }
