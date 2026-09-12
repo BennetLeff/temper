@@ -2,6 +2,7 @@
 
 pub mod current_sense;
 pub mod domain_clearance;
+pub mod manufacturing;
 pub(crate) mod donor_clearance;
 mod donor_geometry;
 mod donor_sexpr;
