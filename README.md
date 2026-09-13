@@ -113,7 +113,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 22 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 23 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
@@ -139,6 +139,7 @@ For contributors working on architecture, verification, or toolchain internals:
 | `scripts/` | CI gates, generators, and one-off analysis tooling |
 | `simulation/` | ngspice models and protection-gate simulation harnesses |
 | `tools/` | Developer utilities not wired into CI gates |
+| `zapote/` | PCB agent harness, standalone cooker units, and Rust engineering validators |
 
 <!-- END GENERATED: repo-map -->
 
