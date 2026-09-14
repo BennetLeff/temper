@@ -1,0 +1,30 @@
+{
+  "schema": "zapote.power_entry.bridge_redesign.v1",
+  "baseline": {
+    "path": "baseline",
+    "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317"
+  },
+  "candidates": [
+    {
+      "id": "same-package-6mm",
+      "path": "variants/same-package",
+      "status": "rejected-by-zapote-clearance-profile",
+      "change": "All four U1 neck tracks widened from 2.5 mm to 6.0 mm; endpoints, layers and lengths unchanged.",
+      "board_sha256": "bc6d37e0884cde05379480923c051fc2ff7b8f28b7ba52eacbabf98714f3fc61",
+      "native": {"erc_violations": 0, "drc_violations": 0, "unconnected": 0, "schematic_parity": 0},
+      "rust": {"exit_code": 1, "status": "fail", "blocking_rule": "DRC.NATIVE.CLEARANCE_PROFILE", "minimum_observed_mm": 0.58, "required_mm": 2.0},
+      "reason": "GBU2510A 5.08 mm pad pitch cannot accept a constant 6 mm neck while preserving the Zapote 2 mm voltage-domain clearance profile. Native KiCad clearance rules are looser, so native DRC alone is insufficient."
+    },
+    {
+      "id": "same-package-3mm",
+      "path": "variants/same-package-3mm",
+      "status": "constrained",
+      "change": "All four U1 neck tracks widened from 2.5 mm to 3.0 mm; endpoints, layers and lengths unchanged.",
+      "board_sha256": "8a464486017deb4fdbc027fa05c2f8cdd66533569ccd10727137f8b6c12a99d8",
+      "native": {"erc_violations": 0, "drc_violations": 0, "unconnected": 0, "schematic_parity": 0},
+      "rust": {"exit_code": 2, "status": "indeterminate", "clearance_profile": "pass"},
+      "reason": "3 mm clears the 2 mm Zapote profile but remains below the declared 15 A current-screen requirement; thermal and current sharing evidence are still required."
+    }
+  ],
+  "selection": "pending physical-model and cooling comparison; no candidate is promoted"
+}
