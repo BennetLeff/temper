@@ -19,13 +19,13 @@ zapote-lead-fem run INPUT_JSON OUTPUT_DIR GMSH ELMERGRID ELMERSOLVER
 ```
 
 The first live run after the source-unit fix (`/private/tmp/zapote-lead-fem-live7`)
-completed all six cases. It reported 0.712987 W total copper Joule source,
-maximum temperatures 313.150246–313.150340 K, and 1.30e-8 W boundary-flux
-residual. This is a numerical benchmark only. The current boundary setup
-clamps every material exterior/interface surface to ambient and therefore does
-not provide package-to-lead or lead-to-board two-port conductances. Package
-internals, solder wetting, plating thickness and native pad/trace geometry
-remain unknown; applicability is consequently INDETERMINATE.
+completed all six cases. The later conforming-fragment run
+(`/private/tmp/zapote-lead-fem-live13`) retained a tetrahedral mesh and
+external-boundary fluxes, but its physical-material census was incomplete and
+is deliberately unqualified. This wrapper is therefore a benchmark harness,
+not production board evidence. Package internals, solder wetting, plating
+thickness and native pad/trace geometry remain unknown; applicability is
+consequently INDETERMINATE.
 
 The next production extension must import the native four-neck geometry,
 fragment the solids jointly to preserve conforming interfaces, select only
