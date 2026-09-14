@@ -1,0 +1,21 @@
+{
+  "schema": "zapote.bridge-cooling.contract.v1",
+  "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+  "heatsink_id": "395-1AB",
+  "fan_id": "MF80251V1-1000U-G99",
+  "fan_quantity": 2,
+  "qualification": "design_requirements_unverified",
+  "current_a": 15.0,
+  "ambient_c": 40.0,
+  "bridge_loss_w": 40.0,
+  "theta_junction_case_c_per_w": 1.25,
+  "theta_case_sink_c_per_w": 0.25,
+  "theta_sink_air_c_per_w": 0.50,
+  "theta_sink_air_failed_fan_c_per_w": 1.25,
+  "junction_limit_c": 125.0,
+  "pcb_limit_c": 110.0,
+  "terminal_limit_c": 95.0,
+  "board_limit_c": 80.0,
+  "terminal_conductance_w_per_k": 0.020,
+  "board_conductance_w_per_k": 0.007
+}

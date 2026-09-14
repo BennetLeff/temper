@@ -5,6 +5,10 @@ terminal temperatures and cooling conditions. It does **not** establish those
 conditions in an assembled cooker. Numerical validity and board acceptance are
 separate harness rules; a valid experiment cannot waive an ampacity finding.
 
+Follow-up: [selected cooling design and contract-bound run](bridge-cooling.md).
+This page and its original 40-case bundle remain the initial experiment;
+the common runner now uses the subsequent 20-case cooling-design bundle.
+
 ## Results and board disposition
 
 [Retained run](evidence/bridge-necks-2026-09-14/assessment.json): 40 cases on

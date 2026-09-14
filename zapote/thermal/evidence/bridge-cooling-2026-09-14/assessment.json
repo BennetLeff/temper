@@ -1,0 +1,48 @@
+{
+  "schema": "zapote.bridge-cooling.assessment.v1",
+  "status": "design_requirements_unverified",
+  "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+  "contract_sha256": "c5ea9a374fcaae5a742a60cd93258612cf9d335413d0078c7eda42d3706a68bc",
+  "inner_assessment_sha256": "0397f106a3095f63667b12098f3de777833a308282d8ea0f74abb2b60c5de14c",
+  "heatsink_id": "395-1AB",
+  "fan_id": "MF80251V1-1000U-G99",
+  "budget": {
+    "ambient_c": 40.0,
+    "bridge_loss_w": 40.0,
+    "sink_c": 60.0,
+    "case_c": 70.0,
+    "junction_c": 120.0,
+    "failed_fan_sink_c": 90.0,
+    "failed_fan_case_c": 100.0,
+    "failed_fan_junction_c": 150.0,
+    "design_junction_margin_c": 5.0,
+    "failed_fan_junction_margin_c": -25.0
+  },
+  "per_net": {
+    "ac1": {
+      "design_fine_c": 107.85900500180003,
+      "weak_contact_fine_c": 147.77303939700005
+    },
+    "ac2": {
+      "design_fine_c": 100.47971465220002,
+      "weak_contact_fine_c": 125.09298409580003
+    },
+    "minus": {
+      "design_fine_c": 106.03961974540005,
+      "weak_contact_fine_c": 142.18398646880001
+    },
+    "plus": {
+      "design_fine_c": 102.71699298840002,
+      "weak_contact_fine_c": 132.18321282390002
+    }
+  },
+  "design_budget_compliant": true,
+  "design_fine_compliant": true,
+  "failed_fan_budget_compliant": false,
+  "fan_quantity": 2,
+  "limitations": [
+    "Cooling conductances and thermal resistances are design requirements, not measured or datasheet-bounded assembly data.",
+    "The failed-fan result is a stress calculation and is never an acceptance path.",
+    "Numerical model evidence does not qualify bridge package, solder, airflow, or allowable temperatures."
+  ]
+}

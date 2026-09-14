@@ -4,9 +4,10 @@
 //! finite-element model is supplied by the caller's `bar.geo` and `case.sif`.
 
 use anyhow::{bail, Context, Result};
-pub mod neck_physics;
-pub mod neck_geometry;
+pub mod bridge_cooling;
 mod neck_geo;
+pub mod neck_geometry;
+pub mod neck_physics;
 pub mod neck_run;
 pub mod neck_transfer;
 use serde::{Deserialize, Serialize};
@@ -725,12 +726,16 @@ mod tests {
         fs::create_dir(&root).unwrap();
         let result = run_process(
             Path::new("/bin/sh"),
-            &["-c", "(sleep 0.15; echo escaped > sentinel) & wait"],
+            &["-c", "(touch ready; while [ ! -f release ]; do sleep 0.02; done; echo escaped > sentinel) & wait"],
             &root,
             &root.join("timeout.log"),
-            Duration::from_millis(20),
+            Duration::from_secs(2),
         );
         assert!(result.unwrap_err().to_string().contains("exceeded timeout"));
+        assert!(root.join("ready").exists(), "descendant never started");
+        // The write is enabled only after the timeout returned. A scheduling
+        // delay before SIGKILL must not masquerade as a surviving descendant.
+        fs::write(root.join("release"), b"go").unwrap();
         thread::sleep(Duration::from_millis(250));
         assert!(
             !root.join("sentinel").exists(),

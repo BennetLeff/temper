@@ -176,7 +176,7 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
         "../../../validation/inventory-2026-09-12.json"
     ))
     .map_err(|e| e.to_string())?;
-    inventory["units"]
+    let mut required: Vec<String> = inventory["units"]
         .as_array()
         .and_then(|us| us.iter().find(|u| u["unit"] == unit.name()))
         .and_then(|u| u["distinct_checked_rule_ids"].as_array())
@@ -187,7 +187,14 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
                 .map(str::to_owned)
                 .ok_or_else(|| "bad rule ID".to_owned())
         })
-        .collect()
+        .collect::<Result<_>>()?;
+    // Coverage requirements are independent of whether the hook emitted a
+    // report. Removing the thermal hook must fail closed, not shrink coverage.
+    if unit == UnitKind::PowerEntry {
+        required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
+        required.extend(crate::bridge_thermal::COOLING_RULES.map(str::to_owned));
+    }
+    Ok(required)
 }
 
 /// Bind composite inputs to independently supplied source and native bytes.
@@ -518,15 +525,13 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     } else {
         None
     };
+    let cooling_contract = spec.contract.as_ref().map(|p| read(p)).transpose()?;
     let thermal_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
-        crate::bridge_thermal::run(spec.thermal_evidence.as_deref(), &board, pfc_power.as_ref())
+        crate::bridge_thermal::run_with_contract(spec.thermal_evidence.as_deref(), &board, pfc_power.as_ref(), cooling_contract.as_deref())
     });
     let mut required = required_rules(spec.unit)?;
     if pfc_power.is_some() {
         required.extend(crate::pfc_power::RULES.map(str::to_owned));
-    }
-    if thermal_checks.is_some() {
-        required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
     }
     required.extend(
         [
@@ -599,4 +604,22 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     ]);
     let executable_sha256 = hash_file(&std::env::current_exe().map_err(|e| e.to_string())?)?;
     Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,thermal_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
+}
+
+#[cfg(test)]
+mod cooling_coverage_tests {
+    use super::*;
+
+    #[test]
+    fn power_entry_requires_cooling_even_when_the_hook_emits_no_report() {
+        let required = required_rules(UnitKind::PowerEntry).unwrap();
+        for rule in crate::bridge_thermal::RULES.into_iter().chain(crate::bridge_thermal::COOLING_RULES) {
+            assert!(required.iter().any(|id| id == rule));
+        }
+        let without_cooling = CheckReport::from_findings(vec![],
+            required.iter().filter(|id| !id.starts_with("THERMAL.POWER_ENTRY.")).cloned().collect(), vec![]);
+        let coverage = enforce_required(&required, &without_cooling);
+        assert_eq!(coverage.status, Status::Fail);
+        assert_eq!(coverage.findings.len(), 5);
+    }
 }

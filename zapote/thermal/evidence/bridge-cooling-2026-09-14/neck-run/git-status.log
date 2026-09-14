@@ -1,0 +1,12 @@
+ M zapote/packages/zapote-harness/src/bridge_thermal.rs
+ M zapote/packages/zapote-harness/src/runner.rs
+ M zapote/packages/zapote-thermal/src/lib.rs
+ M zapote/packages/zapote-thermal/src/neck_run.rs
+?? zapote/packages/zapote-thermal/src/bin/zapote-bridge-cooling.rs
+?? zapote/packages/zapote-thermal/src/bridge_cooling.rs
+?? zapote/thermal/bridge-cooling-contract.json
+?? zapote/thermal/bridge-cooling.md
+?? zapote/thermal/cooling-sources/
+?? zapote/thermal/evidence/bridge-cooling-2026-09-14/
+
+--- stderr ---

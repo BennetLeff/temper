@@ -69,8 +69,11 @@ geometry, energy and convergence checks. The common runner replays their raw
 evidence and binds the current to the PFC branches; cooling applicability remains
 INDETERMINATE and the four current-capacity findings remain open.
 
-Next, bound the actual bridge mounting/heatsink and surrounding-board heat paths.
-The study's assumed reservoirs cannot authorize the PCB for operation.
+The follow-up [cooling design and 20-case assessment](bridge-cooling.md) selects
+a heatsink, two fans and a mounting concept, and binds explicit design targets
+to the common runner. The nominal local margin is only 2.14 K and reduced
+contact conductance exceeds the target. Assembly applicability remains
+INDETERMINATE; the four bridge current findings are retained.
 
 The bar's fixed-temperature ends are a deliberate analytic boundary condition;
 they must not become an assumption that real bridge terminals stay at ambient.

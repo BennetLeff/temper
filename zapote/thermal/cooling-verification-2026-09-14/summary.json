@@ -1,0 +1,21 @@
+{
+  "deferred_units": {
+    "buck": "legacy delegated owner; no Zapote unit suite",
+    "mcu": "not in maintained Zapote registry"
+  },
+  "manifest_sha256": "9163ddf30cafe1554278f51e6c02f48eeaedd85c7f6433cc316eeff6306f2a9b",
+  "output": "/private/tmp/zapote-cooling-release-verification-20260914",
+  "schema": "zapote.unit-run-summary.v1",
+  "status": "fail",
+  "suite_changed_during_run": false,
+  "unit_count": 7,
+  "unit_statuses": [
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "fail"
+  ]
+}

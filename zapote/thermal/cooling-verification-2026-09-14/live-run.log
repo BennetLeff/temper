@@ -1,0 +1,25 @@
+thermal case complete: minus design-coarse
+thermal case complete: minus design-medium
+thermal case complete: minus design-fine
+thermal case complete: minus weak-contact-medium
+thermal case complete: minus weak-contact-fine
+thermal case complete: ac1 design-coarse
+thermal case complete: ac1 design-medium
+thermal case complete: ac1 design-fine
+thermal case complete: ac1 weak-contact-medium
+thermal case complete: ac1 weak-contact-fine
+thermal case complete: ac2 design-coarse
+thermal case complete: ac2 design-medium
+thermal case complete: ac2 design-fine
+thermal case complete: ac2 weak-contact-medium
+thermal case complete: ac2 weak-contact-fine
+thermal case complete: plus design-coarse
+thermal case complete: plus design-medium
+thermal case complete: plus design-fine
+thermal case complete: plus weak-contact-medium
+thermal case complete: plus weak-contact-fine
+design_requirements_unverified: design=true failed_fan=false board 84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317
+ac1   design-fine  107.86 °C  weak-contact-fine  147.77 °C
+ac2   design-fine  100.48 °C  weak-contact-fine  125.09 °C
+minus design-fine  106.04 °C  weak-contact-fine  142.18 °C
+plus  design-fine  102.72 °C  weak-contact-fine  132.18 °C

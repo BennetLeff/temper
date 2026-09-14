@@ -13,8 +13,108 @@ use crate::pfc_power::Report as PfcReport;
 const NUMERICAL_RULE: &str = "THERMAL.POWER_ENTRY.BRIDGE_NECK_NUMERICAL";
 const APPLICABILITY_RULE: &str = "THERMAL.POWER_ENTRY.BRIDGE_NECK_APPLICABILITY";
 pub const RULES: [&str; 2] = [NUMERICAL_RULE, APPLICABILITY_RULE];
+pub const COOLING_RULES: [&str; 3] = [
+    "THERMAL.POWER_ENTRY.BRIDGE_COOLING_BUDGET",
+    "THERMAL.POWER_ENTRY.BRIDGE_COOLING_PCB_TARGET",
+    "THERMAL.POWER_ENTRY.BRIDGE_COOLING_CONTACT_SENSITIVITY",
+];
 
 const NETS: [&str; 4] = ["minus", "ac1", "ac2", "plus"];
+
+/// Evaluate the selected cooling design without treating unverified assembly
+/// targets as measured boundary conditions or waiving the separate IPC screen.
+pub fn run_with_contract(
+    evidence_root: Option<&Path>,
+    board: &[u8],
+    pfc: Option<&PfcReport>,
+    contract: Option<&[u8]>,
+) -> CheckReport {
+    let Some(contract_bytes) = contract else {
+        return run(evidence_root, board, pfc);
+    };
+    let checked = RULES
+        .into_iter()
+        .chain(COOLING_RULES)
+        .map(str::to_owned)
+        .collect();
+    let result = (|| -> anyhow::Result<_> {
+        let root = evidence_root.ok_or_else(|| anyhow::anyhow!("cooling evidence missing"))?;
+        let assessment = zapote_thermal::bridge_cooling::replay(root, board, contract_bytes)?;
+        let contract: zapote_thermal::bridge_cooling::CoolingContract =
+            serde_json::from_slice(contract_bytes)?;
+        let errors = bind_current_values(
+            NETS.into_iter()
+                .map(|net| (net, "design-fine", contract.current_a)),
+            pfc,
+        );
+        if !errors.is_empty() {
+            anyhow::bail!(errors.join("; "));
+        }
+        Ok((assessment, contract))
+    })();
+    let mut findings = Vec::new();
+    match result {
+        Err(error) => {
+            findings.push(Finding::fail(
+                NUMERICAL_RULE,
+                format!("cooling replay/binding failed: {error:#}"),
+                "power-entry.bridge-cooling",
+            ));
+            for rule in COOLING_RULES {
+                findings.push(Finding::indeterminate(
+                    rule,
+                    "no valid current-bound cooling replay",
+                    "power-entry.bridge-cooling",
+                ));
+            }
+        }
+        Ok((assessment, contract)) => {
+            findings.push(Finding::pass(NUMERICAL_RULE, "cooling contract and raw thermal evidence replayed; four currents bound to exact PFC branches", "power-entry.bridge-cooling"));
+            let budget_message = format!(
+                "conditional junction {:.2} C, limit {:.2} C; failed-fan stress {:.2} C (shutdown protection remains unverified)",
+                assessment.budget.junction_c, contract.junction_limit_c, assessment.budget.failed_fan_junction_c);
+            findings.push(if assessment.design_budget_compliant {
+                Finding::pass(
+                    COOLING_RULES[0],
+                    budget_message,
+                    "power-entry.bridge-cooling",
+                )
+            } else {
+                Finding::fail(
+                    COOLING_RULES[0],
+                    budget_message,
+                    "power-entry.bridge-cooling",
+                )
+            });
+            let peak = assessment
+                .per_net
+                .values()
+                .map(|v| v.design_fine_c)
+                .fold(f64::NEG_INFINITY, f64::max);
+            let weak = assessment
+                .per_net
+                .values()
+                .map(|v| v.weak_contact_fine_c)
+                .fold(f64::NEG_INFINITY, f64::max);
+            let pcb_message = format!(
+                "conditional local PCB peak {peak:.2} C against {:.2} C design ceiling",
+                contract.pcb_limit_c
+            );
+            findings.push(if assessment.design_fine_compliant {
+                Finding::pass(COOLING_RULES[1], pcb_message, "power-entry.bridge-cooling")
+            } else {
+                Finding::fail(COOLING_RULES[1], pcb_message, "power-entry.bridge-cooling")
+            });
+            findings.push(Finding::indeterminate(COOLING_RULES[2],
+                format!("quarter-conductance sensitivity peak {weak:.2} C; PCB ceiling {:.2} C; actual lead/solder/rest-board conductances remain unbounded", contract.pcb_limit_c),
+                "power-entry.bridge-cooling"));
+        }
+    }
+    findings.push(Finding::indeterminate(APPLICABILITY_RULE,
+        "selected cooling parts and temperature targets are design requirements; installed airflow, contact resistance, package-to-lead coupling, ratings and fault protection are not qualified; no current-capacity finding is waived",
+        "power-entry.bridge-cooling"));
+    CheckReport::from_findings(findings, checked, vec![])
+}
 
 /// Run the retained bridge-neck replay and bind its currents to the PFC
 /// branch model. Missing evidence is indeterminate; supplied evidence that
@@ -158,26 +258,41 @@ fn validate_assessment(cases: &[zapote_thermal::neck_run::Case]) -> Vec<String> 
 }
 
 fn bind_currents(cases: &[zapote_thermal::neck_run::Case], pfc: Option<&PfcReport>) -> Vec<String> {
+    bind_current_values(
+        cases.iter().map(|case| {
+            (
+                case.net.as_str(),
+                case.scenario.name.as_str(),
+                case.scenario.params.current_a,
+            )
+        }),
+        pfc,
+    )
+}
+
+fn bind_current_values<'a>(
+    currents: impl Iterator<Item = (&'a str, &'a str, f64)>,
+    pfc: Option<&PfcReport>,
+) -> Vec<String> {
     let Some(pfc) = pfc else {
         return vec!["PFC branch report is unavailable for thermal current binding".into()];
     };
     let mut errors = Vec::new();
-    for case in cases {
-        let current = case.scenario.params.current_a;
+    for (net, scenario, current) in currents {
         // The 5 A case is intentional sensitivity evidence. Every nominal,
         // hot, copper, airflow, and full-current case must equal the actual
         // determined branch current from the PFC report.
-        let Some(expected) = branch_current(&pfc.branches, &case.net) else {
+        let Some(expected) = branch_current(&pfc.branches, net) else {
             errors.push(format!(
                 "no determined PFC bridge branch for thermal net {}",
-                case.net
+                net
             ));
             continue;
         };
-        if !current_matches(&case.scenario.name, current, expected) {
+        if !current_matches(scenario, current, expected) {
             errors.push(format!(
                 "thermal current {} A for {} / {} does not match determined PFC branch {} A",
-                current, case.net, case.scenario.name, expected
+                current, net, scenario, expected
             ));
         }
     }
@@ -254,6 +369,23 @@ mod tests {
             None,
         );
         assert_eq!(report.status, zapote_core::Status::Fail);
+    }
+
+    #[test]
+    fn configured_cooling_contract_cannot_pass_without_replay() {
+        let report = run_with_contract(None, b"board", None, Some(b"{}"));
+        assert_eq!(report.status, zapote_core::Status::Fail);
+        assert_eq!(
+            report.checked_rules.len(),
+            RULES.len() + COOLING_RULES.len()
+        );
+        assert!(report.findings.iter().any(
+            |f| f.rule == APPLICABILITY_RULE && f.status == zapote_core::Status::Indeterminate
+        ));
+        assert!(!report
+            .findings
+            .iter()
+            .any(|f| f.status == zapote_core::Status::Pass));
     }
 
     #[test]

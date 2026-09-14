@@ -1,0 +1,10 @@
+{
+  "verdicts": [
+    {
+      "#": 1,
+      "status": "confirmed",
+      "protected_subject": null,
+      "reason": "Confirmed: the diff adds PowerEntry runner wiring at zapote/packages/zapote-harness/src/runner.rs:525-530, but the runner tests only call evaluate() and the cooling integration test calls bridge_thermal::run_with_contract() directly, so no automated test exercises runner::run with a contract (the precondition for a fallback or propagation regression); the committed power-entry.json is a live-run artifact rather than a regression assertion."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "args": [
+    "status",
+    "--porcelain"
+  ],
+  "cwd": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal",
+  "environment": {
+    "OMPI_MCA_btl": "self",
+    "OMP_NUM_THREADS": "1"
+  },
+  "program": "/usr/bin/git",
+  "timeout_ms": 300000,
+  "unset_environment": [
+    "ELMER_HOME",
+    "ELMER_LIB"
+  ]
+}

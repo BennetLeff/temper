@@ -1,0 +1,2200 @@
+{
+  "schema": "zapote.bridge-neck.assessment.v1",
+  "status": "conditional_assessment",
+  "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+  "cases": [
+    {
+      "net": "minus",
+      "scenario": {
+        "name": "design-coarse",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.4,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 379.0963876823,
+        "min_temperature_k": 371.7148484111,
+        "boundary_temperature_integrals_k_m2": [
+          0.00011746972365,
+          0.00005882990868217,
+          0.05793343061895
+        ],
+        "boundary_areas_m2": [
+          3.135992464824e-7,
+          1.575e-7,
+          0.0001544537280429
+        ],
+        "boundary_mean_temperature_k": [
+          374.58547801897447,
+          373.5232297280635,
+          375.0859972953117
+        ],
+        "boundary_potential_integrals_v_m": [
+          6.072424164184e-9,
+          0.0,
+          3.007311545686e-7
+        ],
+        "joule_power_w": 0.2904546598389,
+        "boundary_temperature_flux_w": [
+          -0.06445853495905,
+          -0.06456321807536,
+          -0.1614329068052
+        ],
+        "heat_flows_out_w": [
+          0.12870956037948952,
+          0.1426126080964445,
+          0.019132491364631743
+        ],
+        "voltage_drop_v": 0.01936364398925557,
+        "resistance_ohm": 0.001290909599284,
+        "energy_balance_residual_w": 1.6657786261475849e-12,
+        "flux_residuals_w": [
+          0.06425102542043952,
+          0.07804939002108449,
+          -0.14230041544056826
+        ],
+        "electrical_residual_w": -6.644684802381562e-14,
+        "converged_iterations": 8,
+        "terminal_relative_change": 6.50351159718055e-11,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 1982,
+      "areas_m2": [
+        3.135992464824151e-7,
+        1.5749999999999982e-7,
+        0.00015445372804291248
+      ]
+    },
+    {
+      "net": "minus",
+      "scenario": {
+        "name": "design-medium",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.2,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 379.1744208029,
+        "min_temperature_k": 371.6202856202,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001183473403298,
+          0.00005883750551153,
+          0.05789824630821
+        ],
+        "boundary_areas_m2": [
+          3.159025316132e-7,
+          1.575e-7,
+          0.0001543764520531
+        ],
+        "boundary_mean_temperature_k": [
+          374.63245300834694,
+          373.5714635652698,
+          375.0458411124455
+        ],
+        "boundary_potential_integrals_v_m": [
+          6.143458182493e-9,
+          0.0,
+          3.00349104488e-7
+        ],
+        "joule_power_w": 0.291709826637,
+        "boundary_temperature_flux_w": [
+          -0.06487086381876,
+          -0.06783370155681,
+          -0.159005261001
+        ],
+        "heat_flows_out_w": [
+          0.1296490601669401,
+          0.14295024495688907,
+          0.019110520695563488
+        ],
+        "voltage_drop_v": 0.019447321777133535,
+        "resistance_ohm": 0.0012964881183866667,
+        "energy_balance_residual_w": -8.176073706955833e-10,
+        "flux_residuals_w": [
+          0.0647781963481801,
+          0.07511654340007907,
+          -0.1398947403054365
+        ],
+        "electrical_residual_w": 2.0002999256973908e-11,
+        "converged_iterations": 8,
+        "terminal_relative_change": 6.663161258503771e-11,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 10436,
+      "areas_m2": [
+        3.1590253161315025e-7,
+        1.5749999999999976e-7,
+        0.0001543764520531421
+      ]
+    },
+    {
+      "net": "minus",
+      "scenario": {
+        "name": "design-fine",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.15,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 379.1896197454,
+        "min_temperature_k": 371.5803193254,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001188799704608,
+          0.00005883898756793,
+          0.05789048628192
+        ],
+        "boundary_areas_m2": [
+          3.17316024612e-7,
+          1.575e-7,
+          0.0001543654212599
+        ],
+        "boundary_mean_temperature_k": [
+          374.642190246021,
+          373.5808734471746,
+          375.02237100400663
+        ],
+        "boundary_potential_integrals_v_m": [
+          6.176277779335e-9,
+          0.0,
+          3.003474466895e-7
+        ],
+        "joule_power_w": 0.2919618282856,
+        "boundary_temperature_flux_w": [
+          -0.08660872905852,
+          -0.09396208738941,
+          -0.1113910118345
+        ],
+        "heat_flows_out_w": [
+          0.129843804920421,
+          0.14301611413022247,
+          0.019101909228764632
+        ],
+        "voltage_drop_v": 0.01946412188570394,
+        "resistance_ohm": 0.001297608125713778,
+        "energy_balance_residual_w": -6.191935852939423e-12,
+        "flux_residuals_w": [
+          0.04323507586190099,
+          0.04905402674081247,
+          -0.09228910260573536
+        ],
+        "electrical_residual_w": -4.091171845743702e-14,
+        "converged_iterations": 8,
+        "terminal_relative_change": 6.764270772720105e-11,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 22258,
+      "areas_m2": [
+        3.173160246120291e-7,
+        1.5749999999999987e-7,
+        0.00015436542125989882
+      ]
+    },
+    {
+      "net": "minus",
+      "scenario": {
+        "name": "weak-contact-medium",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.2,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.005,
+          "board_conductance_w_k": 0.00175,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 415.2755032564,
+        "min_temperature_k": 401.289619814,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001282303485727,
+          0.00006497068230783,
+          0.06308911067253
+        ],
+        "boundary_areas_m2": [
+          3.159025316132e-7,
+          1.575e-7,
+          0.0001543764520531
+        ],
+        "boundary_mean_temperature_k": [
+          405.9174452255067,
+          412.5122686211428,
+          408.67055715744516
+        ],
+        "boundary_potential_integrals_v_m": [
+          6.785869559463e-9,
+          0.0,
+          3.325425866863e-7
+        ],
+        "joule_power_w": 0.3222134462151,
+        "boundary_temperature_flux_w": [
+          -0.09448856629517,
+          -0.04931728791146,
+          -0.178407591804
+        ],
+        "heat_flows_out_w": [
+          0.18883722612753362,
+          0.103883970087,
+          0.029492249424203476
+        ],
+        "voltage_drop_v": 0.0214808964170373,
+        "resistance_ohm": 0.001432059760956,
+        "energy_balance_residual_w": -5.763629018495919e-10,
+        "flux_residuals_w": [
+          0.09434865983236362,
+          0.05456668217554,
+          -0.14891534237979653
+        ],
+        "electrical_residual_w": 4.045946910835596e-11,
+        "converged_iterations": 11,
+        "terminal_relative_change": 4.6384034405985186e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 10436,
+      "areas_m2": [
+        3.1590253161315025e-7,
+        1.5749999999999976e-7,
+        0.0001543764520531421
+      ]
+    },
+    {
+      "net": "minus",
+      "scenario": {
+        "name": "weak-contact-fine",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.15,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.005,
+          "board_conductance_w_k": 0.00175,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 415.3339864688,
+        "min_temperature_k": 401.258606571,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001288182132589,
+          0.00006497902347558,
+          0.06308415718806
+        ],
+        "boundary_areas_m2": [
+          3.17316024612e-7,
+          1.575e-7,
+          0.0001543654212599
+        ],
+        "boundary_mean_temperature_k": [
+          405.96189056765485,
+          412.565228416381,
+          408.66767099250336
+        ],
+        "boundary_potential_integrals_v_m": [
+          6.82283086971e-9,
+          0.0,
+          3.325771598393e-7
+        ],
+        "joule_power_w": 0.322525353615,
+        "boundary_temperature_flux_w": [
+          -0.1261065339998,
+          -0.06833145239297,
+          -0.1280873672158
+        ],
+        "heat_flows_out_w": [
+          0.18905945283827416,
+          0.10397664972866674,
+          0.029489251041044634
+        ],
+        "voltage_drop_v": 0.021501690240991314,
+        "resistance_ohm": 0.0014334460160666668,
+        "energy_balance_residual_w": -7.0145000918842015e-12,
+        "flux_residuals_w": [
+          0.06295291883847415,
+          0.03564519733569674,
+          -0.09859811617475536
+        ],
+        "electrical_residual_w": -1.3028467193976212e-13,
+        "converged_iterations": 11,
+        "terminal_relative_change": 5.049252515728086e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 22258,
+      "areas_m2": [
+        3.173160246120291e-7,
+        1.5749999999999987e-7,
+        0.00015436542125989882
+      ]
+    },
+    {
+      "net": "ac1",
+      "scenario": {
+        "name": "design-coarse",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.4,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 380.9343525213,
+        "min_temperature_k": 371.9317609388,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001177172252436,
+          0.00005901758269394,
+          0.06053226103332
+        ],
+        "boundary_areas_m2": [
+          3.135992464824e-7,
+          1.575e-7,
+          0.0001608498682789
+        ],
+        "boundary_mean_temperature_k": [
+          375.3747069357407,
+          374.7148107551746,
+          376.3277003644306
+        ],
+        "boundary_potential_integrals_v_m": [
+          6.601725411939e-9,
+          0.0,
+          3.034174530115e-7
+        ],
+        "joule_power_w": 0.3157720635172,
+        "boundary_temperature_flux_w": [
+          -0.0723481208014,
+          -0.06833696978535,
+          -0.1750869729563
+        ],
+        "heat_flows_out_w": [
+          0.14449413871481354,
+          0.15095367528622244,
+          0.020324249563564947
+        ],
+        "voltage_drop_v": 0.021051470901125094,
+        "resistance_ohm": 0.0014034313934097778,
+        "energy_balance_residual_w": 4.740091652521983e-11,
+        "flux_residuals_w": [
+          0.07214601791341353,
+          0.08261670550087244,
+          -0.15476272339273506
+        ],
+        "electrical_residual_w": -3.2357450052700187e-13,
+        "converged_iterations": 8,
+        "terminal_relative_change": 1.329907595024064e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 2080,
+      "areas_m2": [
+        3.135992464824151e-7,
+        1.5749999999999982e-7,
+        0.000160849868278883
+      ]
+    },
+    {
+      "net": "ac1",
+      "scenario": {
+        "name": "design-medium",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.2,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 380.9973465965,
+        "min_temperature_k": 371.8311165403,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001185949429812,
+          0.00005902361660202,
+          0.06049448278222
+        ],
+        "boundary_areas_m2": [
+          3.159025316132e-7,
+          1.575e-7,
+          0.0001607727361538
+        ],
+        "boundary_mean_temperature_k": [
+          375.41624745955187,
+          374.75312128266665,
+          376.2732676537219
+        ],
+        "boundary_potential_integrals_v_m": [
+          6.672783882631e-9,
+          0.0,
+          3.034732790134e-7
+        ],
+        "joule_power_w": 0.3168437990494,
+        "boundary_temperature_flux_w": [
+          -0.07270801839275,
+          -0.07175780518414,
+          -0.1723779754424
+        ],
+        "heat_flows_out_w": [
+          0.14532494919103778,
+          0.15122184897866678,
+          0.02029700091131506
+        ],
+        "voltage_drop_v": 0.021122919935321522,
+        "resistance_ohm": 0.0014081946624417778,
+        "energy_balance_residual_w": 3.161954031938308e-11,
+        "flux_residuals_w": [
+          0.07261693079828778,
+          0.07946404379452678,
+          -0.15208097453108493
+        ],
+        "electrical_residual_w": -1.957717321587893e-11,
+        "converged_iterations": 8,
+        "terminal_relative_change": 1.428044853194088e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 10828,
+      "areas_m2": [
+        3.1590253161315025e-7,
+        1.5749999999999976e-7,
+        0.00016077273615380724
+      ]
+    },
+    {
+      "net": "ac1",
+      "scenario": {
+        "name": "design-fine",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.15,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 381.0090050018,
+        "min_temperature_k": 371.8002696513,
+        "boundary_temperature_integrals_k_m2": [
+          0.000119128164671,
+          0.00005902476628493,
+          0.06048673135427
+        ],
+        "boundary_areas_m2": [
+          3.17316024612e-7,
+          1.575e-7,
+          0.000160762275649
+        ],
+        "boundary_mean_temperature_k": [
+          375.4243575207544,
+          374.76042085669843,
+          376.24953435178776
+        ],
+        "boundary_potential_integrals_v_m": [
+          6.706963817589e-9,
+          0.0,
+          3.035302009674e-7
+        ],
+        "joule_power_w": 0.3170481458883,
+        "boundary_temperature_flux_w": [
+          -0.09703594647169,
+          -0.09938600507809,
+          -0.1206261943357
+        ],
+        "heat_flows_out_w": [
+          0.14548715041508828,
+          0.15127294599688915,
+          0.0202880494695713
+        ],
+        "voltage_drop_v": 0.021136543059210384,
+        "resistance_ohm": 0.0014091028706146667,
+        "energy_balance_residual_w": -6.751266212745577e-12,
+        "flux_residuals_w": [
+          0.048451203943398274,
+          0.05188694091879914,
+          -0.1003381448661287
+        ],
+        "electrical_residual_w": -1.4421797089880783e-13,
+        "converged_iterations": 8,
+        "terminal_relative_change": 1.378556393353293e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 23458,
+      "areas_m2": [
+        3.173160246120292e-7,
+        1.5749999999999984e-7,
+        0.00016076227564901528
+      ]
+    },
+    {
+      "net": "ac1",
+      "scenario": {
+        "name": "weak-contact-medium",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.2,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.005,
+          "board_conductance_w_k": 0.00175,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 420.8743421346,
+        "min_temperature_k": 404.1460020124,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001294470790118,
+          0.00006578020015082,
+          0.0664523796238
+        ],
+        "boundary_areas_m2": [
+          3.159025316132e-7,
+          1.575e-7,
+          0.0001607727361538
+        ],
+        "boundary_mean_temperature_k": [
+          409.76904601163073,
+          417.6520644496508,
+          413.3311481383863
+        ],
+        "boundary_potential_integrals_v_m": [
+          7.438170186691e-9,
+          0.0,
+          3.392905366673e-7
+        ],
+        "joule_power_w": 0.3531866371319,
+        "boundary_temperature_flux_w": [
+          -0.1041188719927,
+          -0.05358601490773,
+          -0.195481750304
+        ],
+        "heat_flows_out_w": [
+          0.20809523005815384,
+          0.11287861278688893,
+          0.03221279459447507
+        ],
+        "voltage_drop_v": 0.023545775808465206,
+        "resistance_ohm": 0.001569718387252889,
+        "energy_balance_residual_w": 3.076178201055768e-10,
+        "flux_residuals_w": [
+          0.10397635806545384,
+          0.059292597879158936,
+          -0.16326895570952493
+        ],
+        "electrical_residual_w": -4.9219517350707065e-12,
+        "converged_iterations": 11,
+        "terminal_relative_change": 1.1869721543354785e-9,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 10828,
+      "areas_m2": [
+        3.1590253161315025e-7,
+        1.5749999999999976e-7,
+        0.00016077273615380724
+      ]
+    },
+    {
+      "net": "ac1",
+      "scenario": {
+        "name": "weak-contact-fine",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.15,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.005,
+          "board_conductance_w_k": 0.00175,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 420.923039397,
+        "min_temperature_k": 404.1231569494,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001300381095565,
+          0.00006578718798129,
+          0.06644648619545
+        ],
+        "boundary_areas_m2": [
+          3.17316024612e-7,
+          1.575e-7,
+          0.000160762275649
+        ],
+        "boundary_mean_temperature_k": [
+          409.8063112807015,
+          417.6964316272381,
+          413.32138355969664
+        ],
+        "boundary_potential_integrals_v_m": [
+          7.476925334299e-9,
+          0.0,
+          3.393854072375e-7
+        ],
+        "joule_power_w": 0.3534453709095,
+        "boundary_temperature_flux_w": [
+          -0.1389218567252,
+          -0.07423148514992,
+          -0.1402920290303
+        ],
+        "heat_flows_out_w": [
+          0.2082815564035075,
+          0.11295625534766668,
+          0.03220755915193131
+        ],
+        "voltage_drop_v": 0.023563024727293408,
+        "resistance_ohm": 0.0015708683151533333,
+        "energy_balance_residual_w": -6.394551554933514e-12,
+        "flux_residuals_w": [
+          0.06935969967830752,
+          0.03872477019774667,
+          -0.10808446987836869
+        ],
+        "electrical_residual_w": -9.892087149410145e-14,
+        "converged_iterations": 11,
+        "terminal_relative_change": 1.202604933719033e-9,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 23458,
+      "areas_m2": [
+        3.173160246120292e-7,
+        1.5749999999999984e-7,
+        0.00016076227564901528
+      ]
+    },
+    {
+      "net": "ac2",
+      "scenario": {
+        "name": "design-coarse",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.4,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 373.5705255346,
+        "min_temperature_k": 368.7076847088,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001166605239361,
+          0.00005824325590544,
+          0.04516715306282
+        ],
+        "boundary_areas_m2": [
+          3.135992464824e-7,
+          1.575e-7,
+          0.0001218318682789
+        ],
+        "boundary_mean_temperature_k": [
+          372.0051155883351,
+          369.79845019326984,
+          370.7334846037363
+        ],
+        "boundary_potential_integrals_v_m": [
+          4.341728676753e-9,
+          0.0,
+          1.464624930826e-7
+        ],
+        "joule_power_w": 0.2076724701408,
+        "boundary_temperature_flux_w": [
+          -0.03864656285326,
+          -0.05276507876448,
+          -0.1162608285218
+        ],
+        "heat_flows_out_w": [
+          0.07710231176670229,
+          0.11653915135288893,
+          0.014031007022564934
+        ],
+        "voltage_drop_v": 0.013844831342720298,
+        "resistance_ohm": 0.0009229887561813334,
+        "energy_balance_residual_w": 1.3561651801552443e-12,
+        "flux_residuals_w": [
+          0.03845574891344229,
+          0.06377407258840893,
+          -0.10222982149923507
+        ],
+        "electrical_residual_w": 4.468647674116255e-15,
+        "converged_iterations": 7,
+        "terminal_relative_change": 1.1102238942983325e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 1553,
+      "areas_m2": [
+        3.135992464824151e-7,
+        1.574999999999998e-7,
+        0.00012183186827888302
+      ]
+    },
+    {
+      "net": "ac2",
+      "scenario": {
+        "name": "design-medium",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.2,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 373.6209554736,
+        "min_temperature_k": 368.6018450401,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001175305113211,
+          0.00005824849466893,
+          0.04513077704327
+        ],
+        "boundary_areas_m2": [
+          3.159025316132e-7,
+          1.575e-7,
+          0.0001217547361538
+        ],
+        "boundary_mean_temperature_k": [
+          372.0467535379162,
+          369.83171218368255,
+          370.66958106878917
+        ],
+        "boundary_potential_integrals_v_m": [
+          4.39554403961e-9,
+          0.0,
+          1.466411970166e-7
+        ],
+        "joule_power_w": 0.208713618905,
+        "boundary_temperature_flux_w": [
+          -0.03901090922732,
+          -0.05541420519184,
+          -0.1142885044457
+        ],
+        "heat_flows_out_w": [
+          0.0779350707583242,
+          0.1167719852857779,
+          0.014006562833415073
+        ],
+        "voltage_drop_v": 0.013914241260313888,
+        "resistance_ohm": 0.0009276160840222223,
+        "energy_balance_residual_w": -2.7482849329629744e-11,
+        "flux_residuals_w": [
+          0.038924161531004205,
+          0.06135778009393789,
+          -0.10028194161228493
+        ],
+        "electrical_residual_w": -2.9168334414464425e-13,
+        "converged_iterations": 7,
+        "terminal_relative_change": 1.1519102482441009e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 7959,
+      "areas_m2": [
+        3.1590253161315025e-7,
+        1.5749999999999976e-7,
+        0.00012175473615380775
+      ]
+    },
+    {
+      "net": "ac2",
+      "scenario": {
+        "name": "design-fine",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.15,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 373.6297146522,
+        "min_temperature_k": 368.5632306353,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001180588545815,
+          0.00005824942308622,
+          0.04512378057558
+        ],
+        "boundary_areas_m2": [
+          3.17316024612e-7,
+          1.575e-7,
+          0.000121744275649
+        ],
+        "boundary_mean_temperature_k": [
+          372.05449906243194,
+          369.8376068966349,
+          370.64396116394033
+        ],
+        "boundary_potential_integrals_v_m": [
+          4.419204233492e-9,
+          0.0,
+          1.46702535737e-7
+        ],
+        "joule_power_w": 0.2089023508455,
+        "boundary_temperature_flux_w": [
+          -0.05210066212201,
+          -0.07674922035011,
+          -0.08005246836903
+        ],
+        "heat_flows_out_w": [
+          0.07808998124863932,
+          0.11681324827644458,
+          0.013999121312191318
+        ],
+        "voltage_drop_v": 0.013926823389696776,
+        "resistance_ohm": 0.0009284548926466667,
+        "energy_balance_residual_w": -8.2247819666037e-12,
+        "flux_residuals_w": [
+          0.025989319126629322,
+          0.04006402792633458,
+          -0.06605334705683868
+        ],
+        "electrical_residual_w": -4.835021272242557e-14,
+        "converged_iterations": 7,
+        "terminal_relative_change": 1.154407107900719e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 17204,
+      "areas_m2": [
+        3.173160246120292e-7,
+        1.5749999999999987e-7,
+        0.00012174427564901619
+      ]
+    },
+    {
+      "net": "ac2",
+      "scenario": {
+        "name": "weak-contact-medium",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.2,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.005,
+          "board_conductance_w_k": 0.00175,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 398.2049545628,
+        "min_temperature_k": 389.0680921389,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001243996454676,
+          0.00006247362226589,
+          0.04792853503979
+        ],
+        "boundary_areas_m2": [
+          3.159025316132e-7,
+          1.575e-7,
+          0.0001217547361538
+        ],
+        "boundary_mean_temperature_k": [
+          393.7912267823116,
+          396.657919148508,
+          393.64821898383406
+        ],
+        "boundary_potential_integrals_v_m": [
+          4.716363117599e-9,
+          0.0,
+          1.576082762158e-7
+        ],
+        "joule_power_w": 0.2239470712769,
+        "boundary_temperature_flux_w": [
+          -0.06416248865418,
+          -0.03614990895762,
+          -0.1236346736135
+        ],
+        "heat_flows_out_w": [
+          0.12820613391155802,
+          0.07613885850988895,
+          0.019602078826455066
+        ],
+        "voltage_drop_v": 0.014929804751846206,
+        "resistance_ohm": 0.0009953203167862223,
+        "energy_balance_residual_w": -2.899794293576008e-11,
+        "flux_residuals_w": [
+          0.06404364525737802,
+          0.039988949552268956,
+          -0.10403259478704494
+        ],
+        "electrical_residual_w": 7.930878176409806e-13,
+        "converged_iterations": 10,
+        "terminal_relative_change": 1.472068014927323e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 7959,
+      "areas_m2": [
+        3.1590253161315025e-7,
+        1.5749999999999976e-7,
+        0.00012175473615380775
+      ]
+    },
+    {
+      "net": "ac2",
+      "scenario": {
+        "name": "weak-contact-fine",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.15,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.005,
+          "board_conductance_w_k": 0.00175,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 398.2429840958,
+        "min_temperature_k": 389.0414096002,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001249665276577,
+          0.00006247917468107,
+          0.04792302988316
+        ],
+        "boundary_areas_m2": [
+          3.17316024612e-7,
+          1.575e-7,
+          0.000121744275649
+        ],
+        "boundary_mean_temperature_k": [
+          393.82356378157556,
+          396.69317257822223,
+          393.63682298563697
+        ],
+        "boundary_potential_integrals_v_m": [
+          4.742097404754e-9,
+          0.0,
+          1.576862084689e-7
+        ],
+        "joule_power_w": 0.2241659908551,
+        "boundary_temperature_flux_w": [
+          -0.08563397648498,
+          -0.05008107701137,
+          -0.08845093735345
+        ],
+        "heat_flows_out_w": [
+          0.12836781890787785,
+          0.076200552011889,
+          0.019597619927351317
+        ],
+        "voltage_drop_v": 0.014944399390331537,
+        "resistance_ohm": 0.0009962932926893334,
+        "energy_balance_residual_w": -7.9818374132401e-12,
+        "flux_residuals_w": [
+          0.04273384242289785,
+          0.026119475000518998,
+          -0.06885331742609868
+        ],
+        "electrical_residual_w": -1.2695400286588665e-13,
+        "converged_iterations": 10,
+        "terminal_relative_change": 1.4982782729607274e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 17204,
+      "areas_m2": [
+        3.173160246120292e-7,
+        1.5749999999999987e-7,
+        0.00012174427564901619
+      ]
+    },
+    {
+      "net": "plus",
+      "scenario": {
+        "name": "design-coarse",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.4,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 375.8032188616,
+        "min_temperature_k": 369.8017560049,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001170184673646,
+          0.00005848422878961,
+          0.05022116330047
+        ],
+        "boundary_areas_m2": [
+          3.135992464824e-7,
+          1.575e-7,
+          0.0001348378682789
+        ],
+        "boundary_mean_temperature_k": [
+          373.1465195697381,
+          371.32843675942854,
+          372.4559275632573
+        ],
+        "boundary_potential_integrals_v_m": [
+          5.083920841183e-9,
+          0.0,
+          1.920267488513e-7
+        ],
+        "joule_power_w": 0.243172818408,
+        "boundary_temperature_flux_w": [
+          -0.0500630593521,
+          -0.05761100899136,
+          -0.1354987500656
+        ],
+        "heat_flows_out_w": [
+          0.09993039139476226,
+          0.127249057316,
+          0.015993369697864954
+        ],
+        "voltage_drop_v": 0.016211521227198874,
+        "resistance_ohm": 0.0010807680818133334,
+        "energy_balance_residual_w": 6.271927421863666e-13,
+        "flux_residuals_w": [
+          0.049867332042662256,
+          0.06963804832464,
+          -0.11950538036773505
+        ],
+        "electrical_residual_w": -1.6903145549918008e-14,
+        "converged_iterations": 8,
+        "terminal_relative_change": 1.3407725796253314e-11,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 1746,
+      "areas_m2": [
+        3.135992464824151e-7,
+        1.5749999999999982e-7,
+        0.00013483786827888307
+      ]
+    },
+    {
+      "net": "plus",
+      "scenario": {
+        "name": "design-medium",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.2,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 375.8571026598,
+        "min_temperature_k": 369.6962768278,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001178909643409,
+          0.00005848974694247,
+          0.05018433939792
+        ],
+        "boundary_areas_m2": [
+          3.159025316132e-7,
+          1.575e-7,
+          0.0001347607361538
+        ],
+        "boundary_mean_temperature_k": [
+          373.18777959414723,
+          371.36347265060317,
+          372.39585379413126
+        ],
+        "boundary_potential_integrals_v_m": [
+          5.143270827393e-9,
+          0.0,
+          1.921623447029e-7
+        ],
+        "joule_power_w": 0.2442179301854,
+        "boundary_temperature_flux_w": [
+          -0.050422335536,
+          -0.06050112052824,
+          -0.1332944741206
+        ],
+        "heat_flows_out_w": [
+          0.10075559188294478,
+          0.12749430855422245,
+          0.015968029742715065
+        ],
+        "voltage_drop_v": 0.01628119534569152,
+        "resistance_ohm": 0.0010854130230462222,
+        "energy_balance_residual_w": -5.5176974100845655e-12,
+        "flux_residuals_w": [
+          0.05033325634694478,
+          0.06699318802598245,
+          -0.11732644437788493
+        ],
+        "electrical_residual_w": -2.7228219678931964e-14,
+        "converged_iterations": 8,
+        "terminal_relative_change": 1.3886067595209236e-11,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 8907,
+      "areas_m2": [
+        3.1590253161315025e-7,
+        1.5749999999999976e-7,
+        0.00013476073615380712
+      ]
+    },
+    {
+      "net": "plus",
+      "scenario": {
+        "name": "design-fine",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.15,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.02,
+          "board_conductance_w_k": 0.007,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 375.8669929884,
+        "min_temperature_k": 369.6589353463,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001184208625015,
+          0.00005849072951879,
+          0.05017690010018
+        ],
+        "boundary_areas_m2": [
+          3.17316024612e-7,
+          1.575e-7,
+          0.000134750275649
+        ],
+        "boundary_mean_temperature_k": [
+          373.1953425494341,
+          371.3697112304127,
+          372.3695544110181
+        ],
+        "boundary_potential_integrals_v_m": [
+          5.170231636257e-9,
+          0.0,
+          1.922184032985e-7
+        ],
+        "joule_power_w": 0.2444045321653,
+        "boundary_temperature_flux_w": [
+          -0.06731332960993,
+          -0.08379445575165,
+          -0.0932967468031
+        ],
+        "heat_flows_out_w": [
+          0.1009068509886817,
+          0.12753797861288899,
+          0.0159597025613913
+        ],
+        "voltage_drop_v": 0.016293635477687994,
+        "resistance_ohm": 0.0010862423651791112,
+        "energy_balance_residual_w": -2.338018667558117e-12,
+        "flux_residuals_w": [
+          0.0335935213787517,
+          0.04374352286123899,
+          -0.0773370442417087
+        ],
+        "electrical_residual_w": 1.990074771640593e-14,
+        "converged_iterations": 8,
+        "terminal_relative_change": 1.3914369168857728e-11,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 19220,
+      "areas_m2": [
+        3.173160246120292e-7,
+        1.5749999999999987e-7,
+        0.00013475027564901495
+      ]
+    },
+    {
+      "net": "plus",
+      "scenario": {
+        "name": "weak-contact-medium",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.2,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.005,
+          "board_conductance_w_k": 0.00175,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 405.2930617739,
+        "min_temperature_k": 393.984175819,
+        "boundary_temperature_integrals_k_m2": [
+          0.00012604433412,
+          0.00006351584607544,
+          0.05388422700446
+        ],
+        "boundary_areas_m2": [
+          3.159025316132e-7,
+          1.575e-7,
+          0.0001347607361538
+        ],
+        "boundary_mean_temperature_k": [
+          398.99754356616626,
+          403.27521317739684,
+          399.8510882499403
+        ],
+        "boundary_potential_integrals_v_m": [
+          5.587781821498e-9,
+          0.0,
+          2.092060955113e-7
+        ],
+        "joule_power_w": 0.2653246458472,
+        "boundary_temperature_flux_w": [
+          -0.07718237165174,
+          -0.04164573819026,
+          -0.1464965360051
+        ],
+        "heat_flows_out_w": [
+          0.1542377178308316,
+          0.08771912306044453,
+          0.023367804955795074
+        ],
+        "voltage_drop_v": 0.017688309723139027,
+        "resistance_ohm": 0.0011792206482097779,
+        "energy_balance_residual_w": -1.2884138200774942e-13,
+        "flux_residuals_w": [
+          0.0770553461790916,
+          0.04607338487018454,
+          -0.12312873104930491
+        ],
+        "electrical_residual_w": -1.1457501614131615e-13,
+        "converged_iterations": 10,
+        "terminal_relative_change": 6.658398361186294e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 8907,
+      "areas_m2": [
+        3.1590253161315025e-7,
+        1.5749999999999976e-7,
+        0.00013476073615380712
+      ]
+    },
+    {
+      "net": "plus",
+      "scenario": {
+        "name": "weak-contact-fine",
+        "thickness_um": 63.0,
+        "mesh_mm": 0.15,
+        "params": {
+          "current_a": 15.0,
+          "ambient_k": 313.15,
+          "terminal_k": 368.15,
+          "board_k": 353.15,
+          "convection_w_m2k": 2.0,
+          "terminal_conductance_w_k": 0.005,
+          "board_conductance_w_k": 0.00175,
+          "conductivity_s_m": 55000000.0,
+          "alpha_per_k": 0.00393,
+          "copper_k_w_mk": 350.0,
+          "fr4_k_w_mk": 0.25
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 405.3332128239,
+        "min_temperature_k": 393.956398957,
+        "boundary_temperature_integrals_k_m2": [
+          0.0001266186941414,
+          0.0000635216806796,
+          0.05387814493655
+        ],
+        "boundary_areas_m2": [
+          3.17316024612e-7,
+          1.575e-7,
+          0.000134750275649
+        ],
+        "boundary_mean_temperature_k": [
+          399.03025476328764,
+          403.3122582831746,
+          399.8369923701884
+        ],
+        "boundary_potential_integrals_v_m": [
+          5.617496736093e-9,
+          0.0,
+          2.092836402159e-7
+        ],
+        "joule_power_w": 0.2655474180494,
+        "boundary_temperature_flux_w": [
+          -0.1029935798664,
+          -0.0576919998799,
+          -0.1048618383016
+        ],
+        "heat_flows_out_w": [
+          0.1544012738164382,
+          0.08778395199555555,
+          0.0233621922341313
+        ],
+        "voltage_drop_v": 0.017703161203288822,
+        "resistance_ohm": 0.0011802107468862223,
+        "energy_balance_residual_w": -3.274991389190518e-12,
+        "flux_residuals_w": [
+          0.051407693950038205,
+          0.030091952115655553,
+          -0.08149964606746869
+        ],
+        "electrical_residual_w": -6.766809335090329e-14,
+        "converged_iterations": 10,
+        "terminal_relative_change": 6.700703394557005e-10,
+        "assumptions": [
+          "Boundary 11 current is uniform over its independently supplied area.",
+          "Boundary 11/12 conductances are lumped W/K values converted to Robin h by area.",
+          "RES fluxes are inward-positive nodal reactions; shared corner nodes make individual BC totals order-dependent. Only their sum is validated. Robin integrals give outward-positive per-face heat."
+        ]
+      },
+      "nodes": 19220,
+      "areas_m2": [
+        3.173160246120292e-7,
+        1.5749999999999987e-7,
+        0.00013475027564901495
+      ]
+    }
+  ],
+  "artifacts": {
+    "ac1--design-coarse/case.sif": "737576c93cc7fd6128a98926cb9ef44abd5c69ac84a5247a84a7cac3ce423c9e",
+    "ac1--design-coarse/gmsh.command.json": "f4041a5e3682d0864c76db8d5ae50a8e47f0a23bb7ac0b5e79bd51e3e1e6d792",
+    "ac1--design-coarse/gmsh.log": "9394240a4443b876fe067ddffb54d4a61e8f6cfe236db9f6abbe9dedbe441935",
+    "ac1--design-coarse/gmsh.stderr": "82302e77b76b215540e6467ccee0812b741f68ad5753a85667f08cdd7ce9df5d",
+    "ac1--design-coarse/gmsh.stdout": "8ff4749765543f8752834f845d85e22a22f96a238910124887bfe4b01d320911",
+    "ac1--design-coarse/grid.command.json": "fdee1bfe402f72d0e3ffb2fd5503eaea146eae2339bed8b0d0eb707e426f6cb8",
+    "ac1--design-coarse/grid.log": "66053cb1e78ade02c970d92ac7eeb0c420edd8445cf560ab2766ddecdc85f3ac",
+    "ac1--design-coarse/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--design-coarse/grid.stdout": "84cfb1cc0eadd97d920b478f410cda4ed78af9ab35769d0381b505ed47627220",
+    "ac1--design-coarse/neck.geo": "26bf15b8b45ba6cd043ae49c30e09ad89e792837684d628cff43f3a7db913fc3",
+    "ac1--design-coarse/neck.msh": "16e61e6531db881a5f1ca1034cf3c47751d35d9d57e3b3ea17b24c0a481d7acf",
+    "ac1--design-coarse/neck/mesh.boundary": "2d687ced3a76687c591964c51d07655dfd31c0486a97c55cffb96d92f7d00a67",
+    "ac1--design-coarse/neck/mesh.elements": "ea2a5bfc7c25bfb45c63245a01d7a1a1f8445e1085492b3d29fe8ad4980da124",
+    "ac1--design-coarse/neck/mesh.header": "708d172bff3255e7bf3da80d574e11ead007b7a00a0bb61ec1634125009c671c",
+    "ac1--design-coarse/neck/mesh.nodes": "e548f7be9a4fa94fbbeac58ee8b6eb256de6aa848cfbe6c5b25289a84ed5d982",
+    "ac1--design-coarse/neck/neck_t0008.vtu": "50be6e4a68e640df885466d54fcc85fbdb0840fd769f38ab2ef0440369ef75b3",
+    "ac1--design-coarse/scalars.dat": "89c41ee477d56592bb3cc5c84b15ca993952dc3cd7deb528ce4cf72b230f5d74",
+    "ac1--design-coarse/scalars.dat.names": "8a4ed102eb5850e662e5d3e22700b229aed1d6570656add94aed5004ac36b4b1",
+    "ac1--design-coarse/solver.command.json": "68bb05ece2ed22fe0e9aaef8a37bc8be6e3cd2134de4603d3c20df0c7e8f1abe",
+    "ac1--design-coarse/solver.log": "2347aaf2fa30a977221024093c4488313270079d4cff6e036b657723551bf2e4",
+    "ac1--design-coarse/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--design-coarse/solver.stdout": "b9630ffcdfc2255718f6d5d93f03ac0803d2a7521c28558ed7a5327fdbc36efa",
+    "ac1--design-fine/case.sif": "6fa641dfdda84773e883dbc27016870da709f28afaf6c034e12da82652800eea",
+    "ac1--design-fine/gmsh.command.json": "3033c98f233fd54030b3eaff1b92785563bc828496acd2c5d976d82720dd6c2e",
+    "ac1--design-fine/gmsh.log": "204e0dc0c3d269ca14591602048a0be01e42e8c347992480285256cc2350b504",
+    "ac1--design-fine/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--design-fine/gmsh.stdout": "30f050805e996995460679e74a6b4b66e407b63dc04febe35aba9ecf65c8f7b5",
+    "ac1--design-fine/grid.command.json": "0f958b0a1469b79156fdfa705a35a6a0a674e79279014ee35c20481619ab5f80",
+    "ac1--design-fine/grid.log": "40aeae2512fe352b1c2d12fc713c0891a5d81064372ff197d5ca3603358f6fa4",
+    "ac1--design-fine/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--design-fine/grid.stdout": "41c82ff3003deaed18502b24c731dbc6aa593aa219dd17bb27ab058f9b3baf4a",
+    "ac1--design-fine/neck.geo": "d4d68d94d021b6f314d2e3d1200ad3110f0dba0f80e5a2656fa81b56e18d15ed",
+    "ac1--design-fine/neck.msh": "8180a5e18bf1da643adc98951361c38f3faa81a447cc8aac4a4af4673d3f1103",
+    "ac1--design-fine/neck/mesh.boundary": "910d2cbc5f8a0caea4b6b8e5069de7fa55c212adcf6fb651df3a73cb3a6a0fea",
+    "ac1--design-fine/neck/mesh.elements": "162ccb47f4c7cd9be57969f1d403516d00af99c0b1ba02f4f3f16e147cd9880d",
+    "ac1--design-fine/neck/mesh.header": "c66a0095e02df7fa9443170407ed889d090243e34c2cea98ea7a3ae2074c679d",
+    "ac1--design-fine/neck/mesh.nodes": "ac8a4f6bd0b23b63533a96816a1b1c3afc0fe3faca621991691fd12abf98734e",
+    "ac1--design-fine/neck/neck_t0008.vtu": "688a4d0967273b12a9cea954ccf762bd3111f599ac3867316545a30c531948c5",
+    "ac1--design-fine/scalars.dat": "1e1225ffcdd95597a67ddf965facd578788797fd2cbcb213acbfc845a296858c",
+    "ac1--design-fine/scalars.dat.names": "bdf2c11673126ddec3431ac32f70dfc83f4aaf06e366e4c62986dd1ac648dc22",
+    "ac1--design-fine/solver.command.json": "9ac76427d89d5b8be5fbf45f2f0d1df9f5f37b5c38226301005242c5f0e63fb7",
+    "ac1--design-fine/solver.log": "eae42c1b916c31da74b1ebd6ca0f1d558e3471777763ea71047429121de11e5a",
+    "ac1--design-fine/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--design-fine/solver.stdout": "7170d54dc71c468f32d05b42e88e37e63ab9bae4b23b45f73a5890e0dbf25103",
+    "ac1--design-medium/case.sif": "d8bae229b223b69eb3ded625e2aaf04c3dddfa4f412483085be435fb63f9ede1",
+    "ac1--design-medium/gmsh.command.json": "f6c038d53fa0da5132f31b91f7dfe4729f33e5e998018b0eac7c9c7e698102c3",
+    "ac1--design-medium/gmsh.log": "ba9bc1d471c8f165fe8fe576860e758fbdfc5ff760bc9a478f4fb2fcbb27f3f2",
+    "ac1--design-medium/gmsh.stderr": "d84d3f965384d66abe7a68087faa350e208199a2356246c0e68f47b1a0e50e9e",
+    "ac1--design-medium/gmsh.stdout": "31fbebc9d357d1371bc16c2a71bd218622e71215a24e294e4beb3195a4f2633f",
+    "ac1--design-medium/grid.command.json": "9155753c365e207b3323f6ac44e86211f5196cf8ff01bac5abcde01ec0615374",
+    "ac1--design-medium/grid.log": "f0b5a1faa9b58f609f234dc0c5546ab3d0161eb6b1a8c6320c55bcf278763218",
+    "ac1--design-medium/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--design-medium/grid.stdout": "739f339c4e42a701945fb1cdd88f1f3294a085b92c0936eafc558ed1cb64ded6",
+    "ac1--design-medium/neck.geo": "548b7fdfd7c29d225ec1fa11ce1262adecc38dfcc74c66415515e38d0bdbc11d",
+    "ac1--design-medium/neck.msh": "4b9dd3b34b4dd7b04545c4a3a95b06d2b6f22a30b60bc2d37b54d2c923de9bdd",
+    "ac1--design-medium/neck/mesh.boundary": "ae8d407adb70fc1792197d9ba6b0214b2ebe0cbae1c387fe9e021cfe47aebff8",
+    "ac1--design-medium/neck/mesh.elements": "cc91f42c7233c9b9d37fac96d014c1b3bd2c2cf7c277364272fba3050326f703",
+    "ac1--design-medium/neck/mesh.header": "0c6def68075967705b846e490dcdc34e4c0cb2101cfd78ac9eab2cbecbc2a274",
+    "ac1--design-medium/neck/mesh.nodes": "a955eecea5446dfc2314fea1e7e0f73b48c17074fec15d180024cda03368c12f",
+    "ac1--design-medium/neck/neck_t0008.vtu": "c2fecf8f57d64c5d8e06b39a7e97e7d4cfc513362e9dcc053c936c48362a87f9",
+    "ac1--design-medium/scalars.dat": "08efedd067338d61202a1a8de5f393c89284afa7d89f2a6c246164e561d19582",
+    "ac1--design-medium/scalars.dat.names": "30bd8691ec524e6017a4e48755ac634f9e20d42982b7c8e2bfca213db554fcb8",
+    "ac1--design-medium/solver.command.json": "e711d9e3628188b9a6db38380a6c3a9333b5652da509607e96e1e9352d4c73ac",
+    "ac1--design-medium/solver.log": "ba41a73160a8cc1348c42854e1f36885d15d29d989ce78b993bb69ddf92b8dd5",
+    "ac1--design-medium/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--design-medium/solver.stdout": "be4fea3c7742951cb787f8ec34c53092bcedd0dd21a1d68b509d51699561a40b",
+    "ac1--weak-contact-fine/case.sif": "b8b7c5c19e4c141f138b712a46a9045f679ab693aead6661352d8839310ebc30",
+    "ac1--weak-contact-fine/gmsh.command.json": "5f29574c61078bd4a6ebce1108421e4ccca4dcc1e4103c0b70306a9af10a7a3f",
+    "ac1--weak-contact-fine/gmsh.log": "f260fd85bf6ee7b74789bff479186b93e8c2dfe9324a0bfd7b4842effe81ea5f",
+    "ac1--weak-contact-fine/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--weak-contact-fine/gmsh.stdout": "67b206124c2aa9045515be04eeb5735ac84dab5f22c23328afbe9c88b726a504",
+    "ac1--weak-contact-fine/grid.command.json": "bf9cf5ae1a78d3336c9c82680936882d0be0266b9f2664c95b97a1d7b8f52e61",
+    "ac1--weak-contact-fine/grid.log": "40aeae2512fe352b1c2d12fc713c0891a5d81064372ff197d5ca3603358f6fa4",
+    "ac1--weak-contact-fine/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--weak-contact-fine/grid.stdout": "41c82ff3003deaed18502b24c731dbc6aa593aa219dd17bb27ab058f9b3baf4a",
+    "ac1--weak-contact-fine/neck.geo": "d4d68d94d021b6f314d2e3d1200ad3110f0dba0f80e5a2656fa81b56e18d15ed",
+    "ac1--weak-contact-fine/neck.msh": "8180a5e18bf1da643adc98951361c38f3faa81a447cc8aac4a4af4673d3f1103",
+    "ac1--weak-contact-fine/neck/mesh.boundary": "910d2cbc5f8a0caea4b6b8e5069de7fa55c212adcf6fb651df3a73cb3a6a0fea",
+    "ac1--weak-contact-fine/neck/mesh.elements": "162ccb47f4c7cd9be57969f1d403516d00af99c0b1ba02f4f3f16e147cd9880d",
+    "ac1--weak-contact-fine/neck/mesh.header": "c66a0095e02df7fa9443170407ed889d090243e34c2cea98ea7a3ae2074c679d",
+    "ac1--weak-contact-fine/neck/mesh.nodes": "ac8a4f6bd0b23b63533a96816a1b1c3afc0fe3faca621991691fd12abf98734e",
+    "ac1--weak-contact-fine/neck/neck_t0011.vtu": "80b400f695ebfff60649d3950be3a735160e964f4398607bc903cef58fc125c7",
+    "ac1--weak-contact-fine/scalars.dat": "22532a27b4ac95e40d51006ec1e087afd466d5f3a0e3742d658f56457b07cf4b",
+    "ac1--weak-contact-fine/scalars.dat.names": "b73f1c8bab9201746fc02b8ca00bb1a3af2913295b9c2a5dd9b0d641b3f12a7d",
+    "ac1--weak-contact-fine/solver.command.json": "c366b0b33b47964f078f6029ba4895e151a280c132598541c6fc207cb6662c04",
+    "ac1--weak-contact-fine/solver.log": "9073753901a0f1755f803142f3630788c50319f4e04457e0cfdbfeb89f967992",
+    "ac1--weak-contact-fine/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--weak-contact-fine/solver.stdout": "559395b9f3236f561665e9e69d89996f01faff28b7faef25f8dcd3903fa752a9",
+    "ac1--weak-contact-medium/case.sif": "9e2505590e164250d18c477cc33b776d2232f89c0c4ef4cc32634a43ef27bffb",
+    "ac1--weak-contact-medium/gmsh.command.json": "b13793d8f32279624875fd9daf5784e14dc9b47075280a0befa0378359e9de48",
+    "ac1--weak-contact-medium/gmsh.log": "df95d65d0de56399a0e566fc75034baf6362b9f2fb467be2906f1862c7678ce2",
+    "ac1--weak-contact-medium/gmsh.stderr": "d84d3f965384d66abe7a68087faa350e208199a2356246c0e68f47b1a0e50e9e",
+    "ac1--weak-contact-medium/gmsh.stdout": "bf8273024f101fe7cc598b477c8e1047e57712722e8cb4d25c5ea96461edff1e",
+    "ac1--weak-contact-medium/grid.command.json": "c6edf97653c27e4c859340c5cd3176875e5b52bb98bfae9da6983ce1c1c3ab53",
+    "ac1--weak-contact-medium/grid.log": "f0b5a1faa9b58f609f234dc0c5546ab3d0161eb6b1a8c6320c55bcf278763218",
+    "ac1--weak-contact-medium/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--weak-contact-medium/grid.stdout": "739f339c4e42a701945fb1cdd88f1f3294a085b92c0936eafc558ed1cb64ded6",
+    "ac1--weak-contact-medium/neck.geo": "548b7fdfd7c29d225ec1fa11ce1262adecc38dfcc74c66415515e38d0bdbc11d",
+    "ac1--weak-contact-medium/neck.msh": "4b9dd3b34b4dd7b04545c4a3a95b06d2b6f22a30b60bc2d37b54d2c923de9bdd",
+    "ac1--weak-contact-medium/neck/mesh.boundary": "ae8d407adb70fc1792197d9ba6b0214b2ebe0cbae1c387fe9e021cfe47aebff8",
+    "ac1--weak-contact-medium/neck/mesh.elements": "cc91f42c7233c9b9d37fac96d014c1b3bd2c2cf7c277364272fba3050326f703",
+    "ac1--weak-contact-medium/neck/mesh.header": "0c6def68075967705b846e490dcdc34e4c0cb2101cfd78ac9eab2cbecbc2a274",
+    "ac1--weak-contact-medium/neck/mesh.nodes": "a955eecea5446dfc2314fea1e7e0f73b48c17074fec15d180024cda03368c12f",
+    "ac1--weak-contact-medium/neck/neck_t0011.vtu": "60a2b879ba357f0e464541615b925e5024bfab801019dcb900190151fc769cca",
+    "ac1--weak-contact-medium/scalars.dat": "42f2dee4a60fab70a34d27ede2200257b84596a4cd8f9294b9ada008de2c80a6",
+    "ac1--weak-contact-medium/scalars.dat.names": "eb77603841e5002545deff844666125153dc9e1149661850a80a4deb42463dd2",
+    "ac1--weak-contact-medium/solver.command.json": "5a7c3c1e38f9204c8db8ad3fbfbbfe53cb9b94fb97e4dfc52dd9f4ac9f3b902c",
+    "ac1--weak-contact-medium/solver.log": "792de6f93612506e57f6d10b5c0f627e3bc37714590b7a5f27b669f0d3abe635",
+    "ac1--weak-contact-medium/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac1--weak-contact-medium/solver.stdout": "ff1346c9a3805a3575dd054789938679406241605a5765438ec1af75d390df5a",
+    "ac2--design-coarse/case.sif": "737576c93cc7fd6128a98926cb9ef44abd5c69ac84a5247a84a7cac3ce423c9e",
+    "ac2--design-coarse/gmsh.command.json": "271d70ca57ee59e1d3629f303eff2e811afd1fdc5b8cde7351e77aee071d2684",
+    "ac2--design-coarse/gmsh.log": "46a53dc09cf066f773b14d47f417e76373990f4bca6ed88f86e93548c76f0270",
+    "ac2--design-coarse/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--design-coarse/gmsh.stdout": "3907b0ae10a212eaf8c227cf351ba22284937a9d16bdc241f9af97ebb40cbcb7",
+    "ac2--design-coarse/grid.command.json": "dfcb482eaf6eed8c99a4a5b55354aa3971f954619d264394c41609429254727e",
+    "ac2--design-coarse/grid.log": "0ab5b9e3392a121686d15c951c97a7f0a37a945737d12cb561d0975655f33d41",
+    "ac2--design-coarse/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--design-coarse/grid.stdout": "df5d8185b0371884243951a84cc0f881b778fa07f11f05c3bc2b56de30f7132c",
+    "ac2--design-coarse/neck.geo": "8fcf2b0d69ee68a84f1c801fdc024d5d561513ec17d8588f6f3b1176beefd5b0",
+    "ac2--design-coarse/neck.msh": "9293838e7e468257067a277ebc50a677d64d6ee313c1b383e645f8b2bd6005dd",
+    "ac2--design-coarse/neck/mesh.boundary": "9e254e1a9189bba666562ea91cbccbe959497cbf0f6575b6b01c6f202901c3a5",
+    "ac2--design-coarse/neck/mesh.elements": "ee370da11f9f1715847747f1c68af4239935a6d7f4395e84dba685cbbfc27a60",
+    "ac2--design-coarse/neck/mesh.header": "dd44328481b1f009931ff12df0f41d553ed88d5e017840c13b5c940c86073f3a",
+    "ac2--design-coarse/neck/mesh.nodes": "00be25dd10da266ad14a1ba930ffe4e687fc3794353c9ed6b57483f95c42d906",
+    "ac2--design-coarse/neck/neck_t0007.vtu": "39afe38f8d9b69c0c6ad5593577f15d3492346ed5b072c7ce0af658541b9cc8c",
+    "ac2--design-coarse/scalars.dat": "3cdf51c9ca6221950dce22d658fa40be3c9570be645d053a1d6d3a2074e906a2",
+    "ac2--design-coarse/scalars.dat.names": "fc144157a3cae25098cec3d68d8696173c5311892cdac472fec07ace34df0168",
+    "ac2--design-coarse/solver.command.json": "bb1bc858d70861e220cfe35e5be3b3d965c8677d192f851936dab3f01d9910a8",
+    "ac2--design-coarse/solver.log": "56308fe2a8e724781d903499725d89ada4beea4c372ef3937e3c8915ac7ec344",
+    "ac2--design-coarse/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--design-coarse/solver.stdout": "32da5db7744d59013bfce633726bfa4fd888c3e25140fea95f9f7078594fdb58",
+    "ac2--design-fine/case.sif": "6fa641dfdda84773e883dbc27016870da709f28afaf6c034e12da82652800eea",
+    "ac2--design-fine/gmsh.command.json": "8d8a6fa3838f7ad37bec8ad74bbdaf9c80d34829941578ca171d4d5a65531636",
+    "ac2--design-fine/gmsh.log": "fcd588d0e458839579dfd6e8882afcca8b587ca243f2308f2d637700de4281ca",
+    "ac2--design-fine/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--design-fine/gmsh.stdout": "b70b06b64ed08b7c33bacf1b8f5a410f0a74d89fbc6e40f6f3eb4b8f6bdf3dd8",
+    "ac2--design-fine/grid.command.json": "6345fe81288e0073a960d7603ab1d4e5bda0a5eb1c1abacb14c60532af197660",
+    "ac2--design-fine/grid.log": "0ad7074229b1bed08304e214cf4b8529670084e5687ed9c4c56845539044dfb0",
+    "ac2--design-fine/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--design-fine/grid.stdout": "83658eb33ae0788dd478b70e9995bc5e612eb18a1640f13320524d2557b1ef47",
+    "ac2--design-fine/neck.geo": "37d8ee210144ca79eb8d5367b3cf5bae9fb6f28f4e72470b9592ef1ffb8e97d7",
+    "ac2--design-fine/neck.msh": "9fb7a9a51ffb14f2d5759f2e17aacb7dcd49c89d2853c53fd951ff27a7567555",
+    "ac2--design-fine/neck/mesh.boundary": "a146508018d1862822b7ccba5851208db7081247bdf509a1a8a3bcfd83273b15",
+    "ac2--design-fine/neck/mesh.elements": "d9aa735db1af0c775d5c971431cadc7bb6f40b30726e7b861d86423922385a29",
+    "ac2--design-fine/neck/mesh.header": "6d0d4cdc33b462e0dc07fe084b862560026262ab3150f87f751f868d1658f4f8",
+    "ac2--design-fine/neck/mesh.nodes": "9beda0fe2e9e92ee38cab0eb1698bebc6c89dc721cc8842b1a40fb610345f663",
+    "ac2--design-fine/neck/neck_t0007.vtu": "be77266b1256388ddb4966e5f0c81c1d69c4dc6e179bd96140362f4bdfcfde32",
+    "ac2--design-fine/scalars.dat": "b629a7e3d7957262d0fd1fe7dfeacf8248263be30398446ec3fc635013571c0f",
+    "ac2--design-fine/scalars.dat.names": "7963bfacfbac5dfd42fbdc8fc583edfbd6d9433efb8c152f80b347adda807fc6",
+    "ac2--design-fine/solver.command.json": "65f83a28a8d56fe717a2d84614016184122757358b404958dcffb647afd20167",
+    "ac2--design-fine/solver.log": "caed2d0cefd8c79a965cd064cec7a9a1ebec8bbf7098f577b489f0c6066ae27c",
+    "ac2--design-fine/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--design-fine/solver.stdout": "c165747716ed13fc8e57eced4187f2d81142b5f8607d892b61bda6c2cda0c779",
+    "ac2--design-medium/case.sif": "d8bae229b223b69eb3ded625e2aaf04c3dddfa4f412483085be435fb63f9ede1",
+    "ac2--design-medium/gmsh.command.json": "be4b2613a9de1b45a6b5cca2252c500a52f08ddefcb62676e446b3ffba52b593",
+    "ac2--design-medium/gmsh.log": "d2217adb1ebab9ace731402afdc27f1d41cbf87e87d0d93bb910dac4145cd17a",
+    "ac2--design-medium/gmsh.stderr": "82302e77b76b215540e6467ccee0812b741f68ad5753a85667f08cdd7ce9df5d",
+    "ac2--design-medium/gmsh.stdout": "3844c25479de7ba0e37277a6b80ef1bf3523c6b4ecc8d69fd58ddad9bc8efc0e",
+    "ac2--design-medium/grid.command.json": "e42779edf0e029b4a02bf59fe98f2cbe6e0a6992c96b0f0019353b8769b0ea36",
+    "ac2--design-medium/grid.log": "e9e9ed8a5a88a40000b00bdbfb3c5a688dacbaf5d3e01018add763b2b3672eac",
+    "ac2--design-medium/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--design-medium/grid.stdout": "48680e186b37a4b1d5bb7629ec65dc31c37bda5376c715a7b77672b4339916cb",
+    "ac2--design-medium/neck.geo": "688a4fe85a382c2b3228443808dd6e1038e807c60c50b9c70a727aeb7107e7db",
+    "ac2--design-medium/neck.msh": "30c16c2deba985ddd23cdf8190471b3264874e450524acec9fc183cb9f543d63",
+    "ac2--design-medium/neck/mesh.boundary": "823f2328a4c5fa634e72b9d3160510de85e609518fde9c2b3d705de6c2104dcd",
+    "ac2--design-medium/neck/mesh.elements": "7bc15d810fafdfd70eb62ef43bc991ce5058b388cb048f400582c2cec8e2a53e",
+    "ac2--design-medium/neck/mesh.header": "50068edcaac06cf9df0e6a1f2ef69a1e3801d2f06edce66ec97c8e77b0d6e76a",
+    "ac2--design-medium/neck/mesh.nodes": "e4ed3ff2e7ec27894f665e5fda1883235d578fa0f6be687f627c3e6f1e5d0d8a",
+    "ac2--design-medium/neck/neck_t0007.vtu": "d3ebec4806d301af93981c720a9c5d3b419230c016d56a8c31aa3d4b6da71693",
+    "ac2--design-medium/scalars.dat": "92d364fe9711ffe17f848aa1305a5dbd40492adf082d52632c44995e261441fc",
+    "ac2--design-medium/scalars.dat.names": "234032e100e2d2420378ace5a2f9c37f0ef9d77ec7b28f64d868f9bb97a70a1e",
+    "ac2--design-medium/solver.command.json": "2bccb83f05d248dac53d1e4debb058f5684299a0e612da5702b87296c76c379d",
+    "ac2--design-medium/solver.log": "f128202e99188438c666a035d790110044d1846c25da3ce7db79415885ac8e0e",
+    "ac2--design-medium/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--design-medium/solver.stdout": "822342ec6a85ee1186cd97a32a8a1061795bab05f0600f16cad991f16b2e2b62",
+    "ac2--weak-contact-fine/case.sif": "b8b7c5c19e4c141f138b712a46a9045f679ab693aead6661352d8839310ebc30",
+    "ac2--weak-contact-fine/gmsh.command.json": "03883c90aa2ce7a80a174bb37c7342779860c9f3b05f2909359987f33eeb5e31",
+    "ac2--weak-contact-fine/gmsh.log": "b6efeac7e9f957fcac0a02285be2d40193eae28502f5cb619eff0dc4f1cb673d",
+    "ac2--weak-contact-fine/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--weak-contact-fine/gmsh.stdout": "ca1b633093a28b47954cb306f5148a90f84bf1b00efd8f91876d80ab79049e1f",
+    "ac2--weak-contact-fine/grid.command.json": "69480f7c64d5f209a53ae0dc5482af86fbff6cbd0eaee0c731c25e6729b09650",
+    "ac2--weak-contact-fine/grid.log": "0ad7074229b1bed08304e214cf4b8529670084e5687ed9c4c56845539044dfb0",
+    "ac2--weak-contact-fine/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--weak-contact-fine/grid.stdout": "83658eb33ae0788dd478b70e9995bc5e612eb18a1640f13320524d2557b1ef47",
+    "ac2--weak-contact-fine/neck.geo": "37d8ee210144ca79eb8d5367b3cf5bae9fb6f28f4e72470b9592ef1ffb8e97d7",
+    "ac2--weak-contact-fine/neck.msh": "9fb7a9a51ffb14f2d5759f2e17aacb7dcd49c89d2853c53fd951ff27a7567555",
+    "ac2--weak-contact-fine/neck/mesh.boundary": "a146508018d1862822b7ccba5851208db7081247bdf509a1a8a3bcfd83273b15",
+    "ac2--weak-contact-fine/neck/mesh.elements": "d9aa735db1af0c775d5c971431cadc7bb6f40b30726e7b861d86423922385a29",
+    "ac2--weak-contact-fine/neck/mesh.header": "6d0d4cdc33b462e0dc07fe084b862560026262ab3150f87f751f868d1658f4f8",
+    "ac2--weak-contact-fine/neck/mesh.nodes": "9beda0fe2e9e92ee38cab0eb1698bebc6c89dc721cc8842b1a40fb610345f663",
+    "ac2--weak-contact-fine/neck/neck_t0010.vtu": "8c7a844d0f6536b9dab5aa5cf1e65fdab8fa20ddebebbb104d820c36b2320469",
+    "ac2--weak-contact-fine/scalars.dat": "f15da64febb7d99f39b4f763f25c1c87d17f060e913a3822ee1a721303701deb",
+    "ac2--weak-contact-fine/scalars.dat.names": "9a6f51dd67a20819d04ee630d48a8377638f287fd043beaa680712da5b26a5ba",
+    "ac2--weak-contact-fine/solver.command.json": "c8e5ba8fedcf50155f38bf44315de225c4b1250c1565423d9a0d9ba60c4757ca",
+    "ac2--weak-contact-fine/solver.log": "c0a86f6b415fb1956dae2ef8e8aa14bdd8d551c7bda6d3a9d3ad1addceca5b6f",
+    "ac2--weak-contact-fine/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--weak-contact-fine/solver.stdout": "15ad0ee0e58dee26ba92b80aed2a3e2710ba7d789cba8aee5ecba15da1d69de3",
+    "ac2--weak-contact-medium/case.sif": "9e2505590e164250d18c477cc33b776d2232f89c0c4ef4cc32634a43ef27bffb",
+    "ac2--weak-contact-medium/gmsh.command.json": "05b408318b0c40eb6546b7456fa193b6a807d6d479c7d8aa99d535822fa2a64a",
+    "ac2--weak-contact-medium/gmsh.log": "d6798294da96145fdbf2f9d873330d7edc83d3b71af7ddc8e4fefe0495ea53be",
+    "ac2--weak-contact-medium/gmsh.stderr": "82302e77b76b215540e6467ccee0812b741f68ad5753a85667f08cdd7ce9df5d",
+    "ac2--weak-contact-medium/gmsh.stdout": "86349d339a0d071af4e8afbafc057f3715c7dd8a6dfa040a48a0352882263d3e",
+    "ac2--weak-contact-medium/grid.command.json": "e34d997ad4c0fcd2334f8d9a86141464880e53908c5c655f191a2d946d1a9107",
+    "ac2--weak-contact-medium/grid.log": "e9e9ed8a5a88a40000b00bdbfb3c5a688dacbaf5d3e01018add763b2b3672eac",
+    "ac2--weak-contact-medium/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--weak-contact-medium/grid.stdout": "48680e186b37a4b1d5bb7629ec65dc31c37bda5376c715a7b77672b4339916cb",
+    "ac2--weak-contact-medium/neck.geo": "688a4fe85a382c2b3228443808dd6e1038e807c60c50b9c70a727aeb7107e7db",
+    "ac2--weak-contact-medium/neck.msh": "30c16c2deba985ddd23cdf8190471b3264874e450524acec9fc183cb9f543d63",
+    "ac2--weak-contact-medium/neck/mesh.boundary": "823f2328a4c5fa634e72b9d3160510de85e609518fde9c2b3d705de6c2104dcd",
+    "ac2--weak-contact-medium/neck/mesh.elements": "7bc15d810fafdfd70eb62ef43bc991ce5058b388cb048f400582c2cec8e2a53e",
+    "ac2--weak-contact-medium/neck/mesh.header": "50068edcaac06cf9df0e6a1f2ef69a1e3801d2f06edce66ec97c8e77b0d6e76a",
+    "ac2--weak-contact-medium/neck/mesh.nodes": "e4ed3ff2e7ec27894f665e5fda1883235d578fa0f6be687f627c3e6f1e5d0d8a",
+    "ac2--weak-contact-medium/neck/neck_t0010.vtu": "bbb3cf5360ca8e61d2de2bd15adf5eced5e53ecb4d46de1e1c1b785ac1131f17",
+    "ac2--weak-contact-medium/scalars.dat": "fa1180e6a11c15a2fcde6da28b0864e21f505a4c3b36f1517bbc3404577e49cc",
+    "ac2--weak-contact-medium/scalars.dat.names": "6dee16f273fb08ef5504268cdfcb3abef81f770127fcada0570aee8ec1b996bc",
+    "ac2--weak-contact-medium/solver.command.json": "33bd974cb362215077044674d7b418528668f7c25e6effbd0fc086fe917e42e0",
+    "ac2--weak-contact-medium/solver.log": "516bc9ebce2ebf59a147e8fe6c649d04e618f5b9acab557eb98055c022c39b6a",
+    "ac2--weak-contact-medium/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ac2--weak-contact-medium/solver.stdout": "93561abd869fd691a7e7e5d4830ebf440c60af3b2fe58f2770260df8a871ed96",
+    "board.kicad_pcb": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+    "git-revision.command.json": "408f31fb99d7568119f4d5fbe8551a04941f45974584312d166f691a9a7ebb8e",
+    "git-revision.log": "21659711b85969aed7a384fd9d949df93c16052b1aefb081c394306dceb1a4f0",
+    "git-revision.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git-revision.stdout": "a7f4068bbc51e3734d07b4f09f2b3dc5e89e2181e0ea054a3cb30b02d5ad784b",
+    "git-status.command.json": "59a7dae43b4afb5c7fd51acf6e49a15af32abb992124e614a37287fb92a4991c",
+    "git-status.log": "7b3d6df8fa7ebb5d3670ec55683c4e85cbf8c0d346e6838cb26c70b2b3218b4a",
+    "git-status.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git-status.stdout": "9708afbb6878b3130b44b7edce40e184d870af4e6a1279e771feb5b259867237",
+    "gmsh-version.command.json": "014d8d4f547365ba66a467239f2f4f335e2ec7ff52efe7f79a6a50c6dc4cc31b",
+    "gmsh-version.log": "ca35725b32cbc900f7425df8388df64bc93d444e017d3ea24147d5416f4111f1",
+    "gmsh-version.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gmsh-version.stdout": "8f5ea43bcc1df98e2c9c232bc22310cbfed603ff55366821b55367249df3c894",
+    "grid-version.command.json": "8dc037c8e4781cf844dfd346f0cce9421cc8423322ff117308e93a5b2619c4b8",
+    "grid-version.log": "8f080caca275d3ccf88db4bf61ceb470c15aefeacb904903574d0c1ef16e026c",
+    "grid-version.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "grid-version.stdout": "5bf0c2020e10a898538da061b6568802f756010b54002c5e0f2c24d94daff3ee",
+    "manufacturing.json": "d7501eccbd4c3ae86a23ea75ba0e4686d7834276a1c60c3effbede5b8e4d96ba",
+    "minus--design-coarse/case.sif": "737576c93cc7fd6128a98926cb9ef44abd5c69ac84a5247a84a7cac3ce423c9e",
+    "minus--design-coarse/gmsh.command.json": "8d6d9e10e6909c8b728c67f8af6496e49d0adada88037bca5a717c77a78a3ab2",
+    "minus--design-coarse/gmsh.log": "a281b6e8bc68be3ffbb263354dc4c27cc73096cba189583717391bcacb0024dd",
+    "minus--design-coarse/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--design-coarse/gmsh.stdout": "c5ed7a0fb7cd410b02a2575cd5dac7eae0c4316baebcc41c2ffe567d57dc4c14",
+    "minus--design-coarse/grid.command.json": "5bf1f72259e6963941bb7b9a353fc2bd6d23f3166e17fce45cce4127321bad0e",
+    "minus--design-coarse/grid.log": "ff8db549791b4da1073ebafd90fa06d2d01c6fd705b1f75061c2fc3b21182bf2",
+    "minus--design-coarse/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--design-coarse/grid.stdout": "d294c714ed3b31fe5f63128e2bb8e258d6eeb1a1eb23621d3da1aaf59068a96d",
+    "minus--design-coarse/neck.geo": "21eb22db6b88137ad8585b0d7dcdcc72acc4b9bef175ee5d100f25f54717e5df",
+    "minus--design-coarse/neck.msh": "5b910e84c48c9ffbbf39e9092a21ffbe94aff45fa103e89c45b1d2161eb0db55",
+    "minus--design-coarse/neck/mesh.boundary": "5737acd8f2e517d7ae22da8cacb4da6b266d0a7a853e104a6fd2633678650dc9",
+    "minus--design-coarse/neck/mesh.elements": "8bd43f8e205a03e2de96d6b54cfcd536a6b5b0a7bc22da58221a3df03b21ca11",
+    "minus--design-coarse/neck/mesh.header": "43ed554b0b8944236fa4b047d38bf22e5b82f2de12f45549a92e86889d2e5b5d",
+    "minus--design-coarse/neck/mesh.nodes": "cfc69787d93e2472f084234bcb9252be6510025fe74246fc1e9072b88f1cd00b",
+    "minus--design-coarse/neck/neck_t0008.vtu": "46492f27a5a0aada653d4b1fdb7b472516e41e60ff9a8f0f00a914bf165f04fc",
+    "minus--design-coarse/scalars.dat": "f2ea1aba2dd23a8d536e5d5d7ca5ba7ca4b01938671f4d1b5e16321887a7d1cf",
+    "minus--design-coarse/scalars.dat.names": "781492bfd3990b5afad5888aa75d0b7ee23925863096dbbb25ceb92be9e92953",
+    "minus--design-coarse/solver.command.json": "acacedd787fa644e459c2af1f52e4fbc4564dce226b5938e5067f0e8f125d060",
+    "minus--design-coarse/solver.log": "d42daa6b70d8aa3b5343636eca756623a5edcac6534ce2fa9be9bd65bb11a318",
+    "minus--design-coarse/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--design-coarse/solver.stdout": "bd20a80517d02fe6ea4bfb96987bf34a38a5d29ed2452c6f912cbffca0c13105",
+    "minus--design-fine/case.sif": "6fa641dfdda84773e883dbc27016870da709f28afaf6c034e12da82652800eea",
+    "minus--design-fine/gmsh.command.json": "42093ca184c6fbd984271e34c35f814aa855fe62bc6572a0b571b3af42aaf2ef",
+    "minus--design-fine/gmsh.log": "a633b2b0e5d521d0e9d65a6aac9133ceaeb569ec571bf933f951b97a93307bcd",
+    "minus--design-fine/gmsh.stderr": "82302e77b76b215540e6467ccee0812b741f68ad5753a85667f08cdd7ce9df5d",
+    "minus--design-fine/gmsh.stdout": "4961f6e85ef1be464dab380ce2f52b8adbb26c79e80335c86a1dc7272351f69a",
+    "minus--design-fine/grid.command.json": "c1cb1dd00c46072226b7cb7b2b9f29eae155a5366588db652b2414a84f066f89",
+    "minus--design-fine/grid.log": "d1232a6ecc50edcd436e5df56fbc73ae8567023dafb9f0a4c86c66e10a010041",
+    "minus--design-fine/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--design-fine/grid.stdout": "129dabe9dc1fce0c914a197834a8a962ca331d83a496f9f93c2bc1eed2ca1827",
+    "minus--design-fine/neck.geo": "c287be5a9fca54a5080742807f86ca0758bb37fa423a3656987cc8a9ca4d021e",
+    "minus--design-fine/neck.msh": "b77f3b225a5a21fe6846afa3e5e54cc85636dcc781014cc074084147fee24d1b",
+    "minus--design-fine/neck/mesh.boundary": "2016411028f6129dc8ce30d476ee782793b9d0ed01bc78a13a984185e68643d9",
+    "minus--design-fine/neck/mesh.elements": "381ce477f7bc0c7f486367440df4a49bf5753c0fb9b083245169470b085aa8d0",
+    "minus--design-fine/neck/mesh.header": "3afde0d8928ed589fa092e2992870ff1d850a55af74fc3968c8ff9807462793a",
+    "minus--design-fine/neck/mesh.nodes": "8804d1e4270c5f9b1445bbcd183b506931014f5285ed2fb089ea9949a987070c",
+    "minus--design-fine/neck/neck_t0008.vtu": "eea62c4e17670d23e10c3564b9bcfe9266bd641bf526a464df0a2739a3f2f795",
+    "minus--design-fine/scalars.dat": "6ca883a026d97dc7d2e9d440c9d0c0cc6782b3f3b86d314235c530028319a021",
+    "minus--design-fine/scalars.dat.names": "23966eab101febfdd770865b8b6c6a887e0851b7753e937cc0990667842b76f0",
+    "minus--design-fine/solver.command.json": "fa0e14f8e7d08c1172b444575263ea3baf1612e5315eb4044950563055f43866",
+    "minus--design-fine/solver.log": "8b3527f5bacc5630f1452f84ea89f66adc8ad04e7e1f7d05b2aeb1c4a53d63ae",
+    "minus--design-fine/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--design-fine/solver.stdout": "8b3f938d22a1399e0738f16eb191603654d20cb8d80a831e79a3e50549cb1f1e",
+    "minus--design-medium/case.sif": "d8bae229b223b69eb3ded625e2aaf04c3dddfa4f412483085be435fb63f9ede1",
+    "minus--design-medium/gmsh.command.json": "82d558a7840ed9475d3ce5abf7d00cce7f358d74f1f2b4839f5b69c72b2f2c06",
+    "minus--design-medium/gmsh.log": "6aaafa0b038b686cd0b104941418e29df8ce2e2847237d600080107f4c6248e7",
+    "minus--design-medium/gmsh.stderr": "82302e77b76b215540e6467ccee0812b741f68ad5753a85667f08cdd7ce9df5d",
+    "minus--design-medium/gmsh.stdout": "db8fded550f430204e01be7ce3728fad02dd3575c1705ad7744bca4d76c0f688",
+    "minus--design-medium/grid.command.json": "45a80c7c4ac9d295dcc22aded5d7b11f2493d1f0218fe27b4e679ec7e91e18df",
+    "minus--design-medium/grid.log": "51000eb757720003fc8aa3909b250fe9f3f8e814df2350542344b2be31e8cd66",
+    "minus--design-medium/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--design-medium/grid.stdout": "2d55f2a21631f234147b2127cefd019cff115fafc5ac1dddbc1667fdfefc5228",
+    "minus--design-medium/neck.geo": "42a603ec9e0c6587e84d33289d1ac045b9afd85d151661b9b0c9204573764057",
+    "minus--design-medium/neck.msh": "5eaa2f1295ef771ff47d9a0b683125853f59d9788142728a14ff51cac5182bc2",
+    "minus--design-medium/neck/mesh.boundary": "0b2e2102ef2fdda1ff06853c2daa07fd814d56329661534638e5b1c05eecb6b4",
+    "minus--design-medium/neck/mesh.elements": "64e5984f38198ceea4468402b68a2e8d22c71bac18ef3ab42820c52ecbbcbf32",
+    "minus--design-medium/neck/mesh.header": "bf7ee6d229b82d20592bf1d43e34a5b416c9d3912b02e28301423f4556bf8e07",
+    "minus--design-medium/neck/mesh.nodes": "1aacf67df940037385efbbf236f5cffbdbf352e0aa2d64dc925360cc0bbe2ba1",
+    "minus--design-medium/neck/neck_t0008.vtu": "3938c601d5b150b2628d66c530534dedf85a861923186ede8d693d62accd3900",
+    "minus--design-medium/scalars.dat": "c857e905a525fcb371ccaf77763c7ee4201e1a2ddbc78590b3615a5a88b3d83d",
+    "minus--design-medium/scalars.dat.names": "a8d3f736f17389ea872b68799848eced7d35d4c497aea68bbbffd98283b50138",
+    "minus--design-medium/solver.command.json": "6d9532c3fd0df9a6f14b518d32e780791d8926195b04a61a1ea0d77276439403",
+    "minus--design-medium/solver.log": "2faba83c05e9036343697436436e02d1bb24578d5dbfa7f1bdbc95e05e4e7884",
+    "minus--design-medium/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--design-medium/solver.stdout": "a43214caac956800915aeabcca5ab74236c47b2670d65bf05f005b6a215d1a61",
+    "minus--weak-contact-fine/case.sif": "b8b7c5c19e4c141f138b712a46a9045f679ab693aead6661352d8839310ebc30",
+    "minus--weak-contact-fine/gmsh.command.json": "cbf02122b1295f433b23608a3e1de08ea8de6dc8c495198ae070a992f8d4d60a",
+    "minus--weak-contact-fine/gmsh.log": "f0a13757a87fa8e177b0877628d2be1e2c1a41f65b0b57ebe781fd9731f0549f",
+    "minus--weak-contact-fine/gmsh.stderr": "82302e77b76b215540e6467ccee0812b741f68ad5753a85667f08cdd7ce9df5d",
+    "minus--weak-contact-fine/gmsh.stdout": "02e846de61aa98f27e9f06e1b93c9ee4461cb6d7b2303a80c18b2696655aaf8f",
+    "minus--weak-contact-fine/grid.command.json": "3d2c8af35fc0c6ea801c869395182b90f5c6a51dfdd12da0f13cb7fdb7122478",
+    "minus--weak-contact-fine/grid.log": "d1232a6ecc50edcd436e5df56fbc73ae8567023dafb9f0a4c86c66e10a010041",
+    "minus--weak-contact-fine/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--weak-contact-fine/grid.stdout": "129dabe9dc1fce0c914a197834a8a962ca331d83a496f9f93c2bc1eed2ca1827",
+    "minus--weak-contact-fine/neck.geo": "c287be5a9fca54a5080742807f86ca0758bb37fa423a3656987cc8a9ca4d021e",
+    "minus--weak-contact-fine/neck.msh": "b77f3b225a5a21fe6846afa3e5e54cc85636dcc781014cc074084147fee24d1b",
+    "minus--weak-contact-fine/neck/mesh.boundary": "2016411028f6129dc8ce30d476ee782793b9d0ed01bc78a13a984185e68643d9",
+    "minus--weak-contact-fine/neck/mesh.elements": "381ce477f7bc0c7f486367440df4a49bf5753c0fb9b083245169470b085aa8d0",
+    "minus--weak-contact-fine/neck/mesh.header": "3afde0d8928ed589fa092e2992870ff1d850a55af74fc3968c8ff9807462793a",
+    "minus--weak-contact-fine/neck/mesh.nodes": "8804d1e4270c5f9b1445bbcd183b506931014f5285ed2fb089ea9949a987070c",
+    "minus--weak-contact-fine/neck/neck_t0011.vtu": "50cf4269a016a6588e0aa67b9df10221b06c7004d3018b5f76f1dc92767b2670",
+    "minus--weak-contact-fine/scalars.dat": "72fcbddec27926b7399e776b0923328584c3cd08cbc4775dc609e98917568fda",
+    "minus--weak-contact-fine/scalars.dat.names": "23603de2f7933d72eccc3bcfc00fa9b62c755d12b81e27edec7b20942df95453",
+    "minus--weak-contact-fine/solver.command.json": "09f9fb1837cb81290fc255a71da5a12ee0eb7dd3023de3044e4acba695c1df93",
+    "minus--weak-contact-fine/solver.log": "5828b8f1d96486ea8d28f5263c90e33b0c6d72ce85f2d47475278a966aca33f2",
+    "minus--weak-contact-fine/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--weak-contact-fine/solver.stdout": "5743ad22e97872b586b52278f17429e241104cfe7180bbdbb3027c800c66b738",
+    "minus--weak-contact-medium/case.sif": "9e2505590e164250d18c477cc33b776d2232f89c0c4ef4cc32634a43ef27bffb",
+    "minus--weak-contact-medium/gmsh.command.json": "d14b3b631d83d41f00c6bbac00de76d70f49439c7b2a5877f0644a8dd28dcb7a",
+    "minus--weak-contact-medium/gmsh.log": "9be7614d8f586373d35349c24b87dc80172a9f0406be82b8ed9086b0a7552ed3",
+    "minus--weak-contact-medium/gmsh.stderr": "82302e77b76b215540e6467ccee0812b741f68ad5753a85667f08cdd7ce9df5d",
+    "minus--weak-contact-medium/gmsh.stdout": "f5013d59426d65ab8f4d7b906c36b47b444ab67781117740485472a83c8d9ab9",
+    "minus--weak-contact-medium/grid.command.json": "f36ec5408a3a8a0915798def0a21fef89e5a493354bddddccb646abecc87a724",
+    "minus--weak-contact-medium/grid.log": "51000eb757720003fc8aa3909b250fe9f3f8e814df2350542344b2be31e8cd66",
+    "minus--weak-contact-medium/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--weak-contact-medium/grid.stdout": "2d55f2a21631f234147b2127cefd019cff115fafc5ac1dddbc1667fdfefc5228",
+    "minus--weak-contact-medium/neck.geo": "42a603ec9e0c6587e84d33289d1ac045b9afd85d151661b9b0c9204573764057",
+    "minus--weak-contact-medium/neck.msh": "5eaa2f1295ef771ff47d9a0b683125853f59d9788142728a14ff51cac5182bc2",
+    "minus--weak-contact-medium/neck/mesh.boundary": "0b2e2102ef2fdda1ff06853c2daa07fd814d56329661534638e5b1c05eecb6b4",
+    "minus--weak-contact-medium/neck/mesh.elements": "64e5984f38198ceea4468402b68a2e8d22c71bac18ef3ab42820c52ecbbcbf32",
+    "minus--weak-contact-medium/neck/mesh.header": "bf7ee6d229b82d20592bf1d43e34a5b416c9d3912b02e28301423f4556bf8e07",
+    "minus--weak-contact-medium/neck/mesh.nodes": "1aacf67df940037385efbbf236f5cffbdbf352e0aa2d64dc925360cc0bbe2ba1",
+    "minus--weak-contact-medium/neck/neck_t0011.vtu": "98acdc48b3a138ffb3d8b6a8592025359d9c10efdc885918c3f92d4c7a0e01ca",
+    "minus--weak-contact-medium/scalars.dat": "0dac74fdcf637e30dd768f6fb2f9a00e7ef582ee0e2e5ce4bb4879552b8593c9",
+    "minus--weak-contact-medium/scalars.dat.names": "8e5a01e3885f068998a174736f22a807730eb7f6aa280b4f7822da8157676e1c",
+    "minus--weak-contact-medium/solver.command.json": "b98955927b6157432816036f597a6c15c294ea80403fa8186807ec6eaf8d4a6d",
+    "minus--weak-contact-medium/solver.log": "ee163e349320b8cb95fa9bfabf3f54711b6b8343912bb8d52d93074400de1c5a",
+    "minus--weak-contact-medium/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "minus--weak-contact-medium/solver.stdout": "22ace10a617c1b64845b99e588246f56f13043fac4bb719ec722eecff7388ac4",
+    "native.json": "e8781e4549b60a2e6dc0e2f4431daf3b0f8ed8870ac65f0e3736a2d3ef9c0dca",
+    "plus--design-coarse/case.sif": "737576c93cc7fd6128a98926cb9ef44abd5c69ac84a5247a84a7cac3ce423c9e",
+    "plus--design-coarse/gmsh.command.json": "96c08b66a06d7fb85fc50c94ca7ea7dcd643a54bf30e92dfd5708089d4c42e90",
+    "plus--design-coarse/gmsh.log": "83d2f97fadeceb70ce105c8c1fa3d22bae90d12585c505d20ccf4bc056a8a6dd",
+    "plus--design-coarse/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-coarse/gmsh.stdout": "fa970ff264b45db327e9fe535ce447d9587681dd0523461fb2a917c6e9d4164d",
+    "plus--design-coarse/grid.command.json": "879429079f4b943a5fd597b93c0bc79d88cfdff96fed3a508f79fef3ab9ed11c",
+    "plus--design-coarse/grid.log": "08f8e838bad44e801902fb5de5ef73120e761ccb0af6d3518b128227d69d61c4",
+    "plus--design-coarse/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-coarse/grid.stdout": "b647184aac5167d98d1ead700a43756fea7989f9e4511bf900a9b7b88e73b62a",
+    "plus--design-coarse/neck.geo": "53369ec849dd2dbc9e6ad5fd9565f63dfa325ccb9a64eccf3f228be38d993e06",
+    "plus--design-coarse/neck.msh": "47c5eb640992310d11d30607dcb1b429d6dfac1f108b6ccdc51e3dea7139460f",
+    "plus--design-coarse/neck/mesh.boundary": "869e2c86fb9323a093b6ad5e61989ddba70e9341083abb9eb8170ee559962d41",
+    "plus--design-coarse/neck/mesh.elements": "c20db1f89a9fa8a150015471d24809a43f4c1a72740ccd49dd9af99b3d9d685a",
+    "plus--design-coarse/neck/mesh.header": "48fb305f58392912cbcd7ce792bf722bb1bda481f7bc22b3891bc6ecf5cb2664",
+    "plus--design-coarse/neck/mesh.nodes": "e1e7bae2ad79be8a200d44abe89008ea6df9135b4a8195fe9ed92dd0b91fca83",
+    "plus--design-coarse/neck/neck_t0008.vtu": "fb76c65330d98d2cbf2d81c9986092b2a6cfd3ff665b2ff0bfd16c8d5d3a6585",
+    "plus--design-coarse/scalars.dat": "04a2d4dcf79b10a58fceb789ff4b236cf52c89a9328523f932df8c3922cfa07f",
+    "plus--design-coarse/scalars.dat.names": "45060e146d47308eadadfbddb2b42f6d6ebb0099eea8ac73184a70750d3ad673",
+    "plus--design-coarse/solver.command.json": "91d456fc3c58646a64a8a11ba581d2b239efe3a2240e20e734ff035dcb426af2",
+    "plus--design-coarse/solver.log": "38f6a8377cff8fa2f8b4a5b4f3dce5cadb19ac34290c09b233e22bd12996f926",
+    "plus--design-coarse/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-coarse/solver.stdout": "c610c43235e3443eb738ca8d1d3cf924d0bf5fbd2927ffdb746f6a388509b4db",
+    "plus--design-fine/case.sif": "6fa641dfdda84773e883dbc27016870da709f28afaf6c034e12da82652800eea",
+    "plus--design-fine/gmsh.command.json": "b6dfafab5e44f5c461f51069ea2c351e337f5e30be6f55a60ef6fa768bf1f011",
+    "plus--design-fine/gmsh.log": "8d54a6448703fe3a95bee9ba3ef362acc67693d61be1f0ba2f5b7b1615881730",
+    "plus--design-fine/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-fine/gmsh.stdout": "700a2eb2221e20fb8ea405a95d44df1f481a3a77fba70e7833b9f56aeb7007ca",
+    "plus--design-fine/grid.command.json": "ddbcccef8b3209ac3ea722a84421a5ac18593c2486fe2a30e927ed73145b5c5b",
+    "plus--design-fine/grid.log": "594ff67d31457c94c157501dbdb894e492c3f2ad335c6c6f5c8cf5748308ac2f",
+    "plus--design-fine/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-fine/grid.stdout": "f103763add1a564c2ce458f89cd4a61d657f9a6dbb89ea22bb3f4fc7405705d0",
+    "plus--design-fine/neck.geo": "c7fd758c3559eabe3418aecc745ac5ec6a89ca2a05907cf431bf06471eed939a",
+    "plus--design-fine/neck.msh": "dbfbddfacdd125bf5ca183634347238116f161778ea14ec07ded9b5c88927206",
+    "plus--design-fine/neck/mesh.boundary": "1e3e4452ab6970896fe4ff27117223bac88bcfaaffc3b640862aaf1a51af0ff4",
+    "plus--design-fine/neck/mesh.elements": "de71a42003b8820ad2d4d8f3be7567f4a7fe9adc4a3e4be2022894eec849b4e0",
+    "plus--design-fine/neck/mesh.header": "51df79e36866494c79f97896b1c2062709b5753a1667eb9c4f5adc25ceb0af09",
+    "plus--design-fine/neck/mesh.nodes": "44437e694558fe8e345d22861b73d88fe3e8d5c4336fddfb5e65c36c26a50a9c",
+    "plus--design-fine/neck/neck_t0008.vtu": "a134a5a1d87a52b32155fdf20252906d39d6fbd796c1f9202498bd4697c46300",
+    "plus--design-fine/scalars.dat": "fd80c3cd2c223d465e0ee2c122c4e7851f99f8bf229535cf7cb4cc7370b23d8a",
+    "plus--design-fine/scalars.dat.names": "48dc0f549c8cca858117a0465eafdfa2aae32bc8a1ea32f4e5c5065a5d8e845c",
+    "plus--design-fine/solver.command.json": "a327877a41b346a93fc4e2be841c9b0de875fcf339e4b589c931e8411aa9f4e9",
+    "plus--design-fine/solver.log": "24cfaa961b38b3283caa31a5241189855041f3ff9d5e109f1faf0d009c35890e",
+    "plus--design-fine/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-fine/solver.stdout": "33094cb74f67f9a859645228ea7b2017bcd008e0855899187efd2039384d1137",
+    "plus--design-medium/case.sif": "d8bae229b223b69eb3ded625e2aaf04c3dddfa4f412483085be435fb63f9ede1",
+    "plus--design-medium/gmsh.command.json": "c8efeb7937751020cd87e1a5d87067eee87027c60347fdae22afa52888340400",
+    "plus--design-medium/gmsh.log": "dc9a8e3245cb53421deb441d11b9d97f73acf6d466664fc5b4adc45d40d0df74",
+    "plus--design-medium/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-medium/gmsh.stdout": "71889bb41b5c54d162474f480d5cdf2c41da96a5989032c3ff96089acfff0ea8",
+    "plus--design-medium/grid.command.json": "98cae9b5fbd948e46a4fc31278ebd21f7cc300446a4915d1f34541f706a6344a",
+    "plus--design-medium/grid.log": "f7e08c96192e4874b4871e293e92e72b473b37c596b1b7bb1776b4f607a39352",
+    "plus--design-medium/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-medium/grid.stdout": "b30af59fdf687d960f2a60da651148cf0f6105336dbb3057d94e263b90b3b87c",
+    "plus--design-medium/neck.geo": "cffec32f3649ade7459f1979163da791495c103950b81d7923883193afb99617",
+    "plus--design-medium/neck.msh": "bf7cc66d535c9878513ba02ac8f8af67dfc2bda31e3b9969d21096cc718c7852",
+    "plus--design-medium/neck/mesh.boundary": "f188d0f592aa51e5f49c788384b33e102a40051a57a9f88011e84e22f866ec8d",
+    "plus--design-medium/neck/mesh.elements": "71bf7456f81eab0cb0f479a99d8ba2162fda2d5ecf3e20f36c0d88cfcb04d212",
+    "plus--design-medium/neck/mesh.header": "1b8f9a92e7ce60ae4023d479af8e3cf1bb2b44db9eaa2c30fba48b0d248d3c06",
+    "plus--design-medium/neck/mesh.nodes": "970ac8b5b995f7fd3d74dcef28232bce7993b227b6cba2e134961c341c829f0d",
+    "plus--design-medium/neck/neck_t0008.vtu": "4d3a85199127d7aefba59c18a697fddf6817e836a5e4debe6de9fd97624ee317",
+    "plus--design-medium/scalars.dat": "03fa82cfa0c7f6d80ef33ec4a233f726644500df6c31488b56e94e1b4e386132",
+    "plus--design-medium/scalars.dat.names": "eaa7db569d59f545b428b31e57941ab1acd9f9cff3a53b170ff74f8436ebc224",
+    "plus--design-medium/solver.command.json": "42120f7abc563d72c3a26b6220c1bd068c458bb7720525cb5a98197875a31a00",
+    "plus--design-medium/solver.log": "5502d3ce50d5ef5be6837fe0225c0c866957988ded7e2a04b3d4d20baa358e33",
+    "plus--design-medium/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--design-medium/solver.stdout": "0b844dbc6f85b7f6fca30b06470a8932d03b18c63e8c2ae63c01967b7d3fe517",
+    "plus--weak-contact-fine/case.sif": "b8b7c5c19e4c141f138b712a46a9045f679ab693aead6661352d8839310ebc30",
+    "plus--weak-contact-fine/gmsh.command.json": "ccec39be74d4a2686e84073c4e3a181db13af863d96a8754407a83cd044b2dd4",
+    "plus--weak-contact-fine/gmsh.log": "3456288a4f7781ed2c9acd2679527fdf7999919b360f9011231033857bbcf037",
+    "plus--weak-contact-fine/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--weak-contact-fine/gmsh.stdout": "0e28673a86ac89b530ab3f254a74a08da09f7dc43e1c04820fb6536040216e38",
+    "plus--weak-contact-fine/grid.command.json": "95d16678646b4c3fdf764c41945d90e991a94697f66bfd79fa2fc5fc0ca2bb6b",
+    "plus--weak-contact-fine/grid.log": "594ff67d31457c94c157501dbdb894e492c3f2ad335c6c6f5c8cf5748308ac2f",
+    "plus--weak-contact-fine/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--weak-contact-fine/grid.stdout": "f103763add1a564c2ce458f89cd4a61d657f9a6dbb89ea22bb3f4fc7405705d0",
+    "plus--weak-contact-fine/neck.geo": "c7fd758c3559eabe3418aecc745ac5ec6a89ca2a05907cf431bf06471eed939a",
+    "plus--weak-contact-fine/neck.msh": "dbfbddfacdd125bf5ca183634347238116f161778ea14ec07ded9b5c88927206",
+    "plus--weak-contact-fine/neck/mesh.boundary": "1e3e4452ab6970896fe4ff27117223bac88bcfaaffc3b640862aaf1a51af0ff4",
+    "plus--weak-contact-fine/neck/mesh.elements": "de71a42003b8820ad2d4d8f3be7567f4a7fe9adc4a3e4be2022894eec849b4e0",
+    "plus--weak-contact-fine/neck/mesh.header": "51df79e36866494c79f97896b1c2062709b5753a1667eb9c4f5adc25ceb0af09",
+    "plus--weak-contact-fine/neck/mesh.nodes": "44437e694558fe8e345d22861b73d88fe3e8d5c4336fddfb5e65c36c26a50a9c",
+    "plus--weak-contact-fine/neck/neck_t0010.vtu": "1a051196a79b4ce14e60fa8a5230514942a5e6d7fa6027969e31982701590edd",
+    "plus--weak-contact-fine/scalars.dat": "026db51c60b14cf0bf35025e82cc8e56b4686d3b93f82ae00cbfdf9cf95fc0b7",
+    "plus--weak-contact-fine/scalars.dat.names": "75eae6d6842b93f43bcd453029fe4a6d69cb44faf34625400a3bc0b149859779",
+    "plus--weak-contact-fine/solver.command.json": "f2b70624e29443883c0c8998fe6e47688098b970da7cdc44685dcf472542260e",
+    "plus--weak-contact-fine/solver.log": "a3b252a98312e31b8b2d43d13782619d41dc088b6dee489092e60168037fa5d3",
+    "plus--weak-contact-fine/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--weak-contact-fine/solver.stdout": "5f3206f1b392e19239c0a628afb0efa017e8d13eee3bb3550f082231aafb217b",
+    "plus--weak-contact-medium/case.sif": "9e2505590e164250d18c477cc33b776d2232f89c0c4ef4cc32634a43ef27bffb",
+    "plus--weak-contact-medium/gmsh.command.json": "93cf9cea08f4c0553fadbf543a3886d76e9dd891bd17e806e20d7c52dd12b21e",
+    "plus--weak-contact-medium/gmsh.log": "da3d2e3fb090cb029f937099b4fe58fe282f7757de9805c36ee635ef6645b897",
+    "plus--weak-contact-medium/gmsh.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--weak-contact-medium/gmsh.stdout": "25876e68ec6cdd605a5671447b0049803d85c5b699094f9aa2d4a2bfe90087f5",
+    "plus--weak-contact-medium/grid.command.json": "ebdb4e958ecbb3a410b27a0a9622e0366bb80c2bdfd78ececdcbdc196c036c68",
+    "plus--weak-contact-medium/grid.log": "f7e08c96192e4874b4871e293e92e72b473b37c596b1b7bb1776b4f607a39352",
+    "plus--weak-contact-medium/grid.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--weak-contact-medium/grid.stdout": "b30af59fdf687d960f2a60da651148cf0f6105336dbb3057d94e263b90b3b87c",
+    "plus--weak-contact-medium/neck.geo": "cffec32f3649ade7459f1979163da791495c103950b81d7923883193afb99617",
+    "plus--weak-contact-medium/neck.msh": "bf7cc66d535c9878513ba02ac8f8af67dfc2bda31e3b9969d21096cc718c7852",
+    "plus--weak-contact-medium/neck/mesh.boundary": "f188d0f592aa51e5f49c788384b33e102a40051a57a9f88011e84e22f866ec8d",
+    "plus--weak-contact-medium/neck/mesh.elements": "71bf7456f81eab0cb0f479a99d8ba2162fda2d5ecf3e20f36c0d88cfcb04d212",
+    "plus--weak-contact-medium/neck/mesh.header": "1b8f9a92e7ce60ae4023d479af8e3cf1bb2b44db9eaa2c30fba48b0d248d3c06",
+    "plus--weak-contact-medium/neck/mesh.nodes": "970ac8b5b995f7fd3d74dcef28232bce7993b227b6cba2e134961c341c829f0d",
+    "plus--weak-contact-medium/neck/neck_t0010.vtu": "a806bded6d28bfd02642f71108932fd7207def3111f2d23bc0c1452a8178b220",
+    "plus--weak-contact-medium/scalars.dat": "240f66947d58552c707332321edcdd6f28e204746b245faa19ab72a37909c0b9",
+    "plus--weak-contact-medium/scalars.dat.names": "b43f77b86f3c12ce38651dc891d048e1007dabdd41b22c417aee41c3bb2289ab",
+    "plus--weak-contact-medium/solver.command.json": "3c897a436585c8792a3eabf2e68e73e641b843363b42fe9271d910fe6af14347",
+    "plus--weak-contact-medium/solver.log": "87810254330399df686f397285d09b7ab500d07229c618e4448387d41db5205e",
+    "plus--weak-contact-medium/solver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plus--weak-contact-medium/solver.stdout": "a845cf12b6b7c99768a4da1610b32ff4249d77fd68f42a07e8f21a75e0b12566",
+    "solver-version.command.json": "f93e3a3e8a95ecd7108ac3f9f5d8d2c80bcee9b601b58715bc82c132fa5adb63",
+    "solver-version.log": "daf5671ad9c61623569bf1d18e1f8669c30b0b725b2e774020f13c01a55c2a0a",
+    "solver-version.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "solver-version.stdout": "c1b80a5f154ab219504d6b0274ff094fae9bd08b9edb20dc8eb479d4d31df3e7"
+  },
+  "backend_hashes": {
+    "/Users/bennet/.local/opt/elmer-26.2.1/bin/ElmerGrid": "f86e4284ebe9bd36eaa5cd62e3fa12a1a39674237e4759fdc1ac8a3bd4ce60cc",
+    "/Users/bennet/.local/opt/elmer-26.2.1/bin/ElmerSolver": "2ee31bcb6723e42917b7bd022c1f7e6331b2ae185f8c8a1637dd9730d7f74309",
+    "/Users/bennet/.local/opt/elmer-26.2.1/lib/elmersolver/libamd.a": "65fc1ab623839fc6901f9ac5f3a782d6977954b8442225621b4c19ad89ba05f8",
+    "/Users/bennet/.local/opt/elmer-26.2.1/lib/elmersolver/libamdf77.a": "2b7f281558629a8dfe4c1fc4cb494d75e89cbf84cc581be6094e7c8af281b4ca",
+    "/Users/bennet/.local/opt/elmer-26.2.1/lib/elmersolver/libarpack.dylib": "fe0a451d8b17c8605cfa00b83b84d15b1a1bdfefc5ee16bbc637049b4f62f32c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/lib/elmersolver/libelmersolver.dylib": "edf5e12f9aaaf8513b32d8c42cad7650513d633d8ffbe72a1806611503aa698e",
+    "/Users/bennet/.local/opt/elmer-26.2.1/lib/elmersolver/libfhuti.dylib": "44ac280eec6b8d9b78bd333934b2d42e6005aa02effc48cd5be47c0489cc4c3a",
+    "/Users/bennet/.local/opt/elmer-26.2.1/lib/elmersolver/libmatc.dylib": "483379c9b504b20cf809915af78bef30567d152d3370195a203b4547e86d74a3",
+    "/Users/bennet/.local/opt/elmer-26.2.1/lib/elmersolver/libparpack.dylib": "af4319381c03020ea3c17046037908d80cdf92cf3e356c9e7dfea70d5715cd52",
+    "/Users/bennet/.local/opt/elmer-26.2.1/lib/elmersolver/libumfpack.a": "21beb99d99d3415c0d0df4ac36a916c05f478fe6f5169b175e98c8dfc5524396",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Acoustics.dylib": "af6c31b475f833711cd1ae4db0f71c72f40c78b4e3e907139cb631d2f8d2a7aa",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/AdvectionDiffusion.dylib": "af09bcfc02a06b4195d529fe2ff27024ede3ddaad84f8d71924118a3ca161dc7",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/AdvectionReaction.dylib": "476d111d00e6c865351aa532cc02bb574d5d4088d7cdb85ace90edebcc638713",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/AllocateSolver.dylib": "359adf510d511e0a794f3e41589d29256e47446033b495758cd1de303f8f2c61",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ArteryOutlet.dylib": "8f06f2175df93c9a2ed8cf7d5e44555fef3bf8fb9d349e6651d34d1b28df42b8",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ArtificialCompressibility.dylib": "da673ab6acba80813bec5654b70c1b91971cd05f6e2b83b19287f8a67c4153b5",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/BatterySolver.dylib": "30841de181ed5c17efdbc4f4e6a5aa598df9f2e98395632ff850b5a2c9c4e0ee",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/BeamSolver3D.dylib": "bbe4e9e143c21d7f2e2643affc56a61cec916dc1bf94e693cc93b292fb9c4fa1",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/CahnHilliard.dylib": "2694656b42905e9833029c5cd988ebec4d8425411283234186aa67a4044b1913",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/CircuitsAndDynamics.dylib": "05f3756d47dafa39f5bf74730e69ef6596c4272f8520d30fe2bab8e9e0a92801",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/CoilSolver.dylib": "5dff003d1b5daa86f61678e1c8ce8483031692373a3859431eff61cac4f00eb3",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/CompressibleNS.dylib": "8b900288fa11fb23cf0da8ee0c256a7e4720f7eacc5c36e763a692a7fd200643",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ConsistentSplitting.dylib": "c5352bed4ea962312616595932cf390083e71d584496c187f38b9bd74d42454e",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/CoordinateTransform.dylib": "ff06e7d0f376047807ed5c8e105e0d1064bea30a1990fa602695dc1c7feb18d0",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/CraigBamptonSolver.dylib": "16971720539bef624e34312d9d406a074a5477e9d8d6c47c57cfd3e00168c0a4",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/CyclicConvergence.dylib": "cadace67056def7aed3ac9d4ccee0f77d9f47e8600d591af5e768e062a8c61c5",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/DCRComplexSolve.dylib": "3d9813c42b13c0f82d562395051860e3a9a7d52aa9ec660fc602cad1c812cde3",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/DFTSolver.dylib": "619931fd511727b762e4da58163f279741a87f5d715610ee834f553ebce0f7ad",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/DataToFieldSolver.dylib": "99b7f628f6b29e64f42b7b578964e1a3353a8ee597d3f3ad776160a6a8047868",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/DirectionSolver.dylib": "5c7385383fe170b831899368e3546c0f8510178ddebd2fda4704e6bf56212e1d",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/DistanceSolve.dylib": "9a1cfb5f35be0749f383ad5ce458ad53f8ce866f3f008e9ac7295e611be9ddd8",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/DistributeSource.dylib": "ce157ceed5c7155e4ab294f53a7cdae14119fe84fd383f31406d5ca9da5db152",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/DivProjection.dylib": "7aff8650b2be84680a448b669f15faf5124e1b388b021e3c3750b24411e3d559",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/DivergenceSolver.dylib": "df803f403787c8c26ef5241520e0d89228d7dc5efe19d0372f5d199c96d6f7a2",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/EMPort.dylib": "7caa8b004aa83aeba75d97fefdacf83d37b42d52de6583bb969dfd58362d4798",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/EMWaveSolver.dylib": "be5bc9a754f58a9c4205b2947860b2568adf3fc51f667839ec206f431639a008",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/EdgeFEInterpolationTest.dylib": "9b8e59b004a55a345782e55bdcbb64692390e4f7ec84b5407b8ba214042576f2",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ElasticSolve.dylib": "0297c9141da7add583a2f164015bb94875ac2a4e074794d5089b00c700b6d054",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ElectricForce.dylib": "4d3e811b8f335736b7164792ee0de86d686be0824152cc233211dae6f82b0801",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Electrokinetics.dylib": "682e76f875dc76d076f1dc97ad413caab963603e85fd4a175f7f21c16df9093a",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ElementSizeSolver.dylib": "b29b673e53832f0337223901b2e9c8d728ec4153eea100a61b5cb9477380f522",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ElementStats.dylib": "cefc06eef21a78a27b4c3b9ed0b78e0f30b97711d1a107d02d072b2ce55959e6",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/EliminateDirichlet.dylib": "fe682d83388625a9a9d83a140e0f321694386e012d7512a700961a113a408ef8",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/EliminatePeriodic.dylib": "5c0e983ac33d1b92f72c1a119fcf9afba20cad37bab8c410ba10f9bc2f1164b2",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Elmer2OpenFoamIO.dylib": "0a49c2e038b469141641e28c423617c36d7f4b500da65069ace83ac0da15e7cd",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/EnergyRelease.dylib": "9d113794ea12ad45b954a14e545281ad18c8311b7a4a6ea4985bbebf8fe312ea",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FDiffusion.dylib": "c396797ea59b26d57e2c735c4b96f8c97dca900ffc85c73d98205c90d4a6766a",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FDiffusion3D.dylib": "a039c85cfb5a0029e5f5f2b58dd319a6ffc6ab95bb875d188e8e6a3400b57bda",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FacetShellSolve.dylib": "8fc77ec9795077ff9bd175ab7f069f421a6dd646967976e63130ab47af38a274",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FilmFlowSolver.dylib": "ade914b62a41c5e59a6c7dd7ec4179e341058692fb807c92122a26407fddcf1e",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FilterTimeSeries.dylib": "a62bd4d51fee39f33f1735a5adf651145629bb41c63236f560bb9ad87dda0783",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FindOptimum.dylib": "737e22b9c9f0be0f5a99c5471a1892d3ac09bc4ceba2fd9a5d20144eb0ca31d9",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FixTangentVelo.dylib": "659476c784b2e8008ed3003609e6a8a1c29a53d57f30620789226ae6ffcfb3cc",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FlowSolve.dylib": "5c8b061a2f78825cb230179aa448ef0b678723b41b62f09ef25ae760e15a6749",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FluidicForce.dylib": "da17414a459eb1c6f768f2cc02d2f07fb9b9794611e48e043be9bc00f7727308",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FluxSolver.dylib": "a1387402758505a93e5ab7a9809c503f31b33687df5ad9658701e499ac3e96e5",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FourierLoss.dylib": "99d5007ead77150db3bfa66bd93bea230006337a2d53954f788cc20c5fcc65fc",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FreeSurfaceReduced.dylib": "6fa8c462ba71ccc2e6b9647dd6c0201b9285dc0e94a3c4b2f78c391ee28daa19",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/FreeSurfaceSolver.dylib": "58f1d60f9c29257e8dfe463a9c246310ad78451265aa45bfb98f8a40da3d078b",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/GmshOutputReader.dylib": "2c9c3403288ff4ad77ea4d24f3634564f9fdc46643876600aa2c89667dd2851f",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/HarmonicSignals.dylib": "b9ad5b74c1da70df3a4c4bccc1463e1d183053b7d32921d18c3f3f7a6e1b4183",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/HeatSolve.dylib": "1520f2e6a914bf7958c392395144f3b87e568e4ab18483e2812762e95fedd8c2",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/HeatSolveVec.dylib": "f787ef342af54475e401d079ca35566985f9749503e53c551a60ebdd96bd33e2",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/HelmholtzBEM.dylib": "caae9c1563f999e53e33e127a0c1f6b0a0e1199eda465a130a2b4bf0a3a52af0",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/HelmholtzProjection.dylib": "6b5c6c643fcffb74d3831ef9c7d034b48d55de02b8217e57586c85880f11829b",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/HelmholtzSolve.dylib": "8fd49b8c511e197eebe1c04f1b498dd7b9a20f15041741abd6a2e884af1856eb",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/HydrostaticNSVec.dylib": "fe9c31cf4d930c280bc667cb14c1b8a03858132a655a254893eda4c257ec4e62",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/IncompressibleNSVec.dylib": "754ef2877199e6ae556a26e857c9102eb8f9d7c19b7e040c485aab50f4557241",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Isosurface.dylib": "4c0ff972cd830ff74445224791a64f02eb9a5632f7d238bcb2daf4ae1ef348a7",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/KESolver.dylib": "ff9d2c930ebe5f4f2028c448cb967f59ebbabe1e3bdf063ba65a1893d0a39f89",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Komega.dylib": "a37bd45a3e4f21da1d0ff836f339c0909622d97cd580343c9538150f8fed230d",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/LevelSet.dylib": "b53aa7654f2fd641371953618d1aa9fdd951cf7a3d5955403494698e8ef816e7",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/MagneticSolve.dylib": "1f0f5c6e5e04819e28da56e9dbea0b069f9a87995a23622c84c6cec9e9678f6e",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/MagnetoDynamics.dylib": "f7fc986479e349984cd74746ebcf16aa1cadc072b411a9d191f9d01b0b988f42",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/MagnetoDynamics2D.dylib": "0b0d6b7ae5e932e18c95fcd2bdd711704de40cfec5e76df27e77d1da3d0cb68c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/MarchingODESolver.dylib": "c4cf02ab2d2b6e9f34d42bb27b51b8cfcd6b3cd458d840bb3c186ff1e69b13b0",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Mesh2MeshSolver.dylib": "3f5c2804a5bbf795c55ccb58b15514c59c1700fdc334ac66e704c44b81d0b456",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/MeshChecksum.dylib": "373d231ae3400c4863790718149492844428f375c138c05d44cf204dff484bae",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/MeshSolve.dylib": "40cb94757273d4a3139812941777a3932106e1e07f28b6b0f9f00bd80e83f0f0",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ModelMixedPoisson.dylib": "9422b1b7cfba6845c6c0a2967e878774d4f17c35c2211c0908889cce6f961335",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ModelPDE.dylib": "671d8c3a3be7618e900b28b6d094a85063ee9758c46a2e73ebaf0897d352a03c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ModelPDECutFEM.dylib": "402172897bc3d3586778c478ad730a5f143aab52f094083b148593be9735622c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ModelPDEhandle.dylib": "57cb55c84007fd670e1d3693ec4d223a88afa9c7bf58bdd21fb127ff1f62b02d",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/NodeToEdgeSolver.dylib": "c8fc0e136396326cf717d7e2598043d0856b7dd39806c519f5a9dfe309192d4a",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/NonphysicalMeshSolve.dylib": "9c9a20315409c9a096251373aac65c18dfc0ce9fc1b12cc361b147ef05d0ae99",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/NormalSolver.dylib": "bc8a8d9545c844201fd6367cd2ea82ecaa7120c47bd85cc6c93d20cc23c2e07e",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/OdeSolver.dylib": "05ba869e346b6861426d89a43e7881ffa39992da7919043ca956e358aed9ded2",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/OpenFoam2ElmerIO.dylib": "33dbaaefaf6befdb9a4550160d5dfd22ad8d0afaa911b558f26358cbf6619c2a",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ParStokes.dylib": "8aa1a2a96e79594b21b48d94c043d20a5913d53946d879461b586b23350a7800",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ParallelRemesh.dylib": "d36fbcf7d7ef6b4bd036d53ebc4d8ebcbe202737257ebca4de8f754f2ca2ecf8",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ParticleAdvector.dylib": "bf6e6317f86c2de4d99731e87a58f95928aa10e060cf40e889deff711a6fdf7a",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ParticleDynamics.dylib": "adf4e74ec8f5a9cb463a0aeac3ca63b36625d6acda7b582377cc0fc365c89efe",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/PartitionMesh.dylib": "620a49f12b856023a9a415ccd6daa15415144960c00a89ea28d939eafc96fa84",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/PhaseChangeSolve.dylib": "9e72d80a61880da7b4a8de5111541f47dc9b52529c9d2a83734938a8bb3e0e3b",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Poisson.dylib": "382d8b8ad7f25ca4658bd28e6126fa241dc569e7cedc25514e9b29908f27c74f",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/PoissonBEM.dylib": "6d4f06d5e062750094e2e47d32da76eda56c48ff95ce60ff0173650a825f7ca1",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/PoissonBoltzmannSolve.dylib": "aa6ccc47a7a2d4407207e9d9246e581c2a18416b89271830d4242483ff4ef789",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/PoissonDG.dylib": "3fac710a687ccf7095806e4a7695af81273e844d74e83f6bbc0f93911e3870b5",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/PressurePrecond.dylib": "b765e21bfa901e0db9144154e5cd610b4011e05dc4b2fb0e94ced517ff41824e",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Probes.dylib": "4e57163c4e65daac5b245567465c6890884d136172d3bbafa90ac170469cf670",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ProjectToPlane.dylib": "0df2928f4baaefa0f3965486954d88d459257969446e418cbc296fd208b01490",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/RateOfChange.dylib": "86cb9553241987e3351af5fa397896589be8331f75b728363eda78e424f446a0",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ReloadData.dylib": "dfa92da1bd81b4fe3e9de7fdf0713cea66d2cb69283b2db796a64f364c7bfe17",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ReloadInput.dylib": "83495054f7c9c6b49a5e125d35fec38b2237d4c152b1534b61cf1b22fe0303d9",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ResultOutputSolve.dylib": "bf02281d480c3d630e8a77d259c5e730bb1231027f480726d49b849fc30adc3c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ReynoldsSolver.dylib": "4d3ed77385acb2975b69425f547b3cf4249325e8804f4db2d82b2b62baf4e823",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/RichardsSolver.dylib": "1cc5ddb585112c7f1dbe82ad51473d1253366d993fb7eef67121f81fdc279db0",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/RigidBodyReduction.dylib": "9e46608ec9a0ead6d9ea97d3fddfa33baaed3ba91a538cfa3dd8b7c7560b6ffd",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/RigidMeshMapper.dylib": "09b5a13ebfcacce4883f6f0ffeb669b06fc481f512a961c56d06ac5f8a2491ab",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SOLVER.KEYWORDS": "209eb0f4138b2f5f9b1f412bfc03ba1a0f4050f4db68dcf82a7b3c3f2f253fa3",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SSTKomega.dylib": "4412f5bf7b2b8aa6bc22adc49f45920a8a4ea60785d62b78c8b286e62a0910df",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SaveData.dylib": "79034ed94c5f332a32d4723a66e767e7fcb308a98f2c9abf34d7ec67a572813c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SaveGridData.dylib": "2c5da42b400d3addf79f55ccf7f90131cd602d625adbf580a27a4d46e8c48902",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SaveMesh.dylib": "c5cc1767ba64c295c2e91c9d062ec0c8dfebd41ea4cab76374c544d4da5f789f",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ScalarPotentialSolver.dylib": "b3e1aad11647340132388e5b5c52cc8538b3301089b3e54a98fc8d4f53dd858e",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ScannedFieldSolver.dylib": "db79f4459d72e602d098eb140bc81597447cbfbd8226b93567063f09fed77773",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ShallowWaterNS.dylib": "01183099d826224f6cecc90451eef3db1b6ab9ce7d62614277684b09198ef92c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ShearrateSolver.dylib": "fee98bb7fe68cabb712ae3d015bfe04803621aa9958a068027c8af5451d5a2d0",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ShellSolver.dylib": "4fb703b21e556604bb689682f6c932f44e0b0ca86e63bf3c9967ab3ffb82b561",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SimpleCircuits.dylib": "03493cd89ab73c3bce4439426da7e932b6bf329b5cb3eaafcd677615782965ed",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Smitc.dylib": "bfd85b3cd3eff4c82e262c11468b5c55c8204b12a18a5241f5eb012f0a1352b4",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Spalart-Allmaras.dylib": "cb041543fe4ee6b24a99e1ed3ef3cdfd32940297419600ff0b68964a933569f8",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SpringAssembly.dylib": "dc41b4f8e05ea2152f853dfbf86b79b11036a17d2c80fb746c2613a2bb24cb16",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StatCurrentSolve.dylib": "94e4b55b04e9ab485b36737fcfe950a2d226a582996eea83f78fa3ec9caddb43",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StatCurrentSolveVec.dylib": "5db73b2ca6fadd4f2a7be576a9f20a04691c73ed8ea739ff0388b2bf3f0c4789",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StatElecBoundary.dylib": "057653952b9be2aed80782db43d09d73aaa0b8de407ec90a78dab2202d20be0a",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StatElecSolve.dylib": "bac1d62080ea5fcd9fbf423934ce7de5c64f79a801411534fc434e05eb3c6a46",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StatElecSolveVec.dylib": "a9105bcc493fb6ec3c02c6a7bd165d60aa3d9046c9f34fb303ed07b02173ee2f",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StatMagSolve.dylib": "544a920112d62deb270c1d730d9a2c9d9018f7fba4aa42d112e70036995f20b6",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SteadyPhaseChange.dylib": "c43102dc380b41d462ec92fd1b3541b49c85df9782155cd794d301ddee42c612",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/Stokes.dylib": "c0ba7cd2f139c591b8ed48b4d6b496804255d8713641c06d0a73b0ef543e4af4",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StreamSolver.dylib": "683332d490e1fd89e220139c89bb83247f2cf1726e45d2fbb94a1f88f12bc417",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StressSolve.dylib": "ae328892aff1d5dbd138012005eb6089336522aa89418528f7589cfd37012822",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StructuredFlowLine.dylib": "4945f3f433cd0b4c260a14c70ff2d1c621196c0fa99a9b6d63bd1818a1ee9d84",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StructuredMeshMapper.dylib": "2b3d0759c178a205b4ab0c7758eca50b56b258bc818b78a8a98f43a0448c7c33",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/StructuredProjectToPlane.dylib": "5bb2670e06f21b7e570b3c3b0e32f8dc205c0988e6e627eaab27c4959be42137",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/SunAngle.dylib": "fe2de8c2813f61b39b559ba1d2df6464c9f4063bce5d569a19d092b8710b2ee3",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/ThermoElectricSolver.dylib": "e643277d0f5f125c835e2ccac8e342a23d297bf38f3a453fedf36adec9f0e940",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/TopoOpt.dylib": "ff1e25acc2f1726cf3a1e3fe345e3c26f934868f2bd26567ee1058aa1204cc92",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/TransientCost.dylib": "7ab27c3ad43107834c9f415471b311dbb895414c30d792dffc567a20f9b691ca",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/TransientPhaseChange.dylib": "0f76a4347607ed3f8917a86aacefc9b343152e72e5ed8c8a795582f65c96895e",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/TransportEquation.dylib": "af1895b32dec19509b0a4992ff1bea834652696a5e6e8c1b4877fcc0dc603216",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/UMATLib.dylib": "27b9d6085129d24d63eaf85f03f4fbf0275ad64b98fa25cd691ec894c2e0137b",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/V2FSolver.dylib": "90854662d0c60e210eddcd55dfa7a2026e7f8d08a8ae0a68f238249e9d43627c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/VectorHelmholtz.dylib": "8f72a8ad1eaf99a02414204d0044596a6dc888e322d35fce54aae54cde3ec9d7",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/VectorHelmholtzLumping.dylib": "85c42695f390014c3b5f6f8b801f2406245509563eb68df03254b683f62bb25c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/VectorHelmholtzNodal.dylib": "9ad4b74b968acf889832f1255f67e1ac4354a822a6d4dbaf724c33788fe87c05",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/VelocityPrecond.dylib": "25e143b08627943d242cac6e279317aa91bdfc78837c0e7b0d0917bf2e813c6b",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/VorticitySolver.dylib": "46f522ffdfe906fac1cbcb953bb3abcaf3f7995253c7ac87a5f9fd686921477c",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/WPotentialSolver.dylib": "2709bde98b1ca9ce7ef15abcac2c8e3ebd2fa4b487d49df28c80f351d440c61a",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/WVectorFix.dylib": "5306301cd61695a8325a067746357424eca6d0162c2ccffb5b2e66b766189769",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/WaveSolver.dylib": "c7724f435cb5328129f5e67637db565df58ccc831ebb947885f37a89ebb5cda0",
+    "/Users/bennet/.local/opt/elmer-26.2.1/share/elmersolver/lib/elements.def": "fd7797060c26856026a246dc986c3a8e1e0b56e9de0843b99c81f1176609edbd",
+    "/opt/homebrew/bin/gmsh": "3a55c99472787070063d62adb43620f17a68e0f4526831750e2653320801351f",
+    "/private/tmp/zapote-bridge-cooling-20260914": "ee8b814df05fed61e10f379c8c1f2c80ee068286f92254d4d50a49a0bfab55a0"
+  },
+  "backend_versions": [
+    "4.15.2-git\n\n--- stderr ---\n",
+    "==================================================================\nElmerGrid mesh conversion and manipulation utility, Welcome!\nVersion: 26.2 (Rev: NA, Compiled: NA)\nThis program is free software licensed under GPL\n==================================================================\nThis program can create simple 2D structured meshes consisting of\nlinear, quadratic or cubic rectangles or triangles. The meshes may\nalso be extruded and revolved to create 3D forms. In addition many\nmesh formats may be imported into Elmer software. Some options have\nnot been properly tested. Contact the author if you face problems.\n------------------------------------------------------------------\nThe program has two operation modes\nA) Command file mode which has the command file as the only argument\n   'ElmerGrid commandfile.eg'\n\n------------------------------------------------------------------\nB) Inline mode which expects at least three input parameters\n   'ElmerGrid 1 3 test'\n\nThe first parameter defines the input file format:\n1)  .grd      : ElmerGrid file format\n2)  .mesh.*   : Elmer input format\n3)  .ep       : Elmer output format\n4)  .ansys    : Ansys input format\n5)  .inp      : Abaqus input format by Ideas\n6)  .fil      : Abaqus output format\n7)  .FDNEUT   : Gambit (Fidap) neutral file\n8)  .unv      : Universal mesh file format\n9)  .mphtxt   : Comsol Multiphysics mesh format\n10) .dat      : Fieldview format\n11) .node,.ele: Triangle 2D mesh format\n12) .mesh     : Medit mesh format\n13) .msh      : GID mesh format\n14) .msh      : Gmsh mesh format\n15) .ep.i     : Partitioned ElmerPost format\n16) .2dm      : 2D triangular FVCOM format\n\nThe second parameter defines the output file format:\n1)  .grd      : ElmerGrid file format\n2)  .mesh.*   : ElmerSolver format (also partitioned .part format)\n3)  .ep       : ElmerPost format\n4)  .msh      : Gmsh mesh format\n5)  .vtu      : VTK ascii XML format\n------------------------------------------------------------------\n\nThe third parameter is the name of the input file.\nIf the file does not exist, an example with the same name is created.\nThe default output file name is the same with a different suffix.\n\nThere are several additional in-line parameters that are\ntaken into account only when applicable to the given format.\n-out str             : name of the output file\n-in str              : name of a secondary input file\n-decimals            : number of decimals in the saved mesh (eg. 8)\n-bin                 : save mesh for ElmerSolver in binary format\n-sbin                : save mesh for ElmerSolver in binary & single precision format\n-relh real           : give relative mesh density parameter for ElmerGrid meshing\n-triangles           : rectangles will be divided to triangles\n-merge real          : merges nodes that are close to each other\n-order real[3]       : reorder elements and nodes using c1*x+c2*y+c3*z\n-centralize          : set the center of the mesh to origin\n-scale real[3]       : scale the coordinates with vector real[3]\n-translate real[3]   : translate the nodes with vector real[3]\n-rotate real[3]      : rotate around the main axis with angles real[3]\n-clone int[3]        : make identical copies of the mesh\n-clonesize real[3]   : the size of the mesh to be cloned if larger to the original\n-mirror int[3]       : copy the mesh around the origin in coordinate directions\n-cloneinds           : when performing cloning should cloned entities be given new indexes\n-unite               : the meshes will be united\n-unitenooverlap      : the meshes will be united without overlap in entity numbering\n-polar real          : map 2D mesh to a cylindrical shell with given radius\n-cylinder            : map 2D/3D cylindrical mesh to a cartesian mesh\n-reduce int[2]       : reduce element order at material interval [int1 int2]\n-increase            : increase element order from linear to quadratic\n-bcoffset int        : add an offset to the boundary conditions\n-discont int         : make the boundary to have secondary nodes\n-connect int         : make the boundary to have internal connection among its elements\n-removeintbcs        : remove internal boundaries if they are not needed\n-removelowdim        : remove boundaries that are two ranks lower than highest dim\n-removeunused        : remove nodes that are not used in any element\n-bulkorder           : renumber materials types from 1 so that every number is used\n-boundorder          : renumber boundary types from 1 so that every number is used\n-autoclean           : this performs the united action of the four above\n-multidim            : keep lower order entities even if they are not boundaries\n-bulkbound int[3]    : set the intersection of materials [int1 int2] to be boundary int3\n-boundbound int[3]   : set the intersection of boundaries [int1 int2] to be boundary int3\n-bulktype int[3]     : set material types in interval [int1 int2] to type int3\n-boundtype int[3]    : set sidetypes in interval [int1 int2] to type int3\n-layer int[2] real[2]: make a boundary layer for given boundary\n-layermove int       : apply Jacobi filter int times to move the layered mesh\n-divlayer int[2] real[2]: make a boundary layer for given boundary\n-3d / -2d / -1d      : mesh is 3, 2 or 1-dimensional (applies to examples)\n-isoparam            : ensure that higher order elements are convex\n-nonames             : disable use of mesh.names even if it would be supported by the format\n-nosave              : disable saving part altogether\n-nooverwrite         : if mesh already exists don't overwrite it\n-vtuone              : start real node indexes in vtu file from one\n-timer               : show timer information\n-infofile str        : file for saving the timer and size information\n\nKeywords are related to mesh partitioning for parallel ElmerSolver runs:\n-partition int[3]    : the mesh will be partitioned in cartesian main directions\n-partorder real[3]   : in the 'partition' method set the direction of the ordering\n-parttol real        : in the 'partition' method set the tolerance for ordering\n-partcell int[3]     : the mesh will be partitioned in cells of fixed sizes\n-partcyl int[3]      : the mesh will be partitioned in cylindrical main directions\n-metiskway int       : mesh will be partitioned with Metis using graph Kway routine\n-metisrec int        : mesh will be partitioned with Metis using graph Recursive routine\n-metiscontig         : enforce that the metis partitions are contiguous\n-metisvol            : minimize total communication volume in Metis\n-metisminconn        : minimize the maximum connectivity count in Metis\n-metisseed int       : random number generator seed for Metis algorithms\n-metisncuts int      : number of competing partitions to generate\n-partdual            : use the dual graph in partition method (when available)\n-halo                : create halo for the partitioning for DG\n-halobc              : create halo for the partitioning at boundaries only\n-haloz / -halor      : create halo for the the special z- or r-partitioning\n-halogreedy          : create halo being greedy over the partition interfaces\n-periodic int[3]     : periodic coordinate directions for parallel & conforming meshes\n-partoptim           : apply aggressive optimization to node sharing\n-partnobcoptim       : do not apply optimization to bc ownership sharing\n-partbw              : minimize the bandwidth of partition-partition couplings\n-parthypre           : number the nodes continuously partitionwise\n-partzbc             : partition connected BCs separately to partitions in Z-direction\n-partrbc             : partition connected BCs separately to partitions in R-direction\n-metisbc             : partition connected BCs separately to partitions by Metis\n-partlayers int      : extend boundary partitioning by element layers\n------------------------------------------------------------------\n\nThank you for using Elmergrid!\nSend bug reports and feature wishes to elmeradm@csc.fi\n\n--- stderr ---\n",
+    "ELMER SOLVER (v 26.2) STARTED AT: 2026/09/14 11:24:14\nParCommInit: Initialize #PEs: 1\nMAIN: \nMAIN: =============================================================\nMAIN: ElmerSolver finite element software, Welcome!\nMAIN: This program is free software licensed under (L)GPL\nMAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.\nMAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi\nMAIN: Version: 26.2-unknown (Rev: a19504a, Compiled: 2026-09-12)\nMAIN:  Running one task without MPI parallelization.\nMAIN:  Running with just one thread per task.\nMAIN: =============================================================\nSOLVER TOTAL TIME(CPU,REAL):         0.01        0.04\nELMER SOLVER FINISHED AT: 2026/09/14 11:24:14\n\n--- stderr ---\n"
+  ],
+  "limitations": [
+    "Sampled local steady-state model; no continuous worst-case or hardware qualification.",
+    "Bridge terminal and rest-of-board temperatures/conductances are assumed reservoirs, not validated assembly cooling.",
+    "No plated barrel, solder fillet, opposite-side copper or bridge package solid is resolved; hole-wall boundary represents their combined contact.",
+    "No allowable copper/assembly temperature contract is established. Existing IPC screen findings remain unchanged."
+  ]
+}

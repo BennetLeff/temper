@@ -35,4 +35,40 @@ fn retained_thermal_run_binds_to_real_pfc_currents_without_clearing_findings() {
     );
     assert_eq!(report.status, Status::Indeterminate);
     assert_eq!(pfc.checks.status, Status::Fail);
+    let contract = fs::read(root.join("thermal/bridge-cooling-contract.json")).unwrap();
+    let cooling = bridge_thermal::run_with_contract(
+        Some(&root.join("thermal/evidence/bridge-cooling-2026-09-14")),
+        board.as_bytes(),
+        Some(&pfc),
+        Some(&contract),
+    );
+    assert_eq!(cooling.checked_rules.len(), 5);
+    assert!(cooling
+        .findings
+        .iter()
+        .any(|f| f.rule.ends_with("NUMERICAL") && f.status == Status::Pass));
+    assert!(cooling
+        .findings
+        .iter()
+        .any(|f| f.rule.ends_with("APPLICABILITY") && f.status == Status::Indeterminate));
+    assert_eq!(pfc.checks.status, Status::Fail);
+    // A numerically valid bundle cannot float free of its electrical load.
+    let mut wrong_pfc = pfc;
+    let branch = wrong_pfc
+        .branches
+        .iter_mut()
+        .find(|b| b.id == "1a8c9e36-4bbf-486e-a8a9-34985b0b249e:2")
+        .unwrap();
+    branch.determined_rms_a = Some(14.0);
+    let wrong = bridge_thermal::run_with_contract(
+        Some(&root.join("thermal/evidence/bridge-cooling-2026-09-14")),
+        board.as_bytes(),
+        Some(&wrong_pfc),
+        Some(&contract),
+    );
+    assert_eq!(wrong.status, Status::Fail);
+    assert!(wrong
+        .findings
+        .iter()
+        .any(|f| f.rule.ends_with("NUMERICAL") && f.status == Status::Fail));
 }

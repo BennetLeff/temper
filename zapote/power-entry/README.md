@@ -8,6 +8,12 @@ unconnected links and schematic parity findings. The Rust nominal PFC screen
 still reports **four failures** at the bridge terminal necks; thermal and other
 engineering qualification remain incomplete.
 
+The [bridge cooling assessment](../thermal/bridge-cooling.md) selects a
+Wakefield 395-1AB heatsink and two Sunon fans. Twenty additional source-bound
+FEM cases show 100.5–107.9 °C at the design targets and 125.1–147.8 °C with
+quarter-strength thermal contacts. The narrow margin and unverified assembly
+heat paths keep the four bridge findings open; these are calculated temperatures.
+
 The design targets the 1,800 W nominal AC-input class at 120 VAC. At 15 A RMS
 and PF 0.99, real input is 1,782 W before conversion losses. The nominal bus
 setpoint is 389.615 V. This does not claim 1,800 W delivered to the pan.

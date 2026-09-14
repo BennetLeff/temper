@@ -152,4 +152,10 @@ Read the relevant detailed record before changing behavior in that area:
   per-face heat flows; use integrated boundary laws for heat partition. A valid
   numerical result cannot certify unbounded assembly cooling or waive current
   findings. Replay validates historical evidence, not the installed solver.
+- [Bridge cooling contract](thermal/bridge-cooling.md) — source-bind selected
+  cooling targets separately from verified assembly properties. A Robin
+  reservoir temperature is not the boundary-surface temperature; a junction
+  limit is not a PCB limit. Compare mesh refinements of the same physics.
+  The 20-case run has only 2.14 K nominal PCB margin and fails its weaker-contact
+  sensitivity: finer meshes cannot resolve unknown lead/barrel heat paths.
 - [Buck harness refinement plan](../docs/plans/2026-09-09-1945-feat-buck-harness-refinement-plan.md)

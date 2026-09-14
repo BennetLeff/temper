@@ -1,0 +1,1089 @@
+ELMER SOLVER (v 26.2) STARTED AT: 2026/09/14 11:25:59
+ParCommInit: Initialize #PEs: 1
+MAIN: 
+MAIN: =============================================================
+MAIN: ElmerSolver finite element software, Welcome!
+MAIN: This program is free software licensed under (L)GPL
+MAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.
+MAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi
+MAIN: Version: 26.2-unknown (Rev: a19504a, Compiled: 2026-09-12)
+MAIN:  Running one task without MPI parallelization.
+MAIN:  Running with just one thread per task.
+MAIN: =============================================================
+MAIN: 
+MAIN: 
+MAIN: -------------------------------------
+MAIN: Reading Model: case.sif
+LoadInputFile: Scanning input file: case.sif
+LoadInputFile: Scanning only size info
+LoadInputFile: First time visiting
+LoadInputFile: Reading base load of sif file
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 3
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 3
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 3
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 3
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 4
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 4
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 4
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 4
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 5
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 5
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 5
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 5
+LoadInputFile: Loading input file: case.sif
+LoadInputFile: Reading base load of sif file
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 3
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 3
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 3
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 3
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 4
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 4
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 4
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 4
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 5
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 5
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 5
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 5
+LoadInputFile: Number of BCs: 3
+LoadInputFile: Number of Body Forces: 1
+LoadInputFile: Number of Initial Conditions: 1
+LoadInputFile: Number of Materials: 2
+LoadInputFile: Number of Equations: 2
+LoadInputFile: Number of Solvers: 3
+LoadInputFile: Number of Bodies: 2
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Init0]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Init0]
+Loading user function library: [HeatSolve]...[HeatSolver_Init0]
+Loading user function library: [HeatSolve]...[HeatSolver_Init0]
+Loading user function library: [SaveData]...[SaveScalars_Init0]
+Loading user function library: [SaveData]...[SaveScalars_Init0]
+LoadMesh: Loading serial mesh!
+ElmerMeshReader: Performing step: 1
+ElmerMeshReader: Base mesh name: ./neck
+ReadHeaderFile: Reading header info from file: ./neck/mesh.header
+InitializeMesh: Number of nodes in mesh: 23458
+InitializeMesh: Number of bulk elements in mesh: 116930
+InitializeMesh: Number of boundary elements in mesh: 18166
+InitializeMesh: Initial number of max element nodes: 4
+ElmerMeshReader: Performing step: 2
+ReadNodesFile: Reading nodes from file: ./neck/mesh.nodes
+SetMeshDimension: Dimension of mesh is: 3
+SetMeshDimension: Max dimension of mesh is: 3
+ElmerMeshReader: Performing step: 3
+ReadElementsFile: Reading bulk elements from file: ./neck/mesh.elements
+ElmerMeshReader: Performing step: 4
+ReadBoundaryFile: Reading boundary elements from file: ./neck/mesh.boundary
+PermuteNodeNumbering: Performing node mapping
+MapBodiesAndBCs: Remapping bodies
+MapBodiesAndBCs: Minimum initial body index: 1
+MapBodiesAndBCs: Maximum initial body index: 2
+MapBodiesAndBCs: Remapping boundaries
+MapBodiesAndBCs: Minimum initial boundary index: 11
+MapBodiesAndBCs: Maximum initial boundary index: 13
+ElmerMeshReader: Performing step: 5
+ElmerMeshReader: Performing step: 6
+LoadMesh: Loading mesh done
+LoadMesh: Preparing mesh done
+LoadMesh: Elapsed REAL time:     0.0694 (s)
+MeshStabParams: Computing stabilization parameters
+MeshStabParams: Elapsed REAL time:     0.0123 (s)
+LoadModel: Defined radition solver by Equation name "heat equation"
+MAIN: -------------------------------------
+AddVtuOutputSolverHack: Adding ResultOutputSolver to write VTU output in file: neck
+AppendNewSolver: Increasing number of solvers to: 4
+AddMeshCoordinates: Setting mesh coordinates and time
+AddSolvers: Setting up 4 solvers
+AddSolvers: Setting up solver 1: stat current
+AddEquationBasics: Using procedure: StatCurrentSolve StatCurrentSolver
+AddEquationBasics: Setting up solver: stat current
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Init]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_bulk]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_bulk]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver]
+AddEquationBasics: Creating standard variable: potential
+OptimizeBandwidth: ---------------------------------------------------------
+OptimizeBandwidth: Computing matrix structure for: stat current
+OptimizeBandwidth: Initial bandwidth for stat current: 3084
+OptimizeBandwidth: Optimized bandwidth for stat current: 120
+OptimizeBandwidth: ---------------------------------------------------------
+AddSolvers: Setting up solver 2: heat equation
+AddEquationBasics: Setting up keywords internally for legacy solver: heat equation
+AddEquationBasics: Using procedure: HeatSolve HeatSolver
+AddEquationBasics: Setting up solver: heat equation
+Loading user function library: [HeatSolve]...[HeatSolver_Init]
+Loading user function library: [HeatSolve]...[HeatSolver_bulk]
+Loading user function library: [HeatSolve]...[HeatSolver_bulk]
+Loading user function library: [HeatSolve]...[HeatSolver]
+AddEquationBasics: Creating standard variable: temperature
+OptimizeBandwidth: ---------------------------------------------------------
+OptimizeBandwidth: Computing matrix structure for: heat equation
+OptimizeBandwidth: Initial bandwidth for heat equation: 23244
+OptimizeBandwidth: Optimized bandwidth for heat equation: 786
+OptimizeBandwidth: ---------------------------------------------------------
+AddSolvers: Setting up solver 3: savescalars
+AddEquationBasics: Using procedure: SaveData SaveScalars
+AddEquationBasics: Setting up solver: savescalars
+Loading user function library: [SaveData]...[SaveScalars_Init]
+Loading user function library: [SaveData]...[SaveScalars_bulk]
+Loading user function library: [SaveData]...[SaveScalars_bulk]
+Loading user function library: [SaveData]...[SaveScalars]
+AddSolvers: Setting up solver 4: internalvtuoutputsolver
+AddEquationBasics: Using procedure: ResultOutputSolve ResultOutputSolver
+AddEquationBasics: Setting up solver: internalvtuoutputsolver
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_Init]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_Init]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_bulk]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_bulk]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver]
+AddEquationBasics: Creating global variable: vtu_internal_dummy
+AddTimeEtc: Setting time and other global variables
+MAIN: Random seed initialized to: 314159265
+SetInitialConditions: Setting up initial conditions (if any)
+MAIN: Number of timesteps to be saved: 30
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            1
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 53 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 53
+StatCurrentSolve:  Assembly (s)          :  0.24157099999999998
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.11207043E-01  2.0000000     ) :: stat current
+StatCurrentSolve:  Solve (s)             :   5.5579999999999519E-003
+StatCurrentSolve:  Total Heating Power   :  0.25574111683181849
+DefaultFinish: Finished solver: stat current
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=1) (NRM,RELC): ( 0.11207043E-01  2.0000000     ) :: stat current
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: No Dirichlet conditions to enforce, exiting!
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 23458
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+WARNING:: CalculateLoads: Boundary 1 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 1: -7.14136E-02
+WARNING:: CalculateLoads: Boundary 2 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 2: -8.49705E-02
+WARNING:: CalculateLoads: Boundary 3 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 3: -9.93570E-02
+CalculateLoads: temperature Flux over all BCs: -2.55741E-01
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  373.74813      2.0000000     ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    1.42    1.42
+HeatSolve: iter:    1 Solve:    (s)    1.00    1.00
+HeatSolve:  Result Norm   :    373.74813414259705
+HeatSolve:  Relative Change :    2.0000000000000000
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=1) (NRM,RELC): (  373.74813      2.0000000     ) :: heat equation
+SingleSolver: Attempting to call solver: 0
+SingleSolver: Solver Equation string is: internalvtuoutputsolver
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Saving with prefix: neck
+ResultOutputSolver: Dimension of mesh is: 3
+ResultOutputSolver: Working on mesh 1: neck with 23458 nodes
+ResultOutputSolver: Creating list for saving - if not present
+CreateListForSaving: Field Variables for Saving
+CreateListForSaving: Scalar Field 1: potential
+CreateListForSaving: Scalar Field 2: joule heating
+CreateListForSaving: Scalar Field 3: temperature
+CreateListForSaving: Scalar Field 4: temperature loads
+CreateListForSaving: Vector Field 1: volume current
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Saving results in VTK XML format with prefix: neck
+VtuOutputSolver: Saving number of partitions: 1
+SolverOutputDirectory: Creating directory: neck
+VtuOutputSolver: Full filename base is: neck/neck
+GenerateSaveMask: Number of active elements 135096 out of 135096
+GenerateSaveMask: Number of geometry nodes 23458 out of 23458
+VtuOutputSolver: Total number of elements to save: 135096
+VtuOutputSolver: Total number of geometry nodes to save: 23458
+VtuOutputSolver: Total number of dof nodes to save: 23458
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: neck/neck_t0001.vtu
+AscBinWriteInit: Initializing buffered ascii/binary writing
+AscBinWriteInit: Writing in binary
+AscBinWriteInit: Writing in double precision
+AscBinWriteInit: Writing to unit number: 58
+AscBinWriteInit: Size of buffer is: 23458
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Number of nodal fields written: 5
+WriteVtuFile: Writing elemental fields
+WriteVtuFile: Number of elemental fields written: 0
+WriteVtuFile: Writing entity IDs for bodies and boundaries
+WriteVtuFile: Writing coordinates for each used node
+WriteVtuFile: Writing the elemental connectivity data
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Writing elemental fields
+AscBinWriteFree: Terminating buffered ascii/binary writing
+VtuOutputSolver: All done for now
+ResultOutputSolver: -------------------------------------
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            2
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 53 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 53
+StatCurrentSolve:  Assembly (s)          :  0.22789799999999971
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.13757085E-01 0.20429652     ) :: stat current
+StatCurrentSolve:  Solve (s)             :   5.8030000000002246E-003
+StatCurrentSolve:  Total Heating Power   :  0.31397762466436846
+DefaultFinish: Finished solver: stat current
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=2) (NRM,RELC): ( 0.13757085E-01 0.20429652     ) :: stat current
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: No Dirichlet conditions to enforce, exiting!
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 23458
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+WARNING:: CalculateLoads: Boundary 1 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 1: -9.57858E-02
+WARNING:: CalculateLoads: Boundary 2 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 2: -9.86319E-02
+WARNING:: CalculateLoads: Boundary 3 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 3: -1.19560E-01
+CalculateLoads: temperature Flux over all BCs: -3.13978E-01
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  376.56997     0.75217073E-02 ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    1.35    1.35
+HeatSolve: iter:    1 Solve:    (s)    1.00    1.00
+HeatSolve:  Result Norm   :    376.56997072460359
+HeatSolve:  Relative Change :    7.5217072964165752E-003
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=2) (NRM,RELC): (  376.56997     0.75217073E-02 ) :: heat equation
+SingleSolver: Attempting to call solver: 0
+SingleSolver: Solver Equation string is: internalvtuoutputsolver
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Dimension of mesh is: 3
+ResultOutputSolver: Working on mesh 1: neck with 23458 nodes
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Full filename base is: neck/neck
+GenerateSaveMask: Number of active elements 135096 out of 135096
+GenerateSaveMask: Number of geometry nodes 23458 out of 23458
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: neck/neck_t0002.vtu
+AscBinWriteInit: Initializing buffered ascii/binary writing
+AscBinWriteInit: Writing in binary
+AscBinWriteInit: Writing in double precision
+AscBinWriteInit: Writing to unit number: 58
+AscBinWriteInit: Size of buffer is: 23458
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Number of nodal fields written: 5
+WriteVtuFile: Writing elemental fields
+WriteVtuFile: Number of elemental fields written: 0
+WriteVtuFile: Writing entity IDs for bodies and boundaries
+WriteVtuFile: Writing coordinates for each used node
+WriteVtuFile: Writing the elemental connectivity data
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Writing elemental fields
+AscBinWriteFree: Terminating buffered ascii/binary writing
+VtuOutputSolver: All done for now
+ResultOutputSolver: -------------------------------------
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            3
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 53 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 53
+StatCurrentSolve:  Assembly (s)          :  0.22694900000000029
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.13889111E-01 0.95511059E-02 ) :: stat current
+StatCurrentSolve:  Solve (s)             :   5.7979999999995258E-003
+StatCurrentSolve:  Total Heating Power   :  0.31689061032207549
+DefaultFinish: Finished solver: stat current
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=3) (NRM,RELC): ( 0.13889111E-01 0.95511059E-02 ) :: stat current
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: No Dirichlet conditions to enforce, exiting!
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 23458
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+WARNING:: CalculateLoads: Boundary 1 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 1: -9.69721E-02
+WARNING:: CalculateLoads: Boundary 2 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 2: -9.93471E-02
+WARNING:: CalculateLoads: Boundary 3 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 3: -1.20571E-01
+CalculateLoads: temperature Flux over all BCs: -3.16891E-01
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  376.71401     0.38244190E-03 ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    1.35    1.35
+HeatSolve: iter:    1 Solve:    (s)    1.00    1.00
+HeatSolve:  Result Norm   :    376.71401440311581
+HeatSolve:  Relative Change :    3.8244189802547345E-004
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=3) (NRM,RELC): (  376.71401     0.38244190E-03 ) :: heat equation
+SingleSolver: Attempting to call solver: 0
+SingleSolver: Solver Equation string is: internalvtuoutputsolver
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Dimension of mesh is: 3
+ResultOutputSolver: Working on mesh 1: neck with 23458 nodes
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Full filename base is: neck/neck
+GenerateSaveMask: Number of active elements 135096 out of 135096
+GenerateSaveMask: Number of geometry nodes 23458 out of 23458
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: neck/neck_t0003.vtu
+AscBinWriteInit: Initializing buffered ascii/binary writing
+AscBinWriteInit: Writing in binary
+AscBinWriteInit: Writing in double precision
+AscBinWriteInit: Writing to unit number: 58
+AscBinWriteInit: Size of buffer is: 23458
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Number of nodal fields written: 5
+WriteVtuFile: Writing elemental fields
+WriteVtuFile: Number of elemental fields written: 0
+WriteVtuFile: Writing entity IDs for bodies and boundaries
+WriteVtuFile: Writing coordinates for each used node
+WriteVtuFile: Writing the elemental connectivity data
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Writing elemental fields
+AscBinWriteFree: Terminating buffered ascii/binary writing
+VtuOutputSolver: All done for now
+ResultOutputSolver: -------------------------------------
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            4
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 53 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 53
+StatCurrentSolve:  Assembly (s)          :  0.26782000000000039
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.13895918E-01 0.48998795E-03 ) :: stat current
+StatCurrentSolve:  Solve (s)             :   5.8039999999994762E-003
+StatCurrentSolve:  Total Heating Power   :  0.31704004233773775
+DefaultFinish: Finished solver: stat current
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=4) (NRM,RELC): ( 0.13895918E-01 0.48998795E-03 ) :: stat current
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: No Dirichlet conditions to enforce, exiting!
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 23458
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+WARNING:: CalculateLoads: Boundary 1 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 1: -9.70327E-02
+WARNING:: CalculateLoads: Boundary 2 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 2: -9.93840E-02
+WARNING:: CalculateLoads: Boundary 3 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 3: -1.20623E-01
+CalculateLoads: temperature Flux over all BCs: -3.17040E-01
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  376.72142     0.19656671E-04 ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    1.34    1.34
+HeatSolve: iter:    1 Solve:    (s)    0.99    0.99
+HeatSolve:  Result Norm   :    376.72141941944346
+HeatSolve:  Relative Change :    1.9656671282589011E-005
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=4) (NRM,RELC): (  376.72142     0.19656671E-04 ) :: heat equation
+SingleSolver: Attempting to call solver: 0
+SingleSolver: Solver Equation string is: internalvtuoutputsolver
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Dimension of mesh is: 3
+ResultOutputSolver: Working on mesh 1: neck with 23458 nodes
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Full filename base is: neck/neck
+GenerateSaveMask: Number of active elements 135096 out of 135096
+GenerateSaveMask: Number of geometry nodes 23458 out of 23458
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: neck/neck_t0004.vtu
+AscBinWriteInit: Initializing buffered ascii/binary writing
+AscBinWriteInit: Writing in binary
+AscBinWriteInit: Writing in double precision
+AscBinWriteInit: Writing to unit number: 58
+AscBinWriteInit: Size of buffer is: 23458
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Number of nodal fields written: 5
+WriteVtuFile: Writing elemental fields
+WriteVtuFile: Number of elemental fields written: 0
+WriteVtuFile: Writing entity IDs for bodies and boundaries
+WriteVtuFile: Writing coordinates for each used node
+WriteVtuFile: Writing the elemental connectivity data
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Writing elemental fields
+AscBinWriteFree: Terminating buffered ascii/binary writing
+VtuOutputSolver: All done for now
+ResultOutputSolver: -------------------------------------
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            5
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 53 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 53
+StatCurrentSolve:  Assembly (s)          :  0.22584200000000010
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.13896269E-01 0.25218598E-04 ) :: stat current
+StatCurrentSolve:  Solve (s)             :   5.5040000000001754E-003
+StatCurrentSolve:  Total Heating Power   :  0.31704772894529187
+DefaultFinish: Finished solver: stat current
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=5) (NRM,RELC): ( 0.13896269E-01 0.25218598E-04 ) :: stat current
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: No Dirichlet conditions to enforce, exiting!
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 23458
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+WARNING:: CalculateLoads: Boundary 1 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 1: -9.70358E-02
+WARNING:: CalculateLoads: Boundary 2 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 2: -9.93859E-02
+WARNING:: CalculateLoads: Boundary 3 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 3: -1.20626E-01
+CalculateLoads: temperature Flux over all BCs: -3.17048E-01
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  376.72180     0.10113984E-05 ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    1.31    1.31
+HeatSolve: iter:    1 Solve:    (s)    0.99    0.99
+HeatSolve:  Result Norm   :    376.72180043506256
+HeatSolve:  Relative Change :    1.0113983617015119E-006
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=5) (NRM,RELC): (  376.72180     0.10113984E-05 ) :: heat equation
+SingleSolver: Attempting to call solver: 0
+SingleSolver: Solver Equation string is: internalvtuoutputsolver
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Dimension of mesh is: 3
+ResultOutputSolver: Working on mesh 1: neck with 23458 nodes
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Full filename base is: neck/neck
+GenerateSaveMask: Number of active elements 135096 out of 135096
+GenerateSaveMask: Number of geometry nodes 23458 out of 23458
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: neck/neck_t0005.vtu
+AscBinWriteInit: Initializing buffered ascii/binary writing
+AscBinWriteInit: Writing in binary
+AscBinWriteInit: Writing in double precision
+AscBinWriteInit: Writing to unit number: 58
+AscBinWriteInit: Size of buffer is: 23458
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Number of nodal fields written: 5
+WriteVtuFile: Writing elemental fields
+WriteVtuFile: Number of elemental fields written: 0
+WriteVtuFile: Writing entity IDs for bodies and boundaries
+WriteVtuFile: Writing coordinates for each used node
+WriteVtuFile: Writing the elemental connectivity data
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Writing elemental fields
+AscBinWriteFree: Terminating buffered ascii/binary writing
+VtuOutputSolver: All done for now
+ResultOutputSolver: -------------------------------------
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            6
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 53 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 53
+StatCurrentSolve:  Assembly (s)          :  0.22711300000000101
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.13896287E-01 0.12978702E-05 ) :: stat current
+StatCurrentSolve:  Solve (s)             :   5.7829999999992054E-003
+StatCurrentSolve:  Total Heating Power   :  0.31704812448543024
+DefaultFinish: Finished solver: stat current
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=6) (NRM,RELC): ( 0.13896287E-01 0.12978702E-05 ) :: stat current
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: No Dirichlet conditions to enforce, exiting!
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 23458
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+WARNING:: CalculateLoads: Boundary 1 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 1: -9.70359E-02
+WARNING:: CalculateLoads: Boundary 2 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 2: -9.93860E-02
+WARNING:: CalculateLoads: Boundary 3 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 3: -1.20626E-01
+CalculateLoads: temperature Flux over all BCs: -3.17048E-01
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  376.72182     0.52047217E-07 ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    1.33    1.33
+HeatSolve: iter:    1 Solve:    (s)    1.00    1.00
+HeatSolve:  Result Norm   :    376.72182004238454
+HeatSolve:  Relative Change :    5.2047217445707985E-008
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=6) (NRM,RELC): (  376.72182     0.52047217E-07 ) :: heat equation
+SingleSolver: Attempting to call solver: 0
+SingleSolver: Solver Equation string is: internalvtuoutputsolver
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Dimension of mesh is: 3
+ResultOutputSolver: Working on mesh 1: neck with 23458 nodes
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Full filename base is: neck/neck
+GenerateSaveMask: Number of active elements 135096 out of 135096
+GenerateSaveMask: Number of geometry nodes 23458 out of 23458
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: neck/neck_t0006.vtu
+AscBinWriteInit: Initializing buffered ascii/binary writing
+AscBinWriteInit: Writing in binary
+AscBinWriteInit: Writing in double precision
+AscBinWriteInit: Writing to unit number: 58
+AscBinWriteInit: Size of buffer is: 23458
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Number of nodal fields written: 5
+WriteVtuFile: Writing elemental fields
+WriteVtuFile: Number of elemental fields written: 0
+WriteVtuFile: Writing entity IDs for bodies and boundaries
+WriteVtuFile: Writing coordinates for each used node
+WriteVtuFile: Writing the elemental connectivity data
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Writing elemental fields
+AscBinWriteFree: Terminating buffered ascii/binary writing
+VtuOutputSolver: All done for now
+ResultOutputSolver: -------------------------------------
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            7
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 53 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 53
+StatCurrentSolve:  Assembly (s)          :  0.23126800000000003
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.13896288E-01 0.66792085E-07 ) :: stat current
+StatCurrentSolve:  Solve (s)             :   6.3420000000000698E-003
+StatCurrentSolve:  Total Heating Power   :  0.31704814484065097
+DefaultFinish: Finished solver: stat current
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=7) (NRM,RELC): ( 0.13896288E-01 0.66792085E-07 ) :: stat current
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: No Dirichlet conditions to enforce, exiting!
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 23458
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+WARNING:: CalculateLoads: Boundary 1 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 1: -9.70359E-02
+WARNING:: CalculateLoads: Boundary 2 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 2: -9.93860E-02
+WARNING:: CalculateLoads: Boundary 3 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 3: -1.20626E-01
+CalculateLoads: temperature Flux over all BCs: -3.17048E-01
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  376.72182     0.26784608E-08 ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    1.36    1.36
+HeatSolve: iter:    1 Solve:    (s)    1.08    1.08
+HeatSolve:  Result Norm   :    376.72182105141917
+HeatSolve:  Relative Change :    2.6784608127044657E-009
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=7) (NRM,RELC): (  376.72182     0.26784608E-08 ) :: heat equation
+SingleSolver: Attempting to call solver: 0
+SingleSolver: Solver Equation string is: internalvtuoutputsolver
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Dimension of mesh is: 3
+ResultOutputSolver: Working on mesh 1: neck with 23458 nodes
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Full filename base is: neck/neck
+GenerateSaveMask: Number of active elements 135096 out of 135096
+GenerateSaveMask: Number of geometry nodes 23458 out of 23458
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: neck/neck_t0007.vtu
+AscBinWriteInit: Initializing buffered ascii/binary writing
+AscBinWriteInit: Writing in binary
+AscBinWriteInit: Writing in double precision
+AscBinWriteInit: Writing to unit number: 58
+AscBinWriteInit: Size of buffer is: 23458
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Number of nodal fields written: 5
+WriteVtuFile: Writing elemental fields
+WriteVtuFile: Number of elemental fields written: 0
+WriteVtuFile: Writing entity IDs for bodies and boundaries
+WriteVtuFile: Writing coordinates for each used node
+WriteVtuFile: Writing the elemental connectivity data
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Writing elemental fields
+AscBinWriteFree: Terminating buffered ascii/binary writing
+VtuOutputSolver: All done for now
+ResultOutputSolver: -------------------------------------
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            8
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: stat current
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+DefaultStart: Starting solver: stat current
+StatElecSolve: Starting Assembly...
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 53 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 53
+StatCurrentSolve:  Assembly (s)          :  0.22841299999999976
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 3138
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.13896288E-01 0.34374299E-08 ) :: stat current
+StatCurrentSolve:  Solve (s)             :   5.8189999999989084E-003
+StatCurrentSolve:  Total Heating Power   :  0.31704814588827285
+DefaultFinish: Finished solver: stat current
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=8) (NRM,RELC): ( 0.13896288E-01 0.34374299E-08 ) :: stat current
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: No Dirichlet conditions to enforce, exiting!
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 23458
+SolveLinearSystem: Serial linear System Solver: direct
+DirectSolver: Using direct method: umfpack
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+WARNING:: CalculateLoads: Boundary 1 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 1: -9.70359E-02
+WARNING:: CalculateLoads: Boundary 2 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 2: -9.93860E-02
+WARNING:: CalculateLoads: Boundary 3 includes inseparable dofs!
+CalculateLoads: temperature Flux over BC 3: -1.20626E-01
+CalculateLoads: temperature Flux over all BCs: -3.17048E-01
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  376.72182     0.13785564E-09 ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    1.43    1.43
+HeatSolve: iter:    1 Solve:    (s)    1.01    1.01
+HeatSolve:  Result Norm   :    376.72182110335240
+HeatSolve:  Relative Change :    1.3785563933532930E-010
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=8) (NRM,RELC): (  376.72182     0.13785564E-09 ) :: heat equation
+SingleSolver: Attempting to call solver: 0
+SingleSolver: Solver Equation string is: internalvtuoutputsolver
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Dimension of mesh is: 3
+ResultOutputSolver: Working on mesh 1: neck with 23458 nodes
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Full filename base is: neck/neck
+GenerateSaveMask: Number of active elements 135096 out of 135096
+GenerateSaveMask: Number of geometry nodes 23458 out of 23458
+VtuOutputSolver: Setting offset for boundary entities: 100
+VtuOutputSolver: Writing the vtu file: neck/neck_t0008.vtu
+AscBinWriteInit: Initializing buffered ascii/binary writing
+AscBinWriteInit: Writing in binary
+AscBinWriteInit: Writing in double precision
+AscBinWriteInit: Writing to unit number: 58
+AscBinWriteInit: Size of buffer is: 23458
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Number of nodal fields written: 5
+WriteVtuFile: Writing elemental fields
+WriteVtuFile: Number of elemental fields written: 0
+WriteVtuFile: Writing entity IDs for bodies and boundaries
+WriteVtuFile: Writing coordinates for each used node
+WriteVtuFile: Writing the elemental connectivity data
+WriteVtuFile: Writing nodal fields
+WriteVtuFile: Saving 1-component variable: potential
+WriteVtuFile: Saving 1-component variable: joule heating
+WriteVtuFile: Saving 1-component variable: temperature
+WriteVtuFile: Saving 1-component variable: temperature loads
+WriteVtuFile: Saving 3-component variable: volume current
+WriteVtuFile: Writing elemental fields
+AscBinWriteFree: Terminating buffered ascii/binary writing
+VtuOutputSolver: All done for now
+ResultOutputSolver: -------------------------------------
+SingleSolver: Attempting to call solver: 3
+SingleSolver: Solver Equation string is: savescalars
+SaveScalars: -----------------------------------------
+SaveScalars: Saving scalar values of various kinds
+SaveScalars: Performed 5 reduction operations
+SaveScalars: Found 4 result scalars in simulation section
+SaveScalars: Found 15 values to save in total
+SaveScalars: Saving names of values to file: ./scalars.dat.names
+SaveScalars: Saving values to file: ./scalars.dat
+SaveScalars: -----------------------------------------
+ReloadInputFile: Reloading input file
+LoadInputFile: Loading input file:
+MAIN: Reporting unused list entries for sif improvement!
+MAIN: If you do not want these lines undefine > DEVEL_LISTUSAGE < !
+   Unused keywords:
+MAIN: *** Elmer Solver: ALL DONE ***
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Finalize]
+Loading user function library: [StatCurrentSolve]...[StatCurrentSolver_Finalize]
+Loading user function library: [HeatSolve]...[HeatSolver_Finalize]
+Loading user function library: [HeatSolve]...[HeatSolver_Finalize]
+Loading user function library: [SaveData]...[SaveScalars_Finalize]
+Loading user function library: [SaveData]...[SaveScalars_Finalize]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_Finalize]
+Loading user function library: [ResultOutputSolve]...[ResultOutputSolver_Finalize]
+MAIN: The end
+SOLVER TOTAL TIME(CPU,REAL):        23.45       25.54
+ELMER SOLVER FINISHED AT: 2026/09/14 11:26:25
+
+--- stderr ---

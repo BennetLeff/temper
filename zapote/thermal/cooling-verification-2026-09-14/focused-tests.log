@@ -1,0 +1,440 @@
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `release` profile [optimized] target(s) in 21.27s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_harness-2a0a5a82cd72cb54)
+
+running 32 tests
+test bridge_thermal::tests::nominal_wrong_current_is_rejected_but_low_sensitivity_is_allowed ... ok
+test bridge_thermal::tests::undetermined_matching_segment_fails_closed ... ok
+test bridge_thermal::tests::disagreeing_matching_segments_are_not_collapsed ... ok
+test bridge_thermal::tests::segment_id_collision_cannot_supply_or_override_current ... ok
+test bridge_thermal::tests::missing_uuid_does_not_fall_back_to_net_only ... ok
+test bridge_thermal::tests::configured_missing_evidence_is_a_failure ... ok
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test bridge_thermal::tests::missing_evidence_is_indeterminate_and_rules_are_checked ... ok
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test bridge_thermal::tests::configured_cooling_contract_cannot_pass_without_replay ... ok
+test model_qualification::tests::generalized_formula_is_stable ... ok
+test model_qualification::tests::narrowed_capacitance_is_rejected_by_required_envelope ... ok
+test model_qualification::tests::expected_cases_match_independent_reference_scalars ... ok
+test model_qualification::tests::schur_graph_is_positive ... ok
+test model_qualification::tests::expected_case_builder_covers_exactly_five_cases ... ok
+test p1::tests::aggregate_status_preserves_failures ... ok
+test pfc_paths::tests::span_coalescing_keeps_real_side_contacts_and_width_layer_net_boundaries ... ok
+test pfc_paths::tests::unknown_terminal_net_is_an_adapter_error ... ok
+test pfc_paths::tests::t_branch_is_split_at_junction ... ok
+test pfc_paths::tests::repeated_package_pin_keeps_each_physical_barrel_and_separate_pin_stays_separate ... ok
+test runner::cooling_coverage_tests::power_entry_requires_cooling_even_when_the_hook_emits_no_report ... ok
+test tests::missing_input_identity_cannot_be_a_pass ... ok
+test p3::tests::gate_drive_saved_native_export_binds_reviewed_paths ... ok
+test p3::tests::actual_gate_noise_measurement_responds_to_native_geometry ... ok
+test pfc_paths::tests::native11_binds_nonempty_graph_and_terminals ... ok
+test p3::coordinator_regressions::gate_return_is_kelvin_not_control_ground_and_split_cluster_is_incomplete ... ok
+test p3::tests::four_saved_units_report_measured_geometry_and_missing_limits ... ok
+test pfc_power::tests::rejects_native_trace_width_that_disagrees_with_saved_board ... ok
+test pfc_power::tests::source_pin_injections_conserve_every_power_net_and_distinguish_branches ... ok
+test pfc_power::tests::saved_pfc_runs_the_model_and_native_contact_measurements ... ok
+test pfc_power::tests::subdividing_saved_copper_preserves_failure_set_and_determined_current ... ok
+test pfc_power::tests::narrowing_a_saved_six_mm_branch_adds_a_specific_failure ... ok
+
+test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.81s
+
+     Running unittests src/bin/zapote-board.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_board-bc272d52f3664fda)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-gate-drive.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_gate_drive-03fcaa5085e1fa90)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-interlock.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_interlock-a6b777b5a24d6d3f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-native-reports.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_native_reports-d3ead39cee00dfe6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-pfc-power.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_pfc_power-df1fd9cae0d7357e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-power-entry.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_power_entry-0dba0db5b4af91af)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-power-models.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_power_models-a8b414b7241b0dc2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_rtd-98223efcc89395dc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-thermal.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal-ca9dd6128db0305b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-unit-run.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_unit_run-43856950f260e937)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-voltage.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_voltage-78520dd4457b8c5d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/board_cli.rs (/private/tmp/zapote-rtd-target/release/deps/board_cli-b3e7b37a977e6214)
+
+running 4 tests
+test no_arguments_cannot_skip_the_board_gate ... ok
+test missing_board_is_not_an_empty_pass ... ok
+test real_board_without_explicit_stackup_is_rejected ... ok
+test saved_rtd_board_passes_the_public_gate ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/bridge_thermal.rs (/private/tmp/zapote-rtd-target/release/deps/bridge_thermal-4437e95f932120a3)
+
+running 1 test
+test retained_thermal_run_binds_to_real_pfc_currents_without_clearing_findings ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.39s
+
+     Running tests/current_sense_defect_corpus.rs (/private/tmp/zapote-rtd-target/release/deps/current_sense_defect_corpus-67c3096295f549bc)
+
+running 17 tests
+test real_source_and_native_artifacts_resolve_complete_census ... ok
+test duplicate_component_fails_exact_census ... ok
+test copper_open_fails_required_physical_copper ... ok
+test clearance_violation_is_measured_from_actual_pads ... ok
+test real_source_burden_to_ground_topology_mutation_is_rejected ... ok
+test changed_threshold_and_filter_claims_fail_recomputed_model ... ok
+test source_net_rehash_and_native_net_swap_fail ... ok
+test unsupported_measurement_remains_indeterminate ... ok
+test real_source_bias_value_mutation_is_rejected_by_quantity_binding ... ok
+test removing_placement_guards_cannot_retain_owner_identity ... ok
+test missing_native_pad_shape_cannot_pass_with_a_rehashed_export ... ok
+test back_layer_ground_is_checked_against_front_transformer_primary ... ok
+test real_route_via_through_supply_track_is_rejected ... ok
+test real_input_json_roundtrip_preserves_exact_owner_projection ... ok
+test real_zero_core_board_is_rejected_by_the_normal_harness ... ok
+test real_artifacts_build_current_sense_transport_without_synthetic_census ... ok
+test missing_or_changed_stackup_bytes_cannot_retain_board_identity ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/interlock.rs (/private/tmp/zapote-rtd-target/release/deps/interlock-f611894375bb7705)
+
+running 18 tests
+test bypassing_reset_inverter_breaks_actual_clock_behavior ... ok
+test bypassing_actual_clear_pin_breaks_graph_behavior ... ok
+test d_tied_low_cannot_grant_permission ... ok
+test nand_input_bypass_hides_fault_and_is_rejected ... ok
+test missing_pull_component_fails_census ... ok
+test swapped_q_outputs_break_connector_behavior ... ok
+test reset_retains_permission_and_recovery_needs_a_new_edge ... ok
+test malformed_input_is_a_hard_failure ... ok
+test nc_connected_to_ground_is_rejected ... ok
+test wdi_bias_substitution_is_rejected ... ok
+test strict_pin_mapping_cannot_be_deleted ... ok
+test split_native_cluster_with_all_nodes_present_is_rejected ... ok
+test changed_resistance_fails_electrical_margin_not_just_part_identity ... ok
+test wrong_bypass_value_is_rejected ... ok
+test native_fields_cannot_contradict_saved_board_bytes ... ok
+test stale_embedded_board_digest_is_rejected ... ok
+test actual_artifacts_have_no_hard_failure_and_all_4096_graph_vectors_pass ... ok
+test timing_polarity_leakage_and_qualification_cannot_be_relaxed ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.58s
+
+     Running tests/memory_policy.rs (/private/tmp/zapote-rtd-target/release/deps/memory_policy-e905030ba8f7ff20)
+
+running 12 tests
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test promotion_gates ... ok
+test evidence_tamper_rejects_while_unrelated_changes_do_not ... ok
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test selection_cannot_forge_historical_receipt ... ok
+test context_prepare_requires_matching_exact_source_when_required ... ok
+test general_procedure_selects_exact_fact_does_not ... ok
+test ordering_stable_and_limits_explicit ... ok
+test unselectable_states_and_malformed_inputs_cannot_enter_selection ... ok
+test context_prepare_is_deterministic_and_exposes_bound_hashes ... ok
+test context_prepare_transfers_procedure_but_excludes_mismatched_exact_fact ... ok
+test context_prepare_rejects_tamper_duplicate_keys_and_oversize_notes ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/native_reports.rs (/private/tmp/zapote-rtd-target/release/deps/native_reports-c10b5b557db91932)
+
+running 7 tests
+test real_clean_native_capture_passes ... ok
+test later_sheet_findings_are_not_omitted ... ok
+test missing_nested_findings_or_empty_sheets_fail_closed ... ok
+test missing_parity_flag_or_failed_command_is_rejected ... ok
+test hidden_severity_and_new_suppression_are_rejected ... ok
+test actual_interlock_offgrid_incident_is_not_a_root_level_zero ... ok
+test native_drc_categories_are_checked_independently ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/p1.rs (/private/tmp/zapote-rtd-target/release/deps/p1-b28d4c350a727abc)
+
+running 2 tests
+test p1_rejects_changed_native_membership_and_source ... ok
+test real_pfc_and_gate_drive_baselines_preserve_incomplete_p1 ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/power_entry.rs (/private/tmp/zapote-rtd-target/release/deps/power_entry-67471868b18d4518)
+
+running 4 tests
+test exit_codes_preserve_indeterminate ... ok
+test malformed_source_fails_closed ... ok
+test fabricated_merged_clusters_cannot_certify_copper ... ok
+test historical_source_18_is_rejected_and_unrouted_candidate_fails_copper_connectivity ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/power_entry_routed.rs (/private/tmp/zapote-rtd-target/release/deps/power_entry_routed-f803217589c510b7)
+
+running 2 tests
+test frozen_native11_has_all_construction_checks_pass_and_hardware_gaps_indeterminate ... ok
+test frozen_native11_split_native_cluster_fails_connectivity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/rtd_defect_corpus.rs (/private/tmp/zapote-rtd-target/release/deps/rtd_defect_corpus-f247c53d66a74e5f)
+
+running 20 tests
+test local_escape_requires_native_membership_and_same_ic_pads ... ok
+test connector_swap_is_detected_against_board_bound_contract ... ok
+test local_escape_accepts_explicit_short_same_layer_branch ... ok
+test broken_rref_and_reference_topology_are_detected ... ok
+test local_escape_rejects_overlapping_pads_and_disconnected_fragment ... ok
+test each_conductor_open_is_classified_without_name_only_coverage ... ok
+test local_escape_empty_population_is_indeterminate ... ok
+test local_escape_accepts_gnd_stub_to_declared_mcu_junction ... ok
+test native_binding_without_extraction_hash_cannot_pass ... ok
+test missing_identity_field_is_indeterminate_and_never_passes ... ok
+test local_escape_rejects_closed_cycle_wrong_anchor_and_long_detour ... ok
+test sense_force_short_is_detected_from_typed_net_identity ... ok
+test native_export_bound_to_different_board_cannot_pass ... ok
+test stale_well_formed_digest_is_rejected_by_artifact_binding ... ok
+test actual_board_mutations_fail_with_contract_unchanged ... ok
+test wrong_rail_and_wrong_cs_are_detected ... ok
+test actual_capacitor_and_return_cluster_mutations_fail ... ok
+test real_native_sensitive_trace_intruding_switch_region_fails ... ok
+test each_real_conductor_expectation_is_independent ... ok
+test real_native_board_mutations_fail_with_source_contract_unchanged ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/runner.rs (/private/tmp/zapote-rtd-target/release/deps/runner-e4dea39bdcc6d9f3)
+
+running 5 tests
+test omitted_check_fails_and_mixed_status_never_loses_failure ... ok
+test missing_or_duplicate_unit_cannot_shrink_the_suite ... ok
+test stale_native_receipt_is_rejected_even_with_same_basename ... ok
+test changed_saved_pcb_and_composite_identity_fail_after_passing_baseline ... ok
+test all_maintained_saved_units_bind_and_execute_their_truth_functions ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+     Running tests/thermal_sense.rs (/private/tmp/zapote-rtd-target/release/deps/thermal_sense-beed88092cff3f60)
+
+running 21 tests
+test rev_a_source_is_rejected_as_missing_open_detection_components ... ok
+test original_coil_bias_is_rejected ... ok
+test missing_strict_pin_fails_pin_map_rule ... ok
+test coherently_changed_source_value_still_rejects_wrong_mpn_binding ... ok
+test missing_component_fails_native_census ... ok
+test fragmented_cluster_fails_exact_connectivity_rule ... ok
+test oversized_filter_capacitor_fails_settling_rule ... ok
+test independent_gate_pin_map_rejects_swapped_open_input ... ok
+test corrupt_contract_supply_fails_contract_rule ... ok
+test rev_b_open_contract_is_checked_independently_of_native_fixture ... ok
+test unrouted_fixture_fails_connectivity ... ok
+test real_routed_baseline_is_conditional_indeterminate_without_hard_failures ... ok
+test source_resistor_change_fails_source_and_threshold_rules ... ok
+test wrong_sensor_identity_fails_contract_rule ... ok
+test split_net_with_complete_union_still_fails_connectivity ... ok
+test duplicate_or_remapped_strict_pin_fails ... ok
+test swapped_comparator_input_fails_topology_rule ... ok
+test unsafe_open_reference_fails_margin_rule ... ok
+test duplicate_or_malformed_cluster_node_is_not_silently_discarded ... ok
+test wrong_capacitor_and_qualification_contract_fail ... ok
+test strict_cli_retains_indeterminate_exit_status ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/unit_profile.rs (/private/tmp/zapote-rtd-target/release/deps/unit_profile-245d1e8b0857b6c3)
+
+running 14 tests
+test unit_adapter_reaches_existing_aggressor_geometry_rule ... ok
+test qualified_receipt_passes_math_gate_but_device_stays_indeterminate ... ok
+test unit_cli_rules_evaluate_actual_native_shape ... ok
+test unit_adapter_rejects_observed_adc_net_mutation_against_source ... ok
+test unit_mutated_observed_adc_connection_is_a_targeted_failure ... ok
+test unit_consistent_native_pad_and_connection_swap_hits_source_binding ... ok
+test unit_partial_source_binding_is_rejected_before_shared_rules ... ok
+test unit_fault_observations_are_compared_without_legacy_blind_spot_classification ... ok
+test unit_mutated_observed_mpn_is_a_targeted_failure ... ok
+test unit_model_budget_is_numeric_and_fails_above_authored_limit ... ok
+test qualification_gate_rejects_coordinated_source_hash_change ... ok
+test unit_source_component_omission_and_extra_are_census_failures ... ok
+test qualification_gate_fails_closed_for_malformed_missing_case_and_zero_cap ... ok
+test qualified_receipt_rejects_raw_model_drift_and_forged_bound ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/voltage_sense.rs (/private/tmp/zapote-rtd-target/release/deps/voltage_sense-d1f1621168cb1870)
+
+running 15 tests
+test missing_board_bytes_fail_closed ... ok
+test real_unrouted_board_fails_connectivity ... ok
+test missing_native_geometry_fails ... ok
+test real_routed_unit_has_no_failures_but_retains_qualification_gaps ... ok
+test missing_component_is_rejected ... ok
+test changed_embedded_bytes_without_digest_fail ... ok
+test rehashed_saved_board_net_change_cannot_hide_behind_old_export ... ok
+test independent_corner_results_remain_visible ... ok
+test crossing_wrong_net_trace_fails_geometry_and_document_binding ... ok
+test old_adc_divider_fails_even_with_consistently_changed_source_values ... ok
+test duplicated_source_pin_is_rejected ... ok
+test rehashed_zero_dielectric_still_fails ... ok
+test remote_bypass_fails_locality ... ok
+test swapped_comparator_input_is_rejected ... ok
+test cli_is_strict_about_qualification_and_preserves_structured_status ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal-b94595452eedb572)
+
+running 22 tests
+test bridge_cooling::tests::design_budget_arithmetic_is_explicit ... ok
+test bridge_cooling::tests::cooling_profile_has_three_design_meshes_and_declared_pairs ... ok
+test bridge_cooling::tests::contract_rejects_nan_and_relaxed_limits ... ok
+test neck_run::replay_tests::profile_requires_safe_unique_scenarios_and_declared_convergence ... ok
+test neck_run::replay_tests::profile_rejects_nonfinite_parameters_and_mesh_without_legacy_change ... ok
+test neck_run::replay_tests::convergence_cannot_compare_different_physics_or_skip_the_refinement_chain ... ok
+test tests::parser_rejects_missing_nonfinite_and_malformed_measurements ... ok
+test tests::captured_live_fixture_replay_fails_closed_when_scalar_or_log_changes ... ok
+test tests::parse_real_elmer_labels_and_scalars ... ok
+test neck_geometry::tests::wrong_drill_is_rejected ... ok
+test neck_geometry::tests::duplicate_reviewed_trace_is_rejected ... ok
+test neck_geometry::tests::exact_capture_generates_four_bound_necks ... ok
+test neck_geometry::tests::stale_embedded_board_bytes_are_rejected ... ok
+test bridge_cooling::tests::contract_rejects_unreviewed_parts_status_and_load_or_parser_changes ... ok
+test tests::validator_rejects_duplicate_mesh_measurements ... ok
+test bridge_cooling::tests::pcb_peak_is_checked_against_its_own_limit_not_reservoir_or_junction ... ok
+test tests::runner_refuses_stale_output_directory_before_launching_solver ... ok
+test neck_run::replay_tests::actual_refinement_evidence_rejects_temperature_power_node_and_population_defects ... ok
+test tests::process_failure_and_timeout_are_reported ... ok
+test tests::failed_preflight_retains_authoritative_report_and_command ... ok
+test tests::timeout_stops_descendant_writers ... ok
+test neck_run::replay_tests::retained_pcb_replay_rejects_rehashed_model_and_result_mutations ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.18s
+
+     Running unittests src/bin/zapote-bridge-cooling.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_bridge_cooling-7e2c43ddf3fe1b98)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-thermal-necks.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal_necks-a1de685232f8a1fb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal_reference-4988864902a7f7e9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/bridge_cooling.rs (/private/tmp/zapote-rtd-target/release/deps/bridge_cooling-a9870a6617ed6ded)
+
+running 1 test
+test cooling_replay_rejects_rehashed_contract_summary_and_missing_process_evidence ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.10s
+
+     Running tests/neck_physics.rs (/private/tmp/zapote-rtd-target/release/deps/neck_physics-de6114244b65dd3d)
+
+running 5 tests
+test sif_binds_area_current_and_robin_conductance ... ok
+test invalid_physics_inputs_are_rejected ... ok
+test captured_neck_fixture_has_independent_energy_and_electrical_checks ... ok
+test scalar_mutations_fail_closed ... ok
+test constant_robin_oracle_corroborates_constant_sigma_reference ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/neck_transfer.rs (/private/tmp/zapote-rtd-target/release/deps/neck_transfer-c02991c2a6c9d3eb)
+
+running 6 tests
+test changed_node_coordinate_is_rejected ... ok
+test changed_source_material_tag_is_rejected ... ok
+test genuine_gmsh_elmergrid_transfer_preserves_topology ... ok
+test existing_but_unrelated_boundary_parent_is_rejected ... ok
+test missing_parent_is_rejected ... ok
+test mesh_geometry_rejects_wrong_boundary_material_and_nonfinite_coordinate ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pinned_reference.rs (/private/tmp/zapote-rtd-target/release/deps/pinned_reference-2d5c5779bffdeee4)
+
+running 2 tests
+test replay_all_three_live_meshes_with_exact_inputs_and_raw_outputs ... ok
+test edited_deck_or_raw_result_cannot_retain_reference_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/strict_evidence.rs (/private/tmp/zapote-rtd-target/release/deps/strict_evidence-cea44aad36e4d1e7)
+
+running 5 tests
+test rejects_other_variable_named_max ... ok
+test rejects_malformed_column_trailer ... ok
+test rejects_duplicate_measurement_in_log ... ok
+test rejects_trailing_malformed_or_extra_scalar_row ... ok
+test rejects_scalar_power_disagreeing_with_raw_log ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_harness
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_thermal
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
