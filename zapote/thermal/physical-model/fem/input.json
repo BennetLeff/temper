@@ -1,0 +1,28 @@
+{
+  "schema": "zapote.bridge-lead-fem.input.v1",
+  "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+  "geometry_source": "synthetic-benchmark-v1",
+  "bridge_mpn": "GBU2510A",
+  "current_a": 15.0,
+  "ambient_k": 313.15,
+  "copper_thickness_m": 0.00007,
+  "fr4_thickness_m": 0.00144,
+  "copper_conductivity_s_m": 55000000.0,
+  "copper_conductivity_tempco_per_k": 0.00393,
+  "copper_conductivity_temperature_k": 293.15,
+  "solder_conductivity_w_mk": 50.0,
+  "barrel_conductivity_s_m": 55000000.0,
+  "barrel_conductivity_tempco_per_k": 0.00393,
+  "lead_conductivity_s_m": 55000000.0,
+  "thermal_conductivity_copper_w_mk": 350.0,
+  "thermal_conductivity_fr4_w_mk": 0.25,
+  "thermal_conductivity_solder_w_mk": 50.0,
+  "thermal_conductivity_barrel_w_mk": 20.0,
+  "thermal_conductivity_lead_w_mk": 100.0,
+  "necks": [
+    {"net":"minus","length_m":0.0085,"width_m":0.0025,"pad_length_m":0.0025,"pad_width_m":0.004,"lead_length_m":0.001,"lead_width_m":0.001,"barrel_diameter_m":0.001,"solder_thickness_m":0.00015,"x_offset_m":-0.012},
+    {"net":"ac1","length_m":0.009,"width_m":0.0025,"pad_length_m":0.0025,"pad_width_m":0.004,"lead_length_m":0.001,"lead_width_m":0.001,"barrel_diameter_m":0.001,"solder_thickness_m":0.00015,"x_offset_m":-0.004},
+    {"net":"ac2","length_m":0.006,"width_m":0.0025,"pad_length_m":0.0025,"pad_width_m":0.004,"lead_length_m":0.001,"lead_width_m":0.001,"barrel_diameter_m":0.001,"solder_thickness_m":0.00015,"x_offset_m":0.004},
+    {"net":"plus","length_m":0.007,"width_m":0.0025,"pad_length_m":0.0025,"pad_width_m":0.004,"lead_length_m":0.001,"lead_width_m":0.001,"barrel_diameter_m":0.001,"solder_thickness_m":0.00015,"x_offset_m":0.012}
+  ]
+}
