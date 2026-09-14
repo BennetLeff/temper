@@ -58,7 +58,8 @@
     {
       "unit": "power-entry",
       "source": "../power-entry/candidate/source-manifest.json",
-      "native": "../power-entry/evidence/native-11.json",
+      "native": "../power-entry/evidence/native-copper-12.json",
+      "thermal_evidence": "../thermal/evidence/bridge-necks-2026-09-14",
       "board": "../power-entry/candidate/section.kicad_pcb",
       "schematic": "../power-entry/candidate/section.kicad_sch",
       "contract": null,

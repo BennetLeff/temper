@@ -4,7 +4,18 @@ P0 now executes the maintained unit suites and adopted P1–P3 implementations
 through one command. **The full P1–P3 implementation plan remains incomplete.**
 A subagent final message is a handback for review, not acceptance of the batch.
 
-## Latest committed checkpoint
+## Current copper-repair checkpoint
+
+The [bounded Luna repair](../power-entry/evidence/copper-repair-2026-09-12/README.md)
+widens the 4 mm `minus` trace to 6 mm. Its current remains determined at 15 A;
+the capacity screen now gives 19.6581 A. **Four bridge-neck findings remain.**
+All 320 Rust tests and all seven boards' fresh native/common checks pass.
+The overall unit suite still fails on those four findings. The repair receipt
+records its dirty working-tree identity and current board hash. The uniform
+IPC scalar cannot establish finite-neck temperature, and centered widening
+conflicts with the bridge's existing 2 mm clearance constraint.
+
+## Pre-repair committed checkpoints
 
 The subsequent [independent PFC instrument validation](p1-current/oracle-2026-09-12/README.md)
 adds closed-form, live-SPICE and exhaustive-graph references and repairs three

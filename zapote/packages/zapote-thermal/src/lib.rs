@@ -4,6 +4,11 @@
 //! finite-element model is supplied by the caller's `bar.geo` and `case.sif`.
 
 use anyhow::{bail, Context, Result};
+pub mod neck_physics;
+pub mod neck_geometry;
+mod neck_geo;
+pub mod neck_run;
+pub mod neck_transfer;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 #[cfg(unix)]

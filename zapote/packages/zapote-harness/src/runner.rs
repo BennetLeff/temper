@@ -47,6 +47,10 @@ pub struct UnitRunSpec {
     pub schematic: PathBuf,
     pub contract: Option<PathBuf>,
     pub composite: Option<PathBuf>,
+    /// Retained numerical evidence directory for the PowerEntry thermal
+    /// replay. The directory is optional so older manifests remain readable.
+    #[serde(default)]
+    pub thermal_evidence: Option<PathBuf>,
 }
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -68,6 +72,7 @@ pub struct UnitRunReport {
     pub native_checks: CheckReport,
     pub power_checks: Option<CheckReport>,
     pub pfc_power: Option<crate::pfc_power::Report>,
+    pub thermal_checks: Option<CheckReport>,
     pub manufacturing_checks: CheckReport,
     /// Rule populations emitted by the Rust manufacturing evaluator.
     pub manufacturing_population: zapote_drc::manufacturing::P2Population,
@@ -254,10 +259,13 @@ pub fn evaluate(
         UnitKind::PowerEntry => crate::power_entry::run(source_text, native_text, board),
     };
     // Re-read before acceptance: a file changed while evaluating must not pass.
-    let hashes = inputs
+    let mut hashes = inputs
         .into_iter()
         .map(|(p, b)| Ok((p, digest(&b))))
         .collect::<Result<BTreeMap<_, _>>>()?;
+    if let Some(root) = &spec.thermal_evidence {
+        hash_evidence_tree(root, &mut hashes)?;
+    }
     verify_hashes(&hashes)?;
     Ok((report, n, hashes))
 }
@@ -268,6 +276,30 @@ fn verify_hashes(hashes: &BTreeMap<PathBuf, String>) -> Result<()> {
         }
     }
     Ok(())
+}
+fn hash_evidence_tree(root: &Path, hashes: &mut BTreeMap<PathBuf, String>) -> Result<()> {
+    if !root.exists() {
+        return Ok(());
+    }
+    let metadata = fs::symlink_metadata(root).map_err(|e| e.to_string())?;
+    if metadata.file_type().is_symlink() {
+        hashes.insert(root.to_owned(), hash_file(root)?);
+    } else if metadata.is_dir() {
+        for entry in fs::read_dir(root).map_err(|e| e.to_string())? {
+            let path = entry.map_err(|e| e.to_string())?.path();
+            hash_evidence_tree(&path, hashes)?;
+        }
+    } else {
+        hashes.insert(root.to_owned(), hash_file(root)?);
+    }
+    Ok(())
+}
+fn evidence_hashes(spec: &UnitRunSpec) -> Result<BTreeMap<PathBuf, String>> {
+    let mut hashes = BTreeMap::new();
+    if let Some(root) = &spec.thermal_evidence {
+        hash_evidence_tree(root, &mut hashes)?;
+    }
+    Ok(hashes)
 }
 fn dependencies(dir: &Path, hashes: &mut BTreeMap<PathBuf, String>) -> Result<()> {
     for item in fs::read_dir(dir).map_err(|e| e.to_string())? {
@@ -435,6 +467,7 @@ fn manufacturing_run(
 }
 
 pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Result<UnitRunReport> {
+    let evidence_before = evidence_hashes(spec)?;
     let (unit_checks, native, hashes) = evaluate(spec)?;
     let native_text = String::from_utf8(read(&spec.native)?).map_err(|e| e.to_string())?;
     let source = String::from_utf8(read(&spec.source)?).map_err(|e| e.to_string())?;
@@ -476,10 +509,25 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         manufacturing_run(spec, out, python, &native)?;
     let pfc_power = if spec.unit == UnitKind::PowerEntry {
         let receipt = json(&read(&out.join("manufacturing-input.json"))?)?;
-        Some(crate::pfc_power::run(&source, &native_text, text(&board)?, &receipt)?)
-    } else { None };
+        Some(crate::pfc_power::run(
+            &source,
+            &native_text,
+            text(&board)?,
+            &receipt,
+        )?)
+    } else {
+        None
+    };
+    let thermal_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        crate::bridge_thermal::run(spec.thermal_evidence.as_deref(), &board, pfc_power.as_ref())
+    });
     let mut required = required_rules(spec.unit)?;
-    if pfc_power.is_some() { required.extend(crate::pfc_power::RULES.map(str::to_owned)); }
+    if pfc_power.is_some() {
+        required.extend(crate::pfc_power::RULES.map(str::to_owned));
+    }
+    if thermal_checks.is_some() {
+        required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
+    }
     required.extend(
         [
             "DRC.P2.BODY_COLLISION",
@@ -525,11 +573,15 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     }
     let mut parts = vec![&unit_checks, &manufacturing_checks];
     parts.extend(power_checks.iter());
-    parts.extend(pfc_power.iter().map(|r|&r.checks));
+    parts.extend(pfc_power.iter().map(|r| &r.checks));
+    parts.extend(thermal_checks.iter());
     parts.extend(operating_checks.iter());
     let coverage = enforce_required(&required, &combine(&parts));
     let common = combine(&[&stack, &binding, &coverage]);
     let (native_checks, native_execution) = native_run(spec, out, kicad)?;
+    if evidence_before != evidence_hashes(spec)? {
+        return Err("thermal evidence changed during run".into());
+    }
     verify_hashes(&hashes)?;
     let qualification=CheckReport::from_findings(vec![Finding::indeterminate("QUALIFICATION.HARDWARE","powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately","unit")],vec!["QUALIFICATION.HARDWARE".into()],vec!["hardware not run".into()]);
     parts.extend([&common, &native_checks, &qualification]);
@@ -546,5 +598,5 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         ("zones".into(), native.zones.len()),
     ]);
     let executable_sha256 = hash_file(&std::env::current_exe().map_err(|e| e.to_string())?)?;
-    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
+    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,thermal_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
 }

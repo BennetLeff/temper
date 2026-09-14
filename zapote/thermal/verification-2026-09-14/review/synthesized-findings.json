@@ -1,0 +1,119 @@
+{
+  "status": "complete",
+  "run_id": "20260914-095721-df4d9775",
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20260914-095721-df4d9775",
+  "scope": {
+    "mode": "standalone",
+    "base": "368abeedb",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "368abeedbf95ea27ac260cb7e273d9fad76b0381",
+    "files_changed": 67,
+    "tree_is_reviewed_head": true,
+    "files": "/tmp/compound-engineering-501/ce-code-review/20260914-095721-df4d9775/files.txt",
+    "diff": "/tmp/compound-engineering-501/ce-code-review/20260914-095721-df4d9775/full.diff",
+    "untracked_excluded": [
+      "zapote/thermal/evidence/bridge-necks-2026-09-14/"
+    ]
+  },
+  "intent": {
+    "summary": "Add a real four bridge-neck Gmsh/Elmer thermal model and connect it to the Rust Zapote harness with exact source geometry, energy/convergence/sensitivity checks, stale-evidence protection, and current binding. Preserve conditional applicability and existing IPC/current failures while committing the power-entry copper repair.",
+    "confidence": "explicit"
+  },
+  "reviewers": [
+    "correctness",
+    "testing",
+    "maintainability",
+    "reliability",
+    "api-contract",
+    "adversarial",
+    "learnings"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "Model certificates need semantic binding as well as artifact hashes",
+      "citation": "docs/solutions/best-practice/model-certificates-need-semantic-binding.md",
+      "note": "The replay and mutation checks follow this pattern by binding saved board/native/geometry and raw outputs semantically."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Solver-independence is not model-independence for validation oracles",
+      "citation": "docs/solutions/best-practices/solver-independence-is-not-model-independence-2026-07-09.md",
+      "note": "The documentation preserves the FEM model's declared boundary and does not present it as assembled-cooker corroboration."
+    },
+    {
+      "type": "known_pattern",
+      "title": "External-FEM corroboration is a validity-proxy, not a soundness proof",
+      "citation": "docs/solutions/best-practices/external-fem-corroboration-validity-proxy-2026-07-09.md",
+      "note": "The change keeps hardware qualification and cooling applicability explicitly unresolved."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Qualification exports require clean-build replay",
+      "citation": "docs/solutions/best-practices/qualification-exports-require-clean-build-replay-2026-09-01.md",
+      "note": "The retained bundle and replay path preserve generated inputs, logs, hashes and semantic mutation controls."
+    },
+    {
+      "type": "known_pattern",
+      "title": "A runnable behavioral model is evidence only inside its declared boundary",
+      "citation": "docs/solutions/best-practices/behavioral-model-evidence-boundary.md",
+      "note": "The harness reports numerical evidence while leaving package, enclosure and cooling limits indeterminate."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Thermal models need complete connectivity and scoped sensor ratings",
+      "citation": "docs/solutions/logic-errors/thermal-model-rating-and-connectivity-boundaries.md",
+      "note": "The bridge model binds exact trace/pad identities and does not infer a component rating from the local solve."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The thermal harness keeps a second private net-to-trace/segment identity map in bridge_thermal.rs while neck_geometry.rs owns the corresponding bridge definitions. A future bridge repair can update one map without the other and make current binding drift; consolidate the mapping or add a cross-module consistency check when this area next changes."
+  ],
+  "testing_gaps": [],
+  "coverage": {
+    "mechanical_helper": "mechanical-findings-current.json",
+    "primary_before_soft_bucket": 1,
+    "primary_after_soft_bucket": 0,
+    "soft_bucket_demotion_count": 1,
+    "suppressed_by_confidence": {},
+    "first_evidence_backfilled": 0,
+    "quote_line_demotions": 0,
+    "current_tree_suppressions": [
+      "Manifest never supplies thermal evidence (units.json now supplies it and zapote-unit-run rebases it).",
+      "Fail missing configured thermal evidence (Some(missing) now emits Finding::fail, with regression coverage).",
+      "Mesher ignores extracted pad shape (native bridge geometry validation now checks saved/native shapes and neck_run invokes it).",
+      "Replay evidence path lacks end-to-end tests (retained replay and harness mutation tests now exercise the path).",
+      "Replay ignores solver execution receipts (verify_commands now checks every per-case receipt and stdout/stderr log equality).",
+      "branch_current starts_with collision (exact-ID matching and a collision regression are now present)."
+    ],
+    "discarded_contract_or_preference_claims": [
+      "Replay backend rehash: the documented replay contract is portable historical evidence; normal cargo tests run without Gmsh/Elmer, and backend hashes are provenance rather than a live installation allowlist.",
+      "Scattered raw mesh tags: 1/2/11/12/13 are the intentional Gmsh/Elmer protocol, with structural tag mutation coverage; centralizing them would be cleanup preference without a demonstrated defect."
+    ],
+    "validator": {
+      "batch_count": 0,
+      "selected_numbers": [],
+      "shortcut_skipped": 0,
+      "status": "empty-batch",
+      "reason": "No primary P0/P1 or actionable finding survived current-tree reconciliation."
+    },
+    "cross_model": "cross-model pass not run: host egress safety gate rejected external diff transfer; in-process adversarial fallback ran.",
+    "failed_reviewers": [],
+    "settlement": "not evaluated: no plan was discovered (plan source none).",
+    "untracked_excluded": [
+      "zapote/thermal/evidence/bridge-necks-2026-09-14/"
+    ],
+    "compound_packs": {
+      "roots": [],
+      "warnings": [],
+      "errors": []
+    }
+  }
+}

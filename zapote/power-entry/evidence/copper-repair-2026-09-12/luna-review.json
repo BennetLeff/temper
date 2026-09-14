@@ -1,0 +1,87 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "base": "cb80a1df1246cd9227431baa57d9f42381489fd9",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "cb80a1df1246cd9227431baa57d9f42381489fd9",
+    "pr_url": null,
+    "files_changed": 5,
+    "untracked_evidence_inspected": [
+      "zapote/power-entry/evidence/native-copper-12.json",
+      "zapote/power-entry/evidence/copper-repair-2026-09-12/README.md",
+      "zapote/power-entry/evidence/copper-repair-2026-09-12/verification.json"
+    ]
+  },
+  "intent": "Widen one native F.Cu minus segment from 4 mm to 6 mm and repoint the maintained power-entry unit to freshly collected native evidence. Preserve the four remaining bridge terminal-stub screening failures and keep the result explicitly partial rather than treating IPC-2221 screening as thermal qualification.",
+  "intent_confidence": "explicit",
+  "reviewers": ["correctness"],
+  "findings": [
+    {
+      "#": 1,
+      "title": "Scope the historical no-PCB-edit statement",
+      "severity": "P2",
+      "file": "zapote/validation/p1-current/README.md",
+      "line": 10,
+      "confidence": "high",
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Rewrite the sentence to say that the linked pre-repair receipt was captured before the current bounded PCB repair, so the page cannot be read as claiming that the current working tree has no PCB edit.",
+      "first_evidence": "The current diff edits zapote/power-entry/candidate/section.kicad_pcb, while the paragraph says 'No product PCB was edited' and is followed by the current repair section.",
+      "why_it_matters": "A reader using this page to identify the board represented by the linked receipt can bind the historical no-edit claim to the current repaired board incorrectly.",
+      "evidence": "The linked receipt is the pre-repair run; current native-copper-12.json and verification.json bind board SHA 84f4b325... to the edited 6 mm segment.",
+      "reviewers": ["correctness"],
+      "independent_reviewers": []
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "title": "Scope the historical no-PCB-edit statement",
+      "severity": "P2",
+      "file": "zapote/validation/p1-current/README.md",
+      "line": 10,
+      "confidence": "high",
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Rewrite the sentence to scope it to the linked pre-repair receipt.",
+      "first_evidence": "Current diff edits the PCB, but this sentence is unqualified.",
+      "why_it_matters": "Prevents historical evidence from being mistaken for current-board identity.",
+      "evidence": "The linked receipt predates the current 6 mm repair.",
+      "reviewers": ["correctness"],
+      "independent_reviewers": []
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The four GBU terminal-stub IPC-2221 screen failures remain and correctly keep the power-entry unit overall status failed.",
+    "The IPC-2221 scalar is a uniform-trace screen; it does not qualify pad/barrel current sharing, finite-length heat spreading, terminal temperature, transients, or powered hardware.",
+    "The retained manufacturing receipt names an isolated Luna checkout path, but its board hash matches the canonical board and the canonical all-unit report independently binds the current board/evidence bytes."
+  ],
+  "testing_gaps": [
+    "No hardware qualification was run.",
+    "No new regression test was added for the single native width edit; existing mutation and saved-board checks were exercised."
+  ],
+  "coverage": {
+    "mode": "agent",
+    "scope_mode": "local dirty working tree against explicit current HEAD base",
+    "diff_review": "one PCB segment width edit, units.json evidence path update, and three closeout-document updates",
+    "native_binding": "board SHA 84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317 matches native-copper-12.json; target UUID, endpoints, net and layer preserved",
+    "validation_evidence": "320 Rust tests passed, 0 failed, 0 ignored; all 7 native/common checks passed; native KiCad DRC/ERC/unconnected/parity receipt reports 0 findings",
+    "screen_result": "target trace is 6.0 mm with 19.6581 A nominal external capacity against determined 15 A RMS; four prior bridge-stub screen failures remain",
+    "failed_reviewers": [],
+    "scope_helper": "review-scope.py completed with lite_eligible=false and uncounted_files=5; full roster was required by the helper, but no additional domain persona was relevant to this non-runtime PCB/document diff.",
+    "limitations": "Bounded review only; no full-board qualification claim"
+  },
+  "artifact_path": "/private/tmp/ce-code-review-copper-repair-20260912",
+  "run_id": "copper-repair-20260912"
+}

@@ -254,6 +254,7 @@ dependencies = [
  "zapote-core",
  "zapote-drc",
  "zapote-erc",
+ "zapote-thermal",
 ]
 
 [[package]]
@@ -265,6 +266,8 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "zapote-core",
+ "zapote-drc",
 ]
 
 [[package]]

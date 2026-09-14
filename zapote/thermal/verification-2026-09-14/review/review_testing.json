@@ -1,0 +1,26 @@
+{
+  "reviewer": "testing",
+  "findings": [
+    {
+      "title": "Replay evidence path lacks end-to-end tests",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/neck_run.rs",
+      "line": 247,
+      "why_it_matters": "A damaged, stale, or self-consistent but altered retained thermal bundle can only be detected through replay, yet no test invokes that public path with evidence. The current tests exercise individual parser and mesh helpers, while the harness test only invokes `run(None, ...)`; regressions in saved-board identity, inventory hashing, case-population, convergence, or summary-versus-raw reconciliation can therefore reach the PowerEntry rule without a behavior-sensitive test. Add a compact retained-evidence fixture (or a copied minimal bundle) that proves replay succeeds, then mutate the saved board, an artifact hash/input, a case summary, and a convergence/case-population input and assert both `replay` and `bridge_thermal::run(Some(...))` fail closed.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Add integration tests that call `neck_run::replay` on a valid compact evidence fixture and copied mutations, then assert `bridge_thermal::run(Some(...))` emits a numerical failure for each replay error while preserving the applicability indeterminate finding.",
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/neck_run.rs:247 -- pub fn replay(root: &Path, board: &[u8]) -> Result<Assessment> {",
+        "zapote/packages/zapote-thermal/tests/neck_physics.rs:28 -- let measurement = parse_validate(LOG, DATA, NAMES, &params(), [2e-6, 2e-6, 6e-5]).unwrap();",
+        "zapote/packages/zapote-thermal/tests/neck_transfer.rs:10 -- neck_transfer::verify(&gmsh, Path::new(&format!(\"{CASE}/neck\"))).unwrap();",
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:248 -- let report = run(None, b\"board\", None);"
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": []
+}

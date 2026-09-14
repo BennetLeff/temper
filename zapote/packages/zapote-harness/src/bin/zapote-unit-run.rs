@@ -58,6 +58,7 @@ fn main() -> Result<ExitCode> {
             .into_iter()
             .chain(s.contract.iter_mut())
             .chain(s.composite.iter_mut())
+            .chain(s.thermal_evidence.iter_mut())
         {
             *p = base.join(&*p);
         }

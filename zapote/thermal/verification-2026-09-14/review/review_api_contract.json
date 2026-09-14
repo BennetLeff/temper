@@ -1,0 +1,25 @@
+{
+  "reviewer": "api-contract",
+  "findings": [
+    {
+      "title": "Fail missing configured thermal evidence",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-harness/src/bridge_thermal.rs",
+      "line": 35,
+      "why_it_matters": "A manifest that explicitly names a thermal-evidence directory but whose directory was deleted is treated as an indeterminate coverage gap instead of a failed thermal replay. That makes a bad configured artifact indistinguishable at the numerical-rule status level from an older manifest that intentionally supplied no evidence, despite the public function contract saying supplied unreplayable evidence fails closed. Return a failing finding for the `Some(root) if !root.is_dir()` case so configured paths remain an integrity boundary.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Replace `Finding::indeterminate` with `Finding::fail` in the supplied-but-not-directory match arm, and add a test that `run(Some(missing_path), ...)` gives the numerical rule `Status::Fail` while `run(None, ...)` remains indeterminate.",
+      "confidence": 100,
+      "evidence": [
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:35 -- findings.push(Finding::indeterminate(",
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:20-21 -- /// branch model. Missing evidence is indeterminate; supplied evidence that\n/// cannot be replayed or bound fails closed.",
+        "zapote/packages/zapote-core/src/lib.rs:827-834 -- a CheckReport containing a Fail finding is Fail, whereas one containing only an Indeterminate finding is Indeterminate."
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": []
+}

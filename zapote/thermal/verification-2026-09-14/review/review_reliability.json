@@ -1,0 +1,28 @@
+{
+  "reviewer": "reliability",
+  "findings": [
+    {
+      "title": "Replay ignores solver execution receipts",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/neck_run.rs",
+      "line": 116,
+      "why_it_matters": "A retained evidence directory can receive a numerical PASS even if no Gmsh, ElmerGrid, or ElmerSolver command receipt exists. Replay checks regenerated geometry and semantic plausibility of editable solver output, but never binds that output to a successful recorded solver execution; its self-reported artifact hashes only detect changes relative to the equally editable assessment. Because the harness turns a successful replay into `THERMAL.POWER_ENTRY.BRIDGE_NECK_NUMERICAL` PASS, a partial or fabricated run can be accepted as numerical evidence. Require completed, typed per-tool receipts and validate their exact command, exit status, timeout, and output hashes during replay.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Have run_process write a completed receipt after each successful command with exit status and hashes of stdout, stderr, and declared outputs; in read_cases/replay require and validate Gmsh, ElmerGrid, and ElmerSolver receipts for every case against the expected executable role, arguments, working directory, timeout, and result hashes before parsing solver results.",
+      "confidence": 100,
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/neck_run.rs:116-119 -- let measurement = physics::parse_validate( &fs::read(dir.join(\"solver.log\"))?, &fs::read(dir.join(\"scalars.dat\"))?, &fs::read(dir.join(\"scalars.dat.names\"))?, &scenario.params, mesh.areas_m2, )?;",
+        "zapote/packages/zapote-thermal/src/neck_run.rs:247-255 -- replay validates the assessment schema, board/model, inventory, and cases, but invokes no command-receipt or backend-hash validation.",
+        "zapote/packages/zapote-thermal/src/lib.rs:254-260 -- run_process writes command.json before launching and records program, arguments, cwd, environment, and timeout, but no completion status or output binding.",
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:54-62 -- a successful replay with matching currents emits Finding::pass for THERMAL.POWER_ENTRY.BRIDGE_NECK_NUMERICAL."
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": [
+    "No replay/harness test removes or rewrites a per-case solver.command.json (and reconciles assessment.artifacts) to prove that execution receipts, not just plausible raw outputs, are required for the numerical rule to pass."
+  ]
+}

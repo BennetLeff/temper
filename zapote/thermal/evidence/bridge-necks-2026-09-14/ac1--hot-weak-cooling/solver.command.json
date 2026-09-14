@@ -1,0 +1,16 @@
+{
+  "args": [
+    "case.sif"
+  ],
+  "cwd": "/private/tmp/zapote-neck-run-20260914-d/ac1--hot-weak-cooling",
+  "environment": {
+    "OMPI_MCA_btl": "self",
+    "OMP_NUM_THREADS": "1"
+  },
+  "program": "/Users/bennet/.local/opt/elmer-26.2.1/bin/ElmerSolver",
+  "timeout_ms": 300000,
+  "unset_environment": [
+    "ELMER_HOME",
+    "ELMER_LIB"
+  ]
+}

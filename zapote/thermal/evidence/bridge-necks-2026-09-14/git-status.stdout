@@ -1,0 +1,24 @@
+ M zapote/Cargo.lock
+ M zapote/packages/zapote-harness/Cargo.toml
+ M zapote/packages/zapote-harness/src/lib.rs
+ M zapote/packages/zapote-harness/src/runner.rs
+ M zapote/packages/zapote-thermal/.gitignore
+ M zapote/packages/zapote-thermal/Cargo.toml
+ M zapote/packages/zapote-thermal/src/lib.rs
+ M zapote/power-entry/README.md
+ M zapote/power-entry/candidate/section.kicad_pcb
+ M zapote/validation/integration-2026-09-12.md
+ M zapote/validation/p1-current/README.md
+ M zapote/validation/units.json
+?? zapote/packages/zapote-harness/src/bridge_thermal.rs
+?? zapote/packages/zapote-thermal/src/bin/
+?? zapote/packages/zapote-thermal/src/neck_geo.rs
+?? zapote/packages/zapote-thermal/src/neck_geometry.rs
+?? zapote/packages/zapote-thermal/src/neck_physics.rs
+?? zapote/packages/zapote-thermal/src/neck_run.rs
+?? zapote/packages/zapote-thermal/tests/neck-physics-constant-fixture/
+?? zapote/packages/zapote-thermal/tests/neck-physics-fixture/
+?? zapote/packages/zapote-thermal/tests/neck_physics.rs
+?? zapote/power-entry/evidence/copper-repair-2026-09-12/
+?? zapote/power-entry/evidence/native-copper-12.json
+?? zapote/thermal/bridge-necks.md

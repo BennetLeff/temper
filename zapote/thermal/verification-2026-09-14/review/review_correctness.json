@@ -1,0 +1,47 @@
+{
+  "reviewer": "correctness",
+  "findings": [
+    {
+      "title": "Manifest never supplies thermal evidence",
+      "severity": "P1",
+      "file": "zapote/validation/units.json",
+      "line": 65,
+      "why_it_matters": "The adopted `make -C zapote unit-run` manifest deserializes the new optional field as `None`, so every PowerEntry run records the numerical rule as indeterminate and never replays the retained bridge-neck model. The new required rule is still marked executed, which makes the harness look integrated while it only proves that evidence was omitted. Point the PowerEntry manifest at a tracked real-board assessment and resolve that path like the other manifest-relative inputs so the numerical replay, current binding, and tamper checks actually run.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Add `thermal_evidence` to the PowerEntry entry in `zapote/validation/units.json`, pointing at a committed real-board assessment directory; include `s.thermal_evidence.iter_mut()` in the manifest-relative rebasing loop in `src/bin/zapote-unit-run.rs`; add an end-to-end manifest test that requires a replayed numerical result rather than the missing-evidence finding.",
+      "confidence": 100,
+      "evidence": [
+        "zapote/packages/zapote-harness/src/runner.rs:522 -- crate::bridge_thermal::run(spec.thermal_evidence.as_deref(), &board, pfc_power.as_ref())",
+        "zapote/packages/zapote-harness/src/runner.rs:52-53 -- #[serde(default)] pub thermal_evidence: Option<PathBuf>,",
+        "zapote/validation/units.json:65-66 -- \"composite\": null followed by the closing PowerEntry object; it has no `thermal_evidence` member.",
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:27-30 -- Finding::indeterminate(NUMERICAL_RULE, \"bridge-neck thermal evidence directory was not supplied\", \"power-entry.bridge-necks\")"
+      ],
+      "pre_existing": false
+    },
+    {
+      "title": "Mesher ignores extracted pad shape",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/neck_geo.rs",
+      "line": 17,
+      "why_it_matters": "A supported shape change to any bridge pad can produce a successful mesh and solver result for the wrong copper geometry. `build_neck_model` accepts both source shape codes but drops the field, then the Gmsh generator chooses a rectangle only for pad 1 and an oval for every other pad. Preserve the extracted shape in `NeckGeometry` and either generate from it or reject any shape that differs from the reviewed per-pad contract, so an input geometry change cannot silently become an unrelated model.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Add the validated shape to `NeckGeometry`, select the rectangle/oval construction from that field in `neck_geo::generate`, and add mutations that change a pad-2 shape to rectangle and a pad-1 shape to oval, asserting either a correspondingly changed generated geometry or a fail-closed reviewed-shape rejection.",
+      "confidence": 100,
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/neck_geo.rs:17 -- let pad = if neck.pad_number==\"1\" {",
+        "zapote/packages/zapote-thermal/src/neck_geometry.rs:335-336 -- ensure!(pad.shape == 1 || pad.shape == 2, \"bridge pad {} has unsupported shape {}\", pad.pad, pad.shape);",
+        "zapote/packages/zapote-thermal/src/neck_geometry.rs:375-386 -- NeckGeometry stores `pad_number` and dimensions but does not store `pad.shape`."
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": [
+    "No current-manifest integration test supplies a real bridge-neck assessment and proves that the numerical replay path (including the current binding) runs instead of emitting the missing-evidence indeterminate finding.",
+    "No geometry mutation test changes an otherwise supported bridge-pad shape and proves that the generated Gmsh solid changes or the model rejects the source."
+  ]
+}

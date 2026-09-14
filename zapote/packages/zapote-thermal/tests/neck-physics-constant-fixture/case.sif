@@ -1,0 +1,93 @@
+Header
+ CHECK KEYWORDS Warn
+ Mesh DB "." "bar"
+End
+Simulation
+ Coordinate System = Cartesian 3D
+ Simulation Type = Steady State
+ Steady State Max Iterations = 30
+ Output Intervals = 1
+ Post File = "robin.vtu"
+End
+Body 1
+ Target Bodies(1) = 1
+ Equation = 1
+ Material = 1
+ Body Force = 1
+ Initial Condition = 1
+End
+Initial Condition 1
+ Temperature = 293.15
+End
+Equation 1
+ Active Solvers(3) = 1 2 3
+End
+Solver 1
+ Equation = Stat Current
+ Procedure = "StatCurrentSolve" "StatCurrentSolver"
+ Variable = Potential
+ Variable DOFs = 1
+ Calculate Volume Current = True
+ Calculate Joule Heating = True
+ Linear System Solver = Direct
+ Linear System Direct Method = umfpack
+ Nonlinear System Max Iterations = 1
+ Steady State Convergence Tolerance = 1e-8
+End
+Solver 2
+ Equation = Heat Equation
+ Procedure = "HeatSolve" "HeatSolver"
+ Variable = Temperature
+ Linear System Solver = Direct
+ Linear System Direct Method = umfpack
+ Nonlinear System Max Iterations = 1
+ Steady State Convergence Tolerance = 1e-8
+ Calculate Loads = True
+ Calculate Boundary Fluxes = True
+End
+Solver 3
+ Exec Solver = After All
+ Equation = SaveScalars
+ Procedure = "SaveData" "SaveScalars"
+ Variable 1 = Temperature
+ Operator 1 = max
+ Variable 2 = Temperature
+ Operator 2 = min
+ Variable 3 = Temperature
+ Operator 3 = boundary int
+ Variable 4 = Temperature
+ Operator 4 = area
+ Variable 5 = Potential
+ Operator 5 = boundary int
+ Filename = "scalars.dat"
+End
+Material 1
+ Electric Conductivity = 5.8e7
+ Heat Conductivity = 400.0
+ Density = 8960.0
+ Heat Capacity = 385.0
+End
+Body Force 1
+ Joule Heat = True
+End
+Boundary Condition 1
+ Target Boundaries(1) = 11
+ Current Density BC = True
+ Current Density = 7500000
+ Heat Transfer Coefficient = 10000
+ External Temperature = 333.15
+ Save Scalars = True
+End
+Boundary Condition 2
+ Target Boundaries(1) = 12
+ Potential = 0.0
+ Heat Transfer Coefficient = 40000
+ External Temperature = 293.15
+ Save Scalars = True
+End
+Boundary Condition 3
+ Target Boundaries(1) = 13
+ Heat Transfer Coefficient = 8
+ External Temperature = 293.15
+ Save Scalars = True
+End

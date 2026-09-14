@@ -25,6 +25,13 @@ fn children<'a>(n: &'a Sexpr, key: &str) -> Result<Vec<&'a Sexpr>, String> {
         .filter(|n| items(n).is_ok_and(|v| atom(v.first()).is_ok_and(|s| s == key)))
         .collect())
 }
+fn one<'a>(n: &'a Sexpr, key: &str) -> Result<&'a Sexpr, String> {
+    let matches = children(n, key)?;
+    if matches.len() != 1 {
+        return Err(format!("expected one {key}"));
+    }
+    Ok(matches[0])
+}
 fn field(n: &Sexpr, key: &str) -> Result<Vec<String>, String> {
     let v = children(n, key)?;
     if v.len() != 1 {
@@ -245,4 +252,324 @@ pub fn validate(native: &str) -> CheckReport {
         Err(e) => Finding::fail(RULE, e, "native"),
     };
     CheckReport::from_findings(vec![finding], vec![RULE.into()], vec![])
+}
+
+const BRIDGE_RULE: &str = "DRC.NATIVE.BRIDGE_NECK_GEOMETRY";
+
+fn approx(actual: f64, expected: f64) -> bool {
+    (actual - expected).abs() <= 1.0e-9_f64.max(expected.abs() * 1.0e-9)
+}
+
+fn json_pair(value: Option<&Value>, name: &str) -> Result<[f64; 2], String> {
+    let values = value
+        .and_then(Value::as_array)
+        .ok_or_else(|| format!("missing {name}"))?;
+    if values.len() != 2 {
+        return Err(format!("{name} must contain two values"));
+    }
+    let pair = values
+        .iter()
+        .map(|value| {
+            value
+                .as_f64()
+                .ok_or_else(|| format!("{name} is not numeric"))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let pair: [f64; 2] = pair.try_into().map_err(|_| format!("invalid {name}"))?;
+    if pair.iter().any(|value| !value.is_finite()) {
+        return Err(format!("{name} is non-finite"));
+    }
+    Ok(pair)
+}
+
+fn inspect_bridge_neck(native: &Value) -> Result<String, String> {
+    let board_text = native["board_file_utf8"]
+        .as_str()
+        .ok_or("missing board_file_utf8")?;
+    let board = parse_document(board_text, "KiCad board").map_err(|e| e.to_string())?;
+    if atom(items(&board)?.first())? != "kicad_pcb" {
+        return Err("not a KiCad board".into());
+    }
+    let components = native["components"]
+        .as_array()
+        .ok_or("missing components")?;
+    let saved = components
+        .iter()
+        .find(|component| component["id"].as_str() == Some("bridge"))
+        .ok_or("missing bridge component")?;
+    if saved["mpn"].as_str() != Some("GBU2510A") {
+        return Err("bridge component MPN is not GBU2510A".into());
+    }
+    let saved_position = json_pair(Some(&saved["position_mm"]), "bridge position")?;
+    let saved_pads = saved["footprint_pads"]
+        .as_array()
+        .ok_or("bridge footprint pads are missing")?;
+    if saved_pads.len() != 4 {
+        return Err(format!(
+            "bridge requires four saved pads, found {}",
+            saved_pads.len()
+        ));
+    }
+    let mut saved_pins = BTreeSet::new();
+    for pad in saved_pads {
+        let pin = pad["pad"]
+            .as_str()
+            .ok_or("saved bridge pad number missing")?;
+        if !saved_pins.insert(pin) || !matches!(pin, "1" | "2" | "3" | "4") {
+            return Err("saved bridge pads must contain unique pins 1-4".into());
+        }
+        if pad["pad_type"].as_str() != Some("electrical") {
+            return Err(format!("saved bridge pad {pin} is not electrical"));
+        }
+    }
+    let footprint_matches = children(&board, "footprint")?
+        .into_iter()
+        .filter(|footprint| property(footprint, "SourceInstance").is_ok_and(|id| id == "bridge"))
+        .collect::<Vec<_>>();
+    if footprint_matches.len() != 1 {
+        return Err(format!(
+            "expected one native bridge footprint, found {}",
+            footprint_matches.len()
+        ));
+    }
+    let footprint = footprint_matches[0];
+    if scalar(footprint, "layer")? != "F.Cu" {
+        return Err("bridge footprint must be on F.Cu".into());
+    }
+    if property(footprint, "MPN")? != "GBU2510A" {
+        return Err("native bridge footprint MPN is not GBU2510A".into());
+    }
+    let footprint_at = numbers(footprint, "at")?;
+    if footprint_at.len() != 2 && footprint_at.len() != 3 {
+        return Err("bridge footprint at must have x/y and optional zero rotation".into());
+    }
+    if footprint_at
+        .get(2)
+        .is_some_and(|rotation| !approx(*rotation, 0.0))
+    {
+        return Err("bridge footprint rotation is unsupported".into());
+    }
+    if !approx(footprint_at[0], saved_position[0]) || !approx(footprint_at[1], saved_position[1]) {
+        return Err("bridge footprint position differs from saved component position".into());
+    }
+    let native_pads = children(footprint, "pad")?;
+    if native_pads.len() != 4 {
+        return Err(format!(
+            "bridge requires four native pads, found {}",
+            native_pads.len()
+        ));
+    }
+    let mut native_pins = BTreeSet::new();
+    for pad in &native_pads {
+        let pin = atom(items(pad)?.get(1))?;
+        if !native_pins.insert(pin) {
+            return Err("native bridge pads contain duplicate pin numbers".into());
+        }
+    }
+    for saved_pad in saved_pads {
+        if !saved_pad["orientation_deg"]
+            .as_f64()
+            .is_some_and(|v| approx(v, 0.0))
+        {
+            return Err("exported bridge pad rotation must be zero".into());
+        }
+        let pin = saved_pad["pad"]
+            .as_str()
+            .ok_or("saved bridge pad number missing")?;
+        let native_pad = native_pads
+            .iter()
+            .find(|pad| {
+                atom(items(pad).ok().and_then(|fields| fields.get(1)))
+                    .ok()
+                    .as_deref()
+                    == Some(pin)
+            })
+            .ok_or_else(|| format!("native bridge pad {pin} is missing"))?;
+        let fields = items(native_pad)?;
+        if atom(fields.get(2))? != "thru_hole" {
+            return Err(format!("bridge pad {pin} is not through-hole"));
+        }
+        let expected_shape = if pin == "1" { "rect" } else { "oval" };
+        if atom(fields.get(3))? != expected_shape {
+            return Err(format!("bridge pad {pin} shape is not {expected_shape}"));
+        }
+        let native_uuid = scalar(native_pad, "uuid")?;
+        if native_uuid != saved_pad["uuid"].as_str().ok_or("saved pad UUID missing")? {
+            return Err(format!("bridge pad {pin} UUID differs"));
+        }
+        let native_at = numbers(native_pad, "at")?;
+        if native_at.len() != 2 && native_at.len() != 3 {
+            return Err(format!("bridge pad {pin} at is malformed"));
+        }
+        if native_at
+            .get(2)
+            .is_some_and(|rotation| !approx(*rotation, 0.0))
+        {
+            return Err(format!("bridge pad {pin} rotation is unsupported"));
+        }
+        let world = [
+            footprint_at[0] + native_at[0],
+            footprint_at[1] + native_at[1],
+        ];
+        let saved_world = json_pair(Some(&saved_pad["position_mm"]), "saved pad position")?;
+        if world
+            .iter()
+            .zip(saved_world)
+            .any(|(actual, expected)| !approx(*actual, expected))
+        {
+            return Err(format!("bridge pad {pin} world position differs"));
+        }
+        let size = numbers(native_pad, "size")?;
+        let saved_size = json_pair(Some(&saved_pad["size_mm"]), "saved pad size")?;
+        if size.len() != 2
+            || size
+                .iter()
+                .zip(saved_size)
+                .any(|(actual, expected)| !approx(*actual, expected))
+        {
+            return Err(format!("bridge pad {pin} size differs"));
+        }
+        let drill = numbers(native_pad, "drill")?;
+        let saved_drill = json_pair(Some(&saved_pad["drill_mm"]), "saved pad drill")?;
+        if drill.len() != 1
+            || drill[0] <= 0.0
+            || saved_drill[0] != saved_drill[1]
+            || !approx(drill[0], saved_drill[0])
+        {
+            return Err(format!("bridge pad {pin} circular drill differs"));
+        }
+        let expected_enum = if pin == "1" { 1 } else { 2 };
+        if saved_pad["shape"].as_u64() != Some(expected_enum) {
+            return Err(format!("saved bridge pad {pin} has unexpected shape enum"));
+        }
+    }
+    let stackup = one(one(&board, "setup")?, "stackup")?;
+    let mut copper = 0;
+    let mut copper_names = BTreeSet::new();
+    let mut cores = 0;
+    let mut found_core = false;
+    for layer in children(stackup, "layer")? {
+        let kind = scalar(layer, "type")?;
+        let thickness = scalar(layer, "thickness")
+            .ok()
+            .and_then(|value| value.parse::<f64>().ok());
+        let name = atom(items(layer)?.get(1))?;
+        if kind == "copper" {
+            copper += 1;
+            copper_names.insert(name.clone());
+            if !thickness.is_some_and(|value| approx(value, 0.07)) {
+                return Err(format!("copper layer {name} is not 70 um"));
+            }
+        }
+        if kind == "core" {
+            cores += 1;
+        }
+        if kind == "prepreg" {
+            return Err("additional dielectric layer is unsupported".into());
+        }
+        if kind == "core"
+            && thickness.is_some_and(|value| approx(value, 1.44))
+            && scalar(layer, "material").ok().as_deref() == Some("FR4")
+        {
+            found_core = true;
+        }
+    }
+    if copper != 2 || copper_names != BTreeSet::from(["F.Cu".to_owned(), "B.Cu".to_owned()]) {
+        return Err(format!("expected two copper layers, found {copper}"));
+    }
+    if !found_core || cores != 1 {
+        return Err("missing 1.44 mm FR-4 core".into());
+    }
+    Ok(
+        "bridge footprint pad UUIDs, shape, size, drill, world positions and 2-layer stackup bind"
+            .into(),
+    )
+}
+
+/// Validate bridge-neck geometry required by the thermal model.
+pub fn validate_bridge_neck_geometry(native: &str) -> CheckReport {
+    let result = serde_json::from_str(native)
+        .map_err(|e| e.to_string())
+        .and_then(|native| inspect_bridge_neck(&native));
+    let finding = match result {
+        Ok(message) => Finding::pass(BRIDGE_RULE, message, "bridge"),
+        Err(message) => Finding::fail(BRIDGE_RULE, message, "bridge"),
+    };
+    CheckReport::from_findings(vec![finding], vec![BRIDGE_RULE.into()], vec![])
+}
+
+#[cfg(test)]
+mod bridge_tests {
+    use super::validate_bridge_neck_geometry;
+    use serde_json::{json, Value};
+    use zapote_core::Status;
+
+    fn evidence() -> Value {
+        let board = r#"(kicad_pcb
+          (setup (stackup
+            (layer "F.Cu" (type "copper") (thickness 0.07))
+            (layer "dielectric 1" (type "core") (thickness 1.44) (material "FR4"))
+            (layer "B.Cu" (type "copper") (thickness 0.07))))
+          (footprint "Diode_THT:Diode_Bridge_GBU2510"
+            (layer "F.Cu")
+            (at 30 115)
+            (property "SourceInstance" "bridge")
+            (property "MPN" "GBU2510A")
+            (pad "1" thru_hole rect (at 0 0) (size 3 3.2) (drill 1.6) (uuid "p1"))
+            (pad "2" thru_hole oval (at 5.08 0) (size 3 3.2) (drill 1.6) (uuid "p2"))
+            (pad "3" thru_hole oval (at 10.16 0) (size 3 3.2) (drill 1.6) (uuid "p3"))
+            (pad "4" thru_hole oval (at 15.24 0) (size 3 3.2) (drill 1.6) (uuid "p4")))
+        )"#;
+        json!({
+            "board_file_utf8": board,
+            "components": [{
+                "id": "bridge", "mpn": "GBU2510A", "position_mm": [30.0, 115.0],
+                "footprint_pads": [
+                    {"pad":"1","orientation_deg":0.0,"pad_type":"electrical","uuid":"p1","position_mm":[30.0,115.0],"size_mm":[3.0,3.2],"drill_mm":[1.6,1.6],"shape":1},
+                    {"pad":"2","orientation_deg":0.0,"pad_type":"electrical","uuid":"p2","position_mm":[35.08,115.0],"size_mm":[3.0,3.2],"drill_mm":[1.6,1.6],"shape":2},
+                    {"pad":"3","orientation_deg":0.0,"pad_type":"electrical","uuid":"p3","position_mm":[40.16,115.0],"size_mm":[3.0,3.2],"drill_mm":[1.6,1.6],"shape":2},
+                    {"pad":"4","orientation_deg":0.0,"pad_type":"electrical","uuid":"p4","position_mm":[45.24,115.0],"size_mm":[3.0,3.2],"drill_mm":[1.6,1.6],"shape":2}
+                ]
+            }]
+        })
+    }
+
+    #[test]
+    fn bridge_geometry_passes_against_native_fixture() {
+        assert_eq!(
+            validate_bridge_neck_geometry(&evidence().to_string()).status,
+            Status::Pass
+        );
+    }
+
+    #[test]
+    fn actual_power_entry_geometry_binds() {
+        assert_eq!(
+            validate_bridge_neck_geometry(include_str!(
+                "../../../power-entry/evidence/native-copper-12.json"
+            ))
+            .status,
+            Status::Pass
+        );
+    }
+
+    #[test]
+    fn bridge_geometry_mutations_fail_closed() {
+        let original = evidence();
+        let board = original["board_file_utf8"].as_str().unwrap();
+        for replacement in [
+            board.replace("(size 3 3.2)", "(size 3.1 3.2)"),
+            board.replace("(drill 1.6)", "(drill 1.5)"),
+            board.replace("(pad \"1\" thru_hole rect", "(pad \"1\" thru_hole oval"),
+            board.replace("(at 30 115)", "(at 31 115)"),
+            board.replace("(thickness 1.44)", "(thickness 1.20)"),
+        ] {
+            let mut mutated = original.clone();
+            mutated["board_file_utf8"] = json!(replacement);
+            assert_eq!(
+                validate_bridge_neck_geometry(&mutated.to_string()).status,
+                Status::Fail
+            );
+        }
+    }
 }

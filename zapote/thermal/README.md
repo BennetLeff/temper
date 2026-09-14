@@ -61,14 +61,16 @@ Ryzen runner can use the same input files and Rust command. Parallel build flags
 and enabled MPI support are not evidence of solver speedup. CUDA/Metal support
 and RTX 3080 Ti acceleration are outside this initial backend.
 
-## Next model
+## Real PCB model
 
-Model the power-entry bridge terminal necks from the actual saved copper,
-pad and drill geometry. Include copper thickness, FR-4 conduction, terminal
-heat, ambient/cooling ranges and temperature-dependent material properties.
-Validate geometry transfer and heat balance, then refine the mesh and sweep
-uncertain inputs before producing a thermal verdict. The existing current and
-clearance findings remain authoritative until that evidence exists.
+The [power-entry bridge-neck assessment](bridge-necks.md) now applies the backend
+to four native pad/trace/drill geometries. Forty steady-state cases passed the
+geometry, energy and convergence checks. The common runner replays their raw
+evidence and binds the current to the PFC branches; cooling applicability remains
+INDETERMINATE and the four current-capacity findings remain open.
+
+Next, bound the actual bridge mounting/heatsink and surrounding-board heat paths.
+The study's assumed reservoirs cannot authorize the PCB for operation.
 
 The bar's fixed-temperature ends are a deliberate analytic boundary condition;
 they must not become an assumption that real bridge terminals stay at ambient.

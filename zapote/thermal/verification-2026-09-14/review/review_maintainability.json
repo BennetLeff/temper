@@ -1,0 +1,44 @@
+{
+  "reviewer": "maintainability",
+  "findings": [
+    {
+      "title": "Duplicate bridge-neck identity mapping",
+      "severity": "P2",
+      "file": "zapote/packages/zapote-harness/src/bridge_thermal.rs",
+      "line": 200,
+      "why_it_matters": "The harness binds thermal cases to PFC branches with a second private copy of each reviewed trace UUID and its segment suffix, while the thermal model separately owns the same trace-to-net mapping. A board repair that changes a selected neck must update both crates in lockstep; updating only the thermal model makes a successfully replayed assessment fail its later current binding, with no compiler-visible relation between the two mappings.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Make the thermal bridge-neck definition the single public mapping, including net, trace UUID, and the PFC branch identifier/prefix needed for binding. Have bridge_thermal derive NETS and branch lookup from that mapping, then add a test that each exported neck definition resolves exactly one PFC branch.",
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:200 -- \"minus\" => \"1a8c9e36-4bbf-486e-a8a9-34985b0b249e:2\",",
+        "zapote/packages/zapote-thermal/src/neck_geometry.rs:17 -- const TRACE_UUIDS: [&str; 4] = [",
+        "zapote/packages/zapote-thermal/src/neck_geometry.rs:344 -- for (index, (&net, &trace_uuid)) in BRIDGE_NETS.iter().zip(TRACE_UUIDS.iter()).enumerate() {"
+      ],
+      "pre_existing": false
+    },
+    {
+      "title": "Scattered mesh-tag protocol",
+      "severity": "P2",
+      "file": "zapote/packages/zapote-thermal/src/neck_geo.rs",
+      "line": 49,
+      "why_it_matters": "The thermal pipeline encodes the terminal, far-face, and exterior boundary contract as raw numbers in the Gmsh generator, mesh verifier, Elmer transfer verifier, and SIF generator. Changing a boundary or adding one requires manually synchronizing four independently typed numeric protocols; a missed update can bind current or cooling to the wrong face without a type-level indication of the semantic mismatch.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Define named shared body and boundary tag constants (and, where practical, a BoundaryAreas struct keyed by terminal/far/exterior) in one thermal module. Generate the Gmsh and SIF text and validate Gmsh/Elmer tags through those names instead of separate 1/2/11/12/13 literals.",
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/neck_geo.rs:49 -- Physical Surface(11)={{terminal[]}};",
+        "zapote/packages/zapote-thermal/src/neck_geometry.rs:186 -- let index = match tag { 11 => 0, 12 => 1, 13 => 2, _ => bail!(\"surface triangle has unexpected physical tag {tag}\") };",
+        "zapote/packages/zapote-thermal/src/neck_transfer.rs:58 -- ensure!((11..=13).contains(&tag), \"unexpected Elmer boundary tag {tag}\");",
+        "zapote/packages/zapote-thermal/src/neck_physics.rs:187 --  Target Boundaries(1) = 11"
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": []
+}

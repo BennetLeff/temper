@@ -1,0 +1,30 @@
+{
+  "reviewer": "adversarial",
+  "findings": [
+    {
+      "title": "Replay ignores recorded backend identities",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/neck_run.rs",
+      "line": 436,
+      "why_it_matters": "The run records Gmsh, ElmerGrid, ElmerSolver, their libraries, and the executable in backend_hashes, but replay never checks those paths or the command records. After a backend is replaced or disappears, the old mesh/log/scalar bundle still returns a verified conditional assessment, so the acceptance result is no longer tied to the tools that produced it and stale or partial solver output can be presented as current evidence.",
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/neck_run.rs:436:    if inventory(root)? != report.artifacts {",
+        "zapote/packages/zapote-thermal/src/neck_run.rs:439:    let cases = read_cases(root, &model)?;",
+        "zapote/packages/zapote-thermal/src/neck_run.rs:406:        board_sha256:model.board_sha256, cases, artifacts:inventory(out)?, backend_hashes,"
+      ],
+      "suggested_fix": "During replay, iterate report.backend_hashes and rehash every recorded executable/library, failing closed (or explicitly returning indeterminate when the recorded path is unavailable); also validate the retained command metadata before accepting the raw outputs.",
+      "pre_existing": false,
+      "first_evidence": "zapote/packages/zapote-thermal/src/neck_run.rs:436:    if inventory(root)? != report.artifacts {"
+    }
+  ],
+  "residual_risks": [
+    "bridge_thermal::branch_current uses starts_with on UUID-plus-segment IDs (zapote/packages/zapote-harness/src/bridge_thermal.rs:206-209); a future generated branch such as UUID:20000 can satisfy the UUID:2 lookup and bind a thermal case to the wrong segment. Exact-ID lookup plus a collision regression is still needed."
+  ],
+  "testing_gaps": [
+    "No replay test changes a recorded backend binary/hash or command record and asserts that replay rejects the bundle; the existing mutations cover board/native/SIF/scalars and missing solver.log only."
+  ]
+}

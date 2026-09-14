@@ -1,0 +1,30 @@
+cargo run --quiet --locked --bin zapote-unit-run -- validation/units.json "/private/tmp/zapote-neck-common-20260914-final" "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli" "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9" --all
+checking rtd
+checking current-sense
+checking voltage-sense
+checking thermal-sense
+checking interlock
+checking gate-drive
+checking power-entry
+{
+  "deferred_units": {
+    "buck": "legacy delegated owner; no Zapote unit suite",
+    "mcu": "not in maintained Zapote registry"
+  },
+  "manifest_sha256": "0e142776e1283667085c17de4412ac17d43fbaf81253ed9ccdb3c6b72fdf30b9",
+  "output": "/private/tmp/zapote-neck-common-20260914-final",
+  "schema": "zapote.unit-run-summary.v1",
+  "status": "fail",
+  "suite_changed_during_run": false,
+  "unit_count": 7,
+  "unit_statuses": [
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "fail"
+  ]
+}
+make: *** [check-units] Error 1

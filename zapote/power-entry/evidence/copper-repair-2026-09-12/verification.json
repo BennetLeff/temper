@@ -1,0 +1,143 @@
+{
+  "schema": "zapote.pfc-copper-repair-closeout.v1",
+  "recorded_at": "2026-09-12T19:49:55.339375+00:00",
+  "status": "partial: one of five nominal screening findings repaired",
+  "source_revision": "cb80a1df1246cd9227431baa57d9f42381489fd9",
+  "dirty_at_start": true,
+  "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+  "tests": {
+    "passed": 320,
+    "failed": 0,
+    "ignored": 0
+  },
+  "make_exit": 2,
+  "runner_summary": {
+    "deferred_units": {
+      "buck": "legacy delegated owner; no Zapote unit suite",
+      "mcu": "not in maintained Zapote registry"
+    },
+    "manifest_sha256": "779c7e8357176a89fbf2417d71bca0683417309dae3bd1e8660ed014587d051c",
+    "output": "/private/tmp/zapote-copper-repair-all-units-20260912",
+    "schema": "zapote.unit-run-summary.v1",
+    "status": "fail",
+    "suite_changed_during_run": false,
+    "unit_count": 7,
+    "unit_statuses": [
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "fail"
+    ]
+  },
+  "unit_results": {
+    "rtd": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "current-sense": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "voltage-sense": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "thermal-sense": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "interlock": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "gate-drive": {
+      "overall": "indeterminate",
+      "native": "pass",
+      "common": "pass"
+    },
+    "power-entry": {
+      "overall": "fail",
+      "native": "pass",
+      "common": "pass"
+    }
+  },
+  "repaired_edge": {
+    "determined_rms_a": 14.999999999999995,
+    "id": "e45ca754-66c7-4204-987e-e69d5ed1af44:3",
+    "kind": "trace",
+    "net": "minus",
+    "nominal_external_capacity_a": 19.658088318633368,
+    "rms_envelope_a": 14.999999999999995,
+    "sampled_peak_envelope_a": 23.23020874897746,
+    "width_mm": 6.0
+  },
+  "remaining_findings": [
+    {
+      "actual": null,
+      "message": "determined nominal power-stage RMS 15.0000 A exceeds 10.4205 A external-copper screen at 2.5000 mm / 70.0 um / assumed 20 C rise",
+      "object": "1a8c9e36-4bbf-486e-a8a9-34985b0b249e:2",
+      "required": null,
+      "rule": "DRC.PFC.BRANCH_COPPER",
+      "severity": "error",
+      "status": "fail"
+    },
+    {
+      "actual": null,
+      "message": "determined nominal power-stage RMS 15.0000 A exceeds 10.4205 A external-copper screen at 2.5000 mm / 70.0 um / assumed 20 C rise",
+      "object": "6be299ab-3af0-4444-8bb5-c26c3d6443f6:2",
+      "required": null,
+      "rule": "DRC.PFC.BRANCH_COPPER",
+      "severity": "error",
+      "status": "fail"
+    },
+    {
+      "actual": null,
+      "message": "determined nominal power-stage RMS 15.0000 A exceeds 10.4205 A external-copper screen at 2.5000 mm / 70.0 um / assumed 20 C rise",
+      "object": "44d2e757-cc34-46a2-88aa-5ae29db62817:0",
+      "required": null,
+      "rule": "DRC.PFC.BRANCH_COPPER",
+      "severity": "error",
+      "status": "fail"
+    },
+    {
+      "actual": null,
+      "message": "determined nominal power-stage RMS 15.0000 A exceeds 10.4205 A external-copper screen at 2.5000 mm / 70.0 um / assumed 20 C rise",
+      "object": "e7dc2c72-d7b2-4456-afa6-efe227e0f8f8:2",
+      "required": null,
+      "rule": "DRC.PFC.BRANCH_COPPER",
+      "severity": "error",
+      "status": "fail"
+    }
+  ],
+  "validation_rules_changed": false,
+  "retained_reference_evidence_changed": false,
+  "hardware_tested": false,
+  "artifacts": {
+    "all-units.tar.gz": "47f66ac00803636173853d4b58fd84aeaf575c67894e5c2668155e28860b1faa",
+    "all-units-index.json": "083f37ebe371ab6d198fb09032daa7fb2bb038eee4af53d0efc0f033872bf364",
+    "check.log": "ad8429164112ab4378ffb9c002d4cf737e4f9e545895f70f6d4849ee22c79d83"
+  },
+  "coverage_comparison": {
+    "graph_edges_before": 814,
+    "graph_edges_after": 814,
+    "current_determinations_changed": 0,
+    "pfc_gaps_before": 56,
+    "pfc_gaps_after": 57,
+    "added_gap": "U12.2 measured copper chord4.2mm cannot certify full6mm trace attachment; complete pad/barrel current qualification remains open"
+  },
+  "review": {
+    "receipt": "luna-review.json",
+    "scope": "limited Luna correctness/evidence/doc review; not full CE persona roster",
+    "documentation_finding": "P2 historical no-PCB-edit claim explicitly scoped to pre-repair instrument run",
+    "pad_contact_gap": "parent found and explicitly recorded additional4.2mm-to6mm attachment gap",
+    "shipping_status": "not committed; four original screen findings require additional engineering evidence"
+  }
+}

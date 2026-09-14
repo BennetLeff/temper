@@ -5,6 +5,7 @@ use zapote_core::unit::UnitInput;
 use zapote_core::{CheckReport, Finding, RunInput, Status};
 
 pub mod current_sense;
+pub mod bridge_thermal;
 pub mod gate_drive;
 pub mod interlock;
 pub mod memory;

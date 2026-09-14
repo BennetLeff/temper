@@ -6,14 +6,21 @@ currents, splits the native copper graph, and measures actual pad copper with
 drill voids excluded. It does not certify mains operation or thermal safety.
 
 The [verification receipt](../runs/2026-09-12-pfc-current/verification.json)
-retains the final seven-board run, tests, source/input hashes, review records,
-failed development runs and native geometry evidence. No product PCB was edited.
+retains the pre-repair seven-board run, tests, source/input hashes, review records,
+failed development runs and native geometry evidence. That instrument-validation
+run did not edit a product PCB; the subsequent repair below did.
 
 The subsequent [independent-oracle validation](oracle-2026-09-12/README.md)
 checks these instruments against closed-form math, actual ngspice solves,
 native KiCad geometry and exhaustive cut-graph references. It exposed and
 fixed CCM validity, segmentation-invariance and dimensional-conversion defects.
-The same five nominal screening findings remain after correction.
+The same five nominal screening findings remained after instrument correction.
+The subsequent [PCB repair](../../power-entry/evidence/copper-repair-2026-09-12/README.md)
+widens one segment with its determined current preserved, leaving four bridge
+terminal-neck findings. Their uniform-width screen needs a finite-neck thermal
+assessment before it can establish the physical temperature of those connections;
+neither a formula implementation test nor a process-aborted DRC run supplies that
+evidence.
 
 ## Model and source binding
 

@@ -1,0 +1,47 @@
+{
+  "schema": "zapote.power-entry.pfc-copper-repair-operation.v1",
+  "operation": "bounded explicit routing width repair",
+  "source_revision": "cb80a1df1246cd9227431baa57d9f42381489fd9",
+  "board": "../../candidate/section.kicad_pcb",
+  "instrument_validation": {
+    "oracle_findings": "../../../validation/p1-current/oracle-2026-09-12/pfc-findings.json",
+    "oracle_verification": "../../../validation/p1-current/oracle-2026-09-12/verification.json",
+    "native_baseline": "baseline-drc.json",
+    "kicad_cli": "10.0.4",
+    "status": "validated"
+  },
+  "edit_budget": 8,
+  "attempts": [
+    {
+      "attempt": 1,
+      "action": "widen five original segments to 6.0 mm",
+      "status": "rejected",
+      "result": "kicad-cli pcb drc terminated with rc=134; exact board hash bc6d37e0884cde05379480923c051fc2ff7b8f28b7ba52eacbabf98714f3fc61; no result JSON"
+    },
+    {
+      "attempt": 2,
+      "action": "widen four bridge terminal stubs to 4.2 mm, retain first at 6.0 mm",
+      "status": "rejected",
+      "result": "kicad-cli pcb drc terminated with rc=134 before producing a result JSON; no clearance conclusion claimed"
+    },
+    {
+      "attempt": 3,
+      "action": "widen four bridge terminal stubs to 3.2 mm, retain first at 6.0 mm",
+      "status": "rejected",
+      "result": "kicad-cli pcb drc terminated with rc=134 before producing a result JSON; no clearance conclusion claimed"
+    },
+    {
+      "attempt": 4,
+      "action": "retain only the feasible 6.0 mm shunt-minus segment; restore four bridge stubs to 2.5 mm",
+      "status": "accepted_partial",
+      "result": "native DRC and ERC exit 0 with zero violations; final board hash 84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317"
+    }
+  ],
+  "original_uuids": [
+    "e45ca754-66c7-4204-987e-e69d5ed1af44",
+    "1a8c9e36-4bbf-486e-a8a9-34985b0b249e",
+    "6be299ab-3af0-4444-8bb5-c26c3d6443f6",
+    "44d2e757-cc34-46a2-88aa-5ae29db62817",
+    "e7dc2c72-d7b2-4456-afa6-efe227e0f8f8"
+  ]
+}

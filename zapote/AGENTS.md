@@ -146,4 +146,10 @@ Read the relevant detailed record before changing behavior in that area:
   probes need correct initial conditions, integer-cycle windows and timestep
   refinement before their measurements become reference evidence.
 - [Model certificate semantic binding](../docs/solutions/best-practices/model-certificates-need-semantic-binding.md)
+- [Real bridge-neck thermal assessment](thermal/bridge-necks.md) — preserve
+  independent geometry-transfer checks, electrical/thermal energy balance and
+  mesh refinement. Elmer nodal reaction fluxes at shared boundary nodes are not
+  per-face heat flows; use integrated boundary laws for heat partition. A valid
+  numerical result cannot certify unbounded assembly cooling or waive current
+  findings. Replay validates historical evidence, not the installed solver.
 - [Buck harness refinement plan](../docs/plans/2026-09-09-1945-feat-buck-harness-refinement-plan.md)
