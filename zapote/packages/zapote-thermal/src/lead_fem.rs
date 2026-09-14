@@ -387,12 +387,16 @@ pub fn generate_sif(
         (ambient_k - input.ambient_k).abs() < 1e-9,
         "ambient differs from reviewed input"
     );
+    // Elmer HeatSolve interprets `Heat Source` as W/kg and multiplies by the
+    // material density.  Convert the independently integrated W/m³ source so
+    // that the global source remains exactly I²R rather than 8960× too large.
     let source_density = receipt.total_copper_joule_w
         / receipt
             .domains
             .iter()
             .map(|d| d.copper_volume_m3)
-            .sum::<f64>();
+            .sum::<f64>()
+        / 8960.0;
     Ok(format!(
         r#"Header
   CHECK KEYWORDS Warn
@@ -778,5 +782,9 @@ mod tests {
         let r = geometry_receipt(&x).unwrap();
         let sif = generate_sif(&x, &r, x.ambient_k).unwrap();
         assert!(sif.contains("Heat Source ="));
+        let expected = r.total_copper_joule_w
+            / r.domains.iter().map(|d| d.copper_volume_m3).sum::<f64>()
+            / 8960.0;
+        assert!(sif.contains(&format!("Heat Source = {expected:.12e}")));
     }
 }
