@@ -248,6 +248,14 @@ impl LossInput {
             actual == expected,
             "archived bridge source bytes do not match source_sha256"
         );
+        // A caller-controlled SHA can still bind the wrong document. Require
+        // stable identity/value markers before accepting the source as the
+        // reviewed GBU2510A VF reference.
+        let text = String::from_utf8_lossy(bytes);
+        ensure!(
+            text.contains(&self.bridge_mpn) && text.contains("12.5"),
+            "archived bridge source lacks the reviewed MPN/VF reference markers"
+        );
         Ok(())
     }
 }
@@ -257,6 +265,10 @@ impl LossInput {
 pub struct PhysicalModelContract {
     pub schema: String,
     pub board_sha256: String,
+    /// Digest of the extracted four-neck geometry. Optional only for the
+    /// historical v1 fixture; reviewed variants must populate it.
+    #[serde(default)]
+    pub geometry_sha256: Option<String>,
     pub bridge_mpn: String,
     pub bridge_loss_allowance_w: Range,
     pub ambient_c: f64,
@@ -289,6 +301,12 @@ impl PhysicalModelContract {
                 && self.board_sha256.bytes().all(|b| b.is_ascii_hexdigit()),
             "physical-model board identity mismatch"
         );
+        if let Some(hash) = &self.geometry_sha256 {
+            ensure!(
+                hash.len() == 64 && hash.bytes().all(|b| b.is_ascii_hexdigit()),
+                "invalid physical-model geometry hash"
+            );
+        }
         ensure!(self.bridge_mpn == BRIDGE_MPN, "unsupported bridge package");
         for (name, value) in [
             ("bridge_loss_allowance_w", &self.bridge_loss_allowance_w),
@@ -452,6 +470,39 @@ pub struct Assessment {
 pub fn waveform_sha256(input: &WaveformInput) -> Result<String> {
     input.validate()?;
     Ok(format!("{:x}", Sha256::digest(serde_json::to_vec(input)?)))
+}
+
+/// Bind the contract's path UUIDs and dimensions to a fresh native extraction.
+pub fn validate_geometry_binding(
+    contract: &PhysicalModelContract,
+    model: &crate::neck_geometry::NeckModel,
+) -> Result<()> {
+    ensure!(
+        contract.board_sha256 == model.board_sha256,
+        "physical-model geometry board mismatch"
+    );
+    if let Some(expected) = &contract.geometry_sha256 {
+        ensure!(
+            expected == &crate::neck_geometry::geometry_fingerprint(model)?,
+            "physical-model geometry fingerprint mismatch"
+        );
+    }
+    ensure!(
+        contract.paths.len() == model.necks.len(),
+        "physical-model path count mismatch"
+    );
+    for (path, neck) in contract.paths.iter().zip(&model.necks) {
+        ensure!(
+            path.net == neck.net
+                && path.pad_uuid == neck.pad_uuid
+                && path.trace_uuid == neck.trace_uuid
+                && (path.trace_length_mm.nominal - neck.trace_length_mm).abs() < 1e-6
+                && (path.trace_width_mm.nominal - neck.trace_width_mm).abs() < 1e-9,
+            "physical-model path does not match native geometry for {}",
+            path.net
+        );
+    }
+    Ok(())
 }
 
 /// Evaluate the shared package network and source-bound bridge diode loss.
@@ -732,6 +783,9 @@ pub fn baseline_contract(
     PhysicalModelContract {
         schema: CONTRACT_SCHEMA.into(),
         board_sha256: board_sha256.into(),
+        geometry_sha256: Some(
+            crate::neck_geometry::geometry_fingerprint(model).expect("NeckModel is serializable"),
+        ),
         bridge_mpn: BRIDGE_MPN.into(),
         bridge_loss_allowance_w: sourced_range(40.0, "W", "bridge-cooling contract v1"),
         ambient_c: 40.0,
@@ -865,6 +919,7 @@ mod tests {
         PhysicalModelContract {
             schema: CONTRACT_SCHEMA.into(),
             board_sha256: "a".repeat(64),
+            geometry_sha256: None,
             bridge_mpn: BRIDGE_MPN.into(),
             bridge_loss_allowance_w: sourced_range(40.0, "W", "test"),
             ambient_c: 40.0,
@@ -1005,7 +1060,7 @@ mod tests {
     #[test]
     fn archived_source_identity_is_checked_against_bytes() {
         let mut c = contract();
-        let source = b"archived source";
+        let source = b"GBU2510A VF 12.5 A archived source";
         c.loss.source_sha256 = Some(format!("{:x}", Sha256::digest(source)));
         assert!(c.loss.validate_source_bytes(source).is_ok());
         assert!(c.loss.validate_source_bytes(b"edited source").is_err());
@@ -1017,7 +1072,7 @@ mod tests {
     #[test]
     fn source_bound_evaluation_marks_verified_only_after_byte_check() {
         let mut c = contract();
-        let source = b"archived source";
+        let source = b"GBU2510A VF 12.5 A archived source";
         c.loss.source_sha256 = Some(format!("{:x}", Sha256::digest(source)));
         let a = evaluate_with_source_bytes(&c, &waveform(), source).unwrap();
         assert!(a.source_bytes_verified);

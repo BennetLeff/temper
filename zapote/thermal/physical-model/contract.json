@@ -1,6 +1,7 @@
 {
   "schema": "zapote.bridge-physical-model.contract.v1",
   "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+  "geometry_sha256": "9c3966077ad72ecc62f2131534c2e611c2fa2a6a95327c82684cc82be27e5e90",
   "bridge_mpn": "GBU2510A",
   "bridge_loss_allowance_w": {"nominal":40.0,"min":40.0,"max":40.0,"units":"W","provenance":"bridge-cooling contract v1","status":"sourced"},
   "ambient_c": 40.0,

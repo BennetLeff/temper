@@ -65,6 +65,8 @@ pub fn run_with_physical_model(
     contract: Option<&[u8]>,
     assessment: Option<&[u8]>,
     source_bytes: Option<&[u8]>,
+    native_json: Option<&[u8]>,
+    manufacturing_json: Option<&[u8]>,
 ) -> CheckReport {
     let checked = PHYSICAL_RULES.iter().map(|r| (*r).to_owned()).collect();
     let result = (|| -> anyhow::Result<_> {
@@ -78,6 +80,17 @@ pub fn run_with_physical_model(
         let waveform = physical_waveform(pfc)?;
         let parsed: zapote_thermal::physical_model::PhysicalModelContract =
             serde_json::from_slice(contract)?;
+        if parsed.geometry_sha256.is_some() {
+            let native = native_json.ok_or_else(|| {
+                anyhow::anyhow!("native geometry required for physical-model binding")
+            })?;
+            let manufacturing = manufacturing_json.ok_or_else(|| {
+                anyhow::anyhow!("manufacturing geometry required for physical-model binding")
+            })?;
+            let model =
+                zapote_thermal::neck_geometry::build_neck_model_variant(native, manufacturing)?;
+            zapote_thermal::physical_model::validate_geometry_binding(&parsed, &model)?;
+        }
         let fresh = if let Some(source_bytes) = source_bytes {
             zapote_thermal::physical_model::replay_with_source_bytes(
                 contract,

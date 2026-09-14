@@ -101,6 +101,8 @@ fn physical_model_replay_binds_shared_package_and_pfc_waveform() {
             .unwrap(),
     )
     .unwrap();
+    let manufacturing =
+        fs::read(root.join("thermal/evidence/bridge-necks-2026-09-14/manufacturing.json")).unwrap();
     let mut contract = zapote_thermal::physical_model::baseline_contract(
         format!("{:x}", sha2::Sha256::digest(&board)),
         &model,
@@ -116,6 +118,8 @@ fn physical_model_replay_binds_shared_package_and_pfc_waveform() {
         Some(&contract_bytes),
         Some(&assessment_bytes),
         None,
+        Some(&native),
+        Some(&manufacturing),
     );
     assert_eq!(report.status, Status::Indeterminate);
     assert!(report
@@ -136,6 +140,8 @@ fn physical_model_replay_binds_shared_package_and_pfc_waveform() {
         Some(&contract_bytes),
         Some(&assessment_bytes),
         None,
+        Some(&native),
+        Some(&manufacturing),
     );
     assert_eq!(stale.status, Status::Fail);
 }

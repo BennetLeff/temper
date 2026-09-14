@@ -7,7 +7,7 @@
 //! diagonal, or differently shaped data is rejected rather than guessed.
 
 use anyhow::{bail, ensure, Context, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -93,7 +93,7 @@ struct Trace {
 }
 
 /// Dimensions and source binding for one extracted bridge terminal neck.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct NeckGeometry {
     /// Electrical net represented by this neck.
     pub net: String,
@@ -115,7 +115,7 @@ pub struct NeckGeometry {
 }
 
 /// Complete deterministic Gmsh model for the four bridge terminal necks.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct NeckModel {
     /// Native board digest used to bind this model.
     pub board_sha256: String,
@@ -124,6 +124,13 @@ pub struct NeckModel {
     pub bridge_mpn: String,
     /// Exact reviewed neck records, ordered `minus`, `ac1`, `ac2`, `plus`.
     pub necks: Vec<NeckGeometry>,
+}
+
+/// Stable digest of the extracted bridge geometry, independent of the full
+/// native JSON envelope. Contracts can bind this digest and replay can
+/// recompute it from the current native/manufacturing capture.
+pub fn geometry_fingerprint(model: &NeckModel) -> Result<String> {
+    Ok(format!("{:x}", Sha256::digest(serde_json::to_vec(model)?)))
 }
 
 /// Mesh-integrity statistics for a generated MSH 2.2 neck case.
@@ -456,8 +463,27 @@ fn copper_area_m2(neck: &NeckGeometry) -> f64 {
     (pad + tw * length - overlap - std::f64::consts::PI * (drill / 2.0).powi(2)).max(0.0)
 }
 
-/// Decode the four reviewed local geometries; execution additionally validates native fields against the saved KiCad document.
+/// Decode the exact frozen baseline geometry with its historical dimensions.
 pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result<NeckModel> {
+    build_neck_model_impl(native_json, manufacturing_json, true)
+}
+
+/// Decode a reviewed same-package variant from native geometry. Unlike the
+/// historical baseline importer, this does not bake in old widths/lengths;
+/// it still requires exactly one trace terminating at each reviewed bridge
+/// pad, preserving net/pad identity and manufacturing binding.
+pub fn build_neck_model_variant(
+    native_json: &[u8],
+    manufacturing_json: &[u8],
+) -> Result<NeckModel> {
+    build_neck_model_impl(native_json, manufacturing_json, false)
+}
+
+fn build_neck_model_impl(
+    native_json: &[u8],
+    manufacturing_json: &[u8],
+    strict_baseline: bool,
+) -> Result<NeckModel> {
     let native: NativeInput = serde_json::from_slice(native_json).context("parse native.json")?;
     let manufacturing: ManufacturingInput =
         serde_json::from_slice(manufacturing_json).context("parse manufacturing.json")?;
@@ -531,17 +557,28 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
 
     let mut necks = Vec::with_capacity(BRIDGE_NETS.len());
     for (index, (&net, &trace_uuid)) in BRIDGE_NETS.iter().zip(TRACE_UUIDS.iter()).enumerate() {
+        let pad = pads[index];
         let matching: Vec<&Trace> = native
             .traces
             .iter()
-            .filter(|trace| trace.uuid == trace_uuid)
+            .filter(|trace| {
+                if strict_baseline {
+                    trace.uuid == trace_uuid
+                } else {
+                    trace.net == net
+                        && trace.points_mm.len() == 2
+                        && trace
+                            .points_mm
+                            .iter()
+                            .any(|point| distance_mm(*point, pad.position_mm) < 1e-7)
+                }
+            })
             .collect();
         ensure!(
             matching.len() == 1,
-            "expected one reviewed trace {trace_uuid}"
+            "expected one reviewed trace terminating at bridge net {net}"
         );
         let trace = matching[0];
-        let pad = pads[index];
         ensure!(
             trace.net == net,
             "trace {trace_uuid} net does not match bridge pad"
@@ -550,10 +587,12 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
             trace.points_mm.len() == 2,
             "trace {trace_uuid} must be a two-point neck"
         );
-        ensure!(
-            (trace.width_mm - EXPECTED_WIDTH_MM).abs() < 1e-9,
-            "trace {trace_uuid} width differs from reviewed 2.5 mm"
-        );
+        if strict_baseline {
+            ensure!(
+                (trace.width_mm - EXPECTED_WIDTH_MM).abs() < 1e-9,
+                "trace {trace_uuid} width differs from reviewed 2.5 mm"
+            );
+        }
         ensure!(
             trace.layer == "F.Cu" || trace.layer == "B.Cu",
             "trace {trace_uuid} is on unsupported layer {}",
@@ -568,11 +607,13 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
         } else {
             bail!("trace {trace_uuid} does not terminate at its native pad center")
         };
-        ensure!(
-            (length_mm - EXPECTED_LENGTH_MM[index]).abs() < 1e-6,
-            "trace {trace_uuid} length {length_mm} mm differs from reviewed {} mm",
-            EXPECTED_LENGTH_MM[index]
-        );
+        if strict_baseline {
+            ensure!(
+                (length_mm - EXPECTED_LENGTH_MM[index]).abs() < 1e-6,
+                "trace {trace_uuid} length {length_mm} mm differs from reviewed {} mm",
+                EXPECTED_LENGTH_MM[index]
+            );
+        }
         let far = if reversed {
             trace.points_mm[0]
         } else {
@@ -741,6 +782,19 @@ mod tests {
         let model = build_neck_model(&native, &manufacturing).unwrap();
         assert_eq!(model.necks.len(), 4);
         assert!(model.necks[2].reversed_native_trace);
+    }
+
+    #[test]
+    fn reviewed_variant_imports_native_width_and_length_without_baseline_constants() {
+        let (native, manufacturing) = captures();
+        let mut value: serde_json::Value = serde_json::from_slice(&native).unwrap();
+        value["traces"][0]["width_mm"] = json!(3.0);
+        value["traces"][0]["points_mm"][1][1] = json!(125.0);
+        let variant =
+            build_neck_model_variant(&serde_json::to_vec(&value).unwrap(), &manufacturing).unwrap();
+        assert_eq!(variant.necks[0].trace_width_mm, 3.0);
+        assert_eq!(variant.necks[0].trace_length_mm, 10.0);
+        assert!(build_neck_model(&serde_json::to_vec(&value).unwrap(), &manufacturing).is_err());
     }
 
     #[test]

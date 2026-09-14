@@ -564,6 +564,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         .as_ref()
         .map(|p| read(p))
         .transpose()?;
+    let manufacturing_geometry = fs::read(out.join("manufacturing-input.json")).ok();
     let physical_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
         crate::bridge_thermal::run_with_physical_model(
             spec.thermal_evidence.as_deref(),
@@ -572,6 +573,8 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
             physical_contract.as_deref(),
             physical_assessment.as_deref(),
             physical_source.as_deref(),
+            Some(native_text.as_bytes()),
+            manufacturing_geometry.as_deref(),
         )
     });
     let mut required = required_rules(spec.unit)?;
