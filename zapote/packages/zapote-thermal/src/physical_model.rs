@@ -847,6 +847,18 @@ pub fn baseline_contract(
     }
 }
 
+/// Build a source-bound physical-model contract directly from native and
+/// manufacturing captures. This is the production bridge from KiCad export
+/// data to the thermal model; callers must retain both input files alongside
+/// the resulting contract.
+pub fn contract_from_native(
+    native_json: &[u8],
+    manufacturing_json: &[u8],
+) -> Result<PhysicalModelContract> {
+    let model = crate::neck_geometry::build_neck_model_variant(native_json, manufacturing_json)?;
+    Ok(baseline_contract(model.board_sha256.clone(), &model))
+}
+
 fn sourced_range(value: f64, units: &str, provenance: &str) -> Range {
     Range {
         nominal: value,
