@@ -1,18 +1,14 @@
 {
   "atopile_version": "0.2.69",
-  "bridge_pin_map": {
-    "1": "plus",
-    "2": "ac1",
-    "3": "ac2",
-    "4": "minus"
-  },
   "build_sha256": {
-    "build/default.csv": "63f7e12455737466167644eaa02c181d97937ad110d45f8036ac3ebea28d3154",
-    "build/default.net": "b0aa7b084678bfa4e72de177666233bef0776e35cfd31dda99fcdf8348551da7"
+    "build/default.csv": "9c4a72d1631398b331e142f8f533caf9bc16cc67be0288ed7470b07a7dc019e3",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "38242cee962720a34d86859fbcc9a477e3b483a76ceb1bedab1194a877b87aed",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bridge",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bridge",
       "attributes": {
         "current_rating": "25A",
         "footprint": "Diode_THT:Diode_Bridge_GBJ2510",
@@ -21,7 +17,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::holder",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::holder",
       "attributes": {
         "current_rating": "16A",
         "footprint": "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed",
@@ -29,7 +25,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::cmc",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::cmc",
       "attributes": {
         "current_rating": "16A",
         "footprint": "temper:CMC_B82726S",
@@ -37,7 +33,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::ntc",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::ntc",
       "attributes": {
         "current_rating": "15A",
         "footprint": "temper:SL32_10015",
@@ -45,7 +41,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bypass",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bypass",
       "attributes": {
         "contact_current": "16A",
         "footprint": "temper:Relay_SPST_Schrack-RT33K012",
@@ -53,7 +49,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::x2",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::x2",
       "attributes": {
         "footprint": "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3",
         "mpn": "B32922C3224M289",
@@ -61,14 +57,14 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::mov",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::mov",
       "attributes": {
         "footprint": "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm",
         "mpn": "V150LA10AP"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::l_boost",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::l_boost",
       "attributes": {
         "current_rating": "24.5A",
         "datasheet": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
@@ -79,7 +75,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::q_boost",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::q_boost",
       "attributes": {
         "current_rating": "65A",
         "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
@@ -88,7 +84,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::d_boost",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::d_boost",
       "attributes": {
         "current_rating": "20A",
         "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
@@ -97,14 +93,14 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::pfc",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::pfc",
       "attributes": {
         "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
         "mpn": "UCC28180D"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::shunt",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::shunt",
       "attributes": {
         "footprint": "temper:WSL2726R0100FEA",
         "mpn": "WSL2726R0100FEA",
@@ -113,7 +109,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_gate",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_gate",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-0710RL",
@@ -121,7 +117,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_gate_pd",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_gate_pd",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-0710KL",
@@ -129,7 +125,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_relay_gate",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_relay_gate",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-071KL",
@@ -137,7 +133,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_relay_pd",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_relay_pd",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-07100KL",
@@ -145,7 +141,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_relay_drop",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_relay_drop",
       "attributes": {
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "mpn": "RC2512FR-0791RL",
@@ -153,7 +149,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_isense",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_isense",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-07220RL",
@@ -161,7 +157,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_freq",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_freq",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-0716K2L",
@@ -169,7 +165,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop",
       "attributes": {
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "mpn": "CRCW2512200KFKEG",
@@ -177,7 +173,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop2",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop2",
       "attributes": {
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "mpn": "CRCW2512200KFKEG",
@@ -185,7 +181,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop3",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop3",
       "attributes": {
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "mpn": "CRCW2512200KFKEG",
@@ -193,7 +189,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop4",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop4",
       "attributes": {
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "mpn": "CRCW2512200KFKEG",
@@ -201,7 +197,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop5",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vtop5",
       "attributes": {
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "mpn": "CRCW2512200KFKEG",
@@ -209,7 +205,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vbottom",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vbottom",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-0713KL",
@@ -217,7 +213,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vcomp",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_vcomp",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-0740K2L",
@@ -225,7 +221,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_vcc",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_vcc",
       "attributes": {
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
         "mpn": "C0805C105K5RACTU",
@@ -233,7 +229,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_icomp",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_icomp",
       "attributes": {
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
         "mpn": "C0805C272J5GACTU",
@@ -241,7 +237,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_vcomp",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_vcomp",
       "attributes": {
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
         "mpn": "GRM32ER71H475KA88L",
@@ -249,7 +245,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_vcomp_p",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_vcomp_p",
       "attributes": {
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
         "mpn": "C0805C224K5RACTU",
@@ -257,7 +253,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_isense",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_isense",
       "attributes": {
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
         "mpn": "C0805C102J5GACTU",
@@ -265,7 +261,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_vfeed",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_vfeed",
       "attributes": {
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
         "mpn": "C0805C681J5GACTU",
@@ -273,28 +269,28 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::relay_driver",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::relay_driver",
       "attributes": {
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "mpn": "AO3400A"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::relay_flyback",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::relay_flyback",
       "attributes": {
         "footprint": "Diode_SMD:D_SMA",
         "mpn": "SS14"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::isense_clamp",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::isense_clamp",
       "attributes": {
         "footprint": "Diode_SMD:D_SOD-123F",
         "mpn": "BAT54H,115"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c1",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c1",
       "attributes": {
         "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
         "mpn": "LGX2W561MELC50",
@@ -304,7 +300,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c2",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c2",
       "attributes": {
         "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
         "mpn": "LGX2W561MELC50",
@@ -314,7 +310,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c3",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c3",
       "attributes": {
         "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
         "mpn": "LGX2W561MELC50",
@@ -324,7 +320,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c4",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c4",
       "attributes": {
         "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
         "mpn": "LGX2W561MELC50",
@@ -334,7 +330,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_hf",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::c_hf",
       "attributes": {
         "dielectric": "PP",
         "footprint": "temper:B32672P6474K000",
@@ -344,7 +340,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::y1",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::y1",
       "attributes": {
         "dielectric": "Y1",
         "footprint": "Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0",
@@ -354,49 +350,49 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::mains",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::mains",
       "attributes": {
         "footprint": "temper:Phoenix_1714984",
         "mpn": "1714984"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::aux",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::aux",
       "attributes": {
         "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
         "mpn": "61300211121"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::control",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::control",
       "attributes": {
         "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
         "mpn": "61300211121"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::permit",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::permit",
       "attributes": {
         "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
         "mpn": "61300211121"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::q_inhibit",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::q_inhibit",
       "attributes": {
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "mpn": "AO3400A"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::q_permit",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::q_permit",
       "attributes": {
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "mpn": "AO3400A"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_inhibit_pulldown",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_inhibit_pulldown",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-07100KL",
@@ -404,7 +400,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_inhibit_pullup",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_inhibit_pullup",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-07100KL",
@@ -412,7 +408,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_permit_gate",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_permit_gate",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-071KL",
@@ -420,7 +416,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_permit_pd",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::r_permit_pd",
       "attributes": {
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "mpn": "RC1206FR-07100KL",
@@ -428,7 +424,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::output",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::output",
       "attributes": {
         "current_rating": "32A",
         "footprint": "temper:Phoenix_1714971",
@@ -437,7 +433,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bleeder1",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bleeder1",
       "attributes": {
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "mpn": "RC2512FR-07150KL",
@@ -447,7 +443,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bleeder2",
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bleeder2",
       "attributes": {
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "mpn": "RC2512FR-07150KL",
@@ -457,7 +453,7 @@
       }
     }
   ],
-  "entry": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/source-build-22/elec/src/power_entry_unit.ato:PowerEntryUnit",
+  "entry": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
     "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
@@ -475,6 +471,5 @@
     "elec/src/rtd_unit.ato": "521d46ea86f55ecefe0e0d38e6303623dabb1e1648e5d1cd3cebd51c9d05f673",
     "elec/src/thermal_sense_unit.ato": "0597bd4a07f31d20fb0c15961a6b907ac772c87bdd592f6d24d1be48a5fce6cd",
     "elec/src/voltage_sense_unit.ato": "5aca80ff589ff7156cae128a66f09111730d2a59439f59cccdfbb336a1577de5"
-  },
-  "status": "alternate-source-declaration-edited-requires-atopile-build"
+  }
 }

@@ -1,0 +1,1786 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/section.kicad_sch</source>
+    <date>2026-09-14T17:15:04</date>
+    <tool>Eeschema 10.0.4</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>Standalone 1800 W Input Boost PFC</title>
+        <company>Temper</company>
+        <rev>1.0</rev>
+        <date>2026-09-12</date>
+        <source>section.kicad_sch</source>
+        <comment number="1" value="GENERATED -- do not hand-edit"/>
+        <comment number="2" value="edit elec/src/*.ato and run make schematics"/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="U1">
+      <value>GBJ2510-F</value>
+      <footprint>Diode_THT:Diode_Bridge_GBJ2510</footprint>
+      <fields>
+        <field name="Footprint">Diode_THT:Diode_Bridge_GBJ2510</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="GBU2510A" description="elec/src/power_entry_unit.ato:PfcBridge"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8d166c90-f3dd-baab-46b4-911eccc1330a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="4"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U2">
+      <value>0031.2510</value>
+      <footprint>Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed</footprint>
+      <fields>
+        <field name="Footprint">Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="0031.2510" description="elec/src/power_entry_unit.ato:PfcFuseHolder"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ab7bd980-6050-7aa1-b6e5-4b4afe932dab</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U3">
+      <value>B82726S2163N030</value>
+      <footprint>temper:CMC_B82726S</footprint>
+      <fields>
+        <field name="Footprint">temper:CMC_B82726S</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="B82726S2163N030" description="elec/src/power_entry_unit.ato:PfcEmiChoke"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>be8d6607-f6c3-a803-82c0-2b6c58abc70c</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="4"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U4">
+      <value>SL32 10015</value>
+      <footprint>temper:SL32_10015</footprint>
+      <fields>
+        <field name="Footprint">temper:SL32_10015</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="SL32_10015" description="elec/src/power_entry_unit.ato:PfcNtc"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>18ee1bae-26d6-d5eb-e75b-28c25c93045d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U5">
+      <value>RT33K012</value>
+      <footprint>temper:Relay_SPST_Schrack-RT33K012</footprint>
+      <fields>
+        <field name="Footprint">temper:Relay_SPST_Schrack-RT33K012</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RT33K012" description="elec/src/power_entry_unit.ato:PfcBypassRelay"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>87b55c04-5b26-5637-98ff-dbd4d134d73d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="3"/>
+            <pin num="4"/>
+            <pin num="2"/>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U6">
+      <value>0.22uF</value>
+      <footprint>Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="B32922C3224M289" description="elec/src/power_entry_unit.ato:PfcX2"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>66d17c34-cc7a-6bde-9bea-96d56de47bc3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U7">
+      <value>V150LA10AP</value>
+      <footprint>Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm</footprint>
+      <fields>
+        <field name="Footprint">Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="V150LA10AP" description="elec/src/power_entry_unit.ato:PfcMov"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>18d36274-16d9-101e-d5a7-03490d90f1bf</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U8">
+      <value>760800301</value>
+      <footprint>Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75</footprint>
+      <fields>
+        <field name="Footprint">Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="760800301" description="elec/src/power_entry_unit.ato:PfcBoostInductor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>00706366-e5ea-0b07-ff2c-168a962a591e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U9">
+      <value>STW65N65DM2</value>
+      <footprint>Package_TO_SOT_THT:TO-247-3_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_THT:TO-247-3_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="STW65N65DM2" description="elec/src/power_entry_unit.ato:PfcMosfet"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>862f3bef-f3ac-756d-a005-f431443168e0</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U10">
+      <value>C3D20065D</value>
+      <footprint>Package_TO_SOT_THT:TO-247-3_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_THT:TO-247-3_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="STW65N65DM2" description="elec/src/power_entry_unit.ato:PfcMosfet"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9862c987-6678-60e0-b055-34b85c145d6b</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U11">
+      <value>UCC28180D</value>
+      <footprint>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</footprint>
+      <fields>
+        <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="UCC28180D" description="elec/src/power_entry_unit.ato:PfcController"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f4c68d19-a077-f9ac-fe9b-c09408b5febf</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="4"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="8"/>
+            <pin num="7"/>
+            <pin num="6"/>
+            <pin num="5"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U12">
+      <value>10mohm</value>
+      <footprint>temper:WSL2726R0100FEA</footprint>
+      <fields>
+        <field name="Footprint">temper:WSL2726R0100FEA</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="WSL2726R0100FEA" description="elec/src/power_entry_unit.ato:PfcShunt"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5e67f3a0-2901-c9e5-6d82-8b9f4a60af03</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U13">
+      <value>10ohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>94fba97d-8295-c727-9938-2dcbfa7602f3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U14">
+      <value>10kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>872efb1a-f69d-6135-ff5d-2b96a4873662</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U15">
+      <value>1kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>de5f28da-e6df-49e8-b87f-b40f63f812b5</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U16">
+      <value>100kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>490e3e58-bdc0-2e6b-27a2-80218ec7451d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U17">
+      <value>91ohm</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC2512FR-0791RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b66ffeb6-374e-c8f3-f70b-c201dc40bf67</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U18">
+      <value>220ohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>35a3a1e0-48d5-2942-2a12-2387ddbac119</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U19">
+      <value>16.2kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5cb45835-f942-d1c0-0190-75cf4dcd9bb1</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U20">
+      <value>200kohm</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC2512FR-0791RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>dc707249-abcc-dc90-ee73-f521a87a69a0</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U21">
+      <value>200kohm</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC2512FR-0791RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>acce092e-b9e0-c8f3-10f8-61a341b4f9e8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U22">
+      <value>200kohm</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC2512FR-0791RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b7e89c63-44d1-515c-5ce1-4acf9f1f16fc</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U23">
+      <value>200kohm</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC2512FR-0791RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d1da478b-724b-53c8-3f32-1e203347758d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U24">
+      <value>200kohm</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC2512FR-0791RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5647a693-1f26-39c9-0f60-b2ad4947dcfc</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U25">
+      <value>13kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>aee72616-95f2-26cb-26e0-f80c9c1045a7</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U26">
+      <value>40.2kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b24043d5-1101-7120-7b0c-c18027f27b93</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U27">
+      <value>1uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="C0805C105K5RACTU" description="elec/src/power_entry_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>72a9f97c-4066-7793-9c27-518c0676107d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U28">
+      <value>2.7nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="C0805C105K5RACTU" description="elec/src/power_entry_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a0c96662-e7e3-9700-1a25-9c6ef9944953</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U29">
+      <value>4.7uF</value>
+      <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_1210_3225Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="GRM32ER71H475KA88L" description="elec/src/power_entry_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>68a5aa54-7f3e-ec8d-374c-055ef0001953</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U30">
+      <value>220nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="C0805C105K5RACTU" description="elec/src/power_entry_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>02815b18-90a0-9513-d745-ac885505973e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U31">
+      <value>1nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="C0805C105K5RACTU" description="elec/src/power_entry_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>62c16874-4d0e-ad62-77e2-15aafb4accfc</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U32">
+      <value>680pF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="C0805C105K5RACTU" description="elec/src/power_entry_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1e83abd9-f446-9c79-8750-34db7847834e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U33">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="AO3400A" description="elec/src/power_entry_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1b97e2d6-1116-58ab-d238-e67995720378</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U34">
+      <value>SS14</value>
+      <footprint>Diode_SMD:D_SMA</footprint>
+      <fields>
+        <field name="Footprint">Diode_SMD:D_SMA</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="SS14" description="elec/src/power_entry_unit.ato:PfcFlyback"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>918ff587-8417-67fd-2782-e3505bb7e835</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U35">
+      <value>BAT54H,115</value>
+      <footprint>Diode_SMD:D_SOD-123F</footprint>
+      <fields>
+        <field name="Footprint">Diode_SMD:D_SOD-123F</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="BAT54H_115" description="elec/src/power_entry_unit.ato:PfcIsenseClamp"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2e47ba8d-3826-e3a1-a11d-f51d351ba0fd</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U36">
+      <value>560uF</value>
+      <footprint>Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="LGX2W561MELC50" description="elec/src/power_entry_unit.ato:PfcBulkCap"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>66c9fcb1-b6c8-1202-1627-8dcb63ebfc58</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U37">
+      <value>560uF</value>
+      <footprint>Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="LGX2W561MELC50" description="elec/src/power_entry_unit.ato:PfcBulkCap"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>733a63e8-6d19-d690-0818-20fc0b8f6c03</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U38">
+      <value>560uF</value>
+      <footprint>Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="LGX2W561MELC50" description="elec/src/power_entry_unit.ato:PfcBulkCap"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5256acdc-b54e-7f71-4c67-0d23fe31f883</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U39">
+      <value>560uF</value>
+      <footprint>Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="LGX2W561MELC50" description="elec/src/power_entry_unit.ato:PfcBulkCap"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8bbd6261-bbc8-0d78-1940-44b9a8ef302a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U40">
+      <value>470nF</value>
+      <footprint>temper:B32672P6474K000</footprint>
+      <fields>
+        <field name="Footprint">temper:B32672P6474K000</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="B32672P6474K000" description="elec/src/power_entry_unit.ato:PfcBusHfCap"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>49c5e21e-49d5-6694-fa28-22a01fa8cdb9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U41">
+      <value>1nF</value>
+      <footprint>Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="VY1102M31Y5UQ63V0" description="elec/src/power_entry_unit.ato:PfcY1"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e7a7871b-25b5-2710-28be-b0ce510e6786</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U42">
+      <value>1714984</value>
+      <footprint>temper:Phoenix_1714984</footprint>
+      <fields>
+        <field name="Footprint">temper:Phoenix_1714984</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="1714984" description="elec/src/power_entry_unit.ato:PfcMainsConnector"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>724ba03f-1377-a26a-2b53-53ef0a0de731</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U43">
+      <value>61300211121</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="61300211121" description="elec/src/power_entry_unit.ato:PfcAuxConnector"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ade896a6-0e98-48ae-81ce-0e6bd1271aca</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U44">
+      <value>61300211121</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="61300211121" description="elec/src/power_entry_unit.ato:PfcAuxConnector"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>06e22efb-cb41-7ebd-2b53-6fd14127c4e5</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U45">
+      <value>61300211121</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="61300211121" description="elec/src/power_entry_unit.ato:PfcAuxConnector"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cbdd1770-1d70-9220-2e5a-ea5f405313a1</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U46">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="AO3400A" description="elec/src/power_entry_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>79f1e46a-84d1-0b74-db60-a2f1c16ad7e3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U47">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="AO3400A" description="elec/src/power_entry_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>283158b2-5d21-8683-ce76-1b42bb953d21</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U48">
+      <value>100kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e9ca3f17-4f5b-a6c6-d217-aba5334b0a81</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U49">
+      <value>100kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2a13d336-e540-c3ee-c51b-746a0965129e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U50">
+      <value>1kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8999a696-18f2-7cec-8fd8-4f937a302a9e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U51">
+      <value>100kohm</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC1206FR-0710RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>45278106-5edd-cf9f-af55-daa52a797da2</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U52">
+      <value>1714971</value>
+      <footprint>temper:Phoenix_1714971</footprint>
+      <fields>
+        <field name="Footprint">temper:Phoenix_1714971</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="1714971" description="elec/src/power_entry_unit.ato:PfcOutputConnector"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>84631be8-f4ca-1dce-42ec-06d23ecf9c2d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U53">
+      <value>150kohm</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC2512FR-0791RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>18ac1148-584c-93a1-fb21-16e045e4eec0</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U54">
+      <value>150kohm</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="PowerEntryUnit" part="RC2512FR-0791RL" description="elec/src/power_entry_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="section"/>
+      <property name="Sheetfile" value="section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>abc7c9ed-5314-64dc-0c48-3181bf94c490</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="PowerEntryUnit" part="0031.2510">
+      <description>elec/src/power_entry_unit.ato:PfcFuseHolder</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">0031.2510</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcFuseHolder</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="1714971">
+      <description>elec/src/power_entry_unit.ato:PfcOutputConnector</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">1714971</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcOutputConnector</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="1714984">
+      <description>elec/src/power_entry_unit.ato:PfcMainsConnector</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">1714984</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcMainsConnector</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="61300211121">
+      <description>elec/src/power_entry_unit.ato:PfcAuxConnector</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">61300211121</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcAuxConnector</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="760800301">
+      <description>elec/src/power_entry_unit.ato:PfcBoostInductor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">760800301</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcBoostInductor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="AO3400A">
+      <description>elec/src/power_entry_unit.ato:PfcRelayDriver</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">AO3400A</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcRelayDriver</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="B32672P6474K000">
+      <description>elec/src/power_entry_unit.ato:PfcBusHfCap</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">B32672P6474K000</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcBusHfCap</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="B32922C3224M289">
+      <description>elec/src/power_entry_unit.ato:PfcX2</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">B32922C3224M289</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcX2</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="B82726S2163N030">
+      <description>elec/src/power_entry_unit.ato:PfcEmiChoke</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">B82726S2163N030</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcEmiChoke</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="BAT54H_115">
+      <description>elec/src/power_entry_unit.ato:PfcIsenseClamp</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">BAT54H,115</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcIsenseClamp</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="C0805C105K5RACTU">
+      <description>elec/src/power_entry_unit.ato:PfcCapacitor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">C0805C105K5RACTU</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcCapacitor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="GBU2510A">
+      <description>elec/src/power_entry_unit.ato:PfcBridge</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">GBJ2510-F</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcBridge</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="GRM32ER71H475KA88L">
+      <description>elec/src/power_entry_unit.ato:PfcCapacitor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">GRM32ER71H475KA88L</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcCapacitor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="LGX2W561MELC50">
+      <description>elec/src/power_entry_unit.ato:PfcBulkCap</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LGX2W561MELC50</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcBulkCap</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="RC1206FR-0710RL">
+      <description>elec/src/power_entry_unit.ato:PfcResistor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">RC1206FR-0710RL</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcResistor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="RC2512FR-0791RL">
+      <description>elec/src/power_entry_unit.ato:PfcResistor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">RC2512FR-0791RL</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcResistor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="RT33K012">
+      <description>elec/src/power_entry_unit.ato:PfcBypassRelay</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">RT33K012</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcBypassRelay</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="SL32_10015">
+      <description>elec/src/power_entry_unit.ato:PfcNtc</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">SL32 10015</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcNtc</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="SS14">
+      <description>elec/src/power_entry_unit.ato:PfcFlyback</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">SS14</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcFlyback</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="STW65N65DM2">
+      <description>elec/src/power_entry_unit.ato:PfcMosfet</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">STW65N65DM2</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcMosfet</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A1" type="bidirectional"/>
+        <pin num="2" name="K" type="bidirectional"/>
+        <pin num="3" name="A2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="UCC28180D">
+      <description>elec/src/power_entry_unit.ato:PfcController</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">UCC28180D</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcController</field>
+      </fields>
+      <pins>
+        <pin num="1" name="HOT_GND" type="bidirectional"/>
+        <pin num="2" name="ICOMP" type="bidirectional"/>
+        <pin num="3" name="ISENSE" type="bidirectional"/>
+        <pin num="4" name="FREQ" type="bidirectional"/>
+        <pin num="5" name="VCOMP" type="bidirectional"/>
+        <pin num="6" name="VSENSE" type="bidirectional"/>
+        <pin num="7" name="VCC" type="bidirectional"/>
+        <pin num="8" name="GATE" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="V150LA10AP">
+      <description>elec/src/power_entry_unit.ato:PfcMov</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">V150LA10AP</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcMov</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="VY1102M31Y5UQ63V0">
+      <description>elec/src/power_entry_unit.ato:PfcY1</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">VY1102M31Y5UQ63V0</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcY1</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="PowerEntryUnit" part="WSL2726R0100FEA">
+      <description>elec/src/power_entry_unit.ato:PfcShunt</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">WSL2726R0100FEA</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_unit.ato:PfcShunt</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="PowerEntryUnit">
+      <uri>${KIPRJMOD}/power-entry-unit.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="AC_L_RECTIFIED_INPUT" class="Default">
+      <node ref="U2" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U42" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="2" name="AC_N_RECTIFIED_INPUT" class="Default">
+      <node ref="U3" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U42" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U6" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U7" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="3" name="AUX_15V_IN" class="Default">
+      <node ref="U11" pin="7" pinfunction="VCC_7" pintype="bidirectional"/>
+      <node ref="U17" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U27" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U43" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U49" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="4" name="HOT_PERMIT_EXTERNAL" class="Default">
+      <node ref="U45" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U50" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="5" name="PE_CHASSIS" class="Default">
+      <node ref="U41" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U42" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="6" name="PFC_BUS_MINUS" class="Default">
+      <node ref="U11" pin="1" pinfunction="HOT_GND_1" pintype="bidirectional"/>
+      <node ref="U12" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U14" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U16" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U19" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U25" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U27" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U28" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U29" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U30" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U31" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U32" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U33" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U35" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U36" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U37" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U38" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U39" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U40" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U41" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U43" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U44" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U45" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U46" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U47" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U48" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U51" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U52" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U54" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U9" pin="3" pinfunction="A2_3" pintype="bidirectional"/>
+    </net>
+    <net code="7" name="PFC_BUS_PLUS_390V" class="Default">
+      <node ref="U10" pin="2" pinfunction="K_2" pintype="bidirectional"/>
+      <node ref="U20" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U36" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U37" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U38" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U39" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U40" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U52" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U53" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="8" name="RELAY_BYPASS_CTRL" class="Default">
+      <node ref="U15" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U44" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="9" name="a1" class="Default">
+      <node ref="U10" pin="1" pinfunction="A1_1" pintype="bidirectional"/>
+      <node ref="U10" pin="3" pinfunction="A2_3" pintype="bidirectional"/>
+      <node ref="U8" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U9" pin="2" pinfunction="K_2" pintype="bidirectional"/>
+    </net>
+    <net code="10" name="ac1" class="Default">
+      <node ref="U1" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U4" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U5" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="11" name="ac2" class="Default">
+      <node ref="U1" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U3" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="12" name="bleeder1-p2" class="Default">
+      <node ref="U53" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U54" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="13" name="coil1" class="Default">
+      <node ref="U17" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U34" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U5" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="14" name="coil2" class="Default">
+      <node ref="U33" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U34" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U5" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="15" name="freq" class="Default">
+      <node ref="U11" pin="4" pinfunction="FREQ_4" pintype="bidirectional"/>
+      <node ref="U19" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="16" name="gate" class="Default">
+      <node ref="U11" pin="8" pinfunction="GATE_8" pintype="bidirectional"/>
+      <node ref="U13" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="17" name="icomp" class="Default">
+      <node ref="U11" pin="2" pinfunction="ICOMP_2" pintype="bidirectional"/>
+      <node ref="U28" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="18" name="isense" class="Default">
+      <node ref="U11" pin="3" pinfunction="ISENSE_3" pintype="bidirectional"/>
+      <node ref="U18" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U31" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="19" name="l1" class="Default">
+      <node ref="U2" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U3" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U6" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U7" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="20" name="l2" class="Default">
+      <node ref="U3" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U4" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U5" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+    </net>
+    <net code="21" name="minus" class="Default">
+      <node ref="U1" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U12" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U18" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U35" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="22" name="plus" class="Default">
+      <node ref="U1" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U8" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="23" name="q_boost-g" class="Default">
+      <node ref="U13" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U14" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U9" pin="1" pinfunction="A1_1" pintype="bidirectional"/>
+    </net>
+    <net code="24" name="q_inhibit-g" class="Default">
+      <node ref="U46" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U47" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U48" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U49" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="25" name="q_permit-g" class="Default">
+      <node ref="U47" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U50" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U51" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="26" name="r_relay_gate-g" class="Default">
+      <node ref="U15" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U16" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U33" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="27" name="r_vcomp-p2" class="Default">
+      <node ref="U26" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U29" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="28" name="r_vtop-p2" class="Default">
+      <node ref="U20" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U21" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="29" name="r_vtop2-p2" class="Default">
+      <node ref="U21" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U22" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="30" name="r_vtop3-p2" class="Default">
+      <node ref="U22" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U23" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="31" name="r_vtop4-p2" class="Default">
+      <node ref="U23" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U24" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="32" name="vcomp" class="Default">
+      <node ref="U11" pin="5" pinfunction="VCOMP_5" pintype="bidirectional"/>
+      <node ref="U26" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U30" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="33" name="vsense" class="Default">
+      <node ref="U11" pin="6" pinfunction="VSENSE_6" pintype="bidirectional"/>
+      <node ref="U24" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U25" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U32" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U46" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+  </nets>
+</export>

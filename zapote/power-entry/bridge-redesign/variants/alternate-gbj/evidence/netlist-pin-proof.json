@@ -1,0 +1,71 @@
+{
+  "command": "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli sch export netlist --format kicadxml -o evidence/netlist-fresh.kicadxml section.kicad_sch",
+  "expected_pin_map": {
+    "1": "plus",
+    "2": "ac1",
+    "3": "ac2",
+    "4": "minus"
+  },
+  "netlist_sha256": "f951983ef3e264fc97acd901a94404fe79f260a55fd52a947eb843a61fdd70b8",
+  "nets": {
+    "ac1": [
+      {
+        "pin": "2",
+        "ref": "U1"
+      },
+      {
+        "pin": "2",
+        "ref": "U4"
+      },
+      {
+        "pin": "3",
+        "ref": "U5"
+      }
+    ],
+    "ac2": [
+      {
+        "pin": "3",
+        "ref": "U1"
+      },
+      {
+        "pin": "3",
+        "ref": "U3"
+      }
+    ],
+    "minus": [
+      {
+        "pin": "4",
+        "ref": "U1"
+      },
+      {
+        "pin": "2",
+        "ref": "U12"
+      },
+      {
+        "pin": "2",
+        "ref": "U18"
+      },
+      {
+        "pin": "2",
+        "ref": "U35"
+      }
+    ],
+    "plus": [
+      {
+        "pin": "1",
+        "ref": "U1"
+      },
+      {
+        "pin": "1",
+        "ref": "U8"
+      }
+    ]
+  },
+  "schema": "zapote.bridge-netlist-pin-proof.v1",
+  "u1": {
+    "footprint": "Diode_THT:Diode_Bridge_GBJ2510",
+    "reference": "U1",
+    "value": "GBJ2510-F"
+  },
+  "verified": true
+}

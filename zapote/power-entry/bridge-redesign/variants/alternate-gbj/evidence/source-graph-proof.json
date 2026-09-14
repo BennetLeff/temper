@@ -1,0 +1,33 @@
+{
+  "component_count_export": 54,
+  "component_count_routed": 54,
+  "component_identity_mismatches": [],
+  "graph_views_equal": true,
+  "schema": "zapote.bridge-source-graph-proof.v1",
+  "source_export_sha256": "e3afc20a58548ec679b5e0015b46f94bc489fbfbe64307850e3aae2550718dff",
+  "source_manifest_sha256": "6398d5f2e6207174b99cbd75711e59cc2982959894bc200ecd1c37983e02a09a",
+  "u1": {
+    "export": {
+      "address": "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/alternate-gbj/source-build/elec/src/power_entry_unit.ato:PowerEntryUnit::bridge",
+      "attributes": {
+        "current_rating": "25A",
+        "footprint": "Diode_THT:Diode_Bridge_GBJ2510",
+        "mpn": "GBJ2510-F",
+        "voltage_rating": "1000V"
+      }
+    },
+    "routed": {
+      "footprint": "Diode_THT:Diode_Bridge_GBJ2510",
+      "instance_path": "bridge",
+      "mpn": "GBJ2510-F",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U1",
+      "value": null
+    }
+  },
+  "verified": true
+}

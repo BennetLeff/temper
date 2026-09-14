@@ -607,23 +607,15 @@
         ]
       },
       {
-        "name": "minus",
+        "name": "plus",
         "nodes": [
           [
+            "U8",
+            "1"
+          ],
+          [
             "U1",
-            "4"
-          ],
-          [
-            "U12",
-            "2"
-          ],
-          [
-            "U18",
-            "2"
-          ],
-          [
-            "U35",
-            "2"
+            "1"
           ]
         ]
       },
@@ -658,15 +650,23 @@
         ]
       },
       {
-        "name": "plus",
+        "name": "minus",
         "nodes": [
           [
-            "U8",
-            "1"
+            "U1",
+            "4"
           ],
           [
-            "U1",
-            "1"
+            "U12",
+            "2"
+          ],
+          [
+            "U18",
+            "2"
+          ],
+          [
+            "U35",
+            "2"
           ]
         ]
       },
@@ -2486,23 +2486,15 @@
         ]
       },
       {
-        "name": "minus",
+        "name": "plus",
         "nodes": [
           [
-            "U1",
+            "U8",
             "1"
           ],
           [
-            "U12",
-            "2"
-          ],
-          [
-            "U18",
-            "2"
-          ],
-          [
-            "U35",
-            "2"
+            "U1",
+            "1"
           ]
         ]
       },
@@ -2537,15 +2529,23 @@
         ]
       },
       {
-        "name": "plus",
+        "name": "minus",
         "nodes": [
-          [
-            "U8",
-            "1"
-          ],
           [
             "U1",
             "4"
+          ],
+          [
+            "U12",
+            "2"
+          ],
+          [
+            "U18",
+            "2"
+          ],
+          [
+            "U35",
+            "2"
           ]
         ]
       },
@@ -2897,7 +2897,7 @@
     "default.net": "38242cee962720a34d86859fbcc9a477e3b483a76ceb1bedab1194a877b87aed",
     "outline.json": "a991d8fe7a813b0eb76ce2c4068fa5f3f400b4158c8b272c018388494b004b1c",
     "poses.json": "3a5349e1528d47a029bef4fbbd3163dd7660a2d42ebb4788a9d9f7ead265988b",
-    "resolved-components.json": "716a669d4c22f700c2e99a50adb7d8fc8f16767a61371084ad63eb02f0e09d4e"
+    "resolved-components.json": "e3afc20a58548ec679b5e0015b46f94bc489fbfbe64307850e3aae2550718dff"
   },
   "libraries": {
     "Capacitor_SMD:C_0805_2012Metric": {
@@ -2932,9 +2932,9 @@
       "sha256": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
       "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Diode_SMD.pretty/D_SOD-123F.kicad_mod"
     },
-    "Diode_THT:Diode_Bridge_GBU2510": {
-      "sha256": "dfd826b7414143a38c36481cdfb3efd86022c02b2c9c767cc484b7a7f51523f7",
-      "source": "zapote/power-entry/libraries/Diode_THT.pretty/Diode_Bridge_GBU2510.kicad_mod"
+    "Diode_THT:Diode_Bridge_GBJ2510": {
+      "sha256": "a4ef38e48747d09cefd6e964686dd5b2c88c4a91127031952a20d3eb23543c5c",
+      "source": "zapote/power-entry/bridge-redesign/variants/alternate-gbj/candidate-libs/Diode_THT.pretty/Diode_Bridge_GBJ2510.kicad_mod"
     },
     "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed": {
       "sha256": "3c7f5dcc040d26bc6efc3afb7ee8f0ccf20b220a39fa82e75e89a0122313d0ea",
