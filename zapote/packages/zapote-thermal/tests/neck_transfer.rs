@@ -79,6 +79,7 @@ fn neck() -> NeckGeometry {
         trace_width_mm: 2.5,
         pad_size_mm: [3.0, 3.2],
         drill_mm: 1.6,
+        pad_shape: 1,
         reversed_native_trace: false,
     }
 }

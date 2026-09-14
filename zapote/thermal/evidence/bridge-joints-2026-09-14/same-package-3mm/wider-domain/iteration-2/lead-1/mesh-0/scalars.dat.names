@@ -1,0 +1,20 @@
+Metadata for SaveScalars file: ./scalars.dat
+Elmer version: 26.2
+Elmer revision: a19504a
+Elmer compilation date: 2026-09-12
+Solver input file: case.sif
+File started at: 2026/09/14 17:38:17
+ 
+Variables in columns of matrix: 
+   1: max: temperature
+   2: min: temperature
+   3: boundary int: potential over bc 1
+   4: boundary int:  over bc 2
+   5: boundary int:  over bc 3
+   6: area: potential over bc 1
+   7: area:  over bc 2
+   8: area:  over bc 3
+   9: res: total joule heating
+  10: res: temperature flux over bc 1
+  11: res: temperature flux over bc 2
+  12: res: temperature flux over bc 3

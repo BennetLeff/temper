@@ -10,6 +10,7 @@ serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 libc = "0.2"
+flate2 = "1.1.10"
 zapote-drc = { path = "../zapote-drc" }
 zapote-core = { path = "../zapote-core" }
 

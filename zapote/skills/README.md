@@ -118,3 +118,11 @@ voltage-profile, exact-part and non-vacuous-counterexample lesson. It preserves
 old evidence at its original bytes and binds the new lesson to the routed
 checkpoint. This is a reviewed memory artifact; it is not a claim that a future
 agent has received it or that it improves routing performance.
+
+## Bridge FEM validation
+
+[bridge-fem-lessons-v1](revisions/bridge-fem-lessons-v1/catalog.json) adds the
+independent domain/port and shared-package balance procedure. It is backed by
+retained native FEM evidence and mutation regressions. Temperatures and uncertain
+assembly parameters are deliberately excluded from portable memory. This revision
+records reviewed guidance; it does not establish delivery to a future agent.

@@ -1,0 +1,18 @@
+   Compiling zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.81s
+     Running tests/power_entry.rs (/private/tmp/zapote-rtd-target/debug/deps/power_entry-b20fc88425d5b396)
+
+running 10 tests
+test nominal_screen_preserves_input_power_and_slow_discharge_limits ... ok
+test alternate_bridge_cannot_keep_the_original_package_footprint ... ok
+test historical_source_18_is_rejected_after_hf_bypass_contract_change ... ok
+test historical_source_20_is_rejected_after_feedback_resistor_update ... ok
+test alternate_bridge_requires_its_reviewed_dc_pin_order ... ok
+test ratings_and_compensation_cannot_silently_change ... ok
+test similar_bridge_part_numbers_are_not_reviewed_substitutes ... ok
+test contradictory_duplicate_graph_cannot_hide_correct_primary_pins ... ok
+test source_21_manifest_matches_and_rejects_missing_or_wrongly_connected_hf_bypass ... ok
+test rejects_actual_prior_topology_and_package_mistakes ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+

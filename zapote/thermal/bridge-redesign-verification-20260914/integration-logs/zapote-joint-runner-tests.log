@@ -1,0 +1,13 @@
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.84s
+     Running tests/runner.rs (/private/tmp/zapote-rtd-target/debug/deps/runner-0052ff7440b5c0d6)
+
+running 5 tests
+test missing_or_duplicate_unit_cannot_shrink_the_suite ... ok
+test omitted_check_fails_and_mixed_status_never_loses_failure ... ok
+test stale_native_receipt_is_rejected_even_with_same_basename ... ok
+test changed_saved_pcb_and_composite_identity_fail_after_passing_baseline ... ok
+test all_maintained_saved_units_bind_and_execute_their_truth_functions ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 38.60s
+

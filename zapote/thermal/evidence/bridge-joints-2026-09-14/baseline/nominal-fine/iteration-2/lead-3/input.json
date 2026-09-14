@@ -1,0 +1,33 @@
+{
+  "pad_shape": "VerticalObround",
+  "pad_width_m": 0.003,
+  "pad_length_m": 0.0032,
+  "drill_diameter_m": 0.0016,
+  "trace_width_m": 0.0025,
+  "trace_length_m": 0.007,
+  "copper_thickness_m": 0.00007,
+  "barrel_plating_m": 0.000025,
+  "board_thickness_m": 0.0014399999999999999,
+  "substrate_half_width_m": 0.003,
+  "substrate_back_margin_m": 0.003,
+  "solder_width_m": 0.003,
+  "solder_length_m": 0.0032,
+  "solder_thickness_m": 0.00015,
+  "lead_width_m": 0.001145,
+  "lead_length_m": 0.00051,
+  "lead_top_z_m": 0.003,
+  "current_a": 14.999999999999995,
+  "package_temperature_k": 373.4975094276628,
+  "board_temperature_k": 353.15,
+  "initial_temperature_k": 343.15,
+  "materials": {
+    "copper_sigma_s_m": 55000000.0,
+    "copper_alpha_per_k": 0.00393,
+    "copper_k_w_mk": 350.0,
+    "fr4_k_w_mk": 0.25,
+    "solder_sigma_s_m": 4500000.0,
+    "solder_k_w_mk": 50.0,
+    "lead_sigma_s_m": 10000000.0,
+    "lead_k_w_mk": 100.0
+  }
+}

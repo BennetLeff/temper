@@ -1,0 +1,37 @@
+{
+  "schema": "zapote.bridge-model-review.v1",
+  "reviewer": "Luna joint_model_review with parent integration review",
+  "source_sha256": {
+    "zapote/packages/zapote-thermal/src/joint_model.rs": "00ce1d81a459f88c624d11884b7766a347cddba97c6dc6fc6409679a0fa0a521",
+    "zapote/packages/zapote-thermal/src/joint_fem.rs": "f555d188cec9b7762e93acce57d1eeae78b998faf69c2fb3af0504ef3aa7fc22",
+    "zapote/packages/zapote-thermal/src/joint_mesh.rs": "f08690ea22e9e46c5f87dc2cb1bca6efd79bbb1953ee8a1eb79fc7e5e917f92e",
+    "zapote/packages/zapote-thermal/src/joint_physics.rs": "735b02c995089c897b37aa642f5ee8750480eb07a4219cb3ff11537ded263b18",
+    "zapote/packages/zapote-thermal/src/physical_model.rs": "ddea9d60ee423b11d210e892a25a5af2091abfd7b22fd830e257b768150aae71",
+    "zapote/packages/zapote-harness/src/runner.rs": "e2e233f7ddea607b67cadea6995e898d38176be2ff8905f15fc5c1e3ccac6723",
+    "zapote/packages/zapote-harness/src/bridge_thermal.rs": "5235711a7e49931f981c003fe45384224422b3e94a21769d4ea32169d774ceb1"
+  },
+  "findings_resolved": [
+    "New joint evidence tree omitted from common input hashes: added and mutation-tested.",
+    "Native drill and stackup dimensions not fully compared with reduced contract: bound and regression-tested.",
+    "Trace segment ordinals changed after 3mm widening: physical lookup uses exact native UUID/net and unique determined cut current; legacy replay unchanged.",
+    "Individual physical/joint results omitted from serialized common report: fields retained and final production JSON verified.",
+    "Reduced contract digest compared compact evaluation with pretty file bytes: canonical typed serialization used consistently, real production round-trip regression added."
+  ],
+  "review_conclusion": "Local electrical/thermal balances and shared package coupling are consistent with the explicit model. Physical applicability is not established.",
+  "independent_checks": [
+    "analytic material volumes and port areas",
+    "mesh face adjacency",
+    "imposed I times solved port V vs integrated Joule power",
+    "summed boundary reactions vs Joule source",
+    "closed-form independent package KCL reference",
+    "three mesh resolutions plus wider domain and weak assembly",
+    "mutations with regenerated producer hashes"
+  ],
+  "limitations": [
+    "40W package allowance is unproven",
+    "lead material, solder/plating and package conductances are assumptions",
+    "network package node is not resolved die temperature",
+    "joint peak does not separately locate PCB maximum",
+    "GBJ geometry unsupported by this GBU-specific model"
+  ]
+}

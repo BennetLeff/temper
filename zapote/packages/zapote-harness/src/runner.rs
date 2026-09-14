@@ -51,6 +51,19 @@ pub struct UnitRunSpec {
     /// replay. The directory is optional so older manifests remain readable.
     #[serde(default)]
     pub thermal_evidence: Option<PathBuf>,
+    /// Versioned physical package model contract and retained assessment.
+    /// These remain optional so the historical seven-unit manifest stays
+    /// replayable until the coordinator promotes a reviewed candidate.
+    #[serde(default)]
+    pub physical_model: Option<PathBuf>,
+    #[serde(default)]
+    pub physical_model_assessment: Option<PathBuf>,
+    /// Archived manufacturer bytes for byte-level loss-source verification.
+    #[serde(default)]
+    pub physical_model_source: Option<PathBuf>,
+    /// Mandatory joint FEM replay for PowerEntry; absent evidence fails coverage.
+    #[serde(default)]
+    pub joint_model_evidence: Option<PathBuf>,
 }
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -73,6 +86,8 @@ pub struct UnitRunReport {
     pub power_checks: Option<CheckReport>,
     pub pfc_power: Option<crate::pfc_power::Report>,
     pub thermal_checks: Option<CheckReport>,
+    pub physical_checks: Option<CheckReport>,
+    pub joint_checks: Option<CheckReport>,
     pub manufacturing_checks: CheckReport,
     /// Rule populations emitted by the Rust manufacturing evaluator.
     pub manufacturing_population: zapote_drc::manufacturing::P2Population,
@@ -193,6 +208,8 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
     if unit == UnitKind::PowerEntry {
         required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::COOLING_RULES.map(str::to_owned));
+        required.extend(crate::bridge_thermal::PHYSICAL_RULES.map(str::to_owned));
+        required.extend(crate::bridge_thermal::JOINT_RULES.map(str::to_owned));
     }
     Ok(required)
 }
@@ -206,6 +223,9 @@ pub fn evaluate(
         .into_iter()
         .chain(spec.contract.iter())
         .chain(spec.composite.iter())
+        .chain(spec.physical_model.iter())
+        .chain(spec.physical_model_assessment.iter())
+        .chain(spec.physical_model_source.iter())
     {
         inputs.insert(p.clone(), read(p)?);
     }
@@ -270,7 +290,10 @@ pub fn evaluate(
         .into_iter()
         .map(|(p, b)| Ok((p, digest(&b))))
         .collect::<Result<BTreeMap<_, _>>>()?;
-    if let Some(root) = &spec.thermal_evidence {
+    for root in [&spec.thermal_evidence, &spec.joint_model_evidence]
+        .into_iter()
+        .flatten()
+    {
         hash_evidence_tree(root, &mut hashes)?;
     }
     verify_hashes(&hashes)?;
@@ -303,7 +326,10 @@ fn hash_evidence_tree(root: &Path, hashes: &mut BTreeMap<PathBuf, String>) -> Re
 }
 fn evidence_hashes(spec: &UnitRunSpec) -> Result<BTreeMap<PathBuf, String>> {
     let mut hashes = BTreeMap::new();
-    if let Some(root) = &spec.thermal_evidence {
+    for root in [&spec.thermal_evidence, &spec.joint_model_evidence]
+        .into_iter()
+        .flatten()
+    {
         hash_evidence_tree(root, &mut hashes)?;
     }
     Ok(hashes)
@@ -527,11 +553,56 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     };
     let cooling_contract = spec.contract.as_ref().map(|p| read(p)).transpose()?;
     let thermal_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
-        crate::bridge_thermal::run_with_contract(spec.thermal_evidence.as_deref(), &board, pfc_power.as_ref(), cooling_contract.as_deref())
+        crate::bridge_thermal::run_with_contract(
+            spec.thermal_evidence.as_deref(),
+            &board,
+            pfc_power.as_ref(),
+            cooling_contract.as_deref(),
+        )
+    });
+    if (spec.physical_model.is_some() || spec.physical_model_assessment.is_some())
+        && (spec.physical_model.is_none() || spec.physical_model_assessment.is_none())
+    {
+        return Err("physical-model contract and assessment must be supplied together".into());
+    }
+    let physical_contract = spec.physical_model.as_ref().map(|p| read(p)).transpose()?;
+    let physical_assessment = spec
+        .physical_model_assessment
+        .as_ref()
+        .map(|p| read(p))
+        .transpose()?;
+    let physical_source = spec
+        .physical_model_source
+        .as_ref()
+        .map(|p| read(p))
+        .transpose()?;
+    let manufacturing_geometry = fs::read(out.join("manufacturing-input.json")).ok();
+    let physical_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        crate::bridge_thermal::run_with_physical_model(
+            spec.thermal_evidence.as_deref(),
+            &board,
+            pfc_power.as_ref(),
+            physical_contract.as_deref(),
+            physical_assessment.as_deref(),
+            physical_source.as_deref(),
+            Some(native_text.as_bytes()),
+            manufacturing_geometry.as_deref(),
+        )
+    });
+    let joint_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        crate::bridge_thermal::run_joint_model(
+            spec.joint_model_evidence.as_deref(),
+            native_text.as_bytes(),
+            manufacturing_geometry.as_deref(),
+            pfc_power.as_ref(),
+        )
     });
     let mut required = required_rules(spec.unit)?;
     if pfc_power.is_some() {
         required.extend(crate::pfc_power::RULES.map(str::to_owned));
+    }
+    if physical_checks.is_some() {
+        required.extend(crate::bridge_thermal::PHYSICAL_RULES.map(str::to_owned));
     }
     required.extend(
         [
@@ -580,12 +651,14 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     parts.extend(power_checks.iter());
     parts.extend(pfc_power.iter().map(|r| &r.checks));
     parts.extend(thermal_checks.iter());
+    parts.extend(physical_checks.iter());
+    parts.extend(joint_checks.iter());
     parts.extend(operating_checks.iter());
     let coverage = enforce_required(&required, &combine(&parts));
     let common = combine(&[&stack, &binding, &coverage]);
     let (native_checks, native_execution) = native_run(spec, out, kicad)?;
     if evidence_before != evidence_hashes(spec)? {
-        return Err("thermal evidence changed during run".into());
+        return Err("thermal or joint FEM evidence changed during run".into());
     }
     verify_hashes(&hashes)?;
     let qualification=CheckReport::from_findings(vec![Finding::indeterminate("QUALIFICATION.HARDWARE","powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately","unit")],vec!["QUALIFICATION.HARDWARE".into()],vec!["hardware not run".into()]);
@@ -603,23 +676,68 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         ("zones".into(), native.zones.len()),
     ]);
     let executable_sha256 = hash_file(&std::env::current_exe().map_err(|e| e.to_string())?)?;
-    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,thermal_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
+    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,thermal_checks,physical_checks,joint_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
 }
 
 #[cfg(test)]
 mod cooling_coverage_tests {
     use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     #[test]
     fn power_entry_requires_cooling_even_when_the_hook_emits_no_report() {
         let required = required_rules(UnitKind::PowerEntry).unwrap();
-        for rule in crate::bridge_thermal::RULES.into_iter().chain(crate::bridge_thermal::COOLING_RULES) {
+        for rule in crate::bridge_thermal::RULES
+            .into_iter()
+            .chain(crate::bridge_thermal::COOLING_RULES)
+        {
             assert!(required.iter().any(|id| id == rule));
         }
-        let without_cooling = CheckReport::from_findings(vec![],
-            required.iter().filter(|id| !id.starts_with("THERMAL.POWER_ENTRY.")).cloned().collect(), vec![]);
+        let without_cooling = CheckReport::from_findings(
+            vec![],
+            required
+                .iter()
+                .filter(|id| !id.starts_with("THERMAL.POWER_ENTRY."))
+                .cloned()
+                .collect(),
+            vec![],
+        );
         let coverage = enforce_required(&required, &without_cooling);
         assert_eq!(coverage.status, Status::Fail);
-        assert_eq!(coverage.findings.len(), 5);
+        assert_eq!(coverage.findings.len(), 10);
+        for rule in crate::bridge_thermal::PHYSICAL_RULES {
+            assert!(coverage.findings.iter().any(|f| f.message.contains(rule)));
+        }
+    }
+
+    #[test]
+    fn joint_model_evidence_is_hashed_and_mutation_is_rejected() {
+        let suffix = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("clock before epoch")
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!("zapote-joint-evidence-{suffix}"));
+        fs::create_dir_all(root.join("mesh-0")).unwrap();
+        let evidence = root.join("mesh-0/result.dat");
+        fs::write(&evidence, b"raw solver result").unwrap();
+        let spec = UnitRunSpec {
+            unit: UnitKind::PowerEntry,
+            source: PathBuf::from("source"),
+            native: PathBuf::from("native"),
+            board: PathBuf::from("board"),
+            schematic: PathBuf::from("schematic"),
+            contract: None,
+            composite: None,
+            thermal_evidence: None,
+            physical_model: None,
+            physical_model_assessment: None,
+            physical_model_source: None,
+            joint_model_evidence: Some(root.clone()),
+        };
+        let hashes = evidence_hashes(&spec).unwrap();
+        assert_eq!(hashes.get(&evidence), Some(&digest(b"raw solver result")));
+        fs::write(&evidence, b"edited solver result").unwrap();
+        assert!(verify_hashes(&hashes).is_err());
+        fs::remove_dir_all(root).unwrap();
     }
 }

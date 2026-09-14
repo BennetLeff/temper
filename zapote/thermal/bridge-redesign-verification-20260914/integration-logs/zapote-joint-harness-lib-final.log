@@ -1,0 +1,43 @@
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.21s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_harness-9b931f84e0515063)
+
+running 35 tests
+test bridge_thermal::tests::nominal_wrong_current_is_rejected_but_low_sensitivity_is_allowed ... ok
+test bridge_thermal::tests::disagreeing_matching_segments_are_not_collapsed ... ok
+test bridge_thermal::tests::missing_uuid_does_not_fall_back_to_net_only ... ok
+test bridge_thermal::tests::undetermined_matching_segment_fails_closed ... ok
+test model_qualification::tests::generalized_formula_is_stable ... ok
+test bridge_thermal::tests::segment_id_collision_cannot_supply_or_override_current ... ok
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test bridge_thermal::tests::configured_missing_evidence_is_a_failure ... ok
+test bridge_thermal::tests::configured_cooling_contract_cannot_pass_without_replay ... ok
+test p1::tests::aggregate_status_preserves_failures ... ok
+test model_qualification::tests::schur_graph_is_positive ... ok
+test model_qualification::tests::narrowed_capacitance_is_rejected_by_required_envelope ... ok
+test bridge_thermal::tests::missing_evidence_is_indeterminate_and_rules_are_checked ... ok
+test bridge_thermal::tests::physical_current_tracks_width_dependent_segmentation_without_uuid_fallback ... ok
+test model_qualification::tests::expected_cases_match_independent_reference_scalars ... ok
+test model_qualification::tests::expected_case_builder_covers_exactly_five_cases ... ok
+test pfc_paths::tests::unknown_terminal_net_is_an_adapter_error ... ok
+test pfc_paths::tests::span_coalescing_keeps_real_side_contacts_and_width_layer_net_boundaries ... ok
+test pfc_paths::tests::t_branch_is_split_at_junction ... ok
+test pfc_paths::tests::repeated_package_pin_keeps_each_physical_barrel_and_separate_pin_stays_separate ... ok
+test runner::cooling_coverage_tests::joint_model_evidence_is_hashed_and_mutation_is_rejected ... ok
+test runner::cooling_coverage_tests::power_entry_requires_cooling_even_when_the_hook_emits_no_report ... ok
+test p3::tests::actual_gate_noise_measurement_responds_to_native_geometry ... ok
+test tests::missing_input_identity_cannot_be_a_pass ... ok
+test p3::tests::gate_drive_saved_native_export_binds_reviewed_paths ... ok
+test pfc_paths::tests::native11_binds_nonempty_graph_and_terminals ... ok
+test p3::coordinator_regressions::gate_return_is_kelvin_not_control_ground_and_split_cluster_is_incomplete ... ok
+test pfc_power::tests::rejects_native_trace_width_that_disagrees_with_saved_board ... ok
+test p3::tests::four_saved_units_report_measured_geometry_and_missing_limits ... ok
+test pfc_power::tests::alternate_bridge_injections_follow_reversed_dc_pins ... ok
+test pfc_power::tests::source_pin_injections_conserve_every_power_net_and_distinguish_branches ... ok
+test pfc_power::tests::saved_pfc_runs_the_model_and_native_contact_measurements ... ok
+test pfc_power::tests::subdividing_saved_copper_preserves_failure_set_and_determined_current ... ok
+test pfc_power::tests::narrowing_a_saved_six_mm_branch_adds_a_specific_failure ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.29s
+

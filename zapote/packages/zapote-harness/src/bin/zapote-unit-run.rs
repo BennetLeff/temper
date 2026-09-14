@@ -22,6 +22,24 @@ fn suite_sources(dir: &Path, hashes: &mut BTreeMap<PathBuf, String>) -> Result<(
     }
     Ok(())
 }
+
+fn resolve_manifest_paths(manifest: &mut Manifest, base: &Path) {
+    for s in &mut manifest.units {
+        for p in [&mut s.source, &mut s.native, &mut s.board, &mut s.schematic]
+            .into_iter()
+            .chain(s.contract.iter_mut())
+            .chain(s.composite.iter_mut())
+            .chain(s.thermal_evidence.iter_mut())
+            .chain(s.physical_model.iter_mut())
+            .chain(s.physical_model_assessment.iter_mut())
+            .chain(s.physical_model_source.iter_mut())
+            .chain(s.joint_model_evidence.iter_mut())
+        {
+            *p = base.join(&*p);
+        }
+    }
+}
+
 fn main() -> Result<ExitCode> {
     let args: Vec<_> = env::args_os().skip(1).collect();
     anyhow::ensure!(
@@ -53,16 +71,7 @@ fn main() -> Result<ExitCode> {
         Ok(String::from_utf8(output.stdout)?.trim().into())
     };
     let identity = serde_json::json!({"suite_revision":git(&["rev-parse","HEAD"])? ,"dirty_at_start":!git(&["status","--porcelain"] )?.is_empty(),"source_hashes":suite_hashes,"executable_sha256":runner::digest(&fs::read(env::current_exe()?)?),"runtime":{"os":env::consts::OS,"arch":env::consts::ARCH,"provider":"local","model":"none: Rust validation, no inference call"}});
-    for s in &mut manifest.units {
-        for p in [&mut s.source, &mut s.native, &mut s.board, &mut s.schematic]
-            .into_iter()
-            .chain(s.contract.iter_mut())
-            .chain(s.composite.iter_mut())
-            .chain(s.thermal_evidence.iter_mut())
-        {
-            *p = base.join(&*p);
-        }
-    }
+    resolve_manifest_paths(&mut manifest, base);
     let out = PathBuf::from(&args[1]);
     fs::create_dir(&out).context("output directory must be new to preserve run evidence")?;
     let out = out.canonicalize()?;
@@ -121,4 +130,43 @@ fn main() -> Result<ExitCode> {
         Status::Fail => 1,
         Status::Indeterminate => 2,
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn resolves_physical_model_paths_alongside_other_inputs() {
+        let mut manifest = Manifest {
+            schema: "test".into(),
+            units: vec![runner::UnitRunSpec {
+                unit: runner::UnitKind::PowerEntry,
+                source: "source.json".into(),
+                native: "native.json".into(),
+                board: "board.kicad_pcb".into(),
+                schematic: "section.kicad_sch".into(),
+                contract: None,
+                composite: None,
+                thermal_evidence: None,
+                physical_model: Some("physical/contract.json".into()),
+                physical_model_assessment: Some("physical/assessment.json".into()),
+                physical_model_source: Some("physical/source.pdf".into()),
+                joint_model_evidence: Some("joint-evidence".into()),
+            }],
+        };
+        resolve_manifest_paths(&mut manifest, Path::new("/run"));
+        assert_eq!(
+            manifest.units[0].physical_model.as_deref(),
+            Some(Path::new("/run/physical/contract.json"))
+        );
+        assert_eq!(
+            manifest.units[0].physical_model_assessment.as_deref(),
+            Some(Path::new("/run/physical/assessment.json"))
+        );
+        assert_eq!(
+            manifest.units[0].physical_model_source.as_deref(),
+            Some(Path::new("/run/physical/source.pdf"))
+        );
+    }
 }

@@ -1,0 +1,16 @@
+{
+  "args": [
+    "case.sif"
+  ],
+  "cwd": "/private/tmp/zapote-joint-baseline-20260914-v1/nominal-coarse/iteration-0/lead-3/mesh-0",
+  "environment": {
+    "OMPI_MCA_btl": "self",
+    "OMP_NUM_THREADS": "1"
+  },
+  "program": "/Users/bennet/.local/opt/elmer-26.2.1/bin/ElmerSolver",
+  "timeout_ms": 300000,
+  "unset_environment": [
+    "ELMER_HOME",
+    "ELMER_LIB"
+  ]
+}

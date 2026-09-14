@@ -1,0 +1,22 @@
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.38s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_thermal-291f07c8d3aeacea)
+
+running 14 tests
+test physical_model::tests::archived_source_identity_is_checked_against_bytes ... ok
+test physical_model::tests::missing_neck_or_invalid_bore_fails_closed ... ok
+test physical_model::tests::source_bound_evaluation_does_not_promote_unreviewed_digest ... ok
+test physical_model::tests::retained_baseline_contract_is_parseable_and_board_bound ... ok
+test physical_model::tests::shared_package_heat_is_injected_once_and_balances_globally ... ok
+test physical_model::tests::coupled_solution_matches_independent_asymmetric_closed_form_reference ... ok
+test physical_model::tests::dynamic_forward_slope_is_applied_about_the_datasheet_reference_point ... ok
+test physical_model::tests::unknown_package_paths_keep_applicability_indeterminate ... ok
+test physical_model::tests::changing_one_path_does_not_replicate_package_source ... ok
+test physical_model::tests::board_conductance_changes_package_temperature ... ok
+test physical_model::tests::bound_waveform_hash_rejects_changed_current_or_diode_curve ... ok
+test physical_model::tests::reviewed_compressed_pdf_is_valid_without_plaintext_number_markers ... ok
+test physical_model::tests::native_contract_binds_reviewed_stackup_dimensions ... ok
+test physical_model::tests::geometry_binding_rejects_changed_drill_with_unchanged_geometry_fingerprint ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 39 filtered out; finished in 0.26s
+

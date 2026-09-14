@@ -7,7 +7,7 @@
 //! diagonal, or differently shaped data is rejected rather than guessed.
 
 use anyhow::{bail, ensure, Context, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -93,7 +93,7 @@ struct Trace {
 }
 
 /// Dimensions and source binding for one extracted bridge terminal neck.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct NeckGeometry {
     /// Electrical net represented by this neck.
     pub net: String,
@@ -110,12 +110,14 @@ pub struct NeckGeometry {
     /// Native pad dimensions and drill, in millimetres.
     pub pad_size_mm: [f64; 2],
     pub drill_mm: f64,
+    /// KiCad pad shape: 1 is the rectangular pin-1 pad, 2 is an obround.
+    pub pad_shape: u8,
     /// Localized trace direction.  It is always +Y in the generated model.
     pub reversed_native_trace: bool,
 }
 
 /// Complete deterministic Gmsh model for the four bridge terminal necks.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct NeckModel {
     /// Native board digest used to bind this model.
     pub board_sha256: String,
@@ -124,6 +126,62 @@ pub struct NeckModel {
     pub bridge_mpn: String,
     /// Exact reviewed neck records, ordered `minus`, `ac1`, `ac2`, `plus`.
     pub necks: Vec<NeckGeometry>,
+}
+
+/// Board stackup dimensions parsed from the native KiCad board bytes.
+///
+/// These values are kept separate from the neck geometry because they are
+/// global board properties. A physical-model contract must use these parsed
+/// dimensions instead of silently carrying an old fabrication assumption.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct StackupDimensions {
+    pub board_thickness_mm: f64,
+    pub copper_thickness_um: f64,
+}
+
+/// Extract the finished board and outer copper thicknesses from a retained
+/// native capture. The parser is intentionally bounded to KiCad's `(general)`
+/// and `(stackup)` records; missing or inconsistent records fail closed.
+pub fn extract_stackup_dimensions(native_json: &[u8]) -> Result<StackupDimensions> {
+    let native: NativeInput = serde_json::from_slice(native_json).context("parse native.json")?;
+    ensure!(
+        format!("{:x}", Sha256::digest(native.board_file_utf8.as_bytes())) == native.board_sha256,
+        "stackup native board digest mismatch"
+    );
+    let dimensions = zapote_drc::stackup::physical_dimensions(&native.board_file_utf8)
+        .map_err(anyhow::Error::msg)?;
+    let front = *dimensions
+        .layers_mm
+        .get("F.Cu")
+        .context("missing front copper")?;
+    let back = *dimensions
+        .layers_mm
+        .get("B.Cu")
+        .context("missing back copper")?;
+    ensure!(
+        (front - back).abs() < 1e-9,
+        "outer copper layers have inconsistent thickness"
+    );
+    ensure!(
+        dimensions
+            .layers_mm
+            .keys()
+            .filter(|name| name.ends_with(".Cu"))
+            .count()
+            == 2,
+        "joint model supports two copper layers"
+    );
+    Ok(StackupDimensions {
+        board_thickness_mm: dimensions.board_thickness_mm,
+        copper_thickness_um: front * 1000.0,
+    })
+}
+
+/// Stable digest of the extracted bridge geometry, independent of the full
+/// native JSON envelope. Contracts can bind this digest and replay can
+/// recompute it from the current native/manufacturing capture.
+pub fn geometry_fingerprint(model: &NeckModel) -> Result<String> {
+    Ok(format!("{:x}", Sha256::digest(serde_json::to_vec(model)?)))
 }
 
 /// Mesh-integrity statistics for a generated MSH 2.2 neck case.
@@ -429,12 +487,12 @@ fn copper_area_m2(neck: &NeckGeometry) -> f64 {
     let tw = neck.trace_width_mm * 1e-3;
     let length = neck.trace_length_mm * 1e-3;
     let drill = neck.drill_mm * 1e-3;
-    let pad = if neck.pad_number == "1" {
+    let pad = if neck.pad_shape == 1 {
         w * h
     } else {
         w * (h - w) + std::f64::consts::PI * (w / 2.0).powi(2)
     };
-    let overlap = if neck.pad_number == "1" {
+    let overlap = if neck.pad_shape == 1 {
         tw * (h / 2.0)
     } else {
         // Numerically integrate the narrow trace overlap with the obround.
@@ -456,8 +514,27 @@ fn copper_area_m2(neck: &NeckGeometry) -> f64 {
     (pad + tw * length - overlap - std::f64::consts::PI * (drill / 2.0).powi(2)).max(0.0)
 }
 
-/// Decode the four reviewed local geometries; execution additionally validates native fields against the saved KiCad document.
+/// Decode the exact frozen baseline geometry with its historical dimensions.
 pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result<NeckModel> {
+    build_neck_model_impl(native_json, manufacturing_json, true)
+}
+
+/// Decode a reviewed same-package variant from native geometry. Unlike the
+/// historical baseline importer, this does not bake in old widths/lengths;
+/// it still requires exactly one trace terminating at each reviewed bridge
+/// pad, preserving net/pad identity and manufacturing binding.
+pub fn build_neck_model_variant(
+    native_json: &[u8],
+    manufacturing_json: &[u8],
+) -> Result<NeckModel> {
+    build_neck_model_impl(native_json, manufacturing_json, false)
+}
+
+fn build_neck_model_impl(
+    native_json: &[u8],
+    manufacturing_json: &[u8],
+    strict_baseline: bool,
+) -> Result<NeckModel> {
     let native: NativeInput = serde_json::from_slice(native_json).context("parse native.json")?;
     let manufacturing: ManufacturingInput =
         serde_json::from_slice(manufacturing_json).context("parse manufacturing.json")?;
@@ -489,13 +566,17 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
     );
 
     let mut pads = Vec::with_capacity(BRIDGE_NETS.len());
-    for net in BRIDGE_NETS {
+    for (index, net) in BRIDGE_NETS.iter().enumerate() {
+        let expected_pad = (index + 1).to_string();
         let matching: Vec<&Pad> = bridge
             .footprint_pads
             .iter()
-            .filter(|pad| pad.net == net)
+            .filter(|pad| pad.pad == expected_pad && pad.net == *net)
             .collect();
-        ensure!(matching.len() == 1, "expected one bridge pad on net {net}");
+        ensure!(
+            matching.len() == 1,
+            "expected bridge pad {expected_pad} on net {net}"
+        );
         let pad = matching[0];
         ensure!(
             pad.layers
@@ -514,11 +595,13 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
             "bridge pad {} does not have the reviewed 1.6 mm round drill",
             pad.pad
         );
+        let expected_shape = if index == 0 { 1 } else { 2 };
         ensure!(
-            pad.shape == 1 || pad.shape == 2,
-            "bridge pad {} has unsupported shape {}",
+            pad.shape == expected_shape,
+            "bridge pad {} has shape {}, expected reviewed shape {}",
             pad.pad,
-            pad.shape
+            pad.shape,
+            expected_shape
         );
         ensure!(
             pad.orientation_deg.rem_euclid(90.0).abs() < 1e-9,
@@ -531,17 +614,28 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
 
     let mut necks = Vec::with_capacity(BRIDGE_NETS.len());
     for (index, (&net, &trace_uuid)) in BRIDGE_NETS.iter().zip(TRACE_UUIDS.iter()).enumerate() {
+        let pad = pads[index];
         let matching: Vec<&Trace> = native
             .traces
             .iter()
-            .filter(|trace| trace.uuid == trace_uuid)
+            .filter(|trace| {
+                if strict_baseline {
+                    trace.uuid == trace_uuid
+                } else {
+                    trace.net == net
+                        && trace.points_mm.len() == 2
+                        && trace
+                            .points_mm
+                            .iter()
+                            .any(|point| distance_mm(*point, pad.position_mm) < 1e-7)
+                }
+            })
             .collect();
         ensure!(
             matching.len() == 1,
-            "expected one reviewed trace {trace_uuid}"
+            "expected one reviewed trace terminating at bridge net {net}"
         );
         let trace = matching[0];
-        let pad = pads[index];
         ensure!(
             trace.net == net,
             "trace {trace_uuid} net does not match bridge pad"
@@ -550,10 +644,12 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
             trace.points_mm.len() == 2,
             "trace {trace_uuid} must be a two-point neck"
         );
-        ensure!(
-            (trace.width_mm - EXPECTED_WIDTH_MM).abs() < 1e-9,
-            "trace {trace_uuid} width differs from reviewed 2.5 mm"
-        );
+        if strict_baseline {
+            ensure!(
+                (trace.width_mm - EXPECTED_WIDTH_MM).abs() < 1e-9,
+                "trace {trace_uuid} width differs from reviewed 2.5 mm"
+            );
+        }
         ensure!(
             trace.layer == "F.Cu" || trace.layer == "B.Cu",
             "trace {trace_uuid} is on unsupported layer {}",
@@ -568,11 +664,13 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
         } else {
             bail!("trace {trace_uuid} does not terminate at its native pad center")
         };
-        ensure!(
-            (length_mm - EXPECTED_LENGTH_MM[index]).abs() < 1e-6,
-            "trace {trace_uuid} length {length_mm} mm differs from reviewed {} mm",
-            EXPECTED_LENGTH_MM[index]
-        );
+        if strict_baseline {
+            ensure!(
+                (length_mm - EXPECTED_LENGTH_MM[index]).abs() < 1e-6,
+                "trace {trace_uuid} length {length_mm} mm differs from reviewed {} mm",
+                EXPECTED_LENGTH_MM[index]
+            );
+        }
         let far = if reversed {
             trace.points_mm[0]
         } else {
@@ -594,6 +692,7 @@ pub fn build_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result
             trace_width_mm: trace.width_mm,
             pad_size_mm: pad.size_mm,
             drill_mm: pad.drill_mm[0],
+            pad_shape: pad.shape,
             reversed_native_trace: reversed,
         });
     }
@@ -744,6 +843,55 @@ mod tests {
     }
 
     #[test]
+    fn stackup_dimensions_are_read_from_embedded_board_bytes() {
+        let (native, _) = captures();
+        let mut value: serde_json::Value = serde_json::from_slice(&native).unwrap();
+        let board = include_str!("../../../power-entry/candidate/section.kicad_pcb");
+        value["board_file_utf8"] = serde_json::Value::String(board.into());
+        value["board_sha256"] = serde_json::Value::String(format!("{:x}", Sha256::digest(board)));
+        let dimensions = extract_stackup_dimensions(&serde_json::to_vec(&value).unwrap()).unwrap();
+        assert_eq!(dimensions.board_thickness_mm, 1.6);
+        assert_eq!(dimensions.copper_thickness_um, 70.0);
+    }
+
+    #[test]
+    fn stackup_dimensions_reject_missing_outer_copper() {
+        let (native, _) = captures();
+        let mut value: serde_json::Value = serde_json::from_slice(&native).unwrap();
+        let board = "(kicad_pcb\n (general\n  (thickness 1.6)\n )\n (setup\n  (stackup\n   (layer \"F.Cu\"\n    (type \"copper\")\n    (thickness 0.07)\n   )\n  )\n )\n)";
+        value["board_file_utf8"] = serde_json::Value::String(board.into());
+        value["board_sha256"] = serde_json::Value::String(format!("{:x}", Sha256::digest(board)));
+        assert!(extract_stackup_dimensions(&serde_json::to_vec(&value).unwrap()).is_err());
+    }
+
+    #[test]
+    fn stackup_cannot_borrow_a_thickness_from_another_sexpression() {
+        let (native, _) = captures();
+        let mut value: serde_json::Value = serde_json::from_slice(&native).unwrap();
+        let board = include_str!("../../../power-entry/candidate/section.kicad_pcb").replacen(
+            "(thickness 1.6)",
+            "",
+            1,
+        );
+        value["board_sha256"] = json!(format!("{:x}", Sha256::digest(&board)));
+        value["board_file_utf8"] = json!(board);
+        assert!(extract_stackup_dimensions(&serde_json::to_vec(&value).unwrap()).is_err());
+    }
+
+    #[test]
+    fn reviewed_variant_imports_native_width_and_length_without_baseline_constants() {
+        let (native, manufacturing) = captures();
+        let mut value: serde_json::Value = serde_json::from_slice(&native).unwrap();
+        value["traces"][0]["width_mm"] = json!(3.0);
+        value["traces"][0]["points_mm"][1][1] = json!(125.0);
+        let variant =
+            build_neck_model_variant(&serde_json::to_vec(&value).unwrap(), &manufacturing).unwrap();
+        assert_eq!(variant.necks[0].trace_width_mm, 3.0);
+        assert_eq!(variant.necks[0].trace_length_mm, 10.0);
+        assert!(build_neck_model(&serde_json::to_vec(&value).unwrap(), &manufacturing).is_err());
+    }
+
+    #[test]
     fn stale_embedded_board_bytes_are_rejected() {
         let (mut native, manufacturing) = captures();
         let index = native.iter().position(|byte| *byte == b'c').unwrap();
@@ -775,5 +923,28 @@ mod tests {
             .unwrap_err()
             .to_string();
         assert!(error.contains("1.6 mm round drill"));
+    }
+
+    #[test]
+    fn reviewed_pin_net_mapping_is_not_net_only() {
+        let (native, manufacturing) = captures();
+        let mut value: serde_json::Value = serde_json::from_slice(&native).unwrap();
+        value["components"][0]["footprint_pads"][0]["net"] = json!("ac1");
+        value["components"][0]["footprint_pads"][1]["net"] = json!("minus");
+        let error = build_neck_model_variant(&serde_json::to_vec(&value).unwrap(), &manufacturing)
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("expected bridge pad 1 on net minus"));
+    }
+
+    #[test]
+    fn reviewed_pin_shape_is_bound_even_when_bounds_match() {
+        let (native, manufacturing) = captures();
+        let mut value: serde_json::Value = serde_json::from_slice(&native).unwrap();
+        value["components"][0]["footprint_pads"][0]["shape"] = json!(2);
+        let error = build_neck_model_variant(&serde_json::to_vec(&value).unwrap(), &manufacturing)
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("expected reviewed shape 1"));
     }
 }

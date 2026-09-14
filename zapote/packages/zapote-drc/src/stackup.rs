@@ -3,7 +3,7 @@
 //! This is a nominal CAD consistency check, not a fabricator thickness tolerance.
 use crate::donor_sexpr::{parse_document, unquote, Sexpr};
 use sha2::{Digest, Sha256};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use zapote_core::{CheckReport, Finding};
 
 pub const RULE: &str = "DRC.BOARD.STACKUP";
@@ -131,6 +131,36 @@ fn inspect(text: &str) -> Result<String, String> {
 /// Validate a complete native board document; absence or ambiguity fails closed.
 pub fn validate_board(text: &str) -> CheckReport {
     report(inspect(text))
+}
+
+/// Dimensions from a validated stackup. Layer values are millimetres and
+/// include copper, dielectric and mask, excluding silk and paste.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PhysicalDimensions {
+    pub board_thickness_mm: f64,
+    pub layers_mm: BTreeMap<String, f64>,
+}
+
+/// Reuse the structural KiCad parser and stackup checks for simulation inputs.
+/// A missing thickness cannot be borrowed from a later, unrelated record.
+pub fn physical_dimensions(text: &str) -> Result<PhysicalDimensions, String> {
+    inspect(text)?;
+    let board = parse_document(text, "KiCad PCB")?;
+    let mut layers_mm = BTreeMap::new();
+    for layer in children(one(one(&board, "setup")?, "stackup")?, "layer")? {
+        let name = atom(list(layer)?.get(1))?;
+        let kind = scalar(layer, "type")?;
+        if matches!(kind.as_str(), "copper" | "core" | "prepreg")
+            || matches!(name.as_str(), "F.Mask" | "B.Mask")
+        {
+            let positive = !matches!(name.as_str(), "F.Mask" | "B.Mask");
+            layers_mm.insert(name, thickness(layer, positive)?);
+        }
+    }
+    Ok(PhysicalDimensions {
+        board_thickness_mm: thickness(one(&board, "general")?, true)?,
+        layers_mm,
+    })
 }
 
 /// Require byte-bound board evidence in the native export before inspecting it.

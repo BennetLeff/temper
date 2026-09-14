@@ -1,0 +1,419 @@
+{
+  "schema": "zapote.bridge-physical-model.contract.v1",
+  "board_sha256": "8a464486017deb4fdbc027fa05c2f8cdd66533569ccd10727137f8b6c12a99d8",
+  "geometry_sha256": "9c33727ad555d297e82ad404429beaf948b5c708b73d4e02c904ef39778dcacd",
+  "bridge_mpn": "GBU2510A",
+  "bridge_loss_allowance_w": {
+    "nominal": 40.0,
+    "min": 20.0,
+    "max": 80.0,
+    "units": "W",
+    "provenance": "design allowance; package loss not source-bounded",
+    "status": "assembly_assumption"
+  },
+  "ambient_c": 40.0,
+  "sink_c": 60.0,
+  "board_c": 80.0,
+  "copper_conductivity_s_m": {
+    "nominal": 55000000.0,
+    "min": 55000000.0,
+    "max": 55000000.0,
+    "units": "S/m",
+    "provenance": "copper nominal at 20 C",
+    "status": "sourced"
+  },
+  "solder_conductivity_s_m": {
+    "nominal": 5000000.0,
+    "min": 2500000.0,
+    "max": 10000000.0,
+    "units": "S/m",
+    "provenance": "solder alloy unspecified",
+    "status": "unknown"
+  },
+  "package_to_sink_w_per_k": {
+    "nominal": 1.0,
+    "min": 0.5,
+    "max": 2.0,
+    "units": "W/K",
+    "provenance": "package thermal path not source-bounded",
+    "status": "unknown"
+  },
+  "lead_to_package_w_per_k": {
+    "nominal": 0.2,
+    "min": 0.1,
+    "max": 0.4,
+    "units": "W/K",
+    "provenance": "package lead coupling not source-bounded",
+    "status": "unknown"
+  },
+  "lead_to_board_w_per_k": {
+    "nominal": 0.02,
+    "min": 0.01,
+    "max": 0.04,
+    "units": "W/K",
+    "provenance": "assembly heat path not measured",
+    "status": "unknown"
+  },
+  "junction_limit_c": 125.0,
+  "pcb_limit_c": 110.0,
+  "loss": {
+    "bridge_mpn": "GBU2510A",
+    "source_url": "https://www.21yangjie.com/pdf/zlqj/zhengliuqiao/GBU25005A%20THRU%20GBU2510A.pdf",
+    "source_sha256": null,
+    "source_status": "cached_primary_text",
+    "forward_voltage_v_at_12_5a": {
+      "nominal": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "units": "V",
+      "provenance": "manufacturer cached primary text; VF max at IFM=12.5 A",
+      "status": "sourced"
+    },
+    "vf_reference_current_a": 12.5,
+    "dynamic_resistance_ohm": null,
+    "conducting_diode_count": 2,
+    "pfc_profile_sha256": null
+  },
+  "paths": [
+    {
+      "net": "minus",
+      "pad_uuid": "b4feb579-8128-4305-b260-c3515dc5d4f3",
+      "trace_uuid": "1a8c9e36-4bbf-486e-a8a9-34985b0b249e",
+      "trace_length_mm": {
+        "nominal": 8.5,
+        "min": 8.5,
+        "max": 8.5,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "trace_width_mm": {
+        "nominal": 3.0,
+        "min": 3.0,
+        "max": 3.0,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "copper_thickness_um": {
+        "nominal": 70.0,
+        "min": 70.0,
+        "max": 70.0,
+        "units": "um",
+        "provenance": "native board stackup",
+        "status": "sourced"
+      },
+      "lead_length_mm": {
+        "nominal": 3.0,
+        "min": 1.5,
+        "max": 6.0,
+        "units": "mm",
+        "provenance": "GBU2510A internal lead geometry unavailable",
+        "status": "unknown"
+      },
+      "lead_cross_section_mm2": {
+        "nominal": 1.0,
+        "min": 0.5,
+        "max": 2.0,
+        "units": "mm2",
+        "provenance": "GBU2510A internal lead geometry unavailable",
+        "status": "unknown"
+      },
+      "barrel_length_mm": {
+        "nominal": 1.6,
+        "min": 1.6,
+        "max": 1.6,
+        "units": "mm",
+        "provenance": "native board stackup",
+        "status": "sourced"
+      },
+      "barrel_inner_diameter_mm": {
+        "nominal": 1.6,
+        "min": 1.6,
+        "max": 1.6,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "barrel_plating_mm": {
+        "nominal": 0.025,
+        "min": 0.0125,
+        "max": 0.05,
+        "units": "mm",
+        "provenance": "fabrication assumption",
+        "status": "unknown"
+      },
+      "solder_thickness_mm": {
+        "nominal": 0.2,
+        "min": 0.1,
+        "max": 0.4,
+        "units": "mm",
+        "provenance": "assembly assumption",
+        "status": "unknown"
+      },
+      "solder_area_mm2": {
+        "nominal": 9.600000000000001,
+        "min": 4.800000000000001,
+        "max": 19.200000000000003,
+        "units": "mm2",
+        "provenance": "native pad envelope; wetting unknown",
+        "status": "unknown"
+      }
+    },
+    {
+      "net": "ac1",
+      "pad_uuid": "5d6c08fe-81e4-4bf7-93c7-bd87b0c926c8",
+      "trace_uuid": "6be299ab-3af0-4444-8bb5-c26c3d6443f6",
+      "trace_length_mm": {
+        "nominal": 9.0,
+        "min": 9.0,
+        "max": 9.0,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "trace_width_mm": {
+        "nominal": 3.0,
+        "min": 3.0,
+        "max": 3.0,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "copper_thickness_um": {
+        "nominal": 70.0,
+        "min": 70.0,
+        "max": 70.0,
+        "units": "um",
+        "provenance": "native board stackup",
+        "status": "sourced"
+      },
+      "lead_length_mm": {
+        "nominal": 3.0,
+        "min": 1.5,
+        "max": 6.0,
+        "units": "mm",
+        "provenance": "GBU2510A internal lead geometry unavailable",
+        "status": "unknown"
+      },
+      "lead_cross_section_mm2": {
+        "nominal": 1.0,
+        "min": 0.5,
+        "max": 2.0,
+        "units": "mm2",
+        "provenance": "GBU2510A internal lead geometry unavailable",
+        "status": "unknown"
+      },
+      "barrel_length_mm": {
+        "nominal": 1.6,
+        "min": 1.6,
+        "max": 1.6,
+        "units": "mm",
+        "provenance": "native board stackup",
+        "status": "sourced"
+      },
+      "barrel_inner_diameter_mm": {
+        "nominal": 1.6,
+        "min": 1.6,
+        "max": 1.6,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "barrel_plating_mm": {
+        "nominal": 0.025,
+        "min": 0.0125,
+        "max": 0.05,
+        "units": "mm",
+        "provenance": "fabrication assumption",
+        "status": "unknown"
+      },
+      "solder_thickness_mm": {
+        "nominal": 0.2,
+        "min": 0.1,
+        "max": 0.4,
+        "units": "mm",
+        "provenance": "assembly assumption",
+        "status": "unknown"
+      },
+      "solder_area_mm2": {
+        "nominal": 9.600000000000001,
+        "min": 4.800000000000001,
+        "max": 19.200000000000003,
+        "units": "mm2",
+        "provenance": "native pad envelope; wetting unknown",
+        "status": "unknown"
+      }
+    },
+    {
+      "net": "ac2",
+      "pad_uuid": "18f1ebda-72ea-4de3-ae1b-396ef455ef96",
+      "trace_uuid": "44d2e757-cc34-46a2-88aa-5ae29db62817",
+      "trace_length_mm": {
+        "nominal": 6.0,
+        "min": 6.0,
+        "max": 6.0,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "trace_width_mm": {
+        "nominal": 3.0,
+        "min": 3.0,
+        "max": 3.0,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "copper_thickness_um": {
+        "nominal": 70.0,
+        "min": 70.0,
+        "max": 70.0,
+        "units": "um",
+        "provenance": "native board stackup",
+        "status": "sourced"
+      },
+      "lead_length_mm": {
+        "nominal": 3.0,
+        "min": 1.5,
+        "max": 6.0,
+        "units": "mm",
+        "provenance": "GBU2510A internal lead geometry unavailable",
+        "status": "unknown"
+      },
+      "lead_cross_section_mm2": {
+        "nominal": 1.0,
+        "min": 0.5,
+        "max": 2.0,
+        "units": "mm2",
+        "provenance": "GBU2510A internal lead geometry unavailable",
+        "status": "unknown"
+      },
+      "barrel_length_mm": {
+        "nominal": 1.6,
+        "min": 1.6,
+        "max": 1.6,
+        "units": "mm",
+        "provenance": "native board stackup",
+        "status": "sourced"
+      },
+      "barrel_inner_diameter_mm": {
+        "nominal": 1.6,
+        "min": 1.6,
+        "max": 1.6,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "barrel_plating_mm": {
+        "nominal": 0.025,
+        "min": 0.0125,
+        "max": 0.05,
+        "units": "mm",
+        "provenance": "fabrication assumption",
+        "status": "unknown"
+      },
+      "solder_thickness_mm": {
+        "nominal": 0.2,
+        "min": 0.1,
+        "max": 0.4,
+        "units": "mm",
+        "provenance": "assembly assumption",
+        "status": "unknown"
+      },
+      "solder_area_mm2": {
+        "nominal": 9.600000000000001,
+        "min": 4.800000000000001,
+        "max": 19.200000000000003,
+        "units": "mm2",
+        "provenance": "native pad envelope; wetting unknown",
+        "status": "unknown"
+      }
+    },
+    {
+      "net": "plus",
+      "pad_uuid": "06060be3-5661-4bf6-a8b3-eb05995e8735",
+      "trace_uuid": "e7dc2c72-d7b2-4456-afa6-efe227e0f8f8",
+      "trace_length_mm": {
+        "nominal": 7.0,
+        "min": 7.0,
+        "max": 7.0,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "trace_width_mm": {
+        "nominal": 3.0,
+        "min": 3.0,
+        "max": 3.0,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "copper_thickness_um": {
+        "nominal": 70.0,
+        "min": 70.0,
+        "max": 70.0,
+        "units": "um",
+        "provenance": "native board stackup",
+        "status": "sourced"
+      },
+      "lead_length_mm": {
+        "nominal": 3.0,
+        "min": 1.5,
+        "max": 6.0,
+        "units": "mm",
+        "provenance": "GBU2510A internal lead geometry unavailable",
+        "status": "unknown"
+      },
+      "lead_cross_section_mm2": {
+        "nominal": 1.0,
+        "min": 0.5,
+        "max": 2.0,
+        "units": "mm2",
+        "provenance": "GBU2510A internal lead geometry unavailable",
+        "status": "unknown"
+      },
+      "barrel_length_mm": {
+        "nominal": 1.6,
+        "min": 1.6,
+        "max": 1.6,
+        "units": "mm",
+        "provenance": "native board stackup",
+        "status": "sourced"
+      },
+      "barrel_inner_diameter_mm": {
+        "nominal": 1.6,
+        "min": 1.6,
+        "max": 1.6,
+        "units": "mm",
+        "provenance": "native extraction",
+        "status": "sourced"
+      },
+      "barrel_plating_mm": {
+        "nominal": 0.025,
+        "min": 0.0125,
+        "max": 0.05,
+        "units": "mm",
+        "provenance": "fabrication assumption",
+        "status": "unknown"
+      },
+      "solder_thickness_mm": {
+        "nominal": 0.2,
+        "min": 0.1,
+        "max": 0.4,
+        "units": "mm",
+        "provenance": "assembly assumption",
+        "status": "unknown"
+      },
+      "solder_area_mm2": {
+        "nominal": 9.600000000000001,
+        "min": 4.800000000000001,
+        "max": 19.200000000000003,
+        "units": "mm2",
+        "provenance": "native pad envelope; wetting unknown",
+        "status": "unknown"
+      }
+    }
+  ]
+}

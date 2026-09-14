@@ -1,0 +1,243 @@
+{
+  "schema": "zapote.bridge-joint-package.v1",
+  "applicability": "indeterminate",
+  "input_hashes": {
+    "manufacturing.json": "67846bf1c6feae96ab442846f219897627e9579d3d6ff157b13ff66e195d28ab",
+    "native.json": "98f8f518c065c5a5f2e912ebfa987d91d38a4fcc25102f8fc1306fffee65ed61",
+    "source.pdf": "8bae78604e65be4d011c2989bbaddd9aab32b55fbdd40a79891aa8803f997794",
+    "waveform.json": "180709c0cdbd0986b53ff2de88f812ff9496f98f35e865eef1d6a6ec489c1075"
+  },
+  "geometry_sha256": "9c33727ad555d297e82ad404429beaf948b5c708b73d4e02c904ef39778dcacd",
+  "waveform_sha256": "079ee10e12019b79a7117ef94ea712c90902e97414e4b9917383e3b4e45fd6d4",
+  "fixed_vf_loss_estimate_w": 26.956388004263346,
+  "package_allowance_w": 40.0,
+  "cases": [
+    {
+      "scenario": {
+        "name": "nominal-coarse",
+        "mesh_m": 0.0006,
+        "domain_scale": 1.0,
+        "weak_assembly": false
+      },
+      "iterations": 3,
+      "package_temperature_k": 373.20861839404205,
+      "lead_temperatures_k": [
+        373.3862893863459,
+        373.4542956874586,
+        373.07461360166127,
+        373.21236687091266
+      ],
+      "joint_peaks_k": [
+        373.6709308146,
+        373.986326707,
+        373.0746136017,
+        373.2123668709
+      ],
+      "conductor_power_w": [
+        0.3160076998575,
+        0.3310057809554,
+        0.2547164897206,
+        0.2799739827347
+      ],
+      "lead_port_outward_w": [
+        0.03553421070971,
+        0.04913547696997,
+        -0.02680095717719,
+        0.0007496992203158
+      ],
+      "package_to_sink_w": 40.05861839404207,
+      "joints_to_board_w": 1.123085523534245,
+      "global_residual_w": 3.569188145036151e-8,
+      "contact_residual_w": [
+        -1.2248943782877664e-8,
+        -1.828665460029688e-8,
+        -1.2989657578732494e-9,
+        -3.8461933611969035e-9
+      ]
+    },
+    {
+      "scenario": {
+        "name": "nominal-medium",
+        "mesh_m": 0.0003,
+        "domain_scale": 1.0,
+        "weak_assembly": false
+      },
+      "iterations": 3,
+      "package_temperature_k": 373.21586382265644,
+      "lead_temperatures_k": [
+        373.40463615787434,
+        373.4691373609997,
+        373.09105321971845,
+        373.2279476653154
+      ],
+      "joint_peaks_k": [
+        373.7223265343,
+        374.0393861277,
+        373.0910532197,
+        373.2279476653
+      ],
+      "conductor_power_w": [
+        0.3185928319001,
+        0.3328861385414,
+        0.2565712664743,
+        0.281800016651
+      ],
+      "lead_port_outward_w": [
+        0.03775448025781,
+        0.05065472695971,
+        -0.02496211895455,
+        0.002416772887944
+      ],
+      "package_to_sink_w": 40.06586382265647,
+      "joints_to_board_w": 1.123986392406569,
+      "global_residual_w": 3.850376639746855e-8,
+      "contact_residual_w": [
+        -1.3214231812941346e-8,
+        -1.9291059812076572e-8,
+        -1.6330496573069286e-9,
+        -4.356150576974999e-9
+      ]
+    },
+    {
+      "scenario": {
+        "name": "nominal-fine",
+        "mesh_m": 0.00015,
+        "domain_scale": 1.0,
+        "weak_assembly": false
+      },
+      "iterations": 3,
+      "package_temperature_k": 373.2206305501404,
+      "lead_temperatures_k": [
+        373.4153938593418,
+        373.4790429278121,
+        373.1023138827262,
+        373.23892428138345
+      ],
+      "joint_peaks_k": [
+        373.7536280219,
+        374.0738344201,
+        373.1023138827,
+        373.2422809751
+      ],
+      "conductor_power_w": [
+        0.3199679668004,
+        0.3341356941924,
+        0.2578219595692,
+        0.2831088207586
+      ],
+      "lead_port_outward_w": [
+        0.03895267557379,
+        0.0516824953945,
+        -0.02366333163821,
+        0.003658750923603
+      ],
+      "package_to_sink_w": 40.070630550140436,
+      "joints_to_board_w": 1.124403850989719,
+      "global_residual_w": 4.0190446304322336e-8,
+      "contact_residual_w": [
+        -1.3733511675106946e-8,
+        -1.9860164970908478e-8,
+        -1.8446311526865156e-9,
+        -4.674996196586678e-9
+      ]
+    },
+    {
+      "scenario": {
+        "name": "wider-domain",
+        "mesh_m": 0.0003,
+        "domain_scale": 1.5,
+        "weak_assembly": false
+      },
+      "iterations": 3,
+      "package_temperature_k": 373.2104720146052,
+      "lead_temperatures_k": [
+        373.3926190599076,
+        373.45592923740975,
+        373.07966030661686,
+        373.21603952751275
+      ],
+      "joint_peaks_k": [
+        373.6889162457,
+        373.9953109955,
+        373.0796603066,
+        373.2160395275
+      ],
+      "conductor_power_w": [
+        0.3187017264472,
+        0.3327028076646,
+        0.2566070166882,
+        0.2818101974961
+      ],
+      "lead_port_outward_w": [
+        0.03642942133066,
+        0.04909146262619,
+        -0.02616234023783,
+        0.001113506460214
+      ],
+      "package_to_sink_w": 40.06047201460524,
+      "joints_to_board_w": 1.1293496980730122,
+      "global_residual_w": 3.561784645000898e-8,
+      "contact_residual_w": [
+        -1.2270185575924408e-8,
+        -1.8065283553803102e-8,
+        -1.3598414581872387e-9,
+        -3.8787074908234326e-9
+      ]
+    },
+    {
+      "scenario": {
+        "name": "weak-assembly",
+        "mesh_m": 0.0003,
+        "domain_scale": 1.0,
+        "weak_assembly": true
+      },
+      "iterations": 3,
+      "package_temperature_k": 414.9854827589849,
+      "lead_temperatures_k": [
+        417.47209540694485,
+        417.59277187106613,
+        416.9116565170554,
+        417.14282103579814
+      ],
+      "joint_peaks_k": [
+        431.2146605013,
+        432.7121389748,
+        425.1526508167,
+        427.5056994533
+      ],
+      "conductor_power_w": [
+        0.8188256692946,
+        0.8357468021655,
+        0.7426926106292,
+        0.7730708137968
+      ],
+      "lead_port_outward_w": [
+        0.2486612960962,
+        0.2607289531524,
+        0.1926173832395,
+        0.2157338416106
+      ],
+      "package_to_sink_w": 40.91774137949247,
+      "joints_to_board_w": 2.25259442175219,
+      "global_residual_w": 9.464143868598285e-8,
+      "contact_residual_w": [
+        -3.130020695407687e-8,
+        -4.1944278161842874e-8,
+        -7.432450960243031e-9,
+        -1.3929277925539552e-8
+      ]
+    }
+  ],
+  "nominal_mesh_delta_k": [
+    0.05305942070003766,
+    0.03444829239998626
+  ],
+  "domain_delta_k": 0.04407513220002102,
+  "limitations": [
+    "One 40 W package allowance is an unproven design assumption; the fixed 1 V VF point is not a hot-current loss bound.",
+    "Package-to-sink 1 W/K and package-to-lead .2 W/K are uncertain lumped paths; weak sensitivity halves both. Package node is not a resolved die junction.",
+    "Lead electrical/thermal material, 3 mm installed standoff, 25 um plating and full-pad solder fill are assembly assumptions. Weak corner uses 6 mm standoff, minimum sourced lead section, half lead conductivities/plating/solder and 90% copper.",
+    "Side walls are adiabatic; board cut faces are 80 C and sink is 60 C. Wider-domain sensitivity is reported, not assumed converged.",
+    "Joint peak includes lead and solder and is only an upper bound on copper/FR4 peak. Tested sensitivities are not a guaranteed uncertainty envelope; no current finding is waived."
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "schema": "zapote.bridge-physical-model.assessment.v1",
+  "status": "physical_model_numerical_only",
+  "board_sha256": "8a464486017deb4fdbc027fa05c2f8cdd66533569ccd10727137f8b6c12a99d8",
+  "contract_sha256": "01375f6f285c18a67b24c1bdfcc1400803a14bcfa4f47e8b2d5921233c66e861",
+  "waveform_sha256": "079ee10e12019b79a7117ef94ea712c90902e97414e4b9917383e3b4e45fd6d4",
+  "source_bytes_verified": true,
+  "diode_loss_w": 26.956388004263346,
+  "package_heat_w": 40.0,
+  "unallocated_package_heat_w": 13.043611995736654,
+  "total_conductor_heat_w": 0.8521396840907951,
+  "global_power_residual_w": -2.842170943040401e-14,
+  "package_temperature_c": 99.36622007126341,
+  "board_temperature_c": 80.0,
+  "sink_temperature_c": 60.0,
+  "package_to_sink_w": 39.36622007126341,
+  "package_to_leads_w": 0.6337799287366153,
+  "leads_to_board_w": 1.4859196128274115,
+  "global_heat_input_w": 40.852139684090794,
+  "global_heat_output_w": 40.85213968409082,
+  "necks": [
+    {
+      "net": "minus",
+      "rms_current_a": 14.999999999999995,
+      "path_resistance_ohm": 0.001022579446969571,
+      "joule_power_w": 0.2300803755681533,
+      "temperature_c": 98.65147449918561,
+      "package_to_lead_w": 0.14294911441556055,
+      "lead_to_board_w": 0.3730294899837122,
+      "lead_power_residual_w": 1.6653345369377348e-15
+    },
+    {
+      "net": "ac1",
+      "rms_current_a": 14.999999999999995,
+      "path_resistance_ohm": 0.0010658694902596143,
+      "joule_power_w": 0.23982063530841302,
+      "temperature_c": 98.69574840709589,
+      "package_to_lead_w": 0.1340943328335044,
+      "lead_to_board_w": 0.3739149681419178,
+      "lead_power_residual_w": -4.440892098500626e-16
+    },
+    {
+      "net": "ac2",
+      "rms_current_a": 14.999999999999995,
+      "path_resistance_ohm": 0.0008061292305193545,
+      "joule_power_w": 0.18137907686685462,
+      "temperature_c": 98.43010495963426,
+      "package_to_lead_w": 0.1872230223258299,
+      "lead_to_board_w": 0.3686020991926853,
+      "lead_power_residual_w": -7.771561172376096e-16
+    },
+    {
+      "net": "plus",
+      "rms_current_a": 14.999999999999995,
+      "path_resistance_ohm": 0.0008927093170994411,
+      "joule_power_w": 0.2008595963473741,
+      "temperature_c": 98.51865277545481,
+      "package_to_lead_w": 0.16951345916172045,
+      "lead_to_board_w": 0.3703730555090962,
+      "lead_power_residual_w": -1.6653345369377348e-15
+    }
+  ],
+  "numerical_valid": true,
+  "applicability": "indeterminate",
+  "limitations": [
+    "GBU2510A package internals and lead/barrel/solder heat split are not established by byte-archived source data.",
+    "The 40 W bridge allowance is retained as one shared package source; diode loss is reported inside it and never replicated per neck.",
+    "Lead and board temperatures are analytical network outputs, not hardware qualification."
+  ]
+}

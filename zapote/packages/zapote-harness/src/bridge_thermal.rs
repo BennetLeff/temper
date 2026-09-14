@@ -4,6 +4,7 @@
 //! establish an allowable package, copper, or enclosure temperature: those
 //! are assembly and rating inputs that remain explicitly indeterminate here.
 
+use sha2::Digest;
 use std::{collections::BTreeSet, path::Path};
 
 use zapote_core::{CheckReport, Finding};
@@ -18,8 +19,190 @@ pub const COOLING_RULES: [&str; 3] = [
     "THERMAL.POWER_ENTRY.BRIDGE_COOLING_PCB_TARGET",
     "THERMAL.POWER_ENTRY.BRIDGE_COOLING_CONTACT_SENSITIVITY",
 ];
+pub const PHYSICAL_RULES: [&str; 3] = [
+    "THERMAL.POWER_ENTRY.BRIDGE_PHYSICAL_MODEL_NUMERICAL",
+    "THERMAL.POWER_ENTRY.BRIDGE_LOSS_BINDING",
+    "THERMAL.POWER_ENTRY.BRIDGE_PHYSICAL_APPLICABILITY",
+];
+pub const JOINT_RULES: [&str; 2] = [
+    "THERMAL.POWER_ENTRY.BRIDGE_JOINT_FEM_NUMERICAL",
+    "THERMAL.POWER_ENTRY.BRIDGE_JOINT_FEM_APPLICABILITY",
+];
+
+pub fn run_joint_model(
+    root: Option<&Path>,
+    native: &[u8],
+    manufacturing: Option<&[u8]>,
+    pfc: Option<&PfcReport>,
+) -> CheckReport {
+    let checked = JOINT_RULES.map(str::to_owned).to_vec();
+    let result = (|| -> anyhow::Result<_> {
+        let root = root.ok_or_else(|| anyhow::anyhow!("joint FEM evidence unavailable"))?;
+        let manufacturing = manufacturing
+            .ok_or_else(|| anyhow::anyhow!("fresh manufacturing geometry unavailable"))?;
+        let waveform = physical_waveform(
+            pfc.ok_or_else(|| anyhow::anyhow!("production PFC waveform unavailable"))?,
+        )?;
+        zapote_thermal::joint_model::replay(root, native, manufacturing, &waveform)
+    })();
+    let numerical=match result {
+        Ok(a)=>Finding::pass(JOINT_RULES[0],format!("four native joint domains and one shared {:.1} W package source replayed; mesh deltas {:.4}/{:.4} K, wider-domain delta {:.4} K; each contact and global heat balance checked",a.package_allowance_w,a.nominal_mesh_delta_k[0],a.nominal_mesh_delta_k[1],a.domain_delta_k),"power-entry.bridge-joint-fem"),
+        Err(e)=>Finding::fail(JOINT_RULES[0],format!("joint FEM replay failed: {e:#}"),"power-entry.bridge-joint-fem"),
+    };
+    CheckReport::from_findings(vec![numerical,Finding::indeterminate(JOINT_RULES[1],
+        "package paths, installed lead/solder geometry, material properties and cooling remain uncertain; tested sensitivities are not a guaranteed bound; no current-screen finding is waived",
+        "power-entry.bridge-joint-fem")],checked,vec![])
+}
 
 const NETS: [&str; 4] = ["minus", "ac1", "ac2", "plus"];
+
+pub fn physical_waveform(
+    pfc: &PfcReport,
+) -> anyhow::Result<zapote_thermal::physical_model::WaveformInput> {
+    use sha2::{Digest, Sha256};
+    let profile_sha256 = format!("{:x}", Sha256::digest(serde_json::to_vec(&pfc.waveform)?));
+    let samples = pfc
+        .waveform
+        .samples
+        .iter()
+        .map(|s| zapote_thermal::physical_model::WaveformSample {
+            weight: s.weight,
+            line_sign: s.line_sign,
+            inductor_a: s.inductor_a,
+        })
+        .collect();
+    let mut neck_rms_a = std::collections::BTreeMap::new();
+    for net in NETS {
+        let current = physical_branch_current(&pfc.branches, net)
+            .ok_or_else(|| anyhow::anyhow!("missing determined PFC branch for {net}"))?;
+        neck_rms_a.insert(net.to_owned(), current);
+    }
+    Ok(zapote_thermal::physical_model::WaveformInput {
+        profile_sha256,
+        samples,
+        neck_rms_a,
+    })
+}
+
+/// Replay the shared package/lead/barrel/solder model through the production
+/// harness boundary. Physical applicability is intentionally indeterminate
+/// while package internals or assembly paths are unknown.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "evidence inputs remain explicit at this harness boundary"
+)]
+pub fn run_with_physical_model(
+    _evidence_root: Option<&Path>,
+    board: &[u8],
+    pfc: Option<&PfcReport>,
+    contract: Option<&[u8]>,
+    assessment: Option<&[u8]>,
+    source_bytes: Option<&[u8]>,
+    native_json: Option<&[u8]>,
+    manufacturing_json: Option<&[u8]>,
+) -> CheckReport {
+    let checked = PHYSICAL_RULES.iter().map(|r| (*r).to_owned()).collect();
+    let result = (|| -> anyhow::Result<_> {
+        let pfc = pfc
+            .ok_or_else(|| anyhow::anyhow!("PFC report unavailable for physical-model binding"))?;
+        let contract =
+            contract.ok_or_else(|| anyhow::anyhow!("physical-model contract unavailable"))?;
+        let assessment =
+            assessment.ok_or_else(|| anyhow::anyhow!("physical-model assessment unavailable"))?;
+        let board_sha256 = format!("{:x}", sha2::Sha256::digest(board));
+        let waveform = physical_waveform(pfc)?;
+        let parsed: zapote_thermal::physical_model::PhysicalModelContract =
+            serde_json::from_slice(contract)?;
+        let native = native_json.ok_or_else(|| {
+            anyhow::anyhow!("native geometry required for physical-model binding")
+        })?;
+        let manufacturing = manufacturing_json.ok_or_else(|| {
+            anyhow::anyhow!("manufacturing geometry required for physical-model binding")
+        })?;
+        anyhow::ensure!(
+            parsed.geometry_sha256.is_some(),
+            "physical-model contract requires native geometry fingerprint"
+        );
+        let model = zapote_thermal::neck_geometry::build_neck_model_variant(native, manufacturing)?;
+        zapote_thermal::physical_model::validate_geometry_binding(&parsed, &model)?;
+        let stackup = zapote_thermal::neck_geometry::extract_stackup_dimensions(native)?;
+        anyhow::ensure!(
+            parsed.paths.iter().all(|p| (p.copper_thickness_um.nominal
+                - stackup.copper_thickness_um)
+                .abs()
+                < 1e-9
+                && (p.barrel_length_mm.nominal - stackup.board_thickness_mm).abs() < 1e-9),
+            "physical-model copper/barrel dimensions differ from native stackup"
+        );
+        let fresh = if let Some(source_bytes) = source_bytes {
+            zapote_thermal::physical_model::replay_with_source_bytes(
+                contract,
+                assessment,
+                &board_sha256,
+                &waveform,
+                source_bytes,
+            )?
+        } else {
+            ensure_source_not_claimed_archived(&parsed)?;
+            zapote_thermal::physical_model::replay(contract, assessment, &board_sha256, &waveform)?
+        };
+        Ok(fresh)
+    })();
+    let mut findings = Vec::new();
+    match result {
+        Ok(a) => {
+            findings.push(Finding::pass(PHYSICAL_RULES[0], format!("coupled lumped package/lead/barrel/solder screening KCL balanced {:.3e} W; package {:.2} C; board {:.2} C; sink flow {:.4} W; board flow {:.4} W; terminal resistance is a separate lumped approximation; resolved joint FEM is checked independently", a.global_power_residual_w, a.package_temperature_c, a.board_temperature_c, a.package_to_sink_w, a.leads_to_board_w), "power-entry.bridge-physical-model"));
+            findings.push(if a.source_bytes_verified {
+                Finding::pass(
+                    PHYSICAL_RULES[1],
+                    format!(
+                        "GBU2510A diode loss recomputed from the retained PFC waveform and archived source identity: {:.4} W at the fixed 1.0 V / 12.5 A point; curve extrapolation and the 40 W allowance remain unproven",
+                        a.diode_loss_w
+                    ),
+                    "power-entry.bridge-physical-model",
+                )
+            } else {
+                Finding::indeterminate(
+                    PHYSICAL_RULES[1],
+                    format!(
+                        "GBU2510A diode loss recomputed from retained PFC waveform ({:.4} W), but manufacturer source bytes were not supplied for hash verification",
+                        a.diode_loss_w
+                    ),
+                    "power-entry.bridge-physical-model",
+                )
+            });
+            findings.push(Finding::indeterminate(PHYSICAL_RULES[2], "package internals and lead/barrel/solder assembly paths remain unknown; numerical replay cannot establish ratings", "power-entry.bridge-physical-model"));
+        }
+        Err(error) => {
+            findings.push(Finding::fail(
+                PHYSICAL_RULES[0],
+                format!("physical-model replay failed: {error:#}"),
+                "power-entry.bridge-physical-model",
+            ));
+            findings.push(Finding::fail(
+                PHYSICAL_RULES[1],
+                "loss binding was not established from the production PFC waveform",
+                "power-entry.bridge-physical-model",
+            ));
+            findings.push(Finding::indeterminate(
+                PHYSICAL_RULES[2],
+                "physical applicability cannot be assessed without a valid replay",
+                "power-entry.bridge-physical-model",
+            ));
+        }
+    }
+    CheckReport::from_findings(findings, checked, vec![])
+}
+
+fn ensure_source_not_claimed_archived(
+    contract: &zapote_thermal::physical_model::PhysicalModelContract,
+) -> anyhow::Result<()> {
+    anyhow::ensure!(
+        contract.loss.source_status != "byte_archived",
+        "byte-archived physical-model source requires physical_model_source bytes"
+    );
+    Ok(())
+}
 
 /// Evaluate the selected cooling design without treating unverified assembly
 /// targets as measured boundary conditions or waiving the separate IPC screen.
@@ -307,6 +490,46 @@ fn current_matches(scenario: &str, current: f64, expected: f64) -> bool {
     (current - expected).abs() <= tolerance
 }
 
+// Width changes can move graph split points, so segment ordinals are not a
+// stable identity. Bind the complete native trace UUID and net, require a
+// well-formed contiguous segmentation and one determined positive cut current.
+// Uniform current over the pad-overlap portions remains a model assumption.
+fn physical_branch_current(branches: &[crate::pfc_power::Branch], net: &str) -> Option<f64> {
+    let uuid = match net {
+        "minus" => "1a8c9e36-4bbf-486e-a8a9-34985b0b249e",
+        "ac1" => "6be299ab-3af0-4444-8bb5-c26c3d6443f6",
+        "ac2" => "44d2e757-cc34-46a2-88aa-5ae29db62817",
+        "plus" => "e7dc2c72-d7b2-4456-afa6-efe227e0f8f8",
+        _ => return None,
+    };
+    let mut segments = std::collections::BTreeMap::new();
+    for b in branches {
+        let Some((trace, index)) = b.id.split_once(':') else {
+            continue;
+        };
+        if trace != uuid {
+            continue;
+        }
+        let n: usize = index.parse().ok()?;
+        if index != n.to_string()
+            || b.net != net
+            || b.kind != "trace"
+            || segments.insert(n, b.determined_rms_a).is_some()
+        {
+            return None;
+        }
+    }
+    if segments.keys().copied().ne(0..segments.len()) {
+        return None;
+    }
+    let mut determined = segments.values().filter_map(|x| *x);
+    let current = determined.next()?;
+    if determined.next().is_some() {
+        return None;
+    }
+    (current.is_finite() && current > 0.0).then_some(current)
+}
+
 fn branch_current(branches: &[crate::pfc_power::Branch], net: &str) -> Option<f64> {
     // These exact UUID-plus-segment IDs identify the four bridge neck
     // traces in the source/native graph. Keep the net check as a second
@@ -343,6 +566,30 @@ mod tests {
             rms_envelope_a: current.unwrap_or(0.0),
             sampled_peak_envelope_a: current.unwrap_or(0.0),
             nominal_external_capacity_a: None,
+        }
+    }
+
+    #[test]
+    fn physical_current_tracks_width_dependent_segmentation_without_uuid_fallback() {
+        let uuid = "6be299ab-3af0-4444-8bb5-c26c3d6443f6";
+        for n in [1, 2] {
+            let mut b: Vec<_> = (0..=n)
+                .map(|i| branch(&format!("{uuid}:{i}"), "ac1", None))
+                .collect();
+            b[n].determined_rms_a = Some(15.0);
+            assert_eq!(physical_branch_current(&b, "ac1"), Some(15.0));
+            b[0].determined_rms_a = Some(14.0);
+            assert_eq!(physical_branch_current(&b, "ac1"), None);
+        }
+        for id in [
+            format!("{uuid}:20000"),
+            format!("X{uuid}:0"),
+            format!("{uuid}:00"),
+        ] {
+            assert_eq!(
+                physical_branch_current(&[branch(&id, "ac1", Some(15.0))], "ac1"),
+                None
+            );
         }
     }
 

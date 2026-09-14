@@ -1,0 +1,19 @@
+{
+  "schema": "zapote.bridge-physical-model.loss-input.v1",
+  "bridge_mpn": "GBU2510A",
+  "source_url": "https://www.21yangjie.com/pdf/zlqj/zhengliuqiao/GBU25005A%20THRU%20GBU2510A.pdf",
+  "source_sha256": null,
+  "source_status": "cached_primary_text",
+  "forward_voltage_v_at_12_5a": {
+    "nominal": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "units": "V",
+    "provenance": "manufacturer cached primary text; VF max at IFM=12.5 A",
+    "status": "sourced"
+  },
+  "vf_reference_current_a": 12.5,
+  "dynamic_resistance_ohm": null,
+  "conducting_diode_count": 2,
+  "pfc_profile_sha256": null
+}

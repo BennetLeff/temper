@@ -1,0 +1,23 @@
+{
+  "args": [
+    "joint.geo",
+    "-3",
+    "-format",
+    "msh2",
+    "-o",
+    "joint.msh",
+    "-nt",
+    "1"
+  ],
+  "cwd": "/private/tmp/zapote-joint-baseline-20260914-v1/nominal-medium/thermal-basis/lead-1/mesh-0",
+  "environment": {
+    "OMPI_MCA_btl": "self",
+    "OMP_NUM_THREADS": "1"
+  },
+  "program": "/opt/homebrew/bin/gmsh",
+  "timeout_ms": 300000,
+  "unset_environment": [
+    "ELMER_HOME",
+    "ELMER_LIB"
+  ]
+}

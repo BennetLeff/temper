@@ -20,7 +20,7 @@ pub fn generate(neck: &NeckGeometry, copper_um: f64, mesh_mm: f64) -> Result<Str
     let core = 0.00144;
     let top = core + tc;
     let mesh = mesh_mm * 0.001;
-    let pad = if neck.pad_number == "1" {
+    let pad = if neck.pad_shape == 1 {
         format!(
             "Rectangle(1) = {{{}, {}, {core}, {w}, {h}}};\npad[]={{1}};",
             -w / 2.0,

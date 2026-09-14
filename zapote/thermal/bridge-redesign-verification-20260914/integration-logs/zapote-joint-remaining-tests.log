@@ -1,0 +1,70 @@
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.77s
+     Running tests/thermal_sense.rs (/private/tmp/zapote-rtd-target/debug/deps/thermal_sense-13aa5f55c9770f4b)
+
+running 21 tests
+test rev_a_source_is_rejected_as_missing_open_detection_components ... ok
+test real_routed_baseline_is_conditional_indeterminate_without_hard_failures ... ok
+test original_coil_bias_is_rejected ... ok
+test corrupt_contract_supply_fails_contract_rule ... ok
+test coherently_changed_source_value_still_rejects_wrong_mpn_binding ... ok
+test oversized_filter_capacitor_fails_settling_rule ... ok
+test missing_component_fails_native_census ... ok
+test missing_strict_pin_fails_pin_map_rule ... ok
+test unrouted_fixture_fails_connectivity ... ok
+test independent_gate_pin_map_rejects_swapped_open_input ... ok
+test fragmented_cluster_fails_exact_connectivity_rule ... ok
+test rev_b_open_contract_is_checked_independently_of_native_fixture ... ok
+test source_resistor_change_fails_source_and_threshold_rules ... ok
+test split_net_with_complete_union_still_fails_connectivity ... ok
+test unsafe_open_reference_fails_margin_rule ... ok
+test swapped_comparator_input_fails_topology_rule ... ok
+test wrong_sensor_identity_fails_contract_rule ... ok
+test duplicate_or_malformed_cluster_node_is_not_silently_discarded ... ok
+test duplicate_or_remapped_strict_pin_fails ... ok
+test wrong_capacitor_and_qualification_contract_fail ... ok
+test strict_cli_retains_indeterminate_exit_status ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+
+     Running tests/unit_profile.rs (/private/tmp/zapote-rtd-target/debug/deps/unit_profile-805ad24d1c314767)
+
+running 14 tests
+test unit_cli_rules_evaluate_actual_native_shape ... ok
+test unit_model_budget_is_numeric_and_fails_above_authored_limit ... ok
+test unit_consistent_native_pad_and_connection_swap_hits_source_binding ... ok
+test qualified_receipt_passes_math_gate_but_device_stays_indeterminate ... ok
+test unit_fault_observations_are_compared_without_legacy_blind_spot_classification ... ok
+test unit_partial_source_binding_is_rejected_before_shared_rules ... ok
+test unit_mutated_observed_adc_connection_is_a_targeted_failure ... ok
+test qualification_gate_rejects_coordinated_source_hash_change ... ok
+test unit_adapter_rejects_observed_adc_net_mutation_against_source ... ok
+test unit_adapter_reaches_existing_aggressor_geometry_rule ... ok
+test unit_mutated_observed_mpn_is_a_targeted_failure ... ok
+test unit_source_component_omission_and_extra_are_census_failures ... ok
+test qualification_gate_fails_closed_for_malformed_missing_case_and_zero_cap ... ok
+test qualified_receipt_rejects_raw_model_drift_and_forged_bound ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/voltage_sense.rs (/private/tmp/zapote-rtd-target/debug/deps/voltage_sense-01f44f858242cc11)
+
+running 15 tests
+test missing_board_bytes_fail_closed ... ok
+test real_unrouted_board_fails_connectivity ... ok
+test real_routed_unit_has_no_failures_but_retains_qualification_gaps ... ok
+test duplicated_source_pin_is_rejected ... ok
+test crossing_wrong_net_trace_fails_geometry_and_document_binding ... ok
+test missing_native_geometry_fails ... ok
+test old_adc_divider_fails_even_with_consistently_changed_source_values ... ok
+test changed_embedded_bytes_without_digest_fail ... ok
+test independent_corner_results_remain_visible ... ok
+test rehashed_saved_board_net_change_cannot_hide_behind_old_export ... ok
+test missing_component_is_rejected ... ok
+test remote_bypass_fails_locality ... ok
+test rehashed_zero_dielectric_still_fails ... ok
+test swapped_comparator_input_is_rejected ... ok
+test cli_is_strict_about_qualification_and_preserves_structured_status ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+

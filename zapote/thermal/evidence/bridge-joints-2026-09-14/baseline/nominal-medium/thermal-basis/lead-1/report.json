@@ -1,0 +1,105 @@
+{
+  "status": "numerical_only",
+  "input": {
+    "pad_shape": "VerticalObround",
+    "pad_width_m": 0.003,
+    "pad_length_m": 0.0032,
+    "drill_diameter_m": 0.0016,
+    "trace_width_m": 0.0025,
+    "trace_length_m": 0.009000000000000001,
+    "copper_thickness_m": 0.00007,
+    "barrel_plating_m": 0.000025,
+    "board_thickness_m": 0.0014399999999999999,
+    "substrate_half_width_m": 0.003,
+    "substrate_back_margin_m": 0.003,
+    "solder_width_m": 0.003,
+    "solder_length_m": 0.0032,
+    "solder_thickness_m": 0.00015,
+    "lead_width_m": 0.001145,
+    "lead_length_m": 0.00051,
+    "lead_top_z_m": 0.003,
+    "current_a": 0.0,
+    "package_temperature_k": 354.15,
+    "board_temperature_k": 353.15,
+    "initial_temperature_k": 343.15,
+    "materials": {
+      "copper_sigma_s_m": 55000000.0,
+      "copper_alpha_per_k": 0.00393,
+      "copper_k_w_mk": 350.0,
+      "fr4_k_w_mk": 0.25,
+      "solder_sigma_s_m": 4500000.0,
+      "solder_k_w_mk": 50.0,
+      "lead_sigma_s_m": 10000000.0,
+      "lead_k_w_mk": 100.0
+    }
+  },
+  "input_hash": "34e7e6ab233a267ce4373ac493531702fbc95e1dcb453aca2ce0806d2f2bca75",
+  "physics_hash": "2e38c583e384464955173a743c950924f2526f035bbfb841aeb2d1a3e8f363ee",
+  "cases": [
+    {
+      "mesh_size_m": 0.0003,
+      "mesh": {
+        "nodes": 14875,
+        "tetrahedra": 76426,
+        "triangles": 285,
+        "material_volumes_m3": {
+          "1": 2.305306331103071e-9,
+          "2": 1.0060484293491315e-7,
+          "3": 3.311370983987342e-9,
+          "4": 2.6336145000000014e-9
+        },
+        "interface_triangles": {
+          "1:2": 5253,
+          "1:3": 4015,
+          "3:4": 180
+        },
+        "port_triangles": {
+          "11": 18,
+          "12": 249,
+          "14": 18
+        },
+        "port_areas_m2": {
+          "11": 5.839500000000001e-7,
+          "12": 8.640000000000002e-6,
+          "14": 1.7500000000000002e-7
+        }
+      },
+      "measurement": {
+        "max_temperature_k": 354.15,
+        "min_temperature_k": 353.15,
+        "joule_w": 0.0,
+        "flux_w": [
+          0.00540541555007,
+          -0.0001777273611472,
+          -0.005227688186217
+        ],
+        "input_iv_w": 0.0,
+        "converged": true
+      }
+    }
+  ],
+  "artifacts": {
+    "backend.json": "8c57bf1c964840d6080bd38b985a46c92c91dd2e5d6075029b394f94c03f8c55",
+    "input.json": "34e7e6ab233a267ce4373ac493531702fbc95e1dcb453aca2ce0806d2f2bca75",
+    "mesh-0/case.sif": "6c427283998b65c581f781d471b377a8923b8a3b24ce780342c217de2b3c6edb",
+    "mesh-0/elmersolver.command.json": "d08e35f5ee93d36d9b77d2a35e7c794f26c24231b3b6b8f97e96efc7f99ec19f",
+    "mesh-0/elmersolver.log": "5bd676a48c3f6f49a97fa10e45e24689022a653cc55f82169c8d69946ed12fe1",
+    "mesh-0/gmsh.command.json": "d4cbb456aec725d092966d9de6e02da4ddfa8f9b84815c979d0e390c946637a1",
+    "mesh-0/gmsh.log": "2865082d14052a4af63ff7a6e559cf991d1d57a58538d9015ccbc5bd374aa9b8",
+    "mesh-0/grid.command.json": "433e567b6ccdf7fc69531f9c482fa8342add089c0ca9ae12a8de04d1ea09861e",
+    "mesh-0/grid.log": "cc6aeece6068c499ddd9826cfd6f24373bf56579204cf0911e14162f665e84f5",
+    "mesh-0/joint.geo": "29a437818f4d6e548530846459de0e6ae69fb306934eadab9af1ddae5c8c48bc",
+    "mesh-0/joint.msh": "816997d04882398470b1455338b6bce39f33e2af45153012d6f2ea8adc0ae1cd",
+    "mesh-0/mesh/mesh.boundary": "a5cde0059ee0b2ade59835d9ff6d89f95b191fb3a66d5c930713cd315acd75ae",
+    "mesh-0/mesh/mesh.elements": "f482da34ab649591683d12f903d777d3326234f7686b7bc5e8a21fda0360e860",
+    "mesh-0/mesh/mesh.header": "9a935092fbad30bdc86ee94c1ead0e3511a0e98fbeeb864fc7df9b1ee001022c",
+    "mesh-0/mesh/mesh.nodes": "f71e12f7ce7104c2b80ccdffdd0bf09cf83d0dcd26c3bd2d883ff3d9da9d9c2a",
+    "mesh-0/scalars.dat": "8ec26be6b06aca3aeba0b2513836ea3b80f3429d959158a3c8228f14b7e72ef9",
+    "mesh-0/scalars.dat.names": "7569f645dbef340fcdf57ea8f729f76d9cd67b3958161c2a9020c36ed8b1454d"
+  },
+  "tool_versions": {
+    "elmersolver": "MAIN: Version: 26.2-unknown (Rev: a19504a, Compiled: 2026-09-12)",
+    "gmsh": "Info    : Running '/opt/homebrew/bin/gmsh joint.geo -3 -format msh2 -o joint.msh -nt 1' [Gmsh 4.15.2-git, 1 node, max. 1 thread]",
+    "grid": "Version: 26.2 (Rev: NA, Compiled: NA)"
+  }
+}

@@ -1,0 +1,10 @@
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.54s
+     Running tests/bridge_thermal.rs (/private/tmp/zapote-rtd-target/debug/deps/bridge_thermal-394991b7bd2a8662)
+
+running 1 test
+test retained_pretty_contract_and_source_replay_through_production_boundary ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 10.16s
+

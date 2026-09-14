@@ -1,5 +1,5 @@
 {
-  "status": "in_progress",
+  "status": "completed-comparison-no-board-promotion",
   "pin_mapping": {
     "erc_tests": {
       "passed": 9,
@@ -26,6 +26,53 @@
     "review": "review/review.json"
   },
   "cooling": "integrated conditional comparison; fan curve visually checked",
-  "physical_model": "in_progress; no acceptance from draft FEM or network",
-  "candidate_promoted": false
+  "physical_model": "baseline and supported 3mm resolved FEM complete; raw replay and mandatory common checks pass numerically; applicability indeterminate",
+  "candidate_promoted": false,
+  "final_common_run": "common-run/summary.json",
+  "final_checks": {
+    "thermal_tests": {
+      "passed": 79,
+      "failed": 0
+    },
+    "harness_library": {
+      "passed": 35,
+      "failed": 0
+    },
+    "runner_integration": {
+      "passed": 5,
+      "failed": 0
+    },
+    "remaining_harness_integration": {
+      "passed": 50,
+      "failed": 0
+    },
+    "erc_power_entry": {
+      "passed": 10,
+      "failed": 0
+    },
+    "final_physical_model_tests": {
+      "passed": 14,
+      "failed": 0
+    },
+    "real_pretty_contract_roundtrip": {
+      "passed": 1,
+      "failed": 0
+    },
+    "common_units": 7,
+    "common_new_failures": 0,
+    "common_existing_failures": 4,
+    "existing_failure_rule": "DRC.PFC.BRANCH_COPPER",
+    "physical_model_numerical": "pass",
+    "loss_binding": "pass",
+    "joint_fem_numerical": "pass",
+    "physical_applicability": "indeterminate",
+    "import_boundary": "pass: 5 contracts kept, 0 broken",
+    "derived_artifacts": "pass",
+    "clippy": "completed; only pre-existing warnings in unchanged ERC/DRC code"
+  },
+  "diagnosed_and_fixed_during_integration": [
+    "test runner omitted resolution of new evidence paths",
+    "common JSON omitted physical/joint findings",
+    "reduced contract digest mixed compact and pretty serialization"
+  ]
 }

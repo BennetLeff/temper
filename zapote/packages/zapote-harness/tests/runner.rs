@@ -11,6 +11,11 @@ fn manifest() -> Manifest {
             .into_iter()
             .chain(s.contract.iter_mut())
             .chain(s.composite.iter_mut())
+            .chain(s.thermal_evidence.iter_mut())
+            .chain(s.physical_model.iter_mut())
+            .chain(s.physical_model_assessment.iter_mut())
+            .chain(s.physical_model_source.iter_mut())
+            .chain(s.joint_model_evidence.iter_mut())
         {
             *p = base.join(&*p);
         }

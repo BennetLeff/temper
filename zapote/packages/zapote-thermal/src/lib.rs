@@ -5,11 +5,16 @@
 
 use anyhow::{bail, Context, Result};
 pub mod bridge_cooling;
+pub mod joint_fem;
+pub mod joint_mesh;
+pub mod joint_model;
+pub mod joint_physics;
 mod neck_geo;
 pub mod neck_geometry;
 pub mod neck_physics;
 pub mod neck_run;
 pub mod neck_transfer;
+pub mod physical_model;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 #[cfg(unix)]

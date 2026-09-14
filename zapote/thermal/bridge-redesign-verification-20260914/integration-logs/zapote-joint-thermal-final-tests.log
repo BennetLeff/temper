@@ -1,0 +1,155 @@
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.40s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_thermal-291f07c8d3aeacea)
+
+running 53 tests
+test bridge_cooling::tests::design_budget_arithmetic_is_explicit ... ok
+test joint_model::tests::invalid_conductance_cannot_produce_a_temperature ... ok
+test joint_model::tests::package_source_is_allocated_once_and_kcl_matches_independent_reference ... ok
+test bridge_cooling::tests::contract_rejects_nan_and_relaxed_limits ... ok
+test bridge_cooling::tests::cooling_profile_has_three_design_meshes_and_declared_pairs ... ok
+test bridge_cooling::tests::contract_rejects_unreviewed_parts_status_and_load_or_parser_changes ... ok
+test neck_geometry::tests::duplicate_reviewed_trace_is_rejected ... ok
+test neck_geometry::tests::exact_capture_generates_four_bound_necks ... ok
+test neck_geometry::tests::reviewed_pin_net_mapping_is_not_net_only ... ok
+test neck_geometry::tests::reviewed_pin_shape_is_bound_even_when_bounds_match ... ok
+test neck_geometry::tests::reviewed_variant_imports_native_width_and_length_without_baseline_constants ... ok
+test bridge_cooling::tests::pcb_peak_is_checked_against_its_own_limit_not_reservoir_or_junction ... ok
+test neck_geometry::tests::stackup_dimensions_reject_missing_outer_copper ... ok
+test neck_geometry::tests::stale_embedded_board_bytes_are_rejected ... ok
+test neck_geometry::tests::wrong_drill_is_rejected ... ok
+test neck_run::replay_tests::actual_refinement_evidence_rejects_temperature_power_node_and_population_defects ... ok
+test neck_run::replay_tests::convergence_cannot_compare_different_physics_or_skip_the_refinement_chain ... ok
+test neck_run::replay_tests::profile_rejects_nonfinite_parameters_and_mesh_without_legacy_change ... ok
+test neck_run::replay_tests::profile_requires_safe_unique_scenarios_and_declared_convergence ... ok
+test neck_geometry::tests::stackup_cannot_borrow_a_thickness_from_another_sexpression ... ok
+test physical_model::tests::archived_source_identity_is_checked_against_bytes ... ok
+test physical_model::tests::board_conductance_changes_package_temperature ... ok
+test physical_model::tests::bound_waveform_hash_rejects_changed_current_or_diode_curve ... ok
+test physical_model::tests::changing_one_path_does_not_replicate_package_source ... ok
+test physical_model::tests::coupled_solution_matches_independent_asymmetric_closed_form_reference ... ok
+test physical_model::tests::dynamic_forward_slope_is_applied_about_the_datasheet_reference_point ... ok
+test neck_geometry::tests::stackup_dimensions_are_read_from_embedded_board_bytes ... ok
+test physical_model::tests::missing_neck_or_invalid_bore_fails_closed ... ok
+test physical_model::tests::native_contract_binds_reviewed_stackup_dimensions ... ok
+test physical_model::tests::retained_baseline_contract_is_parseable_and_board_bound ... ok
+test physical_model::tests::reviewed_compressed_pdf_is_valid_without_plaintext_number_markers ... ok
+test physical_model::tests::shared_package_heat_is_injected_once_and_balances_globally ... ok
+test physical_model::tests::source_bound_evaluation_does_not_promote_unreviewed_digest ... ok
+test physical_model::tests::unknown_package_paths_keep_applicability_indeterminate ... ok
+test tests::captured_live_fixture_replay_fails_closed_when_scalar_or_log_changes ... ok
+test physical_model::tests::geometry_binding_rejects_changed_drill_with_unchanged_geometry_fingerprint ... ok
+test tests::parse_real_elmer_labels_and_scalars ... ok
+test tests::parser_rejects_missing_nonfinite_and_malformed_measurements ... ok
+test tests::process_failure_and_timeout_are_reported ... ok
+test tests::runner_refuses_stale_output_directory_before_launching_solver ... ok
+test joint_physics::tests::independent_reference_matches_electrical_and_heat_balance ... ok
+test tests::validator_rejects_duplicate_mesh_measurements ... ok
+test joint_mesh::tests::changed_dimension_and_truncated_input_fail_closed ... ok
+test joint_physics::tests::changed_voltage_cannot_reuse_joule_power_as_its_own_oracle ... ok
+test joint_physics::tests::relative_change_text_without_convergence_is_rejected ... ok
+test joint_physics::tests::reordered_flux_labels_are_rejected ... ok
+test joint_mesh::tests::independent_reference_has_four_materials_and_three_true_ports ... ok
+test joint_mesh::tests::mesh_with_no_boundary_triangles_is_rejected_even_if_solver_exits_zero ... ok
+test joint_mesh::tests::internal_interface_cannot_be_declared_a_reservoir_port ... ok
+test joint_mesh::tests::aggregate_copper_material_cannot_represent_the_joint ... ok
+test tests::failed_preflight_retains_authoritative_report_and_command ... ok
+test tests::timeout_stops_descendant_writers ... ok
+test neck_run::replay_tests::retained_pcb_replay_rejects_rehashed_model_and_result_mutations has been running for over 60 seconds
+test neck_run::replay_tests::retained_pcb_replay_rejects_rehashed_model_and_result_mutations ... ok
+
+test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 233.32s
+
+     Running unittests src/bin/zapote-bridge-cooling.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_bridge_cooling-6c75780fc21745fe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-joint-fem.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_joint_fem-6ac64e4adba0c2e8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-physical-contract.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_physical_contract-80f8f8e8b945e7a4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-thermal-necks.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_thermal_necks-42700c491ac54f02)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/private/tmp/zapote-rtd-target/debug/deps/zapote_thermal_reference-a519c4dcaa7e5c6a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/bridge_cooling.rs (/private/tmp/zapote-rtd-target/debug/deps/bridge_cooling-cc21ec003abfb428)
+
+running 1 test
+test cooling_replay_rejects_rehashed_contract_summary_and_missing_process_evidence has been running for over 60 seconds
+test cooling_replay_rejects_rehashed_contract_summary_and_missing_process_evidence ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 114.33s
+
+     Running tests/joint_fem.rs (/private/tmp/zapote-rtd-target/debug/deps/joint_fem-4822de752e5d2184)
+
+running 7 tests
+test geometry_is_deterministic_and_supports_obround ... ok
+test zero_current_is_accepted_only_for_zero_heating ... ok
+test working_reference_solver_conserves_power ... ok
+test working_reference_has_four_materials_interfaces_and_ports ... ok
+test solver_rejects_changed_scalars_or_missing_completion ... ok
+test parser_rejects_empty_ports_and_material_mutations ... ok
+test native_replay_rejects_modified_summary_physics_and_mesh_even_with_updated_hashes ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.84s
+
+     Running tests/neck_physics.rs (/private/tmp/zapote-rtd-target/debug/deps/neck_physics-7e28b3c30e62a1d4)
+
+running 5 tests
+test sif_binds_area_current_and_robin_conductance ... ok
+test invalid_physics_inputs_are_rejected ... ok
+test captured_neck_fixture_has_independent_energy_and_electrical_checks ... ok
+test scalar_mutations_fail_closed ... ok
+test constant_robin_oracle_corroborates_constant_sigma_reference ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/neck_transfer.rs (/private/tmp/zapote-rtd-target/debug/deps/neck_transfer-6879c8674110e3ec)
+
+running 6 tests
+test changed_node_coordinate_is_rejected ... ok
+test changed_source_material_tag_is_rejected ... ok
+test missing_parent_is_rejected ... ok
+test existing_but_unrelated_boundary_parent_is_rejected ... ok
+test genuine_gmsh_elmergrid_transfer_preserves_topology ... ok
+test mesh_geometry_rejects_wrong_boundary_material_and_nonfinite_coordinate ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/pinned_reference.rs (/private/tmp/zapote-rtd-target/debug/deps/pinned_reference-8278c864e3695711)
+
+running 2 tests
+test replay_all_three_live_meshes_with_exact_inputs_and_raw_outputs ... ok
+test edited_deck_or_raw_result_cannot_retain_reference_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/strict_evidence.rs (/private/tmp/zapote-rtd-target/debug/deps/strict_evidence-13bd8a1e09522f74)
+
+running 5 tests
+test rejects_malformed_column_trailer ... ok
+test rejects_trailing_malformed_or_extra_scalar_row ... ok
+test rejects_other_variable_named_max ... ok
+test rejects_duplicate_measurement_in_log ... ok
+test rejects_scalar_power_disagreeing_with_raw_log ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
