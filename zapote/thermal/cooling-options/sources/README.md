@@ -39,6 +39,10 @@ dimensions.  Its page-183 12 V curve is the basis for the candidate’s
 low-pressure system-point guard; the 120 CFM and 100 Pa values are endpoints,
 not a simultaneous operating point.
 
+The Sanyo manufacturer product page is
+<https://products.sanyodenki.com/en/sanace/dc/dc-fan/9RA1212E1001/>; the
+retained catalog PDF is the byte-bound technical source for the table and curve.
+
 The Yangjie PDF mirror is
 <https://datasheet4u.com/pdf/1564764/GBU2510A.pdf>; its document metadata and
 content match the manufacturer URL and revision recorded in
