@@ -10,9 +10,10 @@ This is a model candidate, not a selected assembly: under the provisional
 inlet heating, only 6.36 K below the 125 °C ceiling and short of the 15 K
 ranking objective.  A bridge-zone resistance at or below about 0.078 °C/W,
 or a proven split of the other loads away from the bridge sink path, is needed
-to meet that objective.  Do not select the low-profile 396-1AB at the present
-40 W allowance: its published 1.07 °C/W forced-convection value produces a
-142.8 °C junction screen at 40 °C inlet.
+to meet that objective.  Under the retained **legacy** `RθJC=1.25 °C/W` whole-
+bridge screen, the low-profile 396-1AB produces a 142.8 °C junction screen at
+40 °C inlet and is therefore not the leading option.  This is a conditional
+ranking, not a rejection based on a validated aggregate bridge resistance.
 
 The shared concept is not accepted yet.  Its 0.16 °C/W value is a manufacturer
 typical point at 100 CFM for a distributed heat load.  The selected Sanyo fan's

@@ -6,12 +6,12 @@ allowance.  It ranks design evidence; it does not promote a fabrication choice.
 | Concept | Sourced assembly | Approx. concept envelope | Thermal screen | Flow evidence | Fit / availability |
 |---|---|---|---|---|---|
 | Baseline | 395-1AB + 2 × MF80251V1 fans + spreader | 170 × 160 × 95 mm | 120 °C junction; 107.86 °C local PCB, 2.14 K margin | Requires ≥43.4 CFM through gross face at 500 LFM; installed point unknown | Enclosure fit indeterminate; 395-1AB and fan snapshots available |
-| Compact dedicated | 396-1AB + 1 × MF80251V1 | 145 × 125 × 70 mm concept allowance | 142.8 °C junction; fails 125 °C by 17.8 K | One fan cannot establish 500 LFM after duct losses | Enclosure fit indeterminate; 396-1AB snapshot available |
+| Compact dedicated | 396-1AB + 1 × MF80251V1 | 145 × 125 × 70 mm concept allowance | 142.8 °C junction under the retained legacy `RθJC=1.25 °C/W` screen; fails 125 °C by 17.8 K on that screen | One fan cannot establish 500 LFM after duct losses | Enclosure fit indeterminate; 396-1AB snapshot available |
 | Shared cooker airflow (superseded fan pair) | 392-120AB + 2 × MF80251V1, upstream PFC loads | 170 × 170 × 175 mm concept allowance | 116.8 °C bridge junction for 105 W distributed screen (118.64 °C with 1.84 K inlet rise) | Two 41 CFM free-air fans provide at most 82 CFM before pressure losses; cannot establish Wakefield’s 100 CFM point | Enclosure fit indeterminate; retained only as a control |
 | Shared cooker airflow (revised) | 392-120AB + 1 × 9RA1212E1001, upstream PFC loads | 170 × 160 × 175 mm concept allowance | Same conditional 116.8 °C / 118.64 °C distributed screen | Sanyo curve supports a plausible 100 CFM point only if duct/system pressure is no more than ~30 Pa; measure or solve the intersection | Enclosure fit indeterminate; DigiKey snapshot shows 22 units, recheck before ordering |
 
 The compact concept is useful as a measured lower-bound experiment but should
-not be selected at 40 W.  The baseline is mechanically simpler and preserves
+not lead the 40 W ranking under the legacy screen.  The baseline is mechanically simpler and preserves
 the prior work, but its 5 K junction margin and 2.14 K PCB margin are too small
 for unmeasured contact, flow and sensor error.  The shared concept has the best
 potential margin if the enclosure can supply a 100 CFM operating point and

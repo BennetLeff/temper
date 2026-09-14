@@ -17,7 +17,7 @@
     "note": "40 W remains an allowance; exact loss and heat partition are unresolved."
   },
   "interface_budget": {
-    "junction_to_case_c_per_w": {"nominal": 1.25, "lower": 1.0, "upper": 1.5},
+    "junction_to_case_c_per_w": {"nominal": 1.25, "lower": 1.0, "upper": 1.5, "provenance": "legacy v1 whole-bridge screening assumption; Yangjie datasheet only states 1.0 C/W device datum on its test plate and does not state aggregate bridge resistance"},
     "case_to_sink_c_per_w": {"nominal": 0.25, "lower": 0.15, "upper": 0.5},
     "sensor_error_k": {"nominal": 2.0, "upper": 5.0},
     "shutdown_overshoot_k": {"nominal": 3.0, "upper": 8.0},

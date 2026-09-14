@@ -25,6 +25,8 @@ the retained `baseline-395-1ab-two-fan` is the control.  The earlier
 `shared-392-120ab-system-airflow` record is retained as a superseded comparison
 because its two 41 CFM free-air fans cannot reach 100 CFM before duct losses.
 The low-profile
-`compact-396-1ab-single-fan` is screened out at the 40 W allowance because its
-published resistance gives a 142.8 °C junction.  Enclosure fit is explicitly
+`compact-396-1ab-single-fan` is screened out of the leading rank under the
+retained legacy `RθJC=1.25 °C/W` screen because its published resistance gives a
+142.8 °C junction.  That is a conditional comparison, not a validated
+whole-bridge aggregate resistance.  Enclosure fit is explicitly
 **INDETERMINATE** until enclosure CAD and service clearances are supplied.

@@ -16,6 +16,7 @@
     "isolation": "insulated plate/fasteners and mains creepage require safety review"
   },
   "shared_heat_load_screen": {
+    "r_jc_provenance": "legacy_v1_whole_bridge_screen_not_datasheet_aggregate",
     "bridge_w": 40.0,
     "other_pfc_load_allowance_w": 65.0,
     "total_sink_load_screen_w": 105.0,

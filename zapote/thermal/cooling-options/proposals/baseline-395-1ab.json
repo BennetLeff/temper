@@ -16,6 +16,7 @@
     "isolation": "SIL PAD TSP 1800 and insulated fasteners require safety review"
   },
   "thermal_screen": {
+    "r_jc_provenance": "legacy_v1_whole_bridge_screen_not_datasheet_aggregate",
     "ambient_c": 40.0,
     "bridge_loss_w": 40.0,
     "r_jc_c_per_w": 1.25,

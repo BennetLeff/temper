@@ -36,9 +36,15 @@ the physical-model owner binds an actual waveform and heat partition.
 
 ## Series budget
 
-For each proposal the series junction screen is
-`Tj = Ta + P × (RθJC + RθCS + RθSA)` with `Ta=40 °C`, `P=40 W`,
-`RθJC=1.25 °C/W` and `RθCS=0.25 °C/W`:
+The following series values use the retained v1 **legacy screening assumption**
+`RθJC=1.25 °C/W` and `RθCS=0.25 °C/W`, with `Ta=40 °C` and `P=40 W`.  The
+exact Yangjie sheet gives `RθJC=1.0 °C/W` for the device mounted on its
+specified aluminum plate, but does not provide a whole-bridge aggregate or
+the lead/solder/barrel heat partition.  The 1.25 value is therefore a
+conservative comparison input, not a datasheet-derived whole-bridge rating.
+The compact rejection and the 0.078 °C/W target below are conditional on this
+legacy screen and remain provisional until the physical model binds the
+per-element heat paths:
 
 | Proposal | `RθSA` input | Sink °C | Case °C | Junction °C | Margin to 125 °C |
 |---|---:|---:|---:|---:|---:|
