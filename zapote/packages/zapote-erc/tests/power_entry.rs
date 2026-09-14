@@ -44,6 +44,7 @@ fn alternate_bridge_requires_its_reviewed_dc_pin_order() {
     );
     change_pin(&mut source, "bridge", "1", "l_boost", "1");
     change_pin(&mut source, "bridge", "4", "shunt", "2");
+    source["full_bridge"] = source["bridge"].clone();
     validate_source(&source.to_string()).unwrap();
 }
 
@@ -228,4 +229,22 @@ fn nominal_screen_preserves_input_power_and_slow_discharge_limits() {
         s.selected_compensation.phase_margin_deg > 55.0
             && s.selected_compensation.phase_margin_deg < 70.0
     );
+}
+
+#[test]
+fn contradictory_duplicate_graph_cannot_hide_correct_primary_pins() {
+    let mut source: Value = serde_json::from_str(SOURCE21).unwrap();
+    validate_source(&source.to_string()).unwrap();
+    for net in source["full_bridge"]["nets"].as_array_mut().unwrap() {
+        for node in net["nodes"].as_array_mut().unwrap() {
+            if node[0] == "U1" && node[1] == "4" {
+                node[1] = json!("1");
+            } else if node[0] == "U1" && node[1] == "1" {
+                node[1] = json!("4");
+            }
+        }
+    }
+    assert!(validate_source(&source.to_string())
+        .unwrap_err()
+        .contains("contradictory"));
 }

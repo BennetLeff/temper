@@ -1,0 +1,34 @@
+{
+  "schema": "zapote.power_entry.bridge_redesign.handoff.v1",
+  "status": "candidate-comparison-complete-no-promotion",
+  "commit": "reported by coordinator from git log; this file is content-bound by the containing commit",
+  "baseline": {
+    "path": "baseline",
+    "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317"
+  },
+  "candidates": [
+    {
+      "id": "same-package-6mm",
+      "path": "variants/same-package",
+      "board_sha256": "bc6d37e0884cde05379480923c051fc2ff7b8f28b7ba52eacbabf98714f3fc61",
+      "status": "rejected-by-zapote-clearance-profile",
+      "native": "erc-drc-parity-clean",
+      "rust": "DRC.NATIVE.CLEARANCE_PROFILE fail: 0.58 mm minimum, 2.0 mm required"
+    },
+    {
+      "id": "same-package-3mm",
+      "path": "variants/same-package-3mm",
+      "board_sha256": "8a464486017deb4fdbc027fa05c2f8cdd66533569ccd10727137f8b6c12a99d8",
+      "status": "constrained",
+      "native": "erc-drc-parity-clean",
+      "rust": "construction and clearance pass; qualification indeterminate"
+    }
+  ],
+  "next_inputs": [
+    "GBJ-specific physical model or measured package/assembly heat paths",
+    "Selected cooling assembly system curve and contact evidence",
+    "Separate electrical disposition of four maintained-board current-screen findings"
+  ],
+  "promotion": "No candidate is promoted by this handoff.",
+  "thermal_comparison": "../../thermal/physical-model/comparison.md"
+}

@@ -1,0 +1,101 @@
+{
+  "schema": "zapote.power_entry.bridge_redesign.v1",
+  "baseline": {
+    "path": "baseline",
+    "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317"
+  },
+  "candidates": [
+    {
+      "id": "same-package-6mm",
+      "path": "variants/same-package",
+      "status": "rejected-by-zapote-clearance-profile",
+      "change": "All four U1 neck tracks widened from 2.5 mm to 6.0 mm; endpoints, layers and lengths unchanged.",
+      "board_sha256": "bc6d37e0884cde05379480923c051fc2ff7b8f28b7ba52eacbabf98714f3fc61",
+      "native": {
+        "erc_violations": 0,
+        "drc_violations": 0,
+        "unconnected": 0,
+        "schematic_parity": 0
+      },
+      "rust": {
+        "exit_code": 1,
+        "status": "fail",
+        "blocking_rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+        "minimum_observed_mm": 0.58,
+        "required_mm": 2.0
+      },
+      "reason": "GBU2510A 5.08 mm pad pitch cannot accept a constant 6 mm neck while preserving the Zapote 2 mm voltage-domain clearance profile. Native KiCad clearance rules are looser, so native DRC alone is insufficient."
+    },
+    {
+      "id": "same-package-3mm",
+      "path": "variants/same-package-3mm",
+      "status": "constrained",
+      "change": "All four U1 neck tracks widened from 2.5 mm to 3.0 mm; endpoints, layers and lengths unchanged.",
+      "board_sha256": "8a464486017deb4fdbc027fa05c2f8cdd66533569ccd10727137f8b6c12a99d8",
+      "native": {
+        "erc_violations": 0,
+        "drc_violations": 0,
+        "unconnected": 0,
+        "schematic_parity": 0
+      },
+      "rust": {
+        "exit_code": 2,
+        "status": "indeterminate",
+        "clearance_profile": "pass"
+      },
+      "reason": "3 mm clears the 2 mm Zapote profile but remains below the declared 15 A current-screen requirement; thermal and current sharing evidence are still required."
+    },
+    {
+      "id": "shaped-pad-entry",
+      "path": "variants/shaped-pad-entry",
+      "status": "constrained-shaped-input",
+      "change": "Each U1 neck splits into a 3.0 mm pad-entry section followed by a 4.2 mm transition into the existing downstream copper; endpoints, nets and stackup unchanged.",
+      "board_sha256": "c0401ca80cda70ce0beec3d18a31c77fc6396f3ac51b54e0bcaed11fd4494cd0",
+      "native": {
+        "erc_violations": 0,
+        "drc_violations": 0,
+        "unconnected": 0,
+        "schematic_parity": 0
+      },
+      "rust": {
+        "exit_code": 2,
+        "status": "indeterminate",
+        "clearance_profile": "pass",
+        "pfc_current_screen": "fail",
+        "reason": "fresh native bindings pass; PFC current screen remains below 15 A at the 3 mm pad-entry bottleneck"
+      },
+      "reason": "Fresh native ERC/DRC/parity and source-bound Rust document/connectivity checks pass. The source-bound PFC current screen still fails the declared 15 A requirement at the 3 mm pad-entry bottleneck; thermal evidence is pending."
+    },
+    {
+      "id": "alternate-gbj",
+      "path": "variants/alternate-gbj",
+      "status": "native-clean-model-indeterminate",
+      "change": "Exact Diodes Incorporated GBJ2510-F package with nominal 10/7.5/7.5 mm pin spacing and 4.2 mm local neck draft.",
+      "board_sha256": "fd624e37be053e5140256fcbcb8ab84e330b42d1fbff3a01f92fa8d8a205447b",
+      "native": {
+        "erc_violations": 0,
+        "drc_violations": 0,
+        "unconnected": 0,
+        "schematic_parity": 0,
+        "report": "variants/alternate-gbj/evidence/drc-fresh.rpt",
+        "erc_report": "variants/alternate-gbj/evidence/erc-fresh.rpt"
+      },
+      "rust": {
+        "status": "indeterminate",
+        "power_entry": "all source-bound checks pass; thermal/copper capacity remains unevaluated",
+        "pfc": "branch copper and pad contact indeterminate; no explicit branch current failure",
+        "evidence_power": "variants/alternate-gbj/evidence/rust-power-entry-fresh.json",
+        "evidence_pfc": "variants/alternate-gbj/evidence/rust-pfc-fresh.json"
+      },
+      "source": {
+        "datasheet": "sources/Diodes-GBJ2510.pdf",
+        "datasheet_sha256": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02",
+        "mpn": "GBJ2510-F",
+        "digikey": "https://www.digikey.com/en/products/detail/diodes-incorporated/GBJ2510-F/765414",
+        "mouser": "https://www.mouser.com/en/ProductDetail/Diodes-Incorporated/GBJ2510-F?qs=yXRuH0N%252BHpF84%252BH2R9qh1g%3D%3D"
+      },
+      "reason": "Exact GBJ2510-F source, physical pin map (1=PLUS, 2/3=AC, 4=MINUS), local footprint census, native ERC/DRC/parity and source-bound harness checks are clean. The PFC branch copper and pad-contact checks remain intentionally indeterminate pending coupled thermal evidence."
+    }
+  ],
+  "selection": "pending thermal/cooling comparison; shaped same-package draft is constrained at 3 mm, alternate GBJ is native-clean but copper thermal capacity remains to be established"
+}

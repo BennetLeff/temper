@@ -1,0 +1,40 @@
+{
+  "schema": "zapote.bridge-candidate-review-resolution.v1",
+  "reviewed_worker_commit": "1919f6533",
+  "status": "source-findings-resolved",
+  "build_inputs": {
+    "elec/src/components.ato": true,
+    "elec/src/constraints.ato": true,
+    "elec/src/current_sense_unit.ato": true,
+    "elec/src/fac_utils.ato": true,
+    "elec/src/footprints.ato": true,
+    "elec/src/gate_drive_unit.ato": true,
+    "elec/src/generics/interfaces.ato": true,
+    "elec/src/interfaces.ato": true,
+    "elec/src/interlock_unit.ato": true,
+    "elec/src/main.ato": true,
+    "elec/src/modules.ato": true,
+    "elec/src/power_entry_unit.ato": true,
+    "elec/src/rtd_unit.ato": true,
+    "elec/src/thermal_sense_unit.ato": true,
+    "elec/src/voltage_sense_unit.ato": true,
+    "build/default.csv": true,
+    "build/default.layouts.json": true,
+    "build/default.net": true,
+    "build/manifest.json": true
+  },
+  "resolved_export_matches": true,
+  "manifest_graph_views_equal": true,
+  "board_sha256": "fd624e37be053e5140256fcbcb8ab84e330b42d1fbff3a01f92fa8d8a205447b",
+  "preserved_additional_build_outputs": [
+    "build/default.layouts.json",
+    "build/manifest.json"
+  ],
+  "notes": [
+    "F1 compiler/build receipts and all referenced input files verified, including two ignored build outputs additionally retained by coordinator.",
+    "F2 graph views agree; new Rust ERC regression rejects contradictory full_bridge pin nets.",
+    "F3 alternate generic stale extracts quarantined under history; shaped generic files are explicit stale tombstones; fresh evidence is named in candidate manifest.",
+    "KiCad library symbol nickname still contains GBU2510A; exact MPN, footprint and native pin nets identify GBJ2510-F. No thermal capability is inferred."
+  ],
+  "qualification": "indeterminate; candidate not promoted"
+}

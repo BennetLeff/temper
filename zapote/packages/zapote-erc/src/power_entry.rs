@@ -236,6 +236,15 @@ pub fn validate_source(source: &str) -> Result<(), String> {
         return Err("reviewed package-pin census differs from source".into());
     }
     c.require_distinct(&groups.iter().map(|g| g[0]).collect::<Vec<_>>())?;
+    let mut manifest: serde_json::Value =
+        serde_json::from_str(source).map_err(|e| e.to_string())?;
+    if let Some(full) = manifest.get("full_bridge").cloned() {
+        manifest["bridge"] = full;
+        let duplicate = Circuit::parse(&manifest.to_string(), ENTRY)?;
+        if duplicate.pins != c.pins {
+            return Err("full_bridge and bridge contain contradictory pin nets".into());
+        }
+    }
     Ok(())
 }
 

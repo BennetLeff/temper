@@ -1,0 +1,84 @@
+{
+  "schema": "zapote.power_entry.bridge_candidate_review.v1",
+  "candidate_commit": "63ca74448",
+  "base_commit": "65406e8f1",
+  "scope": [
+    "zapote/power-entry/bridge-redesign/variants/alternate-gbj",
+    "zapote/power-entry/bridge-redesign/variants/shaped-pad-entry"
+  ],
+  "review_status": "findings",
+  "verification": {
+    "board_sha256_alternate_gbj": "fd624e37be053e5140256fcbcb8ab84e330b42d1fbff3a01f92fa8d8a205447b",
+    "board_sha256_shaped_pad_entry": "c0401ca80cda70ce0beec3d18a31c77fc6396f3ac51b54e0bcaed11fd4494cd0",
+    "datasheet": {
+      "path": "variants/alternate-gbj/sources/Diodes-GBJ2510.pdf",
+      "sha256": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02",
+      "verified_pin_map": {"1": "PLUS", "2": "AC1", "3": "AC2", "4": "MINUS"},
+      "verified_nominal_pitch_mm": [10.0, 7.5, 7.5]
+    },
+    "schematic_netlist_oracle": {
+      "command": "kicad-cli sch export netlist --output /private/tmp/gbj.net section.kicad_sch",
+      "exit_code": 0,
+      "u1_nets": {"1": "plus", "2": "ac1", "3": "ac2", "4": "minus"},
+      "note": "The earlier coordinate-based schematic concern was withdrawn; KiCad netlist export confirms the routed schematic pin map."
+    },
+    "fresh_native_reports": {
+      "alternate_gbj": {"drc": 0, "unconnected": 0, "parity": 0, "erc_errors": 0, "erc_warnings": 0},
+      "shaped_pad_entry": {"drc": 0, "unconnected": 0, "parity": 0, "erc_errors": 0, "erc_warnings": 0}
+    },
+    "qualification": "No current, thermal, or qualification claim is made. Rust PFC copper/pad-contact results remain indeterminate."
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "P1",
+      "title": "GBJ source-build receipt is stale and required build outputs are missing",
+      "files": [
+        "variants/alternate-gbj/source-build/build-receipt.json:5-13",
+        "variants/alternate-gbj/source-build/ALTERNATE-REBUILD-REQUIRED.md:3-6",
+        "variants/alternate-gbj/source-manifest.json:2895-2900,3285,3558"
+      ],
+      "evidence": [
+        "The receipt records power_entry_unit.ato sha256 d31c214932e7865e9b5e2064adeffd72d064c9898fc9665cac9fd6e98bb2b753, while the bundled file hashes to 5612d4e45695472c6e3870e231bb34377e68a4332e8f28d83eee0a94707cbe0c.",
+        "ALTERNATE-REBUILD-REQUIRED.md says the copied receipt is only provenance for the starting graph and that the GBJ source compiler/build must be rerun.",
+        "source-manifest.json records status compiled-atopile-and-native-generated and input hashes for default.csv/default.net, but source-build/build/default.csv and source-build/build/default.net are not bundled."
+      ],
+      "risk": "The source manifest and generated evidence cannot be reproduced or proven to come from the current GBJ source. A source-bound result is therefore not established.",
+      "fix": "Run the Atopile GBJ source build after the final source edits; regenerate and hash the native outputs, refresh source-manifest/resolved-components/build-receipt, and bundle the referenced build outputs or remove their references."
+    },
+    {
+      "id": "F2",
+      "severity": "P1",
+      "title": "alternate-gbj source manifest contains contradictory bridge polarity maps",
+      "files": [
+        "variants/alternate-gbj/source-manifest.json:610-671",
+        "variants/alternate-gbj/source-manifest.json:2489-2550"
+      ],
+      "evidence": [
+        "bridge.nets maps U1 pin 1=plus, 2=ac1, 3=ac2, 4=minus.",
+        "full_bridge.nets maps U1 pin 1=minus and pin 4=plus, retaining the old GBU polarity.",
+        "The routed PCB and KiCad netlist are correct, so the defect is the internal manifest contradiction and whichever consumer selects full_bridge."
+      ],
+      "risk": "A harness or downstream source consumer using full_bridge can invert the GBJ rectifier polarity while the board and schematic still appear clean.",
+      "fix": "Regenerate the complete manifest from one authoritative GBJ graph, update full_bridge to the same pin map, and add a consistency assertion that all manifest bridge maps equal the KiCad netlist and PCB pads."
+    },
+    {
+      "id": "F3",
+      "severity": "P1",
+      "title": "Generic extraction filenames retain stale or wrong-variant evidence",
+      "files": [
+        "variants/alternate-gbj/evidence/native.json:1",
+        "variants/alternate-gbj/evidence/manufacturing.json:1",
+        "variants/shaped-pad-entry/evidence/native.json:1",
+        "variants/shaped-pad-entry/evidence/manufacturing.json:1"
+      ],
+      "evidence": [
+        "alternate-gbj/evidence/native.json and manufacturing.json bind board_sha256 8a464486017deb4fdbc027fa05c2f8cdd66533569ccd10727137f8b6c12a99d8 (same-package-3mm), not the alternate board fd624e37be053e5140256fcbcb8ab84e330b42d1fbff3a01f92fa8d8a205447b; native.json explicitly labels evidence_binding.candidate_variant as variants/same-package-3mm.",
+        "shaped-pad-entry/evidence/native.json has final board hash c0401ca80cda70ce0beec3d18a31c77fc6396f3ac51b54e0bcaed11fd4494cd0 but evidence_binding.candidate_variant remains variants/same-package-3mm; manufacturing.json reports 250 tracks versus manufacturing-fresh.json's 254 after the shaped transitions.",
+        "Fresh files exist beside these generic files, but the generic names are the ones a default consumer will naturally select."
+      ],
+      "risk": "A reviewer or automated consumer can silently evaluate a prior candidate or pre-edit geometry while believing it is final evidence.",
+      "fix": "Quarantine stale records under an explicitly historical path or add a machine-readable stale marker; make variants.json and all consumers select only fresh files and reject any board-hash/evidence-binding mismatch."
+    }
+  ]
+}
