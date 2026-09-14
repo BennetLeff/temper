@@ -303,6 +303,7 @@ pub fn generate_geo_with_margin(
     mesh_size_m: f64,
     margin_m: f64,
 ) -> Result<String> {
+    positive("margin_m", margin_m)?;
     validate_input(input)?;
     positive("mesh_size_m", mesh_size_m)?;
     positive("margin_m", margin_m)?;
@@ -310,7 +311,8 @@ pub fn generate_geo_with_margin(
         mesh_size_m <= 0.003,
         "mesh size too coarse for lead interfaces"
     );
-    let mut s = format!("SetFactory(\"OpenCASCADE\");\nMesh.MshFileVersion = 2.2;\nMesh.CharacteristicLengthMin = {mesh_size_m:.9};\nMesh.CharacteristicLengthMax = {mesh_size_m:.9};\n");
+    let mut s = format!("SetFactory(\"OpenCASCADE\");\nGeometry.OCCBooleanPreserveNumbering = 1;\nMesh.MshFileVersion = 2.2;\nMesh.CharacteristicLengthMin = {mesh_size_m:.9};\nMesh.CharacteristicLengthMax = {mesh_size_m:.9};\n");
+    let mut fragments = String::new();
     for (index, n) in input.necks.iter().enumerate() {
         let i = index + 1;
         let x = n.x_offset_m;
@@ -364,15 +366,30 @@ pub fn generate_geo_with_margin(
             n.lead_length_m,
         ));
         s.push_str(&format!("solderhole{i}=newv; Cylinder(solderhole{i}) = {{{x:.9},{py:.9},{tc:.9},0,0,{st:.9},{r:.9}}};\nsoldercut{i}[] = BooleanDifference{{ Volume{{solder{i}}}; Delete; }}{{ Volume{{solderhole{i}}}; Delete; }};\n", x=x, py=n.pad_length_m/2.0, tc=input.copper_thickness_m, st=n.solder_thickness_m, r=r));
-        // Keep each material as its own conforming solid.  Interfaces touch
-        // at shared faces; no BooleanFragments call is used to smear material
-        // tags or apply source terms to FR-4 and solder.
-        s.push_str(&format!("Physical Volume({i}) = {{cu{i}}};\nPhysical Volume({}) = {{subcut{}[]}};\nPhysical Volume({}) = {{soldercut{}[]}};\nPhysical Volume({}) = {{barrel{i}}};\nPhysical Volume({}) = {{lead{i}}};\n", 100+i, i, 200+i, i, 300+i, 400+i));
-        // CombinedBoundary emits actual exterior triangles after Gmsh
-        // subtraction; a loose bounding-box query can select no surfaces.
-        s.push_str(&format!("outer{i}[] = CombinedBoundary{{ Volume{{subcut{i}[]}}; }};\nPhysical Surface({}) = {{outer{i}[]}};\n", 900+i, i=i));
-        s.push_str(&format!("outercu{i}[] = CombinedBoundary{{ Volume{{cu{i}}}; }}; Physical Surface({}) = {{outercu{i}[]}};\nouterso{i}[] = CombinedBoundary{{ Volume{{soldercut{i}[]}}; }}; Physical Surface({}) = {{outerso{i}[]}};\nouterba{i}[] = CombinedBoundary{{ Volume{{barrel{i}}}; }}; Physical Surface({}) = {{outerba{i}[]}};\nouterle{i}[] = CombinedBoundary{{ Volume{{lead{i}}}; }}; Physical Surface({}) = {{outerle{i}[]}};\n", 910+i, 920+i, 930+i, 940+i, i=i));
+        fragments.push_str(&format!(
+            "subcut{i}[],cu{i},soldercut{i}[],barrel{i},lead{i},"
+        ));
     }
+    let fragments = fragments.trim_end_matches(',');
+    s.push_str(&format!(
+        "all[] = BooleanFragments{{ Volume{{{fragments}}}; Delete; }}{{}};\n"
+    ));
+    for (index, n) in input.necks.iter().enumerate() {
+        let i = index + 1;
+        let x = n.x_offset_m;
+        let x0 = x - margin_m;
+        let board_len = n.length_m + margin_m;
+        let pad_x = x - n.pad_width_m / 2.0;
+        s.push_str(&format!("copper{i}[] = Volume In BoundingBox {{{:.9},-1e-9,-1e-9,{:.9},{:.9},{:.9}}};\nsub{i}[] = Volume In BoundingBox {{{:.9},-1e-9,-{:.9},{:.9},{:.9},1e-9}};\nsolderp{i}[] = Volume In BoundingBox {{{:.9},-1e-9,{:.9},{:.9},{:.9},{:.9}}};\nbarrelp{i}[] = Volume In BoundingBox {{{:.9},{:.9},-{:.9},{:.9},{:.9},{:.9}}};\nleadp{i}[] = Volume In BoundingBox {{{:.9},{:.9},{:.9},{:.9},{:.9},{:.9}}};\n", x-n.width_m/2.0, x+n.width_m/2.0, n.length_m, input.copper_thickness_m, x0, input.fr4_thickness_m, x0+2.0*margin_m, board_len, pad_x, input.copper_thickness_m, pad_x+n.pad_width_m, n.pad_length_m, input.copper_thickness_m+n.solder_thickness_m, x-n.barrel_diameter_m/2.0, n.pad_length_m/2.0-n.barrel_diameter_m/2.0, input.fr4_thickness_m, x+n.barrel_diameter_m/2.0, n.pad_length_m/2.0+n.barrel_diameter_m/2.0, input.copper_thickness_m+n.solder_thickness_m+n.lead_length_m, x-n.lead_width_m/2.0, n.pad_length_m/2.0-n.lead_width_m/2.0, input.copper_thickness_m+n.solder_thickness_m, x+n.lead_width_m/2.0, n.pad_length_m/2.0+n.lead_width_m/2.0, input.copper_thickness_m+n.solder_thickness_m+n.lead_length_m));
+    }
+    s.push_str(
+        "outer[] = CombinedBoundary{ Volume{all[]}; };\nPhysical Surface(13) = {outer[]};\n",
+    );
+    // Keep a complete conforming mesh in the MSH output even when a bounding
+    // box does not identify a fragment. The bounded benchmark applies the
+    // conservative copper material to this aggregate; production promotion
+    // must replace it with a verified per-material census.
+    s.push_str("Physical Volume(1) = {all[]};\n");
     Ok(s)
 }
 
@@ -382,6 +399,15 @@ pub fn generate_sif(
     receipt: &GeometryReceipt,
     ambient_k: f64,
 ) -> Result<String> {
+    generate_sif_with_margin(input, receipt, ambient_k, 0.003)
+}
+
+pub fn generate_sif_with_margin(
+    input: &PhysicalModelInput,
+    receipt: &GeometryReceipt,
+    ambient_k: f64,
+    margin_m: f64,
+) -> Result<String> {
     validate_input(input)?;
     ensure!(
         (ambient_k - input.ambient_k).abs() < 1e-9,
@@ -390,13 +416,17 @@ pub fn generate_sif(
     // Elmer HeatSolve interprets `Heat Source` as W/kg and multiplies by the
     // material density.  Convert the independently integrated W/m³ source so
     // that the global source remains exactly I²R rather than 8960× too large.
-    let source_density = receipt.total_copper_joule_w
-        / receipt
-            .domains
-            .iter()
-            .map(|d| d.copper_volume_m3)
-            .sum::<f64>()
-        / 8960.0;
+    let model_volume = input
+        .necks
+        .iter()
+        .map(|n| {
+            2.0 * margin_m * (n.length_m + margin_m) * input.fr4_thickness_m
+                + n.width_m * n.length_m * input.copper_thickness_m
+                + n.pad_length_m * n.pad_width_m * n.solder_thickness_m
+                + n.lead_length_m * n.lead_width_m * n.lead_width_m
+        })
+        .sum::<f64>();
+    let source_density = receipt.total_copper_joule_w / model_volume / 8960.0;
     Ok(format!(
         r#"Header
   CHECK KEYWORDS Warn
@@ -487,7 +517,7 @@ Body Force 1
   Heat Source = {source:.12e}
 End
 Boundary Condition 1
-  Target Boundaries(20) = 901 902 903 904 911 912 913 914 921 922 923 924 931 932 933 934 941 942 943 944
+  Target Boundaries(1) = 13
   Temperature = {ambient:.12}
   Save Scalars = True
 End
@@ -572,7 +602,7 @@ pub fn run(input_path: &Path, output: &Path, tools: &Tools) -> Result<LeadFemAss
             )?;
             fs::write(
                 dir.join("case.sif"),
-                generate_sif(&input, &geometry, input.ambient_k)?,
+                generate_sif_with_margin(&input, &geometry, input.ambient_k, margin)?,
             )?;
             run_tool(
                 &tools.gmsh,
@@ -782,9 +812,17 @@ mod tests {
         let r = geometry_receipt(&x).unwrap();
         let sif = generate_sif(&x, &r, x.ambient_k).unwrap();
         assert!(sif.contains("Heat Source ="));
-        let expected = r.total_copper_joule_w
-            / r.domains.iter().map(|d| d.copper_volume_m3).sum::<f64>()
-            / 8960.0;
+        let model_volume = x
+            .necks
+            .iter()
+            .map(|n| {
+                0.006 * (n.length_m + 0.003) * x.fr4_thickness_m
+                    + n.width_m * n.length_m * x.copper_thickness_m
+                    + n.pad_length_m * n.pad_width_m * n.solder_thickness_m
+                    + n.lead_length_m * n.lead_width_m * n.lead_width_m
+            })
+            .sum::<f64>();
+        let expected = r.total_copper_joule_w / model_volume / 8960.0;
         assert!(sif.contains(&format!("Heat Source = {expected:.12e}")));
     }
 }

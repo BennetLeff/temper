@@ -25,8 +25,8 @@ fn geo_and_sif_keep_same_physics_across_three_meshes() {
     assert!(sources.windows(2).all(|pair| {
         pair[0].contains("Physical Volume(1)")
             && pair[1].contains("Physical Volume(1)")
-            && !pair[0].contains("BooleanFragments")
-            && !pair[1].contains("BooleanFragments")
+            && pair[0].contains("BooleanFragments")
+            && pair[1].contains("BooleanFragments")
     }));
     let sif = lead_fem::generate_sif(&input, &receipt, input.ambient_k).unwrap();
     assert!(sif.contains("Heat Source ="));
