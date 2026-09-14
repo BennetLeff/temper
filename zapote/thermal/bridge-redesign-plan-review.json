@@ -1,0 +1,64 @@
+{
+  "reviewer": "coordinated-inline-review",
+  "scope": [
+    "docs/plans/2026-09-14-1215-fix-bridge-connections-plan.md",
+    "docs/plans/2026-09-14-1215-feat-bridge-physical-model-plan.md",
+    "docs/plans/2026-09-14-1215-feat-bridge-cooling-assembly-plan.md"
+  ],
+  "document_type": "plan",
+  "findings": [
+    {
+      "title": "Package heat partition is still an implementer choice",
+      "severity": "P1",
+      "section": "U2 - Add physical solids and heat partition (physical thermal model)",
+      "why_it_matters": "An implementer can choose four independent neck solves or a combined package solve without a binding criterion, even though the existing runner performs independent per-neck solves. That leaves the bridge loss split and shared package coupling open to duplication or omission while still satisfying the listed tests. Require a source-bound power partition and an explicit joint-solve rule, with an INDETERMINATE result whenever the partition cannot be established.",
+      "finding_type": "omission",
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "U2 approach: 'finite thermal paths into the package and surrounding board'",
+        "U2 test 5: 'Bridge power is allocated once across sink/lead paths; no independent source is duplicated in four per-neck solves.'",
+        "U2 verification: 'If joint package coupling requires one combined four-lead solve, implement it explicitly.'"
+      ],
+      "suggested_fix": "Add a mandatory input-contract decision for package coupling: either run one combined four-neck/package solve, or provide a reviewed proof and numeric partition that makes independent solves valid. Missing or unbounded partition data must keep applicability INDETERMINATE and block thermal ranking."
+    },
+    {
+      "title": "Bridge loss evidence is not bound into replay",
+      "severity": "P1",
+      "section": "R3 - Bind current and bridge dissipation to the actual circuit and waveform (physical thermal model)",
+      "why_it_matters": "The current harness binds thermal current to the PFC branch report, but the cooling contract still carries a free-standing 40 W value and no retained diode-loss or waveform artifact is named. A model can therefore claim actual-circuit binding while continuing to use an allowance that is not an upper bound. Add a hashed loss-evidence input and require production replay to recompute or reject it before any thermal ranking.",
+      "finding_type": "omission",
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "R3: 'Bind current and bridge dissipation to the actual circuit and waveform; distinguish RMS conductor heating from diode loss.'",
+        "Cooling U1 approach: 'Check the exact bridge diode behavior against the PFC current waveform.'",
+        "Shared baseline: 'Treat the 40 W bridge loss allowance as an assumption to check against the PFC waveform and exact-part behavior.'"
+      ],
+      "suggested_fix": "Define a versioned, hashed bridge-loss evidence record (waveform, diode model/data, temperature/tolerance assumptions and integrated loss) and add it to the physical-model/cooling input contract. The production runner must bind that record to the board and recompute the loss-derived temperatures; absent or stale loss evidence is INDETERMINATE."
+    }
+  ],
+  "residual_risks": [
+    "The cooling goal asks for a buildable arrangement, but the cooker-enclosure collision envelope and neighboring heat loads are not yet numerically defined; the plan should keep physical fit INDETERMINATE when those inputs are unavailable rather than selecting on the 170 x 160 x 95 mm module allowance alone."
+  ],
+  "deferred_questions": [
+    "What reviewed evidence will establish the bridge package's heat split to the case, leads, solder and each of the four necks, or authorize a mandatory combined solve?"
+  ],
+  "resolution_verification": [
+    {
+      "finding": "Package heat partition is still an implementer choice",
+      "status": "resolved",
+      "evidence": "Physical-model KTD6 now mandates one shared package network coupled to all four lead paths and the sink, forbids four independently heated package replicas, and keeps unknown package-path parameters INDETERMINATE. U2 verification now requires the coupled package/lead energy contract and global residuals."
+    },
+    {
+      "finding": "Bridge loss evidence is not bound into replay",
+      "status": "resolved",
+      "evidence": "Physical-model KTD7 names a versioned loss-input record with exact MPN, datasheet bytes/curve, junction-temperature range, tolerances and the PFC waveform report. U1 supplies that record, while U3 requires production binding, Rust recomputation and a mutation test for diode curve, waveform, weighting and package heat."
+    },
+    {
+      "finding": "Cooling physical fit could be overclaimed",
+      "status": "retained-as-conditional",
+      "evidence": "Cooling U1 continues to record missing enclosure dimensions as uncertainty, and R7/Definition of Done distinguish calculated suitability, physical fit and qualification. The plan therefore does not promote the module allowance to a collision-checked fit claim."
+    }
+  ]
+}

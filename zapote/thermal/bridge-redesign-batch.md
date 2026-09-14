@@ -42,3 +42,11 @@ This is a checkpoint boundary, not authorization to label unfinished work comple
 Workers send an early interface handoff, retain a failed-run record when applicable, and commit or salvage owned work before yielding.
 Coordinator can assign a bounded continuation after reviewing the checkpoint.
 No worker pushes or merges another owner's branch.
+
+## Dispatch receipt
+
+Plans were committed as `65406e8f1` and fast-forwarded into each isolated branch before dispatch.
+The native collaboration tool launched `/root/bridge_connections`, `/root/bridge_physical_model` and `/root/bridge_cooling_options` with model override `gpt-5.6-luna`, reasoning `high`.
+All three acknowledged the named plan and ownership.
+This records launch and acknowledgement, not completed engineering work.
+The [plan review](bridge-redesign-plan-review.json) records two corrected findings and verification of their resolution.
