@@ -20,7 +20,9 @@ forward-voltage point used for the diode-loss calculation. The manufacturer
 PDF is currently unavailable as a byte archive; therefore the record is
 `cached_primary_text` and applicability remains `indeterminate`. A future
 byte archive may populate `source_sha256`, but must not change the part or
-silently tighten the unknown lead/barrel/solder ranges.
+silently tighten the unknown lead/barrel/solder ranges. Even after a byte
+hash check, the source remains unverified until its exact digest is admitted
+by a reviewed source registry.
 
 The point is specified at 12.5 A. If a dynamic resistance is later supplied,
 Rust applies it about that reference (`V(i)=Vref+rd*(i-Iref)`) using weighted

@@ -58,6 +58,10 @@ pub fn physical_waveform(
 /// Replay the shared package/lead/barrel/solder model through the production
 /// harness boundary. Physical applicability is intentionally indeterminate
 /// while package internals or assembly paths are unknown.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "evidence inputs remain explicit at this harness boundary"
+)]
 pub fn run_with_physical_model(
     _evidence_root: Option<&Path>,
     board: &[u8],

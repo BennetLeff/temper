@@ -671,17 +671,16 @@ pub fn evaluate(contract: &PhysicalModelContract, waveform: &WaveformInput) -> R
     })
 }
 
-/// Evaluate after verifying the exact archived manufacturer bytes. This is
-/// the only path that can mark source evidence as verified.
+/// Evaluate after checking the archived manufacturer bytes. A source remains
+/// unverified until its digest is admitted by a reviewed source registry; a
+/// producer-supplied hash and text markers alone cannot promote it.
 pub fn evaluate_with_source_bytes(
     contract: &PhysicalModelContract,
     waveform: &WaveformInput,
     source_bytes: &[u8],
 ) -> Result<Assessment> {
     contract.loss.validate_source_bytes(source_bytes)?;
-    let mut assessment = evaluate(contract, waveform)?;
-    assessment.source_bytes_verified = true;
-    Ok(assessment)
+    evaluate(contract, waveform)
 }
 
 pub fn replay(
@@ -721,8 +720,9 @@ pub fn replay(
     Ok(fresh)
 }
 
-/// Replay variant that also binds the retained assessment to manufacturer
-/// source bytes, rather than trusting a producer-supplied hash string.
+/// Replay variant that checks manufacturer source bytes before recomputing the
+/// assessment. The result remains indeterminate until a reviewed digest is
+/// admitted for the exact source document.
 pub fn replay_with_source_bytes(
     contract_bytes: &[u8],
     assessment_bytes: &[u8],
@@ -1070,12 +1070,12 @@ mod tests {
     }
 
     #[test]
-    fn source_bound_evaluation_marks_verified_only_after_byte_check() {
+    fn source_bound_evaluation_does_not_promote_unreviewed_digest() {
         let mut c = contract();
         let source = b"GBU2510A VF 12.5 A archived source";
         c.loss.source_sha256 = Some(format!("{:x}", Sha256::digest(source)));
         let a = evaluate_with_source_bytes(&c, &waveform(), source).unwrap();
-        assert!(a.source_bytes_verified);
+        assert!(!a.source_bytes_verified);
     }
 
     #[test]

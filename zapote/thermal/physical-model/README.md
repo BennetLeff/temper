@@ -26,5 +26,6 @@ rejection are still enforced.
 
 The standard replay does not claim manufacturer-source verification. A future
 manifest can provide the archived source bytes and use
-`evaluate_with_source_bytes`/`replay_with_source_bytes`; the hash is checked
-against the bytes before `source_bytes_verified` becomes true.
+`evaluate_with_source_bytes`/`replay_with_source_bytes`; the hash and identity
+markers are checked against the bytes, but `source_bytes_verified` stays false
+until the exact digest is admitted by a reviewed source registry.
