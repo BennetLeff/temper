@@ -1,0 +1,11 @@
+{
+  "mode": "agent",
+  "scope": [
+    "zapote/packages/zapote-erc/src/power_entry.rs",
+    "zapote/packages/zapote-erc/tests/power_entry.rs",
+    "zapote/packages/zapote-harness/src/pfc_power.rs"
+  ],
+  "intent": "Exact GBJ2510-F alternate bridge pin and footprint contract with reversed DC endpoints and shared PFC injection mapping.",
+  "reviewers": ["correctness", "project-standards", "testing", "adversarial", "simplify-code"],
+  "dispatch_note": "Inline sequential fallback required by AGENTS.md/task instruction; no child agents or external cross-model route used."
+}

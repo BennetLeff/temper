@@ -75,6 +75,7 @@ pub struct Report {
 
 fn inject(
     bound: &crate::pfc_paths::BoundGraph,
+    bridge: power_entry::BridgePins,
     s: &model::Sample,
     relay: f64,
     anode: f64,
@@ -112,7 +113,7 @@ fn inject(
         ("bridge.2", -a),
         ("cmc.3", -a),
         ("bridge.3", a),
-        ("bridge.4", i),
+        (bridge.positive, i),
         ("l_boost.1", -i),
         ("l_boost.2", i),
         ("q_boost.2", -sw),
@@ -124,7 +125,7 @@ fn inject(
         ("output.2", o),
         ("shunt.1", -i),
         ("shunt.2", i),
-        ("bridge.1", -i),
+        (bridge.negative, -i),
     ] {
         put(pin, value)?;
     }
@@ -156,6 +157,7 @@ pub fn run(
         ));
     }
     let circuit = Circuit::parse(source, power_entry::ENTRY)?;
+    let bridge = power_entry::bridge_pins(&circuit.components["bridge"].mpn)?;
     let raw: serde_json::Value = serde_json::from_str(native_text).map_err(|e| e.to_string())?;
     let mut native: UnitNativeEvidence =
         serde_json::from_value(raw.clone()).map_err(|e| e.to_string())?;
@@ -220,7 +222,7 @@ pub fn run(
                 let samples = waveform
                     .samples
                     .iter()
-                    .map(|s| inject(&bound, s, relay, anode, cap))
+                    .map(|s| inject(&bound, bridge, s, relay, anode, cap))
                     .collect::<Result<Vec<_>, _>>()?;
                 for (net, nodes) in &net_nodes {
                     for (slot, sample) in net_samples.get_mut(net).unwrap().iter_mut().zip(&samples)
@@ -404,7 +406,24 @@ mod tests {
 
     #[test]
     fn source_pin_injections_conserve_every_power_net_and_distinguish_branches() {
-        let circuit = Circuit::parse(SOURCE, power_entry::ENTRY).unwrap();
+        check_pin_injections(false);
+    }
+
+    #[test]
+    fn alternate_bridge_injections_follow_reversed_dc_pins() {
+        check_pin_injections(true);
+    }
+
+    fn check_pin_injections(alternate: bool) {
+        let mut circuit = Circuit::parse(SOURCE, power_entry::ENTRY).unwrap();
+        if alternate {
+            let positive = circuit.pins["bridge.4"].clone();
+            let negative = circuit.pins["bridge.1"].clone();
+            circuit.pins.insert("bridge.1".into(), positive);
+            circuit.pins.insert("bridge.4".into(), negative);
+            circuit.components.get_mut("bridge").unwrap().mpn = "GBJ2510-F".into();
+        }
+        let bridge = power_entry::bridge_pins(&circuit.components["bridge"].mpn).unwrap();
         let mut terminals: Vec<String> = ENDPOINTS.iter().map(|s| s.to_string()).collect();
         for cap in CAPS {
             for pin in [1, 2] {
@@ -458,7 +477,7 @@ mod tests {
                     let samples: Vec<_> = profile
                         .samples
                         .iter()
-                        .map(|s| inject(&bound, s, relay, anode, cap).unwrap())
+                        .map(|s| inject(&bound, bridge, s, relay, anode, cap).unwrap())
                         .collect();
                     let currents = flow::analyze(&bound.graph, &samples).unwrap();
                     let rms = |id: &str| currents.iter().find(|c| c.id == id).unwrap().rms_a;
@@ -500,27 +519,21 @@ mod tests {
         .unwrap();
         assert!(!report.branches.is_empty());
         assert!(!report.pad_contacts.is_empty());
-        assert!(
-            report
-                .branches
-                .iter()
-                .any(|b| b.determined_rms_a.is_some_and(|v| (v - 15.).abs() < 1e-6))
-        );
+        assert!(report
+            .branches
+            .iter()
+            .any(|b| b.determined_rms_a.is_some_and(|v| (v - 15.).abs() < 1e-6)));
         assert_eq!(report.config.inductance_h, 180e-6);
-        assert!(
-            report
-                .pad_contacts
-                .iter()
-                .all(|p| p.geometry.certified_chord_mm <= p.geometry.trace_width_mm + 1e-9)
-        );
+        assert!(report
+            .pad_contacts
+            .iter()
+            .all(|p| p.geometry.certified_chord_mm <= p.geometry.trace_width_mm + 1e-9));
         assert!(report.checks.checked_rules.iter().any(|r| r == RULES[1]));
-        assert!(
-            report
-                .branches
-                .iter()
-                .filter(|b| b.net == "PFC_BUS_MINUS")
-                .all(|b| b.determined_rms_a.is_none())
-        );
+        assert!(report
+            .branches
+            .iter()
+            .filter(|b| b.net == "PFC_BUS_MINUS")
+            .all(|b| b.determined_rms_a.is_none()));
     }
 
     #[test]
@@ -533,13 +546,11 @@ mod tests {
         let board = native["board_file_utf8"].as_str().unwrap().to_string();
         let before = run(SOURCE, NATIVE, &board, &fixture).unwrap();
         let uuid = "3a21cb7f-1ccf-4dcc-886e-b105e79be599";
-        assert!(
-            !before
-                .checks
-                .findings
-                .iter()
-                .any(|f| f.status == zapote_core::Status::Fail && f.object.starts_with(uuid))
-        );
+        assert!(!before
+            .checks
+            .findings
+            .iter()
+            .any(|f| f.status == zapote_core::Status::Fail && f.object.starts_with(uuid)));
         let uuid_position = board.find(uuid).unwrap();
         let begin = board[..uuid_position].rfind("(segment").unwrap();
         let width_start = begin + board[begin..uuid_position].find("(width ").unwrap();
@@ -559,15 +570,13 @@ mod tests {
         // unchanged. Rebind this explicitly derived fixture to the mutant.
         fixture["board_sha256"] = crate::runner::digest(changed.as_bytes()).into();
         let after = run(SOURCE, &native.to_string(), &changed, &fixture).unwrap();
-        assert!(
-            after
-                .checks
-                .findings
-                .iter()
-                .any(|f| f.status == zapote_core::Status::Fail
-                    && f.rule == RULES[1]
-                    && f.object.starts_with(uuid))
-        );
+        assert!(after
+            .checks
+            .findings
+            .iter()
+            .any(|f| f.status == zapote_core::Status::Fail
+                && f.rule == RULES[1]
+                && f.object.starts_with(uuid)));
         // Repair must restore a determined, adequate branch, not merely turn
         // the failure into an unknown-current coverage gap.
         let mut restored = changed.clone();
@@ -582,13 +591,11 @@ mod tests {
         native["board_sha256"] = crate::runner::digest(restored.as_bytes()).into();
         fixture["board_sha256"] = crate::runner::digest(restored.as_bytes()).into();
         let repaired = run(SOURCE, &native.to_string(), &restored, &fixture).unwrap();
-        assert!(
-            !repaired
-                .checks
-                .findings
-                .iter()
-                .any(|f| f.status == zapote_core::Status::Fail && f.object.starts_with(uuid))
-        );
+        assert!(!repaired
+            .checks
+            .findings
+            .iter()
+            .any(|f| f.status == zapote_core::Status::Fail && f.object.starts_with(uuid)));
         assert!(repaired.branches.iter().any(|b| b.id.starts_with(uuid)
             && b.determined_rms_a.is_some_and(|i| (i - 15.).abs() < 1e-8)
             && b.nominal_external_capacity_a.is_some_and(|i| i > 15.)));

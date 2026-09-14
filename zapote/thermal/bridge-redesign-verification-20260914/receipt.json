@@ -1,0 +1,65 @@
+{
+  "suite_commit": "cf2b907ae",
+  "binary_sha256": "bfd6124b3f3d719a7c24f25802ed273bbaf4e643920a8a574874bd4c348703d0",
+  "cases": [
+    {
+      "name": "baseline",
+      "argv": [
+        "/private/tmp/zapote-bridge-pfc-audit-20260914/zapote-pfc-power",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/baseline/source-manifest.json",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/baseline/evidence/native.json",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/baseline/section.kicad_pcb",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/baseline/evidence/manufacturing.json"
+      ],
+      "exit_code": 1,
+      "input_sha256": {
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/baseline/source-manifest.json": "5e862a51e52d771884d07f328821771f7dc39835eadf9c2e6080603d496a452e",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/baseline/evidence/native.json": "c4f816f039fca4e50440206ad0001872b7a6d645980c93d3a503b507fe7c2c2e",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/baseline/section.kicad_pcb": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/baseline/evidence/manufacturing.json": "fa98e8e8f166f9f6015d1ab4da2348e898ea2885c95da9bea77be7d876aa792a"
+      }
+    },
+    {
+      "name": "3mm",
+      "argv": [
+        "/private/tmp/zapote-bridge-pfc-audit-20260914/zapote-pfc-power",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package-3mm/source-manifest.json",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package-3mm/evidence/native.json",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package-3mm/section.kicad_pcb",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package-3mm/evidence/manufacturing.json"
+      ],
+      "exit_code": 1,
+      "input_sha256": {
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package-3mm/source-manifest.json": "8124da0ad7bf34e7aec755dcf6b16d5b5a17918cb80726810d483d4da4fd739c",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package-3mm/evidence/native.json": "98f8f518c065c5a5f2e912ebfa987d91d38a4fcc25102f8fc1306fffee65ed61",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package-3mm/section.kicad_pcb": "8a464486017deb4fdbc027fa05c2f8cdd66533569ccd10727137f8b6c12a99d8",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package-3mm/evidence/manufacturing.json": "67846bf1c6feae96ab442846f219897627e9579d3d6ff157b13ff66e195d28ab"
+      }
+    },
+    {
+      "name": "6mm",
+      "argv": [
+        "/private/tmp/zapote-bridge-pfc-audit-20260914/zapote-pfc-power",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package/source-manifest.json",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package/evidence/native.json",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package/section.kicad_pcb",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package/evidence/manufacturing.json"
+      ],
+      "exit_code": 2,
+      "input_sha256": {
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package/source-manifest.json": "a18e7dc7ac639be85b6c45bfc8656e7bdf707fcbe876e3fc1495b4a9d01944ef",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package/evidence/native.json": "42be749b96fbd4ef9ede1a9f7813ef13576179fcdfb2f9920e706e1bd6ea642b",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package/section.kicad_pcb": "bc6d37e0884cde05379480923c051fc2ff7b8f28b7ba52eacbabf98714f3fc61",
+        "/private/tmp/zapote-bridge-connections-20260914/zapote/power-entry/bridge-redesign/variants/same-package/evidence/manufacturing.json": "3487ad82786eda02f77765210bbef61eb5846659ba30c32f1e4186af25fff1e5"
+      }
+    }
+  ],
+  "kind": "source-bound PFC current audit; not full board acceptance",
+  "build_command": "CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo build --release --locked --manifest-path zapote/Cargo.toml --bin zapote-pfc-power",
+  "canonical_revision": "cf2b907ae",
+  "output_sha256": {
+    "baseline.json": "b9baee1f08b74f9161266a895b13d0a9c4f42220016bfdcc3bfbe28e6c0eabe8",
+    "3mm.json": "7ac5270acb1e91847771c4323a374e50d1f96a00969b77c2647247b224577154",
+    "6mm.json": "0d3c158652bf9ea8fdbfd1a88621ed18e115c3b6c584684eac947b9ca860c784"
+  }
+}

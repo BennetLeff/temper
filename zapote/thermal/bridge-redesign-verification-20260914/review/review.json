@@ -1,0 +1,82 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "base": "HEAD (scoped working-tree diff)",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "cf2b907aea014ff79d5125feaabc3b3d9b33cdff",
+    "pr_url": null,
+    "files_changed": 3,
+    "files": [
+      "zapote/packages/zapote-erc/src/power_entry.rs",
+      "zapote/packages/zapote-erc/tests/power_entry.rs",
+      "zapote/packages/zapote-harness/src/pfc_power.rs"
+    ]
+  },
+  "intent": "Accept the exact Diodes GBJ2510-F bridge as a reviewed alternate to Yangjie GBU2510A. Keep AC pins 2/3 unchanged, reverse only the DC endpoint mapping, enforce the package footprint identity, and use the same semantic mapping for PFC current injections without weakening the existing census checks.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness (inline fallback)",
+    "project-standards (inline)",
+    "testing (inline)",
+    "adversarial (inline fallback)",
+    "simplify-code-reuse (inline)",
+    "simplify-code-quality (inline)",
+    "simplify-efficiency (inline)",
+    "learnings (inline)"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "docs/plans/2026-09-14-1215-fix-bridge-connections-plan.md",
+    "scoped_result": "R1 is addressed by the exact MPN/pin/footprint contract and shared PFC mapping. R2-R6 concern candidate bundles, native evidence, thermal comparison, and coordinator integration outside these three files; they were not evaluated as code findings here."
+  },
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "A net name is a claim, not an authority",
+      "citation": "docs/solutions/best-practices/net-name-is-a-claim-not-an-authority-2026-07-26.md",
+      "note": "The change correctly derives current semantics from an explicit reviewed pin map instead of inferring them from a net label."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Three-target verification ladder",
+      "citation": "docs/solutions/best-practices/three-target-verification-ladder-correctness-soundness-validity-2026-07-10.md",
+      "note": "Source graph and injection tests support code/model correctness; native footprint geometry and hardware applicability remain separate evidence rungs."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Claimed isolation versus actual connectivity",
+      "citation": "docs/solutions/best-practices/claimed-isolation-vs-actual-connectivity-2026-07-26.md",
+      "note": "The topology mutation tests cross the semantic pin assignment boundary and reject a source that only changes the MPN."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The changed source/PFC contract does not itself prove the alternate footprint's native pad positions, UUIDs, or board geometry. The pending board/native work must provide that exact-ID evidence.",
+    "The existing thermal bridge-neck validator outside this scope is hard-coded to GBU2510A; an alternate GBJ candidate will remain blocked there until its reviewed native path is added.",
+    "No end-to-end pfc_power::run fixture exercises a GBJ source plus GBJ native board. The unit test covers the mapped injection graph, while candidate-native integration remains pending."
+  ],
+  "testing_gaps": [
+    "Add or retain a source-bound GBJ native fixture test for pfc_power::run once the board agent supplies the exact footprint and native evidence."
+  ],
+  "coverage": {
+    "simplify_review": "All three ce-simplify-code rubrics were applied inline because repository instructions require sequential main-thread review and explicitly prohibit spawning children. No worthwhile reuse, quality, or efficiency finding was identified.",
+    "cross_model": "Skipped. The parent reported an earlier external cross-model review rejected by autoapproval, and the task explicitly prohibited retrying that route. The local adversarial fallback was performed inline.",
+    "standards": "Root AGENTS.md and zapote/AGENTS.md were read; no changed-line standards violation found.",
+    "validation": {
+      "zapote-erc power_entry integration tests": "9 passed",
+      "zapote-harness pfc_power filter": "6 passed",
+      "rustfmt scoped check": "passed",
+      "git diff --check scoped": "passed",
+      "broad clippy": "not a clean signal; parent reported only pre-existing warnings in untouched files"
+    },
+    "unresolved_reviewers": [],
+    "review_mode": "mode:agent equivalent, report-only; no code or git history mutation"
+  },
+  "artifact_path": "zapote/thermal/bridge-redesign-verification-20260914/review",
+  "run_id": "bridge-pin-review-20260914"
+}

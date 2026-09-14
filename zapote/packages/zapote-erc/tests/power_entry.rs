@@ -5,6 +5,69 @@ const SOURCE18: &str =
 const SOURCE21: &str =
     include_str!("../../../power-entry/candidate/native-21/source-manifest.json");
 
+fn replace_bridge_mpn(source: &mut Value, mpn: &str) {
+    source["components"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|c| c["instance_path"] == "bridge")
+        .unwrap()["mpn"] = json!(mpn);
+    source["source_attributes"]["bridge"]["mpn"] = json!(mpn);
+}
+
+#[test]
+fn alternate_bridge_requires_its_reviewed_dc_pin_order() {
+    let mut source: Value = serde_json::from_str(SOURCE21).unwrap();
+    replace_bridge_mpn(&mut source, "GBJ2510-F");
+    let part = source["components"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|c| c["instance_path"] == "bridge")
+        .unwrap();
+    let reference = part["reference"].as_str().unwrap().to_owned();
+    let old_footprint = part["footprint"].as_str().unwrap().to_owned();
+    let footprint = "Diode_THT:Diode_Bridge_GBJ2510";
+    part["footprint"] = json!(footprint);
+    source["bridge"]["components"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|c| c["reference"] == reference)
+        .unwrap()["footprint"] = json!(footprint);
+    let census = source["footprint_census"].as_object_mut().unwrap();
+    let pads = census.remove(&old_footprint).unwrap();
+    census.insert(footprint.into(), pads);
+    assert_eq!(
+        validate_source(&source.to_string()).unwrap_err(),
+        "l_boost.1 is not on bridge.1's net"
+    );
+    change_pin(&mut source, "bridge", "1", "l_boost", "1");
+    change_pin(&mut source, "bridge", "4", "shunt", "2");
+    validate_source(&source.to_string()).unwrap();
+}
+
+#[test]
+fn alternate_bridge_cannot_keep_the_original_package_footprint() {
+    let mut source: Value = serde_json::from_str(SOURCE21).unwrap();
+    replace_bridge_mpn(&mut source, "GBJ2510-F");
+    change_pin(&mut source, "bridge", "1", "l_boost", "1");
+    change_pin(&mut source, "bridge", "4", "shunt", "2");
+    assert_eq!(
+        validate_source(&source.to_string()).unwrap_err(),
+        "bridge requires its reviewed package footprint"
+    );
+}
+
+#[test]
+fn similar_bridge_part_numbers_are_not_reviewed_substitutes() {
+    for mpn in ["GBJ2510", "GBJ2510A", "GBJ2510-F-extra", "XGBU2510A"] {
+        let mut source: Value = serde_json::from_str(SOURCE21).unwrap();
+        replace_bridge_mpn(&mut source, mpn);
+        assert!(validate_source(&source.to_string()).is_err(), "{mpn}");
+    }
+}
+
 #[test]
 fn historical_source_18_is_rejected_after_hf_bypass_contract_change() {
     assert!(validate_source(SOURCE18).is_err());

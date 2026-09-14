@@ -8,6 +8,31 @@ use std::collections::BTreeSet;
 
 pub const ENTRY: &str = "elec/src/power_entry_unit.ato:PowerEntryUnit";
 
+/// Reviewed DC endpoints; AC endpoints remain pins 2 and 3 for both packages.
+#[derive(Clone, Copy, Debug)]
+pub struct BridgePins {
+    pub positive: &'static str,
+    pub negative: &'static str,
+    pub footprint: &'static str,
+}
+
+pub fn bridge_pins(mpn: &str) -> Result<BridgePins, String> {
+    match mpn {
+        "GBU2510A" => Ok(BridgePins {
+            positive: "bridge.4",
+            negative: "bridge.1",
+            footprint: "Diode_THT:Diode_Bridge_GBU2510",
+        }),
+        // Diodes DS21221 Rev.11-2, pages 1 and 4: front view +, ~, ~, -.
+        "GBJ2510-F" => Ok(BridgePins {
+            positive: "bridge.1",
+            negative: "bridge.4",
+            footprint: "Diode_THT:Diode_Bridge_GBJ2510",
+        }),
+        _ => Err(format!("unreviewed bridge MPN {mpn}")),
+    }
+}
+
 // Physical package pins, independently spelled out from the reviewed circuit.
 // All pins belong to exactly one group; every group must be a distinct net.
 const GROUPS: &[&[&str]] = &[
@@ -168,19 +193,40 @@ pub fn validate_source(source: &str) -> Result<(), String> {
     if c.components.len() != PARTS.len() {
         return Err("power-entry part census changed".into());
     }
+    let bridge = c
+        .components
+        .get("bridge")
+        .ok_or("missing reviewed part bridge")?;
+    let bridge_pins = bridge_pins(&bridge.mpn)?;
+    if bridge.footprint != bridge_pins.footprint {
+        return Err("bridge requires its reviewed package footprint".into());
+    }
     for (id, mpn, value) in PARTS {
         let part = c
             .components
             .get(*id)
             .ok_or_else(|| format!("missing reviewed part {id}"))?;
-        if part.mpn != *mpn || part.value.as_deref() != *value {
+        if (*id != "bridge" && part.mpn != *mpn) || part.value.as_deref() != *value {
             return Err(format!("unreviewed MPN/value at {id}"));
         }
     }
     let mut pins = BTreeSet::new();
-    for group in GROUPS {
+    let groups: Vec<Vec<&str>> = GROUPS
+        .iter()
+        .map(|group| {
+            group
+                .iter()
+                .map(|pin| match *pin {
+                    "bridge.4" => bridge_pins.positive,
+                    "bridge.1" => bridge_pins.negative,
+                    _ => *pin,
+                })
+                .collect()
+        })
+        .collect();
+    for group in &groups {
         c.require_net(group)?;
-        for p in *group {
+        for p in group {
             if !pins.insert(p.to_string()) {
                 return Err(format!("duplicate model pin {p}"));
             }
@@ -189,7 +235,7 @@ pub fn validate_source(source: &str) -> Result<(), String> {
     if pins != c.pins.keys().cloned().collect() {
         return Err("reviewed package-pin census differs from source".into());
     }
-    c.require_distinct(&GROUPS.iter().map(|g| g[0]).collect::<Vec<_>>())?;
+    c.require_distinct(&groups.iter().map(|g| g[0]).collect::<Vec<_>>())?;
     Ok(())
 }
 

@@ -1,0 +1,9 @@
+{
+  "findings": [],
+  "actionable_findings": [],
+  "pre_existing_findings": [],
+  "residual_risks": [
+    "Native GBJ footprint and thermal-validator integration remain pending outside the scoped files.",
+    "No GBJ end-to-end pfc_power::run fixture exists yet."
+  ]
+}

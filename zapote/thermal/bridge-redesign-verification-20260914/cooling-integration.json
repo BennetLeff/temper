@@ -1,0 +1,38 @@
+{
+  "schema": "zapote.integration-review.v1",
+  "source_commits": [
+    "637f2400b",
+    "623ca5785",
+    "707ddc1fc",
+    "60f5aaf04"
+  ],
+  "scope": "zapote/thermal/cooling-options",
+  "checks": [
+    "All JSON parsed",
+    "Sanyo catalog page 183 visually inspected: exact 9RA1212E1001 12 V curve; approximately 100 CFM at low tens of pascals",
+    "Legacy 1.25 K/W whole-bridge assumption explicitly identified; no package qualification"
+  ],
+  "files": {
+    "README.md": "ca32bc64db3a10aac58f76291f98370c2bc9ae02911700880465d95dbe16b40d",
+    "calculation-checks.md": "203df94012839608596d3fe03d0456f452ddae1b38cb58617ca094fed8e66798",
+    "comparison.md": "c295d58977f4e768924a2666c175074463f3a2396c3ec191ef5d28d6d7c4b198",
+    "drawings/assembly-comparison.svg": "4dfe4680259b76dd0a783a5ea144ef119905fd975db9ef7a06d765a04a51595a",
+    "envelope.json": "9272da7b531c774e80c70cc95a803b37562ad0cd3359c32a2344804f80f1a44b",
+    "handoff.json": "2713530d81fcfcd8c690cdd33ed3a51d245d898ac96c5965da85b6e2b23c17b7",
+    "loss-budget.md": "c1e85373c00f95287ef645b98385538bb5510a15a0b55ad9691649af0fa311c7",
+    "proposals/baseline-395-1ab.json": "c0a70cc620b5dc6ef40cff90afb8b068a97a2f8883707672caae9966c86a4619",
+    "proposals/compact-396-1ab.json": "3aa85ff443227babeb7337e57c2bdbc014930de4e08ed87dd0d0923f78e0f548",
+    "proposals/shared-392-120ab-sanyo-120cfm.json": "7d61199a3ebcdcdecd93335b2459cec6ba9d7b51a5b4426a339f825d0c34263b",
+    "proposals/shared-392-120ab.json": "d56e5b333bc5ecea6548bf815e8c20d59f30812f4c7763d026758494aab569dd",
+    "protection.md": "a2d3b06f2d2e58a4f70f343eb6c19903af2a02766a5569a0bd92d1e6e3f4ad45",
+    "recommendation.md": "1986a7f2229c0cc455e5cb7c1a93d6b2c5a73fa8da238beee33b134bd55e8970",
+    "sources/README.md": "75d5819445dbe2d83407c8be2a580feb2ddf15fbb5e9310358a91ae2132686de",
+    "sources/sanyo-san-ace-e.pdf": "a9dd3971db4030adab9935759c83c4ca7d6ad785ff6692113a231ea97ab4962e",
+    "sources/wakefield-bonded-fin.pdf": "d7f9c8636915b10c858c0df9940547f51925ed9fe30d7a6416e192928f3d5952",
+    "sources/yangjie-gbu2510a-web-cache.md": "394c56645522c2aa3452f24f24f05f5c806b413a1c2d8326345b9868f38ee22c",
+    "sources/yangjie-gbu2510a.pdf": "8bae78604e65be4d011c2989bbaddd9aab32b55fbdd40a79891aa8803f997794"
+  },
+  "integration_edits": [
+    "Clarify protection threshold derives from unvalidated legacy aggregate resistance; handle installed fan count."
+  ]
+}

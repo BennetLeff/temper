@@ -1,0 +1,31 @@
+{
+  "status": "in_progress",
+  "pin_mapping": {
+    "erc_tests": {
+      "passed": 9,
+      "failed": 0
+    },
+    "pfc_tests": {
+      "passed": 6,
+      "failed": 0
+    },
+    "clippy": {
+      "without_warning_escalation": "passed",
+      "with_D_warnings": "blocked_existing_warnings",
+      "unchanged_files": [
+        "zapote/packages/zapote-erc/src/gate_drive.rs",
+        "zapote/packages/zapote-erc/tests/gate_drive.rs",
+        "zapote/packages/zapote-drc/src/domain_clearance.rs"
+      ]
+    },
+    "alternate_candidate_first_audit": "rejected: source footprint census still listed GBU after GBJ component substitution",
+    "full_erc_regression": {
+      "passed": 63,
+      "failed": 0
+    },
+    "review": "review/review.json"
+  },
+  "cooling": "integrated conditional comparison; fan curve visually checked",
+  "physical_model": "in_progress; no acceptance from draft FEM or network",
+  "candidate_promoted": false
+}

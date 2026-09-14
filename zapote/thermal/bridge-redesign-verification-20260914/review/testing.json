@@ -1,0 +1,1 @@
+{"reviewer":"testing","findings":[],"residual_risks":["Add GBJ source/native run fixture when exact board evidence exists."],"testing_gaps":["Current alternate test exercises the injection graph but not pfc_power::run with a native GBJ board."]}
