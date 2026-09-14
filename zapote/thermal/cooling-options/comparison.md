@@ -1,0 +1,29 @@
+# Bridge cooling concept comparison
+
+The comparison keeps the same board, 15 A RMS branch, 40 °C inlet and 40 W
+allowance.  It ranks design evidence; it does not promote a fabrication choice.
+
+| Concept | Sourced assembly | Approx. concept envelope | Thermal screen | Flow evidence | Fit / availability |
+|---|---|---|---|---|---|
+| Baseline | 395-1AB + 2 × MF80251V1 fans + spreader | 170 × 160 × 95 mm | 120 °C junction; 107.86 °C local PCB, 2.14 K margin | Requires ≥43.4 CFM through gross face at 500 LFM; installed point unknown | Enclosure fit indeterminate; 395-1AB and fan snapshots available |
+| Compact dedicated | 396-1AB + 1 × MF80251V1 | 145 × 125 × 70 mm concept allowance | 142.8 °C junction; fails 125 °C by 17.8 K | One fan cannot establish 500 LFM after duct losses | Enclosure fit indeterminate; 396-1AB snapshot available |
+| Shared cooker airflow | 392-120AB + 2 × MF80251V1, upstream PFC loads | 170 × 170 × 175 mm concept allowance | 116.8 °C bridge junction for 105 W distributed screen (118.64 °C with 1.84 K inlet rise) | Wakefield supports 100 CFM point; system curve/recirculation unknown | Enclosure fit indeterminate; DigiKey stock snapshots conflict |
+
+The compact concept is useful as a measured lower-bound experiment but should
+not be selected at 40 W.  The baseline is mechanically simpler and preserves
+the prior work, but its 5 K junction margin and 2.14 K PCB margin are too small
+for unmeasured contact, flow and sensor error.  The shared concept has the best
+potential margin if the enclosure can supply a 100 CFM operating point and
+separates the bridge from upstream heat.  Its conditional 105 W distributed
+screen still misses the 15 K objective by about 8.64 K, so an enclosure-level
+model must prove a lower bridge-zone resistance or a separate path for the
+other loads.
+
+All three concepts use a chassis-supported sink and a separate spring clamp.
+The heatsink must not hang from the bridge leads or solder fillets.  Any exposed
+metal, screw, spreader or fin near the mains bridge requires the safety owner's
+creepage, clearance, insulation and chassis-bonding review.
+
+Source dimensions, ratings and distributor snapshots are in
+[`sources/README.md`](sources/README.md); machine-readable records are in
+[`proposals/`](proposals/).
