@@ -51,6 +51,16 @@ pub struct UnitRunSpec {
     /// replay. The directory is optional so older manifests remain readable.
     #[serde(default)]
     pub thermal_evidence: Option<PathBuf>,
+    /// Versioned physical package model contract and retained assessment.
+    /// These remain optional so the historical seven-unit manifest stays
+    /// replayable until the coordinator promotes a reviewed candidate.
+    #[serde(default)]
+    pub physical_model: Option<PathBuf>,
+    #[serde(default)]
+    pub physical_model_assessment: Option<PathBuf>,
+    /// Archived manufacturer bytes for byte-level loss-source verification.
+    #[serde(default)]
+    pub physical_model_source: Option<PathBuf>,
 }
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -193,6 +203,7 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
     if unit == UnitKind::PowerEntry {
         required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::COOLING_RULES.map(str::to_owned));
+        required.extend(crate::bridge_thermal::PHYSICAL_RULES.map(str::to_owned));
     }
     Ok(required)
 }
@@ -206,6 +217,9 @@ pub fn evaluate(
         .into_iter()
         .chain(spec.contract.iter())
         .chain(spec.composite.iter())
+        .chain(spec.physical_model.iter())
+        .chain(spec.physical_model_assessment.iter())
+        .chain(spec.physical_model_source.iter())
     {
         inputs.insert(p.clone(), read(p)?);
     }
@@ -527,11 +541,45 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     };
     let cooling_contract = spec.contract.as_ref().map(|p| read(p)).transpose()?;
     let thermal_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
-        crate::bridge_thermal::run_with_contract(spec.thermal_evidence.as_deref(), &board, pfc_power.as_ref(), cooling_contract.as_deref())
+        crate::bridge_thermal::run_with_contract(
+            spec.thermal_evidence.as_deref(),
+            &board,
+            pfc_power.as_ref(),
+            cooling_contract.as_deref(),
+        )
+    });
+    if (spec.physical_model.is_some() || spec.physical_model_assessment.is_some())
+        && (spec.physical_model.is_none() || spec.physical_model_assessment.is_none())
+    {
+        return Err("physical-model contract and assessment must be supplied together".into());
+    }
+    let physical_contract = spec.physical_model.as_ref().map(|p| read(p)).transpose()?;
+    let physical_assessment = spec
+        .physical_model_assessment
+        .as_ref()
+        .map(|p| read(p))
+        .transpose()?;
+    let physical_source = spec
+        .physical_model_source
+        .as_ref()
+        .map(|p| read(p))
+        .transpose()?;
+    let physical_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        crate::bridge_thermal::run_with_physical_model(
+            spec.thermal_evidence.as_deref(),
+            &board,
+            pfc_power.as_ref(),
+            physical_contract.as_deref(),
+            physical_assessment.as_deref(),
+            physical_source.as_deref(),
+        )
     });
     let mut required = required_rules(spec.unit)?;
     if pfc_power.is_some() {
         required.extend(crate::pfc_power::RULES.map(str::to_owned));
+    }
+    if physical_checks.is_some() {
+        required.extend(crate::bridge_thermal::PHYSICAL_RULES.map(str::to_owned));
     }
     required.extend(
         [
@@ -580,6 +628,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     parts.extend(power_checks.iter());
     parts.extend(pfc_power.iter().map(|r| &r.checks));
     parts.extend(thermal_checks.iter());
+    parts.extend(physical_checks.iter());
     parts.extend(operating_checks.iter());
     let coverage = enforce_required(&required, &combine(&parts));
     let common = combine(&[&stack, &binding, &coverage]);
@@ -613,13 +662,26 @@ mod cooling_coverage_tests {
     #[test]
     fn power_entry_requires_cooling_even_when_the_hook_emits_no_report() {
         let required = required_rules(UnitKind::PowerEntry).unwrap();
-        for rule in crate::bridge_thermal::RULES.into_iter().chain(crate::bridge_thermal::COOLING_RULES) {
+        for rule in crate::bridge_thermal::RULES
+            .into_iter()
+            .chain(crate::bridge_thermal::COOLING_RULES)
+        {
             assert!(required.iter().any(|id| id == rule));
         }
-        let without_cooling = CheckReport::from_findings(vec![],
-            required.iter().filter(|id| !id.starts_with("THERMAL.POWER_ENTRY.")).cloned().collect(), vec![]);
+        let without_cooling = CheckReport::from_findings(
+            vec![],
+            required
+                .iter()
+                .filter(|id| !id.starts_with("THERMAL.POWER_ENTRY."))
+                .cloned()
+                .collect(),
+            vec![],
+        );
         let coverage = enforce_required(&required, &without_cooling);
         assert_eq!(coverage.status, Status::Fail);
-        assert_eq!(coverage.findings.len(), 5);
+        assert_eq!(coverage.findings.len(), 8);
+        for rule in crate::bridge_thermal::PHYSICAL_RULES {
+            assert!(coverage.findings.iter().any(|f| f.message.contains(rule)));
+        }
     }
 }

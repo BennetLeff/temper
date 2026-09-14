@@ -5,6 +5,7 @@
 
 use anyhow::{bail, Context, Result};
 pub mod bridge_cooling;
+pub mod physical_model;
 mod neck_geo;
 pub mod neck_geometry;
 pub mod neck_physics;

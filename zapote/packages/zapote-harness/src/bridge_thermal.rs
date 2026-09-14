@@ -4,6 +4,7 @@
 //! establish an allowable package, copper, or enclosure temperature: those
 //! are assembly and rating inputs that remain explicitly indeterminate here.
 
+use sha2::Digest;
 use std::{collections::BTreeSet, path::Path};
 
 use zapote_core::{CheckReport, Finding};
@@ -18,8 +19,134 @@ pub const COOLING_RULES: [&str; 3] = [
     "THERMAL.POWER_ENTRY.BRIDGE_COOLING_PCB_TARGET",
     "THERMAL.POWER_ENTRY.BRIDGE_COOLING_CONTACT_SENSITIVITY",
 ];
+pub const PHYSICAL_RULES: [&str; 3] = [
+    "THERMAL.POWER_ENTRY.BRIDGE_PHYSICAL_MODEL_NUMERICAL",
+    "THERMAL.POWER_ENTRY.BRIDGE_LOSS_BINDING",
+    "THERMAL.POWER_ENTRY.BRIDGE_PHYSICAL_APPLICABILITY",
+];
 
 const NETS: [&str; 4] = ["minus", "ac1", "ac2", "plus"];
+
+pub fn physical_waveform(
+    pfc: &PfcReport,
+) -> anyhow::Result<zapote_thermal::physical_model::WaveformInput> {
+    use sha2::{Digest, Sha256};
+    let profile_sha256 = format!("{:x}", Sha256::digest(serde_json::to_vec(&pfc.waveform)?));
+    let samples = pfc
+        .waveform
+        .samples
+        .iter()
+        .map(|s| zapote_thermal::physical_model::WaveformSample {
+            weight: s.weight,
+            line_sign: s.line_sign,
+            inductor_a: s.inductor_a,
+        })
+        .collect();
+    let mut neck_rms_a = std::collections::BTreeMap::new();
+    for net in NETS {
+        let current = branch_current(&pfc.branches, net)
+            .ok_or_else(|| anyhow::anyhow!("missing determined PFC branch for {net}"))?;
+        neck_rms_a.insert(net.to_owned(), current);
+    }
+    Ok(zapote_thermal::physical_model::WaveformInput {
+        profile_sha256,
+        samples,
+        neck_rms_a,
+    })
+}
+
+/// Replay the shared package/lead/barrel/solder model through the production
+/// harness boundary. Physical applicability is intentionally indeterminate
+/// while package internals or assembly paths are unknown.
+pub fn run_with_physical_model(
+    _evidence_root: Option<&Path>,
+    board: &[u8],
+    pfc: Option<&PfcReport>,
+    contract: Option<&[u8]>,
+    assessment: Option<&[u8]>,
+    source_bytes: Option<&[u8]>,
+) -> CheckReport {
+    let checked = PHYSICAL_RULES.iter().map(|r| (*r).to_owned()).collect();
+    let result = (|| -> anyhow::Result<_> {
+        let pfc = pfc
+            .ok_or_else(|| anyhow::anyhow!("PFC report unavailable for physical-model binding"))?;
+        let contract =
+            contract.ok_or_else(|| anyhow::anyhow!("physical-model contract unavailable"))?;
+        let assessment =
+            assessment.ok_or_else(|| anyhow::anyhow!("physical-model assessment unavailable"))?;
+        let board_sha256 = format!("{:x}", sha2::Sha256::digest(board));
+        let waveform = physical_waveform(pfc)?;
+        let parsed: zapote_thermal::physical_model::PhysicalModelContract =
+            serde_json::from_slice(contract)?;
+        let fresh = if let Some(source_bytes) = source_bytes {
+            zapote_thermal::physical_model::replay_with_source_bytes(
+                contract,
+                assessment,
+                &board_sha256,
+                &waveform,
+                source_bytes,
+            )?
+        } else {
+            ensure_source_not_claimed_archived(&parsed)?;
+            zapote_thermal::physical_model::replay(contract, assessment, &board_sha256, &waveform)?
+        };
+        Ok(fresh)
+    })();
+    let mut findings = Vec::new();
+    match result {
+        Ok(a) => {
+            findings.push(Finding::pass(PHYSICAL_RULES[0], format!("coupled package/lead/barrel/solder KCL balanced {:.3e} W; package {:.2} C; board {:.2} C; sink flow {:.4} W; board flow {:.4} W", a.global_power_residual_w, a.package_temperature_c, a.board_temperature_c, a.package_to_sink_w, a.leads_to_board_w), "power-entry.bridge-physical-model"));
+            findings.push(if a.source_bytes_verified {
+                Finding::pass(
+                    PHYSICAL_RULES[1],
+                    format!(
+                        "GBU2510A diode loss recomputed from retained PFC waveform and archived source bytes: {:.4} W",
+                        a.diode_loss_w
+                    ),
+                    "power-entry.bridge-physical-model",
+                )
+            } else {
+                Finding::indeterminate(
+                    PHYSICAL_RULES[1],
+                    format!(
+                        "GBU2510A diode loss recomputed from retained PFC waveform ({:.4} W), but manufacturer source bytes were not supplied for hash verification",
+                        a.diode_loss_w
+                    ),
+                    "power-entry.bridge-physical-model",
+                )
+            });
+            findings.push(Finding::indeterminate(PHYSICAL_RULES[2], "package internals and lead/barrel/solder assembly paths remain unknown; numerical replay cannot establish ratings", "power-entry.bridge-physical-model"));
+        }
+        Err(error) => {
+            findings.push(Finding::fail(
+                PHYSICAL_RULES[0],
+                format!("physical-model replay failed: {error:#}"),
+                "power-entry.bridge-physical-model",
+            ));
+            findings.push(Finding::fail(
+                PHYSICAL_RULES[1],
+                "loss binding was not established from the production PFC waveform",
+                "power-entry.bridge-physical-model",
+            ));
+            findings.push(Finding::indeterminate(
+                PHYSICAL_RULES[2],
+                "physical applicability cannot be assessed without a valid replay",
+                "power-entry.bridge-physical-model",
+            ));
+        }
+    }
+    CheckReport::from_findings(findings, checked, vec![])
+}
+
+fn ensure_source_not_claimed_archived(
+    contract: &zapote_thermal::physical_model::PhysicalModelContract,
+) -> anyhow::Result<()> {
+    anyhow::ensure!(
+        contract.loss.source_status != "byte_archived",
+        "byte-archived physical-model source requires physical_model_source bytes"
+    );
+    Ok(())
+}
 
 /// Evaluate the selected cooling design without treating unverified assembly
 /// targets as measured boundary conditions or waiving the separate IPC screen.
