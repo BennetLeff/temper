@@ -10,12 +10,12 @@ or as an acceptance rating.
 The exact bridge is Yangjie `GBU2510A`, not a GBJ or another supplier suffix.
 The manufacturer family sheet (`GBU25005A THRU GBU2510A`, S-B407, Rev 2.5,
 09-Apr-2024) gives a maximum per-diode forward voltage of 1.0 V at 12.5 A,
-25 A average rectified current with a heatsink at `Tc=110 °C`, 4 A without a
+25 A average rectified current with a heatsink at `Tc=100 °C`, 3.5 A without a
 heatsink at `Ta=25 °C`, `RθJC=1.0 °C/W` on a 75 × 45 × 5.5 mm aluminum plate,
 `RθJA=25 °C/W` without a heatsink, `Tj=-55…150 °C`, and 350 A one-cycle surge.
 The sheet's Figure 3 contains typical `Tj=25 °C` and `Tj=125 °C` forward
 curves, but does not provide a guaranteed curve envelope.  The exact source
-record and retrieval limitation are in
+record, retained PDF hash and origin retrieval limitation are in
 [`sources/yangjie-gbu2510a-web-cache.md`](sources/yangjie-gbu2510a-web-cache.md).
 
 ## Current-waveform screen
@@ -65,6 +65,15 @@ partition while all concurrent loads are present.
 To hit the proposed 15 K junction headroom target with this 105 W total load
 and a 1.84 K inlet rise, the effective bridge-zone `RθSA` would need to be at
 most about `0.078 °C/W` (`(110−40−1.84−60)/105`).
+
+The first shared-fan proposal used two Sunon `MF80251V1-1000U-G99` units.  Each
+is rated 41 CFM in free air, so the pair has at most 82 CFM before any duct or
+fin pressure loss and cannot establish the Wakefield 100 CFM catalog point.
+The revised candidate uses one Sanyo Denki `9RA1212E1001`, whose retained
+manufacturer catalog gives 120 CFM maximum airflow and 100 Pa maximum static
+pressure.  The page-183 12 V curve supports a plausible 100 CFM point only at
+low system pressure (initial design budget approximately 30 Pa); this is a
+screening requirement for the duct, not a measured installed flow.
 
 ## Contact and PCB path
 

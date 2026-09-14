@@ -1,20 +1,22 @@
 # Yangjie GBU2510A source record
 
 This record preserves the exact manufacturer part and the manufacturer-published
-values used in the loss and cooling comparison.  It is not a substitute for a
-controlled copy of the PDF: the Yangjie URL was indexed with the values below,
-but returned HTTP 403/404 to direct retrieval on 2026-09-14.  The source URL,
-revision and retrieval date are retained so a later owner can replace this
-record with the original bytes without changing the part identity.
+values used in the loss and cooling comparison.  The manufacturer endpoint
+returned HTTP 403/404 on 2026-09-14, so the Yangjie-authored PDF is retained
+from a distributor mirror as a byte-identified copy.  The mirror is evidence
+of the document bytes, not a second authority or a substitute part.
 
 * **Manufacturer:** Yangzhou Yangjie Electronic Technology Co., Ltd.
 * **Document:** `GBU25005A THRU GBU2510A`, document `S-B407`, Rev. 2.5,
   09-Apr-2024.
 * **Exact URL:**
   <https://www.21yangjie.com/pdf/zlqj/zhengliuqiao/GBU25005A%20THRU%20GBU2510A.pdf>
-* **Indexed primary retrieval:** 2026-09-14; the indexed document title,
-  revision and tables match the manufacturer URL.  No distributor suffix or
-  GBJ-family document is used as a replacement.
+* **Retained PDF:** [`yangjie-gbu2510a.pdf`](yangjie-gbu2510a.pdf), retrieved
+  from the Datasheet4U mirror on 2026-09-14.  SHA-256 is
+  `8bae78604e65be4d011c2989bbaddd9aab32b55fbdd40a79891aa8803f997794`.
+  The PDF metadata identifies the same Yangjie title, `S-B407`, Rev. 2.5 and
+  09-Apr-2024 as the manufacturer URL.  No distributor suffix or GBJ-family
+  document is used as a replacement.
 
 ## Values for GBU2510A
 
@@ -23,7 +25,7 @@ The family table applies the following values to the `GBU2510A` column:
 | Parameter | Published value | Test condition / use |
 |---|---:|---|
 | `VRRM`, `VRMS`, `VDC` | 1000 V, 700 V, 1000 V | Maximum ratings |
-| Average rectified output current | 25 A with heatsink at `Tc=110 °C`; 4 A without heatsink at `Ta=25 °C` | 60 Hz sine, resistive load |
+| Average rectified output current | 25 A with heatsink at `Tc=100 °C`; 3.5 A without heatsink at `Ta=25 °C` | 60 Hz sine, resistive load |
 | `IFSM` | 350 A | 60 Hz half-sine, one cycle, `Tj=25 °C` |
 | `I²t` | 508 A²s | Per diode, 1–8.3 ms, `Tj=25 °C` |
 | Junction/storage range | −55…+150 °C | Maximum rating |
@@ -46,6 +48,12 @@ The outline drawing identifies the GBU body (approximately 21.8–22.3 mm wide,
 pitch and 1.6 mm drills; the board owner remains authoritative for the exact
 pad coordinates.
 
+The datasheet labels `RθJC` as a device thermal characteristic and does not
+state an aggregate resistance for the four-diode bridge at a 40 W total loss.
+The 1.0 °C/W datum therefore cannot by itself justify multiplying a whole
+bridge loss by that value; element-to-case, lead, solder and spreader heat
+partition must be resolved by the physical model.
+
 ## Loss binding
 
 For a sinusoidal 15 A RMS input, the bridge conducts two diodes and
@@ -59,6 +67,7 @@ the forward curve, and the PFC current waveform may not be a pure sine.  The
 comparison retains the existing 40 W allowance until a waveform-bound model or
 measurement justifies changing it.
 
-This file’s SHA-256 is the hash of this source record, not of the unavailable
-manufacturer PDF.  A PDF byte hash must be added when Yangjie’s origin becomes
-retrievable.
+The manufacturer bytes remain unavailable directly, but the retained
+Yangjie-authored mirror is sufficient to bind the revision and values without
+silently changing the part identity.  The mirror URL and byte hash are kept in
+the source index for later replacement if the origin becomes retrievable.

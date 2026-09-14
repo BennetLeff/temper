@@ -35,14 +35,14 @@
   </g>
 
   <g transform="translate(40,470)">
-    <text x="0" y="0" class="h">C. Shared cooker airflow: 392-120AB + 2 fans</text>
+    <text x="0" y="0" class="h">C. Shared cooker airflow: 392-120AB + 1 × 120 mm fan</text>
     <rect x="20" y="40" width="230" height="150" class="board"/><text x="55" y="125" class="t">PFC + cooker heat</text>
     <rect x="290" y="45" width="120" height="125" class="sink"/><text x="296" y="105" class="t">392-120AB</text><text x="296" y="125" class="dim">120×125×135.8</text>
-    <rect x="430" y="45" width="80" height="80" class="fan"/><rect x="520" y="45" width="80" height="80" class="fan"/>
-    <text x="435" y="145" class="dim">2 × 80×80×25</text>
+    <rect x="430" y="45" width="120" height="80" class="fan"/>
+    <text x="435" y="145" class="dim">9RA1212E1001 · 120×120×38</text>
     <line x1="20" y1="215" x2="600" y2="215" stroke="#174a7e"/><text x="158" y="240" class="dim">concept allowance 170×170×175 mm</text>
     <text x="20" y="280" class="t">Bridge-only screen: Tj 106.4 °C at 100 CFM</text>
-    <text x="20" y="301" class="t">105 W lumped screen: Tj 163.2 °C — requires system CFD / measurement</text>
+    <text x="20" y="301" class="t">105 W distributed screen: Tj 118.64 °C — requires system CFD / measurement</text>
   </g>
 
   <rect x="700" y="500" width="450" height="120" class="warn"/>

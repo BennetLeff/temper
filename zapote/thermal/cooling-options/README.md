@@ -20,8 +20,11 @@ registry.  Every fit and qualification claim remains conditional.
 * [`sources/README.md`](sources/README.md) — retained datasheets, hashes and
   dated DigiKey snapshots.
 
-The recommended next model is `shared-392-120ab-system-airflow`; the retained
-`baseline-395-1ab-two-fan` is the control.  The low-profile
+The recommended next model is `shared-392-120ab-sanyo-120cfm-system-airflow`;
+the retained `baseline-395-1ab-two-fan` is the control.  The earlier
+`shared-392-120ab-system-airflow` record is retained as a superseded comparison
+because its two 41 CFM free-air fans cannot reach 100 CFM before duct losses.
+The low-profile
 `compact-396-1ab-single-fan` is screened out at the 40 W allowance because its
 published resistance gives a 142.8 °C junction.  Enclosure fit is explicitly
 **INDETERMINATE** until enclosure CAD and service clearances are supplied.

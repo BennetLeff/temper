@@ -26,11 +26,14 @@
   "airflow": {
     "air_density_kg_per_m3": 1.2,
     "air_cp_j_per_kg_k": 1005.0,
-    "sunon_free_air_cfm_each": 41.0,
+    "legacy_sunon_free_air_cfm_each": 41.0,
+    "candidate_fan": "Sanyo Denki 9RA1212E1001",
+    "candidate_fan_free_air_cfm": 120.0,
+    "candidate_fan_shutoff_pa": 100.0,
     "sunon_shutoff_pa_each": 44.8,
     "gross_395_face_area_m2": 0.008064,
     "gross_face_flow_at_500_lfm_cfm": 43.4,
-    "warning": "Free-air flow and shutoff pressure are endpoints, not simultaneous installed values."
+    "warning": "Free-air flow and shutoff pressure are endpoints, not simultaneous installed values; the candidate requires a measured or solved system point near 100 CFM."
   },
   "uncertainties": [
     "GBU2510A forward-voltage curve at the actual PFC waveform and temperature",
