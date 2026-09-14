@@ -15,6 +15,10 @@ use std::collections::BTreeMap;
 pub const CONTRACT_SCHEMA: &str = "zapote.bridge-physical-model.contract.v1";
 pub const ASSESSMENT_SCHEMA: &str = "zapote.bridge-physical-model.assessment.v1";
 pub const BRIDGE_MPN: &str = "GBU2510A";
+pub const REVIEWED_SOURCE_SHA256: &str =
+    "8bae78604e65be4d011c2989bbaddd9aab32b55fbdd40a79891aa8803f997794";
+pub const REVIEWED_VF_MAX_V: f64 = 1.0;
+pub const REVIEWED_VF_REFERENCE_A: f64 = 12.5;
 pub const NETS: [&str; 4] = ["minus", "ac1", "ac2", "plus"];
 
 fn default_board_temperature() -> f64 {
@@ -217,6 +221,18 @@ impl LossInput {
                 hash.len() == 64 && hash.bytes().all(|b| b.is_ascii_hexdigit()),
                 "invalid bridge source hash"
             );
+            if self.source_status == "byte_archived" {
+                ensure!(
+                    hash == REVIEWED_SOURCE_SHA256,
+                    "bridge source digest is not reviewed"
+                );
+                ensure!(
+                    self.vf_reference_current_a == REVIEWED_VF_REFERENCE_A
+                        && self.forward_voltage_v_at_12_5a.nominal == REVIEWED_VF_MAX_V
+                        && self.forward_voltage_v_at_12_5a.max == REVIEWED_VF_MAX_V,
+                    "bridge VF point is not the reviewed source point"
+                );
+            }
         } else {
             ensure!(
                 self.source_status != "byte_archived",
@@ -247,6 +263,10 @@ impl LossInput {
         ensure!(
             actual == expected,
             "archived bridge source bytes do not match source_sha256"
+        );
+        ensure!(
+            actual == REVIEWED_SOURCE_SHA256,
+            "archived bridge source digest is not reviewed"
         );
         // A caller-controlled SHA can still bind the wrong document. Require
         // stable identity/value markers before accepting the source as the
@@ -671,16 +691,17 @@ pub fn evaluate(contract: &PhysicalModelContract, waveform: &WaveformInput) -> R
     })
 }
 
-/// Evaluate after checking the archived manufacturer bytes. A source remains
-/// unverified until its digest is admitted by a reviewed source registry; a
-/// producer-supplied hash and text markers alone cannot promote it.
+/// Evaluate after checking the archived manufacturer bytes. Only the pinned
+/// reviewed source digest can promote `source_bytes_verified`.
 pub fn evaluate_with_source_bytes(
     contract: &PhysicalModelContract,
     waveform: &WaveformInput,
     source_bytes: &[u8],
 ) -> Result<Assessment> {
     contract.loss.validate_source_bytes(source_bytes)?;
-    evaluate(contract, waveform)
+    let mut assessment = evaluate(contract, waveform)?;
+    assessment.source_bytes_verified = true;
+    Ok(assessment)
 }
 
 pub fn replay(
@@ -721,8 +742,7 @@ pub fn replay(
 }
 
 /// Replay variant that checks manufacturer source bytes before recomputing the
-/// assessment. The result remains indeterminate until a reviewed digest is
-/// admitted for the exact source document.
+/// assessment. Only the pinned reviewed digest is accepted.
 pub fn replay_with_source_bytes(
     contract_bytes: &[u8],
     assessment_bytes: &[u8],
@@ -936,7 +956,7 @@ mod tests {
                 bridge_mpn: BRIDGE_MPN.into(),
                 source_url: "test".into(),
                 source_sha256: Some("b".repeat(64)),
-                source_status: "byte_archived".into(),
+                source_status: "cached_primary_text".into(),
                 forward_voltage_v_at_12_5a: sourced_range(1.0, "V", "test"),
                 vf_reference_current_a: 12.5,
                 dynamic_resistance_ohm: None,
@@ -1062,7 +1082,7 @@ mod tests {
         let mut c = contract();
         let source = b"GBU2510A VF 12.5 A archived source";
         c.loss.source_sha256 = Some(format!("{:x}", Sha256::digest(source)));
-        assert!(c.loss.validate_source_bytes(source).is_ok());
+        assert!(c.loss.validate_source_bytes(source).is_err());
         assert!(c.loss.validate_source_bytes(b"edited source").is_err());
         c.loss.source_sha256 = None;
         c.loss.source_status = "byte_archived".into();
@@ -1074,8 +1094,7 @@ mod tests {
         let mut c = contract();
         let source = b"GBU2510A VF 12.5 A archived source";
         c.loss.source_sha256 = Some(format!("{:x}", Sha256::digest(source)));
-        let a = evaluate_with_source_bytes(&c, &waveform(), source).unwrap();
-        assert!(!a.source_bytes_verified);
+        assert!(evaluate_with_source_bytes(&c, &waveform(), source).is_err());
     }
 
     #[test]
