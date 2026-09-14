@@ -142,6 +142,14 @@ impl LeadPath {
         Ok(())
     }
 
+    /// Compute a deliberately conservative lumped sensitivity resistance.
+    ///
+    /// This sums nominal trace, lead, barrel and solder terms in series. It
+    /// is useful for screening the network's Joule-source magnitude, but it
+    /// is not an electrical validation of the real joint: barrel plating,
+    /// solder wetting and lead/contact paths can be parallel and distributed.
+    /// The joint-terminal FEM must replace this value before a thermal result
+    /// is treated as a physical acceptance claim.
     fn nominal_resistance_ohm(
         &self,
         conductivity_s_m: f64,
@@ -446,6 +454,7 @@ impl WaveformInput {
 pub struct NeckResult {
     pub net: String,
     pub rms_current_a: f64,
+    /// Lumped screening resistance; not a validated package-joint value.
     pub path_resistance_ohm: f64,
     pub joule_power_w: f64,
     pub temperature_c: f64,
@@ -782,14 +791,26 @@ pub fn baseline_contract(
             trace_uuid: neck.trace_uuid.clone(),
             trace_length_mm: sourced_range(neck.trace_length_mm, "mm", "native extraction"),
             trace_width_mm: sourced_range(neck.trace_width_mm, "mm", "native extraction"),
-            copper_thickness_um: sourced_range(63.0, "um", "KiCad stackup"),
+            // This convenience constructor has no board bytes from which to
+            // read stackup dimensions. Keep the nominal only as an explicit
+            // sensitivity assumption; production callers must use
+            // `contract_from_native`, which replaces it with parsed values.
+            copper_thickness_um: unknown_range(
+                70.0,
+                "um",
+                "native board stackup required; fallback sensitivity value",
+            ),
             lead_length_mm: unknown_range(3.0, "mm", "GBU2510A internal lead geometry unavailable"),
             lead_cross_section_mm2: unknown_range(
                 1.0,
                 "mm2",
                 "GBU2510A internal lead geometry unavailable",
             ),
-            barrel_length_mm: sourced_range(1.6, "mm", "finished-board stackup"),
+            barrel_length_mm: unknown_range(
+                1.6,
+                "mm",
+                "native board stackup required; fallback sensitivity value",
+            ),
             barrel_inner_diameter_mm: sourced_range(neck.drill_mm, "mm", "native extraction"),
             barrel_plating_mm: unknown_range(0.025, "mm", "fabrication assumption"),
             solder_thickness_mm: unknown_range(0.2, "mm", "assembly assumption"),
@@ -807,7 +828,11 @@ pub fn baseline_contract(
             crate::neck_geometry::geometry_fingerprint(model).expect("NeckModel is serializable"),
         ),
         bridge_mpn: BRIDGE_MPN.into(),
-        bridge_loss_allowance_w: sourced_range(40.0, "W", "bridge-cooling contract v1"),
+        bridge_loss_allowance_w: assumption_range(
+            40.0,
+            "W",
+            "design allowance; package loss not source-bounded",
+        ),
         ambient_c: 40.0,
         sink_c: 60.0,
         board_c: 80.0,
@@ -856,7 +881,15 @@ pub fn contract_from_native(
     manufacturing_json: &[u8],
 ) -> Result<PhysicalModelContract> {
     let model = crate::neck_geometry::build_neck_model_variant(native_json, manufacturing_json)?;
-    Ok(baseline_contract(model.board_sha256.clone(), &model))
+    let stackup = crate::neck_geometry::extract_stackup_dimensions(native_json)?;
+    let mut contract = baseline_contract(model.board_sha256.clone(), &model);
+    for path in &mut contract.paths {
+        path.copper_thickness_um =
+            sourced_range(stackup.copper_thickness_um, "um", "native board stackup");
+        path.barrel_length_mm =
+            sourced_range(stackup.board_thickness_mm, "mm", "native board stackup");
+    }
+    Ok(contract)
 }
 
 fn sourced_range(value: f64, units: &str, provenance: &str) -> Range {
@@ -877,6 +910,17 @@ fn unknown_range(value: f64, units: &str, provenance: &str) -> Range {
         units: units.into(),
         provenance: provenance.into(),
         status: "unknown".into(),
+    }
+}
+
+fn assumption_range(value: f64, units: &str, provenance: &str) -> Range {
+    Range {
+        nominal: value,
+        min: value * 0.5,
+        max: value * 2.0,
+        units: units.into(),
+        provenance: provenance.into(),
+        status: "assembly_assumption".into(),
     }
 }
 
@@ -977,6 +1021,30 @@ mod tests {
             },
             paths,
         }
+    }
+
+    #[test]
+    fn native_contract_binds_reviewed_stackup_dimensions() {
+        let native =
+            include_bytes!("../../../thermal/evidence/bridge-necks-2026-09-14/native.json");
+        let manufacturing =
+            include_bytes!("../../../thermal/evidence/bridge-necks-2026-09-14/manufacturing.json");
+        let contract = contract_from_native(native, manufacturing).unwrap();
+        assert_eq!(
+            contract.board_sha256,
+            "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317"
+        );
+        assert!(contract.geometry_sha256.is_some());
+        assert_eq!(
+            contract.bridge_loss_allowance_w.status,
+            "assembly_assumption"
+        );
+        assert!(contract.paths.iter().all(|path| {
+            path.copper_thickness_um.nominal == 70.0
+                && path.barrel_length_mm.nominal == 1.6
+                && path.copper_thickness_um.status == "sourced"
+                && path.barrel_length_mm.status == "sourced"
+        }));
     }
 
     fn waveform() -> WaveformInput {

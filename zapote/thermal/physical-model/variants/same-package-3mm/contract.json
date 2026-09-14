@@ -1,7 +1,7 @@
 {
   "schema": "zapote.bridge-physical-model.contract.v1",
-  "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
-  "geometry_sha256": "54f8f9d019c43840ed9d56ca8a4630494c05ffc6a2745d416439de8e22b328ee",
+  "board_sha256": "8a464486017deb4fdbc027fa05c2f8cdd66533569ccd10727137f8b6c12a99d8",
+  "geometry_sha256": "9c33727ad555d297e82ad404429beaf948b5c708b73d4e02c904ef39778dcacd",
   "bridge_mpn": "GBU2510A",
   "bridge_loss_allowance_w": {
     "nominal": 40.0,
@@ -88,9 +88,9 @@
         "status": "sourced"
       },
       "trace_width_mm": {
-        "nominal": 2.5,
-        "min": 2.5,
-        "max": 2.5,
+        "nominal": 3.0,
+        "min": 3.0,
+        "max": 3.0,
         "units": "mm",
         "provenance": "native extraction",
         "status": "sourced"
@@ -173,9 +173,9 @@
         "status": "sourced"
       },
       "trace_width_mm": {
-        "nominal": 2.5,
-        "min": 2.5,
-        "max": 2.5,
+        "nominal": 3.0,
+        "min": 3.0,
+        "max": 3.0,
         "units": "mm",
         "provenance": "native extraction",
         "status": "sourced"
@@ -258,9 +258,9 @@
         "status": "sourced"
       },
       "trace_width_mm": {
-        "nominal": 2.5,
-        "min": 2.5,
-        "max": 2.5,
+        "nominal": 3.0,
+        "min": 3.0,
+        "max": 3.0,
         "units": "mm",
         "provenance": "native extraction",
         "status": "sourced"
@@ -343,9 +343,9 @@
         "status": "sourced"
       },
       "trace_width_mm": {
-        "nominal": 2.5,
-        "min": 2.5,
-        "max": 2.5,
+        "nominal": 3.0,
+        "min": 3.0,
+        "max": 3.0,
         "units": "mm",
         "provenance": "native extraction",
         "status": "sourced"

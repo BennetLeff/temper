@@ -113,12 +113,12 @@ pub fn run_with_physical_model(
     let mut findings = Vec::new();
     match result {
         Ok(a) => {
-            findings.push(Finding::pass(PHYSICAL_RULES[0], format!("coupled package/lead/barrel/solder KCL balanced {:.3e} W; package {:.2} C; board {:.2} C; sink flow {:.4} W; board flow {:.4} W", a.global_power_residual_w, a.package_temperature_c, a.board_temperature_c, a.package_to_sink_w, a.leads_to_board_w), "power-entry.bridge-physical-model"));
+            findings.push(Finding::pass(PHYSICAL_RULES[0], format!("coupled lumped package/lead/barrel/solder screening KCL balanced {:.3e} W; package {:.2} C; board {:.2} C; sink flow {:.4} W; board flow {:.4} W; terminal resistance remains a FEM-pending approximation", a.global_power_residual_w, a.package_temperature_c, a.board_temperature_c, a.package_to_sink_w, a.leads_to_board_w), "power-entry.bridge-physical-model"));
             findings.push(if a.source_bytes_verified {
                 Finding::pass(
                     PHYSICAL_RULES[1],
                     format!(
-                        "GBU2510A diode loss recomputed from retained PFC waveform and archived source bytes: {:.4} W",
+                        "GBU2510A diode loss recomputed from the retained PFC waveform and archived source identity: {:.4} W at the fixed 1.0 V / 12.5 A point; curve extrapolation and the 40 W allowance remain unproven",
                         a.diode_loss_w
                     ),
                     "power-entry.bridge-physical-model",

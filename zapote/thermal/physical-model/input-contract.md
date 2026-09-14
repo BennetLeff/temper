@@ -9,11 +9,13 @@ fails closed.
 The model contains one shared package node connected to a cooled sink and to
 four lead/barrel/solder nodes. Each lead node is also connected to the
 explicit board reservoir (`board_c`), so the package and all four leads are
-solved as a single KCL system. The 40 W allowance is a single package source.
-It is never copied into each neck. Neck Joule heat is computed from the PFC
-branch RMS current and the explicit copper path resistance, then injected once
-at its lead node; the result reports package-to-lead, lead-to-board, and
-package-to-sink flows separately.
+solved as a single KCL system. The 40 W allowance is a single package design
+allowance, not a manufacturer loss rating. It is never copied into each neck.
+Neck Joule heat is computed from the PFC branch RMS current and an explicit
+lumped screening resistance, then injected once at its lead node; the result
+reports package-to-lead, lead-to-board, and package-to-sink flows separately.
+That series resistance is only a sensitivity input until the joint-terminal
+FEM supplies distributed copper, barrel, solder, and lead electrical paths.
 
 `loss-input.json` records the exact GBU2510A identity and the manufacturer
 forward-voltage point used for the diode-loss calculation. The manufacturer
@@ -21,8 +23,7 @@ PDF is currently unavailable as a byte archive; therefore the record is
 `cached_primary_text` and applicability remains `indeterminate`. A future
 byte archive may populate `source_sha256`, but must not change the part or
 silently tighten the unknown lead/barrel/solder ranges. Even after a byte
-hash check, the source remains unverified until its exact digest is admitted
-by a reviewed source registry.
+hash check, curve extrapolation and package applicability remain indeterminate.
 
 The point is specified at 12.5 A. If a dynamic resistance is later supplied,
 Rust applies it about that reference (`V(i)=Vref+rd*(i-Iref)`) using weighted

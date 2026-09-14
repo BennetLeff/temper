@@ -6,13 +6,16 @@ Completed in this worktree:
   bind the board SHA, GBU2510A MPN, four pad/trace UUIDs, and every lead,
   barrel, solder, and copper property to units, provenance, and ranges.
 - U2: `physical_model::evaluate` solves one package node plus four shared
-  paths, injects the 40 W allowance once, computes conductor Joule heat once
-  per path, and checks the global residual. Invalid or incomplete geometry is
-  rejected. Unknown assembly/package paths keep applicability indeterminate.
-- U3: `bridge_thermal::run_with_physical_model` and optional runner fields bind
-  retained assessments to the live PFC waveform. Replays recompute diode loss,
-  reject changed waveform/branch RMS/curve/contract/board evidence, and add
-  three mandatory physical-model rule IDs when the manifest opts in.
+  paths, injects the 40 W design allowance once, computes conductor Joule heat
+  once per path with a lumped series screening resistance, and checks the
+  global residual. Invalid or incomplete geometry is rejected. Unknown
+  assembly/package paths keep applicability indeterminate; the lumped
+  resistance is not a joint electrical acceptance result.
+- U3: `bridge_thermal::run_with_physical_model` binds retained assessments to
+  the live PFC waveform. Replays recompute diode loss, reject changed
+  waveform/branch RMS/curve/contract/board evidence, and add three mandatory
+  physical-model rule IDs for PowerEntry runs. Missing contract, assessment,
+  or native geometry evidence fails closed.
 
 Verification:
 
@@ -29,5 +32,7 @@ unchanged DRC/ERC crates are outside this workstream.
 U4 remains pending coordinator integration: consume the frozen 3 mm
 same-package candidate from the connections worktree, generate a
 source-bound PFC waveform assessment through the production runner, and run
-the baseline/3 mm comparison with solver evidence. No candidate is promoted
-or considered fabrication-qualified by this handoff.
+the baseline/3 mm comparison with solver evidence. The current series path
+resistance is a screening approximation; only the joint-terminal FEM can
+replace it for electrical/thermal acceptance. No candidate is promoted or
+considered fabrication-qualified by this handoff.

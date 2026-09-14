@@ -14,11 +14,10 @@ that allowance rather than added four times.
 
 The baseline contract is created from a saved native extraction with
 `baseline_contract()`. This keeps trace and pad UUIDs tied to the actual board
-variant. The connections workstream has supplied baseline, 3 mm and 6 mm
-candidate bundles; the 3 mm bundle is the reviewed constrained candidate for
-the next comparison. A retained solver assessment is intentionally not claimed
-until that candidate is integrated and its PFC waveform is captured through the
-production runner.
+variant. The `zapote-physical-contract` binary performs the same conversion
+from retained `native.json` and `manufacturing.json` captures. Contracts for
+the frozen baseline and the same-package 3 mm candidate are retained under
+`variants/`; they are inputs to the FEM comparison, not qualification results.
 
 Applicability stays `indeterminate` while GBU2510A package internals and
 assembly heat paths are not byte-sourced. Numerical balance and stale-evidence
@@ -26,6 +25,8 @@ rejection are still enforced.
 
 The standard replay does not claim manufacturer-source verification. A future
 manifest can provide the archived source bytes and use
-`evaluate_with_source_bytes`/`replay_with_source_bytes`; the hash and identity
-markers are checked against the bytes, but `source_bytes_verified` stays false
-until the exact digest is admitted by a reviewed source registry.
+`evaluate_with_source_bytes`/`replay_with_source_bytes`. The hash and identity
+markers are checked against the bytes, and only the reviewed Yangjie digest
+admitted by `physical_model::REVIEWED_SOURCE_SHA256` can set
+`source_bytes_verified`; curve extrapolation and package applicability remain
+indeterminate even when source identity passes.
