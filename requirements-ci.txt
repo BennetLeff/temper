@@ -26,14 +26,14 @@ execnet==2.1.2
     # via pytest-xdist
 gherkin-official==29.0.0
     # via pytest-bdd
-grimp==3.16
+grimp==3.17
     # via import-linter
-hypothesis==6.167.1
+hypothesis==6.168.0
 idna==3.19
     # via requests
 immutabledict==4.3.1
     # via ortools
-import-linter==2.14
+import-linter==2.15
 iniconfig==2.3.0
     # via pytest
 jinja2==3.1.6
@@ -58,7 +58,7 @@ mdurl==0.1.2
 mypy==1.19.1
 mypy-extensions==1.1.0
     # via mypy
-narwhals==2.25.0
+narwhals==2.26.0
     # via plotly
 numpy==2.5.2
     # via
@@ -98,7 +98,7 @@ psutil==7.2.2
     # via temper-placer
 pydantic==2.13.5
     # via temper-placer
-pydantic-core==2.46.5
+pydantic-core==2.49.0
     # via pydantic
 pygments==2.21.0
     # via
@@ -136,7 +136,7 @@ rpds-py==2026.6.3
     # via
     #   jsonschema
     #   referencing
-ruff==0.16.5
+ruff==0.16.7
 scipy==1.18.1
     # via temper-placer
 shapely==2.1.2
