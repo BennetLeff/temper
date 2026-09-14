@@ -1,0 +1,35 @@
+{
+  "schema": "zapote.bridge-cooling-option.v1",
+  "id": "baseline-395-1ab-two-fan",
+  "status": "retained_candidate_unqualified",
+  "parts": [
+    {"mpn": "GBU2510A", "role": "bridge", "quantity": 1, "source": "../sources/yangjie-gbu2510a.pdf"},
+    {"mpn": "395-1AB", "role": "heatsink", "quantity": 1, "dimensions_mm": [127.0, 76.2, 63.5], "theta_sa_c_per_w_at_500_lfm": 0.50, "theta_sa_natural_c_per_w": 1.10, "weight_g": null, "source": "../../cooling-sources/wakefield-catalog-page-74.pdf"},
+    {"mpn": "MF80251V1-1000U-G99", "role": "fan", "quantity": 2, "dimensions_mm": [80.0, 80.0, 25.0], "free_air_cfm_each": 41.0, "shutoff_pa_each": 44.8, "source": "../../cooling-sources/sunon-mf80251v1.pdf"},
+    {"mpn": "SIL PAD TSP 1800", "role": "electrical_thermal_interface", "thickness_mm": 0.229, "source": "../../cooling-sources/henkel-tsp1800.pdf"}
+  ],
+  "assembly_envelope_mm": [170.0, 160.0, 95.0],
+  "mounting": {
+    "bridge_spreader_mm": [75.0, 45.0, 5.5],
+    "contact": "thin grease to bridge case; independent broad spring clamp",
+    "support": "chassis-supported; bridge leads and solder joints carry no heatsink weight",
+    "isolation": "SIL PAD TSP 1800 and insulated fasteners require safety review"
+  },
+  "thermal_screen": {
+    "r_jc_provenance": "legacy_v1_whole_bridge_screen_not_datasheet_aggregate",
+    "ambient_c": 40.0,
+    "bridge_loss_w": 40.0,
+    "r_jc_c_per_w": 1.25,
+    "r_cs_c_per_w": 0.25,
+    "r_sa_c_per_w": 0.50,
+    "sink_c": 60.0,
+    "case_c": 70.0,
+    "junction_c": 120.0,
+    "junction_margin_to_125_k": 5.0,
+    "pcb_peak_from_retained_fem_c": 107.86,
+    "pcb_margin_to_110_k": 2.14
+  },
+  "airflow_requirement": {"target_face_lfm": 500.0, "gross_face_flow_cfm": 43.4, "installed_flow_status": "unknown"},
+  "fit_status": "indeterminate_without_enclosure_model",
+  "limitations": ["two fans do not double pressure", "free-air and shutoff ratings are not simultaneous", "case/lead/solder heat split unresolved"]
+}

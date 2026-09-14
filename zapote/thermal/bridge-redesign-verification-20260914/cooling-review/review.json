@@ -1,0 +1,99 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "base": "HEAD 406264419b6b90ea1c93b1db61d67b8927b8ea7d plus untracked cooling-options integration",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "406264419b6b90ea1c93b1db61d67b8927b8ea7d",
+    "pr_url": null,
+    "files_changed": 18,
+    "path": "zapote/thermal/cooling-options"
+  },
+  "intent": "Review the docs-only cooling comparison against plan 2026-09-14-1215-feat-bridge-cooling-assembly-plan.md, preserving conditional reasoning and checking that no fit, procurement, qualified-trip, or hardware-qualification claim is overstated.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness (inline)",
+    "project-standards (inline)",
+    "testing (inline)",
+    "adversarial (inline)",
+    "simplify-code-reuse (inline)",
+    "simplify-code-quality (inline)",
+    "simplify-efficiency (inline)",
+    "learnings (inline)"
+  ],
+  "findings": [
+    {
+      "id": "COOL-R1-001",
+      "severity": "P1",
+      "title": "Comparison table exceeds the plan's three-concept cap",
+      "file": "zapote/thermal/cooling-options/comparison.md",
+      "line": 10,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": false,
+      "pre_existing": false,
+      "why_it_matters": "R1/U2 require one baseline plus two materially distinct concepts, but the main table contains four rows because the superseded shared fan pair remains in the active comparison.",
+      "suggested_fix": "Move the superseded row to a distinct historical note or appendix and leave exactly three active comparison rows; update the 'All three concepts' prose accordingly."
+    },
+    {
+      "id": "COOL-R7-002",
+      "severity": "P2",
+      "title": "Compact option is called a measured experiment without measurement evidence",
+      "file": "zapote/thermal/cooling-options/comparison.md",
+      "line": 13,
+      "confidence": 87,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": false,
+      "pre_existing": false,
+      "why_it_matters": "R7 separates calculated screening from physical fit and hardware qualification; the surrounding records say qualification is not run and the calculations are not measurements.",
+      "suggested_fix": "Change 'measured lower-bound experiment' to 'future lower-bound experiment' or 'screening experiment', unless a measurement receipt is added."
+    }
+  ],
+  "actionable_findings": ["COOL-R1-001", "COOL-R7-002"],
+  "triage_groups": [
+    {"group": "cooling-options-scope-and-claim-language", "finding_ids": ["COOL-R1-001", "COOL-R7-002"], "owner": "downstream-resolver"}
+  ],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "docs/plans/2026-09-14-1215-feat-bridge-cooling-assembly-plan.md",
+    "result": "R1/U2 need a manual correction because four rows are presented in the main comparison. R2-R7 are substantively addressed with exact source records, hashes, dated snapshots, arithmetic, airflow/system-point caveats, machine-readable envelope, provisional drawing and explicit fit/qualification status. R7 remains intentionally conditional pending physical evidence."
+  },
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "Three-target verification ladder",
+      "citation": "docs/solutions/best-practices/three-target-verification-ladder-correctness-soundness-validity-2026-07-10.md",
+      "note": "The docs distinguish sourced calculations from physical fit and hardware qualification; the review preserves those separate evidence rungs."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Enclosure fit/service clearance remains indeterminate without enclosure CAD.",
+    "Installed fan/system operating point and distributed heat partition require model or measurement.",
+    "Thermal transient, sensor-error and fault qualification remain not run.",
+    "Dated distributor snapshots are not procurement commitments and were not independently revalidated in this review."
+  ],
+  "testing_gaps": [
+    "No automated gate enforces active concept-row count or measured-versus-screening wording."
+  ],
+  "coverage": {
+    "simplify_review": "All three ce-simplify-code rubrics were applied inline; no worthwhile behavior-preserving simplification was identified.",
+    "cross_model": "Skipped. Parent reported an earlier external cross-model review rejected by autoapproval, and the task prohibited retrying that route. Findings were checked with the local inline fallback.",
+    "standards": "Root AGENTS.md and zapote/AGENTS.md were read; no changed-document standards violation was found beyond the explicit R1/U2 row-count issue.",
+    "validation": {
+      "machine_readable_json": "All envelope, handoff and proposal JSON records parsed successfully.",
+      "link_integrity": "Markdown and JSON source links resolved with no errors.",
+      "source_hashes": "Retained Sanyo, Wakefield, Yangjie, Sunon and Henkel PDF hashes matched sources/README.md.",
+      "arithmetic": "27.01 W, 56.92 W/K, 1.84 K and 0.078 °C/W checks matched the documented values.",
+      "datasheet_check": "Sanyo catalog page 183 was text-inspected; 120 CFM and 100 Pa were treated as endpoints and the low-pressure curve point as conditional.",
+      "claim_scan": "Fit, qualification, procurement, 70 °C trip, and RθJC aggregate language was checked; no unsafe unconditional claim found."
+    },
+    "unresolved_reviewers": [],
+    "review_mode": "mode:agent equivalent, report-only; no source docs, code or git history mutation"
+  },
+  "artifact_path": "zapote/thermal/bridge-redesign-verification-20260914/cooling-review",
+  "run_id": "bridge-cooling-review-20260914"
+}

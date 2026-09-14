@@ -1,0 +1,30 @@
+{
+  "findings": [
+    {
+      "id": "COOL-R1-001",
+      "severity": "P1",
+      "title": "Comparison table exceeds the plan's three-concept cap",
+      "file": "zapote/thermal/cooling-options/comparison.md",
+      "line": 10,
+      "owner": "downstream-resolver",
+      "autofix_class": "manual",
+      "confidence": 100
+    },
+    {
+      "id": "COOL-R7-002",
+      "severity": "P2",
+      "title": "Compact option is called a measured experiment without measurement evidence",
+      "file": "zapote/thermal/cooling-options/comparison.md",
+      "line": 13,
+      "owner": "downstream-resolver",
+      "autofix_class": "manual",
+      "confidence": 87
+    }
+  ],
+  "actionable_findings": ["COOL-R1-001", "COOL-R7-002"],
+  "pre_existing_findings": [],
+  "residual_risks": [
+    "Fit and qualification remain explicitly indeterminate/not_run.",
+    "No procurement or live availability conclusion was made."
+  ]
+}

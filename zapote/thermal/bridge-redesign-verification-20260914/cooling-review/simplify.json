@@ -1,0 +1,10 @@
+{
+  "reviewer": "ce-simplify-code",
+  "findings": {
+    "reuse": [],
+    "quality": [],
+    "efficiency": []
+  },
+  "skipped": 0,
+  "note": "All three ce-simplify-code rubrics were applied inline. No worthwhile behavior-preserving simplification was identified; the remaining row/prose issue is a manual scope correction, not a refactor."
+}

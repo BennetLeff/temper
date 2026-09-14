@@ -1,0 +1,47 @@
+{
+  "schema": "zapote.bridge-cooling-options.handoff.v1",
+  "source_date": "2026-09-14",
+  "baseline_commit": "a4509b26bcc399a2df379d5263eb668c8552a0d4",
+  "board_sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+  "owned_scope": "zapote/thermal/cooling-options",
+  "recommended": "shared-392-120ab-sanyo-120cfm-system-airflow",
+  "control": "baseline-395-1ab-two-fan",
+  "rejected_screen": "compact-396-1ab-single-fan",
+  "temperature_inputs": {
+    "ambient_c": 40.0,
+    "bridge_loss_allowance_w": 40.0,
+    "bridge_branch_rms_a": 15.0,
+    "junction_limit_c": 125.0,
+    "pcb_limit_c": 110.0,
+    "nominal_headroom_target_k": 15.0
+  },
+  "model_handoffs": {
+    "physical_model_owner": [
+      "Use exact retained GBU2510A PDF; VF=1.0V max at IFM=12.5A is a point bound only",
+      "Preserve missing curve tolerance and package/lead heat partition as unknown",
+      "Compare 40W bridge-only and provisional 105W shared-load cases"
+    ],
+    "connection_owner": [
+      "Use same-package GBU2510A 5.08mm inline footprint",
+      "Reevaluate 2.5mm necks against 6mm candidate traces and mounting access"
+    ]
+  },
+  "airflow_handoff": {
+    "fan_mpn": "9RA1212E1001",
+    "fan_source": "sources/sanyo-san-ace-e.pdf",
+    "minimum_flow_cfm": 100.0,
+    "initial_system_pressure_budget_pa": 30.0,
+    "basis": "manufacturer 12 V curve at page 183; endpoint ratings are not treated as a simultaneous operating point",
+    "status": "requires_system_curve_or_measurement"
+  },
+  "required_before_promotion": [
+    "system fan curve or airflow measurement",
+    "bridge lead/solder/barrel heat partition",
+    "enclosure collision model",
+    "sensor lag/error and shutdown overshoot evidence",
+    "hardware temperature and fault qualification"
+  ],
+  "fit_status": "indeterminate_without_enclosure_model",
+  "qualification_status": "not_run",
+  "electrical_findings": "retain four DRC.PFC.BRANCH_COPPER findings"
+}

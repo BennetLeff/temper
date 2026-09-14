@@ -1,0 +1,10 @@
+{
+  "mode": "agent",
+  "scope": [
+    "zapote/thermal/cooling-options/**",
+    "docs/plans/2026-09-14-1215-feat-bridge-cooling-assembly-plan.md"
+  ],
+  "intent": "Review the docs-only cooling comparison for plan compliance, conditional thermal/airflow reasoning, source and link integrity, and absence of fit, procurement, qualified-trip, or hardware-qualification overclaims.",
+  "reviewers": ["correctness", "project-standards", "testing", "adversarial", "simplify-code"],
+  "dispatch_note": "Inline sequential fallback required by task instruction; no child agents or external cross-model route used."
+}

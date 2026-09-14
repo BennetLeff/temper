@@ -1,0 +1,51 @@
+{
+  "reviewer": "correctness",
+  "findings": [
+    {
+      "id": "COOL-R1-001",
+      "severity": "P1",
+      "title": "Comparison table exceeds the plan's three-concept cap",
+      "file": "zapote/thermal/cooling-options/comparison.md",
+      "line": 10,
+      "confidence": 100,
+      "why_it_matters": "Plan R1 and U2 require one baseline plus two materially distinct concepts. The main comparison table presents four concept rows, including the superseded two-fan shared variant, and therefore leaves the deliverable over the cap and the ranked scope ambiguous.",
+      "suggested_fix": "Move the superseded two-fan shared variant into a clearly separate historical/superseded note or appendix, then make the main comparison table and its prose refer only to baseline, compact dedicated, and revised shared airflow.",
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": false,
+      "pre_existing": false,
+      "evidence": [
+        "docs/plans/2026-09-14-1215-feat-bridge-cooling-assembly-plan.md:R1",
+        "docs/plans/2026-09-14-1215-feat-bridge-cooling-assembly-plan.md:U2",
+        "zapote/thermal/cooling-options/comparison.md:6-11"
+      ]
+    },
+    {
+      "id": "COOL-R7-002",
+      "severity": "P2",
+      "title": "Compact option is called a measured experiment without measurement evidence",
+      "file": "zapote/thermal/cooling-options/comparison.md",
+      "line": 13,
+      "confidence": 87,
+      "why_it_matters": "The surrounding documents identify this as a screening calculation and leave hardware qualification and physical measurements not run. Calling it measured blurs the plan's R7 distinction between calculated suitability and hardware evidence.",
+      "suggested_fix": "Replace measured lower-bound experiment with future lower-bound experiment or screening experiment, or attach the actual measurement receipt if one exists.",
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": false,
+      "pre_existing": false,
+      "evidence": [
+        "zapote/thermal/cooling-options/comparison.md:13",
+        "zapote/thermal/cooling-options/README.md:5",
+        "zapote/thermal/cooling-options/handoff.json:45"
+      ]
+    }
+  ],
+  "residual_risks": [
+    "Enclosure fit and service clearances remain indeterminate without enclosure CAD.",
+    "Hardware temperature, airflow and fault qualification remain not run.",
+    "Independent procurement and live availability validation were outside this review scope; dated snapshots are retained as evidence and explicitly require recheck."
+  ],
+  "testing_gaps": [
+    "No automated checker currently enforces the three-row comparison cap or scans prose for measured-versus-screening terminology."
+  ]
+}

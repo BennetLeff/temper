@@ -1,0 +1,41 @@
+{
+  "schema": "zapote.bridge-cooling-option.v1",
+  "id": "shared-392-120ab-sanyo-120cfm-system-airflow",
+  "status": "promising_but_system_airflow_required",
+  "parts": [
+    {"mpn": "GBU2510A", "role": "bridge", "quantity": 1, "source": "../sources/yangjie-gbu2510a.pdf"},
+    {"mpn": "392-120AB", "role": "shared_heatsink", "quantity": 1, "dimensions_mm": [120.0, 125.0, 135.8], "theta_sa_c_per_w_at_100_cfm": 0.16, "theta_sa_natural_c_per_w": 0.50, "weight_g": 2019.43, "source": "../sources/wakefield-bonded-fin.pdf"},
+    {"mpn": "9RA1212E1001", "role": "fan", "quantity": 1, "dimensions_mm": [120.0, 120.0, 38.0], "rated_voltage_v": 12.0, "free_air_cfm": 120.0, "shutoff_pa": 100.0, "source": "../sources/sanyo-san-ace-e.pdf"},
+    {"mpn": "SIL PAD TSP 1800", "role": "electrical_thermal_interface", "thickness_mm": 0.229, "source": "../../cooling-sources/henkel-tsp1800.pdf"}
+  ],
+  "assembly_envelope_mm": [170.0, 160.0, 175.0],
+  "mounting": {
+    "bridge_spreader_mm": [75.0, 45.0, 5.5],
+    "contact": "custom plate transfers bridge case to large sink base; broad independent clamp",
+    "support": "chassis-supported sink and plenum; no heatsink load through bridge leads",
+    "isolation": "insulated plate/fasteners and mains creepage require safety review"
+  },
+  "shared_heat_load_screen": {
+    "r_jc_provenance": "legacy_v1_whole_bridge_screen_not_datasheet_aggregate",
+    "bridge_w": 40.0,
+    "other_pfc_load_allowance_w": 65.0,
+    "total_sink_load_screen_w": 105.0,
+    "air_capacity_at_100_cfm_w_per_k": 56.92,
+    "air_rise_at_105w_k": 1.84,
+    "sink_rise_at_total_load_k": 16.8,
+    "sink_c_at_total_load": 56.8,
+    "bridge_case_c_with_40w": 66.8,
+    "bridge_junction_c_with_40w": 116.8,
+    "bridge_junction_c_with_1_84k_inlet_rise": 118.64,
+    "interpretation": "Conditional distributed-load screen only; catalog resistance, local spreading, fan pressure and heat partition require system evidence."
+  },
+  "airflow_requirement": {
+    "minimum_flow_cfm": 100.0,
+    "initial_duct_pressure_budget_pa_at_minimum_flow": 30.0,
+    "fan_curve_basis": "Sanyo 12 V curve on catalog page 183; approximately 100 CFM at a low tens-of-pascals point",
+    "installed_flow_status": "unknown",
+    "validation": "Measure or solve the fan/system intersection; 120 CFM free-air and 100 Pa shutoff are endpoint ratings, not a simultaneous point."
+  },
+  "fit_status": "indeterminate_without_enclosure_model",
+  "limitations": ["105 W shared load is provisional", "bridge lead/solder/barrel heat partition unresolved", "duct pressure, recirculation and flow distribution unverified", "DigiKey availability snapshot must be rechecked before ordering"]
+}

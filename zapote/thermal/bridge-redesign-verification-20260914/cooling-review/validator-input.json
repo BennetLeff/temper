@@ -1,0 +1,8 @@
+{
+  "findings": [
+    {"id": "COOL-R1-001", "severity": "P1", "file": "zapote/thermal/cooling-options/comparison.md", "line": 10},
+    {"id": "COOL-R7-002", "severity": "P2", "file": "zapote/thermal/cooling-options/comparison.md", "line": 13}
+  ],
+  "validator": "inline leaf review",
+  "reason": "The task requires sequential inline persona review and prohibits child/external dispatch; each finding was checked directly against the plan and scoped documents."
+}

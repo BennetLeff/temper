@@ -1,0 +1,35 @@
+{
+  "schema": "zapote.bridge-cooling-option.v1",
+  "id": "shared-392-120ab-system-airflow",
+  "status": "superseded_insufficient_free_air_flow",
+  "parts": [
+    {"mpn": "GBU2510A", "role": "bridge", "quantity": 1, "source": "../sources/yangjie-gbu2510a.pdf"},
+    {"mpn": "392-120AB", "role": "shared_heatsink", "quantity": 1, "dimensions_mm": [120.0, 125.0, 135.8], "theta_sa_c_per_w_at_100_cfm": 0.16, "theta_sa_natural_c_per_w": 0.50, "weight_g": 2019.43, "source": "../sources/wakefield-bonded-fin.pdf"},
+    {"mpn": "MF80251V1-1000U-G99", "role": "fan", "quantity": 2, "dimensions_mm": [80.0, 80.0, 25.0], "free_air_cfm_each": 41.0, "source": "../../cooling-sources/sunon-mf80251v1.pdf"}
+  ],
+  "assembly_envelope_mm": [170.0, 170.0, 175.0],
+  "mounting": {
+    "bridge_spreader_mm": [75.0, 45.0, 5.5],
+    "contact": "custom plate transfers bridge case to large sink base; broad independent clamp",
+    "support": "chassis-supported sink and plenum; no heatsink load through bridge leads",
+    "isolation": "insulated plate/fasteners and mains creepage require safety review"
+  },
+  "shared_heat_load_screen": {
+    "r_jc_provenance": "legacy_v1_whole_bridge_screen_not_datasheet_aggregate",
+    "bridge_w": 40.0,
+    "other_pfc_load_allowance_w": 65.0,
+    "total_sink_load_screen_w": 105.0,
+    "air_capacity_at_100_cfm_w_per_k": 56.92,
+    "air_rise_at_105w_k": 1.84,
+    "sink_rise_at_total_load_k": 16.8,
+    "sink_c_at_total_load": 56.8,
+    "bridge_case_c_with_40w": 66.8,
+    "bridge_junction_c_with_40w": 116.8,
+    "bridge_junction_c_with_1_84k_inlet_rise": 118.64,
+    "interpretation": "This distributed-load screen assumes the catalog Rsa applies at 105W and the bridge receives only its own Rcs/Rjc rise. It is not a system prediction; CFD or measurement must prove local spreading, airflow and heat partition."
+  },
+  "bridge_only_screen": {"r_sa_c_per_w": 0.16, "junction_c_at_40w": 106.4, "junction_margin_to_125_k": 18.6},
+  "airflow_requirement": {"supported_point_cfm": 100.0, "system_pressure_curve_status": "not_reachable_with_two_41_cfm_fans", "recirculation_status": "unknown"},
+  "fit_status": "indeterminate_without_enclosure_model",
+  "limitations": ["two 41 CFM free-air fans provide at most 82 CFM before pressure losses", "shared load includes provisional 65 W allowance", "DigiKey stock snapshots conflict", "system CFD or measurement must resolve heat distribution and recirculation"]
+}

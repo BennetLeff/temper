@@ -1,0 +1,8 @@
+{
+  "status": "inline-complete",
+  "findings": [
+    {"id": "COOL-R1-001", "verdict": "confirmed", "reason": "The active comparison table has four concept rows while plan R1/U2 require one baseline plus two concepts."},
+    {"id": "COOL-R7-002", "verdict": "confirmed", "reason": "The phrase measured lower-bound experiment conflicts with the docs' stated screening-only and not-run qualification status."}
+  ],
+  "external_cross_model": "skipped_due_to_prior_autoapproval_rejection"
+}

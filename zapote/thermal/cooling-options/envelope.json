@@ -1,0 +1,45 @@
+{
+  "schema": "zapote.bridge-cooling-options.envelope.v1",
+  "source_date": "2026-09-14",
+  "board": {
+    "path": "zapote/power-entry/candidate/section.kicad_pcb",
+    "sha256": "84f4b325b25e4be71fcf990d9420ddb4346687ca1c28be63fb44a0d661fa2317",
+    "nominal_outline_mm": [230.0, 210.0],
+    "fit_status": "indeterminate_without_enclosure_model"
+  },
+  "operating_bound": {
+    "bridge_branch_rms_a": 15.0,
+    "bridge_loss_allowance_w": 40.0,
+    "inlet_air_c": 40.0,
+    "junction_limit_c": 125.0,
+    "pcb_limit_c": 110.0,
+    "ranking_headroom_target_k": 15.0,
+    "note": "40 W remains an allowance; exact loss and heat partition are unresolved."
+  },
+  "interface_budget": {
+    "junction_to_case_c_per_w": {"nominal": 1.25, "lower": 1.0, "upper": 1.5, "provenance": "legacy v1 whole-bridge screening assumption; Yangjie datasheet only states 1.0 C/W device datum on its test plate and does not state aggregate bridge resistance"},
+    "case_to_sink_c_per_w": {"nominal": 0.25, "lower": 0.15, "upper": 0.5},
+    "sensor_error_k": {"nominal": 2.0, "upper": 5.0},
+    "shutdown_overshoot_k": {"nominal": 3.0, "upper": 8.0},
+    "fan_system_resistance": "unknown_until_duct_or_system_curve_measured"
+  },
+  "airflow": {
+    "air_density_kg_per_m3": 1.2,
+    "air_cp_j_per_kg_k": 1005.0,
+    "legacy_sunon_free_air_cfm_each": 41.0,
+    "candidate_fan": "Sanyo Denki 9RA1212E1001",
+    "candidate_fan_free_air_cfm": 120.0,
+    "candidate_fan_shutoff_pa": 100.0,
+    "sunon_shutoff_pa_each": 44.8,
+    "gross_395_face_area_m2": 0.008064,
+    "gross_face_flow_at_500_lfm_cfm": 43.4,
+    "warning": "Free-air flow and shutoff pressure are endpoints, not simultaneous installed values; the candidate requires a measured or solved system point near 100 CFM."
+  },
+  "uncertainties": [
+    "GBU2510A forward-voltage curve at the actual PFC waveform and temperature",
+    "package-to-lead/solder/barrel heat partition",
+    "fan operating point and flow distribution in the duct",
+    "enclosure collisions, recirculation and neighboring heat loads",
+    "sensor placement, lag and shutdown overshoot"
+  ]
+}

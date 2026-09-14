@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <title>Bridge cooling concept comparison</title>
+  <rect width="1200" height="760" fill="#fff"/>
+  <style>
+    .title{font:700 26px sans-serif;fill:#111}.h{font:700 18px sans-serif;fill:#111}
+    .t{font:14px sans-serif;fill:#222}.s{font:12px sans-serif;fill:#444}
+    .dim{font:13px monospace;fill:#174a7e}.box{fill:#e8f0f8;stroke:#174a7e;stroke-width:2}
+    .sink{fill:#d6d6d6;stroke:#555;stroke-width:2}.fan{fill:#cfe8cf;stroke:#367536;stroke-width:2}
+    .board{fill:#f7e4a5;stroke:#8f6b00;stroke-width:2}.warn{fill:#fff1f1;stroke:#a33;stroke-width:2}
+  </style>
+  <text x="40" y="42" class="title">Bridge cooling concepts — dimensioned allowances</text>
+  <text x="40" y="66" class="s">PROVISIONAL / NOT A COLLISION-CHECKED ENCLOSURE DRAWING / dimensions are source or concept allowances</text>
+
+  <g transform="translate(40,100)">
+    <text x="0" y="0" class="h">A. Baseline: 395-1AB + 2 fans</text>
+    <rect x="20" y="40" width="230" height="210" class="board"/>
+    <text x="65" y="150" class="t">230 × 210 PCB</text>
+    <rect x="280" y="60" width="127" height="76" class="sink"/>
+    <text x="286" y="98" class="t">395-1AB</text><text x="286" y="118" class="dim">127×76.2×63.5</text>
+    <rect x="280" y="150" width="80" height="80" class="fan"/><rect x="370" y="150" width="80" height="80" class="fan"/>
+    <text x="284" y="247" class="dim">2 × 80×80×25</text>
+    <line x1="20" y1="275" x2="450" y2="275" stroke="#174a7e"/><text x="142" y="300" class="dim">concept allowance 170×160×95 mm</text>
+    <text x="20" y="340" class="t">40 W screen: Tj 120 °C; local PCB 107.86 °C</text>
+  </g>
+
+  <g transform="translate(540,100)">
+    <text x="0" y="0" class="h">B. Compact dedicated: 396-1AB + 1 fan</text>
+    <rect x="20" y="40" width="180" height="160" class="board"/>
+    <text x="56" y="130" class="t">board datum</text>
+    <rect x="230" y="55" width="127" height="76" class="sink"/>
+    <text x="238" y="92" class="t">396-1AB</text><text x="236" y="112" class="dim">127×76.2×35.1</text>
+    <rect x="230" y="150" width="80" height="80" class="fan"/><text x="232" y="247" class="dim">1 × 80×80×25</text>
+    <line x1="20" y1="275" x2="357" y2="275" stroke="#174a7e"/><text x="68" y="300" class="dim">concept allowance 145×125×70 mm</text>
+    <rect x="20" y="320" width="340" height="54" class="warn"/><text x="32" y="343" class="t">40 W screen: Tj 142.8 °C</text><text x="32" y="362" class="t">fails 125 °C by 17.8 K</text>
+  </g>
+
+  <g transform="translate(40,470)">
+    <text x="0" y="0" class="h">C. Shared cooker airflow: 392-120AB + 1 × 120 mm fan</text>
+    <rect x="20" y="40" width="230" height="150" class="board"/><text x="55" y="125" class="t">PFC + cooker heat</text>
+    <rect x="290" y="45" width="120" height="125" class="sink"/><text x="296" y="105" class="t">392-120AB</text><text x="296" y="125" class="dim">120×125×135.8</text>
+    <rect x="430" y="45" width="120" height="80" class="fan"/>
+    <text x="435" y="145" class="dim">9RA1212E1001 · 120×120×38</text>
+    <line x1="20" y1="215" x2="600" y2="215" stroke="#174a7e"/><text x="158" y="240" class="dim">concept allowance 170×170×175 mm</text>
+    <text x="20" y="280" class="t">Bridge-only screen: Tj 106.4 °C at 100 CFM</text>
+    <text x="20" y="301" class="t">105 W distributed screen: Tj 118.64 °C — requires system CFD / measurement</text>
+  </g>
+
+  <rect x="700" y="500" width="450" height="120" class="warn"/>
+  <text x="720" y="530" class="h">Open mechanical requirements</text>
+  <text x="720" y="555" class="t">Enclosure fit: INDETERMINATE without enclosure CAD.</text>
+  <text x="720" y="578" class="t">Keep sinks chassis-supported; do not load bridge leads.</text>
+  <text x="720" y="601" class="t">Creepage, insulation and airflow need assembly evidence.</text>
+</svg>

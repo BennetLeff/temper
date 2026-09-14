@@ -1,0 +1,33 @@
+{
+  "schema": "zapote.bridge-cooling-option.v1",
+  "id": "compact-396-1ab-single-fan",
+  "status": "screened_rejected_for_15k_margin",
+  "parts": [
+    {"mpn": "GBU2510A", "role": "bridge", "quantity": 1, "source": "../sources/yangjie-gbu2510a.pdf"},
+    {"mpn": "396-1AB", "role": "heatsink", "quantity": 1, "dimensions_mm": [127.0, 76.2, 35.1], "theta_sa_c_per_w_at_500_lfm": 1.07, "theta_sa_natural_c_per_w": 1.85, "source": "../../cooling-sources/wakefield-catalog-page-74.pdf"},
+    {"mpn": "MF80251V1-1000U-G99", "role": "fan", "quantity": 1, "dimensions_mm": [80.0, 80.0, 25.0], "free_air_cfm": 41.0, "source": "../../cooling-sources/sunon-mf80251v1.pdf"}
+  ],
+  "assembly_envelope_mm": [145.0, 125.0, 70.0],
+  "mounting": {
+    "bridge_spreader_mm": [75.0, 45.0, 5.5],
+    "contact": "same independent clamp/spreader as baseline; no lead loading",
+    "support": "chassis-supported sink",
+    "isolation": "insulated fasteners and creepage require safety review"
+  },
+  "thermal_screen": {
+    "r_jc_provenance": "legacy_v1_whole_bridge_screen_not_datasheet_aggregate",
+    "ambient_c": 40.0,
+    "bridge_loss_w": 40.0,
+    "r_jc_c_per_w": 1.25,
+    "r_cs_c_per_w": 0.25,
+    "r_sa_c_per_w": 1.07,
+    "sink_c": 82.8,
+    "case_c": 92.8,
+    "junction_c": 142.8,
+    "junction_margin_to_125_k": -17.8,
+    "required_r_sa_for_15k_margin_c_per_w": 0.45
+  },
+  "airflow_requirement": {"target_face_lfm": 500.0, "installed_flow_status": "unknown"},
+  "fit_status": "indeterminate_without_enclosure_model",
+  "limitations": ["low profile saves height but does not provide junction margin", "one fan has insufficient evidence for 500 LFM installed", "not recommended without lower loss or a different bridge package"]
+}
