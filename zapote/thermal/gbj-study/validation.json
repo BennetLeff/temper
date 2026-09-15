@@ -1,0 +1,95 @@
+{
+  "schema": "zapote.gbj-study-validation.v1",
+  "date": "2026-09-14",
+  "status": "complete-conditional-study",
+  "scope": "GBJ alternative FEM evaluation; maintained board unchanged; hardware NOT RUN",
+  "source_revision": "84f84fe656db56fd337f73764b98c846748b3512",
+  "dirty_at_measurement": true,
+  "board_sha256": "fd624e37be053e5140256fcbcb8ab84e330b42d1fbff3a01f92fa8d8a205447b",
+  "assessment_sha256": "51bcbea50210373a0907fc18324599af5bd8698594c40fae7e10598b303e51b7",
+  "local_fem_solve_count": 96,
+  "implementation_agents": {
+    "model": "gpt-5.6-luna",
+    "roles": [
+      "geometry transfer",
+      "package and cooling model",
+      "review and report closeout"
+    ]
+  },
+  "validation_runtime": "local Rust, Gmsh and Elmer; no inference in validation",
+  "tests": {
+    "broad_pre_closeout": {
+      "passed": 272,
+      "failed": 0,
+      "ignored": 1,
+      "log": "validation-logs/gbj-full-tests.log"
+    },
+    "live_gmsh_geometry": {
+      "passed": 1,
+      "failed": 0,
+      "log": "validation-logs/gbj-live-mesh.log"
+    },
+    "compressed_replay": {
+      "passed": 9,
+      "failed": 0,
+      "ignored": 1,
+      "log": "validation-logs/gbj-compressed-replay.log"
+    },
+    "final": {
+      "passed": 273,
+      "failed": 0,
+      "ignored": 1,
+      "log": "validation-logs/gbj-final-tests-03.log"
+    }
+  },
+  "common_runs": [
+    {
+      "path": "common-maintained-01",
+      "exit_code": 1,
+      "meaning": "KiCad macOS display-service access unavailable in sandbox; no board conclusion"
+    },
+    {
+      "path": "common-maintained-02",
+      "exit_code": 1,
+      "meaning": "six INDETERMINATE; maintained GBU power entry FAIL on four BRANCH_COPPER findings"
+    },
+    {
+      "path": "common-gbj-01",
+      "exit_code": 2,
+      "meaning": "seven INDETERMINATE, no FAIL; numerical checks pass, engineering applicability remains unresolved"
+    },
+    {
+      "path": "common-maintained-final",
+      "exit_code": 1,
+      "meaning": "Final code: six INDETERMINATE, one FAIL; exactly four GBU branch-copper failures; source hashes still match"
+    },
+    {
+      "path": "common-gbj-final",
+      "exit_code": 2,
+      "meaning": "Final code: seven INDETERMINATE; no FAIL; weak-assembly and fan-loss findings both present; source hashes still match"
+    }
+  ],
+  "decision": "retain GBJ as alternative for assembly/cooling development; not hardware-qualified or promoted",
+  "remaining": [
+    "installed fan operating point and sink coupling",
+    "repeatable solder/lead/clamp assembly and bounded thermal paths",
+    "AC2 pad/contact current distribution",
+    "bounded hot diode loss",
+    "fan-loss shutdown transient"
+  ],
+  "operational_validation": "No deployed runtime or hardware changed. On future GBJ edits, rerun the common suite and bound raw replay; stale/model-changing evidence must fail. Hardware acceptance remains separate.",
+  "quality_checks": {
+    "clippy": "PASS for changed crates;13 existing DRC/ERC warnings",
+    "import_boundaries": "PASS, 5 contracts kept, 0 broken",
+    "generated_artifacts": "PASS all derived artifacts consistent",
+    "diff_whitespace": "PASS for authored code and documents; raw solver/native logs retain original whitespace intentionally"
+  },
+  "review": {
+    "status": "complete",
+    "run_id": "20260914-gbj",
+    "artifact_path": "../../../docs/reviews/gbj-20260914/run-20260914-gbj/review.json",
+    "actionable_findings": 0,
+    "independent_cross_model_review": false,
+    "coverage_note": "Local review completed; external reviewer egress was rejected before dispatch."
+  }
+}

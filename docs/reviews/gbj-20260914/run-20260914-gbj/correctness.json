@@ -1,0 +1,49 @@
+{
+  "reviewer": "correctness",
+  "findings": [
+    {
+      "title": "GBJ half-cycle diode allocation is reversed",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/joint_model.rs",
+      "line": 132,
+      "why_it_matters": "The four-diode model assigns each half-cycle's 40 W share to the non-conducting diode pair. The PFC adapter injects positive line-sign current out of bridge.2 (AC1) and into bridge.3 (AC2), so the positive half-cycle conducts AC2-to-plus and minus-to-AC1 (indices [1, 2]); this code selects [0, 3] instead. Any asymmetric half-cycle waveform therefore produces wrong per-junction temperatures and lead coupling, while the current symmetric fixture hides the swap by yielding 10 W per diode.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Derive the pair mapping from the reviewed GBJ pin map and swap the branches to positive line-sign => [1, 2] and negative line-sign => [0, 3]; add an asymmetric waveform test that asserts the resulting four diode powers.",
+      "confidence": 100,
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/joint_model.rs:132 -- let pair = if s.line_sign > 0.0 { [0, 3] } else { [1, 2] };",
+        "zapote/packages/zapote-harness/src/pfc_power.rs:113-116 -- (\"bridge.2\", -a), (\"cmc.3\", -a), (\"bridge.3\", a), (bridge.positive, i),",
+        "zapote/packages/zapote-erc/src/power_entry.rs:26-30 -- // Diodes DS21221 Rev.11-2, pages 1 and 4: front view +, ~, ~, -. / \"GBJ2510-F\" => Ok(BridgePins { positive: \"bridge.1\", negative: \"bridge.4\", ... })"
+      ],
+      "pre_existing": false
+    },
+    {
+      "title": "Fan-loss FEM case is omitted from harness findings",
+      "severity": "P2",
+      "file": "zapote/packages/zapote-harness/src/bridge_thermal.rs",
+      "line": 96,
+      "why_it_matters": "GBJ assessment generation adds a dedicated fan-loss sensitivity, but the mandatory harness only extracts nominal-fine and weak-assembly cases. Consequently no cooling rule reports or evaluates the fan-loss result; a changed or over-limit fan-loss case can still replay successfully without changing any emitted cooling finding. Selecting the fan-loss case and emitting its result as an explicit sensitivity/INDETERMINATE finding keeps the computed evidence visible and reviewable.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Require named(\"fan-loss\") in run_gbj_model and include its package and whole-joint peaks in a dedicated cooling finding, keeping applicability INDETERMINATE because shutdown timing and installed airflow remain unverified.",
+      "confidence": 100,
+      "evidence": [
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:96-97 -- let nominal = named(\"nominal-fine\")?; / let weak = named(\"weak-assembly\")?;",
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:148-165 -- budget_finding and pcb use nominal, while weak_finding uses weak; no fan-loss case is selected or evaluated",
+        "zapote/packages/zapote-thermal/src/joint_model.rs:460-467 -- if gbj { scenarios.push(Scenario { name: \"fan-loss\" ... }); }"
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [
+    "The GBJ fallback keeps AC2 at full terminal RMS when no determined cut exists, so the FEM load remains a sensitivity rather than a resolved pad/contact current distribution.",
+    "The package network, lead paths, sink boundary, and installed airflow remain model assumptions; numerical replay does not qualify those physical paths or hardware ratings."
+  ],
+  "testing_gaps": [
+    "No asymmetric line-sign waveform test catches the reversed GBJ diode pair mapping; the current symmetric fixture makes both mappings produce equal diode powers.",
+    "No harness test asserts that the fan-loss scenario is selected and represented in a mandatory cooling finding."
+  ]
+}

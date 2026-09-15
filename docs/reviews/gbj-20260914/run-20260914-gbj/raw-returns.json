@@ -1,0 +1,32 @@
+[
+  {
+    "reviewer": "standards",
+    "findings": [],
+    "residual_risks": [],
+    "testing_gaps": []
+  },
+  {
+    "reviewer": "adversarial",
+    "findings": [],
+    "residual_risks": ["Unknown package internals, installed airflow, and AC2 current distribution remain explicitly indeterminate."],
+    "testing_gaps": []
+  },
+  {
+    "reviewer": "correctness",
+    "findings": [],
+    "residual_risks": ["No remaining correctness defect after signed injection mapping and named fan-loss routing were verified."],
+    "testing_gaps": []
+  },
+  {
+    "reviewer": "testing",
+    "findings": [],
+    "residual_risks": [],
+    "testing_gaps": ["The retained live Gmsh check is ignored in ordinary test runs; see adversarial finding." ]
+  },
+  {
+    "reviewer": "maintainability",
+    "findings": [],
+    "residual_risks": ["GBJ identity branches remain distributed, but the bounded two-package study keeps this as a follow-up refactor rather than an acceptance defect."],
+    "testing_gaps": []
+  }
+]

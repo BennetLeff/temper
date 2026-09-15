@@ -29,6 +29,13 @@ pub const JOINT_RULES: [&str; 2] = [
     "THERMAL.POWER_ENTRY.BRIDGE_JOINT_FEM_APPLICABILITY",
 ];
 
+#[derive(Debug, Clone)]
+pub struct GbjReports {
+    pub thermal: CheckReport,
+    pub physical: CheckReport,
+    pub joint: CheckReport,
+}
+
 pub fn run_joint_model(
     root: Option<&Path>,
     native: &[u8],
@@ -40,8 +47,10 @@ pub fn run_joint_model(
         let root = root.ok_or_else(|| anyhow::anyhow!("joint FEM evidence unavailable"))?;
         let manufacturing = manufacturing
             .ok_or_else(|| anyhow::anyhow!("fresh manufacturing geometry unavailable"))?;
-        let waveform = physical_waveform(
+        let waveform = physical_waveform_for_native(
             pfc.ok_or_else(|| anyhow::anyhow!("production PFC waveform unavailable"))?,
+            native,
+            manufacturing,
         )?;
         zapote_thermal::joint_model::replay(root, native, manufacturing, &waveform)
     })();
@@ -55,6 +64,146 @@ pub fn run_joint_model(
 }
 
 const NETS: [&str; 4] = ["minus", "ac1", "ac2", "plus"];
+
+/// The GBJ package uses the resolved four-diode model for the same mandatory
+/// thermal obligations; it cannot consume the GBU-only historical contracts.
+pub fn run_gbj_model(
+    root: Option<&Path>,
+    native: &[u8],
+    manufacturing: Option<&[u8]>,
+    pfc: Option<&PfcReport>,
+) -> GbjReports {
+    let result = (|| -> anyhow::Result<_> {
+        let root = root.ok_or_else(|| anyhow::anyhow!("GBJ joint evidence unavailable"))?;
+        let manufacturing =
+            manufacturing.ok_or_else(|| anyhow::anyhow!("manufacturing evidence unavailable"))?;
+        let model = zapote_thermal::joint_model::native_model(native, manufacturing)?;
+        anyhow::ensure!(
+            model.bridge_mpn == "GBJ2510-F",
+            "GBJ evidence cannot qualify another package"
+        );
+        let waveform = physical_waveform_for_native(
+            pfc.ok_or_else(|| anyhow::anyhow!("PFC waveform unavailable"))?,
+            native,
+            manufacturing,
+        )?;
+        let a = zapote_thermal::joint_model::replay(root, native, manufacturing, &waveform)?;
+        anyhow::ensure!(
+            a.gbj_diode_power_w.is_some() && a.gbj_cooling_budget.is_some(),
+            "GBJ package/cooling evidence missing"
+        );
+        let named = |name| -> anyhow::Result<_> {
+            let mut cases = a.cases.iter().filter(|c| c.scenario.name == name);
+            let case = cases
+                .next()
+                .ok_or_else(|| anyhow::anyhow!("missing GBJ case {name}"))?;
+            anyhow::ensure!(cases.next().is_none(), "duplicate GBJ case {name}");
+            Ok(case.clone())
+        };
+        let nominal = named("nominal-fine")?;
+        let weak = named("weak-assembly")?;
+        let fan_loss = named("fan-loss")?;
+        let fan_diode_c = fan_loss
+            .gbj_nodes
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("fan-loss diode nodes missing"))?
+            .junction_k
+            .iter()
+            .copied()
+            .fold(f64::NEG_INFINITY, f64::max)
+            - 273.15;
+        anyhow::ensure!(fan_diode_c.is_finite(), "non-finite fan-loss diode peak");
+        let budget = a
+            .gbj_cooling_budget
+            .ok_or_else(|| anyhow::anyhow!("GBJ cooling budget missing"))?;
+        Ok((nominal, weak, fan_loss, fan_diode_c, budget))
+    })();
+    let object = "power-entry.gbj-thermal";
+    let report = |rules: &[&str], findings| {
+        CheckReport::from_findings(
+            findings,
+            rules.iter().map(|r| r.to_string()).collect(),
+            vec![],
+        )
+    };
+    let thermal_rules = [
+        RULES[0],
+        RULES[1],
+        COOLING_RULES[0],
+        COOLING_RULES[1],
+        COOLING_RULES[2],
+    ];
+    let (nominal, weak, fan_loss, fan_diode_c, budget) = match result {
+        Ok(a) => a,
+        Err(e) => {
+            let failed = |rules: &[&str]| {
+                report(
+                    rules,
+                    rules
+                        .iter()
+                        .map(|r| {
+                            Finding::fail(r, format!("GBJ bound replay failed: {e:#}"), object)
+                        })
+                        .collect(),
+                )
+            };
+            return GbjReports {
+                thermal: failed(&thermal_rules),
+                physical: failed(&PHYSICAL_RULES),
+                joint: failed(&JOINT_RULES),
+            };
+        }
+    };
+    let pass = |r: &str, m: &str| Finding::pass(r, m, object);
+    let uncertain = |r: &str, m: &str| Finding::indeterminate(r, m, object);
+    let peak = |c: &zapote_thermal::joint_model::Case| {
+        c.joint_peaks_k
+            .iter()
+            .copied()
+            .fold(f64::NEG_INFINITY, f64::max)
+            - 273.15
+    };
+    let budget_finding = if nominal.package_temperature_k - 273.15 <= 110.0
+        && budget.conditional_sink_c <= budget.nominal_fem_sink_c
+    {
+        pass(COOLING_RULES[0],"conditional nominal junction has15 K design margin and the source-bound100 CFM catalog calculation fits the60 C FEM reservoir; installed airflow remains unverified")
+    } else {
+        Finding::fail(
+            COOLING_RULES[0],
+            "conditional nominal cooling misses the junction margin or prescribed sink budget",
+            object,
+        )
+    };
+    let pcb = if peak(&nominal) <= 110.0 {
+        pass(COOLING_RULES[1],"nominal whole-joint peak is below110 C, a conservative upper bound for modeled PCB solids; installed boundaries remain conditional")
+    } else {
+        uncertain(COOLING_RULES[1],"nominal whole-joint peak exceeds110 C; distinguish copper/FR4 peak from lead/solder before a PCB verdict")
+    };
+    let weak_finding = if peak(&weak) <= 110.0 && weak.package_temperature_k - 273.15 <= 125.0 {
+        pass(COOLING_RULES[2], "tested weak-assembly case stays below the modeled joint/junction limits; this sampled sensitivity is not a guaranteed uncertainty bound")
+    } else {
+        uncertain(COOLING_RULES[2], "weak-assembly case crosses a joint or junction limit; assembly applicability remains unresolved")
+    };
+    let fan_message = format!("fan-loss sensitivity reaches {fan_diode_c:.2} C hottest diode and {:.2} C whole-joint peak; conditional diode limit 125 C; shutdown behavior and installed airflow remain unmodeled", peak(&fan_loss));
+    let fan_finding = if fan_diode_c > 125.0 {
+        Finding::fail(
+            COOLING_RULES[2],
+            fan_message,
+            "power-entry.gbj-thermal.fan-loss",
+        )
+    } else {
+        Finding::indeterminate(
+            COOLING_RULES[2],
+            fan_message,
+            "power-entry.gbj-thermal.fan-loss",
+        )
+    };
+    GbjReports {
+        thermal: report(&thermal_rules,vec![pass(RULES[0],"four native joints replay with independent geometry, energy and mesh checks"),uncertain(RULES[1],"installed cooling, assembly paths, AC2 current distribution and fan-loss transient remain unresolved"),budget_finding,pcb,weak_finding,fan_finding]),
+        physical: report(&PHYSICAL_RULES,vec![pass(PHYSICAL_RULES[0],"four diode nodes, shared case and FEM ports close every nodal and global balance"),pass(PHYSICAL_RULES[1],"exact GBJ datasheet and production waveform bind the one40 W allocation; VF remains a point estimate"),uncertain(PHYSICAL_RULES[2],"mutual die paths, lead material and actual hot losses remain uncertain")]),
+        joint: report(&JOINT_RULES,vec![pass(JOINT_RULES[0],"source-bound GBJ raw FEM replay passed; physical trace side preserved"),uncertain(JOINT_RULES[1],"numerical validity does not qualify assembly cooling or resolve area-current distribution")]),
+    }
+}
 
 pub fn physical_waveform(
     pfc: &PfcReport,
@@ -82,6 +231,90 @@ pub fn physical_waveform(
         samples,
         neck_rms_a,
     })
+}
+
+/// Bind branch currents to the exact native terminal traces of the reviewed
+/// package. Graph split ordinals may change after copper edits.
+pub fn physical_waveform_for_native(
+    pfc: &PfcReport,
+    native: &[u8],
+    manufacturing: &[u8],
+) -> anyhow::Result<zapote_thermal::physical_model::WaveformInput> {
+    use sha2::{Digest, Sha256};
+    let model = zapote_thermal::joint_model::native_model(native, manufacturing)?;
+    let neck_rms_a = model
+        .necks
+        .iter()
+        .map(|neck| {
+            let current = trace_cut_current(&pfc.branches, &neck.net, &neck.trace_uuid)
+                .or_else(|| {
+                    (model.bridge_mpn == "GBJ2510-F" && neck.net == "ac2")
+                        .then(|| gbj_ac2_assumed_current(pfc, &neck.trace_uuid))
+                        .flatten()
+                })
+                .ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "missing unique determined PFC cut for {} ({})",
+                        neck.net,
+                        neck.trace_uuid
+                    )
+                })?;
+            Ok((neck.net.clone(), current))
+        })
+        .collect::<anyhow::Result<_>>()?;
+    let waveform = zapote_thermal::physical_model::WaveformInput {
+        profile_sha256: format!("{:x}", Sha256::digest(serde_json::to_vec(&pfc.waveform)?)),
+        samples: pfc
+            .waveform
+            .samples
+            .iter()
+            .map(|s| zapote_thermal::physical_model::WaveformSample {
+                weight: s.weight,
+                line_sign: s.line_sign,
+                inductor_a: s.inductor_a,
+            })
+            .collect(),
+        neck_rms_a,
+    };
+    waveform.validate()?;
+    Ok(waveform)
+}
+
+// This exact candidate's AC2 pad-contact graph has no determined cut. Model
+// the full terminal RMS as an explicit sensitivity; keep branch-current
+// applicability indeterminate. This is not a claim of solved current sharing.
+fn gbj_ac2_assumed_current(pfc: &PfcReport, uuid: &str) -> Option<f64> {
+    let current = pfc
+        .waveform
+        .samples
+        .iter()
+        .map(|s| s.weight * s.inductor_a * s.inductor_a)
+        .sum::<f64>()
+        .sqrt();
+    if !current.is_finite() || current <= 0.0 {
+        return None;
+    }
+    let mut segments = std::collections::BTreeSet::new();
+    for b in &pfc.branches {
+        let Some((trace, index)) = b.id.split_once(':') else {
+            continue;
+        };
+        if trace != uuid {
+            continue;
+        }
+        let n: usize = index.parse().ok()?;
+        if index != n.to_string()
+            || b.net != "ac2"
+            || b.kind != "trace"
+            || b.determined_rms_a.is_some()
+            || !b.rms_envelope_a.is_finite()
+            || (b.rms_envelope_a - current).abs() > 1e-8 * current
+            || !segments.insert(n)
+        {
+            return None;
+        }
+    }
+    (!segments.is_empty() && segments.iter().copied().eq(0..segments.len())).then_some(current)
 }
 
 /// Replay the shared package/lead/barrel/solder model through the production
@@ -502,6 +735,10 @@ fn physical_branch_current(branches: &[crate::pfc_power::Branch], net: &str) -> 
         "plus" => "e7dc2c72-d7b2-4456-afa6-efe227e0f8f8",
         _ => return None,
     };
+    trace_cut_current(branches, net, uuid)
+}
+
+fn trace_cut_current(branches: &[crate::pfc_power::Branch], net: &str, uuid: &str) -> Option<f64> {
     let mut segments = std::collections::BTreeMap::new();
     for b in branches {
         let Some((trace, index)) = b.id.split_once(':') else {

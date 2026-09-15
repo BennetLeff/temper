@@ -1,0 +1,486 @@
+{
+  "scope": "Unbound full-field visualization output, preserved locally; acceptance uses bound meshes, decks, logs and scalar measurements.",
+  "local_archive": "/private/tmp/gbj-full-field-outputs-20260914",
+  "files": [
+    {
+      "path": "nominal-medium/iteration-2/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "856bb16109885b87c77775b593c90b98befb3b00380e1d193797b38751945d54",
+      "bytes": 10012655
+    },
+    {
+      "path": "nominal-medium/iteration-2/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "d143584fe582b43dec4b38fc9d52839a7ad76dd7722e7f09a59eb89ae580fffe",
+      "bytes": 14173102
+    },
+    {
+      "path": "nominal-medium/iteration-2/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "2d5f54ac05a9f3e7a15a83bba1b1f8d6f89070cadc581a145d6c018d323e1b3b",
+      "bytes": 10844145
+    },
+    {
+      "path": "nominal-medium/iteration-2/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "7b452d6105b31468a4e689164ce340a3ee44ff616cccdf28e9041080d977c583",
+      "bytes": 10950650
+    },
+    {
+      "path": "nominal-medium/thermal-basis/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "f516c112c0dd4399fed462f64369fc0f864ded0b199d48caf7d6a50f14d7d9a3",
+      "bytes": 4005446
+    },
+    {
+      "path": "nominal-medium/thermal-basis/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "1a961f0aea9a4323e14776013a5b4a30d57cadf68d300c1d18178a54bc4c60b7",
+      "bytes": 4724794
+    },
+    {
+      "path": "nominal-medium/thermal-basis/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "8a47e33df34aeb409b3ba472f77285a26678392fb33b97f4928990a72428f0a7",
+      "bytes": 4338042
+    },
+    {
+      "path": "nominal-medium/thermal-basis/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "a84ff264a45e36b1606040d64822db1a6764d0ed09bde6ff4fd845788f6348fd",
+      "bytes": 4380644
+    },
+    {
+      "path": "nominal-medium/iteration-1/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "b72756b3f6f1c12f23187186c010f7bae17f74078183d9e3017c33d4bc196a9c",
+      "bytes": 10012655
+    },
+    {
+      "path": "nominal-medium/iteration-1/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "e7ba8696b86b5aba46e6c61703a8f541ab9ebe6facc0bbb4a5809c6c55efdb44",
+      "bytes": 14173102
+    },
+    {
+      "path": "nominal-medium/iteration-1/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "828f2af2dcef35f794d4adce06bf9bef9a977ef88d8c9f3ca0d70f10ee68fd79",
+      "bytes": 10844145
+    },
+    {
+      "path": "nominal-medium/iteration-1/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "6f65e36fb4da4212b54dafd9a72327160b63fc03468db29a06c760745a2e287d",
+      "bytes": 10950650
+    },
+    {
+      "path": "nominal-medium/iteration-0/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "8eeaf2bf44d5c34833d2943c303177611d7866b5ab7d97f570ee0d32069ae750",
+      "bytes": 10012655
+    },
+    {
+      "path": "nominal-medium/iteration-0/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "dc3ffb676ce6cebc74433755a0d593092556a6e613bfaaf324e0e88278a49b53",
+      "bytes": 14173102
+    },
+    {
+      "path": "nominal-medium/iteration-0/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "cefa2867677f11ec576ffcbaef674b67e413c47eae096eff08849bf39a499b73",
+      "bytes": 10844145
+    },
+    {
+      "path": "nominal-medium/iteration-0/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "6844c907b5ce07f894554034fb38a49440b29b090b4af41ef928c1539e11cefb",
+      "bytes": 10950650
+    },
+    {
+      "path": "fan-loss/iteration-2/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "940d0320bb463a18c91ca0cefba9cf6f2130d15fd927d6bea017a6e8cc23581d",
+      "bytes": 10012655
+    },
+    {
+      "path": "fan-loss/iteration-2/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "3b0eb42366b37e96b75914ad6d4709e5ba076394ce756250a81353e639a56af9",
+      "bytes": 14173102
+    },
+    {
+      "path": "fan-loss/iteration-2/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "376bcdd815da37caf20c5f9977298827f9f09d768d38416950d821f74ebfb839",
+      "bytes": 10844145
+    },
+    {
+      "path": "fan-loss/iteration-2/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "3a3431dbef13dbb88527720a586f8f0c78e2caa36e869919e9bd15e60b70d242",
+      "bytes": 10950650
+    },
+    {
+      "path": "fan-loss/thermal-basis/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "ec05c863b2c6837ad751196af23ea04c8fa09307ca55f0ae8e8793b88e09b877",
+      "bytes": 4005446
+    },
+    {
+      "path": "fan-loss/thermal-basis/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "4644c8a4c8f39cb56aa460e2b62a4f56b74ed71159f66547fc6baa17e8bc5f37",
+      "bytes": 4724794
+    },
+    {
+      "path": "fan-loss/thermal-basis/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "ec13ccdf25ef3e77e3203cdfc4426b2dc4e3d45a843bc6116a7f81798baa68bf",
+      "bytes": 4338042
+    },
+    {
+      "path": "fan-loss/thermal-basis/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "f98e3c0f003bcf04bc373deee16f655bf1512764df75522ef1391409d99225b8",
+      "bytes": 4380644
+    },
+    {
+      "path": "fan-loss/iteration-1/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "9aecba4f26ad6dd4c887ce6c54077e07c1082e542890a5a6493714ee0ba13cb0",
+      "bytes": 10012655
+    },
+    {
+      "path": "fan-loss/iteration-1/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "6c4b0af2777c704fbea80eab306aa288c2ab025007c5583632f61dd42c90e206",
+      "bytes": 14173102
+    },
+    {
+      "path": "fan-loss/iteration-1/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "9544dea85dfb54d737340aebc97ec2c7a58d41e26238ffb6727ee092c1f61fd8",
+      "bytes": 10844145
+    },
+    {
+      "path": "fan-loss/iteration-1/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "352f55e74fdc95793540bf565dca7fd0dfffcb53f8ca7a2e2299a37723942042",
+      "bytes": 10950650
+    },
+    {
+      "path": "fan-loss/iteration-0/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "dae5e5b9c8f10bac31985eaf88c6724a033ad4a6bfb7915dcfb2e8f8eb80797a",
+      "bytes": 10012655
+    },
+    {
+      "path": "fan-loss/iteration-0/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "cba16641ebeea08e950d482cab7efb3d3b436cfed90d130dc9543b25a2b753ac",
+      "bytes": 14173102
+    },
+    {
+      "path": "fan-loss/iteration-0/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "8500710caf38580a1b06aeaf8e86d82e982c58ffab08987f28b78e4690bc4214",
+      "bytes": 10844145
+    },
+    {
+      "path": "fan-loss/iteration-0/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "17284cc727639e708391592782cbd197517a0ea4d93254a495fe1795dea882e5",
+      "bytes": 10950650
+    },
+    {
+      "path": "wider-domain/iteration-2/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "24739cea17511af7e19559e4ea8786e033fe2e9a6bd397399c7ffb90e10e4769",
+      "bytes": 11000705
+    },
+    {
+      "path": "wider-domain/iteration-2/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "2cefe9bbd1be5c35d26393c67ea362db5d3bd6c4cce93ae3f86d0553c5f0d5a1",
+      "bytes": 15875836
+    },
+    {
+      "path": "wider-domain/iteration-2/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "ecc39abe8d4d210e7ebec95ae0fc0de0af6f203855d4054573cf056f84e1c4c4",
+      "bytes": 11948750
+    },
+    {
+      "path": "wider-domain/iteration-2/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "9756c854c18bb0e6a2c52a8e8ecee2e3578d1ec1587160d4d6c186f748f0f321",
+      "bytes": 12123745
+    },
+    {
+      "path": "wider-domain/thermal-basis/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "e02d220fc737ffb19eb6986b834ee574f324a5d62f7b0cc43b5ee60815f73072",
+      "bytes": 4400666
+    },
+    {
+      "path": "wider-domain/thermal-basis/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "62c9113baadbe78258fd953168888ad7ffbc667fc38a3846208f196ff39ef884",
+      "bytes": 5292372
+    },
+    {
+      "path": "wider-domain/thermal-basis/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "267092678c3b777a16c94835cb1f897a2458a05a7f35ee653d6c8671e70cd6cd",
+      "bytes": 4779884
+    },
+    {
+      "path": "wider-domain/thermal-basis/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "e7e2f06696858f32388e5045f14061e3d82ee2b5b2aab2997157be8a89b60f9d",
+      "bytes": 4849882
+    },
+    {
+      "path": "wider-domain/iteration-1/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "e769de1aa120c61d7fb0a9277de15fa5dacb4781eabe57bae34d443900d699d3",
+      "bytes": 11000705
+    },
+    {
+      "path": "wider-domain/iteration-1/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "6523ea8b0fea7a87fb7456dc6a9b1bf44c5ba87152f196000453b82acbc13f07",
+      "bytes": 15875836
+    },
+    {
+      "path": "wider-domain/iteration-1/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "3582b27a805377c38442fb444a82428e046395860b36651ec87b001c702b9b59",
+      "bytes": 11948750
+    },
+    {
+      "path": "wider-domain/iteration-1/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "2a88c1c0245ecd70a87cd5962a4cce758df0c24faa18595b7cb0c2213775a0ae",
+      "bytes": 12123745
+    },
+    {
+      "path": "wider-domain/iteration-0/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "873cd9bf372b24b2b3927b43825851a5b5178cba5944b7f7372eed30a9a7217a",
+      "bytes": 11000705
+    },
+    {
+      "path": "wider-domain/iteration-0/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "a1f56983dfef93d76a43396a18e1bd53671f75af0d449b2eab0d03fb226d9351",
+      "bytes": 15875836
+    },
+    {
+      "path": "wider-domain/iteration-0/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "825e622a85837957a6256737bbf7c4e1d981d4a4db5dc511f3bcbd6cd846088e",
+      "bytes": 11948750
+    },
+    {
+      "path": "wider-domain/iteration-0/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "e9403d5ddc6d4e6db94e15146c582d45b8e57663e07e91cf6d1eaed6d9100f86",
+      "bytes": 12123745
+    },
+    {
+      "path": "nominal-fine/iteration-2/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "a7bb550aba2098b191db98e26e35790f468dc15ee538c534d7d265eea1597463",
+      "bytes": 25305780
+    },
+    {
+      "path": "nominal-fine/iteration-2/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "dafd5fc3e38776caf0ea695b3b0f71a9153adb31482e40a342f2f5398bd14505",
+      "bytes": 31884742
+    },
+    {
+      "path": "nominal-fine/iteration-2/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "b95287f5a85a21645321282e57bb23a7a957b5088e95faa1eeb16464f3faedae",
+      "bytes": 21376030
+    },
+    {
+      "path": "nominal-fine/iteration-2/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "677c132f78a7ce7b7b22166a81ccf4c6f540862c69f28b762b1a4081061edfb5",
+      "bytes": 22645455
+    },
+    {
+      "path": "nominal-fine/thermal-basis/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "6bebd6e425f70bfed90715071670a01e91fa3089db006c7040599dd3eb22f177",
+      "bytes": 10122696
+    },
+    {
+      "path": "nominal-fine/thermal-basis/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "11fb52b58e1d6b55364583fa16d26b7202f15a46c540af921f332a41491080dc",
+      "bytes": 10628674
+    },
+    {
+      "path": "nominal-fine/thermal-basis/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "633d1facb2735585578994d5bf4eb4548f18c8251fb60ced8a8bae7242fc57aa",
+      "bytes": 8550796
+    },
+    {
+      "path": "nominal-fine/thermal-basis/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "6f3a57830db93bdbc5bbb6557005bbb049a72a44c2c060b17bcd8c01ea306055",
+      "bytes": 9058566
+    },
+    {
+      "path": "nominal-fine/iteration-1/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "27f03178ba20f916f839f995750f828208ef10d299884d8e0c8c5f00ea6036c5",
+      "bytes": 25305780
+    },
+    {
+      "path": "nominal-fine/iteration-1/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "eead698b192bbaa9ee145a5b285a3ab99e3e09ed88b5caa8dc9a9f768c0df19e",
+      "bytes": 31884742
+    },
+    {
+      "path": "nominal-fine/iteration-1/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "2358f9c26ebc459fd84d85ff994e6db11c79e249b079593441b60973d2cd72ed",
+      "bytes": 21376030
+    },
+    {
+      "path": "nominal-fine/iteration-1/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "4f0216c76275f357d4031e4707753dce6c5a8f5cfc19f255f10e320341ab8f57",
+      "bytes": 22645455
+    },
+    {
+      "path": "nominal-fine/iteration-0/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "f70412c721f968c7f4067375198b89e820eda9bd2b393b7686681b90c9e7278d",
+      "bytes": 25305780
+    },
+    {
+      "path": "nominal-fine/iteration-0/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "eeacaadf6616e87510b433730bf8bf4196587ea0ced6017c6fe39e6efb9314f4",
+      "bytes": 31884742
+    },
+    {
+      "path": "nominal-fine/iteration-0/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "3666ace50c133672b7c35ad25a5c5508583267d10578eed2b609f559016309b8",
+      "bytes": 21376030
+    },
+    {
+      "path": "nominal-fine/iteration-0/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "13d5bb2c71ba0597e111841caee49c7fa27c4feba2dee86ae1410e24359e91eb",
+      "bytes": 22645455
+    },
+    {
+      "path": "weak-assembly/iteration-2/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "10c631d16a85a6a9bd5cbf49e7760cf668cd6e9cc9c970b3f9322cdf523b751b",
+      "bytes": 12122716
+    },
+    {
+      "path": "weak-assembly/iteration-2/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "656e2923cd57c7fa6e72d8cc77ef901233c37dd6ff21ed7ef13966989226ee68",
+      "bytes": 14217454
+    },
+    {
+      "path": "weak-assembly/iteration-2/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "6feecbe8f41bfd98706fc6b0a77025dcf66828906b6890f4094ddc904fa98748",
+      "bytes": 10872170
+    },
+    {
+      "path": "weak-assembly/iteration-2/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "6c08edc94e1d634f9ace624974bf3e9b4021df10c47f383171cc50cf44d6d02e",
+      "bytes": 13131022
+    },
+    {
+      "path": "weak-assembly/thermal-basis/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "ddf3d6ca0fd345d3e8676aed5b6051baa86e6d1bdbef1dc48633abbef38118c7",
+      "bytes": 4041332
+    },
+    {
+      "path": "weak-assembly/thermal-basis/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "a036a579dccc51ad5fb6a36abaff532c4011e1841372976a30f9e3a7098fa0b3",
+      "bytes": 4739578
+    },
+    {
+      "path": "weak-assembly/thermal-basis/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "17d0a4bb0c934aa87815a3e492924cff3f1b3794a1c028b57e70dfbcdab1a21e",
+      "bytes": 4349252
+    },
+    {
+      "path": "weak-assembly/thermal-basis/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "a186a252c55e38742658581cd9f61b0d04e9ed1619422c9c0cb88b227b9d6e64",
+      "bytes": 4377434
+    },
+    {
+      "path": "weak-assembly/iteration-1/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "54664950db00fbc028ce304efa7cbbd03f674ec78aa33ff74443b34fd6d5ddf8",
+      "bytes": 12122716
+    },
+    {
+      "path": "weak-assembly/iteration-1/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "04b172924213b25b42831f18496ea683e0f4fecaa23e4f49bb38002e7c0bf193",
+      "bytes": 14217454
+    },
+    {
+      "path": "weak-assembly/iteration-1/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "18eb4f14b2bd2e99528fd8a59085e24b933693b9cdbb279668787f58e4b86f41",
+      "bytes": 10872170
+    },
+    {
+      "path": "weak-assembly/iteration-1/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "5467705b01f6a8688a05ec27b8078fe2eee34f50b7896218ee9411387911fe93",
+      "bytes": 13131022
+    },
+    {
+      "path": "weak-assembly/iteration-0/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "74f73b686d67dc833797bb880f17c7da04b455001147b66d544826f29bc34955",
+      "bytes": 12122716
+    },
+    {
+      "path": "weak-assembly/iteration-0/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "ca820812df35436b3d511f7bcfcad55b3d3dd29dd0cf6dce8ec4fe27831ecd8e",
+      "bytes": 14217454
+    },
+    {
+      "path": "weak-assembly/iteration-0/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "e31e26c84c2fa29f6b058eb181dbab4141fcabdda18fc82ae0218ad6502697cc",
+      "bytes": 10872170
+    },
+    {
+      "path": "weak-assembly/iteration-0/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "07bc6b8553d8a72a63bfa2aa280647d816100c813c1769f73e8055baef69679e",
+      "bytes": 13131022
+    },
+    {
+      "path": "nominal-coarse/iteration-2/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "6951c6b4c131d0c003037fc4e8f7f1e84dd5f4482238fc6c3e2e764ee135fd59",
+      "bytes": 5902565
+    },
+    {
+      "path": "nominal-coarse/iteration-2/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "38626cd31c35325da5aaea02d26c5df850fd7540b89b6faf0c1c3e9f826de8ec",
+      "bytes": 10656790
+    },
+    {
+      "path": "nominal-coarse/iteration-2/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "a1342b135a0fa562421587ecde223252a35432811afa135c652f2e78ff54be12",
+      "bytes": 8732930
+    },
+    {
+      "path": "nominal-coarse/iteration-2/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "4e0d55b389237e3c2f9dac05c340e2268feff7e64c9dd18d6767a7c18f3f46e1",
+      "bytes": 8497565
+    },
+    {
+      "path": "nominal-coarse/thermal-basis/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "6bf2d5c8b7fb6a1835b1ebf0316dc5d951008cbd7231310b6677dbc101c9cc73",
+      "bytes": 2361410
+    },
+    {
+      "path": "nominal-coarse/thermal-basis/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "5fc501b0817d6d3bb2f3ebb7235de2bb39eb0408be100ad92a5eaea7d5528059",
+      "bytes": 3552690
+    },
+    {
+      "path": "nominal-coarse/thermal-basis/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "ec7b1dc2355d215e296c3596ab83b1f17cb0fdda5a16b48dbfe54e1569ea63ee",
+      "bytes": 3493556
+    },
+    {
+      "path": "nominal-coarse/thermal-basis/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "1551b1ae5b9f734606e657765eda5936f16e77da8edb79fa2289a07caea83aa0",
+      "bytes": 3399410
+    },
+    {
+      "path": "nominal-coarse/iteration-1/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "606fc49c93b5e2629181108b50dcbe60f3a73dcb595505cd31b2dd7332cf0744",
+      "bytes": 5902565
+    },
+    {
+      "path": "nominal-coarse/iteration-1/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "a24b7ae8b271f9d115cf65bc5f97a118f4365d93d3d27235356e8f475b4531c5",
+      "bytes": 10656790
+    },
+    {
+      "path": "nominal-coarse/iteration-1/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "272105bdfe01fe749569c84bd4d38385f3fc2e56262d31c412227e357a266afb",
+      "bytes": 8732930
+    },
+    {
+      "path": "nominal-coarse/iteration-1/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "619d3d969317ff6d8981fb58c0774f14c129fb7dc3300a745d4f8d332d98cf20",
+      "bytes": 8497565
+    },
+    {
+      "path": "nominal-coarse/iteration-0/lead-0/mesh-0/mesh/result.dat",
+      "sha256": "7cc51faaf93a916f595415f9221b6310a74a85a2ed1b297a555ead74c19b6455",
+      "bytes": 5902565
+    },
+    {
+      "path": "nominal-coarse/iteration-0/lead-1/mesh-0/mesh/result.dat",
+      "sha256": "0b2ee101f6bec2b680eb80f9578a2a877e3f7c5a3d3bd3f602166d26872b20ee",
+      "bytes": 10656790
+    },
+    {
+      "path": "nominal-coarse/iteration-0/lead-3/mesh-0/mesh/result.dat",
+      "sha256": "ce8366c98634ab0d53a3570672c96944308d830ab298148fcb951e16e4a5f669",
+      "bytes": 8732930
+    },
+    {
+      "path": "nominal-coarse/iteration-0/lead-2/mesh-0/mesh/result.dat",
+      "sha256": "142401408921902f8e1a1d26b8942baa09b237933defbef6b24db8525c0a1d0c",
+      "bytes": 8497565
+    }
+  ]
+}

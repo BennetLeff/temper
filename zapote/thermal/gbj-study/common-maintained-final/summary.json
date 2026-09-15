@@ -1,0 +1,21 @@
+{
+  "deferred_units": {
+    "buck": "legacy delegated owner; no Zapote unit suite",
+    "mcu": "not in maintained Zapote registry"
+  },
+  "manifest_sha256": "8bdb43f5c1f387b2beba166952de9ef0f29e8f147f6ac1e1b8fac67c9dda1b57",
+  "output": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal/gbj-study/common-maintained-final",
+  "schema": "zapote.unit-run-summary.v1",
+  "status": "fail",
+  "suite_changed_during_run": false,
+  "unit_count": 7,
+  "unit_statuses": [
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "fail"
+  ]
+}

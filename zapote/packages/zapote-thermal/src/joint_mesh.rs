@@ -63,15 +63,21 @@ pub fn expected_volumes(i: &JointInput) -> [f64; 4] {
     let ri = i.drill_diameter_m / 2.0;
     let ro = ri + i.barrel_plating_m;
     let (pad, overlap) = match i.pad_shape {
-        PadShape::Rectangle => (pw * pl, w * pl / 2.0),
+        PadShape::Rectangle => (pw * pl, w.min(pw) * pl / 2.0),
         PadShape::VerticalObround => {
             let r = pw / 2.0;
-            let a = w / 2.0;
+            let a = w.min(pw) / 2.0;
             let t = (r * r - a * a).max(0.0).sqrt();
             (
                 pw * (pl - pw) + std::f64::consts::PI * r * r,
-                w * (pl - pw) / 2.0 + a * t + r * r * (a / r).asin(),
+                w.min(pw) * (pl - pw) / 2.0 + a * t + r * r * (a / r).asin(),
             )
+        }
+        PadShape::Round => {
+            let r = pw / 2.0;
+            let a = w.min(pw) / 2.0;
+            let t = (r * r - a * a).max(0.0).sqrt();
+            (std::f64::consts::PI * r * r, a * t + r * r * (a / r).asin())
         }
     };
     let bore = std::f64::consts::PI * ri * ri;
@@ -223,8 +229,12 @@ pub fn parse(mesh: &str, input: &JointInput) -> Result<MeshStats> {
                 14 => {
                     (p[1] - input.trace_length_m).abs() < e
                         && p[0].abs() <= input.trace_width_m / 2.0 + e
-                        && p[2] >= -e
-                        && p[2] <= input.copper_thickness_m + e
+                        && if input.trace_on_back {
+                            p[2] >= -input.board_thickness_m - input.copper_thickness_m - e
+                                && p[2] <= -input.board_thickness_m + e
+                        } else {
+                            p[2] >= -e && p[2] <= input.copper_thickness_m + e
+                        }
                 }
                 _ => false,
             };

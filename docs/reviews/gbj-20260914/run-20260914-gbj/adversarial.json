@@ -1,0 +1,28 @@
+{
+  "reviewer": "adversarial",
+  "findings": [
+    {
+      "title": "Ignored Gmsh check lets fresh round geometry fail unseen",
+      "severity": "P2",
+      "file": "zapote/packages/zapote-thermal/tests/gbj_geometry.rs",
+      "line": 58,
+      "why_it_matters": "The only test that executes the newly added round/back-layer geometry through Gmsh is ignored. CI can replay retained mesh and log artifacts and pass while a fresh run using the same source fails at Gmsh or produces different semantics, so the GBJ harness can appear numerically valid without validating the production generation path.",
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": true,
+      "suggested_fix": "Run this test in a CI job with a pinned Gmsh, or add an equivalent production-path integration test that invokes joint_model::run; keep retained replay as a separate no-tool check.",
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-thermal/tests/gbj_geometry.rs:58: #[ignore = \"live Gmsh check; retained FEM replay runs without an installed mesher\"]",
+        "zapote/packages/zapote-thermal/tests/gbj_geometry.rs:71: let geo = joint_fem::generate_geometry(&input, 0.0006).unwrap();",
+        "zapote/packages/zapote-thermal/tests/gbj_geometry.rs:75: let status = std::process::Command::new(\"/opt/homebrew/bin/gmsh\")",
+        "zapote/packages/zapote-thermal/src/joint_fem.rs:806-812: replay reads the retained joint.msh, regenerates geometry text, and only compares bytes; it does not invoke Gmsh."
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [
+    "This review did not independently execute the live Gmsh/Elmer path; a separate passing Gmsh run does not make the ignored test enforceable in CI."
+  ],
+  "testing_gaps": []
+}

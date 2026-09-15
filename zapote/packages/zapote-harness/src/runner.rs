@@ -552,7 +552,24 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         None
     };
     let cooling_contract = spec.contract.as_ref().map(|p| read(p)).transpose()?;
+    let manufacturing_geometry = fs::read(out.join("manufacturing-input.json")).ok();
+    let gbj_reports = (spec.unit == UnitKind::PowerEntry
+        && native
+            .components
+            .iter()
+            .any(|c| c.id == "bridge" && c.mpn == "GBJ2510-F"))
+    .then(|| {
+        crate::bridge_thermal::run_gbj_model(
+            spec.joint_model_evidence.as_deref(),
+            native_text.as_bytes(),
+            manufacturing_geometry.as_deref(),
+            pfc_power.as_ref(),
+        )
+    });
     let thermal_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        if let Some(reports) = &gbj_reports {
+            return reports.thermal.clone();
+        }
         crate::bridge_thermal::run_with_contract(
             spec.thermal_evidence.as_deref(),
             &board,
@@ -576,8 +593,10 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         .as_ref()
         .map(|p| read(p))
         .transpose()?;
-    let manufacturing_geometry = fs::read(out.join("manufacturing-input.json")).ok();
     let physical_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        if let Some(reports) = &gbj_reports {
+            return reports.physical.clone();
+        }
         crate::bridge_thermal::run_with_physical_model(
             spec.thermal_evidence.as_deref(),
             &board,
@@ -590,6 +609,9 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         )
     });
     let joint_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        if let Some(reports) = &gbj_reports {
+            return reports.joint.clone();
+        }
         crate::bridge_thermal::run_joint_model(
             spec.joint_model_evidence.as_deref(),
             native_text.as_bytes(),

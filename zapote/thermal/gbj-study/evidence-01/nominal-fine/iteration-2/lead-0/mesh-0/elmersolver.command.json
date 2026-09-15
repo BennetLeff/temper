@@ -1,0 +1,16 @@
+{
+  "args": [
+    "case.sif"
+  ],
+  "cwd": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal/gbj-study/evidence-01/nominal-fine/iteration-2/lead-0/mesh-0",
+  "environment": {
+    "OMPI_MCA_btl": "self",
+    "OMP_NUM_THREADS": "1"
+  },
+  "program": "/Users/bennet/.local/opt/elmer-26.2.1/bin/ElmerSolver",
+  "timeout_ms": 300000,
+  "unset_environment": [
+    "ELMER_HOME",
+    "ELMER_LIB"
+  ]
+}

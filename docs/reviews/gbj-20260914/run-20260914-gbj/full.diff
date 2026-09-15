@@ -1,0 +1,1004 @@
+diff --git a/zapote/packages/zapote-harness/src/bin/zapote-joint-model.rs b/zapote/packages/zapote-harness/src/bin/zapote-joint-model.rs
+index 247620981..6e0c8e391 100644
+--- a/zapote/packages/zapote-harness/src/bin/zapote-joint-model.rs
++++ b/zapote/packages/zapote-harness/src/bin/zapote-joint-model.rs
+@@ -21,7 +21,11 @@ fn main() -> Result<()> {
+         &serde_json::from_slice(&manufacturing)?,
+     )
+     .map_err(anyhow::Error::msg)?;
+-    let waveform = zapote_harness::bridge_thermal::physical_waveform(&pfc)?;
++    let waveform = zapote_harness::bridge_thermal::physical_waveform_for_native(
++        &pfc,
++        &native,
++        &manufacturing,
++    )?;
+     let tool = |key: &str, default: &str| {
+         env::var_os(key)
+             .map(PathBuf::from)
+@@ -52,6 +56,12 @@ fn main() -> Result<()> {
+         &out,
+         &tools,
+     )?;
++    // The reduced legacy network is a GBU-only approximation. The GBJ run
++    // already contains its four-diode/case network and must not inherit it.
++    if report.gbj_diode_power_w.is_some() {
++        println!("{}", serde_json::to_string_pretty(&report)?);
++        return Ok(());
++    }
+     let mut contract = physical_model::contract_from_native(&native, &manufacturing)?;
+     contract.loss.source_sha256 = Some(physical_model::REVIEWED_SOURCE_SHA256.into());
+     contract.loss.source_status = "byte_archived".into();
+diff --git a/zapote/packages/zapote-harness/src/bridge_thermal.rs b/zapote/packages/zapote-harness/src/bridge_thermal.rs
+index e11531433..2a26c710f 100644
+--- a/zapote/packages/zapote-harness/src/bridge_thermal.rs
++++ b/zapote/packages/zapote-harness/src/bridge_thermal.rs
+@@ -29,6 +29,13 @@ pub const JOINT_RULES: [&str; 2] = [
+     "THERMAL.POWER_ENTRY.BRIDGE_JOINT_FEM_APPLICABILITY",
+ ];
+ 
++#[derive(Debug, Clone)]
++pub struct GbjReports {
++    pub thermal: CheckReport,
++    pub physical: CheckReport,
++    pub joint: CheckReport,
++}
++
+ pub fn run_joint_model(
+     root: Option<&Path>,
+     native: &[u8],
+@@ -40,8 +47,10 @@ pub fn run_joint_model(
+         let root = root.ok_or_else(|| anyhow::anyhow!("joint FEM evidence unavailable"))?;
+         let manufacturing = manufacturing
+             .ok_or_else(|| anyhow::anyhow!("fresh manufacturing geometry unavailable"))?;
+-        let waveform = physical_waveform(
++        let waveform = physical_waveform_for_native(
+             pfc.ok_or_else(|| anyhow::anyhow!("production PFC waveform unavailable"))?,
++            native,
++            manufacturing,
+         )?;
+         zapote_thermal::joint_model::replay(root, native, manufacturing, &waveform)
+     })();
+@@ -56,6 +65,146 @@ pub fn run_joint_model(
+ 
+ const NETS: [&str; 4] = ["minus", "ac1", "ac2", "plus"];
+ 
++/// The GBJ package uses the resolved four-diode model for the same mandatory
++/// thermal obligations; it cannot consume the GBU-only historical contracts.
++pub fn run_gbj_model(
++    root: Option<&Path>,
++    native: &[u8],
++    manufacturing: Option<&[u8]>,
++    pfc: Option<&PfcReport>,
++) -> GbjReports {
++    let result = (|| -> anyhow::Result<_> {
++        let root = root.ok_or_else(|| anyhow::anyhow!("GBJ joint evidence unavailable"))?;
++        let manufacturing =
++            manufacturing.ok_or_else(|| anyhow::anyhow!("manufacturing evidence unavailable"))?;
++        let model = zapote_thermal::joint_model::native_model(native, manufacturing)?;
++        anyhow::ensure!(
++            model.bridge_mpn == "GBJ2510-F",
++            "GBJ evidence cannot qualify another package"
++        );
++        let waveform = physical_waveform_for_native(
++            pfc.ok_or_else(|| anyhow::anyhow!("PFC waveform unavailable"))?,
++            native,
++            manufacturing,
++        )?;
++        let a = zapote_thermal::joint_model::replay(root, native, manufacturing, &waveform)?;
++        anyhow::ensure!(
++            a.gbj_diode_power_w.is_some() && a.gbj_cooling_budget.is_some(),
++            "GBJ package/cooling evidence missing"
++        );
++        let named = |name| -> anyhow::Result<_> {
++            let mut cases = a.cases.iter().filter(|c| c.scenario.name == name);
++            let case = cases
++                .next()
++                .ok_or_else(|| anyhow::anyhow!("missing GBJ case {name}"))?;
++            anyhow::ensure!(cases.next().is_none(), "duplicate GBJ case {name}");
++            Ok(case.clone())
++        };
++        let nominal = named("nominal-fine")?;
++        let weak = named("weak-assembly")?;
++        let fan_loss = named("fan-loss")?;
++        let fan_diode_c = fan_loss
++            .gbj_nodes
++            .as_ref()
++            .ok_or_else(|| anyhow::anyhow!("fan-loss diode nodes missing"))?
++            .junction_k
++            .iter()
++            .copied()
++            .fold(f64::NEG_INFINITY, f64::max)
++            - 273.15;
++        anyhow::ensure!(fan_diode_c.is_finite(), "non-finite fan-loss diode peak");
++        let budget = a
++            .gbj_cooling_budget
++            .ok_or_else(|| anyhow::anyhow!("GBJ cooling budget missing"))?;
++        Ok((nominal, weak, fan_loss, fan_diode_c, budget))
++    })();
++    let object = "power-entry.gbj-thermal";
++    let report = |rules: &[&str], findings| {
++        CheckReport::from_findings(
++            findings,
++            rules.iter().map(|r| r.to_string()).collect(),
++            vec![],
++        )
++    };
++    let thermal_rules = [
++        RULES[0],
++        RULES[1],
++        COOLING_RULES[0],
++        COOLING_RULES[1],
++        COOLING_RULES[2],
++    ];
++    let (nominal, weak, fan_loss, fan_diode_c, budget) = match result {
++        Ok(a) => a,
++        Err(e) => {
++            let failed = |rules: &[&str]| {
++                report(
++                    rules,
++                    rules
++                        .iter()
++                        .map(|r| {
++                            Finding::fail(r, format!("GBJ bound replay failed: {e:#}"), object)
++                        })
++                        .collect(),
++                )
++            };
++            return GbjReports {
++                thermal: failed(&thermal_rules),
++                physical: failed(&PHYSICAL_RULES),
++                joint: failed(&JOINT_RULES),
++            };
++        }
++    };
++    let pass = |r: &str, m: &str| Finding::pass(r, m, object);
++    let uncertain = |r: &str, m: &str| Finding::indeterminate(r, m, object);
++    let peak = |c: &zapote_thermal::joint_model::Case| {
++        c.joint_peaks_k
++            .iter()
++            .copied()
++            .fold(f64::NEG_INFINITY, f64::max)
++            - 273.15
++    };
++    let budget_finding = if nominal.package_temperature_k - 273.15 <= 110.0
++        && budget.conditional_sink_c <= budget.nominal_fem_sink_c
++    {
++        pass(COOLING_RULES[0],"conditional nominal junction has15 K design margin and the source-bound100 CFM catalog calculation fits the60 C FEM reservoir; installed airflow remains unverified")
++    } else {
++        Finding::fail(
++            COOLING_RULES[0],
++            "conditional nominal cooling misses the junction margin or prescribed sink budget",
++            object,
++        )
++    };
++    let pcb = if peak(&nominal) <= 110.0 {
++        pass(COOLING_RULES[1],"nominal whole-joint peak is below110 C, a conservative upper bound for modeled PCB solids; installed boundaries remain conditional")
++    } else {
++        uncertain(COOLING_RULES[1],"nominal whole-joint peak exceeds110 C; distinguish copper/FR4 peak from lead/solder before a PCB verdict")
++    };
++    let weak_finding = if peak(&weak) <= 110.0 && weak.package_temperature_k - 273.15 <= 125.0 {
++        pass(COOLING_RULES[2], "tested weak-assembly case stays below the modeled joint/junction limits; this sampled sensitivity is not a guaranteed uncertainty bound")
++    } else {
++        uncertain(COOLING_RULES[2], "weak-assembly case crosses a joint or junction limit; assembly applicability remains unresolved")
++    };
++    let fan_message = format!("fan-loss sensitivity reaches {fan_diode_c:.2} C hottest diode and {:.2} C whole-joint peak; conditional diode limit 125 C; shutdown behavior and installed airflow remain unmodeled", peak(&fan_loss));
++    let fan_finding = if fan_diode_c > 125.0 {
++        Finding::fail(
++            COOLING_RULES[2],
++            fan_message,
++            "power-entry.gbj-thermal.fan-loss",
++        )
++    } else {
++        Finding::indeterminate(
++            COOLING_RULES[2],
++            fan_message,
++            "power-entry.gbj-thermal.fan-loss",
++        )
++    };
++    GbjReports {
++        thermal: report(&thermal_rules,vec![pass(RULES[0],"four native joints replay with independent geometry, energy and mesh checks"),uncertain(RULES[1],"installed cooling, assembly paths, AC2 current distribution and fan-loss transient remain unresolved"),budget_finding,pcb,weak_finding,fan_finding]),
++        physical: report(&PHYSICAL_RULES,vec![pass(PHYSICAL_RULES[0],"four diode nodes, shared case and FEM ports close every nodal and global balance"),pass(PHYSICAL_RULES[1],"exact GBJ datasheet and production waveform bind the one40 W allocation; VF remains a point estimate"),uncertain(PHYSICAL_RULES[2],"mutual die paths, lead material and actual hot losses remain uncertain")]),
++        joint: report(&JOINT_RULES,vec![pass(JOINT_RULES[0],"source-bound GBJ raw FEM replay passed; physical trace side preserved"),uncertain(JOINT_RULES[1],"numerical validity does not qualify assembly cooling or resolve area-current distribution")]),
++    }
++}
++
+ pub fn physical_waveform(
+     pfc: &PfcReport,
+ ) -> anyhow::Result<zapote_thermal::physical_model::WaveformInput> {
+@@ -84,6 +233,90 @@ pub fn physical_waveform(
+     })
+ }
+ 
++/// Bind branch currents to the exact native terminal traces of the reviewed
++/// package. Graph split ordinals may change after copper edits.
++pub fn physical_waveform_for_native(
++    pfc: &PfcReport,
++    native: &[u8],
++    manufacturing: &[u8],
++) -> anyhow::Result<zapote_thermal::physical_model::WaveformInput> {
++    use sha2::{Digest, Sha256};
++    let model = zapote_thermal::joint_model::native_model(native, manufacturing)?;
++    let neck_rms_a = model
++        .necks
++        .iter()
++        .map(|neck| {
++            let current = trace_cut_current(&pfc.branches, &neck.net, &neck.trace_uuid)
++                .or_else(|| {
++                    (model.bridge_mpn == "GBJ2510-F" && neck.net == "ac2")
++                        .then(|| gbj_ac2_assumed_current(pfc, &neck.trace_uuid))
++                        .flatten()
++                })
++                .ok_or_else(|| {
++                    anyhow::anyhow!(
++                        "missing unique determined PFC cut for {} ({})",
++                        neck.net,
++                        neck.trace_uuid
++                    )
++                })?;
++            Ok((neck.net.clone(), current))
++        })
++        .collect::<anyhow::Result<_>>()?;
++    let waveform = zapote_thermal::physical_model::WaveformInput {
++        profile_sha256: format!("{:x}", Sha256::digest(serde_json::to_vec(&pfc.waveform)?)),
++        samples: pfc
++            .waveform
++            .samples
++            .iter()
++            .map(|s| zapote_thermal::physical_model::WaveformSample {
++                weight: s.weight,
++                line_sign: s.line_sign,
++                inductor_a: s.inductor_a,
++            })
++            .collect(),
++        neck_rms_a,
++    };
++    waveform.validate()?;
++    Ok(waveform)
++}
++
++// This exact candidate's AC2 pad-contact graph has no determined cut. Model
++// the full terminal RMS as an explicit sensitivity; keep branch-current
++// applicability indeterminate. This is not a claim of solved current sharing.
++fn gbj_ac2_assumed_current(pfc: &PfcReport, uuid: &str) -> Option<f64> {
++    let current = pfc
++        .waveform
++        .samples
++        .iter()
++        .map(|s| s.weight * s.inductor_a * s.inductor_a)
++        .sum::<f64>()
++        .sqrt();
++    if !current.is_finite() || current <= 0.0 {
++        return None;
++    }
++    let mut segments = std::collections::BTreeSet::new();
++    for b in &pfc.branches {
++        let Some((trace, index)) = b.id.split_once(':') else {
++            continue;
++        };
++        if trace != uuid {
++            continue;
++        }
++        let n: usize = index.parse().ok()?;
++        if index != n.to_string()
++            || b.net != "ac2"
++            || b.kind != "trace"
++            || b.determined_rms_a.is_some()
++            || !b.rms_envelope_a.is_finite()
++            || (b.rms_envelope_a - current).abs() > 1e-8 * current
++            || !segments.insert(n)
++        {
++            return None;
++        }
++    }
++    (!segments.is_empty() && segments.iter().copied().eq(0..segments.len())).then_some(current)
++}
++
+ /// Replay the shared package/lead/barrel/solder model through the production
+ /// harness boundary. Physical applicability is intentionally indeterminate
+ /// while package internals or assembly paths are unknown.
+@@ -502,6 +735,10 @@ fn physical_branch_current(branches: &[crate::pfc_power::Branch], net: &str) ->
+         "plus" => "e7dc2c72-d7b2-4456-afa6-efe227e0f8f8",
+         _ => return None,
+     };
++    trace_cut_current(branches, net, uuid)
++}
++
++fn trace_cut_current(branches: &[crate::pfc_power::Branch], net: &str, uuid: &str) -> Option<f64> {
+     let mut segments = std::collections::BTreeMap::new();
+     for b in branches {
+         let Some((trace, index)) = b.id.split_once(':') else {
+diff --git a/zapote/packages/zapote-harness/src/runner.rs b/zapote/packages/zapote-harness/src/runner.rs
+index ea412b85a..bedd66a73 100644
+--- a/zapote/packages/zapote-harness/src/runner.rs
++++ b/zapote/packages/zapote-harness/src/runner.rs
+@@ -552,7 +552,24 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
+         None
+     };
+     let cooling_contract = spec.contract.as_ref().map(|p| read(p)).transpose()?;
++    let manufacturing_geometry = fs::read(out.join("manufacturing-input.json")).ok();
++    let gbj_reports = (spec.unit == UnitKind::PowerEntry
++        && native
++            .components
++            .iter()
++            .any(|c| c.id == "bridge" && c.mpn == "GBJ2510-F"))
++    .then(|| {
++        crate::bridge_thermal::run_gbj_model(
++            spec.joint_model_evidence.as_deref(),
++            native_text.as_bytes(),
++            manufacturing_geometry.as_deref(),
++            pfc_power.as_ref(),
++        )
++    });
+     let thermal_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
++        if let Some(reports) = &gbj_reports {
++            return reports.thermal.clone();
++        }
+         crate::bridge_thermal::run_with_contract(
+             spec.thermal_evidence.as_deref(),
+             &board,
+@@ -576,8 +593,10 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
+         .as_ref()
+         .map(|p| read(p))
+         .transpose()?;
+-    let manufacturing_geometry = fs::read(out.join("manufacturing-input.json")).ok();
+     let physical_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
++        if let Some(reports) = &gbj_reports {
++            return reports.physical.clone();
++        }
+         crate::bridge_thermal::run_with_physical_model(
+             spec.thermal_evidence.as_deref(),
+             &board,
+@@ -590,6 +609,9 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
+         )
+     });
+     let joint_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
++        if let Some(reports) = &gbj_reports {
++            return reports.joint.clone();
++        }
+         crate::bridge_thermal::run_joint_model(
+             spec.joint_model_evidence.as_deref(),
+             native_text.as_bytes(),
+diff --git a/zapote/packages/zapote-thermal/src/joint_fem.rs b/zapote/packages/zapote-thermal/src/joint_fem.rs
+index a214d8103..ba92760c7 100644
+--- a/zapote/packages/zapote-thermal/src/joint_fem.rs
++++ b/zapote/packages/zapote-thermal/src/joint_fem.rs
+@@ -59,6 +59,11 @@ const FR4_K: f64 = 1.44e-3;
+ pub enum PadShape {
+     Rectangle,
+     VerticalObround,
++    Round,
++}
++
++fn is_false(v: &bool) -> bool {
++    !*v
+ }
+ 
+ #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+@@ -82,6 +87,8 @@ pub struct JointInput {
+     pub pad_length_m: f64,
+     pub drill_diameter_m: f64,
+     pub trace_width_m: f64,
++    #[serde(default, skip_serializing_if = "is_false")]
++    pub trace_on_back: bool,
+     pub trace_length_m: f64,
+     pub copper_thickness_m: f64,
+     pub barrel_plating_m: f64,
+@@ -109,6 +116,7 @@ impl Default for JointInput {
+             pad_length_m: 0.0025,
+             drill_diameter_m: 0.0013,
+             trace_width_m: 0.0025,
++            trace_on_back: false,
+             trace_length_m: 0.0085,
+             copper_thickness_m: 0.00007,
+             barrel_plating_m: 25e-6,
+@@ -176,8 +184,8 @@ impl JointInput {
+             "drill must fit pad"
+         );
+         ensure!(
+-            self.trace_width_m <= self.pad_width_m,
+-            "trace wider than pad"
++            self.trace_width_m <= 2.0 * self.substrate_half_width_m,
++            "trace does not fit substrate"
+         );
+         ensure!(
+             self.lead_width_m.hypot(self.lead_length_m) < self.drill_diameter_m,
+@@ -210,6 +218,12 @@ impl JointInput {
+                 "obround length must exceed width; round pads need a separate model"
+             );
+         }
++        if self.pad_shape == PadShape::Round {
++            ensure!(
++                (self.pad_length_m - self.pad_width_m).abs() < 1e-12,
++                "round pad must be square"
++            );
++        }
+         for (name, value) in [
+             ("copper_sigma_s_m", self.materials.copper_sigma_s_m),
+             ("copper_alpha_per_k", self.materials.copper_alpha_per_k),
+@@ -286,6 +300,10 @@ pub fn generate_geometry(input: &JointInput, mesh_size_m: f64) -> Result<String>
+             env!("CARGO_MANIFEST_DIR"),
+             "/../../thermal/physical-model/joint-fem/reference-oval/joint.geo"
+         )),
++        PadShape::Round => include_str!(concat!(
++            env!("CARGO_MANIFEST_DIR"),
++            "/../../thermal/physical-model/joint-fem/reference-round/joint.geo"
++        )),
+     };
+     let mut text = String::new();
+     for line in source.lines() {
+@@ -320,6 +338,18 @@ pub fn generate_geometry(input: &JointInput, mesh_size_m: f64) -> Result<String>
+                 "Mesh.CharacteristicLengthMin = {};",
+                 f(mesh_size_m.min(0.0001))
+             )
++        } else if line.starts_with("Box(1)=") {
++            let z = if input.trace_on_back { "-h-tc" } else { "0" };
++            format!("Box(1)={{-w/2,0,{z},w,L,tc}};")
++        } else if line.starts_with("farCu()=") {
++            if input.trace_on_back {
++                format!(
++                    "farCu()=Surface In BoundingBox {{-{bw}-e,L-e,-h-tc-e,{bw}+e,L+e,-h+e}};",
++                    bw = f(input.substrate_half_width_m)
++                )
++            } else {
++                line.into()
++            }
+         } else if line.starts_with("Box(10)=") {
+             format!(
+                 "Box(10)={{-{bw},-{back},-h,{width},L+{back},h}};",
+diff --git a/zapote/packages/zapote-thermal/src/joint_mesh.rs b/zapote/packages/zapote-thermal/src/joint_mesh.rs
+index 1b6f1ec83..eee23ed24 100644
+--- a/zapote/packages/zapote-thermal/src/joint_mesh.rs
++++ b/zapote/packages/zapote-thermal/src/joint_mesh.rs
+@@ -63,16 +63,22 @@ pub fn expected_volumes(i: &JointInput) -> [f64; 4] {
+     let ri = i.drill_diameter_m / 2.0;
+     let ro = ri + i.barrel_plating_m;
+     let (pad, overlap) = match i.pad_shape {
+-        PadShape::Rectangle => (pw * pl, w * pl / 2.0),
++        PadShape::Rectangle => (pw * pl, w.min(pw) * pl / 2.0),
+         PadShape::VerticalObround => {
+             let r = pw / 2.0;
+-            let a = w / 2.0;
++            let a = w.min(pw) / 2.0;
+             let t = (r * r - a * a).max(0.0).sqrt();
+             (
+                 pw * (pl - pw) + std::f64::consts::PI * r * r,
+-                w * (pl - pw) / 2.0 + a * t + r * r * (a / r).asin(),
++                w.min(pw) * (pl - pw) / 2.0 + a * t + r * r * (a / r).asin(),
+             )
+         }
++        PadShape::Round => {
++            let r = pw / 2.0;
++            let a = w.min(pw) / 2.0;
++            let t = (r * r - a * a).max(0.0).sqrt();
++            (std::f64::consts::PI * r * r, a * t + r * r * (a / r).asin())
++        }
+     };
+     let bore = std::f64::consts::PI * ri * ri;
+     let outer = std::f64::consts::PI * ro * ro;
+@@ -223,8 +229,12 @@ pub fn parse(mesh: &str, input: &JointInput) -> Result<MeshStats> {
+                 14 => {
+                     (p[1] - input.trace_length_m).abs() < e
+                         && p[0].abs() <= input.trace_width_m / 2.0 + e
+-                        && p[2] >= -e
+-                        && p[2] <= input.copper_thickness_m + e
++                        && if input.trace_on_back {
++                            p[2] >= -input.board_thickness_m - input.copper_thickness_m - e
++                                && p[2] <= -input.board_thickness_m + e
++                        } else {
++                            p[2] >= -e && p[2] <= input.copper_thickness_m + e
++                        }
+                 }
+                 _ => false,
+             };
+diff --git a/zapote/packages/zapote-thermal/src/joint_model.rs b/zapote/packages/zapote-thermal/src/joint_model.rs
+index 7237b2699..f8a08c5fb 100644
+--- a/zapote/packages/zapote-thermal/src/joint_model.rs
++++ b/zapote/packages/zapote-thermal/src/joint_model.rs
+@@ -2,6 +2,7 @@
+ //! FEM supplies conductor heating and terminal heat flow. The package's
+ //! inaccessible internal paths remain explicit assumptions, not ratings.
+ use crate::{
++    gbj_package,
+     joint_fem::{self, JointInput, RunConfig, RunReport},
+     neck_geometry,
+     neck_run::Tools,
+@@ -64,6 +65,12 @@ pub struct Case {
+     pub joints_to_board_w: f64,
+     pub global_residual_w: f64,
+     pub contact_residual_w: [f64; 4],
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub gbj_nodes: Option<gbj_package::Nodes>,
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub gbj_junction_residual_w: Option<[f64; 4]>,
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub gbj_case_residual_w: Option<f64>,
+ }
+ 
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+@@ -79,12 +86,62 @@ pub struct Assessment {
+     pub nominal_mesh_delta_k: [f64; 2],
+     pub domain_delta_k: f64,
+     pub limitations: Vec<String>,
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub gbj_diode_power_w: Option<[f64; 4]>,
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub gbj_cooling_budget: Option<crate::gbj_cooling::Budget>,
+ }
+ 
+ fn hash(bytes: &[u8]) -> String {
+     format!("{:x}", Sha256::digest(bytes))
+ }
+ 
++/// Select a reviewed package from the actual saved native component identity.
++/// Each translator checks pin semantics and geometry against the board bytes.
++pub fn native_model(native: &[u8], manufacturing: &[u8]) -> Result<neck_geometry::NeckModel> {
++    ensure!(
++        zapote_drc::native_binding::validate(std::str::from_utf8(native)?).status
++            == zapote_core::Status::Pass,
++        "joint native geometry differs from saved board bytes"
++    );
++    let value: serde_json::Value = serde_json::from_slice(native)?;
++    let bridges = value["components"]
++        .as_array()
++        .context("missing components")?
++        .iter()
++        .filter(|c| c["id"] == "bridge")
++        .collect::<Vec<_>>();
++    ensure!(bridges.len() == 1, "expected one native bridge");
++    match bridges[0]["mpn"].as_str() {
++        Some("GBU2510A") => neck_geometry::build_neck_model_variant(native, manufacturing),
++        Some("GBJ2510-F") => neck_geometry::build_gbj_neck_model(native, manufacturing),
++        _ => anyhow::bail!("unreviewed bridge thermal identity"),
++    }
++}
++
++/// Allocate the one total allowance using the production waveform's two
++/// conducting diode pairs. Constant VF estimates are not hot-loss bounds.
++pub fn gbj_diode_power(waveform: &WaveformInput) -> Result<[f64; 4]> {
++    waveform.validate()?;
++    let mut weight = [0.0; 4];
++    for s in &waveform.samples {
++        ensure!(
++            s.line_sign.abs() == 1.0,
++            "diode allocation requires signed half-cycles"
++        );
++        let pair = if s.line_sign > 0.0 { [0, 3] } else { [1, 2] };
++        for diode in pair {
++            weight[diode] += s.weight * s.inductor_a;
++        }
++    }
++    let total: f64 = weight.iter().sum();
++    ensure!(
++        total.is_finite() && total > 0.0,
++        "missing diode loss waveform"
++    );
++    Ok(weight.map(|w| POWER_W * w / total))
++}
++
+ /// The package/lead coupling has a closed-form Newton step when conductor
+ /// Joule heat is held at the last FEM iteration. A fresh FEM solve must then
+ /// satisfy every contact balance before this step can become a result.
+@@ -126,12 +183,12 @@ pub fn coupling_step(
+ 
+ fn inputs(
+     native: &[u8],
+-    manufacturing: &[u8],
++    model: &neck_geometry::NeckModel,
+     waveform: &WaveformInput,
+     s: &Scenario,
+ ) -> Result<Vec<JointInput>> {
+     waveform.validate()?;
+-    let model = neck_geometry::build_neck_model_variant(native, manufacturing)?;
++    let gbj = model.bridge_mpn == "GBJ2510-F";
+     let value: serde_json::Value = serde_json::from_slice(native)?;
+     let board = value["board_file_utf8"]
+         .as_str()
+@@ -157,6 +214,7 @@ fn inputs(
+             let mut i = JointInput::default();
+             i.pad_shape = match neck.pad_shape {
+                 1 => joint_fem::PadShape::Rectangle,
++                2 if neck.pad_size_mm[0] == neck.pad_size_mm[1] => joint_fem::PadShape::Round,
+                 2 => joint_fem::PadShape::VerticalObround,
+                 _ => anyhow::bail!("unsupported native pad"),
+             };
+@@ -167,11 +225,14 @@ fn inputs(
+             i.drill_diameter_m = neck.drill_mm * 1e-3;
+             i.trace_width_m = neck.trace_width_mm * 1e-3;
+             i.trace_length_m = neck.trace_length_mm * 1e-3;
++            if gbj {
++                i.trace_on_back = neck.trace_layer == "B.Cu";
++            }
+             i.copper_thickness_m = stack.copper_thickness_um * 1e-6;
+             i.board_thickness_m = core * 1e-3;
+             // Yangjie S-B407 rev2.5 p3: I=1.02..1.27 mm, M=.46...56 mm.
+-            i.lead_width_m = 0.001145;
+-            i.lead_length_m = 0.00051;
++            i.lead_width_m = if gbj { 0.001 } else { 0.001145 };
++            i.lead_length_m = if gbj { 0.0007 } else { 0.00051 };
+             i.lead_top_z_m = 0.003; // Installed standoff is an assembly assumption.
+             i.package_temperature_k = 373.15;
+             i.board_temperature_k = BOARD_K;
+@@ -184,8 +245,8 @@ fn inputs(
+             if s.weak_assembly {
+                 i.copper_thickness_m *= 0.9;
+                 i.barrel_plating_m *= 0.5;
+-                i.lead_width_m = 0.00102;
+-                i.lead_length_m = 0.00046;
++                i.lead_width_m = if gbj { 0.0009 } else { 0.00102 };
++                i.lead_length_m = if gbj { 0.0006 } else { 0.00046 };
+                 i.lead_top_z_m = 0.006;
+                 i.materials.lead_sigma_s_m *= 0.5;
+                 i.materials.lead_k_w_mk *= 0.5;
+@@ -254,14 +315,14 @@ fn batch(
+ 
+ fn case(
+     native: &[u8],
+-    manufacturing: &[u8],
++    model: &neck_geometry::NeckModel,
+     waveform: &WaveformInput,
+     s: &Scenario,
+     root: &Path,
+     tools: &Tools,
+     replay: bool,
+ ) -> Result<Case> {
+-    let base = inputs(native, manufacturing, waveform, s)?;
++    let base = inputs(native, model, waveform, s)?;
+     ensure!(base.len() == 4, "four bridge joints required");
+     let basis = base
+         .iter()
+@@ -283,6 +344,23 @@ fn case(
+     let contact_g = if s.weak_assembly { 0.1 } else { 0.2 };
+     let mut package = SINK_K + POWER_W / sink_g;
+     let mut lead = [package; 4];
++    let diode_power = if model.bridge_mpn == "GBJ2510-F" {
++        Some(gbj_diode_power(waveform)?)
++    } else {
++        None
++    };
++    let sink_k = if s.name == "fan-loss" { 373.15 } else { SINK_K };
++    let mut gbj_nodes = diode_power
++        .map(|p| gbj_package::solve_at_sink([BOARD_K; 4], [0.0; 4], g, p, s.weak_assembly, sink_k))
++        .transpose()?;
++    if let Some(nodes) = &gbj_nodes {
++        package = nodes
++            .junction_k
++            .iter()
++            .copied()
++            .fold(f64::NEG_INFINITY, f64::max);
++        lead = nodes.lead_k;
++    }
+     for iteration in 0..MAX_ITERATIONS {
+         let requested = base
+             .iter()
+@@ -302,12 +380,27 @@ fn case(
+         )?;
+         let m: Vec<_> = solved.iter().map(|r| &r.cases[0].measurement).collect();
+         let outward = std::array::from_fn(|n| -m[n].flux_w[0]);
+-        let contact = std::array::from_fn(|n| contact_g * (lead[n] - package) - outward[n]);
+-        let sink = sink_g * (package - SINK_K);
++        let gbj_balance = gbj_nodes
++            .as_ref()
++            .zip(diode_power)
++            .map(|(nodes, p)| {
++                gbj_package::balances_at_sink(nodes, outward, p, s.weak_assembly, sink_k)
++            })
++            .transpose()?;
++        let contact = gbj_balance.as_ref().map_or_else(
++            || std::array::from_fn(|n| contact_g * (lead[n] - package) - outward[n]),
++            |b| b.lead_residual_w,
++        );
++        let sink = gbj_balance
++            .as_ref()
++            .map_or(sink_g * (package - SINK_K), |b| b.sink_w);
+         let board: f64 = m.iter().map(|m| -m.flux_w[1] - m.flux_w[2]).sum();
+         let total = POWER_W + m.iter().map(|m| m.joule_w).sum::<f64>();
+         let residual = total - sink - board;
+-        if contact.iter().all(|v| v.abs() <= 1e-5) && residual.abs() <= 1e-5 {
++        let package_balanced = gbj_balance.as_ref().is_none_or(|b| {
++            b.case_residual_w.abs() <= 1e-5 && b.junction_residual_w.iter().all(|v| v.abs() <= 1e-5)
++        });
++        if contact.iter().all(|v| v.abs() <= 1e-5) && residual.abs() <= 1e-5 && package_balanced {
+             return Ok(Case {
+                 scenario: s.clone(),
+                 iterations: iteration + 1,
+@@ -320,9 +413,23 @@ fn case(
+                 joints_to_board_w: board,
+                 global_residual_w: residual,
+                 contact_residual_w: contact,
++                gbj_nodes,
++                gbj_junction_residual_w: gbj_balance.as_ref().map(|b| b.junction_residual_w),
++                gbj_case_residual_w: gbj_balance.as_ref().map(|b| b.case_residual_w),
+             });
+         }
+-        (package, lead) = coupling_step(lead, outward, g, sink_g, contact_g)?;
++        if let Some(p) = diode_power {
++            let nodes = gbj_package::solve_at_sink(lead, outward, g, p, s.weak_assembly, sink_k)?;
++            package = nodes
++                .junction_k
++                .iter()
++                .copied()
++                .fold(f64::NEG_INFINITY, f64::max);
++            lead = nodes.lead_k;
++            gbj_nodes = Some(nodes);
++        } else {
++            (package, lead) = coupling_step(lead, outward, g, sink_g, contact_g)?;
++        }
+     }
+     anyhow::bail!("package/FEM coupling did not converge within {MAX_ITERATIONS} iterations")
+ }
+@@ -339,17 +446,32 @@ fn assess(root: &Path, tools: &Tools, replay: bool) -> Result<Assessment> {
+     let waveform: WaveformInput = serde_json::from_slice(&waveform_bytes)?;
+     waveform.validate()?;
+     let source = fs::read(root.join("source.pdf"))?;
++    let model = native_model(&native, &manufacturing)?;
++    let gbj = model.bridge_mpn == "GBJ2510-F";
+     ensure!(
+-        hash(&source) == physical_model::REVIEWED_SOURCE_SHA256,
++        hash(&source)
++            == if gbj {
++                gbj_package::REVIEWED_SOURCE_SHA256
++            } else {
++                physical_model::REVIEWED_SOURCE_SHA256
++            },
+         "unreviewed bridge source bytes"
+     );
+-    let model = neck_geometry::build_neck_model_variant(&native, &manufacturing)?;
+-    let cases = profile()
++    let mut scenarios = profile();
++    if gbj {
++        scenarios.push(Scenario {
++            name: "fan-loss".into(),
++            mesh_m: 0.0003,
++            domain_scale: 1.0,
++            weak_assembly: false,
++        });
++    }
++    let cases = scenarios
+         .iter()
+         .map(|s| {
+             case(
+                 &native,
+-                &manufacturing,
++                &model,
+                 &waveform,
+                 s,
+                 &root.join(&s.name),
+@@ -409,17 +531,58 @@ fn assess(root: &Path, tools: &Tools, replay: bool) -> Result<Assessment> {
+     ] {
+         hashes.insert(name.into(), hash(&fs::read(root.join(name))?));
+     }
+-    Ok(Assessment {schema:SCHEMA.into(),applicability:"indeterminate".into(),input_hashes:hashes,
+-        geometry_sha256:neck_geometry::geometry_fingerprint(&model)?,waveform_sha256:physical_model::waveform_sha256(&waveform)?,
+-        fixed_vf_loss_estimate_w:2.0*waveform.samples.iter().map(|s|s.weight*s.inductor_a).sum::<f64>(),
+-        package_allowance_w:POWER_W,cases,nominal_mesh_delta_k:mesh_delta,domain_delta_k:domain_delta,
+-        limitations:vec![
++    let gbj_cooling_budget = if gbj {
++        let budget = crate::gbj_cooling::evaluate(root)?;
++        for (name, _) in crate::gbj_cooling::SOURCES {
++            hashes.insert(name.into(), hash(&fs::read(root.join(name))?));
++        }
++        Some(budget)
++    } else {
++        None
++    };
++    let limitations = if gbj {
++        vec![
++        "GBJ2510-F DS21221 rev11-2: four diode nodes, each RthetaJC=1 K/W typical to one isothermal case. Weak sensitivity assumes 1.5 K/W per element. Mutual die thermal impedances are not specified.".into(),
++        "One 40 W allowance is split across diode pairs using the production waveform; 1.05 V at 12.5 A/25 C is a point estimate, not a guaranteed waveform/hot-loss bound.".into(),
++        "Case-to-sink .25 K/W nominal/.5 weak and each diode-to-endpoint-lead .1 W/K nominal/.05 weak are assembly/internal-path assumptions. The electrical pairing is an assumed thermal network, not sourced package construction.".into(),
++        "Sourced external lead section is I=.9..1.1 by R=.6...8 mm. Nominal uses1.0x.7 mm; weak uses.9x.6 mm. Lead material, front-side full-pad solder,25um plating and3mm standoff are assumed; weak halves lead conductivities/plating/solder, uses6mm standoff and90% copper.".into(),
++        "Actual F.Cu/B.Cu trace side is retained with leads and solder on F.Cu. Sidewalls are adiabatic, board cuts80 C, sink60 C. These are prescribed reservoirs; installed airflow and full-board current/thermal fields are not solved.".into(),
++        "Package_temperature_k denotes the hottest lumped GBJ diode node, not a resolved die temperature. Whole-joint peak includes lead/solder; a value above110 C does not by itself prove PCB failure. No screen finding or physical qualification is waived.".into(),
++    ]
++    } else {
++        vec![
+             "One 40 W package allowance is an unproven design assumption; the fixed 1 V VF point is not a hot-current loss bound.".into(),
+             "Package-to-sink 1 W/K and package-to-lead .2 W/K are uncertain lumped paths; weak sensitivity halves both. Package node is not a resolved die junction.".into(),
+             "Lead electrical/thermal material, 3 mm installed standoff, 25 um plating and full-pad solder fill are assembly assumptions. Weak corner uses 6 mm standoff, minimum sourced lead section, half lead conductivities/plating/solder and 90% copper.".into(),
+             "Side walls are adiabatic; board cut faces are 80 C and sink is 60 C. Wider-domain sensitivity is reported, not assumed converged.".into(),
+             "Joint peak includes lead and solder and is only an upper bound on copper/FR4 peak. Tested sensitivities are not a guaranteed uncertainty envelope; no current finding is waived.".into(),
+-        ]})
++    ]
++    };
++    Ok(Assessment {
++        schema: SCHEMA.into(),
++        applicability: "indeterminate".into(),
++        input_hashes: hashes,
++        geometry_sha256: neck_geometry::geometry_fingerprint(&model)?,
++        waveform_sha256: physical_model::waveform_sha256(&waveform)?,
++        fixed_vf_loss_estimate_w: 2.0
++            * (if gbj { 1.05 } else { 1.0 })
++            * waveform
++                .samples
++                .iter()
++                .map(|s| s.weight * s.inductor_a)
++                .sum::<f64>(),
++        package_allowance_w: POWER_W,
++        cases,
++        nominal_mesh_delta_k: mesh_delta,
++        domain_delta_k: domain_delta,
++        limitations,
++        gbj_cooling_budget,
++        gbj_diode_power_w: if gbj {
++            Some(gbj_diode_power(&waveform)?)
++        } else {
++            None
++        },
++    })
+ }
+ 
+ pub fn run(
+@@ -435,6 +598,14 @@ pub fn run(
+         "output must be a new absolute directory"
+     );
+     fs::create_dir_all(out)?;
++    if native_model(&fs::read(native)?, &fs::read(manufacturing)?)?.bridge_mpn == "GBJ2510-F" {
++        let sources =
++            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../thermal/cooling-options/sources");
++        crate::gbj_cooling::evaluate(&sources)?;
++        for (name, _) in crate::gbj_cooling::SOURCES {
++            fs::copy(sources.join(name), out.join(name))?;
++        }
++    }
+     for (path, name) in [
+         (native, "native.json"),
+         (manufacturing, "manufacturing.json"),
+diff --git a/zapote/packages/zapote-thermal/src/lib.rs b/zapote/packages/zapote-thermal/src/lib.rs
+index bb749ed4d..165a3647f 100644
+--- a/zapote/packages/zapote-thermal/src/lib.rs
++++ b/zapote/packages/zapote-thermal/src/lib.rs
+@@ -5,6 +5,8 @@
+ 
+ use anyhow::{bail, Context, Result};
+ pub mod bridge_cooling;
++pub mod gbj_package;
++pub mod gbj_cooling;
+ pub mod joint_fem;
+ pub mod joint_mesh;
+ pub mod joint_model;
+diff --git a/zapote/packages/zapote-thermal/src/neck_geometry.rs b/zapote/packages/zapote-thermal/src/neck_geometry.rs
+index 655b7b03f..bd3e41ed9 100644
+--- a/zapote/packages/zapote-thermal/src/neck_geometry.rs
++++ b/zapote/packages/zapote-thermal/src/neck_geometry.rs
+@@ -23,6 +23,13 @@ const TRACE_UUIDS: [&str; 4] = [
+ const EXPECTED_LENGTH_MM: [f64; 4] = [8.5, 9.0, 6.0, 7.0];
+ const EXPECTED_WIDTH_MM: f64 = 2.5;
+ const FR4_THICKNESS_M: f64 = 1.44e-3;
++const GBJ_TRACE_UUIDS: [&str; 4] = [
++    "33cdb604-2e4a-49a4-bcca-80b829c3818c",
++    "8e49f7cf-5c7a-4b79-9cb4-c1cbe398fc62",
++    "fcbfb9cb-ae96-4261-8ec9-a57c3db7f95d",
++    "c060f5f6-a3d7-4399-923b-4094c1d4c60e",
++];
++const GBJ_NETS: [&str; 4] = ["plus", "ac1", "ac2", "minus"];
+ 
+ #[derive(Debug, Clone, Deserialize)]
+ struct NativeInput {
+@@ -530,6 +537,127 @@ pub fn build_neck_model_variant(
+     build_neck_model_impl(native_json, manufacturing_json, false)
+ }
+ 
++/// Import the reviewed GBJ2510-F capture.  Pin order follows the native
++/// package (1=plus, 2=ac1, 3=ac2, 4=minus), while all identity, geometry and
++/// manufacturing records are bound to their captured UUIDs.
++pub fn build_gbj_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result<NeckModel> {
++    ensure!(
++        zapote_drc::native_binding::validate(std::str::from_utf8(native_json)?).status
++            == zapote_core::Status::Pass,
++        "GBJ native geometry differs from saved board bytes"
++    );
++    let native: NativeInput = serde_json::from_slice(native_json).context("parse native.json")?;
++    let manufacturing: ManufacturingInput =
++        serde_json::from_slice(manufacturing_json).context("parse manufacturing.json")?;
++    ensure!(
++        native.board_sha256 == manufacturing.board_sha256,
++        "native/manufacturing board hashes disagree"
++    );
++    ensure!(
++        format!("{:x}", Sha256::digest(native.board_file_utf8.as_bytes())) == native.board_sha256,
++        "native board_sha256 does not match embedded board_file_utf8"
++    );
++    let bridges: Vec<&Component> = native
++        .components
++        .iter()
++        .filter(|c| c.id == BRIDGE_ID || c.mpn == "GBJ2510-F")
++        .collect();
++    ensure!(
++        bridges.len() == 1,
++        "expected exactly one GBJ bridge component"
++    );
++    let bridge = bridges[0];
++    ensure!(
++        bridge.id == BRIDGE_ID && bridge.mpn == "GBJ2510-F",
++        "bridge identity is not GBJ2510-F"
++    );
++    let mut necks = Vec::with_capacity(4);
++    for (idx, (&net, &trace_uuid)) in GBJ_NETS.iter().zip(GBJ_TRACE_UUIDS.iter()).enumerate() {
++        let pad_no = (idx + 1).to_string();
++        let matching: Vec<&Pad> = bridge
++            .footprint_pads
++            .iter()
++            .filter(|p| p.pad == pad_no && p.net == net)
++            .collect();
++        ensure!(
++            matching.len() == 1,
++            "expected GBJ pad {pad_no} on net {net}"
++        );
++        let pad = matching[0];
++        ensure!(pad.size_mm == [4.0, 4.0], "GBJ pad {pad_no} must be 4x4 mm");
++        ensure!(
++            (pad.drill_mm[0] - 1.6).abs() < 1e-9 && (pad.drill_mm[1] - 1.6).abs() < 1e-9,
++            "GBJ pad {pad_no} drill must be 1.6 mm"
++        );
++        ensure!(
++            pad.shape == if idx == 0 { 1 } else { 2 },
++            "GBJ pad {pad_no} has unexpected KiCad shape"
++        );
++        ensure!(
++            pad.orientation_deg.rem_euclid(90.0).abs() < 1e-9,
++            "GBJ pad orientation must be orthogonal"
++        );
++        verify_manufacturing_pad(&manufacturing.input, pad)?;
++        let traces: Vec<&Trace> = native
++            .traces
++            .iter()
++            .filter(|t| t.uuid == trace_uuid)
++            .collect();
++        ensure!(traces.len() == 1, "expected one GBJ trace {trace_uuid}");
++        let trace = traces[0];
++        ensure!(
++            trace.net == net && trace.points_mm.len() == 2,
++            "GBJ trace identity/shape mismatch"
++        );
++        ensure!(
++            trace.width_mm > pad.size_mm[0] && trace.width_mm <= 2.0 * pad.size_mm[0],
++            "GBJ trace width must exceed pad and fit bounded substrate"
++        );
++        ensure!(
++            trace.layer == "F.Cu" || trace.layer == "B.Cu",
++            "GBJ trace layer unsupported"
++        );
++        let d0 = distance_mm(trace.points_mm[0], pad.position_mm);
++        let d1 = distance_mm(trace.points_mm[1], pad.position_mm);
++        let (length, reversed) = if d0 < 1e-7 {
++            (d1, false)
++        } else if d1 < 1e-7 {
++            (d0, true)
++        } else {
++            bail!("GBJ trace {trace_uuid} does not terminate at pad center")
++        };
++        ensure!(length > 0.0, "GBJ trace has zero length");
++        let far = if reversed {
++            trace.points_mm[0]
++        } else {
++            trace.points_mm[1]
++        };
++        ensure!(
++            (far[0] - pad.position_mm[0]).abs() < 1e-7 && (far[1] - pad.position_mm[1]).abs() > 0.0,
++            "GBJ trace must be centered vertical"
++        );
++        necks.push(NeckGeometry {
++            net: net.into(),
++            pad_number: pad.pad.clone(),
++            pad_uuid: pad.uuid.clone(),
++            trace_uuid: trace.uuid.clone(),
++            trace_layer: trace.layer.clone(),
++            trace_length_mm: length,
++            trace_width_mm: trace.width_mm,
++            pad_size_mm: pad.size_mm,
++            drill_mm: pad.drill_mm[0],
++            pad_shape: pad.shape,
++            reversed_native_trace: reversed,
++        });
++    }
++    Ok(NeckModel {
++        board_sha256: native.board_sha256,
++        bridge_id: BRIDGE_ID.into(),
++        bridge_mpn: "GBJ2510-F".into(),
++        necks,
++    })
++}
++
+ fn build_neck_model_impl(
+     native_json: &[u8],
+     manufacturing_json: &[u8],

@@ -159,3 +159,10 @@ Read the relevant detailed record before changing behavior in that area:
   The 20-case run has only 2.14 K nominal PCB margin and fails its weaker-contact
   sensitivity: finer meshes cannot resolve unknown lead/barrel heat paths.
 - [Buck harness refinement plan](../docs/plans/2026-09-09-1945-feat-buck-harness-refinement-plan.md)
+
+- [GBJ package and assembly study](thermal/gbj-study/README.md) — transfer the
+  procedure, not the numerical result: preserve actual copper side, distinguish
+  per-element package ratings from total loss, test asymmetric conduction, and
+  retain assembly/airflow applicability separately from numerical convergence.
+  The historical GBU front-side normalization is not a validated model of an
+  asymmetric back-copper joint.

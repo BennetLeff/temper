@@ -59,6 +59,11 @@ const FR4_K: f64 = 1.44e-3;
 pub enum PadShape {
     Rectangle,
     VerticalObround,
+    Round,
+}
+
+fn is_false(v: &bool) -> bool {
+    !*v
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -82,6 +87,8 @@ pub struct JointInput {
     pub pad_length_m: f64,
     pub drill_diameter_m: f64,
     pub trace_width_m: f64,
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub trace_on_back: bool,
     pub trace_length_m: f64,
     pub copper_thickness_m: f64,
     pub barrel_plating_m: f64,
@@ -109,6 +116,7 @@ impl Default for JointInput {
             pad_length_m: 0.0025,
             drill_diameter_m: 0.0013,
             trace_width_m: 0.0025,
+            trace_on_back: false,
             trace_length_m: 0.0085,
             copper_thickness_m: 0.00007,
             barrel_plating_m: 25e-6,
@@ -176,8 +184,8 @@ impl JointInput {
             "drill must fit pad"
         );
         ensure!(
-            self.trace_width_m <= self.pad_width_m,
-            "trace wider than pad"
+            self.trace_width_m <= 2.0 * self.substrate_half_width_m,
+            "trace does not fit substrate"
         );
         ensure!(
             self.lead_width_m.hypot(self.lead_length_m) < self.drill_diameter_m,
@@ -208,6 +216,12 @@ impl JointInput {
             ensure!(
                 self.pad_length_m > self.pad_width_m,
                 "obround length must exceed width; round pads need a separate model"
+            );
+        }
+        if self.pad_shape == PadShape::Round {
+            ensure!(
+                (self.pad_length_m - self.pad_width_m).abs() < 1e-12,
+                "round pad must be square"
             );
         }
         for (name, value) in [
@@ -286,6 +300,10 @@ pub fn generate_geometry(input: &JointInput, mesh_size_m: f64) -> Result<String>
             env!("CARGO_MANIFEST_DIR"),
             "/../../thermal/physical-model/joint-fem/reference-oval/joint.geo"
         )),
+        PadShape::Round => include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../thermal/physical-model/joint-fem/reference-round/joint.geo"
+        )),
     };
     let mut text = String::new();
     for line in source.lines() {
@@ -320,6 +338,18 @@ pub fn generate_geometry(input: &JointInput, mesh_size_m: f64) -> Result<String>
                 "Mesh.CharacteristicLengthMin = {};",
                 f(mesh_size_m.min(0.0001))
             )
+        } else if line.starts_with("Box(1)=") {
+            let z = if input.trace_on_back { "-h-tc" } else { "0" };
+            format!("Box(1)={{-w/2,0,{z},w,L,tc}};")
+        } else if line.starts_with("farCu()=") {
+            if input.trace_on_back {
+                format!(
+                    "farCu()=Surface In BoundingBox {{-{bw}-e,L-e,-h-tc-e,{bw}+e,L+e,-h+e}};",
+                    bw = f(input.substrate_half_width_m)
+                )
+            } else {
+                line.into()
+            }
         } else if line.starts_with("Box(10)=") {
             format!(
                 "Box(10)={{-{bw},-{back},-h,{width},L+{back},h}};",

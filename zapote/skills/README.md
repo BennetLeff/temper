@@ -126,3 +126,13 @@ independent domain/port and shared-package balance procedure. It is backed by
 retained native FEM evidence and mutation regressions. Temperatures and uncertain
 assembly parameters are deliberately excluded from portable memory. This revision
 records reviewed guidance; it does not establish delivery to a future agent.
+
+
+## GBJ study follow-up
+
+The [GBJ study](../thermal/gbj-study/README.md) records copper-side transfer,
+per-element package ratings, diode current-sign adjudication, and the enforcing
+Rust regressions. Existing versioned memory remains immutable. Review context
+preparation is retained under the study's `memory-review/`; it does not establish
+pre-construction delivery. These concrete findings remain in the study and tests
+rather than introducing a duplicate generalized memory note.

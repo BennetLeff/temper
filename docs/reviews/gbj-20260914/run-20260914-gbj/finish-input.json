@@ -1,0 +1,45 @@
+{
+  "run_id": "20260914-gbj",
+  "run_dir": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/gbj-20260914/run-20260914-gbj",
+  "skill_dir": "/Users/bennet/.codex/plugins/cache/compound-engineering-plugin/compound-engineering/3.25.0/skills/ce-code-review",
+  "docs_root": "docs",
+  "mode": {"agent": true, "apply_local": false, "grouping": "auto", "depth": "full"},
+  "invocation": {"arguments": "mode:agent base:84f84fe65", "constraints": ["Review only zapote/packages/zapote-{thermal,harness} changed files and new reference-round; do not modify production code, run installs, git writes, or promote PCB; exclude historical branch commits and generated FEM evidence bulk; hardware bytes unchanged."]},
+  "scope": {
+    "mode": "standalone",
+    "base": "84f84fe656db56fd337f73764b98c846748b3512",
+    "diff_a": "84f84fe656db56fd337f73764b98c846748b3512",
+    "diff_b": null,
+    "pr": {"number": null, "url": null, "title": null, "body": null, "base_ref_name": null, "head_ref_oid": null, "head_ref": null, "base_ref": null, "has_prior_comments": false},
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "84f84fe656db56fd337f73764b98c846748b3512",
+    "files": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/gbj-20260914/run-20260914-gbj/files.txt",
+    "diff": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/gbj-20260914/run-20260914-gbj/full.diff",
+    "tree_is_reviewed_head": true,
+    "untracked_excluded": ["zapote/thermal/gbj-study/ generated FEM evidence bulk"]
+  },
+  "intent": {"summary": "Evaluate exact GBJ2510-F through the actual Gmsh/Elmer FEM path and four-diode/case thermal network. Bind the result to the mandatory Rust harness while retaining native-source authority and explicit INDETERMINATE status for unknown internal thermal paths, installed airflow, and unresolved AC2 sharing.", "confidence": "explicit"},
+  "plan": {"path": null, "source": "none", "requirements": [], "implementation_units": [], "settled_decisions": []},
+  "roster": {
+    "selected": [
+      {"reviewer":"correctness","tier":"session","reason":"always-on"},
+      {"reviewer":"project-standards","tier":"mid","reason":"AGENTS.md and CLAUDE.md apply"},
+      {"reviewer":"testing","tier":"mid","reason":"new GBJ tests and harness behavior"},
+      {"reviewer":"maintainability","tier":"mid","reason":"642 executable changed lines and structural additions"},
+      {"reviewer":"learnings","tier":"mid","reason":"matching FEM/thermal/native solutions corpus"},
+      {"reviewer":"adversarial","tier":"session","reason":"silent-pass harness/test verification mechanism"}
+    ],
+    "lite": false,
+    "standards": {"criteria": ["AGENTS.md", "CLAUDE.md", "zapote/AGENTS.md"], "fallback_named": false, "not_run_reason": null},
+    "packs": {"roots": [], "errors": [], "warnings": []}
+  },
+  "collection": {
+    "returns": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/gbj-20260914/run-20260914-gbj/raw-returns.json",
+    "unstructured_returns": [{"reviewer":"learnings","path":"/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/gbj-20260914/run-20260914-gbj/learnings.md"}],
+    "failed_reviewers": [],
+    "bound_exceeded": [],
+    "fast_pass": {"emitted_preliminary": false, "candidates": []}
+  },
+  "peer": {"selected": true, "target":"claude", "route":"claude", "preference_source":"default", "outcome":"not-run", "artifact":null, "coverage":"cross-model pass unavailable: host approval rejected external code egress before provider dispatch; local adversarial fallback ran."},
+  "coverage_notes": ["Prepared memory notes were read directly from zapote/thermal/gbj-study/memory-review/prepared-context.json; this records actual note usage, not provider transport proof.", "Historical branch commits and generated FEM evidence bulk were excluded from semantic diff review.", "Root supplied final live Gmsh/Elmer and common harness results; no duplicate live FEM was run by this review."]
+}

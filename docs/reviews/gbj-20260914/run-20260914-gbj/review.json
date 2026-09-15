@@ -1,0 +1,48 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {"base":"84f84fe656db56fd337f73764b98c846748b3512", "branch":"codex/buck-harness-experiment-plan", "head_sha":"84f84fe656db56fd337f73764b98c846748b3512", "pr_url":null, "files_changed":13},
+  "intent": "Evaluate exact GBJ2510-F through the actual Gmsh/Elmer FEM path and four-diode/case thermal network. Bind the result to the mandatory Rust harness while retaining native-source authority and explicit INDETERMINATE status for unknown internal thermal paths, installed airflow, and unresolved AC2 sharing.",
+  "intent_confidence": "explicit",
+  "reviewers": ["correctness","project-standards","testing","maintainability","learnings","adversarial","adversarial-claude (not run; host approval rejected egress)"],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [
+    {"type":"known_pattern","title":"FEM power balance needs independently checked domains and ports","citation":"docs/solutions/best-practices/fem-balance-needs-independent-domains-and-ports.md","note":"The retained GBJ replay follows independent domain, port, per-contact, and global balance checks."},
+    {"type":"known_pattern","title":"External FEM is a validity proxy, not a hardware certificate","citation":"docs/solutions/best-practices/external-fem-corroboration-validity-proxy-2026-07-09.md","note":"The harness keeps hardware applicability and installed cooling indeterminate after numerical replay."},
+    {"type":"known_pattern","title":"Model certificates need semantic binding in addition to hashes","citation":"docs/solutions/best-practices/model-certificates-need-semantic-binding.md","note":"Native identity, UUIDs, source bytes, and rejecting controls are retained across the GBJ path."},
+    {"type":"known_pattern","title":"Measurement conventions and source identities must be explicit","citation":"docs/solutions/best-practices/measurement-convention-must-be-stated-2026-07-28.md","note":"Cooling catalog points, FEM reservoirs, and point-estimate VF are labeled as conditional assumptions."}
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Unknown package internals and mutual die paths remain indeterminate.",
+    "Installed airflow, shutdown timing, and full-board current distribution remain unverified.",
+    "AC2 uses an explicit full-terminal RMS sensitivity because no determined copper cut exists; this is not a resolved current-sharing claim.",
+    "The live round/back Gmsh test is ignored in ordinary test runs, although a separately executed live Gmsh/Elmer pass and bound raw evidence were reviewed."
+  ],
+  "testing_gaps": ["Consider a pinned portable Gmsh CI path for the ignored round/back geometry test; this is follow-up tooling and does not invalidate the bound live study."],
+  "coverage": {
+    "scope": "standalone current checkout against base 84f84fe; eight tracked Rust files plus four new GBJ Rust/test files and reference-round/joint.geo; generated evidence bulk and hardware PCB bytes excluded",
+    "reviewer_outcomes": {"correctness":"completed; diode mapping candidate rejected after signed injection adjudication", "project-standards":"completed; outer receipts satisfy run identity requirement", "testing":"completed; fan-loss and asymmetric regressions present", "maintainability":"completed; size/identity suggestions not retained as defects", "learnings":"completed; 9 relevant solution records read", "adversarial":"completed; ignored live test retained as residual tooling gap"},
+    "cross_model_route": "claude",
+    "model_requested": "Claude Opus",
+    "effort_requested": "high",
+    "receipt_supported": false,
+    "model_actual": "unverified",
+    "effort_actual": "unverified",
+    "independence_verified": false,
+    "cross_model_outcome": "not-run: host approval rejected external private-code egress before provider dispatch; local adversarial fallback completed",
+    "validator_outcome": "empty-batch; no selected findings after semantic adjudication",
+    "suppressed_findings": "2 reviewer candidates suppressed as resolved/false alarms (diode-pair mapping, fan-loss omission); 3 maintainability suggestions suppressed as subjective or fixed",
+    "first_evidence_backfilled": 0,
+    "plan": "none discovered for this GBJ-specific scope; settlement suppression not evaluated",
+    "note_usage": "prepared-context.json read directly; records actual advisory-note use, not provider transport proof",
+    "test_evidence": "root reported 273 tests passing, live Gmsh passing, and final GBJ run with expected indeterminate hardware status; no duplicate live FEM run performed here"
+  },
+  "artifact_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/gbj-20260914/run-20260914-gbj",
+  "run_id": "20260914-gbj"
+}

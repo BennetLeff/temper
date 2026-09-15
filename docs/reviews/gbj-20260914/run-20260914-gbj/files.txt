@@ -1,0 +1,13 @@
+zapote/packages/zapote-harness/src/bin/zapote-joint-model.rs
+zapote/packages/zapote-harness/src/bridge_thermal.rs
+zapote/packages/zapote-harness/src/runner.rs
+zapote/packages/zapote-thermal/src/joint_fem.rs
+zapote/packages/zapote-thermal/src/joint_mesh.rs
+zapote/packages/zapote-thermal/src/joint_model.rs
+zapote/packages/zapote-thermal/src/lib.rs
+zapote/packages/zapote-thermal/src/neck_geometry.rs
+zapote/packages/zapote-harness/tests/gbj_model.rs
+zapote/packages/zapote-thermal/src/gbj_cooling.rs
+zapote/packages/zapote-thermal/src/gbj_package.rs
+zapote/packages/zapote-thermal/tests/gbj_geometry.rs
+zapote/thermal/physical-model/joint-fem/reference-round/joint.geo

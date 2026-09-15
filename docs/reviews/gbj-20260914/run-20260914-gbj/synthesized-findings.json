@@ -1,0 +1,17 @@
+{
+  "findings": [],
+  "pre_existing_findings": [],
+  "suppressed_findings": [],
+  "suppressed_by_confidence": {},
+  "malformed_findings": 0,
+  "malformed_returns": 0,
+  "first_evidence_backfilled": 0,
+  "triage_groups": [],
+  "residual_risks": [
+    "Unknown package internals, installed airflow, and AC2 current distribution remain explicitly indeterminate.",
+    "The retained live Gmsh test is ignored in ordinary test runs; the study nevertheless includes a separately executed live Gmsh/Elmer pass and bound raw evidence.",
+    "GBJ identity branches remain distributed, but this bounded two-package study does not make that follow-up refactor an acceptance defect."
+  ],
+  "testing_gaps": ["The ignored live Gmsh check is a portability/tooling gap, not a failed GBJ result; retain the separately executed live evidence and consider pinned CI later."],
+  "coverage": {"semantic_adjudications": ["Rejected diode-pair reversal finding after verifying signed injection semantics and asymmetric regression.", "Dropped fan-loss omission because named fan-loss routing and assertions are present in the current diff.", "Dropped Assessment provenance finding because outer study/common receipts carry source revision, runtime, model/provider, hashes, and final authoritative result.", "Dropped maintainability size/identity/tuple findings as subjective or fixed in current diff."]}
+}

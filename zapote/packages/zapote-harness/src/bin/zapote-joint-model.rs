@@ -21,7 +21,11 @@ fn main() -> Result<()> {
         &serde_json::from_slice(&manufacturing)?,
     )
     .map_err(anyhow::Error::msg)?;
-    let waveform = zapote_harness::bridge_thermal::physical_waveform(&pfc)?;
+    let waveform = zapote_harness::bridge_thermal::physical_waveform_for_native(
+        &pfc,
+        &native,
+        &manufacturing,
+    )?;
     let tool = |key: &str, default: &str| {
         env::var_os(key)
             .map(PathBuf::from)
@@ -52,6 +56,12 @@ fn main() -> Result<()> {
         &out,
         &tools,
     )?;
+    // The reduced legacy network is a GBU-only approximation. The GBJ run
+    // already contains its four-diode/case network and must not inherit it.
+    if report.gbj_diode_power_w.is_some() {
+        println!("{}", serde_json::to_string_pretty(&report)?);
+        return Ok(());
+    }
     let mut contract = physical_model::contract_from_native(&native, &manufacturing)?;
     contract.loss.source_sha256 = Some(physical_model::REVIEWED_SOURCE_SHA256.into());
     contract.loss.source_status = "byte_archived".into();

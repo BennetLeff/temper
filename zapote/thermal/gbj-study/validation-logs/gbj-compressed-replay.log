@@ -1,0 +1,23 @@
+    Finished `release` profile [optimized] target(s) in 0.07s
+     Running tests/gbj_model.rs (/private/tmp/zapote-rtd-target/release/deps/gbj_model-485f4114100dd189)
+
+running 6 tests
+test asymmetric_half_cycles_follow_current_entering_the_bridge_not_copper_injection ... ok
+test missing_gbj_evidence_cannot_satisfy_common_thermal_obligations ... ok
+test fresh_hash_does_not_authorize_forged_native_trace_geometry ... ok
+test gbj_current_model_binds_actual_trace_ids_and_keeps_sharing_indeterminate ... ok
+test unknown_ac2_cut_cannot_hide_changed_load_or_missing_segments ... ok
+test retained_gbj_raw_evidence_satisfies_numerics_without_qualifying_hardware ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.78s
+
+     Running tests/gbj_geometry.rs (/private/tmp/zapote-rtd-target/release/deps/gbj_geometry-9e65c8bb3b5c4dbc)
+
+running 4 tests
+test round_back_trace_gmsh_mesh_has_independent_materials_and_ports ... ignored, live Gmsh check; retained FEM replay runs without an installed mesher
+test gbj_rejects_pin_net_swap_even_when_geometry_matches ... ok
+test captured_gbj2510f_builds_in_native_pin_order ... ok
+test saved_back_copper_mesh_rejects_front_side_reinterpretation ... ok
+
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.36s
+

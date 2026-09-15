@@ -2,6 +2,7 @@
 //! FEM supplies conductor heating and terminal heat flow. The package's
 //! inaccessible internal paths remain explicit assumptions, not ratings.
 use crate::{
+    gbj_package,
     joint_fem::{self, JointInput, RunConfig, RunReport},
     neck_geometry,
     neck_run::Tools,
@@ -64,6 +65,12 @@ pub struct Case {
     pub joints_to_board_w: f64,
     pub global_residual_w: f64,
     pub contact_residual_w: [f64; 4],
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gbj_nodes: Option<gbj_package::Nodes>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gbj_junction_residual_w: Option<[f64; 4]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gbj_case_residual_w: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -79,10 +86,60 @@ pub struct Assessment {
     pub nominal_mesh_delta_k: [f64; 2],
     pub domain_delta_k: f64,
     pub limitations: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gbj_diode_power_w: Option<[f64; 4]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gbj_cooling_budget: Option<crate::gbj_cooling::Budget>,
 }
 
 fn hash(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
+}
+
+/// Select a reviewed package from the actual saved native component identity.
+/// Each translator checks pin semantics and geometry against the board bytes.
+pub fn native_model(native: &[u8], manufacturing: &[u8]) -> Result<neck_geometry::NeckModel> {
+    ensure!(
+        zapote_drc::native_binding::validate(std::str::from_utf8(native)?).status
+            == zapote_core::Status::Pass,
+        "joint native geometry differs from saved board bytes"
+    );
+    let value: serde_json::Value = serde_json::from_slice(native)?;
+    let bridges = value["components"]
+        .as_array()
+        .context("missing components")?
+        .iter()
+        .filter(|c| c["id"] == "bridge")
+        .collect::<Vec<_>>();
+    ensure!(bridges.len() == 1, "expected one native bridge");
+    match bridges[0]["mpn"].as_str() {
+        Some("GBU2510A") => neck_geometry::build_neck_model_variant(native, manufacturing),
+        Some("GBJ2510-F") => neck_geometry::build_gbj_neck_model(native, manufacturing),
+        _ => anyhow::bail!("unreviewed bridge thermal identity"),
+    }
+}
+
+/// Allocate the one total allowance using the production waveform's two
+/// conducting diode pairs. Constant VF estimates are not hot-loss bounds.
+pub fn gbj_diode_power(waveform: &WaveformInput) -> Result<[f64; 4]> {
+    waveform.validate()?;
+    let mut weight = [0.0; 4];
+    for s in &waveform.samples {
+        ensure!(
+            s.line_sign.abs() == 1.0,
+            "diode allocation requires signed half-cycles"
+        );
+        let pair = if s.line_sign > 0.0 { [0, 3] } else { [1, 2] };
+        for diode in pair {
+            weight[diode] += s.weight * s.inductor_a;
+        }
+    }
+    let total: f64 = weight.iter().sum();
+    ensure!(
+        total.is_finite() && total > 0.0,
+        "missing diode loss waveform"
+    );
+    Ok(weight.map(|w| POWER_W * w / total))
 }
 
 /// The package/lead coupling has a closed-form Newton step when conductor
@@ -126,12 +183,12 @@ pub fn coupling_step(
 
 fn inputs(
     native: &[u8],
-    manufacturing: &[u8],
+    model: &neck_geometry::NeckModel,
     waveform: &WaveformInput,
     s: &Scenario,
 ) -> Result<Vec<JointInput>> {
     waveform.validate()?;
-    let model = neck_geometry::build_neck_model_variant(native, manufacturing)?;
+    let gbj = model.bridge_mpn == "GBJ2510-F";
     let value: serde_json::Value = serde_json::from_slice(native)?;
     let board = value["board_file_utf8"]
         .as_str()
@@ -157,6 +214,7 @@ fn inputs(
             let mut i = JointInput::default();
             i.pad_shape = match neck.pad_shape {
                 1 => joint_fem::PadShape::Rectangle,
+                2 if neck.pad_size_mm[0] == neck.pad_size_mm[1] => joint_fem::PadShape::Round,
                 2 => joint_fem::PadShape::VerticalObround,
                 _ => anyhow::bail!("unsupported native pad"),
             };
@@ -167,11 +225,14 @@ fn inputs(
             i.drill_diameter_m = neck.drill_mm * 1e-3;
             i.trace_width_m = neck.trace_width_mm * 1e-3;
             i.trace_length_m = neck.trace_length_mm * 1e-3;
+            if gbj {
+                i.trace_on_back = neck.trace_layer == "B.Cu";
+            }
             i.copper_thickness_m = stack.copper_thickness_um * 1e-6;
             i.board_thickness_m = core * 1e-3;
             // Yangjie S-B407 rev2.5 p3: I=1.02..1.27 mm, M=.46...56 mm.
-            i.lead_width_m = 0.001145;
-            i.lead_length_m = 0.00051;
+            i.lead_width_m = if gbj { 0.001 } else { 0.001145 };
+            i.lead_length_m = if gbj { 0.0007 } else { 0.00051 };
             i.lead_top_z_m = 0.003; // Installed standoff is an assembly assumption.
             i.package_temperature_k = 373.15;
             i.board_temperature_k = BOARD_K;
@@ -184,8 +245,8 @@ fn inputs(
             if s.weak_assembly {
                 i.copper_thickness_m *= 0.9;
                 i.barrel_plating_m *= 0.5;
-                i.lead_width_m = 0.00102;
-                i.lead_length_m = 0.00046;
+                i.lead_width_m = if gbj { 0.0009 } else { 0.00102 };
+                i.lead_length_m = if gbj { 0.0006 } else { 0.00046 };
                 i.lead_top_z_m = 0.006;
                 i.materials.lead_sigma_s_m *= 0.5;
                 i.materials.lead_k_w_mk *= 0.5;
@@ -254,14 +315,14 @@ fn batch(
 
 fn case(
     native: &[u8],
-    manufacturing: &[u8],
+    model: &neck_geometry::NeckModel,
     waveform: &WaveformInput,
     s: &Scenario,
     root: &Path,
     tools: &Tools,
     replay: bool,
 ) -> Result<Case> {
-    let base = inputs(native, manufacturing, waveform, s)?;
+    let base = inputs(native, model, waveform, s)?;
     ensure!(base.len() == 4, "four bridge joints required");
     let basis = base
         .iter()
@@ -283,6 +344,23 @@ fn case(
     let contact_g = if s.weak_assembly { 0.1 } else { 0.2 };
     let mut package = SINK_K + POWER_W / sink_g;
     let mut lead = [package; 4];
+    let diode_power = if model.bridge_mpn == "GBJ2510-F" {
+        Some(gbj_diode_power(waveform)?)
+    } else {
+        None
+    };
+    let sink_k = if s.name == "fan-loss" { 373.15 } else { SINK_K };
+    let mut gbj_nodes = diode_power
+        .map(|p| gbj_package::solve_at_sink([BOARD_K; 4], [0.0; 4], g, p, s.weak_assembly, sink_k))
+        .transpose()?;
+    if let Some(nodes) = &gbj_nodes {
+        package = nodes
+            .junction_k
+            .iter()
+            .copied()
+            .fold(f64::NEG_INFINITY, f64::max);
+        lead = nodes.lead_k;
+    }
     for iteration in 0..MAX_ITERATIONS {
         let requested = base
             .iter()
@@ -302,12 +380,27 @@ fn case(
         )?;
         let m: Vec<_> = solved.iter().map(|r| &r.cases[0].measurement).collect();
         let outward = std::array::from_fn(|n| -m[n].flux_w[0]);
-        let contact = std::array::from_fn(|n| contact_g * (lead[n] - package) - outward[n]);
-        let sink = sink_g * (package - SINK_K);
+        let gbj_balance = gbj_nodes
+            .as_ref()
+            .zip(diode_power)
+            .map(|(nodes, p)| {
+                gbj_package::balances_at_sink(nodes, outward, p, s.weak_assembly, sink_k)
+            })
+            .transpose()?;
+        let contact = gbj_balance.as_ref().map_or_else(
+            || std::array::from_fn(|n| contact_g * (lead[n] - package) - outward[n]),
+            |b| b.lead_residual_w,
+        );
+        let sink = gbj_balance
+            .as_ref()
+            .map_or(sink_g * (package - SINK_K), |b| b.sink_w);
         let board: f64 = m.iter().map(|m| -m.flux_w[1] - m.flux_w[2]).sum();
         let total = POWER_W + m.iter().map(|m| m.joule_w).sum::<f64>();
         let residual = total - sink - board;
-        if contact.iter().all(|v| v.abs() <= 1e-5) && residual.abs() <= 1e-5 {
+        let package_balanced = gbj_balance.as_ref().is_none_or(|b| {
+            b.case_residual_w.abs() <= 1e-5 && b.junction_residual_w.iter().all(|v| v.abs() <= 1e-5)
+        });
+        if contact.iter().all(|v| v.abs() <= 1e-5) && residual.abs() <= 1e-5 && package_balanced {
             return Ok(Case {
                 scenario: s.clone(),
                 iterations: iteration + 1,
@@ -320,9 +413,23 @@ fn case(
                 joints_to_board_w: board,
                 global_residual_w: residual,
                 contact_residual_w: contact,
+                gbj_nodes,
+                gbj_junction_residual_w: gbj_balance.as_ref().map(|b| b.junction_residual_w),
+                gbj_case_residual_w: gbj_balance.as_ref().map(|b| b.case_residual_w),
             });
         }
-        (package, lead) = coupling_step(lead, outward, g, sink_g, contact_g)?;
+        if let Some(p) = diode_power {
+            let nodes = gbj_package::solve_at_sink(lead, outward, g, p, s.weak_assembly, sink_k)?;
+            package = nodes
+                .junction_k
+                .iter()
+                .copied()
+                .fold(f64::NEG_INFINITY, f64::max);
+            lead = nodes.lead_k;
+            gbj_nodes = Some(nodes);
+        } else {
+            (package, lead) = coupling_step(lead, outward, g, sink_g, contact_g)?;
+        }
     }
     anyhow::bail!("package/FEM coupling did not converge within {MAX_ITERATIONS} iterations")
 }
@@ -339,17 +446,32 @@ fn assess(root: &Path, tools: &Tools, replay: bool) -> Result<Assessment> {
     let waveform: WaveformInput = serde_json::from_slice(&waveform_bytes)?;
     waveform.validate()?;
     let source = fs::read(root.join("source.pdf"))?;
+    let model = native_model(&native, &manufacturing)?;
+    let gbj = model.bridge_mpn == "GBJ2510-F";
     ensure!(
-        hash(&source) == physical_model::REVIEWED_SOURCE_SHA256,
+        hash(&source)
+            == if gbj {
+                gbj_package::REVIEWED_SOURCE_SHA256
+            } else {
+                physical_model::REVIEWED_SOURCE_SHA256
+            },
         "unreviewed bridge source bytes"
     );
-    let model = neck_geometry::build_neck_model_variant(&native, &manufacturing)?;
-    let cases = profile()
+    let mut scenarios = profile();
+    if gbj {
+        scenarios.push(Scenario {
+            name: "fan-loss".into(),
+            mesh_m: 0.0003,
+            domain_scale: 1.0,
+            weak_assembly: false,
+        });
+    }
+    let cases = scenarios
         .iter()
         .map(|s| {
             case(
                 &native,
-                &manufacturing,
+                &model,
                 &waveform,
                 s,
                 &root.join(&s.name),
@@ -409,17 +531,58 @@ fn assess(root: &Path, tools: &Tools, replay: bool) -> Result<Assessment> {
     ] {
         hashes.insert(name.into(), hash(&fs::read(root.join(name))?));
     }
-    Ok(Assessment {schema:SCHEMA.into(),applicability:"indeterminate".into(),input_hashes:hashes,
-        geometry_sha256:neck_geometry::geometry_fingerprint(&model)?,waveform_sha256:physical_model::waveform_sha256(&waveform)?,
-        fixed_vf_loss_estimate_w:2.0*waveform.samples.iter().map(|s|s.weight*s.inductor_a).sum::<f64>(),
-        package_allowance_w:POWER_W,cases,nominal_mesh_delta_k:mesh_delta,domain_delta_k:domain_delta,
-        limitations:vec![
+    let gbj_cooling_budget = if gbj {
+        let budget = crate::gbj_cooling::evaluate(root)?;
+        for (name, _) in crate::gbj_cooling::SOURCES {
+            hashes.insert(name.into(), hash(&fs::read(root.join(name))?));
+        }
+        Some(budget)
+    } else {
+        None
+    };
+    let limitations = if gbj {
+        vec![
+        "GBJ2510-F DS21221 rev11-2: four diode nodes, each RthetaJC=1 K/W typical to one isothermal case. Weak sensitivity assumes 1.5 K/W per element. Mutual die thermal impedances are not specified.".into(),
+        "One 40 W allowance is split across diode pairs using the production waveform; 1.05 V at 12.5 A/25 C is a point estimate, not a guaranteed waveform/hot-loss bound.".into(),
+        "Case-to-sink .25 K/W nominal/.5 weak and each diode-to-endpoint-lead .1 W/K nominal/.05 weak are assembly/internal-path assumptions. The electrical pairing is an assumed thermal network, not sourced package construction.".into(),
+        "Sourced external lead section is I=.9..1.1 by R=.6...8 mm. Nominal uses1.0x.7 mm; weak uses.9x.6 mm. Lead material, front-side full-pad solder,25um plating and3mm standoff are assumed; weak halves lead conductivities/plating/solder, uses6mm standoff and90% copper.".into(),
+        "Actual F.Cu/B.Cu trace side is retained with leads and solder on F.Cu. Sidewalls are adiabatic, board cuts80 C, sink60 C. These are prescribed reservoirs; installed airflow and full-board current/thermal fields are not solved.".into(),
+        "Package_temperature_k denotes the hottest lumped GBJ diode node, not a resolved die temperature. Whole-joint peak includes lead/solder; a value above110 C does not by itself prove PCB failure. No screen finding or physical qualification is waived.".into(),
+    ]
+    } else {
+        vec![
             "One 40 W package allowance is an unproven design assumption; the fixed 1 V VF point is not a hot-current loss bound.".into(),
             "Package-to-sink 1 W/K and package-to-lead .2 W/K are uncertain lumped paths; weak sensitivity halves both. Package node is not a resolved die junction.".into(),
             "Lead electrical/thermal material, 3 mm installed standoff, 25 um plating and full-pad solder fill are assembly assumptions. Weak corner uses 6 mm standoff, minimum sourced lead section, half lead conductivities/plating/solder and 90% copper.".into(),
             "Side walls are adiabatic; board cut faces are 80 C and sink is 60 C. Wider-domain sensitivity is reported, not assumed converged.".into(),
             "Joint peak includes lead and solder and is only an upper bound on copper/FR4 peak. Tested sensitivities are not a guaranteed uncertainty envelope; no current finding is waived.".into(),
-        ]})
+    ]
+    };
+    Ok(Assessment {
+        schema: SCHEMA.into(),
+        applicability: "indeterminate".into(),
+        input_hashes: hashes,
+        geometry_sha256: neck_geometry::geometry_fingerprint(&model)?,
+        waveform_sha256: physical_model::waveform_sha256(&waveform)?,
+        fixed_vf_loss_estimate_w: 2.0
+            * (if gbj { 1.05 } else { 1.0 })
+            * waveform
+                .samples
+                .iter()
+                .map(|s| s.weight * s.inductor_a)
+                .sum::<f64>(),
+        package_allowance_w: POWER_W,
+        cases,
+        nominal_mesh_delta_k: mesh_delta,
+        domain_delta_k: domain_delta,
+        limitations,
+        gbj_cooling_budget,
+        gbj_diode_power_w: if gbj {
+            Some(gbj_diode_power(&waveform)?)
+        } else {
+            None
+        },
+    })
 }
 
 pub fn run(
@@ -435,6 +598,14 @@ pub fn run(
         "output must be a new absolute directory"
     );
     fs::create_dir_all(out)?;
+    if native_model(&fs::read(native)?, &fs::read(manufacturing)?)?.bridge_mpn == "GBJ2510-F" {
+        let sources =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../thermal/cooling-options/sources");
+        crate::gbj_cooling::evaluate(&sources)?;
+        for (name, _) in crate::gbj_cooling::SOURCES {
+            fs::copy(sources.join(name), out.join(name))?;
+        }
+    }
     for (path, name) in [
         (native, "native.json"),
         (manufacturing, "manufacturing.json"),

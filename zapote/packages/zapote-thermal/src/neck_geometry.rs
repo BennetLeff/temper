@@ -23,6 +23,13 @@ const TRACE_UUIDS: [&str; 4] = [
 const EXPECTED_LENGTH_MM: [f64; 4] = [8.5, 9.0, 6.0, 7.0];
 const EXPECTED_WIDTH_MM: f64 = 2.5;
 const FR4_THICKNESS_M: f64 = 1.44e-3;
+const GBJ_TRACE_UUIDS: [&str; 4] = [
+    "33cdb604-2e4a-49a4-bcca-80b829c3818c",
+    "8e49f7cf-5c7a-4b79-9cb4-c1cbe398fc62",
+    "fcbfb9cb-ae96-4261-8ec9-a57c3db7f95d",
+    "c060f5f6-a3d7-4399-923b-4094c1d4c60e",
+];
+const GBJ_NETS: [&str; 4] = ["plus", "ac1", "ac2", "minus"];
 
 #[derive(Debug, Clone, Deserialize)]
 struct NativeInput {
@@ -528,6 +535,127 @@ pub fn build_neck_model_variant(
     manufacturing_json: &[u8],
 ) -> Result<NeckModel> {
     build_neck_model_impl(native_json, manufacturing_json, false)
+}
+
+/// Import the reviewed GBJ2510-F capture.  Pin order follows the native
+/// package (1=plus, 2=ac1, 3=ac2, 4=minus), while all identity, geometry and
+/// manufacturing records are bound to their captured UUIDs.
+pub fn build_gbj_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result<NeckModel> {
+    ensure!(
+        zapote_drc::native_binding::validate(std::str::from_utf8(native_json)?).status
+            == zapote_core::Status::Pass,
+        "GBJ native geometry differs from saved board bytes"
+    );
+    let native: NativeInput = serde_json::from_slice(native_json).context("parse native.json")?;
+    let manufacturing: ManufacturingInput =
+        serde_json::from_slice(manufacturing_json).context("parse manufacturing.json")?;
+    ensure!(
+        native.board_sha256 == manufacturing.board_sha256,
+        "native/manufacturing board hashes disagree"
+    );
+    ensure!(
+        format!("{:x}", Sha256::digest(native.board_file_utf8.as_bytes())) == native.board_sha256,
+        "native board_sha256 does not match embedded board_file_utf8"
+    );
+    let bridges: Vec<&Component> = native
+        .components
+        .iter()
+        .filter(|c| c.id == BRIDGE_ID || c.mpn == "GBJ2510-F")
+        .collect();
+    ensure!(
+        bridges.len() == 1,
+        "expected exactly one GBJ bridge component"
+    );
+    let bridge = bridges[0];
+    ensure!(
+        bridge.id == BRIDGE_ID && bridge.mpn == "GBJ2510-F",
+        "bridge identity is not GBJ2510-F"
+    );
+    let mut necks = Vec::with_capacity(4);
+    for (idx, (&net, &trace_uuid)) in GBJ_NETS.iter().zip(GBJ_TRACE_UUIDS.iter()).enumerate() {
+        let pad_no = (idx + 1).to_string();
+        let matching: Vec<&Pad> = bridge
+            .footprint_pads
+            .iter()
+            .filter(|p| p.pad == pad_no && p.net == net)
+            .collect();
+        ensure!(
+            matching.len() == 1,
+            "expected GBJ pad {pad_no} on net {net}"
+        );
+        let pad = matching[0];
+        ensure!(pad.size_mm == [4.0, 4.0], "GBJ pad {pad_no} must be 4x4 mm");
+        ensure!(
+            (pad.drill_mm[0] - 1.6).abs() < 1e-9 && (pad.drill_mm[1] - 1.6).abs() < 1e-9,
+            "GBJ pad {pad_no} drill must be 1.6 mm"
+        );
+        ensure!(
+            pad.shape == if idx == 0 { 1 } else { 2 },
+            "GBJ pad {pad_no} has unexpected KiCad shape"
+        );
+        ensure!(
+            pad.orientation_deg.rem_euclid(90.0).abs() < 1e-9,
+            "GBJ pad orientation must be orthogonal"
+        );
+        verify_manufacturing_pad(&manufacturing.input, pad)?;
+        let traces: Vec<&Trace> = native
+            .traces
+            .iter()
+            .filter(|t| t.uuid == trace_uuid)
+            .collect();
+        ensure!(traces.len() == 1, "expected one GBJ trace {trace_uuid}");
+        let trace = traces[0];
+        ensure!(
+            trace.net == net && trace.points_mm.len() == 2,
+            "GBJ trace identity/shape mismatch"
+        );
+        ensure!(
+            trace.width_mm > pad.size_mm[0] && trace.width_mm <= 2.0 * pad.size_mm[0],
+            "GBJ trace width must exceed pad and fit bounded substrate"
+        );
+        ensure!(
+            trace.layer == "F.Cu" || trace.layer == "B.Cu",
+            "GBJ trace layer unsupported"
+        );
+        let d0 = distance_mm(trace.points_mm[0], pad.position_mm);
+        let d1 = distance_mm(trace.points_mm[1], pad.position_mm);
+        let (length, reversed) = if d0 < 1e-7 {
+            (d1, false)
+        } else if d1 < 1e-7 {
+            (d0, true)
+        } else {
+            bail!("GBJ trace {trace_uuid} does not terminate at pad center")
+        };
+        ensure!(length > 0.0, "GBJ trace has zero length");
+        let far = if reversed {
+            trace.points_mm[0]
+        } else {
+            trace.points_mm[1]
+        };
+        ensure!(
+            (far[0] - pad.position_mm[0]).abs() < 1e-7 && (far[1] - pad.position_mm[1]).abs() > 0.0,
+            "GBJ trace must be centered vertical"
+        );
+        necks.push(NeckGeometry {
+            net: net.into(),
+            pad_number: pad.pad.clone(),
+            pad_uuid: pad.uuid.clone(),
+            trace_uuid: trace.uuid.clone(),
+            trace_layer: trace.layer.clone(),
+            trace_length_mm: length,
+            trace_width_mm: trace.width_mm,
+            pad_size_mm: pad.size_mm,
+            drill_mm: pad.drill_mm[0],
+            pad_shape: pad.shape,
+            reversed_native_trace: reversed,
+        });
+    }
+    Ok(NeckModel {
+        board_sha256: native.board_sha256,
+        bridge_id: BRIDGE_ID.into(),
+        bridge_mpn: "GBJ2510-F".into(),
+        necks,
+    })
 }
 
 fn build_neck_model_impl(

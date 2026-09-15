@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "drc",
+    "--severity-all",
+    "--all-track-errors",
+    "--schematic-parity",
+    "--format",
+    "json",
+    "--output",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal/gbj-study/common-maintained-02/thermal-sense/drc.json",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "input_sha256": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+  "report_sha256": "6ca813d876e8e900811932059a4e68f2cb13d091444d83411748676914bd76bd",
+  "report_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal/gbj-study/common-maintained-02/thermal-sense/drc.json",
+  "dependency_hashes": {
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/ThermalSenseUnit.kicad_sym": "8ef1abc1e256024743f5460feb4a8d0e7da13adc3a9e0c41a9403c0431c79f45",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.kicad_mod": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical.kicad_mod": "58598e38057ca81d58c6734ac37bb065506aa8a5bf443868be9520527c6a8635",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/fp-lib-table": "5bcc90abb4d0ed225a9e9319bb9df7a2abeb918498fc78b1e60bd922668c99f5",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_dru": "3a50d4365ed7b467d33c802017850081fcc7da982daa8e00036e6099affd2dc3",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_pcb": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/section.kicad_sch": "9f563c0d3832d1c426bc45a47ac46b54329b7caea80670486132a3557415530c",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/candidate/sym-lib-table": "ab92f7085b117ef5dc4d6641069cd8baf3422c9c49f3c05e4085c205d8a20fbd"
+  },
+  "tool_version": "10.0.4"
+}

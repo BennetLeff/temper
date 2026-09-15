@@ -1,0 +1,66 @@
+{
+  "reviewer": "maintainability",
+  "findings": [
+    {
+      "title": "GBJ geometry pushes neck_geometry past 1,000 lines",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/neck_geometry.rs",
+      "line": 540,
+      "why_it_matters": "The GBJ-specific native translator is appended to the shared geometry module, taking it from 950 lines on the review base to 1,078 lines in this diff. The module now mixes common native parsing, the existing GBU translator, and a 121-line package-specific translator, so future package edits and shared geometry edits compete in one large file and are harder to review safely.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Move build_gbj_neck_model and its GBJ constants into a dedicated gbj_geometry.rs module; keep NeckModel/shared parsing in neck_geometry.rs and route the package dispatch through the dedicated module. Re-run the GBJ geometry tests after the move.",
+      "confidence": 100,
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/neck_geometry.rs:540 -- /// Import the reviewed GBJ2510-F capture.  Pin order follows the native",
+        "review base neck_geometry.rs: 950 lines; current file: 1,078 lines; this diff adds 128 lines and crosses the 1,000-line maintainability threshold",
+        "zapote/packages/zapote-thermal/src/neck_geometry.rs:543 -- pub fn build_gbj_neck_model(native_json: &[u8], manufacturing_json: &[u8]) -> Result<NeckModel> {"
+      ],
+      "pre_existing": false
+    },
+    {
+      "title": "GBJ identity checks are scattered across package paths",
+      "severity": "P2",
+      "file": "zapote/packages/zapote-thermal/src/joint_model.rs",
+      "line": 191,
+      "why_it_matters": "GBJ behavior is selected by repeated raw MPN comparisons in the thermal model, harness, and runner. The native_model dispatcher already resolves the package, but inputs, coupling, assessment, output staging, waveform fallback, and runner routing each make their own GBJ2510-F decision. Adding or renaming a package requires synchronized edits across these branches; missing one can silently run the generic GBU path or omit GBJ evidence from one report.",
+      "autofix_class": "manual",
+      "owner": "human",
+      "requires_verification": true,
+      "suggested_fix": "Introduce a typed BridgeKind/PackageModel returned by native_model that owns package-specific geometry, source hash, diode allocation, scenarios, and cooling artifacts. Pass that value through inputs, case, assess, and the harness so callers dispatch once instead of comparing the MPN string independently.",
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/joint_model.rs:191 -- let gbj = model.bridge_mpn == \"GBJ2510-F\";",
+        "zapote/packages/zapote-thermal/src/joint_model.rs:347 -- let diode_power = if model.bridge_mpn == \"GBJ2510-F\" {",
+        "zapote/packages/zapote-thermal/src/joint_model.rs:450 -- let gbj = model.bridge_mpn == \"GBJ2510-F\";",
+        "zapote/packages/zapote-thermal/src/joint_model.rs:601 -- if native_model(&fs::read(native)?, &fs::read(manufacturing)?)?.bridge_mpn == \"GBJ2510-F\" {",
+        "zapote/packages/zapote-harness/src/runner.rs:556 -- let gbj_reports = (spec.unit == UnitKind::PowerEntry && native.components.iter().any(|c| c.id == \"bridge\" && c.mpn == \"GBJ2510-F\"))"
+      ],
+      "pre_existing": false
+    },
+    {
+      "title": "GBJ report tuple exposes positional meaning",
+      "severity": "P2",
+      "file": "zapote/packages/zapote-harness/src/bridge_thermal.rs",
+      "line": 68,
+      "why_it_matters": "run_gbj_model returns three indistinguishable CheckReports and the runner routes them by .0, .1, and .2. The type does not state which report is thermal, physical, or joint, so adding a report or reordering the tuple compiles while attaching the wrong findings to mandatory obligations. This is especially risky because all three reports share the same underlying replay and the compiler cannot catch a swap.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Replace the tuple with a named GbjReports struct containing thermal, physical, and joint fields; destructure those fields in runner.rs and update the GBJ tests to assert the named reports. Keep the report construction in one function.",
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-harness/src/bridge_thermal.rs:68 -- ) -> (CheckReport, CheckReport, CheckReport) {",
+        "zapote/packages/zapote-harness/src/runner.rs:571 -- return reports.0.clone();",
+        "zapote/packages/zapote-harness/src/runner.rs:598 -- return reports.1.clone();",
+        "zapote/packages/zapote-harness/src/runner.rs:613 -- return reports.2.clone();"
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [
+    "Package identity strings also exist in unchanged zapote-erc and pfc_power paths; a typed package refactor should audit those consumers rather than only the files in this review scope."
+  ],
+  "testing_gaps": []
+}
