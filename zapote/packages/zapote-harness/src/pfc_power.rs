@@ -1,4 +1,11 @@
-//! Source-bound nominal PFC branch-current and native pad-contact screen.
+//! Source-bound nominal PFC branch-current and native contact screen.
+//!
+//! Binding contract: the graph and source-bound waveform remain the authority
+//! for current envelopes. This adapter only enumerates physical native IDs and
+//! attaches those envelopes to traces, vias, pads, and the authored shunt.
+//! It never invents via plating, current density, pad/barrel capacity, or a
+//! thermal limit. Missing or duplicate physical identities are failures;
+//! missing engineering ratings are explicit indeterminate findings.
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
 use zapote_core::unit::UnitNativeEvidence;
@@ -6,10 +13,12 @@ use zapote_core::{CheckReport, Finding};
 use zapote_drc::{power_branches as flow, power_contact as contact};
 use zapote_erc::{pfc_currents as model, power_entry, source_circuit::Circuit};
 
-pub const RULES: [&str; 3] = [
+pub const RULES: [&str; 5] = [
     "ERC.PFC.BRANCH_WAVEFORMS",
     "DRC.PFC.BRANCH_COPPER",
     "DRC.PFC.PAD_CONTACT",
+    "DRC.PFC.VIA_CURRENT",
+    "DRC.PFC.SHUNT_STRESS",
 ];
 const CAPS: [&str; 5] = ["c1", "c2", "c3", "c4", "c_hf"];
 const ENDPOINTS: &[&str] = &[
@@ -63,6 +72,27 @@ pub struct PadContact {
     pub branch_rms_envelope_a: f64,
 }
 #[derive(Debug, Serialize)]
+pub struct ViaPath {
+    pub id: String,
+    pub net: String,
+    pub branch_id: Option<String>,
+    pub determined_rms_a: Option<f64>,
+    pub rms_envelope_a: f64,
+    pub sampled_peak_envelope_a: f64,
+    /// True only when the graph edge is exact and has no sharing/zone gap.
+    pub graph_current_determined: bool,
+}
+#[derive(Debug, Serialize)]
+pub struct ShuntStress {
+    pub component: String,
+    pub mpn: String,
+    pub resistance_ohm: f64,
+    pub rms_current_a: f64,
+    pub peak_current_a: f64,
+    pub nominal_mean_dissipation_w: f64,
+    pub nominal_peak_dissipation_w: f64,
+}
+#[derive(Debug, Serialize)]
 pub struct Report {
     pub checks: CheckReport,
     pub assumptions: Vec<String>,
@@ -70,6 +100,8 @@ pub struct Report {
     pub waveform: model::Profile,
     pub branches: Vec<Branch>,
     pub pad_contacts: Vec<PadContact>,
+    pub via_paths: Vec<ViaPath>,
+    pub shunt_stress: ShuntStress,
     pub excluded_terminals: Vec<String>,
 }
 
@@ -139,9 +171,30 @@ fn inject(
     })
 }
 
+fn check_manufacturing_pad_identity(
+    pads: &[serde_json::Value],
+) -> Result<(), String> {
+    let mut seen = BTreeSet::new();
+    for pad in pads {
+        let id = pad["id"]
+            .as_str()
+            .ok_or("manufacturing pad is missing physical ID")?;
+        if id.trim().is_empty() {
+            return Err("manufacturing pad physical ID is empty".into());
+        }
+        if !seen.insert(id.to_owned()) {
+            return Err(format!("manufacturing pad UUID is duplicated: {id}"));
+        }
+    }
+    Ok(())
+}
+
 /// Bound to the reviewed source, saved native board and fresh manufacturing
 /// receipt. This is a power-stage contribution screen, not total-current or
 /// fabrication qualification. Any adapter gap prevents exact certificates.
+/// The caller owns extractor provenance: the common runner captures fresh
+/// native geometry, validates its extractor/census, and pins its exact bytes.
+/// A board hash inside a user-supplied receipt alone cannot authenticate polygons.
 pub fn run(
     source: &str,
     native_text: &str,
@@ -167,6 +220,10 @@ pub fn run(
     {
         return Err("PFC native/manufacturing receipt does not bind saved board".into());
     }
+    let manufacturing_pads = manufacturing["input"]["pads"]
+        .as_array()
+        .ok_or("missing native pad polygons")?;
+    check_manufacturing_pad_identity(manufacturing_pads)?;
     let mut modeled: BTreeSet<String> = ENDPOINTS.iter().map(|s| s.to_string()).collect();
     for cap in CAPS {
         for pin in [1, 2] {
@@ -309,9 +366,7 @@ pub fn run(
         Branch{id:current.id.clone(),net:bound.graph.edges[index].net.clone(),kind:kind.clone(),width_mm:width,determined_rms_a:exact.then_some(current.rms_a),rms_envelope_a:rms_envelope,sampled_peak_envelope_a:peak_envelope,nominal_external_capacity_a:capacity}
     }).collect();
     let mut contacts = vec![];
-    let pads = manufacturing["input"]["pads"]
-        .as_array()
-        .ok_or("missing native pad polygons")?;
+    let pads = manufacturing_pads;
     for pad in pads {
         let id = pad["id"].as_str().ok_or("native pad missing ID")?;
         let Some((physical, rest)) = id.split_once(':') else {
@@ -377,15 +432,74 @@ pub fn run(
             gaps.push(format!("{endpoint}: no native pad/trace chord certificate; zone-only/cap-only contacts need a separate certificate"));
         }
     }
+    let via_paths: Vec<_> = native
+        .vias
+        .iter()
+        .filter(|v| nets.contains(&v.net))
+        .map(|via| {
+            let branch = branches.iter().find(|b| b.id == format!("via:{}", via.id));
+            let net_env = net_envelopes.get(&via.net).copied().unwrap_or((0.0, 0.0));
+            ViaPath {
+                id: via.id.clone(),
+                net: via.net.clone(),
+                branch_id: branch.map(|b| b.id.clone()),
+                determined_rms_a: branch.and_then(|b| b.determined_rms_a),
+                rms_envelope_a: branch.map_or(net_env.0, |b| b.rms_envelope_a),
+                sampled_peak_envelope_a: branch.map_or(net_env.1, |b| b.sampled_peak_envelope_a),
+                graph_current_determined: branch.is_some_and(|b| b.determined_rms_a.is_some()),
+            }
+        })
+        .collect();
+    let shunt_component = circuit
+        .components
+        .get("shunt")
+        .ok_or("source PFC shunt component is missing")?;
+    let resistance_ohm = shunt_component.value.as_deref()
+        .and_then(|value| value.strip_suffix("mohm"))
+        .ok_or("reviewed shunt value must specify milliohms")?
+        .parse::<f64>().map_err(|e| e.to_string())? / 1000.0;
+    if !resistance_ohm.is_finite() || resistance_ohm <= 0.0 {
+        return Err("shunt resistance must be finite and positive".into());
+    }
+    let shunt_stress = ShuntStress {
+        component: "shunt".into(),
+        mpn: shunt_component.mpn.clone(),
+        resistance_ohm,
+        rms_current_a: waveform.inductor_rms_a,
+        peak_current_a: waveform.inductor_peak_a,
+        nominal_mean_dissipation_w: waveform.inductor_rms_a.powi(2) * resistance_ohm,
+        nominal_peak_dissipation_w: waveform.inductor_peak_a.powi(2) * resistance_ohm,
+    };
     findings.push(Finding::indeterminate(RULES[1],format!("{} native branch records; cycles retain envelopes; nominal external trace screen does not qualify vias, pad barrels, zone bottlenecks, hot copper or transient faults",branches.len()),"PFC"));
     findings.push(Finding::indeterminate(RULES[2],format!("{} actual pad/trace copper chords measured with drill voids excluded; attachment chords do not establish global pad/plane thermal capacity",contacts.len()),"PFC"));
+    findings.push(Finding::indeterminate(
+        RULES[3],
+        format!(
+            "{} vias on modeled power nets bound to graph-current estimates; plating and thermal capacity evidence are absent",
+            via_paths.len()
+        ),
+        "PFC.vias",
+    ));
+    findings.push(Finding::indeterminate(
+        RULES[4],
+        format!(
+            "{} {:.6} ohm shunt has {:.4} A RMS / {:.4} A peak nominal stress ({:.4} W mean, {:.4} W peak); package thermal and pulse limits are unbound",
+            shunt_stress.mpn,
+            shunt_stress.resistance_ohm,
+            shunt_stress.rms_current_a,
+            shunt_stress.peak_current_a,
+            shunt_stress.nominal_mean_dissipation_w,
+            shunt_stress.nominal_peak_dissipation_w
+        ),
+        "PFC.shunt",
+    ));
     let excluded = bound
         .terminal_nodes
         .keys()
         .filter(|p| !modeled.contains(*p))
         .cloned()
         .collect();
-    let assumptions=vec!["Nominal 120VAC / 15A true RMS ideal steady-state CCM boost; no losses, inrush, shorts, reverse recovery or control transients".into(),"180uH nominal Würth 760800301; saturation/temperature/tolerance require separate corner qualification".into(),"Nonnegative time-varying current shares between NTC/relay, diode anodes, and five DC-link capacitors; no circulating/parasitic currents; no equal-sharing assumption".into(),"Only listed power-stage terminal injections are modeled. EMI/reactive, divider, bleeder, bias/control and gate-drive contributions are excluded, so this cannot certify total trace current".into(),"Native pad inside-polygons minus outside drill polygons; sampled transverse chords are attachment lower bounds, not whole-pad minimum cuts".into()];
+    let assumptions=vec!["Nominal 120VAC / 15A true RMS ideal steady-state CCM boost; no losses, inrush, shorts, reverse recovery or control transients".into(),"180uH nominal Würth 760800301; saturation/temperature/tolerance require separate corner qualification".into(),"Nonnegative time-varying current shares between NTC/relay, diode anodes, and five DC-link capacitors; no circulating/parasitic currents; no equal-sharing assumption".into(),"Only listed power-stage terminal injections are modeled. EMI/reactive, divider, bleeder, bias/control and gate-drive contributions are excluded, so this cannot certify total trace current".into(),"Native pad inside-polygons minus outside drill polygons; sampled transverse chords are attachment lower bounds, not whole-pad minimum cuts".into(),"Via paths are identity and waveform populations only; no plating/current-density rating is inferred".into(),"Shunt stress uses the exact authored 10 mOhm resistance; dissipation is nominal I²R only and is not package thermal qualification".into()];
     gaps.extend(assumptions.iter().cloned());
     Ok(Report {
         checks: CheckReport::from_findings(findings, RULES.map(str::to_owned).to_vec(), gaps),
@@ -394,6 +508,8 @@ pub fn run(
         waveform,
         branches,
         pad_contacts: contacts,
+        via_paths,
+        shunt_stress,
         excluded_terminals: excluded,
     })
 }

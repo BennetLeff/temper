@@ -39,6 +39,10 @@ pub struct SwitchingBoard {
 #[derive(Debug, Clone, PartialEq)]
 pub struct CommutationPath {
     pub name: String,
+    /// Exact source endpoints used to bind this path. These are retained in
+    /// the report so a net name cannot hide an incorrect endpoint selection.
+    pub current_endpoints: Vec<String>,
+    pub return_endpoint: String,
     pub current_nets: Vec<String>,
     pub return_net: String,
     pub max_bbox_area_mm2: Option<f64>,
@@ -211,26 +215,29 @@ pub fn validate(board: &SwitchingBoard, contract: &SwitchingContract) -> CheckRe
             continue;
         };
         let area = (max_x - min_x).max(0.0) * (max_y - min_y).max(0.0);
-        if let Some(limit) = path.max_bbox_area_mm2 {
-            if !limit.is_finite() || limit <= 0.0 {
-                findings.push(Finding::indeterminate(
-                    LOOP_RULE,
-                    "loop-area bound must be finite and positive",
-                    path.name.clone(),
-                ));
-            } else if area > limit {
-                findings.push(Finding::fail(LOOP_RULE, format!("switching loop bbox is {area:.3} mm², above {limit:.3} mm² (heuristic screen)"), path.name.clone()));
-            } else {
-                findings.push(Finding::pass(LOOP_RULE, format!("switching loop bbox {area:.3} mm² is within {limit:.3} mm² heuristic screen"), path.name.clone()));
-            }
+        let endpoints = if path.current_endpoints.is_empty() {
+            "endpoint evidence unavailable".to_owned()
         } else {
-            gaps.push(format!("path {} has no loop-area bound", path.name));
-            findings.push(Finding::indeterminate(
-                LOOP_RULE,
-                format!("current/return trace bbox area={area:.3} mm²; no authored bound, no inductance claim"),
-                path.name.clone(),
-            ));
-        }
+            format!(
+                "{} -> {} (return)",
+                path.current_endpoints.join(", "),
+                path.return_endpoint
+            )
+        };
+        // This input cannot produce a loop-area acceptance verdict: the
+        // native export has no endpoint/pad association proving a physical
+        // commutation subgraph. In particular, a net-wide extent can include
+        // an unrelated branch (or a board-wide ground net), so a supplied
+        // limit must never turn this proxy into PASS/FAIL.
+        gaps.push(format!(
+            "path {} has no proven commutation-loop geometry",
+            path.name
+        ));
+        findings.push(Finding::indeterminate(
+            LOOP_RULE,
+            format!("unscoped net extent bbox area={area:.3} mm² for {endpoints}; area is not a loop or inductance claim; requested bound {:?} mm² cannot be evaluated", path.max_bbox_area_mm2),
+            path.name.clone(),
+        ));
 
         let return_traces = traces_by_net
             .get(path.return_net.as_str())
@@ -370,6 +377,8 @@ mod tests {
             SwitchingContract {
                 paths: vec![CommutationPath {
                     name: "buck".into(),
+                    current_endpoints: vec!["q_boost.2".into()],
+                    return_endpoint: "q_boost.3".into(),
                     current_nets: vec!["SW".into()],
                     return_net: "PGND".into(),
                     max_bbox_area_mm2: Some(10.0),
@@ -385,17 +394,43 @@ mod tests {
         )
     }
     #[test]
-    fn baseline_passes() {
+    fn small_unscoped_extent_cannot_pass_loop_bound() {
         assert_eq!(
             validate(&baseline().0, &baseline().1).status,
-            zapote_core::Status::Pass
+            zapote_core::Status::Indeterminate
         );
     }
     #[test]
-    fn enlarged_loop_fails() {
+    fn enlarged_unscoped_extent_cannot_fail_loop_bound() {
         let (mut b, c) = baseline();
         b.traces[0].points_mm.push([20.0, 20.0]);
-        assert_eq!(validate(&b, &c).status, zapote_core::Status::Fail);
+        assert_eq!(validate(&b, &c).status, zapote_core::Status::Indeterminate);
+    }
+
+    #[test]
+    fn unscoped_extent_never_passes_or_fails_from_remote_return_branch() {
+        let (mut b, c) = baseline();
+        let before = validate(&b, &c);
+        let before_loop = before
+            .findings
+            .iter()
+            .find(|f| f.rule == LOOP_RULE)
+            .unwrap();
+        assert_eq!(before_loop.status, zapote_core::Status::Indeterminate);
+        assert!(before_loop.message.contains("q_boost.2"));
+        b.traces.push(SwitchingTrace {
+            id: "remote-ground".into(),
+            net: "PGND".into(),
+            layer: "B.Cu".into(),
+            width_mm: 0.3,
+            points_mm: vec![[100.0, 100.0], [200.0, 100.0]],
+        });
+        let after = validate(&b, &c);
+        let after_loop = after.findings.iter().find(|f| f.rule == LOOP_RULE).unwrap();
+        assert_eq!(after_loop.status, zapote_core::Status::Indeterminate);
+        assert!(after_loop
+            .message
+            .contains("not a loop or inductance claim"));
     }
     #[test]
     fn missing_stitch_fails_closed() {
@@ -438,9 +473,27 @@ mod tests {
             max_parallel_mm: Some(2.0),
             max_spacing_mm: Some(0.5),
         }];
-        assert_eq!(validate(&b, &c).status, zapote_core::Status::Fail);
+        let report = validate(&b, &c);
+        assert_eq!(
+            report
+                .findings
+                .iter()
+                .find(|f| f.rule == NOISE_RULE)
+                .unwrap()
+                .status,
+            zapote_core::Status::Fail
+        );
         c.noise_pairs[0].max_parallel_mm = Some(5.0);
-        assert_eq!(validate(&b, &c).status, zapote_core::Status::Pass);
+        let report = validate(&b, &c);
+        assert_eq!(
+            report
+                .findings
+                .iter()
+                .find(|f| f.rule == NOISE_RULE)
+                .unwrap()
+                .status,
+            zapote_core::Status::Pass
+        );
     }
 
     #[test]
@@ -461,7 +514,16 @@ mod tests {
         }];
         // max_parallel=0 is invalid as a contract, so use a tiny positive
         // bound while still proving no same-layer parallel overlap.
-        assert_eq!(validate(&b, &c).status, zapote_core::Status::Pass);
+        let report = validate(&b, &c);
+        assert_eq!(
+            report
+                .findings
+                .iter()
+                .find(|f| f.rule == NOISE_RULE)
+                .unwrap()
+                .status,
+            zapote_core::Status::Pass
+        );
     }
 
     #[test]

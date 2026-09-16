@@ -206,6 +206,8 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
     // Coverage requirements are independent of whether the hook emitted a
     // report. Removing the thermal hook must fail closed, not shrink coverage.
     if unit == UnitKind::PowerEntry {
+        required.extend(zapote_erc::pfc_interfaces::RULES.map(str::to_owned));
+        required.extend(crate::pfc_power::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::COOLING_RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::PHYSICAL_RULES.map(str::to_owned));
@@ -499,6 +501,14 @@ fn manufacturing_run(
     Ok((report, digest(&bytes), population))
 }
 
+fn bound_manufacturing_bytes(path: &Path, expected_hash: &str) -> Result<Vec<u8>> {
+    let bytes = read(path)?;
+    if digest(&bytes) != expected_hash {
+        return Err("manufacturing receipt changed after native extraction validation".into());
+    }
+    Ok(bytes)
+}
+
 pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Result<UnitRunReport> {
     let evidence_before = evidence_hashes(spec)?;
     let (unit_checks, native, hashes) = evaluate(spec)?;
@@ -540,8 +550,12 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     };
     let (manufacturing_checks, manufacturing_receipt_sha256, manufacturing_population) =
         manufacturing_run(spec, out, python, &native)?;
+    let manufacturing_bytes = bound_manufacturing_bytes(
+        &out.join("manufacturing-input.json"),
+        &manufacturing_receipt_sha256,
+    )?;
     let pfc_power = if spec.unit == UnitKind::PowerEntry {
-        let receipt = json(&read(&out.join("manufacturing-input.json"))?)?;
+        let receipt = json(&manufacturing_bytes)?;
         Some(crate::pfc_power::run(
             &source,
             &native_text,
@@ -552,7 +566,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         None
     };
     let cooling_contract = spec.contract.as_ref().map(|p| read(p)).transpose()?;
-    let manufacturing_geometry = fs::read(out.join("manufacturing-input.json")).ok();
+    let manufacturing_geometry = Some(manufacturing_bytes);
     let gbj_reports = (spec.unit == UnitKind::PowerEntry
         && native
             .components
@@ -620,9 +634,6 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         )
     });
     let mut required = required_rules(spec.unit)?;
-    if pfc_power.is_some() {
-        required.extend(crate::pfc_power::RULES.map(str::to_owned));
-    }
     if physical_checks.is_some() {
         required.extend(crate::bridge_thermal::PHYSICAL_RULES.map(str::to_owned));
     }
@@ -705,6 +716,39 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
 mod cooling_coverage_tests {
     use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[test]
+    fn edited_geometry_with_unchanged_board_identity_cannot_reach_downstream_checks() {
+        let suffix = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+        let path = std::env::temp_dir().join(format!("zapote-receipt-{suffix}.json"));
+        let original = br#"{"board_sha256":"same-board","inner_copper_polygons":[[0,0],[1,1]]}"#;
+        fs::write(&path, original).unwrap();
+        let expected = digest(original);
+        assert_eq!(bound_manufacturing_bytes(&path, &expected).unwrap(), original);
+        fs::write(&path, br#"{"board_sha256":"same-board","inner_copper_polygons":[[0,0],[100,100]]}"#).unwrap();
+        let result = bound_manufacturing_bytes(&path, &expected);
+        fs::remove_file(path).unwrap();
+        assert!(result.unwrap_err().contains("receipt changed"));
+    }
+
+    #[test]
+    fn power_entry_requires_electrical_rules_even_if_hooks_are_removed() {
+        let required = required_rules(UnitKind::PowerEntry).unwrap();
+        for rule in zapote_erc::pfc_interfaces::RULES
+            .into_iter()
+            .chain(crate::pfc_power::RULES)
+        {
+            assert!(required.iter().any(|id| id == rule));
+            let missing_one = CheckReport::from_findings(
+                vec![],
+                required.iter().filter(|id| *id != rule).cloned().collect(),
+                vec![],
+            );
+            let coverage = enforce_required(&required, &missing_one);
+            assert_eq!(coverage.status, Status::Fail);
+            assert!(coverage.findings.iter().any(|f| f.message.contains(rule)));
+        }
+    }
 
     #[test]
     fn power_entry_requires_cooling_even_when_the_hook_emits_no_report() {

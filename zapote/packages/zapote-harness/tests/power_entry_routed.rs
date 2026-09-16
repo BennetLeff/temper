@@ -13,10 +13,20 @@ fn board(native: &Value) -> Vec<u8> {
 }
 
 #[test]
-fn frozen_native11_has_all_construction_checks_pass_and_hardware_gaps_indeterminate() {
+fn frozen_native11_passes_construction_with_explicit_external_obligations() {
     let native: Value = serde_json::from_str(NATIVE).unwrap();
     let report = zapote_harness::power_entry::run(SOURCE, NATIVE, &board(&native));
-    assert!(report.findings.iter().all(|f| f.status == Status::Pass));
+    let external = &zapote_erc::pfc_interfaces::RULES[1..];
+    for finding in &report.findings {
+        assert_eq!(finding.status, if external.contains(&finding.rule.as_str()) {
+            Status::Indeterminate
+        } else {
+            Status::Pass
+        }, "{}: {}", finding.rule, finding.message);
+    }
+    for rule in external {
+        assert!(report.findings.iter().any(|f| &f.rule == rule));
+    }
     assert_eq!(report.status, Status::Indeterminate);
     assert!(report
         .coverage_gaps

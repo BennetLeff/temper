@@ -166,3 +166,9 @@ Read the relevant detailed record before changing behavior in that area:
   retain assembly/airflow applicability separately from numerical convergence.
   The historical GBU front-side normalization is not a validated model of an
   asymmetric back-copper joint.
+- [PFC electrical closeout](power-entry/electrical-closeout.md) — a whole-net
+  bounding box is not a switching-loop measurement, even with an authored
+  area limit. Source/native agreement also does not establish external supply
+  compatibility. Preserve named HOT interface contracts, exact graph currents
+  versus envelopes, and explicit missing external producers. I²R is mean
+  heating from RMS current, not proof of shunt package temperature.

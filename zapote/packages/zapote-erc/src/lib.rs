@@ -7,6 +7,7 @@ pub mod current_sense;
 pub mod gate_drive;
 pub mod interlock;
 pub mod pfc_control;
+pub mod pfc_interfaces;
 pub mod power_entry;
 pub mod power_stage_models;
 pub mod source_circuit;

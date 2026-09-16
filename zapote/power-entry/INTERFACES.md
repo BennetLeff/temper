@@ -13,3 +13,20 @@ These are exact native/source22 net names. References apply to this unit only.
 The 1,800 W nominal AC-input target is bounded by the 15 A RMS input limit.
 At 120 V and PF 0.99 this is 1,782 W real input; output power is lower because
 of losses. Low-line RMS foldback is required external integration work.
+
+The common harness now executes `ERC.PFC.INTERFACE_PINS` against the compiled
+source, in addition to source/native graph equality. Consistently relabeling
+the HOT return as control ground or restoring a split-bus output label fails
+this independent contract. `pfc_interfaces.rs` owns these checks.
+
+The bus voltage above is a nominal setpoint, not a worst-case rating envelope.
+The common run separately requires bus-envelope, isolated-bias,
+external-supervisor and input-foldback findings. They remain INDETERMINATE
+until the corresponding models or producers exist. The static inhibit circuit
+does not establish startup, bias-loss or shutdown timing.
+
+The legacy full-cooker `AuxSupply` and discharge arrangement in
+`elec/src/modules.ato` still assume a split bus. They are not wired into this
+standalone unit and are not accepted PFC consumers. The next auxiliary-power
+unit must select its input architecture, budget every output load, and keep
+HOT bias and control-side supply returns distinct.
