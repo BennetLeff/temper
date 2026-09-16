@@ -17,6 +17,7 @@ pub mod neck_physics;
 pub mod neck_run;
 pub mod neck_transfer;
 pub mod physical_model;
+pub mod shunt_model;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 #[cfg(unix)]
