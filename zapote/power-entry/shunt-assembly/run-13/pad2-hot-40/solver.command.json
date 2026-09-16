@@ -1,0 +1,16 @@
+{
+  "args": [
+    "case.sif"
+  ],
+  "cwd": "zapote/power-entry/shunt-assembly/run-13/pad2-hot-40",
+  "environment": {
+    "OMPI_MCA_btl": "self",
+    "OMP_NUM_THREADS": "1"
+  },
+  "program": "/Users/bennet/.local/opt/elmer-26.2.1/bin/ElmerSolver",
+  "timeout_ms": 240000,
+  "unset_environment": [
+    "ELMER_HOME",
+    "ELMER_LIB"
+  ]
+}
