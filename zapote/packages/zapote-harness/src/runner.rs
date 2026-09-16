@@ -64,6 +64,8 @@ pub struct UnitRunSpec {
     /// Mandatory joint FEM replay for PowerEntry; absent evidence fails coverage.
     #[serde(default)]
     pub joint_model_evidence: Option<PathBuf>,
+    #[serde(default)]
+    pub shunt_model_evidence: Option<PathBuf>,
 }
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -88,6 +90,8 @@ pub struct UnitRunReport {
     pub thermal_checks: Option<CheckReport>,
     pub physical_checks: Option<CheckReport>,
     pub joint_checks: Option<CheckReport>,
+    pub shunt_checks: Option<CheckReport>,
+    pub loop_checks: Option<CheckReport>,
     pub manufacturing_checks: CheckReport,
     /// Rule populations emitted by the Rust manufacturing evaluator.
     pub manufacturing_population: zapote_drc::manufacturing::P2Population,
@@ -207,6 +211,10 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
     // report. Removing the thermal hook must fail closed, not shrink coverage.
     if unit == UnitKind::PowerEntry {
         required.extend(zapote_erc::pfc_interfaces::RULES.map(str::to_owned));
+        required.push(zapote_erc::pfc_shunt::RULE.into());
+        required.extend(zapote_erc::pfc_protection::RULES.map(str::to_owned));
+        required.extend(crate::shunt_thermal::RULES.map(str::to_owned));
+        required.extend(crate::pfc_loops::RULES.map(str::to_owned));
         required.extend(crate::pfc_power::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::COOLING_RULES.map(str::to_owned));
@@ -292,9 +300,13 @@ pub fn evaluate(
         .into_iter()
         .map(|(p, b)| Ok((p, digest(&b))))
         .collect::<Result<BTreeMap<_, _>>>()?;
-    for root in [&spec.thermal_evidence, &spec.joint_model_evidence]
-        .into_iter()
-        .flatten()
+    for root in [
+        &spec.thermal_evidence,
+        &spec.joint_model_evidence,
+        &spec.shunt_model_evidence,
+    ]
+    .into_iter()
+    .flatten()
     {
         hash_evidence_tree(root, &mut hashes)?;
     }
@@ -328,9 +340,13 @@ fn hash_evidence_tree(root: &Path, hashes: &mut BTreeMap<PathBuf, String>) -> Re
 }
 fn evidence_hashes(spec: &UnitRunSpec) -> Result<BTreeMap<PathBuf, String>> {
     let mut hashes = BTreeMap::new();
-    for root in [&spec.thermal_evidence, &spec.joint_model_evidence]
-        .into_iter()
-        .flatten()
+    for root in [
+        &spec.thermal_evidence,
+        &spec.joint_model_evidence,
+        &spec.shunt_model_evidence,
+    ]
+    .into_iter()
+    .flatten()
     {
         hash_evidence_tree(root, &mut hashes)?;
     }
@@ -565,6 +581,15 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     } else {
         None
     };
+    let loop_checks = if spec.unit == UnitKind::PowerEntry {
+        Some(crate::pfc_loops::run(
+            &source,
+            &native_text,
+            &json(&manufacturing_bytes)?,
+        ))
+    } else {
+        None
+    };
     let cooling_contract = spec.contract.as_ref().map(|p| read(p)).transpose()?;
     let manufacturing_geometry = Some(manufacturing_bytes);
     let gbj_reports = (spec.unit == UnitKind::PowerEntry
@@ -577,6 +602,13 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
             spec.joint_model_evidence.as_deref(),
             native_text.as_bytes(),
             manufacturing_geometry.as_deref(),
+            pfc_power.as_ref(),
+        )
+    });
+    let shunt_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        crate::shunt_thermal::run(
+            spec.shunt_model_evidence.as_deref(),
+            native_text.as_bytes(),
             pfc_power.as_ref(),
         )
     });
@@ -686,6 +718,8 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     parts.extend(thermal_checks.iter());
     parts.extend(physical_checks.iter());
     parts.extend(joint_checks.iter());
+    parts.extend(shunt_checks.iter());
+    parts.extend(loop_checks.iter());
     parts.extend(operating_checks.iter());
     let coverage = enforce_required(&required, &combine(&parts));
     let common = combine(&[&stack, &binding, &coverage]);
@@ -709,7 +743,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         ("zones".into(), native.zones.len()),
     ]);
     let executable_sha256 = hash_file(&std::env::current_exe().map_err(|e| e.to_string())?)?;
-    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,thermal_checks,physical_checks,joint_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
+    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,thermal_checks,physical_checks,joint_checks,shunt_checks,loop_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
 }
 
 #[cfg(test)]
@@ -719,13 +753,23 @@ mod cooling_coverage_tests {
 
     #[test]
     fn edited_geometry_with_unchanged_board_identity_cannot_reach_downstream_checks() {
-        let suffix = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+        let suffix = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
         let path = std::env::temp_dir().join(format!("zapote-receipt-{suffix}.json"));
         let original = br#"{"board_sha256":"same-board","inner_copper_polygons":[[0,0],[1,1]]}"#;
         fs::write(&path, original).unwrap();
         let expected = digest(original);
-        assert_eq!(bound_manufacturing_bytes(&path, &expected).unwrap(), original);
-        fs::write(&path, br#"{"board_sha256":"same-board","inner_copper_polygons":[[0,0],[100,100]]}"#).unwrap();
+        assert_eq!(
+            bound_manufacturing_bytes(&path, &expected).unwrap(),
+            original
+        );
+        fs::write(
+            &path,
+            br#"{"board_sha256":"same-board","inner_copper_polygons":[[0,0],[100,100]]}"#,
+        )
+        .unwrap();
         let result = bound_manufacturing_bytes(&path, &expected);
         fs::remove_file(path).unwrap();
         assert!(result.unwrap_err().contains("receipt changed"));
@@ -799,6 +843,7 @@ mod cooling_coverage_tests {
             physical_model_assessment: None,
             physical_model_source: None,
             joint_model_evidence: Some(root.clone()),
+            shunt_model_evidence: None,
         };
         let hashes = evidence_hashes(&spec).unwrap();
         assert_eq!(hashes.get(&evidence), Some(&digest(b"raw solver result")));

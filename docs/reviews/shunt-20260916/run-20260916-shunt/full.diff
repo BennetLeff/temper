@@ -1,0 +1,2649 @@
+diff --git a/elec/src/power_entry_unit.ato b/elec/src/power_entry_unit.ato
+index 73979a963..7c74ccbbb 100644
+--- a/elec/src/power_entry_unit.ato
++++ b/elec/src/power_entry_unit.ato
+@@ -127,12 +127,12 @@ component PfcIsenseClamp:
+ 
+ component PfcBridge:
+-    footprint = "Diode_THT:Diode_Bridge_GBU2510"
+-    mpn = "GBU2510A"
++    footprint = "Diode_THT:Diode_Bridge_GBJ2510"
++    mpn = "GBJ2510-F"
+     voltage_rating = 1000V
+     current_rating = 25A
+-    signal MINUS ~ pin 1
++    signal PLUS ~ pin 1
+     signal AC1 ~ pin 2
+     signal AC2 ~ pin 3
+-    signal PLUS ~ pin 4
++    signal MINUS ~ pin 4
+ 
+ component PfcBulkCap:
+@@ -187,8 +187,10 @@ component PfcControlConnector:
+ 
+ component PfcShunt:
+-    footprint = "temper:WSL2726R0100FEA"
+-    mpn = "WSL2726R0100FEA"
++    footprint = "temper:HCSM2818FT10L0"
++    mpn = "HCSM2818FT10L0"
+     value = 10mohm
+-    power_rating = 3W
++    # 5 W is conditional: 500 mm2 pad/trace copper and body below 100 C.
++    # https://www.seielect.com/catalog/SEI-HCSM.pdf
++    power_rating = 5W
+     signal p1 ~ pin 1
+     signal p2 ~ pin 2
+diff --git a/zapote/packages/zapote-erc/src/lib.rs b/zapote/packages/zapote-erc/src/lib.rs
+index 6348c8f2b..dde2ff388 100644
+--- a/zapote/packages/zapote-erc/src/lib.rs
++++ b/zapote/packages/zapote-erc/src/lib.rs
+@@ -892,2 +892,6 @@ pub mod domain_contract;
+ pub mod operating_limits;
+ pub mod pfc_currents;
++
++pub mod pfc_shunt;
++
++pub mod pfc_protection;
+diff --git a/zapote/packages/zapote-erc/src/pfc_protection.rs b/zapote/packages/zapote-erc/src/pfc_protection.rs
+new file mode 100644
+index 000000000..0d18e95b8
+--- /dev/null
++++ b/zapote/packages/zapote-erc/src/pfc_protection.rs
+@@ -0,0 +1,594 @@
++//! Source-bound protection model for the TI UCC28180 PFC controller.
++//!
++//! Thresholds are taken from the electrical-characteristics min/max table,
++//! rather than typical values.  The model describes what the controller does;
++//! it does not claim that PWM inhibition disconnects an energized mains bus.
++
++use crate::power_entry;
++use zapote_core::{CheckReport, Finding};
++
++pub const RULES: [&str; 9] = [
++    "ERC.PFC.PROTECTION.UVLO",
++    "ERC.PFC.PROTECTION.STANDBY",
++    "ERC.PFC.PROTECTION.OVP_HYSTERESIS",
++    "ERC.PFC.PROTECTION.ISENSE_OPEN",
++    "ERC.PFC.PROTECTION.ICOMP",
++    "ERC.PFC.PROTECTION.SOC_PCL",
++    "ERC.PFC.PROTECTION.BIAS_PRIORITY",
++    "ERC.PFC.PROTECTION.EXTERNAL_DISCONNECT",
++    "ERC.PFC.PROTECTION.TIMING",
++];
++
++/// UCC28180 electrical-characteristics limits (datasheet Rev D, table 7.5).
++/// Voltages are volts and current-sense thresholds are negative volts.
++#[derive(Debug, Clone, Copy, PartialEq)]
++pub struct DatasheetLimits {
++    pub vcc_on_min: f64,
++    pub vcc_on_max: f64,
++    pub vcc_off_min: f64,
++    pub vcc_off_max: f64,
++    pub vsense_olp_min_fraction: f64,
++    pub vsense_olp_max_fraction: f64,
++    pub vovp_h_min_fraction: f64,
++    pub vovp_h_max_fraction: f64,
++    pub vovp_reset_min_fraction: f64,
++    pub vovp_reset_max_fraction: f64,
++    /// ISOP's 0.085 V value is typical only; there is no datasheet minimum.
++    pub visop_typ: f64,
++    pub visop_max: f64,
++    /// The table's unit/columns conflict with the prose (0.2 V versus
++    /// 0.2/0.25 %VREF). Keep both as an explicit ambiguity; no bound is used.
++    pub icomp_typ_v: f64,
++    pub icomp_max_v: f64,
++    pub soc_min: f64,
++    pub soc_max: f64,
++    pub pcl_min: f64,
++    pub pcl_max: f64,
++}
++
++impl Default for DatasheetLimits {
++    fn default() -> Self {
++        Self {
++            vcc_on_min: 10.8,
++            vcc_on_max: 12.1,
++            vcc_off_min: 9.1,
++            vcc_off_max: 10.3,
++            vsense_olp_min_fraction: 0.156,
++            vsense_olp_max_fraction: 0.176,
++            vovp_h_min_fraction: 1.07,
++            vovp_h_max_fraction: 1.11,
++            vovp_reset_min_fraction: 1.00,
++            vovp_reset_max_fraction: 1.04,
++            visop_typ: 0.085,
++            visop_max: 0.14,
++            icomp_typ_v: 0.20,
++            icomp_max_v: 0.25,
++            soc_min: -0.259,
++            soc_max: -0.312,
++            pcl_min: -0.345,
++            pcl_max: -0.438,
++        }
++    }
++}
++
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub enum ProtectionAction {
++    NoModeledInhibit,
++    Standby,
++    UvloOff,
++    OvpLatchedOff,
++    IsenseOpenOff,
++    SoftOvercurrent,
++    PeakCurrentImmediateOff,
++    Indeterminate,
++}
++
++#[derive(Debug, Clone, Copy, PartialEq)]
++pub struct ProtectionScenario {
++    pub vcc: f64,
++    pub vsense: f64,
++    pub vref: f64,
++    pub isense: f64,
++    pub icomp: f64,
++    pub ovp_latched: bool,
++}
++
++#[derive(Debug, Clone, Copy, PartialEq)]
++pub struct ProtectionDecision {
++    pub action: ProtectionAction,
++    pub guaranteed: bool,
++    pub propagation_delay_bound_ms: Option<f64>,
++}
++
++fn finite_nonnegative(values: &[f64]) -> bool {
++    values.iter().all(|v| v.is_finite() && *v >= 0.0)
++}
++
++fn valid_limits(l: DatasheetLimits) -> bool {
++    finite_nonnegative(&[
++        l.vcc_on_min,
++        l.vcc_on_max,
++        l.vcc_off_min,
++        l.vcc_off_max,
++        l.vsense_olp_min_fraction,
++        l.vsense_olp_max_fraction,
++        l.vovp_h_min_fraction,
++        l.vovp_h_max_fraction,
++        l.vovp_reset_min_fraction,
++        l.vovp_reset_max_fraction,
++        l.visop_typ,
++        l.visop_max,
++        l.icomp_typ_v,
++        l.icomp_max_v,
++    ]) && l.vcc_on_min <= l.vcc_on_max
++        && l.vcc_off_min <= l.vcc_off_max
++        && l.vsense_olp_min_fraction <= l.vsense_olp_max_fraction
++        && l.vovp_h_min_fraction <= l.vovp_h_max_fraction
++        && l.vovp_reset_min_fraction <= l.vovp_reset_max_fraction
++        && l.icomp_typ_v <= l.icomp_max_v
++        && l.soc_max <= l.soc_min
++        && l.pcl_max <= l.pcl_min
++        && l.soc_min.is_finite()
++        && l.soc_max.is_finite()
++        && l.pcl_min.is_finite()
++        && l.pcl_max.is_finite()
++}
++
++/// Evaluate one operating/fault point.  Values in datasheet uncertainty bands
++/// are indeterminate; they are never silently treated as safe.
++pub fn assess_scenario(s: ProtectionScenario, limits: DatasheetLimits) -> ProtectionDecision {
++    if !valid_limits(limits)
++        || !finite_nonnegative(&[s.vcc, s.vsense, s.vref, s.icomp])
++        || !s.isense.is_finite()
++        || s.vref <= 0.0
++    {
++        return ProtectionDecision {
++            action: ProtectionAction::Indeterminate,
++            guaranteed: false,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    // A lost bias supply dominates an external permit/clamp: PWM is disabled
++    // by UVLO and no gate-safety claim is made while VCC is in the hysteresis band.
++    if s.vcc < limits.vcc_off_min {
++        return ProtectionDecision {
++            action: ProtectionAction::UvloOff,
++            guaranteed: true,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.vcc <= limits.vcc_off_max || s.vcc < limits.vcc_on_max {
++        return ProtectionDecision {
++            action: ProtectionAction::Indeterminate,
++            guaranteed: false,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    // High OVP is a latch until the reset threshold is crossed.  Use the
++    // conservative max threshold for a guaranteed trip and min reset threshold
++    // for a guaranteed release.
++    if s.ovp_latched {
++        if s.vsense < limits.vovp_reset_min_fraction * s.vref {
++            // The latch has released; continue through standby, open-pin,
++            // current-limit and other protections before allowing PWM.
++        } else if s.vsense >= limits.vovp_reset_max_fraction * s.vref {
++            return ProtectionDecision {
++                action: ProtectionAction::OvpLatchedOff,
++                guaranteed: true,
++                propagation_delay_bound_ms: None,
++            };
++        } else {
++            return ProtectionDecision {
++                action: ProtectionAction::Indeterminate,
++                guaranteed: false,
++                propagation_delay_bound_ms: None,
++            };
++        }
++    }
++    if s.vsense >= limits.vovp_h_max_fraction * s.vref {
++        return ProtectionDecision {
++            action: ProtectionAction::OvpLatchedOff,
++            guaranteed: true,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.vsense > limits.vovp_h_min_fraction * s.vref {
++        return ProtectionDecision {
++            action: ProtectionAction::Indeterminate,
++            guaranteed: false,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.vsense <= limits.vsense_olp_min_fraction * s.vref {
++        return ProtectionDecision {
++            action: ProtectionAction::Standby,
++            guaranteed: true,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.vsense < limits.vsense_olp_max_fraction * s.vref {
++        return ProtectionDecision {
++            action: ProtectionAction::Indeterminate,
++            guaranteed: false,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.isense >= limits.visop_max {
++        return ProtectionDecision {
++            action: ProtectionAction::IsenseOpenOff,
++            guaranteed: true,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    // ISOP has only a typical 0.085 V point, so values below the 0.14 V
++    // maximum cannot prove that the open-pin comparator is or is not active.
++    if s.isense >= 0.0 && s.isense < limits.visop_max {
++        return ProtectionDecision {
++            action: ProtectionAction::Indeterminate,
++            guaranteed: false,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    // TI's table/prose disagree on ICOMP units and only provide typical/max
++    // values. Never claim a guaranteed ICOMP shutdown from this ambiguity.
++    if s.icomp <= limits.icomp_max_v {
++        return ProtectionDecision {
++            action: ProtectionAction::Indeterminate,
++            guaranteed: false,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.isense <= limits.pcl_max {
++        return ProtectionDecision {
++            action: ProtectionAction::PeakCurrentImmediateOff,
++            guaranteed: true,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.isense <= limits.pcl_min {
++        return ProtectionDecision {
++            action: ProtectionAction::Indeterminate,
++            guaranteed: false,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.isense <= limits.soc_max {
++        return ProtectionDecision {
++            action: ProtectionAction::SoftOvercurrent,
++            guaranteed: true,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    if s.isense <= limits.soc_min {
++        return ProtectionDecision {
++            action: ProtectionAction::Indeterminate,
++            guaranteed: false,
++            propagation_delay_bound_ms: None,
++        };
++    }
++    ProtectionDecision {
++        action: ProtectionAction::NoModeledInhibit,
++        guaranteed: false,
++        propagation_delay_bound_ms: None,
++    }
++}
++
++/// Bind the model to the reviewed Atopile source and publish its coverage.
++/// Missing timing, external permit producers, and mains isolation remain
++/// indeterminate by construction.
++pub fn evaluate_source(source: &str) -> CheckReport {
++    let mut findings = Vec::new();
++    let mut gaps = Vec::new();
++    let topology_ok = power_entry::validate_source(source).is_ok();
++    let uvlo_cases_ok = topology_ok
++        && assess_scenario(
++            ProtectionScenario {
++                vcc: 9.0,
++                vsense: 5.0,
++                vref: 5.0,
++                isense: -0.01,
++                icomp: 2.0,
++                ovp_latched: false,
++            },
++            DatasheetLimits::default(),
++        )
++        .action
++            == ProtectionAction::UvloOff
++        && assess_scenario(
++            ProtectionScenario {
++                vcc: 12.0,
++                vsense: 5.0,
++                vref: 5.0,
++                isense: -0.01,
++                icomp: 2.0,
++                ovp_latched: false,
++            },
++            DatasheetLimits::default(),
++        )
++        .action
++            == ProtectionAction::Indeterminate;
++    findings.push(if uvlo_cases_ok {
++        Finding::pass(RULES[0], "executed source-bound UVLO cases: 9.0 V guarantees off while 12.0 V remains in the startup uncertainty band", "U11.VCC")
++    } else {
++        Finding::fail(RULES[0], "source topology does not satisfy the reviewed UCC28180 power-entry contract", "power-entry.source")
++    });
++    if !topology_ok {
++        for rule in RULES.iter().skip(1).take(6) {
++            findings.push(Finding::fail(
++                rule,
++                "source binding failed; protection claim is not evaluated",
++                "power-entry.source",
++            ));
++        }
++        findings.push(Finding::indeterminate(
++            RULES[7],
++            "source binding failed; external disconnect remains unmodeled",
++            "power-entry.mains",
++        ));
++        findings.push(Finding::indeterminate(
++            RULES[8],
++            "source binding failed; shutdown timing cannot be bounded",
++            "power-entry.timing",
++        ));
++        return CheckReport::from_findings(
++            findings,
++            RULES.map(str::to_owned).to_vec(),
++            vec!["source topology invalid".into()],
++        );
++    }
++    let l = DatasheetLimits::default();
++    let checks = [
++        (
++            RULES[1],
++            ProtectionScenario {
++                vcc: 15.0,
++                vsense: 0.7,
++                vref: 5.0,
++                isense: -0.01,
++                icomp: 2.0,
++                ovp_latched: false,
++            },
++            ProtectionAction::Standby,
++            "VSENSE standby threshold",
++        ),
++        (
++            RULES[2],
++            ProtectionScenario {
++                vcc: 15.0,
++                vsense: 5.6,
++                vref: 5.0,
++                isense: 0.0,
++                icomp: 2.0,
++                ovp_latched: false,
++            },
++            ProtectionAction::OvpLatchedOff,
++            "high OVP shutdown",
++        ),
++        (
++            RULES[3],
++            ProtectionScenario {
++                vcc: 15.0,
++                vsense: 5.0,
++                vref: 5.0,
++                isense: 0.2,
++                icomp: 2.0,
++                ovp_latched: false,
++            },
++            ProtectionAction::IsenseOpenOff,
++            "ISENSE open-pin shutdown",
++        ),
++        (
++            RULES[4],
++            ProtectionScenario {
++                vcc: 15.0,
++                vsense: 5.0,
++                vref: 5.0,
++                isense: -0.01,
++                icomp: 0.1,
++                ovp_latched: false,
++            },
++            ProtectionAction::Indeterminate,
++            "ICOMP unit ambiguity",
++        ),
++        (
++            RULES[5],
++            ProtectionScenario {
++                vcc: 15.0,
++                vsense: 5.0,
++                vref: 5.0,
++                isense: -0.32,
++                icomp: 2.0,
++                ovp_latched: false,
++            },
++            ProtectionAction::SoftOvercurrent,
++            "SOC average-current limit",
++        ),
++        (
++            RULES[5],
++            ProtectionScenario {
++                vcc: 15.0,
++                vsense: 5.0,
++                vref: 5.0,
++                isense: -0.45,
++                icomp: 2.0,
++                ovp_latched: false,
++            },
++            ProtectionAction::PeakCurrentImmediateOff,
++            "PCL immediate gate shutdown",
++        ),
++        (
++            RULES[6],
++            ProtectionScenario {
++                vcc: 9.0,
++                vsense: 5.0,
++                vref: 5.0,
++                isense: 0.0,
++                icomp: 2.0,
++                ovp_latched: false,
++            },
++            ProtectionAction::UvloOff,
++            "UVLO bias priority",
++        ),
++    ];
++    for (rule, scenario, expected, object) in checks {
++        let decision = assess_scenario(scenario, l);
++        if expected == ProtectionAction::Indeterminate && decision.action == expected {
++            findings.push(Finding::indeterminate(
++                rule,
++                format!("executed datasheet case remains indeterminate: {object}"),
++                object,
++            ));
++        } else if decision.action == expected && decision.guaranteed && rule == RULES[6] {
++            findings.push(Finding::indeterminate(rule,"UVLO inhibits PWM at the tested 9 V point; the inhibit-clamp release versus UVLO sequence during bias decay is not time-modeled",object));
++        } else if decision.action == expected && decision.guaranteed {
++            findings.push(Finding::pass(
++                rule,
++                format!("executed independent datasheet-bound scenario: {object}"),
++                object,
++            ));
++        } else {
++            findings.push(Finding::fail(
++                rule,
++                format!(
++                    "datasheet-bound scenario returned {:?}, expected guaranteed {:?}",
++                    decision.action, expected
++                ),
++                object,
++            ));
++        }
++    }
++    gaps.push("UCC28180 datasheet does not provide a guaranteed propagation delay for these shutdown paths".into());
++    gaps.push("PWM inhibition does not provide mains isolation or disconnect the rectifier/boost bus; an external mains disconnect and stored-energy discharge contract is missing".into());
++    findings.push(Finding::indeterminate(RULES[7], "controller PWM disable is not galvanic mains isolation; external disconnect and discharge behavior are unmodeled", "power-entry.mains"));
++    findings.push(Finding::indeterminate(RULES[8], "datasheet provides no guaranteed propagation delay for UVLO, OLP, OVP, ISOP, ICOMP, SOC, or PCL shutdown", "power-entry.timing"));
++    CheckReport::from_findings(findings, RULES.map(str::to_owned).to_vec(), gaps)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use zapote_core::Status;
++
++    fn nominal() -> ProtectionScenario {
++        ProtectionScenario {
++            vcc: 15.0,
++            vsense: 5.0,
++            vref: 5.0,
++            isense: 0.0,
++            icomp: 2.0,
++            ovp_latched: false,
++        }
++    }
++
++    #[test]
++    fn uvlo_dominates_permit_and_has_hysteresis_band() {
++        let mut s = nominal();
++        s.vcc = 9.0;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::UvloOff
++        );
++        s.vcc = 10.0;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::Indeterminate
++        );
++        s.vcc = 12.0;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::Indeterminate
++        );
++    }
++
++    #[test]
++    fn ovp_latches_until_conservative_reset() {
++        let mut s = nominal();
++        s.vsense = 5.6;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::OvpLatchedOff
++        );
++        s.ovp_latched = true;
++        s.vsense = 5.1;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::Indeterminate
++        );
++        s.vsense = 4.9;
++        s.isense = -0.01;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::NoModeledInhibit
++        );
++        s.vsense = 5.1;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::Indeterminate
++        );
++    }
++
++    #[test]
++    fn soc_and_pcl_are_not_conflated() {
++        let mut s = nominal();
++        s.isense = -0.30;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::Indeterminate
++        );
++        s.isense = -0.40;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::Indeterminate
++        );
++        s.isense = -0.32;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::SoftOvercurrent
++        );
++        s.isense = -0.45;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::PeakCurrentImmediateOff
++        );
++    }
++
++    #[test]
++    fn invalid_source_never_passes_and_static_uvlo_does_not_qualify_bias_decay() {
++        let invalid = evaluate_source("{}");
++        assert_eq!(invalid.findings.len(), RULES.len());
++        assert!(!invalid.findings.iter().any(|f| f.status == Status::Pass));
++        let report = evaluate_source(include_str!(
++            "../../../power-entry/candidate/source-manifest.json"
++        ));
++        for rule in [RULES[4], RULES[6], RULES[7], RULES[8]] {
++            assert!(report
++                .findings
++                .iter()
++                .any(|f| f.rule == rule && f.status == Status::Indeterminate));
++        }
++    }
++    #[test]
++    fn malformed_values_fail_closed() {
++        let mut s = nominal();
++        s.vref = f64::NAN;
++        assert_eq!(
++            assess_scenario(s, DatasheetLimits::default()).action,
++            ProtectionAction::Indeterminate
++        );
++    }
++
++    #[test]
++    fn source_binding_keeps_missing_isolation_indeterminate() {
++        let source = include_str!("../../../power-entry/candidate/source-manifest.json");
++        let report = evaluate_source(source);
++        assert_eq!(report.findings[0].status, Status::Pass);
++        assert_eq!(
++            report.findings.last().unwrap().status,
++            Status::Indeterminate
++        );
++        assert!(report
++            .coverage_gaps
++            .iter()
++            .any(|gap| gap.contains("mains isolation")));
++    }
++}
+diff --git a/zapote/packages/zapote-erc/src/pfc_shunt.rs b/zapote/packages/zapote-erc/src/pfc_shunt.rs
+new file mode 100644
+index 000000000..ab0913fe1
+--- /dev/null
++++ b/zapote/packages/zapote-erc/src/pfc_shunt.rs
+@@ -0,0 +1,219 @@
++//! Source-bound current-shunt identity and package contract.
++//!
++//! This rule deliberately stops at identity and published package limits.  A
++//! wattage number is not a thermal approval: board copper area, airflow and
++//! the actual surface temperature still need the thermal model.
++
++use crate::power_entry::{self, ENTRY, SHUNT_FOOTPRINT, SHUNT_MPN};
++use crate::source_circuit::Circuit;
++use serde_json::Value;
++use zapote_core::{CheckReport, Finding};
++
++pub const RULE: &str = "ERC.PFC.SHUNT_PART";
++pub const SHUNT_RESISTANCE_OHM: f64 = 0.010;
++pub const SHUNT_TOLERANCE: f64 = 0.01;
++pub const SHUNT_TCR_PPM_PER_C: f64 = 75.0;
++pub const SHUNT_MAX_OPERATING_C: f64 = 170.0;
++pub const SHUNT_NOMINAL_POWER_W: f64 = 5.0;
++pub const SHUNT_REQUIRED_COPPER_MM2: f64 = 500.0;
++pub const SHUNT_MAX_SURFACE_C: f64 = 100.0;
++
++fn component<'a>(manifest: &'a Value, id: &str) -> Option<&'a Value> {
++    manifest["components"]
++        .as_array()?
++        .iter()
++        .find(|c| c["instance_path"].as_str() == Some(id))
++}
++
++/// Evaluate the exact shunt package contract in a compiled Atopile source.
++/// Unknown identities remain indeterminate, while the known historical
++/// WSL2726 10 mΩ/2-pad claim is a hard failure because it is outside the
++/// manufacturer's published range and package pin count.
++pub fn evaluate_source(source: &str) -> CheckReport {
++    let mut findings = Vec::new();
++    let mut gaps = Vec::new();
++    let manifest: Value = match serde_json::from_str(source) {
++        Ok(value) => value,
++        Err(error) => {
++            findings.push(Finding::fail(
++                RULE,
++                format!("source manifest is invalid: {error}"),
++                "shunt",
++            ));
++            return CheckReport::from_findings(findings, vec![RULE.into()], gaps);
++        }
++    };
++    let Some(part) = component(&manifest, "shunt") else {
++        findings.push(Finding::fail(
++            RULE,
++            "source has no shunt component",
++            "shunt",
++        ));
++        return CheckReport::from_findings(findings, vec![RULE.into()], gaps);
++    };
++    let mpn = part["mpn"].as_str().unwrap_or("");
++    let value = part["value"].as_str().unwrap_or("");
++    let footprint = part["footprint"].as_str().unwrap_or("");
++
++    if mpn == power_entry::LEGACY_SHUNT_MPN {
++        findings.push(Finding::fail(
++            RULE,
++            "WSL2726R0100FEA is unsupported: WSL2726 publishes 0.2–5 mΩ and a 4-terminal package; it does not substantiate a 10 mΩ/2-pad part",
++            "shunt",
++        ));
++        return CheckReport::from_findings(findings, vec![RULE.into()], gaps);
++    }
++    if mpn != SHUNT_MPN {
++        gaps.push(format!(
++            "shunt MPN {mpn} has no reviewed manufacturer contract"
++        ));
++        findings.push(Finding::indeterminate(
++            RULE,
++            format!("shunt MPN {mpn} is not the reviewed HCSM2818FT10L0 identity"),
++            "shunt",
++        ));
++        return CheckReport::from_findings(findings, vec![RULE.into()], gaps);
++    }
++    if value != "10mohm" {
++        findings.push(Finding::fail(
++            RULE,
++            format!("HCSM2818FT10L0 value must be 10mohm, got {value}"),
++            "shunt",
++        ));
++    }
++    if footprint != SHUNT_FOOTPRINT {
++        findings.push(Finding::fail(
++            RULE,
++            format!("HCSM2818FT10L0 requires footprint {SHUNT_FOOTPRINT}, got {footprint}"),
++            "shunt",
++        ));
++    }
++    let census = manifest["footprint_census"].get(footprint);
++    let pads = census.and_then(|entry| entry["pads"].as_array());
++    let mut pad_names = pads
++        .map(|p| p.iter().filter_map(Value::as_str).collect::<Vec<_>>())
++        .unwrap_or_default();
++    pad_names.sort_unstable();
++    if pad_names != ["1", "2"] {
++        findings.push(Finding::fail(
++            RULE,
++            "HCSM2818FT10L0 physical census must contain exactly pads 1 and 2",
++            "shunt",
++        ));
++    }
++    let circuit = match Circuit::parse(source, ENTRY) {
++        Ok(circuit) => circuit,
++        Err(error) => {
++            findings.push(Finding::fail(
++                RULE,
++                format!("source graph is not physically bound: {error}"),
++                "shunt",
++            ));
++            return CheckReport::from_findings(findings, vec![RULE.into()], gaps);
++        }
++    };
++    for pin in ["shunt.1", "shunt.2"] {
++        if !circuit.pins.contains_key(pin) {
++            findings.push(Finding::fail(
++                RULE,
++                format!("physical shunt pad {pin} is absent from compiled graph"),
++                pin,
++            ));
++        }
++    }
++    if findings.is_empty() {
++        findings.push(Finding::pass(
++            RULE,
++            "HCSM2818FT10L0 is 10 mΩ ±1%, 5 W nominal with 500 mm² PCB copper and surface below 100 °C; thermal qualification remains separate",
++            "shunt",
++        ));
++    }
++    CheckReport::from_findings(findings, vec![RULE.into()], gaps)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use serde_json::json;
++    use zapote_core::Status;
++
++    const SOURCE: &str = include_str!("../../../power-entry/candidate/source-manifest.json");
++
++    fn replacement() -> Value {
++        let mut source: Value = serde_json::from_str(SOURCE).unwrap();
++        let reference = {
++            let shunt = source["components"]
++                .as_array_mut()
++                .unwrap()
++                .iter_mut()
++                .find(|c| c["instance_path"] == "shunt")
++                .unwrap();
++            let reference = shunt["reference"].as_str().unwrap().to_owned();
++            shunt["mpn"] = json!(SHUNT_MPN);
++            shunt["footprint"] = json!(SHUNT_FOOTPRINT);
++            reference
++        };
++        source["source_attributes"]["shunt"]["mpn"] = json!(SHUNT_MPN);
++        source["source_attributes"]["shunt"]["footprint"] = json!(SHUNT_FOOTPRINT);
++        let old = source["footprint_census"]
++            .as_object_mut()
++            .unwrap()
++            .remove(power_entry::LEGACY_SHUNT_FOOTPRINT)
++            .unwrap();
++        source["footprint_census"]
++            .as_object_mut()
++            .unwrap()
++            .insert(SHUNT_FOOTPRINT.into(), old);
++        source["bridge"]["components"]
++            .as_array_mut()
++            .unwrap()
++            .iter_mut()
++            .find(|c| c["reference"] == reference)
++            .unwrap()["footprint"] = json!(SHUNT_FOOTPRINT);
++        source
++    }
++
++    #[test]
++    fn historical_identity_fails_closed() {
++        assert_eq!(evaluate_source(SOURCE).status, Status::Fail);
++    }
++
++    #[test]
++    fn reviewed_replacement_passes_identity_contract() {
++        assert_eq!(
++            evaluate_source(&replacement().to_string()).status,
++            Status::Pass
++        );
++    }
++
++    #[test]
++    fn package_mutations_never_pass() {
++        let source = replacement();
++        for (field, bad) in [
++            ("mpn", "OTHER"),
++            ("value", "9mohm"),
++            ("footprint", "temper:wrong"),
++        ] {
++            let mut changed = source.clone();
++            changed["components"]
++                .as_array_mut()
++                .unwrap()
++                .iter_mut()
++                .find(|c| c["instance_path"] == "shunt")
++                .unwrap()[field] = json!(bad);
++            changed["source_attributes"]["shunt"][field] = json!(bad);
++            assert_ne!(
++                evaluate_source(&changed.to_string()).status,
++                Status::Pass,
++                "{field}"
++            );
++        }
++    }
++
++    #[test]
++    fn pad_census_mutation_fails() {
++        let mut source = replacement();
++        source["footprint_census"][SHUNT_FOOTPRINT]["pads"] = json!(["1", "2", "3"]);
++        assert_eq!(evaluate_source(&source.to_string()).status, Status::Fail);
++    }
++}
+diff --git a/zapote/packages/zapote-erc/src/power_entry.rs b/zapote/packages/zapote-erc/src/power_entry.rs
+index 251baefdd..7b1ae5a8f 100644
+--- a/zapote/packages/zapote-erc/src/power_entry.rs
++++ b/zapote/packages/zapote-erc/src/power_entry.rs
+@@ -9,4 +9,20 @@ use std::collections::BTreeSet;
+ pub const ENTRY: &str = "elec/src/power_entry_unit.ato:PowerEntryUnit";
+ 
++/// Reviewed shunt identities.  The legacy identity is retained so historical
++/// source snapshots can still be replayed by the topology checker; the
++/// dedicated `pfc_shunt` rule rejects it for a current design.
++pub const LEGACY_SHUNT_MPN: &str = "WSL2726R0100FEA";
++pub const LEGACY_SHUNT_FOOTPRINT: &str = "temper:WSL2726R0100FEA";
++pub const SHUNT_MPN: &str = "HCSM2818FT10L0";
++pub const SHUNT_FOOTPRINT: &str = "temper:HCSM2818FT10L0";
++
++pub fn shunt_footprint(mpn: &str) -> Option<&'static str> {
++    match mpn {
++        LEGACY_SHUNT_MPN => Some(LEGACY_SHUNT_FOOTPRINT),
++        SHUNT_MPN => Some(SHUNT_FOOTPRINT),
++        _ => None,
++    }
++}
++
+ /// Reviewed DC endpoints; AC endpoints remain pins 2 and 3 for both packages.
+ #[derive(Clone, Copy, Debug)]
+@@ -207,7 +223,15 @@ pub fn validate_source(source: &str) -> Result<(), String> {
+             .get(*id)
+             .ok_or_else(|| format!("missing reviewed part {id}"))?;
+-        if (*id != "bridge" && part.mpn != *mpn) || part.value.as_deref() != *value {
++        let mpn_matches = if *id == "shunt" {
++            shunt_footprint(&part.mpn).is_some()
++        } else {
++            *id == "bridge" || part.mpn == *mpn
++        };
++        if !mpn_matches || part.value.as_deref() != *value {
+             return Err(format!("unreviewed MPN/value at {id}"));
+         }
++        if *id == "shunt" && part.footprint != shunt_footprint(&part.mpn).unwrap() {
++            return Err("shunt requires its reviewed package footprint".into());
++        }
+     }
+     let mut pins = BTreeSet::new();
+diff --git a/zapote/packages/zapote-harness/src/lib.rs b/zapote/packages/zapote-harness/src/lib.rs
+index 08a3060e6..ff73f4e3e 100644
+--- a/zapote/packages/zapote-harness/src/lib.rs
++++ b/zapote/packages/zapote-harness/src/lib.rs
+@@ -540,2 +540,6 @@ pub mod p1;
+ 
+ pub mod p3;
++
++pub mod shunt_thermal;
++
++pub mod pfc_loops;
+diff --git a/zapote/packages/zapote-harness/src/pfc_loops.rs b/zapote/packages/zapote-harness/src/pfc_loops.rs
+new file mode 100644
+index 000000000..c3fe2d684
+--- /dev/null
++++ b/zapote/packages/zapote-harness/src/pfc_loops.rs
+@@ -0,0 +1,425 @@
++//! Exact source/native closure checks for the PFC switching loops.
++//!
++//! This is deliberately a topology and evidence check.  A graph path proves
++//! that the saved copper joins two package terminals; it does not prove that
++//! the path is the high-frequency current path, its inductance, or its EMI
++//! performance.  Those remain explicit indeterminate obligations.
++
++use crate::pfc_paths::BoundGraph;
++use std::collections::{BTreeSet, VecDeque};
++use zapote_core::{CheckReport, Finding, Status};
++use zapote_erc::source_circuit::Circuit;
++
++const TOPOLOGY: &str = "DRC.PFC.LOOP_TOPOLOGY";
++const GEOMETRY: &str = "DRC.PFC.LOOP_GEOMETRY";
++const INDUCTANCE: &str = "DRC.PFC.LOOP_INDUCTANCE";
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub struct LoopLeg {
++    pub from: &'static str,
++    pub to: &'static str,
++}
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub struct LoopSpec<'a> {
++    pub name: &'static str,
++    pub legs: &'a [LoopLeg],
++}
++
++// Pin numbers are from the authored PowerEntryUnit source.  The diode's
++// anodes are pins 1 and 3; pin 2 is the common cathode.
++pub const BOOST_COMMUTATION: LoopSpec = LoopSpec {
++    name: "boost commutation",
++    legs: &[
++        LoopLeg {
++            from: "q_boost.2",
++            to: "d_boost.1",
++        },
++        LoopLeg {
++            from: "q_boost.2",
++            to: "d_boost.3",
++        },
++        LoopLeg {
++            from: "d_boost.2",
++            to: "c_hf.1",
++        },
++        LoopLeg {
++            from: "c_hf.2",
++            to: "q_boost.3",
++        },
++    ],
++};
++
++pub const BOOST_GATE: LoopSpec = LoopSpec {
++    name: "boost gate drive",
++    legs: &[
++        LoopLeg {
++            from: "pfc.8",
++            to: "r_gate.1",
++        },
++        LoopLeg {
++            from: "r_gate.2",
++            to: "q_boost.1",
++        },
++        LoopLeg {
++            from: "q_boost.3",
++            to: "pfc.1",
++        },
++    ],
++};
++
++pub const BOOST_ON_INPUT: LoopSpec = LoopSpec {
++    name: "boost on-state input",
++    legs: &[
++        LoopLeg {
++            from: "bridge.4",
++            to: "l_boost.1",
++        },
++        LoopLeg {
++            from: "l_boost.2",
++            to: "q_boost.2",
++        },
++        LoopLeg {
++            from: "q_boost.3",
++            to: "shunt.1",
++        },
++        LoopLeg {
++            from: "shunt.2",
++            to: "bridge.1",
++        },
++    ],
++};
++
++pub const RULES: [&str; 3] = [TOPOLOGY, GEOMETRY, INDUCTANCE];
++pub const REQUIRED: &[LoopSpec] = &[BOOST_COMMUTATION, BOOST_GATE, BOOST_ON_INPUT];
++
++fn connected(bound: &BoundGraph, from: usize, to: usize, net: &str) -> Option<Vec<String>> {
++    let mut queue = VecDeque::from([from]);
++    let mut seen = BTreeSet::from([from]);
++    let mut via = std::collections::BTreeMap::<usize, (usize, String)>::new();
++    while let Some(node) = queue.pop_front() {
++        if node == to {
++            let mut path = Vec::new();
++            let mut cursor = to;
++            while cursor != from {
++                let (previous, edge) = via.get(&cursor)?;
++                path.push(edge.clone());
++                cursor = *previous;
++            }
++            path.reverse();
++            return Some(path);
++        }
++        for edge in bound
++            .graph
++            .edges
++            .iter()
++            .filter(|e| e.net == net && (e.from == node || e.to == node))
++        {
++            let next = if edge.from == node {
++                edge.to
++            } else {
++                edge.from
++            };
++            if seen.insert(next) {
++                via.insert(next, (node, edge.id.clone()));
++                queue.push_back(next);
++            }
++        }
++    }
++    None
++}
++
++/// Validate exact source pin/net identity and native copper closure.
++/// Physical path quality is intentionally not promoted to a pass.
++pub fn validate(circuit: &Circuit, bound: &BoundGraph, specs: &[LoopSpec<'_>]) -> CheckReport {
++    let mut findings = Vec::new();
++    let mut gaps = bound.coverage_gaps.clone();
++    for spec in specs {
++        for leg in spec.legs {
++            let from_net = match circuit.net(leg.from) {
++                Ok(net) => net,
++                Err(error) => {
++                    findings.push(Finding::fail(TOPOLOGY, error, spec.name));
++                    continue;
++                }
++            };
++            let to_net = match circuit.net(leg.to) {
++                Ok(net) => net,
++                Err(error) => {
++                    findings.push(Finding::fail(TOPOLOGY, error, spec.name));
++                    continue;
++                }
++            };
++            if from_net != to_net {
++                findings.push(Finding::fail(
++                    TOPOLOGY,
++                    format!("{} and {} are on different source nets ({from_net} vs {to_net}); expected a same-net copper leg", leg.from, leg.to),
++                    spec.name,
++                ));
++                continue;
++            }
++            let (Some(&from), Some(&to)) = (
++                bound.terminal_nodes.get(leg.from),
++                bound.terminal_nodes.get(leg.to),
++            ) else {
++                findings.push(Finding::fail(
++                    TOPOLOGY,
++                    format!(
++                        "native graph lacks terminal binding for {}↔{}",
++                        leg.from, leg.to
++                    ),
++                    spec.name,
++                ));
++                continue;
++            };
++            let Some(path) = connected(bound, from, to, from_net) else {
++                let message = format!(
++                    "bound graph has no path for {}↔{} on {from_net}",
++                    leg.from, leg.to
++                );
++                findings.push(if bound.uncertified_nets.contains(from_net) {
++                    Finding::indeterminate(TOPOLOGY, message, spec.name)
++                } else {
++                    Finding::fail(TOPOLOGY, message, spec.name)
++                });
++                continue;
++            };
++            if bound.uncertified_nets.contains(from_net) {
++                findings.push(Finding::indeterminate(
++                    TOPOLOGY,
++                    format!(
++                        "{}↔{} joins via [{}], but {from_net} has unresolved parallel/finite-width contacts",
++                        leg.from, leg.to, path.join(", ")
++                    ),
++                    spec.name,
++                ));
++            } else {
++                findings.push(Finding::pass(
++                    TOPOLOGY,
++                    format!(
++                        "native copper path closes {}↔{} on {from_net}; edge IDs [{}] are diagnostic only",
++                        leg.from, leg.to, path.join(", ")
++                    ),
++                    spec.name,
++                ));
++            }
++        }
++    }
++    findings.push(Finding::indeterminate(
++        GEOMETRY,
++        "endpoint closure does not establish the physical high-frequency loop geometry or area",
++        "PFC switching loops",
++    ));
++    findings.push(Finding::indeterminate(
++        INDUCTANCE,
++        "no extracted parasitic/loop-inductance model is bound to the endpoint path",
++        "PFC switching loops",
++    ));
++    if !gaps.is_empty() {
++        gaps.push(
++            "parallel current distribution and endpoint-restricted HF path remain unresolved"
++                .into(),
++        );
++    }
++    let report = CheckReport::from_findings(
++        findings,
++        vec![TOPOLOGY.into(), GEOMETRY.into(), INDUCTANCE.into()],
++        gaps,
++    );
++    debug_assert!(report.status != Status::Pass);
++    report
++}
++
++/// Common-run entry point; bridge polarity comes from the exact reviewed MPN.
++pub fn run(source: &str, native_text: &str, manufacturing: &serde_json::Value) -> CheckReport {
++    let result = (|| -> Result<CheckReport, String> {
++        zapote_erc::power_entry::validate(source, native_text)?;
++        if zapote_drc::native_binding::validate(native_text).status != Status::Pass {
++            return Err("native copper is not board-bound".into());
++        }
++        let circuit = Circuit::parse(source, zapote_erc::power_entry::ENTRY)?;
++        let raw: serde_json::Value =
++            serde_json::from_str(native_text).map_err(|e| e.to_string())?;
++        if manufacturing["board_sha256"] != raw["board_sha256"] {
++            return Err("manufacturing board hash mismatch".into());
++        }
++        let native = serde_json::from_value(raw.clone()).map_err(|e| e.to_string())?;
++        let bound = crate::pfc_paths::build_with_manufacturing(&native, &raw, manufacturing)?;
++        let pins = zapote_erc::power_entry::bridge_pins(&circuit.components["bridge"].mpn)?;
++        let mut on = BOOST_ON_INPUT.legs.to_vec();
++        on[0].from = pins.positive;
++        on[3].to = pins.negative;
++        Ok(validate(
++            &circuit,
++            &bound,
++            &[
++                BOOST_COMMUTATION,
++                BOOST_GATE,
++                LoopSpec {
++                    name: BOOST_ON_INPUT.name,
++                    legs: &on,
++                },
++            ],
++        ))
++    })();
++    result.unwrap_or_else(|e| {
++        CheckReport::from_findings(
++            vec![
++                Finding::fail(TOPOLOGY, e, "PFC loops"),
++                Finding::indeterminate(GEOMETRY, "input validation failed", "PFC loops"),
++                Finding::indeterminate(INDUCTANCE, "input validation failed", "PFC loops"),
++            ],
++            RULES.map(str::to_owned).to_vec(),
++            vec![],
++        )
++    })
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn repaired_gbj_uses_its_own_polarity_and_preserves_geometry_obligations() {
++        let root =
++            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../power-entry/shunt-repair");
++        let source = std::fs::read_to_string(root.join("candidate/source-manifest.json")).unwrap();
++        let native = std::fs::read_to_string(root.join("evidence/native-04.json")).unwrap();
++        let manufacturing = serde_json::from_slice(
++            &std::fs::read(root.join("evidence/manufacturing-04.json")).unwrap(),
++        )
++        .unwrap();
++        let report = run(&source, &native, &manufacturing);
++        assert!(
++            !report.findings.iter().any(|f| f.status == Status::Fail),
++            "{:?}",
++            report.findings
++        );
++        assert_eq!(
++            report
++                .findings
++                .iter()
++                .filter(|f| f.rule == TOPOLOGY)
++                .count(),
++            11
++        );
++        assert_eq!(report.status, Status::Indeterminate);
++        assert!(report
++            .findings
++            .iter()
++            .any(|f| f.rule == GEOMETRY && f.status == Status::Indeterminate));
++        assert!(report
++            .findings
++            .iter()
++            .any(|f| f.rule == INDUCTANCE && f.status == Status::Indeterminate));
++    }
++    #[test]
++    fn wrong_diode_cathode_pair_is_rejected_by_source_nets() {
++        let source = include_str!("../../../power-entry/candidate/source-manifest.json");
++        let circuit = Circuit::parse(source, zapote_erc::power_entry::ENTRY).unwrap();
++        let wrong = [LoopSpec {
++            name: "wrong diode mapping",
++            legs: &[LoopLeg {
++                from: "q_boost.2",
++                to: "d_boost.2",
++            }],
++        }];
++        let graph = BoundGraph {
++            graph: zapote_drc::power_branches::Graph {
++                node_count: 0,
++                edges: vec![],
++            },
++            terminal_nodes: Default::default(),
++            edge_width_mm: Default::default(),
++            edge_kind: Default::default(),
++            coverage_gaps: vec![],
++            uncertified_nets: Default::default(),
++        };
++        let report = validate(&circuit, &graph, &wrong);
++        assert_eq!(report.findings[0].status, Status::Fail);
++        assert!(report.findings[0].message.contains("different source nets"));
++    }
++
++    #[test]
++    fn anode_leg_closes_only_when_native_edge_exists() {
++        let source = include_str!("../../../power-entry/candidate/source-manifest.json");
++        let circuit = Circuit::parse(source, zapote_erc::power_entry::ENTRY).unwrap();
++        let net = circuit.net("q_boost.2").unwrap().to_owned();
++        assert_eq!(net, circuit.net("d_boost.1").unwrap());
++        let mut terminals = std::collections::BTreeMap::new();
++        terminals.insert("q_boost.2".into(), 0);
++        terminals.insert("d_boost.1".into(), 1);
++        let edge = zapote_drc::power_branches::Edge {
++            id: "trace:sw:0".into(),
++            net: net.clone(),
++            from: 0,
++            to: 1,
++        };
++        let graph = BoundGraph {
++            graph: zapote_drc::power_branches::Graph {
++                node_count: 2,
++                edges: vec![edge],
++            },
++            terminal_nodes: terminals.clone(),
++            edge_width_mm: Default::default(),
++            edge_kind: Default::default(),
++            coverage_gaps: vec![],
++            uncertified_nets: Default::default(),
++        };
++        let spec = [LoopSpec {
++            name: "anode",
++            legs: &[LoopLeg {
++                from: "q_boost.2",
++                to: "d_boost.1",
++            }],
++        }];
++        assert_eq!(
++            validate(&circuit, &graph, &spec).findings[0].status,
++            Status::Pass
++        );
++        let disconnected = BoundGraph {
++            graph: zapote_drc::power_branches::Graph {
++                node_count: 2,
++                edges: vec![],
++            },
++            ..graph
++        };
++        assert_eq!(
++            validate(&circuit, &disconnected, &spec).findings[0].status,
++            Status::Fail
++        );
++    }
++
++    #[test]
++    fn missing_gate_return_or_resistor_binding_fails_closed() {
++        let source = include_str!("../../../power-entry/candidate/source-manifest.json");
++        let circuit = Circuit::parse(source, zapote_erc::power_entry::ENTRY).unwrap();
++        let spec = [BOOST_GATE];
++        let mut terminals = std::collections::BTreeMap::new();
++        for (i, endpoint) in [
++            "pfc.8",
++            "r_gate.1",
++            "r_gate.2",
++            "q_boost.1",
++            "q_boost.3",
++            "pfc.1",
++        ]
++        .iter()
++        .enumerate()
++        {
++            terminals.insert((*endpoint).into(), i);
++        }
++        let graph = BoundGraph {
++            graph: zapote_drc::power_branches::Graph {
++                node_count: 6,
++                edges: vec![],
++            },
++            terminal_nodes: terminals,
++            edge_width_mm: Default::default(),
++            edge_kind: Default::default(),
++            coverage_gaps: vec![],
++            uncertified_nets: Default::default(),
++        };
++        let report = validate(&circuit, &graph, &spec);
++        assert!(report.findings.iter().any(|f| f.status == Status::Fail));
++    }
++}
+diff --git a/zapote/packages/zapote-harness/src/power_entry.rs b/zapote/packages/zapote-harness/src/power_entry.rs
+index 5d053649c..dd9d6677c 100644
+--- a/zapote/packages/zapote-harness/src/power_entry.rs
++++ b/zapote/packages/zapote-harness/src/power_entry.rs
+@@ -53,4 +53,6 @@ pub fn run(source: &str, native: &str, board: &[u8]) -> CheckReport {
+     let mut r = CheckReport::from_findings(vec![], vec![], vec![]);
+     append(&mut r, zapote_erc::pfc_interfaces::validate(source));
++    append(&mut r, zapote_erc::pfc_protection::evaluate_source(source));
++    append(&mut r, zapote_erc::pfc_shunt::evaluate_source(source));
+     r.checked_rules.push("ERC.POWER_ENTRY.SOURCE_GRAPH".into());
+     r.findings
+diff --git a/zapote/packages/zapote-harness/src/runner.rs b/zapote/packages/zapote-harness/src/runner.rs
+index db2495b43..fa7731f06 100644
+--- a/zapote/packages/zapote-harness/src/runner.rs
++++ b/zapote/packages/zapote-harness/src/runner.rs
+@@ -65,4 +65,6 @@ pub struct UnitRunSpec {
+     #[serde(default)]
+     pub joint_model_evidence: Option<PathBuf>,
++    #[serde(default)]
++    pub shunt_model_evidence: Option<PathBuf>,
+ }
+ #[derive(Debug, Deserialize, Serialize)]
+@@ -89,4 +91,6 @@ pub struct UnitRunReport {
+     pub physical_checks: Option<CheckReport>,
+     pub joint_checks: Option<CheckReport>,
++    pub shunt_checks: Option<CheckReport>,
++    pub loop_checks: Option<CheckReport>,
+     pub manufacturing_checks: CheckReport,
+     /// Rule populations emitted by the Rust manufacturing evaluator.
+@@ -208,4 +212,8 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
+     if unit == UnitKind::PowerEntry {
+         required.extend(zapote_erc::pfc_interfaces::RULES.map(str::to_owned));
++        required.push(zapote_erc::pfc_shunt::RULE.into());
++        required.extend(zapote_erc::pfc_protection::RULES.map(str::to_owned));
++        required.extend(crate::shunt_thermal::RULES.map(str::to_owned));
++        required.extend(crate::pfc_loops::RULES.map(str::to_owned));
+         required.extend(crate::pfc_power::RULES.map(str::to_owned));
+         required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
+@@ -293,7 +301,11 @@ pub fn evaluate(
+         .map(|(p, b)| Ok((p, digest(&b))))
+         .collect::<Result<BTreeMap<_, _>>>()?;
+-    for root in [&spec.thermal_evidence, &spec.joint_model_evidence]
+-        .into_iter()
+-        .flatten()
++    for root in [
++        &spec.thermal_evidence,
++        &spec.joint_model_evidence,
++        &spec.shunt_model_evidence,
++    ]
++    .into_iter()
++    .flatten()
+     {
+         hash_evidence_tree(root, &mut hashes)?;
+@@ -329,7 +341,11 @@ fn hash_evidence_tree(root: &Path, hashes: &mut BTreeMap<PathBuf, String>) -> Re
+ fn evidence_hashes(spec: &UnitRunSpec) -> Result<BTreeMap<PathBuf, String>> {
+     let mut hashes = BTreeMap::new();
+-    for root in [&spec.thermal_evidence, &spec.joint_model_evidence]
+-        .into_iter()
+-        .flatten()
++    for root in [
++        &spec.thermal_evidence,
++        &spec.joint_model_evidence,
++        &spec.shunt_model_evidence,
++    ]
++    .into_iter()
++    .flatten()
+     {
+         hash_evidence_tree(root, &mut hashes)?;
+@@ -566,4 +582,13 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
+         None
+     };
++    let loop_checks = if spec.unit == UnitKind::PowerEntry {
++        Some(crate::pfc_loops::run(
++            &source,
++            &native_text,
++            &json(&manufacturing_bytes)?,
++        ))
++    } else {
++        None
++    };
+     let cooling_contract = spec.contract.as_ref().map(|p| read(p)).transpose()?;
+     let manufacturing_geometry = Some(manufacturing_bytes);
+@@ -581,4 +606,11 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
+         )
+     });
++    let shunt_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
++        crate::shunt_thermal::run(
++            spec.shunt_model_evidence.as_deref(),
++            native_text.as_bytes(),
++            pfc_power.as_ref(),
++        )
++    });
+     let thermal_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+         if let Some(reports) = &gbj_reports {
+@@ -687,4 +719,6 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
+     parts.extend(physical_checks.iter());
+     parts.extend(joint_checks.iter());
++    parts.extend(shunt_checks.iter());
++    parts.extend(loop_checks.iter());
+     parts.extend(operating_checks.iter());
+     let coverage = enforce_required(&required, &combine(&parts));
+@@ -710,5 +744,5 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
+     ]);
+     let executable_sha256 = hash_file(&std::env::current_exe().map_err(|e| e.to_string())?)?;
+-    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,thermal_checks,physical_checks,joint_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
++    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,thermal_checks,physical_checks,joint_checks,shunt_checks,loop_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
+ }
+ 
+@@ -720,11 +754,21 @@ mod cooling_coverage_tests {
+     #[test]
+     fn edited_geometry_with_unchanged_board_identity_cannot_reach_downstream_checks() {
+-        let suffix = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
++        let suffix = SystemTime::now()
++            .duration_since(UNIX_EPOCH)
++            .unwrap()
++            .as_nanos();
+         let path = std::env::temp_dir().join(format!("zapote-receipt-{suffix}.json"));
+         let original = br#"{"board_sha256":"same-board","inner_copper_polygons":[[0,0],[1,1]]}"#;
+         fs::write(&path, original).unwrap();
+         let expected = digest(original);
+-        assert_eq!(bound_manufacturing_bytes(&path, &expected).unwrap(), original);
+-        fs::write(&path, br#"{"board_sha256":"same-board","inner_copper_polygons":[[0,0],[100,100]]}"#).unwrap();
++        assert_eq!(
++            bound_manufacturing_bytes(&path, &expected).unwrap(),
++            original
++        );
++        fs::write(
++            &path,
++            br#"{"board_sha256":"same-board","inner_copper_polygons":[[0,0],[100,100]]}"#,
++        )
++        .unwrap();
+         let result = bound_manufacturing_bytes(&path, &expected);
+         fs::remove_file(path).unwrap();
+@@ -800,4 +844,5 @@ mod cooling_coverage_tests {
+             physical_model_source: None,
+             joint_model_evidence: Some(root.clone()),
++            shunt_model_evidence: None,
+         };
+         let hashes = evidence_hashes(&spec).unwrap();
+diff --git a/zapote/packages/zapote-harness/src/shunt_thermal.rs b/zapote/packages/zapote-harness/src/shunt_thermal.rs
+new file mode 100644
+index 000000000..540912ef1
+--- /dev/null
++++ b/zapote/packages/zapote-harness/src/shunt_thermal.rs
+@@ -0,0 +1,52 @@
++//! A valid local heat-spreading experiment never qualifies the whole shunt.
++use std::path::Path;
++use zapote_core::{CheckReport, Finding};
++pub const RULES: [&str; 2] = [
++    "THERMAL.PFC.SHUNT_LOCAL_NUMERICAL",
++    "THERMAL.PFC.SHUNT_ASSEMBLY",
++];
++
++pub fn run(
++    root: Option<&Path>,
++    native: &[u8],
++    pfc: Option<&crate::pfc_power::Report>,
++) -> CheckReport {
++    let numerical = match root {
++        None => Finding::indeterminate(RULES[0], "no retained local shunt model supplied", "shunt"),
++        Some(root) => {
++            let result = (|| -> anyhow::Result<_> {
++                let pfc =
++                    pfc.ok_or_else(|| anyhow::anyhow!("source-bound PFC waveform missing"))?;
++                let s = &pfc.shunt_stress;
++                anyhow::ensure!(
++                    s.mpn == "HCSM2818FT10L0"
++                        && (s.resistance_ohm - 0.01).abs() < 1e-12
++                        && (s.rms_current_a - 15.).abs() < 1e-8,
++                    "retained heat input differs from source-bound waveform/part"
++                );
++                zapote_thermal::shunt_local::replay(native, root)
++            })();
++            match result {
++                Ok(r) => Finding::pass(RULES[0], format!("{} source-bound solves: mesh geometry, heat balance, convergence, boundary/material sensitivities and retained decks/logs verified", r.cases.len()), "shunt"),
++                Err(e) => Finding::fail(RULES[0], format!("local shunt replay rejected: {e:#}"), "shunt"),
++            }
++        }
++    };
++    CheckReport::from_findings(vec![numerical, Finding::indeterminate(RULES[1], "5 W is conditional on 500 mm² copper and resistor surface below 100 C. Local front copper with imposed cut temperatures omits body/solder/vias/board cooling and cannot establish either condition or pulse capability", "shunt")], RULES.map(str::to_owned).to_vec(), vec![])
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use zapote_core::Status;
++    #[test]
++    fn missing_evidence_and_missing_waveform_cannot_qualify() {
++        let missing = run(None, b"{}", None);
++        assert_eq!(missing.status, Status::Indeterminate);
++        assert_eq!(missing.checked_rules.len(), 2);
++        assert_eq!(
++            run(Some(Path::new("absent")), b"{}", None).status,
++            Status::Fail
++        );
++    }
++}
+diff --git a/zapote/packages/zapote-thermal/src/lib.rs b/zapote/packages/zapote-thermal/src/lib.rs
+index 165a3647f..865a47e94 100644
+--- a/zapote/packages/zapote-thermal/src/lib.rs
++++ b/zapote/packages/zapote-thermal/src/lib.rs
+@@ -754,2 +754,6 @@ mod tests {
+     }
+ }
++
++pub mod shunt_local;
++
++mod shunt_mesh;
+diff --git a/zapote/packages/zapote-thermal/src/shunt_local.rs b/zapote/packages/zapote-thermal/src/shunt_local.rs
+new file mode 100644
+index 000000000..09442548e
+--- /dev/null
++++ b/zapote/packages/zapote-thermal/src/shunt_local.rs
+@@ -0,0 +1,679 @@
++//! Native shunt-pad/local-track heat spreading. This does not resolve the
++//! resistor body, solder, vias or whole-board cooling. Cut temperatures are
++//! imposed assumptions; numerical convergence never qualifies the assembly.
++use anyhow::{ensure, Context, Result};
++use serde::{Deserialize, Serialize};
++use serde_json::Value;
++use sha2::{Digest, Sha256};
++use std::{collections::BTreeMap, fs, path::Path, time::Duration};
++
++const TRACKS: [&str; 2] = [
++    "8211911f-cc39-4eea-97a9-14ae9c9da5db",
++    "e45ca754-66c7-4204-987e-e69d5ed1af44",
++];
++const MESHES: [f64; 3] = [0.0008, 0.0004, 0.0002];
++#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
++pub struct Geometry {
++    pub board_sha256: String,
++    pub pad_centres_mm: [[f64; 2]; 2],
++    pub pad_size_mm: [f64; 2],
++    pub tracks_mm: [[[f64; 2]; 2]; 2],
++    pub widths_mm: [f64; 2],
++    pub copper_mm: f64,
++}
++fn pair(v: &Value) -> Result<[f64; 2]> {
++    let a = v.as_array().context("missing coordinate")?;
++    ensure!(a.len() == 2, "coordinate dimension");
++    let p = [a[0].as_f64().context("x")?, a[1].as_f64().context("y")?];
++    ensure!(p.iter().all(|x| x.is_finite()), "nonfinite coordinate");
++    Ok(p)
++}
++pub fn geometry(native: &[u8]) -> Result<Geometry> {
++    ensure!(
++        zapote_drc::native_binding::validate(std::str::from_utf8(native)?).status
++            == zapote_core::Status::Pass,
++        "native geometry is not bound to saved board"
++    );
++    let n: Value = serde_json::from_slice(native)?;
++    let cs = n["components"].as_array().context("components")?;
++    let shunts: Vec<_> = cs.iter().filter(|c| c["id"] == "shunt").collect();
++    ensure!(shunts.len() == 1, "one shunt required");
++    let s = shunts[0];
++    ensure!(s["mpn"] == "HCSM2818FT10L0", "unsupported shunt package");
++    let ps = s["footprint_pads"].as_array().context("pads")?;
++    ensure!(ps.len() == 2, "two pads required");
++    let mut centres = [[0.; 2]; 2];
++    for (i, num) in ["1", "2"].iter().enumerate() {
++        let p = ps
++            .iter()
++            .find(|p| p["pad"] == *num)
++            .context("pin missing")?;
++        ensure!(
++            pair(&p["size_mm"])? == [3.5, 5.3]
++                && pair(&p["drill_mm"])? == [0., 0.]
++                && p["shape"] == 1
++                && p["orientation_deg"] == 180.0,
++            "reviewed rectangular native land pattern required"
++        );
++        ensure!(
++            p["net"] == ["PFC_BUS_MINUS", "minus"][i]
++                && p["layers"]
++                    .as_array()
++                    .context("pad layers")?
++                    .iter()
++                    .any(|l| l == "F.Cu")
++                && !p["layers"].as_array().unwrap().iter().any(|l| l == "B.Cu"),
++            "shunt net/layer differs"
++        );
++        centres[i] = pair(&p["position_mm"])?;
++    }
++    ensure!(
++        (centres[0][0] - centres[1][0] - 4.1).abs() < 1e-6 && centres[0][1] == centres[1][1],
++        "shunt land-pattern gap differs"
++    );
++    let mut tracks = [[[0.; 2]; 2]; 2];
++    let mut widths = [0.; 2];
++    let ts = n["traces"].as_array().context("traces")?;
++    for (i, id) in TRACKS.iter().enumerate() {
++        let t = ts
++            .iter()
++            .find(|t| t["uuid"] == *id)
++            .context("local power trace missing")?;
++        ensure!(
++            t["layer"] == "F.Cu" && t["net"] == ["PFC_BUS_MINUS", "minus"][i],
++            "local trace layer/net differs"
++        );
++        let p = t["points_mm"].as_array().context("trace points")?;
++        ensure!(p.len() == 2, "straight trace required");
++        tracks[i] = [pair(&p[0])?, pair(&p[1])?];
++        widths[i] = t["width_mm"].as_f64().context("width")?;
++        ensure!(
++            widths[i] > 0.
++                && widths[i].is_finite()
++                && tracks[i][0][1] == centres[i][1]
++                && tracks[i][1][1] == centres[i][1],
++            "horizontal pad-centred trace required"
++        );
++    }
++    // The cut is the existing outer trace endpoint; the inner endpoint must lie in the pad.
++    for i in 0..2 {
++        let [a, b] = tracks[i];
++        ensure!(
++            a[0] < centres[i][0] - 1.75 || a[0] > centres[i][0] + 1.75,
++            "outer cut intersects pad"
++        );
++        ensure!(
++            (b[0] - centres[i][0]).abs() < 1.75,
++            "trace does not enter pad"
++        );
++    }
++    let stack = crate::neck_geometry::extract_stackup_dimensions(native)?;
++    ensure!(
++        (stack.copper_thickness_um - 70.).abs() < 1e-9,
++        "reviewed 70 um front copper required"
++    );
++    Ok(Geometry {
++        board_sha256: n["board_sha256"].as_str().context("board digest")?.into(),
++        pad_centres_mm: centres,
++        pad_size_mm: [3.5, 5.3],
++        tracks_mm: tracks,
++        widths_mm: widths,
++        copper_mm: 0.07,
++    })
++}
++/// Independent construction from actual native rectangles and capsule track
++/// ends, cropped at their original outer centreline endpoints.
++pub fn geo(g: &Geometry, mesh: f64) -> String {
++    let tc = g.copper_mm / 1000.;
++    let mut s=format!("SetFactory(\"OpenCASCADE\");\nMesh.MshFileVersion=2.2;\nMesh.CharacteristicLengthMin={mesh};\nMesh.CharacteristicLengthMax={mesh};\nMesh.ElementOrder=1;\n");
++    for i in 0..2 {
++        let c = g.pad_centres_mm[i];
++        let a = g.tracks_mm[i][0][0] / 1000.;
++        let b = g.tracks_mm[i][1][0] / 1000.;
++        let y = c[1] / 1000.;
++        let w = g.widths_mm[i] / 1000.;
++        let p = i + 1;
++        let t = i + 3;
++        let cap = i + 5;
++        s+=&format!("Box({p})={{{},{},0,0.0035,0.0053,{tc}}};\nBox({t})={{{},{},0,{},{w},{tc}}};\nCylinder({cap})={{{b},{y},0,0,0,{tc},{}}};\n",c[0]/1000.-0.00175,y-0.00265,a.min(b),y-w/2.,(a-b).abs(),w/2.);
++    }
++    s += "all[]=BooleanFragments{Volume{1,2,3,4,5,6};Delete;}{};\ne=1e-6;\n";
++    for i in 0..2 {
++        let c = g.pad_centres_mm[i];
++        let x = c[0] / 1000.;
++        let y = c[1] / 1000.;
++        s+=&format!("p{i}[]=Volume In BoundingBox{{{}-e,{}-e,-e,{}+e,{}+e,{tc}+e}};\nPhysical Volume({})={{p{i}[]}};\n",x-0.00175,y-0.00265,x+0.00175,y+0.00265,i+1);
++    }
++    s += "other[]=all[]; other[]-={p0[],p1[]}; Physical Volume(3)={other[]};\n";
++    for i in 0..2 {
++        let x = g.tracks_mm[i][0][0] / 1000.;
++        let y = g.pad_centres_mm[i][1] / 1000.;
++        let r = g.widths_mm[i] / 2000.;
++        s += &format!(
++            "cut{i}[]=Surface In BoundingBox{{{x}-e,{}-e,-e,{x}+e,{}+e,{tc}+e}};\n",
++            y - r,
++            y + r
++        );
++    }
++    s += "Physical Surface(13)={cut0[],cut1[]};\n";
++    s
++}
++#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
++pub struct Scenario {
++    pub name: String,
++    pub split: [f64; 2],
++    pub cut_c: f64,
++    pub conductivity: f64,
++}
++pub fn scenarios() -> Vec<Scenario> {
++    [
++        ("nominal", [0.5, 0.5], 80., 350.),
++        ("pad1-hot", [1., 0.], 80., 350.),
++        ("pad2-hot", [0., 1.], 80., 350.),
++        ("hot-cut", [0.5, 0.5], 100., 350.),
++        ("weak-copper", [0.5, 0.5], 80., 250.),
++    ]
++    .into_iter()
++    .map(|(n, split, cut_c, conductivity)| Scenario {
++        name: n.into(),
++        split,
++        cut_c,
++        conductivity,
++    })
++    .collect()
++}
++// Conditional heat input at 100 C, +1% and +75 ppm/K. Higher modeled copper
++// temperatures do not qualify or predict the unmodeled resistor body.
++pub const HEAT_W: f64 = 15. * 15. * 0.01 * 1.01 * (1. + 75e-6 * 75.);
++fn sif(g: &Geometry, p: &Scenario) -> String {
++    let vol = g.pad_size_mm[0] * g.pad_size_mm[1] * g.copper_mm * 1e-9;
++    let mut s=format!("Header\n CHECK KEYWORDS Warn\n Mesh DB \".\" \"mesh\"\nEnd\nSimulation\n Coordinate System = Cartesian 3D\n Simulation Type = Steady State\n Steady State Max Iterations = 8\nEnd\nEquation 1\n Active Solvers(1) = 1\nEnd\nMaterial 1\n Heat Conductivity = {}\n Density = 1\n Heat Capacity = 1\nEnd\n",p.conductivity);
++    for i in 1..=3 {
++        s += &format!("Body {i}\n Target Bodies(1) = {i}\n Equation = 1\n Material = 1\n");
++        if i < 3 {
++            s += &format!(" Body Force = {i}\n");
++        }
++        s += "End\n";
++    }
++    for i in 0..2 {
++        s += &format!(
++            "Body Force {}\n Heat Source = {:.14}\nEnd\n",
++            i + 1,
++            HEAT_W * p.split[i] / vol
++        );
++    }
++    s += &format!(
++        r#"Solver 1
++ Equation = Heat Equation
++ Procedure = "HeatSolve" "HeatSolver"
++ Variable = Temperature
++ Linear System Solver = Direct
++ Linear System Direct Method = umfpack
++ Nonlinear System Max Iterations = 1
++ Steady State Convergence Tolerance = 1e-9
++ Calculate Loads = True
++ Calculate Boundary Fluxes = True
++End
++Solver 2
++ Exec Solver = After All
++ Equation = SaveScalars
++ Procedure = "SaveData" "SaveScalars"
++ Variable 1 = Temperature
++ Operator 1 = max
++ Variable 2 = Temperature
++ Operator 2 = min
++ Filename = scalars.dat
++End
++Boundary Condition 1
++ Target Boundaries(1) = 13
++ Temperature = {}
++ Save Scalars = True
++End
++"#,
++        p.cut_c + 273.15
++    );
++    s
++}
++#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
++pub struct Measurement {
++    pub max_c: f64,
++    pub min_c: f64,
++    pub heat_out_w: f64,
++}
++fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
++    let log = fs::read_to_string(d.join("solver.log"))?;
++    ensure!(
++        log.contains("MAIN: *** Elmer Solver: ALL DONE ***")
++            && !["ERROR::", "FATAL", "DIVERGED", "NOT CONVERGED"]
++                .iter()
++                .any(|x| log.contains(x)),
++        "solver did not complete"
++    );
++    let changes = log
++        .lines()
++        .filter_map(|l| {
++            l.split_once("Relative Change :")
++                .map(|(_, v)| v.trim().parse::<f64>())
++        })
++        .collect::<std::result::Result<Vec<_>, _>>()?;
++    let iterations = log
++        .lines()
++        .filter(|l| l.contains("Steady state iteration:"))
++        .count();
++    ensure!(
++        (2..8).contains(&iterations) && changes.last().is_some_and(|v| v.is_finite() && *v <= 1e-9),
++        "steady-state convergence not established"
++    );
++    let names = fs::read_to_string(d.join("scalars.dat.names"))?;
++    let cols = names
++        .split_once("Variables in columns of matrix:")
++        .context("missing scalar names")?
++        .1
++        .lines()
++        .filter(|l| !l.trim().is_empty())
++        .map(|l| {
++            l.split_once(':')
++                .map(|(_, n)| n.trim())
++                .context("scalar name")
++        })
++        .collect::<Result<Vec<_>>>()?;
++    ensure!(
++        cols == [
++            "max: temperature",
++            "min: temperature",
++            "res: temperature flux over bc 1"
++        ],
++        "unexpected scalar columns: {:?}",
++        cols
++    );
++    let data = fs::read_to_string(d.join("scalars.dat"))?;
++    ensure!(
++        data.lines().filter(|l| !l.trim().is_empty()).count() == 1,
++        "exactly one scalar row required"
++    );
++    let n = data
++        .split_whitespace()
++        .map(str::parse)
++        .collect::<std::result::Result<Vec<f64>, _>>()?;
++    ensure!(
++        n.len() == 3 && n.iter().all(|n| n.is_finite()),
++        "three finite scalars required"
++    );
++    ensure!(
++        n[0] >= n[1] && (n[1] - 273.15 - p.cut_c).abs() < 1e-5,
++        "temperature boundary inconsistency"
++    );
++    ensure!(
++        (-n[2] - HEAT_W).abs() < 1e-7,
++        "energy balance: {} versus {}",
++        -n[2],
++        HEAT_W
++    );
++    Ok(Measurement {
++        max_c: n[0] - 273.15,
++        min_c: n[1] - 273.15,
++        heat_out_w: -n[2],
++    })
++}
++#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
++pub struct Case {
++    pub scenario: Scenario,
++    pub mesh_m: f64,
++    pub node_count: usize,
++    pub measurement: Measurement,
++}
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct Report {
++    pub schema: String,
++    pub geometry: Geometry,
++    pub heat_w: f64,
++    pub cases: Vec<Case>,
++    pub artifacts: BTreeMap<String, String>,
++    pub applicability: String,
++}
++fn hash(b: &[u8]) -> String {
++    format!("{:x}", Sha256::digest(b))
++}
++fn validate_backend(out: &Path) -> Result<()> {
++    let b: BTreeMap<String, String> = serde_json::from_slice(&fs::read(out.join("backend.json"))?)?;
++    ensure!(
++        b.keys().map(String::as_str).collect::<Vec<_>>()
++            == ["HeatSolve", "SaveData", "gmsh", "grid", "solver"],
++        "backend census differs"
++    );
++    ensure!(
++        b.values()
++            .all(|s| s.len() == 64 && s.bytes().all(|c| c.is_ascii_hexdigit())),
++        "invalid backend digest"
++    );
++    Ok(())
++}
++fn required_hashes(out: &Path, cases: &[Case]) -> Result<BTreeMap<String, String>> {
++    let mut paths = vec!["native.json".into(), "backend.json".into()];
++    for c in cases {
++        let name = format!("{}-{}", c.scenario.name, (c.mesh_m * 1e6).round() as u32);
++        for f in [
++            "local.geo",
++            "local.msh",
++            "case.sif",
++            "scalars.dat",
++            "scalars.dat.names",
++            "gmsh.log",
++            "grid.log",
++            "solver.log",
++            "mesh/mesh.nodes",
++            "mesh/mesh.elements",
++            "mesh/mesh.boundary",
++            "mesh/mesh.header",
++        ] {
++            paths.push(format!("{name}/{f}"));
++        }
++    }
++    paths
++        .into_iter()
++        .map(|p| Ok((p.clone(), hash(&fs::read(out.join(p))?))))
++        .collect()
++}
++fn profile_validate(cases: &[Case]) -> Result<()> {
++    let ps = scenarios();
++    ensure!(cases.len() == ps.len() * 3, "incomplete profile");
++    for (p, cs) in ps.iter().zip(cases.chunks_exact(3)) {
++        for (c, m) in cs.iter().zip(MESHES) {
++            ensure!(
++                c.scenario == *p && c.mesh_m == m,
++                "scenario profile changed"
++            );
++        }
++        for (i, ab) in cs.windows(2).enumerate() {
++            ensure!(ab[1].node_count > ab[0].node_count, "mesh did not refine");
++            ensure!(
++                (ab[1].measurement.max_c - ab[0].measurement.max_c).abs() < [1., 0.5][i],
++                "mesh not converged"
++            );
++        }
++    }
++    Ok(())
++}
++pub fn run(native: &[u8], out: &Path, tools: &crate::neck_run::Tools) -> Result<Report> {
++    let g = geometry(native)?;
++    ensure!(!out.exists(), "refusing to overwrite evidence");
++    fs::create_dir_all(out)?;
++    fs::write(out.join("native.json"), native)?;
++    let mut backend = BTreeMap::new();
++    for (name, p) in [
++        ("gmsh", &tools.gmsh),
++        ("grid", &tools.grid),
++        ("solver", &tools.solver),
++    ] {
++        backend.insert(name.to_owned(), crate::sha256_file(p)?);
++    }
++    let prefix = tools
++        .solver
++        .parent()
++        .and_then(Path::parent)
++        .context("Elmer installation prefix")?;
++    for name in ["HeatSolve", "SaveData"] {
++        let stem = prefix.join("share/elmersolver/lib").join(name);
++        let path = ["dylib", "so"]
++            .into_iter()
++            .map(|ext| stem.with_extension(ext))
++            .find(|p| p.is_file())
++            .context("required solver module unavailable")?;
++        backend.insert(name.to_owned(), crate::sha256_file(&path)?);
++    }
++    fs::write(
++        out.join("backend.json"),
++        serde_json::to_vec_pretty(&backend)?,
++    )?;
++    validate_backend(out)?;
++    let mut cases = Vec::new();
++    for p in scenarios() {
++        for m in MESHES {
++            let d = out.join(format!("{}-{}", p.name, (m * 1e6).round() as u32));
++            fs::create_dir(&d)?;
++            fs::write(d.join("local.geo"), geo(&g, m))?;
++            fs::write(d.join("case.sif"), sif(&g, &p))?;
++            for (exe, args, name) in [
++                (
++                    &tools.gmsh,
++                    vec![
++                        "-3",
++                        "local.geo",
++                        "-format",
++                        "msh2",
++                        "-o",
++                        "local.msh",
++                        "-nt",
++                        "1",
++                    ],
++                    "gmsh",
++                ),
++                (
++                    &tools.grid,
++                    vec!["14", "2", "local.msh", "-out", "mesh"],
++                    "grid",
++                ),
++                (&tools.solver, vec!["case.sif"], "solver"),
++            ] {
++                crate::run_process(
++                    exe,
++                    &args,
++                    &d,
++                    &d.join(format!("{name}.log")),
++                    Duration::from_secs(180),
++                )?;
++                if name == "gmsh" {
++                    crate::shunt_mesh::validate(&fs::read_to_string(d.join("local.msh"))?, &g)?;
++                }
++            }
++            crate::shunt_mesh::validate_elmer(&d.join("mesh"), &g)?;
++            let measurement = measurements(&d, &p)?;
++            cases.push(Case {
++                scenario: p.clone(),
++                mesh_m: m,
++                node_count: crate::shunt_mesh::validate(
++                    &fs::read_to_string(d.join("local.msh"))?,
++                    &g,
++                )?,
++                measurement,
++            });
++        }
++    }
++    profile_validate(&cases)?;
++    let artifacts = required_hashes(out, &cases)?;
++    let r=Report{schema:"zapote.shunt-local.v2".into(),geometry:g,heat_w:HEAT_W,cases,artifacts,applicability:"INDETERMINATE: imposed copper cut temperatures; body/solder/vias/whole-board spreading and copper Joule heat omitted".into()};
++    fs::write(out.join("report.json"), serde_json::to_vec_pretty(&r)?)?;
++    Ok(r)
++}
++pub fn replay(native: &[u8], out: &Path) -> Result<Report> {
++    let r: Report = serde_json::from_slice(&fs::read(out.join("report.json"))?)?;
++    ensure!(
++        r.schema == "zapote.shunt-local.v2"
++            && r.geometry == geometry(native)?
++            && r.heat_w == HEAT_W,
++        "thermal evidence input/model changed"
++    );
++    validate_backend(out)?;
++    profile_validate(&r.cases)?;
++    ensure!(
++        r.artifacts == required_hashes(out, &r.cases)?,
++        "thermal artifacts changed"
++    );
++    ensure!(
++        geometry(&fs::read(out.join("native.json"))?)? == r.geometry,
++        "retained geometry differs"
++    );
++    for c in &r.cases {
++        let d = out.join(format!(
++            "{}-{}",
++            c.scenario.name,
++            (c.mesh_m * 1e6).round() as u32
++        ));
++        ensure!(
++            fs::read_to_string(d.join("local.geo"))? == geo(&r.geometry, c.mesh_m)
++                && fs::read_to_string(d.join("case.sif"))? == sif(&r.geometry, &c.scenario),
++            "thermal deck differs from current model"
++        );
++        crate::shunt_mesh::validate_elmer(&d.join("mesh"), &r.geometry)?;
++        ensure!(
++            measurements(&d, &c.scenario)? == c.measurement
++                && crate::shunt_mesh::validate(
++                    &fs::read_to_string(d.join("local.msh"))?,
++                    &r.geometry
++                )? == c.node_count,
++            "thermal summary differs from raw data"
++        );
++    }
++    Ok(r)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use std::{
++        path::PathBuf,
++        sync::atomic::{AtomicUsize, Ordering},
++    };
++    fn root() -> PathBuf {
++        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../power-entry/shunt-repair")
++    }
++    fn native() -> Vec<u8> {
++        fs::read(root().join("evidence/native-04.json")).unwrap()
++    }
++    struct Scratch(PathBuf);
++    impl Scratch {
++        fn new() -> Self {
++            static NEXT: AtomicUsize = AtomicUsize::new(0);
++            let p = std::env::temp_dir().join(format!(
++                "zapote-shunt-test-{}-{}",
++                std::process::id(),
++                NEXT.fetch_add(1, Ordering::Relaxed)
++            ));
++            fs::create_dir(&p).unwrap();
++            Self(p)
++        }
++        fn retained() -> Self {
++            let s = Self::new();
++            let source = root().join("thermal-04");
++            let r: Report =
++                serde_json::from_slice(&fs::read(source.join("report.json")).unwrap()).unwrap();
++            for p in r
++                .artifacts
++                .keys()
++                .map(String::as_str)
++                .chain(["report.json"])
++            {
++                let out = s.0.join(p);
++                fs::create_dir_all(out.parent().unwrap()).unwrap();
++                fs::copy(source.join(p), out).unwrap();
++            }
++            s
++        }
++    }
++    impl Drop for Scratch {
++        fn drop(&mut self) {
++            let _ = fs::remove_dir_all(&self.0);
++        }
++    }
++    #[test]
++    fn retained_fem_replays_and_obeys_linear_heat_equation_symmetries() {
++        let r = replay(&native(), &root().join("thermal-04")).unwrap();
++        assert_eq!(r.cases.len(), 15);
++        let fine = |name: &str| {
++            r.cases
++                .iter()
++                .find(|c| c.scenario.name == name && c.mesh_m == 0.0002)
++                .unwrap()
++                .measurement
++                .max_c
++        };
++        assert!((fine("hot-cut") - fine("nominal") - 20.).abs() < 1e-5);
++        assert!(((fine("weak-copper") - 80.) / (fine("nominal") - 80.) - 350. / 250.).abs() < 1e-5);
++        assert!(fine("nominal") > 100.); // conditional local result, not body qualification
++    }
++    #[test]
++    fn board_or_native_pad_changes_invalidate_geometry() {
++        let bytes = native();
++        let g = geometry(&bytes).unwrap();
++        assert_eq!(g.pad_size_mm, [3.5, 5.3]);
++        for field in ["mpn", "orientation_deg", "size_mm"] {
++            let mut n: Value = serde_json::from_slice(&bytes).unwrap();
++            let s = n["components"]
++                .as_array_mut()
++                .unwrap()
++                .iter_mut()
++                .find(|c| c["id"] == "shunt")
++                .unwrap();
++            match field {
++                "mpn" => s[field] = "WSL2726R0100FEA".into(),
++                "orientation_deg" => s["footprint_pads"][0][field] = 90.into(),
++                _ => s["footprint_pads"][0][field] = serde_json::json!([2., 4.2]),
++            }
++            assert!(
++                geometry(&serde_json::to_vec(&n).unwrap()).is_err(),
++                "{field}"
++            );
++        }
++    }
++    #[test]
++    fn independent_mesh_check_rejects_missing_heat_material_and_wrong_cut() {
++        let g = geometry(&native()).unwrap();
++        let p = root().join("thermal-04/nominal-200/local.msh");
++        let good = fs::read_to_string(p).unwrap();
++        assert!(crate::shunt_mesh::validate(&good, &g).is_ok());
++        for (from, to) in [(" 4 2 1 ", " 4 2 3 "), (" 2 2 13 ", " 2 2 12 ")] {
++            let bad = good.replace(from, to);
++            assert_ne!(bad, good);
++            assert!(crate::shunt_mesh::validate(&bad, &g).is_err());
++        }
++    }
++    #[test]
++    fn edited_summary_deck_and_raw_results_cannot_replay() {
++        let s = Scratch::retained();
++        let n = native();
++        let p = s.0.join("report.json");
++        let original = fs::read(&p).unwrap();
++        let mut r: Report = serde_json::from_slice(&original).unwrap();
++        r.cases[2].measurement.max_c += 0.01;
++        fs::write(&p, serde_json::to_vec(&r).unwrap()).unwrap();
++        assert!(replay(&n, &s.0).is_err());
++        fs::write(&p, &original).unwrap();
++        let deck = s.0.join("nominal-200/case.sif");
++        fs::write(&deck, "forged deck").unwrap();
++        // Even updating the checksum cannot make a changed model its own oracle.
++        let mut r: Report = serde_json::from_slice(&original).unwrap();
++        r.artifacts = required_hashes(&s.0, &r.cases).unwrap();
++        fs::write(&p, serde_json::to_vec(&r).unwrap()).unwrap();
++        assert!(replay(&n, &s.0).is_err());
++    }
++    #[test]
++    fn energy_and_solver_convergence_are_required_independently() {
++        let s = Scratch::new();
++        let src = root().join("thermal-04/nominal-200");
++        for name in ["solver.log", "scalars.dat", "scalars.dat.names"] {
++            fs::copy(src.join(name), s.0.join(name)).unwrap();
++        }
++        let p = scenarios().remove(0);
++        assert!(measurements(&s.0, &p).is_ok());
++        let log = fs::read_to_string(s.0.join("solver.log")).unwrap();
++        fs::write(
++            s.0.join("solver.log"),
++            log.replace("Relative Change :", "untrusted :"),
++        )
++        .unwrap();
++        assert!(measurements(&s.0, &p).is_err());
++        fs::write(s.0.join("solver.log"), log).unwrap();
++        fs::write(s.0.join("scalars.dat"), "394.5 353.15 -1.0\n").unwrap();
++        assert!(measurements(&s.0, &p).is_err());
++    }
++    #[test]
++    fn unconverged_and_incomplete_profiles_are_rejected() {
++        let mut r: Report =
++            serde_json::from_slice(&fs::read(root().join("thermal-04/report.json")).unwrap())
++                .unwrap();
++        r.cases[2].measurement.max_c += 2.;
++        assert!(profile_validate(&r.cases).is_err());
++        r.cases.pop();
++        assert!(profile_validate(&r.cases).is_err());
++    }
++}
+diff --git a/zapote/packages/zapote-thermal/src/shunt_mesh.rs b/zapote/packages/zapote-thermal/src/shunt_mesh.rs
+new file mode 100644
+index 000000000..460ad37f3
+--- /dev/null
++++ b/zapote/packages/zapote-thermal/src/shunt_mesh.rs
+@@ -0,0 +1,262 @@
++//! Independent integration of linear mesh cells, checked against native lands.
++use crate::shunt_local::Geometry;
++use anyhow::{ensure, Context, Result};
++use std::collections::{BTreeMap, BTreeSet};
++use std::{fs, path::Path};
++
++/// Validate the actual solver mesh too: conversion is part of the apparatus.
++pub fn validate_elmer(dir: &Path, g: &Geometry) -> Result<usize> {
++    let mut nodes = Vec::new();
++    for row in fs::read_to_string(dir.join("mesh.nodes"))?.lines() {
++        let f: Vec<_> = row.split_whitespace().collect();
++        ensure!(f.len() == 5, "Elmer node columns");
++        nodes.push(format!("{} {} {} {}", f[0], f[2], f[3], f[4]));
++    }
++    let mut cells = Vec::new();
++    for row in fs::read_to_string(dir.join("mesh.elements"))?.lines() {
++        let f: Vec<_> = row.split_whitespace().collect();
++        ensure!(
++            f.len() == 7 && f[2] == "504",
++            "linear Elmer tetrahedron required"
++        );
++        cells.push(format!(
++            "{} 4 1 {} {}",
++            cells.len() + 1,
++            f[1],
++            f[3..].join(" ")
++        ));
++    }
++    for row in fs::read_to_string(dir.join("mesh.boundary"))?.lines() {
++        let f: Vec<_> = row.split_whitespace().collect();
++        ensure!(
++            f.len() == 8 && f[4] == "303",
++            "linear Elmer boundary required"
++        );
++        cells.push(format!(
++            "{} 2 1 {} {}",
++            cells.len() + 1,
++            f[1],
++            f[5..].join(" ")
++        ));
++    }
++    let mesh=format!("$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$Nodes\n{}\n{}\n$EndNodes\n$Elements\n{}\n{}\n$EndElements\n",nodes.len(),nodes.join("\n"),cells.len(),cells.join("\n"));
++    validate(&mesh, g)
++}
++
++type Point = [f64; 3];
++fn sub(a: Point, b: Point) -> Point {
++    [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
++}
++fn cross(a: Point, b: Point) -> Point {
++    [
++        a[1] * b[2] - a[2] * b[1],
++        a[2] * b[0] - a[0] * b[2],
++        a[0] * b[1] - a[1] * b[0],
++    ]
++}
++fn dot(a: Point, b: Point) -> f64 {
++    a.iter().zip(b).map(|(x, y)| x * y).sum()
++}
++fn section<'a>(lines: &'a [&str], name: &str) -> Result<&'a [&'a str]> {
++    let at = lines
++        .iter()
++        .position(|l| *l == format!("${name}"))
++        .context("missing section")?;
++    let n: usize = lines.get(at + 1).context("missing count")?.parse()?;
++    let end = at
++        .checked_add(2)
++        .and_then(|s| s.checked_add(n))
++        .context("count overflow")?;
++    ensure!(
++        lines.get(end) == Some(&format!("$End{name}").as_str()),
++        "section count mismatch"
++    );
++    lines.get(at + 2..end).context("truncated section")
++}
++fn close(a: f64, b: f64, t: f64) -> Result<()> {
++    ensure!(
++        a.is_finite() && b > 0. && (a / b - 1.).abs() < t,
++        "mesh measure {a:e} differs from expected {b:e}"
++    );
++    Ok(())
++}
++// Numerical quadrature of native rectangle/capsule unions, independent of
++// the mesher's Boolean operations. This is a transfer check, not thermal FEM.
++fn expected_total(g: &Geometry) -> f64 {
++    (0..2)
++        .map(|i| {
++            let c = g.pad_centres_mm[i][0];
++            let [a, b] = g.tracks_mm[i];
++            let r = g.widths_mm[i] / 2.;
++            let lo = (c - 1.75).min(a[0]).min(b[0] - r);
++            let hi = (c + 1.75).max(a[0]).max(b[0] + r);
++            let dx = (hi - lo) / 20000.;
++            (0..20000)
++                .map(|j| {
++                    let x = lo + (j as f64 + 0.5) * dx;
++                    let pad = if (x - c).abs() <= 1.75 { 2.65_f64 } else { 0. };
++                    let rect = if x >= a[0].min(b[0]) && x <= a[0].max(b[0]) {
++                        r
++                    } else {
++                        0.
++                    };
++                    let cap = (r * r - (x - b[0]).powi(2)).max(0.).sqrt();
++                    2. * pad.max(rect).max(cap) * dx * g.copper_mm * 1e-9
++                })
++                .sum::<f64>()
++        })
++        .sum()
++}
++
++pub fn validate(mesh: &str, g: &Geometry) -> Result<usize> {
++    ensure!(
++        mesh.starts_with("$MeshFormat\n2.2 0 8\n$EndMeshFormat\n"),
++        "ASCII linear MSH2 required"
++    );
++    let lines: Vec<_> = mesh.lines().collect();
++    let mut nodes = BTreeMap::<u64, Point>::new();
++    for row in section(&lines, "Nodes")? {
++        let v: Vec<_> = row.split_whitespace().collect();
++        ensure!(v.len() == 4, "node columns");
++        let p = [v[1].parse()?, v[2].parse()?, v[3].parse()?];
++        ensure!(p.iter().all(|x: &f64| x.is_finite()), "nonfinite node");
++        ensure!(nodes.insert(v[0].parse()?, p).is_none(), "duplicate node");
++    }
++    ensure!(!nodes.is_empty(), "empty mesh");
++    let point = |id: &u64| nodes.get(id).copied().context("missing node");
++    let mut ids = BTreeSet::new();
++    let mut tets = BTreeSet::new();
++    let mut faces = BTreeMap::<[u64; 3], Vec<usize>>::new();
++    let mut boundaries = BTreeSet::new();
++    let mut volumes = [0.; 3];
++    let mut tet_sides = Vec::new();
++    for row in section(&lines, "Elements")? {
++        let f: Vec<_> = row
++            .split_whitespace()
++            .map(str::parse::<u64>)
++            .collect::<std::result::Result<_, _>>()?;
++        ensure!(f.len() >= 4 && ids.insert(f[0]), "bad/duplicate element");
++        let tags = usize::try_from(f[2])?;
++        ensure!(tags >= 1 && tags <= f.len() - 3, "bad tags");
++        let n = &f[3 + tags..];
++        if f[1] == 4 {
++            ensure!(
++                n.len() == 4 && (1..=3).contains(&f[3]),
++                "tetrahedron/material required"
++            );
++            let mut key = [n[0], n[1], n[2], n[3]];
++            key.sort_unstable();
++            ensure!(
++                key.windows(2).all(|p| p[0] != p[1]) && tets.insert(key),
++                "duplicate/degenerate tet"
++            );
++            let p = [point(&n[0])?, point(&n[1])?, point(&n[2])?, point(&n[3])?];
++            let v = dot(sub(p[1], p[0]), cross(sub(p[2], p[0]), sub(p[3], p[0]))).abs() / 6.;
++            ensure!(v > 1e-24, "zero volume");
++            volumes[f[3] as usize - 1] += v;
++            let side =
++                if p.iter().all(|p| {
++                    p[0] >= (g.pad_centres_mm[0][0] + g.pad_centres_mm[1][0]) / 2000. - 1e-10
++                }) {
++                    0
++                } else if p.iter().all(|p| {
++                    p[0] <= (g.pad_centres_mm[0][0] + g.pad_centres_mm[1][0]) / 2000. + 1e-10
++                }) {
++                    1
++                } else {
++                    anyhow::bail!("mesh bridges shunt gap")
++                };
++            // Coordinates are checked against actual copper primitives, not
++            // merely a domain bounding box which could contain filled gaps.
++            for p in p {
++                let x = p[0] * 1000.;
++                let y = p[1] * 1000.;
++                let c = g.pad_centres_mm[side];
++                let [a, b] = g.tracks_mm[side];
++                let r = g.widths_mm[side] / 2.;
++                let e = 1e-6;
++                let pad = (x - c[0]).abs() <= 1.75 + e && (y - c[1]).abs() <= 2.65 + e;
++                let track = (x >= a[0].min(b[0]) - e
++                    && x <= a[0].max(b[0]) + e
++                    && (y - c[1]).abs() <= r + e)
++                    || ((x - b[0]).hypot(y - b[1]) <= r + e);
++                ensure!(
++                    (pad || track) && p[2] >= -1e-12 && p[2] <= g.copper_mm / 1000. + 1e-12,
++                    "node outside copper"
++                );
++                if f[3] < 3 {
++                    ensure!(
++                        f[3] as usize == side + 1 && pad,
++                        "heat source outside assigned pad"
++                    );
++                }
++            }
++            let id = tet_sides.len();
++            tet_sides.push(side);
++            for a in [[0, 1, 2], [0, 1, 3], [0, 2, 3], [1, 2, 3]] {
++                let mut face = [n[a[0]], n[a[1]], n[a[2]]];
++                face.sort_unstable();
++                let adjacent = faces.entry(face).or_default();
++                adjacent.push(id);
++                ensure!(adjacent.len() <= 2, "nonmanifold mesh");
++            }
++        } else {
++            ensure!(
++                f[1] == 2 && f[3] == 13 && n.len() == 3,
++                "unexpected boundary element"
++            );
++            let mut face = [n[0], n[1], n[2]];
++            face.sort_unstable();
++            ensure!(boundaries.insert(face), "duplicate boundary");
++        }
++    }
++    let pad_vol = 3.5 * 5.3 * g.copper_mm * 1e-9;
++    close(volumes[0], pad_vol, 1e-7)?;
++    close(volumes[1], pad_vol, 1e-7)?;
++    ensure!(volumes[2] > 0., "missing trace copper");
++    close(volumes.iter().sum(), expected_total(g), 0.015)?;
++    let mut areas = [0.; 2];
++    let mut cut_tets = BTreeSet::new();
++    for face in boundaries {
++        let incident = faces.get(&face).context("detached boundary")?;
++        ensure!(incident.len() == 1, "internal boundary clamp");
++        let side = tet_sides[incident[0]];
++        cut_tets.insert(incident[0]);
++        let p = [point(&face[0])?, point(&face[1])?, point(&face[2])?];
++        ensure!(
++            p.iter()
++                .all(|p| (p[0] - g.tracks_mm[side][0][0] / 1000.).abs() < 1e-10),
++            "boundary not at native cut"
++        );
++        let a = cross(sub(p[1], p[0]), sub(p[2], p[0]));
++        areas[side] += dot(a, a).sqrt() / 2.;
++    }
++    for (i, area) in areas.iter().enumerate() {
++        close(*area, g.widths_mm[i] * g.copper_mm * 1e-6, 1e-7)?;
++    }
++    let mut adjacent = vec![Vec::new(); tet_sides.len()];
++    for v in faces.values().filter(|v| v.len() == 2) {
++        adjacent[v[0]].push(v[1]);
++        adjacent[v[1]].push(v[0]);
++    }
++    let mut visited = BTreeSet::new();
++    let mut domains = 0;
++    for start in 0..tet_sides.len() {
++        if visited.contains(&start) {
++            continue;
++        }
++        domains += 1;
++        let mut stack = vec![start];
++        let mut cut = false;
++        while let Some(id) = stack.pop() {
++            if !visited.insert(id) {
++                continue;
++            }
++            cut |= cut_tets.contains(&id);
++            stack.extend(adjacent[id].iter().copied());
++        }
++        ensure!(cut, "uncooled disconnected domain");
++    }
++    ensure!(domains == 2, "expected two separate copper domains");
++    Ok(nodes.len())
++}
+diff --git a/zapote/power-entry/shunt-repair/README.md b/zapote/power-entry/shunt-repair/README.md
+new file mode 100644
+index 000000000..72ff5457e
+--- /dev/null
++++ b/zapote/power-entry/shunt-repair/README.md
+@@ -0,0 +1,127 @@
++# Shunt repair and electrical-model completion
++
++Execution contract, 2026-09-16, starting at b7af4c912.
++
++The approved work is shunt/copper thermal modeling, remaining current paths,
++actual switching loops and startup/fault/loss-of-bias behavior. First resolve
++an invalid model input: the authored WSL2726R0100FEA at 10 mΩ with two pads
++is outside Vishay's published WSL2726 range and four-terminal package.
++Source/native agreement did not detect this part-definition defect.
++
++1. Retain exact manufacturer evidence and choose an available 10 mΩ shunt,
++   preserving the controller's sense scaling. Bind MPN, resistance, package,
++   land pattern and conditional power rating in Rust. Preserve the historical
++   board as a failing regression; never rewrite historical source receipts.
++2. Update authored source, compile with Atopile, refresh the saved working
++   PCB/schematic and native receipts, and run construction/physical checks.
++3. Model actual new shunt/copper geometry with explicit cooling and material
++   uncertainty. Require energy balance, mesh convergence and sensitivities;
++   a catalog wattage is not a temperature prediction or assembly qualification.
++4. Resolve switching-loop and controller protection paths from source and
++   manufacturer behavior. Keep missing external supervision and response-time
++   bounds visible. Do not invent a safety deadline.
++5. Run common harness and regression mutations; retain raw inputs/results and
++   record remaining model or assembly limitations before committing/pushing.
++
++Evidence belongs here and in a dated common-suite run. Historical GBU/GBJ
++thermal results remain valid only for their original saved inputs. A changed
++board is not allowed to inherit their acceptance by editing a hash.
++
++No fabrication, purchase or powered measurement is part of this execution.
++
++## Implemented repair
++
++The working authoring source now uses GBJ2510-F and Stackpole
++HCSM2818FT10L0 (10 mΩ, ±1%, two terminals). The historical GBU and GBJ
++fixtures remain unchanged. Their unsupported WSL2726 shunt definition is now
++an explicit `ERC.PFC.SHUNT_PART` failure, including in regression tests.
++
++The replacement was compiled through Atopile, projected into native KiCad,
++then applied to the routed GBJ candidate with its physical UUIDs preserved.
++The land pattern uses two 3.5 × 5.3 mm rectangles, a 0.6 mm gap and a
++7.15 × 4.95 mm body. The official KiCad Library Tools generator and parameters
++are retained. Manufacturer documents, exact identities and source hashes are
++in [sources/manifest.json](sources/manifest.json).
++
++U12's left power trace is 5.3 mm wide and ends at (75.3, 132) mm, retaining
++the sense-wire junction. A 6 mm trace ending there would short the new opposite
++pad; shortening it first to 74.7 mm avoided that short but left a width-only
++contact that the current graph could not resolve. The final edit repairs both
++conditions. Its round cap stops at x = 77.95 mm; the opposite pad begins at
++78.30 mm. Native DRC checks the resulting 0.35 mm clearance. The narrower trace
++is subject to the same current screen as every other trace; no waiver was added.
++
++Authoritative candidate: [candidate/section.kicad_pcb](candidate/section.kicad_pcb).
++Use [units.json](units.json) to run the seven-unit suite with this working
++candidate. The default maintained registry intentionally retains its historical
++board; it does not silently acquire this candidate or its thermal evidence.
++
++## What the thermal experiment establishes
++
++[thermal-04/report.json](thermal-04/report.json) contains 15 actual Gmsh/Elmer
++solves: five boundary/material/heat-split cases on three successively finer
++meshes. Native front pads, local track rectangles and round ends are modeled
++as separate copper domains. Independent Rust checks integrate mesh volumes,
++check pad source volumes and cut areas, reject a bridged gap or internal clamp,
++and require two connected domains with cooling boundaries. Both the Gmsh and
++converted Elmer meshes are checked.
++
++The heat source is 2.28528 W: 15 A RMS through 10 mΩ, with +1% resistance and
+++75 ppm/K evaluated at 100 °C. It is a conditional input, not a temperature-
++iterated worst-case bound. Heat balance, solver convergence and mesh convergence
++are checked from raw output. Uniformly raising cut temperatures by 20 K raises
++the result by 20 K; reducing copper conductivity from 350 to 250 W/(m·K)
++scales the rise by 1.4, providing independent linear-equation checks.
++
++| Case, finest mesh | Peak modeled local copper |
++|---|---:|
++| 80 °C cuts, equal terminal heat | 122.68 °C |
++| 80 °C cuts, all heat into terminal 1 | 162.74 °C |
++| 80 °C cuts, all heat into terminal 2 | 165.37 °C |
++| 100 °C cuts, equal terminal heat | 142.68 °C |
++| 80 °C cuts, weaker copper conductivity | 139.76 °C |
++
++These are **not predictions of resistor body temperature or evidence that the
++real board overheats**. The model omits body/solder conduction, vias, back copper,
++FR4, convection and copper Joule heat. Parallel heat paths may cool the actual
++assembly; other losses may heat it. The imposed cut temperatures need a board/
++assembly cooling model. The 5 W catalog rating requires specified copper and
++surface temperature conditions, which this model does not establish.
++`THERMAL.PFC.SHUNT_ASSEMBLY` therefore remains INDETERMINATE.
++
++Replay binds the exact saved board, source-bound 15 A waveform, geometry, decks,
++backend/module digests, meshes, raw logs and measurements. Edited summaries,
++changed decks even with updated checksums, missing heat materials, incorrect
++boundaries, nonconverged solves and unbalanced heat are regression failures.
++The first empty-region mesher attempt and subsequent historical runs are kept
++as development evidence; they cannot be substituted for this final run.
++
++## Controller and switching-loop coverage
++
++The common runner executes the source-bound UCC28180 threshold cases. UVLO,
++standby, high OVP/reset, open current sense, soft current limit and peak current
++limit distinguish guaranteed threshold crossings from tolerance bands.
++The ICOMP table/prose unit conflict remains INDETERMINATE. No guaranteed
++shutdown propagation time or gate-voltage behavior at zero bias is invented.
++Controller inhibition does not disconnect mains or discharge the DC bus.
++
++Named boost-commutation, gate-drive and on-state input loops are checked against
++source pin identities and native conductor paths. Bridge polarity is resolved
++from its exact MPN. Returned edge IDs are connectivity witnesses, not extracted
++high-frequency current paths. Loop geometry and parasitic inductance remain
++explicit mandatory INDETERMINATE checks; a whole-net bounding box cannot satisfy
++them.
++
++## Remaining physical obligations
++
++1. Resolve shunt body/terminal thermal parameters and actual board cooling,
++   including vias and back copper; then evaluate resistor surface temperature
++   and transient/pulse capability under the operating envelope.
++2. Extract high-frequency return paths and parasitics for the named loops.
++3. Supply the external bias, permit/precharge, disconnect and discharge contracts;
++   validate their startup and fault timing with the power stage.
++4. Complete inductor, switch, diode, capacitor and remaining pad/via loss/rating
++   corners before calling the power-entry assembly qualified.
++
++The new checks make these omissions visible. Numerical PASS, source agreement
++and native DRC PASS are each narrower than hardware qualification.

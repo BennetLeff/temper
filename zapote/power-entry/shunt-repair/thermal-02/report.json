@@ -1,0 +1,505 @@
+{
+  "schema": "zapote.shunt-local.v1",
+  "geometry": {
+    "board_sha256": "cf62e23ba086990257dcd0e717e8e3b34b1beff9d296deb8e6ab3baa2671ceab",
+    "pad_centres_mm": [
+      [
+        80.05,
+        132.0
+      ],
+      [
+        75.95,
+        132.0
+      ]
+    ],
+    "pad_size_mm": [
+      3.5,
+      5.3
+    ],
+    "tracks_mm": [
+      [
+        [
+          83.9,
+          132.0
+        ],
+        [
+          80.7,
+          132.0
+        ]
+      ],
+      [
+        [
+          71.1,
+          132.0
+        ],
+        [
+          74.7,
+          132.0
+        ]
+      ]
+    ],
+    "widths_mm": [
+      4.0,
+      6.0
+    ],
+    "copper_mm": 0.07
+  },
+  "heat_w": 2.2852828124999998,
+  "cases": [
+    {
+      "scenario": {
+        "name": "nominal",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0008,
+      "node_count": 472,
+      "measurement": {
+        "max_c": 121.0440850562,
+        "min_c": 80.0,
+        "heat_out_w": 2.2852828125
+      }
+    },
+    {
+      "scenario": {
+        "name": "nominal",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0004,
+      "node_count": 1328,
+      "measurement": {
+        "max_c": 121.24699744510002,
+        "min_c": 80.0,
+        "heat_out_w": 2.2852828125
+      }
+    },
+    {
+      "scenario": {
+        "name": "nominal",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0002,
+      "node_count": 4590,
+      "measurement": {
+        "max_c": 121.37277607970003,
+        "min_c": 80.0,
+        "heat_out_w": 2.285282812502
+      }
+    },
+    {
+      "scenario": {
+        "name": "pad1-hot",
+        "split": [
+          1.0,
+          0.0
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0008,
+      "node_count": 472,
+      "measurement": {
+        "max_c": 162.0881701125,
+        "min_c": 80.0,
+        "heat_out_w": 2.2852828125
+      }
+    },
+    {
+      "scenario": {
+        "name": "pad1-hot",
+        "split": [
+          1.0,
+          0.0
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0004,
+      "node_count": 1328,
+      "measurement": {
+        "max_c": 162.49399489020004,
+        "min_c": 80.0,
+        "heat_out_w": 2.2852828125
+      }
+    },
+    {
+      "scenario": {
+        "name": "pad1-hot",
+        "split": [
+          1.0,
+          0.0
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0002,
+      "node_count": 4590,
+      "measurement": {
+        "max_c": 162.74555215930002,
+        "min_c": 80.0,
+        "heat_out_w": 2.285282812502
+      }
+    },
+    {
+      "scenario": {
+        "name": "pad2-hot",
+        "split": [
+          0.0,
+          1.0
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0008,
+      "node_count": 472,
+      "measurement": {
+        "max_c": 157.22424882530004,
+        "min_c": 80.0,
+        "heat_out_w": 2.285282812501
+      }
+    },
+    {
+      "scenario": {
+        "name": "pad2-hot",
+        "split": [
+          0.0,
+          1.0
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0004,
+      "node_count": 1328,
+      "measurement": {
+        "max_c": 157.16802502390004,
+        "min_c": 80.0,
+        "heat_out_w": 2.2852828125
+      }
+    },
+    {
+      "scenario": {
+        "name": "pad2-hot",
+        "split": [
+          0.0,
+          1.0
+        ],
+        "cut_c": 80.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0002,
+      "node_count": 4590,
+      "measurement": {
+        "max_c": 157.15232844710005,
+        "min_c": 80.0,
+        "heat_out_w": 2.285282812502
+      }
+    },
+    {
+      "scenario": {
+        "name": "hot-cut",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 100.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0008,
+      "node_count": 472,
+      "measurement": {
+        "max_c": 141.0440850562,
+        "min_c": 100.0,
+        "heat_out_w": 2.2852828125
+      }
+    },
+    {
+      "scenario": {
+        "name": "hot-cut",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 100.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0004,
+      "node_count": 1328,
+      "measurement": {
+        "max_c": 141.24699744510002,
+        "min_c": 100.0,
+        "heat_out_w": 2.2852828125
+      }
+    },
+    {
+      "scenario": {
+        "name": "hot-cut",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 100.0,
+        "conductivity": 350.0
+      },
+      "mesh_m": 0.0002,
+      "node_count": 4590,
+      "measurement": {
+        "max_c": 141.37277607970003,
+        "min_c": 100.0,
+        "heat_out_w": 2.285282812502
+      }
+    },
+    {
+      "scenario": {
+        "name": "weak-copper",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 80.0,
+        "conductivity": 250.0
+      },
+      "mesh_m": 0.0008,
+      "node_count": 472,
+      "measurement": {
+        "max_c": 137.4617190787,
+        "min_c": 80.0,
+        "heat_out_w": 2.285282812502
+      }
+    },
+    {
+      "scenario": {
+        "name": "weak-copper",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 80.0,
+        "conductivity": 250.0
+      },
+      "mesh_m": 0.0004,
+      "node_count": 1328,
+      "measurement": {
+        "max_c": 137.74579642320003,
+        "min_c": 80.0,
+        "heat_out_w": 2.285282812502
+      }
+    },
+    {
+      "scenario": {
+        "name": "weak-copper",
+        "split": [
+          0.5,
+          0.5
+        ],
+        "cut_c": 80.0,
+        "conductivity": 250.0
+      },
+      "mesh_m": 0.0002,
+      "node_count": 4590,
+      "measurement": {
+        "max_c": 137.92188651150002,
+        "min_c": 80.0,
+        "heat_out_w": 2.285282812501
+      }
+    }
+  ],
+  "artifacts": {
+    "backend.json": "7a086c6217ebe871496e0583250e94cd39bf5136ddc032860ab2c2ed4feb2479",
+    "hot-cut-200/case.sif": "786ba8422ab8e6b395a91fd45ca60bd89354c814e7deaa558f0bf00367e42e2e",
+    "hot-cut-200/gmsh.log": "88e3f6700df6763cc920ba5fa9d68bd8ee97032cedecf0e6bf77332262e25b97",
+    "hot-cut-200/grid.log": "23dd2268b3e51ed7482be72ba78c120357b057fcc0cbc3f9fb9d299827cbc129",
+    "hot-cut-200/local.geo": "d1d7d1bc9b99aa144dbb01e1a244ced592d661cb492fb82db2748836c08fdc99",
+    "hot-cut-200/local.msh": "8635933dcef8539add09632122327aecefc4e5be0a6d0c4bb6cd0a76776b47a7",
+    "hot-cut-200/mesh/mesh.boundary": "7d2ff78403005c03e086e9a9a183f9d43d1728e5e35c5c128be9473794fdc737",
+    "hot-cut-200/mesh/mesh.elements": "0983c0705b78e2617d17f701ed073be564f2a00c1ae0ea5b25074948bd496178",
+    "hot-cut-200/mesh/mesh.header": "870e02c9522c8ba815747721fb3bfd4debef7af758b6208fdf64d000f455a640",
+    "hot-cut-200/mesh/mesh.nodes": "93313c585ccdc14c32a8946e0f76ade532d716809ba1bdee6fcc546f80122ed0",
+    "hot-cut-200/scalars.dat": "e6b647af74d3f336d223363514fe952651a43d566aa00e78cfcea86f600e82ba",
+    "hot-cut-200/scalars.dat.names": "5e787bc0fe71eb454802828e7d35c0d2c4c93a0eeb26a5bbf6ebb74b4ff56aca",
+    "hot-cut-200/solver.log": "16070580cf1f7aead70ce74037c2e217a48f1c4878f3ae1121ebd821a00c8087",
+    "hot-cut-400/case.sif": "786ba8422ab8e6b395a91fd45ca60bd89354c814e7deaa558f0bf00367e42e2e",
+    "hot-cut-400/gmsh.log": "d9630e669f7048111c0e24d20622dd433ad9df3304cd65d0f7e6d6453ebd3f1c",
+    "hot-cut-400/grid.log": "d0aa3ba69bb1ea1a500d52dc8316ee22afba10fa09834c16e8e659b875dc839c",
+    "hot-cut-400/local.geo": "e23bc5dde8389cca432b8192404a5126f0584b14188d02fe09881a1cf162bf0e",
+    "hot-cut-400/local.msh": "e78ed3f05b26078b0ef648f6b354da31b2f95af066c749c0afb04acea21fe19a",
+    "hot-cut-400/mesh/mesh.boundary": "7dea6ebf5a0e6ff28f1d58a2798a790c649b82c1fd72ded281438f62e29e869d",
+    "hot-cut-400/mesh/mesh.elements": "74fa0c07011ed12bb1f7ffb8b11079f37555eca7acdd9d929c19dbf1b30ec142",
+    "hot-cut-400/mesh/mesh.header": "f7c546047156dae01be628c6fd6a51f7649bd30096a930e1177539190f2468db",
+    "hot-cut-400/mesh/mesh.nodes": "1e865ba2ed3145f64af2d3fd46d8ac6c2ee59041d835742b6987e50213a51607",
+    "hot-cut-400/scalars.dat": "7b1bdf6a50226d9dd6237fcdf5a9b401c40e786cadf2c82e90b2c7eb220d6199",
+    "hot-cut-400/scalars.dat.names": "13c920985b59cbca51423983caec698efb39d34386e0104fa80027dce59528ae",
+    "hot-cut-400/solver.log": "b6d8b92817923a2e2a59f8cb4eaad42cd4c728abb1025aeb3c50136274823bbb",
+    "hot-cut-800/case.sif": "786ba8422ab8e6b395a91fd45ca60bd89354c814e7deaa558f0bf00367e42e2e",
+    "hot-cut-800/gmsh.log": "7b6f9ddda10b3fb65bcc3db4f1e1297b7a715a9aa160eabccd83d7356e09759f",
+    "hot-cut-800/grid.log": "7f04bba6139560f712cbd78079e04de593524323fffb9a4155584dbbcdf656a6",
+    "hot-cut-800/local.geo": "8c6e45bcc481d3f3351910374c6044e3cd92160e3877d5ef0916491bffb9b1e6",
+    "hot-cut-800/local.msh": "542d2c8edb2127b2b60eaf5cb14e5f868d55315e93927c1952f3ca67b2ae5261",
+    "hot-cut-800/mesh/mesh.boundary": "6b74a7d88f4385352dfa5b57201637310f4c70796d17957f86ac26c64ca7a2ff",
+    "hot-cut-800/mesh/mesh.elements": "6d85a8346a988f7e4b701126417825ae33099ff6495ad30b5c12a5a7896d2a2c",
+    "hot-cut-800/mesh/mesh.header": "c609f7161c0ee234194079d9b8cf1bad79f1014a3a9d689ddb0768f9a61fbb7d",
+    "hot-cut-800/mesh/mesh.nodes": "a1feaf1373d1317c803cdf7b1bd3a83d5bb7c7be83da18dbf28f2fb07617c931",
+    "hot-cut-800/scalars.dat": "2510e200d09330a14eea5ffc874d9f7be5cd724a95914f84f6338ae6b2eca0bf",
+    "hot-cut-800/scalars.dat.names": "13c920985b59cbca51423983caec698efb39d34386e0104fa80027dce59528ae",
+    "hot-cut-800/solver.log": "e892f19a92494ceb8196c1a7b8172f1651f19eeae63b075df4a0f9cb7580bc2b",
+    "native.json": "1a941d206fd5a3562a55cb6f196c59c648350151a550f122d27d6ec07fd65f3b",
+    "nominal-200/case.sif": "58e745065582a67258d6afae52bf0632e105d75a50cf675c3f37eadf73d04197",
+    "nominal-200/gmsh.log": "52ea46fd13e61313d20ecb224be642ca4921b0554dc65f187aa1b3d361b57e6b",
+    "nominal-200/grid.log": "23dd2268b3e51ed7482be72ba78c120357b057fcc0cbc3f9fb9d299827cbc129",
+    "nominal-200/local.geo": "d1d7d1bc9b99aa144dbb01e1a244ced592d661cb492fb82db2748836c08fdc99",
+    "nominal-200/local.msh": "8635933dcef8539add09632122327aecefc4e5be0a6d0c4bb6cd0a76776b47a7",
+    "nominal-200/mesh/mesh.boundary": "7d2ff78403005c03e086e9a9a183f9d43d1728e5e35c5c128be9473794fdc737",
+    "nominal-200/mesh/mesh.elements": "0983c0705b78e2617d17f701ed073be564f2a00c1ae0ea5b25074948bd496178",
+    "nominal-200/mesh/mesh.header": "870e02c9522c8ba815747721fb3bfd4debef7af758b6208fdf64d000f455a640",
+    "nominal-200/mesh/mesh.nodes": "93313c585ccdc14c32a8946e0f76ade532d716809ba1bdee6fcc546f80122ed0",
+    "nominal-200/scalars.dat": "09e03290a6bf6bfe2f51a2bb2a2ffd301e243bf0781e343c9bd05c945da8044e",
+    "nominal-200/scalars.dat.names": "fd884a6e40e5aa09c44bc85faa34f02757ae0442924869c0f7940d355df153d7",
+    "nominal-200/solver.log": "c52ca5e9555b956885a205b54a1e3a99482e4d40b46ab510eb4952e571f5e4e8",
+    "nominal-400/case.sif": "58e745065582a67258d6afae52bf0632e105d75a50cf675c3f37eadf73d04197",
+    "nominal-400/gmsh.log": "5f665759d21b02ce7fcac9e16153d7c8d339ebcdb179a2a014b1f37ebd17d573",
+    "nominal-400/grid.log": "d0aa3ba69bb1ea1a500d52dc8316ee22afba10fa09834c16e8e659b875dc839c",
+    "nominal-400/local.geo": "e23bc5dde8389cca432b8192404a5126f0584b14188d02fe09881a1cf162bf0e",
+    "nominal-400/local.msh": "e78ed3f05b26078b0ef648f6b354da31b2f95af066c749c0afb04acea21fe19a",
+    "nominal-400/mesh/mesh.boundary": "7dea6ebf5a0e6ff28f1d58a2798a790c649b82c1fd72ded281438f62e29e869d",
+    "nominal-400/mesh/mesh.elements": "74fa0c07011ed12bb1f7ffb8b11079f37555eca7acdd9d929c19dbf1b30ec142",
+    "nominal-400/mesh/mesh.header": "f7c546047156dae01be628c6fd6a51f7649bd30096a930e1177539190f2468db",
+    "nominal-400/mesh/mesh.nodes": "1e865ba2ed3145f64af2d3fd46d8ac6c2ee59041d835742b6987e50213a51607",
+    "nominal-400/scalars.dat": "b141cd00bd90495a66bd13a401b622d979fb82b865c3f702588aa91622314708",
+    "nominal-400/scalars.dat.names": "5973ac443f1a98ac25910f7edec7ee182b3b953ca316fed46b558914e388f703",
+    "nominal-400/solver.log": "e13992536a2541502b01156cbafb96d39d2cd08f644bf9ecbc6f87662d06dc8c",
+    "nominal-800/case.sif": "58e745065582a67258d6afae52bf0632e105d75a50cf675c3f37eadf73d04197",
+    "nominal-800/gmsh.log": "2241ee651e2b3bb76083e77a398fe93670ba09935d88cc4eaaafda3402af0126",
+    "nominal-800/grid.log": "7f04bba6139560f712cbd78079e04de593524323fffb9a4155584dbbcdf656a6",
+    "nominal-800/local.geo": "8c6e45bcc481d3f3351910374c6044e3cd92160e3877d5ef0916491bffb9b1e6",
+    "nominal-800/local.msh": "542d2c8edb2127b2b60eaf5cb14e5f868d55315e93927c1952f3ca67b2ae5261",
+    "nominal-800/mesh/mesh.boundary": "6b74a7d88f4385352dfa5b57201637310f4c70796d17957f86ac26c64ca7a2ff",
+    "nominal-800/mesh/mesh.elements": "6d85a8346a988f7e4b701126417825ae33099ff6495ad30b5c12a5a7896d2a2c",
+    "nominal-800/mesh/mesh.header": "c609f7161c0ee234194079d9b8cf1bad79f1014a3a9d689ddb0768f9a61fbb7d",
+    "nominal-800/mesh/mesh.nodes": "a1feaf1373d1317c803cdf7b1bd3a83d5bb7c7be83da18dbf28f2fb07617c931",
+    "nominal-800/scalars.dat": "fde2e22f83f552bad21c5a89c5d5798571baa79c527349acb275d8ad5e0bc46e",
+    "nominal-800/scalars.dat.names": "5973ac443f1a98ac25910f7edec7ee182b3b953ca316fed46b558914e388f703",
+    "nominal-800/solver.log": "bc03ee680726272949bf267855c3dd204753901142ac78bc851df20d21ff9d10",
+    "pad1-hot-200/case.sif": "02e399fac3c7873139ccc73d9abe0f404468204ede19febd12eb5e55b9f1047f",
+    "pad1-hot-200/gmsh.log": "2138e1a55c3b1f08823b21851ff170fcb6c6f63f6fb3f4be653478073d137d7a",
+    "pad1-hot-200/grid.log": "23dd2268b3e51ed7482be72ba78c120357b057fcc0cbc3f9fb9d299827cbc129",
+    "pad1-hot-200/local.geo": "d1d7d1bc9b99aa144dbb01e1a244ced592d661cb492fb82db2748836c08fdc99",
+    "pad1-hot-200/local.msh": "8635933dcef8539add09632122327aecefc4e5be0a6d0c4bb6cd0a76776b47a7",
+    "pad1-hot-200/mesh/mesh.boundary": "7d2ff78403005c03e086e9a9a183f9d43d1728e5e35c5c128be9473794fdc737",
+    "pad1-hot-200/mesh/mesh.elements": "0983c0705b78e2617d17f701ed073be564f2a00c1ae0ea5b25074948bd496178",
+    "pad1-hot-200/mesh/mesh.header": "870e02c9522c8ba815747721fb3bfd4debef7af758b6208fdf64d000f455a640",
+    "pad1-hot-200/mesh/mesh.nodes": "93313c585ccdc14c32a8946e0f76ade532d716809ba1bdee6fcc546f80122ed0",
+    "pad1-hot-200/scalars.dat": "8c33f2194113f2e8663d8dc7fe2871bb04112a27a2f446b593adc8138f95673b",
+    "pad1-hot-200/scalars.dat.names": "05652fc8c39bd709408ecb7c78d53d6bdd2c6089fe3d74fcfb666d8d25593dba",
+    "pad1-hot-200/solver.log": "e71e9fc7e65845b2bbea44b28447591121434e97ee297575f223719794c64cd4",
+    "pad1-hot-400/case.sif": "02e399fac3c7873139ccc73d9abe0f404468204ede19febd12eb5e55b9f1047f",
+    "pad1-hot-400/gmsh.log": "5f0f3abd0b44966756b3995adc585b48a9665ea6a366d04a1e651c51fc5f46b2",
+    "pad1-hot-400/grid.log": "d0aa3ba69bb1ea1a500d52dc8316ee22afba10fa09834c16e8e659b875dc839c",
+    "pad1-hot-400/local.geo": "e23bc5dde8389cca432b8192404a5126f0584b14188d02fe09881a1cf162bf0e",
+    "pad1-hot-400/local.msh": "e78ed3f05b26078b0ef648f6b354da31b2f95af066c749c0afb04acea21fe19a",
+    "pad1-hot-400/mesh/mesh.boundary": "7dea6ebf5a0e6ff28f1d58a2798a790c649b82c1fd72ded281438f62e29e869d",
+    "pad1-hot-400/mesh/mesh.elements": "74fa0c07011ed12bb1f7ffb8b11079f37555eca7acdd9d929c19dbf1b30ec142",
+    "pad1-hot-400/mesh/mesh.header": "f7c546047156dae01be628c6fd6a51f7649bd30096a930e1177539190f2468db",
+    "pad1-hot-400/mesh/mesh.nodes": "1e865ba2ed3145f64af2d3fd46d8ac6c2ee59041d835742b6987e50213a51607",
+    "pad1-hot-400/scalars.dat": "be2781dd576cc4616bc842cbf2711fa754d50eca026517fcee14c2c8b6baf26a",
+    "pad1-hot-400/scalars.dat.names": "90150979b767b639d279d86c4747c8972629322bcd17ef19efac97edc2e3ed57",
+    "pad1-hot-400/solver.log": "f2488fc4112ab0ed5c19448d3321fd79e22b50853c7cbafe68d19891317c5c1f",
+    "pad1-hot-800/case.sif": "02e399fac3c7873139ccc73d9abe0f404468204ede19febd12eb5e55b9f1047f",
+    "pad1-hot-800/gmsh.log": "40608b348474d0571b7b1c2b3405ce2afa485101d4d89cd3866c53e7f463be23",
+    "pad1-hot-800/grid.log": "7f04bba6139560f712cbd78079e04de593524323fffb9a4155584dbbcdf656a6",
+    "pad1-hot-800/local.geo": "8c6e45bcc481d3f3351910374c6044e3cd92160e3877d5ef0916491bffb9b1e6",
+    "pad1-hot-800/local.msh": "542d2c8edb2127b2b60eaf5cb14e5f868d55315e93927c1952f3ca67b2ae5261",
+    "pad1-hot-800/mesh/mesh.boundary": "6b74a7d88f4385352dfa5b57201637310f4c70796d17957f86ac26c64ca7a2ff",
+    "pad1-hot-800/mesh/mesh.elements": "6d85a8346a988f7e4b701126417825ae33099ff6495ad30b5c12a5a7896d2a2c",
+    "pad1-hot-800/mesh/mesh.header": "c609f7161c0ee234194079d9b8cf1bad79f1014a3a9d689ddb0768f9a61fbb7d",
+    "pad1-hot-800/mesh/mesh.nodes": "a1feaf1373d1317c803cdf7b1bd3a83d5bb7c7be83da18dbf28f2fb07617c931",
+    "pad1-hot-800/scalars.dat": "c6943fcc48b5df7093cc9ae10685e172808919145ae2e302ceb27532e6f956c8",
+    "pad1-hot-800/scalars.dat.names": "90150979b767b639d279d86c4747c8972629322bcd17ef19efac97edc2e3ed57",
+    "pad1-hot-800/solver.log": "384160fc6a992d98dda2049e75ff441faeb08e7d0b22d45f369d6c30aab3951d",
+    "pad2-hot-200/case.sif": "9e2038e03b91e694c9fec6769686efa17ad676e4ae340b115b757bd306412a3c",
+    "pad2-hot-200/gmsh.log": "2ba70c935e7c2dbe482d8085ac16920d2c11b14939e438ff8e4308bb467aa1e9",
+    "pad2-hot-200/grid.log": "23dd2268b3e51ed7482be72ba78c120357b057fcc0cbc3f9fb9d299827cbc129",
+    "pad2-hot-200/local.geo": "d1d7d1bc9b99aa144dbb01e1a244ced592d661cb492fb82db2748836c08fdc99",
+    "pad2-hot-200/local.msh": "8635933dcef8539add09632122327aecefc4e5be0a6d0c4bb6cd0a76776b47a7",
+    "pad2-hot-200/mesh/mesh.boundary": "7d2ff78403005c03e086e9a9a183f9d43d1728e5e35c5c128be9473794fdc737",
+    "pad2-hot-200/mesh/mesh.elements": "0983c0705b78e2617d17f701ed073be564f2a00c1ae0ea5b25074948bd496178",
+    "pad2-hot-200/mesh/mesh.header": "870e02c9522c8ba815747721fb3bfd4debef7af758b6208fdf64d000f455a640",
+    "pad2-hot-200/mesh/mesh.nodes": "93313c585ccdc14c32a8946e0f76ade532d716809ba1bdee6fcc546f80122ed0",
+    "pad2-hot-200/scalars.dat": "ee2bd257f22342ad92b33277efa82133259fefb5937867096621e0f2362d7227",
+    "pad2-hot-200/scalars.dat.names": "1bc256be14eba9a1da0486f12ca5afd4352c00872606c1fd821b5ff5c5698d85",
+    "pad2-hot-200/solver.log": "e4a1d7b884d566a6b27c5afac5eeb4234d469e5ef3353a44a2b2d39c8fd5ee5b",
+    "pad2-hot-400/case.sif": "9e2038e03b91e694c9fec6769686efa17ad676e4ae340b115b757bd306412a3c",
+    "pad2-hot-400/gmsh.log": "6419b816a82770b1dbfa7e4540be7c7caa64145fde2e32e7b539d74f73ff8288",
+    "pad2-hot-400/grid.log": "d0aa3ba69bb1ea1a500d52dc8316ee22afba10fa09834c16e8e659b875dc839c",
+    "pad2-hot-400/local.geo": "e23bc5dde8389cca432b8192404a5126f0584b14188d02fe09881a1cf162bf0e",
+    "pad2-hot-400/local.msh": "e78ed3f05b26078b0ef648f6b354da31b2f95af066c749c0afb04acea21fe19a",
+    "pad2-hot-400/mesh/mesh.boundary": "7dea6ebf5a0e6ff28f1d58a2798a790c649b82c1fd72ded281438f62e29e869d",
+    "pad2-hot-400/mesh/mesh.elements": "74fa0c07011ed12bb1f7ffb8b11079f37555eca7acdd9d929c19dbf1b30ec142",
+    "pad2-hot-400/mesh/mesh.header": "f7c546047156dae01be628c6fd6a51f7649bd30096a930e1177539190f2468db",
+    "pad2-hot-400/mesh/mesh.nodes": "1e865ba2ed3145f64af2d3fd46d8ac6c2ee59041d835742b6987e50213a51607",
+    "pad2-hot-400/scalars.dat": "b4fac3db5334bade3d199efa21a093707d53be7beec70bbfec7ac18d5485849c",
+    "pad2-hot-400/scalars.dat.names": "1bc256be14eba9a1da0486f12ca5afd4352c00872606c1fd821b5ff5c5698d85",
+    "pad2-hot-400/solver.log": "b21de40eb289996b7f1976267df16a4937b577e215f34ea934c8783b7f7d68ef",
+    "pad2-hot-800/case.sif": "9e2038e03b91e694c9fec6769686efa17ad676e4ae340b115b757bd306412a3c",
+    "pad2-hot-800/gmsh.log": "bf5c7c4a1e110ed8d763947b1677792c64874908cfcc0847ee8ac0a00c41d905",
+    "pad2-hot-800/grid.log": "7f04bba6139560f712cbd78079e04de593524323fffb9a4155584dbbcdf656a6",
+    "pad2-hot-800/local.geo": "8c6e45bcc481d3f3351910374c6044e3cd92160e3877d5ef0916491bffb9b1e6",
+    "pad2-hot-800/local.msh": "542d2c8edb2127b2b60eaf5cb14e5f868d55315e93927c1952f3ca67b2ae5261",
+    "pad2-hot-800/mesh/mesh.boundary": "6b74a7d88f4385352dfa5b57201637310f4c70796d17957f86ac26c64ca7a2ff",
+    "pad2-hot-800/mesh/mesh.elements": "6d85a8346a988f7e4b701126417825ae33099ff6495ad30b5c12a5a7896d2a2c",
+    "pad2-hot-800/mesh/mesh.header": "c609f7161c0ee234194079d9b8cf1bad79f1014a3a9d689ddb0768f9a61fbb7d",
+    "pad2-hot-800/mesh/mesh.nodes": "a1feaf1373d1317c803cdf7b1bd3a83d5bb7c7be83da18dbf28f2fb07617c931",
+    "pad2-hot-800/scalars.dat": "c627ff0ffae82ccae5bbc83a617f3441f6fa11ed3c3dee7e72a6871748b228d5",
+    "pad2-hot-800/scalars.dat.names": "05652fc8c39bd709408ecb7c78d53d6bdd2c6089fe3d74fcfb666d8d25593dba",
+    "pad2-hot-800/solver.log": "319ba7c6afab7aa345e7f56e2d845fd64ad19d9550f65237a964b33c5bcc4acf",
+    "weak-copper-200/case.sif": "798463c3580b86b0cd8a4cb3e1cdcf0df2f2c6a6c363366a2b483580714b966a",
+    "weak-copper-200/gmsh.log": "23772d28355181b4a6cea4a03431f88c140ff8a2a1f2388147b06656bf8fc081",
+    "weak-copper-200/grid.log": "23dd2268b3e51ed7482be72ba78c120357b057fcc0cbc3f9fb9d299827cbc129",
+    "weak-copper-200/local.geo": "d1d7d1bc9b99aa144dbb01e1a244ced592d661cb492fb82db2748836c08fdc99",
+    "weak-copper-200/local.msh": "8635933dcef8539add09632122327aecefc4e5be0a6d0c4bb6cd0a76776b47a7",
+    "weak-copper-200/mesh/mesh.boundary": "7d2ff78403005c03e086e9a9a183f9d43d1728e5e35c5c128be9473794fdc737",
+    "weak-copper-200/mesh/mesh.elements": "0983c0705b78e2617d17f701ed073be564f2a00c1ae0ea5b25074948bd496178",
+    "weak-copper-200/mesh/mesh.header": "870e02c9522c8ba815747721fb3bfd4debef7af758b6208fdf64d000f455a640",
+    "weak-copper-200/mesh/mesh.nodes": "93313c585ccdc14c32a8946e0f76ade532d716809ba1bdee6fcc546f80122ed0",
+    "weak-copper-200/scalars.dat": "73f01410fa8e237456ad383592e49ea2f872966bdd86be40ea518b6da452bd4e",
+    "weak-copper-200/scalars.dat.names": "1fb4322cf4bbf2d809fdb9109ce0e73ba96ec03b3c18b5d9e8fa8b6f0301adbc",
+    "weak-copper-200/solver.log": "1a914903779d451190fc8c7f7500682ae432dd16978febe80562a6a137a126ee",
+    "weak-copper-400/case.sif": "798463c3580b86b0cd8a4cb3e1cdcf0df2f2c6a6c363366a2b483580714b966a",
+    "weak-copper-400/gmsh.log": "26f33558b48b1528488b6ea9d507721b96d6c26c7001cd80b8688339bc4e6083",
+    "weak-copper-400/grid.log": "d0aa3ba69bb1ea1a500d52dc8316ee22afba10fa09834c16e8e659b875dc839c",
+    "weak-copper-400/local.geo": "e23bc5dde8389cca432b8192404a5126f0584b14188d02fe09881a1cf162bf0e",
+    "weak-copper-400/local.msh": "e78ed3f05b26078b0ef648f6b354da31b2f95af066c749c0afb04acea21fe19a",
+    "weak-copper-400/mesh/mesh.boundary": "7dea6ebf5a0e6ff28f1d58a2798a790c649b82c1fd72ded281438f62e29e869d",
+    "weak-copper-400/mesh/mesh.elements": "74fa0c07011ed12bb1f7ffb8b11079f37555eca7acdd9d929c19dbf1b30ec142",
+    "weak-copper-400/mesh/mesh.header": "f7c546047156dae01be628c6fd6a51f7649bd30096a930e1177539190f2468db",
+    "weak-copper-400/mesh/mesh.nodes": "1e865ba2ed3145f64af2d3fd46d8ac6c2ee59041d835742b6987e50213a51607",
+    "weak-copper-400/scalars.dat": "a783f013a6c7f72afcfcfc43b05d5cc591035053d4d9d1bc13255e6be543ab12",
+    "weak-copper-400/scalars.dat.names": "b1b787a6f21c6a65a4eee3c624fe633c9f17c3b3146e495c32b804d5b4783308",
+    "weak-copper-400/solver.log": "0d246f04e83f782d54be9bf37d8f5fa096717de1c740da6538c1fa0fa6962732",
+    "weak-copper-800/case.sif": "798463c3580b86b0cd8a4cb3e1cdcf0df2f2c6a6c363366a2b483580714b966a",
+    "weak-copper-800/gmsh.log": "8ceadcef942161d16916f87abcf90989b193490c513732b8d17e381e2c2ecb1c",
+    "weak-copper-800/grid.log": "7f04bba6139560f712cbd78079e04de593524323fffb9a4155584dbbcdf656a6",
+    "weak-copper-800/local.geo": "8c6e45bcc481d3f3351910374c6044e3cd92160e3877d5ef0916491bffb9b1e6",
+    "weak-copper-800/local.msh": "542d2c8edb2127b2b60eaf5cb14e5f868d55315e93927c1952f3ca67b2ae5261",
+    "weak-copper-800/mesh/mesh.boundary": "6b74a7d88f4385352dfa5b57201637310f4c70796d17957f86ac26c64ca7a2ff",
+    "weak-copper-800/mesh/mesh.elements": "6d85a8346a988f7e4b701126417825ae33099ff6495ad30b5c12a5a7896d2a2c",
+    "weak-copper-800/mesh/mesh.header": "c609f7161c0ee234194079d9b8cf1bad79f1014a3a9d689ddb0768f9a61fbb7d",
+    "weak-copper-800/mesh/mesh.nodes": "a1feaf1373d1317c803cdf7b1bd3a83d5bb7c7be83da18dbf28f2fb07617c931",
+    "weak-copper-800/scalars.dat": "eea299acd0f719b2a59bde274cc391a6dfdc0ae451092a454c2f1b5722a4c906",
+    "weak-copper-800/scalars.dat.names": "b1b787a6f21c6a65a4eee3c624fe633c9f17c3b3146e495c32b804d5b4783308",
+    "weak-copper-800/solver.log": "3d5ecb7c72044f87955f4ad193d648ebe929d986c78da98bbdf29e53d7bf520d"
+  },
+  "applicability": "INDETERMINATE: imposed copper cut temperatures; body/solder/vias/whole-board spreading and copper Joule heat omitted"
+}

@@ -1,0 +1,26 @@
+{
+  "status": "complete",
+  "findings": [],
+  "pre_existing_findings": [],
+  "suppressed_findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "residual_risks": [
+    "Local front-copper thermal model leaves body/solder/vias/back-copper/cooling and transient qualification unresolved by contract.",
+    "No external cross-model review; local fallback is non-independent."
+  ],
+  "testing_gaps": [
+    "No live FEM rerun in review; rely on retained thermal04 and parent common tests."
+  ],
+  "coverage": {
+    "depth": "full",
+    "peer": "Cross-model private-code egress was auto-review rejected before this run; local fallback coverage is non-independent.",
+    "first_evidence_backfilled": 0,
+    "suppressed_by_confidence": {},
+    "mode_aware_demotion_count": 0,
+    "validator_shortcut_skipped": 0,
+    "validator_selected": 0,
+    "failed_reviewers": [],
+    "bound_exceeded": []
+  }
+}

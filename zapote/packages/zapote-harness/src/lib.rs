@@ -539,3 +539,7 @@ pub mod voltage_sense;
 pub mod p1;
 
 pub mod p3;
+
+pub mod shunt_thermal;
+
+pub mod pfc_loops;

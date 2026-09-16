@@ -13,21 +13,38 @@ fn board(native: &Value) -> Vec<u8> {
 }
 
 #[test]
-fn frozen_native11_passes_construction_with_explicit_external_obligations() {
+fn frozen_native11_retains_known_bad_shunt_and_external_obligations() {
     let native: Value = serde_json::from_str(NATIVE).unwrap();
     let report = zapote_harness::power_entry::run(SOURCE, NATIVE, &board(&native));
-    let external = &zapote_erc::pfc_interfaces::RULES[1..];
+    let external: Vec<_> = zapote_erc::pfc_interfaces::RULES[1..]
+        .iter()
+        .copied()
+        .chain([
+            "ERC.PFC.PROTECTION.ICOMP",
+            "ERC.PFC.PROTECTION.EXTERNAL_DISCONNECT",
+            "ERC.PFC.PROTECTION.TIMING",
+            "ERC.PFC.PROTECTION.BIAS_PRIORITY",
+        ])
+        .collect();
     for finding in &report.findings {
-        assert_eq!(finding.status, if external.contains(&finding.rule.as_str()) {
-            Status::Indeterminate
-        } else {
-            Status::Pass
-        }, "{}: {}", finding.rule, finding.message);
+        assert_eq!(
+            finding.status,
+            if external.contains(&finding.rule.as_str()) {
+                Status::Indeterminate
+            } else if finding.rule == zapote_erc::pfc_shunt::RULE {
+                Status::Fail
+            } else {
+                Status::Pass
+            },
+            "{}: {}",
+            finding.rule,
+            finding.message
+        );
     }
     for rule in external {
-        assert!(report.findings.iter().any(|f| &f.rule == rule));
+        assert!(report.findings.iter().any(|f| f.rule == rule));
     }
-    assert_eq!(report.status, Status::Indeterminate);
+    assert_eq!(report.status, Status::Fail);
     assert!(report
         .coverage_gaps
         .iter()

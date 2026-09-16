@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6RP6LPW7TW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6RP6LPW7TW');
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KVHRNJ5');</script>
+<!-- End Google Tag Manager -->
+
+
+<!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
+<script type="text/javascript">
+    window.cookieconsent_options = {"message":"We use cookies to optimise your experience onour website. If you continue we'll assume that you are happy to receive our cookies. However, if you would like to, you can change your cookie setting at any time.","dismiss":"Continue","learnMore":"More info","link":"https://stackpole-europe.com/cookie.html","theme":"light-bottom"};
+</script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.10/cookieconsent.min.js"></script>
+<!-- End Cookie Consent plugin -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script>document.documentElement.classList.add('js');</script>
+  <link rel="stylesheet" href="styles.css?v=20260604" />
+  <title>Stackpole Europe Limited — Reliable Passive Components</title>
+<style>
+/* ── Hero badges ── */
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.hero-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 14px;font-size:.78rem;color:#fff;letter-spacing:.02em}
+
+/* ── Hero circuit pattern ── */
+.hero{position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;opacity:.07;pointer-events:none;background-image:
+  repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.6) 39px,rgba(255,255,255,.6) 40px),
+  repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.6) 39px,rgba(255,255,255,.6) 40px);
+  background-size:40px 40px}
+
+/* ── Stats bar ── */
+.stats-bar{background:#fff;border-bottom:1px solid var(--line)}
+.stats-inner{display:grid;grid-template-columns:repeat(2,1fr)}
+@media(min-width:600px){.stats-inner{grid-template-columns:repeat(4,1fr)}}
+.stat-block{padding:22px 16px;text-align:center;border-right:1px solid var(--line)}
+.stat-block:last-child{border-right:0}
+.stat-num{font-size:1.9rem;font-weight:800;color:var(--accent);line-height:1.1}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:3px}
+
+/* ── Application tiles ── */
+.app-grid{display:grid;gap:14px;grid-template-columns:repeat(2,1fr)}
+@media(min-width:800px){.app-grid{grid-template-columns:repeat(4,1fr)}}
+.app-tile{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 14px;text-align:center;text-decoration:none;color:inherit;transition:box-shadow .18s,transform .18s;display:block}
+.app-tile:hover{box-shadow:0 8px 28px rgba(0,0,0,.10);transform:translateY(-3px)}
+.app-icon{font-size:2rem;margin-bottom:10px;display:block;line-height:1}
+.app-tile h3{font-size:.93rem;color:var(--accent);margin:0 0 5px;font-weight:700}
+.app-tile p{font-size:.78rem;color:var(--muted);margin:0;line-height:1.5}
+.app-tile .app-series{display:inline-block;margin-top:10px;font-size:.72rem;font-weight:600;color:var(--accent);background:#fdf2f2;border-radius:999px;padding:3px 10px}
+
+/* ── Why Stackpole ── */
+.why-grid{display:grid;gap:14px}
+@media(min-width:560px){.why-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:900px){.why-grid{grid-template-columns:repeat(4,1fr)}}
+.why-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 18px;display:flex;gap:14px;align-items:flex-start}
+.why-icon{font-size:1.6rem;flex-shrink:0;margin-top:2px}
+.why-card h3{font-size:.9rem;color:var(--accent);margin:0 0 4px;font-weight:700}
+.why-card p{font-size:.8rem;color:var(--muted);margin:0;line-height:1.55}
+
+/* ── Featured articles ── */
+.feat-grid{display:grid;gap:14px}
+@media(min-width:700px){.feat-grid{grid-template-columns:repeat(3,1fr)}}
+.feat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:7px;transition:box-shadow .18s,border-color .18s}
+.feat-card:hover{box-shadow:0 6px 22px rgba(0,0,0,.09);border-color:#ccc}
+.feat-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.feat-card h3{font-size:.93rem;color:var(--accent);margin:0;line-height:1.4}
+.feat-card p{font-size:.8rem;color:var(--muted);margin:0;flex:1;line-height:1.55}
+.feat-read{font-size:.8rem;font-weight:600;color:var(--accent);margin-top:4px}
+
+/* ── Section titles ── */
+.section-hd{margin-bottom:20px}
+.section-hd h2{margin:0 0 4px;font-size:1.2rem;color:var(--accent)}
+.section-hd p{margin:0;color:var(--muted);font-size:.88rem}
+</style>
+  <meta name="description" content="Resistors, current sensing, power, precision, wirewound, and protective components for automotive, industrial and consumer applications." />
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.stackpole-europe.com/#org",
+        "name": "Stackpole Europe Limited",
+        "url": "https://www.stackpole-europe.com",
+        "logo": "https://www.stackpole-europe.com/images/logo.png",
+        "description": "European arm of Stackpole Inc. — European sales office and warehouse distribution centre for current sense, power, precision and wirewound resistors, capacitors and varistors for automotive and industrial applications.",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Unit 6 Nash Hall, The Street",
+          "addressLocality": "High Ongar",
+          "addressRegion": "Essex",
+          "postalCode": "CM5 9NL",
+          "addressCountry": "GB"
+        },
+        "telephone": "+441462473840",
+        "email": "sales@stackpole-europe.com",
+        "sameAs": [
+          "https://www.linkedin.com/company/stackpole-europe"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.stackpole-europe.com/#website",
+        "url": "https://www.stackpole-europe.com",
+        "name": "Stackpole Europe Limited",
+        "publisher": { "@id": "https://www.stackpole-europe.com/#org" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://www.stackpole-europe.com/search.html?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "ItemList",
+        "name": "Passive Component Product Categories",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Current Sense Resistors", "url": "https://www.stackpole-europe.com/current-sense" },
+          { "@type": "ListItem", "position": 2, "name": "Power Resistors",         "url": "https://www.stackpole-europe.com/power" },
+          { "@type": "ListItem", "position": 3, "name": "Precision Resistors",     "url": "https://www.stackpole-europe.com/precision" },
+          { "@type": "ListItem", "position": 4, "name": "Surface Mount Resistors", "url": "https://www.stackpole-europe.com/surface-mount" },
+          { "@type": "ListItem", "position": 5, "name": "Wirewound Resistors",     "url": "https://www.stackpole-europe.com/wirewound" },
+          { "@type": "ListItem", "position": 6, "name": "Automotive AEC-Q200",     "url": "https://www.stackpole-europe.com/automotive-aec" },
+          { "@type": "ListItem", "position": 7, "name": "Capacitors",              "url": "https://www.stackpole-europe.com/capacitors" },
+          { "@type": "ListItem", "position": 8, "name": "Varistors",               "url": "https://www.stackpole-europe.com/varistors" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <!-- SEO -->
+  <link rel="canonical" href="https://www.stackpole-europe.com/">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Stackpole Europe Limited">
+  <meta property="og:title" content="Stackpole Europe Limited — Reliable Passive Components">
+  <meta property="og:description" content="Resistors, current sensing, power, precision, wirewound, and protective components for automotive, industrial and consumer applications.">
+  <meta property="og:url" content="https://www.stackpole-europe.com/">
+  <meta property="og:image" content="https://www.stackpole-europe.com/images/logo.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Stackpole Europe Limited — Reliable Passive Components">
+  <meta name="twitter:description" content="Resistors, current sensing, power, precision, wirewound, and protective components for automotive, industrial and consumer applications.">
+</head>
+<body>
+<header class="header">
+  <div class="container bar">
+    <a class="brand" href="/">
+      <img src="images/logo.png" alt="Stackpole Europe Limited" />
+      <span class="name">Stackpole Europe Limited</span>
+    </a>
+    <nav class="topnav">
+  <a href="/">Home</a>
+
+  <div class="nav-dd">
+    <a class="nav-dd__trigger" href="products" aria-current="page">
+      Products <span class="nav-dd__chev" aria-hidden="true">▾</span>
+    </a>
+
+    <div class="nav-dd__menu" role="menu" aria-label="Products">
+      <a role="menuitem" href="current-sense">Current Sense Resistors</a>
+      <a role="menuitem" href="power">Power Resistors</a>
+      <a role="menuitem" href="axial-leaded">Axial Leaded</a>
+      <a role="menuitem" href="surface-mount">Surface Mount</a>
+      <a role="menuitem" href="wirewound">Wirewound</a>
+      <a role="menuitem" href="precision">Precision</a>
+      <a role="menuitem" href="automotive-aec">Automotive / AEC-Q200</a>
+      <a role="menuitem" href="capacitors">Capacitors</a>
+      <a role="menuitem" href="varistors">Varistors</a>
+    </div>
+  </div>
+
+  <a href="https://www.seielect.com/" target="_blank" rel="noopener">Resources</a>
+  <a href="quality">Quality</a>
+  <a href="news">News</a>
+  <a href="contact">Contact</a>
+  <a href="search" class="nav-search-icon" aria-label="Search site">&#x1F50D;</a>
+</nav>
+
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="container" style="position:relative">
+    <p style="color:rgba(255,255,255,.7);font-size:.85rem;margin-bottom:10px;font-weight:500;letter-spacing:.04em;text-transform:uppercase">Passive Components Specialist — UK</p>
+    <h1 style="font-size:clamp(1.6rem,4vw,2.6rem);line-height:1.2;max-width:680px">Precision &amp; Power Components<br>Engineered for Demanding Applications</h1>
+    <p style="max-width:560px;font-size:1rem;margin-top:12px;color:rgba(255,255,255,.85)">Current sense, power, precision, and automotive-grade resistors — from a specialist team with the technical depth to support your design. Stocked in the UK and distributed throughout Europe.</p>
+    <div class="actions" style="margin-top:22px">
+      <a class="btn primary" href="products">Browse Products</a>
+      <a class="btn ghost" href="samples">Request a Sample</a>
+      <a class="btn ghost" href="https://www.seielect.com/" target="_blank" rel="noopener">Technical Resources</a>
+    </div>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="container stats-inner">
+    <div class="stat-block">
+      <div class="stat-num">50+</div>
+      <div class="stat-label">Product Series</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num">5,000+</div>
+      <div class="stat-label">Part Numbers</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num">AEC-Q200</div>
+      <div class="stat-label">Automotive Qualified</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num">Same Day</div>
+      <div class="stat-label">Despatch from UK Stock</div>
+    </div>
+  </div>
+</div>
+
+<main class="section">
+  <div class="container">
+
+<!-- Focus Products -->
+<section class="card" aria-labelledby="focusTitle">
+  <header class="card-head">
+    <h2 id="focusTitle" class="card-title">Focus Products</h2>
+    <p class="muted">Popular series for automotive and industrial designs.</p>
+  </header>
+
+  <div class="card-body">
+    <div class="focus-container">
+      <button class="scroll-btn left" aria-label="Scroll left">‹</button>
+      <div class="focus-scroll" id="focusScroll">
+        <!-- Each product card -->
+        <article class="product-card">
+          <div class="thumb"><img src="images/series/CSS.png" alt="CSS image"></div>
+          <h3>CSS — Ultra-Precision Metal Alloy Current Sense</h3>
+          <p class="muted">0201–4527, TCR down to 15 ppm, up to 5 W.</p>
+          <div class="actions">
+            <a class="btn" href="current-sense#CSS">Explore</a>
+            <a class="btn ghost" href="specs/SEI-CSS.pdf" download>Spec Sheet</a>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="thumb"><img src="images/series/RNCS.png" alt="RNCS image"></div>
+          <h3>RNCS — Moisture-Resistant Precision Thin Film</h3>
+          <p class="muted">0402–2512, 0.1–0.5%, 15–50 ppm, AEC-Q200.</p>
+          <div class="actions">
+            <a class="btn" href="precision#RNCS">Explore</a>
+            <a class="btn ghost" href="specs/SEI-RNCS.pdf" download>Spec Sheet</a>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="thumb"><img src="images/series/MHL.png" alt="MHL image"></div>
+          <h3>MHL — Metal Clad Wirewound</h3>
+          <p class="muted">60–1000 W, optional non-inductive, chassis mount.</p>
+          <div class="actions">
+            <a class="btn" href="wirewound#MHL">Explore</a>
+            <a class="btn ghost" href="specs/SEI-MHL.pdf" download>Spec Sheet</a>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="thumb"><img src="images/series/RMCF.png" alt="RMCF image"></div>
+          <h3>RMCF — General Purpose Thick Film</h3>
+          <p class="muted">01005–2512, 1% / 5%, up to 3 W, AEC-Q200.</p>
+          <div class="actions">
+            <a class="btn" href="surface-mount#RMCF">Explore</a>
+            <a class="btn ghost" href="specs/SEI-RMCF.pdf" download>Spec Sheet</a>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="thumb"><img src="images/series/RVCA.png" alt="RVCA image"></div>
+          <h3>RVCA — Automotive High Voltage Thick Film</h3>
+          <p class="muted">0402–2512, 1% / 5%, up to 100 MΩ, AEC-Q200.</p>
+          <div class="actions">
+            <a class="btn" href="automotive-aec#RVCA">Explore</a>
+            <a class="btn ghost" href="specs/SEI-RVCA.pdf" download>Spec Sheet</a>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="thumb"><img src="images/series/CML.png" alt="CML image"></div>
+          <h3>CML — Multilayer Ceramic Capacitor</h3>
+          <p class="muted">0402–1812, C0G, X5R, X7R, 10–100 V.</p>
+          <div class="actions">
+            <a class="btn" href="capacitors#CML">Explore</a>
+            <a class="btn ghost" href="specs/SEI-CML.pdf" download>Spec Sheet</a>
+          </div>
+        </article>
+      </div>
+      <button class="scroll-btn right" aria-label="Scroll right">›</button>
+    </div>
+  </div>
+</section>
+
+
+    <!-- Upload BOM for Quote — posts to the VTM Group quotation system -->
+    <section class="card bom-quote-card" id="bomSection" aria-labelledby="bomTitle" style="margin-top:32px">
+      <div class="bom-eyebrow">Need a quote fast?</div>
+      <h2 id="bomTitle" class="bom-title">Upload your BOM &mdash; we&rsquo;ll quote it.</h2>
+      <p class="bom-sub">Drop in a CSV or Excel BOM and our team prepares a quotation. UK-based, same-day responses on most enquiries.</p>
+
+      <!-- Cross-link to Beat My Quote for buyers who already have a competitor quote. -->
+      <div class="bom-alt-cta" style="margin:0 0 18px;padding:12px 16px;background:rgba(251,191,36,.10);border-left:3px solid #fbbf24;border-radius:8px;font-size:14px;line-height:1.5;color:#dbe6f5">
+        <strong style="color:#fbbf24">🎯 Already got a quote elsewhere?</strong>
+        Send us the competitor's quote — PDF, screenshot, or paste the part numbers — and we'll try to beat it within 1&ndash;2 working days.
+        <a href="beat-my-quote" style="color:#fbbf24;font-weight:600;text-decoration:none;white-space:nowrap">Beat my quote &rarr;</a>
+      </div>
+
+      <div id="bomCard" class="bom-form-card">
+
+        <!-- Step 1: file -->
+        <div class="bom-form-section">
+          <div class="bom-form-label"><span class="bom-step">1</span> Your BOM file</div>
+          <p class="bom-form-help">
+            CSV or Excel (.xlsx, .xls). <strong>The first row must be column headers</strong> &mdash;
+            we look for Manufacturer, Part Number, Description, Quantity, Customer P/N.<br>
+            Not sure of the format? <a href="files/Stackpole-BOM-Template.csv" download class="bom-template-link">&#128229; Download our BOM template</a>
+          </p>
+          <div class="upload-area">
+            <input id="bomFile" type="file" accept=".csv,.xlsx,.xls" />
+            <button id="parseBOM" class="btn ghost-inv" type="button">Preview</button>
+          </div>
+          <div id="bomInfo" class="bom-info" style="display:none;"></div>
+          <div id="bomPreview" class="bom-preview" style="display:none;"></div>
+
+          <!-- Column mapping (revealed once the file is previewed) -->
+          <div id="bomMapping" class="bom-mapping" style="display:none;">
+            <div class="bom-mapping-title">Map your columns</div>
+            <p class="bom-mapping-help">
+              We&rsquo;ve guessed the best match for each field below. Adjust if needed
+              &mdash; only <strong>Part Number</strong> and <strong>Quantity</strong> are required.
+            </p>
+            <div class="bom-mapping-grid">
+              <label class="bom-map-field"><span>Part Number <span class="req">*</span></span><select id="mapPartNumber" data-required="1"></select></label>
+              <label class="bom-map-field"><span>Quantity <span class="req">*</span></span><select id="mapQuantity" data-required="1"></select></label>
+              <label class="bom-map-field"><span>Description</span><select id="mapDescription"></select></label>
+              <label class="bom-map-field"><span>Manufacturer</span><select id="mapManufacturer"></select></label>
+              <label class="bom-map-field"><span>Customer P/N</span><select id="mapCustomerPn"></select></label>
+            </div>
+            <div id="mappingWarn" class="bom-mapping-warn" style="display:none;"></div>
+          </div>
+
+          <!-- Smart BOM analysis (populates only if a stock feed is present) -->
+          <div id="bomAnalysis" class="bom-analysis" style="display:none;">
+            <div class="bom-analysis-summary" id="bomAnalysisSummary"></div>
+            <details class="bom-analysis-details">
+              <summary>Show per-line stock check</summary>
+              <div class="bom-analysis-table-wrap"><table class="bom-analysis-table" id="bomAnalysisTable"></table></div>
+              <p class="bom-analysis-help">&#9432; Indicative only &mdash; final pricing confirmed on the formal quote from our sales team.</p>
+            </details>
+          </div>
+        </div>
+
+        <!-- Step 2: contact -->
+        <div class="bom-form-section">
+          <div class="bom-form-label"><span class="bom-step">2</span> Your contact details</div>
+          <div class="bom-form-grid">
+            <div class="bom-field"><label for="rfqName">Name <span class="req">*</span></label><input id="rfqName" type="text" autocomplete="name" required /></div>
+            <div class="bom-field"><label for="rfqCompany">Company <span class="req">*</span></label><input id="rfqCompany" type="text" autocomplete="organization" required /></div>
+            <div class="bom-field"><label for="rfqEmail">Email <span class="req">*</span></label><input id="rfqEmail" type="email" autocomplete="email" required /></div>
+            <div class="bom-field"><label for="rfqPhone">Phone</label><input id="rfqPhone" type="tel" autocomplete="tel" /></div>
+            <div class="bom-field bom-field-full"><label for="rfqMessage">Notes (optional)</label><textarea id="rfqMessage" rows="3" placeholder="Project reference, target lead time, target price, etc."></textarea></div>
+          </div>
+
+          <!-- Honeypot — hidden from humans, visible to bots -->
+          <div class="bom-honeypot" aria-hidden="true">
+            <label for="rfqWebsite">Website (leave this empty)</label>
+            <input id="rfqWebsite" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bom-form-actions">
+          <button id="emailBOM" class="btn primary" type="button" disabled>Request Quotation</button>
+          <button id="downloadBOM" class="btn ghost-inv" type="button" disabled>Download Normalised CSV</button>
+        </div>
+
+        <div id="bomStatus" class="bom-status" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- Applications -->
+    <section style="margin-top:32px">
+      <div class="section-hd">
+        <h2>Find Components by Application</h2>
+        <p>Common design challenges — with the right series for each.</p>
+      </div>
+      <div class="app-grid">
+        <a class="app-tile" href="automotive-aec">
+          <span class="app-icon">&#x1F697;</span>
+          <h3>Automotive &amp; EV</h3>
+          <p>48V mild-hybrid, battery management, powertrain sensing</p>
+          <span class="app-series">CSS &bull; CSSK &bull; RVCA</span>
+        </a>
+        <a class="app-tile" href="power">
+          <span class="app-icon">&#x26A1;</span>
+          <h3>Industrial Power</h3>
+          <p>High-current shunts, motor drives, power supplies</p>
+          <span class="app-series">HCS &bull; MHL &bull; CSSH</span>
+        </a>
+        <a class="app-tile" href="precision">
+          <span class="app-icon">&#x1F4CF;</span>
+          <h3>Precision Measurement</h3>
+          <p>Low TCR, stable references, instrumentation circuits</p>
+          <span class="app-series">RNCS &bull; CSS &bull; RCWE</span>
+        </a>
+        <a class="app-tile" href="surface-mount">
+          <span class="app-icon">&#x1F9F2;</span>
+          <h3>General Electronics</h3>
+          <p>High-volume SMD, pull-up/down, signal conditioning</p>
+          <span class="app-series">RMCF &bull; RMCP &bull; CML</span>
+        </a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     WHY STACKPOLE EUROPE — Full-width selling section
+     ═══════════════════════════════════════════════════════════ -->
+<section style="background:#1e3a8a;padding:56px 0">
+  <div class="container">
+
+    <div style="text-align:center;margin-bottom:40px">
+      <p style="color:rgba(255,255,255,.6);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">The Specialist Advantage</p>
+      <h2 style="color:#fff;font-size:clamp(1.4rem,3vw,2rem);margin:0 0 12px">Why Engineers &amp; Buyers Choose Stackpole Europe</h2>
+      <p style="color:rgba(255,255,255,.75);max-width:580px;margin:0 auto;font-size:.95rem;line-height:1.65">Stackpole Europe is <strong style="color:#fff">the European arm of Stackpole Inc.</strong> — not a third-party distributor, but Stackpole's own European operation. That means the full product range, manufacturer-backed quality, and UK stock ready for same-day despatch across Europe.</p>
+    </div>
+
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(1,1fr)">
+      <style>
+        @media(min-width:560px){#why-grid{grid-template-columns:repeat(2,1fr)!important}}
+        @media(min-width:900px){#why-grid{grid-template-columns:repeat(3,1fr)!important}}
+        .sell-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:24px 20px;transition:background .18s}
+        .sell-card:hover{background:rgba(255,255,255,.12)}
+        .sell-icon{font-size:1.8rem;margin-bottom:12px;display:block}
+        .sell-card h3{color:#fff;font-size:.97rem;margin:0 0 8px;font-weight:700}
+        .sell-card p{color:rgba(255,255,255,.72);font-size:.82rem;margin:0;line-height:1.65}
+        .sell-card .sell-tag{display:inline-block;margin-top:12px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.45)}
+      </style>
+      <div id="why-grid" style="display:grid;gap:16px">
+
+        <div class="sell-card">
+          <span class="sell-icon">&#x1F3ED;</span>
+          <h3>The European Arm of Stackpole Inc.</h3>
+          <p>We are not a third-party distributor — Stackpole Europe is Stackpole's own European operation. Every component is genuine, fully traceable, and backed by the same manufacturer quality systems as the global range.</p>
+          <span class="sell-tag">Trust &amp; Traceability</span>
+        </div>
+
+        <div class="sell-card">
+          <span class="sell-icon">&#x1F1EC;&#x1F1E7;</span>
+          <h3>UK Stock — Delivered Across Europe</h3>
+          <p>We hold extensive UK inventory and distribute throughout Europe. Same-day despatch on stocked lines, no minimum order, and flexible pack sizes from prototype quantities to full production volumes.</p>
+          <span class="sell-tag">Availability &amp; Speed</span>
+        </div>
+
+        <div class="sell-card">
+          <span class="sell-icon">&#x1F527;</span>
+          <h3>Real Engineering Support</h3>
+          <p>Not just a catalogue. Our team understands the applications — from TCR selection and Kelvin layout to AEC-Q200 qualification and PPAP packages. We help you design in successfully, not just ship a box.</p>
+          <span class="sell-tag">Technical Depth</span>
+        </div>
+
+        <div class="sell-card">
+          <span class="sell-icon">&#x1F697;</span>
+          <h3>Automotive-Grade Quality</h3>
+          <p>AEC-Q200 qualified lines, ISO 9001 quality management, ISO 14001 environmental certification. Full PPAP documentation — DFMEA, Control Plan, Cpk, PSW — available for tier-1 supply chains.</p>
+          <span class="sell-tag">AEC-Q200 · ISO 9001 · ISO 14001</span>
+        </div>
+
+        <div class="sell-card">
+          <span class="sell-icon">&#x1F4E6;</span>
+          <h3>Free Evaluation Samples</h3>
+          <p>Request samples for most series to validate your design before committing to production. Typically despatched within 2–3 working days. No paperwork, no fuss — just tell us what you need.</p>
+          <span class="sell-tag">Samples &amp; Prototyping</span>
+        </div>
+
+        <div class="sell-card">
+          <span class="sell-icon">&#x1F4CB;</span>
+          <h3>BOM-to-Quote Service</h3>
+          <p>Upload your bill of materials and we'll turn around a competitive quotation. From single-line prototype orders to multi-line production BOMs — we work to your timescale and schedule.</p>
+          <span class="sell-tag">Procurement Made Easy</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:40px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+      <a href="contact" class="btn primary" style="padding:12px 28px;font-size:.95rem">Talk to Our Team</a>
+      <a href="samples" class="btn ghost-inv" style="padding:12px 28px;font-size:.95rem">Request Samples</a>
+      <a href="https://www.seielect.com" target="_blank" rel="noopener" class="btn ghost-inv" style="padding:12px 28px;font-size:.95rem">Stackpole Inc. ›</a>
+    </div>
+
+  </div>
+</section>
+
+<main class="section">
+  <div class="container">
+
+    <!-- Featured technical resources -->
+    <section style="margin-top:0">
+      <div class="section-hd">
+        <h2>Technical Resources</h2>
+        <p>Guides and articles for design engineers.</p>
+      </div>
+      <div class="feat-grid">
+        <a class="feat-card" href="https://www.seielect.com/" target="_blank" rel="noopener">
+          <span class="feat-tag">Technical Article</span>
+          <h3>Understanding TCR in Precision Resistors</h3>
+          <p>How temperature coefficient affects accuracy, self-heating errors, and how to build a resistance error budget.</p>
+          <span class="feat-read">Read article ›</span>
+        </a>
+        <a class="feat-card" href="https://www.seielect.com/" target="_blank" rel="noopener">
+          <span class="feat-tag">PCB Layout Guide</span>
+          <h3>Kelvin Connection Layout for Current Sense</h3>
+          <p>Step-by-step walkthrough of 2-terminal split-pad and 4-terminal Kelvin layouts to eliminate trace resistance error.</p>
+          <span class="feat-read">Read article ›</span>
+        </a>
+        <a class="feat-card" href="https://www.seielect.com/" target="_blank" rel="noopener">
+          <span class="feat-tag">Application Note</span>
+          <h3>Current Sensing in 48V Automotive Systems</h3>
+          <p>Selecting the right shunt technology for MHEV and EV battery monitoring — metal alloy vs foil vs thick film.</p>
+          <span class="feat-read">Read article ›</span>
+        </a>
+      </div>
+      <p style="margin-top:16px"><a class="btn ghost" href="https://www.seielect.com/" target="_blank" rel="noopener">All Resources &amp; Datasheets ›</a></p>
+    </section>
+
+  </div>
+</main>
+
+<!-- Newsletter signup -->
+<section class="section alt" style="padding:40px 0">
+  <div class="container">
+    <div class="newsletter-band">
+      <h2>Stay Up to Date</h2>
+      <p>Product launches, technical articles, and industry news — delivered to your inbox.</p>
+      <form action="https://formsubmit.co/sales@stackpole-europe.com" method="POST">
+        <input type="hidden" name="_subject" value="Newsletter Subscription">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_next" value="https://www.stackpole-europe.com/news.html">
+        <input type="email" name="email" placeholder="Your work email address" required autocomplete="email" />
+        <button type="submit">Subscribe</button>
+      </form>
+      <p class="fine">No spam. Unsubscribe any time. See our <a href="privacy">Privacy Policy</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container text-center">
+    <p>© <span id="year"></span> Stackpole Europe Limited. All rights reserved.</p>
+    <p class="legal-links">
+      <a href="terms">Terms &amp; Conditions</a> |
+      <a href="privacy">Privacy Policy</a> |
+      <a href="cookies">Cookie Policy</a> |
+      <a href="modern-slavery">Modern Slavery Statement</a>
+    </p>
+  <p class="social-links">
+    <a href="https://www.linkedin.com/company/stackpole-europe" class="social-link" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a>
+    &nbsp;|&nbsp;
+    <a href="news">News &amp; Updates</a>
+  </p>
+  <p style="font-size:.75rem;color:var(--muted);margin-top:8px">Stackpole Europe Limited is the European arm of <a href="https://www.seielect.com" target="_blank" rel="noopener" style="color:var(--muted)">Stackpole Inc.</a></p>
+  </div>
+</footer>
+
+<!-- Site JS -->
+<script src="site.js?v=20260604"></script>
+</body>
+</html>
+
+

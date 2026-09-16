@@ -52,6 +52,8 @@ fn validate_connectivity(source: &str, evidence: &UnitNativeEvidence) -> Result<
 pub fn run(source: &str, native: &str, board: &[u8]) -> CheckReport {
     let mut r = CheckReport::from_findings(vec![], vec![], vec![]);
     append(&mut r, zapote_erc::pfc_interfaces::validate(source));
+    append(&mut r, zapote_erc::pfc_protection::evaluate_source(source));
+    append(&mut r, zapote_erc::pfc_shunt::evaluate_source(source));
     r.checked_rules.push("ERC.POWER_ENTRY.SOURCE_GRAPH".into());
     r.findings
         .push(match zapote_erc::power_entry::validate(source, native) {

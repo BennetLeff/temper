@@ -34,6 +34,7 @@ fn resolve_manifest_paths(manifest: &mut Manifest, base: &Path) {
             .chain(s.physical_model_assessment.iter_mut())
             .chain(s.physical_model_source.iter_mut())
             .chain(s.joint_model_evidence.iter_mut())
+            .chain(s.shunt_model_evidence.iter_mut())
         {
             *p = base.join(&*p);
         }
@@ -153,9 +154,14 @@ mod tests {
                 physical_model_assessment: Some("physical/assessment.json".into()),
                 physical_model_source: Some("physical/source.pdf".into()),
                 joint_model_evidence: Some("joint-evidence".into()),
+                shunt_model_evidence: Some("shunt-evidence".into()),
             }],
         };
         resolve_manifest_paths(&mut manifest, Path::new("/run"));
+        assert_eq!(
+            manifest.units[0].shunt_model_evidence.as_deref(),
+            Some(Path::new("/run/shunt-evidence"))
+        );
         assert_eq!(
             manifest.units[0].physical_model.as_deref(),
             Some(Path::new("/run/physical/contract.json"))

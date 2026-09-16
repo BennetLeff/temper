@@ -1,0 +1,60 @@
+{
+  "schema": "zapote.shunt-manufacturer-evidence.v1",
+  "review_date": "2026-09-16",
+  "selected_mpn": "HCSM2818FT10L0",
+  "manufacturer": "Stackpole Electronics",
+  "published": {
+    "resistance_ohm": 0.01,
+    "tolerance_fraction": 0.01,
+    "tcr_ppm_per_K": 75,
+    "nominal_power_W": 5,
+    "terminals": 2,
+    "body_mm": [
+      7.15,
+      4.95,
+      1.65
+    ],
+    "pad_xy_mm": [
+      3.5,
+      5.3
+    ],
+    "pad_gap_mm": 0.6,
+    "nominal_rating_copper_mm2": 500,
+    "nominal_rating_max_surface_C": 100
+  },
+  "sources": [
+    {
+      "file": "Stackpole-HCSM-2019.pdf",
+      "url": "https://media.zouser.com/zouser/datasheetfiles/hcsm2818ft20l0.pdf",
+      "scope": "Manufacturer family datasheet mirrored by distributor; 2019 revision retained. Page 3 land pattern visually reviewed. 2024 manufacturer sheet table also checked through Mouser web extraction.",
+      "sha256": "3b7f5335006da93130dab4c0bff5195a8561a76e3ce292e8aa07ec0871a8c3aa"
+    },
+    {
+      "file": "Vishay-WSL2726.pdf",
+      "url": "https://www.vishay.com/docs/30131/wsl2726.pdf",
+      "scope": "Unsupported old exact-part model: published family is four-terminal, 0.2 to 5 mOhm; does not substantiate 10 mOhm two-terminal configuration.",
+      "sha256": "583946079d110ac74dc7987e1f1d2c5a170253b03f123b993c414761c6b89373"
+    },
+    {
+      "file": "TI-UCC28180.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf",
+      "scope": "Rev D table 7.5 and pin/function descriptions. ICOMP unit inconsistency retained as unresolved, not silently interpreted.",
+      "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+  ],
+  "availability": {
+    "url": "https://www.digikey.com/en/products/detail/stackpole-electronics-inc/HCSM2818FT10L0/9557196",
+    "status": "In stock at review; availability/price not a reservation or purchase.",
+    "distributor_sku": "HCSM2818FT10L0CT-ND"
+  },
+  "footprint_generator": {
+    "tool": "official KiCad Library Tools / KicadModTree",
+    "git_revision": "dc0794c84de208cd739d54cb95dc6cb08ebe770f",
+    "script": "tools/generate_footprint.py"
+  },
+  "limits": [
+    "No internal body-to-terminal thermal resistance is guaranteed by these sources.",
+    "This substitution preserves 10 mOhm scaling, not assembly qualification.",
+    "New footprint has no assigned 3D body model; native copper and courtyard were reviewed."
+  ]
+}

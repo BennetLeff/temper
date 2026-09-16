@@ -1,0 +1,123 @@
+{
+  "run_id": "run-20260916-shunt",
+  "run_dir": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-20260916/run-20260916-shunt",
+  "skill_dir": "/Users/bennet/.codex/plugins/cache/compound-engineering-plugin/compound-engineering/3.26.3",
+  "docs_root": "docs",
+  "mode": {
+    "agent": true,
+    "apply_local": false,
+    "grouping": "auto",
+    "depth": "full"
+  },
+  "invocation": {
+    "arguments": "mode:agent; base:b7af4c91236bf1ee6f87b26c3ef5a63f14da5a5d",
+    "constraints": [
+      "Review current canonical worktree only",
+      "Own docs/reviews/shunt-20260916/ artifacts only; do not modify production code, installs, git writes or promote PCB",
+      "External cross-model private-code egress already rejected; record local adversarial fallback and do not retry",
+      "Do not claim body-temperature qualification from local front-copper model",
+      "Historical fixtures remain known FAIL",
+      "Use thermal04/native04 final delta and preserve plan contract"
+    ]
+  },
+  "scope": {
+    "mode": "standalone",
+    "base": "BASE: b7af4c91236bf1ee6f87b26c3ef5a63f14da5a5d",
+    "diff_a": "HEAD",
+    "diff_b": null,
+    "pr": {
+      "number": null,
+      "url": null,
+      "title": null,
+      "body": null,
+      "base_ref_name": null,
+      "head_ref_oid": null,
+      "head_ref": null,
+      "base_ref": null,
+      "has_prior_comments": false
+    },
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "b7af4c91236bf1ee6f87b26c3ef5a63f14da5a5d",
+    "files": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-20260916/run-20260916-shunt/files.txt",
+    "diff": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-20260916/run-20260916-shunt/full.diff",
+    "tree_is_reviewed_head": true,
+    "untracked_excluded": [
+      "generated FEM mesh/raw logs outside bounded thermal04/report.json"
+    ]
+  },
+  "intent": {
+    "summary": "Evaluate the GBJ2510-F plus HCSM2818FT10L0 shunt repair and local Rust harness against power-entry/shunt-repair/README.md: exact part identity, fail-closed protection bounds and loop closure, fresh native04 board binding, local Gmsh/Elmer thermal04 numerical replay, mandatory harness hooks, and explicit residual assembly/qualification limits. Historical fixtures remain known FAIL.",
+    "confidence": "explicit"
+  },
+  "plan": {
+    "path": "zapote/power-entry/shunt-repair/README.md",
+    "source": "explicit",
+    "requirements": [
+      "Bind exact GBJ2510-F and HCSM2818FT10L0 source/native identity",
+      "Preserve historical fixtures as known FAIL",
+      "Require fresh native board and manufacturing evidence with hash closure",
+      "Run local Gmsh/Elmer mesh/convergence/energy checks for shunt copper",
+      "Model protection and switching loops with unresolved timing/inductance/disconnect visible",
+      "Use mandatory harness hooks and retain raw evidence",
+      "Do not infer body temperature or assembly qualification"
+    ],
+    "implementation_units": [
+      "pfc_shunt",
+      "pfc_protection",
+      "pfc_loops",
+      "pfc_power",
+      "runner",
+      "bridge_thermal",
+      "shunt_local",
+      "shunt_mesh",
+      "candidate/native04/thermal04 evidence"
+    ],
+    "settled_decisions": [
+      "front copper local model only",
+      "missing high-frequency and external safety behavior remains IND",
+      "GBJ polarity from exact MPN and bridge pin map"
+    ]
+  },
+  "roster": {
+    "selected": [],
+    "standards": {
+      "criteria": [
+        "AGENTS.md project Rust/evidence/provenance rules",
+        "zapote/power-entry/shunt-repair/README.md execution contract"
+      ],
+      "fallback_named": false,
+      "not_run_reason": "No independent standards persona launched in final bounded closeout; project instructions and explicit plan read directly."
+    },
+    "packs": {
+      "roots": [],
+      "errors": [],
+      "warnings": []
+    }
+  },
+  "collection": {
+    "returns": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-20260916/run-20260916-shunt/raw-returns.json",
+    "unstructured_returns": [],
+    "failed_reviewers": [],
+    "bound_exceeded": [],
+    "fast_pass": {
+      "emitted_preliminary": false,
+      "candidates": []
+    }
+  },
+  "peer": {
+    "selected": false,
+    "target": null,
+    "route": null,
+    "preference_source": "user",
+    "outcome": "in-process-fallback",
+    "artifact": null,
+    "coverage": "Cross-model private-code egress was auto-review rejected before this run; local parent/adversarial fallback coverage is recorded as non-independent."
+  },
+  "coverage_notes": [
+    "Prepared advisory context zapote/thermal/gbj-study/memory-review/prepared-context.json was read directly; this is actual note usage, not provider transport proof.",
+    "Parent final delta: native04/DRC04 clean, thermal04 15 actual Gmsh/Elmer solves, current tests 471 pass, fresh bridge replay in progress at dispatch.",
+    "Generated FEM bulk excluded from diff read; bounded report and metadata inspected.",
+    "No live FEM rerun performed in this review.",
+    "No independent cross-model verified review; local fallback only."
+  ]
+}

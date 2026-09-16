@@ -891,3 +891,7 @@ pub mod domain_contract;
 
 pub mod operating_limits;
 pub mod pfc_currents;
+
+pub mod pfc_shunt;
+
+pub mod pfc_protection;

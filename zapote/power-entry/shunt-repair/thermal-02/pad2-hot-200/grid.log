@@ -1,0 +1,46 @@
+==================================================================
+ElmerGrid mesh conversion and manipulation utility, Welcome!
+Version: 26.2 (Rev: NA, Compiled: NA)
+This program is free software licensed under GPL
+==================================================================
+Elmergrid reading in-line arguments
+Output will be saved to file mesh.
+
+Elmergrid loading data:
+-----------------------
+Format chosen using the first line: $MeshFormat
+Gmsh input file format is type   2.2 in ASCII.
+Loading mesh in Gmsh format 2.0 from file local.msh
+Allocating for 4590 knots and 13378 elements.
+Moving bulk elements to boundary elements
+Leading bulk elementtype is 504
+Trailing bulk elementtype is 303
+There are 100 (out of 13378) lower dimensional elements.
+Node 478 belongs to maximum of 21 elements
+Found correctly 100 side elements.
+Parent elements were reordered up to index 13278.
+Moved 13278 elements (out of 13378) to new positions
+Successfully read the mesh from the Gmsh input file.
+Using physical numbering of entities
+
+Elmergrid creating and manipulating meshes:
+-------------------------------------------
+Bounding box of all nodes in mesh:
+X:[0.0711,0.0839] Y:[0.129,0.135] Z:[0,7e-05]
+Calculate Mesh Pieces in mesh:
+Number of separate pieces in mesh is 2
+The mesh is non-conforming. If not expecting a non-conforming
+mesh, then refer to the Elmer User Forum for help.
+
+Elmergrid saving data with method 2:
+-------------------------------------
+Saving mesh in ElmerSolver format to directory mesh.
+Saving 4590 coordinates to mesh.nodes.
+Saving 13278 element topologies to mesh.elements.
+Saving boundary elements to mesh.boundary.
+Saving header info to mesh.header.
+
+Thank you for using Elmergrid!
+Send bug reports and feature wishes to elmeradm@csc.fi
+
+--- stderr ---

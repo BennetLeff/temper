@@ -1,0 +1,34 @@
+{
+  "branch": "codex/buck-harness-experiment-plan",
+  "completed_at": "2026-09-16T19:12:46Z",
+  "cost": {
+    "host": "codex",
+    "stages": [
+      {
+        "candidates": 0,
+        "elapsed_seconds": 0.028,
+        "ended_at": "2026-09-16T19:11:01.373651+00:00",
+        "stage": "merge",
+        "started_at": "2026-09-16T19:11:01.345675+00:00"
+      },
+      {
+        "candidates": 0,
+        "elapsed_seconds": 30.611,
+        "ended_at": "2026-09-16T19:13:16.620278+00:00",
+        "stage": "report",
+        "started_at": "2026-09-16T19:12:46.009466+00:00"
+      }
+    ],
+    "status": "complete",
+    "totals": {
+      "artifact_bytes": 114576,
+      "candidates": 0,
+      "elapsed_seconds": 30.639,
+      "reviewers": 0
+    },
+    "truncated_events": 0
+  },
+  "head_sha": "b7af4c91236bf1ee6f87b26c3ef5a63f14da5a5d",
+  "run_id": "run-20260916-shunt",
+  "verdict": "Ready to merge"
+}

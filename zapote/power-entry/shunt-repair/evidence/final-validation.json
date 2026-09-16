@@ -1,0 +1,76 @@
+{
+  "schema": "zapote.shunt-checkpoint.v1",
+  "completed_at": "2026-09-16T19:17:06.927081+00:00",
+  "base_commit": "b7af4c91236bf1ee6f87b26c3ef5a63f14da5a5d",
+  "common_run": "zapote/validation/runs/shunt-20260916-final-02",
+  "units": [
+    {
+      "unit": "rtd",
+      "status": "indeterminate",
+      "native_checks": "pass",
+      "failure_count": 0,
+      "report_sha256": "ff7351e0bf3e3c9038b608ad9a9f0d706e586c11ed01f80b6a6865e13238cb67"
+    },
+    {
+      "unit": "current-sense",
+      "status": "indeterminate",
+      "native_checks": "pass",
+      "failure_count": 0,
+      "report_sha256": "fa9a050dcbb4d7f067c26809c5ec68e098204827577661f3e5d41469b1523ee8"
+    },
+    {
+      "unit": "voltage-sense",
+      "status": "indeterminate",
+      "native_checks": "pass",
+      "failure_count": 0,
+      "report_sha256": "36596d3f8324437bf86a78d121f146f0a50348bdcd51924b25c9fe0a4c66d69b"
+    },
+    {
+      "unit": "thermal-sense",
+      "status": "indeterminate",
+      "native_checks": "pass",
+      "failure_count": 0,
+      "report_sha256": "58362b25c142dbc74ee03e3296dd0bbe774b663a15a15170ab1e96e4ca35ec81"
+    },
+    {
+      "unit": "interlock",
+      "status": "indeterminate",
+      "native_checks": "pass",
+      "failure_count": 0,
+      "report_sha256": "431d09347ffbfd974fff684384f3e2c0072e1856501d59889b217a4d307a4ab0"
+    },
+    {
+      "unit": "gate-drive",
+      "status": "indeterminate",
+      "native_checks": "pass",
+      "failure_count": 0,
+      "report_sha256": "3f1a651ad2944ba752581a87faa29483e8c2fc1cefdb3e63cc69bbde16277dd6"
+    },
+    {
+      "unit": "power-entry",
+      "status": "indeterminate",
+      "native_checks": "pass",
+      "failure_count": 0,
+      "report_sha256": "a7a774deafd56628e26d8e1d024231824af8b72a994f1afa71ded29fa8d8bb59"
+    }
+  ],
+  "tests": {
+    "passed": 473,
+    "failed": 0,
+    "ignored": 1
+  },
+  "native_kicad": "10.0.6",
+  "shunt_actual_fem_solves": 15,
+  "bridge_actual_local_fem_solves": 96,
+  "board_sha256": "b1e06afbf0e9a8b41a3bbbbd046abeb5495e9b42f3fc07e1b312095bc7e97583",
+  "source_manifest_sha256": "e9eaa3c18619c1060278fd6280be66de1c16f53db300e4596d48b92c1fb10b04",
+  "hardware_test_status": "NOT RUN",
+  "qualification": "INDETERMINATE",
+  "review": "docs/reviews/shunt-20260916/run-20260916-shunt/review.json",
+  "limits": [
+    "Shunt body/solder/vias/board cooling and transient capability unresolved",
+    "High-frequency loop geometry and parasitic extraction unresolved",
+    "External bias, permit/precharge, mains disconnect and discharge contracts and timing unresolved",
+    "Other power-stage loss/rating corners remain open"
+  ]
+}

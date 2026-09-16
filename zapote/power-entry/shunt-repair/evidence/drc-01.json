@@ -1,0 +1,138 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-16T12:13:00",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [
+        {
+            "description": "Value (U12) doesn't match symbol value (HCSM2818FT10L0)",
+            "items": [
+                {
+                    "description": "Footprint U12",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 132.0
+                    },
+                    "uuid": "0806cfd7-cf67-35e3-5dd1-1b1accb2a887"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Field 'Datasheet' differs (PCB: 'https://www.seielect.com/catalog/SEI-HCSM.pdf', Schematic: '')",
+            "items": [
+                {
+                    "description": "Footprint U12",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 132.0
+                    },
+                    "uuid": "0806cfd7-cf67-35e3-5dd1-1b1accb2a887"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_field_mismatch"
+        }
+    ],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Items shorting two nets (nets PFC_BUS_MINUS and minus)",
+            "items": [
+                {
+                    "description": "Pad 1 [PFC_BUS_MINUS] of U12 on F.Cu",
+                    "pos": {
+                        "x": 80.05,
+                        "y": 132.0
+                    },
+                    "uuid": "439cfeb8-a963-4284-8493-f7b0d5977a9f"
+                },
+                {
+                    "description": "Track [minus] on F.Cu, length 4.2000 mm",
+                    "pos": {
+                        "x": 71.1,
+                        "y": 132.0
+                    },
+                    "uuid": "e45ca754-66c7-4204-987e-e69d5ed1af44"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of U12",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 133.43
+                    },
+                    "uuid": "aad25f42-e3fa-4e43-ab02-950d0350ef12"
+                },
+                {
+                    "description": "Pad 2 [minus] of U12 on F.Cu",
+                    "pos": {
+                        "x": 75.95,
+                        "y": 132.0
+                    },
+                    "uuid": "025aa615-6183-46fb-a7fe-de8e272012b2"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Reference field of U12",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 133.43
+                    },
+                    "uuid": "aad25f42-e3fa-4e43-ab02-950d0350ef12"
+                },
+                {
+                    "description": "Pad 1 [PFC_BUS_MINUS] of U12 on F.Cu",
+                    "pos": {
+                        "x": 80.05,
+                        "y": 132.0
+                    },
+                    "uuid": "439cfeb8-a963-4284-8493-f7b0d5977a9f"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+{
+  "args": [
+    "-3",
+    "local.geo",
+    "-format",
+    "msh2",
+    "-o",
+    "local.msh",
+    "-nt",
+    "1"
+  ],
+  "cwd": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/shunt-repair/thermal-04/nominal-200",
+  "environment": {
+    "OMPI_MCA_btl": "self",
+    "OMP_NUM_THREADS": "1"
+  },
+  "program": "/opt/homebrew/bin/gmsh",
+  "timeout_ms": 180000,
+  "unset_environment": [
+    "ELMER_HOME",
+    "ELMER_LIB"
+  ]
+}

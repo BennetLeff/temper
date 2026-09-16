@@ -1,0 +1,13 @@
+{
+  "findings": [],
+  "selected": [],
+  "skip_count": 0,
+  "skip_evidence": null,
+  "scope": {
+    "mode": "standalone",
+    "base": "BASE: b7af4c91236bf1ee6f87b26c3ef5a63f14da5a5d",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "b7af4c91236bf1ee6f87b26c3ef5a63f14da5a5d",
+    "diff": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-20260916/run-20260916-shunt/full.diff"
+  }
+}

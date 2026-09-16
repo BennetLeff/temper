@@ -8,6 +8,22 @@ use std::collections::BTreeSet;
 
 pub const ENTRY: &str = "elec/src/power_entry_unit.ato:PowerEntryUnit";
 
+/// Reviewed shunt identities.  The legacy identity is retained so historical
+/// source snapshots can still be replayed by the topology checker; the
+/// dedicated `pfc_shunt` rule rejects it for a current design.
+pub const LEGACY_SHUNT_MPN: &str = "WSL2726R0100FEA";
+pub const LEGACY_SHUNT_FOOTPRINT: &str = "temper:WSL2726R0100FEA";
+pub const SHUNT_MPN: &str = "HCSM2818FT10L0";
+pub const SHUNT_FOOTPRINT: &str = "temper:HCSM2818FT10L0";
+
+pub fn shunt_footprint(mpn: &str) -> Option<&'static str> {
+    match mpn {
+        LEGACY_SHUNT_MPN => Some(LEGACY_SHUNT_FOOTPRINT),
+        SHUNT_MPN => Some(SHUNT_FOOTPRINT),
+        _ => None,
+    }
+}
+
 /// Reviewed DC endpoints; AC endpoints remain pins 2 and 3 for both packages.
 #[derive(Clone, Copy, Debug)]
 pub struct BridgePins {
@@ -206,8 +222,16 @@ pub fn validate_source(source: &str) -> Result<(), String> {
             .components
             .get(*id)
             .ok_or_else(|| format!("missing reviewed part {id}"))?;
-        if (*id != "bridge" && part.mpn != *mpn) || part.value.as_deref() != *value {
+        let mpn_matches = if *id == "shunt" {
+            shunt_footprint(&part.mpn).is_some()
+        } else {
+            *id == "bridge" || part.mpn == *mpn
+        };
+        if !mpn_matches || part.value.as_deref() != *value {
             return Err(format!("unreviewed MPN/value at {id}"));
+        }
+        if *id == "shunt" && part.footprint != shunt_footprint(&part.mpn).unwrap() {
+            return Err("shunt requires its reviewed package footprint".into());
         }
     }
     let mut pins = BTreeSet::new();

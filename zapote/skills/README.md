@@ -136,3 +136,15 @@ Rust regressions. Existing versioned memory remains immutable. Review context
 preparation is retained under the study's `memory-review/`; it does not establish
 pre-construction delivery. These concrete findings remain in the study and tests
 rather than introducing a duplicate generalized memory note.
+
+## Shunt and controller follow-up
+
+The [shunt repair](../power-entry/shunt-repair/README.md) records a part-model
+error that source/native agreement could not detect: an unsupported resistance
+and terminal count were carried consistently through both representations.
+The manufacturer-backed replacement, explicit junction repair, mesh transfer
+counterexamples and controller threshold ambiguities are retained with Rust
+regressions. Read it when changing power resistors or interpreting protection
+thresholds. Its local copper temperatures are not portable facts or resistor
+body predictions. Existing memory revisions remain immutable; this index entry
+does not claim delivery to a later agent or measured memory effectiveness.

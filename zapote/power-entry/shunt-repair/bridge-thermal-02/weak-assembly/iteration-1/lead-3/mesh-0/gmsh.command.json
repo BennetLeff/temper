@@ -1,0 +1,23 @@
+{
+  "args": [
+    "joint.geo",
+    "-3",
+    "-format",
+    "msh2",
+    "-o",
+    "joint.msh",
+    "-nt",
+    "1"
+  ],
+  "cwd": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/shunt-repair/bridge-thermal-02/weak-assembly/iteration-1/lead-3/mesh-0",
+  "environment": {
+    "OMPI_MCA_btl": "self",
+    "OMP_NUM_THREADS": "1"
+  },
+  "program": "/opt/homebrew/bin/gmsh",
+  "timeout_ms": 300000,
+  "unset_environment": [
+    "ELMER_HOME",
+    "ELMER_LIB"
+  ]
+}

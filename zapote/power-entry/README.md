@@ -1,5 +1,12 @@
 # Active-PFC power-entry unit
 
+The current working authoring source and repaired GBJ/shunt candidate are
+documented in [shunt-repair/README.md](shunt-repair/README.md). That candidate
+uses the manufacturer-backed HCSM2818FT10L0 shunt and its own common-suite
+manifest. The maintained board below is historical: its WSL2726 10 mΩ/two-pad
+definition now fails the exact-part rule as well as its four bridge-neck screens.
+Neither candidate is thermally or electrically qualified for powered operation.
+
 The standalone 54-component board is routed. Source-build-22, the native23
 source manifest, and the saved candidate agree on all 33 nets. The
 [current copper-repair checkpoint](evidence/copper-repair-2026-09-12/README.md)

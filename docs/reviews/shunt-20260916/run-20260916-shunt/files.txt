@@ -1,0 +1,17 @@
+elec/src/power_entry_unit.ato
+zapote/packages/zapote-erc/src/lib.rs
+zapote/packages/zapote-erc/src/power_entry.rs
+zapote/packages/zapote-erc/src/pfc_shunt.rs
+zapote/packages/zapote-erc/src/pfc_protection.rs
+zapote/packages/zapote-harness/src/lib.rs
+zapote/packages/zapote-harness/src/power_entry.rs
+zapote/packages/zapote-harness/src/pfc_power.rs
+zapote/packages/zapote-harness/src/pfc_loops.rs
+zapote/packages/zapote-harness/src/runner.rs
+zapote/packages/zapote-harness/src/shunt_thermal.rs
+zapote/packages/zapote-harness/src/bridge_thermal.rs
+zapote/packages/zapote-thermal/src/lib.rs
+zapote/packages/zapote-thermal/src/shunt_local.rs
+zapote/packages/zapote-thermal/src/shunt_mesh.rs
+zapote/power-entry/shunt-repair/README.md
+zapote/power-entry/shunt-repair/units.json

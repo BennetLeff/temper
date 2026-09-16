@@ -1,0 +1,21 @@
+{
+  "deferred_units": {
+    "buck": "legacy delegated owner; no Zapote unit suite",
+    "mcu": "not in maintained Zapote registry"
+  },
+  "manifest_sha256": "8acadd5351996922ef5964dc6ef6fa0a49fdebd75a357d2158ed97b78cd75bc3",
+  "output": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/validation/runs/shunt-20260916-01",
+  "schema": "zapote.unit-run-summary.v1",
+  "status": "fail",
+  "suite_changed_during_run": false,
+  "unit_count": 7,
+  "unit_statuses": [
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "fail"
+  ]
+}
