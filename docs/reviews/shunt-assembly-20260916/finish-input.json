@@ -1,0 +1,132 @@
+{
+  "run_id": "shunt-assembly-20260916",
+  "run_dir": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-assembly-20260916",
+  "skill_dir": "/Users/bennet/.codex/plugins/cache/compound-engineering-plugin/compound-engineering/3.26.3/skills/ce-code-review",
+  "docs_root": "docs",
+  "mode": {
+    "agent": true,
+    "apply_local": false,
+    "grouping": "auto",
+    "depth": "full"
+  },
+  "invocation": {
+    "arguments": "mode:agent base:5bd51b46f",
+    "constraints": [
+      "Read-only review. Parent applies fixes. Do not rerun external private-code review; auto-review already rejected that route.",
+      "Luna subagents preferred by user. No changes to PCB; no powered qualification claim."
+    ]
+  },
+  "scope": {
+    "mode": "standalone",
+    "base": "BASE: 5bd51b46fe789235e8e6047b909da164c73b4141",
+    "diff_a": "5bd51b46fe789235e8e6047b909da164c73b4141",
+    "diff_b": null,
+    "pr": {
+      "number": null,
+      "url": null,
+      "title": null,
+      "body": null,
+      "base_ref_name": null,
+      "head_ref_oid": null,
+      "head_ref": null,
+      "base_ref": null,
+      "has_prior_comments": false
+    },
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "5bd51b46fe789235e8e6047b909da164c73b4141",
+    "files": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-assembly-20260916/files.txt",
+    "diff": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-assembly-20260916/full.diff",
+    "tree_is_reviewed_head": true,
+    "untracked_excluded": [
+      "Generated raw solver artifacts: selected run09/10 reviewed; final run15 replay/common validation pending."
+    ]
+  },
+  "intent": {
+    "summary": "Model the reviewed shunt native copper/vias/substrate/solder heat paths with Gmsh/Elmer; validate numerical evidence in Rust and connect mandatory numerical/applicability gates to the common harness. Preserve unresolved resistor-internal and enclosure cooling qualification, and all failed attempts.",
+    "confidence": "explicit"
+  },
+  "plan": {
+    "path": "zapote/power-entry/shunt-assembly/README.md",
+    "source": "explicit",
+    "requirements": [
+      "Native copper/holes/vias/material and port transfer",
+      "Energy, solver, mesh convergence and cooling/material/heat-split sensitivities",
+      "Exact source/deck/raw/evidence replay and regression tests",
+      "Common harness numerical status distinct from assembly qualification",
+      "Retain failed attempts and record remaining physical uncertainty"
+    ],
+    "implementation_units": [
+
+    ],
+    "settled_decisions": [
+      "No internal resistor thermal constants fabricated",
+      "Contact heat flux; fixed crop face temperatures; adiabatic exposed surfaces",
+      "100/50/40 um except hotter-terminal35 um, unchanged scaled0.5K estimatedremainingerror gate"
+    ]
+  },
+  "roster": {
+    "selected": [
+      {
+        "reviewer": "correctness-testing-adversarial",
+        "tier": "session",
+        "reason": "new numerical validity and replay logic; same-provider Luna read-only review"
+      }
+    ],
+    "standards": {
+      "criteria": [
+        "AGENTS.md",
+        "zapote/AGENTS.md",
+        "zapote/power-entry/shunt-assembly/README.md"
+      ],
+      "fallback_named": true,
+      "not_run_reason": "Parent applies project standards; one bounded combined Luna review."
+    },
+    "packs": {
+      "roots": [
+
+      ],
+      "errors": [
+
+      ],
+      "warnings": [
+
+      ]
+    }
+  },
+  "collection": {
+    "returns": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-assembly-20260916/raw-returns.json",
+    "unstructured_returns": [
+      {
+        "reviewer": "correctness-testing-adversarial",
+        "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-assembly-20260916/luna-review.md"
+      }
+    ],
+    "failed_reviewers": [
+
+    ],
+    "bound_exceeded": [
+
+    ],
+    "fast_pass": {
+      "emitted_preliminary": false,
+      "candidates": [
+
+      ]
+    }
+  },
+  "peer": {
+    "selected": true,
+    "target": null,
+    "route": null,
+    "preference_source": "user",
+    "outcome": "in-process-fallback",
+    "artifact": null,
+    "coverage": "External cross-model private-code egress was rejected by automatic approval review before this run. Same-provider Luna review is not independent cross-model verification."
+  },
+  "coverage_notes": [
+    "Final corrected run15 profile and common harness run are pending; do not claim completed physical qualification.",
+    "Parent landed command receipt validation/hash binding, applicability field, seed/deck/raw/gzip tests, exact board applicability guard, convex-hull via-hole exclusion, Gmsh/Elmer topology and coordinate identity, solver mesh census, and absolute tool-path preflight after review. Verify these resolutions against current source.",
+    "Concave native copper boundaries still use vertex/centroid sampling plus volume/interface and inter-terminal gap checks, not an exact general Boolean cell-containment proof. Fixed reviewed board only.",
+    "The older shunt_local command receipt omission is pre-existing and recorded separately; new assembly replay requires receipts."
+  ]
+}

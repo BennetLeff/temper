@@ -1,0 +1,392 @@
+{
+  "zapote/power-entry/shunt-assembly/run-15/direct-control-100/local.msh": {
+    "sha256": "f100a2c635d85b692b62b1dbed9b82649d76c04cc4607affbdc1441dcb3ae81b",
+    "bytes": 22342931,
+    "gzip_bytes": 7463524
+  },
+  "zapote/power-entry/shunt-assembly/run-15/direct-control-100/mesh/mesh.boundary": {
+    "sha256": "42494b81daf0935e7108d30c2af9b7ec2f2dd552ed0ef506aea314ca9ddbcf48",
+    "bytes": 302540,
+    "gzip_bytes": 90863
+  },
+  "zapote/power-entry/shunt-assembly/run-15/direct-control-100/mesh/mesh.elements": {
+    "sha256": "c14eaa89191a9e3912020cae1e2249d08af82a0608a904a4ce61546eaed15b86",
+    "bytes": 15028224,
+    "gzip_bytes": 5409367
+  },
+  "zapote/power-entry/shunt-assembly/run-15/direct-control-100/mesh/mesh.nodes": {
+    "sha256": "4d1ea491f5a939105ac28a0bbe22f1285e40ba3a13a1b76a4a5c19183a5ea0ad",
+    "bytes": 4215881,
+    "gzip_bytes": 1492326
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-100/local.msh": {
+    "sha256": "f100a2c635d85b692b62b1dbed9b82649d76c04cc4607affbdc1441dcb3ae81b",
+    "bytes": 22342931,
+    "gzip_bytes": 7463524
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-100/mesh/mesh.boundary": {
+    "sha256": "42494b81daf0935e7108d30c2af9b7ec2f2dd552ed0ef506aea314ca9ddbcf48",
+    "bytes": 302540,
+    "gzip_bytes": 90863
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-100/mesh/mesh.elements": {
+    "sha256": "c14eaa89191a9e3912020cae1e2249d08af82a0608a904a4ce61546eaed15b86",
+    "bytes": 15028224,
+    "gzip_bytes": 5409367
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-100/mesh/mesh.nodes": {
+    "sha256": "4d1ea491f5a939105ac28a0bbe22f1285e40ba3a13a1b76a4a5c19183a5ea0ad",
+    "bytes": 4215881,
+    "gzip_bytes": 1492326
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-40/local.msh": {
+    "sha256": "d5f16971e5e4e59e633af6939450eef1b3129484aafc0b9367a26da4f03a0958",
+    "bytes": 117718462,
+    "gzip_bytes": 40460647
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-40/mesh/mesh.boundary": {
+    "sha256": "9d24e6dcd853e948973887d64b568cf24d31d0c8ff382548eb6eafcf97923a4b",
+    "bytes": 2041266,
+    "gzip_bytes": 604506
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-40/mesh/mesh.elements": {
+    "sha256": "4859072d3957ad653b5a1b363b0e6f1e00ce6e97b4557397f8299831edc06c93",
+    "bytes": 82348648,
+    "gzip_bytes": 30635459
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-40/mesh/mesh.nodes": {
+    "sha256": "7e830eb4548185595c3b4b546e88516b50c7c20b035198717303350a0491ad9e",
+    "bytes": 19745248,
+    "gzip_bytes": 7050356
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-50/local.msh": {
+    "sha256": "6e29de1854f0de95ffeb873b119217fc0f763535bd641cd5da2870b505bd1db7",
+    "bytes": 69597914,
+    "gzip_bytes": 23320736
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-50/mesh/mesh.boundary": {
+    "sha256": "1ea23208be392b3e547ace29f85f706c65d24b36ccac8d76cbb12b748b3c8304",
+    "bytes": 1279293,
+    "gzip_bytes": 381645
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-50/mesh/mesh.elements": {
+    "sha256": "04f7d91f8d951cab3d6dff494f157333bf90179211a30e0650776011facf64de",
+    "bytes": 48191146,
+    "gzip_bytes": 17719551
+  },
+  "zapote/power-entry/shunt-assembly/run-15/hot-board-50/mesh/mesh.nodes": {
+    "sha256": "d8a762057c00dfa5bc2b69d242d6f8813892fa7a713b7b3a89869c4cc932d532",
+    "bytes": 11719957,
+    "gzip_bytes": 3969904
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-100/local.msh": {
+    "sha256": "f100a2c635d85b692b62b1dbed9b82649d76c04cc4607affbdc1441dcb3ae81b",
+    "bytes": 22342931,
+    "gzip_bytes": 7463524
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-100/mesh/mesh.boundary": {
+    "sha256": "42494b81daf0935e7108d30c2af9b7ec2f2dd552ed0ef506aea314ca9ddbcf48",
+    "bytes": 302540,
+    "gzip_bytes": 90863
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-100/mesh/mesh.elements": {
+    "sha256": "c14eaa89191a9e3912020cae1e2249d08af82a0608a904a4ce61546eaed15b86",
+    "bytes": 15028224,
+    "gzip_bytes": 5409367
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-100/mesh/mesh.nodes": {
+    "sha256": "4d1ea491f5a939105ac28a0bbe22f1285e40ba3a13a1b76a4a5c19183a5ea0ad",
+    "bytes": 4215881,
+    "gzip_bytes": 1492326
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-40/local.msh": {
+    "sha256": "d5f16971e5e4e59e633af6939450eef1b3129484aafc0b9367a26da4f03a0958",
+    "bytes": 117718462,
+    "gzip_bytes": 40460647
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-40/mesh/mesh.boundary": {
+    "sha256": "9d24e6dcd853e948973887d64b568cf24d31d0c8ff382548eb6eafcf97923a4b",
+    "bytes": 2041266,
+    "gzip_bytes": 604506
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-40/mesh/mesh.elements": {
+    "sha256": "4859072d3957ad653b5a1b363b0e6f1e00ce6e97b4557397f8299831edc06c93",
+    "bytes": 82348648,
+    "gzip_bytes": 30635459
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-40/mesh/mesh.nodes": {
+    "sha256": "7e830eb4548185595c3b4b546e88516b50c7c20b035198717303350a0491ad9e",
+    "bytes": 19745248,
+    "gzip_bytes": 7050356
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-50/local.msh": {
+    "sha256": "6e29de1854f0de95ffeb873b119217fc0f763535bd641cd5da2870b505bd1db7",
+    "bytes": 69597914,
+    "gzip_bytes": 23320736
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-50/mesh/mesh.boundary": {
+    "sha256": "1ea23208be392b3e547ace29f85f706c65d24b36ccac8d76cbb12b748b3c8304",
+    "bytes": 1279293,
+    "gzip_bytes": 381645
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-50/mesh/mesh.elements": {
+    "sha256": "04f7d91f8d951cab3d6dff494f157333bf90179211a30e0650776011facf64de",
+    "bytes": 48191146,
+    "gzip_bytes": 17719551
+  },
+  "zapote/power-entry/shunt-assembly/run-15/nominal-50/mesh/mesh.nodes": {
+    "sha256": "d8a762057c00dfa5bc2b69d242d6f8813892fa7a713b7b3a89869c4cc932d532",
+    "bytes": 11719957,
+    "gzip_bytes": 3969904
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-100/local.msh": {
+    "sha256": "f100a2c635d85b692b62b1dbed9b82649d76c04cc4607affbdc1441dcb3ae81b",
+    "bytes": 22342931,
+    "gzip_bytes": 7463524
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-100/mesh/mesh.boundary": {
+    "sha256": "42494b81daf0935e7108d30c2af9b7ec2f2dd552ed0ef506aea314ca9ddbcf48",
+    "bytes": 302540,
+    "gzip_bytes": 90863
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-100/mesh/mesh.elements": {
+    "sha256": "c14eaa89191a9e3912020cae1e2249d08af82a0608a904a4ce61546eaed15b86",
+    "bytes": 15028224,
+    "gzip_bytes": 5409367
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-100/mesh/mesh.nodes": {
+    "sha256": "4d1ea491f5a939105ac28a0bbe22f1285e40ba3a13a1b76a4a5c19183a5ea0ad",
+    "bytes": 4215881,
+    "gzip_bytes": 1492326
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-40/local.msh": {
+    "sha256": "d5f16971e5e4e59e633af6939450eef1b3129484aafc0b9367a26da4f03a0958",
+    "bytes": 117718462,
+    "gzip_bytes": 40460647
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-40/mesh/mesh.boundary": {
+    "sha256": "9d24e6dcd853e948973887d64b568cf24d31d0c8ff382548eb6eafcf97923a4b",
+    "bytes": 2041266,
+    "gzip_bytes": 604506
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-40/mesh/mesh.elements": {
+    "sha256": "4859072d3957ad653b5a1b363b0e6f1e00ce6e97b4557397f8299831edc06c93",
+    "bytes": 82348648,
+    "gzip_bytes": 30635459
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-40/mesh/mesh.nodes": {
+    "sha256": "7e830eb4548185595c3b4b546e88516b50c7c20b035198717303350a0491ad9e",
+    "bytes": 19745248,
+    "gzip_bytes": 7050356
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-50/local.msh": {
+    "sha256": "6e29de1854f0de95ffeb873b119217fc0f763535bd641cd5da2870b505bd1db7",
+    "bytes": 69597914,
+    "gzip_bytes": 23320736
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-50/mesh/mesh.boundary": {
+    "sha256": "1ea23208be392b3e547ace29f85f706c65d24b36ccac8d76cbb12b748b3c8304",
+    "bytes": 1279293,
+    "gzip_bytes": 381645
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-50/mesh/mesh.elements": {
+    "sha256": "04f7d91f8d951cab3d6dff494f157333bf90179211a30e0650776011facf64de",
+    "bytes": 48191146,
+    "gzip_bytes": 17719551
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad1-hot-50/mesh/mesh.nodes": {
+    "sha256": "d8a762057c00dfa5bc2b69d242d6f8813892fa7a713b7b3a89869c4cc932d532",
+    "bytes": 11719957,
+    "gzip_bytes": 3969904
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-100/local.msh": {
+    "sha256": "f100a2c635d85b692b62b1dbed9b82649d76c04cc4607affbdc1441dcb3ae81b",
+    "bytes": 22342931,
+    "gzip_bytes": 7463524
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-100/mesh/mesh.boundary": {
+    "sha256": "42494b81daf0935e7108d30c2af9b7ec2f2dd552ed0ef506aea314ca9ddbcf48",
+    "bytes": 302540,
+    "gzip_bytes": 90863
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-100/mesh/mesh.elements": {
+    "sha256": "c14eaa89191a9e3912020cae1e2249d08af82a0608a904a4ce61546eaed15b86",
+    "bytes": 15028224,
+    "gzip_bytes": 5409367
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-100/mesh/mesh.nodes": {
+    "sha256": "4d1ea491f5a939105ac28a0bbe22f1285e40ba3a13a1b76a4a5c19183a5ea0ad",
+    "bytes": 4215881,
+    "gzip_bytes": 1492326
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-35/gmsh.stdout": {
+    "sha256": "41f3318c464953c52d99e92be9aacfadc9babf017479aa9d883d49216121a74f",
+    "bytes": 111815,
+    "gzip_bytes": 12112
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-35/local.msh": {
+    "sha256": "6305d3dc667f2897ffd8a28452726cdbb474c1d0841f67a3c3b2b1f45af2dc21",
+    "bytes": 164312301,
+    "gzip_bytes": 57121023
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-35/mesh/mesh.boundary": {
+    "sha256": "2553de81f4f8a6e4c51b980bbf4fa94da5f1254b86b45e7010e057c4c6da3bf1",
+    "bytes": 2673743,
+    "gzip_bytes": 805239
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-35/mesh/mesh.elements": {
+    "sha256": "0b5512554c5327b289c187c6979b300ec9a8d45ad7cc0a26e9014d529fbf8399",
+    "bytes": 115526926,
+    "gzip_bytes": 43567420
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-35/mesh/mesh.nodes": {
+    "sha256": "08bec058e24f023009924af64052b57ea61ee55408db4859faa59954ffcca846",
+    "bytes": 27227208,
+    "gzip_bytes": 9789595
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-50/local.msh": {
+    "sha256": "6e29de1854f0de95ffeb873b119217fc0f763535bd641cd5da2870b505bd1db7",
+    "bytes": 69597914,
+    "gzip_bytes": 23320736
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-50/mesh/mesh.boundary": {
+    "sha256": "1ea23208be392b3e547ace29f85f706c65d24b36ccac8d76cbb12b748b3c8304",
+    "bytes": 1279293,
+    "gzip_bytes": 381645
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-50/mesh/mesh.elements": {
+    "sha256": "04f7d91f8d951cab3d6dff494f157333bf90179211a30e0650776011facf64de",
+    "bytes": 48191146,
+    "gzip_bytes": 17719551
+  },
+  "zapote/power-entry/shunt-assembly/run-15/pad2-hot-50/mesh/mesh.nodes": {
+    "sha256": "d8a762057c00dfa5bc2b69d242d6f8813892fa7a713b7b3a89869c4cc932d532",
+    "bytes": 11719957,
+    "gzip_bytes": 3969904
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-100/local.msh": {
+    "sha256": "7ccf8884b316a99aa251d6932678411fab4e5f68d6726de4d6c517c9fb5f72f2",
+    "bytes": 24089334,
+    "gzip_bytes": 8066539
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-100/mesh/mesh.boundary": {
+    "sha256": "cd660372b1d3281ac0e68b1d3ed7eef5e1a5544fffe3e480853567f92166a109",
+    "bytes": 302937,
+    "gzip_bytes": 91979
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-100/mesh/mesh.elements": {
+    "sha256": "c0d1e9d78e2167cba6101b1ab974f8ea639d4ca5038bf223303dee2d7bc1ebc6",
+    "bytes": 16239542,
+    "gzip_bytes": 5875865
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-100/mesh/mesh.nodes": {
+    "sha256": "3000a9c5658ac7c19dcb9ca802d39d972ab715f632406d5527382540f4c87a91",
+    "bytes": 4507745,
+    "gzip_bytes": 1590745
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-40/gmsh.stdout": {
+    "sha256": "695135e041b85a5934ab41e91d46d208575f4df7b6becb6fbb8e2ef1948c24f0",
+    "bytes": 100824,
+    "gzip_bytes": 11661
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-40/local.msh": {
+    "sha256": "46aed306a4bc187c52af000d7fd0487e4b92bcb04ce5d086a410eadbe0d5384a",
+    "bytes": 131154259,
+    "gzip_bytes": 45120483
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-40/mesh/mesh.boundary": {
+    "sha256": "063ee1518b77edbb306b117411ed0b21642be8f3add575c8f65c9bbd71b04a8f",
+    "bytes": 2041266,
+    "gzip_bytes": 610729
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-40/mesh/mesh.elements": {
+    "sha256": "a421fe4870220473f349cba79b44da22ffb675834b3b08bcc04df0e86f9d2fa9",
+    "bytes": 91949662,
+    "gzip_bytes": 34200360
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-40/mesh/mesh.nodes": {
+    "sha256": "00a40047a761b809067fcb131f3385450aac713ae510bf67c1d27bf3b7195feb",
+    "bytes": 21896341,
+    "gzip_bytes": 7876215
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-50/local.msh": {
+    "sha256": "94e04d2c673df62d056756f713eff9803c29c023c65d01f5f34bc8dea28f58fb",
+    "bytes": 76052634,
+    "gzip_bytes": 25514669
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-50/mesh/mesh.boundary": {
+    "sha256": "8cf3dafd527427f024031786110ea4e135d9eebe8314d9dbb0bd9f3e0facdb5b",
+    "bytes": 1278344,
+    "gzip_bytes": 383771
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-50/mesh/mesh.elements": {
+    "sha256": "9630ffdf6a8203aea1bffa49a45adbf1391de1f51f218ff698ea72160ed8091f",
+    "bytes": 52805197,
+    "gzip_bytes": 19362842
+  },
+  "zapote/power-entry/shunt-assembly/run-15/weak-joints-50/mesh/mesh.nodes": {
+    "sha256": "1dcbd9cab5ef6b283dba22fb9ba271d386f954bd72411ff9ca601ceba34093ec",
+    "bytes": 12763242,
+    "gzip_bytes": 4391141
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-100/local.msh": {
+    "sha256": "588fd586cefe51d43c2764d8df2fe26c50a46b023c316632329f269908294b6b",
+    "bytes": 22526041,
+    "gzip_bytes": 7527178
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-100/mesh/mesh.boundary": {
+    "sha256": "42d18b4c9f0dbbcf2d27163b4dac8eb6aaaed9fa397da82083a9adbf5860870c",
+    "bytes": 306634,
+    "gzip_bytes": 91988
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-100/mesh/mesh.elements": {
+    "sha256": "e2de6208562e96821d45334f1da40205ed5dcc91621ef2c09d5e7d2870fb00dc",
+    "bytes": 15149386,
+    "gzip_bytes": 5454794
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-100/mesh/mesh.nodes": {
+    "sha256": "6b604ef90f186d120e1d9fe44aa51aa7308ecd59693f8a7104e8057ca9f0a537",
+    "bytes": 4250520,
+    "gzip_bytes": 1504740
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-40/local.msh": {
+    "sha256": "2bbf1753646151dc443ddaee361b4e11c9c1b49610be2ba255707bd2e8845124",
+    "bytes": 120227491,
+    "gzip_bytes": 41385771
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-40/mesh/mesh.boundary": {
+    "sha256": "e069b93cae92ffd22e865774bef8a155f36862707d4861dccc3c541bf3157166",
+    "bytes": 2064908,
+    "gzip_bytes": 611393
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-40/mesh/mesh.elements": {
+    "sha256": "1dc1e73e023e70f27ed0463a9c47fcfb630bfb251ac6e4faf82fde39a7a25789",
+    "bytes": 84125338,
+    "gzip_bytes": 31344870
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-40/mesh/mesh.nodes": {
+    "sha256": "7cb7725f662e5d5523e066ee4ca11f16b2ecf2da9813170ebe6e686d65003ace",
+    "bytes": 20161827,
+    "gzip_bytes": 7209735
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-50/local.msh": {
+    "sha256": "252bcacc4735c98be5472701a575ae27844798f9f8b3df950348e88ff0860df4",
+    "bytes": 70609348,
+    "gzip_bytes": 23676785
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-50/mesh/mesh.boundary": {
+    "sha256": "3a9185e6eaa33cdca0a9e293b3828cc411022d5a9b9cfb5889d36b800834212b",
+    "bytes": 1295134,
+    "gzip_bytes": 386359
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-50/mesh/mesh.elements": {
+    "sha256": "68ad412c2d853b00bc204163de897a0492f654ab181caa8280de7a3cc3799208",
+    "bytes": 48870021,
+    "gzip_bytes": 17984924
+  },
+  "zapote/power-entry/shunt-assembly/run-15/wider-domain-50/mesh/mesh.nodes": {
+    "sha256": "dac92ef945a899dacb7e3c5ab7ab4ff21b9a4157d4c7a959968b69624d95f2b3",
+    "bytes": 11895116,
+    "gzip_bytes": 4039217
+  }
+}

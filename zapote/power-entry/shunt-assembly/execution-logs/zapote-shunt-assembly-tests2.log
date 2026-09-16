@@ -1,0 +1,33 @@
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal)
+    Finished `release` profile [optimized] target(s) in 10.54s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal-849dab04ec2addde)
+
+running 12 tests
+test shunt_assembly::tests::partial_profile_and_false_boundary_shift_are_rejected ... ok
+test shunt_assembly::tests::small_refinement_step_cannot_evade_error_estimate ... ok
+test shunt_assembly::tests::compressed_artifact_preserves_bytes_and_rejects_ambiguity ... ok
+test shunt_assembly::tests::command_contract_rejects_changed_environment_arguments_and_case ... ok
+test shunt_assembly::tests::altered_native_via_cannot_silently_change_geometry ... ok
+test shunt_assembly::tests::clipping_preserves_zone_interior_and_excludes_outside_region ... ok
+test shunt_assembly::tests::seed_identity_and_deck_changes_are_rejected_before_solver_work ... ok
+test shunt_assembly_mesh::tests::convex_tetrahedron_crossing_hole_fails_even_when_vertices_and_centroid_are_outside ... FAILED
+test shunt_assembly::tests::native_heat_path_includes_zone_twelve_vias_and_both_layers ... ok
+test shunt_assembly_mesh::tests::native_drill_and_plating_change_invalidates_retained_mesh ... ok
+test shunt_assembly_mesh::tests::real_solver_mesh_has_correct_materials_and_exterior_ports ... ok
+test shunt_assembly_mesh::tests::wrong_material_or_misplaced_heat_port_is_rejected ... ok
+
+failures:
+
+---- shunt_assembly_mesh::tests::convex_tetrahedron_crossing_hole_fails_even_when_vertices_and_centroid_are_outside stdout ----
+
+thread 'shunt_assembly_mesh::tests::convex_tetrahedron_crossing_hole_fails_even_when_vertices_and_centroid_are_outside' (19690660) panicked at packages/zapote-thermal/src/shunt_assembly_mesh.rs:536:9:
+assertion failed: points.iter().all(|pt| material_at(&g, &p, *pt, 3))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    shunt_assembly_mesh::tests::convex_tetrahedron_crossing_hole_fails_even_when_vertices_and_centroid_are_outside
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 64 filtered out; finished in 2.51s
+
+error: test failed, to rerun pass `-p zapote-thermal --lib`

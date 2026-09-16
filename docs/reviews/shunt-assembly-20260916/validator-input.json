@@ -1,0 +1,36 @@
+{
+  "findings": [
+    {
+      "#": 1,
+      "title": "Solver mesh is not bound to generated Gmsh mesh",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/shunt_assembly.rs",
+      "line": 995,
+      "confidence": 75,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Record a digest of each generated local.msh in the solver receipt or report and require replay to verify that digest before accepting solver logs and scalars.",
+      "first_evidence": "zapote/packages/zapote-thermal/src/shunt_assembly.rs:995 -- crate::shunt_assembly_mesh::validate(",
+      "why_it_matters": "Replay validates local.msh and the converted Elmer mesh independently, but it does not prove that either mesh is the one produced by the recorded Gmsh invocation. A retained evidence tree can therefore pair a separately valid mesh and solver log with the current deck and pass replay, making the reported temperatures stale or from another refinement.",
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/shunt_assembly.rs:995 -- local.msh is validated against geometry and node census.",
+        "zapote/packages/zapote-thermal/src/shunt_assembly.rs:1002 -- converted Elmer mesh is validated against local.msh, but no Gmsh input digest is recorded.",
+        "zapote/packages/zapote-thermal/src/shunt_assembly.rs:809-828 -- command receipts record invocation details without a generated local.msh digest."
+      ],
+      "reviewers": ["correctness-testing-adversarial"],
+      "independent_reviewers": ["correctness-testing-adversarial"]
+    }
+  ],
+  "selected": [1],
+  "skip_count": 0,
+  "skip_evidence": null,
+  "scope": {
+    "mode": "standalone",
+    "base": "BASE: 5bd51b46fe789235e8e6047b909da164c73b4141",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "5bd51b46fe789235e8e6047b909da164c73b4141",
+    "diff": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-assembly-20260916/full.diff"
+  }
+}

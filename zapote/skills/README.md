@@ -127,6 +127,14 @@ retained native FEM evidence and mutation regressions. Temperatures and uncertai
 assembly parameters are deliberately excluded from portable memory. This revision
 records reviewed guidance; it does not establish delivery to a future agent.
 
+The [shunt assembly study](../power-entry/shunt-assembly/README.md) records
+additional procedures and counterexamples: separate solder mask from the core,
+check whole cells against holes, compare Gmsh/Elmer topology, capture solver
+inputs before execution, and keep contact temperatures distinct from body
+qualification. These are indexed repository learnings with Rust regressions;
+they have not yet been promoted into a new frozen memory catalog or delivered
+through a future agent's memory transport.
+
 
 ## GBJ study follow-up
 

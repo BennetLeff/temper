@@ -172,3 +172,9 @@ Read the relevant detailed record before changing behavior in that area:
   compatibility. Preserve named HOT interface contracts, exact graph currents
   versus envelopes, and explicit missing external producers. I²R is mean
   heating from RMS current, not proof of shunt package temperature.
+- [Shunt assembly heat-path study](power-entry/shunt-assembly/README.md) —
+  finished thickness includes solder mask: derive the copper/core solid from
+  actual layers, never assign mask thickness to FR4. Bind converted mesh
+  topology and pre-solve input hashes; check cell interiors against drilled
+  voids. A contact-temperature solve and prescribed remote-board temperature
+  cannot qualify resistor-body temperature or enclosure cooling.

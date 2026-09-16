@@ -66,6 +66,8 @@ pub struct UnitRunSpec {
     pub joint_model_evidence: Option<PathBuf>,
     #[serde(default)]
     pub shunt_model_evidence: Option<PathBuf>,
+    #[serde(default)]
+    pub shunt_assembly_evidence: Option<PathBuf>,
 }
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -304,6 +306,7 @@ pub fn evaluate(
         &spec.thermal_evidence,
         &spec.joint_model_evidence,
         &spec.shunt_model_evidence,
+        &spec.shunt_assembly_evidence,
     ]
     .into_iter()
     .flatten()
@@ -344,6 +347,7 @@ fn evidence_hashes(spec: &UnitRunSpec) -> Result<BTreeMap<PathBuf, String>> {
         &spec.thermal_evidence,
         &spec.joint_model_evidence,
         &spec.shunt_model_evidence,
+        &spec.shunt_assembly_evidence,
     ]
     .into_iter()
     .flatten()
@@ -608,6 +612,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     let shunt_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
         crate::shunt_thermal::run(
             spec.shunt_model_evidence.as_deref(),
+            spec.shunt_assembly_evidence.as_deref(),
             native_text.as_bytes(),
             pfc_power.as_ref(),
         )
@@ -844,6 +849,7 @@ mod cooling_coverage_tests {
             physical_model_source: None,
             joint_model_evidence: Some(root.clone()),
             shunt_model_evidence: None,
+            shunt_assembly_evidence: None,
         };
         let hashes = evidence_hashes(&spec).unwrap();
         assert_eq!(hashes.get(&evidence), Some(&digest(b"raw solver result")));

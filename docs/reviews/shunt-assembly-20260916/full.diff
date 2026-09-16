@@ -1,0 +1,2460 @@
+diff --git a/zapote/packages/zapote-harness/src/bin/zapote-unit-run.rs b/zapote/packages/zapote-harness/src/bin/zapote-unit-run.rs
+index eafa37632..4a2112a6c 100644
+--- a/zapote/packages/zapote-harness/src/bin/zapote-unit-run.rs
++++ b/zapote/packages/zapote-harness/src/bin/zapote-unit-run.rs
+@@ -35,6 +35,7 @@ fn resolve_manifest_paths(manifest: &mut Manifest, base: &Path) {
+             .chain(s.physical_model_source.iter_mut())
+             .chain(s.joint_model_evidence.iter_mut())
+             .chain(s.shunt_model_evidence.iter_mut())
++            .chain(s.shunt_assembly_evidence.iter_mut())
+         {
+             *p = base.join(&*p);
+         }
+@@ -155,9 +156,11 @@ mod tests {
+                 physical_model_source: Some("physical/source.pdf".into()),
+                 joint_model_evidence: Some("joint-evidence".into()),
+                 shunt_model_evidence: Some("shunt-evidence".into()),
++                shunt_assembly_evidence: Some("shunt-assembly".into()),
+             }],
+         };
+         resolve_manifest_paths(&mut manifest, Path::new("/run"));
++        assert_eq!(manifest.units[0].shunt_assembly_evidence.as_deref(),Some(Path::new("/run/shunt-assembly")));
+         assert_eq!(
+             manifest.units[0].shunt_model_evidence.as_deref(),
+             Some(Path::new("/run/shunt-evidence"))
+diff --git a/zapote/packages/zapote-harness/src/runner.rs b/zapote/packages/zapote-harness/src/runner.rs
+index fa7731f06..ae25c8993 100644
+--- a/zapote/packages/zapote-harness/src/runner.rs
++++ b/zapote/packages/zapote-harness/src/runner.rs
+@@ -66,6 +66,8 @@ pub struct UnitRunSpec {
+     pub joint_model_evidence: Option<PathBuf>,
+     #[serde(default)]
+     pub shunt_model_evidence: Option<PathBuf>,
++    #[serde(default)]
++    pub shunt_assembly_evidence: Option<PathBuf>,
+ }
+ #[derive(Debug, Deserialize, Serialize)]
+ #[serde(deny_unknown_fields)]
+@@ -304,6 +306,7 @@ pub fn evaluate(
+         &spec.thermal_evidence,
+         &spec.joint_model_evidence,
+         &spec.shunt_model_evidence,
++        &spec.shunt_assembly_evidence,
+     ]
+     .into_iter()
+     .flatten()
+@@ -344,6 +347,7 @@ fn evidence_hashes(spec: &UnitRunSpec) -> Result<BTreeMap<PathBuf, String>> {
+         &spec.thermal_evidence,
+         &spec.joint_model_evidence,
+         &spec.shunt_model_evidence,
++        &spec.shunt_assembly_evidence,
+     ]
+     .into_iter()
+     .flatten()
+@@ -608,6 +612,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
+     let shunt_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+         crate::shunt_thermal::run(
+             spec.shunt_model_evidence.as_deref(),
++            spec.shunt_assembly_evidence.as_deref(),
+             native_text.as_bytes(),
+             pfc_power.as_ref(),
+         )
+@@ -844,6 +849,7 @@ mod cooling_coverage_tests {
+             physical_model_source: None,
+             joint_model_evidence: Some(root.clone()),
+             shunt_model_evidence: None,
++            shunt_assembly_evidence: None,
+         };
+         let hashes = evidence_hashes(&spec).unwrap();
+         assert_eq!(hashes.get(&evidence), Some(&digest(b"raw solver result")));
+diff --git a/zapote/packages/zapote-harness/src/shunt_thermal.rs b/zapote/packages/zapote-harness/src/shunt_thermal.rs
+index 540912ef1..a05f9e764 100644
+--- a/zapote/packages/zapote-harness/src/shunt_thermal.rs
++++ b/zapote/packages/zapote-harness/src/shunt_thermal.rs
+@@ -1,13 +1,15 @@
+ //! A valid local heat-spreading experiment never qualifies the whole shunt.
+ use std::path::Path;
+ use zapote_core::{CheckReport, Finding};
+-pub const RULES: [&str; 2] = [
++pub const RULES: [&str; 3] = [
+     "THERMAL.PFC.SHUNT_LOCAL_NUMERICAL",
+     "THERMAL.PFC.SHUNT_ASSEMBLY",
++    "THERMAL.PFC.SHUNT_ASSEMBLY_NUMERICAL",
+ ];
+ 
+ pub fn run(
+     root: Option<&Path>,
++    assembly_root: Option<&Path>,
+     native: &[u8],
+     pfc: Option<&crate::pfc_power::Report>,
+ ) -> CheckReport {
+@@ -32,7 +34,30 @@ pub fn run(
+             }
+         }
+     };
+-    CheckReport::from_findings(vec![numerical, Finding::indeterminate(RULES[1], "5 W is conditional on 500 mm² copper and resistor surface below 100 C. Local front copper with imposed cut temperatures omits body/solder/vias/board cooling and cannot establish either condition or pulse capability", "shunt")], RULES.map(str::to_owned).to_vec(), vec![])
++    let assembly = match assembly_root {
++        None => {
++            Finding::indeterminate(RULES[2], "no retained assembly heat-path evidence", "shunt")
++        }
++        Some(root) => {
++            let result = (|| -> anyhow::Result<_> {
++                let stress = &pfc
++                    .ok_or_else(|| anyhow::anyhow!("source-bound PFC waveform missing"))?
++                    .shunt_stress;
++                anyhow::ensure!(
++                    stress.mpn == "HCSM2818FT10L0"
++                        && (stress.resistance_ohm - 0.01).abs() < 1e-12
++                        && (stress.rms_current_a - 15.).abs() < 1e-8,
++                    "assembly heat input differs from source-bound waveform/part"
++                );
++                zapote_thermal::shunt_assembly::replay(native, root)
++            })();
++            match result {
++                Ok(r)=>Finding::pass(RULES[2],format!("{} native copper/via/substrate/solder solves verified; internal resistor and enclosure parameters remain unresolved",r.cases.len()),"shunt"),
++                Err(e)=>Finding::fail(RULES[2],format!("assembly replay rejected: {e:#}"),"shunt"),
++            }
++        }
++    };
++    CheckReport::from_findings(vec![numerical,assembly,Finding::indeterminate(RULES[1], "5 W requires 500 mm² copper and resistor surface below 100 C. The heat-path study adds native vias/back copper/substrate and assumed solder, but its crop temperatures, heat split and material properties are sensitivity inputs. Internal resistor thermal resistance, full-board cooling, other component/copper losses and pulse capability remain unresolved", "shunt")], RULES.map(str::to_owned).to_vec(), vec![])
+ }
+ 
+ #[cfg(test)]
+@@ -41,12 +66,55 @@ mod tests {
+     use zapote_core::Status;
+     #[test]
+     fn missing_evidence_and_missing_waveform_cannot_qualify() {
+-        let missing = run(None, b"{}", None);
++        let missing = run(None, None, b"{}", None);
+         assert_eq!(missing.status, Status::Indeterminate);
+-        assert_eq!(missing.checked_rules.len(), 2);
++        assert_eq!(missing.checked_rules.len(), 3);
+         assert_eq!(
+-            run(Some(Path::new("absent")), b"{}", None).status,
++            run(Some(Path::new("absent")), None, b"{}", None).status,
+             Status::Fail
+         );
+     }
++    #[test]
++    fn retained_assembly_replay_passes_numerics_without_qualifying_hardware() {
++        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
++        let candidate = root.join("power-entry/shunt-repair");
++        let source =
++            std::fs::read_to_string(candidate.join("candidate/source-manifest.json")).unwrap();
++        let native = std::fs::read_to_string(candidate.join("evidence/native-04.json")).unwrap();
++        let board = std::fs::read_to_string(candidate.join("candidate/section.kicad_pcb")).unwrap();
++        let manufacturing = serde_json::from_slice(
++            &std::fs::read(root.join(
++                "validation/runs/shunt-20260916-final-02/power-entry/manufacturing-input.json",
++            ))
++            .unwrap(),
++        )
++        .unwrap();
++        let pfc = crate::pfc_power::run(&source, &native, &board, &manufacturing).unwrap();
++        let report = run(
++            None,
++            Some(&root.join("power-entry/shunt-assembly/run-15")),
++            native.as_bytes(),
++            Some(&pfc),
++        );
++        assert_eq!(report.status, Status::Indeterminate, "{report:?}");
++        assert_eq!(
++            report
++                .findings
++                .iter()
++                .find(|f| f.rule == RULES[2])
++                .unwrap()
++                .status,
++            Status::Pass,
++            "{report:?}"
++        );
++        assert_eq!(
++            report
++                .findings
++                .iter()
++                .find(|f| f.rule == RULES[1])
++                .unwrap()
++                .status,
++            Status::Indeterminate
++        );
++    }
+ }
+diff --git a/zapote/packages/zapote-thermal/src/lib.rs b/zapote/packages/zapote-thermal/src/lib.rs
+index 865a47e94..b5c22e843 100644
+--- a/zapote/packages/zapote-thermal/src/lib.rs
++++ b/zapote/packages/zapote-thermal/src/lib.rs
+@@ -757,3 +757,6 @@ mod tests {
+ pub mod shunt_local;
+ 
+ mod shunt_mesh;
++
++pub mod shunt_assembly;
++pub mod shunt_assembly_mesh;
+diff --git a/zapote/packages/zapote-thermal/src/shunt_local.rs b/zapote/packages/zapote-thermal/src/shunt_local.rs
+index 09442548e..3a94dbebd 100644
+--- a/zapote/packages/zapote-thermal/src/shunt_local.rs
++++ b/zapote/packages/zapote-thermal/src/shunt_local.rs
+@@ -240,7 +240,14 @@ pub struct Measurement {
+     pub min_c: f64,
+     pub heat_out_w: f64,
+ }
+-fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
++pub(crate) fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
++    measurements_with_sources(d, p.cut_c, &[])
++}
++pub(crate) fn measurements_with_sources(
++    d: &Path,
++    cut_c: f64,
++    sources: &[f64],
++) -> Result<Measurement> {
+     let log = fs::read_to_string(d.join("solver.log"))?;
+     ensure!(
+         log.contains("MAIN: *** Elmer Solver: ALL DONE ***")
+@@ -277,15 +284,15 @@ fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
+                 .context("scalar name")
+         })
+         .collect::<Result<Vec<_>>>()?;
+-    ensure!(
+-        cols == [
+-            "max: temperature",
+-            "min: temperature",
+-            "res: temperature flux over bc 1"
+-        ],
+-        "unexpected scalar columns: {:?}",
+-        cols
+-    );
++    let mut expected = vec![
++        "max: temperature".to_owned(),
++        "min: temperature".to_owned(),
++        "res: temperature flux over bc 1".to_owned(),
++    ];
++    for i in 0..sources.len() {
++        expected.push(format!("res: temperature flux over bc {}", i + 2));
++    }
++    ensure!(cols == expected, "unexpected scalar columns: {:?}", cols);
+     let data = fs::read_to_string(d.join("scalars.dat"))?;
+     ensure!(
+         data.lines().filter(|l| !l.trim().is_empty()).count() == 1,
+@@ -296,11 +303,11 @@ fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
+         .map(str::parse)
+         .collect::<std::result::Result<Vec<f64>, _>>()?;
+     ensure!(
+-        n.len() == 3 && n.iter().all(|n| n.is_finite()),
+-        "three finite scalars required"
++        n.len() == 3 + sources.len() && n.iter().all(|n| n.is_finite()),
++        "finite expected scalars required"
+     );
+     ensure!(
+-        n[0] >= n[1] && (n[1] - 273.15 - p.cut_c).abs() < 1e-5,
++        n[0] >= n[1] && (n[1] - 273.15 - cut_c).abs() < 1e-5,
+         "temperature boundary inconsistency"
+     );
+     ensure!(
+@@ -309,6 +316,12 @@ fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
+         -n[2],
+         HEAT_W
+     );
++    for (measured, expected) in n[3..].iter().zip(sources) {
++        ensure!(
++            (measured - expected).abs() < 1e-7,
++            "source heat flux differs from imposed power"
++        );
++    }
+     Ok(Measurement {
+         max_c: n[0] - 273.15,
+         min_c: n[1] - 273.15,
+@@ -334,7 +347,7 @@ pub struct Report {
+ fn hash(b: &[u8]) -> String {
+     format!("{:x}", Sha256::digest(b))
+ }
+-fn validate_backend(out: &Path) -> Result<()> {
++pub(crate) fn validate_backend(out: &Path) -> Result<()> {
+     let b: BTreeMap<String, String> = serde_json::from_slice(&fs::read(out.join("backend.json"))?)?;
+     ensure!(
+         b.keys().map(String::as_str).collect::<Vec<_>>()
+@@ -394,11 +407,7 @@ fn profile_validate(cases: &[Case]) -> Result<()> {
+     }
+     Ok(())
+ }
+-pub fn run(native: &[u8], out: &Path, tools: &crate::neck_run::Tools) -> Result<Report> {
+-    let g = geometry(native)?;
+-    ensure!(!out.exists(), "refusing to overwrite evidence");
+-    fs::create_dir_all(out)?;
+-    fs::write(out.join("native.json"), native)?;
++pub(crate) fn write_backend(out: &Path, tools: &crate::neck_run::Tools) -> Result<()> {
+     let mut backend = BTreeMap::new();
+     for (name, p) in [
+         ("gmsh", &tools.gmsh),
+@@ -426,6 +435,14 @@ pub fn run(native: &[u8], out: &Path, tools: &crate::neck_run::Tools) -> Result<
+         serde_json::to_vec_pretty(&backend)?,
+     )?;
+     validate_backend(out)?;
++    Ok(())
++}
++pub fn run(native: &[u8], out: &Path, tools: &crate::neck_run::Tools) -> Result<Report> {
++    let g = geometry(native)?;
++    ensure!(!out.exists(), "refusing to overwrite evidence");
++    fs::create_dir_all(out)?;
++    fs::write(out.join("native.json"), native)?;
++    write_backend(out, tools)?;
+     let mut cases = Vec::new();
+     for p in scenarios() {
+         for m in MESHES {
+diff --git a/zapote/packages/zapote-thermal/src/shunt_mesh.rs b/zapote/packages/zapote-thermal/src/shunt_mesh.rs
+index 460ad37f3..20859a480 100644
+--- a/zapote/packages/zapote-thermal/src/shunt_mesh.rs
++++ b/zapote/packages/zapote-thermal/src/shunt_mesh.rs
+@@ -6,14 +6,34 @@ use std::{fs, path::Path};
+ 
+ /// Validate the actual solver mesh too: conversion is part of the apparatus.
+ pub fn validate_elmer(dir: &Path, g: &Geometry) -> Result<usize> {
++    validate(&elmer_as_msh(dir)?, g)
++}
++
++pub(crate) fn elmer_as_msh(dir: &Path) -> Result<String> {
++    elmer_as_msh_with(dir, |p| Ok(fs::read_to_string(p)?))
++}
++
++pub(crate) fn elmer_as_msh_with(
++    dir: &Path,
++    read: impl Fn(&Path) -> Result<String>,
++) -> Result<String> {
++    let header = read(&dir.join("mesh.header"))?;
++    let counts: Vec<usize> = header
++        .lines()
++        .next()
++        .context("mesh header")?
++        .split_whitespace()
++        .map(str::parse)
++        .collect::<std::result::Result<_, _>>()?;
++    ensure!(counts.len() == 3, "Elmer mesh header census");
+     let mut nodes = Vec::new();
+-    for row in fs::read_to_string(dir.join("mesh.nodes"))?.lines() {
++    for row in read(&dir.join("mesh.nodes"))?.lines() {
+         let f: Vec<_> = row.split_whitespace().collect();
+         ensure!(f.len() == 5, "Elmer node columns");
+         nodes.push(format!("{} {} {} {}", f[0], f[2], f[3], f[4]));
+     }
+     let mut cells = Vec::new();
+-    for row in fs::read_to_string(dir.join("mesh.elements"))?.lines() {
++    for row in read(&dir.join("mesh.elements"))?.lines() {
+         let f: Vec<_> = row.split_whitespace().collect();
+         ensure!(
+             f.len() == 7 && f[2] == "504",
+@@ -26,7 +46,8 @@ pub fn validate_elmer(dir: &Path, g: &Geometry) -> Result<usize> {
+             f[3..].join(" ")
+         ));
+     }
+-    for row in fs::read_to_string(dir.join("mesh.boundary"))?.lines() {
++    let bulk_count = cells.len();
++    for row in read(&dir.join("mesh.boundary"))?.lines() {
+         let f: Vec<_> = row.split_whitespace().collect();
+         ensure!(
+             f.len() == 8 && f[4] == "303",
+@@ -39,11 +60,70 @@ pub fn validate_elmer(dir: &Path, g: &Geometry) -> Result<usize> {
+             f[5..].join(" ")
+         ));
+     }
++    ensure!(
++        counts == [nodes.len(), bulk_count, cells.len() - bulk_count],
++        "Elmer mesh header differs from actual files"
++    );
+     let mesh=format!("$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$Nodes\n{}\n{}\n$EndNodes\n$Elements\n{}\n{}\n$EndElements\n",nodes.len(),nodes.join("\n"),cells.len(),cells.join("\n"));
+-    validate(&mesh, g)
++    Ok(mesh)
+ }
+ 
+ type Point = [f64; 3];
++/// ElmerGrid's pinned conversion preserves node IDs. Compare coordinates and
++/// complete material/port connectivity, allowing only ASCII rounding and
++/// element/vertex reordering. Two independently plausible meshes are not enough.
++pub(crate) fn assert_same_mesh(source: &str, converted: &str) -> Result<()> {
++    fn identity(text: &str) -> Result<(BTreeMap<u64, Point>, Vec<Vec<u64>>)> {
++        let lines: Vec<_> = text.lines().collect();
++        let mut nodes = BTreeMap::new();
++        for line in section(&lines, "Nodes")? {
++            let f: Vec<_> = line.split_whitespace().collect();
++            ensure!(f.len() == 4, "node identity shape");
++            ensure!(
++                nodes
++                    .insert(f[0].parse()?, [f[1].parse()?, f[2].parse()?, f[3].parse()?])
++                    .is_none(),
++                "duplicate identity node"
++            );
++        }
++        let mut cells = Vec::new();
++        for line in section(&lines, "Elements")? {
++            let f: Vec<u64> = line
++                .split_whitespace()
++                .map(str::parse)
++                .collect::<std::result::Result<_, _>>()?;
++            ensure!(
++                f.len() >= 4 && f[2] >= 1 && f[2] as usize <= f.len() - 3,
++                "element identity shape"
++            );
++            let mut ids = f[3 + f[2] as usize..].to_vec();
++            ids.sort_unstable();
++            let mut key = vec![f[1], f[3]];
++            key.extend(ids);
++            cells.push(key);
++        }
++        cells.sort_unstable();
++        Ok((nodes, cells))
++    }
++    let (a, ac) = identity(source)?;
++    let (b, bc) = identity(converted)?;
++    ensure!(
++        a.len() == b.len() && ac == bc,
++        "Elmer mesh topology/materials/ports differ from Gmsh"
++    );
++    for (id, p) in a {
++        let q = b.get(&id).context("Elmer node ID differs")?;
++        ensure!(
++            p.iter()
++                .zip(q)
++                // ElmerGrid writes these metre coordinates to 12 decimal
++                // places: allow at most one picometre of ASCII rounding.
++                .all(|(a, b)| a.is_finite() && b.is_finite() && (a - b).abs() < 1e-12),
++            "Elmer node coordinates differ from Gmsh"
++        );
++    }
++    Ok(())
++}
+ fn sub(a: Point, b: Point) -> Point {
+     [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
+ }
+diff --git a/zapote/packages/zapote-thermal/src/shunt_assembly.rs b/zapote/packages/zapote-thermal/src/shunt_assembly.rs
+new file mode 100644
+index 000000000..9b605b755
+--- /dev/null
++++ b/zapote/packages/zapote-thermal/src/shunt_assembly.rs
+@@ -0,0 +1,1280 @@
++//! Native shunt-to-board heat paths. Unpublished resistor internals and
++//! enclosure cooling remain applicability gaps, even when the solve converges.
++use crate::{neck_run::Tools, shunt_local};
++use anyhow::{ensure, Context, Result};
++use serde::{Deserialize, Serialize};
++use serde_json::Value;
++use sha2::{Digest, Sha256};
++use std::io::Read;
++use std::{collections::BTreeMap, fs, path::Path, time::Duration};
++
++pub const MESHES: [f64; 3] = [0.0001, 0.00005, 0.00004];
++fn scenario_meshes(p: &Scenario) -> [f64; 3] {
++    // The hotter terminal needs one further refinement; the 40 um result
++    // failed the unchanged 0.5 K estimated-remaining-error requirement.
++    if p.name == "pad2-hot" {
++        [MESHES[0], MESHES[1], 0.000035]
++    } else {
++        MESHES
++    }
++}
++const APPLICABILITY: &str = "INDETERMINATE: heat imposed at solder contacts; internal resistor thermal resistance, full-board/enclosure cooling, other heat sources and transient/pulse behavior are not modeled";
++#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
++pub struct Track {
++    pub ends: [[f64; 2]; 2],
++    pub width: f64,
++    pub front: bool,
++}
++#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
++pub struct Via {
++    pub centre: [f64; 2],
++    pub diameter: f64,
++    pub drill: f64,
++}
++#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
++pub struct Geometry {
++    pub local: shunt_local::Geometry,
++    /// Copper plus dielectric only; adiabatic solder-mask skins are omitted.
++    pub board_mm: f64,
++    pub finished_board_mm: f64,
++    pub tracks: Vec<Track>,
++    pub vias: Vec<Via>,
++    pub zones: Vec<Vec<[f64; 2]>>,
++    pub zone_bounds: Vec<[f64; 4]>,
++    /// x minimum, x maximum, y minimum, y maximum, native world millimetres.
++    pub crop: [f64; 4],
++}
++fn pair(v: &Value) -> Result<[f64; 2]> {
++    let p: [f64; 2] = serde_json::from_value(v.clone())?;
++    ensure!(p.iter().all(|v| v.is_finite()), "nonfinite position");
++    Ok(p)
++}
++fn overlaps(bounds: [f64; 4], crop: [f64; 4]) -> bool {
++    bounds[1] > crop[0] && bounds[0] < crop[1] && bounds[3] > crop[2] && bounds[2] < crop[3]
++}
++pub(crate) fn in_poly(p: [f64; 2], poly: &[[f64; 2]]) -> bool {
++    let mut yes = false;
++    for (a, b) in poly
++        .iter()
++        .zip(poly.iter().cycle().skip(1))
++        .take(poly.len())
++    {
++        if (a[1] > p[1]) != (b[1] > p[1])
++            && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]
++        {
++            yes = !yes;
++        }
++    }
++    yes
++}
++fn segment_hits(a: [f64; 2], b: [f64; 2], c: [f64; 4]) -> bool {
++    let mut lo: f64 = 0.;
++    let mut hi: f64 = 1.;
++    for (axis, min, max) in [(0, c[0], c[1]), (1, c[2], c[3])] {
++        let d = b[axis] - a[axis];
++        if d.abs() < 1e-12 {
++            if a[axis] < min || a[axis] > max {
++                return false;
++            }
++        } else {
++            let u = (min - a[axis]) / d;
++            let v = (max - a[axis]) / d;
++            lo = lo.max(u.min(v));
++            hi = hi.min(u.max(v));
++        }
++    }
++    lo <= hi
++}
++pub fn geometry(native: &[u8], widen: bool) -> Result<Geometry> {
++    let local = shunt_local::geometry(native)?;
++    let n: Value = serde_json::from_slice(native)?;
++    // The crop assumes the reviewed continuous substrate and absence of
++    // cutouts. A different board requires an explicit applicability review,
++    // even if its two shunt pads happen to retain the same coordinates.
++    ensure!(
++        local.board_sha256 == "b1e06afbf0e9a8b41a3bbbbd046abeb5495e9b42f3fc07e1b312095bc7e97583",
++        "unreviewed assembly board outline/cutouts"
++    );
++    ensure!(
++        zapote_drc::native_binding::validate(std::str::from_utf8(native)?).status
++            == zapote_core::Status::Pass,
++        "native geometry does not bind saved board"
++    );
++    let crop = if widen {
++        [67., 88., 128., 136.]
++    } else {
++        [68., 87., 128., 136.]
++    };
++    // This is a bounded physical fixture, not an arbitrary-board geometry engine.
++    ensure!(
++        local.pad_centres_mm == [[80.05, 132.], [75.95, 132.]],
++        "unsupported shunt position"
++    );
++    for c in n["components"].as_array().context("components")? {
++        for p in c["footprint_pads"].as_array().context("pads")? {
++            let [x, y] = pair(&p["position_mm"])?;
++            let [w, h] = pair(&p["size_mm"])?;
++            // Circumscribed circle also catches rotated non-shunt pads.
++            let angle = p["orientation_deg"]
++                .as_f64()
++                .context("pad orientation")?
++                .rem_euclid(180.);
++            let [rx, ry] = if angle == 0. {
++                [w / 2., h / 2.]
++            } else if angle == 90. {
++                [h / 2., w / 2.]
++            } else {
++                [w.hypot(h) / 2.; 2]
++            };
++            ensure!(
++                c["id"] == "shunt" || !overlaps([x - rx, x + rx, y - ry, y + ry], crop),
++                "another component enters crop: {}",
++                c["id"]
++            );
++        }
++    }
++    let mut zones = Vec::new();
++    for z in n["zones"].as_array().context("zones")? {
++        for p in z["filled_polygons"].as_array().context("zone polygons")? {
++            let ps = p["outer_mm"]
++                .as_array()
++                .context("zone outer")?
++                .iter()
++                .map(pair)
++                .collect::<Result<Vec<_>>>()?;
++            ensure!(ps.len() >= 3, "invalid zone polygon");
++            let corners = [
++                [crop[0], crop[2]],
++                [crop[1], crop[2]],
++                [crop[0], crop[3]],
++                [crop[1], crop[3]],
++            ];
++            if corners.iter().any(|p| in_poly(*p, &ps))
++                || ps
++                    .iter()
++                    .zip(ps.iter().cycle().skip(1))
++                    .take(ps.len())
++                    .any(|(a, b)| segment_hits(*a, *b, crop))
++            {
++                ensure!(
++                    z["layer"] == "B.Cu" && p["holes_mm"].as_array().is_some_and(Vec::is_empty),
++                    "unsupported zone layer/holes"
++                );
++                zones.push(ps);
++            }
++        }
++    }
++    let mut tracks = Vec::new();
++    for t in n["traces"].as_array().context("traces")? {
++        let ps = t["points_mm"].as_array().context("trace points")?;
++        ensure!(ps.len() >= 2, "empty trace");
++        let width = t["width_mm"].as_f64().context("width")?;
++        ensure!(width.is_finite() && width > 0., "invalid trace width");
++        for ab in ps.windows(2) {
++            let a = pair(&ab[0])?;
++            let b = pair(&ab[1])?;
++            let r = width / 2.;
++            if overlaps(
++                [
++                    a[0].min(b[0]) - r,
++                    a[0].max(b[0]) + r,
++                    a[1].min(b[1]) - r,
++                    a[1].max(b[1]) + r,
++                ],
++                crop,
++            ) {
++                ensure!(
++                    t["layer"] == "F.Cu" || t["layer"] == "B.Cu",
++                    "unsupported layer"
++                );
++                ensure!((a[0] - b[0]).hypot(a[1] - b[1]) > 1e-6, "zero-length trace");
++                tracks.push(Track {
++                    ends: [a, b],
++                    width,
++                    front: t["layer"] == "F.Cu",
++                });
++            }
++        }
++    }
++    let mut vias = Vec::new();
++    for v in n["vias"].as_array().context("vias")? {
++        let centre = pair(&v["position_mm"])?;
++        let diameter = v["diameter_mm"].as_f64().context("via diameter")?;
++        let drill = v["drill_mm"].as_f64().context("via drill")?;
++        let [x, y] = centre;
++        let r = diameter / 2.;
++        if overlaps([x - r, x + r, y - r, y + r], crop) {
++            ensure!(
++                x - r > crop[0] && x + r < crop[1] && y - r > crop[2] && y + r < crop[3],
++                "via crosses crop"
++            );
++            ensure!(
++                diameter == 1.4
++                    && drill == 0.8
++                    && v["from_layer"] == "F.Cu"
++                    && v["to_layer"] == "B.Cu",
++                "unsupported via"
++            );
++            vias.push(Via {
++                centre,
++                diameter,
++                drill,
++            });
++        }
++    }
++    ensure!(vias.len() == 12, "expected twelve native thermal vias");
++    let zone_bounds = zones
++        .iter()
++        .map(|ps| {
++            ps.iter().fold(
++                [
++                    f64::INFINITY,
++                    f64::NEG_INFINITY,
++                    f64::INFINITY,
++                    f64::NEG_INFINITY,
++                ],
++                |[x0, x1, y0, y1], [x, y]| [x0.min(*x), x1.max(*x), y0.min(*y), y1.max(*y)],
++            )
++        })
++        .collect();
++    let stack = zapote_drc::stackup::physical_dimensions(
++        n["board_file_utf8"].as_str().context("board bytes")?,
++    )
++    .map_err(anyhow::Error::msg)?;
++    let board_mm = stack
++        .layers_mm
++        .iter()
++        .filter(|(name, _)| name.ends_with(".Cu") || name.starts_with("dielectric "))
++        .map(|(_, mm)| *mm)
++        .sum();
++    Ok(Geometry {
++        local,
++        board_mm,
++        finished_board_mm: stack.board_thickness_mm,
++        tracks,
++        vias,
++        zones,
++        zone_bounds,
++        crop,
++    })
++}
++#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
++pub struct Scenario {
++    pub name: String,
++    pub split: [f64; 2],
++    pub cut_c: f64,
++    pub plating_mm: f64,
++    pub solder_mm: f64,
++    pub solder_k: f64,
++    pub fr4_k: f64,
++    pub widen: bool,
++    pub direct: bool,
++}
++pub fn scenarios() -> Vec<Scenario> {
++    let base = Scenario {
++        name: "nominal".into(),
++        split: [0.5, 0.5],
++        cut_c: 60.,
++        plating_mm: 0.025,
++        solder_mm: 0.15,
++        solder_k: 50.,
++        fr4_k: 0.25,
++        widen: false,
++        direct: false,
++    };
++    vec![
++        base.clone(),
++        Scenario {
++            name: "hot-board".into(),
++            cut_c: 80.,
++            ..base.clone()
++        },
++        Scenario {
++            name: "pad1-hot".into(),
++            split: [1., 0.],
++            ..base.clone()
++        },
++        Scenario {
++            name: "pad2-hot".into(),
++            split: [0., 1.],
++            ..base.clone()
++        },
++        Scenario {
++            name: "weak-joints".into(),
++            plating_mm: 0.015,
++            solder_mm: 0.25,
++            solder_k: 25.,
++            fr4_k: 0.18,
++            ..base.clone()
++        },
++        Scenario {
++            name: "wider-domain".into(),
++            widen: true,
++            ..base
++        },
++    ]
++}
++// All distances above are mm; the solver geometry uses metres exclusively.
++struct Geo {
++    text: String,
++    next: usize,
++}
++impl Geo {
++    fn id(&mut self) -> usize {
++        let i = self.next;
++        self.next += 1;
++        i
++    }
++    fn box_(&mut self, p: [f64; 3], d: [f64; 3]) -> usize {
++        let i = self.id();
++        self.text += &format!(
++            "Box({i})={{{},{},{},{},{},{}}};\n",
++            p[0] * 1e-3,
++            p[1] * 1e-3,
++            p[2] * 1e-3,
++            d[0] * 1e-3,
++            d[1] * 1e-3,
++            d[2] * 1e-3
++        );
++        i
++    }
++    fn cylinder(&mut self, p: [f64; 2], z: f64, h: f64, r: f64) -> usize {
++        let i = self.id();
++        self.text += &format!(
++            "Cylinder({i})={{{},{},{},0,0,{},{}}};\n",
++            p[0] * 1e-3,
++            p[1] * 1e-3,
++            z * 1e-3,
++            h * 1e-3,
++            r * 1e-3
++        );
++        i
++    }
++}
++fn ids(v: &[usize]) -> String {
++    v.iter().map(usize::to_string).collect::<Vec<_>>().join(",")
++}
++// Clip only for CAD construction. Membership/volume checks use the untouched
++// native polygon; removing sub-micron edges avoids OpenCASCADE's tolerance floor.
++fn clipped_zone(poly: &[[f64; 2]], crop: [f64; 4]) -> Vec<[f64; 2]> {
++    let mut out = poly.to_vec();
++    for (axis, limit, sign) in [
++        (0, crop[0], 1.),
++        (0, crop[1], -1.),
++        (1, crop[2], 1.),
++        (1, crop[3], -1.),
++    ] {
++        let old = out;
++        out = Vec::new();
++        for (a, b) in old.iter().zip(old.iter().cycle().skip(1)).take(old.len()) {
++            let ai = (a[axis] - limit) * sign >= 0.;
++            let bi = (b[axis] - limit) * sign >= 0.;
++            if ai {
++                out.push(*a);
++            }
++            if ai != bi {
++                let t = (limit - a[axis]) / (b[axis] - a[axis]);
++                let mut p = [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])];
++                p[axis] = limit;
++                out.push(p);
++            }
++        }
++    }
++    let mut clean: Vec<[f64; 2]> = Vec::new();
++    for p in out {
++        if clean
++            .last()
++            .is_none_or(|a| (a[0] - p[0]).hypot(a[1] - p[1]) > 0.001)
++        {
++            clean.push(p);
++        }
++    }
++    if clean.len() > 1
++        && (clean[0][0] - clean[clean.len() - 1][0]).hypot(clean[0][1] - clean[clean.len() - 1][1])
++            < 0.001
++    {
++        clean.pop();
++    }
++    clean
++}
++pub fn geo(g: &Geometry, p: &Scenario, mesh: f64) -> String {
++    let mut b=Geo{text:format!("SetFactory(\"OpenCASCADE\");\nMesh.MshFileVersion=2.2;\nMesh.ElementOrder=1;\nMesh.CharacteristicLengthMin={};\nMesh.CharacteristicLengthMax={};\nMesh.MeshSizeFromCurvature=32;\nMesh.MinimumCirclePoints=32;\n",mesh/10.,mesh*4.),next:100};
++    let tc = g.local.copper_mm;
++    let h = g.board_mm;
++    let [x0, x1, y0, y1] = g.crop;
++    for (li, z) in [(0, h - tc), (1, 0.)] {
++        let mut v = Vec::new();
++        if li == 0 {
++            for c in g.local.pad_centres_mm {
++                v.push(b.box_([c[0] - 1.75, c[1] - 2.65, z], [3.5, 5.3, tc]));
++            }
++        }
++        for t in g.tracks.iter().filter(|t| t.front == (li == 0)) {
++            let [a, c] = t.ends;
++            let length = (c[0] - a[0]).hypot(c[1] - a[1]);
++            let id = b.box_([a[0], a[1] - t.width / 2., z], [length, t.width, tc]);
++            b.text += &format!(
++                "Rotate {{{{0,0,1}},{{{},{},0}},{}}} {{Volume{{{id}}};}}\n",
++                a[0] * 1e-3,
++                a[1] * 1e-3,
++                (c[1] - a[1]).atan2(c[0] - a[0])
++            );
++            v.extend([
++                id,
++                b.cylinder(a, z, tc, t.width / 2.),
++                b.cylinder(c, z, tc, t.width / 2.),
++            ]);
++        }
++        for via in &g.vias {
++            v.push(b.cylinder(via.centre, z, tc, via.diameter / 2.));
++        }
++        let mut zone_volumes = String::new();
++        if li == 1 {
++            for (j, poly) in g.zones.iter().enumerate() {
++                let poly = clipped_zone(poly, g.crop);
++                let first = 100000 + j * 10000;
++                for (k, [x, y]) in poly.iter().enumerate() {
++                    b.text += &format!(
++                        "Point({})={{{},{},{}}};\n",
++                        first + k,
++                        x * 1e-3,
++                        y * 1e-3,
++                        z * 1e-3
++                    );
++                }
++                for k in 0..poly.len() {
++                    b.text += &format!(
++                        "Line({})={{{},{}}};\n",
++                        first + k,
++                        first + k,
++                        first + (k + 1) % poly.len()
++                    );
++                }
++                let lines = (first..first + poly.len()).collect::<Vec<_>>();
++                b.text+=&format!("Curve Loop({first})={{{}}};Plane Surface({first})={{{first}}};\nzz{j}[]=Extrude {{0,0,{}}} {{Surface{{{first}}};}};\n",ids(&lines),tc*1e-3);
++                zone_volumes += &format!(",zz{j}[1]");
++                b.next += 10000;
++            }
++        }
++        b.text+=&format!("cu{li}[]=BooleanUnion{{Volume{{{}}};Delete;}}{{Volume{{{}{zone_volumes}}};Delete;}};\n",v[0],ids(&v[1..]));
++        let crop = b.box_([x0, y0, z], [x1 - x0, y1 - y0, tc]);
++        b.text+=&format!("cu{li}[]=BooleanIntersection{{Volume{{cu{li}[]}};Delete;}}{{Volume{{{crop}}};Delete;}};\n");
++        let drills: Vec<_> = g
++            .vias
++            .iter()
++            .map(|v| b.cylinder(v.centre, z, tc, v.drill / 2.))
++            .collect();
++        b.text += &format!(
++            "cu{li}[]=BooleanDifference{{Volume{{cu{li}[]}};Delete;}}{{Volume{{{}}};Delete;}};\n",
++            ids(&drills)
++        );
++    }
++    let substrate = b.box_([x0, y0, tc], [x1 - x0, y1 - y0, h - 2. * tc]);
++    let holes: Vec<_> = g
++        .vias
++        .iter()
++        .map(|v| b.cylinder(v.centre, tc, h - 2. * tc, v.drill / 2. + p.plating_mm))
++        .collect();
++    b.text += &format!(
++        "fr4[]=BooleanDifference{{Volume{{{substrate}}};Delete;}}{{Volume{{{}}};Delete;}};\n",
++        ids(&holes)
++    );
++    let mut barrels = Vec::new();
++    for (j, v) in g.vias.iter().enumerate() {
++        let out = b.cylinder(v.centre, tc, h - 2. * tc, v.drill / 2. + p.plating_mm);
++        let inn = b.cylinder(v.centre, tc, h - 2. * tc, v.drill / 2.);
++        b.text += &format!(
++            "bar{j}[]=BooleanDifference{{Volume{{{out}}};Delete;}}{{Volume{{{inn}}};Delete;}};\n"
++        );
++        barrels.push(format!("bar{j}[]"));
++    }
++    let mut sold = Vec::new();
++    for cx in [80.125, 75.875] {
++        sold.push(b.box_([cx - 1.45, 132. - 2.475, h], [2.9, 4.95, p.solder_mm]));
++    }
++    b.text += &format!(
++        "all[]=BooleanFragments{{Volume{{cu0[],cu1[],fr4[],{},{}}};Delete;}}{{}};\ne=1e-6;\n",
++        barrels.join(","),
++        ids(&sold)
++    );
++    b.text+=&format!("front[]=Volume In BoundingBox{{-1,-1,{}-e,1,1,{}+e}};\nback[]=Volume In BoundingBox{{-1,-1,-e,1,1,{}+e}};\nPhysical Volume(1)={{front[],back[]}};\n",(h-tc)*1e-3,h*1e-3,tc*1e-3);
++    b.text += "barrels[]={};\n";
++    for v in &g.vias {
++        let [x, y] = v.centre;
++        let r = v.drill / 2. + p.plating_mm;
++        b.text += &format!(
++            "bb[]=Volume In BoundingBox{{{}-e,{}-e,{}-e,{}+e,{}+e,{}+e}};barrels[]+={{bb[]}};\n",
++            (x - r) * 1e-3,
++            (y - r) * 1e-3,
++            tc * 1e-3,
++            (x + r) * 1e-3,
++            (y + r) * 1e-3,
++            (h - tc) * 1e-3
++        );
++    }
++    b.text += "Physical Volume(2)={barrels[]};\n";
++    for (i, cx) in [80.125, 75.875].into_iter().enumerate() {
++        b.text+=&format!("s{i}[]=Volume In BoundingBox{{{}-e,{}-e,{}-e,{}+e,{}+e,{}+e}};Physical Volume({})={{s{i}[]}};\n",(cx-1.45)*1e-3,129.525e-3,h*1e-3,(cx+1.45)*1e-3,134.475e-3,(h+p.solder_mm)*1e-3,i+4);
++    }
++    b.text+="substrate[]=all[];substrate[]-={front[],back[],barrels[],s0[],s1[]};Physical Volume(3)={substrate[]};\n";
++    let bounds = [(0, x0), (0, x1), (1, y0), (1, y1)];
++    b.text += "cuts[]={};\n";
++    for (axis, v) in bounds {
++        let mut lo = [x0 * 1e-3, y0 * 1e-3, 0.];
++        let mut hi = [x1 * 1e-3, y1 * 1e-3, h * 1e-3];
++        lo[axis] = v * 1e-3;
++        hi[axis] = v * 1e-3;
++        b.text += &format!(
++            "cc[]=Surface In BoundingBox{{{}-e,{}-e,{}-e,{}+e,{}+e,{}+e}};cuts[]+={{cc[]}};\n",
++            lo[0], lo[1], lo[2], hi[0], hi[1], hi[2]
++        );
++    }
++    b.text += "Physical Surface(13)={cuts[]};\n";
++    for (i, cx) in [80.125, 75.875].into_iter().enumerate() {
++        b.text+=&format!("heat{i}[]=Surface In BoundingBox{{{}-e,{}-e,{}-e,{}+e,{}+e,{}+e}};Physical Surface({})={{heat{i}[]}};\n",(cx-1.45)*1e-3,129.525e-3,(h+p.solder_mm)*1e-3,(cx+1.45)*1e-3,134.475e-3,(h+p.solder_mm)*1e-3,i+14);
++    }
++    b.text+=&format!("Field[1]=Box;Field[1].VIn={mesh};Field[1].VOut={};Field[1].XMin=0.074;Field[1].XMax=0.082;Field[1].YMin=0.129;Field[1].YMax=0.135;Field[1].ZMin={};Field[1].ZMax={};Field[1].Thickness=0.0003;Background Field=1;\n",mesh*4.,(h-tc)*1e-3-0.0001,(h+p.solder_mm)*1e-3);
++    b.text
++}
++fn sif(p: &Scenario) -> String {
++    let mut s=String::from("Header\n CHECK KEYWORDS Warn\n Mesh DB \".\" \"mesh\"\nEnd\nSimulation\n Coordinate System = Cartesian 3D\n Simulation Type = Steady State\n Steady State Max Iterations = 8\nEnd\nEquation 1\n Active Solvers(1) = 1\nEnd\n");
++    for (i, k) in [350., 350., p.fr4_k, p.solder_k, p.solder_k]
++        .into_iter()
++        .enumerate()
++    {
++        let id = i + 1;
++        s+=&format!("Material {id}\n Heat Conductivity = {k}\n Density = 1\n Heat Capacity = 1\nEnd\nBody {id}\n Target Bodies(1) = {id}\n Equation = 1\n Material = {id}\n");
++        s += "End\n";
++    }
++    s += &format!(
++        r#"Solver 1
++ Equation = Heat Equation
++ Procedure = "HeatSolve" "HeatSolver"
++ Variable = Temperature
++ {linear_solver}
++ Nonlinear System Max Iterations = 1
++ Steady State Convergence Tolerance = 1e-9
++ Calculate Loads = True
++ Calculate Boundary Fluxes = True
++End
++Solver 2
++ Exec Solver = After All
++ Equation = SaveScalars
++ Procedure = "SaveData" "SaveScalars"
++ Variable 1 = Temperature
++ Operator 1 = max
++ Variable 2 = Temperature
++ Operator 2 = min
++ Filename = scalars.dat
++End
++Boundary Condition 1
++ Target Boundaries(1) = 13
++ Temperature = {}
++ Save Scalars = True
++End
++"#,
++        p.cut_c + 273.15,
++        linear_solver = if p.direct {
++            "Linear System Solver = Direct\n Linear System Direct Method = umfpack"
++        } else if p.name == "weak-joints" {
++            "Linear System Solver = Iterative\n Linear System Iterative Method = BiCGStab\n Linear System Preconditioning = ILU2\n Linear System Max Iterations = 10000\n Linear System Convergence Tolerance = 1e-12\n Linear System Abort Not Converged = True"
++        } else {
++            "Linear System Solver = Iterative\n Linear System Iterative Method = BiCGStab\n Linear System Preconditioning = ILU1\n Linear System Max Iterations = 10000\n Linear System Convergence Tolerance = 1e-12\n Linear System Abort Not Converged = True"
++        }
++    );
++    for (i, split) in p.split.into_iter().enumerate() {
++        s += &format!(
++            "Boundary Condition {}\n Target Boundaries(1) = {}\n Heat Flux = {:.14}\nEnd\n",
++            i + 2,
++            i + 14,
++            shunt_local::HEAT_W * split / (2.9 * 4.95 * 1e-6)
++        );
++    }
++    s
++}
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct Case {
++    pub scenario: Scenario,
++    pub mesh_m: f64,
++    pub nodes: usize,
++    pub measurement: shunt_local::Measurement,
++}
++#[derive(Debug, Clone, Serialize, Deserialize)]
++pub struct Report {
++    pub schema: String,
++    pub applicability: String,
++    pub geometry: Geometry,
++    pub heat_w: f64,
++    pub cases: Vec<Case>,
++    pub artifacts: BTreeMap<String, String>,
++}
++fn case_dir(c: &Case) -> String {
++    format!("{}-{}", c.scenario.name, (c.mesh_m * 1e6).round() as u32)
++}
++fn measure(dir: &Path, p: &Scenario) -> Result<shunt_local::Measurement> {
++    let log = fs::read_to_string(dir.join("solver.log"))?;
++    let header = read_text(&dir.join("mesh/mesh.header"))?;
++    let counts: Vec<usize> = header
++        .lines()
++        .next()
++        .context("mesh header")?
++        .split_whitespace()
++        .map(str::parse)
++        .collect::<std::result::Result<_, _>>()?;
++    ensure!(counts.len() == 3, "mesh census");
++    for (label, count) in [
++        "Number of nodes in mesh:",
++        "Number of bulk elements in mesh:",
++        "Number of boundary elements in mesh:",
++    ]
++    .into_iter()
++    .zip(counts)
++    {
++        let actual: Vec<_> = log
++            .lines()
++            .filter_map(|l| l.strip_prefix(&format!("InitializeMesh: {label}")))
++            .collect();
++        ensure!(
++            actual.len() == 1 && actual[0].trim().parse::<usize>()? == count,
++            "solver log mesh census differs"
++        );
++    }
++    shunt_local::measurements_with_sources(dir, p.cut_c, &p.split.map(|x| x * shunt_local::HEAT_W))
++}
++/// Lossless mesh archival retains original-byte hashes; two representations
++/// at once are ambiguous and therefore rejected.
++pub(crate) fn read_bytes(path: &Path) -> Result<Vec<u8>> {
++    let mut compressed = path.as_os_str().to_os_string();
++    compressed.push(".gz");
++    let compressed = std::path::PathBuf::from(compressed);
++    ensure!(
++        !(path.exists() && compressed.exists()),
++        "ambiguous raw/compressed artifact"
++    );
++    let mut bytes = Vec::new();
++    const LIMIT: u64 = 256 * 1024 * 1024;
++    if path.exists() {
++        fs::File::open(path)?
++            .take(LIMIT + 1)
++            .read_to_end(&mut bytes)?;
++    } else {
++        flate2::read::MultiGzDecoder::new(fs::File::open(compressed)?)
++            .take(LIMIT + 1)
++            .read_to_end(&mut bytes)?;
++    }
++    ensure!(
++        bytes.len() as u64 <= LIMIT,
++        "assembly artifact exceeds 256 MiB"
++    );
++    Ok(bytes)
++}
++pub(crate) fn read_text(path: &Path) -> Result<String> {
++    Ok(String::from_utf8(read_bytes(path)?)?)
++}
++fn hashes(root: &Path, cases: &[Case]) -> Result<BTreeMap<String, String>> {
++    let mut paths = vec![
++        "native.json".into(),
++        "backend.json".into(),
++        "reuse.json".into(),
++    ];
++    for c in cases {
++        for f in [
++            "local.geo",
++            "local.msh",
++            "case.sif",
++            "scalars.dat",
++            "scalars.dat.names",
++            "gmsh.log",
++            "grid.log",
++            "solver.log",
++            "gmsh.command.json",
++            "grid.command.json",
++            "solver.command.json",
++            "solver-inputs.json",
++            "mesh/mesh.nodes",
++            "mesh/mesh.elements",
++            "mesh/mesh.boundary",
++            "mesh/mesh.header",
++        ] {
++            paths.push(format!("{}/{f}", case_dir(c)));
++        }
++    }
++    paths
++        .into_iter()
++        .map(|p| {
++            Ok((
++                p.clone(),
++                format!("{:x}", Sha256::digest(read_bytes(&root.join(p))?)),
++            ))
++        })
++        .collect()
++}
++fn profile() -> Vec<(Scenario, f64)> {
++    let mut cases: Vec<_> = scenarios()
++        .into_iter()
++        .flat_map(|p| scenario_meshes(&p).into_iter().map(move |m| (p.clone(), m)))
++        .collect();
++    let mut direct = scenarios().remove(0);
++    direct.name = "direct-control".into();
++    direct.direct = true;
++    cases.push((direct, MESHES[0]));
++    cases
++}
++fn validate_profile(cases: &[Case]) -> Result<()> {
++    ensure!(
++        cases.len() == profile().len(),
++        "incomplete assembly profile"
++    );
++    for (case, (p, m)) in cases.iter().zip(profile()) {
++        ensure!(
++            case.scenario == p && case.mesh_m == m,
++            "assembly profile changed"
++        );
++    }
++    ensure!(
++        (cases.last().context("direct control")?.measurement.max_c - cases[0].measurement.max_c)
++            .abs()
++            < 1e-5,
++        "iterative/direct solver disagreement"
++    );
++    for (cs, p) in cases[..cases.len() - 1].chunks_exact(3).zip(scenarios()) {
++        for (c, m) in cs.iter().zip(scenario_meshes(&p)) {
++            ensure!(c.scenario == p && c.mesh_m == m, "assembly profile changed");
++        }
++        for (j, ab) in cs.windows(2).enumerate() {
++            ensure!(ab[1].nodes > ab[0].nodes, "mesh did not refine");
++            ensure!(
++                // First-order remaining-error estimate: for halving this is
++                // the raw difference; smaller refinement ratios must satisfy
++                // a proportionally tighter difference, not get a free pass.
++                (ab[1].measurement.max_c - ab[0].measurement.max_c).abs() * ab[1].mesh_m
++                    / (ab[0].mesh_m - ab[1].mesh_m)
++                    < [1., 0.5][j],
++                "assembly mesh not converged"
++            );
++        }
++    }
++    for j in 0..3 {
++        ensure!(
++            (cases[3 + j].measurement.max_c - cases[j].measurement.max_c - 20.).abs() < 1e-5,
++            "uniform boundary shift oracle failed"
++        );
++    }
++    Ok(())
++}
++fn copy_tree(source: &Path, destination: &Path) -> Result<()> {
++    fs::create_dir(destination)?;
++    for entry in fs::read_dir(source)? {
++        let entry = entry?;
++        let ty = entry.file_type()?;
++        let dest = destination.join(entry.file_name());
++        ensure!(!ty.is_symlink(), "seed evidence symlink rejected");
++        if ty.is_dir() {
++            copy_tree(&entry.path(), &dest)?;
++        } else {
++            fs::copy(entry.path(), dest)?;
++        }
++    }
++    Ok(())
++}
++fn verify_case(g: &Geometry, p: &Scenario, mesh: f64, dir: &Path) -> Result<Case> {
++    validate_commands(dir)?;
++    ensure!(
++        fs::read_to_string(dir.join("local.geo"))? == geo(g, p, mesh)
++            && fs::read_to_string(dir.join("case.sif"))? == sif(p),
++        "seed case deck differs from current model"
++    );
++    let nodes = crate::shunt_assembly_mesh::validate(&read_text(&dir.join("local.msh"))?, g, p)?;
++    crate::shunt_assembly_mesh::validate_elmer(&dir.join("mesh"), g, p)?;
++    validate_solver_inputs(dir)?;
++    Ok(Case {
++        scenario: p.clone(),
++        mesh_m: mesh,
++        nodes,
++        measurement: measure(dir, p)?,
++    })
++}
++fn solver_inputs(dir: &Path) -> Result<BTreeMap<String, String>> {
++    [
++        "local.geo",
++        "local.msh",
++        "case.sif",
++        "mesh/mesh.nodes",
++        "mesh/mesh.elements",
++        "mesh/mesh.boundary",
++        "mesh/mesh.header",
++    ]
++    .into_iter()
++    .map(|f| {
++        Ok((
++            f.into(),
++            format!("{:x}", Sha256::digest(read_bytes(&dir.join(f))?)),
++        ))
++    })
++    .collect()
++}
++fn validate_solver_inputs(dir: &Path) -> Result<()> {
++    let receipt: BTreeMap<String, String> =
++        serde_json::from_slice(&fs::read(dir.join("solver-inputs.json"))?)?;
++    ensure!(
++        receipt == solver_inputs(dir)?,
++        "solver inputs differ from pre-execution receipt"
++    );
++    Ok(())
++}
++// A copied invocation keeps its original working directory. Rewriting that
++// history would claim a new solve; check the case identity and exact command
++// contract, and bind the original record into the retained artifact hashes.
++fn validate_commands(dir: &Path) -> Result<()> {
++    let mut cwd = None;
++    for (name, program, args) in [
++        (
++            "gmsh",
++            "gmsh",
++            vec![
++                "-3",
++                "local.geo",
++                "-format",
++                "msh2",
++                "-o",
++                "local.msh",
++                "-nt",
++                "1",
++            ],
++        ),
++        (
++            "grid",
++            "ElmerGrid",
++            vec!["14", "2", "local.msh", "-out", "mesh"],
++        ),
++        ("solver", "ElmerSolver", vec!["case.sif"]),
++    ] {
++        let v: Value =
++            serde_json::from_slice(&fs::read(dir.join(format!("{name}.command.json")))?)?;
++        let at = v["cwd"].as_str().context("invocation cwd")?;
++        let exe = v["program"].as_str().context("invocation executable")?;
++        ensure!(
++            !at.is_empty() && Path::new(at).file_name() == dir.file_name(),
++            "invocation case directory differs"
++        );
++        ensure!(
++            Path::new(exe).is_absolute()
++                && Path::new(exe).file_name() == Some(std::ffi::OsStr::new(program)),
++            "invocation executable differs"
++        );
++        ensure!(
++            v["args"] == serde_json::json!(args)
++                && v["environment"]
++                    == serde_json::json!({"OMP_NUM_THREADS":"1","OMPI_MCA_btl":"self"})
++                && v["unset_environment"] == serde_json::json!(["ELMER_HOME", "ELMER_LIB"])
++                && v["timeout_ms"] == 240000,
++            "invocation contract differs"
++        );
++        if let Some(previous) = &cwd {
++            ensure!(previous == at, "mixed invocation directories");
++        }
++        cwd = Some(at.to_owned());
++    }
++    Ok(())
++}
++pub fn run(native: &[u8], out: &Path, tools: &Tools) -> Result<Report> {
++    run_from(native, out, tools, None)
++}
++fn validate_seed_identity(native: &[u8], backend: &[u8], seed: &Path) -> Result<()> {
++    ensure!(
++        fs::read(seed.join("native.json"))? == native,
++        "seed native input mismatch"
++    );
++    ensure!(
++        fs::read(seed.join("backend.json"))? == backend,
++        "seed backend differs from installed solver"
++    );
++    Ok(())
++}
++/// Reuse only complete cases whose native input, installed backends, generated
++/// decks, both meshes and raw measurements pass the current validators.
++pub fn run_from(native: &[u8], out: &Path, tools: &Tools, seed: Option<&Path>) -> Result<Report> {
++    ensure!(
++        [&tools.gmsh, &tools.grid, &tools.solver]
++            .iter()
++            .all(|p| p.is_absolute()),
++        "assembly tool paths must be absolute"
++    );
++    let g = geometry(native, false)?;
++    geometry(native, true)?;
++    ensure!(!out.exists(), "refusing to overwrite evidence");
++    fs::create_dir_all(out)?;
++    fs::write(out.join("native.json"), native)?;
++    shunt_local::write_backend(out, tools)?;
++    if let Some(seed) = seed {
++        validate_seed_identity(native, &fs::read(out.join("backend.json"))?, seed)?;
++    }
++    let mut reused = BTreeMap::<String, String>::new();
++    let mut cases = Vec::new();
++    for (p, mesh) in profile() {
++        let cg = geometry(native, p.widen)?;
++        let dir = out.join(format!("{}-{}", p.name, (mesh * 1e6).round() as u32));
++        if let Some(seed) = seed {
++            let previous = seed.join(dir.file_name().context("case name")?);
++            if previous.exists() {
++                verify_case(&cg, &p, mesh, &previous)?;
++                copy_tree(&previous, &dir)?;
++                let c = verify_case(&cg, &p, mesh, &dir)?;
++                reused.insert(
++                    dir.file_name()
++                        .context("case name")?
++                        .to_string_lossy()
++                        .into_owned(),
++                    format!(
++                        "{:x}",
++                        Sha256::digest(fs::read(previous.join("solver.log"))?)
++                    ),
++                );
++                cases.push(c);
++                continue;
++            }
++        }
++        fs::create_dir(&dir)?;
++        fs::write(dir.join("local.geo"), geo(&cg, &p, mesh))?;
++        fs::write(dir.join("case.sif"), sif(&p))?;
++        let mut nodes = None;
++        for (exe, args, name) in [
++            (
++                &tools.gmsh,
++                vec![
++                    "-3",
++                    "local.geo",
++                    "-format",
++                    "msh2",
++                    "-o",
++                    "local.msh",
++                    "-nt",
++                    "1",
++                ],
++                "gmsh",
++            ),
++            (
++                &tools.grid,
++                vec!["14", "2", "local.msh", "-out", "mesh"],
++                "grid",
++            ),
++            (&tools.solver, vec!["case.sif"], "solver"),
++        ] {
++            crate::run_process(
++                exe,
++                &args,
++                &dir,
++                &dir.join(format!("{name}.log")),
++                Duration::from_secs(240),
++            )?;
++            if name == "gmsh" {
++                nodes = Some(crate::shunt_assembly_mesh::validate(
++                    &read_text(&dir.join("local.msh"))?,
++                    &cg,
++                    &p,
++                )?);
++            }
++            if name == "grid" {
++                crate::shunt_assembly_mesh::validate_elmer(&dir.join("mesh"), &cg, &p)?;
++                fs::write(
++                    dir.join("solver-inputs.json"),
++                    serde_json::to_vec_pretty(&solver_inputs(&dir)?)?,
++                )?;
++            }
++        }
++        validate_solver_inputs(&dir)?;
++        cases.push(Case {
++            scenario: p.clone(),
++            mesh_m: mesh,
++            nodes: nodes.context("Gmsh validation missing")?,
++            measurement: measure(&dir, &p)?,
++        });
++    }
++    fs::write(
++        out.join("reuse.json"),
++        serde_json::to_vec_pretty(
++            &serde_json::json!({"seed":seed,"reused_solver_log_sha256":reused}),
++        )?,
++    )?;
++    validate_profile(&cases)?;
++    let r = Report {
++        schema: "zapote.shunt-assembly.v1".into(),
++        applicability: APPLICABILITY.into(),
++        geometry: g,
++        heat_w: shunt_local::HEAT_W,
++        artifacts: hashes(out, &cases)?,
++        cases,
++    };
++    fs::write(out.join("report.json"), serde_json::to_vec_pretty(&r)?)?;
++    Ok(r)
++}
++pub fn replay(native: &[u8], out: &Path) -> Result<Report> {
++    let r: Report = serde_json::from_slice(&fs::read(out.join("report.json"))?)?;
++    ensure!(
++        r.schema == "zapote.shunt-assembly.v1"
++            && r.applicability == APPLICABILITY
++            && r.geometry == geometry(native, false)?
++            && r.heat_w == shunt_local::HEAT_W,
++        "assembly model/native input changed"
++    );
++    ensure!(
++        fs::read(out.join("native.json"))? == native,
++        "retained native capture changed"
++    );
++    shunt_local::validate_backend(out)?;
++    validate_profile(&r.cases)?;
++    ensure!(
++        r.artifacts == hashes(out, &r.cases)?,
++        "assembly artifacts changed"
++    );
++    for c in &r.cases {
++        let g = geometry(native, c.scenario.widen)?;
++        let d = out.join(case_dir(c));
++        validate_commands(&d)?;
++        validate_solver_inputs(&d)?;
++        ensure!(
++            fs::read_to_string(d.join("local.geo"))? == geo(&g, &c.scenario, c.mesh_m)
++                && fs::read_to_string(d.join("case.sif"))? == sif(&c.scenario),
++            "assembly deck changed"
++        );
++        ensure!(
++            measure(&d, &c.scenario)? == c.measurement,
++            "summary differs from raw logs"
++        );
++        ensure!(
++            crate::shunt_assembly_mesh::validate(
++                &read_text(&d.join("local.msh"))?,
++                &g,
++                &c.scenario
++            )? == c.nodes,
++            "mesh census changed"
++        );
++        crate::shunt_assembly_mesh::validate_elmer(&d.join("mesh"), &g, &c.scenario)?;
++    }
++    Ok(r)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn fixture() -> std::path::PathBuf {
++        Path::new(env!("CARGO_MANIFEST_DIR"))
++            .join("../../power-entry/shunt-assembly/run-09/nominal-100")
++    }
++    fn scratch() -> std::path::PathBuf {
++        let p = std::env::temp_dir().join(format!(
++            "shunt-assembly-test-{}-{}",
++            std::process::id(),
++            std::time::SystemTime::now()
++                .duration_since(std::time::UNIX_EPOCH)
++                .unwrap()
++                .as_nanos()
++        ));
++        fs::create_dir(&p).unwrap();
++        p
++    }
++    fn native() -> Vec<u8> {
++        fs::read(
++            Path::new(env!("CARGO_MANIFEST_DIR"))
++                .join("../../power-entry/shunt-repair/evidence/native-04.json"),
++        )
++        .unwrap()
++    }
++    #[test]
++    fn native_heat_path_includes_zone_twelve_vias_and_both_layers() {
++        let n = native();
++        let g = geometry(&n, false).unwrap();
++        assert_eq!(g.vias.len(), 12);
++        assert_eq!(g.zones.len(), 1);
++        assert!(g.tracks.iter().any(|t| t.front));
++        assert!(g.tracks.iter().any(|t| !t.front));
++        assert!((g.board_mm - 1.58).abs() < 1e-12);
++        assert_eq!(g.finished_board_mm, 1.6);
++        assert!((g.board_mm - 2. * g.local.copper_mm - 1.44).abs() < 1e-12);
++        let wide = geometry(&n, true).unwrap();
++        assert!(wide.crop[0] < g.crop[0] && wide.crop[1] > g.crop[1]);
++    }
++    #[test]
++    fn altered_native_via_cannot_silently_change_geometry() {
++        let mut n: Value = serde_json::from_slice(&native()).unwrap();
++        n["vias"][0]["drill_mm"] = serde_json::json!(0.1);
++        assert!(geometry(&serde_json::to_vec(&n).unwrap(), false).is_err());
++    }
++    #[test]
++    fn clipping_preserves_zone_interior_and_excludes_outside_region() {
++        let g = geometry(&native(), false).unwrap();
++        let p = clipped_zone(&g.zones[0], g.crop);
++        assert!(p.len() >= 3);
++        for x in [82.9, 83.2, 84., 86.9] {
++            for y in [128.1, 134.4, 134.8, 135.9] {
++                assert_eq!(in_poly([x, y], &p), in_poly([x, y], &g.zones[0]));
++            }
++        }
++        assert!(!in_poly([90., 150.], &p));
++    }
++    #[test]
++    fn partial_profile_and_false_boundary_shift_are_rejected() {
++        assert!(validate_profile(&[]).is_err());
++        let cases: Vec<_> = profile()
++            .into_iter()
++            .enumerate()
++            .map(|(j, (p, m))| Case {
++                scenario: p,
++                mesh_m: m,
++                nodes: 100 * (j % 3 + 1),
++                measurement: shunt_local::Measurement {
++                    max_c: 90.,
++                    min_c: 60.,
++                    heat_out_w: shunt_local::HEAT_W,
++                },
++            })
++            .collect();
++        assert!(validate_profile(&cases)
++            .unwrap_err()
++            .to_string()
++            .contains("shift"));
++    }
++    #[test]
++    fn small_refinement_step_cannot_evade_error_estimate() {
++        let mut cases: Vec<_> = profile()
++            .into_iter()
++            .enumerate()
++            .map(|(j, (p, m))| {
++                let offset = if p.name == "hot-board" { 20. } else { 0. };
++                Case {
++                    scenario: p,
++                    mesh_m: m,
++                    nodes: 100 * (j % 3 + 1),
++                    measurement: shunt_local::Measurement {
++                        max_c: 90. + offset,
++                        min_c: 60. + offset,
++                        heat_out_w: shunt_local::HEAT_W,
++                    },
++                }
++            })
++            .collect();
++        validate_profile(&cases).unwrap();
++        // 0.2 K is below the old raw-delta threshold but estimates 0.8 K
++        // remaining when refinement is only 50 -> 40 micrometres.
++        cases[2].measurement.max_c += 0.2;
++        assert!(validate_profile(&cases)
++            .unwrap_err()
++            .to_string()
++            .contains("converged"));
++    }
++    #[test]
++    fn command_contract_rejects_changed_environment_arguments_and_case() {
++        let root = scratch();
++        let dest = root.join("nominal-100");
++        fs::create_dir(&dest).unwrap();
++        for name in ["gmsh", "grid", "solver"] {
++            fs::copy(
++                fixture().join(format!("{name}.command.json")),
++                dest.join(format!("{name}.command.json")),
++            )
++            .unwrap();
++        }
++        validate_commands(&dest).unwrap();
++        let file = dest.join("solver.command.json");
++        let original = fs::read(&file).unwrap();
++        for (key, val) in [
++            ("cwd", serde_json::json!("/different/case")),
++            ("program", serde_json::json!("/bin/other")),
++            ("args", serde_json::json!(["other.sif"])),
++            ("environment", serde_json::json!({"OMP_NUM_THREADS":"8"})),
++        ] {
++            let mut v: Value = serde_json::from_slice(&original).unwrap();
++            v[key] = val;
++            fs::write(&file, serde_json::to_vec(&v).unwrap()).unwrap();
++            assert!(validate_commands(&dest).is_err());
++        }
++        fs::remove_dir_all(root).unwrap();
++    }
++    #[test]
++    fn seed_identity_and_deck_changes_are_rejected_before_solver_work() {
++        let root = scratch();
++        fs::write(root.join("native.json"), b"native").unwrap();
++        fs::write(root.join("backend.json"), b"backend").unwrap();
++        validate_seed_identity(b"native", b"backend", &root).unwrap();
++        assert!(validate_seed_identity(b"changed", b"backend", &root).is_err());
++        assert!(validate_seed_identity(b"native", b"changed", &root).is_err());
++        let dest = root.join("nominal-100");
++        fs::create_dir(&dest).unwrap();
++        for name in ["gmsh", "grid", "solver"] {
++            fs::copy(
++                fixture().join(format!("{name}.command.json")),
++                dest.join(format!("{name}.command.json")),
++            )
++            .unwrap();
++        }
++        let g = geometry(&native(), false).unwrap();
++        let p = scenarios().remove(0);
++        fs::write(dest.join("local.geo"), geo(&g, &p, MESHES[0])).unwrap();
++        fs::write(dest.join("case.sif"), "changed source flux").unwrap();
++        assert!(verify_case(&g, &p, MESHES[0], &dest)
++            .unwrap_err()
++            .to_string()
++            .contains("deck"));
++        fs::remove_dir_all(root).unwrap();
++    }
++    #[test]
++    fn compressed_artifact_preserves_bytes_and_rejects_ambiguity() {
++        use std::io::Write;
++        let root = scratch();
++        let path = root.join("sample");
++        let original = b"retained original bytes";
++        let mut gz = flate2::write::GzEncoder::new(
++            fs::File::create(root.join("sample.gz")).unwrap(),
++            flate2::Compression::default(),
++        );
++        gz.write_all(original).unwrap();
++        gz.finish().unwrap();
++        assert_eq!(read_bytes(&path).unwrap(), original);
++        fs::write(&path, original).unwrap();
++        assert!(read_bytes(&path).is_err());
++        fs::remove_dir_all(root).unwrap();
++    }
++    #[test]
++    fn relative_tool_paths_fail_before_creating_evidence() {
++        let root = scratch();
++        let out = root.join("attempt");
++        let tools = Tools {
++            gmsh: "gmsh".into(),
++            grid: "ElmerGrid".into(),
++            solver: "ElmerSolver".into(),
++        };
++        assert!(run(b"{}", &out, &tools)
++            .unwrap_err()
++            .to_string()
++            .contains("absolute"));
++        assert!(!out.exists());
++        fs::remove_dir_all(root).unwrap();
++    }
++    #[test]
++    fn solver_results_from_a_different_mesh_or_heat_split_are_rejected() {
++        let root = scratch();
++        fs::create_dir(root.join("mesh")).unwrap();
++        for f in [
++            "solver.log",
++            "scalars.dat",
++            "scalars.dat.names",
++            "mesh/mesh.header",
++        ] {
++            fs::copy(fixture().join(f), root.join(f)).unwrap();
++        }
++        let p = scenarios().remove(0);
++        measure(&root, &p).unwrap();
++        let log = fs::read_to_string(root.join("solver.log")).unwrap();
++        fs::write(
++            root.join("solver.log"),
++            log.replace("Number of nodes in mesh:", "Number of nodes in mesh: 0"),
++        )
++        .unwrap();
++        assert!(measure(&root, &p).is_err());
++        fs::write(root.join("solver.log"), log).unwrap();
++        let mut p = p;
++        p.split = [1., 0.];
++        assert!(measure(&root, &p).is_err());
++        fs::remove_dir_all(root).unwrap();
++    }
++}
+diff --git a/zapote/packages/zapote-thermal/src/shunt_assembly_mesh.rs b/zapote/packages/zapote-thermal/src/shunt_assembly_mesh.rs
+new file mode 100644
+index 000000000..5b30e8168
+--- /dev/null
++++ b/zapote/packages/zapote-thermal/src/shunt_assembly_mesh.rs
+@@ -0,0 +1,550 @@
++//! Independent material/port integration against native geometric primitives.
++use crate::shunt_assembly::{Geometry, Scenario};
++use anyhow::{ensure, Context, Result};
++use std::{
++    collections::{BTreeMap, BTreeSet},
++    path::Path,
++};
++type P = [f64; 3];
++fn sub(a: P, b: P) -> P {
++    [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
++}
++fn cross(a: P, b: P) -> P {
++    [
++        a[1] * b[2] - a[2] * b[1],
++        a[2] * b[0] - a[0] * b[2],
++        a[0] * b[1] - a[1] * b[0],
++    ]
++}
++fn dot(a: P, b: P) -> f64 {
++    a.into_iter().zip(b).map(|(a, b)| a * b).sum()
++}
++fn section<'a>(ls: &'a [&str], name: &str) -> Result<&'a [&'a str]> {
++    let pos = ls
++        .iter()
++        .position(|l| *l == format!("${name}"))
++        .context("missing mesh section")?;
++    let count: usize = ls.get(pos + 1).context("count")?.parse()?;
++    let end = pos
++        .checked_add(2)
++        .and_then(|x| x.checked_add(count))
++        .context("count overflow")?;
++    ensure!(
++        ls.get(end) == Some(&format!("$End{name}").as_str()),
++        "mesh section length"
++    );
++    ls.get(pos + 2..end).context("mesh rows")
++}
++fn track_distance(p: [f64; 2], a: [f64; 2], b: [f64; 2]) -> f64 {
++    let d = [b[0] - a[0], b[1] - a[1]];
++    let t =
++        (((p[0] - a[0]) * d[0] + (p[1] - a[1]) * d[1]) / (d[0] * d[0] + d[1] * d[1])).clamp(0., 1.);
++    (p[0] - a[0] - t * d[0]).hypot(p[1] - a[1] - t * d[1])
++}
++fn copper(g: &Geometry, p: [f64; 2], front: bool, tol: f64) -> bool {
++    let drilled = g
++        .vias
++        .iter()
++        .any(|v| (p[0] - v.centre[0]).hypot(p[1] - v.centre[1]) < v.drill / 2. - tol);
++    !drilled
++        && ((!front
++            && g.zones
++                .iter()
++                .zip(&g.zone_bounds)
++                .any(|(z, [x0, x1, y0, y1])| {
++                    p[0] >= x0 - tol
++                        && p[0] <= x1 + tol
++                        && p[1] >= y0 - tol
++                        && p[1] <= y1 + tol
++                        && (crate::shunt_assembly::in_poly(p, z)
++                            || z.iter()
++                                .zip(z.iter().cycle().skip(1))
++                                .take(z.len())
++                                .any(|(a, b)| track_distance(p, *a, *b) <= tol))
++                }))
++            || (front
++                && g.local.pad_centres_mm.iter().any(|c| {
++                    (p[0] - c[0]).abs() <= 1.75 + tol && (p[1] - c[1]).abs() <= 2.65 + tol
++                }))
++            || g.tracks
++                .iter()
++                .filter(|t| t.front == front)
++                .any(|t| track_distance(p, t.ends[0], t.ends[1]) <= t.width / 2. + tol)
++            || g.vias
++                .iter()
++                .any(|v| (p[0] - v.centre[0]).hypot(p[1] - v.centre[1]) <= v.diameter / 2. + tol))
++}
++fn material_at(g: &Geometry, s: &Scenario, p: P, mat: usize) -> bool {
++    let [x, y, z] = p.map(|v| v * 1000.);
++    let [x0, x1, y0, y1] = g.crop;
++    let e = 0.004;
++    if x < x0 - e || x > x1 + e || y < y0 - e || y > y1 + e {
++        return false;
++    }
++    let tc = g.local.copper_mm;
++    let h = g.board_mm;
++    match mat {
++        1 => {
++            (z >= -1e-6 && z <= tc + 1e-6 && copper(g, [x, y], false, e))
++                || (z >= h - tc - 1e-6 && z <= h + 1e-6 && copper(g, [x, y], true, e))
++        }
++        2 => {
++            z >= tc - 1e-6
++                && z <= h - tc + 1e-6
++                && g.vias.iter().any(|v| {
++                    let r = (x - v.centre[0]).hypot(y - v.centre[1]);
++                    r >= v.drill / 2. - e && r <= v.drill / 2. + s.plating_mm + e
++                })
++        }
++        3 => {
++            z >= tc - 1e-6
++                && z <= h - tc + 1e-6
++                && !g.vias.iter().any(|v| {
++                    (x - v.centre[0]).hypot(y - v.centre[1]) < v.drill / 2. + s.plating_mm - e
++                })
++        }
++        4 | 5 => {
++            (x - [80.125, 75.875][mat - 4]).abs() <= 1.45 + 1e-6
++                && (y - 132.).abs() <= 2.475 + 1e-6
++                && z >= h - 1e-6
++                && z <= h + s.solder_mm + 1e-6
++        }
++        _ => false,
++    }
++}
++fn expected_volumes(g: &Geometry, s: &Scenario) -> [f64; 5] {
++    let [x0, x1, y0, y1] = g.crop;
++    let dx = (x1 - x0) / 800.;
++    let dy = (y1 - y0) / 400.;
++    let mut area = 0.;
++    for i in 0..800 {
++        for j in 0..400 {
++            let p = [x0 + (i as f64 + 0.5) * dx, y0 + (j as f64 + 0.5) * dy];
++            for front in [false, true] {
++                if copper(g, p, front, 0.) {
++                    area += dx * dy;
++                }
++            }
++        }
++    }
++    let tc = g.local.copper_mm;
++    let z = g.board_mm - 2. * tc;
++    let barrel: f64 = g
++        .vias
++        .iter()
++        .map(|v| {
++            std::f64::consts::PI
++                * ((v.drill / 2. + s.plating_mm).powi(2) - (v.drill / 2.).powi(2))
++                * z
++        })
++        .sum();
++    let holes: f64 = g
++        .vias
++        .iter()
++        .map(|v| std::f64::consts::PI * (v.drill / 2. + s.plating_mm).powi(2) * z)
++        .sum();
++    [
++        area * tc,
++        barrel,
++        (x1 - x0) * (y1 - y0) * z - holes,
++        2.9 * 4.95 * s.solder_mm,
++        2.9 * 4.95 * s.solder_mm,
++    ]
++    .map(|x| x * 1e-9)
++}
++pub fn validate_elmer(dir: &Path, g: &Geometry, p: &Scenario) -> Result<usize> {
++    let converted = crate::shunt_mesh::elmer_as_msh_with(dir, crate::shunt_assembly::read_text)?;
++    let original = crate::shunt_assembly::read_text(
++        &dir.parent().context("case directory")?.join("local.msh"),
++    )?;
++    crate::shunt_mesh::assert_same_mesh(&original, &converted)?;
++    validate(&converted, g, p)
++}
++fn projected_distance(p: [f64; 2], ps: [P; 4]) -> f64 {
++    let points = ps.map(|p| [p[0] * 1000., p[1] * 1000.]);
++    let orient = |a: [f64; 2], b: [f64; 2], c: [f64; 2]| {
++        (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
++    };
++    for [i, j, k] in [[0, 1, 2], [0, 1, 3], [0, 2, 3], [1, 2, 3]] {
++        let [a, b, c] = [points[i], points[j], points[k]];
++        if orient(a, b, c).abs() > 1e-18 {
++            let v = [orient(a, b, p), orient(b, c, p), orient(c, a, p)];
++            if v.iter().all(|v| *v >= 0.) || v.iter().all(|v| *v <= 0.) {
++                return 0.;
++            }
++        }
++    }
++    let mut d = f64::INFINITY;
++    for i in 0..4 {
++        for j in i + 1..4 {
++            let a = points[i];
++            let b = points[j];
++            let v = if a == b {
++                (p[0] - a[0]).hypot(p[1] - a[1])
++            } else {
++                track_distance(p, a, b)
++            };
++            d = d.min(v);
++        }
++    }
++    d
++}
++fn excludes_drills(ps: [P; 4], mat: usize, g: &Geometry, s: &Scenario) -> bool {
++    if mat > 3 {
++        return true;
++    }
++    g.vias.iter().all(|v| {
++        let r = v.drill / 2. + if mat == 3 { s.plating_mm } else { 0. };
++        // The same 4 um chordal tolerance as the curved-surface transfer.
++        let r = r - 0.004;
++        let [x, y] = v.centre;
++        if ps.iter().all(|p| p[0] * 1000. < x - r)
++            || ps.iter().all(|p| p[0] * 1000. > x + r)
++            || ps.iter().all(|p| p[1] * 1000. < y - r)
++            || ps.iter().all(|p| p[1] * 1000. > y + r)
++        {
++            return true;
++        }
++        projected_distance(v.centre, ps) >= r
++    })
++}
++pub fn validate(mesh: &str, g: &Geometry, s: &Scenario) -> Result<usize> {
++    ensure!(
++        mesh.starts_with("$MeshFormat\n2.2 0 8\n$EndMeshFormat\n"),
++        "MSH2 ASCII required"
++    );
++    let ls: Vec<_> = mesh.lines().collect();
++    let mut nodes = BTreeMap::<u64, P>::new();
++    for row in section(&ls, "Nodes")? {
++        let vs: Vec<_> = row.split_whitespace().collect();
++        ensure!(vs.len() == 4, "node shape");
++        let p = [vs[1].parse()?, vs[2].parse()?, vs[3].parse()?];
++        ensure!(p.iter().all(|x: &f64| x.is_finite()), "nonfinite node");
++        ensure!(nodes.insert(vs[0].parse()?, p).is_none(), "duplicate node");
++    }
++    let point = |id: &u64| nodes.get(id).copied().context("missing node");
++    let mut faces = BTreeMap::<[u64; 3], Vec<usize>>::new();
++    let mut mats = Vec::new();
++    let mut vol = [0.; 5];
++    let mut cuts = BTreeMap::new();
++    let mut tetkeys = BTreeSet::new();
++    let mut elemids = BTreeSet::new();
++    for row in section(&ls, "Elements")? {
++        let f = row
++            .split_whitespace()
++            .map(str::parse::<u64>)
++            .collect::<std::result::Result<Vec<_>, _>>()?;
++        ensure!(
++            f.len() >= 4 && elemids.insert(f[0]),
++            "duplicate/invalid element"
++        );
++        let tags = usize::try_from(f[2])?;
++        ensure!(tags >= 1 && tags <= f.len() - 3, "tags");
++        let ns = &f[3 + tags..];
++        if f[1] == 4 {
++            ensure!(
++                ns.len() == 4 && (1..=5).contains(&f[3]),
++                "material/tetrahedron census"
++            );
++            let mat = f[3] as usize;
++            let mut key = [ns[0], ns[1], ns[2], ns[3]];
++            key.sort_unstable();
++            ensure!(
++                key.windows(2).all(|x| x[0] != x[1]) && tetkeys.insert(key),
++                "duplicate tetrahedron"
++            );
++            let ps = [
++                point(&ns[0])?,
++                point(&ns[1])?,
++                point(&ns[2])?,
++                point(&ns[3])?,
++            ];
++            let v = dot(
++                sub(ps[1], ps[0]),
++                cross(sub(ps[2], ps[0]), sub(ps[3], ps[0])),
++            )
++            .abs()
++                / 6.;
++            ensure!(v > 1e-24, "degenerate cell");
++            vol[mat - 1] += v;
++            ensure!(
++                excludes_drills(ps, mat, g, s),
++                "tetrahedron interior crosses native drilled void"
++            );
++            if mat == 1 {
++                ensure!(
++                    ps.iter().all(|p| p[0] < 78.125e-3) || ps.iter().all(|p| p[0] > 78.125e-3),
++                    "copper tetrahedron bridges native inter-terminal gap"
++                );
++            }
++            let centroid = std::array::from_fn(|axis| ps.iter().map(|p| p[axis]).sum::<f64>() / 4.);
++            ensure!(
++                material_at(g, s, centroid, mat),
++                "element assigned to wrong physical material {mat} at {centroid:?}"
++            );
++            for p in ps {
++                ensure!(
++                    material_at(g, s, p, mat),
++                    "node outside physical material {mat} at {p:?}"
++                );
++            }
++            let index = mats.len();
++            mats.push(mat);
++            for abc in [[0, 1, 2], [0, 1, 3], [0, 2, 3], [1, 2, 3]] {
++                let mut face = [ns[abc[0]], ns[abc[1]], ns[abc[2]]];
++                face.sort_unstable();
++                let ad = faces.entry(face).or_default();
++                ad.push(index);
++                ensure!(ad.len() <= 2, "nonmanifold mesh");
++            }
++        } else {
++            ensure!(
++                f[1] == 2 && (13..=15).contains(&f[3]) && ns.len() == 3,
++                "unknown boundary"
++            );
++            let mut face = [ns[0], ns[1], ns[2]];
++            face.sort_unstable();
++            ensure!(cuts.insert(face, f[3]).is_none(), "duplicate boundary");
++        }
++    }
++    for (i, (actual, expected)) in vol.into_iter().zip(expected_volumes(g, s)).enumerate() {
++        ensure!(
++            actual > 0. && (actual / expected - 1.).abs() < [0.015, 0.025, 0.001, 1e-6, 1e-6][i],
++            "material {} volume {} differs from independent {}",
++            i + 1,
++            actual,
++            expected
++        );
++    }
++    let mut adjacent = vec![Vec::new(); mats.len()];
++    let mut interface = BTreeMap::<(usize, usize), f64>::new();
++    for (face, ad) in &faces {
++        if ad.len() == 2 {
++            adjacent[ad[0]].push(ad[1]);
++            adjacent[ad[1]].push(ad[0]);
++            let a = mats[ad[0]];
++            let b = mats[ad[1]];
++            if a != b {
++                let ps = [point(&face[0])?, point(&face[1])?, point(&face[2])?];
++                let c = cross(sub(ps[1], ps[0]), sub(ps[2], ps[0]));
++                *interface.entry((a.min(b), a.max(b))).or_default() += dot(c, c).sqrt() / 2.;
++            }
++        }
++    }
++    for pair in [(1, 2), (1, 3), (1, 4), (1, 5), (2, 3)] {
++        ensure!(
++            interface.get(&pair).is_some_and(|a| *a > 1e-10),
++            "missing shared interface {pair:?}"
++        );
++    }
++    let expected_barrel_contact: f64 = g
++        .vias
++        .iter()
++        .map(|v| {
++            2. * std::f64::consts::PI
++                * ((v.drill / 2. + s.plating_mm).powi(2) - (v.drill / 2.).powi(2))
++                * 1e-6
++        })
++        .sum();
++    ensure!(
++        (interface[&(1, 2)] / expected_barrel_contact - 1.).abs() < 0.025,
++        "barrel-to-outer-copper contact area differs"
++    );
++    // All exterior cut faces must be cooled, not only whichever faces the
++    // mesher happened to label. Energy balance alone cannot detect missing BCs.
++    for (face, ad) in &faces {
++        if ad.len() != 1 || ![1, 3].contains(&mats[ad[0]]) {
++            continue;
++        }
++        let ps = [point(&face[0])?, point(&face[1])?, point(&face[2])?];
++        if [
++            (0, g.crop[0]),
++            (0, g.crop[1]),
++            (1, g.crop[2]),
++            (1, g.crop[3]),
++        ]
++        .iter()
++        .any(|(axis, v)| ps.iter().all(|p| (p[*axis] - v * 1e-3).abs() < 1e-10))
++        {
++            ensure!(
++                cuts.get(face) == Some(&13),
++                "unlabeled exterior cooling face"
++            );
++        }
++    }
++    for pair in [(1, 4), (1, 5)] {
++        ensure!(
++            (interface[&pair] / (2.9 * 4.95 * 1e-6) - 1.).abs() < 1e-6,
++            "solder contact area differs"
++        );
++    }
++    let mut heat_area = [0.; 2];
++    let mut substrate_cut = [0.; 4];
++    let mut cooled = BTreeSet::new();
++    for (face, tag) in cuts {
++        let ad = faces.get(&face).context("detached boundary")?;
++        ensure!(ad.len() == 1, "internal cooling boundary");
++        let ps = [point(&face[0])?, point(&face[1])?, point(&face[2])?];
++        if tag != 13 {
++            let i = (tag - 14) as usize;
++            ensure!(
++                mats[ad[0]] == i + 4
++                    && ps
++                        .iter()
++                        .all(|p| (p[2] - (g.board_mm + s.solder_mm) * 1e-3).abs() < 1e-10),
++                "heat injection not on exterior solder top"
++            );
++            let c = cross(sub(ps[1], ps[0]), sub(ps[2], ps[0]));
++            heat_area[i] += dot(c, c).sqrt() / 2.;
++            continue;
++        }
++        cooled.insert(ad[0]);
++        let side = [
++            (0, g.crop[0]),
++            (0, g.crop[1]),
++            (1, g.crop[2]),
++            (1, g.crop[3]),
++        ]
++        .iter()
++        .position(|(axis, v)| ps.iter().all(|p| (p[*axis] - v * 1e-3).abs() < 1e-10))
++        .context("cooling boundary away from crop face")?;
++        ensure!(
++            mats[ad[0]] == 1 || mats[ad[0]] == 3,
++            "unexpected cooled material"
++        );
++        if mats[ad[0]] == 3 {
++            let c = cross(sub(ps[1], ps[0]), sub(ps[2], ps[0]));
++            substrate_cut[side] += dot(c, c).sqrt() / 2.;
++        }
++    }
++    for a in heat_area {
++        ensure!(
++            (a / (2.9 * 4.95 * 1e-6) - 1.).abs() < 1e-6,
++            "heat injection area mismatch"
++        );
++    }
++    let z = g.board_mm - 2. * g.local.copper_mm;
++    for (i, a) in substrate_cut.into_iter().enumerate() {
++        let length = if i < 2 {
++            g.crop[3] - g.crop[2]
++        } else {
++            g.crop[1] - g.crop[0]
++        };
++        ensure!(
++            (a / (length * z * 1e-6) - 1.).abs() < 1e-6,
++            "incomplete board cooling face"
++        );
++    }
++    let mut visited = BTreeSet::new();
++    let mut stack = vec![0];
++    while let Some(i) = stack.pop() {
++        if visited.insert(i) {
++            stack.extend(adjacent[i].iter().copied());
++        }
++    }
++    ensure!(
++        visited.len() == mats.len() && !cooled.is_empty(),
++        "disconnected or uncooled solid"
++    );
++    Ok(nodes.len())
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use std::fs;
++    fn reference() -> (String, Geometry, Scenario) {
++        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../power-entry");
++        let native = fs::read(root.join("shunt-repair/evidence/native-04.json")).unwrap();
++        let g = crate::shunt_assembly::geometry(&native, false).unwrap();
++        let p = crate::shunt_assembly::scenarios().remove(0);
++        let mesh = crate::shunt_assembly::read_text(
++            &root.join("shunt-assembly/run-15/nominal-100/local.msh"),
++        )
++        .unwrap();
++        (mesh, g, p)
++    }
++    fn mutate_tag(mesh: &str, kind: &str, old: &str, new: &str) -> String {
++        let mut in_elements = false;
++        let mut changed = false;
++        let out = mesh
++            .lines()
++            .map(|line| {
++                if line == "$Elements" {
++                    in_elements = true;
++                    return line.to_owned();
++                }
++                if line == "$EndElements" {
++                    in_elements = false;
++                }
++                let mut f: Vec<_> = line.split_whitespace().collect();
++                if in_elements && !changed && f.len() > 4 && f[1] == kind && f[3] == old {
++                    f[3] = new;
++                    changed = true;
++                    f.join(" ")
++                } else {
++                    line.to_owned()
++                }
++            })
++            .collect::<Vec<_>>()
++            .join("\n")
++            + "\n";
++        assert!(changed);
++        out
++    }
++    #[test]
++    fn real_solver_mesh_has_correct_materials_and_exterior_ports() {
++        let (m, g, p) = reference();
++        assert!(validate(&m, &g, &p).unwrap() > 10000);
++        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
++            .join("../../power-entry/shunt-assembly/run-15/nominal-100/mesh");
++        validate_elmer(&path, &g, &p).unwrap();
++        assert!(crate::shunt_mesh::assert_same_mesh(&m, &mutate_tag(&m, "4", "2", "3")).is_err());
++    }
++    #[test]
++    fn wrong_material_or_misplaced_heat_port_is_rejected() {
++        let (m, g, p) = reference();
++        for (kind, old, new) in [
++            ("4", "2", "3"),
++            ("4", "4", "1"),
++            ("2", "13", "14"),
++            ("2", "14", "13"),
++        ] {
++            assert!(
++                validate(&mutate_tag(&m, kind, old, new), &g, &p).is_err(),
++                "{kind}/{old}/{new}"
++            );
++        }
++    }
++    #[test]
++    fn native_drill_and_plating_change_invalidates_retained_mesh() {
++        let (m, mut g, mut p) = reference();
++        g.vias[0].drill = 0.6;
++        assert!(validate(&m, &g, &p).is_err());
++        let (_, g, _) = reference();
++        p.plating_mm = 0.05;
++        assert!(validate(&m, &g, &p).is_err());
++    }
++    #[test]
++    fn historical_mesh_that_treated_mask_as_substrate_is_rejected() {
++        let (_,g,p)=reference();
++        let old=crate::shunt_assembly::read_text(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../../power-entry/shunt-assembly/run-06/nominal-800/local.msh")).unwrap();
++        assert!(validate(&old,&g,&p).is_err());
++    }
++    #[test]
++    fn convex_tetrahedron_crossing_hole_fails_even_when_vertices_and_centroid_are_outside() {
++        let (_, g, p) = reference();
++        let [x, y] = g.vias[0].centre;
++        let points = [
++            [x - 1., y + 0.2, 0.3],
++            [x + 1., y + 0.2, 0.3],
++            [x, y + 1., 0.3],
++            [x, y + 1., 1.],
++        ]
++        .map(|p| p.map(|v| v * 1e-3));
++        let centroid = std::array::from_fn(|axis| points.iter().map(|p| p[axis]).sum::<f64>() / 4.);
++        assert!(points.iter().all(|pt| material_at(&g, &p, *pt, 3)));
++        assert!(material_at(&g, &p, centroid, 3));
++        assert!(!excludes_drills(points, 3, &g, &p));
++    }
++}
+diff --git a/zapote/packages/zapote-thermal/src/bin/zapote-shunt-assembly.rs b/zapote/packages/zapote-thermal/src/bin/zapote-shunt-assembly.rs
+new file mode 100644
+index 000000000..ff7f2b2dd
+--- /dev/null
++++ b/zapote/packages/zapote-thermal/src/bin/zapote-shunt-assembly.rs
+@@ -0,0 +1,39 @@
++use anyhow::{ensure, Result};
++use std::{env, fs, path::PathBuf};
++use zapote_thermal::{neck_run::Tools, shunt_assembly};
++fn main() -> Result<()> {
++    let a: Vec<_> = env::args().collect();
++    ensure!(
++        a.len() == 4 || a.len() == 7 || a.len()==8,
++        "usage: zapote-shunt-assembly replay NATIVE OUT | run NATIVE OUT GMSH ELMERGRID ELMERSOLVER | run-from NATIVE OUT GMSH ELMERGRID ELMERSOLVER SEED"
++    );
++    let native = fs::read(&a[2])?;
++    let out = PathBuf::from(&a[3]);
++    let r = if a[1] == "replay" && a.len() == 4 {
++        shunt_assembly::replay(&native, &out)?
++    } else if a[1] == "run-from" && a.len() == 8 {
++        shunt_assembly::run_from(
++            &native,
++            &out,
++            &Tools {
++                gmsh: PathBuf::from(&a[4]),
++                grid: PathBuf::from(&a[5]),
++                solver: PathBuf::from(&a[6]),
++            },
++            Some(std::path::Path::new(&a[7])),
++        )?
++    } else {
++        ensure!(a[1] == "run" && a.len() == 7, "invalid command");
++        shunt_assembly::run(
++            &native,
++            &out,
++            &Tools {
++                gmsh: PathBuf::from(&a[4]),
++                grid: PathBuf::from(&a[5]),
++                solver: PathBuf::from(&a[6]),
++            },
++        )?
++    };
++    println!("{}", serde_json::to_string_pretty(&r)?);
++    Ok(())
++}
+diff --git a/zapote/power-entry/shunt-assembly/README.md b/zapote/power-entry/shunt-assembly/README.md
+new file mode 100644
+index 000000000..c969a7407
+--- /dev/null
++++ b/zapote/power-entry/shunt-assembly/README.md
+@@ -0,0 +1,142 @@
++# Shunt assembly heat-path study
++
++Execution contract, 2026-09-16, base 5bd51b46f.
++
++Extend the saved HCSM2818FT10L0 shunt experiment through its actual two-layer
++copper, twelve adjacent plated vias, substrate and assumed solder contacts.
++Gmsh generates the mesh; Elmer solves conduction; Rust owns extraction,
++independent geometry checks, raw-result acceptance, replay and harness verdicts.
++No layout change is justified by the earlier front-copper-only temperatures.
++
++The manufacturer publishes the body/termination dimensions but no guaranteed
++internal thermal resistance or transient thermal impedance. Therefore this
++study injects heat at the two solder contacts and reports the remaining thermal
++resistance budget to a 100 C surface target. It must never report resistor body
++temperature, full assembly qualification, or a guaranteed thermal envelope.
++A homogenized body with invented conductivity would not resolve that gap.
++
++Model the native copper inside an explicitly cropped board region; preserve
++native drill diameters and annular lands. Sweep imposed remote-board temperature,
++terminal heat split, via plating and solder/material assumptions. Exposed local
++faces are adiabatic: external cooling remains at crop faces, not an invented
++ambient coefficient. Require three mesh sizes, source volume/material census,
++exterior-only cooling ports, shared thermal interfaces, raw energy balance and
++uniform boundary-temperature shift control. Reject changed native inputs, decks,
++meshes, raw results or incomplete profiles. Retain all attempts.
++
++No fabricated resistor thermal constants, no purchase, and no powered test.
++
++## Model and acceptance contract
++
++The reviewed board is SHA-256
++`b1e06afbf0e9a8b41a3bbbbd046abeb5495e9b42f3fc07e1b312095bc7e97583`.
++Extraction rejects another board until its outline/cutouts are reviewed; pad
++coordinates alone do not establish a continuous substrate. The native snapshot
++also passes the existing Rust board/component/trace/via binding check.
++
++The normal crop is x=68–87, y=128–136 mm. A wider x=67–88 mm crop checks
++sensitivity to the imposed cooling boundary. The 1.6 mm finished stack contains
++two 70 µm copper layers, 1.44 mm substrate and two 10 µm solder-mask layers.
++The conduction solid is 1.58 mm: its outer adiabatic mask skins are omitted,
++not reassigned to FR4. All intersecting native traces,
++filled back copper, twelve 0.8 mm finished via holes and 1.4 mm lands are
++included. Assumptions are 25 µm plating, 0.15 mm solder, copper 350 W/(m K),
++solder 50 W/(m K), and substrate 0.25 W/(m K). The weaker-joint case uses
++15 µm plating, 0.25 mm solder, 25 W/(m K) solder and 0.18 W/(m K) substrate.
++These are sensitivity inputs, not manufacturer-certified bounds.
++
++The source is 2.2852828125 W, from 15 A RMS, 10 mΩ, +1% resistance tolerance
++and +75 ppm/K over 75 K. It is a conditional loss at the selected 100 °C
++resistance point, not a temperature-iterated worst-case loss. Heat enters the
++two 2.9 × 4.95 mm solder-top faces: equal split, all into terminal 1, or all
++into terminal 2. The extreme splits expose an unknown; they are not predictions
++of the actual resistor's internal heat division.
++
++Four crop faces are held at 60 °C, or 80 °C for the uniform-shift control.
++All other exposed surfaces are adiabatic. A prescribed board temperature is
++not ambient air temperature and does not establish a realizable cooling system.
++The model excludes resistor internals, copper Joule heating, neighboring heat
++sources, enclosure airflow and transients.
++
++Required checks include:
++
++- Independent cell-material membership, native material volumes, complete
++  exterior cooling faces, heat-source face areas, shared interfaces and solid
++  connectivity. Convex-hull projection excludes cells crossing drilled voids;
++  a separate whole-cell guard rejects copper bridging the terminal gap.
++- Gmsh and Elmer mesh topology/material/port equality, allowing element order
++  changes and at most 1 pm coordinate rounding. The solver's node/element
++  census must match the mesh header and actual mesh files.
++- Raw heat input and output agreement within 1e-7 W; solver completion and
++  convergence; a +20 K boundary shift must shift the peak by +20 K within
++  1e-5 K. A direct-solver control must agree with the nominal iterative solve
++  within 1e-5 K.
++- Three meshes per physical scenario. Node counts must increase. The
++  first-order remaining-error estimate
++  `abs(Tfine - Tcoarse) * hfine / (hcoarse - hfine)` must be below 1 K for the
++  first interval and 0.5 K for the final interval. This is a convergence
++  screening estimate, not a formal discretization-error bound.
++- Canonical generated decks, exact native input and backend hashes, all raw
++  mesh/scalar/log and invocation receipts, plus summary-to-raw equality.
++  `solver-inputs.json` hashes the decks and both meshes immediately before
++  ElmerSolver and is checked afterward and at replay.
++  Reuse requires current native/backend identity and revalidation of each case.
++  Original invocation working directories are retained, not rewritten to imply
++  a new solve. Absolute executable paths are required before starting a run.
++
++Nominal, hot-board, weak-joints and wider-domain use 100/50/40 µm local mesh
++sizes. Terminal 1 uses the same sequence. Terminal 2 needs 100/50/35 µm:
++its 50→40 µm estimate was 0.536 K and failed the unchanged 0.5 K requirement.
++The 25 µm attempt produced a 381 MB mesh and hit the former 128 MiB input cap.
++The bounded reader now permits 256 MiB for the targeted 35 µm refinement;
++the rejected 25 µm attempt remains retained. Geometry is refined locally near
++the contacts, with the surrounding mesh limit four times the local value.
++
++## Applicability and remaining work
++
++The reported maximum is a **solder-contact/board temperature**, not resistor
++body temperature. The datasheet's 100 °C condition belongs to the full 5 W
++rating with approximately 500 mm² copper. It is a useful conservative design
++target here, not a universal absolute-temperature limit at 2.3 W.
++
++The fixed native geometry is checked with sampled material predicates and
++independent integral/interface checks. Drilled voids and the terminal gap have
++whole-cell checks; arbitrary concave copper boundaries do not yet have a
++general exact Boolean containment proof. The model must not be transferred
++to another board by copying its temperatures or weakening the applicability
++guard. Hashes detect stale/edited retained artifacts; they are not signed
++attestations against a producer rewriting the entire evidence tree.
++
++Next physical evidence needed is the resistor's internal thermal path or a
++controlled assembly measurement, and a full-board cooling/neighbor-loss
++budget. Keep assembly qualification INDETERMINATE. No PCB change follows
++solely from exceeding the selected 100 °C target under assumed crop cooling.
++After that, continue power-stage component loss/rating corners, actual
++switching-loop parasitics and startup/shutdown/bias timing. Auxiliary power
++remains the next standalone unit after the power-entry interface handoff.
++
++The older front-copper-only `shunt_local` replay does not bind command receipt
++metadata; the new assembly replay does. This pre-existing review finding is
++tracked here for a separate migration of its retained certificates. It does
++not waive any assembly check or turn the older result into assembly evidence.
++
++## Rejected attempts and learned safeguards
++
++Runs 01–14 are historical, rejected or superseded attempts. They must not be
++used as current acceptance evidence. Besides meshing/resource/convergence
++failures, all used the finished 1.6 mm dimension as the copper/core solid,
++incorrectly assigning the 20 µm mask thickness to FR4. Run 15 regenerates all
++cases from parsed layer thicknesses. A regression rejects the historical mesh;
++this is a model correction, not a board change or a tolerance adjustment.
++
++Thin via barrels need curved-surface resolution even when the surrounding
++board mesh is coarse. OpenCASCADE physical-volume selection needs a tolerance
++large enough to classify copper correctly, with an independent material census
++to catch mistakes. Energy balance alone did not catch either geometry issue.
++BiCGStab/ILU1 failed the weaker-joint geometry; ILU2 resolved that probe while
++preserving the convergence and energy requirements. The pinned final profile
++uses ILU2 for that case and ILU1 otherwise, plus a direct nominal control.
++
++Archives preserve original decoded bytes and SHA-256 digests; `.gz` and raw
++copies at the same logical path are rejected as ambiguous. Read/replay works
++on either one representation. Failed attempts remain available for diagnosis.

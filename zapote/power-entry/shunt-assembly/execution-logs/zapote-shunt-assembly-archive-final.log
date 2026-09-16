@@ -1,0 +1,9 @@
+/private/tmp/zapote-archive-final.rb:23:in `block (4 levels) in <main>': undefined method `empty?' for nil:NilClass (NoMethodError)
+	from /private/tmp/zapote-archive-final.rb:23:in `loop'
+	from /private/tmp/zapote-archive-final.rb:23:in `block (3 levels) in <main>'
+	from /private/tmp/zapote-archive-final.rb:23:in `open'
+	from /private/tmp/zapote-archive-final.rb:23:in `block (2 levels) in <main>'
+	from /private/tmp/zapote-archive-final.rb:14:in `each'
+	from /private/tmp/zapote-archive-final.rb:14:in `block in <main>'
+	from /private/tmp/zapote-archive-final.rb:13:in `each'
+	from /private/tmp/zapote-archive-final.rb:13:in `<main>'

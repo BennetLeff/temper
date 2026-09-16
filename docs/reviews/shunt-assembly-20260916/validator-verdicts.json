@@ -1,0 +1,10 @@
+{
+  "verdicts": [
+    {
+      "#": 1,
+      "status": "rejected",
+      "protected_subject": null,
+      "reason": "Current run_from writes solver-inputs.json immediately after ElmerGrid with SHA-256 hashes of local.geo, local.msh, and every converted Elmer mesh file (shunt_assembly.rs:977-983), validates that receipt before accepting solver results and again in seed verification and replay (shunt_assembly.rs:780-789, 1030-1052), while validate_elmer enforces exact source/converted node identity, coordinates, topology, materials, and ports (shunt_assembly_mesh.rs:75-123); therefore the cited separately-valid mesh pairing is rejected unless the retained receipt/report is also rewritten, which is outside the replay path under review."
+    }
+  ]
+}

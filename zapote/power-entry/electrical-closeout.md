@@ -75,3 +75,9 @@ extractor, board and census, then checks its complete byte hash before sharing
 one immutable buffer with PFC and thermal checks. Supplying an arbitrary
 receipt with a matching `board_sha256` to the lower-level PFC function is not
 an authenticated geometry replay. Its caller must establish provenance.
+
+The [shunt assembly heat-path model](shunt-assembly/README.md) extends the
+front-copper study through the actual two-layer copper, twelve vias and core,
+with assumed solder contacts. Its mandatory numerical replay remains separate
+from unresolved resistor-internal, full-board cooling and transient behavior.
+The numerical temperatures must not be reused as resistor body ratings.

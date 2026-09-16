@@ -1,0 +1,112 @@
+{
+  "status": "complete",
+  "findings": [
+    {
+      "#": 1,
+      "title": "Solver mesh is not bound to generated Gmsh mesh",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/shunt_assembly.rs",
+      "line": 995,
+      "confidence": 75,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Record a digest of each generated local.msh in the solver receipt or report and require replay to verify that digest before accepting solver logs and scalars.",
+      "first_evidence": "zapote/packages/zapote-thermal/src/shunt_assembly.rs:995 -- crate::shunt_assembly_mesh::validate(",
+      "why_it_matters": "Replay validates local.msh and the converted Elmer mesh independently, but it does not prove that either mesh is the one produced by the recorded Gmsh invocation. A retained evidence tree can therefore pair a separately valid mesh and solver log with the current deck and pass replay, making the reported temperatures stale or from another refinement.",
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/shunt_assembly.rs:995 -- crate::shunt_assembly_mesh::validate( validates local.msh only against geometry and node census.",
+        "zapote/packages/zapote-thermal/src/shunt_assembly.rs:1002 -- crate::shunt_assembly_mesh::validate_elmer(&d.join(\"mesh\"), &g, &c.scenario)?; validates the converted mesh's relation to local.msh but no Gmsh input digest is recorded in the solver receipt/report.",
+        "The command receipt contract at zapote/packages/zapote-thermal/src/shunt_assembly.rs:809-828 records executable, arguments, environment, and timeout, but not the generated local.msh digest."
+      ],
+      "reviewers": ["correctness-testing-adversarial"],
+      "independent_reviewers": ["correctness-testing-adversarial"]
+    }
+  ],
+  "pre_existing_findings": [
+    {
+      "#": 2,
+      "title": "Local replay omits invocation receipt hashes",
+      "severity": "P2",
+      "file": "zapote/packages/zapote-thermal/src/shunt_local.rs",
+      "line": 505,
+      "confidence": 75,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": true,
+      "suggested_fix": "Include gmsh, grid, and solver invocation receipt files in required_hashes and validate their command contracts during local replay, matching the assembly path.",
+      "first_evidence": "zapote/packages/zapote-thermal/src/shunt_local.rs:505 -- pub fn replay(native: &[u8], out: &Path) -> Result<Report> {",
+      "why_it_matters": "The local thermal evidence path writes command receipts but does not hash or validate them during replay, so stale invocation metadata can survive while raw outputs are accepted.",
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/shunt_local.rs:364-388 -- required_hashes includes decks, meshes, logs, and scalar files but no *.command.json receipts.",
+        "zapote/packages/zapote-thermal/src/shunt_local.rs:505-543 -- replay validates backend, artifacts, decks, meshes, and measurements without reading invocation receipt files.",
+        "The omission is outside the new assembly hook and is retained as a separate local-model concern per the review scope."
+      ],
+      "reviewers": ["correctness-testing-adversarial"],
+      "independent_reviewers": ["correctness-testing-adversarial"]
+    }
+  ],
+  "suppressed_findings": [],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "title": "Solver mesh is not bound to generated Gmsh mesh",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-thermal/src/shunt_assembly.rs",
+      "line": 995,
+      "confidence": 75,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Record a digest of each generated local.msh in the solver receipt or report and require replay to verify that digest before accepting solver logs and scalars.",
+      "first_evidence": "zapote/packages/zapote-thermal/src/shunt_assembly.rs:995 -- crate::shunt_assembly_mesh::validate(",
+      "why_it_matters": "Replay validates local.msh and the converted Elmer mesh independently, but it does not prove that either mesh is the one produced by the recorded Gmsh invocation. A retained evidence tree can therefore pair a separately valid mesh and solver log with the current deck and pass replay, making the reported temperatures stale or from another refinement.",
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/shunt_assembly.rs:995 -- crate::shunt_assembly_mesh::validate( validates local.msh only against geometry and node census.",
+        "zapote/packages/zapote-thermal/src/shunt_assembly.rs:1002 -- crate::shunt_assembly_mesh::validate_elmer(&d.join(\"mesh\"), &g, &c.scenario)?; validates the converted mesh's relation to local.msh but no Gmsh input digest is recorded in the solver receipt/report.",
+        "The command receipt contract at zapote/packages/zapote-thermal/src/shunt_assembly.rs:809-828 records executable, arguments, environment, and timeout, but not the generated local.msh digest."
+      ],
+      "reviewers": ["correctness-testing-adversarial"],
+      "independent_reviewers": ["correctness-testing-adversarial"]
+    }
+  ],
+  "triage_groups": [],
+  "residual_risks": [
+    "Final solver profile and common harness run remain pending; no physical qualification claim is supported.",
+    "Concave native copper boundaries use vertex/centroid sampling plus volume/interface and gap checks rather than a general exact Boolean cell-containment proof.",
+    "External cross-model private-code egress was rejected by automatic approval review; same-provider Luna coverage is non-independent."
+  ],
+  "testing_gaps": [
+    "No harness end-to-end assembly replay test supplies valid assembly evidence and asserts THERMAL.PFC.SHUNT_ASSEMBLY_NUMERICAL passes while THERMAL.PFC.SHUNT_ASSEMBLY remains indeterminate."
+  ],
+  "requirements_completeness": {
+    "source": "explicit",
+    "requirements": [
+      {"id": "R1", "status": "met", "text": "Native copper, holes, vias, materials, and solder heat ports are constructed and validated."},
+      {"id": "R2", "status": "met", "text": "Energy, solver, mesh convergence, cooling, material, and heat-split sensitivity gates are implemented."},
+      {"id": "R3", "status": "partially addressed", "text": "Exact source/deck/raw replay and regression tests exist, but generated Gmsh mesh identity is not digest-bound to solver evidence (finding #1)."},
+      {"id": "R4", "status": "met", "text": "The common harness distinguishes assembly numerical replay from assembly qualification."},
+      {"id": "R5", "status": "met", "text": "Failed attempts and remaining resistor/enclosure physical uncertainty are retained in the assembly documentation."}
+    ],
+    "implementation_units": "No separate implementation units were listed in the explicit plan."
+  },
+  "coverage": {
+    "depth": "full",
+    "peer": "External cross-model private-code egress was rejected by automatic approval review before this run. Same-provider Luna review is not independent cross-model verification.",
+    "first_evidence_backfilled": 0,
+    "suppressed_by_confidence": {},
+    "mode_aware_demotion_count": 0,
+    "validator_shortcut_skipped": 0,
+    "validator_selected": 1,
+    "failed_reviewers": [],
+    "bound_exceeded": [],
+    "notes": [
+      "The P2 harness integration-test absence was demoted to testing_gaps as a testing-only gap.",
+      "P2 local replay receipt omission is pre-existing and excluded from the primary/actionable set.",
+      "Final solver profile and common harness run are pending; do not claim physical qualification."
+    ]
+  }
+}

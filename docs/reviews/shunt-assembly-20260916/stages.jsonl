@@ -1,0 +1,4 @@
+{"phase": "start", "stage": "merge", "ts": "2026-09-16T21:30:33.840768+00:00"}
+{"candidates": 1, "phase": "end", "stage": "merge", "ts": "2026-09-16T21:33:30.763930+00:00"}
+{"note": "Stage 5b step 5 validator verdict consumption; Stage 6 agent report, apply_local=false", "phase": "start", "stage": "report", "ts": "2026-09-16T21:40:17.364561+00:00"}
+{"candidates": 0, "note": "Stage 5b step 5 rejected #1; Stage 6 wrote mode:agent review.json; apply_local=false", "phase": "end", "stage": "report", "ts": "2026-09-16T21:41:26.614287+00:00"}

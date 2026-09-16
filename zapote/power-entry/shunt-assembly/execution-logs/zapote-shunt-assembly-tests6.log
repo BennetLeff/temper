@@ -1,0 +1,107 @@
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal)
+    Finished `release` profile [optimized] target(s) in 12.07s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal-849dab04ec2addde)
+
+running 15 tests
+test shunt_assembly::tests::partial_profile_and_false_boundary_shift_are_rejected ... ok
+test shunt_assembly::tests::small_refinement_step_cannot_evade_error_estimate ... ok
+test shunt_assembly::tests::relative_tool_paths_fail_before_creating_evidence ... ok
+test shunt_assembly::tests::compressed_artifact_preserves_bytes_and_rejects_ambiguity ... ok
+test shunt_assembly::tests::solver_results_from_a_different_mesh_or_heat_split_are_rejected ... ok
+test shunt_assembly::tests::command_contract_rejects_changed_environment_arguments_and_case ... ok
+test shunt_assembly::tests::altered_native_via_cannot_silently_change_geometry ... ok
+test shunt_assembly::tests::clipping_preserves_zone_interior_and_excludes_outside_region ... ok
+test shunt_assembly::tests::seed_identity_and_deck_changes_are_rejected_before_solver_work ... ok
+test shunt_assembly_mesh::tests::convex_tetrahedron_crossing_hole_fails_even_when_vertices_and_centroid_are_outside ... ok
+test shunt_assembly::tests::native_heat_path_includes_zone_twelve_vias_and_both_layers ... ok
+test shunt_assembly_mesh::tests::historical_mesh_that_treated_mask_as_substrate_is_rejected ... ok
+test shunt_assembly_mesh::tests::native_drill_and_plating_change_invalidates_retained_mesh ... ok
+test shunt_assembly_mesh::tests::real_solver_mesh_has_correct_materials_and_exterior_ports ... ok
+test shunt_assembly_mesh::tests::wrong_material_or_misplaced_heat_port_is_rejected ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 64 filtered out; finished in 4.83s
+
+     Running unittests src/bin/zapote-bridge-cooling.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_bridge_cooling-67e0e461b2b83eec)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-joint-fem.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_joint_fem-86017c04d67968cc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-physical-contract.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_physical_contract-544568a7228d335e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-shunt-assembly.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_shunt_assembly-cd71ea1f6831de7d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-shunt-local.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_shunt_local-9168a0c2025a4423)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-thermal-necks.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal_necks-2463cc3b7a18d1a6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal_reference-2fdc8a020178ac88)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/bridge_cooling.rs (/private/tmp/zapote-rtd-target/release/deps/bridge_cooling-c0560befb341cf2f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/gbj_geometry.rs (/private/tmp/zapote-rtd-target/release/deps/gbj_geometry-a29deecda5eef9f1)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/joint_fem.rs (/private/tmp/zapote-rtd-target/release/deps/joint_fem-994f59d8ac156011)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/neck_physics.rs (/private/tmp/zapote-rtd-target/release/deps/neck_physics-4a46f57560b92e19)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests/neck_transfer.rs (/private/tmp/zapote-rtd-target/release/deps/neck_transfer-7321a7980124b8e9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/pinned_reference.rs (/private/tmp/zapote-rtd-target/release/deps/pinned_reference-dd92824fa6a9ce26)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/strict_evidence.rs (/private/tmp/zapote-rtd-target/release/deps/strict_evidence-63da1d39251c1a70)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+

@@ -1,0 +1,348 @@
+ELMER SOLVER (v 26.2) STARTED AT: 2026/09/16 15:48:28
+ParCommInit: Initialize #PEs: 1
+MAIN: 
+MAIN: =============================================================
+MAIN: ElmerSolver finite element software, Welcome!
+MAIN: This program is free software licensed under (L)GPL
+MAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.
+MAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi
+MAIN: Version: 26.2-unknown (Rev: a19504a, Compiled: 2026-09-12)
+MAIN:  Running one task without MPI parallelization.
+MAIN:  Running with just one thread per task.
+MAIN: =============================================================
+MAIN: 
+MAIN: 
+MAIN: -------------------------------------
+MAIN: Reading Model: case.sif
+LoadInputFile: Scanning input file: case.sif
+LoadInputFile: Scanning only size info
+LoadInputFile: First time visiting
+LoadInputFile: Reading base load of sif file
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+LoadInputFile: Loading input file: case.sif
+LoadInputFile: Reading base load of sif file
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: variable 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+CheckKeyword: Found keyword type assuming suffix 1 for: operator 2
+LoadInputFile: Number of BCs: 3
+LoadInputFile: Number of Body Forces: 0
+LoadInputFile: Number of Initial Conditions: 0
+LoadInputFile: Number of Materials: 5
+LoadInputFile: Number of Equations: 1
+LoadInputFile: Number of Solvers: 2
+LoadInputFile: Number of Bodies: 5
+Loading user function library: [HeatSolve]...[HeatSolver_Init0]
+Loading user function library: [HeatSolve]...[HeatSolver_Init0]
+Loading user function library: [SaveData]...[SaveScalars_Init0]
+Loading user function library: [SaveData]...[SaveScalars_Init0]
+LoadMesh: Loading serial mesh!
+ElmerMeshReader: Performing step: 1
+ElmerMeshReader: Base mesh name: ./mesh
+ReadHeaderFile: Reading header info from file: ./mesh/mesh.header
+InitializeMesh: Number of nodes in mesh: 241861
+InitializeMesh: Number of bulk elements in mesh: 1328812
+InitializeMesh: Number of boundary elements in mesh: 31713
+InitializeMesh: Initial number of max element nodes: 4
+ElmerMeshReader: Performing step: 2
+ReadNodesFile: Reading nodes from file: ./mesh/mesh.nodes
+SetMeshDimension: Dimension of mesh is: 3
+SetMeshDimension: Max dimension of mesh is: 3
+ElmerMeshReader: Performing step: 3
+ReadElementsFile: Reading bulk elements from file: ./mesh/mesh.elements
+ElmerMeshReader: Performing step: 4
+ReadBoundaryFile: Reading boundary elements from file: ./mesh/mesh.boundary
+PermuteNodeNumbering: Performing node mapping
+MapBodiesAndBCs: Remapping bodies
+MapBodiesAndBCs: Minimum initial body index: 1
+MapBodiesAndBCs: Maximum initial body index: 5
+MapBodiesAndBCs: Remapping boundaries
+MapBodiesAndBCs: Minimum initial boundary index: 13
+MapBodiesAndBCs: Maximum initial boundary index: 15
+ElmerMeshReader: Performing step: 5
+ElmerMeshReader: Performing step: 6
+LoadMesh: Loading mesh done
+LoadMesh: Preparing mesh done
+LoadMesh: Elapsed REAL time:     0.7415 (s)
+MeshStabParams: Computing stabilization parameters
+MeshStabParams: Elapsed REAL time:     0.1378 (s)
+LoadModel: Defined radition solver by Equation name "heat equation"
+MAIN: -------------------------------------
+AddMeshCoordinates: Setting mesh coordinates and time
+AddSolvers: Setting up 2 solvers
+AddSolvers: Setting up solver 1: heat equation
+AddEquationBasics: Setting up keywords internally for legacy solver: heat equation
+AddEquationBasics: Using procedure: HeatSolve HeatSolver
+AddEquationBasics: Setting up solver: heat equation
+Loading user function library: [HeatSolve]...[HeatSolver_Init]
+Loading user function library: [HeatSolve]...[HeatSolver_bulk]
+Loading user function library: [HeatSolve]...[HeatSolver_bulk]
+Loading user function library: [HeatSolve]...[HeatSolver]
+AddEquationBasics: Creating standard variable: temperature
+OptimizeBandwidth: ---------------------------------------------------------
+OptimizeBandwidth: Computing matrix structure for: heat equation
+OptimizeBandwidth: Initial bandwidth for heat equation: 240853
+OptimizeBandwidth: Optimized bandwidth for heat equation: 10162
+OptimizeBandwidth: ---------------------------------------------------------
+AddSolvers: Setting up solver 2: savescalars
+AddEquationBasics: Using procedure: SaveData SaveScalars
+AddEquationBasics: Setting up solver: savescalars
+Loading user function library: [SaveData]...[SaveScalars_Init]
+Loading user function library: [SaveData]...[SaveScalars_bulk]
+Loading user function library: [SaveData]...[SaveScalars_bulk]
+Loading user function library: [SaveData]...[SaveScalars]
+AddTimeEtc: Setting time and other global variables
+MAIN: Random seed initialized to: 314159265
+SetInitialConditions: Setting up initial conditions (if any)
+MAIN: Number of timesteps to be saved: 8
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            1
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: ........Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 2790 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 241861
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 2790
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 241861
+SolveLinearSystem: Linear System Preconditioning: ilu2
+Prec0-ilu2: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstab
+CRS_IncompleteLU: ILU(2) (Real), Performing Factorization:
+CRS_IncompleLU: Recursive round: 1
+CRS_IncompleteLU: Allocated LU matrix of size: 16474009
+CRS_IncompleteLU: ILU(2) (Real), NOF nonzeros:  16474010
+CRS_IncompleteLU: ILU(2) (Real), filling (%) :       470
+CRS_IncompleteLU: ILU(2) (Real), Factorization time (s):     5.45
+Prec-ilu2: Elapsed REAL time:     6.3135 (s)
+       1 0.2671E-02
+       2 0.1404E-02
+       3 0.8894E-03
+       4 0.6265E-03
+       5 0.4892E-03
+       6 0.1410E-02
+       7 0.3390E-03
+       8 0.2988E-03
+       9 0.2688E-03
+      10 0.2461E-03
+      11 0.2295E-03
+      12 0.2180E-03
+      13 0.2143E-03
+      14 0.1941E-03
+      15 0.1834E-03
+      16 0.1809E-03
+      17 0.2047E-03
+      18 0.1731E-03
+      19 0.1695E-03
+      20 0.1668E-03
+      21 0.1639E-03
+      22 0.1614E-03
+      23 0.1571E-03
+      24 0.1518E-03
+      25 0.1461E-03
+      26 0.1395E-03
+      27 0.1323E-03
+      28 0.1231E-03
+      29 0.1105E-03
+      30 0.9689E-04
+      31 0.8316E-04
+      32 0.8223E-04
+      33 0.7374E-04
+      34 0.6840E-04
+      35 0.6346E-04
+      36 0.5886E-04
+      37 0.5331E-04
+      38 0.4782E-04
+      39 0.4399E-04
+      40 0.4038E-04
+      41 0.3703E-04
+      42 0.3433E-04
+      43 0.3152E-04
+      44 0.2935E-04
+      45 0.2425E-04
+      46 0.2086E-04
+      47 0.1992E-04
+      48 0.1905E-04
+      49 0.1802E-04
+      50 0.1736E-04
+      51 0.1707E-04
+      52 0.1672E-04
+      53 0.1655E-04
+      54 0.1635E-04
+      55 0.1604E-04
+      56 0.1586E-04
+      57 0.1634E-04
+      58 0.1484E-04
+      59 0.1464E-04
+      60 0.1346E-04
+      61 0.1383E-04
+      62 0.1146E-04
+      63 0.1165E-04
+      64 0.1112E-04
+      65 0.1027E-04
+      66 0.8767E-05
+      67 0.3690E-05
+      68 0.4884E-05
+      69 0.2788E-05
+      70 0.1948E-05
+      71 0.1188E-05
+      72 0.3062E-06
+      73 0.4558E-06
+      74 0.1062E-05
+      75 0.1700E-06
+      76 0.1842E-06
+      77 0.6231E-07
+      78 0.5823E-06
+      79 0.2763E-07
+      80 0.3165E-07
+      81 0.1142E-07
+      82 0.1113E-07
+      83 0.1110E-07
+      84 0.6072E-08
+      85 0.6199E-08
+      86 0.4030E-08
+      87 0.3593E-08
+      88 0.2909E-08
+      89 0.2426E-08
+      90 0.1822E-08
+      91 0.9152E-09
+      92 0.1076E-08
+      93 0.5460E-09
+      94 0.3633E-09
+      95 0.1087E-09
+      96 0.1146E-09
+      97 0.5970E-10
+      98 0.3662E-10
+      99 0.2044E-10
+     100 0.1426E-10
+     101 0.6823E-11
+     102 0.7185E-11
+     103 0.4729E-11
+     104 0.4493E-11
+     105 0.2438E-11
+     106 0.2038E-11
+     107 0.1865E-11
+     108 0.1222E-11
+     109 0.7392E-12
+     109 0.7392E-12
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+CalculateLoads: temperature Flux over BC 1: -2.28528E+00
+CalculateLoads: temperature Flux over BC 2:  1.14264E+00
+CalculateLoads: temperature Flux over BC 3:  1.14264E+00
+CalculateLoads: temperature Flux over all BCs:  1.60437E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  365.52920      2.0000000     ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    7.92    7.92
+HeatSolve: iter:    1 Solve:    (s)   10.16   10.16
+HeatSolve:  Result Norm   :    365.52920136270870
+HeatSolve:  Relative Change :    2.0000000000000000
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=1) (NRM,RELC): (  365.52920      2.0000000     ) :: heat equation
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            2
+MAIN: -------------------------------------
+MAIN: 
+SingleSolver: Attempting to call solver: 1
+SingleSolver: Solver Equation string is: heat equation
+HeatSolver: -------------------------------------------
+HeatSolver: Solving the energy equation for temperature
+DefaultStart: Starting solver: heat equation
+HeatSolve: 
+HeatSolve: 
+HeatSolve: -------------------------------------
+HeatSolve:  TEMPERATURE ITERATION           1
+HeatSolve: -------------------------------------
+HeatSolve: 
+HeatSolve: Starting Assembly...
+HeatSolve: Assembly:
+: .....Saving bulk values for: heat equation
+HeatSolve: Assembly done
+DefUtils::DefaultDirichletBCs: Setting Dirichlet boundary conditions
+EnforceDirichletConditions: Enforcing total of 2790 Dirichlet conditions.
+EnforceDirichletConditions: Applying Dirichlet conditions using scaled diagonal
+ScaleLinearSystem: Creating > DiagScaling < vector of size 241861
+EnforceDirichletConditions: Dirichlet conditions enforced for dofs: 2790
+DefaultSolve: Solving linear system with default routines
+SolveSystem: Solving linear system
+SolveLinearSystem: Assuming real valued linear system
+SolveLinearSystem: Assuming serial linear system
+ScaleLinearSystem: Creating > DiagScaling < vector of size 241861
+SolveLinearSystem: Linear System Preconditioning: ilu2
+Prec0-ilu2: Elapsed REAL time:     0.0000 (s)
+SolveLinearSystem: Serial linear System Solver: iterative
+IterSolver: Using iterative method: bicgstab
+CRS_IncompleteLU: ILU(2) (Real), Performing Factorization:
+CRS_IncompleteLU: ILU(2) (Real), NOF nonzeros:  16474010
+CRS_IncompleteLU: ILU(2) (Real), filling (%) :       470
+CRS_IncompleteLU: ILU(2) (Real), Factorization time (s):     0.84
+Prec-ilu2: Elapsed REAL time:     0.8546 (s)
+       1 0.6941E-12
+       1 0.6941E-12
+SolveLinearSystem: Calculating nodal loads for: temperature
+CalculateLoads: Computing boundary fluxes from nodal loads
+CalculateLoads: temperature Flux over BC 1: -2.28528E+00
+CalculateLoads: temperature Flux over BC 2:  1.14264E+00
+CalculateLoads: temperature Flux over BC 3:  1.14264E+00
+CalculateLoads: temperature Flux over all BCs:  1.74382E-09
+ComputeNorm: Computing norm of solution
+ComputeChange: NS (ITER=1) (NRM,RELC): (  365.52920     0.33907384E-11 ) :: heat equation
+HeatSolve: iter:    1 Assembly: (s)    5.86    5.86
+HeatSolve: iter:    1 Solve:    (s)    0.90    0.90
+HeatSolve:  Result Norm   :    365.52920136146929
+HeatSolve:  Relative Change :    3.3907384149407774E-012
+DefaultFinish: Finished solver: heat equation
+ComputeNorm: Computing norm of solution
+ComputeChange: SS (ITER=2) (NRM,RELC): (  365.52920     0.33907384E-11 ) :: heat equation
+SingleSolver: Attempting to call solver: 2
+SingleSolver: Solver Equation string is: savescalars
+SaveScalars: -----------------------------------------
+SaveScalars: Saving scalar values of various kinds
+SaveScalars: Performed 2 reduction operations
+SaveScalars: Found 3 result scalars in simulation section
+SaveScalars: Found 5 values to save in total
+SaveScalars: Saving names of values to file: ./scalars.dat.names
+SaveScalars: Saving values to file: ./scalars.dat
+SaveScalars: -----------------------------------------
+ReloadInputFile: Reloading input file
+LoadInputFile: Loading input file:
+MAIN: Reporting unused list entries for sif improvement!
+MAIN: If you do not want these lines undefine > DEVEL_LISTUSAGE < !
+   Unused keywords:
+       Solver 1              linear system abort not converged
+MAIN: *** Elmer Solver: ALL DONE ***
+Loading user function library: [HeatSolve]...[HeatSolver_Finalize]
+Loading user function library: [HeatSolve]...[HeatSolver_Finalize]
+Loading user function library: [SaveData]...[SaveScalars_Finalize]
+Loading user function library: [SaveData]...[SaveScalars_Finalize]
+MAIN: The end
+SOLVER TOTAL TIME(CPU,REAL):        28.92       31.26
+ELMER SOLVER FINISHED AT: 2026/09/16 15:49:00
+
+--- stderr ---

@@ -1,0 +1,35 @@
+{
+  "branch": "codex/buck-harness-experiment-plan",
+  "completed_at": "2026-09-16T21:41:13Z",
+  "cost": {
+    "host": "codex",
+    "stages": [
+      {
+        "candidates": 1,
+        "elapsed_seconds": 176.923,
+        "ended_at": "2026-09-16T21:33:30.763930+00:00",
+        "stage": "merge",
+        "started_at": "2026-09-16T21:30:33.840768+00:00"
+      },
+      {
+        "candidates": 0,
+        "elapsed_seconds": 69.25,
+        "ended_at": "2026-09-16T21:41:26.614287+00:00",
+        "note": "Stage 5b step 5 rejected #1; Stage 6 wrote mode:agent review.json; apply_local=false",
+        "stage": "report",
+        "started_at": "2026-09-16T21:40:17.364561+00:00"
+      }
+    ],
+    "status": "complete",
+    "totals": {
+      "artifact_bytes": 128124,
+      "candidates": 0,
+      "elapsed_seconds": 246.173,
+      "reviewers": 0
+    },
+    "truncated_events": 0
+  },
+  "head_sha": "5bd51b46fe789235e8e6047b909da164c73b4141",
+  "run_id": "shunt-assembly-20260916",
+  "verdict": "Ready to merge"
+}

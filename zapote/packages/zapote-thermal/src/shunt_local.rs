@@ -240,7 +240,14 @@ pub struct Measurement {
     pub min_c: f64,
     pub heat_out_w: f64,
 }
-fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
+pub(crate) fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
+    measurements_with_sources(d, p.cut_c, &[])
+}
+pub(crate) fn measurements_with_sources(
+    d: &Path,
+    cut_c: f64,
+    sources: &[f64],
+) -> Result<Measurement> {
     let log = fs::read_to_string(d.join("solver.log"))?;
     ensure!(
         log.contains("MAIN: *** Elmer Solver: ALL DONE ***")
@@ -277,15 +284,15 @@ fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
                 .context("scalar name")
         })
         .collect::<Result<Vec<_>>>()?;
-    ensure!(
-        cols == [
-            "max: temperature",
-            "min: temperature",
-            "res: temperature flux over bc 1"
-        ],
-        "unexpected scalar columns: {:?}",
-        cols
-    );
+    let mut expected = vec![
+        "max: temperature".to_owned(),
+        "min: temperature".to_owned(),
+        "res: temperature flux over bc 1".to_owned(),
+    ];
+    for i in 0..sources.len() {
+        expected.push(format!("res: temperature flux over bc {}", i + 2));
+    }
+    ensure!(cols == expected, "unexpected scalar columns: {:?}", cols);
     let data = fs::read_to_string(d.join("scalars.dat"))?;
     ensure!(
         data.lines().filter(|l| !l.trim().is_empty()).count() == 1,
@@ -296,11 +303,11 @@ fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
         .map(str::parse)
         .collect::<std::result::Result<Vec<f64>, _>>()?;
     ensure!(
-        n.len() == 3 && n.iter().all(|n| n.is_finite()),
-        "three finite scalars required"
+        n.len() == 3 + sources.len() && n.iter().all(|n| n.is_finite()),
+        "finite expected scalars required"
     );
     ensure!(
-        n[0] >= n[1] && (n[1] - 273.15 - p.cut_c).abs() < 1e-5,
+        n[0] >= n[1] && (n[1] - 273.15 - cut_c).abs() < 1e-5,
         "temperature boundary inconsistency"
     );
     ensure!(
@@ -309,6 +316,12 @@ fn measurements(d: &Path, p: &Scenario) -> Result<Measurement> {
         -n[2],
         HEAT_W
     );
+    for (measured, expected) in n[3..].iter().zip(sources) {
+        ensure!(
+            (measured - expected).abs() < 1e-7,
+            "source heat flux differs from imposed power"
+        );
+    }
     Ok(Measurement {
         max_c: n[0] - 273.15,
         min_c: n[1] - 273.15,
@@ -334,7 +347,7 @@ pub struct Report {
 fn hash(b: &[u8]) -> String {
     format!("{:x}", Sha256::digest(b))
 }
-fn validate_backend(out: &Path) -> Result<()> {
+pub(crate) fn validate_backend(out: &Path) -> Result<()> {
     let b: BTreeMap<String, String> = serde_json::from_slice(&fs::read(out.join("backend.json"))?)?;
     ensure!(
         b.keys().map(String::as_str).collect::<Vec<_>>()
@@ -346,6 +359,61 @@ fn validate_backend(out: &Path) -> Result<()> {
             .all(|s| s.len() == 64 && s.bytes().all(|c| c.is_ascii_hexdigit())),
         "invalid backend digest"
     );
+    Ok(())
+}
+// A copied invocation keeps its original working directory. Rewriting that
+// history would claim a new solve; check the case identity and exact command
+// contract, and bind the original record into the retained artifact hashes.
+pub(crate) fn validate_commands(dir: &Path, timeout_ms: u64) -> Result<()> {
+    let mut cwd = None;
+    for (name, program, args) in [
+        (
+            "gmsh",
+            "gmsh",
+            vec![
+                "-3",
+                "local.geo",
+                "-format",
+                "msh2",
+                "-o",
+                "local.msh",
+                "-nt",
+                "1",
+            ],
+        ),
+        (
+            "grid",
+            "ElmerGrid",
+            vec!["14", "2", "local.msh", "-out", "mesh"],
+        ),
+        ("solver", "ElmerSolver", vec!["case.sif"]),
+    ] {
+        let v: Value =
+            serde_json::from_slice(&fs::read(dir.join(format!("{name}.command.json")))?)?;
+        let at = v["cwd"].as_str().context("invocation cwd")?;
+        let exe = v["program"].as_str().context("invocation executable")?;
+        ensure!(
+            !at.is_empty() && Path::new(at).file_name() == dir.file_name(),
+            "invocation case directory differs"
+        );
+        ensure!(
+            Path::new(exe).is_absolute()
+                && Path::new(exe).file_name() == Some(std::ffi::OsStr::new(program)),
+            "invocation executable differs"
+        );
+        ensure!(
+            v["args"] == serde_json::json!(args)
+                && v["environment"]
+                    == serde_json::json!({"OMP_NUM_THREADS":"1","OMPI_MCA_btl":"self"})
+                && v["unset_environment"] == serde_json::json!(["ELMER_HOME", "ELMER_LIB"])
+                && v["timeout_ms"] == timeout_ms,
+            "invocation contract differs"
+        );
+        if let Some(previous) = &cwd {
+            ensure!(previous == at, "mixed invocation directories");
+        }
+        cwd = Some(at.to_owned());
+    }
     Ok(())
 }
 fn required_hashes(out: &Path, cases: &[Case]) -> Result<BTreeMap<String, String>> {
@@ -361,6 +429,9 @@ fn required_hashes(out: &Path, cases: &[Case]) -> Result<BTreeMap<String, String
             "gmsh.log",
             "grid.log",
             "solver.log",
+            "gmsh.command.json",
+            "grid.command.json",
+            "solver.command.json",
             "mesh/mesh.nodes",
             "mesh/mesh.elements",
             "mesh/mesh.boundary",
@@ -394,11 +465,7 @@ fn profile_validate(cases: &[Case]) -> Result<()> {
     }
     Ok(())
 }
-pub fn run(native: &[u8], out: &Path, tools: &crate::neck_run::Tools) -> Result<Report> {
-    let g = geometry(native)?;
-    ensure!(!out.exists(), "refusing to overwrite evidence");
-    fs::create_dir_all(out)?;
-    fs::write(out.join("native.json"), native)?;
+pub(crate) fn write_backend(out: &Path, tools: &crate::neck_run::Tools) -> Result<()> {
     let mut backend = BTreeMap::new();
     for (name, p) in [
         ("gmsh", &tools.gmsh),
@@ -426,6 +493,14 @@ pub fn run(native: &[u8], out: &Path, tools: &crate::neck_run::Tools) -> Result<
         serde_json::to_vec_pretty(&backend)?,
     )?;
     validate_backend(out)?;
+    Ok(())
+}
+pub fn run(native: &[u8], out: &Path, tools: &crate::neck_run::Tools) -> Result<Report> {
+    let g = geometry(native)?;
+    ensure!(!out.exists(), "refusing to overwrite evidence");
+    fs::create_dir_all(out)?;
+    fs::write(out.join("native.json"), native)?;
+    write_backend(out, tools)?;
     let mut cases = Vec::new();
     for p in scenarios() {
         for m in MESHES {
@@ -481,14 +556,14 @@ pub fn run(native: &[u8], out: &Path, tools: &crate::neck_run::Tools) -> Result<
     }
     profile_validate(&cases)?;
     let artifacts = required_hashes(out, &cases)?;
-    let r=Report{schema:"zapote.shunt-local.v2".into(),geometry:g,heat_w:HEAT_W,cases,artifacts,applicability:"INDETERMINATE: imposed copper cut temperatures; body/solder/vias/whole-board spreading and copper Joule heat omitted".into()};
+    let r=Report{schema:"zapote.shunt-local.v3".into(),geometry:g,heat_w:HEAT_W,cases,artifacts,applicability:"INDETERMINATE: imposed copper cut temperatures; body/solder/vias/whole-board spreading and copper Joule heat omitted".into()};
     fs::write(out.join("report.json"), serde_json::to_vec_pretty(&r)?)?;
     Ok(r)
 }
 pub fn replay(native: &[u8], out: &Path) -> Result<Report> {
     let r: Report = serde_json::from_slice(&fs::read(out.join("report.json"))?)?;
     ensure!(
-        r.schema == "zapote.shunt-local.v2"
+        r.schema == "zapote.shunt-local.v3"
             && r.geometry == geometry(native)?
             && r.heat_w == HEAT_W,
         "thermal evidence input/model changed"
@@ -515,6 +590,7 @@ pub fn replay(native: &[u8], out: &Path) -> Result<Report> {
             "thermal deck differs from current model"
         );
         crate::shunt_mesh::validate_elmer(&d.join("mesh"), &r.geometry)?;
+        validate_commands(&d, 180000)?;
         ensure!(
             measurements(&d, &c.scenario)? == c.measurement
                 && crate::shunt_mesh::validate(
@@ -645,6 +721,22 @@ mod tests {
         r.artifacts = required_hashes(&s.0, &r.cases).unwrap();
         fs::write(&p, serde_json::to_vec(&r).unwrap()).unwrap();
         assert!(replay(&n, &s.0).is_err());
+    }
+    #[test]
+    fn changed_invocation_cannot_be_laundered_by_rehashing_local_report() {
+        let s = Scratch::retained();
+        let p = s.0.join("nominal-800/solver.command.json");
+        let mut v: Value = serde_json::from_slice(&fs::read(&p).unwrap()).unwrap();
+        v["args"] = serde_json::json!(["different.sif"]);
+        fs::write(&p, serde_json::to_vec(&v).unwrap()).unwrap();
+        let report = s.0.join("report.json");
+        let mut r: Report = serde_json::from_slice(&fs::read(&report).unwrap()).unwrap();
+        r.artifacts = required_hashes(&s.0, &r.cases).unwrap();
+        fs::write(&report, serde_json::to_vec(&r).unwrap()).unwrap();
+        assert!(replay(&native(), &s.0)
+            .unwrap_err()
+            .to_string()
+            .contains("invocation"));
     }
     #[test]
     fn energy_and_solver_convergence_are_required_independently() {

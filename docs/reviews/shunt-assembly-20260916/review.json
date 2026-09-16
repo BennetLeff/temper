@@ -1,0 +1,126 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "BASE: 5bd51b46fe789235e8e6047b909da164c73b4141",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "5bd51b46fe789235e8e6047b909da164c73b4141",
+    "pr_url": null,
+    "files_changed": 10
+  },
+  "intent": "Model native shunt copper, vias, substrate, and solder heat paths with Gmsh/Elmer and make numerical evidence replayable. Keep numerical validity separate from unresolved resistor-internal and enclosure-cooling qualification; do not make a hardware qualification claim.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness-testing-adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [
+    {
+      "#": 2,
+      "title": "Local replay omits invocation receipt hashes",
+      "severity": "P2",
+      "file": "zapote/packages/zapote-thermal/src/shunt_local.rs",
+      "line": 505,
+      "confidence": 75,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": true,
+      "suggested_fix": "Include gmsh, grid, and solver invocation receipt files in required_hashes and validate their command contracts during local replay, matching the assembly path.",
+      "first_evidence": "zapote/packages/zapote-thermal/src/shunt_local.rs:505 -- pub fn replay(native: &[u8], out: &Path) -> Result<Report> {",
+      "why_it_matters": "The local thermal evidence path writes command receipts but does not hash or validate them during replay, so stale invocation metadata can survive while raw outputs are accepted.",
+      "evidence": [
+        "zapote/packages/zapote-thermal/src/shunt_local.rs:364-388 -- required_hashes includes decks, meshes, logs, and scalar files but no command receipts.",
+        "zapote/packages/zapote-thermal/src/shunt_local.rs:505-543 -- replay validates backend, artifacts, decks, meshes, and measurements without reading invocation receipt files.",
+        "The omission is outside the new assembly hook and is retained as a separate local-model concern per the review scope."
+      ],
+      "reviewers": [
+        "correctness-testing-adversarial"
+      ],
+      "independent_reviewers": [
+        "correctness-testing-adversarial"
+      ]
+    }
+  ],
+  "requirements_completeness": {
+    "source": "explicit",
+    "requirements": [
+      {
+        "id": "R1",
+        "status": "met",
+        "text": "Native copper, holes, vias, materials, and solder heat ports are constructed and validated."
+      },
+      {
+        "id": "R2",
+        "status": "met",
+        "text": "Energy, solver, mesh convergence, cooling, material, and heat-split sensitivity gates are implemented."
+      },
+      {
+        "id": "R3",
+        "status": "met",
+        "text": "Exact source/deck/raw replay and regression tests exist, including generated Gmsh and converted solver-mesh identity binding."
+      },
+      {
+        "id": "R4",
+        "status": "met",
+        "text": "The common harness distinguishes assembly numerical replay from assembly qualification."
+      },
+      {
+        "id": "R5",
+        "status": "met",
+        "text": "Failed attempts and remaining resistor/enclosure physical uncertainty are retained in the assembly documentation."
+      }
+    ],
+    "implementation_units": "No separate implementation units were listed in the explicit plan."
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Final run15 solver profile and full workspace/common-runner/live-profile validation remain pending; this review does not establish physical qualification.",
+    "Concave native copper boundaries use vertex/centroid sampling plus volume, interface, and inter-terminal gap guards rather than a general exact Boolean cell-containment proof; the guard is for the fixed reviewed board.",
+    "External cross-model private-code egress was rejected by automatic approval review; the same-provider Luna review is not independent cross-model verification."
+  ],
+  "testing_gaps": [
+    "No harness end-to-end assembly replay test supplies valid assembly evidence and asserts THERMAL.PFC.SHUNT_ASSEMBLY_NUMERICAL passes while THERMAL.PFC.SHUNT_ASSEMBLY remains indeterminate."
+  ],
+  "coverage": {
+    "depth": "full",
+    "peer": "External cross-model private-code egress was rejected by automatic approval review before this run. Same-provider Luna review is not independent cross-model verification.",
+    "first_evidence_backfilled": 0,
+    "suppressed_by_confidence": {},
+    "mode_aware_demotion_count": 0,
+    "validator_shortcut_skipped": 0,
+    "validator_selected": 1,
+    "validator_outcome": {
+      "confirmed": 0,
+      "rejected": 1,
+      "unresolved": 0,
+      "malformed": 0,
+      "failed": 0,
+      "shortcut_skipped": 0,
+      "verdicts_landed": true,
+      "reason": "The sole selected finding was rejected after inspection of the landed solver-input receipt and mesh identity checks."
+    },
+    "validator_rejections": [
+      {
+        "#": 1,
+        "reason": "Current run_from writes solver-inputs.json with SHA-256 hashes of local.geo, local.msh, and every converted Elmer mesh file, validates that receipt before accepting solver results and during replay, and validate_elmer enforces exact source/converted mesh identity."
+      }
+    ],
+    "protected_subject_reclassifications": [],
+    "failed_reviewers": [],
+    "bound_exceeded": [],
+    "notes": [
+      "Stage 5b step 5 dropped rejected finding #1 from the primary and actionable sets.",
+      "The P2 harness integration-test absence was demoted to testing_gaps as a testing-only gap.",
+      "P2 local replay receipt omission is pre-existing and excluded from the primary/actionable set.",
+      "No local apply ran: mode.agent=true and apply_local=false.",
+      "The final corrected run15 profile and common harness run are pending; no physical qualification claim is made."
+    ]
+  },
+  "artifact_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/shunt-assembly-20260916",
+  "run_id": "shunt-assembly-20260916"
+}

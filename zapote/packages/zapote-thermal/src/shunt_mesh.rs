@@ -6,14 +6,34 @@ use std::{fs, path::Path};
 
 /// Validate the actual solver mesh too: conversion is part of the apparatus.
 pub fn validate_elmer(dir: &Path, g: &Geometry) -> Result<usize> {
+    validate(&elmer_as_msh(dir)?, g)
+}
+
+pub(crate) fn elmer_as_msh(dir: &Path) -> Result<String> {
+    elmer_as_msh_with(dir, |p| Ok(fs::read_to_string(p)?))
+}
+
+pub(crate) fn elmer_as_msh_with(
+    dir: &Path,
+    read: impl Fn(&Path) -> Result<String>,
+) -> Result<String> {
+    let header = read(&dir.join("mesh.header"))?;
+    let counts: Vec<usize> = header
+        .lines()
+        .next()
+        .context("mesh header")?
+        .split_whitespace()
+        .map(str::parse)
+        .collect::<std::result::Result<_, _>>()?;
+    ensure!(counts.len() == 3, "Elmer mesh header census");
     let mut nodes = Vec::new();
-    for row in fs::read_to_string(dir.join("mesh.nodes"))?.lines() {
+    for row in read(&dir.join("mesh.nodes"))?.lines() {
         let f: Vec<_> = row.split_whitespace().collect();
         ensure!(f.len() == 5, "Elmer node columns");
         nodes.push(format!("{} {} {} {}", f[0], f[2], f[3], f[4]));
     }
     let mut cells = Vec::new();
-    for row in fs::read_to_string(dir.join("mesh.elements"))?.lines() {
+    for row in read(&dir.join("mesh.elements"))?.lines() {
         let f: Vec<_> = row.split_whitespace().collect();
         ensure!(
             f.len() == 7 && f[2] == "504",
@@ -26,7 +46,8 @@ pub fn validate_elmer(dir: &Path, g: &Geometry) -> Result<usize> {
             f[3..].join(" ")
         ));
     }
-    for row in fs::read_to_string(dir.join("mesh.boundary"))?.lines() {
+    let bulk_count = cells.len();
+    for row in read(&dir.join("mesh.boundary"))?.lines() {
         let f: Vec<_> = row.split_whitespace().collect();
         ensure!(
             f.len() == 8 && f[4] == "303",
@@ -39,11 +60,71 @@ pub fn validate_elmer(dir: &Path, g: &Geometry) -> Result<usize> {
             f[5..].join(" ")
         ));
     }
+    ensure!(
+        counts == [nodes.len(), bulk_count, cells.len() - bulk_count],
+        "Elmer mesh header differs from actual files"
+    );
     let mesh=format!("$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$Nodes\n{}\n{}\n$EndNodes\n$Elements\n{}\n{}\n$EndElements\n",nodes.len(),nodes.join("\n"),cells.len(),cells.join("\n"));
-    validate(&mesh, g)
+    Ok(mesh)
 }
 
 type Point = [f64; 3];
+/// ElmerGrid's pinned conversion preserves node IDs. Compare coordinates and
+/// complete material/port connectivity, allowing only ASCII rounding and
+/// element/vertex reordering. Two independently plausible meshes are not enough.
+pub(crate) fn assert_same_mesh(source: &str, converted: &str) -> Result<()> {
+    type MeshIdentity = (BTreeMap<u64, Point>, Vec<Vec<u64>>);
+    fn identity(text: &str) -> Result<MeshIdentity> {
+        let lines: Vec<_> = text.lines().collect();
+        let mut nodes = BTreeMap::new();
+        for line in section(&lines, "Nodes")? {
+            let f: Vec<_> = line.split_whitespace().collect();
+            ensure!(f.len() == 4, "node identity shape");
+            ensure!(
+                nodes
+                    .insert(f[0].parse()?, [f[1].parse()?, f[2].parse()?, f[3].parse()?])
+                    .is_none(),
+                "duplicate identity node"
+            );
+        }
+        let mut cells = Vec::new();
+        for line in section(&lines, "Elements")? {
+            let f: Vec<u64> = line
+                .split_whitespace()
+                .map(str::parse)
+                .collect::<std::result::Result<_, _>>()?;
+            ensure!(
+                f.len() >= 4 && f[2] >= 1 && f[2] as usize <= f.len() - 3,
+                "element identity shape"
+            );
+            let mut ids = f[3 + f[2] as usize..].to_vec();
+            ids.sort_unstable();
+            let mut key = vec![f[1], f[3]];
+            key.extend(ids);
+            cells.push(key);
+        }
+        cells.sort_unstable();
+        Ok((nodes, cells))
+    }
+    let (a, ac) = identity(source)?;
+    let (b, bc) = identity(converted)?;
+    ensure!(
+        a.len() == b.len() && ac == bc,
+        "Elmer mesh topology/materials/ports differ from Gmsh"
+    );
+    for (id, p) in a {
+        let q = b.get(&id).context("Elmer node ID differs")?;
+        ensure!(
+            p.iter()
+                .zip(q)
+                // ElmerGrid writes these metre coordinates to 12 decimal
+                // places: allow at most one picometre of ASCII rounding.
+                .all(|(a, b)| a.is_finite() && b.is_finite() && (a - b).abs() < 1e-12),
+            "Elmer node coordinates differ from Gmsh"
+        );
+    }
+    Ok(())
+}
 fn sub(a: Point, b: Point) -> Point {
     [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 }

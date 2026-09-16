@@ -1,0 +1,125 @@
+{
+  "schema": "zapote.shunt-assembly.attempts.v1",
+  "runs": [
+    {
+      "run": "run-01",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 0,
+      "report_present": false
+    },
+    {
+      "run": "run-02",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 0,
+      "report_present": false
+    },
+    {
+      "run": "run-03",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 0,
+      "report_present": false
+    },
+    {
+      "run": "run-04",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 0,
+      "report_present": false
+    },
+    {
+      "run": "run-05",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 1,
+      "report_present": false
+    },
+    {
+      "run": "run-06",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 7,
+      "report_present": false
+    },
+    {
+      "run": "run-07",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 2,
+      "report_present": false
+    },
+    {
+      "run": "run-08",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 10,
+      "report_present": false
+    },
+    {
+      "run": "run-09",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 12,
+      "report_present": false
+    },
+    {
+      "run": "run-10",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 2,
+      "report_present": false
+    },
+    {
+      "run": "run-11",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 9,
+      "report_present": false
+    },
+    {
+      "run": "run-12",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 2,
+      "report_present": false
+    },
+    {
+      "run": "run-13",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 19,
+      "report_present": false
+    },
+    {
+      "run": "run-14",
+      "status": "REJECTED_OR_SUPERSEDED",
+      "authoritative": false,
+      "reason": "Historical model used 1.46 mm FR4 by assigning solder-mask thickness to substrate; not current acceptance evidence",
+      "retained_scalar_cases": 14,
+      "report_present": false
+    },
+    {
+      "run": "run-15",
+      "status": "NUMERICALLY_ACCEPTED_PHYSICAL_QUALIFICATION_INDETERMINATE",
+      "authoritative": true,
+      "reason": "Parsed 1.44 mm FR4 core; complete 19-case profile passed",
+      "retained_scalar_cases": 19,
+      "report_present": true
+    }
+  ]
+}

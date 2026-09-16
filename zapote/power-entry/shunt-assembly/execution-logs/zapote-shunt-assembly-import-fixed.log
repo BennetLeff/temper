@@ -1,0 +1,18 @@
+WARN Ignoring non-directory workspace member: `/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/README.md`
+   Building temper-design-bundle @ file:///Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle
+WARN Retry attempt #0. Sleeping 1.005961062s before the next attempt
+WARN Retry attempt #1. Sleeping 3.617869931s before the next attempt
+WARN Retry attempt #2. Sleeping 3.620344874s before the next attempt
+  × Failed to build `temper-design-bundle @
+  │ file:///Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/temper-design-bundle`
+  ├─▶ Failed to resolve requirements from `build-system.requires`
+  ├─▶ No solution found when resolving: `maturin>=1.8`
+  ├─▶ Request failed after 3 retries in 8.3s
+  ├─▶ Failed to fetch: `https://pypi.org/simple/maturin/`
+  ├─▶ error sending request for url (https://pypi.org/simple/maturin/)
+  ├─▶ client error (Connect)
+  ├─▶ dns error
+  ╰─▶ failed to lookup address information: nodename nor servname provided, or
+      not known
+
+hint: `temper-design-bundle` was included because `temper-workspace:dev` (v0.1.0) depends on `temper-design-bundle`

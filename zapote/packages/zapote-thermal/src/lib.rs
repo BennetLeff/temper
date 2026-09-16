@@ -5,8 +5,8 @@
 
 use anyhow::{bail, Context, Result};
 pub mod bridge_cooling;
-pub mod gbj_package;
 pub mod gbj_cooling;
+pub mod gbj_package;
 pub mod joint_fem;
 pub mod joint_mesh;
 pub mod joint_model;
@@ -757,3 +757,6 @@ mod tests {
 pub mod shunt_local;
 
 mod shunt_mesh;
+
+pub mod shunt_assembly;
+pub mod shunt_assembly_mesh;
