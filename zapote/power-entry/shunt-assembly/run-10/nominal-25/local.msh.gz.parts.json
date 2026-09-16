@@ -1,0 +1,21 @@
+{
+  "format": "concatenated gzip byte slices",
+  "gzip_sha256": "04b0dd57342bb4fbfbd7da2dea736c17ba1c43f7327d9c40a3837eb4e9521010",
+  "parts": [
+    {
+      "file": "local.msh.gz.part-000",
+      "bytes": 48000000,
+      "sha256": "81c49c6efff7bc77cd5f2bad9d1fbbbd0a5e245f8e01181a100a84025d49c706"
+    },
+    {
+      "file": "local.msh.gz.part-001",
+      "bytes": 48000000,
+      "sha256": "bb72ef292620d5464d8e38c8704a747356da6425a67a834381b7b346a5037ed3"
+    },
+    {
+      "file": "local.msh.gz.part-002",
+      "bytes": 43772072,
+      "sha256": "2ea615dae685243d24a3dbf8f8429906f13b6d7a976c6ab18ac7a5f81d61e0ed"
+    }
+  ]
+}

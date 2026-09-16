@@ -1,0 +1,13 @@
+Error   : Union failed - BOPAlgo_AlertTooFewArguments 
+Error   : 'local.geo', line 49: Could not apply boolean operator
+Error   : Union failed - BOPAlgo_AlertTooFewArguments 
+Error   : 'local.geo', line 105: Could not apply boolean operator
+Error   : PLC Error:  A segment and a facet intersect at point
+Error   : Invalid boundary mesh (segment-facet intersection) on surface 100203, intersection (0.0713429,0.13228,0.000683316)
+Warning : No elements in volume 10182 10195 10197 10199 10201 10203 10205 10207 10209 10211 10213 10215 10217 10219 10220
+Error   : ------------------------------
+Error   : Mesh generation error summary
+Error   :     1 warning
+Error   :     2 errors
+Error   : Check the full log for details
+Error   : ------------------------------
