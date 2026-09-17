@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/envelope.schema.json",
+  "title": "Typed response envelope",
+  "description": "The typed view a caller consumes, carried alongside the lossless raw payload (R8). Every later layer reads this rather than a raw HTTP response, so a field added here is a field the loop can reason about; a field omitted is invisible. `reasoning_content` is therefore explicit rather than dropped.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "model", "finish_reason", "content", "reasoning_content", "tool_calls", "usage", "served_from"],
+  "properties": {
+    "id": { "type": "string" },
+    "model": { "type": "string" },
+    "finish_reason": {
+      "description": "null is possible on a truncated stream and must stay distinguishable from a completed turn -- an absent reason is not a successful stop.",
+      "type": ["string", "null"],
+      "enum": ["stop", "length", "tool_calls", "content_filter", null]
+    },
+    "content": { "type": ["string", "null"] },
+    "reasoning_content": {
+      "description": "Captured explicitly. Whether it is replayed into the next request is a provider rule pinned by U1, not a default.",
+      "type": ["string", "null"]
+    },
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "index", "name", "arguments"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "index": { "type": "integer", "minimum": 0 },
+          "name": { "type": "string" },
+          "arguments": {
+            "description": "Kept as the provider's raw argument string, never re-serialized: re-encoding would silently normalize escapes and key order, and the fidelity oracle compares these bytes.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "usage": {
+      "oneOf": [
+        { "$ref": "https://temper.local/schemas/usage.schema.json" },
+        { "type": "null" }
+      ]
+    },
+    "served_from": { "enum": ["live", "replay"] }
+  }
+}

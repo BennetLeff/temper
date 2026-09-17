@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/error.schema.json",
+  "title": "Typed transport error record",
+  "description": "One record per classified failure. R6 exists so that a transport failure is never stored as a model failure; that only holds if the taxonomy is exhaustive, so every exception on the send path must land on one of these categories (see UnknownTransportError) rather than propagating raw.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["category", "retryable", "billable", "message", "http_status"],
+  "properties": {
+    "category": {
+      "description": "Pre-connection covers DNS, refused, and TLS failures -- the class a 'timeout' check would otherwise miss, leaving a network outage recorded as the model producing nothing.",
+      "enum": [
+        "pre_connection_unavailable",
+        "rate_limited",
+        "server_error",
+        "timeout",
+        "malformed_stream",
+        "incomplete_stream",
+        "malformed_response",
+        "context_length_exceeded",
+        "tool_schema_rejected",
+        "content_filtered",
+        "endpoint_rejected",
+        "unknown_transport"
+      ]
+    },
+    "retryable": { "type": "boolean" },
+    "billable": {
+      "description": "Whether the provider may have charged for this attempt. A declared default, not a measured fact: the only evidence of actual billing is the usage block on a call_terminal row.",
+      "type": "boolean"
+    },
+    "message": { "type": "string" },
+    "http_status": { "type": ["integer", "null"] }
+  }
+}

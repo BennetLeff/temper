@@ -15,7 +15,12 @@ from jsonschema import Draft202012Validator, ValidationError
 
 from temper_harness.ledger.store import SCHEMA_DIR, build_validator, load_schema
 
-EXPECTED_SCHEMAS = ("usage.schema.json", "ledger_row.schema.json")
+EXPECTED_SCHEMAS = (
+    "usage.schema.json",
+    "ledger_row.schema.json",
+    "error.schema.json",
+    "envelope.schema.json",
+)
 
 
 def _load(name: str) -> dict:
