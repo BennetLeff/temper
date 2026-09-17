@@ -264,7 +264,7 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 **Global**
 
 - **Met.** All six units' test scenarios pass. Every gate has been observed failing on its motivating input: the oracle's nine guards via the committed guard-removal evidence, the redaction canary via a planted key in each artifact kind, the allowlist via fault injection, the replay refusals via perturbed corpora, and the two implementation guards (mode exclusivity, request-hash refusal) by removing them from the source and watching exactly their tests go red.
-- **Met.** Five schema files are committed and validated in CI; no `SCHEMA_VERSION` constant exists inline in Python, and the field lists, header allowlist, and recording versions are all read from those files rather than restated.
+- **Met.** **Six** schema files are committed and validated in CI — the five R14 names plus `canary_evidence.schema.json`, added because the canary's evidence is a record we commit and a claim that gets checked, so its shape belongs in a file rather than in a dataclass. No `SCHEMA_VERSION` constant exists inline in Python, and the field lists, header allowlist, recording versions, and evidence format version are all read from those files rather than restated. The anti-inline-version check was **widened** from the literal `SCHEMA_VERSION` spelling to any `\w*SCHEMA_VERSION`: a prefixed name had walked straight past it, and one had (`EVIDENCE_SCHEMA_VERSION`).
 - **Met.** The harness suite runs in CI under a required context, with the floor at the measured test count. Simulated path-diff: a diff touching only `packages/temper-harness/**` schedules **Core Tests** (via `packages/temper-harness/**`), **Cargo / Rustc Smoke Check** and **Repo Hygiene & Import Gates** (both via `packages/**`). Reproduce with `matching_patterns(changed, job_triggers[job].paths)` from `scripts/check_required_checks.py` — note the argument order, and that `changed` must be a list rather than a single string, or the call iterates the path's characters and reports a false negative.
 - **Met.** Descendant-inclusive aggregation is the only public way to obtain a cost total, it fails closed on an incomplete, cancelled, or replayed row, and it now reconciles against the provider's own `total_tokens`.
 - **Met.** The live canary has run once against the official API — 2026-09-17, `deepseek-flash`, all ten probes matching — and its hashed evidence is committed. Tier A is therefore anchored to a live *shape* observation. See "What Tier B anchors, precisely" for how far that claim reaches and where it stops.
@@ -279,7 +279,9 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 - **U3 complete.** A malformed message array raises before network I/O (and one captured fixture is the provider's refusal of exactly that array, so the local guard is aligned with a real refusal rather than an imagined one). A pre-connection failure is classified and carries defined retryable/billable flags. A cancelled stream cannot be confused with a completed one, because a turn with no `finish_reason` is never `ok`. The live and replay adapters share one decoder, and their typed views are asserted equal on the same bytes.
 - **U4 complete** for the offline half: request-hash and arm mismatches refuse to serve, a failed live call cannot fall back to a recording, the store cannot be written during a replay run, and the redaction canary fails on a planted key in every artifact kind R11 names. The provider-facing adapter is now built (U3), so replay is wired end to end.
 - **U5 complete.** Nine guards, each with a perturbation crafted to trip it and only it, and each observed accepting that perturbation once disabled — recorded in `packages/temper-harness/tests/oracle/evidence/guard_removal.json` and re-derived on every run so it cannot drift. The five socket faults are ported from the prior attempt's diagnostic, mechanism kept and expectations re-derived.
-- **U6 complete.** The concurrency probe attributes every call to its own session and every one of them to the root aggregate, in CI and without a model. **The live canary has run once** (2026-09-17, commit `e596a1b80`, `deepseek-flash`): all ten probes matched their recorded shapes, so Tier A is now anchored to a live observation rather than resting on reproducibility alone. Its evidence is committed at `packages/temper-harness/tests/canary/evidence/canary.json` and carries no request body, no response body, and no credential.
+- **U6 complete.** The concurrency probe attributes every call to its own session and every one of them to the root aggregate, in CI and without a model. **The live canary has run once** (2026-09-17, `deepseek-flash`): all ten probes matched their recorded shapes, so Tier A is anchored to a live observation rather than resting on reproducibility alone. Its evidence is committed at `packages/temper-harness/tests/canary/evidence/canary.json` and carries no request body, no response body, and no credential.
+
+  **One caveat, recorded rather than smoothed over:** that run was made from a tree whose canary code was still **uncommitted** at the HEAD it names (`e596a1b80`, the U5 commit), so the evidence carries `harness_dirty: true` and cannot be reproduced from that commit alone. The observation is real and the shapes matched; its provenance is dirty. A clean re-run at a committed HEAD is **outstanding** and needs the credential provisioned again. Until it happens, the honest reading of the claim is "one live observation, from a tree that is not fully identified by its recorded commit".
 
 ### What Tier B anchors, precisely
 
@@ -429,6 +431,68 @@ captured request's hash through the client's own encoder, so a fixture that no
 replay could ever look up fails the suite. The one exception is
 `orphan_tool_result`, which is *deliberately* a body the client refuses to build —
 that is what its fixture is evidence for.
+
+### Found by an adversarial review of this branch (post-U6) — nine corrections
+
+The branch was reviewed adversarially against its own claims before landing. Nine
+defects came back; all nine are fixed and pinned by tests, and two of them are the
+class this repository documents most insistently.
+
+19. **`wire_body` silently dropped `max_tokens`** — the field correction #8 says was
+    added so a harness could bound what it spends. The `Request` carried it and
+    `build_wire_request` accepted it; the wire path never passed it. **Nothing noticed,
+    because every test compared `wire_body`'s output against `wire_body`'s output, and
+    the captured fixtures agreed with the omission — having been produced through the
+    same function.** Correction #8's own claim that "the captured bodies already carried
+    it" was therefore false. This is the "correct by coincidence" shape, in this branch,
+    in the one field that bounds cost. Fixed, and now pinned by a test that walks the
+    fields `Request` carries and asserts each reaches the wire — a test that would have
+    caught it on the day.
+20. **The ledger's `seq` was not unique, and a test asserted that it was.** The counter
+    lived on the instance, so two threads read the same value and two processes each
+    seeded from their own read of the file. Measured: sixty concurrent appends wrote
+    sixty rows with **three** distinct sequence numbers. The single-threaded test could
+    not see it, and KTD5 explicitly designs for append from multiple processes. The
+    allocation now happens **inside the file**, under an exclusive lock, with the read
+    taken from the file's tail. Measured after: 60/60 unique.
+21. **Concurrent recording of the same request corrupted the write.** The staged temp
+    name was keyed on the pid alone, so every thread in a process shared one path: the
+    first `os.replace` unlinked it and the rest raised `FileNotFoundError`. Measured: 40
+    threads, 32 failures. The transport is explicitly shareable and the design names the
+    case it breaks — "a recursive fan-out where every worker asks the same question".
+    Fixed with a per-call unique staged name; measured after: 40 threads, 0 failures.
+22. **A local store refusal was reclassified as a retryable provider failure.**
+    `_record` runs inside the block that classifies send-path exceptions, and a
+    `StoreError` is not one — so a `ModeViolationError` surfaced as
+    `unknown_transport`, whose `retryable` flag is True. Deterministic local refusals
+    were being handed to S1's backoff policy as things to retry forever, which is the
+    collapse the store's own taxonomy exists to prevent.
+23. **`except BaseException` around the request would have ledgered a Ctrl-C as a
+    retryable transport failure.** Now `except Exception`, with the reason written down.
+24. **`classify_exception` misclassified the client's timeouts, and only the adapter's
+    choice of a second entry point hid it.** `requests`' `Timeout` is not Python's
+    `TimeoutError` and *is* an `OSError`, so the documented catch-all reported a read
+    timeout as a pre-connection failure — flipping `billable` in the wrong direction.
+    There were two entry points; there is now one, and it knows the client's hierarchy,
+    with `ConnectTimeout` matched before `Timeout` because it inherits from both.
+25. **A 3xx from a replay mapped to the retryable catch-all.** The live path intercepts
+    redirects, so this only bit a hand-edited or imported recording — which is exactly
+    where a silent misclassification is hardest to notice.
+26. **`Aggregate.call_count` counted rows the lower bound had excluded**, so a lower
+    bound could claim a non-vacuous agreement (`reconciles` gates on a non-zero count)
+    over rows it had not summed.
+27. **`compare_shapes` iterated only the recorded keys**, so a wholly new shape key was
+    silently ignored — while the docstring claimed the opposite property and the
+    addition it *did* report was a different one. Union iteration now.
+
+Two smaller ones: `CanaryReport.ok` was flagged by `check_vacuous_gates` (the expression
+was correct, the gate is deliberately syntactic, and the early-return form it wants
+reads better), and one oracle guard had been left behind as a dead function while the
+plan claimed it had been deleted — it is now a comment, so the deletion is the deletion.
+
+The review also found the canary-evidence provenance problem recorded under U6, and it
+confirmed the credential discipline held: no committed file contains a key, an
+`Authorization` value, or a response body carrying one.
 
 ### Named unknowns (U1) — stated, not inferred away
 

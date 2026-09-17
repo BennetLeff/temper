@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import uuid
 from collections.abc import Mapping
 from enum import StrEnum
 from pathlib import Path
@@ -111,7 +112,14 @@ class RecordingStore:
         )
         path = self._path_for(recording.request_hash)
         path.parent.mkdir(parents=True, exist_ok=True)
-        staged = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+        # The staged name must be unique per *call*, not per process. Keyed on the pid
+        # alone it was shared by every thread in a process, so two threads recording the
+        # same request staged to one path: whichever replaced first unlinked it, and the
+        # other's `os.replace` raised FileNotFoundError. The transport is explicitly
+        # shareable and the design names the case -- "a recursive fan-out where every
+        # worker asks the same question" -- so a same-request race is the expected load,
+        # not an exotic one.
+        staged = path.with_name(f"{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
         staged.write_bytes(recording.to_json_bytes())
         os.replace(staged, path)
         return recording

@@ -85,7 +85,11 @@ class FanoutResult:
         return self.aggregate.descendant_tokens
 
     def summary(self) -> str:
-        failures = [outcome.session_id for outcome in self.outcomes if not outcome.ok]
+        failures = [
+            f"{outcome.session_id}({outcome.error_category or outcome.status})"
+            for outcome in self.outcomes
+            if not outcome.ok
+        ]
         return (
             f"{len(self.outcomes)} concurrent call(s) over {len(set(self.sessions))} session(s); "
             f"descendant {self.descendant_tokens} of {self.aggregate.inclusive_tokens} tokens "

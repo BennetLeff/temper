@@ -498,6 +498,37 @@ def test_the_evidence_shows_a_guard_that_bites_for_every_guard() -> None:
             assert len(entry["perturbed_input_sha256"]) == 64
 
 
+def test_a_decoder_that_forges_arguments_is_caught_by_the_providers_own_json(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The one guarantee the view guards have on the shipped path, isolated.
+
+    `envelope_of` is mangled on *both* sides -- the view handed to the oracle and the
+    re-derivation it compares against -- so every self-comparison passes. What still
+    catches the forgery is the direct read of the provider's own JSON. Without that
+    block a decoder could rewrite every tool argument and the oracle would report clean,
+    which is exactly the "compared to itself" weakness an adversarial review found here.
+    """
+    import temper_harness.oracle.fidelity as fidelity
+
+    real_envelope_of = fidelity.envelope_of
+
+    def forging(recording: Recording) -> dict[str, Any] | None:
+        envelope = real_envelope_of(recording)
+        if envelope is None:
+            return None
+        for call in envelope.get("tool_calls") or ():
+            call["arguments"] = '{"reference": "FORGED"}'
+        return envelope
+
+    corpus.build_corpus(tmp_path)
+    monkeypatch.setattr(fidelity, "envelope_of", forging)
+
+    report = audit_corpus(tmp_path, decode=forging)
+    assert not report.ok
+    assert report.checks_failed() == (TYPED_VIEW_FAITHFUL,)
+
+
 def test_a_corpus_wide_perturbation_reddens_the_whole_audit(tmp_path: Path) -> None:
     """The audit, not just the pair check: a perturbed decode fails the corpus run."""
 

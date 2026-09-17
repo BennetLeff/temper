@@ -7,6 +7,7 @@ import socket
 import ssl
 
 import pytest
+import requests
 from jsonschema import ValidationError
 
 from temper_harness.provider import errors
@@ -149,6 +150,44 @@ def test_http_status_mapping(status: int, expected: type[TransportError]) -> Non
     a branch order that checked 5xx first would swallow it.
     """
     assert isinstance(for_http_status(status), expected)
+
+
+def test_the_client_timeout_hierarchy_is_classified_correctly() -> None:
+    """`requests`' `Timeout` is not Python's `TimeoutError`, and it *is* an `OSError`.
+
+    A classifier that checked only the builtin types reported a read timeout as a
+    pre-connection failure -- the opposite of what happened, and it flips `billable`, so
+    a request that was sent and may have generated was recorded as a free failure. There
+    is one entry point precisely so this cannot be got right in one place and wrong in
+    another; this test holds it at that entry point.
+    """
+    read = classify_exception(requests.exceptions.ReadTimeout("read timed out"))
+    assert isinstance(read, RequestTimeout)
+    assert read.billable is True
+
+    connect = classify_exception(requests.exceptions.ConnectTimeout("connect timed out"))
+    assert isinstance(connect, PreConnectionUnavailable)
+    assert connect.billable is False, "nothing was sent, so nothing was billed"
+
+    tls = classify_exception(requests.exceptions.SSLError("handshake failed"))
+    assert isinstance(tls, PreConnectionUnavailable)
+
+    refused = classify_exception(requests.exceptions.ConnectionError("refused"))
+    assert isinstance(refused, PreConnectionUnavailable)
+
+    other = classify_exception(requests.exceptions.RequestException("unexpected"))
+    assert isinstance(other, UnknownTransportError)
+
+    assert isinstance(classify_exception(TimeoutError("builtin")), RequestTimeout)
+    assert isinstance(
+        classify_exception(ConnectionRefusedError("builtin")), PreConnectionUnavailable
+    )
+
+
+def test_a_redirect_status_maps_to_an_endpoint_refusal() -> None:
+    """Not the retryable catch-all: a 3xx is a refused endpoint, not an unknown fault."""
+    assert isinstance(for_http_status(302), EndpointRejected)
+    assert for_http_status(302).retryable is False
 
 
 def test_a_rejected_request_is_not_retryable() -> None:

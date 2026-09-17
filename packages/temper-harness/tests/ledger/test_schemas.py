@@ -23,6 +23,7 @@ EXPECTED_SCHEMAS = (
     "error.schema.json",
     "envelope.schema.json",
     "recording.schema.json",
+    "canary_evidence.schema.json",
 )
 
 
@@ -59,7 +60,12 @@ def test_no_inline_schema_version_constant() -> None:
     raw-rotation-trig check.
     """
     src = Path(__file__).resolve().parents[2] / "src" / "temper_harness"
-    assignment = re.compile(r"^\s*SCHEMA_VERSION\s*=", re.MULTILINE)
+    # Widened from `^\s*SCHEMA_VERSION\s*=`: a *prefixed* name walked straight past
+    # the literal form, and one did -- `EVIDENCE_SCHEMA_VERSION` sat in
+    # `canary/runner.py` while this test reported clean. The substance the check is
+    # after is "no record's version is a Python literal with no artefact behind it",
+    # and the spelling is not the substance.
+    assignment = re.compile(r"^\s*\w*SCHEMA_VERSION\s*=", re.MULTILINE)
     offenders = [
         path.relative_to(src).as_posix()
         for path in src.rglob("*.py")
@@ -151,6 +157,26 @@ def test_the_two_record_kinds_this_slice_writes_validate() -> None:
     ]
     for sample in samples:
         validator.validate(sample)
+
+
+def test_the_aggregates_usage_taxonomy_covers_the_committed_record() -> None:
+    """Every field in the committed usage record is classified as additive, breakdown,
+    or the provider's own total.
+
+    Without this, `BREAKDOWN_USAGE_FIELDS` would be documentation nobody checks and a
+    new usage field could arrive unclassified -- silently summed, or silently ignored.
+    """
+    from temper_harness.ledger.aggregate import (
+        ADDITIVE_USAGE_FIELDS,
+        BREAKDOWN_USAGE_FIELDS,
+        PROVIDER_TOTAL_FIELD,
+    )
+    from temper_harness.provider.usage import usage_fields
+
+    classified = set(ADDITIVE_USAGE_FIELDS) | set(BREAKDOWN_USAGE_FIELDS) | {PROVIDER_TOTAL_FIELD}
+    assert classified == set(usage_fields())
+    # Disjoint: a field that were both additive and a breakdown would be summed twice.
+    assert not set(ADDITIVE_USAGE_FIELDS) & set(BREAKDOWN_USAGE_FIELDS)
 
 
 def test_usage_schema_rejects_missing_required_field() -> None:

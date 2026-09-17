@@ -24,6 +24,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
+import requests
+
 
 @dataclass(frozen=True, slots=True)
 class ErrorSpec:
@@ -188,11 +190,34 @@ def classify_exception(exc: BaseException, *, http_status: int | None = None) ->
     """Map any send-path exception onto the taxonomy.
 
     Returns a :class:`TransportError` rather than raising, so the caller decides
-    whether to re-raise or record. Never returns ``None``: an unclassified
-    failure is exactly what this function exists to prevent.
+    whether to re-raise or record. Never returns ``None``: an unclassified failure is
+    exactly what this function exists to prevent.
+
+    It knows the HTTP client's exception hierarchy, and that is not a layering
+    accident. ``requests``' ``Timeout`` does **not** inherit from Python's
+    ``TimeoutError``, and it *does* inherit from ``OSError`` -- so a classifier that
+    checked only the builtin types would report a read timeout as a pre-connection
+    failure, which is the opposite of what happened and flips ``billable``: a request
+    that was sent and may have generated would be recorded as a free failure. The
+    alternative was a second, client-aware wrapper beside this one, which is how two
+    entry points end up disagreeing about the same exception. There is one entry point,
+    and it is this one.
+
+    ``ConnectTimeout`` is matched before ``Timeout`` because it inherits from both and
+    means the opposite thing: nothing was ever sent, so nothing was billed.
     """
     if isinstance(exc, TransportError):
         return exc
+    if isinstance(exc, requests.exceptions.ConnectTimeout):
+        return PreConnectionUnavailable(f"could not connect: {exc}", http_status=http_status)
+    if isinstance(exc, requests.exceptions.Timeout):
+        return RequestTimeout(str(exc), http_status=http_status)
+    if isinstance(exc, requests.exceptions.SSLError):
+        return PreConnectionUnavailable(f"TLS failure: {exc}", http_status=http_status)
+    if isinstance(exc, requests.exceptions.ConnectionError):
+        return PreConnectionUnavailable(str(exc), http_status=http_status)
+    if isinstance(exc, requests.exceptions.RequestException):
+        return UnknownTransportError(f"{type(exc).__name__}: {exc}", http_status=http_status)
     if isinstance(exc, (socket.gaierror, ConnectionRefusedError, ConnectionResetError)):
         return PreConnectionUnavailable(str(exc), http_status=http_status)
     if isinstance(exc, ssl.SSLError):
@@ -232,6 +257,13 @@ def for_http_status(status: int, message: str = "") -> TransportError:
     # without a category per remedy.
     if status in (400, 401, 403):
         return RequestRejected(detail, http_status=status)
+    if 300 <= status < 400:
+        # A redirect is a refusal of the endpoint, not an unknown transport fault. The
+        # live adapter intercepts 3xx itself and refuses to follow one (R16); routing it
+        # here as well means a *hand-edited or imported recording* carrying a 302
+        # replays as that refusal rather than as a retryable unknown, which is what the
+        # catch-all would otherwise make it.
+        return EndpointRejected(f"the provider redirected with HTTP {status}", http_status=status)
     return UnknownTransportError(detail, http_status=status)
 
 

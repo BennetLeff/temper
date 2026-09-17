@@ -41,10 +41,7 @@ from temper_harness.provider.errors import (
     IncompleteStream,
     MalformedResponse,
     MalformedStream,
-    PreConnectionUnavailable,
-    RequestTimeout,
     TransportError,
-    UnknownTransportError,
     classify_exception,
     classify_http_response,
 )
@@ -62,6 +59,7 @@ from temper_harness.provider.interface import (
 )
 from temper_harness.provider.messages import build_wire_request
 from temper_harness.provider.usage import normalize_usage
+from temper_harness.store.errors import StoreError
 from temper_harness.store.recorder import RecordingStore
 from temper_harness.store.recordings import canonical_request_bytes
 
@@ -102,6 +100,7 @@ def wire_body(request: Request) -> dict[str, Any]:
         messages=request.messages,
         tools=list(request.tools) or None,
         temperature=request.temperature,
+        max_tokens=request.max_tokens,
     )
     if request.stream:
         body["stream"] = True
@@ -334,33 +333,6 @@ class _ByteLineReader:
 # -- the live adapter --------------------------------------------------------
 
 
-def classify_request_exception(exc: BaseException) -> TransportError:
-    """Translate this HTTP client's exceptions, then fall back to the taxonomy.
-
-    ``requests``' timeout hierarchy does not inherit from Python's ``TimeoutError``,
-    and its ``Timeout`` *does* inherit from ``OSError`` -- so the general classifier
-    would report a read timeout as a pre-connection failure, which is the opposite
-    of what happened: the connection was established, the request was sent, and the
-    read was slow. The two differ in a flag that matters, because
-    ``RequestTimeout`` is billable and ``PreConnectionUnavailable`` is not: getting
-    it backwards mis-attributes spend.
-
-    ``ConnectTimeout`` is checked before ``Timeout`` because it inherits from both
-    and means the opposite thing -- nothing was ever sent, so nothing was billed.
-    """
-    if isinstance(exc, requests.exceptions.ConnectTimeout):
-        return PreConnectionUnavailable(f"could not connect: {exc}")
-    if isinstance(exc, requests.exceptions.Timeout):
-        return RequestTimeout(str(exc))
-    if isinstance(exc, requests.exceptions.SSLError):
-        return PreConnectionUnavailable(f"TLS failure: {exc}")
-    if isinstance(exc, requests.exceptions.ConnectionError):
-        return PreConnectionUnavailable(str(exc))
-    if isinstance(exc, requests.exceptions.RequestException):
-        return UnknownTransportError(f"{type(exc).__name__}: {exc}")
-    return classify_exception(exc)
-
-
 class LiveTransport:
     """The only adapter that touches the network.
 
@@ -436,8 +408,11 @@ class LiveTransport:
                 timeout=self._timeout,
                 stream=True,
             )
-        except BaseException as err:  # noqa: BLE001 - classified, never propagated raw
-            raise classify_request_exception(err) from err
+        except Exception as err:  # noqa: BLE001 - classified, never propagated raw
+            # `Exception`, not `BaseException`: `KeyboardInterrupt` and `SystemExit`
+            # pass through. Classifying a cancellation as a transport failure would put
+            # a retryable provider error in the ledger for something the operator did.
+            raise classify_exception(err) from err
 
         try:
             if 300 <= response.status_code < 400:
@@ -472,6 +447,17 @@ class LiveTransport:
                     # flag here would be instance-level state, and porting the
                     # concurrency fault is what showed that state is unsafe.
                     yield from decode_stream_payloads(payloads, served_from=request.served_from)
+                    # Recording happens *after* the loop for a stream, and the asymmetry
+                    # with the non-streaming path is worth stating. The bytes are only
+                    # complete once the last chunk has arrived, so there is no point
+                    # earlier at which there is a payload to write. Two consequences,
+                    # both accepted rather than hidden: a consumer that abandons a stream
+                    # gets no recording (correct -- an abandoned stream is a cancellation,
+                    # and a corpus entry that replays as a truncated turn is worse than
+                    # no entry), and a store failure surfaces after the deltas have
+                    # already been observed, because the `except StoreError` above
+                    # re-raises it rather than letting it be classified as a provider
+                    # fault.
                     self._record(body, reader.raw, response)
                     return
 
@@ -487,13 +473,20 @@ class LiveTransport:
                 # against. A store that cannot write should fail the call loudly.
                 self._record(body, payload, response)
                 yield Terminal(envelope)
-            except TransportError:
+            except (TransportError, StoreError):
+                # `TransportError` is already classified. `StoreError` is not a
+                # transport outcome at all and must not be folded into one: the store's
+                # own taxonomy exists because "you asked for a recording that does not
+                # exist" belongs nowhere near "the model produced nothing", and
+                # `UnknownTransportError` is retryable -- so reclassifying a local
+                # refusal would hand S1's backoff policy an infinite loop over a
+                # deterministic failure.
                 raise
             except Exception as err:
                 # A read that fails mid-stream reaches here, and this is the branch
                 # the socket fault injection exists to cover: without it a read
                 # timeout would propagate raw out of the send path (R6).
-                raise classify_request_exception(err) from err
+                raise classify_exception(err) from err
         finally:
             response.close()
 

@@ -65,6 +65,10 @@ class Aggregate:
     descendant_tokens: int
     root_exclusive_usd: float
     descendant_usd: float
+    #: How many rows contributed to the totals. In lower-bound mode that is fewer than
+    #: the rows in scope, because the excluded ones are not summed -- and `reconciles`
+    #: gates on this being non-zero, so counting an excluded row would let a lower bound
+    #: claim a non-vacuous agreement it had not earned.
     call_count: int
     provider_total_tokens: int = 0
     rows_without_provider_total: int = 0
@@ -193,12 +197,14 @@ def _summarize(
     descendant_usd = 0.0
     provider_total = 0
     missing_provider_total = 0
+    counted = 0
 
     for row in in_scope:
         if is_lower_bound and (
             row.get("status") in CLOSED_STATUSES or row.get("served_from") == "replay"
         ):
             continue
+        counted += 1
         lineage = row["lineage"]
         is_root_exclusive = lineage.get("parent_session_id") is None
         tokens = _tokens(row)
@@ -221,7 +227,7 @@ def _summarize(
         descendant_tokens=descendant_tokens,
         root_exclusive_usd=exclusive_usd,
         descendant_usd=descendant_usd,
-        call_count=len(in_scope),
+        call_count=counted,
         provider_total_tokens=provider_total,
         rows_without_provider_total=missing_provider_total,
         is_lower_bound=is_lower_bound,

@@ -19,6 +19,7 @@ a concurrent appender cannot interleave a partial line.
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -31,6 +32,47 @@ from temper_harness.schema_registry import build_validator
 
 LEDGER_FILENAME = "ledger.jsonl"
 INFLIGHT_FILENAME = "inflight.jsonl"
+
+
+def _last_seq(fd: int) -> int:
+    """The highest ``seq`` in an open ledger file, read from its tail.
+
+    The scan starts at the end and widens, because the record that matters is the last
+    one and a full parse of a file that grows without bound is a cost paid on every
+    append. Two details are load-bearing:
+
+    * a window that ends *mid-record* has no trailing newline, and the last newline in
+      it then separates earlier records -- so without the check below this can return a
+      stale sequence and hand out a duplicate. Same defect, different hat;
+    * a window whose last line does not parse carries no usable sequence, so it widens
+      rather than guessing.
+
+    ``-1`` means "no record here yet", which makes the first allocation ``0``.
+    """
+    size = os.lseek(fd, 0, os.SEEK_END)
+    if size == 0:
+        return -1
+    window = 4096
+    while True:
+        start = max(0, size - window)
+        os.lseek(fd, start, os.SEEK_SET)
+        tail = os.read(fd, size - start)
+        if not tail.endswith(b"\n") and start > 0:
+            window *= 4
+            continue
+        # Drop a torn final line (a crash mid-write): the last *complete* record carries
+        # the sequence, and a partial one has none.
+        complete = tail[: tail.rfind(b"\n")] if b"\n" in tail else b""
+        for line in reversed(complete.split(b"\n")):
+            if not line.strip():
+                continue
+            try:
+                return int(json.loads(line)["seq"])
+            except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+                continue
+        if start == 0:
+            return -1
+        window *= 4
 
 
 def _load_validator() -> Draft202012Validator:
@@ -68,39 +110,45 @@ class LedgerStore:
         self.directory.mkdir(parents=True, exist_ok=True)
         self._ledger_path = self.directory / LEDGER_FILENAME
         self._inflight_path = self.directory / INFLIGHT_FILENAME
-        self._seq = self._highest_seq()
 
     # -- writing ---------------------------------------------------------
 
-    def _append(self, path: Path, record: dict[str, Any]) -> dict[str, Any]:
-        record = {**record, "seq": self._seq}
-        validate_record(record)
-        data = canonical_line(record)
-        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o644)
+    def _append(self, path: Path, record: dict[str, Any], *, validated: bool) -> dict[str, Any]:
+        """Append one record, allocating its ``seq`` inside the file's lock.
+
+        The sequence number is allocated *in the file* rather than in memory, and that
+        is the whole point of this method. It used to be an instance counter, which is
+        unique only while one thread appends at a time: two threads read the same value,
+        and two processes each seeded from their own read of the file. KTD5 designs for
+        exactly that append pattern -- "so the S3 daemon can append from multiple
+        processes without a server" -- and a test asserts uniqueness, so an in-memory
+        counter was a guarantee the code could not keep. Measured before the fix: sixty
+        concurrent appends wrote sixty rows with three distinct sequence numbers.
+
+        The lock covers both the allocation and the write, because allocating and then
+        appending outside the critical section is the same race one step later. It is a
+        POSIX advisory lock, which is what this repository's platforms provide.
+        """
+        fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_APPEND, 0o644)
         try:
-            os.write(fd, data)
+            fcntl.flock(fd, fcntl.LOCK_EX)
+            numbered = {**record, "seq": _last_seq(fd) + 1}
+            if validated:
+                validate_record(numbered)
+            os.write(fd, canonical_line(numbered))
             os.fsync(fd)
         finally:
+            fcntl.flock(fd, fcntl.LOCK_UN)
             os.close(fd)
-        self._seq += 1
-        return record
+        return numbered
 
     def append_ledger(self, record: dict[str, Any]) -> dict[str, Any]:
-        return self._append(self._ledger_path, record)
+        return self._append(self._ledger_path, record, validated=True)
 
     def append_inflight(self, record: dict[str, Any]) -> dict[str, Any]:
-        # In-flight records are not call_terminal rows, so they carry their own
-        # minimal shape rather than the ledger schema.
-        record = {**record, "seq": self._seq}
-        data = canonical_line(record)
-        fd = os.open(self._inflight_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o644)
-        try:
-            os.write(fd, data)
-            os.fsync(fd)
-        finally:
-            os.close(fd)
-        self._seq += 1
-        return record
+        # In-flight records are not call_terminal rows, so they carry their own minimal
+        # shape rather than the ledger schema.
+        return self._append(self._inflight_path, record, validated=False)
 
     # -- reading ---------------------------------------------------------
 

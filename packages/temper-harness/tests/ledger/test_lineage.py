@@ -156,6 +156,52 @@ def test_price_table_identity_is_recorded_per_row(registry: LineageRegistry, sto
     assert row["estimated_usd"] == 0.019
 
 
+def test_sequence_numbers_stay_unique_under_concurrency(store) -> None:
+    """The assertion above is single-threaded, so it passed while `seq` was broken.
+
+    Measured before the fix: sixty concurrent appends wrote sixty rows with three
+    distinct sequence numbers, because the counter lived on the instance and each
+    thread read the same value. The test above could not see it, and KTD5 designs for
+    append from multiple processes, so the guarantee had to move into the file.
+    """
+    import threading
+
+    barrier = threading.Barrier(8)
+    failures: list[BaseException] = []
+
+    def worker(index: int) -> None:
+        try:
+            barrier.wait()
+            store.append_ledger({"kind": "root_opened", "root_id": f"root-{index}"})
+        except BaseException as err:  # noqa: BLE001 - reported, not swallowed
+            failures.append(err)
+
+    threads = [threading.Thread(target=worker, args=(index,)) for index in range(24)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert failures == []
+    seqs = [record["seq"] for record in store.ledger_records()]
+    assert len(seqs) == 24
+    assert len(set(seqs)) == len(seqs)
+    assert seqs == sorted(seqs)
+
+
+def test_sequence_numbers_survive_a_new_store_over_the_same_directory(tmp_path) -> None:
+    """The allocation reads the file, so a second process continues rather than restarting."""
+    from temper_harness.ledger.store import LedgerStore
+
+    first = LedgerStore(tmp_path)
+    first.append_ledger({"kind": "root_opened", "root_id": "root-1"})
+    second = LedgerStore(tmp_path)
+    second.append_ledger({"kind": "root_opened", "root_id": "root-2"})
+
+    seqs = [record["seq"] for record in second.ledger_records()]
+    assert seqs == [0, 1]
+
+
 def test_sequence_numbers_are_monotonic(registry: LineageRegistry, store) -> None:
     registry.open_root()
     registry.register_session("a")

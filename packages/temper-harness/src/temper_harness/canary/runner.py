@@ -33,8 +33,25 @@ from temper_harness.provider.deepseek import (
 from temper_harness.provider.errors import CredentialMissing
 from temper_harness.provider.interface import OFFICIAL_HOST
 from temper_harness.provider.probe import PROBE_SET, run_probe_set
+from temper_harness.schema_registry import build_validator, load_schema
 
-EVIDENCE_SCHEMA_VERSION = "1.0"
+EVIDENCE_SCHEMA = "canary_evidence.schema.json"
+
+
+def evidence_schema_version() -> str:
+    """The evidence format version, read from the committed schema.
+
+    Not a module constant. The anti-inline-version check in the schema suite exists
+    because the predecessor's `harness-lab/telemetry.py` carried a version integer as a
+    Python literal, so no artefact existed to validate against -- and a *prefixed* name
+    walked straight past that check until the check was widened. The version is read
+    from the schema and the evidence is validated against the same file, so the writer,
+    the reader, and the committed artefact cannot disagree.
+    """
+    versions: list[str] = load_schema(EVIDENCE_SCHEMA)["properties"]["schema_version"]["enum"]
+    if not versions:
+        raise ValueError(f"{EVIDENCE_SCHEMA} declares no evidence format version")
+    return versions[-1]
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,6 +91,10 @@ class CanaryReport:
     harness_commit: str
     account_models: tuple[str, ...]
     comparisons: tuple[ProbeComparison, ...]
+    #: Whether the working tree had uncommitted changes when this ran. A dirty run
+    #: cannot be reproduced from `harness_commit`, and recording that is the difference
+    #: between an observation and an anecdote. Measured, not assumed: see `harness_state`.
+    harness_dirty: bool = False
 
     @property
     def ok(self) -> bool:
@@ -103,12 +124,13 @@ class CanaryReport:
 
     def to_evidence(self) -> dict[str, Any]:
         return {
-            "schema_version": EVIDENCE_SCHEMA_VERSION,
+            "schema_version": evidence_schema_version(),
             "provider": PROVIDER,
             "model": MODEL,
             "endpoint_host": OFFICIAL_HOST,
             "captured_at": self.captured_at,
             "harness_commit": self.harness_commit,
+            "harness_dirty": self.harness_dirty,
             "account_models": list(self.account_models),
             "verdict": "shape_stable" if self.ok else "shape_changed",
             "probes": [item.to_evidence() for item in self.comparisons],
@@ -137,7 +159,7 @@ def run_canary(
     api_key: str | None,
     recorded_dir: Path,
     timeout: float = 120.0,
-    harness_commit: str = "UNKNOWN",
+    harness_state: tuple[str, bool] = ("UNKNOWN", False),
     now: dt.datetime | None = None,
 ) -> CanaryReport:
     """Issue the probe set live and compare its shapes to the recorded corpus.
@@ -183,20 +205,28 @@ def run_canary(
         )
 
     moment = now or dt.datetime.now(dt.UTC)
+    harness_commit, harness_dirty = harness_state
     return CanaryReport(
         captured_at=moment.replace(microsecond=0).isoformat(),
         harness_commit=harness_commit,
+        harness_dirty=harness_dirty,
         account_models=tuple(fetch_account_models(api_key, timeout=min(timeout, 30.0))),
         comparisons=tuple(comparisons),
     )
 
 
 def write_evidence(report: CanaryReport, path: Path) -> None:
-    """Write the hashed evidence. Bodies are not available to write."""
+    """Write the hashed evidence, validated against the committed schema.
+
+    Validated on the way out rather than only on the way in: the evidence is what a
+    fidelity claim is checked against, so a malformed one should fail at the moment it
+    is produced rather than when someone later tries to read it. Bodies are not
+    available to write -- the report never held them.
+    """
+    document = report.to_evidence()
+    build_validator(EVIDENCE_SCHEMA).validate(document)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(report.to_evidence(), indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    path.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def event_stream_names(recorded_dir: Path) -> list[str]:
@@ -211,9 +241,11 @@ def probe_names() -> tuple[str, ...]:
 
 
 __all__ = [
+    "EVIDENCE_SCHEMA",
     "CanaryReport",
     "ProbeComparison",
     "event_stream_names",
+    "evidence_schema_version",
     "is_event_stream",
     "probe_names",
     "recorded_shapes",

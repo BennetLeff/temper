@@ -224,9 +224,16 @@ def compare_shapes(recorded: Mapping[str, Any], live: Mapping[str, Any]) -> list
     about a change to what a call costs to compute. Reported, and a human decides.
     """
     differences: list[str] = []
-    for key, expected in recorded.items():
+    # The union, not just the recorded keys: a wholly new shape key is a change the
+    # client should hear about, and iterating `recorded` alone would silently ignore
+    # one. The earlier claim that this was "forward-compatible on purpose" was wrong in
+    # both directions -- it reported additions *inside* a compared list while missing a
+    # new top-level key -- so the honest version reports every structural difference and
+    # a human decides whether it matters.
+    for key in sorted(set(recorded) | set(live)):
         if key in VOLATILE_SHAPE_KEYS:
             continue
+        expected = recorded.get(key)
         actual = live.get(key)
         if actual != expected:
             differences.append(f"{key}: recorded {expected!r}, live {actual!r}")

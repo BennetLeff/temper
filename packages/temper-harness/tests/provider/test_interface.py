@@ -104,7 +104,6 @@ class _FakeTransport:
     ) -> None:
         self._events = events
         self._terminal_usage = terminal_usage
-        self.cancelled = False
 
     def stream(self, request: Request) -> Iterator[Event]:
         yield from self._events

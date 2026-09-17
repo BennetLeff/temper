@@ -117,16 +117,61 @@ def test_two_attempts_of_one_arm_are_separate_scopes(tmp_path: Path) -> None:
 # -- offline by construction -------------------------------------------------
 
 
-def test_replay_opens_no_socket_even_on_a_hit(tmp_path: Path, no_network: None) -> None:
+@pytest.mark.usefixtures("no_network")
+def test_replay_opens_no_socket_even_on_a_hit(tmp_path: Path) -> None:
     record_one(tmp_path)
     assert replay(tmp_path).serve(REQUEST).response_raw == RESPONSE
 
 
-def test_a_replay_miss_is_a_typed_error_and_still_offline(tmp_path: Path, no_network: None) -> None:
+@pytest.mark.usefixtures("no_network")
+def test_a_replay_miss_is_a_typed_error_and_still_offline(tmp_path: Path) -> None:
     """R9: a missing recording is a hard typed error, not a silent skip."""
     record_one(tmp_path)
     with pytest.raises(RecordingNotFound, match="no nearest-match fallback"):
         replay(tmp_path).serve(OTHER_REQUEST)
+
+
+def test_recording_the_same_request_from_many_threads_is_safe(tmp_path: Path) -> None:
+    """Concurrent recording of one request, which is the expected load, not an exotic one.
+
+    The staged temp file used to be keyed on the pid alone, so every thread in a process
+    shared one path: the first `os.replace` unlinked it and the rest raised
+    FileNotFoundError. Measured before the fix: forty threads, thirty-two failures. The
+    design names the case it breaks -- "a recursive fan-out where every worker asks the
+    same question" -- and the transport is explicitly shareable.
+    """
+    import threading
+
+    store = live(tmp_path)
+    request = {"model": "deepseek-flash", "messages": [{"role": "user", "content": "same"}]}
+    failures: list[BaseException] = []
+    barrier = threading.Barrier(8)
+
+    def worker() -> None:
+        try:
+            barrier.wait()
+            store.record(
+                request=request,
+                response_raw=b'{"id":"msg-same"}',
+                headers={},
+                provider="deepseek",
+                model="deepseek-flash",
+                http_status=200,
+            )
+        except BaseException as err:  # noqa: BLE001 - reported, not swallowed
+            failures.append(err)
+
+    threads = [threading.Thread(target=worker) for _ in range(24)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert failures == []
+    scope = tmp_path / "direct" / "0"
+    assert len(list(scope.glob("*.json"))) == 1
+    assert list(scope.glob("*.tmp")) == [], "a staged temp file was left behind"
+    assert replay(tmp_path).serve(request).response_raw == b'{"id":"msg-same"}'
 
 
 def test_a_replay_miss_in_an_untouched_corpus_is_still_typed(tmp_path: Path) -> None:

@@ -21,13 +21,24 @@ EVIDENCE = Path(__file__).resolve().parent / "evidence" / "canary.json"
 WRITE_ENV = "TEMPER_HARNESS_WRITE_CANARY_EVIDENCE"
 
 
-def _harness_commit() -> str:
+def _harness_state() -> tuple[str, bool]:
+    """HEAD, and whether the tree was clean.
+
+    Both, because a commit alone is not provenance: a run from a dirty tree cannot be
+    reproduced from the commit it names, and the first canary run in this branch was
+    exactly that -- the canary code was uncommitted at the HEAD it recorded. Recording
+    the dirt is what keeps the evidence an observation rather than an anecdote.
+    """
     try:
-        return subprocess.run(
+        commit = subprocess.run(
             ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True, timeout=10
         ).stdout.strip()
+        status = subprocess.run(
+            ["git", "status", "--porcelain"], capture_output=True, text=True, check=True, timeout=10
+        ).stdout
     except (OSError, subprocess.SubprocessError):  # pragma: no cover - environment
-        return "UNKNOWN"
+        return "UNKNOWN", True
+    return (commit or "UNKNOWN"), bool(status.strip())
 
 
 @pytest.fixture(scope="module")
@@ -40,7 +51,7 @@ def report():
     return run_canary(
         api_key=os.environ.get(API_KEY_ENV),
         recorded_dir=Path(corpus.CAPTURED),
-        harness_commit=_harness_commit(),
+        harness_state=_harness_state(),
     )
 
 
@@ -65,3 +76,8 @@ def test_the_live_run_produced_a_shape_for_every_probe(report) -> None:
     assert len(report.comparisons) == len(corpus.ENTRIES)
     assert all(item.live_response_bytes > 0 for item in report.comparisons)
     assert report.account_models, "the account's model list is part of the evidence"
+    if report.harness_dirty:  # pragma: no cover - only when run from a dirty tree
+        pytest.fail(
+            "this run was from a dirty tree, so its evidence cannot be reproduced from "
+            "the commit it names; commit first, then re-run the canary"
+        )

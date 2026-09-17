@@ -239,8 +239,6 @@ def test_buffering_the_captured_stream_produces_a_schema_valid_envelope() -> Non
         def stream(self, request: Request):
             yield from decode_stream_payloads(sse_payloads("stream_plain"), served_from="live")
 
-        def cancel(self) -> None: ...
-
     terminal = next(iter(BufferedTransport(_ReplayOfBytes()).stream(_request())))
     envelope = terminal.envelope
     assert envelope["content"] == "temper"
@@ -336,8 +334,6 @@ def test_a_real_truncation_has_no_usage_to_retain_and_that_is_the_honest_answer(
         def stream(self, request: Request):
             yield from decode_stream_payloads(truncated, served_from="live")
 
-        def cancel(self) -> None: ...
-
     with pytest.raises(IncompleteStream) as caught:
         list(BufferedTransport(_Truncating()).stream(_request()))
     assert caught.value.partial_usage is None
@@ -355,8 +351,6 @@ def test_usage_observed_before_a_truncation_is_retained() -> None:
         def stream(self, request: Request):
             yield UsageReported({"prompt_tokens": 5, "completion_tokens": 2, "total_tokens": 7})
             raise IncompleteStream("cut mid-stream")
-
-        def cancel(self) -> None: ...
 
     with pytest.raises(IncompleteStream) as caught:
         list(BufferedTransport(_UsageThenTruncated()).stream(_request()))
@@ -500,6 +494,40 @@ def test_the_request_on_the_wire_is_exactly_the_canonical_encoding() -> None:
     assert calls[0]["stream"] is True
 
 
+def test_every_request_field_reaches_the_wire() -> None:
+    """The structural test that was missing, and the reason D2 shipped.
+
+    `wire_body` dropped `max_tokens` while `Request` carried it and
+    `build_wire_request` accepted it. Nothing noticed, because every existing test
+    compared `wire_body`'s output against `wire_body`'s output -- and the captured
+    fixtures agreed with the omission, having been produced through the same
+    function. That is the "correct by coincidence" shape: a field list checked
+    against itself rather than against the request.
+
+    So this walks the fields the `Request` carries and asserts each one arrives.
+    Adding a field to `Request` and not to `wire_body` now fails here.
+    """
+    request = Request(
+        model="deepseek-flash",
+        messages=[ChatMessage(role="user", content="place it")],
+        tools=(ToolDefinition(name="place", description="d", parameters={"type": "object"}),),
+        temperature=0,
+        max_tokens=64,
+        served_from="live",
+        stream=True,
+    )
+    body = wire_body(request)
+
+    assert body["model"] == request.model
+    assert body["messages"]
+    assert body["tools"]
+    assert body["temperature"] == 0
+    assert body["max_tokens"] == 64, (
+        "a harness that cannot bound a turn cannot bound what it spends"
+    )
+    assert body["stream"] is True
+
+
 def test_the_credential_travels_in_a_header_and_never_in_the_body() -> None:
     transport, calls = _adapter(
         _FakeResponse(body=response_bytes("plain"), headers={"content-type": "application/json"})
@@ -513,6 +541,36 @@ def test_a_redirect_is_refused_rather_than_followed() -> None:
     transport, _ = _adapter(_FakeResponse(status_code=302, location="https://elsewhere.example"))
     with pytest.raises(EndpointRejected, match="refusing to follow"):
         list(transport.stream(_request()))
+
+
+def test_a_local_store_refusal_is_not_reclassified_as_a_transport_failure(
+    tmp_path: Path,
+) -> None:
+    """A `StoreError` must not become a retryable provider error.
+
+    `_record` runs inside the block that classifies send-path exceptions, and a store
+    refusal is not one. Folding it in would put "you asked for a recording that does not
+    exist" in the ledger as `unknown_transport`, whose `retryable` flag is True -- so a
+    deterministic local refusal would be handed to S1's backoff policy as something to
+    retry forever.
+    """
+    from temper_harness.store import ModeViolationError
+
+    store = RecordingStore(tmp_path / "replay-only", mode="replay", arm="a", attempt=0)
+    transport, _ = _adapter(
+        _FakeResponse(body=response_bytes("plain"), headers={"content-type": "application/json"}),
+        store=store,
+    )
+    with pytest.raises(ModeViolationError):
+        list(transport.stream(_request()))
+
+
+def test_a_cancellation_is_not_classified_as_a_transport_failure() -> None:
+    """Ctrl-C during a request is not a provider failure, and must not be ledgered as one."""
+    transport, calls = _adapter(error=KeyboardInterrupt())
+    with pytest.raises(KeyboardInterrupt):
+        list(transport.stream(_request()))
+    assert len(calls) == 1
 
 
 @pytest.mark.parametrize(

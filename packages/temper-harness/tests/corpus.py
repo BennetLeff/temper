@@ -100,10 +100,6 @@ def live_store(root: Path, *, arm: str = ARM, attempt: int = ATTEMPT) -> Recordi
     return RecordingStore(root, mode=Mode.LIVE, arm=arm, attempt=attempt)
 
 
-def replay_store(root: Path, *, arm: str = ARM, attempt: int = ATTEMPT) -> RecordingStore:
-    return RecordingStore(root, mode=Mode.REPLAY, arm=arm, attempt=attempt)
-
-
 def build_corpus(
     root: Path, *, arm: str = ARM, attempt: int = ATTEMPT, probes: tuple[str, ...] = CORPUS_PROBES
 ) -> list[Recording]:

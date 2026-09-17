@@ -34,7 +34,7 @@ from typing import Any
 from jsonschema import ValidationError
 
 from temper_harness.provider.deepseek import decode_completion, is_event_stream
-from temper_harness.provider.errors import TransportError, classify_http_response
+from temper_harness.provider.errors import TransportError
 from temper_harness.provider.interface import buffer_events
 from temper_harness.provider.replay import events_from_recording
 from temper_harness.provider.usage import normalize_usage
@@ -169,6 +169,25 @@ def _check_typed_view(recording: Recording, envelope: Mapping[str, Any]) -> Iter
         yield f"the typed view does not satisfy envelope.schema.json: {err.message} (at {location})"
 
 
+def provider_message(recording: Recording) -> Mapping[str, Any] | None:
+    """The provider's own message object, read straight from the payload.
+
+    The independent anchor for a body that arrived whole, and the reason the two view
+    guards can fail on the shipped corpus at all: `audit_corpus` derives the typed view
+    *with* the decoder, so a guard that only compared the view to a re-derivation would
+    be comparing the decoder to itself. A streamed body splits its arguments across
+    chunks, so there the payload has no single message to read and this returns ``None``.
+    """
+    if is_event_stream(recording.headers.get("content-type")):
+        return None
+    try:
+        payload = json.loads(recording.response_raw)
+        message = payload["choices"][0]["message"]
+    except (ValueError, KeyError, IndexError, TypeError):
+        return None
+    return message if isinstance(message, Mapping) else None
+
+
 def _check_faithfulness(
     recording: Recording, envelope: Mapping[str, Any], expected: Mapping[str, Any]
 ) -> Iterator[str]:
@@ -193,29 +212,23 @@ def _check_faithfulness(
             if actual_call.get(name) != expected_call.get(name):
                 yield f"tool call {call_id} {name}: {actual_call.get(name)!r} != {expected_call.get(name)!r}"
 
-    # An independent read of the provider's own JSON, rather than a second trip
-    # through the decoder: for a body that arrived whole, the argument string the
-    # provider wrote must be the string the typed view carries.
-    #
-    # Note what this is *not*: a substring search of the raw bytes. The payload
+    # The independent half. Everything above compares the typed view to a re-derivation,
+    # which on the shipped path means comparing the decoder to itself; this reads the
+    # provider's own JSON instead, so a decoder that rewrote an argument string is
+    # caught. Note what it is *not*: a substring search of the raw bytes. The payload
     # JSON-escapes the quotes inside an argument string, so the decoded string never
     # appears verbatim in the payload -- a check written that way fires on a perfect
-    # recording, which is how it was found.
-    if not is_event_stream(recording.headers.get("content-type")):
-        try:
-            payload = json.loads(recording.response_raw)
-            provider_calls = payload["choices"][0]["message"].get("tool_calls") or []
-        except (ValueError, KeyError, IndexError, TypeError):
-            provider_calls = []
-        for provider_call in provider_calls:
-            call_id = provider_call.get("id")
-            if call_id not in expected_calls:
-                continue
-            if provider_call["function"]["arguments"] != expected_calls[call_id]["arguments"]:
-                yield (
-                    f"tool call {call_id} arguments in the typed view differ from the "
-                    "provider's own JSON; they were rewritten on the way through the decoder"
-                )
+    # recording, which is how the earlier version of this was found.
+    message = provider_message(recording)
+    for provider_call in (message or {}).get("tool_calls") or ():
+        call_id = provider_call.get("id")
+        if call_id not in expected_calls:
+            continue
+        if provider_call["function"]["arguments"] != expected_calls[call_id]["arguments"]:
+            yield (
+                f"tool call {call_id} arguments in the typed view differ from the "
+                "provider's own JSON; they were rewritten on the way through the decoder"
+            )
 
 
 def _check_tool_call_order(
@@ -229,9 +242,21 @@ def _check_tool_call_order(
     bytes cannot see.
     """
     actual_ids = [call["id"] for call in envelope.get("tool_calls") or ()]
+
+    # The independent half: the order the provider actually wrote, for a body that
+    # arrived whole. Without it this guard compares the view to a re-derivation, which
+    # on the shipped corpus is the decoder compared to itself -- so a decoder that
+    # reordered calls would pass. A streamed body splits its calls across chunks, so
+    # there the re-derivation is all there is.
+    message = provider_message(recording)
+    if message is not None:
+        provider_ids = [call["id"] for call in message.get("tool_calls") or ()]
+        if actual_ids != provider_ids:
+            yield f"tool call order is {actual_ids}; the provider emitted {provider_ids}"
+
     expected_ids = [call["id"] for call in expected.get("tool_calls") or ()]
     if actual_ids != expected_ids:
-        yield f"tool call order is {actual_ids}, the provider's order is {expected_ids}"
+        yield f"tool call order is {actual_ids}, the re-derivation says {expected_ids}"
     actual_indices = [call["index"] for call in envelope.get("tool_calls") or ()]
     if actual_indices != sorted(actual_indices):
         yield f"tool call indices are not ascending: {actual_indices}"
@@ -294,24 +319,30 @@ def _check_stream_framing(recording: Recording) -> Iterator[str]:
         yield "the final chunk carries no finish reason, so the turn is truncated"
 
 
-def _classification_is_reported_not_guarded(recording: Recording) -> str | None:
-    """A non-2xx recording's classification, as a reported fact rather than a check.
+# There is deliberately no `error_classified` guard here. An error record is *derived*
+# from the status and body, so a check that re-derived one and compared would be
+# comparing a value to itself, and no input could make it fail -- an unfalsifiable check
+# in a gate, which this repo has paid for before. What guards an error is the store
+# (`http_status` is schema-constrained and the bytes are hash-pinned) and the
+# classifier's own suite. This is a comment rather than a function so that the deletion
+# is the deletion.
 
-    There is no independently-derived view of an error to compare against: the error
-    record is *derived* from the status and body, so a check that re-derived it and
-    compared would be comparing a value to itself, and no input could make it fail.
-    An unfalsifiable check in a gate is a shape this repo has paid for before, so
-    this one is not in :data:`CHECK_NAMES` at all.
 
-    What does guard an error is the store (``http_status`` is schema-constrained and
-    the bytes are hash-pinned) and the classifier's own suite. This function exists so
-    the reason is recorded where the check used to be.
-    """
-    if recording.http_status < 300:
-        return None
-    error = classify_http_response(recording.http_status, recording.response_raw, recording.headers)
-    return f"{recording.http_status} classifies as {error.category}"
-
+#: Which guards have independent ground truth on the shipped corpus path, where
+#: ``audit_corpus`` derives the typed view *with* the decoder. Stated because the
+#: difference is otherwise invisible: a guard that compares the derived view to a
+#: re-derivation is comparing the decoder to itself and cannot fail, and reading "the
+#: corpus passes faithfulness" as protection would be reading it wrong.
+#:
+#: * independent -- ``corpus_not_empty``, ``request_identity``, ``raw_round_trip``,
+#:   ``typed_view_valid`` (the committed schema), ``usage_reconciled``,
+#:   ``usage_present``, ``stream_framing``;
+#: * independent for a non-streamed recording -- ``typed_view_faithful`` and
+#:   ``tool_call_order``, each anchored by a direct read of the provider's own JSON
+#:   (:func:`provider_message`); for a streamed recording their only ground truth is the
+#:   re-derivation, so there they check consistency rather than fidelity.
+#:
+#: `_check_tool_call_order` keeps both comparisons for exactly that reason.
 
 #: The per-recording checks, in the order they run. A check that needs the typed
 #: view takes it as a second argument.

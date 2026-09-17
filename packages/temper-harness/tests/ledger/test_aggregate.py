@@ -201,6 +201,10 @@ def test_lower_bound_is_labelled_and_excludes_the_gaps(
     assert result.is_lower_bound
     assert result.excluded
     assert result.inclusive_tokens == 600  # the 9_999 is excluded, not summed
+    # Counts the rows that were summed, not the rows in scope: `reconciles` gates on
+    # this being non-zero, so counting an excluded row would let a lower bound claim a
+    # non-vacuous agreement it had not earned.
+    assert result.call_count == 3
 
 
 def test_every_reason_is_reported_not_just_the_first(

@@ -185,7 +185,7 @@ def test_an_incomplete_eof_raises_and_sends_no_second_request() -> None:
     ]
     truncated = b"\n\n".join(payloads[:-1]) + b"\n\n"
     response = _ScriptedResponse(
-        _stream_chunks(3) if False else [truncated],
+        [truncated],
         headers={"content-type": "text/event-stream; charset=utf-8"},
     )
     transport, calls = _adapter(response)

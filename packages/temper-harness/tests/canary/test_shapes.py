@@ -115,6 +115,22 @@ def test_a_refusal_becoming_a_success_is_a_shape_change() -> None:
     assert compare_shapes(recorded, live)
 
 
+def test_a_wholly_new_shape_key_is_reported() -> None:
+    """Iterating only the recorded keys would silently ignore one.
+
+    The docstring used to claim forward compatibility and was wrong in both directions:
+    it reported an addition *inside* a compared list while missing a brand-new
+    top-level key. Union iteration reports every structural difference, and a human
+    decides whether it matters.
+    """
+    recorded = shape_for("plain")
+    live = dict(recorded)
+    live["a_field_the_recorder_never_knew_about"] = True
+    differences = compare_shapes(recorded, live)
+    assert len(differences) == 1
+    assert "a_never_knew_about" in differences[0] or "never_knew_about" in differences[0]
+
+
 def test_the_shapes_record_exact_key_lists(tmp_path: Path) -> None:
     """An addition is reported too, and that is deliberate.
 

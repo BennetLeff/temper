@@ -21,8 +21,9 @@ from temper_harness.canary import (
     recorded_shapes,
     run_canary,
 )
-from temper_harness.canary.runner import probe_names
+from temper_harness.canary.runner import EVIDENCE_SCHEMA, probe_names
 from temper_harness.provider.errors import CredentialMissing
+from temper_harness.schema_registry import build_validator
 from tests import corpus
 
 CAPTURED = Path(corpus.CAPTURED)
@@ -123,6 +124,7 @@ def test_the_committed_evidence_exists_and_is_well_formed() -> None:
         "plainly that S0's fidelity claim rests on reproducibility alone."
     )
     evidence = json.loads(EVIDENCE.read_text(encoding="utf-8"))
+    build_validator(EVIDENCE_SCHEMA).validate(evidence)
     assert evidence["schema_version"] == "1.0"
     assert evidence["model"] == "deepseek-flash"
     assert evidence["endpoint_host"] == "api.deepseek.com"
@@ -161,6 +163,34 @@ def test_the_evidence_carries_no_body_and_no_credential() -> None:
         # A difference names keys and values from a closed vocabulary, never prose.
         for difference in probe["differences"]:
             assert len(difference) < 400
+
+
+def test_the_evidence_records_whether_it_can_be_reproduced() -> None:
+    """Dirtiness is recorded, not assumed away.
+
+    A run from a dirty tree cannot be reproduced from the commit it names, and the first
+    canary run here was exactly that. The field is required so that a reader can tell an
+    observation from an anecdote, and this test fails if the field is absent -- which is
+    what the evidence looked like before the field existed.
+    """
+    evidence = json.loads(EVIDENCE.read_text(encoding="utf-8"))
+    assert "harness_dirty" in evidence
+    assert isinstance(evidence["harness_dirty"], bool)
+    if evidence["harness_dirty"]:
+        # Not a failure of the schema, but it does weaken the claim, and the plan has to
+        # say so rather than let a reader assume reproducibility.
+        repo_root = Path(__file__).resolve().parents[4]
+        plan = (
+            repo_root
+            / "docs"
+            / "plans"
+            / "2026-09-17-001-feat-deepseek-pcb-harness-s0-provider-transport-plan.md"
+        )
+        assert plan.exists(), plan
+        text = plan.read_text(encoding="utf-8")
+        assert "harness_dirty" in text or "uncommitted" in text, (
+            "a dirty canary run must be stated in the plan"
+        )
 
 
 def test_a_stable_verdict_means_tier_a_is_anchored() -> None:
