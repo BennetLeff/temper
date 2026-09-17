@@ -18,19 +18,19 @@
         (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
       )
     )
-    (symbol "STW65N65DM2"
+    (symbol "STW65N65DM2AG"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
       (in_bom yes)
       (on_board yes)
       (property "Reference" "U" (at 0 17.78 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "STW65N65DM2" (at 0 -17.78 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "STW65N65DM2AG" (at 0 -17.78 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Description" "elec/src/power_entry_unit.ato:PfcMosfet" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "STW65N65DM2_0_1"
+      (symbol "STW65N65DM2AG_0_1"
         (rectangle (start -12.70 -15.24) (end 12.70 15.24) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "STW65N65DM2_1_1"
+      (symbol "STW65N65DM2AG_1_1"
         (pin bidirectional line (at -15.24 -2.54 0) (length 2.54) (name "A1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at -15.24 2.54 0) (length 2.54) (name "K" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "A2" (effects (font (size 1.27 1.27)))) (number "3" (effects (font (size 1.27 1.27)))))

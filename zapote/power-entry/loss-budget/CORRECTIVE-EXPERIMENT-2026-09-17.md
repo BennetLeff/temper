@@ -6,16 +6,15 @@ it does not authorize a powered board or claim a complete loss budget.
 
 ## Device and source identity
 
-The authored/native marking is `STW65N65DM2` (`65N65DM2` on the package). This
-is not an order code. The model explicitly selects `STW65N65DM2AG`, the order
-code paired with that marking in the ST Device summary. The exact selected
+The authored and native order code is `STW65N65DM2AG`; the package marking is
+`65N65DM2`. The exact selected
 source is the official [STW65N65DM2AG DS11178 Rev 2, December 2025](https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf),
 page 1 (identity) and page 6, Figure 8 (Eoss curve). The retained local
 `sources/STW65N65DM2AG.pdf` is an older DocID028164 Rev 1 copy and remains
 hash-pinned for the other typical values; the revision difference is recorded
-instead of being hidden. The native board/source artifacts still carry the
-marking and require a later regeneration if an explicit AG MPN is to be
-written into them.
+instead of being hidden. The native board/source artifacts were regenerated
+together and bind the same current-board hash. The physical marking is retained
+only as package identity.
 
 ## Corrected output-capacitance term
 
@@ -39,18 +38,20 @@ uncertainty (±0.078 W at this frequency). This is a typical curve estimate,
 not a maximum or a production guarantee. A measured Eon that already includes
 the Coss discharge must not be added to this term.
 
-## Gate network and unresolved switching energy
+## Reproducible switching model
 
-The retained ST typicals are `Qgd = 58 nC` and `Qg = 120 nC`; the authored
-network is 10 ohm external gate resistance and 3.3 ohm intrinsic gate
-resistance. A first-order `t = Qgd*(Rext+Rint)/Vdrive` sensitivity over 9–11 V
-drive gives 70.1–85.7 ns. With the authoritative PFC current moments, this is
-approximately 47.5–58.1 W of overlap sensitivity at the nominal point. It is
-not a switching-loss prediction: UCC28180 source impedance, Miller plateau,
-layout inductance, temperature-dependent Qgd, commutation and protection are
-not available from the retained sources. The Rust report also exposes the
-loaded-controller ICC typical (15 V × 7 mA = 0.105 W) separately; it must not
-be added to `Qg*V*f` as independent quiescent power.
+The Rust event model in `zapote-erc::pfc_switching` now represents UCC28180
+source/sink limits (1.5/2 A), the 10 ohm external plus 3.3 ohm intrinsic gate
+network, a 6.2 V Miller plateau, VDS/current transition, 10 nH commutation loop
+and Coss turn-on energy. It runs 18 reproducible line/bias/temperature cases.
+At 120 Vrms, 10 V bias and 25 C, the model reports 43.943 W overlap,
+11.261 W conduction, 0.155 W gate charge and 2.397 W Eoss; peak VDS is
+390.822 V including the modeled loop overshoot. The 0.25 ns result is within
+0.4% of the 1 ns refinement, with explicit per-event energy accounting. These
+are typical, bounded model outputs, not hardware validation.
+
+Run details, model inputs, hashes and the complete JSON result are in
+`PFC-SWITCHING-MODEL.md` and `evidence/pfc-loss-simulation-2026-09-17.json`.
 
 The decisive missing input is a double-pulse or equivalent switching capture
 at roughly 390 V, the actual inductor current, the 10 ohm network, the chosen
@@ -78,11 +79,11 @@ GBU2510A/Wakefield 395-1AB margin is transferred to this GBJ assembly.
 
 ## Decision
 
-The corrected experiment does not justify a MOSFET replacement: the exact AG
-part is selected, but hot RDS(on), measured Eon/Eoff and commutation/protection
-costs remain open. It does not justify changing the 10 ohm gate network yet;
-the first-order range identifies gate timing as a high-value measurement, not
-a validated optimum. The baseline still needs a qualified current GBJ
+The bounded model does not justify a MOSFET replacement: the exact AG part is
+selected, but hot RDS(on), measured Eon/Eoff and commutation/protection costs
+remain open. It does not justify changing the 10 ohm gate network yet; the
+event model identifies gate timing as a high-value measurement, not a validated
+optimum. The baseline still needs a qualified current GBJ
 thermal/contact and installed-airflow path. Cooling work is therefore required
 for baseline closure, while device and gate-drive changes remain measurement-
 gated. The 62.9 mΩ active-bridge number remains a conduction-only screen and
@@ -99,6 +100,7 @@ From the isolated checkout, with the locked offline workspace:
 ```sh
 CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo test --locked --offline -p zapote-erc pfc_losses
 CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo test --locked --offline -p zapote-harness boost_switch
+CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo run --locked --offline --bin zapote-pfc-loss -- power-entry/shunt-repair/candidate/source-manifest.json > power-entry/loss-budget/evidence/pfc-loss-simulation-2026-09-17.json
 ```
 
 The tests include an independent regression that rejects use of the

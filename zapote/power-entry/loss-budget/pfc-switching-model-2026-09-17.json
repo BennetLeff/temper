@@ -1,0 +1,41 @@
+{
+  "schema": "zapote.pfc-switching-model.v1",
+  "model_owner": "zapote-erc::pfc_switching",
+  "selected_mpn": "STW65N65DM2AG",
+  "package_marking": "65N65DM2",
+  "controller": "UCC28180D",
+  "external_gate_resistance_ohm": 10.0,
+  "intrinsic_gate_resistance_ohm": 3.3,
+  "driver_source_peak_a": 1.5,
+  "driver_sink_peak_a": 2.0,
+  "gate_bias_v": [9.0, 10.0, 11.0],
+  "gate_plateau_v_assumption": 6.2,
+  "gate_threshold_v_assumption": 4.0,
+  "loop_inductance_h_sensitivity": 1.0e-8,
+  "diode_model": "C3D20065D ideal forward commutation with zero reverse-recovery charge; diode capacitance and reverse-recovery energy are not claimed",
+  "bus_v": 389.6153846,
+  "switching_hz": 129107.39198577,
+  "inductance_h": 0.00018,
+  "line_rms_v": [108.0, 120.0, 132.0],
+  "input_rms_a": 15.0,
+  "temperature_c": [25.0, 125.0],
+  "rds_on_ohm": [0.05, 0.1],
+  "qg_c_typical": 1.2e-7,
+  "qgd_c_typical": 5.8e-8,
+  "eoss_curve_source": "ST DS11178 Rev 2 Dec 2025 Figure 8",
+  "eoss_curve_digitization_uncertainty_j": 6.0e-7,
+  "loop_scope": "One hard-switched boost commutation event driven by the Rust CCM current moments. The inductor is a current source over the event; the SiC diode has no reverse recovery. The model reports overlap energy, Coss turn-on energy once, conduction, gate charge and loop-L VDS overshoot. It does not qualify controller timing, ringing, EMI, thermal coupling or startup/fault behavior.",
+  "source_hashes": {
+    "retained_datasheet": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
+    "ucc28180_source": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
+    "maintained_source_manifest": "136c94c36af498285c731e6cd43877eb5cc2e2b2289de21fbd8d531bc7d18ef2",
+    "maintained_board": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9"
+  },
+  "execution": {
+    "command": "CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo run --locked --offline --bin zapote-pfc-loss -- power-entry/shunt-repair/candidate/source-manifest.json",
+    "solver": "Rust deterministic fixed-step event integration; no external simulator required",
+    "timestep_s": 2.5e-10,
+    "refinement_check": "Rust pfc_switching::tests::driver_and_miller_model_converges_with_timestep_refinement compares 1.0 ns and 0.25 ns",
+    "raw_output": "evidence/pfc-loss-simulation-2026-09-17.json"
+  }
+}

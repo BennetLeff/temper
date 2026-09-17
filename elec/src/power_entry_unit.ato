@@ -74,7 +74,7 @@ component PfcBoostInductor:
 
 component PfcMosfet:
     footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
-    mpn = "STW65N65DM2"
+    mpn = "STW65N65DM2AG"
     voltage_rating = 650V
     current_rating = 65A
     signal G ~ pin 1

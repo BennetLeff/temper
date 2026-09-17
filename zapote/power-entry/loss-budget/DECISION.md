@@ -11,8 +11,9 @@
 
 This is the decision the retained power-entry evidence supports today. It
 replaces the earlier five-board-variant framing. It does not claim the
-electronics are qualified: no powered measurement has been performed and the
-overlap term below is still unmeasured.
+electronics are qualified: no powered measurement has been performed. A
+reproducible Rust event model now bounds the switching term; physical waveform
+and thermal qualification remain open.
 
 ## Decision
 
@@ -35,22 +36,23 @@ on the evidence listed under "What would change this decision".
 
 ## What was resolved in this pass
 
-**The boost-switch identity.** The authored `STW65N65DM2` is ST's *marking*
-form, not an order code. The retained ST datasheet's own Device summary prints
-`Order code STW65N65DM2AG` against `Marking 65N65DM2`, so the orderable part is
-`STW65N65DM2AG`. The datasheet is now a hash-pinned source
-(`sources/STW65N65DM2AG.pdf`), which is what allows the switch terms below to
-be attributed to a real part instead of to an unnamed device. The earlier
-framing treated `STW65N65DM2AG` and `STW63N65DM2` as unapproved substitutions;
-that is settled — `STW63N65DM2` is a different orderable device, and the
-authored string resolves to the AG order code.
+**The boost-switch identity.** The authored and native order code is now
+`STW65N65DM2AG`; the physical package marking remains `65N65DM2`. The retained
+ST datasheet's Device summary binds those two strings. The board, source
+manifest, native census and manufacturing receipt carry the same AG identity
+and board hash, so the switch terms below are attributed to a real part.
 
-**The output-capacitance term.** The earlier 4.468 W calculation was invalid:
-ST's 456 pF `C_oss eq.` is time-equivalent. Digitizing the official DS11178
-Rev 2 Figure 8 gives **2.397 W ±0.078 W** typical at 389.615 V and 129.107
-kHz. Gate drive (`Qg` 120 nC at 10 V) is **0.155 W**. The 10 ohm external plus
-3.3 ohm intrinsic gate network gives a first-order 70–86 ns edge sensitivity,
-but overlap remains unmeasured and must not be double-counted with Eoss.
+**The output-capacitance and switching terms.** The earlier 4.468 W calculation
+was invalid: ST's 456 pF `C_oss eq.` is time-equivalent. Digitizing the official
+DS11178 Rev 2 Figure 8 gives **2.397 W ±0.078 W** typical at 389.615 V and
+129.107 kHz. Gate drive (`Qg` 120 nC at 10 V) is **0.155 W**. The Rust event
+model includes UCC28180 1.5/2 A source/sink limits, 10 ohm external plus 3.3
+ohm intrinsic gate resistance, Miller plateau, 10 nH loop inductance and
+current-dependent VDS transitions. Its nominal 120 Vrms/10 V/25 C case reports
+**43.943 W switching overlap**, **11.261 W conduction**, **0.155 W gate** and
+**2.397 W Eoss**. Eoss is counted once on turn-on and remains separate from a
+measured Eon that already includes Coss discharge. These are typical bounded
+model results; waveform, hot RDS(on) and diode qualification remain open.
 
 **The bridge thermal path.** The current GBJ study is conditional evidence,
 not an installed cooling qualification. It keeps the bridge a constraint until
@@ -127,11 +129,9 @@ term of the same size.
 - No claim about startup, inrush, precharge, shutdown or fault behaviour.
 - No acceptance of the existing bridge neck geometry, and no fabrication or
   energize authorization.
-- **The authored identity has not been edited.** `elec/src/power_entry_unit.ato`,
-  the BOM and the native board still read `STW65N65DM2`. In this repository
-  that correction forces a native regeneration, and routing is applied rather
-  than replayed, so it belongs with the next board revision. It is queued, not
-  forgotten.
+- Physical qualification of the switching model, hot RDS(on), diode recovery,
+  installed cooling and startup/fault behavior remain open. The current board
+  geometry and routing were preserved.
 
 ## Provenance
 
@@ -139,5 +139,6 @@ term of the same size.
 | --- | --- |
 | Switch datasheet, order code and marking | `sources/STW65N65DM2AG.pdf` (pinned by hash in `pfc_loss_budget.rs`) |
 | Loss screen and bounded switch terms | `zapote/packages/zapote-harness/src/pfc_candidates.rs`, `pfc_loss_budget.rs` |
+| Reproducible switching model and raw result | `loss-budget/PFC-SWITCHING-MODEL.md`, `loss-budget/evidence/pfc-loss-simulation-2026-09-17.json` |
 | Bridge joint model | `shunt-repair/bridge-thermal-02/assessment.json` |
 | Bridge cooling study, 20 cases | `thermal/bridge-cooling.md`, `thermal/evidence/bridge-cooling-2026-09-14/` |

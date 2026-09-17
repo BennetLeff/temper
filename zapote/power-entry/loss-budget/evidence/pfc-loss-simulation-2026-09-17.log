@@ -1,0 +1,14 @@
+PFC switching-model receipt
+date=2026-09-17
+checkout=/private/tmp/zapote-pfc-loss-correction
+source_manifest=power-entry/shunt-repair/candidate/source-manifest.json
+command=CARGO_TARGET_DIR=/private/tmp/zapote-rtd-target cargo run --locked --offline --bin zapote-pfc-loss -- power-entry/shunt-repair/candidate/source-manifest.json
+rustc=rustc 1.92.0 (ded5c06cf 2025-12-08)
+cargo=cargo 1.92.0 (344c4567c 2025-10-21)
+solver=zapote-erc::pfc_switching deterministic fixed-step event integration
+timestep_s=2.5e-10
+refinement=1.0e-9 vs 2.5e-10; switching-loss relative change < 1 percent
+run_status=2 (expected: receipt is indeterminate until measured overlap/hot-device inputs are supplied)
+stdout=evidence/pfc-loss-simulation-2026-09-17.json
+source_manifest_sha256=136c94c36af498285c731e6cd43877eb5cc2e2b2289de21fbd8d531bc7d18ef2
+board_sha256=34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9

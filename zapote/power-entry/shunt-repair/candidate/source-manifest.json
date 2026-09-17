@@ -17,7 +17,7 @@
       210.0
     ]
   },
-  "board_sha256": "fedad9154512812570301e189d11f921acb70486a7e1521d59ef210be2fe0631",
+  "board_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
   "bridge": {
     "components": [
       {
@@ -1692,7 +1692,7 @@
     {
       "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
       "instance_path": "q_boost",
-      "mpn": "STW65N65DM2",
+      "mpn": "STW65N65DM2AG",
       "origins": {
         "footprint": "resolved-attr",
         "mpn": "resolved-attr+csv",
@@ -3438,7 +3438,7 @@
     "q_boost": {
       "current_rating": "65A",
       "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
-      "mpn": "STW65N65DM2",
+      "mpn": "STW65N65DM2AG",
       "voltage_rating": "650V"
     },
     "q_inhibit": {

@@ -1,0 +1,2325 @@
+{
+  "checks": {
+    "status": "indeterminate",
+    "findings": [
+      {
+        "rule": "ERC.PFC.LOSS_SOURCE_BINDING",
+        "severity": "info",
+        "status": "pass",
+        "message": "Source identities checked; embedded inductor, bridge and relay documents identified by hash. Other terms and model applicability remain incomplete",
+        "object": "power-entry",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "ERC.PFC.LOSS_COVERAGE",
+        "severity": "warning",
+        "status": "indeterminate",
+        "message": "q_boost: measured turn-on/turn-off overlap energy and hot RDS(on) curve; the order code is resolved, the transition energy is not; d_boost: forward-drop curve, current sharing and capacitive commutation; l_boost: core and AC winding loss; cmc: hot DC, AC winding and core loss; c1..c4,c_hf: frequency-dependent ESR and current sharing; PCB, connectors, fuse and holder: distributed resistive loss; bypass: contact loss; unbypassed NTC startup/fault loss; pfc and small-signal devices: supply loss excluding already counted relay; bridge: waveform/temperature-dependent forward drop beyond single test point; hot shunt and relay tolerance/temperature corrections",
+        "object": "power-entry",
+        "actual": null,
+        "required": null
+      },
+      {
+        "rule": "THERMAL.PFC.LOSS_COOLING_CLOSURE",
+        "severity": "warning",
+        "status": "indeterminate",
+        "message": "Total loss unknown; 105 W is a prior allowance, not verified cooling capacity. Installed airflow, thermal interfaces and board boundary remain unbound",
+        "object": "power-entry",
+        "actual": null,
+        "required": null
+      }
+    ],
+    "checked_rules": [
+      "ERC.PFC.LOSS_SOURCE_BINDING",
+      "ERC.PFC.LOSS_COVERAGE",
+      "THERMAL.PFC.LOSS_COOLING_CLOSURE"
+    ],
+    "coverage_gaps": [
+      "q_boost: measured turn-on/turn-off overlap energy and hot RDS(on) curve; the order code is resolved, the transition energy is not",
+      "d_boost: forward-drop curve, current sharing and capacitive commutation",
+      "l_boost: core and AC winding loss",
+      "cmc: hot DC, AC winding and core loss",
+      "c1..c4,c_hf: frequency-dependent ESR and current sharing",
+      "PCB, connectors, fuse and holder: distributed resistive loss",
+      "bypass: contact loss; unbypassed NTC startup/fault loss",
+      "pfc and small-signal devices: supply loss excluding already counted relay",
+      "bridge: waveform/temperature-dependent forward drop beyond single test point",
+      "hot shunt and relay tolerance/temperature corrections"
+    ]
+  },
+  "source_sha256": "136c94c36af498285c731e6cd43877eb5cc2e2b2289de21fbd8d531bc7d18ef2",
+  "documents_sha256": {
+    "760800301.pdf": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+    "Diodes-GBJ2510.pdf": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02",
+    "RT1_Inrush.pdf": "4296fa1a3def9a6398bf6b8ef13b6ecda809cd4aa1f96cf4ab01475029e008e5",
+    "STW65N65DM2AG.pdf": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
+    "TI-UCC28180.pdf": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+  },
+  "missing_terms": [
+    "q_boost: measured turn-on/turn-off overlap energy and hot RDS(on) curve; the order code is resolved, the transition energy is not",
+    "d_boost: forward-drop curve, current sharing and capacitive commutation",
+    "l_boost: core and AC winding loss",
+    "cmc: hot DC, AC winding and core loss",
+    "c1..c4,c_hf: frequency-dependent ESR and current sharing",
+    "PCB, connectors, fuse and holder: distributed resistive loss",
+    "bypass: contact loss; unbypassed NTC startup/fault loss",
+    "pfc and small-signal devices: supply loss excluding already counted relay",
+    "bridge: waveform/temperature-dependent forward drop beyond single test point",
+    "hot shunt and relay tolerance/temperature corrections"
+  ],
+  "cases": [
+    {
+      "config": {
+        "line_rms_v": 108.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000144,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1615.4404098636962,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 12.253528347846842,
+        "diode_rms_a": 8.651649728723067,
+        "capacitor_rms_a": 7.593398750994333,
+        "rectified_mean_a": 13.4667559292293,
+        "diode_mean_a": 4.146243895010466,
+        "mean_turn_on_a": 11.656846557459591,
+        "mean_turn_off_a": 15.2766230495739,
+        "switch_duty_mean": 0.7504351252058424
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.280187451381533,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.20743136803399,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.507447848574309,
+          "overlap_w": 13.548134801258719,
+          "partial_switch_w": 21.055582649833028
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.507447848574309,
+          "overlap_w": 33.8703370031468,
+          "partial_switch_w": 41.37778485172111
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.507447848574309,
+          "overlap_w": 67.7406740062936,
+          "partial_switch_w": 75.24812185486792
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 15.014895697148617,
+          "overlap_w": 13.548134801258719,
+          "partial_switch_w": 28.563030498407336
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 15.014895697148617,
+          "overlap_w": 33.8703370031468,
+          "partial_switch_w": 48.88523270029542
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 15.014895697148617,
+          "overlap_w": 67.7406740062936,
+          "partial_switch_w": 82.75556970344222
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 108.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000144,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1615.4404098636962,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 12.253528347846842,
+        "diode_rms_a": 8.651649728723067,
+        "capacitor_rms_a": 7.593398750994333,
+        "rectified_mean_a": 13.4667559292293,
+        "diode_mean_a": 4.146243895010466,
+        "mean_turn_on_a": 11.656846557459591,
+        "mean_turn_off_a": 15.2766230495739,
+        "switch_duty_mean": 0.7504351252058424
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.280187451381533,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.622231368033994,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.507447848574309,
+          "overlap_w": 13.548134801258719,
+          "partial_switch_w": 21.055582649833028
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.507447848574309,
+          "overlap_w": 33.8703370031468,
+          "partial_switch_w": 41.37778485172111
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.507447848574309,
+          "overlap_w": 67.7406740062936,
+          "partial_switch_w": 75.24812185486792
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 15.014895697148617,
+          "overlap_w": 13.548134801258719,
+          "partial_switch_w": 28.563030498407336
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 15.014895697148617,
+          "overlap_w": 33.8703370031468,
+          "partial_switch_w": 48.88523270029542
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 15.014895697148617,
+          "overlap_w": 67.7406740062936,
+          "partial_switch_w": 82.75556970344222
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 108.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.00018,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1617.0833433701478,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 12.25325949559574,
+        "diode_rms_a": 8.652030497726715,
+        "capacitor_rms_a": 7.591528678819408,
+        "rectified_mean_a": 13.48045187517955,
+        "diode_mean_a": 4.15046070361538,
+        "mean_turn_on_a": 12.03252013113602,
+        "mean_turn_off_a": 14.928341324827466,
+        "switch_duty_mean": 0.7504351252058424
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.30894893787706,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.23619285452951,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.5071184133203595,
+          "overlap_w": 13.561913511063802,
+          "partial_switch_w": 21.069031924384163
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.5071184133203595,
+          "overlap_w": 33.9047837776595,
+          "partial_switch_w": 41.41190219097986
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.5071184133203595,
+          "overlap_w": 67.809567555319,
+          "partial_switch_w": 75.31668596863936
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 15.014236826640719,
+          "overlap_w": 13.561913511063802,
+          "partial_switch_w": 28.57615033770452
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 15.014236826640719,
+          "overlap_w": 33.9047837776595,
+          "partial_switch_w": 48.91902060430022
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 15.014236826640719,
+          "overlap_w": 67.809567555319,
+          "partial_switch_w": 82.82380438195972
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 108.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.00018,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1617.0833433701478,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 12.25325949559574,
+        "diode_rms_a": 8.652030497726715,
+        "capacitor_rms_a": 7.591528678819408,
+        "rectified_mean_a": 13.48045187517955,
+        "diode_mean_a": 4.15046070361538,
+        "mean_turn_on_a": 12.03252013113602,
+        "mean_turn_off_a": 14.928341324827466,
+        "switch_duty_mean": 0.7504351252058424
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.30894893787706,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.65099285452952,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.5071184133203595,
+          "overlap_w": 13.561913511063802,
+          "partial_switch_w": 21.069031924384163
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.5071184133203595,
+          "overlap_w": 33.9047837776595,
+          "partial_switch_w": 41.41190219097986
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.5071184133203595,
+          "overlap_w": 67.809567555319,
+          "partial_switch_w": 75.31668596863936
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 15.014236826640719,
+          "overlap_w": 13.561913511063802,
+          "partial_switch_w": 28.57615033770452
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 15.014236826640719,
+          "overlap_w": 33.9047837776595,
+          "partial_switch_w": 48.91902060430022
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 15.014236826640719,
+          "overlap_w": 67.809567555319,
+          "partial_switch_w": 82.82380438195972
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 108.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000216,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1617.9751018302113,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 12.253113449925047,
+        "diode_rms_a": 8.652237328186601,
+        "capacitor_rms_a": 7.590512644032549,
+        "rectified_mean_a": 13.487885819171641,
+        "diode_mean_a": 4.152749520985729,
+        "mean_turn_on_a": 12.281272496273884,
+        "mean_turn_off_a": 14.69445682435009,
+        "switch_duty_mean": 0.7504351252058424
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.324560220260448,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.2518041369129,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.506939460836705,
+          "overlap_w": 13.569392377974232,
+          "partial_switch_w": 21.076331838810937
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.506939460836705,
+          "overlap_w": 33.923480944935584,
+          "partial_switch_w": 41.43042040577229
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.506939460836705,
+          "overlap_w": 67.84696188987117,
+          "partial_switch_w": 75.35390135070787
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 15.01387892167341,
+          "overlap_w": 13.569392377974232,
+          "partial_switch_w": 28.58327129964764
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 15.01387892167341,
+          "overlap_w": 33.923480944935584,
+          "partial_switch_w": 48.93735986660899
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 15.01387892167341,
+          "overlap_w": 67.84696188987117,
+          "partial_switch_w": 82.86084081154458
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 108.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000216,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1617.9751018302113,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 12.253113449925047,
+        "diode_rms_a": 8.652237328186601,
+        "capacitor_rms_a": 7.590512644032549,
+        "rectified_mean_a": 13.487885819171641,
+        "diode_mean_a": 4.152749520985729,
+        "mean_turn_on_a": 12.281272496273884,
+        "mean_turn_off_a": 14.69445682435009,
+        "switch_duty_mean": 0.7504351252058424
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.324560220260448,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.66660413691291,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.506939460836705,
+          "overlap_w": 13.569392377974232,
+          "partial_switch_w": 21.076331838810937
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.506939460836705,
+          "overlap_w": 33.923480944935584,
+          "partial_switch_w": 41.43042040577229
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.506939460836705,
+          "overlap_w": 67.84696188987117,
+          "partial_switch_w": 75.35390135070787
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 15.01387892167341,
+          "overlap_w": 13.569392377974232,
+          "partial_switch_w": 28.58327129964764
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 15.01387892167341,
+          "overlap_w": 33.923480944935584,
+          "partial_switch_w": 48.93735986660899
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 15.01387892167341,
+          "overlap_w": 67.84696188987117,
+          "partial_switch_w": 82.86084081154458
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 120.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000144,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1794.3969399380228,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.909597655906296,
+        "diode_rms_a": 9.119291840621822,
+        "capacitor_rms_a": 7.870851472885509,
+        "rectified_mean_a": 13.462728141798905,
+        "diode_mean_a": 4.6055597668695345,
+        "mean_turn_on_a": 11.551119261645857,
+        "mean_turn_off_a": 15.374294783163888,
+        "switch_duty_mean": 0.7227056946731588
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.2717290977777,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.19897301443016,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.0919258162784375,
+          "overlap_w": 13.54408267412844,
+          "partial_switch_w": 20.636008490406876
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.0919258162784375,
+          "overlap_w": 33.8602066853211,
+          "partial_switch_w": 40.95213250159954
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.0919258162784375,
+          "overlap_w": 67.7204133706422,
+          "partial_switch_w": 74.81233918692064
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 14.183851632556875,
+          "overlap_w": 13.54408267412844,
+          "partial_switch_w": 27.727934306685313
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 14.183851632556875,
+          "overlap_w": 33.8602066853211,
+          "partial_switch_w": 48.044058317877976
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 14.183851632556875,
+          "overlap_w": 67.7204133706422,
+          "partial_switch_w": 81.90426500319909
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 120.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000144,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1794.3969399380228,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.909597655906296,
+        "diode_rms_a": 9.119291840621822,
+        "capacitor_rms_a": 7.870851472885509,
+        "rectified_mean_a": 13.462728141798905,
+        "diode_mean_a": 4.6055597668695345,
+        "mean_turn_on_a": 11.551119261645857,
+        "mean_turn_off_a": 15.374294783163888,
+        "switch_duty_mean": 0.7227056946731588
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.2717290977777,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.61377301443016,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.0919258162784375,
+          "overlap_w": 13.54408267412844,
+          "partial_switch_w": 20.636008490406876
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.0919258162784375,
+          "overlap_w": 33.8602066853211,
+          "partial_switch_w": 40.95213250159954
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.0919258162784375,
+          "overlap_w": 67.7204133706422,
+          "partial_switch_w": 74.81233918692064
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 14.183851632556875,
+          "overlap_w": 13.54408267412844,
+          "partial_switch_w": 27.727934306685313
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 14.183851632556875,
+          "overlap_w": 33.8602066853211,
+          "partial_switch_w": 48.044058317877976
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 14.183851632556875,
+          "overlap_w": 67.7204133706422,
+          "partial_switch_w": 81.90426500319909
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 120.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.00018,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1796.4160548040427,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.9091944502362,
+        "diode_rms_a": 9.119818394379521,
+        "capacitor_rms_a": 7.868427090437577,
+        "rectified_mean_a": 13.477876849380467,
+        "diode_mean_a": 4.610742095252247,
+        "mean_turn_on_a": 11.948585497614935,
+        "mean_turn_off_a": 15.007125914829363,
+        "switch_duty_mean": 0.7227056946731588
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.30354138369898,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.230785300351435,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.091445622676836,
+          "overlap_w": 13.559322924524142,
+          "partial_switch_w": 20.65076854720098
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.091445622676836,
+          "overlap_w": 33.89830731131036,
+          "partial_switch_w": 40.9897529339872
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.091445622676836,
+          "overlap_w": 67.79661462262072,
+          "partial_switch_w": 74.88806024529755
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 14.182891245353671,
+          "overlap_w": 13.559322924524142,
+          "partial_switch_w": 27.742214169877812
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 14.182891245353671,
+          "overlap_w": 33.89830731131036,
+          "partial_switch_w": 48.081198556664035
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 14.182891245353671,
+          "overlap_w": 67.79661462262072,
+          "partial_switch_w": 81.9795058679744
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 120.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.00018,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1796.4160548040427,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.9091944502362,
+        "diode_rms_a": 9.119818394379521,
+        "capacitor_rms_a": 7.868427090437577,
+        "rectified_mean_a": 13.477876849380467,
+        "diode_mean_a": 4.610742095252247,
+        "mean_turn_on_a": 11.948585497614935,
+        "mean_turn_off_a": 15.007125914829363,
+        "switch_duty_mean": 0.7227056946731588
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.30354138369898,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.64558530035144,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.091445622676836,
+          "overlap_w": 13.559322924524142,
+          "partial_switch_w": 20.65076854720098
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.091445622676836,
+          "overlap_w": 33.89830731131036,
+          "partial_switch_w": 40.9897529339872
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.091445622676836,
+          "overlap_w": 67.79661462262072,
+          "partial_switch_w": 74.88806024529755
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 14.182891245353671,
+          "overlap_w": 13.559322924524142,
+          "partial_switch_w": 27.742214169877812
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 14.182891245353671,
+          "overlap_w": 33.89830731131036,
+          "partial_switch_w": 48.081198556664035
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 14.182891245353671,
+          "overlap_w": 67.79661462262072,
+          "partial_switch_w": 81.9795058679744
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 120.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000216,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1797.5119073082894,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.90897541921204,
+        "diode_rms_a": 9.120104410838916,
+        "capacitor_rms_a": 7.867109828799318,
+        "rectified_mean_a": 13.486098644692202,
+        "diode_mean_a": 4.613554747286843,
+        "mean_turn_on_a": 12.211685648130095,
+        "mean_turn_off_a": 14.760469329142117,
+        "switch_duty_mean": 0.7227056946731588
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.320807153853625,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.24805107050608,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.091184776769828,
+          "overlap_w": 13.567594403696791,
+          "partial_switch_w": 20.65877918046662
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.091184776769828,
+          "overlap_w": 33.91898600924198,
+          "partial_switch_w": 41.01017078601181
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.091184776769828,
+          "overlap_w": 67.83797201848397,
+          "partial_switch_w": 74.92915679525379
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 14.182369553539656,
+          "overlap_w": 13.567594403696791,
+          "partial_switch_w": 27.749963957236446
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 14.182369553539656,
+          "overlap_w": 33.91898600924198,
+          "partial_switch_w": 48.10135556278164
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 14.182369553539656,
+          "overlap_w": 67.83797201848397,
+          "partial_switch_w": 82.02034157202363
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 120.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000216,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1797.5119073082894,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.90897541921204,
+        "diode_rms_a": 9.120104410838916,
+        "capacitor_rms_a": 7.867109828799318,
+        "rectified_mean_a": 13.486098644692202,
+        "diode_mean_a": 4.613554747286843,
+        "mean_turn_on_a": 12.211685648130095,
+        "mean_turn_off_a": 14.760469329142117,
+        "switch_duty_mean": 0.7227056946731588
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.320807153853625,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.66285107050608,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 7.091184776769828,
+          "overlap_w": 13.567594403696791,
+          "partial_switch_w": 20.65877918046662
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 7.091184776769828,
+          "overlap_w": 33.91898600924198,
+          "partial_switch_w": 41.01017078601181
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 7.091184776769828,
+          "overlap_w": 67.83797201848397,
+          "partial_switch_w": 74.92915679525379
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 14.182369553539656,
+          "overlap_w": 13.567594403696791,
+          "partial_switch_w": 27.749963957236446
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 14.182369553539656,
+          "overlap_w": 33.91898600924198,
+          "partial_switch_w": 48.10135556278164
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 14.182369553539656,
+          "overlap_w": 67.83797201848397,
+          "partial_switch_w": 82.02034157202363
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 132.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000144,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1973.3572563172652,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.555531075750212,
+        "diode_rms_a": 9.563979378761294,
+        "capacitor_rms_a": 8.112745397211686,
+        "rectified_mean_a": 13.459458504184974,
+        "diode_mean_a": 5.064885356786656,
+        "mean_turn_on_a": 11.466029950320129,
+        "mean_turn_off_a": 15.452844829520094,
+        "switch_duty_mean": 0.6949762641404745
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.264862858788447,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.192106775440905,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 6.676514922131442,
+          "overlap_w": 13.54079327827262,
+          "partial_switch_w": 20.217308200404062
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 6.676514922131442,
+          "overlap_w": 33.851983195681555,
+          "partial_switch_w": 40.528498117813
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 6.676514922131442,
+          "overlap_w": 67.70396639136311,
+          "partial_switch_w": 74.38048131349456
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 13.353029844262885,
+          "overlap_w": 13.54079327827262,
+          "partial_switch_w": 26.893823122535505
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 13.353029844262885,
+          "overlap_w": 33.851983195681555,
+          "partial_switch_w": 47.20501303994444
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 13.353029844262885,
+          "overlap_w": 67.70396639136311,
+          "partial_switch_w": 81.056996235626
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 132.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000144,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1973.3572563172652,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.555531075750212,
+        "diode_rms_a": 9.563979378761294,
+        "capacitor_rms_a": 8.112745397211686,
+        "rectified_mean_a": 13.459458504184974,
+        "diode_mean_a": 5.064885356786656,
+        "mean_turn_on_a": 11.466029950320129,
+        "mean_turn_off_a": 15.452844829520094,
+        "switch_duty_mean": 0.6949762641404745
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.264862858788447,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.606906775440905,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 6.676514922131442,
+          "overlap_w": 13.54079327827262,
+          "partial_switch_w": 20.217308200404062
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 6.676514922131442,
+          "overlap_w": 33.851983195681555,
+          "partial_switch_w": 40.528498117813
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 6.676514922131442,
+          "overlap_w": 67.70396639136311,
+          "partial_switch_w": 74.38048131349456
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 13.353029844262885,
+          "overlap_w": 13.54079327827262,
+          "partial_switch_w": 26.893823122535505
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 13.353029844262885,
+          "overlap_w": 33.851983195681555,
+          "partial_switch_w": 47.20501303994444
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 13.353029844262885,
+          "overlap_w": 67.70396639136311,
+          "partial_switch_w": 81.056996235626
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 132.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.00018,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1975.7512168991327,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.554950420013618,
+        "diode_rms_a": 9.56468090377443,
+        "capacitor_rms_a": 8.109733521728137,
+        "rectified_mean_a": 13.47578672504265,
+        "diode_mean_a": 5.071029776838801,
+        "mean_turn_on_a": 11.881039633483246,
+        "mean_turn_off_a": 15.07049153684322,
+        "switch_duty_mean": 0.6949762641404745
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.299152122589565,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.22639603924202,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 6.6758439604486455,
+          "overlap_w": 13.557220169678939,
+          "partial_switch_w": 20.233064130127584
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 6.6758439604486455,
+          "overlap_w": 33.89305042419735,
+          "partial_switch_w": 40.56889438464599
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 6.6758439604486455,
+          "overlap_w": 67.7861008483947,
+          "partial_switch_w": 74.46194480884334
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 13.351687920897291,
+          "overlap_w": 13.557220169678939,
+          "partial_switch_w": 26.90890809057623
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 13.351687920897291,
+          "overlap_w": 33.89305042419735,
+          "partial_switch_w": 47.24473834509464
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 13.351687920897291,
+          "overlap_w": 67.7861008483947,
+          "partial_switch_w": 81.13778876929199
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 132.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.00018,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1975.7512168991327,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.554950420013618,
+        "diode_rms_a": 9.56468090377443,
+        "capacitor_rms_a": 8.109733521728137,
+        "rectified_mean_a": 13.47578672504265,
+        "diode_mean_a": 5.071029776838801,
+        "mean_turn_on_a": 11.881039633483246,
+        "mean_turn_off_a": 15.07049153684322,
+        "switch_duty_mean": 0.6949762641404745
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.299152122589565,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.64119603924202,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 6.6758439604486455,
+          "overlap_w": 13.557220169678939,
+          "partial_switch_w": 20.233064130127584
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 6.6758439604486455,
+          "overlap_w": 33.89305042419735,
+          "partial_switch_w": 40.56889438464599
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 6.6758439604486455,
+          "overlap_w": 67.7861008483947,
+          "partial_switch_w": 74.46194480884334
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 13.351687920897291,
+          "overlap_w": 13.557220169678939,
+          "partial_switch_w": 26.90890809057623
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 13.351687920897291,
+          "overlap_w": 33.89305042419735,
+          "partial_switch_w": 47.24473834509464
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 13.351687920897291,
+          "overlap_w": 67.7861008483947,
+          "partial_switch_w": 81.13778876929199
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 132.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000216,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 20.0,
+      "moments": {
+        "input_power_w": 1977.050424924295,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.554634989852149,
+        "diode_rms_a": 9.565061957524604,
+        "capacitor_rms_a": 8.108096972278059,
+        "rectified_mean_a": 13.484648088816014,
+        "diode_mean_a": 5.074364368018928,
+        "mean_turn_on_a": 12.155688641968819,
+        "mean_turn_off_a": 14.813565228102128,
+        "switch_duty_mean": 0.6949762641404745
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 4.499999999999999,
+        "bridge_constant_1p05V_estimate": 28.31776098651363,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 36.245004903166084,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 6.675479487435779,
+          "overlap_w": 13.566135082190536,
+          "partial_switch_w": 20.241614569626314
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 6.675479487435779,
+          "overlap_w": 33.91533770547635,
+          "partial_switch_w": 40.59081719291213
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 6.675479487435779,
+          "overlap_w": 67.8306754109527,
+          "partial_switch_w": 74.50615489838847
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 13.350958974871558,
+          "overlap_w": 13.566135082190536,
+          "partial_switch_w": 26.917094057062094
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 13.350958974871558,
+          "overlap_w": 33.91533770547635,
+          "partial_switch_w": 47.26629668034791
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 13.350958974871558,
+          "overlap_w": 67.8306754109527,
+          "partial_switch_w": 81.18163438582425
+        }
+      ]
+    },
+    {
+      "config": {
+        "line_rms_v": 132.0,
+        "input_rms_limit_a": 15.0,
+        "bus_v": 389.61538461538464,
+        "inductance_h": 0.000216,
+        "switching_hz": 129107.39198576905,
+        "phase_samples": 1024
+      },
+      "assumed_copper_c": 100.0,
+      "moments": {
+        "input_power_w": 1977.050424924295,
+        "input_rms_a": 15.0,
+        "switch_rms_a": 11.554634989852149,
+        "diode_rms_a": 9.565061957524604,
+        "capacitor_rms_a": 8.108096972278059,
+        "rectified_mean_a": 13.484648088816014,
+        "diode_mean_a": 5.074364368018928,
+        "mean_turn_on_a": 12.155688641968819,
+        "mean_turn_off_a": 14.813565228102128,
+        "switch_duty_mean": 0.6949762641404745
+      },
+      "estimated_terms_w": {
+        "boost_inductor_DC_only": 5.9148,
+        "bridge_constant_1p05V_estimate": 28.31776098651363,
+        "bus_divider_nominal": 0.14985207100591716,
+        "relay_coil_and_dropper_nominal": 0.49889135254988914,
+        "shunt_reference_plus_1pct": 2.2725,
+        "two_bleeders_nominal": 0.506000493096647
+      },
+      "partial_estimated_w": 37.65980490316609,
+      "mosfet_design_sensitivity": [
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 6.675479487435779,
+          "overlap_w": 13.566135082190536,
+          "partial_switch_w": 20.241614569626314
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 6.675479487435779,
+          "overlap_w": 33.91533770547635,
+          "partial_switch_w": 40.59081719291213
+        },
+        {
+          "assumed_rds_ohm": 0.05,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 6.675479487435779,
+          "overlap_w": 67.8306754109527,
+          "partial_switch_w": 74.50615489838847
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 20.0,
+          "conduction_w": 13.350958974871558,
+          "overlap_w": 13.566135082190536,
+          "partial_switch_w": 26.917094057062094
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 50.0,
+          "conduction_w": 13.350958974871558,
+          "overlap_w": 33.91533770547635,
+          "partial_switch_w": 47.26629668034791
+        },
+        {
+          "assumed_rds_ohm": 0.1,
+          "assumed_each_edge_ns": 100.0,
+          "conduction_w": 13.350958974871558,
+          "overlap_w": 67.8306754109527,
+          "partial_switch_w": 81.18163438582425
+        }
+      ]
+    }
+  ],
+  "boost_switch_bound": {
+    "authored_marking": "STW65N65DM2AG",
+    "resolved_order_code": "STW65N65DM2AG",
+    "source_document": "STW65N65DM2AG.pdf",
+    "coss_eq_f": 4.56e-10,
+    "eoss_at_bus_j": 0.000018565384615384618,
+    "eoss_digitization_uncertainty_j": 6e-7,
+    "bus_v": 389.61538461538464,
+    "switching_hz": 129107.39198576905,
+    "output_capacitance_energy_j": 0.000018565384615384618,
+    "output_capacitance_w": 2.396928388905028,
+    "gate_drive_typical_w": 0.15492887038292286,
+    "controller_icc_loaded_typical_w": 0.105,
+    "external_gate_resistance_ohm": 10.0,
+    "intrinsic_gate_resistance_ohm": 3.3,
+    "gate_edge_ns_min": 70.12727272727273,
+    "gate_edge_ns_max": 85.71111111111112,
+    "gate_overlap_w_min": 47.543916836263286,
+    "gate_overlap_w_max": 58.10923168876625,
+    "switching_scenarios": [
+      {
+        "line_rms_v": 108.0,
+        "commutation_current_a": 14.928341324827466,
+        "gate_bias_v": 9.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 294.49999999999994,
+            "miller_ns": 275.50000000000006,
+            "overlap_energy_j": 0.0002680890212811542,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 2280,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.003831969419986074
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012255460243466713,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.815225375223,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003786708861531402
+          },
+          "switching_loss_w": 52.83190784272484,
+          "conduction_loss_w": 11.142768735527575,
+          "gate_charge_loss_w": 0.13943598334463056,
+          "total_switch_loss_w": 64.11411256159704,
+          "vds_peak_v": 390.815225375223,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 108.0,
+        "commutation_current_a": 14.928341324827466,
+        "gate_bias_v": 9.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 294.49999999999994,
+            "miller_ns": 275.50000000000006,
+            "overlap_energy_j": 0.0002691122986660465,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 2280,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.007663527115376031
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012449871573131274,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.815225375223,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007480950579407623
+          },
+          "switching_loss_w": 53.215019914621074,
+          "conduction_loss_w": 22.28553747105515,
+          "gate_charge_loss_w": 0.13943598334463056,
+          "total_switch_loss_w": 75.63999336902084,
+          "vds_peak_v": 390.815225375223,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 108.0,
+        "commutation_current_a": 14.928341324827466,
+        "gate_bias_v": 10.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 216.99999999999997,
+            "miller_ns": 203.00000000000003,
+            "overlap_energy_j": 0.00019753934691479064,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1680,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0038323153608601957
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012255460243466713,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.815225375223,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003786708861531402
+          },
+          "switching_loss_w": 43.72342337983838,
+          "conduction_loss_w": 11.142768735527575,
+          "gate_charge_loss_w": 0.15492887038292286,
+          "total_switch_loss_w": 55.02112098574888,
+          "vds_peak_v": 390.815225375223,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 108.0,
+        "commutation_current_a": 14.928341324827466,
+        "gate_bias_v": 10.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 216.99999999999997,
+            "miller_ns": 203.00000000000003,
+            "overlap_energy_j": 0.0001982933406466735,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1680,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.007663872392229826
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012449871573131274,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.815225375223,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007480950579407623
+          },
+          "switching_loss_w": 44.07176894159016,
+          "conduction_loss_w": 22.28553747105515,
+          "gate_charge_loss_w": 0.15492887038292286,
+          "total_switch_loss_w": 66.51223528302822,
+          "vds_peak_v": 390.815225375223,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 108.0,
+        "commutation_current_a": 14.928341324827466,
+        "gate_bias_v": 11.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 171.79166666666663,
+            "miller_ns": 160.70833333333334,
+            "overlap_energy_j": 0.0001563853551593854,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1330,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0038325647495894496
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012255460243466713,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.815225375223,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003786708861531402
+          },
+          "switching_loss_w": 38.41013883449416,
+          "conduction_loss_w": 11.142768735527575,
+          "gate_charge_loss_w": 0.17042175742121513,
+          "total_switch_loss_w": 49.723329327442954,
+          "vds_peak_v": 390.815225375223,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 108.0,
+        "commutation_current_a": 14.928341324827466,
+        "gate_bias_v": 11.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 171.79166666666663,
+            "miller_ns": 160.70833333333334,
+            "overlap_energy_j": 0.00015698226672891576,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1330,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0076641209151887095
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 14.928341324827466,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012449871573131274,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.815225375223,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007480950579407623
+          },
+          "switching_loss_w": 38.73820392793713,
+          "conduction_loss_w": 22.28553747105515,
+          "gate_charge_loss_w": 0.17042175742121513,
+          "total_switch_loss_w": 61.194163156413495,
+          "vds_peak_v": 390.815225375223,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 120.0,
+        "commutation_current_a": 15.007125914829363,
+        "gate_bias_v": 9.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 294.49999999999994,
+            "miller_ns": 275.50000000000006,
+            "overlap_energy_j": 0.0002695092947810066,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 2280,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0038521905346795087
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012321170079532387,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.82155755642617,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003806440677440338
+          },
+          "switching_loss_w": 53.1001119058198,
+          "conduction_loss_w": 11.260691411177152,
+          "gate_charge_loss_w": 0.13943598334463056,
+          "total_switch_loss_w": 64.50023930034158,
+          "vds_peak_v": 390.82155755642617,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 120.0,
+        "commutation_current_a": 15.007125914829363,
+        "gate_bias_v": 9.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 294.49999999999994,
+            "miller_ns": 275.50000000000006,
+            "overlap_energy_j": 0.000270543401396049,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 2280,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.007703969344758089
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012517638842561568,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.82155755642617,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007519470928330356
+          },
+          "switching_loss_w": 53.487278409936835,
+          "conduction_loss_w": 22.521382822354305,
+          "gate_charge_loss_w": 0.13943598334463056,
+          "total_switch_loss_w": 76.14809721563576,
+          "vds_peak_v": 390.82155755642617,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 120.0,
+        "commutation_current_a": 15.007125914829363,
+        "gate_bias_v": 10.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 216.99999999999997,
+            "miller_ns": 203.00000000000003,
+            "overlap_energy_j": 0.0001985858645890506,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1680,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0038525364720488845
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012321170079532387,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.82155755642617,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003806440677440338
+          },
+          "switching_loss_w": 43.94337280305161,
+          "conduction_loss_w": 11.260691411177152,
+          "gate_charge_loss_w": 0.15492887038292286,
+          "total_switch_loss_w": 55.35899308461169,
+          "vds_peak_v": 390.82155755642617,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 120.0,
+        "commutation_current_a": 15.007125914829363,
+        "gate_bias_v": 10.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 216.99999999999997,
+            "miller_ns": 203.00000000000003,
+            "overlap_energy_j": 0.00019934783775229348,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1680,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.00770431461460647
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012517638842561568,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.82155755642617,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007519470928330356
+          },
+          "switching_loss_w": 44.295404866934724,
+          "conduction_loss_w": 22.521382822354305,
+          "gate_charge_loss_w": 0.15492887038292286,
+          "total_switch_loss_w": 66.97171655967195,
+          "vds_peak_v": 390.82155755642617,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 120.0,
+        "commutation_current_a": 15.007125914829363,
+        "gate_bias_v": 11.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 171.79166666666663,
+            "miller_ns": 160.70833333333334,
+            "overlap_energy_j": 0.0001572138485225002,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1330,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.003852785856208655
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012321170079532387,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.82155755642617,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003806440677440338
+          },
+          "switching_loss_w": 38.60193970750595,
+          "conduction_loss_w": 11.260691411177152,
+          "gate_charge_loss_w": 0.17042175742121513,
+          "total_switch_loss_w": 50.033052876104314,
+          "vds_peak_v": 390.82155755642617,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 120.0,
+        "commutation_current_a": 15.007125914829363,
+        "gate_bias_v": 11.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 171.79166666666663,
+            "miller_ns": 160.70833333333334,
+            "overlap_energy_j": 0.00015781707714042985,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1330,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0077045631284266055
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.007125914829363,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012517638842561568,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.82155755642617,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007519470928330356
+          },
+          "switching_loss_w": 38.9334766771517,
+          "conduction_loss_w": 22.521382822354305,
+          "gate_charge_loss_w": 0.17042175742121513,
+          "total_switch_loss_w": 61.625281256927224,
+          "vds_peak_v": 390.82155755642617,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 132.0,
+        "commutation_current_a": 15.07049153684322,
+        "gate_bias_v": 9.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 294.49999999999994,
+            "miller_ns": 275.50000000000006,
+            "overlap_energy_j": 0.00027065164726654305,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 2280,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0038684541658063815
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012374027671433653,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.8266504635623,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003822308936575686
+          },
+          "switching_loss_w": 53.315841114326076,
+          "conduction_loss_w": 11.355985758103156,
+          "gate_charge_loss_w": 0.13943598334463056,
+          "total_switch_loss_w": 64.81126285577386,
+          "vds_peak_v": 390.8266504635623,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 132.0,
+        "commutation_current_a": 15.07049153684322,
+        "gate_bias_v": 9.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 294.49999999999994,
+            "miller_ns": 275.50000000000006,
+            "overlap_energy_j": 0.00027169450507731055,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 2280,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0077364966070145895
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 9.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012572159064383207,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.8266504635623,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007550445367878609
+          },
+          "switching_loss_w": 53.70628404062851,
+          "conduction_loss_w": 22.71197151620631,
+          "gate_charge_loss_w": 0.13943598334463056,
+          "total_switch_loss_w": 76.55769154017945,
+          "vds_peak_v": 390.8266504635623,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 132.0,
+        "commutation_current_a": 15.07049153684322,
+        "gate_bias_v": 10.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 216.99999999999997,
+            "miller_ns": 203.00000000000003,
+            "overlap_energy_j": 0.00019942759828784213,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1680,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.003868800100356838
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012374027671433653,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.8266504635623,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003822308936575686
+          },
+          "switching_loss_w": 44.12028990401932,
+          "conduction_loss_w": 11.355985758103156,
+          "gate_charge_loss_w": 0.15492887038292286,
+          "total_switch_loss_w": 55.6312045325054,
+          "vds_peak_v": 390.8266504635623,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 132.0,
+        "commutation_current_a": 15.07049153684322,
+        "gate_bias_v": 10.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 216.99999999999997,
+            "miller_ns": 203.00000000000003,
+            "overlap_energy_j": 0.0002001960196994487,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1680,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.007736841871223091
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 10.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012572159064383207,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.8266504635623,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007550445367878609
+          },
+          "switching_loss_w": 44.47530106256012,
+          "conduction_loss_w": 22.71197151620631,
+          "gate_charge_loss_w": 0.15492887038292286,
+          "total_switch_loss_w": 67.34220144914934,
+          "vds_peak_v": 390.8266504635623,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 132.0,
+        "commutation_current_a": 15.07049153684322,
+        "gate_bias_v": 11.0,
+        "temperature_c": 25.0,
+        "rds_on_ohm": 0.05,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 171.79166666666663,
+            "miller_ns": 160.70833333333334,
+            "overlap_energy_j": 0.0001578802211983754,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1330,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.0038690494808437544
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012374027671433653,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.8266504635623,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.003822308936575686
+          },
+          "switching_loss_w": 38.75621640414899,
+          "conduction_loss_w": 11.355985758103156,
+          "gate_charge_loss_w": 0.17042175742121513,
+          "total_switch_loss_w": 50.28262391967336,
+          "vds_peak_v": 390.8266504635623,
+          "converged": true
+        }
+      },
+      {
+        "line_rms_v": 132.0,
+        "commutation_current_a": 15.07049153684322,
+        "gate_bias_v": 11.0,
+        "temperature_c": 125.0,
+        "rds_on_ohm": 0.1,
+        "simulation": {
+          "cold_c": 25.0,
+          "hot_c": 125.0,
+          "turn_on": {
+            "direction": "turn-on",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 1.5,
+            "pre_plateau_ns": 171.79166666666663,
+            "miller_ns": 160.70833333333334,
+            "overlap_energy_j": 0.00015848855467843928,
+            "coss_energy_j": 0.000018565384615384618,
+            "peak_vds_v": 389.61538461538464,
+            "steps": 1330,
+            "timestep_s": 2.5e-10,
+            "energy_balance_relative_error": 0.007737090377694144
+          },
+          "turn_off": {
+            "direction": "turn-off",
+            "current_a": 15.07049153684322,
+            "gate_bias_v": 11.0,
+            "gate_resistance_ohm": 13.3,
+            "driver_peak_current_a": 2.0,
+            "pre_plateau_ns": 133.0,
+            "miller_ns": 124.4193548387097,
+            "overlap_energy_j": 0.00012572159064383207,
+            "coss_energy_j": 0.0,
+            "peak_vds_v": 390.8266504635623,
+            "steps": 1030,
+            "timestep_s": 2.499217037269026e-10,
+            "energy_balance_relative_error": 0.007550445367878609
+          },
+          "switching_loss_w": 39.09055902735991,
+          "conduction_loss_w": 22.71197151620631,
+          "gate_charge_loss_w": 0.17042175742121513,
+          "total_switch_loss_w": 61.97295230098744,
+          "vds_peak_v": 390.8266504635623,
+          "converged": true
+        }
+      }
+    ],
+    "transition_energy_needs_waveforms": true
+  },
+  "total_loss_w": null,
+  "cooling_margin_w": null,
+  "prior_electronics_allowance_w": 105.0,
+  "assumptions": [
+    "108/120/132 V and L±20% are sensitivity points, not qualified input limits; ideal CCM, 15 A true RMS, fixed nominal bus/frequency",
+    "Input power is not DC output power; current ripple consumes part of the RMS current ceiling",
+    "Bridge 1.05 V test point is extrapolated as constant, not a waveform-wide/hot guarantee",
+    "Copper alpha20=0.00393/K is assumed; DCR max20mOhm at20C; core/AC loss excluded",
+    "The authored and native MPN is STW65N65DM2AG; its physical package marking is 65N65DM2 per the official DS11178 Rev 2 Device summary. The retained local PDF is Rev 1 and is hash-pinned for the other typicals",
+    "The 456 pF C_oss eq. is time-equivalent (0..80% VDSS), so it is metadata only. Eoss(VDS) is digitized from DS11178 Rev 2 p. 6 Figure 8 with ±0.6 µJ interpolation uncertainty; typical data are not guarantees",
+    "The 10 ohm external plus 3.3 ohm intrinsic gate network and 9..11 V bias sweep imply a first-order 70..86 ns Qgd edge and a nominal overlap sensitivity; UCC28180 source impedance, plateau voltage and layout parasitics still require measured waveforms",
+    "UCC28180 loaded ICC (15 V * 7 mA typical) already includes charging its characterized load; it must not be added to full Qg*V*f as independent quiescent power",
+    "No equal sharing of SiC anodes or capacitor-bank ripple assumed; no individual package thermal verdict",
+    "Prior 60C sink target is not proof of 60C remote PCB boundary"
+  ]
+}

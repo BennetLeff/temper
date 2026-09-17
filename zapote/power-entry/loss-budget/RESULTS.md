@@ -17,7 +17,8 @@ reports 1,796.416 W input. That is not delivered DC power or measured efficiency
 | Energized relay coil + dropper | 0.499 | 15 V, nominal resistance; excludes contact and driver |
 | **Partial sum** | **36.231 / 37.646** | **Incomplete, not a bound** |
 
-The independent MOSFET *design sensitivity*, not an exact-part prediction:
+The earlier independent MOSFET *design sensitivity* is retained as historical
+context, not an exact-part prediction:
 
 | Assumed each switching edge | 50 mΩ conduction + overlap W | 100 mΩ conduction + overlap W |
 | --- | ---: | ---: |
@@ -32,21 +33,21 @@ allowance. This is evidence that switching behavior matters to the design
 decision; it is not evidence that the actual board dissipates that amount.
 Total-loss and cooling-margin fields are deliberately null.
 
-**The identity is resolved, and one of those omitted terms is now bounded.**
-The authored boost-switch identity `STW65N65DM2` is the marking form, not an
-order code: the retained ST datasheet's own Device summary prints `Order code
-STW65N65DM2AG` against `Marking 65N65DM2`. That document is now retained and
-hash-pinned (`sources/STW65N65DM2AG.pdf`), so the switch terms are that part's
-data rather than an unnamed device's:
+**The identity is resolved, and the switching term now has a reproducible
+bounded model.** Authored/native order code is `STW65N65DM2AG`; package marking
+is `65N65DM2`. The board/source/native/manufacturing receipts bind that identity
+and the current board hash. The Rust event model includes UCC28180 source/sink
+limits, Miller plateau, gate network and loop inductance across 18 cases:
 
 | Term | Value at 389.615 V / 129.107 kHz | Basis |
 | --- | ---: | --- |
 | Output capacitance (`Eoss` at 389.615 V, digitized from DS11178 Rev 2 Figure 8) | 2.397 W ±0.078 W | Typical curve interpolation; 456 pF `C_oss eq.` is time-equivalent and not used as energy |
 | Gate drive (`Qg` 120 nC, 10 V) | 0.155 W | Datasheet typical, one condition |
+| Nominal event-model switching overlap | 43.943 W | 120 Vrms, 10 V bias, 25 C; 0.25 ns fixed-step model |
 
-Excluding the **turn-on/turn-off overlap** is the remaining gap, and it is the
-large one: a datasheet charges the capacitor, it does not clock the transition.
-An Eon measured in the real gate network would already include the capacitance
+The event model is a bounded typical calculation, not hardware qualification.
+A double-pulse capture and hot RDS(on) curve remain required to replace it. An
+Eon measured in the real gate network would already include the capacitance
 term, so these two must not be summed without checking that.
 
 ## Candidate screen: one requirement, three lines
@@ -94,16 +95,10 @@ The identity question is closed. What remains is measurement and board work, and
 the [decision record](DECISION.md) defines which of it changes the architecture
 choice and which of it does not.
 
-1. Measure the boost cell's turn-on/turn-off overlap in the real gate network.
-   That is the one outstanding number that can still move the total by tens of
-   watts; the capacitance and gate terms are now datasheet-bounded, but the
-   transition is not. Read the hot `RDS(on)` curve at the same time.
-2. Correct the authored identity in `elec/src/power_entry_unit.ato`, the BOM and
-   the native board together, moving `STW65N65DM2` to its resolved order code
-   `STW65N65DM2AG`. In this repository that is a board regeneration, not a
-   metadata edit: routing is applied rather than replayed, so it is queued with
-   the next board revision rather than done here.
-3. Add inductor core/AC loss and frequency-dependent capacitor loss, then close
+1. Measure the boost cell's turn-on/turn-off overlap in the real gate network
+   and read the hot `RDS(on)` curve at the same time. This replaces the bounded
+   typical model before hardware thermal claims.
+2. Add inductor core/AC loss and frequency-dependent capacitor loss, then close
    parasitics, precharge/shutdown timing and the auxiliary supply.
 
 The candidate screen's own priority order, for the same sequence: pursue

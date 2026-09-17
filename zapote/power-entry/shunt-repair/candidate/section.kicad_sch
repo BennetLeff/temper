@@ -32,19 +32,19 @@
         (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
       )
     )
-    (symbol "PowerEntryUnit:STW65N65DM2"
+    (symbol "PowerEntryUnit:STW65N65DM2AG"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
       (in_bom yes)
       (on_board yes)
       (property "Reference" "U" (at 0 17.78 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "STW65N65DM2" (at 0 -17.78 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "STW65N65DM2AG" (at 0 -17.78 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Description" "elec/src/power_entry_unit.ato:PfcMosfet" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "STW65N65DM2_0_1"
+      (symbol "STW65N65DM2AG_0_1"
         (rectangle (start -12.70 -15.24) (end 12.70 15.24) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "STW65N65DM2_1_1"
+      (symbol "STW65N65DM2AG_1_1"
         (pin bidirectional line (at -15.24 -2.54 0) (length 2.54) (name "A1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at -15.24 2.54 0) (length 2.54) (name "K" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "A2" (effects (font (size 1.27 1.27)))) (number "3" (effects (font (size 1.27 1.27)))))
@@ -484,7 +484,7 @@
   )
 
   (symbol
-    (lib_id "PowerEntryUnit:STW65N65DM2")
+    (lib_id "PowerEntryUnit:STW65N65DM2AG")
     (at 151.13 50.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -2046,7 +2046,7 @@
   )
 
   (symbol
-    (lib_id "PowerEntryUnit:STW65N65DM2")
+    (lib_id "PowerEntryUnit:STW65N65DM2AG")
     (at 537.21 477.52 0)
     (unit 1)
     (exclude_from_sim no)
@@ -2055,7 +2055,7 @@
     (dnp no)
     (uuid "862f3bef-f3ac-756d-a005-f431443168e0")
     (property "Reference" "U9" (at 537.21 474.98 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "STW65N65DM2" (at 537.21 480.06 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "STW65N65DM2AG" (at 537.21 480.06 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Package_TO_SOT_THT:TO-247-3_Vertical" (at 537.21 477.52 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "569f721b-3992-65a4-62f2-32a502e0c5dd"))
     (pin "2" (uuid "940b8092-6389-2517-96ce-186ebeacfdc5"))

@@ -894,5 +894,6 @@ pub mod pfc_currents;
 pub mod pfc_losses;
 
 pub mod pfc_shunt;
+pub mod pfc_switching;
 
 pub mod pfc_protection;

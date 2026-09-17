@@ -2,19 +2,25 @@
 use serde::Serialize;
 use std::collections::BTreeMap;
 use zapote_core::{CheckReport, Finding};
-use zapote_erc::{pfc_currents::Config, pfc_losses as loss, power_entry, source_circuit::Circuit};
+use zapote_erc::{
+    pfc_currents::Config,
+    pfc_losses as loss,
+    pfc_switching,
+    power_entry,
+    source_circuit::Circuit,
+};
 
 pub const RULES: [&str; 3] = [
     "ERC.PFC.LOSS_SOURCE_BINDING",
     "ERC.PFC.LOSS_COVERAGE",
     "THERMAL.PFC.LOSS_COOLING_CLOSURE",
 ];
-/// The authored source and current native artifacts carry the package marking.
-/// It is not an order code; the loss model selects the exact AG order code
-/// below from ST's Device summary (`Order code ...AG`, `Marking 65N65DM2`).
-pub const BOOST_AUTHORED_MARKING: &str = "STW65N65DM2";
-/// Exact order code selected for this experiment from the official ST source.
+/// Exact order code carried by the authored source and current native board.
 pub const BOOST_ORDER_CODE: &str = "STW65N65DM2AG";
+/// Physical package marking printed by the selected order code.
+pub const BOOST_PACKAGE_MARKING: &str = "65N65DM2";
+/// Compatibility name for callers that describe the source identity.
+pub const BOOST_AUTHORED_MARKING: &str = BOOST_ORDER_CODE;
 /// Retained primary source that resolves the identity and supplies the switch
 /// capacitance and gate charge used below.
 pub const BOOST_SOURCE_DOCUMENT: &str = "STW65N65DM2AG.pdf";
@@ -62,7 +68,7 @@ const UNKNOWN: [&str; 10] = [
     "bridge: waveform/temperature-dependent forward drop beyond single test point",
     "hot shunt and relay tolerance/temperature corrections",
 ];
-const DOCUMENTS: [(&str, &[u8], &str); 4] = [
+const DOCUMENTS: [(&str, &[u8], &str); 5] = [
     (
         "760800301.pdf",
         include_bytes!("../../../power-entry/loss-budget/sources/760800301.pdf"),
@@ -83,6 +89,11 @@ const DOCUMENTS: [(&str, &[u8], &str); 4] = [
         include_bytes!("../../../power-entry/loss-budget/sources/STW65N65DM2AG.pdf"),
         "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
     ),
+    (
+        "TI-UCC28180.pdf",
+        include_bytes!("../../../power-entry/shunt-repair/sources/TI-UCC28180.pdf"),
+        "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
+    ),
 ];
 
 pub(crate) fn selected_eoss_w(bus_v: f64, switching_hz: f64) -> Result<(f64, f64), String> {
@@ -91,6 +102,59 @@ pub(crate) fn selected_eoss_w(bus_v: f64, switching_hz: f64) -> Result<(f64, f64
         eoss_j,
         loss::output_capacitance_eoss_w(eoss_j, switching_hz)?,
     ))
+}
+
+fn switching_scenarios(bus_v: f64, switching_hz: f64) -> Result<Vec<SwitchingScenario>, String> {
+    let mut scenarios = Vec::new();
+    for line_rms_v in [108.0, 120.0, 132.0] {
+        let moments = loss::moments(Config {
+            line_rms_v,
+            input_rms_limit_a: 15.0,
+            bus_v,
+            inductance_h: 180e-6,
+            switching_hz,
+            phase_samples: 1024,
+        })?;
+        // The turn-off current is the larger event current at the retained
+        // CCM operating point.  Keep it as a named conservative commutation
+        // current rather than substituting a whole-net or pad-size proxy.
+        let commutation_current_a = moments.mean_turn_on_a.max(moments.mean_turn_off_a);
+        for gate_bias_v in [9.0, 10.0, 11.0] {
+            for (temperature_c, rds_on_ohm) in [(25.0, 0.050), (125.0, 0.100)] {
+                let simulation = pfc_switching::simulate(
+                    pfc_switching::Config {
+                        bus_v,
+                        switching_hz,
+                        current_a: commutation_current_a,
+                        gate_bias_v,
+                        qg_c: BOOST_QG_TYP_C,
+                        qgd_c: BOOST_QGD_TYP_C,
+                        gate_plateau_v: 6.2,
+                        gate_threshold_v: 4.0,
+                        external_gate_r_ohm: BOOST_GATE_R_EXTERNAL_OHM,
+                        intrinsic_gate_r_ohm: BOOST_GATE_R_INTRINSIC_OHM,
+                        driver_source_peak_a: 1.5,
+                        driver_sink_peak_a: 2.0,
+                        coss_energy_j: loss::eoss_from_curve(&BOOST_EOSS_CURVE_J, bus_v)?,
+                        loop_inductance_h: 10e-9,
+                        rds_on_ohm,
+                        timestep_s: 0.25e-9,
+                    },
+                    25.0,
+                    125.0,
+                )?;
+                scenarios.push(SwitchingScenario {
+                    line_rms_v,
+                    commutation_current_a,
+                    gate_bias_v,
+                    temperature_c,
+                    rds_on_ohm,
+                    simulation,
+                });
+            }
+        }
+    }
+    Ok(scenarios)
 }
 
 fn document_hashes(documents: &[(&str, &[u8], &str)]) -> Result<BTreeMap<String, String>, String> {
@@ -151,9 +215,23 @@ pub struct BoostSwitchBound {
     pub gate_edge_ns_max: f64,
     pub gate_overlap_w_min: f64,
     pub gate_overlap_w_max: f64,
+    /// Reproducible event-level switching model across line current, gate-bias
+    /// and cold/hot RDS(on) cases.  It is bounded datasheet evidence, not a
+    /// hardware qualification.
+    pub switching_scenarios: Vec<SwitchingScenario>,
     /// Turn-on/turn-off overlap still needs measured waveforms; no Eon/Eoff is
     /// claimed here.
     pub transition_energy_needs_waveforms: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SwitchingScenario {
+    pub line_rms_v: f64,
+    pub commutation_current_a: f64,
+    pub gate_bias_v: f64,
+    pub temperature_c: f64,
+    pub rds_on_ohm: f64,
+    pub simulation: pfc_switching::Result,
 }
 
 #[derive(Debug, Serialize)]
@@ -241,7 +319,7 @@ pub fn run(source: &str) -> Result<Report, String> {
     let c = Circuit::parse(source, power_entry::ENTRY)?;
     for (id, mpn) in [
         ("bridge", "GBJ2510-F"),
-        ("q_boost", BOOST_AUTHORED_MARKING),
+        ("q_boost", BOOST_ORDER_CODE),
         ("shunt", "HCSM2818FT10L0"),
         ("l_boost", "760800301"),
         ("bypass", "RT33K012"),
@@ -310,6 +388,7 @@ pub fn run(source: &str) -> Result<Report, String> {
         gate_edge_ns_max,
         gate_overlap_w_min,
         gate_overlap_w_max,
+        switching_scenarios: switching_scenarios(bus_v, switching_hz)?,
         transition_energy_needs_waveforms: true,
     };
     let mut cases = Vec::new();
@@ -351,7 +430,7 @@ pub fn run(source: &str) -> Result<Report, String> {
             "Input power is not DC output power; current ripple consumes part of the RMS current ceiling".into(),
             "Bridge 1.05 V test point is extrapolated as constant, not a waveform-wide/hot guarantee".into(),
             "Copper alpha20=0.00393/K is assumed; DCR max20mOhm at20C; core/AC loss excluded".into(),
-            "The native/authored marking is 65N65DM2; this experiment explicitly selects order code STW65N65DM2AG from the official DS11178 Rev 2 Device summary. The retained local PDF is Rev 1 and is hash-pinned for the other typicals".into(),
+            "The authored and native MPN is STW65N65DM2AG; its physical package marking is 65N65DM2 per the official DS11178 Rev 2 Device summary. The retained local PDF is Rev 1 and is hash-pinned for the other typicals".into(),
             "The 456 pF C_oss eq. is time-equivalent (0..80% VDSS), so it is metadata only. Eoss(VDS) is digitized from DS11178 Rev 2 p. 6 Figure 8 with ±0.6 µJ interpolation uncertainty; typical data are not guarantees".into(),
             "The 10 ohm external plus 3.3 ohm intrinsic gate network and 9..11 V bias sweep imply a first-order 70..86 ns Qgd edge and a nominal overlap sensitivity; UCC28180 source impedance, plateau voltage and layout parasitics still require measured waveforms".into(),
             "UCC28180 loaded ICC (15 V * 7 mA typical) already includes charging its characterized load; it must not be added to full Qg*V*f as independent quiescent power".into(),
@@ -369,7 +448,7 @@ mod tests {
         include_str!("../../../power-entry/shunt-repair/candidate/source-manifest.json");
     #[test]
     fn every_manufacturer_document_rejects_byte_drift() {
-        assert_eq!(document_hashes(&DOCUMENTS).unwrap().len(), 4);
+        assert_eq!(document_hashes(&DOCUMENTS).unwrap().len(), 5);
         for index in 0..DOCUMENTS.len() {
             let mut changed = DOCUMENTS[index].1.to_vec();
             changed[20] ^= 1;
@@ -387,7 +466,7 @@ mod tests {
         let b = &r.boost_switch_bound;
         // The identity is resolved to an order code, but only through the
         // retained document that carries the Device summary.
-        assert_eq!(b.authored_marking, "STW65N65DM2");
+        assert_eq!(b.authored_marking, "STW65N65DM2AG");
         assert_eq!(b.resolved_order_code, "STW65N65DM2AG");
         assert_eq!(b.source_document, "STW65N65DM2AG.pdf");
         assert_eq!(r.documents_sha256[b.source_document].len(), 64);
@@ -421,6 +500,16 @@ mod tests {
             b.gate_drive_typical_w
         );
         assert!(b.transition_energy_needs_waveforms);
+        assert_eq!(b.switching_scenarios.len(), 18);
+        assert!(b
+            .switching_scenarios
+            .iter()
+            .all(|scenario| scenario.simulation.converged));
+        assert!(b
+            .switching_scenarios
+            .iter()
+            .any(|scenario| scenario.temperature_c == 125.0
+                && scenario.gate_bias_v == 9.0));
         // The switch term is bounded but the budget as a whole still is not.
         assert!(r.total_loss_w.is_none() && r.cooling_margin_w.is_none());
     }
@@ -450,7 +539,8 @@ mod tests {
         assert!(run(&SOURCE.replace("HCSM2818FT10L0", "WSL2512R0100FEA")).is_err());
         // The resolved order code cannot silently replace the authored
         // marking-form identity without an authored-source change.
-        assert!(run(&SOURCE.replace("STW65N65DM2", "STW65N65DM2AG")).is_err());
+        assert!(run(&SOURCE.replace("STW65N65DM2AG", "STW65N65DM2")).is_err());
+        assert!(run(&SOURCE.replace("STW65N65DM2AG", "STW63N65DM2")).is_err());
         assert!(run(&SOURCE.replace("150kohm", "100kohm")).is_err());
     }
     #[test]

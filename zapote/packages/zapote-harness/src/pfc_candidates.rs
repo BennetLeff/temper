@@ -516,10 +516,10 @@ fn boost_stage_optimization(models: &[LineModel], requirement_w: f64) -> Result<
         ],
         screening: vec![
             format!(
-                "The authored marking `STW65N65DM2` is bound to selected order code {BOOST_ORDER_CODE} from ST DS11178 Rev 2. The conduction and Eoss terms below are that part's typical data, not an unnamed device's."
+                "The authored/native order code `{BOOST_ORDER_CODE}` is paired with physical package marking `65N65DM2` in ST DS11178 Rev 2. The conduction and Eoss terms below are that part's typical data, not an unnamed device's."
             ),
             "The output-capacitance term uses Eoss(VDS) digitized from DS11178 Rev 2 Figure 8. The 456 pF C_oss eq. is time-equivalent and is retained only as metadata; Eon/Eoff overlap must remain separate.".into(),
-            "The switching-overlap term is a design sensitivity keyed to the actual 10 ohm external plus 3.3 ohm intrinsic gate network and 9-11 V bias range; it spans roughly 47-58 W before UCC28180 and layout effects, so it still needs measured waveforms.".into(),
+            "The Rust event model now characterizes the actual 10 ohm external plus 3.3 ohm intrinsic gate network, UCC28180 source/sink limits, Miller plateau and loop inductance across 18 line/bias/temperature cases. It reports a nominal 43.9 W overlap term and remains a bounded typical model pending measured waveforms.".into(),
             "Conduction is a weaker lever than overlap at 50 ns edges, and it is bounded by the same unread hot curve.".into(),
             "The gate-drive estimate is a single-condition typical and must not be added to the controller's loaded-gate supply current, which already includes drive energy. Eoss is separate from measured Eon/Eoff only when the capture definition excludes Coss discharge.".into(),
         ],
@@ -543,8 +543,7 @@ pub fn run(source: &str) -> Result<Report, String> {
     let circuit = Circuit::parse(source, power_entry::ENTRY)?;
     for (id, mpn) in [
         ("bridge", "GBJ2510-F"),
-        // The authored string is the ST marking form; its order code is
-        // The authored marking is resolved in `pfc_loss_budget::BOOST_ORDER_CODE`.
+        // The authored source and native board carry the exact order code.
         ("q_boost", BOOST_AUTHORED_MARKING),
         ("d_boost", "C3D20065D"),
         ("shunt", "HCSM2818FT10L0"),
@@ -894,10 +893,10 @@ mod tests {
     fn stale_part_data_cannot_follow_a_part_change() {
         for (from, to) in [
             ("GBJ2510-F", "GBU2510A"),
-            // Swapping the marking form for the order code, or for a different
-            // device, must both fail until the authored source moves with it.
-            ("STW65N65DM2", "STW65N65DM2AG"),
-            ("STW65N65DM2", "STW63N65DM2"),
+            // Swapping the exact order code for the package marking or a
+            // different device must both fail until the source moves with it.
+            ("STW65N65DM2AG", "STW65N65DM2"),
+            ("STW65N65DM2AG", "STW63N65DM2"),
             ("C3D20065D", "C3D20065A"),
             ("760800301", "760800302"),
         ] {

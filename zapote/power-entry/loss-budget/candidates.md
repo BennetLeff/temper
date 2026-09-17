@@ -58,15 +58,13 @@ loss budget's 20-100 ns band it spans tens of watts. That single term outweighs
 every bridge-architecture question here, and it is a design sensitivity keyed to
 an assumed edge time rather than a statement about the authored device.
 
-**The device is no longer unnamed, and one switch term is now bounded.** The
-authored `STW65N65DM2` is ST's marking form; the retained datasheet's Device
-summary gives the order code as `STW65N65DM2AG` against marking `65N65DM2`, and
-that document is hash-pinned. The corrected model digitizes `Eoss(VDS)` from
-the official DS11178 Rev 2 Figure 8: **2.397 W ±0.078 W** at the 389.615 V
-bus and 129.107 kHz. The 456 pF `C_oss eq.` value is time-equivalent and is not
-an energy calculation; `Qg` 120 nC still bounds gate drive at **0.155 W**. The
-turn-on/turn-off overlap is still open, and it is the large one: a datasheet
-charges the capacitor, it does not clock the transition.
+**The device identity and a bounded event model are now explicit.** The
+authored/native order code is `STW65N65DM2AG`; package marking is `65N65DM2`,
+and the source/native/manufacturing receipts bind that identity. Rust models
+UCC28180 source/sink limits, Miller plateau, the 10 ohm + 3.3 ohm gate network
+and loop inductance across 18 cases. At nominal conditions it reports 43.943 W
+overlap, 2.397 W Eoss and 0.155 W gate loss. This remains typical model
+evidence; measured waveforms and hot data are required for qualification.
 
 **The active-rectifier question reduces to one number.** The screen reports the
 break-even per-device `RDS(on)` at which synchronous conduction would equal the

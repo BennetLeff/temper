@@ -154,7 +154,7 @@ const PARTS: &[(&str, &str, Option<&str>)] = &[
     ("x2", "B32922C3224M289", Some("0.22uF")),
     ("mov", "V150LA10AP", None),
     ("l_boost", "760800301", None),
-    ("q_boost", "STW65N65DM2", None),
+    ("q_boost", "STW65N65DM2AG", None),
     ("d_boost", "C3D20065D", None),
     ("pfc", "UCC28180D", None),
     ("shunt", "WSL2726R0100FEA", Some("10mohm")),
