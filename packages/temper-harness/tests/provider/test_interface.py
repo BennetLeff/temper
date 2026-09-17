@@ -117,9 +117,6 @@ class _FakeTransport:
             system_fingerprint="fp-probe",
         )
 
-    def cancel(self) -> None:
-        self.cancelled = True
-
 
 def _request() -> Request:
     return Request(
@@ -190,11 +187,31 @@ def test_buffered_transport_assembles_fragmented_tool_calls() -> None:
     assert calls[0]["arguments"] == '{"net": "GND"}'
 
 
-def test_cancel_reaches_the_inner_transport() -> None:
-    inner = _FakeTransport([])
-    transport = BufferedTransport(inner)
-    transport.cancel()
-    assert inner.cancelled is True
+def test_closing_the_consumer_closes_the_inner_iterator() -> None:
+    """Cancellation is ``close()``, and it propagates inward.
+
+    The transport deliberately has no ``cancel()``: a flag on the instance cannot
+    be per-call, and ``LiveTransport.stream`` used to reset it at entry -- so a
+    second overlapping call would clear the first one's cancellation and one
+    cancel would stop both. Porting the concurrency fault is what showed it.
+    """
+    closed: list[bool] = []
+
+    class _Tracked:
+        def stream(self, request: Request) -> Iterator[Event]:
+            try:
+                yield TextDelta("a")
+                yield TextDelta("b")
+            finally:
+                closed.append(True)
+
+    inner = _Tracked()
+    events = inner.stream(_request())
+    next(events)
+    events.close()
+
+    assert closed == [True]
+    assert not hasattr(BufferedTransport(inner), "cancel")
 
 
 # -- endpoint pinning --------------------------------------------------------

@@ -621,21 +621,33 @@ def test_the_adapter_does_not_record_a_failure(tmp_path: Path) -> None:
     assert not any(tmp_path.rglob("*.json")), "a failed call must not enter the replay corpus"
 
 
-def test_a_cancelled_stream_stops_before_the_terminal_chunk() -> None:
-    """Cooperative cancellation: the consumer stops, the transport notices."""
-    transport, _ = _adapter(
-        _FakeResponse(
-            body=response_bytes("stream_plain"),
-            headers={"content-type": "text/event-stream"},
-            chunks=[response_bytes("stream_plain")],
-        )
+def test_closing_the_stream_closes_the_response_and_stops_the_turn() -> None:
+    """Cancellation is per-call, and it reaches the socket.
+
+    Closing the iterator unwinds the adapter's generator, which runs the `finally`
+    that closes the response. There is no transport-level cancel to get wrong: a
+    flag on the instance is reset by whatever call starts next, so with two
+    overlapping streams it would either do nothing or stop the wrong one.
+    """
+    body = response_bytes("stream_plain")
+    response = _FakeResponse(
+        body=body,
+        headers={"content-type": "text/event-stream"},
+        chunks=[body[i : i + 64] for i in range(0, len(body), 64)],
     )
-    events: list[Any] = []
-    for event in transport.stream(_request(stream=True)):
-        events.append(event)
-        transport.cancel()
-    assert not any(isinstance(event, StreamEnd) for event in events)
-    assert not any(isinstance(event, UsageReported) for event in events)
+    transport, _ = _adapter(response)
+
+    seen: list[Any] = []
+    events = transport.stream(_request(stream=True))
+    for event in events:
+        seen.append(event)
+        if len(seen) >= 3:
+            break
+    events.close()
+
+    assert response.closed is True
+    assert not any(isinstance(event, StreamEnd) for event in seen)
+    assert not any(isinstance(event, UsageReported) for event in seen)
 
 
 def test_normalizing_a_captured_block_produces_the_committed_field_names() -> None:

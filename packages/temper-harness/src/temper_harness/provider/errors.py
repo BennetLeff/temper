@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import socket
 import ssl
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -46,6 +47,14 @@ class TransportError(Exception):
     #: unwound would report a call that cost money as having cost nothing.
     partial_usage: dict[str, int | None] | None = None
 
+    #: ``Retry-After`` from the response, in seconds, when the provider sent one.
+    #: Retained because it is the only actionable fact on a 429: S1's backoff policy
+    #: can wait the interval the provider asked for instead of guessing, and a
+    #: header that is not captured at the moment of the refusal cannot be recovered
+    #: afterwards. Ported from the prior attempt's rate-limit diagnostic, which
+    #: asserted rate-limit header capture for the same reason.
+    retry_after: float | None = None
+
     def __init__(self, message: str, *, http_status: int | None = None) -> None:
         super().__init__(message)
         self.http_status = http_status
@@ -70,6 +79,7 @@ class TransportError(Exception):
             "billable": self.billable,
             "message": str(self),
             "http_status": self.http_status,
+            "retry_after": self.retry_after,
         }
 
 
@@ -273,14 +283,43 @@ def provider_error_message(body: bytes | str | None) -> str | None:
     return None
 
 
-def classify_http_response(status: int, body: bytes | str | None = None) -> TransportError:
+def _retry_after_seconds(headers: Mapping[str, Any] | None) -> float | None:
+    """``Retry-After`` in seconds, when the provider sent it in that form.
+
+    The header is case-insensitive, so both spellings are looked up. The HTTP-date
+    form is deliberately *not* converted: parsing it needs a clock, and a clock
+    inside a classifier makes the classification depend on when it ran. A date-form
+    value therefore yields ``None``, which is a recorded gap rather than a guess.
+    No 429 was ever observed from this provider, so both branches are exercised only
+    against synthetic responses -- see the plan's unknowns.
+    """
+    if not headers:
+        return None
+    raw = headers.get("retry-after", headers.get("Retry-After"))
+    if raw is None:
+        return None
+    try:
+        return float(str(raw).strip())
+    except ValueError:
+        return None
+
+
+def classify_http_response(
+    status: int,
+    body: bytes | str | None = None,
+    headers: Mapping[str, Any] | None = None,
+) -> TransportError:
     """Map a non-2xx response onto the taxonomy, using the provider's own message.
 
     The status narrows the class; the body picks the category inside it. This is
-    the entry point the live adapter uses, because the alternative -- classifying
-    a 400 by its status -- cannot tell a bad model name from a bad tool schema,
-    and this repo's own record is that filtering before reading the evidence
-    produces a confidently wrong set.
+    the entry point the live adapter uses, because the alternative -- classifying a
+    400 by its status -- cannot tell a bad model name from a bad tool schema, and
+    this repo's own record is that filtering before reading the evidence produces a
+    confidently wrong set.
+
+    ``headers`` are the *allowlisted* response headers. They matter for one case: a
+    429's ``Retry-After`` is the only actionable fact on a rate-limit response, and
+    a header not captured at the moment of the refusal cannot be recovered later.
     """
     message = provider_error_message(body)
     if message is None:
@@ -288,14 +327,15 @@ def classify_http_response(status: int, body: bytes | str | None = None) -> Tran
         message = raw.strip()[:400]
 
     error = for_http_status(status, message)
-    if status != 400:
-        return error
+    if status == 400:
+        lowered = message.lower()
+        if any(marker in lowered for marker in _SCHEMA_REJECTION_MARKERS):
+            error = ToolSchemaRejected(message, http_status=status)
+        elif any(marker in lowered for marker in _CONTEXT_LENGTH_MARKERS):
+            error = ContextLengthExceeded(message, http_status=status)
+        elif any(marker in lowered for marker in _CONTENT_FILTER_MARKERS):
+            error = ContentFiltered(message, http_status=status)
 
-    lowered = message.lower()
-    if any(marker in lowered for marker in _SCHEMA_REJECTION_MARKERS):
-        return ToolSchemaRejected(message, http_status=status)
-    if any(marker in lowered for marker in _CONTEXT_LENGTH_MARKERS):
-        return ContextLengthExceeded(message, http_status=status)
-    if any(marker in lowered for marker in _CONTENT_FILTER_MARKERS):
-        return ContentFiltered(message, http_status=status)
+    if status == 429:
+        error.retry_after = _retry_after_seconds(headers)
     return error

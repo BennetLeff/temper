@@ -28,23 +28,48 @@ from temper_harness.provider.deepseek import (
 from temper_harness.provider.errors import MalformedResponse, classify_http_response
 from temper_harness.provider.interface import Event, Request, Terminal
 from temper_harness.store.recorder import RecordingStore
+from temper_harness.store.recordings import Recording
+
+
+def events_from_recording(recording: Recording, *, stream: bool) -> Iterator[Event]:
+    """The events a recorded exchange produces, through the live path's decoder.
+
+    Shared by the replay adapter and the oracle. If either grew its own parse of a
+    recorded body, a corpus check would be testing a different reader than the one
+    production uses -- which is the whole failure this package is built to avoid.
+    """
+    if recording.http_status >= 300:
+        raise classify_http_response(recording.http_status, recording.response_raw)
+
+    content_type = recording.headers.get("content-type")
+    payload = recording.response_raw
+
+    if stream:
+        if not is_event_stream(content_type):
+            raise MalformedResponse(
+                f"asked to replay a stream and the recording is {content_type!r}"
+            )
+        yield from decode_stream_payloads(
+            iter_sse_payloads(payload.split(b"\n")), served_from="replay"
+        )
+        return
+
+    if is_event_stream(content_type):
+        raise MalformedResponse(
+            f"asked to replay a single response and the recording is {content_type!r}"
+        )
+    yield Terminal(decode_completion(payload, served_from="replay"))
 
 
 class ReplayTransport:
-    """Serves a recorded exchange through the live path's decoder."""
+    """Serves a recorded exchange through the live path's decoder.
+
+    Holds only a store. No HTTP client is imported here and no live transport is
+    reachable from it, so the offline property is structural rather than a flag.
+    """
 
     def __init__(self, store: RecordingStore) -> None:
         self._store = store
-        self._cancelled = False
-
-    def cancel(self) -> None:
-        """Replay is already over by the time a caller could cancel it.
-
-        Present so the adapter satisfies the transport protocol and so that a
-        caller written against the live path works unchanged. Deliberately not a
-        no-op-with-a-side-effect: there is no network read to interrupt.
-        """
-        self._cancelled = True
 
     def _require_provenance(self, served_from: str) -> None:
         if served_from != "replay":
@@ -56,35 +81,10 @@ class ReplayTransport:
 
     def stream(self, request: Request) -> Iterator[Event]:
         self._require_provenance(request.served_from)
-        self._cancelled = False
 
-        # The request is hashed exactly the way the live path hashes it, because
-        # it is the same function: `serve` refuses on a mismatch rather than
-        # serving a near miss, and that only works if both sides agree on what
-        # "the same request" means.
+        # The request is hashed exactly the way the live path hashes it, because it
+        # is the same function: `serve` refuses on a mismatch rather than serving a
+        # near miss, and that only works if both sides agree on what "the same
+        # request" means.
         recording = self._store.serve(wire_body(request))
-
-        if recording.http_status >= 300:
-            raise classify_http_response(recording.http_status, recording.response_raw)
-
-        content_type = recording.headers.get("content-type")
-        payload = recording.response_raw
-
-        if request.stream:
-            if not is_event_stream(content_type):
-                raise MalformedResponse(
-                    f"asked to replay a stream and the recording is {content_type!r}"
-                )
-            for event in decode_stream_payloads(
-                iter_sse_payloads(payload.split(b"\n")), served_from="replay"
-            ):
-                if self._cancelled:
-                    return
-                yield event
-            return
-
-        if is_event_stream(content_type):
-            raise MalformedResponse(
-                f"asked to replay a single response and the recording is {content_type!r}"
-            )
-        yield Terminal(decode_completion(payload, served_from="replay"))
+        yield from events_from_recording(recording, stream=request.stream)

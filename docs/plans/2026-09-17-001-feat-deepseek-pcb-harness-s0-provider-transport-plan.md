@@ -278,6 +278,47 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 - **U2 complete.** Self-rooting is rejected, an unresolved parent chain fails the aggregate closed, a crash leaves an unclosed in-flight entry that fails the aggregate, and the reconciliation invariant holds — against the provider's own `total_tokens`, which is the only external check available.
 - **U3 complete.** A malformed message array raises before network I/O (and one captured fixture is the provider's refusal of exactly that array, so the local guard is aligned with a real refusal rather than an imagined one). A pre-connection failure is classified and carries defined retryable/billable flags. A cancelled stream cannot be confused with a completed one, because a turn with no `finish_reason` is never `ok`. The live and replay adapters share one decoder, and their typed views are asserted equal on the same bytes.
 - **U4 complete** for the offline half: request-hash and arm mismatches refuse to serve, a failed live call cannot fall back to a recording, the store cannot be written during a replay run, and the redaction canary fails on a planted key in every artifact kind R11 names. The provider-facing adapter is now built (U3), so replay is wired end to end.
+- **U5 complete.** Nine guards, each with a perturbation crafted to trip it and only it, and each observed accepting that perturbation once disabled — recorded in `packages/temper-harness/tests/oracle/evidence/guard_removal.json` and re-derived on every run so it cannot drift. The five socket faults are ported from the prior attempt's diagnostic, mechanism kept and expectations re-derived.
+
+### Found while building the oracle and the faults (U5) — six more corrections
+
+11. **A read timeout mid-stream was not classified at all.** Only the initial request
+    was wrapped, so a `ReadTimeout` during the body propagated raw out of the send
+    path (R6). Porting the stall fault is what found it.
+12. **`requests`' `Timeout` inherits from `OSError`, and the general classifier checks
+    `OSError` — so a read timeout was reported as a pre-connection failure.** That is
+    the opposite of what happened, and it flips `billable` in the wrong direction:
+    a request that was sent and may have generated would have been recorded as a free
+    failure. `classify_request_exception` now translates the client's hierarchy, with
+    `ConnectTimeout` checked before `Timeout` because it inherits from both and means
+    nothing was sent.
+13. **Cancellation was instance state, so two overlapping streams on one transport
+    clobbered each other.** `LiveTransport.stream` reset a `_cancelled` flag at entry
+    and one `cancel()` stopped every call on the instance. `Transport` now has no
+    `cancel()` at all: closing the event iterator unwinds the adapter and runs its
+    `finally`, which is per-call, idiomatic, and impossible to point at the wrong
+    stream. Porting the concurrency fault is what found it.
+14. **A duplicate tool-call id across two indices was accepted.** Each result is keyed
+    by id, so a duplicate makes the pairing ambiguous and the array unreconstructable.
+    Now a `MalformedStream`.
+15. **`Retry-After` had nowhere to go.** It is the only actionable fact on a 429, and
+    a header not captured at the moment of the refusal cannot be recovered later, so
+    the error record gained `retry_after`. The HTTP-date form is deliberately not
+    converted: that would put a clock inside a classifier. Ported from the
+    rate-limit fault, which asserted header capture for the same reason.
+16. **One oracle guard was unfalsifiable, and was removed rather than kept.** An
+    `error_classified` check would have re-derived an error record from the status and
+    body and compared it to itself — no input could make it fail. An unfalsifiable
+    check in a gate is a shape this repo has paid for before, so the guard is gone and
+    the reason is recorded where it used to be. The same suite also caught a
+    *wrong* check: a verbatim substring search for tool-call arguments in the raw
+    payload, which fires on a perfect recording because the payload JSON-escapes the
+    quotes inside an argument string. It was replaced by a direct read of the
+    provider's own JSON.
+
+Perturbations trip exactly one guard each, and `test_with_every_guard_disabled_nothing_is_rejected`
+shows that with no guards at all every one of them passes — which rules out a
+rejection coming from something structural rather than from the guard named.
 
 ### Captured provider behaviour (U1) — measured, not documented
 

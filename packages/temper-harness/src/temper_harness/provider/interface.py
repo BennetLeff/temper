@@ -15,7 +15,7 @@ built before U1's capture exists.
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 from urllib.parse import urlparse
@@ -151,6 +151,20 @@ def reassemble_tool_calls(deltas: Sequence[ToolCallDelta]) -> list[ToolCall]:
                 index=index,
             )
         )
+
+    # Two calls sharing an id is a protocol error rather than a curiosity: the
+    # caller answers each call with a `tool` message keyed by id, so a duplicate
+    # makes the pairing ambiguous and the provider would receive a message array
+    # that cannot be reconstructed. The captures mint unique ids, so this can only
+    # fire on a malformed or interleaved stream.
+    seen: set[str] = set()
+    for call in calls:
+        if call.id in seen:
+            raise MalformedStream(
+                f"two tool calls in one response share the id {call.id!r}; "
+                "a tool result could not say which one it answers"
+            )
+        seen.add(call.id)
     return calls
 
 
@@ -177,98 +191,140 @@ def validate_tool_arguments(calls: Sequence[ToolCall]) -> None:
 
 @runtime_checkable
 class Transport(Protocol):
-    """What every provider adapter provides. There are exactly two: live, replay."""
+    """What every provider adapter provides. There are exactly two: live, replay.
+
+    Cancellation is Python's own: closing the event iterator unwinds the adapter's
+    generator, which runs its ``finally`` and closes the HTTP response. There is
+    deliberately **no** ``cancel()`` method, because a method on the transport
+    cannot be per-call -- it would have to reach whichever call the instance happens
+    to be serving, and an instance-level flag is reset by the other call the moment
+    two streams overlap. A transport that silently cancels somebody else's stream is
+    worse than one that offers no cancellation at all.
+
+    Found by porting the concurrency fault from the prior attempt's diagnostic, and
+    it is the same shape as everything else in this package's history: correct while
+    calls are sequential, and wrong the first time they are not.
+    """
 
     def stream(self, request: Request) -> Iterator[Event]: ...
 
-    def cancel(self) -> None: ...
+
+def buffer_events(
+    events: Iterable[Event], *, served_from: str, default_model: str = ""
+) -> dict[str, Any]:
+    """Fold an event stream into the committed envelope.
+
+    A function rather than a private method, because two callers assemble a turn: a
+    buffered consumer, and the oracle checking a recorded stream. A second assembly
+    path would be a second definition of what a turn is, and the two would agree
+    right up until one of them was edited.
+
+    An inner :class:`Terminal` short-circuits: a transport that already assembled a
+    turn has nothing to add.
+    """
+    text: list[str] = []
+    reasoning: list[str] = []
+    deltas: list[ToolCallDelta] = []
+    usage: dict[str, int | None] | None = None
+    finish_reason: str | None = None
+    message_id = ""
+    model = default_model
+    system_fingerprint: str | None = None
+
+    try:
+        for event in events:
+            if isinstance(event, TextDelta):
+                text.append(event.text)
+            elif isinstance(event, ReasoningDelta):
+                reasoning.append(event.text)
+            elif isinstance(event, ToolCallDelta):
+                deltas.append(event)
+            elif isinstance(event, UsageReported):
+                usage = event.usage
+            elif isinstance(event, StreamEnd):
+                finish_reason = event.finish_reason
+                message_id = event.id
+                model = event.model
+                system_fingerprint = event.system_fingerprint
+            elif isinstance(event, Terminal):
+                return event.envelope
+    except TransportError as err:
+        # The accumulator is about to be unwound, and with it the only record of
+        # what this call cost. Attach it before re-raising so the ledger can write
+        # an `incomplete` row carrying real usage rather than a zero.
+        if err.partial_usage is None:
+            err.partial_usage = usage
+        raise
+
+    calls = reassemble_tool_calls(deltas)
+    validate_tool_arguments(calls)
+
+    # Empty accumulation stays "" rather than becoming None. Captured evidence: a
+    # tool-call turn reports content as an empty STRING, with no content deltas at
+    # all in the streamed form. Collapsing the two would make the streaming and
+    # non-streaming paths disagree about the same turn, and the loop must not be
+    # able to tell which path it used. `null` still means what the provider means
+    # by it -- the field was absent from the response -- and that is decided by the
+    # decoder, not here.
+    return {
+        "id": message_id,
+        "model": model,
+        "finish_reason": finish_reason,
+        "content": "".join(text),
+        "reasoning_content": "".join(reasoning),
+        "system_fingerprint": system_fingerprint,
+        "tool_calls": [
+            {
+                "id": call.id,
+                "index": call.index,
+                "name": call.name,
+                "arguments": call.arguments,
+            }
+            for call in calls
+        ],
+        "usage": usage,
+        "served_from": served_from,
+    }
+
+
+def close_events(events: object) -> None:
+    """Close an event iterator if it can be closed.
+
+    The cancellation path, and it lives here rather than in each adapter so both get
+    it: closing the adapter's generator runs the adapter's own ``finally``, which is
+    what closes the HTTP response. Duck-typed because a test transport may hand back
+    a plain list iterator.
+    """
+    close = getattr(events, "close", None)
+    if callable(close):
+        close()
 
 
 class BufferedTransport:
     """Adapt a streaming transport to one terminal event.
 
-    The S0 default. It consumes the inner stream fully, so any inner error
-    surfaces before a caller sees a partial turn it might act on.
+    The S0 default. It consumes the inner stream fully before yielding, so any inner
+    error surfaces before a caller sees a partial turn it might act on. That also
+    means a buffered stream is all-or-nothing: there is no yield point at which a
+    consumer could cancel it, which is why a caller that needs to cancel reads the
+    streaming adapter directly.
     """
 
     def __init__(self, inner: Transport) -> None:
         self._inner = inner
-        self._cancelled = False
-
-    def cancel(self) -> None:
-        self._cancelled = True
-        self._inner.cancel()
 
     def stream(self, request: Request) -> Iterator[Event]:
-        text: list[str] = []
-        reasoning: list[str] = []
-        deltas: list[ToolCallDelta] = []
-        usage: dict[str, int | None] | None = None
-        finish_reason: str | None = None
-        message_id = ""
-        model = request.model
-        system_fingerprint: str | None = None
-
+        events = self._inner.stream(request)
         try:
-            for event in self._inner.stream(request):
-                if self._cancelled:
-                    break
-                if isinstance(event, TextDelta):
-                    text.append(event.text)
-                elif isinstance(event, ReasoningDelta):
-                    reasoning.append(event.text)
-                elif isinstance(event, ToolCallDelta):
-                    deltas.append(event)
-                elif isinstance(event, UsageReported):
-                    usage = event.usage
-                elif isinstance(event, StreamEnd):
-                    finish_reason = event.finish_reason
-                    message_id = event.id
-                    model = event.model
-                    system_fingerprint = event.system_fingerprint
-                elif isinstance(event, Terminal):
-                    # A transport that already assembled a turn -- the buffered
-                    # consumption of a non-streaming response. Nothing to add.
-                    yield event
-                    return
-        except TransportError as err:
-            # The accumulator is about to be unwound, and with it the only record
-            # of what this call cost. Attach it before re-raising so the ledger can
-            # write an `incomplete` row carrying real usage rather than a zero.
-            if err.partial_usage is None:
-                err.partial_usage = usage
-            raise
-
-        calls = reassemble_tool_calls(deltas)
-        validate_tool_arguments(calls)
-
-        # Empty accumulation stays "" rather than becoming None. Captured
-        # evidence: a tool-call turn reports content as an empty STRING, with no
-        # content deltas at all in the streamed form. Collapsing the two would
-        # make the streaming and non-streaming paths disagree about the same
-        # turn, and the loop must not be able to tell which path it used. `null`
-        # still means what the provider means by it -- the field was absent from
-        # the response -- and that is decided by the decoder, not here.
-        envelope: dict[str, Any] = {
-            "id": message_id,
-            "model": model,
-            "finish_reason": finish_reason,
-            "content": "".join(text),
-            "reasoning_content": "".join(reasoning),
-            "system_fingerprint": system_fingerprint,
-            "tool_calls": [
-                {
-                    "id": call.id,
-                    "index": call.index,
-                    "name": call.name,
-                    "arguments": call.arguments,
-                }
-                for call in calls
-            ],
-            "usage": usage,
-            "served_from": request.served_from,
-        }
-        yield Terminal(envelope)
+            yield Terminal(
+                buffer_events(
+                    events,
+                    served_from=request.served_from,
+                    default_model=request.model,
+                )
+            )
+        finally:
+            close_events(events)
 
 
 # -- endpoint pinning (R16) --------------------------------------------------

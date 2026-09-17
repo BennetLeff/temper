@@ -41,6 +41,10 @@ from temper_harness.provider.errors import (
     IncompleteStream,
     MalformedResponse,
     MalformedStream,
+    PreConnectionUnavailable,
+    RequestTimeout,
+    TransportError,
+    UnknownTransportError,
     classify_exception,
     classify_http_response,
 )
@@ -330,6 +334,33 @@ class _ByteLineReader:
 # -- the live adapter --------------------------------------------------------
 
 
+def classify_request_exception(exc: BaseException) -> TransportError:
+    """Translate this HTTP client's exceptions, then fall back to the taxonomy.
+
+    ``requests``' timeout hierarchy does not inherit from Python's ``TimeoutError``,
+    and its ``Timeout`` *does* inherit from ``OSError`` -- so the general classifier
+    would report a read timeout as a pre-connection failure, which is the opposite
+    of what happened: the connection was established, the request was sent, and the
+    read was slow. The two differ in a flag that matters, because
+    ``RequestTimeout`` is billable and ``PreConnectionUnavailable`` is not: getting
+    it backwards mis-attributes spend.
+
+    ``ConnectTimeout`` is checked before ``Timeout`` because it inherits from both
+    and means the opposite thing -- nothing was ever sent, so nothing was billed.
+    """
+    if isinstance(exc, requests.exceptions.ConnectTimeout):
+        return PreConnectionUnavailable(f"could not connect: {exc}")
+    if isinstance(exc, requests.exceptions.Timeout):
+        return RequestTimeout(str(exc))
+    if isinstance(exc, requests.exceptions.SSLError):
+        return PreConnectionUnavailable(f"TLS failure: {exc}")
+    if isinstance(exc, requests.exceptions.ConnectionError):
+        return PreConnectionUnavailable(str(exc))
+    if isinstance(exc, requests.exceptions.RequestException):
+        return UnknownTransportError(f"{type(exc).__name__}: {exc}")
+    return classify_exception(exc)
+
+
 class LiveTransport:
     """The only adapter that touches the network.
 
@@ -360,7 +391,6 @@ class LiveTransport:
         # are: a caller sees a typed view, and R8 requires the lossless payload be
         # retained. `store=None` is the no-capture case, not a degraded one.
         self._store = store
-        self._cancelled = False
 
     # -- admission -------------------------------------------------------
 
@@ -389,19 +419,9 @@ class LiveTransport:
 
     # -- transport -------------------------------------------------------
 
-    def cancel(self) -> None:
-        """Ask the in-flight stream to stop at its next chunk.
-
-        Cooperative, and deliberately so: the generator owning the HTTP response
-        is what closes it, and closing a response out from under a reader is how a
-        partial chunk gets parsed as a whole one.
-        """
-        self._cancelled = True
-
     def stream(self, request: Request) -> Iterator[Event]:
         self._admit()
         self._require_provenance(request.served_from)
-        self._cancelled = False
 
         body = wire_body(request)
         try:
@@ -417,7 +437,7 @@ class LiveTransport:
                 stream=True,
             )
         except BaseException as err:  # noqa: BLE001 - classified, never propagated raw
-            raise classify_exception(err) from err
+            raise classify_request_exception(err) from err
 
         try:
             if 300 <= response.status_code < 400:
@@ -427,40 +447,53 @@ class LiveTransport:
                     http_status=response.status_code,
                 )
             if response.status_code >= 300:
-                raise classify_http_response(response.status_code, response.content)
+                raise classify_http_response(
+                    response.status_code, response.content, dict(response.headers)
+                )
 
             content_type = response.headers.get("content-type")
-            if request.stream:
-                if not is_event_stream(content_type):
-                    raise MalformedResponse(
-                        f"asked for a stream and received {content_type!r}; "
-                        "a body we cannot parse as events would otherwise look like a turn"
+            # `except Exception` and not `except BaseException`: a closed generator
+            # raises GeneratorExit, which derives from BaseException, and classifying
+            # a cancellation as a transport failure would turn "the caller stopped
+            # reading" into "the provider failed".
+            try:
+                if request.stream:
+                    if not is_event_stream(content_type):
+                        raise MalformedResponse(
+                            f"asked for a stream and received {content_type!r}; "
+                            "a body we cannot parse as events would otherwise look like a turn"
+                        )
+                    reader = _ByteLineReader()
+                    payloads = iter_sse_payloads(
+                        reader.lines(response.iter_content(chunk_size=None))
                     )
-                reader = _ByteLineReader()
-                payloads = iter_sse_payloads(reader.lines(response.iter_content(chunk_size=None)))
-                for event in decode_stream_payloads(payloads, served_from=request.served_from):
-                    if self._cancelled:
-                        # A cancelled stream is not recorded: the bytes are a
-                        # fragment, and a corpus entry that replays as a truncated
-                        # turn is worse than no entry. The ledger row the caller
-                        # writes is where a cancellation is accounted for.
-                        return
-                    yield event
-                self._record(body, reader.raw, response)
-                return
+                    # No cancellation branch inside this loop: closing the iterator IS
+                    # the cancellation, and the `finally` below closes the response. A
+                    # flag here would be instance-level state, and porting the
+                    # concurrency fault is what showed that state is unsafe.
+                    yield from decode_stream_payloads(payloads, served_from=request.served_from)
+                    self._record(body, reader.raw, response)
+                    return
 
-            if is_event_stream(content_type):
-                raise MalformedResponse(
-                    f"asked for a single response and received {content_type!r}"
-                )
-            payload = response.content
-            envelope = decode_completion(payload, served_from=request.served_from)
-            # Recorded before the caller sees the turn, and deliberately: a live
-            # corpus that is silently missing entries is indistinguishable from a
-            # complete one, which is the vacuous-scan failure this repo gates
-            # against. A store that cannot write should fail the call loudly.
-            self._record(body, payload, response)
-            yield Terminal(envelope)
+                if is_event_stream(content_type):
+                    raise MalformedResponse(
+                        f"asked for a single response and received {content_type!r}"
+                    )
+                payload = response.content
+                envelope = decode_completion(payload, served_from=request.served_from)
+                # Recorded before the caller sees the turn, and deliberately: a live
+                # corpus that is silently missing entries is indistinguishable from a
+                # complete one, which is the vacuous-scan failure this repo gates
+                # against. A store that cannot write should fail the call loudly.
+                self._record(body, payload, response)
+                yield Terminal(envelope)
+            except TransportError:
+                raise
+            except Exception as err:
+                # A read that fails mid-stream reaches here, and this is the branch
+                # the socket fault injection exists to cover: without it a read
+                # timeout would propagate raw out of the send path (R6).
+                raise classify_request_exception(err) from err
         finally:
             response.close()
 
