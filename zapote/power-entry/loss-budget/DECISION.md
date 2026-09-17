@@ -1,5 +1,14 @@
 # Power-entry architecture decision - 2026-09-16
 
+> **Corrective experiment (2026-09-17):** The earlier `4.468 W` output-
+> capacitance number was invalid: ST's 456 pF `C_oss eq.` is time-equivalent,
+> not energy-equivalent. The corrected DS11178 Rev 2 Figure 8 interpolation is
+> 2.397 W ±0.078 W typical at the retained bus/frequency. The current GBJ
+> assembly evidence is conditional (Wakefield 392-120AB/Sanyo 9RA1212E1001;
+> nominal 84.35 °C, weak 117.82 °C, fan-loss 118.64 °C), so the old GBU
+> bridge-cooling margin is not applicable. See
+> [the corrective experiment](CORRECTIVE-EXPERIMENT-2026-09-17.md).
+
 This is the decision the retained power-entry evidence supports today. It
 replaces the earlier five-board-variant framing. It does not claim the
 electronics are qualified: no powered measurement has been performed and the
@@ -36,15 +45,16 @@ framing treated `STW65N65DM2AG` and `STW63N65DM2` as unapproved substitutions;
 that is settled — `STW63N65DM2` is a different orderable device, and the
 authored string resolves to the AG order code.
 
-**The output-capacitance term.** It was previously excluded outright. The
-datasheet's equivalent output capacitance (`C_oss eq.` 456 pF, `VDS` 0 to
-520 V) bounds it at **4.468 W** for the 389.615 V bus at 129.107 kHz. Gate
-drive (`Qg` 120 nC at 10 V) is **0.155 W**. Both are single-condition typicals
-and are reported as estimates, not guarantees.
+**The output-capacitance term.** The earlier 4.468 W calculation was invalid:
+ST's 456 pF `C_oss eq.` is time-equivalent. Digitizing the official DS11178
+Rev 2 Figure 8 gives **2.397 W ±0.078 W** typical at 389.615 V and 129.107
+kHz. Gate drive (`Qg` 120 nC at 10 V) is **0.155 W**. The 10 ohm external plus
+3.3 ohm intrinsic gate network gives a first-order 70–86 ns edge sensitivity,
+but overlap remains unmeasured and must not be double-counted with Eoss.
 
-**The bridge thermal path.** The practical heatsink question now has a
-source-bound FEM answer rather than an open item, and the answer is that the
-bridge is a *constraint*, not a formality (below).
+**The bridge thermal path.** The current GBJ study is conditional evidence,
+not an installed cooling qualification. It keeps the bridge a constraint until
+the Wakefield 392-120AB/Sanyo 9RA1212E1001 assembly and airflow are measured.
 
 ## The five cases
 
@@ -62,31 +72,21 @@ modelled, and what it says is uncomfortable.
 
 ## Why the hot case matters to the decision
 
-The retained bridge cooling study selects a Wakefield 395-1AB sink and two
-Sunon MF80251V1 fans and runs 20 FEM cases, against a **40 W bridge dissipation
-allowance** rather than the 28.304 W constant-drop estimate — the study is
-conservative about loss on purpose. At the design requirements the four bridge
-necks land at **100.48-107.86 °C** against a 110 °C local PCB ceiling and a
-125 °C junction ceiling. That is compliant, but the tightest local margin is
-**2.14 K** and the series budget leaves **5 K** of junction margin. With the fan
-stopped the same budget reaches **150 °C**, i.e. **-25 K**, and
-`failed_fan_budget_compliant` is false.
-
-At quarter contact conductance the necks run **125.09-147.77 °C**. The
-independent joint model (`bridge-thermal-02`) agrees on the shape: the hottest
-lumped GBJ diode node is 80.22 °C at the nominal 60 °C sink reservoir, 95.95 °C
-in the weak-assembly case, and 119.53 °C at the 100 °C fan-loss reservoir, with
-mesh and fine differences under 0.044 K.
+The retained `bridge-thermal-02/assessment.json` reports nominal-fine whole-
+joint peak **84.35 °C** / hottest GBJ node **80.22 °C**, weak-assembly
+**117.82 °C** / **95.95 °C**, and fan-loss **118.64 °C** / **119.53 °C**.
+The weak and fan-loss cases exceed the 110 °C local screen. The 100 CFM
+catalog calculation (59.64 °C) is a conditional reservoir calculation, not
+installed airflow evidence. No GBU2510A/Wakefield 395-1AB margin transfers to
+this GBJ assembly.
 
 Two consequences:
 
-1. The passive bridge is feasible, but only with a real sink, real airflow and
-   low-resistance bridge connections. It is not a PCB-only part, and "feasible"
-   here means a few kelvin of margin at the design requirements with the fans
-   running.
-2. The margin is committed by the assembly and the connections, not by mesh
-   refinement. That is why the recommended work is to improve the bridge
-   connections and establish the actual lead/barrel/solder heat paths.
+1. The passive bridge remains the baseline, but cooling applicability is
+   **INDETERMINATE** until installed airflow, contacts and fan-fault behavior
+   are measured.
+2. The weak-contact and fan-loss sensitivity is the evidence-backed cooling
+   change required for closure; further nominal mesh refinement is not.
 
 ## Candidate disposition
 
@@ -96,7 +96,7 @@ Two consequences:
 | 5. Boost-stage optimization | **pursue** | Largest single lever: the overlap term spans tens of watts and is unmeasured |
 | 2. Larger / lower-drop bridge | defer | Worth 2.696 W per 0.1 V of forward drop; a part-sourcing question with no authored part to score |
 | 3. Parallel passive bridges | defer, not rejected | The constant-drop model has no slope term, so it cannot express sharing; needs a forward-slope curve first |
-| 4. Active rectifier | defer | Break-even is about 62.9 mOhm hot per device against a 50 mOhm 25 °C maximum, i.e. it turns on the unread hot curve, and it adds control, protection and EMI complexity |
+| 4. Active rectifier | defer | 62.9 mΩ is a conduction-only screen against the unread hot curve; drive, commutation, protection and EMI costs are missing, so it is not an architecture decision |
 
 The ordering follows from one asymmetry: the bridge drop is 28.304 W of a
 1,796.4 W input, about 2%, and is bounded to roughly a 2:1 band by the forward

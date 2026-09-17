@@ -61,9 +61,10 @@ an assumed edge time rather than a statement about the authored device.
 **The device is no longer unnamed, and one switch term is now bounded.** The
 authored `STW65N65DM2` is ST's marking form; the retained datasheet's Device
 summary gives the order code as `STW65N65DM2AG` against marking `65N65DM2`, and
-that document is hash-pinned. Its equivalent output capacitance (`C_oss eq.`
-456 pF) bounds the hard-switched turn-on term at **4.468 W** at the 389.615 V
-bus and 129.107 kHz, and `Qg` 120 nC bounds gate drive at **0.155 W**. The
+that document is hash-pinned. The corrected model digitizes `Eoss(VDS)` from
+the official DS11178 Rev 2 Figure 8: **2.397 W ±0.078 W** at the 389.615 V
+bus and 129.107 kHz. The 456 pF `C_oss eq.` value is time-equivalent and is not
+an energy calculation; `Qg` 120 nC still bounds gate drive at **0.155 W**. The
 turn-on/turn-off overlap is still open, and it is the large one: a datasheet
 charges the capacitor, it does not clock the transition.
 
@@ -169,8 +170,9 @@ the whole seven-unit suite in about five minutes. `suite-identity.json` records
 the executable hash, so the profile used is visible in the retained evidence.
 
 The 15 A ceiling, the 1.05 V bridge test point and the 50 mΩ 25 °C maximum are
-retained source values. The boost-switch order code, its `C_oss eq.` 456 pF and
-its `Qg` 120 nC come from the retained `sources/STW65N65DM2AG.pdf`. The
+retained source values. The boost-switch order code, its `Eoss(VDS)` curve and
+its `Qg` 120 nC come from the selected ST source and retained
+`sources/STW65N65DM2AG.pdf`. The
 0.85/1.30 V band and the 100 mΩ hot resistance are explicit sensitivities, and
-the output-capacitance term is a single-equivalent-value estimate, never part
+the output-capacitance term is a digitized typical-curve estimate, never part
 guarantees.

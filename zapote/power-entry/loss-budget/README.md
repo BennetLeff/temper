@@ -37,7 +37,7 @@ Retained primary sources:
 | sources/760800301.pdf | https://www.we-online.com/components/products/datasheet/760800301.pdf | 180 µH ±20%; maximum 20 mΩ at 20°C; no core-loss model |
 | sources/Diodes-GBJ2510.pdf | https://www.diodes.com/datasheet/download/GBJ2510.pdf | 1.05 V maximum per diode at 12.5 A/25°C only |
 | sources/RT1_Inrush.pdf | https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocFormat=pdf&DocLang=English&DocNm=RT1_Inrush&DocType=Data+Sheet&PartCntxt=2-1393240-3 | 360 Ω coil at 23°C, ±10%; contact loss unspecified |
-| sources/STW65N65DM2AG.pdf | https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf | Order code `STW65N65DM2AG`/marking `65N65DM2`; `RDS(on)` max 50 mΩ at 25°C; `C_oss eq.` 456 pF; `Qg` 120 nC |
+| sources/STW65N65DM2AG.pdf | https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf | Selected order code `STW65N65DM2AG`/marking `65N65DM2`; `RDS(on)` max 50 mΩ at 25°C; Eoss curve from official DS11178 Rev 2 Figure 8; `C_oss eq.` 456 pF is time-equivalent only; `Qg` 120 nC |
 
 The Rust report embeds these documents' hashes. Bridge loss uses a constant
 1.05 V sensitivity assumption across the waveform; the datasheet's one test

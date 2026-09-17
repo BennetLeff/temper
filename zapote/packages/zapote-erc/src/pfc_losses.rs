@@ -136,18 +136,73 @@ pub fn gate_drive_w(qg_c: f64, vdrive_v: f64, fsw_hz: f64) -> Result<f64, String
     finite_result("gate_drive_w", q * v * f)
 }
 
-/// First-order energy stored on a switch's output capacitance, `0.5*C_oss*V^2`,
-/// returned as the watts a hard-switched turn-on dissipates each cycle.
+/// First-order Miller-plateau edge-time estimate for a MOSFET driven through
+/// an external and intrinsic gate resistance.  This is a scoped sensitivity,
+/// not a switching-energy prediction: UCC28180 source impedance, plateau
+/// voltage, layout inductance and bias-dependent Qgd still require a waveform.
+pub fn gate_network_edge_s(
+    qgd_c: f64,
+    drive_v: f64,
+    external_r_ohm: f64,
+    intrinsic_r_ohm: f64,
+) -> Result<f64, String> {
+    let q = nonnegative("qgd_c", qgd_c)?;
+    let v = positive("drive_v", drive_v)?;
+    let re = nonnegative("external_r_ohm", external_r_ohm)?;
+    let ri = nonnegative("intrinsic_r_ohm", intrinsic_r_ohm)?;
+    finite_result("gate_network_edge_s", q * (re + ri) / v)
+}
+
+/// Interpolate the manufacturer's `Eoss(VDS)` curve in joules.
 ///
-/// The caller supplies `coss_eq_f`, the manufacturer's equivalent output
-/// capacitance over the voltage span it actually covers. That is a
-/// single-value equivalent rather than the `C_oss(V)` curve, so this is a
-/// datasheet-backed estimate and never a guaranteed per-cycle loss.
-pub fn output_capacitance_w(coss_eq_f: f64, vds_v: f64, fsw_hz: f64) -> Result<f64, String> {
-    let c = nonnegative("coss_eq_f", coss_eq_f)?;
+/// `Coss eq.` in the ST datasheet is defined by equal charging time to 80 %
+/// of `VDSS`; it is deliberately not accepted here as an energy equivalent.
+/// The curve points are digitized from the manufacturer's typical curve, so
+/// callers must retain the source revision and digitization uncertainty with
+/// their result.
+pub fn eoss_from_curve(points: &[(f64, f64)], vds_v: f64) -> Result<f64, String> {
     let v = nonnegative("vds_v", vds_v)?;
+    if points.len() < 2 {
+        return Err("Eoss curve needs at least two points".into());
+    }
+    for window in points.windows(2) {
+        let (v0, e0) = window[0];
+        let (v1, e1) = window[1];
+        if !v0.is_finite()
+            || !e0.is_finite()
+            || !v1.is_finite()
+            || !e1.is_finite()
+            || v0 < 0.0
+            || v1 <= v0
+            || e0 < 0.0
+            || e1 < 0.0
+        {
+            return Err("Eoss curve points must be finite, ordered and nonnegative".into());
+        }
+    }
+    let &(v_last, _) = points.last().unwrap();
+    if v > v_last {
+        return Err(format!("vds_v {v} exceeds Eoss curve maximum {v_last}"));
+    }
+    let index = points
+        .windows(2)
+        .position(|window| v <= window[1].0)
+        .unwrap_or(points.len() - 2);
+    let (v0, e0) = points[index];
+    let (v1, e1) = points[index + 1];
+    let out = e0 + (e1 - e0) * (v - v0) / (v1 - v0);
+    finite_result("eoss_from_curve", out)
+}
+
+/// Convert a source-backed `Eoss(VDS)` point to hard-switched turn-on loss.
+///
+/// This term is separate from measured Eon/Eoff overlap energy. Summing both
+/// without checking the measurement definition double-counts the output
+/// capacitance discharge.
+pub fn output_capacitance_eoss_w(eoss_j: f64, fsw_hz: f64) -> Result<f64, String> {
+    let e = nonnegative("eoss_j", eoss_j)?;
     let f = positive("fsw_hz", fsw_hz)?;
-    finite_result("output_capacitance_w", 0.5 * c * v * v * f)
+    finite_result("output_capacitance_eoss_w", e * f)
 }
 
 #[cfg(test)]
@@ -235,18 +290,21 @@ mod tests {
         assert!(switching_overlap_w(400.0, 100_000.0, 2.0, 3.0, 1e-8, 1e-8).is_ok());
         assert!(gate_drive_w(1e-6, 10.0, 100_000.0).is_ok());
         assert!(gate_drive_w(f64::INFINITY, 10.0, 100_000.0).is_err());
-        // 456 pF at 400 V and 130 kHz: 0.5 * 456e-12 * 160000 * 130000.
+        assert!((gate_network_edge_s(58e-9, 10.0, 10.0, 3.3).unwrap() - 77.14e-9).abs() < 1e-11);
+        assert!(gate_network_edge_s(58e-9, 0.0, 10.0, 3.3).is_err());
+        let curve = [(0.0, 0.0), (200.0, 7.0e-6), (400.0, 19.5e-6)];
+        let eoss = eoss_from_curve(&curve, 400.0).unwrap();
+        assert!((eoss - 19.5e-6).abs() < 1e-12);
+        assert!((output_capacitance_eoss_w(eoss, 130_000.0).unwrap() - 2.535).abs() < 1e-12);
         assert!(
-            (output_capacitance_w(456e-12, 400.0, 130_000.0).unwrap() - 4.7424).abs() < 1e-9
-        );
-        assert!(
-            (output_capacitance_w(456e-12, 400.0, 65_000.0).unwrap()
-                - output_capacitance_w(456e-12, 400.0, 130_000.0).unwrap() / 2.0)
+            (output_capacitance_eoss_w(eoss, 65_000.0).unwrap()
+                - output_capacitance_eoss_w(eoss, 130_000.0).unwrap() / 2.0)
                 .abs()
                 < 1e-12
         );
-        assert!(output_capacitance_w(-1.0, 400.0, 130_000.0).is_err());
-        assert!(output_capacitance_w(456e-12, 400.0, 0.0).is_err());
+        assert!(eoss_from_curve(&curve, 500.0).is_err());
+        assert!(output_capacitance_eoss_w(-1.0, 130_000.0).is_err());
+        assert!(output_capacitance_eoss_w(19.5e-6, 0.0).is_err());
         assert!(resistive_w(-1.0, 1.0).is_err());
         assert!(switching_overlap_w(f64::MAX, f64::MAX, f64::MAX, 1.0, 1.0, 1.0).is_err());
     }

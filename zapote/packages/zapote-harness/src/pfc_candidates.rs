@@ -18,6 +18,7 @@
 //!   case. Junction temperature, installed airflow and sink coupling are named
 //!   inputs, not modelled cases.
 
+use crate::pfc_loss_budget::{selected_eoss_w, BOOST_AUTHORED_MARKING, BOOST_ORDER_CODE};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use zapote_core::{CheckReport, Finding};
@@ -39,8 +40,8 @@ const BRIDGE_VF_BAND_V: [f64; 2] = [0.85, 1.30];
 /// Two rectifier elements sit in the line path in series at every instant.
 const BRIDGE_ELEMENTS_IN_PATH: f64 = 2.0;
 /// Resolved boost-switch `RDS(on)` maximum at `ID`=30 A, `TC`=25 C. The
-/// authored identity is the ST marking form `STW65N65DM2`; the retained
-/// datasheet gives its order code as `STW65N65DM2AG`.
+/// The native/authored source carries the marking form; the model explicitly
+/// selects the AG order code from the manufacturer's Device summary.
 const BOOST_RDS_25_MAX_OHM: f64 = 0.050;
 /// Assumed hot `RDS(on)`. The datasheet curve was not read into this study, so
 /// this is a design sensitivity and never a part guarantee.
@@ -48,13 +49,6 @@ const BOOST_RDS_ASSUMED_HOT_OHM: f64 = 0.100;
 /// `Qg` typical at `VDD`=520 V, `ID`=60 A, `VGS` 0-10 V for that same part.
 const BOOST_QG_TYP_C: f64 = 120e-9;
 const BOOST_VDRIVE_V: f64 = 10.0;
-/// `C_oss eq.` typical at `VDS` = 0 to 520 V, `VGS` = 0 V. The retained ST
-/// datasheet's Device summary resolves the authored marking form `65N65DM2` to
-/// order code `STW65N65DM2AG`, and this equivalent capacitance is what lets the
-/// hard-switched output-capacitance term be bounded instead of left unnamed.
-const BOOST_COSS_EQ_F: f64 = 456e-12;
-/// The order code the retained datasheet prints for the authored marking form.
-const BOOST_ORDER_CODE: &str = "STW65N65DM2AG";
 /// C3D20065D capacitive stored energy typical at `VR`=400 V, 25 C.
 const SIC_EC_TYP_J: f64 = 3.6e-6;
 /// The authored source and the retained studies share this true-RMS ceiling.
@@ -489,12 +483,8 @@ fn boost_stage_optimization(models: &[LineModel], requirement_w: f64) -> Result<
                         loss::gate_drive_w(BOOST_QG_TYP_C, BOOST_VDRIVE_V, model.switching_hz)?,
                     ),
                     (
-                        "mosfet_output_capacitance_datasheet_w".into(),
-                        loss::output_capacitance_w(
-                            BOOST_COSS_EQ_F,
-                            model.bus_v,
-                            model.switching_hz,
-                        )?,
+                        "mosfet_output_capacitance_eoss_curve_w".into(),
+                        selected_eoss_w(model.bus_v, model.switching_hz)?.1,
                     ),
                     (
                         "sic_diode_capacitive_typical_w".into(),
@@ -526,12 +516,12 @@ fn boost_stage_optimization(models: &[LineModel], requirement_w: f64) -> Result<
         ],
         screening: vec![
             format!(
-                "The authored identity `STW65N65DM2` is the ST marking form; the retained datasheet resolves it to order code {BOOST_ORDER_CODE}. The conduction and capacitance terms below are that part's data, not an unnamed device's."
+                "The authored marking `STW65N65DM2` is bound to selected order code {BOOST_ORDER_CODE} from ST DS11178 Rev 2. The conduction and Eoss terms below are that part's typical data, not an unnamed device's."
             ),
-            "The output-capacitance term is now bounded from the datasheet's equivalent C_oss rather than left unnamed. It is a single-equivalent value at one voltage span, so it stays an estimate.".into(),
-            "The switching-overlap term is a design sensitivity keyed to an assumed edge time, not a prediction about the authored device. Across the loss budget's 20-100 ns band it spans tens of watts, which is the largest single lever this study can name.".into(),
+            "The output-capacitance term uses Eoss(VDS) digitized from DS11178 Rev 2 Figure 8. The 456 pF C_oss eq. is time-equivalent and is retained only as metadata; Eon/Eoff overlap must remain separate.".into(),
+            "The switching-overlap term is a design sensitivity keyed to the actual 10 ohm external plus 3.3 ohm intrinsic gate network and 9-11 V bias range; it spans roughly 47-58 W before UCC28180 and layout effects, so it still needs measured waveforms.".into(),
             "Conduction is a weaker lever than overlap at 50 ns edges, and it is bounded by the same unread hot curve.".into(),
-            "The gate-drive estimate is a single-condition typical and must not be added to the controller's loaded-gate supply current, which already includes drive energy.".into(),
+            "The gate-drive estimate is a single-condition typical and must not be added to the controller's loaded-gate supply current, which already includes drive energy. Eoss is separate from measured Eon/Eoff only when the capture definition excludes Coss discharge.".into(),
         ],
     })
 }
@@ -554,8 +544,8 @@ pub fn run(source: &str) -> Result<Report, String> {
     for (id, mpn) in [
         ("bridge", "GBJ2510-F"),
         // The authored string is the ST marking form; its order code is
-        // resolved in `pfc_loss_budget::BOOST_ORDER_CODE`.
-        ("q_boost", "STW65N65DM2"),
+        // The authored marking is resolved in `pfc_loss_budget::BOOST_ORDER_CODE`.
+        ("q_boost", BOOST_AUTHORED_MARKING),
         ("d_boost", "C3D20065D"),
         ("shunt", "HCSM2818FT10L0"),
         ("l_boost", "760800301"),
@@ -874,12 +864,12 @@ mod tests {
         let (bus_v, switching_hz) = bus_and_frequency();
         // The datasheet's equivalent C_oss bounds the hard-switched turn-on
         // term that used to be excluded outright.
-        let capacitive = boost.computed_w["mosfet_output_capacitance_datasheet_w"];
+        let capacitive = boost.computed_w["mosfet_output_capacitance_eoss_curve_w"];
         assert!(
-            (capacitive - 0.5 * 456e-12 * bus_v * bus_v * switching_hz).abs() < 1e-9,
+            (capacitive - selected_eoss_w(bus_v, switching_hz).unwrap().1).abs() < 1e-12,
             "capacitive {capacitive}"
         );
-        assert!(capacitive > 4.0 && capacitive < 5.0);
+        assert!(capacitive > 2.3 && capacitive < 2.7);
         // The order code is named, and the overlap term it does not determine
         // is still an explicit unresolved input rather than a silent zero.
         assert!(r

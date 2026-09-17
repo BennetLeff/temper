@@ -41,7 +41,7 @@ data rather than an unnamed device's:
 
 | Term | Value at 389.615 V / 129.107 kHz | Basis |
 | --- | ---: | --- |
-| Output capacitance (`C_oss eq.` 456 pF) | 4.468 W | Datasheet typical, one equivalent value |
+| Output capacitance (`Eoss` at 389.615 V, digitized from DS11178 Rev 2 Figure 8) | 2.397 W ±0.078 W | Typical curve interpolation; 456 pF `C_oss eq.` is time-equivalent and not used as energy |
 | Gate drive (`Qg` 120 nC, 10 V) | 0.155 W | Datasheet typical, one condition |
 
 Excluding the **turn-on/turn-off overlap** is the remaining gap, and it is the
