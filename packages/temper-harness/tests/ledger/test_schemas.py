@@ -13,13 +13,16 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator, ValidationError
 
-from temper_harness.ledger.store import SCHEMA_DIR, build_validator, load_schema
+from temper_harness.schema_registry import SCHEMA_DIR, build_validator, load_schema
 
+#: The five records R14 names. U1's Definition of Done counts the same five:
+#: envelope, usage, error, ledger row, and recording.
 EXPECTED_SCHEMAS = (
     "usage.schema.json",
     "ledger_row.schema.json",
     "error.schema.json",
     "envelope.schema.json",
+    "recording.schema.json",
 )
 
 

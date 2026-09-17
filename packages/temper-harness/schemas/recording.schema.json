@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/recording.schema.json",
+  "title": "Provider recording",
+  "description": "One recorded call: the request body, the response body, the allowlisted response headers, a content hash of each, and the identity that produced them (R8, R10). The request and response are stored asymmetrically on purpose. The request is an object because we build it, and its hash is taken over a canonical encoding so that a semantically identical request is the same request. The response is opaque base64 bytes because we only receive it: R8 requires a lossless raw payload, and re-serializing a body to fit a JSON field would normalize escapes and key order that the fidelity oracle compares. The response hash is therefore taken over the received bytes, and it is what makes a one-byte mutation detectable rather than merely unlikely.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "provider",
+    "model",
+    "arm",
+    "attempt",
+    "request",
+    "request_hash",
+    "response_encoding",
+    "response_raw",
+    "response_hash",
+    "headers"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "The recording format version. The enum here IS the set of versions this client understands -- the store reads it from this file rather than carrying its own constant, so a format change cannot leave the reader and the schema disagreeing about what is valid. A version outside this enum fails closed rather than being interpreted.",
+      "enum": ["1.0"]
+    },
+    "provider": {
+      "description": "Which provider served this. One adapter today, but a recording that cannot name its source cannot prove it came from the official host (R16).",
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "description": "The model id as the provider reported it, not as the request asked for it. A silent alias redirect shows up here.",
+      "type": "string",
+      "minLength": 1
+    },
+    "arm": {
+      "description": "The experiment arm that produced this recording. A recording never serves a request from a different arm (R10, KTD9): a shared store would otherwise hand a later arm an earlier arm's complete model output, which defeats both 'fresh isolated state per attempt' and 'solution hidden'.",
+      "type": "string",
+      "minLength": 1
+    },
+    "attempt": {
+      "description": "The attempt within the arm. Distinct from the ledger's per-call retry counter: this scopes a whole run of the arm.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "request": {
+      "description": "The request body. Left permissive rather than pinned to a field list: it carries arbitrary JSON Schema in its tool definitions (R7), so a closed shape here would silently reject the schemas it exists to preserve.",
+      "type": "object"
+    },
+    "request_hash": {
+      "description": "sha256 of the canonical encoding of `request`. This is the recording's primary identity: the file name is a lookup convenience, and the store re-derives this hash rather than trusting the path it found the file at.",
+      "$ref": "#/$defs/sha256"
+    },
+    "response_encoding": {
+      "description": "Always base64 today. Explicit rather than implied so that a future encoding is a schema change a reviewer sees, not a decode branch nobody notices.",
+      "enum": ["base64"]
+    },
+    "response_raw": {
+      "description": "The received response body, byte for byte, base64-encoded so that a body which is not valid UTF-8 still round-trips exactly.",
+      "type": "string",
+      "contentEncoding": "base64",
+      "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+    },
+    "response_hash": {
+      "description": "sha256 of the decoded response bytes. Checked on every load, so a truncated or edited recording is a refusal rather than a subtly different turn.",
+      "$ref": "#/$defs/sha256"
+    },
+    "headers": {
+      "description": "The response headers retained under R11's allowlist. The allowlist is enforced by this schema's `propertyNames`, not by a Python set, so a credential header cannot be written by any caller and widening the allowlist is a reviewed diff.",
+      "$ref": "#/$defs/headers"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "headers": {
+      "type": "object",
+      "propertyNames": {
+        "description": "Lowercased, because HTTP header names are case-insensitive and two spellings of one header would otherwise be two keys. Deliberately excludes authorization, proxy-authorization, cookie, set-cookie, and every api-key spelling: R11 forbids a credential reaching disk in any artifact the transport writes, and an allowlist is only a control if it cannot admit one.",
+        "enum": [
+          "content-type",
+          "content-length",
+          "date",
+          "server",
+          "retry-after",
+          "x-request-id",
+          "x-ratelimit-limit",
+          "x-ratelimit-remaining",
+          "x-ratelimit-reset"
+        ]
+      },
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}

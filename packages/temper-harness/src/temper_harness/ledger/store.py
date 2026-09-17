@@ -25,36 +25,12 @@ from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
-from referencing import Registry, Resource
 
 from temper_harness.ledger.errors import UnresolvedLineageError
-
-SCHEMA_DIR = Path(__file__).resolve().parents[3] / "schemas"
+from temper_harness.schema_registry import build_validator
 
 LEDGER_FILENAME = "ledger.jsonl"
 INFLIGHT_FILENAME = "inflight.jsonl"
-
-
-def load_schema(name: str) -> dict[str, Any]:
-    """Read one committed schema by filename."""
-    contents: dict[str, Any] = json.loads((SCHEMA_DIR / name).read_text())
-    return contents
-
-
-def build_validator(name: str) -> Draft202012Validator:
-    """Build a validator for one schema, with every sibling schema resolvable.
-
-    The registry is assembled from the ``$id`` of every committed schema rather
-    than by hand, so a schema may reference a sibling without this module
-    knowing the reference graph.
-    """
-    registry = Registry()
-    for path in sorted(SCHEMA_DIR.glob("*.json")):
-        contents = json.loads(path.read_text())
-        schema_id = contents.get("$id")
-        if schema_id:
-            registry = registry.with_resource(schema_id, Resource.from_contents(contents))
-    return Draft202012Validator(load_schema(name), registry=registry)
 
 
 def _load_validator() -> Draft202012Validator:

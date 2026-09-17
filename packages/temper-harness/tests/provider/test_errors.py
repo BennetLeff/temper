@@ -8,7 +8,6 @@ import ssl
 import pytest
 from jsonschema import ValidationError
 
-from temper_harness.ledger.store import build_validator
 from temper_harness.provider import errors
 from temper_harness.provider.errors import (
     ContentFiltered,
@@ -27,6 +26,7 @@ from temper_harness.provider.errors import (
     classify_exception,
     for_http_status,
 )
+from temper_harness.schema_registry import build_validator
 
 ALL_ERROR_CLASSES = [
     PreConnectionUnavailable,
