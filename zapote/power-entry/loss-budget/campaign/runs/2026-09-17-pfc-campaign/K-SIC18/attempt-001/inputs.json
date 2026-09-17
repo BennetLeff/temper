@@ -1,0 +1,246 @@
+{
+  "schema": "pfc-campaign-source-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "K-SIC18",
+  "attempt_id": "attempt-001",
+  "kind": "source_only",
+  "captured_at_utc": "2026-09-17T21:22:17Z",
+  "source_revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+  "contract_sha256": "3bf1125fe37e8df6a493449ec5edfa01082fdd9e40a8d5d724147b388737f183",
+  "identity": {
+    "part_under_test": "IMZA65R048M1H",
+    "order_code": "IMZA65R048M1HXKSA1",
+    "manufacturer": "Infineon Technologies AG",
+    "technology": "CoolSiC M1, MOSFET 650 V G1 (trench SiC)",
+    "package": "PG-TO247-4 (PG-TO247-4-U02), 4-pin TO-247 with separate Kelvin source",
+    "marking": "65R048M1",
+    "document_title": "Datasheet IMZA65R048M1H (Final datasheet)",
+    "document_subject": "Datasheet IMZA65R048M1H Rev. 2.2",
+    "document_revision": "Rev. 2.2, 2025-01-20",
+    "document_producer": "Infineon Technologies AG; PDF-Engine by DATEA Services GmbH",
+    "document_creation_date": "2025-01-14T10:26:08Z",
+    "document_pages": 16,
+    "document_page_size": "A4 (595.275 x 841.875 pt)",
+    "revision_history": {
+      "2.0": "2019-12-16 Release of final version",
+      "2.1": "2024-08-26 VGS specs update, Tj,max update, IDSS update, nomenclature update, datasheet layout update",
+      "2.2": "2025-01-20 Corrected Is value in test condition of parameter Vsd"
+    }
+  },
+  "capture": {
+    "primary_url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-imza65r048m1h-datasheet-en.pdf",
+    "url_discovery": "linked as a datasheet asset inside https://www.infineon.com/part/IMZA65R048M1H (manufacturer product page HTML, fetched 2026-09-17)",
+    "http_status": 200,
+    "http_content_type": "application/pdf",
+    "http_content_length": 1014353,
+    "http_date": "Thu, 17 Sep 2026 21:22:17 GMT",
+    "http_last_modified": "Tue, 09 Jun 2026 21:30:11 GMT",
+    "http_server": "cloudfront (x-cache: Miss from cloudfront)",
+    "curl_exit_code": 0,
+    "downloaded_bytes": 1014353,
+    "pdf_signature": "%PDF-1.4",
+    "pdf_path": "raw/infineon-imza65r048m1h-datasheet-en.pdf",
+    "pdf_sha256": "359a804c4ac29355167fd82205f3020b1949540a597cc83fa9725572aa58e5c1",
+    "text_extract_path": "raw/infineon-imza65r048m1h-datasheet-en.txt",
+    "text_extract_tool": "pdftotext (poppler) 25.12.0, -layout",
+    "http_headers_capture_path": "raw/infineon_headers.txt",
+    "renders_dir": "raw/pages/",
+    "alternate_mirrors_attempted": [],
+    "mirror_note": "No alternate mirror was attempted because the manufacturer primary URL returned a valid application/pdf on the first attempt."
+  },
+  "parameters": [
+    {
+      "name": "qg_c",
+      "symbol": "QG",
+      "value": 3.3e-8,
+      "unit": "C",
+      "display_value": "33 nC",
+      "condition": "VDD = 400 V; ID = 20.1 A; VGS = 0 to 18 V; Table 7 section condition = at Tj = 25 C unless otherwise specified",
+      "page_figure": "Table 7 (Gate charge characteristics), page 7; corroborated by Table 1 key parameters, page 1",
+      "typical_or_guaranteed": "typical",
+      "model_field": "Device.qg_c -> pfc_switching::Config.qg_c",
+      "source_ref": "raw/infineon-imza65r048m1h-datasheet-en.pdf p.7 Table 7: 'Total gate charge QG = 33 nC typ'; p.1 Table 1: 'QG,typ = 33 nC'"
+    },
+    {
+      "name": "qgd_c",
+      "symbol": "QGD",
+      "value": 8e-9,
+      "unit": "C",
+      "display_value": "8 nC",
+      "condition": "VDD = 400 V; ID = 20.1 A; VGS = 0 to 18 V",
+      "page_figure": "Table 7 (Gate charge characteristics), page 7",
+      "typical_or_guaranteed": "typical",
+      "model_field": "Device.qgd_c -> pfc_switching::Config.qgd_c",
+      "source_ref": "raw/infineon-imza65r048m1h-datasheet-en.pdf p.7 Table 7: 'Gate to drain charge QGD = 8 nC typ'"
+    },
+    {
+      "name": "plateau_v",
+      "symbol": "n/a (no manufacturer symbol)",
+      "value": null,
+      "unit": "V",
+      "display_value": null,
+      "condition": null,
+      "page_figure": "Not tabulated. Nearest source: Diagram 10 (Typ. gate charge, VGS = f(QG); ID = 20.1 A pulsed; parameter VDD = 400 V), page 10",
+      "typical_or_guaranteed": "not_stated",
+      "model_field": "Device.plateau_v -> pfc_switching::Config.gate_plateau_v",
+      "source_ref": "raw/infineon-imza65r048m1h-datasheet-en.pdf p.7 Table 7 (no plateau voltage; only plateau CHARGE QGS(pl) = 9 nC) and p.10 Diagram 10",
+      "null_reason": "The manufacturer does not state a numeric Miller plateau voltage anywhere in the datasheet. Table 7 (p.7) tabulates only the plateau gate-to-source CHARGE QGS(pl) = 9 nC, plus QGD = 8 nC and QG = 33 nC. Diagram 10 (p.10) plots VGS = f(QG) at VDD = 400 V / ID = 20.1 A, but its plateau region is sloped (not flat) and carries no numeric value, so any single voltage would be a graph digitization rather than a manufacturer-stated value. Per task instruction ('unsupported values stay null with the reason'), the model input is left null.",
+      "unusable_figure_observation": {
+        "note": "Context only. NOT proposed as the Device.plateau_v input; a digitized point is not a manufacturer-stated parameter and the region is sloped.",
+        "figure": "Diagram 10, page 10",
+        "figure_condition": "VGS = f(QG); ID = 20.1 A pulsed; parameter VDD = 400 V",
+        "observed_plateau_region_v": [7.5, 9.5],
+        "approx_midpoint_v": 8.5,
+        "read_error_estimate_v": 0.5,
+        "classification": "typical_digitized_observation"
+      }
+    },
+    {
+      "name": "intrinsic_gate_r_ohm",
+      "symbol": "RG,int",
+      "value": 6.0,
+      "unit": "ohm",
+      "display_value": "6.0 ohm",
+      "condition": "f = 1 MHz",
+      "page_figure": "Table 5 (Static characteristics), page 6",
+      "typical_or_guaranteed": "typical",
+      "model_field": "Device.intrinsic_gate_r_ohm -> pfc_switching::Config.intrinsic_gate_r_ohm",
+      "source_ref": "raw/infineon-imza65r048m1h-datasheet-en.pdf p.6 Table 5: 'Internal gate resistance RG,int = 6.0 ohm typ, f = 1 MHz'"
+    },
+    {
+      "name": "eoss_j",
+      "symbol": "Eoss",
+      "value": 1.17e-5,
+      "unit": "J",
+      "display_value": "11.7 uJ",
+      "condition": "VDS = 400 V (stored output-capacitance energy). Table 1 row: 'Eoss @ 400 V'; Diagram 16 is Eoss = f(VDS), typ",
+      "page_figure": "Table 1 (Key performance parameters), page 1; Diagram 16 (Typ. Coss stored energy, Eoss = f(VDS)), page 11",
+      "typical_or_guaranteed": "typical",
+      "model_field": "Device.eoss_j -> pfc_switching::Config.coss_energy_j",
+      "source_ref": "raw/infineon-imza65r048m1h-datasheet-en.pdf p.1 Table 1: 'Eoss @ 400 V = 11.7 uJ'; p.11 Diagram 16 'Typ. Coss stored energy Eoss = f(VDS)'"
+    },
+    {
+      "name": "rds_max_ohm",
+      "symbol": "RDS(on)",
+      "value": 0.064,
+      "unit": "ohm",
+      "display_value": "64 mohm",
+      "condition": "VGS = 18 V; ID = 20.1 A; Tj = 25 C",
+      "page_figure": "Table 5 (Static characteristics), page 6; corroborated by Table 1 key parameters, page 1",
+      "typical_or_guaranteed": "guaranteed_max",
+      "model_field": "Device.rds_max_ohm -> pfc_switching::Config.rds_on_ohm",
+      "source_ref": "raw/infineon-imza65r048m1h-datasheet-en.pdf p.6 Table 5: 'RDS(on) = 48 typ / 64 max mohm at VGS = 18 V, ID = 20.1 A, Tj = 25 C'; p.1 Table 1: 'RDS(on),max = 64 mohm'",
+      "note": "The only guaranteed (max) RDS(on) point in the datasheet is at Tj = 25 C. The Tj = 175 C entry (67 mohm) is typical only; no guaranteed hot maximum is published, so no hot RDS is recorded."
+    }
+  ],
+  "additional_source_values_not_consumed_by_Device": {
+    "qgs_pl_c": {"value": 9e-9, "unit": "C", "note": "Plateau gate-to-source CHARGE, typ; this is a charge, not the plateau voltage", "page": 7},
+    "rds_on_typ_25c_ohm": {"value": 0.048, "condition": "VGS = 18 V, ID = 20.1 A, Tj = 25 C", "page": 6},
+    "rds_on_typ_175c_ohm": {"value": 0.067, "condition": "VGS = 18 V, ID = 20.1 A, Tj = 175 C, typical only", "page": 6},
+    "ciss_pf": {"value": 1118, "condition": "VGS = 0 V, VDS = 400 V, f = 250 kHz", "page": 6},
+    "crss_pf": {"value": 13, "condition": "VGS = 0 V, VDS = 400 V, f = 250 kHz", "page": 6},
+    "coss_pf": {"value": 129, "max": 168, "condition": "VGS = 0 V, VDS = 400 V, f = 250 kHz", "page": 6},
+    "qoss_c": {"value": 78e-9, "max": 101e-9, "condition": "calculation based on Coss; VGS = 0 V", "page": 6},
+    "co_er_pf": {"value": 146, "note": "energy-related effective output capacitance; same stored energy as Coss for VDS 0..400 V", "page": 6},
+    "co_tr_pf": {"value": 194, "note": "time-related effective output capacitance", "page": 6},
+    "td_on_ns": {"value": 14.8, "condition": "VDD = 400 V, VGS = 0/18 V, ID = 20.1 A, RG,ext = 1.8 ohm", "page": 6},
+    "tr_ns": {"value": 12.6, "condition": "same", "page": 6},
+    "td_off_ns": {"value": 17.0, "condition": "same", "page": 6},
+    "tf_ns": {"value": 13.0, "condition": "same", "page": 6},
+    "vsd_v": {"value": 4.0, "condition": "VGS = 0 V, IS = 20.1 A, Tj = 25 C", "page": 7},
+    "qfr_c": {"value": 125e-9, "condition": "VDD = 400 V, IS = 20.1 A, diS/dt = 1000 A/us; Qfr includes Qoss", "page": 7},
+    "vgs_th_v": {"min": 3.5, "typ": 4.5, "max": 5.7, "condition": "VDS = VGS, ID = 6 mA", "page": 6},
+    "note": "Eon/Eoff switching ENERGY is NOT published in this datasheet. Only switching TIMES (td/tr/td(off)/tf) are given. No switching-energy row exists to mis-apply across gate bias."
+  },
+  "gate_bias": {
+    "recommended_turn_on_v": 18,
+    "recommended_turn_off_v": 0,
+    "operating_range_including_undershoots_v": [-2, 20],
+    "absolute_max_static_v": [-5, 23],
+    "absolute_max_transient_v": [-7, 25],
+    "absolute_max_transient_condition": "tpulse <= 1% duty cycle / fsw",
+    "eighteen_volt_applicability": "EXPLICITLY_SOURCE_SUPPORTED",
+    "eighteen_volt_evidence": [
+      "Table 4 (p.5): 'Recommended turn-on voltage VGS(on) = 18 V'.",
+      "Table 5 (p.6): RDS(on) is specified at VGS = 18 V (48 typ / 64 max mohm at 25 C).",
+      "Table 6 (p.6): switching times are specified at VDD = 400 V, VGS = 0/18 V, ID = 20.1 A, RG,ext = 1.8 ohm.",
+      "Table 7 (p.7): QG / QGS(pl) / QGD are specified at VGS = 0 to 18 V.",
+      "Table 2 (p.3): IDM and the VGS = 18 V reverse-drain row use 18 V as the gate bias."
+    ],
+    "gate_bias_of_every_extracted_number": {
+      "qg_c": "0 to 18 V",
+      "qgd_c": "0 to 18 V",
+      "plateau_v": "null (not stated)",
+      "intrinsic_gate_r_ohm": "f = 1 MHz small-signal, bias-independent parameter",
+      "eoss_j": "VGS = 0 V, VDS = 400 V (output-capacitance energy, gate off)",
+      "rds_max_ohm": "VGS = 18 V"
+    },
+    "caveats": [
+      "The recommended turn-OFF is 0 V. The datasheet does not recommend a negative off-bias; -5 V is only the static absolute-maximum lower bound (Table 2).",
+      "A -5 V off-bias would sit outside the Table 4 operating range lower bound of -2 V, so a bipolar -5/+18 proposal is NOT source-recommended and would require the M1 application note AN_1907_PL52_1911_144109 plus a declared negative-rail producer.",
+      "Table 4 important notice: if the applied VGS exceeds the operating range, RDS(on) and VGS(th) may exceed the datasheet maximum at end of lifetime; Table 2 and the application note must be considered.",
+      "Table 2 note: Infineon recommends operating conditions not exceeding 80% of the maximum ratings for optimum lifetime/reliability.",
+      "No isolated gate-bias-specific switching-energy row exists because the datasheet publishes only switching times, not Eon/Eoff energies."
+    ]
+  },
+  "ratings": {
+    "vds_v": {"value": 650, "condition": "VGS = 0 V, ID = 0.6 mA"},
+    "id_dc_a": {"tc_25c": 40, "tc_100c": 28, "note": "limited by Tj,max"},
+    "idm_a": {"value": 100, "condition": "Tc = 25 C, VGS = 18 V; pulse width limited by Tj,max"},
+    "isdc_a": {"vgs_18v_tc25c": 40, "vgs_0v_tc25c": 26},
+    "ism_a": {"value": 100, "condition": "Tc = 25 C, tp <= 250 ns"},
+    "ptot_w": {"value": 150, "condition": "Tc = 25 C"},
+    "tj_range_c": [-55, 175],
+    "tstg_range_c": [-55, 150],
+    "eas_mj": {"value": 171, "condition": "ID = 6.4 A, VDD = 50 V; see Table 11"},
+    "ear_mj": {"value": 0.85},
+    "ias_a": {"value": 6.4},
+    "dvdt_v_per_ns": {"value": 200, "condition": "VDS = 0...400 V"},
+    "rth_jc_c_per_w": {"value": 1.0},
+    "rth_ja_c_per_w": {"value": 62, "condition": "leaded"}
+  },
+  "package_pinout": {
+    "package": "PG-TO247-4 (PG-TO247-4-U02)",
+    "pinout": {
+      "pin_1": "Drain (and mounting tab)",
+      "pin_2": "Power Source",
+      "pin_3": "Driver Source (Kelvin / source-sense)",
+      "pin_4": "Gate"
+    },
+    "kelvin_source_present": true,
+    "kelvin_source_pin": 3,
+    "power_source_pin": 2,
+    "manufacturer_note": "The source and driver source pins are not exchangeable. Their exchange might lead to malfunction.",
+    "kelvin_benefit_claim": "Kelvin source provides up to 4 times lower switching losses (page 1 feature list)",
+    "source_ref": "raw/infineon-imza65r048m1h-datasheet-en.pdf p.1 device top view and MOSFET symbol (pin labels); Table 12/Figure 1 package outline p.14",
+    "outline_dimensions": "Section 7 / Figure 1, page 14 (mm)"
+  },
+  "model_consumption": {
+    "consumer": "zapote/packages/zapote-harness/src/pfc_drive_experiment.rs::Device (struct fields qg_c, qgd_c, plateau_v, intrinsic_gate_r_ohm, eoss_j, rds_max_ohm)",
+    "downstream": "zapote-erc::pfc_switching::Config (fields qg_c, qgd_c, current_transfer_charge_c, gate_plateau_v, intrinsic_gate_r_ohm, coss_energy_j, rds_on_ohm, gate_bias_v)",
+    "task_scope": "source capture and extraction only; no model edit, no solver invocation, no fitting",
+    "six_field_summary": {
+      "qg_c": "sourced",
+      "qgd_c": "sourced",
+      "plateau_v": "NULL - not stated by manufacturer",
+      "intrinsic_gate_r_ohm": "sourced",
+      "eoss_j": "sourced",
+      "rds_max_ohm": "sourced"
+    }
+  },
+  "product_lifecycle_observation": {
+    "source": "https://www.infineon.com/part/IMZA65R048M1H product-page HTML (datalayer-productStatusInfo)",
+    "observed": "not for new design",
+    "classification": "procurement/lifecycle observation from a web page, NOT device performance; timestamp 2026-09-17",
+    "note": "Campaign decision impact only; not a datasheet parameter."
+  },
+  "source_failures": [],
+  "source_failure_note": "No capture failure occurred on this attempt. The manufacturer primary PDF URL returned HTTP 200 with content-type application/pdf and a valid %PDF- signature on the first attempt, so no alternate mirror was attempted.",
+  "assumptions_or_inferences_made": "none - no arithmetic derivation, no cross-bias transfer, no graph digitization promoted to a parameter",
+  "disallowed_inferences_explicitly_avoided": [
+    "Did NOT compute Qgs or current-transfer charge from Qg - Qgd.",
+    "Did NOT transpose an Eon/Eoff energy from another gate bias (the datasheet publishes none).",
+    "Did NOT infer a hot RDS(on) maximum from the 25 C maximum or from the 175 C typical.",
+    "Did NOT promote the Diagram 10 plateau graph observation to the plateau_v model input."
+  ]
+}

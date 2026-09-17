@@ -1,0 +1,1051 @@
+AN_201408_PL11_027
+
+
+   EVAL_2.5KW_CCM_4PIN
+   2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+
+   About this document
+   Scope and purpose
+   The 2.5 kW evaluation board is a great example of a full Infineon solution, and includes a PFC Controller,
+   MOSFET Driver and Silicon Carbide (SiC) Diode in order to evaluate the 4pin functionality with its advantages
+   for efficiency and signal quality.
+   Furthermore, the reader will be presented with additional information on how to use the evaluation board,
+   how the 600 V CoolMOS™ C7 behaves in this PFC application and the benefits that will be achieved by using the
+   TO-247 4pin package.
+
+   Intended audience
+   This document is intended for qualified engineers and technicians who are experienced in power electronics
+   technology and want to improve their PFC applications by using 4pin devices.
+
+
+   Table of contents
+   About this document ............................................................................................................................................. 1
+   Table of contents ................................................................................................................................................... 1
+   General safety instruction...................................................................................................................................... 3
+   To get started ........................................................................................................................................................ 3
+   1                 Introduction ....................................................................................................................................... 4
+   1.1               Evaluation board ..................................................................................................................................... 4
+   1.2               CoolMOSTM C7 .......................................................................................................................................... 4
+   1.3               thinQ!TM SiC Diode generation 5.............................................................................................................. 4
+   1.4               CCM-PFC Controller ................................................................................................................................. 5
+   1.5               Gate Driver ICs (EiceDRIVERTM Compact) ................................................................................................ 5
+   2                 Application ......................................................................................................................................... 6
+   3                 Circuit description.............................................................................................................................. 7
+   3.1               Line input ................................................................................................................................................. 7
+   3.2               Power stage  boost type PFC converter ............................................................................................... 7
+   3.2.1                Separate source Power MOSFET ....................................................................................................... 7
+   3.3               PWM control of boost converter ............................................................................................................. 7
+   3.4               Thermal concept ..................................................................................................................................... 8
+   3.4.1                Operate without thermal control feature ......................................................................................... 8
+   4                 Circuit operation .............................................................................................................................. 10
+   4.1               Soft startup ............................................................................................................................................ 10
+   4.2               Gate switching frequency ..................................................................................................................... 10
+   4.3               Protection features ............................................................................................................................... 11
+   4.3.1                Open loop protection (OLP)............................................................................................................. 11
+   4.3.2                First over-voltage protection (OVP1) ............................................................................................... 11
+   4.3.3                Peak current limit ............................................................................................................................. 11
+   4.3.4                IC supply under voltage lockout ...................................................................................................... 11
+
+   Application Note                     Please read the Important Notice and Warnings at the end of this document                                                  Revision 1.2
+   www.infineon.com                                                                                                                                                 2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Table of contents
+
+4.3.5                  Bulk voltage monitor and enable function (VBTHL_EN) ................................................................ 11
+5                 Circuit diagram ................................................................................................................................ 12
+6                 PCB layout........................................................................................................................................ 13
+7                 Component list ................................................................................................................................ 14
+8                 Boost choke layout .......................................................................................................................... 17
+9                 Source connection options .............................................................................................................. 18
+10                Test report ....................................................................................................................................... 20
+10.1              Conductive EMI test............................................................................................................................... 21
+10.2              Startup behavior ................................................................................................................................... 26
+11                Conclusion ....................................................................................................................................... 28
+12                References ....................................................................................................................................... 29
+Revision History ................................................................................................................................................... 30
+
+
+
+
+Application Note                                                                   2                                                                      Revision 1.2
+                                                                                                                                                           2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Introduction
+
+
+General safety instruction
+
+Attention:      The evaluation board contains high voltages that could be deadly for the users. Furthermore no
+                circuits on the board are isolated from the line input. Due to the high power density, the components
+                on the board and/or the heatsink can reach a very high temperature that can cause a burning risk
+                when touched directly. Users should be qualified engineers and technicians who are experienced in
+                power electronics technology and make sure that no danger or risk may occur while operating this
+                board.
+
+Note:           After the operation of the evaluation board, the DC-Link capacitors C21 and C24 may still store a high
+                energy for several minutes, which is indicated by the illumination of LED1. The Capacitors C21 and
+                C24 must be discharged until the LED1 is not lit before touching the board directly.
+
+Note:           The board is designed for a maximum input current of 14 A. To operate it at a mains input of 90 VAC,
+                the output power must be correspondingly reduced so that the maximum current limit is not
+                exceeded.
+
+Note:           The normal output power of the board is designed for up to 2.5 kW so that the device temperature
+                remains below 80°C. Users can operate the board to a peak output power of 3000 W. However, it is not
+                recommended to operate at this output power level for longer than 2 minutes. In this case, the device
+                temperature of the MOSFET (DUT1) and/or diode (DUT1) can exceed 100°C which presents a risk of
+                burning!
+
+Note:           The EMC filter on the board is designed to cover a wide range of applications according to the
+                standard CISPR 22. Nevertheless, the EMC performance of the board is very dependent on the
+                application settings and load conditions. Users may modify the EMC filter using methods like wire
+                shielding to make their own applications comply with the standard. To fulfill other standards required
+                by different applications, users may need to apply extra or different components.
+
+Note:           The evaluation board is designed to meet any certification requirements. Infineon Technologies will
+                not guarantee any compliance with local certificate requirements or recommendations. The usage of
+                the evaluation board is strictly at your own risk.
+
+
+To get started
+ Step 1: Complete connections “Vin”, “Vout”, “KL01”, “J11”& “J11a”
+   −     Vout      : Connect with an output load which is able to operate at 400 VDC
+   −     Vin       : Connect L, N and Earth to the 90 VAC…265 VAC main power supply
+   −    KL01       : Optional DC-Power that is used to power-up the cooling fans externally see: Thermal concept
+
+ Step 2: Switch on the main power supply and check Vout for the presence of 400 VDC
+
+
+ Step 3: For more instructions please refer to the following guidelines.
+
+
+
+
+Application Note                                            3                                                Revision 1.2
+                                                                                                              2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Introduction
+
+
+
+1                    Introduction
+1.1                  Evaluation board
+This document describes the evaluation board EVAL_2.5KW_CCM_4PIN, which is designed to evaluate the
+performance of the TO-247 4pin CoolMOS™ C7 family. The board is developed for laboratory use only and does
+not serve any commercial purpose. Before operating the evaluation board, please read the general safety
+instruction section.
+The aim of this document is to help the customers to get familiar with the evaluation board, and to investigate
+the different behavior of conventional 3pin devices compared to the high performance TO-247 4pin CoolMOS™
+devices within a PFC application.
+The following table gives the main technical specifications of the evaluation board:
+
+Table 1         Technical specifications of the 2.5 kW CCM PFC evaluation board
+
+Input voltage                                             85 VAC~265 VAC
+Input current                                             14 Aeff
+Input frequency                                           47~63 Hz
+Output voltage and current                                400 VDC, 6.25 A
+Output power                                              ~ 2.5 kW (at Vin=230 VAC)
+Average efficiency                                        >95% at 115 VAC
+Switching frequency                                       Possible range: 40 kHz~250 kHz;
+                                                          Board frequency is set to 65 kHz;
+                                                          Changeable by R20
+Power switch                                              4pin and 3pin MOSFET
+
+1.2                  CoolMOSTM C7
+CoolMOSTM C7 (IPZ60R040C7) achieves extremely low conduction and switching losses per package. The
+extremely low switching losses enable the designer to operate with higher switching frequencies in order to
+shrink the magnetic components and increase the power density.
+Eoss reduction brings efficiency benefits at light load, the low QG correlates to faster switching and also lower Eon
+and Eoff which gives efficiency benefits across the whole load range.
+
+The CoolMOSTM C7 balances several parameters to give best-in-class performance improves the
+implementation and ease of use behavior when compared to other fast switching MOSFET families. Moreover,
+with its broad product portfolio, C7 can address the specific needs of hard switching applications for server, PC
+power, telecom rectifiers and solar. C7 offers the best-in-class performance on the market today with the
+lowest RDS(on) per package.
+
+1.3                  thinQ!TM SiC Diode Generation 5
+The thinQ!TM Generation 5 Silicon Carbide Diode (IDH16G65C5) represents Infineon’s leading edge technology
+for SiC Schottky Barrier Diodes. The Infineon proprietary diffusion soldering process, already introduced with
+generation 3, is now combined with a new, more compact design and thin wafer technology. The result is a new
+
+Application Note                                          4                                                Revision 1.2
+                                                                                                            2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Introduction
+
+
+family of products showing improved efficiency over all load conditions, resulting from both the improved
+thermal characteristics and a lower figure of merit (Qc*Vf). It also offers improved dv/dt robustness up to
+100 V/ns which enables very fast switching. This is a perfect fit to the fast switching CoolMOSTM C7 family.
+
+1.4                CCM-PFC Controller
+The evaluation board presented here is a 2.5 kW power factor correction (PFC) circuit with 85~265 VAC universal
+input and an output of 400 VDC. The continuous conduction mode (CCM) PFC Controller (ICE3PCS01G) is
+employed in this board to achieve a unity power factor.
+The (ICE3PCS01G) is specially designed for applications of power supplies used in PC, server, and telecom,
+requiring high efficiency and an excellent power factor. The voltage loop compensation is integrated digitally
+for better dynamic response and lower design effort. Recognized for its highly integrated design,( ICE3PCS01G)
+can achieve the full requirements of the PFC application implemented in the 14pin in DSO14 package while
+minimizing the number of peripheral components. The gate switching frequency is adjustable from 21 kHz to
+250 kHz and is able to synchronize with an external switching frequency from 50 kHz to 150 kHz.
+
+1.5                Gate Driver ICs (EiceDRIVERTM Compact)
+The Infineon EiceDRIVERTM family (IEDI60N12AF) offers a wide range of CT (Coreless Transformer) based Gate
+Drivers that support all topologies using CoolMOSTM in 3 and 4pin packages. CT utilizes on-chip coupled
+inductors realized in the existing metal layers to transmit the gate drive signals from the input to the output
+stage with isolation of more than 1200 V provided by a thick inter-metal oxide. This approach offers high speed
+and very good common-mode transient immunity, which is crucial to drive the MOSFET with fast voltage
+transients.
+With the use of IEDI60N12AF on this evaluation board, the benefits of Infineon’s TO-247 4pin package
+demonstrates very fast switching behavior alongside clean gate waveforms. Based on the CT technique, the
+Kelvin source can be completely isolated from the power source and higher efficiency and better system
+stability can be achieved.
+
+The 6 A capability of the driver output is necessary to switch the 19 mΩ CoolMOSTM very quickly. Even if the
+board is used with higher ohmic devices, it is an advantage to have a very strong drive capability in order to
+minimize gate oscillation at fast switching.
+The output of the driver features separate positive and negative outputs for easy tuning. The turn-on and turn-
+off behavior of the MOSFET can be changed by using different gate resistors. This is connected to the different
+outputs without any diode for separating the turn-on and turn-off phases.
+In the evaluation board the two output pins are joined together. When creating a parallel design for 3 and 4pin
+devices two different changeable gate resistors are created. In order to keep the complexity low, the design did
+not take the opportunity to separate turn-on and turn-off gate resistors as this is not highly relevant for
+efficiency analysis.
+This driver is the only currently known driver that has a CMTI (common mode transient immunity) of dv/dt ≥
+100 V/ns which is required for high transition noise feedback from the drain to the gate signal in a fast switching
+mode.
+
+
+
+
+Application Note                                         5                                               Revision 1.2
+                                                                                                          2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Application
+
+
+
+2                    Application
+The evaluation board described within this document is based on a CCM PFC (continuous conduction mode
+power factor correction). The principal schematic is shown below.
+
+
+
+
+Figure 1           Schematic of the topology
+
+
+
+
+Figure 2           EVAL_2.5kW_CCM_4PIN evaluation board
+
+
+
+
+Application Note                                     6                                         Revision 1.2
+                                                                                                2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Circuit description
+
+
+3                  Circuit description
+3.1                Line input
+The AC line input side does not include any input fuse. Please ensure proper external over-current protection.
+The input is fitted with 2 connectors in order to offer proper input voltage measurement for precise power
+metering. The choke L3, X2-capacitor C4/C5/C23 and Y1-capacitors C17/CY18 are used to suppress common
+and differential mode noise. R_NTC2 is placed in series to limit inrush current during each power on. A relay is
+mounted across the R_NTC2 to short the resistor when VOUT is higher than ~60 V.
+
+3.2                Power stage  boost type PFC converter
+After the bridge rectifier GL1 and GL2, there is a boost type PFC converter consisting of L1, IPZ60R040C7,
+IDH16S65C5, C30, C8, C21 and C24. The seventh generation CoolMOSTM IPZ60R040C7 and the SiC Diode
+IDH16S65C5 share the same heat sink so that the system heat can be equally spread. Output capacitor C30, C8,
+C21 and C24 provides energy buffering to reduce the output voltage ripple (100 Hz at 50 Hz AC input) to an
+acceptable level and to meet the hold-up time requirement.
+
+3.2.1              Separate source Power MOSFET
+Infineon’s TO-247 4pin package enables significant efficiency improvements in hard switching topologies for
+CoolMOSTM high voltage Power MOSFETs. The fourth pin acting as a Kelvin source can be used to reduce the
+parasitic inductance of the source lead of the Power MOSFET.
+The benefit will be seen in various hard switching topologies such as Continuous Conduction Mode Power
+Factor Correction (CCM PFC), Boost and Two Transistor Forward (TTF). The new package offers improved
+efficiency by reducing switching losses up to 8% which equates to 3.5 W of saved power in a CCM Mode PFC
+running at 1.2 kW, which is equal to 0.3% extra full load efficiency compared to the same MOSFET in the
+standard TO-247 3pin package.
+The evaluation board is available to test the physically identical devices in either 3pin or 4pin (with sense
+source) configuration. The standard setting of the set-up is 4pin configuration. To change the testing device to
+3pin configuration, it is necessary to open the connection point J7 and connect the solder point J8 or J6. Please
+check chapter 9 on page 18 for more detailed information.
+
+3.3                PWM control of boost converter
+The ICE3PCS01G is a 14pin control IC for power factor correction converters and is suitable for wide range line
+input applications from 85 to 265 VAC with overall efficiency above 97%. The IC supports converters in boost
+topology and it operates in continuous conduction mode (CCM) with average current control.
+The IC operates with a cascaded control; the inner current loop and the outer voltage loop. The inner current
+loop of the IC controls the sinusoidal profile for the average input current. It uses the dependency of the PWM
+duty cycle on the line input voltage to determine the corresponding input current. This means the average
+input current follows the input voltage as long as the device operates in CCM. Under light load condition,
+depending on the choke inductance, the system may enter into discontinuous conduction mode (DCM) by
+enlarging the harmonics, but still meeting the Class D requirement of IEC 1000-3-2.
+The outer voltage loop controls the output bulk voltage, integrated digitally within the IC. Depending on the
+load condition, internal PI compensation output is converted to an appropriate DC voltage that controls the
+amplitude of the average input current.
+
+
+Application Note                                        7                                               Revision 1.2
+                                                                                                         2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Circuit description
+
+
+The IC is equipped with various protection features to ensure safe operating condition for both the system and
+the device.
+
+3.4                   Thermal concept
+The evaluation board is fitted with different thermal management for the two different heat sinks mounted on
+the board. The thermal concept for the input bridge rectifier is managed by an adjustable-speed cooling fan.
+The fan speed is adjustable to optimize between noise generation and cooling by changing resistor R28 near
+the fan for the bridge rectifier.
+The main heat sink for the DUT offers cooling and heating functionality in parallel. To heat up the heat sink to
+target temperature (standard setting = 50°C), it is necessary to:
+ Set Jumper “J11a” to “Extern”
+ Set Jumper “J11” to “Extern”
+ Supply a galvanically isolated 12 V to connector KL01 between GND and +12 V with current limit of 1 A
+ Supply 17 V to connector KL01 between GND and heating with current limit of 3.5 A
+ Set R4 according to the temperature, which is intended for the devices
+
+The control circuit will then heat up the heat sink to the adjusted temperature that is set by the variable resistor
+R4. Once the temperature is reached it will start the fan to cool the system. Thus, it is possible to operate the
+application with regulated heat sink temperature for the MOSFET and the diode.
+
+3.4.1                 Operate without thermal control feature
+If one wants to operate the evaluation board without any external heating it is recommended to use the
+internal cooling option through the following setting:
+Change the wire connected to “J11a” to the bottom layer and insert 3pin connector for jumper into the PCB.
+ Set Jumper “J11a” to “Intern”
+ Set Jumper “J11” to “Intern”
+
+
+
+
+Figure 3           Wire change from top layer to bottom layer
+
+
+
+
+Application Note                                         8                                               Revision 1.2
+                                                                                                          2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Circuit description
+
+
+
+
+Figure 4           Setting for internal cooling powering
+
+
+With this setting the board will permanently cool the input bridge rectifier and keep the temperature of the
+diode and the MOSFET below the temperature setting by the changeable resistor R4.
+If the board has been modified as described above and one wants to investigate the efficiency without the
+thermal power losses, please set the Jumper “J11” and “J11a” to the “Extern” position.
+
+
+
+
+Application Note                                           9                                           Revision 1.2
+                                                                                                        2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Circuit operation
+
+
+
+4                                   Circuit operation
+4.1                                 Soft startup
+During power up when the VOUT is less than 96% of the rated voltage, the internal voltage loop output of the IC
+increases from initial voltage under soft-start control. This results in a controlled linear increase of the input
+current from 0 A, thus reducing the current stress in the power components.
+Once VOUT has reached 96% of the rated level, the soft-start control is released to achieve good regulation and
+dynamic response and the VB_OK pin delivers 5 V indicating the PFC output voltage is in the normal range.
+
+4.2                                 Gate switching frequency
+The switching frequency of the PFC converter can be set with an external resistor RFREQ at pin FREQ with
+reference to pin SGND. The voltage at pin FREQ is typically 1 V. The corresponding capacitor for the oscillator is
+integrated into the device and the RFREQ/frequency is given in Figure 3. The recommended operating frequency
+range is from 21 kHz to 250 kHz. As an example, a RFREQ of 43 kΩ at pin FREQ will typically set a switching
+frequency fSW of 100 kHz.
+
+
+
+
+                                                                                     Frequency vs Resistance
+
+
+
+                                   260
+                                                                                     Resistance    Frequency        Resistance      Frequency
+                                   240                                                 /kohm          /kHz            /kohm            /kHz
+                                   220                                                   15           278               110             40
+                                                                                         17           249               120             36
+                                   200
+                                                                                         20           211               130             34
+                                   180
+                                                                                         30           141               140            31.5
+                   Frequency/kHz
+
+
+
+
+                                   160                                                   40           106               150            29.5
+                                   140                                                   50            86               169            26.2
+
+                                   120                                                   60            74               191             25
+                                                                                         70            62               200             23
+                                   100
+                                                                                         80            55               210            21.2
+                                   80
+                                                                                         90            49               221            20.2
+                                   60                                                   100            43               232            19.2
+                                   40
+
+                                   20
+
+                                    0
+                                         10   20   30   40   50   60   70   80   90 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250
+
+                                                                                       Resistance/kohm
+
+
+
+
+Figure 5           Frequency setting
+
+
+The switching frequency can be changed by the variable resistor R31. For easy adjustment please use the X8
+connection pins to measure the value. Please make sure to connect the positive cable of the measurement tool
+to the left (towards the side of the fan) pin of X8. To use the table and plot in Figure 5 you have to subtract 10 kΩ
+from the serial resistance R15. If the polarity of the measurement tool is flipped compared to the way described
+above, please subtract 23 kΩ due to additional internal resistance from the controller itself. Please make sure
+the board is not connected to the main supply when connecting the measuring instrument to X8!
+
+
+Application Note                                                                                    10                                                Revision 1.2
+                                                                                                                                                       2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Circuit operation
+
+
+Therefore, the measureable resistance on X8 for the standard setting of 65 kHz will be 56 kΩ with positive
+polarity on the left pin and 43 kΩ with positive polarity on right pin.
+
+4.3                 Protection features
+
+4.3.1               Open loop protection (OLP)
+Open-loop protection is available for this IC to safeguard the output. Whenever voltage VSENSE falls below 0.5 V,
+or VOUT falls below 20% of its rated value, it indicates an open loop condition (i.e. VSENSE pin not connected). In
+this case, most of the blocks within the IC will be shutdown. It is implemented using a comparator with a
+threshold of 0.5 V.
+
+4.3.2               First over-voltage protection (OVP1)
+Whenever VOUT exceeds the rated value by 8%, the first over-voltage protection OVP1 is active. This is
+implemented by sensing the voltage at pin VSENSE with respect to a reference voltage of 2.7 V. A VSENSE voltage
+higher than 2.7 V will immediately block the gate signal. After the bulk voltage falls below the rated value, the
+gate drive resumes switching again.
+
+4.3.3               Peak current limit
+The IC provides a cycle-by-cycle peak current limitation (PCL) that is active when the voltage at pin ISENSE
+reaches -0.2 V. This voltage is amplified by a factor of -5 and connected to the comparator with a reference
+voltage of 1.0 V. A 200 ns deglitcher after the comparator improves noise immunity to the activation of this
+protection. In other words, the current sense resistor should be designed for lower than -0.2 V PCL in normal
+operation.
+
+4.3.4               IC supply under voltage lockout
+When the voltage VCC is below the under voltage lockout threshold VCCUVLO (typically 11 V) the IC will turn off the
+gate for safety reasons. The current consumption reduces to 1.4 mA.
+
+4.3.5               Bulk voltage monitor and enable function (VBTHL_EN)
+The IC monitors the bulk voltage status through the VSENSE pin and outputs a TTL signal to enable the PWM IC or
+control the inrush relay. During soft-start, once the bulk voltage is higher than 95% rated value, pin VB_OK
+outputs a high level. The threshold to trigger the low level is determined by the pin VBTHL where the voltage is
+adjustable externally.
+When pin VBTHL is pulled down externally to lower than 0.5 V, most function blocks are turned off and the IC
+enters into a standby mode for low power consumption. When the disable signal is released the IC recovers by
+soft-start.
+
+
+
+
+Application Note                                         11                                               Revision 1.2
+                                                                                                           2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Circuit diagram
+
+
+
+5                    Circuit diagram
+
+
+
+
+Figure 6           Whole evaluation board schematic
+
+
+
+
+Application Note                                      12         Revision 1.2
+                                                                  2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+PCB layout
+
+
+6                    PCB layout
+
+
+
+
+Figure 7           PCB top layer view
+
+
+
+
+Figure 8           PCB bottom layer view
+
+
+Application Note                              13                 Revision 1.2
+                                                                  2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Component list
+
+
+7                    Component list
+Table 2            Component list
+Designator                          Value                                  Description
+                                                                 Placeholder for ferrite bead, 0Ω
+B1, B2                              closed with 0 Ω
+                                                                            resistor
+Bias1                               12 V Bias                             Bias adapter
+C1                                  10 µF                                     25 V
+C2                                  4n7 F                                     25 V
+C3                                  10 nF                                     25 V
+C4, C5                              1 µF                                   x-capacitor
+C6                                  4.7 nF                                    25 V
+C7                                  10 nF                                     25 V
+C8, C30                             100 nF / 500 V                     VJ1825Y104KXEAT
+C10, C31                            1 nF                                      25 V
+C11                                 10 µF                                     25 V
+C12, C25, C32                       100 nF                                    25 V
+C13                                 100 nF                                    25 V
+C14, C15                            1 µF                                      25 V
+C16                                 100 µF                                    25 V
+C17, C18, C19, C20                  2.2 nF                                 Y-capacitor
+                                                                      EETHC2G561KA or
+C21, C24                            560 µF
+                                                                    EKMR421VSN561MR50S
+C22, C23                            1 µF / 400 V                 BFC237351105; Farnell 1215540
+C26                                 220 nF                                    25 V
+C27                                 10 µF                                     25 V
+C28                                 470 pF                                    25 V
+C29                                 22 nF                                     25 V
+D1                                  SS26
+D2, D3                              1N4148
+D4                                  1N5408
+D6                                  Short                                      0Ω
+D10                                 ES1C                               1 A 150 V fast diode
+DUT1                                IPZ60R040C7
+D_Z3                                ZMM15                                   1N4734A
+EMI_1                               Not placed                            EMI adapter
+GL1, GL2                            GSIB2580                                GSIB2580
+IC1                                 TDA2030                            Mount with M2.5x6
+IC2                                 LM4040                            LM4040D20IDBZRG4
+IC3                                 ICE3PCS01G                         PFC CCM controller
+IC4                                 1EDI60N12AF                      6 A isolated MOS driver
+Application Note                                      14                                       Revision 1.2
+                                                                                                2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Component list
+
+
+Designator                     Value                                        Description
+                                                                    1.8 A step down switching
+IC5                            IFX91041
+                                                                             regulator
+J1, J11                        Jumper_3pin                                  SPC20486
+J2                             Current measurement bridge         1.25 mm isolated copper wire
+                                                                  U-shape-Cu-wire 1.25 mm 2 cm
+J3                             Drilling
+                                                                            distance
+J6                             Open                                 Solder jumper; 4pin as 3pin
+                                                                  Solder jumper; driver ground to
+                               Close with solder or 0 Ω
+J7, J12                                                          SS, Solder jumper; isolated driver
+                               resistance
+                                                                              power
+                                                                   Solder jumper; 3pin ground,
+J8, J10                        Open                              Solder jumper; driver power none
+                                                                             isolated
+                               Close with solder or 0 Ω           Solder jumper; isolated driver
+J9
+                               resistance                                    power
+                                                                    100 mm long; mound with
+K1                             SK426
+                                                                           2xM4x15
+K2                             KM75-1                               KM75-1 +4clip 4597; Fischer
+KL1                            BNC                               Oscilloscope_function_generator
+KL01                           Heating                                    MSTBA 2,5/ 3-G
+KL01-S                         Complement                                 MSTB 2,5/3-ST
+L1                             L_PFC                             2times 77083A7 64wind_1.15mm
+L2                             10 A 100 µH                               Würth 744824101
+L3                             8120-RC                            BOURNS_8120-RC_2m4H_17A
+L4                             33 µH                                         74454133
+LED1                           Red                                        Power on LED
+LED2, LED3, LED4, LED5         Blue                                       Power on LED
+M1, M2                         Fan 60 mm                                 PMD1206PTB1-A
+M1, M2                         Finger guard for Fan 60 mm                     LZ28CP
+PWM-Signal                     SMA                               Oscilloscope_Function_generator
+R1, R3, R13, R20, R56          1 kΩ                                             5%
+R2, R8, R15, R44               10 kΩ                                            5%
+R4                             5 kΩ                                         67WR20KLF
+R5                             680 Ω                                            5%
+R6                             220 Ω                                            5%
+R7, R11                        10 Ω                                             5%
+R9, R16                        20 Ω                                        3314G-1-200E
+R10, R25                       47 Ω                                             5%
+R12, R42                       330 kΩ                                           5%
+R14, R19                       2 MΩ                                             5%
+R17                            27 kΩ                                            5%
+Application Note                                 15                                           Revision 1.2
+                                                                                               2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Component list
+
+
+Designator                     Value                                       Description
+R18                            36 kΩ                                          5%
+                                                                   Include two 20F2617 Bürklin
+R21                            LTO100 4R7
+                                                                            connector
+R22, R23                       500 kΩ                                         10%
+R24                            0R005                                     FCSL90R005FE
+R27                            Np
+R28                            20 kΩ                                     23AR20KLFTR
+R29                            22 kΩ                                          5%
+R30                            1 kΩ                                           10 V
+R31                            100 kΩ                                     67WR100KLF
+R35                            2 RΩ                                           5%
+R36                            Np
+R37                            Np 500 kΩ                                      5%
+R45                            200 kΩ                                         5%
+REL1                           AZ762                                          12 V
+REL2                           G6D_1A_ASI                                     12 V
+                                                                 B57560G502F mound in K1 under
+R_NTC1                         5 kΩ
+                                                                             MOS
+R_NTC2                         3R3 Ω                                        R_SL22
+S1, S2, S3, S4, S5, S6         SCREW_M4                               3 cm distance holder
+S1, S2, S3, S4, S5, S6         Mother M4                                  M4 screw nut
+S1, S2, S3, S4, S5, S6         Washer M4                                   washer M4
+                                                                   GMSTBA 2,5/ 3-G-7,62 and
+Vin                            HVin
+                                                                     GMSTB 2,5/ 3-ST-7,62
+                                                                   GMSTBA 2,5/ 2-G-7,62 and
+Vout                           Vout
+                                                                     GMSTB 2,5/ 2-ST-7,62
+                                                                   GMSTBVA 2,5/ 2-G-7,62 and
+Vout_sense                     Vout_sense
+                                                                     GMSTB 2,5/ 2-ST-7,62
+X1                             Np (Heat sink)                      Thermal couple connector
+X2                             Np (MOS1)                           Thermal couple connector
+X3                             Np (Diode)                          Thermal couple connector
+X4                             Np (Choke)                          Thermal couple connector
+X5                             Np (MOS2)                           Thermal couple connector
+X6                             Rg_4pin                                     SPC20485
+X7                             Rg_3pin                                     SPC20485
+X8, X9                         KL_STANDARD_2                               SPC20485
+X12                            Np                                   For adapter power supply
+
+
+
+
+Application Note                                16                                           Revision 1.2
+                                                                                              2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Boost choke layout
+
+
+
+8                    Boost choke layout
+The boost choke on this evaluation board is hand-wound as this is not volume production. It consists of 2
+stacked “Kool Mμ” toroid cores with the part number 77083A7. As a result of the 64 windings with 1.15 mm
+copper wire the inductance at 100 kHz is about 600 µH. As the optimum value of the inductance and magnetic
+flux depend on the switching frequency and the output power, a change might be needed if the evaluation
+board is used for different values of power and frequency.
+
+
+
+
+Figure 9           Main inductor
+
+
+
+
+Application Note                                     17                                           Revision 1.2
+                                                                                                   2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Source connection options
+
+
+9                     Source connection options
+The source connection for the MOSFET Gate Driver can be set to different options. It is important to make sure
+that only one of the jumpers J6, J7 or J8 is closed at any time. In Figure 10 the possibilities on the top side of
+the PCB are shown. For standard through hole packages one can put a 0 Ω resistor or a solder bridge on the two
+surface areas of J6 so that there is an electrical connection if a low inductance gate drive is desired. For
+standard gate drive inductance it is possible to close J8 (see Figure 11) on the bottom side of the PCB instead
+J6.
+To investigate the performance advantages of the 4pin solution please activate J7 on the top side of the PCB.
+This will completely separate the gate drive circuit from the power path and therefore result in the cleanest
+gate drive waveforms.
+
+
+
+
+Figure 10          Source connection setting on top side for source sense and low inductance 3pin option
+
+
+
+
+Application Note                                         18                                             Revision 1.2
+                                                                                                         2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Source connection options
+
+
+
+
+Figure 11          Source connection setting on bottom side for standard 3pin
+
+
+
+
+Application Note                                         19                     Revision 1.2
+                                                                                 2015-11-02
+ EVAL_2.5KW_CCM_4PIN
+ 2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Test report
+
+
+10                       Test report
+All test conditions are based on a 60°C heat sink temperature.
+For the efficiency test it is important to monitor the voltage sensing directly on the input and output power
+with the Vin_sense and Vout_sense right beside the power connections.
+
+Table 3             Efficiency results of IPZ60R040C7 (4pins) under different line input and loading condition at 100
+                    kHz switching frequency
+Input              VIN         IIN           PIN            VOUT         IOUT          POUT                Eff.
+                   84.94 V     1.4644 A      123.08 W       401.49 V     0.2877 A      115.5 W         93.8414%
+                   84.89 V     2.9198 A      247.12 W       401.46 V     0.5867 A      235.53 W        95.30997%
+                   84.82 V     4.4044 A      372.57 W       401.45 V     0.8872 A      356.17 W        95.59814%
+                   84.75 V     5.895 A       498.4 W        401.45 V     1.1866 A      476.3 W         95.56581%
+
+   85 VAC          84.68 V     7.398 A       625.3 W        401.42 V     1.4857 A      596.4 W         95.37822%
+                   84.61 V     8.924 A       753.7 W        401.45 V     1.7855 A      716.8 W         95.10415%
+                   84.54 V     10.475 A      884 W          401.4 V      2.0852 A      837 W           94.68326%
+                   84.47 V     12.034 A      1014.6 W       401.36 V     2.3852 A      957.3 W         94.35245%
+                   84.39 V     13.616 A      1146.8 W       401.38 V     2.6852 A      1077.7 W        93.97454%
+                   84.31 V     15.215 A      1280.2 W       401.34 V     2.9842 A      1197.6 W        93.54788%
+                   229.84 V    1.1775 A      254.23 W       401.42 V     0.6178 A      247.99 W        97.54553%
+                   229.96 V    2.2443 A      507 W          401.42 V     1.2376 A      496.8 W         97.98817%
+                   229.88 V    3.3473 A      763.2 W        401.34 V     1.8663 A      749 W           98.13941%
+                   229.82 V    4.4451 A      1016.3 W       401.32 V     2.4872 A      998.2 W         98.21903%
+
+230 VAC            229.83 V    5.567 A       1274.6 W       401.29 V     3.1173 A      1250.9 W        98.14059%
+                   229.77 V    6.677 A       1529.3 W       401.22 V     3.7388 A      1500 W          98.08409%
+                   229.72 V    7.807 A       1789 W         401.24 V     4.3698 A      1753.2 W        97.99888%
+                   229.67 V    8.923 A       2044.7 W       401.18 V     4.9897 A      2001.6 W        97.89211%
+                   229.61 V    10.054 A      2304.5 W       401.19 V     5.615 A       2252.5 W        97.74355%
+                   229.56 V    11.178 A      2561.5 W       401.15 V     6.235 A       2500.9 W        97.6342%
+
+In Figures 10 and 11 it can be seen that the full load efficiency is improved by simply changing from 3pin to 4pin
+configuration. Due to this it is possible to replace a current 3pin PFC MOSFET with a MOSFET of one step higher
+RDS(on). This will help to increase the efficiency all over the power range except full load at low line and will help
+to meet the Titanium Standard for server SMPS.
+
+
+
+
+Application Note                                           20                                               Revision 1.2
+                                                                                                             2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Test report
+
+
+
+
+                                          Efficiency high line (230 Vac)
+                               98,3
+                                                                                          4pin_100kHz
+                               98,2
+                                                                                          3pin_100kHz
+                               98,1                                                       4pin_65kHz
+                                98                                                        3pin_65kHz
+                   eta [%]
+
+
+
+
+                               97,9
+                               97,8
+                               97,7
+                               97,6
+                               97,5
+                               97,4
+                                      0    500        1000         1500         2000       2500         3000
+                                                               Pout [W]
+
+Figure 12            High line efficiency curve with the device IPZ60R040C7 & IDH16G65C5 @ 65 kHz & 100 kHz 3.3 Ω
+
+
+
+
+                                           Efficiency low line (85 Vac)
+                               96,5
+                                                                                         4pin_100kHz
+                                 96                                                      3pin_100kHz
+                               95,5                                                      4pin_65kHz
+
+                                 95                                                      3pin_65kHz
+                     eta [%]
+
+
+
+
+                               94,5
+                                 94
+                               93,5
+                                 93
+                               92,5
+                                      0   200     400        600          800     1000      1200        1400
+                                                               Pout [W]
+
+Figure 13            Low line efficiency curve with the device IPZ60R040C7 & IDH16G65C5 @ 65 kHz & 100 kHz 3.3 Ω
+
+
+10.1                            Conductive EMI test
+EMI is a very important quality factor for a power supply. The EMI data includes the whole spectrum of the
+SMPS behavior and is split into radiated and conducted EMI. It is most important to investigate the conducted
+EMI behavior for the described evaluation PFC board, as it is the input stage of any SMPS below a certain power
+range.
+
+
+Application Note                                              21                                               Revision 1.2
+                                                                                                                2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Test report
+
+
+
+
+Figure 14          Conductive EMI measurement of the evaluation board at 100 kHz with a resistive load (4 pin
+                   configuration)
+
+
+Based on the EN55022 standard, the line filter can be modified as shown in Figure 15, in order to further
+improve the EMI quality and provide enough design margin (6 dB) under the standard line requirement:
+ Change the X2-capacitor C23 from value 1 µF to 1.5 µF
+
+
+
+
+Application Note                                         22                                            Revision 1.2
+                                                                                                        2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Test report
+
+
+
+
+Figure 15          Conductive EMI measurement of the evaluation board at 100 kHz with a resistive load and filter
+                   modification (4pin configuration)
+
+
+
+
+Application Note                                         23                                             Revision 1.2
+                                                                                                         2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Test report
+
+
+
+
+Figure 16          Conductive EMI measurement of the evaluation board at 100 kHz with a resistive load and filter
+                   modification (3pin configuration)
+
+
+
+
+Application Note                                         24                                             Revision 1.2
+                                                                                                         2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Test report
+
+
+
+
+Figure 17          Conductive EMI measurement of the evaluation board at 65 kHz with a resistive load and filter
+                   modification (4pin configuration)
+
+
+
+
+Application Note                                         25                                             Revision 1.2
+                                                                                                         2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Test report
+
+
+
+
+Figure 18          Conductive EMI measurement of the evaluation board at 65 kHz with a resistive load and filter
+                   modification (3pin configuration)
+
+
+10.2                  Startup behavior
+During power up, when VOUT is less than 96% of the rated level, the internal voltage loop of the IC increases from
+the initial voltage under soft-start control. This results in a controlled linear increase of the input current from 0
+A, thus reducing the current stress in the power components as can be seen in the yellow waveform in Figure
+19.
+
+
+
+
+Application Note                                          26                                                Revision 1.2
+                                                                                                             2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Test report
+
+
+
+
+Figure 19          Soft startup at low line with 1 kW output power
+
+
+
+
+Application Note                                          27         Revision 1.2
+                                                                      2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+Conclusion
+
+
+11                 Conclusion
+The 2.5 kW PFC evaluation board described in this document is aimed at analyzing the switching performance
+of different variants of packages in a very commonly used PFC topology. It helps to understand the switching
+behavior and parasitic influences. With the various option settings via jumpers it is possible to modify the
+circuit without changing the PCB layout. Therefore the evaluation board offers several investigation
+opportunities. Furthermore, it shows how to boost the efficiency in a standard PFC topology.
+
+
+
+
+Application Note                                     28                                             Revision 1.2
+                                                                                                     2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+References
+
+
+
+12                 References
+1. ICE3PCS01G datasheet,   Infineon Technologies AG, 2010.
+2. 600V CoolMOS™ C7 Power MOSFET , Product Brief, Infineon Technologies AG, 2013.
+3. IDH16G65C5 , datasheet, Infineon Technologies AG, 2012.
+
+
+
+
+Application Note                                   29                               Revision 1.2
+                                                                                     2015-11-02
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G
+
+
+
+
+Revision History
+Major changes since the last revision
+Page or Reference     Description of change
+           --         First Release
+
+
+
+
+Application Note                              30                 Revision 1.2
+                                                                  2015-11-02
+Trademarks of Infineon Technologies AG
+AURIX™, C166™, CanPAK™, CIPOS™, CoolGaN™, CoolMOS™, CoolSET™, CoolSiC™, CORECONTROL™, CROSSAVE™, DAVE™, DI-POL™, DrBlade™, EasyPIM™,
+EconoBRIDGE™, EconoDUAL™, EconoPACK™, EconoPIM™, EiceDRIVER™, eupec™, FCOS™, HITFET™, HybridPACK™, Infineon™, ISOFACE™, IsoPACK™,
+i-Wafer™, MIPAQ™, ModSTACK™, my-d™, NovalithIC™, OmniTune™, OPTIGA™, OptiMOS™, ORIGA™, POWERCODE™, PRIMARION™, PrimePACK™,
+PrimeSTACK™, PROFET™, PRO-SIL™, RASIC™, REAL3™, ReverSave™, SatRIC™, SIEGET™, SIPMOS™, SmartLEWIS™, SOLID FLASH™, SPOC™, TEMPFET™,
+thinQ!™, TRENCHSTOP™, TriCore™.
+
+Trademarks updated August 2015
+
+Other Trademarks
+All referenced product or service names and trademarks are the property of their respective owners.
+
+
+
+
+                                           IMPORTANT NOTICE
+Edition 2015-11-02                         The information contained in this application note     For further information on the product, technology,
+                                           is given as a hint for the implementation of the       delivery terms and conditions and prices please
+Published by                               product only and shall in no event be regarded as a    contact your nearest Infineon Technologies office
+                                           description or warranty of a certain functionality,    (www.infineon.com).
+Infineon Technologies AG                   condition or quality of the product. Before
+81726 Munich, Germany                      implementation of the product, the recipient of this
+                                           application note must verify any function and other    WARNINGS
+                                           technical information given herein in the real         Due to technical requirements products may
+©ifx1owners.
+   2015 Infineon Technologies AG.          application.    Infineon    Technologies    hereby     contain dangerous substances. For information on
+                                           disclaims any and all warranties and liabilities of    the types in question please contact your nearest
+All Rights Reserved.                       any kind (including without limitation warranties of   Infineon Technologies office.
+                                           non-infringement of intellectual property rights of
+Do you have a question about this          any third party) with respect to any and all
+                                           information given in this application note.            Except as otherwise explicitly approved by Infineon
+document?                                                                                         Technologies in a written document signed by
+                                                                                                  authorized      representatives     of     Infineon
+Email: erratum@infineon.com                The data contained in this document is exclusively     Technologies, Infineon Technologies’ products may
+                                           intended for technically trained staff. It is the      not be used in any applications where a failure of
+                                           responsibility of customer’s technical departments     the product or any consequences of the use thereof
+Document reference                         to evaluate the suitability of the product for the     can reasonably be expected to result in personal
+AN_201408_PL11_027                         intended application and the completeness of the       injury.
+                                           product information given in this document with
+                                           respect to such application.
+

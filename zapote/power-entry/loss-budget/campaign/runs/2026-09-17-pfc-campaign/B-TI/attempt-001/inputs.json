@@ -1,0 +1,290 @@
+{
+  "schema": "pfc-campaign-reference-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "B-TI",
+  "attempt_id": "attempt-001",
+  "kind": "reference_research",
+  "source_only": true,
+  "solver_invocations": 0,
+  "question": "Which specific model claims can this independent manufacturer reference test?",
+  "reference_identity": {
+    "id": "TI-TIDA-00779",
+    "doc_number": "TIDUBE1D",
+    "title": "230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size Reference Design",
+    "revision": "Rev D (August 2024); original January 2016",
+    "author": "Texas Instruments, Incorporated",
+    "primary_url": "https://www.ti.com/lit/ug/tidube1d/tidube1d.pdf",
+    "retained_copy": "raw/TIDUBE1D.pdf",
+    "retained_original_path": "zapote/power-entry/loss-budget/options/architecture-comparison/benchmark/TIDUBE1D.pdf",
+    "sha256": "1f2abaf8f7460ec110186d59f3d01624bdbd260d57ae7b7b698d0754c717d465",
+    "byte_size": 1028819,
+    "pdf_header": "%PDF-1.4",
+    "pdfinfo_version": "1.6",
+    "pages_pdfinfo": 17,
+    "pages_file_tool": 10,
+    "pages_note": "pdfinfo reports 17 pages; the BSD 'file' utility reported 10. Text extraction recovered 17 pages of content; the pdfinfo count is used.",
+    "page_size": "612 x 792 pts (letter)",
+    "created_modified_utc": "2024-08-29T09:31:03",
+    "creator": "Antenna House XSL Formatter V7.4 R1",
+    "copy_is_byte_identical_to_original": true,
+    "text_extraction": "raw/TIDUBE1D.pdftotext.txt",
+    "text_extraction_tool": "pdftotext (poppler) -layout"
+  },
+  "populated_circuit": {
+    "topology": "single-phase, non-interleaved, non-bridgeless continuous-conduction-mode (CCM) boost PFC; passive diode-bridge front end",
+    "topology_evidence": "Description p.1: 'continuous-conduction-mode (CCM) boost converter'; System Design Theory p.5; no interleaving, bridgeless, or totem-pole language anywhere in the retained document",
+    "controller": "UCC28180",
+    "gate_driver": "UCC27524 (dual low-side; 5 A source / 5 A sink peak ratings; 17 ns typical propagation delay)",
+    "gate_driver_evidence": "printed p.5 (Sec 2.2.2); printed p.8 lists 'UCC28180 PFC controller UCC27524 gate driver'",
+    "bias_supply": "UCC28881 on-board 15 V bias (700 V, 14 ohm integrated MOSFET)",
+    "boost_switch_mpn": "IPW60R099P6",
+    "boost_switch_rating": "600 V, 37.9 A at 25 C, 24 A at 100 C",
+    "boost_switch_positions": ["Q1", "Q6"],
+    "parallel_switch_count": 2,
+    "parallel_switch_count_confidence": "INFERRED",
+    "parallel_switch_count_evidence": "printed p.8 (Sec 2.3.8): 'Diode bridge BR1, MOSFET Q1, Q6, power diode D1, D3 are mounted on heatsink'. Two MOSFET designators on one shared heatsink in a single-boost topology, with a dual-channel driver documented as able to drive 'two switches in parallel with a single input signal' (printed p.5). Parallelism is strongly implied but never stated verbatim; the series/parallel connection and the per-device current-sharing ratio must come from the schematic/BOM, which is NOT contained in the retained PDF (Sec 4.1: 'Download all schematics at TIDA-00779').",
+    "boost_diode_positions": ["D1", "D3"],
+    "boost_diode_type": "not stated in the retained document (power diode type and count of parallel die unresolved)",
+    "gate_network": "22 ohm series gate resistor with an antiparallel 100 V / 1 A Schottky (or switching) diode for fast turn-off, plus 10 kohm gate-to-ground; gate drive clamped at 15.2 V internally",
+    "gate_network_evidence": "printed p.7 (Sec 2.3.4)",
+    "boost_inductor_h": 0.00018,
+    "boost_inductor_evidence": "printed p.6 (Sec 2.3.3): calculated Lmin 174 uH, 'actual value ... used is LMIN = 180 uH'",
+    "output_capacitance_selected_f": 0.00204,
+    "output_capacitance_evidence": "printed p.6 (Sec 2.3.2): 2286 uF calculated, 2040 uF selected",
+    "input_voltage_range_vac": [150, 270],
+    "input_voltage_range_tested_vac": [190, 270],
+    "line_frequency_hz": [47, 64],
+    "output_voltage_nominal_v": 380,
+    "output_voltage_calc_basis_v": 390,
+    "output_voltage_measured_v_range": [337.2, 406.2],
+    "output_voltage_mode": "boost follower: DC bus varies with peak line voltage (see Table 3-3)",
+    "output_ovp_v": 430,
+    "output_ocp_a": 12,
+    "max_output_power_w": 3500,
+    "pcb_size_mm": [200, 145]
+  },
+  "model_case_under_test": {
+    "source": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.json (baseline fields) and options/experiment-02/evidence/report.json",
+    "device": "IPW65R045C7 (650 V C7 MOSFET)",
+    "line_rms_v": 120.0,
+    "input_rms_a": 15.0,
+    "bus_v": 400.0,
+    "switching_hz": 129107.39198576905,
+    "effective_inductance_h": 0.00018,
+    "gate_bias_v": "12 V nominal (contract baseline_drive_v); retained no-assist report scenario uses 12.6 V",
+    "external_gate_r_ohm": "4.7 (contract); reported scenarios vary 10.0 / 15.0 / 18.5 by driver profile",
+    "claimed_overlap_term_w": {
+      "statement": "approximately 37 W switching-overlap loss on the boost switch",
+      "retained_report_no_assist_scenario": {
+        "profile": "no-assist",
+        "qgd_multiplier": 0.5,
+        "current_transfer_charge_c": 1e-08,
+        "rds_multiplier": 1.0,
+        "overlap_w": 37.517987209651146,
+        "eoss_w": 1.510556486233498,
+        "conduction_w": 6.479456491924886,
+        "gate_network_w": 0.15128804192892417,
+        "total_w": 45.65928822973845,
+        "turn_on_current_a": 11.927145603148093,
+        "turn_off_current_a": 15.02697491022746,
+        "switch_rms_a": 11.999496741229411
+      },
+      "contract_baseline_no_assist_subtotal_w": 45.502337474982966,
+      "contract_note": "partial switch/gate loss only; not a measurement and not whole-assembly. The overlap term is a component of this subtotal, not the subtotal itself."
+    }
+  },
+  "measured_operating_points": {
+    "switching_frequency": {
+      "value_khz": 45,
+      "actual_with_47k_freq_resistor_khz": 44,
+      "page": "printed p.5 (Sec 2.3.1); printed p.3 Table 1-1",
+      "evidence_class": "DESIGN_SPEC"
+    },
+    "boost_inductance_h": {
+      "value": 0.00018,
+      "page": "printed p.6 (Sec 2.3.3)",
+      "evidence_class": "DESIGN_SPEC"
+    },
+    "gate_bias_v": {
+      "value": 15,
+      "internal_clamp_v": 15.2,
+      "page": "printed p.7 (Sec 2.3.4); block diagram p.1/p.4",
+      "evidence_class": "DESIGN_SPEC",
+      "note": "15 V bias rail / 15.2 V clamp; not a measured gate-pin high level"
+    },
+    "efficiency_table_230v": {
+      "caption": "Table 3-1. Performance Data Under 230-V AC Input",
+      "page": "printed p.9",
+      "instrument": "Yokogawa WT500",
+      "columns": ["VINAC_V", "IINAC_A", "PINAC_W", "PF", "THDi_pct", "VOUT_V", "IOUT_A", "POUT_W", "EFFICIENCY_pct"],
+      "rows": [
+        {"VINAC_V": 229.80, "IINAC_A": 1.2858, "PINAC_W": 238.4, "PF": 0.9340, "THDi_pct": 22.925, "VOUT_V": 384.13, "IOUT_A": 0.6014, "POUT_W": 231.1, "EFFICIENCY_pct": 96.935, "consistent": false, "exclusion_reason": "P=VI*PF identity not satisfied: 229.80*1.2858*0.9340=276.0 W vs printed 238.4 W (light-load, THD 22.9%); excluded"},
+        {"VINAC_V": 229.31, "IINAC_A": 3.1522, "PINAC_W": 708.6, "PF": 1.0000, "THDi_pct": 6.7150, "VOUT_V": 383.29, "IOUT_A": 1.8114, "POUT_W": 694.4, "EFFICIENCY_pct": 97.989, "consistent": false, "exclusion_reason": "P=VI*PF: 229.31*3.1522*1.0=722.8 W vs printed 708.6 W (2.0% mismatch); excluded"},
+        {"VINAC_V": 228.82, "IINAC_A": 5.1921, "PINAC_W": 1177.1, "PF": 1.0000, "THDi_pct": 5.1510, "VOUT_V": 382.86, "IOUT_A": 3.0155, "POUT_W": 1154.9, "EFFICIENCY_pct": 98.117, "consistent": true},
+        {"VINAC_V": 228.60, "IINAC_A": 6.2260, "PINAC_W": 1413.0, "PF": 1.0000, "THDi_pct": 4.6050, "VOUT_V": 382.91, "IOUT_A": 3.6208, "POUT_W": 1386.6, "EFFICIENCY_pct": 98.128, "consistent": true, "note": "peak-efficiency row cited in Table 1-1"},
+        {"VINAC_V": 228.34, "IINAC_A": 7.2660, "PINAC_W": 1649.4, "PF": 1.0000, "THDi_pct": 4.4460, "VOUT_V": 382.70, "IOUT_A": 4.2285, "POUT_W": 1618.4, "EFFICIENCY_pct": 98.116, "consistent": true},
+        {"VINAC_V": 228.10, "IINAC_A": 8.2870, "PINAC_W": 1880.8, "PF": 1.0000, "THDi_pct": 4.1360, "VOUT_V": 382.54, "IOUT_A": 4.8229, "POUT_W": 1845.1, "EFFICIENCY_pct": 98.100, "consistent": true},
+        {"VINAC_V": 228.03, "IINAC_A": 8.4410, "PINAC_W": 1915.2, "PF": 1.0000, "THDi_pct": 4.0980, "VOUT_V": 382.38, "IOUT_A": 4.9120, "POUT_W": 1878.4, "EFFICIENCY_pct": 98.078, "consistent": true},
+        {"VINAC_V": 227.88, "IINAC_A": 9.3290, "PINAC_W": 2116.3, "PF": 1.0000, "THDi_pct": 3.6610, "VOUT_V": 382.34, "IOUT_A": 5.4272, "POUT_W": 2075.4, "EFFICIENCY_pct": 98.066, "consistent": true},
+        {"VINAC_V": 227.62, "IINAC_A": 11.3660, "PINAC_W": 2349.7, "PF": 1.0000, "THDi_pct": 3.6180, "VOUT_V": 382.10, "IOUT_A": 6.0270, "POUT_W": 2303.2, "EFFICIENCY_pct": 98.021, "consistent": false, "exclusion_reason": "P=VI*PF: 227.62*11.366*1.0=2587.1 W vs printed 2349.7 W (10.1% mismatch); excluded"},
+        {"VINAC_V": 227.33, "IINAC_A": 11.5400, "PINAC_W": 2513.6, "PF": 1.0000, "THDi_pct": 3.9840, "VOUT_V": 381.77, "IOUT_A": 6.7070, "POUT_W": 2560.7, "EFFICIENCY_pct": 97.974, "consistent": false, "exclusion_reason": "POUT (2560.7 W) > PIN (2513.6 W) while printed efficiency is 97.974%; PIN*eff=2462.7 W; excluded (this is the row flagged in benchmark/REPORT.md)"},
+        {"VINAC_V": 227.12, "IINAC_A": 12.5860, "PINAC_W": 2847.8, "PF": 1.0000, "THDi_pct": 3.8840, "VOUT_V": 381.84, "IOUT_A": 7.3030, "POUT_W": 2788.7, "EFFICIENCY_pct": 97.925, "consistent": true},
+        {"VINAC_V": 226.62, "IINAC_A": 14.6800, "PINAC_W": 3314.7, "PF": 1.0000, "THDi_pct": 4.2800, "VOUT_V": 381.55, "IOUT_A": 8.4970, "POUT_W": 3242.4, "EFFICIENCY_pct": 97.820, "consistent": true, "reported_loss_w": 72.3},
+        {"VINAC_V": 226.32, "IINAC_A": 15.7430, "PINAC_W": 3550.4, "PF": 1.0000, "THDi_pct": 4.5440, "VOUT_V": 381.32, "IOUT_A": 9.1020, "POUT_W": 3471.1, "EFFICIENCY_pct": 97.767, "consistent": true},
+        {"VINAC_V": 226.07, "IINAC_A": 16.7750, "PINAC_W": 3778.5, "PF": 1.0000, "THDi_pct": 4.8880, "VOUT_V": 381.17, "IOUT_A": 9.6860, "POUT_W": 3692.1, "EFFICIENCY_pct": 97.714, "consistent": true, "reported_loss_w": 86.4, "note": "highest measured input power; still 226 V line, not 120 V"}
+      ]
+    },
+    "efficiency_table_270v": {
+      "caption": "Table 3-2. Performance Data Under 270-V AC Input",
+      "page": "printed p.10",
+      "instrument": "HIOKI PW8001",
+      "columns": ["VINAC_V", "IINAC_A", "PINAC_W", "PF", "THDi_pct", "VOUT_V", "IOUT_A", "POUT_W", "EFFICIENCY_pct"],
+      "rows": [
+        {"VINAC_V": 270.21, "IINAC_A": 0.3530, "PINAC_W": 43.5, "PF": 0.4557, "THDi_pct": 21.522, "VOUT_V": 403.28, "IOUT_A": 0.0952, "POUT_W": 38.3, "EFFICIENCY_pct": 88.188, "consistent": true},
+        {"VINAC_V": 269.75, "IINAC_A": 2.2216, "PINAC_W": 584.3, "PF": 0.9750, "THDi_pct": 10.833, "VOUT_V": 402.74, "IOUT_A": 1.4202, "POUT_W": 572.0, "EFFICIENCY_pct": 97.866, "consistent": true},
+        {"VINAC_V": 269.62, "IINAC_A": 2.7825, "PINAC_W": 738.1, "PF": 0.9838, "THDi_pct": 6.930, "VOUT_V": 403.20, "IOUT_A": 1.7962, "POUT_W": 724.2, "EFFICIENCY_pct": 98.122, "consistent": true},
+        {"VINAC_V": 269.35, "IINAC_A": 3.9289, "PINAC_W": 1047.6, "PF": 0.9899, "THDi_pct": 6.309, "VOUT_V": 402.99, "IOUT_A": 2.5542, "POUT_W": 1029.3, "EFFICIENCY_pct": 98.257, "consistent": true},
+        {"VINAC_V": 269.26, "IINAC_A": 4.3476, "PINAC_W": 1160.4, "PF": 0.9915, "THDi_pct": 5.839, "VOUT_V": 402.39, "IOUT_A": 2.8338, "POUT_W": 1140.3, "EFFICIENCY_pct": 98.267, "consistent": true},
+        {"VINAC_V": 269.13, "IINAC_A": 4.9228, "PINAC_W": 1315.0, "PF": 0.9925, "THDi_pct": 5.578, "VOUT_V": 402.80, "IOUT_A": 3.2086, "POUT_W": 1292.4, "EFFICIENCY_pct": 98.283, "consistent": true},
+        {"VINAC_V": 268.88, "IINAC_A": 5.7564, "PINAC_W": 1538.5, "PF": 0.9940, "THDi_pct": 4.957, "VOUT_V": 402.34, "IOUT_A": 3.7596, "POUT_W": 1512.6, "EFFICIENCY_pct": 98.320, "consistent": true},
+        {"VINAC_V": 268.76, "IINAC_A": 6.3351, "PINAC_W": 1693.6, "PF": 0.9949, "THDi_pct": 4.693, "VOUT_V": 402.43, "IOUT_A": 4.1381, "POUT_W": 1665.3, "EFFICIENCY_pct": 98.330, "consistent": true},
+        {"VINAC_V": 268.69, "IINAC_A": 6.9090, "PINAC_W": 1847.3, "PF": 0.9952, "THDi_pct": 4.417, "VOUT_V": 402.26, "IOUT_A": 4.5154, "POUT_W": 1816.4, "EFFICIENCY_pct": 98.325, "consistent": true},
+        {"VINAC_V": 268.45, "IINAC_A": 7.6492, "PINAC_W": 2044.7, "PF": 0.9957, "THDi_pct": 4.192, "VOUT_V": 402.26, "IOUT_A": 4.9973, "POUT_W": 2.0102, "EFFICIENCY_pct": 98.314, "consistent": false, "exclusion_reason": "POUT field printed 2.0102 W; VOUT*IOUT=2010.2 W and PIN*eff=2010.2 W; decimal-field defect; excluded"},
+        {"VINAC_V": 268.43, "IINAC_A": 7.9106, "PINAC_W": 2114.7, "PF": 0.9959, "THDi_pct": 4.059, "VOUT_V": 402.06, "IOUT_A": 5.1706, "POUT_W": 2078.9, "EFFICIENCY_pct": 98.305, "consistent": true},
+        {"VINAC_V": 268.32, "IINAC_A": 8.2264, "PINAC_W": 2.1985, "PF": 0.9960, "THDi_pct": 4.050, "VOUT_V": 402.17, "IOUT_A": 5.3746, "POUT_W": 2161.5, "EFFICIENCY_pct": 98.316, "consistent": false, "exclusion_reason": "PIN field printed 2.1985 W; VIN*IIN*PF=2198.0 W; POUT>PIN; decimal-field defect; excluded"},
+        {"VINAC_V": 268.27, "IINAC_A": 8.6359, "PINAC_W": 2308.0, "PF": 0.9962, "THDi_pct": 3.866, "VOUT_V": 401.69, "IOUT_A": 5.6469, "POUT_W": 2268.3, "EFFICIENCY_pct": 98.279, "consistent": true},
+        {"VINAC_V": 268.04, "IINAC_A": 9.6551, "PINAC_W": 2578.8, "PF": 0.9965, "THDi_pct": 3.929, "VOUT_V": 402.03, "IOUT_A": 6.3033, "POUT_W": 2534.1, "EFFICIENCY_pct": 98.265, "consistent": true},
+        {"VINAC_V": 267.91, "IINAC_A": 10.0657, "PINAC_W": 2687.4, "PF": 0.9966, "THDi_pct": 3.869, "VOUT_V": 401.77, "IOUT_A": 6.5735, "POUT_W": 2687.4, "EFFICIENCY_pct": 98.274, "consistent": false, "exclusion_reason": "POUT field printed equal to PINAC (2687.4 W); VOUT*IOUT=2640.9 W and PIN*eff=2640.9 W; excluded"},
+        {"VINAC_V": 267.74, "IINAC_A": 10.9498, "PINAC_W": 2922.0, "PF": 0.9967, "THDi_pct": 4.003, "VOUT_V": 401.91, "IOUT_A": 7.1443, "POUT_W": 2871.4, "EFFICIENCY_pct": 98.270, "consistent": true},
+        {"VINAC_V": 267.05, "IINAC_A": 14.0000, "PINAC_W": 3726.6, "PF": 0.9968, "THDi_pct": 4.471, "VOUT_V": 401.39, "IOUT_A": 9.1110, "POUT_W": 3656.7, "EFFICIENCY_pct": 98.126, "consistent": true},
+        {"VINAC_V": 266.92, "IINAC_A": 14.4043, "PINAC_W": 3832.5, "PF": 0.9968, "THDi_pct": 4.445, "VOUT_V": 400.85, "IOUT_A": 9.3793, "POUT_W": 3759.7, "EFFICIENCY_pct": 98.101, "consistent": true}
+      ]
+    },
+    "line_to_bus_map": {
+      "caption": "Table 3-3. Standby Power and Output Voltage (also the boost-follower line-to-bus map)",
+      "page": "printed p.10",
+      "rows": [
+        {"VINAC_V": 150, "IINAC_mA": 150.2, "PINAC_W": 3.1, "VOUT_V": 337.2},
+        {"VINAC_V": 160, "IINAC_mA": 173.7, "PINAC_W": 3.1, "VOUT_V": 342.6},
+        {"VINAC_V": 170, "IINAC_mA": 179.0, "PINAC_W": 3.1, "VOUT_V": 348.2},
+        {"VINAC_V": 180, "IINAC_mA": 183.9, "PINAC_W": 3.0, "VOUT_V": 353.7},
+        {"VINAC_V": 190, "IINAC_mA": 191.9, "PINAC_W": 3.1, "VOUT_V": 359.2},
+        {"VINAC_V": 200, "IINAC_mA": 199.1, "PINAC_W": 3.0, "VOUT_V": 364.7},
+        {"VINAC_V": 210, "IINAC_mA": 207.6, "PINAC_W": 3.0, "VOUT_V": 370.2},
+        {"VINAC_V": 220, "IINAC_mA": 215.9, "PINAC_W": 3.0, "VOUT_V": 375.8},
+        {"VINAC_V": 230, "IINAC_mA": 223.7, "PINAC_W": 2.9, "VOUT_V": 381.3},
+        {"VINAC_V": 240, "IINAC_mA": 233.5, "PINAC_W": 3.1, "VOUT_V": 386.9},
+        {"VINAC_V": 250, "IINAC_mA": 242.6, "PINAC_W": 3.2, "VOUT_V": 392.4},
+        {"VINAC_V": 260, "IINAC_mA": 251.3, "PINAC_W": 3.2, "VOUT_V": 397.9},
+        {"VINAC_V": 270, "IINAC_mA": 259.7, "PINAC_W": 3.0, "VOUT_V": 403.4},
+        {"VINAC_V": 275, "IINAC_mA": 265.1, "PINAC_W": 3.2, "VOUT_V": 406.2}
+      ]
+    },
+    "device_temperatures": {
+      "published": "thermal images only (Figure 3-9, printed p.14)",
+      "numeric_values_in_text_layer": false,
+      "conditions": "room temperature 25 C, closed enclosure, no airflow, full load, 30 minutes before capture; heatsink cooled by two 27 CFM / 24 VDC / 2.64 W fans, one on each side",
+      "page": "printed p.14 (Sec 3.2.4)",
+      "evidence_class": "NOT_AVAILABLE_AS_NUMBERS",
+      "note": "No per-device bias current or junction temperature is published as a number; MOSFET/IGBT die temperatures must not be inferred from a thermal image label."
+    },
+    "switching_waveforms": {
+      "figure_3_6_turn_on": {"page": "printed p.13", "channels": ["CH1 MOSFET gate voltage", "CH2 AC input voltage", "CH3 MOSFET drain-to-source voltage", "CH4 AC input current"]},
+      "figure_3_7_turn_off": {"page": "printed p.13", "channels": ["CH1 MOSFET gate voltage", "CH2 AC input voltage", "CH3 MOSFET drain-to-source voltage", "CH4 AC input current"]},
+      "figure_3_8_full_load": {"page": "printed p.14", "channels": ["CH1 DC output voltage", "CH2 AC input voltage", "CH4 AC input current"], "condition": "3.5 kW, 230 VAC, 17.5 V output ripple"},
+      "numeric_axes_in_text_layer": false,
+      "evidence_class": "IMAGE_ONLY"
+    }
+  },
+  "waveform_observability": {
+    "publishes_raw_switching_waveforms": "partial",
+    "publishes_measured_Eon_Eoff": false,
+    "publishes_per_device_loss": false,
+    "publishes_whole_board_efficiency": true,
+    "whole_board_efficiency_is_not_event_energy": "EXPLICIT: Table 3-1/3-2 Pin and Pout are whole-board, whole-line-cycle input/output powers from a power analyzer. They are NOT a per-device turn-on/turn-off energy (Eon/Eoff) measurement and cannot be treated as one.",
+    "why_event_energy_cannot_be_extracted": [
+      "Figures 3-6/3-7 show gate voltage and drain-to-source voltage but CH4 is AC input current, not the boost switch drain current; no current probe on the switch transition is published.",
+      "No numeric time base, amplitude values, or vertical/horizontal scale values are present in the document text layer for Figures 3-6/3-7; only the image exists.",
+      "The line phase and load at which Figures 3-6/3-7 were captured are not stated, so no event current is associated with them.",
+      "No commutation/diode-recovery energy, no loop-inductance value, and no ringing data are published.",
+      "No de-embedding or probe-bandwidth statement accompanies the switching figures."
+    ],
+    "conclusion": "The reference supports a whole-board efficiency/topology comparison only. It does not expose any per-event switching energy, event current, gate-current waveform, or per-device loss."
+  },
+  "applicability_table": [
+    {"model_input": "bus_v", "model_case_value": 400.0, "unit": "V", "evidence_class": "MEASURED_WHOLE_BOARD", "source_row": "Table 3-1/3-2 VOUT column; Table 3-3 line->VOUT; Figures 3-2/3-3", "page": "printed pp.9-11", "source_value": "381.17 V at 226.07 VAC full load; 400.85-403.28 V at 266.92-270.21 VAC", "source_conditions": "steady-state DC bus, boost-follower (bus tracks line)", "status": "SOURCED_BUT_NO_MATCHING_POINT", "reason": "Bus follows line: 400 V is reached only near 270 V line. There is no TI row with a low line (120 V) and a 400 V bus. The model case (120 V line, 400 V bus) does not exist in the reference."},
+    {"model_input": "switching_hz", "model_case_value": 129107.39198576905, "unit": "Hz", "evidence_class": "DESIGN_SPEC", "source_row": "Sec 2.3.1 'This design uses a 45kHz switching frequency'; Table 1-1", "page": "printed p.5; p.3", "source_value": "45000 Hz (44000 Hz with the 47 kohm FREQ resistor actually fitted)", "source_conditions": "controller FREQ pin", "status": "SOURCED_MISMATCH", "reason": "45 kHz design / 44 kHz actual vs 129.107 kHz model case: 2.87x frequency mismatch; overlap loss scales with frequency."},
+    {"model_input": "turn_on_current_a", "model_case_value": 11.927145603148093, "unit": "A", "evidence_class": "UNKNOWN", "source_row": "none", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "The reference publishes only AC input RMS current and output DC current. No boost-switch instantaneous turn-on drain current is published; Figures 3-6/3-7 carry no drain-current channel and no numeric values."},
+    {"model_input": "turn_off_current_a", "model_case_value": 15.02697491022746, "unit": "A", "evidence_class": "UNKNOWN", "source_row": "none", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "Same as turn_on_current_a: no instantaneous switch drain current is published."},
+    {"model_input": "switch_rms_a", "model_case_value": 11.999496741229411, "unit": "A", "evidence_class": "UNKNOWN", "source_row": "none", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "Duty-weighted per-switch RMS is not published. IINAC is line-frequency input RMS and is not the switch RMS (substituting one for the other is the EVENT_CURRENT/CURRENT_MOMENT category error the repo forbids)."},
+    {"model_input": "gate_bias_v", "model_case_value": 12.6, "unit": "V", "evidence_class": "DESIGN_SPEC", "source_row": "Sec 2.3.4 gate output clamped at 15.2 V; UCC27524 VDD 15 V", "page": "printed p.7", "source_value": 15.2, "source_conditions": "VCC bias > 15.2 V", "status": "SOURCED_APPROXIMATE_MISMATCH", "reason": "Reference is a 15 V rail / 15.2 V internal clamp, not a measured gate-pin high level. Model case uses 12.6 V. Bias differs and the reference value is a design label, not a waveform."},
+    {"model_input": "qg_c", "model_case_value": 9.3e-08, "unit": "C", "evidence_class": "UNKNOWN", "source_row": "not in TIDUBE1D", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "The retained design guide does not publish device charge values; it names IPW60R099P6 and its voltage/current ratings only. Device-datasheet extraction (separate primary source) would be required."},
+    {"model_input": "qgd_c", "model_case_value": 1.5e-08, "unit": "C", "evidence_class": "UNKNOWN", "source_row": "not in TIDUBE1D", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "Not published in the reference; and the model case multiplies Qgd by a hidden factor (0.5/1.0/1.5) that no reference can constrain."},
+    {"model_input": "current_transfer_charge_c", "model_case_value": 1e-08, "unit": "C", "evidence_class": "UNKNOWN", "source_row": "none", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "Never published, and per the repo rule it must not be derived as Qg-Qgd or from total Qgs. The model case itself carries it as an explicit assumption (5e-9 / 1e-8 / 2e-8)."},
+    {"model_input": "gate_plateau_v", "model_case_value": 5.4, "unit": "V", "evidence_class": "UNKNOWN", "source_row": "not in TIDUBE1D", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "No Miller plateau voltage is published in the reference."},
+    {"model_input": "external_gate_r_ohm", "model_case_value": "10.0 (input) resolved to applied 10.86 / 15.0 / 18.5 by profile", "unit": "ohm", "evidence_class": "DESIGN_SPEC", "source_row": "Sec 2.3.4 'This design uses a 22 ohm resistor'", "page": "printed p.7", "source_value": 22.0, "source_conditions": "series gate resistor, with antiparallel Schottky for turn-off", "status": "SOURCED_MISMATCH", "reason": "Reference turn-on path is 22 ohm; model case uses a hypothetical 1.04/5.0/8.5 ohm driver-output-resistance assist on top of 10 ohm. The 22 ohm is real but different, and the model's driver profiles are hypothetical."},
+    {"model_input": "intrinsic_gate_r_ohm", "model_case_value": 0.85, "unit": "ohm", "evidence_class": "UNKNOWN", "source_row": "not in TIDUBE1D", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "Device internal gate resistance not published in the reference."},
+    {"model_input": "driver_source_peak_a", "model_case_value": 5.0, "unit": "A", "evidence_class": "RATING_NOT_IV_CURVE", "source_row": "Sec 2.2.2 'up to 5A source'", "page": "printed p.5", "source_value": 5.0, "source_conditions": "capacitive-load peak pulse rating", "status": "SOURCED_RATING_ONLY", "reason": "A 5 A peak rating is not a dynamic source I-V curve or output impedance; the repo explicitly forbids inferring actual driver output impedance from the headline current."},
+    {"model_input": "driver_sink_peak_a", "model_case_value": 5.0, "unit": "A", "evidence_class": "RATING_NOT_IV_CURVE", "source_row": "Sec 2.2.2 '5A sink'", "page": "printed p.5", "source_value": 5.0, "source_conditions": "capacitive-load peak pulse rating", "status": "SOURCED_RATING_ONLY", "reason": "Same as driver_source_peak_a."},
+    {"model_input": "coss_energy_j", "model_case_value": 1.17e-05, "unit": "J", "evidence_class": "UNKNOWN", "source_row": "not in TIDUBE1D", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "No output-capacitance energy is published in the reference."},
+    {"model_input": "loop_inductance_h", "model_case_value": 1e-08, "unit": "H", "evidence_class": "UNKNOWN", "source_row": "none", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "Commutation-loop inductance is not published. The model case carries it as an explicit 10 nH assumption."},
+    {"model_input": "rds_on_ohm", "model_case_value": "0.045 / 0.09 (rds_multiplier 1.0/2.0)", "unit": "ohm", "evidence_class": "UNKNOWN", "source_row": "not in TIDUBE1D", "page": "n/a", "source_value": null, "source_conditions": null, "status": "UNKNOWN", "reason": "The reference names the device but publishes no RDS(on); a temperature-resolved value would come from the device datasheet."},
+    {"model_input": "timestep_s", "model_case_value": 2.5e-10, "unit": "s", "evidence_class": "NOT_APPLICABLE", "source_row": "n/a", "page": "n/a", "source_value": null, "source_conditions": null, "status": "NOT_APPLICABLE", "reason": "Numerical integration timestep chosen by the model, not a physical input a reference can supply."},
+    {"model_input": "GatePath.turn_on_external_r_ohm", "model_case_value": "10.86 / 15.0 / 18.5", "unit": "ohm", "evidence_class": "DESIGN_SPEC", "source_row": "Sec 2.3.4 22 ohm plus driver output path", "page": "printed p.7", "source_value": 22.0, "source_conditions": "turn-on through 22 ohm", "status": "SOURCED_MISMATCH", "reason": "Turn-on external resistance is real (22 ohm) but the driver's series output path is unknown, so the applied value cannot be matched."},
+    {"model_input": "GatePath.turn_off_external_r_ohm", "model_case_value": "10.6 / 11.1 / 5.8 by profile", "unit": "ohm", "evidence_class": "UNKNOWN", "source_row": "Sec 2.3.4 antiparallel Schottky", "page": "printed p.7", "source_value": null, "source_conditions": "turn-off through an unspecified antiparallel diode", "status": "UNKNOWN", "reason": "The turn-off path is a diode, not a resistor. Its dynamic forward resistance at gate-drive currents is not published, so the turn-off external resistance cannot be resolved from the reference."},
+    {"model_input": "line_rms_v (pfc_currents)", "model_case_value": 120.0, "unit": "V", "evidence_class": "MEASURED", "source_row": "Table 3-1/3-2 VINAC column", "page": "printed pp.9-10", "source_value": "226.07-229.80 VAC (230 V table); 266.92-270.21 VAC (270 V table)", "source_conditions": "line input", "status": "SOURCED_NO_MATCHING_POINT", "reason": "The reference never tests below 190 VAC; there is no 120 V operating point to compare with."},
+    {"model_input": "input_power_w (pfc_currents)", "model_case_value": 1796.31003212911, "unit": "W", "evidence_class": "MEASURED_WHOLE_BOARD", "source_row": "Table 3-1/3-2 PINAC column", "page": "printed pp.9-10", "source_value": "up to 3778.5 W (230 V) and 3832.5 W (270 V)", "source_conditions": "whole-board input power", "status": "SOURCED_BUT_DIFFERENT_ASSEMBLY", "reason": "TI's measured Pin is for the whole board at 226-270 V line; the model case is 1796.31 W at 120 V. Not a matched comparison."},
+    {"model_input": "input_rms_ceiling_a (pfc_currents)", "model_case_value": 15.0, "unit": "A", "evidence_class": "MEASURED", "source_row": "Table 3-1/3-2 IINAC column", "page": "printed pp.9-10", "source_value": "16.775 A max (230 V); 14.404 A max (270 V)", "source_conditions": "true RMS input current", "status": "SOURCED_BUT_DIFFERENT_POINT", "reason": "Whole-board input RMS only; not a per-switch quantity."}
+  ],
+  "claim_testability": [
+    {
+      "claim": "Approximately 37 W switching-overlap loss on the boost switch at 120 V / 15 A / 400 V bus / 129.107 kHz (no-assist retained C7 case)",
+      "verdict": "NOT_TESTABLE_FROM_THIS_REFERENCE",
+      "reasons": [
+        "Operating point mismatch: no TI row at 120 V line, and the TI bus is a boost follower (400 V bus only near 270 V line).",
+        "Frequency mismatch: 45 kHz design / 44 kHz actual vs 129.107 kHz.",
+        "Device mismatch: IPW60R099P6 (600 V, 2 parallel) vs IPW65R045C7 (650 V, single-device model parameters).",
+        "Parallel-count mismatch: TI populates 2 MOSFETs (Q1, Q6) on a shared heatsink; the model's 37 W is a per-switch partial loss with no parallel sharing applied.",
+        "No switch event current, no per-switch RMS, no Eon/Eoff, no drain-current waveform, no per-device loss is published.",
+        "Qgd, current-transfer charge, plateau voltage, Eoss, loop inductance and RDS(on) are not published in the reference."
+      ]
+    },
+    {
+      "claim": "A single-phase, non-interleaved CCM boost PFC with parallel MOSFETs using a 180 uH inductor can achieve >98% whole-board efficiency at 45 kHz and 230 V / up to 3.5 kW",
+      "verdict": "TESTABLE_AS_WHOLE_BOARD_ARCHITECTURE_REFERENCE",
+      "reasons": [
+        "Table 3-1 publishes measured whole-board Pin/Pout at 226-230 V, up to 3778.5 W in and 97.714-98.128% efficiency.",
+        "This is an architecture/whole-board plausibility reference only; it validates no switching-energy model term and must not be ranked against the model's partial per-switch loss."
+      ]
+    },
+    {
+      "claim": "The whole-assembly loss of the model's 120 V / 400 V / 129 kHz design is below some measured bound",
+      "verdict": "NOT_TESTABLE",
+      "reasons": [
+        "Whole-board Pin-Pout can bound a fully assembled model only at the same device, operating point and accounting boundary.",
+        "The model's published subtotal is a partial switch/gate loss (45.50 W no-assist) on a different device/point with an incomplete assembly ledger; comparing it against TI's 72.3-86.4 W whole-board loss is not a bound."
+      ]
+    }
+  ],
+  "source_failures": [
+    {"row": "Table 3-1, VINAC=227.33 V", "page": "printed p.9", "failure": "POUT (2560.7 W) > PIN (2513.6 W) while the printed efficiency is 97.974%; PIN*eff=2462.7 W. Internally inconsistent; excluded from all use."},
+    {"row": "Table 3-2, VINAC=268.45 V", "page": "printed p.10", "failure": "POUT field printed 2.0102 W; VOUT*IOUT=2010.2 W and PIN*eff=2010.2 W. Decimal-field defect; excluded."},
+    {"row": "Table 3-2, VINAC=268.32 V", "page": "printed p.10", "failure": "PIN field printed 2.1985 W; VIN*IIN*PF=2198.0 W, so POUT (2161.5 W) incorrectly exceeds the printed PIN. Decimal-field defect; excluded."},
+    {"row": "Table 3-2, VINAC=267.91 V", "page": "printed p.10", "failure": "POUT field printed equal to PINAC (2687.4 W); VOUT*IOUT=2640.9 W and PIN*eff=2640.9 W. Excluded."},
+    {"row": "Table 3-1, VINAC=229.80 V, 229.31 V, 227.62 V", "page": "printed p.9", "failure": "P=VI*PF identity not satisfied (276.0 vs 238.4; 722.8 vs 708.6; 2587.1 vs 2349.7 W). Table fields are mutually inconsistent at these rows; excluded."},
+    {"row": "Sec 4.1/4.2 Design Files", "page": "printed p.15", "failure": "Schematic and BOM are external downloads (TIDA-00779) and are not contained in the retained PDF. Parallel-MOSFET connection and per-device sharing cannot be confirmed from the retained bytes."}
+  ],
+  "unknowns_summary": {
+    "event_currents": null,
+    "switch_rms": null,
+    "measured_eon_eoff": null,
+    "per_device_loss": null,
+    "device_charges_and_eoss": null,
+    "loop_inductance": null,
+    "rds_on_temperature_resolved": null,
+    "device_junction_temperatures": null,
+    "parallel_current_sharing_ratio": null,
+    "turn_off_diode_dynamic_resistance": null
+  },
+  "most_important_missing_source_row": "A measured per-switch switching-transition capture on the boost MOSFET (or MOSFET pair) with simultaneous drain current and drain-source voltage on a stated time base, at a stated line phase and load, yielding the turn-on and turn-off event currents (and Eon/Eoff). TI publishes gate voltage, AC input voltage, Vds and AC input current only (Figures 3-6/3-7, printed p.13); it publishes no drain current, no event energy and no per-device loss."
+}

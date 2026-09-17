@@ -1,0 +1,126 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "template_only": false,
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "K-SILICON",
+  "attempt_id": "attempt-001",
+  "contract_sha256": "3bf1125fe37e8df6a493449ec5edfa01082fdd9e40a8d5d724147b388737f183",
+  "source_revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+  "model_source_sha256": null,
+  "model_source_sha256_note": "not_applicable: source-only task; no solver invocation issued (dispatch max_solver_invocations = 0)",
+  "binary_sha256": null,
+  "checker_sha256": null,
+  "checker_sha256_note": "not_applicable: G0 checker unimplemented (dispatch)",
+  "dirty_state": "untracked-only",
+  "dirty_state_detail": "git status --short at attempt start: untracked docs/plans/2026-09-17-1342-pfc-experiment-campaign-plan.md, untracked docs/plans/2026-09-17-pfc-experiment-campaign/, untracked zapote/packages/zapote-harness/tests/frequency_lf_axis_probe.rs. No tracked-file modifications. No files were committed.",
+  "requested_model": null,
+  "requested_model_note": "not restated in the dispatch packet; registry default is gpt-5.6-luna",
+  "served_model_receipt": null,
+  "task_completion": "FINISHED",
+  "task_completion_note": "Assignment was capture the exact IPZ60R040C7 datasheet and extract the six Device parameters with conditions. PDF captured and hashed; all six parameters sourced with page/figure, condition and typical/guaranteed status.",
+  "evidence_status": "NOT_REVIEWED",
+  "evidence_status_note": "Primary-source bytes captured and self-verified (PDF header, pdfinfo page count, pdftotext, page renders). Not independently reviewed; no checker ran.",
+  "numerical_status": "NOT_RUN",
+  "physical_applicability": "INDETERMINATE",
+  "physical_applicability_note": "Source-only. The six numbers exist but their drive-bias match to the campaign's proposed gate bias is unresolved: all gate-charge and RDS(on) values are 0/+10 V, and the campaign gate treats a -5/+18 V number as inapplicable at 0/+15 V. No hardware or switching-energy evidence.",
+  "assembly_completeness": "INCOMPLETE",
+  "hardware_qualification": "NOT_PERFORMED",
+  "hypothesis": "Can an exact Kelvin-source device plus its required drive/thermal assembly beat the common reference? This attempt only establishes the exact device parameters for IPZ60R040C7; it does not test the hypothesis.",
+  "actual_changed_variables": [
+    "source_capture.IPZ60R040C7_datasheet (Rev. 2.0, 2015-05-08): captured, hashed, and six Device parameters extracted"
+  ],
+  "controls": [],
+  "device_parameters": {
+    "model_consumer": "pfc_drive_experiment::Device (zapote/packages/zapote-harness/src/pfc_drive_experiment.rs:42) -> zapote_erc::pfc_switching::Config",
+    "device": "IPZ60R040C7",
+    "source_pdf_sha256": "b1ea13f87f17a27336ea5a25ef01bad2d154c54140d8a4b1307e5f0289d6c089",
+    "source_revision": "Rev. 2.0, 2015-05-08",
+    "gate_bias_of_all_gate_side_values": "VGS = 0 to 10 V",
+    "parameters": [
+      { "name": "qg_c", "value": 1.07e-7, "unit": "C", "condition": "VDD=400 V, ID=24.9 A, VGS=0 to 10 V", "page_figure": "p.6 Table 6; p.2 Table 1", "typical_or_guaranteed": "typical" },
+      { "name": "qgd_c", "value": 3.6e-8, "unit": "C", "condition": "VDD=400 V, ID=24.9 A, VGS=0 to 10 V", "page_figure": "p.6 Table 6", "typical_or_guaranteed": "typical" },
+      { "name": "plateau_v", "value": 5.0, "unit": "V", "condition": "VDD=400 V, ID=24.9 A, VGS=0 to 10 V", "page_figure": "p.6 Table 6; p.10 Diagram 10", "typical_or_guaranteed": "typical" },
+      { "name": "intrinsic_gate_r_ohm", "value": 0.77, "unit": "ohm", "condition": "f=1 MHz, open drain", "page_figure": "p.6 Table 4 (RG)", "typical_or_guaranteed": "typical" },
+      { "name": "eoss_j", "value": 1.26e-5, "unit": "J", "condition": "VDS=400 V; Co(er)=158 pF at VGS=0 V, VDS=0...400 V", "page_figure": "p.2 Table 1; p.11 Diagram 15", "typical_or_guaranteed": "typical" },
+      { "name": "rds_max_ohm", "value": 0.040, "unit": "ohm", "condition": "VGS=10 V, ID=24.9 A, Tj=25 degC", "page_figure": "p.6 Table 4; p.2 Table 1", "typical_or_guaranteed": "guaranteed (Max column)" }
+    ],
+    "null_parameters": [],
+    "unsourced_note": "No parameter is null. One applicability gap: the datasheet publishes no 0/+15 V or -5/+18 V gate-charge, plateau, switching-energy or switching-time data for this part, so a 0/+15 V campaign case cannot be populated from this document alone. Hot RDS(on) is typical-only (0.077 ohm at Tj=150 degC), no guaranteed maximum."
+  },
+  "case_census": {
+    "expected": null,
+    "expected_note": "source-only task; no solver case grid issued (max_solver_invocations = 0)",
+    "attempted": 0,
+    "valid": 0,
+    "failed": 0,
+    "unsupported": 0,
+    "unrun": null,
+    "case_ids": []
+  },
+  "cases": [],
+  "case_record_instructions": "Each case must contain ID; requested and achieved inputs; raw artifact refs/hashes; tool outcome; solved true RMS and event/component moments; source-conditioned temperature; named loss ledger; uncertainty and model domain; per-case findings. Copy ledger_template into each case; do not use one aggregate to conceal failures. G0 implements and publishes the exact typed schema.",
+  "ledger_template": [
+    { "term": "mosfet_conduction", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "switching_commutation", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "gate_network", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "driver_static", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "boost_diode", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "input_rectification", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "inductor_dc", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "inductor_ac", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "inductor_core", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "shunt", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "capacitor_esr", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "emi_components", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "pcb_vias_contacts_fuse_relay_ntc", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "controller_aux_conversion", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" },
+    { "term": "cooling_electrical", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": { "kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null }, "missing_evidence": "no solver run issued for this source-only task" }
+  ],
+  "supported_subtotals": [],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+  "assembly_cost": { "value": null, "currency": null, "quantity_basis": null, "observation_date": null, "coverage": [] },
+  "assembly_volume_mm3": null,
+  "temperature_predictions": [],
+  "constraint_findings": [
+    {
+      "finding": "Gate-bias applicability gap",
+      "detail": "All four gate-side extracted values (qg_c, qgd_c, plateau_v) and rds_max_ohm are specified at VGS=0 to 10 V / VGS=10 V only. The campaign rule (WORKER.md: -5/+18 V numbers are not applicable at 0/+15 V) applies symmetrically: 0/+10 V charge values are not the 0/+15 V charge values. No 0/+15 V or 15 V-drive switching energy exists in this datasheet."
+    },
+    {
+      "finding": "No switching-energy data at any gate bias",
+      "detail": "The datasheet publishes no Eon/Eoff (inductive-load switching energy) curves. Diagram 10 (VGS=f(Qgate)) and Tables 5/9 give switching times, not energies. Switching energy must come from a different source or from the maintained model."
+    },
+    {
+      "finding": "Hot RDS(on) is typical-only",
+      "detail": "Tj=150 degC RDS(on) is 0.077 ohm typical, no maximum and no stated 25->150 degC guarantee factor. A hot guaranteed bound is not available from this document."
+    }
+  ],
+  "unsupported_cases": [],
+  "source_failures": [],
+  "tool_failures": [],
+  "raw_artifacts": [
+    { "kind": "datasheet_pdf", "path": "raw/IPZ60R040C7-infineon.pdf", "sha256": "b1ea13f87f17a27336ea5a25ef01bad2d154c54140d8a4b1307e5f0289d6c089", "bytes": 1553797, "source_url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipz60r040c7-datasheet-en.pdf" },
+    { "kind": "http_headers", "path": "raw/headers-infineon.txt", "sha256": "0e2df6eb466a40255082e39443652edf4ba18bbdb136021669583ed2d955353a" },
+    { "kind": "manufacturer_product_page_html", "path": "raw/product-page-IPZ60R040C7.html", "sha256": "430fe02a6d4b8063095a15740707ff8ce599b896a982582a6b45efea1be1e61f", "note": "ordering-code (OPN) observation only, NOT a datasheet and NOT device performance" },
+    { "kind": "sha256_record", "path": "raw/sha256.txt", "sha256": "11ddb520b046cb33725a19ad3ca6f7bec74d5feec82bba3aa300dd842b250aae" },
+    { "kind": "pdftotext_layout", "path": "derived/IPZ60R040C7-infineon.txt", "sha256": "8005157ed002cc693ebd01f85c89a70fb8dbbd9120de70db7e319b4fe8fade47" },
+    { "kind": "page_render", "path": "derived/page2-02.png", "sha256": "5ca79cf4eb5619c9b9515a6ddf60fbeb012f79796f8dafab9371754e42d4ff41" },
+    { "kind": "page_render", "path": "derived/page6-06.png", "sha256": "157f8f856ac3b7dd34001c05d5313ae9e1e2899a14f332993ca9c75c09aee333" },
+    { "kind": "page_render", "path": "derived/page11-11.png", "sha256": "5e2dde18c07af7d3960cfed23cfa8062cc27964af9ef69f30577469e080ce96f" }
+  ],
+  "manifest_sha256": null,
+  "manifest_sha256_note": "manifest.json lists the SHA-256 of every other produced file; a file cannot contain its own hash, so this stays null.",
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+  "next_discriminating_observation": "Obtain the exact gate driver's output resistance and the assembled gate-loop impedance at the campaign's actual bias, then either (a) capture a manufacturer 0/+15 V (or 0/+10 V-analogous) gate-charge/switching-energy source for this part, or (b) explicitly label the 0/+10 V extracted charges as a non-applicable-bias anchor. Without a gate-bias-matched switching-energy source, IPZ60R040C7 cannot be numerically ranked against the reference.",
+  "budget": {
+    "deadline_utc": "2026-09-17T22:30:00Z",
+    "elapsed_seconds": 240,
+    "solver_invocations": 0,
+    "remaining_invocations": 0
+  },
+  "example_warning": "Template nulls mean unfilled/unknown, never zero. Do not submit with template_only=true. Absence of model support or hardware evidence cannot be converted to PASS."
+}

@@ -1,0 +1,910 @@
+www.ti.com                                                                                                                                                                                        Description
+
+Design Guide: TIDA-00779
+230-V, 3.5-kW PFC With >98% Efficiency, Optimized for
+BOM and Size Reference Design
+
+
+
+Description                                                                                                                                         Features
+This design guide is a 3.5-kW, cost competitive                                                                                                     •   Peak efficiency of > 98%, allowing a smaller heat
+PFC designed for room air conditioners and other                                                                                                        sink
+major appliances. This reference design is a                                                                                                        •   Wide full load operating input range of 190V to
+continuous-conduction-mode (CCM) boost converter                                                                                                        270V AC
+implemented using TI’s UCC28180 PFC controller                                                                                                      •   High power factor > 0.99 and < 5% THD from
+provided with all of the necessary built-in protections.                                                                                                1.4kW-to-3.8kW (28 to 108% of full load) under
+The hardware is designed and tested to pass surge                                                                                                       230V AC
+and EFT testing as per the IEC 61000 requirements                                                                                                   •   Up to 3.5kW high power output to cover most of
+for household appliances. This design guide provides                                                                                                    single-phase input PFC application
+a ready platform for front-end PFCs to address power                                                                                                •   On board bias supply to simplify test and
+level requirements for appliances up to 3.5kW. The                                                                                                      verification
+design also provides up to 98% peak efficiency under                                                                                                •   Robust output supply protected for output
+230-V input enable a competitive high power density                                                                                                     overcurrent, output overvoltage, and output
+and small heat sink design.                                                                                                                             undervoltage conditions
+                                                                                                                                                    •   Meets requirements of EFT Norm IEC 6000-4-4
+Resources                                                                                                                                               and Surge Norm IEC 61000-4-5
+ TIDA-00779                                                                                Design Folder                                            •   PCB Size 200 × 145mm.
+ UCC28180, UCC28881                                                                        Product Folder                                           Applications
+ UCC27524, UCC27531                                                                        Product Folder
+                                                                                                                                                    •   Air Conditioners
+                                                                                                                                                    •   HVAC
+                                                                                                                                                    •   Industrial AC/DC > 480 W
+                                                                           Ask our TI E2E™ support experts
+                                                                                                                                                    •   Single-Phase UPS
+                                                                                                                                                    •   Other Major Appliances
+
+
+                                                                                                                                            DCBUS
+
+
+
+
+                                                                                            15V
+
+
+                                                                                                 Gate Driver
+                                                                                                 UCC27524
+       EMI
+       Filter
+                           PTC
+
+
+                            SW
+
+
+
+
+                                                                                                                           GND
+                        Inrush Relay          Voltage                 Vbus
+                           Control            Follower               Sensing
+                                                                                      Current
+                                                                                      Sensing
+
+
+
+                DCBUS                                         Bias              15V
+                                       Bias Supply                                              PFC Controller    Vbus           Resistor
+                                       UCC28881                                                  UCC28180        Sensing         Divider
+
+
+                                                                                                          GND
+
+
+
+
+                                                     On/Off
+
+
+
+
+                                                                          GND
+
+
+
+
+TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024                        230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                                                                     1
+Submit Document Feedback                                                                                               Reference Design
+                                            Copyright © 2024 Texas Instruments Incorporated
+System Description                                                                                                                  www.ti.com
+
+
+1 System Description
+Major appliance equipment such as air conditioners, refrigerators, and washers use three-phase, pulse-width
+modulated BLDC or PMSM drives. These motor drives typically have fractional or low horsepower ratings
+ranging from 0.25HP (186W) to 5HP (3.75kW). An electronic drive is required to control the stator currents in a
+BLDC or PMSM motor. A typical electronic drive consists of:
+•   Power stage with a three-phase inverter with the required power capability
+•   Microcontroller unit (MCU) to implement the motor control algorithm
+•   Motor voltage and current sensing for closed-loop speed or torque control
+•   Gate driver for driving the three-phase inverter
+•   Power supply to power up the gate driver and MCU
+These drives require a front-end power PFC regulator to shape the input current of the power supply and to meet
+the standards for power factor and current THD, such as IEC61000-2-3. A PFC circuit shapes the input current
+of the power supply to be in phase with the mains voltage and helps to maximize the real power drawn from the
+mains. The front-end PFC also offers several benefits:
+•   Reduces RMS input current
+    For instance, a power circuit with a 230-V/5-A rating is limited to about 575W of available power with a power
+    factor (PF) of 0.5. Increasing the PF to 0.99 almost doubles the deliverable power to 1138 W, allowing the
+    operation of higher power loads.
+•   Facilitates power supply hold-up
+    The active PFC circuit maintains a fixed, intermediate DC bus voltage that is independent of the input voltage
+    so that the energy stored in the system does not decrease as the input voltage decreases. This maintenance
+    allows the use of smaller, cost effective bulk capacitors.
+•   Improves efficiency of downstream converters
+    The PFC reduces the dynamic voltage range applied to the downstream inverters and converters. As a result,
+    the voltage ratings of rectifiers can be reduced, resulting in lower forward drops. The operating duty cycle can
+    also be increased, resulting in lower current in the switches.
+This reference design is a boost PF regulator implemented using the UCC28180 device as a PFC controller for
+use in all appliances that demand a PF correction of up to 3.5kW. The design provides a ready platform of an
+active front-end to operate downstream inverters or DC/DC converters operating on a hi-line AC voltage range
+from 190-V to 270-V AC.
+This design demonstrates a high power density PF stage in a small form factor (200 × 145 mm) that operates
+from 190-V to 270-V AC and delivers up to 3.5 kW of continuous power output to drive inverters or converters
+at more than a 98% efficiency rate without an SiC device. This reference design also provides flexibility for the
+boost follower configuration, in which the boost voltage can be varied with AC input voltage, but only can work
+on the boosted voltage when it is above the peak input voltage. The boost follower configuration helps reduce
+switching losses in the PFC regulator and the downstream inverter or converter. .
+Above all, this reference design meets the key challenges of appliances to provide safe and reliable power with
+all protections built in while delivering a high performance with low power consumption and a very competitive
+bill-of material (BOM) cost.
+
+
+
+
+2     230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                         TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024
+      Reference Design                                                                                                  Submit Document Feedback
+                                                   Copyright © 2024 Texas Instruments Incorporated
+www.ti.com                                                                                                                System Description
+
+1.1 Key System Specifications
+                                              Table 1-1. Key System Specifications
+      PARAMETER                   SYMBOL                       TEST CONDITIONS                     MIN         NOM        MAX        UNIT
+ INPUT CHARACTERISTICS
+ Input voltage             VIN                                       —                             150         230        270        V AC
+ Frequency                 FAC                                       —                             47           —          64         Hz
+ Power factor              PF                  VIN = nom, IOUT = max                                —          0.99        —          —
+ Input current             IIN                 VIN = nom, IOUT = max                                —           20         —              A
+ OUTPUT CHARACTERISTICS
+ Output voltage            VOUT                VIN = nom, IOUT = min to max                         —          380         —              V
+ Output current            IOUT                VIN = 190-V AC to max                                0           —           9             A
+ Output power              POUT                VIN = 190-V AC to max                                —           —          3.5        kW
+ Line regulation                               VIN = min to max, IOUT = nom                         —           —           2         %
+ Load regulation                               VIN = nom, IOUT = min to max                         —           —           3         %
+ Output voltage ripple     VOUT_RIPPLE         VIN = nom, IOUT = max                                —           —         17.5            V
+ Output overvoltage        VOVP                IOUT = min to max                                    —           —         430             V
+ Output overcurrent        IOCP                VIN = min to max                                    12           —          —              A
+ SYSTEM CHARACTERISTICS
+ Switching frequency       fSW                                       —                              —           45         —         kHz
+ Peak efficiency           ηPEAK               Vin=230VAC, Vout=382.54VDC, Pout=1386 W              —           —        98.128       %
+ Operation temperature     TNOM                With air flow                                       –25          —          65         °C
+
+
+
+
+TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024                        230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size       3
+Submit Document Feedback                                                                                               Reference Design
+                                            Copyright © 2024 Texas Instruments Incorporated
+System Overview                                                                                                                                              www.ti.com
+
+
+2 System Overview
+2.1 Block Diagram
+
+
+                                                                                                                                                         DCBUS
+
+
+
+
+                                                                                                         15V
+
+
+                                                                                                              Gate Driver
+                                                                                                              UCC27524
+                    EMI
+                    Filter
+                                        PTC
+
+
+                                         SW
+
+
+
+
+                                                                                                                                        GND
+                                     Inrush Relay          Voltage                 Vbus
+                                        Control            Follower               Sensing
+                                                                                                   Current
+                                                                                                   Sensing
+
+
+
+                             DCBUS                                         Bias              15V
+                                                    Bias Supply                                              PFC Controller    Vbus           Resistor
+                                                    UCC28881                                                  UCC28180        Sensing         Divider
+
+
+                                                                                                                       GND
+
+
+
+
+                                                                  On/Off
+
+
+
+
+                                                                                       GND
+
+
+                                                           Figure 2-1. PFC Regulator Block Diagram
+
+2.2 Highlighted Products and Key Advantages
+The following subsections detail the highlighted products used in this reference design, including the key
+features for their selection. See their respective product data sheets for complete details on any highlighted
+device.
+2.2.1 UCC28180 – PFC Controller
+The UCC28180 is a high performance, CCM, 8-pin programmable frequency PFC controller. The wide and
+programmable operating frequency of the controller provides flexibility to design at a high frequency to optimize
+the components. The UCC28180 uses trimmed current loop circuits to achieve less than a 5% THD from a
+1.4kW-to-3.8kW load (28% to 108% of full load). A reduced current sense threshold enables the UCC28180
+to use a 50% smaller shunt resistor, resulting in lower power dissipation while maintaining low THD. The
+UCC28180 also consists of an integrated fast gate driver, with a drive of 2-A source current and −1.5-A sink
+current, which eliminates the requirement for an external gate driver.
+The UCC28180 also has a complete set of system protection features that greatly improve reliability and further
+simplify the design:
+• Soft overcurrent
+• Cycle-by-cycle peak current limit
+• Output overvoltage
+• VCC undervoltage lockout (UVLO) protection
+• Open pin protections (ISENSE and VSENSE pins)
+
+
+
+
+4     230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                         TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024
+      Reference Design                                                                                                  Submit Document Feedback
+                                                   Copyright © 2024 Texas Instruments Incorporated
+www.ti.com                                                                                                                  System Overview
+
+2.2.2 UCC27524 – Dual Low-Side Gate Driver
+The UCC27524 device is a dual-channel, high-speed, low-side, gate-driver device capable of effectively driving
+MOSFET and IGBT power switches. The UCC27524 adds the ability to handle –5V directly at the input pins for
+increased robustness. The UCC27524 is a dual non-inverting driver. Using a design that inherently minimizes
+shoot-through current, the UCC27524 is capable of delivering high-peak current pulses of up to 5A source
+and 5A sink into capacitive loads along with rail-to-rail drive capability and extremely small propagation delay
+typically 17ns. In addition, the drivers feature matched internal propagation delays between the two channels
+which are very well suited for applications requiring dual-gate drives with critical timing, such as synchronous
+rectifiers. This also enables connecting two channels in parallel to effectively increase current drive capability
+or driving two switches in parallel with a single input signal. The input pin thresholds are based on TTL and
+CMOS compatible low-voltage logic, which is fixed and independent of the VDD supply voltage. Wide hysteresis
+between the high and low thresholds offers excellent noise immunity.
+2.2.3 UCC28881 – 700-V Off-Line Converter
+The UCC28881 integrates the controller and a 14-Ω, 700-V power MOSFET into one monolithic device. The
+device also integrates a high-voltage current Internal Device Bias Power source, enabling start up and operation
+directly from the rectified mains voltage. UCC28881 is the same family device of UCC28880, with higher current
+handling capability. The low quiescent current of the device enables excellent efficiency. With the UCC28881
+the most common converter topologies, such as buck, buck- Topologies boost and flyback can be built using a
+minimum number of external components. UCC28881 incorporates a soft-start feature for Circuit controlled start
+up of the power stage which minimizes the stress on the power-stage components.
+2.3 System Design Theory
+This reference design is a 3.5kW boost PFC regulator that operates in continuous conduction mode and is
+implemented using the UCC28180 PFC controller. The design is specifically tailored for inverter fed drives for
+use in major appliances such as air conditioners. This design serves as a simple and superior alternative to
+existing bulk, passive PFC circuits that are used to meet the power harmonic standards. The system efficiency is
+greater than 98% over the wide input operating voltage range from 190V to 270V AC under full load conditions.
+Additionally, this design includes several embedded protections including output overvoltage protection and
+output short circuit protection.
+The main focus of this design is a high efficiency, high PF, and protected DC power rail for targeted applications.
+2.3.1 Selecting Switching Frequency
+The UCC28180 switching frequency is user programmable with a single resistor on the FREQ pin to GND.
+This design uses a 45kHz switching frequency. Calculate the suitable resistor value to program the switching
+frequency using Equation 1.
+
+                            f TYP ´ R TYP ´ R INT
+R FREQ =
+             (f SW ´ R INT )+ (R TYP ´ f SW )- (R TYP ´ f TYP )                                                                           (1)
+
+where:
+•   fTYP, RTYP, and RINT are constants internally fixed to the controller that are based on the UCC28180 control
+    logic
+•   fTYP = 65kHz
+•   RTYP = 32.7kΩ
+•   RINT = 1MΩ
+Applying these constants in Equation 2 yields the appropriate resistor that must be placed between the FREQ
+and GND pins.
+
+                                 65 kHz ´ 32.7 kW ´ 1 MW
+R FREQ =                                                                             = 47.9 kW
+             (45 kHz ´ 1 MW ) + (45 kHz ´ 32.7 kW ) - (65 kHz ´ 32.7 kW )                                                                 (2)
+
+
+
+
+TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024                        230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size     5
+Submit Document Feedback                                                                                               Reference Design
+                                            Copyright © 2024 Texas Instruments Incorporated
+System Overview                                                                                                                     www.ti.com
+
+
+A typical value of 47kΩ for the FREQ resistor results in a switching frequency of 44kHz.
+2.3.2 Calculating Output Capacitance
+Assuming that the percentage of non-conducting period is minimal, the required output capacitance can be
+calculated as Equation 3 shows:
+
+                 2 ´ PLOAD
+CO =
+          p ´ V O ´ DV O ´ f LINE                                                                                                          (3)
+
+Where
+•   ΔVO = The peak-to-peak voltage ripple on the output
+•   fLINE = The input line frequency
+•   PLOAD = The output load power
+Insert the values into Equation 3 to obtain the following result:
+
+              2 ´ 3500
+CO =                       = 2286 mF
+         p ´ 390 ´ 50 ´ 50                                                                                                                 (4)
+
+A capacitance of 2040 µF has been selected to accommodate overload conditions and effects caused by aging.
+2.3.3 Calculating PFC Choke Inductor
+The UCC28180 is a CCM controller; however, if the chosen inductor allows a relatively high ripple current,
+the converter becomes forced to operate in discontinuous mode (DCM) at light loads and at the higher input
+voltage range. High-inductor ripple current affects the CCM/DCM boundary and results in a higher light-load
+THD. This type of current also affects the choices for the input capacitor, RSENSE, and CICOMP values. Allowing
+an inductor ripple current, ΔIRIPPLE, of 20% or less enables the converter to operate in CCM over the majority
+of the operating range. However, this low-inductor ripple current requires a boost inductor that has a higher
+inductance value, and the inductor itself is physically large. This design takes certain measures to optimize
+performance with size and cost. The inductor is sized to have a 40% peak-to-peak ripple current with a focus on
+minimizing space and the knowledge that the converter operates in DCM at the higher input voltages and at light
+loads; however, the converter is well optimized for a nominal input voltage of 230-V AC at the full load.
+Calculate the minimum value of the duty cycle, DMIN, as Equation 5 shows:
+
+                                       (
+                 2 ´ V IN _ MIN ´ sin 2p ´ f LINE ´ t   )       2 ´ 190 ´ 1
+D MIN = 1 -                                                 =               = 0.31
+                                  VO                              390                                                                      (5)
+
+Based upon the allowable inductor ripple current of 40%, the PFC choke inductor, LBST, is selected after
+determining the maximum inductor peak current, IPK, as Equation 6 shows:
+
+             2 ´ PO              2 ´ 3500
+I PK =                     =              = 26.6 A
+          h ´ V IN _ MIN       0.98 ´ 190                                                                                                  (6)
+
+Calculate the minimum value of the c, LMIN, based upon the acceptable ripple current, IRIPPLE, as Equation 7
+shows:
+
+            2 ´ V IN _ MIN ´ D MIN             2 ´ 190 ´ 0.31
+L MIN ³                                =                             = 174 mH
+              I PK ´ 0.4 ´ fSW             26.6 ´ 0.4 ´ 45 ´ 103                                                                           (7)
+
+The actual value of the PFC choke inductor used is LMIN = 180 μH
+
+
+
+
+6     230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                         TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024
+      Reference Design                                                                                                  Submit Document Feedback
+                                                   Copyright © 2024 Texas Instruments Incorporated
+www.ti.com                                                                                                                  System Overview
+
+2.3.4 Selecting Switching Element
+The MOSFET switch is driven by a gate output that is clamped at 15.2V internally for VCC bias voltages greater
+than 15.2V. An external gate drive resistor is recommended to limit the rise time and to dampen any ringing
+caused by the parasitic inductance and capacitance of the gate drive circuit. This resistor also helps by meeting
+any EMI requirements of the converter. This design uses a 22Ω resistor; the final value of any design depends
+on the parasitic elements associated with the layout of the design. To facilitate a fast turnoff, place a standard
+100V, 1A Schottky diode or switching diode anti-parallel with the gate drive resistor. A 10kΩ resistor is placed
+between the gate of the MOSFET and ground to discharge the gate capacitance and protect from inadvertent
+dV/dT triggered activations.
+The maximum voltage across the FET is the maximum output boost voltage (that is, 425V), which is the
+overvoltage set point of the PFC converter used to shut down the output. Considering a voltage de-rating of
+30%, the voltage rating of the MOSFET must be greater than 550V DC.
+This design uses an IPW60R099P6 MOSFET of 600V with 37.9A at 25°C and 24A at 100°C. If cost is a
+concern, this design also can use an IGBT to replace the MOSFET. This design needs a heat sink of the
+appropriate size for the MOSFET or IGBT.
+2.3.5 Boost Follower Control Circuit
+The traditional design of PFC boost converters consists of a fixed output voltage greater than the maximum peak
+line voltage to maintain boost operation and be able to shape the input current waveform of the power supply.
+The boost voltage does not have to be fixed, but can be varied based on the AC input voltage provided that
+the boosted voltage is above the peak input voltage. The boost follower control circuit aids in setting the output
+voltage based on the peak input voltage.
+Varying the output voltage with variations in the peak line voltage provides several benefits.
+•   Reduced boost inductor
+    The boost inductor is selected based on the maximum allowed ripple current, at maximum duty cycle, at
+    minimum line voltage, and at minimum output voltage. A decrease in VOUT results in a decrease in the
+    maximum duty cycle, which causes the boost inductor to decrease.
+•   Reduced boost switch losses at low line operation
+    In an offline PFC converter, a large amount of converter power loss is due to the switching losses of the boost
+    FET. The boost follower PFC has a much lower output voltage at the low-input line voltage than a traditional
+    PFC boost, which reduces the switching losses.
+•   Reduced switching losses in the downstream inverter stage and isolated DC/DC converter stage
+    The switching losses in a three-phase inverter drive or isolated DC/DC converter stage are proportional to
+    the boost regulated voltage. A lower output voltage results in lower switching losses, increasing the overall
+    efficiency of the system, which is more noticeable in the light-load efficiency of the power stage.
+
+                                                                R20
+                                                                332k
+
+                                                                                 2200pF
+                                                                R21
+                                                                332k             Vsense
+
+
+                                                                R22
+                                                                332k
+                                                                                  3
+
+
+
+
+                                                                                       1
+                                                  ACsense
+                                                                             1        Q4
+                                                                                      MMBT3904-
+                                                                R23
+                                                                                  2
+
+
+
+
+                                                                10.0k
+
+
+                                                                                      R14
+                                                       C20
+                                                                  D8                  16.2k
+                                                       35V
+                                                                  BAT54T1G
+                                                       10µF
+
+
+
+                                                   PGND       PGND               PGND
+
+                                                   BOOST FOLLOWER CONTROL CIRCUIT
+
+                                               Figure 2-2. Voltage Follower Circuit
+
+
+TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024                        230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size   7
+Submit Document Feedback                                                                                               Reference Design
+                                            Copyright © 2024 Texas Instruments Incorporated
+System Overview                                                                                                                                             www.ti.com
+
+2.3.6 Bias Power
+The TIDA-00779 design has a on board bias supply to power the UCC28180 PFC controller UCC27524 gate
+driver, and relay, which is used to shunt the inrush current limiting resistor.
+                       U3                                                                        D13
+             VDCBUS                                                         R46
+                   5                           4                            133k
+                        HVIN          VDD
+                                                                                                 US1M-13-F
+                   6
+          C33           NC
+                                               3                 C29 R47                                                             BIAS
+          100nF                        FB
+                                               C30               50V 10.0k            C31
+          630V                                                                            L5
+                                               100nF             20pF               330nF
+                   8                           1 50V                                50V                                    R50    R31
+                        DRAIN         GND
+                                               2                                          1.8mH                            0      10.0k
+      PGND                            GND
+
+
+
+
+                                                                                                                                            1
+                       UCC28881DR                                                                            C32                                D16
+                                                            D15                                                           R48     D14
+                                                                                                             35V                                LTST-C193KRKT-5A
+                                                            US1M-13-F                                        100µF        21.0k                 Red
+
+
+
+
+                                                                                                                                            2
+                                                                                                                                  18V
+                                                                                                                                                BIAS LED
+                                                                                                                           MMSZ5248BS-7-F
+
+
+
+                                                                                          PGND
+
+                                                            Figure 2-3. Bias Power Supply
+
+2.3.7 On-Off Switch
+TIDA-00779 provides a switch to turn on or off PFC. The default status is Off, user can switch the PFC to On.
+                                                                                Q2
+                                                                            MMBT3906-7-F                      15V
+                                                                              2           3    R18
+                                                        BIAS
+                                                                                               1.00
+                                                                                                                  R13
+                                                                                   1
+
+
+
+
+                                                                                                                  10.0k
+                                                                        R15                              C19
+                                                                                                         35V
+                                    PFC ON/OFF CONTROL                  10.0k                            10µF 1
+
+                                                                                       R16            PGND           D5
+                                               D9                                                                    LTST-C193KGKT-5A
+                                                              R19                      1.00k
+                                Inrush Delay                                                                         Green
+                                                                                                              2
+
+
+
+
+                                                       10.0k                                                         15V LED
+                                                                                   3
+
+
+
+
+                                               MMSZ5248BS-7-F
+                                               18V                      1                 Q3
+                                                                                          2V7002KT1G         PGND
+                                                    2
+
+
+
+
+                                                        R17
+                                                        47.0k
+                                                                                   2
+
+
+
+
+                                                                        C24
+                                                                        100nF
+                                                                        50V
+                                                        1
+                                                3
+
+
+
+
+                                           S1
+                                         47212301011 1
+                                                                                   PGND
+                                                              PGND
+
+                                                        Figure 2-4. On-Off Switch Circuit
+
+2.3.8 Thermal Design
+This reference is designed with a heatsink, section size is 146×22mm, 200mm length. Diode bridge BR1,
+MOSFET Q1, Q6, power diode D1, D3 are mounted on heatsink. Make sure use grease between BR1 to
+heatsink to improve thermal resistance, and use thermal pad between MOSFET/DIODE to heatsink for thermal
+conduction and also insulation.
+
+
+
+
+8     230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                         TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024
+      Reference Design                                                                                                  Submit Document Feedback
+                                                   Copyright © 2024 Texas Instruments Incorporated
+www.ti.com                                                                                 Hardware, Testing Requirements, and Test Results
+
+
+3 Hardware, Testing Requirements, and Test Results
+3.1 Required Hardware
+3.1.1 Test Conditions
+For the input, the power supply source (VIN) must range from 190V to 270V AC. Set the input current limit of the
+input AC source to 25A.
+For the output, use an electronic variable load or a variable resistive load, which must be rated for ≥ 400V and
+must vary the load current from 0mA to 10A.
+3.1.2 Recommended Equipment
+Use the following recommended test equipment:
+• Fluke 287C (multimeter)
+• Chroma 61605 (AC source)
+• Chroma 63204 (DC electronic load)
+• Yokogawa WT500 or Hioki PW8001 (power analyzer)
+• Tektronix DPO 3054 (oscilloscope)
+3.1.3 Procedure
+1. Connect input terminals (P1 and P2) of the reference board to the AC power source.
+2. Connect output terminals (P4 and P5) to the electronic load, maintaining correct polarity (P4 is the 390-V DC
+   output and P5 is the GND terminal).
+3. Switch On PFC with S1.
+4. Gradually increase the input voltage from 0 V to 190-V AC, and turn on.
+5. Turn on the load to draw current from the output terminals of the PFC.
+6. Observe the startup conditions for smooth-switching waveforms.
+3.2 Test Results
+The following test results cover the steady-state performance measurements, functional performance waveforms
+and test data, transient performance waveforms, thermal measurements, surge measurements, and EFT
+measurements.
+3.2.1 Performance Data
+3.2.1.1 Efficiency and iTHD
+Table 3-1 show the efficiency data at inputs of 230-V AC, tested by Yokogawa WT500.
+                                     Table 3-1. Performance Data Under 230-V AC Input
+   VINAC (V)      IINAC (A)      PINAC (W)        PF        THDi (%)       VOUT (V)        IOUT (A)       POUT (W)       EFFICIENCY (%)
+         229.8         1.2858           238.4     0.9340        22.925         384.13          0.6014           231.1                96.935
+        229.31         3.1522           708.6     1.0000        6.7150         383.29           1.8114          694.4                97.989
+        228.82         5.1921          1177.1     1.0000        5.1510         382.86          3.0155          1154.9                 98.117
+        228.60         6.2260          1413.0     1.0000        4.6050         382.91          3.6208          1386.6                98.128
+        228.34         7.2660          1649.4     1.0000        4.4460         382.70          4.2285          1618.4                 98.116
+        228.10         8.2870          1880.8     1.0000        4.1360         382.54          4.8229          1845.1                98.100
+        228.03         8.4410          1915.2     1.0000        4.0980         382.38          4.9120          1878.4                98.078
+        227.88         9.3290          2116.3     1.0000        3.6610         382.34          5.4272          2075.4                98.066
+        227.62        11.3660          2349.7     1.0000        3.6180         382.10          6.0270          2303.2                98.021
+        227.33        11.5400          2513.6     1.0000        3.9840         381.77          6.7070          2560.7                97.974
+        227.12       12.5860           2847.8     1.0000        3.8840         381.84          7.3030          2788.7                97.925
+        226.62       14.6800           3314.7     1.0000        4.2800         381.55          8.4970          3242.4                97.820
+        226.32       15.7430           3550.4     1.0000        4.5440         381.32          9.1020          3471.1                97.767
+        226.07       16.7750           3778.5     1.0000        4.8880         381.17          9.6860          3692.1                97.714
+
+Table 3-1 show the efficiency data at inputs of 270-V AC, tested by HIOKI PW8001.
+
+
+TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024                        230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size        9
+Submit Document Feedback                                                                                               Reference Design
+                                            Copyright © 2024 Texas Instruments Incorporated
+Hardware, Testing Requirements, and Test Results                                                                                     www.ti.com
+
+                                         Table 3-2. Performance Data Under 270-V AC Input
+ VINAC (V)      IINAC (A)         PINAC (W)       PF            THDi (%)       VOUT (V)        IOUT (A)        POUT (W)           EFFICIENCY
+                                                                                                                                  (%)
+ 270.21         0.3530            43.5            0.4557        21.522         403.28          0.0952          38.3               88.188
+ 269.75         2.2216            584.3           0.9750        10.833         402.74          1.4202          572.0              97.866
+ 269.62         2.7825            738.1           0.9838        6.930          403.20          1.7962          724.2              98.122
+ 269.35         3.9289            1047.6          0.9899        6.309          402.99          2.5542          1029.3             98.257
+ 269.26         4.3476            1160.4          0.9915        5.839          402.39          2.8338          1140.3             98.267
+ 269.13         4.9228            1315.0          0.9925        5.578          402.80          3.2086          1292.4             98.283
+ 268.88         5.7564            1538.5          0.9940        4.957          402.34          3.7596          1512.6             98.320
+ 268.76         6.3351            1693.6          0.9949        4.693          402.43          4.1381          1665.3             98.330
+ 268.69         6.9090            1847.3          0.9952        4.417          402.26          4.5154          1816.4             98.325
+ 268.45         7.6492            2044.7          0.9957        4.192          402.26          4.9973          2.0102             98.314
+ 268.43         7.9106            2114.7          0.9959        4.059          402.06          5.1706          2078.9             98.305
+ 268.32         8.2264            2.1985          0.9960        4.050          402.17          5.3746          2161.5             98.316
+ 268.27         8.6359            2308.0          0.9962        3.866          401.69          5.6469          2268.3             98.279
+ 268.04         9.6551            2578.8          0.9965        3.929          402.03          6.3033          2534.1             98.265
+ 267.91         10.0657           2687.4          0.9966        3.869          401.77          6.5735          2687.4             98.274
+ 267.74         10.9498           2922.0          0.9967        4.003          401.91          7.1443          2871.4             98.270
+ 267.05         14.0000           3726.6          0.9968        4.471          401.39          9.1110          3656.7             98.126
+ 266.92         14.4043           3832.5          0.9968        4.445          400.85          9.3793          3759.7             98.101
+
+
+3.2.1.2 Standby Power and Output Voltage
+Table 3-3 show the test results for board standby power and output voltage. This standby power include bias
+supply.
+                                           Table 3-3. Standby Power and Output Voltage
+          VINAC (VAC)                         IINAC (mA)                       PINAC (W)                               VOUT (V)
+                            150                            150.2                                   3.1                                     337.2
+                            160                            173.7                                   3.1                                     342.6
+                            170                            179.0                                   3.1                                     348.2
+                            180                            183.9                                   3.0                                     353.7
+                            190                            191.9                                   3.1                                     359.2
+                            200                            199.1                                   3.0                                     364.7
+                            210                            207.6                                   3.0                                     370.2
+                            220                            215.9                                   3.0                                     375.8
+                            230                            223.7                                   2.9                                     381.3
+                            240                            233.5                                   3.1                                     386.9
+                            250                            242.6                                   3.2                                     392.4
+                            260                            251.3                                   3.2                                     397.9
+                            270                            259.7                                   3.0                                     403.4
+                            275                            265.1                                   3.2                                     406.2
+
+
+
+
+10    230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                         TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024
+      Reference Design                                                                                                  Submit Document Feedback
+                                                   Copyright © 2024 Texas Instruments Incorporated
+ www.ti.com                                                                                 Hardware, Testing Requirements, and Test Results
+
+    3.2.2 Performance Curves
+    3.2.2.1 Efficiency Curve
+    Figure 3-1 show the efficiency curve.
+
+                                      99
+                                                                                                                230VAc
+
+                                     98.5
+
+
+                                      98
+                    Efficiency (%)
+
+
+
+
+                                     97.5
+
+
+                                      97
+
+
+                                     96.5
+
+
+                                      96
+                                            0   500      1000     1500 2000 2500                 3000        3500         4000
+                                                                   Output Power (W)
+                                                      Figure 3-1. Efficiency With Load Variation
+
+    3.2.2.2 Voltage Follower Performance
+    Figure 3-2 and Figure 3-3 show the features of voltage follower circuit.
+
+           410
+
+           400
+
+           390
+
+           380
+VOUT (V)
+
+
+
+
+           370
+
+           360
+
+           350
+
+           340
+
+           330
+
+           320
+             140 150 160 170 180 190 200 210 220 230 240 250 260
+                                    VIN (V)
+                 Figure 3-2. Output Voltage under 1kW load                     Figure 3-3. Output Voltage Under 2kW Load
+
+
+
+
+ TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024                        230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size   11
+ Submit Document Feedback                                                                                               Reference Design
+                                             Copyright © 2024 Texas Instruments Incorporated
+Hardware, Testing Requirements, and Test Results                                                                                    www.ti.com
+
+3.2.3 Functional Waveforms
+3.2.3.1 Power On Sequence
+Figure 3-4 shows the power on sequence and loading features, with switch S1 in ON status.
+After power on the board, output electrolytic capacitor can be charged to build up VDCBUS through PTC RT1,
+so charging current can be limited, then bias supply start to work after VDCBUS is high enough to create Vbias,
+assuming S1 is ON status, PFC controller UCC28180 is powered on by 15V after a inrush current delay time,
+then PFC converter starts to work. This waveform also shows DCBUS voltage drop when PFC is loaded step by
+step, 1.3Arms, 5.4Arms, 7.5Arms, 9.5Arms, 10.6Arms.
+There is voltage drop when load PFC.
+Channel 1 is DC output voltage
+Channel 2 is AC input voltage
+Channel 3 is MOSFET Drain to Source Voltage.
+Channel 4 is AC input current
+
+
+
+
+                                                Figure 3-4. Power On Sequences
+
+3.2.3.2 Inrush Current Protection
+Figure 3-5 shows inrush current protection feature, board is powered on with switch-on status. Inrush current
+protection delay time is about 850mS under 220VAC.
+Channel 1 is DC output voltage
+Channel 2 is AC input voltage
+Channel 3 is 15V.
+Channel 4 is AC input current
+
+
+
+
+12    230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                         TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024
+      Reference Design                                                                                                  Submit Document Feedback
+                                                   Copyright © 2024 Texas Instruments Incorporated
+www.ti.com                                                                                 Hardware, Testing Requirements, and Test Results
+
+
+
+
+                                            Figure 3-5. Startup and Power On Delay
+
+3.2.3.3 Switching Node
+Figure 3-6 and Figure 3-7 show the waveforms at the switching node, which were observed along with the
+MOSFET for 230V AC.
+Channel 1 is Voltage of MOSFET Gate
+Channel 2 is AC input voltage
+Channel 3 is Voltage of MOSFET Drain to Source
+Channel 4 is AC input current
+
+
+
+
+                Figure 3-6. Turn on MOSFET                                             Figure 3-7. Turn off MOSFET
+
+
+
+
+TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024                        230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size   13
+Submit Document Feedback                                                                                               Reference Design
+                                            Copyright © 2024 Texas Instruments Incorporated
+Hardware, Testing Requirements, and Test Results                                                                                    www.ti.com
+
+3.2.3.4 Waveform Under 3.5kW, 230VAC
+Figure 3-8 show waveforms under 3.5kW, 230VAC, the ouput voltage ripple is 17.5V under this load condition.
+Channel 1 is DC output voltage
+Channel 2 is AC input voltage
+Channel 4 is AC input current
+
+
+
+
+                                        Figure 3-8. Waveforms Under 3.5kW, 230VAC
+
+3.2.4 Thermal Measurements
+To better understand the temperature of power components and maximum possible operating temperature, the
+thermal images were plotted at room temperature (25°C) with a closed enclosure, no airflow, and at full-load
+conditions. The board was allowed to run for 30 minutes before capturing a thermal image, and heatsink is
+cooled down with forced air flow provided by two 27CFM, 24 VDC, 2.64W Cooling fans from two sides of
+heatsink.
+Figure 3-9 shows the temperature of power components at input voltage of 230-V AC with the 3.5-kW power
+output.
+
+
+
+
+                      Figure 3-9. Top-Side Temperatures at 230-V AC Input and 3.5-kW Output
+
+
+
+
+14    230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                         TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024
+      Reference Design                                                                                                  Submit Document Feedback
+                                                   Copyright © 2024 Texas Instruments Incorporated
+www.ti.com                                                                                                                       Design Files
+
+
+4 Design Files
+4.1 Schematics
+Download all schematics at TIDA-00779.
+4.2 Bill of Materials
+To download the bill of materials (BOM), see the design files at TIDA-00779.
+5 Documentation Support
+1. Texas Instruments, 230-V, 900-W, Power Factor Regulator Converter (PFC) for Inverter-Fed Drives and
+   Appliances, design guide.
+2. Texas Instruments, Using the UCC28180EVM-573 360-W Power Factor Correction Module, user’s guide
+3. Texas Instruments, UCC28180 Programmable Frequency, Continuous Conduction Mode (CCM), Boost
+   Power Factor Correction (PFC) Controller, data sheet.
+6 Trademarks
+TI E2E™ is a trademark of Texas Instruments.
+All trademarks are the property of their respective owners.
+7 About the Author
+HELY ZHANG is a system application engineer at Texas Instruments, where he is responsible for developing
+home appliance related power delivery and motor inverters. Hely earned his masters degree from Anhui
+University of Science and Technology with Power electronics in 2002, and worked in SolarEdge and General
+Electric before joining TI.
+
+
+
+
+TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024                        230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size   15
+Submit Document Feedback                                                                                               Reference Design
+                                            Copyright © 2024 Texas Instruments Incorporated
+Revision History                                                                                                                            www.ti.com
+
+
+
+8 Revision History
+Changes from Revision C (October 2017) to Revision D (August 2024)                                                                               Page
+• Updated the numbering format for tables, figures, and cross-references throughout the document ................ 1
+• Updated schematic to add switch on or off control, on board bias supply. Redesign power on logic and inrush
+  current protection delay circuit, voltage follower circuit. Updated layout file. Updated heatsink. Build new
+  boards. Redo all tests on new board..................................................................................................................1
+
+
+
+
+16    230-V, 3.5-kW PFC With >98% Efficiency, Optimized for BOM and Size                         TIDUBE1D – JANUARY 2016 – REVISED AUGUST 2024
+      Reference Design                                                                                                  Submit Document Feedback
+                                                   Copyright © 2024 Texas Instruments Incorporated
+                                       IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATA SHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you
+will fully indemnify TI and its representatives against, any claims, damages, costs, losses, and liabilities arising out of your use of these
+resources.
+TI’s products are provided subject to TI’s Terms of Sale or other applicable terms available either on ti.com or provided in conjunction with
+such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable warranties or warranty disclaimers for
+TI products.
+TI objects to and rejects any additional or different terms you may have proposed. IMPORTANT NOTICE
+
+                             Mailing Address: Texas Instruments, Post Office Box 655303, Dallas, Texas 75265
+                                            Copyright © 2024, Texas Instruments Incorporated
+

@@ -1,0 +1,61 @@
+{
+  "schema": "pfc-campaign-run-manifest/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "K-SIC15",
+  "attempt_id": "attempt-001",
+  "source_revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+  "hash_algorithm": "sha256",
+  "note": "SHA-256 of every file produced by this task, except manifest.json itself. Digests were computed with `shasum -a 256` in this directory.",
+  "files": [
+    {
+      "path": "raw/NTH4L060N065SC1-Rev3-2023-01.pdf",
+      "sha256": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4",
+      "bytes": 322991,
+      "role": "byte-identical copy of the retained onsemi Rev. 3 datasheet (in-repo original untouched)"
+    },
+    {
+      "path": "raw/NTH4L060N065SC1-Rev3-2023-01.pdf.sha256",
+      "sha256": "816d8a6d06e8b23fc91baf769933c178a957f792ce9971e0c843dabaa061d5e6",
+      "bytes": 192,
+      "role": "shasum -a 256 record for the raw PDF copy"
+    },
+    {
+      "path": "raw/datasheet-layout.txt",
+      "sha256": "cc446489b48f741202fc3a50b8534eecdb63af800388b986b8b9c0a29662689a",
+      "bytes": 36626,
+      "role": "pdftotext -layout extraction used to read the values"
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "3b297b0c6532f124353a9c48f28653415e8614051da9540fc248a50f56e0b768",
+      "role": "part/document identity, PDF paths + SHA-256, parameter table, source notes"
+    },
+    {
+      "path": "result.json",
+      "sha256": "aca35bc6496cdd540efcbb2d913911414df156e25149fab40dc6032cdfb8a549",
+      "role": "status axes and accounting per result-template.json"
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "c90d1e6aa20993d47cc536afe48022e6a484cbc1fd1d199ef67879a840bc5394",
+      "role": "human-readable source extraction report"
+    }
+  ],
+  "inputs_received": [
+    {
+      "path": "dispatch.json",
+      "sha256": "4906a451e3c880cc3804fd39eafb50f5528f86d35267ee27052bf72ee52d095e",
+      "role": "coordinator dispatch packet (not modified)"
+    },
+    {
+      "path": "../../../../options/architecture-comparison/sic/sources/NTH4L060N065SC1-Rev3-2023-01.pdf",
+      "sha256": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4",
+      "role": "primary retained PDF (not modified)"
+    },
+    {
+      "path": "../../../../options/replacement-pair/sources/NTH4L060N065SC1-Rev3-2023-01.pdf",
+      "sha256": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4",
+      "role": "duplicate retained PDF, byte-identical (not modified)"
+    }
+  ]
+}

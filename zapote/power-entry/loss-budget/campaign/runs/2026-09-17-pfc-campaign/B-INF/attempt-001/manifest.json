@@ -1,0 +1,143 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "B-INF",
+  "attempt_id": "attempt-001",
+  "generated_utc": "2026-09-17T21:25:45Z",
+  "excludes_self": true,
+  "note": "SHA-256 of every file in this attempt directory except manifest.json itself.",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "0ae9a0d919f36d5d46c02c9eb7fced43146c75239997ac5e956dadea1073f96d",
+      "bytes": 6560,
+      "role": "produced"
+    },
+    {
+      "path": "dispatch.json",
+      "sha256": "3037570aab04d07ff7a994ce823d091fc45bbc7434aa3b55e505a767ad454c80",
+      "bytes": 2062,
+      "role": "delivered_input"
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "9df6db5d7a51e9d9846ac73be31498d5c4dafad643319ff0e6ea772f02599c62",
+      "bytes": 17374,
+      "role": "produced"
+    },
+    {
+      "path": "result.json",
+      "sha256": "5bd7e9eec504cf0e127374652da4168757345be54b52dc43eda7734704f3a139",
+      "bytes": 11377,
+      "role": "produced"
+    },
+    {
+      "path": "raw/capture_log.txt",
+      "sha256": "c731543509c7fce5cb0fc5a706ddfcc973445f5b19536650a1be50af03d87718",
+      "bytes": 1721,
+      "role": "source_capture"
+    },
+    {
+      "path": "raw/chipdip_appnote.pdf",
+      "sha256": "fdbed1c55c3b36b71da7dd7b2938646f9f55f4cc2f36aeaa253178e3884d49ce",
+      "bytes": 1496871,
+      "role": "source_capture"
+    },
+    {
+      "path": "raw/infineon_appnote_attempt_404.html",
+      "sha256": "d454c6105c2b0f24ff5b317166a252a9fd04c1ba3aaa346050017b8779cf209b",
+      "bytes": 1523888,
+      "role": "source_capture"
+    },
+    {
+      "path": "raw/infineon_presentation.pdf",
+      "sha256": "b213daba3f2e92cb697fe65d9ac46449cb4ad59abc929b5ebee4e52ecc9cc78d",
+      "bytes": 1226653,
+      "role": "source_capture"
+    },
+    {
+      "path": "raw/mouser_appnote.html",
+      "sha256": "f5a88baf3583289c2429193f98e72fe4ecffd504e75193db2fafb49ba3e96a3e",
+      "bytes": 13897,
+      "role": "source_capture"
+    },
+    {
+      "path": "raw/extracted/appnote_p12_boostdiode-12.png",
+      "sha256": "9770397360964207d6896fd5f92c7ff3a652e285f4c7b753752648d61b19ffa8",
+      "bytes": 101724,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/appnote_p12_bridges-12.png",
+      "sha256": "1ff1df8304ff525f5955ef849a12e7730495611e1bbb04f342f43ae1f2d777ec",
+      "bytes": 214296,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/appnote_p12_controller-12.png",
+      "sha256": "51e419220a66e755058ba9733e5b7412977b9096c6af1222e8118caa87d3e218",
+      "bytes": 183874,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/appnote_p12_diodezoom-12.png",
+      "sha256": "5826e978ee465d3c9c3313dc68126c06ac2221b1164e111ab2540ffe5453de04",
+      "bytes": 90855,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/appnote_p12_diodezoom2-12.png",
+      "sha256": "54e2da2ddb01a07bdf9cb6d1f25cb51123217524129070dd2d760dab881d63f5",
+      "bytes": 16679,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/appnote_p12_gl-12.png",
+      "sha256": "74023617504cb4f9696f618d811e8e444b7b449bfb2a6b59cc23840ce9325aa9",
+      "bytes": 263021,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/appnote_p12_powerstage-12.png",
+      "sha256": "d4a0d311d66524ce298646c8d3a50d09ba138f864af5db080ab481490cb1e665",
+      "bytes": 499659,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/appnote_p12_schematic-12.png",
+      "sha256": "9368afb82b91fc16e6d6e5427a14c6dcb69fca857eddc214ac9154b446f8e784",
+      "bytes": 217617,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/appnote_p20_eff-20.png",
+      "sha256": "b9c64ed3677b86183d1f767b99cec80766176686ce592af8bb60ce5677a3548c",
+      "bytes": 302815,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/chipdip_appnote.pdfinfo.txt",
+      "sha256": "8eeba69c96586227c993fc76112c759b563455bfd97720dcb4bfb2181f9a76cd",
+      "bytes": 565,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/chipdip_appnote.txt",
+      "sha256": "01b6d14ef6dff548d336e2b0681871f2169796c07e5547d41c1db69f980c3b70",
+      "bytes": 63976,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/infineon_presentation.pdfinfo.txt",
+      "sha256": "f96e247b2542b36c19d2640dc22a875e5929e58da9161a7c3d730c2b439a1ddd",
+      "bytes": 549,
+      "role": "derived_extract"
+    },
+    {
+      "path": "raw/extracted/infineon_presentation.txt",
+      "sha256": "16bfc50e7ceee2fa15a0b22e784fe83ac2c760a1b80fc066c2fb2579bf783269",
+      "bytes": 9137,
+      "role": "derived_extract"
+    }
+  ]
+}

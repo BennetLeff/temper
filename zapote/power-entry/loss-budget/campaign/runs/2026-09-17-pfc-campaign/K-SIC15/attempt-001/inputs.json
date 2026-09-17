@@ -1,0 +1,369 @@
+{
+  "schema": "pfc-campaign-source-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "K-SIC15",
+  "attempt_id": "attempt-001",
+  "kind": "source_only",
+  "question": "Can an exact Kelvin-source device plus its required drive/thermal assembly beat the common reference?",
+  "gathered_at_utc": "2026-09-17T21:22:47Z",
+  "source_revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+
+  "part_identity": {
+    "mpn": "NTH4L060N065SC1",
+    "manufacturer": "onsemi (Semiconductor Components Industries, LLC)",
+    "description": "Silicon Carbide (SiC) MOSFET - EliteSiC, 44 mohm, 650 V, M2, TO-247-4L",
+    "package": "TO-247-4LD",
+    "case_outline": "CASE 340CJ, ISSUE A (mechanical case outline, page 7)",
+    "pinout": "G (gate), D (drain), S1: Kelvin Source, S2: Power Source",
+    "kelvin_source_pin": "S1 (separate Kelvin source); S2 is the power source",
+    "ordering": "NTH4L060N065SC1, TO-247-4LD, 30 units/tube",
+    "specific_device_code": "H4L060065SC1"
+  },
+
+  "document_identity": {
+    "title": "NTH4L060N065SC1 - Silicon Carbide (SiC) MOSFET - EliteSiC, 44 mohm, 650 V, M2, TO-247-4L",
+    "publication_order_number": "NTH4L060N065SC1/D",
+    "revision": "Rev. 3, January 2023",
+    "printed_page_count": 8,
+    "author_metadata": "onsemi",
+    "producer_metadata": "Acrobat Distiller 22.0 (Windows); Creator BroadVision, Inc.",
+    "creation_datetime_metadata": "2023-01-30T05:14:28-06:00",
+    "mod_datetime_metadata": "2023-01-30T05:15:17-06:00",
+    "file_size_bytes": 322991,
+    "pdf_version": "1.6",
+    "header_bytes": "%PDF-1.4"
+  },
+
+  "retained_pdf_copies": [
+    {
+      "role": "primary_architecture_comparison_source",
+      "path": "zapote/power-entry/loss-budget/options/architecture-comparison/sic/sources/NTH4L060N065SC1-Rev3-2023-01.pdf",
+      "sha256": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4"
+    },
+    {
+      "role": "duplicate_replacement_pair_source",
+      "path": "zapote/power-entry/loss-budget/options/replacement-pair/sources/NTH4L060N065SC1-Rev3-2023-01.pdf",
+      "sha256": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4"
+    }
+  ],
+  "pdf_copies_byte_identical": true,
+  "pdf_identity_verification": "Both retained copies begin with the %PDF- header, `file` reports 'PDF document, version 1.4, 8 pages', and full SHA-256 digests are equal (e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4). Metadata Author=onsemi, Creator=BroadVision, Producer=Acrobat Distiller. Verified as a genuine onsemi manufacturer PDF.",
+
+  "gate_bias_context": {
+    "proposed_bias": "0/+15 V unipolar (task gate bias)",
+    "source_switching_test_bias": "-5/+18 V bipolar",
+    "source_switching_test_bias_swing_v": 33.0,
+    "proposed_bias_swing_v": 15.0,
+    "recommended_vgs": "-5/+18 V",
+    "absolute_vgs": "-8/+22 V",
+    "rule": "Switching-energy (Eon/Eoff/Etot) and charge rows are measured at -5/+18 V and are SPECIFIC to that bias and to VDS=400/520 V. They are NOT directly applicable to the 0/+15 V proposal and are labeled SOURCE_CONDITION_MISMATCH. They must not be silently transferred into a 0/+15 V energy or gate-loss number."
+  },
+
+  "parameters": [
+    {
+      "name": "qg_c",
+      "device_field": "qg_c",
+      "value": 74e-9,
+      "value_display": 74,
+      "unit": "nC",
+      "symbol": "QG(TOT)",
+      "condition": "VGS = -5/18 V, VDS = 520 V, ID = 20 A",
+      "page_figure": "p2 Table 2 (CHARGES, CAPACITANCES & GATE RESISTANCE), QG(TOT) row; repeated p1 Features",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Measured over a -5/+18 V (33 V) gate swing at VDS=520 V. The proposed 0/+15 V drive is a 15 V swing, so total gate charge required will be lower; the value is recorded but not directly transferable."
+    },
+    {
+      "name": "qgd_c",
+      "device_field": "qgd_c",
+      "value": 23e-9,
+      "value_display": 23,
+      "unit": "nC",
+      "symbol": "QGD",
+      "condition": "VGS = -5/18 V, VDS = 520 V, ID = 20 A",
+      "page_figure": "p2 Table 2, QGD row",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Same -5/+18 V, VDS=520 V test point as QG(TOT). Gate-drain charge is voltage-swing dependent; not directly applicable at 0/+15 V."
+    },
+    {
+      "name": "plateau_v",
+      "device_field": "plateau_v",
+      "value": null,
+      "value_display": null,
+      "unit": "V",
+      "symbol": null,
+      "condition": null,
+      "page_figure": "No numeric value published. Only p5 Figure 7 (Gate-to-Source Voltage vs Total Charge) shows a plateau region.",
+      "typical_or_guaranteed": "not_specified",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2 (absent); p5 Figure 7 (curve only)",
+      "applicability": "NOT_SPECIFIED",
+      "applicability_reason": "No Miller plateau voltage is stated as a parameter. Reading one off Figure 7 would require digitization/fitting, which this task forbids. Left null."
+    },
+    {
+      "name": "intrinsic_gate_r_ohm",
+      "device_field": "intrinsic_gate_r_ohm",
+      "value": 3.9,
+      "value_display": 3.9,
+      "unit": "ohm",
+      "symbol": "RG",
+      "condition": "f = 1 MHz (gate resistance; no drain bias or current stated)",
+      "page_figure": "p2 Table 2 (CHARGES, CAPACITANCES & GATE RESISTANCE), Gate-Resistance RG row",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Internal gate resistance is a device geometry/process property; no published dependence on gate bias or drain current. Used as-is."
+    },
+    {
+      "name": "eoss_j",
+      "device_field": "eoss_j",
+      "value": null,
+      "value_display": null,
+      "unit": "J",
+      "symbol": "Eoss",
+      "condition": null,
+      "page_figure": "No Eoss parameter published. p1 Features gives Coss = 133 pF; p5 Figure 8 gives Coss vs VDS.",
+      "typical_or_guaranteed": "not_specified",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1 (Coss=133 pF); p5 Figure 8 (Coss vs VDS curve)",
+      "applicability": "NOT_SPECIFIED",
+      "applicability_reason": "The datasheet publishes Coss at VDS=325 V and a Coss-vs-VDS curve but no stored-energy (Eoss) value, and no Eoss test condition. Computing Eoss would require digitizing Figure 8 and integrating over the actual bus voltage (400 V), which is an inference/fit. Left null."
+    },
+    {
+      "name": "rds_max_ohm",
+      "device_field": "rds_max_ohm",
+      "value": 0.070,
+      "value_display": 70,
+      "unit": "ohm",
+      "symbol": "RDS(on) MAX",
+      "condition": "VGS = 18 V, ID = 20 A, TJ = 25 C",
+      "page_figure": "p2 Table 2 (ON CHARACTERISTICS), RDS(on) VGS=18 V / TJ=25 C row (Max column = 70); headline p1",
+      "typical_or_guaranteed": "guaranteed",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2; p1 headline RDS(ON) MAX 70 mohm @ 18 V",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "The only guaranteed RDS(on) maximum is specified at VGS=18 V, ID=20 A, TJ=25 C. At the proposed VGS=15 V the datasheet gives only a 60 mohm TYPICAL and no maximum, and no guaranteed hot (100/125 C) point exists. The 70 mohm max is recorded with its true condition."
+    },
+
+    {
+      "name": "eon_j",
+      "device_field": null,
+      "value": 45e-6,
+      "value_display": 45,
+      "unit": "J",
+      "symbol": "EON",
+      "condition": "VGS = -5/18 V, VDS = 400 V, ID = 20 A, RG = 2.2 ohm, inductive load, TJ = 25 C",
+      "page_figure": "p2 Table 2 (SWITCHING CHARACTERISTICS), EON row",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Recorded per task instruction. Measured at a -5/+18 V bipolar gate swing (33 V) and one event current (20 A). Not a 0/+15 V number and not a phase-distributed PFC switching loss."
+    },
+    {
+      "name": "eoff_j",
+      "device_field": null,
+      "value": 18e-6,
+      "value_display": 18,
+      "unit": "J",
+      "symbol": "EOFF",
+      "condition": "VGS = -5/18 V, VDS = 400 V, ID = 20 A, RG = 2.2 ohm, inductive load, TJ = 25 C",
+      "page_figure": "p2 Table 2 (SWITCHING CHARACTERISTICS), EOFF row",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Same mismatch as EON. Not transferable to 0/+15 V."
+    },
+    {
+      "name": "etot_j",
+      "device_field": null,
+      "value": 63e-6,
+      "value_display": 63,
+      "unit": "J",
+      "symbol": "Etot",
+      "condition": "VGS = -5/18 V, VDS = 400 V, ID = 20 A, RG = 2.2 ohm, inductive load, TJ = 25 C",
+      "page_figure": "p2 Table 2 (SWITCHING CHARACTERISTICS), Etot row",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "EON + EOFF as published; same bias mismatch. Not to be multiplied by a PFC line-cycle frequency as a line-average loss without a phase-current model."
+    },
+    {
+      "name": "qgs_c",
+      "device_field": null,
+      "value": 20e-9,
+      "value_display": 20,
+      "unit": "nC",
+      "symbol": "QGS",
+      "condition": "VGS = -5/18 V, VDS = 520 V, ID = 20 A",
+      "page_figure": "p2 Table 2, QGS row",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Recorded for completeness. QGS is gate-to-source charge; QG - QGD is NOT a current-transfer charge and was not computed."
+    },
+    {
+      "name": "td_on_ns", "device_field": null, "value": 11, "unit": "ns", "symbol": "td(ON)",
+      "condition": "VGS = -5/18 V, VDS = 400 V, ID = 20 A, RG = 2.2 ohm, inductive load, TJ = 25 C",
+      "page_figure": "p2 Table 2 (SWITCHING CHARACTERISTICS)", "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2", "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Same -5/+18 V test point."
+    },
+    {
+      "name": "tr_ns", "device_field": null, "value": 14, "unit": "ns", "symbol": "tr",
+      "condition": "VGS = -5/18 V, VDS = 400 V, ID = 20 A, RG = 2.2 ohm, inductive load, TJ = 25 C",
+      "page_figure": "p2 Table 2 (SWITCHING CHARACTERISTICS)", "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2", "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Same -5/+18 V test point."
+    },
+    {
+      "name": "td_off_ns", "device_field": null, "value": 24, "unit": "ns", "symbol": "td(OFF)",
+      "condition": "VGS = -5/18 V, VDS = 400 V, ID = 20 A, RG = 2.2 ohm, inductive load, TJ = 25 C",
+      "page_figure": "p2 Table 2 (SWITCHING CHARACTERISTICS)", "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2", "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Same -5/+18 V test point."
+    },
+    {
+      "name": "tf_ns", "device_field": null, "value": 11, "unit": "ns", "symbol": "tf",
+      "condition": "VGS = -5/18 V, VDS = 400 V, ID = 20 A, RG = 2.2 ohm, inductive load, TJ = 25 C",
+      "page_figure": "p2 Table 2 (SWITCHING CHARACTERISTICS)", "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2", "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Same -5/+18 V test point."
+    },
+
+    {
+      "name": "rds_typ_15v_ohm", "device_field": null, "value": 0.060, "unit": "ohm", "symbol": "RDS(on)",
+      "condition": "VGS = 15 V, ID = 20 A, TJ = 25 C",
+      "page_figure": "p2 Table 2 (ON CHARACTERISTICS); p1 Features",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "The 15 V point is TYPICAL only (no max published); it is the closest-source condition to the proposed 0/+15 V bias, but it is still 25 C and typical, so it cannot substitute for a guaranteed hot maximum."
+    },
+    {
+      "name": "rds_typ_18v_ohm", "device_field": null, "value": 0.044, "unit": "ohm", "symbol": "RDS(on)",
+      "condition": "VGS = 18 V, ID = 20 A, TJ = 25 C",
+      "page_figure": "p2 Table 2 (ON CHARACTERISTICS)", "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2", "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "18 V typical; 18 V is outside the 0/+15 V proposal."
+    },
+    {
+      "name": "rds_typ_18v_175c_ohm", "device_field": null, "value": 0.050, "unit": "ohm", "symbol": "RDS(on)",
+      "condition": "VGS = 18 V, ID = 20 A, TJ = 175 C",
+      "page_figure": "p2 Table 2 (ON CHARACTERISTICS)", "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2", "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Hot point is 18 V typical only; not a 15 V value and not a guaranteed maximum."
+    },
+    {
+      "name": "vgs_th_v", "device_field": null, "value": 2.8, "value_range_v": [1.8, 4.3], "unit": "V", "symbol": "VGS(TH)",
+      "condition": "VGS = VDS, ID = 6.5 mA, TJ = 25 C",
+      "page_figure": "p2 Table 2 (ON CHARACTERISTICS), VGS(TH) row",
+      "typical_or_guaranteed": "guaranteed_range",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2",
+      "applicability": "INFORMATIONAL",
+      "applicability_reason": "Min 1.8 V / typ 2.8 V / max 4.3 V. Context for turn-on; not a plateau voltage and not used to derive one."
+    },
+    {
+      "name": "vgs_recommended", "device_field": null, "value": "-5/+18", "unit": "V", "symbol": "VGSop / VGOP",
+      "condition": "Recommended Operation Values, TC < 175 C",
+      "page_figure": "p1 MAXIMUM RATINGS (VGSop); p2 Table 2 (VGOP)",
+      "typical_or_guaranteed": "recommended",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1, p2",
+      "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Recommended operating gate-source range. The 0/+15 V proposal sits inside it."
+    },
+    {
+      "name": "vgs_absolute_max", "device_field": null, "value": "-8/+22", "unit": "V", "symbol": "VGS",
+      "condition": "Absolute maximum rating, TJ = 25 C unless otherwise noted",
+      "page_figure": "p1 MAXIMUM RATINGS (VGS)",
+      "typical_or_guaranteed": "absolute_max",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1",
+      "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Absolute maximum gate-source voltage. Do not exceed."
+    },
+    {
+      "name": "vdss_v", "device_field": null, "value": 650, "unit": "V", "symbol": "VDSS",
+      "condition": "VGS = 0 V, ID = 1 mA (breakdown); rating",
+      "page_figure": "p1 MAXIMUM RATINGS; p2 Table 2 (V(BR)DSS)",
+      "typical_or_guaranteed": "guaranteed_min",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1, p2",
+      "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Rated drain-source voltage; 400 V bus gives margin."
+    },
+    {
+      "name": "id_25c_a", "device_field": null, "value": 47, "unit": "A", "symbol": "ID",
+      "condition": "Continuous drain current, steady state, TC = 25 C (Note 1)",
+      "page_figure": "p1 MAXIMUM RATINGS", "typical_or_guaranteed": "guaranteed_max",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1", "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Package/thermal-limited continuous current; not a switching current."
+    },
+    {
+      "name": "id_100c_a", "device_field": null, "value": 33, "unit": "A", "symbol": "ID",
+      "condition": "Continuous drain current, steady state, TC = 100 C (Note 1)",
+      "page_figure": "p1 MAXIMUM RATINGS", "typical_or_guaranteed": "guaranteed_max",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1", "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Current capability falls with case temperature."
+    },
+    {
+      "name": "idm_a", "device_field": null, "value": 152, "unit": "A", "symbol": "IDM",
+      "condition": "Pulsed drain current, TC = 25 C (Note 2)",
+      "page_figure": "p1 MAXIMUM RATINGS", "typical_or_guaranteed": "guaranteed_max",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1", "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Pulsed rating only."
+    },
+    {
+      "name": "pd_25c_w", "device_field": null, "value": 176, "unit": "W", "symbol": "PD",
+      "condition": "Power dissipation, TC = 25 C (Note 1)",
+      "page_figure": "p1 MAXIMUM RATINGS", "typical_or_guaranteed": "guaranteed_max",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1", "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Requires the installed thermal path; not a standalone assembly rating."
+    },
+    {
+      "name": "is_body_diode_a", "device_field": null, "value": 35, "unit": "A", "symbol": "IS",
+      "condition": "Source current (body diode)",
+      "page_figure": "p1 MAXIMUM RATINGS", "typical_or_guaranteed": "guaranteed_max",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p1", "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Body-diode continuous current."
+    },
+    {
+      "name": "coss_pf", "device_field": null, "value": 133, "unit": "pF", "symbol": "COSS",
+      "condition": "VGS = 0 V, f = 1 MHz, VDS = 325 V",
+      "page_figure": "p2 Table 2 (CHARGES, CAPACITANCES & GATE RESISTANCE); p5 Figure 8 (Coss vs VDS)",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2; p1 Features",
+      "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Single-point typical at VDS=325 V; the PFC bus is 400 V and Coss is strongly voltage dependent. Cannot be used directly to compute Eoss."
+    },
+    {
+      "name": "ciss_pf", "device_field": null, "value": 1473, "unit": "pF", "symbol": "CISS",
+      "condition": "VGS = 0 V, f = 1 MHz, VDS = 325 V",
+      "page_figure": "p2 Table 2", "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2", "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Single-point typical capacitance; not a switching-energy input."
+    },
+    {
+      "name": "crss_pf", "device_field": null, "value": 13, "unit": "pF", "symbol": "CRSS",
+      "condition": "VGS = 0 V, f = 1 MHz, VDS = 325 V",
+      "page_figure": "p2 Table 2", "typical_or_guaranteed": "typical",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 2", "applicability": "SOURCE_CONDITION_MISMATCH",
+      "applicability_reason": "Single-point typical capacitance."
+    },
+    {
+      "name": "rthjc_c_per_w", "device_field": null, "value": 0.85, "unit": "C/W", "symbol": "R(th)JC",
+      "condition": "Junction-to-case, steady state (Note 1)",
+      "page_figure": "p2 Table 1 THERMAL RESISTANCE MAXIMUM RATINGS",
+      "typical_or_guaranteed": "guaranteed_max",
+      "source_ref": "NTH4L060N065SC1-Rev3-2023-01.pdf p2 Table 1",
+      "applicability": "DEVICE_LIMIT",
+      "applicability_reason": "Junction-to-case only; the installed heatsink/air path and assembly thermal budget are NOT established by this value."
+    }
+  ],
+
+  "switching_energies_note": "EON=45 uJ, EOFF=18 uJ, Etot=63 uJ are the only published switching energies. Their test point is VGS=-5/+18 V, VDS=400 V, ID=20 A, RG=2.2 ohm, inductive load, TJ=25 C (p2 Table 2, SWITCHING CHARACTERISTICS). This is a SOURCE_CONDITION_MISMATCH with the proposed 0/+15 V, phase-varying PFC commutation. They are recorded, NOT transferred.",
+
+  "source_failures": [],
+  "source_notes": [
+    "No source retrieval failed. The retained PDF exists under two paths and both copies are byte-identical.",
+    "The dispatch packet's `contract_path_and_sha256` names zapote/power-entry/loss-budget/campaign/contract-C1.json, but the file actually resides at zapote/power-entry/loss-budget/campaign/runs/contract-C1.json. The declared SHA-256 (3bf1125f...) matches the resolved file exactly, so this is a path-label discrepancy only, not an integrity failure.",
+    "pdftotext drops the ohm/micro glyphs during extraction, so unit cells such as 'm' (mohm), the Gate-Resistance unit column, and switching-loss 'J' (uJ) required careful reading against the table header. No numeric value was reconstructed from a dropped glyph; units were taken from the standard symbol (RG -> ohm, EON/EOFF/Etot -> J / uJ)."
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "schema": "pfc-campaign-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "B-INF",
+  "attempt_id": "attempt-001",
+  "kind": "reference_research",
+  "source_only": true,
+  "question": "Which specific model claims can the independent Infineon EVAL_2.5KW_CCM_4PIN / AN201408 reference test?",
+  "reference_identity": {
+    "board": "EVAL_2.5KW_CCM_4PIN",
+    "application_note": "AN_201408_PL11_027",
+    "title": "2.5 kW PFC evaluation board with CCM PFC Controller ICE3PCS01G",
+    "revision": "1.2",
+    "revision_date": "2015-11-02",
+    "manufacturer": "Infineon Technologies AG",
+    "primary_documents": [
+      {
+        "role": "application note / user guide (primary)",
+        "retained_path": "raw/chipdip_appnote.pdf",
+        "sha256": "fdbed1c55c3b36b71da7dd7b2938646f9f55f4cc2f36aeaa253178e3884d49ce",
+        "bytes": 1496871,
+        "magic": "%PDF-1.5",
+        "pdf_pages": 31,
+        "author": "Cioploiu Iulian (IFAT PMM SCOM)",
+        "company_marker": "www.infineon.com; Edition 2015-11-02",
+        "host": "static.chipdip.ru mirror of the Infineon-authored AN",
+        "capture_url": "https://static.chipdip.ru/lib/493/DOC011493046.pdf"
+      },
+      {
+        "role": "manufacturer slide deck (secondary)",
+        "retained_path": "raw/infineon_presentation.pdf",
+        "sha256": "b213daba3f2e92cb697fe65d9ac46449cb4ad59abc929b5ebee4e52ecc9cc78d",
+        "bytes": 1226653,
+        "magic": "%PDF-1.5",
+        "pdf_pages": 16,
+        "host": "infineon.com (manufacturer direct)",
+        "capture_url": "https://www.infineon.com/assets/row/public/documents/24/63/infineon-presentation-2.5kw-pfc-evaluation-board-ap-en.pdf?fileId=5546d462503812bb01505c35f63b1614"
+      }
+    ],
+    "derived_extracts": [
+      "raw/extracted/chipdip_appnote.txt",
+      "raw/extracted/infineon_presentation.txt",
+      "raw/extracted/chipdip_appnote.pdfinfo.txt",
+      "raw/extracted/infineon_presentation.pdfinfo.txt",
+      "raw/extracted/appnote_p12_schematic-12.png",
+      "raw/extracted/appnote_p12_powerstage-12.png",
+      "raw/extracted/appnote_p12_boostdiode-12.png",
+      "raw/extracted/appnote_p12_gl-12.png"
+    ],
+    "revision_note": "The AN/board is from 2015. Device package/order codes may have later revisions; only this Rev 1.2 is captured here."
+  },
+  "populated_circuit": {
+    "evidence_base": "AN_201408_PL11_027 Rev 1.2 Table 1 p.4, Table 2 pp.14-16, Figure 6 p.12, section 8 p.17",
+    "topology": "single-switch CCM boost PFC, average-current control",
+    "default_configuration": "4-pin source-sense (standard setting; J7 closed). 3-pin selectable by opening J7 and closing J6 or J8.",
+    "controller": {
+      "value": "ICE3PCS01G",
+      "designator": "IC3",
+      "note": "14-pin DSO14 CCM PFC controller, 21-250 kHz"
+    },
+    "gate_driver": {
+      "value": "1EDI60N12AF",
+      "designator": "IC4",
+      "note": "EiceDRIVER Compact, isolated CT, 6 A output headline, separate Out+/Out- joined on this board"
+    },
+    "boost_switch": {
+      "designator": "DUT1A",
+      "mpn": "IPZ60R040C7",
+      "package": "TO-247 4-pin",
+      "parallel_count": 1,
+      "note": "600 V CoolMOS C7, ~19 mOhm / 40 mOhm class cited in text (19 mOhm in section 1.5, 40 in the order code R040)"
+    },
+    "boost_diode": {
+      "designator": "DUT1(D)",
+      "mpn": "CONFLICT",
+      "candidates": [
+        {"value": "IDH16G65C5", "where": "section 1.3 p.4; reference 3 p.29; Figure 12/13 captions p.20; presentation slide 5"},
+        {"value": "IDH16S65C5", "where": "section 3.2 p.7"},
+        {"value": "IDH12S65C5", "where": "Figure 6 schematic raster p.12 (read at 400 dpi, low confidence)"}
+      ],
+      "parallel_count": 1,
+      "note": "Same document names three different MPNs. Exact populated diode identity is NOT resolvable from this source; do not select one."
+    },
+    "input_rectifier": {
+      "designator": "GL1, GL2",
+      "mpn": "GSIB2580",
+      "parallel_count": 2,
+      "note": "Two 25 A 800 V bridges drawn in parallel from the AC line to the DC rail (schematic p.12). No forward-drop curve given."
+    },
+    "boost_inductor": {
+      "designator": "L1",
+      "mpn": "hand-wound; 2 x Magnetics 77083A7 Kool Mu toroid, 64 turns 1.15 mm wire",
+      "inductance": "~600 uH at 100 kHz",
+      "note": "section 8 p.17. Small-signal at 100 kHz; no L-vs-bias, tolerance or hot DCR data."
+    },
+    "current_sense_shunt": {"designator": "R24", "value": "0R005", "mpn": "FCSL90R005FE"},
+    "bulk_capacitors": {"designators": "C21, C24", "value": "560 uF each", "note": "plus C30, C8 100 nF/500 V"},
+    "gate_resistor": {
+      "designator": "X6 (Rg_4pin) / X7 (Rg_3pin)",
+      "mpn": "CONFLICT",
+      "candidates": [
+        {"value": "3.3 ohm", "where": "Figure 12/13 captions p.20 ('@ 65 kHz & 100 kHz 3.3 ohm')"},
+        {"value": "20 ohm", "where": "schematic p.12 raster: R9=20R (Rg_4pin), R16=20R (Rg_3pin)"},
+        {"value": "10 ohm", "where": "Table 2 component list: R7, R11 = 10 ohm"}
+      ],
+      "note": "Turn-on and turn-off outputs are joined on this board, so the path is nominally symmetric, but the populated resistance value is unresolved."
+    },
+    "gate_bias_v": {"value": null, "note": "Driver supply rail not stated numerically in the captured pages. UNKNOWN."},
+    "input_fuse": {"value": "none", "note": "section 3.1 p.7 explicitly: AC input side includes no fuse; external protection required."},
+    "auxiliary": {
+      "mpn": ["IFX91041 (1.8 A step-down, IC5)", "ICE3RBR4765JZ CoolSET (presentation slide 5; not in Table 2)", "TDA2030 (IC1)", "LM4040 (IC2)"],
+      "note": "auxiliary rail generation exists; its loss is not itemised"
+    },
+    "cooling": {
+      "note": "Two 60 mm fans (M1, M2 PMD1206PTB1-A); dedicated bridge fan with R28 speed trim; DUT heatsink has parallel heat/cool with setpoint via R4 (standard 50 C)"
+    }
+  },
+  "measured_operating_points": [
+    {
+      "id": "AN201408-Table3-230Vac-100kHz-full",
+      "source": "Table 3, p.20",
+      "switching_hz": 100000,
+      "heatsink_temp_c": 60,
+      "line_rms_v": 229.56,
+      "input_current_rms_a": 11.178,
+      "input_power_w": 2561.5,
+      "bus_v": 401.15,
+      "output_current_a": 6.235,
+      "output_power_w": 2500.9,
+      "efficiency": 0.976342,
+      "units_note": "as printed; VIN/VOUT are the board's own sense points"
+    },
+    {
+      "id": "AN201408-Table3-230Vac-100kHz-1p8kW",
+      "source": "Table 3, p.20",
+      "switching_hz": 100000,
+      "heatsink_temp_c": 60,
+      "line_rms_v": 229.72,
+      "input_current_rms_a": 7.807,
+      "input_power_w": 1789.0,
+      "bus_v": 401.24,
+      "output_current_a": 4.3698,
+      "output_power_w": 1753.2,
+      "efficiency": 0.9799888,
+      "note": "closest table row to the C1 nominal input power (1796.31 W); same board, not the C1 line/frequency/device set"
+    },
+    {
+      "id": "AN201408-Table3-85Vac-100kHz-max",
+      "source": "Table 3, p.20",
+      "switching_hz": 100000,
+      "heatsink_temp_c": 60,
+      "line_rms_v": 84.31,
+      "input_current_rms_a": 15.215,
+      "input_power_w": 1280.2,
+      "bus_v": 401.34,
+      "output_current_a": 2.9842,
+      "output_power_w": 1197.6,
+      "efficiency": 0.9354788,
+      "note": "low-line current-limited end of the captured table; exceeds the C1 15 A true-RMS ceiling"
+    },
+    {
+      "id": "AN201408-section3.2.1-3pin-vs-4pin-claim",
+      "source": "section 3.2.1 p.7",
+      "conditions": "CCM PFC at 1.2 kW, package comparison 3-pin vs 4-pin",
+      "claim": "up to 8% lower switching losses, ~3.5 W saved, ~0.3% full-load efficiency",
+      "evidence_class": "manufacturer claim, no waveform or per-device energy shown"
+    },
+    {
+      "id": "AN201408-section1.5",
+      "source": "section 1.5 p.5",
+      "conditions": "not specified",
+      "claim": "6 A driver output needed to switch the ~19 mOhm CoolMOS",
+      "evidence_class": "design rationale, not a measurement"
+    },
+    {
+      "id": "AN201408-Fig13-low-line-65-100kHz",
+      "source": "Figures 12 & 13, p.20",
+      "conditions": "heatsink 60 C, gate 3.3 ohm, 65 kHz and 100 kHz, 4-pin and 3-pin",
+      "measured_quantity": "whole-board efficiency vs Pout, 85 Vac and 230 Vac",
+      "evidence_class": "graphical whole-board efficiency; no per-device data"
+    }
+  ],
+  "waveform_observability": {
+    "whole_board_efficiency": {"present": true, "where": "Table 3 p.20; Figures 12-13 p.20"},
+    "measured_eon_eoff": {"present": false},
+    "per_device_loss": {"present": false},
+    "raw_switching_waveforms": {"present": false},
+    "vgs_vds_id_scope_captures": {"present": false},
+    "conducted_emi_spectra": {"present": true, "where": "Figures 14-18, pp.22-25"},
+    "startup_waveform": {"present": true, "where": "Figure 19 p.27 (soft-start, low line, 1 kW); line-frequency/DC envelope, not a switching-cycle capture"},
+    "device_junction_temperature": {"present": false, "note": "only a 60 C heat-sink setpoint (test) and 50 C standard setpoint (section 3.4) are given"},
+    "verdict": "Whole-board efficiency only. No per-device Eon/Eoff, no per-device current/bias/temperature, no switching-cycle waveforms. A whole-board efficiency is NOT a per-device Eon/Eoff."
+  },
+  "applicability_table": [
+    {"model_input": "line_rms_v", "needed_by": "pfc_currents::Config.line_rms_v (C1: 108/120/132)", "source_row": "Table 3: 84.5-84.9 V and 229.6-230.0 V", "status": "SOURCED_DIFFERENT_LINES", "note": "reference lines are 85/230 Vac, not the C1 lines; usable only for the reference's own operating point"},
+    {"model_input": "line_frequency_hz", "needed_by": "documentation-only in C1 (60 Hz)", "source_row": "Table 1 input frequency 47-63 Hz", "status": "UNKNOWN", "note": "the exact test-line frequency is not stated"},
+    {"model_input": "bus_v", "needed_by": "pfc_currents::Config.bus_v; pfc_switching::Config.bus_v", "source_row": "Table 3: 401.15-401.49 V", "status": "SOURCED", "note": "~401 V measured vs C1 400 V setpoint"},
+    {"model_input": "switching_hz", "needed_by": "pfc_currents::Config.switching_hz; pfc_switching::Config.switching_hz", "source_row": "Table 1 (board default 65 kHz); Table 3 (100 kHz); Figures 12/13 (65 and 100 kHz)", "status": "SOURCED", "note": "no 129 kHz datum"},
+    {"model_input": "effective_inductance_h", "needed_by": "pfc_currents::Config.inductance_h (baseline 180 uH)", "source_row": "section 8 p.17: ~600 uH at 100 kHz", "status": "SOURCED_DIFFERENT_VALUE", "note": "600 uH vs 180 uH baseline; value is at 100 kHz, no bias/temperature curve"},
+    {"model_input": "input_rms_ceiling_a", "needed_by": "pfc_currents (C1: 15 A true RMS)", "source_row": "Table 1 14 Aeff design; Table 3 up to 15.215 A in", "status": "SOURCED_WHOLE_BOARD", "note": "board input current, not the switch RMS"},
+    {"model_input": "input_power_w / output_power_w", "needed_by": "pfc_candidates requirement; efficiency closure", "source_row": "Table 3 full rows", "status": "SOURCED", "note": "whole-board only; device losses are not separated"},
+    {"model_input": "turn_on_current_a", "needed_by": "pfc_switching::Config.turn_on_current_a (event current)", "source_row": null, "status": "UNKNOWN", "note": "no per-device switching current waveform or value"},
+    {"model_input": "turn_off_current_a", "needed_by": "pfc_switching::Config.turn_off_current_a", "source_row": null, "status": "UNKNOWN"},
+    {"model_input": "switch_rms_a (duty-weighted)", "needed_by": "pfc_switching::Config.switch_rms_a", "source_row": null, "status": "UNKNOWN", "note": "whole-board input RMS cannot substitute for duty-weighted switch RMS"},
+    {"model_input": "gate_bias_v", "needed_by": "pfc_switching::Config.gate_bias_v", "source_row": null, "status": "UNKNOWN", "note": "driver rail not printed; 12 V only implied by the fan/aux circuits"},
+    {"model_input": "qg_c", "needed_by": "pfc_switching::Config.qg_c", "source_row": null, "status": "UNKNOWN_OUT_OF_SCOPE", "note": "would come from the IPZ60R040C7 datasheet, not this AN"},
+    {"model_input": "qgd_c", "needed_by": "pfc_switching::Config.qgd_c", "source_row": null, "status": "UNKNOWN_OUT_OF_SCOPE"},
+    {"model_input": "current_transfer_charge_c", "needed_by": "pfc_switching::Config.current_transfer_charge_c", "source_row": null, "status": "UNKNOWN", "note": "never measured in this document; the model's 5/10/20 nC points are assumed"},
+    {"model_input": "gate_plateau_v", "needed_by": "pfc_switching::Config.gate_plateau_v", "source_row": null, "status": "UNKNOWN"},
+    {"model_input": "external_gate_r_ohm (turn-on/off path)", "needed_by": "pfc_switching::Config.external_gate_r_ohm; GatePath", "source_row": "CONFLICT: 3.3 ohm (Fig 12/13 captions), 20 ohm (R9/R16 schematic), 10 ohm (R7/R11 component list)", "status": "SOURCE_CONFLICT", "note": "no single populated value can be selected"},
+    {"model_input": "intrinsic_gate_r_ohm", "needed_by": "pfc_switching::Config.intrinsic_gate_r_ohm", "source_row": null, "status": "UNKNOWN_OUT_OF_SCOPE"},
+    {"model_input": "driver_source_peak_a / sink_peak_a", "needed_by": "pfc_switching::Config.driver_source_peak_a / driver_sink_peak_a", "source_row": "section 1.5 p.5: '6 A capability'", "status": "HEADLINE_ONLY", "note": "peak headline is not the I-V curve the model consumes; Out+/Out- are joined"},
+    {"model_input": "coss_energy_j (Eoss)", "needed_by": "pfc_switching::Config.coss_energy_j", "source_row": null, "status": "UNKNOWN_OUT_OF_SCOPE", "note": "device datasheet, not this AN"},
+    {"model_input": "loop_inductance_h", "needed_by": "pfc_switching::Config.loop_inductance_h", "source_row": null, "status": "UNKNOWN", "note": "no commutation-loop inductance measurement"},
+    {"model_input": "rds_on_ohm (25 C and hot)", "needed_by": "pfc_switching::Config.rds_on_ohm; pfc_losses::resistance_at_temperature", "source_row": null, "status": "UNKNOWN_OUT_OF_SCOPE", "note": "device datasheet; only a '~19 mOhm' prose hint (section 1.5) and the R040 order code appear"},
+    {"model_input": "diode Vf intercept/slope, Qc, recovery", "needed_by": "pfc_losses::diode_w; boost-diode term", "source_row": "identity CONFLICT (IDH16G65C5 / IDH16S65C5 / IDH12S65C5)", "status": "SOURCE_CONFLICT", "note": "no diode curve in this AN regardless"},
+    {"model_input": "bridge forward drop / slope", "needed_by": "pfc_candidates bridge term", "source_row": "GSIB2580 x2 identity only", "status": "IDENTITY_ONLY", "note": "no Vf(I, T) curve and no current-sharing measurement"},
+    {"model_input": "inductor DCR and core/AC loss", "needed_by": "inductor_dc / inductor_ac / inductor_core terms", "source_row": "core identity + 600 uH small-signal only", "status": "IDENTITY_ONLY", "note": "no DCR, no core-loss curve, no AC-winding loss"},
+    {"model_input": "shunt resistance", "needed_by": "shunt term", "source_row": "R24 0R005 (FCSL90R005FE)", "status": "SOURCED"},
+    {"model_input": "capacitor ESR", "needed_by": "capacitor_esr term", "source_row": "C21/C24 560 uF identity only", "status": "IDENTITY_ONLY"},
+    {"model_input": "device junction temperature", "needed_by": "temperature-conditioned Rds/diode", "source_row": "60 C heat-sink setpoint (test); 50 C standard setpoint", "status": "UNKNOWN", "note": "a heat-sink setpoint is not a junction or ambient temperature"},
+    {"model_input": "ambient / installed airflow", "needed_by": "cooling_electrical; thermal path", "source_row": "fans M1/M2 named; no airflow figure", "status": "PARTIAL", "note": "no m3/s or thermal resistance"},
+    {"model_input": "input bridge topology (parallel count)", "needed_by": "bridge term element count", "source_row": "schematic p.12: GL1, GL2 = 2 x GSIB2580 in parallel", "status": "SOURCED", "note": "two bridges is a real difference from the single-GBJ production board"},
+    {"model_input": "gate/auxiliary rail generation loss", "needed_by": "controller_aux_conversion / driver_static", "source_row": "IFX91041 / CoolSET / TDA2030 named", "status": "IDENTITY_ONLY", "note": "no rail current or efficiency"}
+  ],
+  "waveform_observability_verdict": "NO per-device switching-energy observability; whole-board efficiency only.",
+  "source_failures": [
+    {
+      "url": "https://www.mouser.com/datasheet/2/196/Infineon_ApplicationNote_EVAL_2_5KW_CCM_4PIN_Appli-3132085.pdf",
+      "http_code": 200,
+      "content_type": "text/html",
+      "bytes": 13897,
+      "retained_path": "raw/mouser_appnote.html",
+      "sha256": "f5a88baf3583289c2429193f98e72fe4ecffd504e75193db2fafb49ba3e96a3e",
+      "reason": "JS/consent wall returned HTML; not a PDF. Retained as a failure capture, not treated as a document."
+    },
+    {
+      "url": "https://www.infineon.com/dgdl/Infineon-AN_201408_PL11_027_EVAL_2.5kW_CCM_4PIN-ApplicationNotes-v01_02-EN.pdf?fileId=5546d462503812bb01505c35f63b1614",
+      "http_code": 404,
+      "content_type": "text/html",
+      "bytes": 1523888,
+      "retained_path": "raw/infineon_appnote_attempt_404.html",
+      "sha256": "d454c6105c2b0f24ff5b317166a252a9fd04c1ba3aaa346050017b8779cf209b",
+      "reason": "Guessed canonical Infineon dgdl path does not resolve; HTML 404 body returned."
+    }
+  ],
+  "capture_success": true,
+  "capture_note": "Primary application note captured (chipdip mirror of the Infineon-authored AN_201408_PL11_027 Rev 1.2) plus the Infineon-hosted slide deck. Direct Infineon app-note URL and Mouser mirror failed; failure records retained."
+}

@@ -1,0 +1,105 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "template_only": false,
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "B-INF",
+  "attempt_id": "attempt-001",
+  "contract_sha256": "3bf1125fe37e8df6a493449ec5edfa01082fdd9e40a8d5d724147b388737f183",
+  "source_revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+  "model_source_sha256": null,
+  "binary_sha256": null,
+  "checker_sha256": null,
+  "dirty_state": "unknown; source-only task, no solver or model bytes used",
+  "requested_model": "not_applicable: source-only task; no solver invocation issued",
+  "served_model_receipt": null,
+  "task_completion": "FINISHED",
+  "evidence_status": "INSUFFICIENT_EVIDENCE",
+  "numerical_status": "NOT_RUN",
+  "physical_applicability": "INDETERMINATE",
+  "assembly_completeness": "INCOMPLETE",
+  "hardware_qualification": "NOT_PERFORMED",
+  "hypothesis": "The independent Infineon EVAL_2.5KW_CCM_4PIN / AN201408 reference can test at least one specific claim of the maintained PFC switching model.",
+  "actual_changed_variables": [],
+  "controls": [],
+  "case_census": {
+    "expected": 0,
+    "attempted": 0,
+    "valid": 0,
+    "failed": 2,
+    "unsupported": 0,
+    "unrun": 0,
+    "case_ids": [],
+    "note": "Source-only task: no solver case grid. The two failures are document-capture failures (Mouser HTML wall, Infineon guessed dgdl 404), not model cases."
+  },
+  "cases": [],
+  "ledger": [
+    {"term": "mosfet_conduction", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": "boost switch die only", "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "no duty-weighted switch RMS current and no hot Rds(on) for IPZ60R040C7 in this source"},
+    {"term": "switching_commutation", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": "boost switch turn-on/turn-off overlap; Eoss counted once", "overlaps_with": ["output_capacitance"], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "no Eon/Eoff, no Vds/Id/Vgs waveform, no event currents, no gate bias/plateau, no loop inductance"},
+    {"term": "gate_network", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": "driver+gate resistor network, not all die heat", "overlaps_with": ["driver_static"], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "Qg, gate bias and populated gate resistance unresolved (3.3/10/20 ohm conflict)"},
+    {"term": "driver_static", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": ["gate_network", "controller_aux_conversion"], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "1EDI60N12AF quiescent/loaded supply current not given; 6 A is a peak headline"},
+    {"term": "boost_diode", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "populated diode MPN conflicts across the document (IDH16G65C5 / IDH16S65C5 / IDH12S65C5); no diode curve"},
+    {"term": "input_rectification", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": "two GSIB2580 in parallel", "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "no Vf(I,T) curve and no current-sharing measurement"},
+    {"term": "inductor_dc", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": ["inductor_ac"], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "no DCR for the hand-wound 77083A7 choke"},
+    {"term": "inductor_ac", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": ["inductor_dc"], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "no AC-winding loss data"},
+    {"term": "inductor_core", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "core identity only; no core-loss curve at the actual ripple and frequency"},
+    {"term": "shunt", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": ["R24 0R005 FCSL90R005FE"], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "resistance sourced, but no waveform RMS for this shunt in the document"},
+    {"term": "capacitor_esr", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "C21/C24 identity only; no ESR"},
+    {"term": "emi_components", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "EMI filter parts identity only; conducted spectra present but no component loss"},
+    {"term": "pcb_vias_contacts_fuse_relay_ntc", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "R_NTC2/REL1 identity only; no input fuse; no loss data"},
+    {"term": "controller_aux_conversion", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": ["driver_static"], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "IFX91041 / CoolSET / TDA2030 rails named, no rail currents"},
+    {"term": "cooling_electrical", "value_w": null, "evidence_class": "UNKNOWN", "source_refs": [], "source_conditions": null, "accounting_boundary": null, "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "fan electrical power not stated; only a 60 C heat-sink setpoint"}
+  ],
+  "supported_subtotals": [],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+  "assembly_cost": {"value": null, "currency": null, "quantity_basis": null, "observation_date": null, "coverage": []},
+  "assembly_volume_mm3": null,
+  "temperature_predictions": [],
+  "constraint_findings": [
+    {
+      "finding": "NO_MATCHED_SWITCHING_ENERGY_REFERENCE",
+      "detail": "The reference exposes whole-board efficiency and EMI/startup scope captures only. It contains no per-device Eon/Eoff, no Vgs/Vds/Id waveform, no event current, no gate bias/plateau and no junction temperature. The maintained model's central claim (clamped-inductive overlap + gate-network partial subtotal) cannot be tested by this document.",
+      "evidence": "inputs.json waveform_observability; AN_201408 Rev 1.2 section 10, Figures 12-19"
+    },
+    {
+      "finding": "DEVICE_IDENTITY_PARTIAL_MATCH",
+      "detail": "The board's boost switch (IPZ60R040C7) is the exact device named in campaign task K-SILICON, and its driver (1EDI60N12AF) is a concrete 6 A isolated driver. This supplies a device-identity and a whole-board efficiency datum for that candidate, but not a device-level switching-energy validation.",
+      "evidence": "AN Table 2 p.14-16; campaign tasks.json K-SILICON"
+    },
+    {
+      "finding": "SOURCE_CONFLICTS",
+      "detail": "Boost-diode MPN and populated gate resistance each conflict across document locations; no single value may be selected. See inputs.json populated_circuit.",
+      "evidence": "AN section 1.3/3.2, Figure 6, Figure 12/13 captions, Table 2"
+    }
+  ],
+  "unsupported_cases": [],
+  "source_failures": [
+    {"url": "https://www.mouser.com/datasheet/2/196/Infineon_ApplicationNote_EVAL_2_5KW_CCM_4PIN_Appli-3132085.pdf", "http_code": 200, "content_type": "text/html", "bytes": 13897, "retained_path": "raw/mouser_appnote.html", "sha256": "f5a88baf3583289c2429193f98e72fe4ecffd504e75193db2fafb49ba3e96a3e", "reason": "JS/consent wall returned HTML; not a PDF."},
+    {"url": "https://www.infineon.com/dgdl/Infineon-AN_201408_PL11_027_EVAL_2.5kW_CCM_4PIN-ApplicationNotes-v01_02-EN.pdf?fileId=5546d462503812bb01505c35f63b1614", "http_code": 404, "content_type": "text/html", "bytes": 1523888, "retained_path": "raw/infineon_appnote_attempt_404.html", "sha256": "d454c6105c2b0f24ff5b317166a252a9fd04c1ba3aaa346050017b8779cf209b", "reason": "Guessed canonical Infineon dgdl path does not resolve; HTML 404 returned."}
+  ],
+  "tool_failures": [],
+  "raw_artifacts": [
+    {"path": "raw/chipdip_appnote.pdf", "sha256": "fdbed1c55c3b36b71da7dd7b2938646f9f55f4cc2f36aeaa253178e3884d49ce"},
+    {"path": "raw/infineon_presentation.pdf", "sha256": "b213daba3f2e92cb697fe65d9ac46449cb4ad59abc929b5ebee4e52ecc9cc78d"},
+    {"path": "raw/mouser_appnote.html", "sha256": "f5a88baf3583289c2429193f98e72fe4ecffd504e75193db2fafb49ba3e96a3e"},
+    {"path": "raw/infineon_appnote_attempt_404.html", "sha256": "d454c6105c2b0f24ff5b317166a252a9fd04c1ba3aaa346050017b8779cf209b"},
+    {"path": "raw/capture_log.txt", "sha256": "c731543509c7fce5cb0fc5a706ddfcc973445f5b19536650a1be50af03d87718"},
+    {"path": "raw/extracted/chipdip_appnote.txt", "sha256": "01b6d14ef6dff548d336e2b0681871f2169796c07e5547d41c1db69f980c3b70"},
+    {"path": "raw/extracted/infineon_presentation.txt", "sha256": "16bfc50e7ceee2fa15a0b22e784fe83ac2c760a1b80fc066c2fb2579bf783269"},
+    {"path": "inputs.json", "sha256": "9df6db5d7a51e9d9846ac73be31498d5c4dafad643319ff0e6ea772f02599c62"},
+    {"path": "REPORT.md", "sha256": "0ae9a0d919f36d5d46c02c9eb7fced43146c75239997ac5e956dadea1073f96d"}
+  ],
+  "manifest_sha256": null,
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+  "next_discriminating_observation": "Obtain an Infineon (or other) publication that shows a per-device clamped-inductive switching capture for IPZ60R040C7 or the campaign baseline IPW65R045C7 with stated bus voltage, event current, gate bias/resistance and temperature (e.g. a double-pulse or CCM switching-energy figure), so the model's overlap term can be compared against a device-level energy rather than whole-board efficiency.",
+  "budget": {
+    "deadline_utc": "2026-09-17T22:30:00Z",
+    "elapsed_seconds": null,
+    "solver_invocations": 0,
+    "remaining_invocations": 0
+  },
+  "example_warning": "Template nulls mean unfilled/unknown, never zero. Numerical status is NOT_RUN; no solver was invoked."
+}

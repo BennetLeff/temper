@@ -1,0 +1,307 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "template_only": true,
+  "campaign_id": null,
+  "task_id": null,
+  "attempt_id": null,
+  "contract_sha256": null,
+  "source_revision": null,
+  "model_source_sha256": null,
+  "binary_sha256": null,
+  "checker_sha256": null,
+  "dirty_state": null,
+  "requested_model": null,
+  "served_model_receipt": null,
+  "task_completion": "NOT_RUN",
+  "evidence_status": "NOT_REVIEWED",
+  "numerical_status": "NOT_RUN",
+  "physical_applicability": "INDETERMINATE",
+  "assembly_completeness": "INCOMPLETE",
+  "hardware_qualification": "NOT_PERFORMED",
+  "hypothesis": null,
+  "actual_changed_variables": [],
+  "controls": [],
+  "case_census": {
+    "expected": null,
+    "attempted": 0,
+    "valid": 0,
+    "failed": 0,
+    "unsupported": 0,
+    "unrun": null,
+    "case_ids": []
+  },
+  "cases": [],
+  "case_record_instructions": "Each case must contain ID; requested and achieved inputs; raw artifact refs/hashes; tool outcome; solved true RMS and event/component moments; source-conditioned temperature; named loss ledger; uncertainty and model domain; per-case findings. Copy ledger_template into each case; do not use one aggregate to conceal failures. G0 implements and publishes the exact typed schema.",
+  "ledger_template": [
+    {
+      "term": "mosfet_conduction",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "switching_commutation",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "gate_network",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "driver_static",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "boost_diode",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "input_rectification",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "inductor_dc",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "inductor_ac",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "inductor_core",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "shunt",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "capacitor_esr",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "emi_components",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "pcb_vias_contacts_fuse_relay_ntc",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "controller_aux_conversion",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    },
+    {
+      "term": "cooling_electrical",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "source_refs": [],
+      "source_conditions": null,
+      "accounting_boundary": null,
+      "overlaps_with": [],
+      "uncertainty": {
+        "kind": "UNKNOWN",
+        "lower_w": null,
+        "upper_w": null,
+        "basis": null
+      },
+      "missing_evidence": null
+    }
+  ],
+  "supported_subtotals": [],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+  "assembly_cost": {
+    "value": null,
+    "currency": null,
+    "quantity_basis": null,
+    "observation_date": null,
+    "coverage": []
+  },
+  "assembly_volume_mm3": null,
+  "temperature_predictions": [],
+  "constraint_findings": [],
+  "unsupported_cases": [],
+  "source_failures": [],
+  "tool_failures": [],
+  "raw_artifacts": [],
+  "manifest_sha256": null,
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+  "next_discriminating_observation": null,
+  "budget": {
+    "deadline_utc": null,
+    "elapsed_seconds": null,
+    "solver_invocations": 0,
+    "remaining_invocations": null
+  },
+  "example_warning": "Template nulls mean unfilled/unknown, never zero. Do not submit with template_only=true. Absence of model support or hardware evidence cannot be converted to PASS."
+}

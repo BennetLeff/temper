@@ -1,0 +1,100 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "K-SIC18",
+  "attempt_id": "attempt-001",
+  "generated_at_utc": "2026-09-17T21:28:04Z",
+  "run_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/K-SIC18/attempt-001",
+  "source_revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+  "hash_convention": "produced_files paths are relative to this run directory; delivered_input_dependencies paths are relative to the repository root. manifest.json is excluded from its own contents.",
+  "produced_files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 6443,
+      "sha256": "89b1c3d19d02531b459754cfdddf5e2d86b2848665a77cc0681ba7b656a9e0d1"
+    },
+    {
+      "path": "inputs.json",
+      "bytes": 15037,
+      "sha256": "cdb229d3643af8f02496098a57bb9c93f7dab6a9a9850418b1e8c44f20950fad"
+    },
+    {
+      "path": "result.json",
+      "bytes": 10243,
+      "sha256": "e07ab7ac295d2ed6e10202ea08dd9bccf361c12b796d0510c448129d99596a03"
+    },
+    {
+      "path": "raw/infineon-imza65r048m1h-datasheet-en.pdf",
+      "bytes": 1014353,
+      "sha256": "359a804c4ac29355167fd82205f3020b1949540a597cc83fa9725572aa58e5c1"
+    },
+    {
+      "path": "raw/infineon-imza65r048m1h-datasheet-en.txt",
+      "bytes": 46015,
+      "sha256": "41de6aaeb3f1d5b74d8d24c10002129d88baee4214b1c1192c36c69362422104"
+    },
+    {
+      "path": "raw/infineon_headers.txt",
+      "bytes": 9805,
+      "sha256": "fc32e499ec4150cb781e68cc11fb59aa9cff1552478d92cc05e4cf2cf684bae7"
+    },
+    {
+      "path": "raw/pages/page01.png",
+      "bytes": 518027,
+      "sha256": "08745a28e91f0fad46749cfe87e9f0711e3ea1caf4fe6d0e693bc9c46d9b9ea6"
+    },
+    {
+      "path": "raw/pages/page01_pinout_crop.png",
+      "bytes": 319834,
+      "sha256": "37390c91c00b49718bcf5cd064164dc5104f8b2fdfe04f060407454093a3caa2"
+    },
+    {
+      "path": "raw/pages/page03.png",
+      "bytes": 344445,
+      "sha256": "49a962e50fe95e154326dd790e1a1d486d202f1a4dff5ac0c87f231262415adc"
+    },
+    {
+      "path": "raw/pages/page05.png",
+      "bytes": 188946,
+      "sha256": "a423245db8de59b5a3952509b0458d14a79a089ff910509dece6d207a4888ad8"
+    },
+    {
+      "path": "raw/pages/page06.png",
+      "bytes": 418123,
+      "sha256": "45f69700e191a4474d8068751b580d4b532d0a98cf5d961fe52329132e0e1077"
+    },
+    {
+      "path": "raw/pages/page07.png",
+      "bytes": 213085,
+      "sha256": "10fb901a477d39faa4ef08c7085262fa8d376490233c63b4522b967f98ea03c6"
+    },
+    {
+      "path": "raw/pages/page11.png",
+      "bytes": 192068,
+      "sha256": "79c495a93e9195e9b30dccedef43fd9e3ad7bf864e66cfff7a735f5a74c889cd"
+    }
+  ],
+  "delivered_input_dependencies": [
+    {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/K-SIC18/attempt-001/dispatch.json",
+      "sha256": "479084635b4e80496d9430cffcdf121cd2755783e5000543148f515c44b0a644"
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.json",
+      "sha256": "3bf1125fe37e8df6a493449ec5edfa01082fdd9e40a8d5d724147b388737f183"
+    },
+    {
+      "path": "docs/plans/2026-09-17-pfc-experiment-campaign/WORKER.md",
+      "sha256": "e1ba8d0fa23834e70b8744c9ce258697a23f50a28eee4e162af6a84fa9d2bfb4"
+    },
+    {
+      "path": "docs/plans/2026-09-17-pfc-experiment-campaign/tasks.json",
+      "sha256": "006fc8199a9996be64f01acf22ebf714a8e82c4791fb35f3404fdce23854a720"
+    },
+    {
+      "path": "docs/plans/2026-09-17-1342-pfc-experiment-campaign-plan.md",
+      "sha256": "d02d41b529762af363499e3fffc1bb9bc24dbd41f9defa365430ea78f0e0d8c5"
+    }
+  ],
+  "note": "dispatch.json is a coordinator-delivered input, not a produced file, so it appears only under delivered_input_dependencies."
+}

@@ -1,0 +1,729 @@
+{
+  "schema": "pfc-campaign-task-registry-draft/v1",
+  "status": "PLAN_ONLY_NOT_DISPATCHED",
+  "base_revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+  "contract": "C1 in the campaign plan; coordinator must freeze actual bytes",
+  "worker_packet": "docs/plans/2026-09-17-pfc-experiment-campaign/WORKER.md",
+  "defaults": {
+    "one_agent_per_task": true,
+    "requested_model": "gpt-5.6-luna",
+    "research_minutes": 60,
+    "numerical_minutes": 90,
+    "max_solver_invocations": 48,
+    "max_candidates": 3,
+    "max_primary_sources": 8,
+    "ordinary_worker_edits": "Assigned run directory only; no production code/CAD/BOM or acceptance changes"
+  },
+  "coordinator_barriers": {
+    "REFERENCE_FREEZE": "Accepted immutable Breadth A reference design, config and source hashes; not an agent task.",
+    "SHORTLIST_FREEZE": "Accepted immutable candidates and exactly two changes for X1; not an agent task."
+  },
+  "tasks": [
+    {
+      "id": "G0",
+      "kind": "infrastructure",
+      "wave": 0,
+      "depends_on": [],
+      "hypothesis_or_question": "Can one frozen Rust runner/checker express and police the campaign without duplicating the existing physics?",
+      "allowed_change": "New campaign adapter/checker and registration/tests only; existing production model changes require a separately reviewed defect fix.",
+      "method": [
+        "Read main plan and CHECKER.md.",
+        "Own new zapote-harness campaign adapter/bin/tests and minimal registration. Reuse zapote-erc public kernels.",
+        "Validate strict input/output schemas, bounded true-RMS power solve, exact case census and semantic evidence binding.",
+        "Preserve experiment01/02 numerical and serialized behavior. Implement actual machine rejection for the required mutations.",
+        "Publish implemented schema, real CLI commands, executable/source hashes and accepted readiness receipt."
+      ],
+      "required_specific_deliverable": "Rust implementation, tests, mutation logs, replay, shared-suite results, CLI guide and coordinator readiness review.",
+      "stop_rule": "Stop fan-out on any missing enforcement or changed historical behavior. Four-hour checkpoint budget; incomplete work stays incomplete.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 240,
+      "solver_invocation_limit": null,
+      "budget_note": "Coordinator must supply explicit implementation test/build and edit budgets, separate from the 48-invocation numerical-worker budget; no open-ended repair loops."
+    },
+    {
+      "id": "R0",
+      "kind": "verification",
+      "wave": 0,
+      "depends_on": [
+        "G0"
+      ],
+      "hypothesis_or_question": "Does the frozen campaign tool reproduce the retained control and independent current/energy anchors?",
+      "allowed_change": "None; controls only.",
+      "method": [
+        "Replay experiment02 with its existing CLI.",
+        "Run G0 adapter at the exact baseline input.",
+        "Compare every required control quantity and units; use the independent Rust audit in experiment02 for its supported domain.",
+        "Verify requested/actual configuration and solver identity."
+      ],
+      "required_specific_deliverable": "Control receipt, full diff and independent arithmetic results; numerical validity separate from physical applicability.",
+      "stop_rule": "Any unexplained control mismatch pauses numerical tasks.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "F030",
+      "kind": "numerical",
+      "wave": 1,
+      "depends_on": [
+        "G0",
+        "R0"
+      ],
+      "hypothesis_or_question": "What changes at 30000 Hz when effective L*f is held at the baseline value?",
+      "allowed_change": {
+        "frequency_hz": 30000,
+        "effective_inductance_rule": "180e-6 * 129107.39198576905 / frequency_hz",
+        "fixed": "C7/UCC27624, nominal 12 V/4.7 ohm, 400 V bus; frozen C1 power/current contract"
+      },
+      "method": [
+        "Freeze exact config before solving.",
+        "Use the common case grid and recompute waveform moments, operating-domain validity and current-limit derating.",
+        "Separate ideal effective-L screen from sourced physical magnetic design.",
+        "Report partial losses, ripple, peaks, stored energy and source gaps.",
+        "Compare with the frozen F129/control, preserving all failed cases."
+      ],
+      "required_specific_deliverable": "Complete per-case evidence plus frequency/L table; no whole-assembly rank without complete ledger.",
+      "stop_rule": "If model domain or source transfer is unsupported, preserve case as INDETERMINATE; do not silently alter L or load to obtain PASS.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "F045",
+      "kind": "numerical",
+      "wave": 1,
+      "depends_on": [
+        "G0",
+        "R0"
+      ],
+      "hypothesis_or_question": "What changes at 45000 Hz when effective L*f is held at the baseline value?",
+      "allowed_change": {
+        "frequency_hz": 45000,
+        "effective_inductance_rule": "180e-6 * 129107.39198576905 / frequency_hz",
+        "fixed": "C7/UCC27624, nominal 12 V/4.7 ohm, 400 V bus; frozen C1 power/current contract"
+      },
+      "method": [
+        "Freeze exact config before solving.",
+        "Use the common case grid and recompute waveform moments, operating-domain validity and current-limit derating.",
+        "Separate ideal effective-L screen from sourced physical magnetic design.",
+        "Report partial losses, ripple, peaks, stored energy and source gaps.",
+        "Compare with the frozen F129/control, preserving all failed cases."
+      ],
+      "required_specific_deliverable": "Complete per-case evidence plus frequency/L table; no whole-assembly rank without complete ledger.",
+      "stop_rule": "If model domain or source transfer is unsupported, preserve case as INDETERMINATE; do not silently alter L or load to obtain PASS.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "F065",
+      "kind": "numerical",
+      "wave": 1,
+      "depends_on": [
+        "G0",
+        "R0"
+      ],
+      "hypothesis_or_question": "What changes at 65000 Hz when effective L*f is held at the baseline value?",
+      "allowed_change": {
+        "frequency_hz": 65000,
+        "effective_inductance_rule": "180e-6 * 129107.39198576905 / frequency_hz",
+        "fixed": "C7/UCC27624, nominal 12 V/4.7 ohm, 400 V bus; frozen C1 power/current contract"
+      },
+      "method": [
+        "Freeze exact config before solving.",
+        "Use the common case grid and recompute waveform moments, operating-domain validity and current-limit derating.",
+        "Separate ideal effective-L screen from sourced physical magnetic design.",
+        "Report partial losses, ripple, peaks, stored energy and source gaps.",
+        "Compare with the frozen F129/control, preserving all failed cases."
+      ],
+      "required_specific_deliverable": "Complete per-case evidence plus frequency/L table; no whole-assembly rank without complete ledger.",
+      "stop_rule": "If model domain or source transfer is unsupported, preserve case as INDETERMINATE; do not silently alter L or load to obtain PASS.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "F090",
+      "kind": "numerical",
+      "wave": 1,
+      "depends_on": [
+        "G0",
+        "R0"
+      ],
+      "hypothesis_or_question": "What changes at 90000 Hz when effective L*f is held at the baseline value?",
+      "allowed_change": {
+        "frequency_hz": 90000,
+        "effective_inductance_rule": "180e-6 * 129107.39198576905 / frequency_hz",
+        "fixed": "C7/UCC27624, nominal 12 V/4.7 ohm, 400 V bus; frozen C1 power/current contract"
+      },
+      "method": [
+        "Freeze exact config before solving.",
+        "Use the common case grid and recompute waveform moments, operating-domain validity and current-limit derating.",
+        "Separate ideal effective-L screen from sourced physical magnetic design.",
+        "Report partial losses, ripple, peaks, stored energy and source gaps.",
+        "Compare with the frozen F129/control, preserving all failed cases."
+      ],
+      "required_specific_deliverable": "Complete per-case evidence plus frequency/L table; no whole-assembly rank without complete ledger.",
+      "stop_rule": "If model domain or source transfer is unsupported, preserve case as INDETERMINATE; do not silently alter L or load to obtain PASS.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "F129",
+      "kind": "numerical",
+      "wave": 1,
+      "depends_on": [
+        "G0",
+        "R0"
+      ],
+      "hypothesis_or_question": "What changes at 129107 Hz when effective L*f is held at the baseline value?",
+      "allowed_change": {
+        "frequency_hz": 129107.39198576905,
+        "effective_inductance_rule": "180e-6 * 129107.39198576905 / frequency_hz",
+        "fixed": "C7/UCC27624, nominal 12 V/4.7 ohm, 400 V bus; frozen C1 power/current contract"
+      },
+      "method": [
+        "Freeze exact config before solving.",
+        "Use the common case grid and recompute waveform moments, operating-domain validity and current-limit derating.",
+        "Separate ideal effective-L screen from sourced physical magnetic design.",
+        "Report partial losses, ripple, peaks, stored energy and source gaps.",
+        "Compare with the frozen F129/control, preserving all failed cases."
+      ],
+      "required_specific_deliverable": "Complete per-case evidence plus frequency/L table; no whole-assembly rank without complete ledger.",
+      "stop_rule": "If model domain or source transfer is unsupported, preserve case as INDETERMINATE; do not silently alter L or load to obtain PASS.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "F180",
+      "kind": "numerical",
+      "wave": 1,
+      "depends_on": [
+        "G0",
+        "R0"
+      ],
+      "hypothesis_or_question": "What changes at 180000 Hz when effective L*f is held at the baseline value?",
+      "allowed_change": {
+        "frequency_hz": 180000,
+        "effective_inductance_rule": "180e-6 * 129107.39198576905 / frequency_hz",
+        "fixed": "C7/UCC27624, nominal 12 V/4.7 ohm, 400 V bus; frozen C1 power/current contract"
+      },
+      "method": [
+        "Freeze exact config before solving.",
+        "Use the common case grid and recompute waveform moments, operating-domain validity and current-limit derating.",
+        "Separate ideal effective-L screen from sourced physical magnetic design.",
+        "Report partial losses, ripple, peaks, stored energy and source gaps.",
+        "Compare with the frozen F129/control, preserving all failed cases."
+      ],
+      "required_specific_deliverable": "Complete per-case evidence plus frequency/L table; no whole-assembly rank without complete ledger.",
+      "stop_rule": "If model domain or source transfer is unsupported, preserve case as INDETERMINATE; do not silently alter L or load to obtain PASS.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "M065",
+      "kind": "source_research",
+      "wave": 0,
+      "depends_on": [],
+      "hypothesis_or_question": "Can a physical choke supply approximately 357.528 uH effective at operating bias without erasing the proposed switching benefit?",
+      "allowed_change": {
+        "target_effective_uH": 357.5281624221297,
+        "baseline": "Wurth 760800301; source ratings are not inherited by alternatives"
+      },
+      "method": [
+        "Inspect up to three exact catalog/custom-vendor candidates from primary magnetic sources.",
+        "Capture L versus bias/temperature, tolerance, saturation definition, thermal current conditions, DCR, core/winding loss applicability, dimensions and price/availability timestamp.",
+        "Evaluate the common waveform envelope, keeping RMS heating and peak saturation separate.",
+        "If no complete catalog option is found, provide a vendor/custom winding requirement with unknowns; do not design a core from invented material data."
+      ],
+      "required_specific_deliverable": "Up to three source-bound magnetic records, physical-volume envelope and exact missing curves; size/thermal/cost comparison if supported.",
+      "stop_rule": "Stop after three candidates/eight sources or deadline; a failed search is not proof no part exists.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "M090",
+      "kind": "source_research",
+      "wave": 0,
+      "depends_on": [],
+      "hypothesis_or_question": "Can a physical choke supply approximately 258.215 uH effective at operating bias without erasing the proposed switching benefit?",
+      "allowed_change": {
+        "target_effective_uH": 258.2147839715381,
+        "baseline": "Wurth 760800301; source ratings are not inherited by alternatives"
+      },
+      "method": [
+        "Inspect up to three exact catalog/custom-vendor candidates from primary magnetic sources.",
+        "Capture L versus bias/temperature, tolerance, saturation definition, thermal current conditions, DCR, core/winding loss applicability, dimensions and price/availability timestamp.",
+        "Evaluate the common waveform envelope, keeping RMS heating and peak saturation separate.",
+        "If no complete catalog option is found, provide a vendor/custom winding requirement with unknowns; do not design a core from invented material data."
+      ],
+      "required_specific_deliverable": "Up to three source-bound magnetic records, physical-volume envelope and exact missing curves; size/thermal/cost comparison if supported.",
+      "stop_rule": "Stop after three candidates/eight sources or deadline; a failed search is not proof no part exists.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "B-TI",
+      "kind": "reference_research",
+      "wave": 0,
+      "depends_on": [],
+      "hypothesis_or_question": "Which specific model claims can this independent manufacturer reference test?",
+      "allowed_change": {
+        "reference": "TIDA-00779 / retained TIDUBE1D.pdf",
+        "circuit_change": "none"
+      },
+      "method": [
+        "Resolve actual populated circuit and parallel device counts from schematic/BOM.",
+        "Extract measured operating point, device bias/current/temperature and raw waveform observability.",
+        "Exclude inconsistent source rows with explicit reasons.",
+        "Map every required model input to a source or unknown.",
+        "Propose a matched falsification/holdout test only when inputs support it; whole-board efficiency is not per-device Eon/Eoff."
+      ],
+      "required_specific_deliverable": "Source capture/extraction and applicability table; either a matched reference input specification or a precise INSUFFICIENT_EVIDENCE receipt.",
+      "stop_rule": "No fitting hidden parameters to make published efficiency match; do not treat WAF/download failure as physical evidence absence.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "B-INF",
+      "kind": "reference_research",
+      "wave": 0,
+      "depends_on": [],
+      "hypothesis_or_question": "Which specific model claims can this independent manufacturer reference test?",
+      "allowed_change": {
+        "reference": "EVAL_2.5KW_CCM_4PIN / AN201408",
+        "circuit_change": "none"
+      },
+      "method": [
+        "Resolve actual populated circuit and parallel device counts from schematic/BOM.",
+        "Extract measured operating point, device bias/current/temperature and raw waveform observability.",
+        "Exclude inconsistent source rows with explicit reasons.",
+        "Map every required model input to a source or unknown.",
+        "Propose a matched falsification/holdout test only when inputs support it; whole-board efficiency is not per-device Eon/Eoff."
+      ],
+      "required_specific_deliverable": "Source capture/extraction and applicability table; either a matched reference input specification or a precise INSUFFICIENT_EVIDENCE receipt.",
+      "stop_rule": "No fitting hidden parameters to make published efficiency match; do not treat WAF/download failure as physical evidence absence.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "D12",
+      "kind": "numerical",
+      "wave": 2,
+      "depends_on": [
+        "G0",
+        "R0",
+        "REFERENCE_FREEZE"
+      ],
+      "hypothesis_or_question": "Does this gate-drive choice improve the shared reference without hidden bias, EMI or supply penalties?",
+      "allowed_change": {
+        "nominal_drive_v": 12,
+        "gate_paths": "equal external on/off resistance from frozen reference"
+      },
+      "method": [
+        "Use the same reference frequency, magnetic model, MOSFET and processed-power contract.",
+        "Resolve driver source/sink behavior and actual bias/charge conditions; unknown dynamics remain sensitivities.",
+        "For split paths include exact diode and parasitic roles, not a ideal zero-loss steering diode.",
+        "Account for local bypass, rail producer, driver static/load accounting, UVLO and hardware fail-off interface.",
+        "Retain raw transition stress and unsupported overshoot/EMI claims."
+      ],
+      "required_specific_deliverable": "Matched control/candidate comparisons, source conditions and complete auxiliary-interface gap list.",
+      "stop_rule": "No arbitrary resistor optimization; no source-profile or Vgs limit changes to force a favorable result.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "D15",
+      "kind": "numerical",
+      "wave": 2,
+      "depends_on": [
+        "G0",
+        "R0",
+        "REFERENCE_FREEZE"
+      ],
+      "hypothesis_or_question": "Does this gate-drive choice improve the shared reference without hidden bias, EMI or supply penalties?",
+      "allowed_change": {
+        "nominal_drive_v": 15,
+        "gate_paths": "same external gate resistance; separate charge/bias applicability"
+      },
+      "method": [
+        "Use the same reference frequency, magnetic model, MOSFET and processed-power contract.",
+        "Resolve driver source/sink behavior and actual bias/charge conditions; unknown dynamics remain sensitivities.",
+        "For split paths include exact diode and parasitic roles, not a ideal zero-loss steering diode.",
+        "Account for local bypass, rail producer, driver static/load accounting, UVLO and hardware fail-off interface.",
+        "Retain raw transition stress and unsupported overshoot/EMI claims."
+      ],
+      "required_specific_deliverable": "Matched control/candidate comparisons, source conditions and complete auxiliary-interface gap list.",
+      "stop_rule": "No arbitrary resistor optimization; no source-profile or Vgs limit changes to force a favorable result.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "D-SPLIT",
+      "kind": "numerical",
+      "wave": 2,
+      "depends_on": [
+        "G0",
+        "R0",
+        "REFERENCE_FREEZE"
+      ],
+      "hypothesis_or_question": "Does this gate-drive choice improve the shared reference without hidden bias, EMI or supply penalties?",
+      "allowed_change": {
+        "gate_paths": "coordinator freezes one exact separate R_on/R_off plus diode network after source review",
+        "bias": "unchanged reference"
+      },
+      "method": [
+        "Use the same reference frequency, magnetic model, MOSFET and processed-power contract.",
+        "Resolve driver source/sink behavior and actual bias/charge conditions; unknown dynamics remain sensitivities.",
+        "For split paths include exact diode and parasitic roles, not a ideal zero-loss steering diode.",
+        "Account for local bypass, rail producer, driver static/load accounting, UVLO and hardware fail-off interface.",
+        "Retain raw transition stress and unsupported overshoot/EMI claims."
+      ],
+      "required_specific_deliverable": "Matched control/candidate comparisons, source conditions and complete auxiliary-interface gap list.",
+      "stop_rule": "No arbitrary resistor optimization; no source-profile or Vgs limit changes to force a favorable result.",
+      "candidate_parts": [
+        "IPW65R045C7",
+        "UCC27624DR"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "K-SILICON",
+      "kind": "source_then_numerical",
+      "wave": 2,
+      "depends_on": [
+        "G0",
+        "R0",
+        "REFERENCE_FREEZE"
+      ],
+      "hypothesis_or_question": "Can an exact Kelvin-source device plus its required drive/thermal assembly beat the common reference?",
+      "allowed_change": {
+        "mosfet": "IPZ60R040C7",
+        "gate_bias": "source-supported gate bias; exact source-captured candidate required",
+        "fixed": "external C1 interface and frozen reference frequency/magnetics"
+      },
+      "method": [
+        "Capture exact primary device/driver sources and recommended versus absolute gate limits.",
+        "Bind package pins and Kelvin return separately from power source.",
+        "Include actual gate-rail generation, enable/fault behavior and any bipolar supply burden.",
+        "Run only supported source-conditioned numerical cases; do not apply unmatched Eon/Eoff.",
+        "Report source-only gaps if the existing model lacks needed physics."
+      ],
+      "required_specific_deliverable": "Exact part/driver/bias record, compatible-model evidence and mechanical/auxiliary accounting; no winner from Qgd alone.",
+      "stop_rule": "No substitute device, undocumented digitization or gate-bias extrapolation to fill a missing source. Request a new task record if substitution is necessary.",
+      "candidate_parts": [
+        "IPZ60R040C7"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "K-SIC15",
+      "kind": "source_then_numerical",
+      "wave": 2,
+      "depends_on": [
+        "G0",
+        "R0",
+        "REFERENCE_FREEZE"
+      ],
+      "hypothesis_or_question": "Can an exact Kelvin-source device plus its required drive/thermal assembly beat the common reference?",
+      "allowed_change": {
+        "mosfet": "NTH4L060N065SC1",
+        "gate_bias": "0/+15 V proposal; -5/+18 V switching-energy source is not directly applicable",
+        "fixed": "external C1 interface and frozen reference frequency/magnetics"
+      },
+      "method": [
+        "Capture exact primary device/driver sources and recommended versus absolute gate limits.",
+        "Bind package pins and Kelvin return separately from power source.",
+        "Include actual gate-rail generation, enable/fault behavior and any bipolar supply burden.",
+        "Run only supported source-conditioned numerical cases; do not apply unmatched Eon/Eoff.",
+        "Report source-only gaps if the existing model lacks needed physics."
+      ],
+      "required_specific_deliverable": "Exact part/driver/bias record, compatible-model evidence and mechanical/auxiliary accounting; no winner from Qgd alone.",
+      "stop_rule": "No substitute device, undocumented digitization or gate-bias extrapolation to fill a missing source. Request a new task record if substitution is necessary.",
+      "candidate_parts": [
+        "NTH4L060N065SC1"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "K-SIC18",
+      "kind": "source_then_numerical",
+      "wave": 2,
+      "depends_on": [
+        "G0",
+        "R0",
+        "REFERENCE_FREEZE"
+      ],
+      "hypothesis_or_question": "Can an exact Kelvin-source device plus its required drive/thermal assembly beat the common reference?",
+      "allowed_change": {
+        "mosfet": "IMZA65R048M1H",
+        "gate_bias": "source-supported 18 V proposal only after exact manufacturer PDF capture",
+        "fixed": "external C1 interface and frozen reference frequency/magnetics"
+      },
+      "method": [
+        "Capture exact primary device/driver sources and recommended versus absolute gate limits.",
+        "Bind package pins and Kelvin return separately from power source.",
+        "Include actual gate-rail generation, enable/fault behavior and any bipolar supply burden.",
+        "Run only supported source-conditioned numerical cases; do not apply unmatched Eon/Eoff.",
+        "Report source-only gaps if the existing model lacks needed physics."
+      ],
+      "required_specific_deliverable": "Exact part/driver/bias record, compatible-model evidence and mechanical/auxiliary accounting; no winner from Qgd alone.",
+      "stop_rule": "No substitute device, undocumented digitization or gate-bias extrapolation to fill a missing source. Request a new task record if substitution is necessary.",
+      "candidate_parts": [
+        "IMZA65R048M1H"
+      ],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "A-INTERLEAVED",
+      "kind": "architecture_feasibility",
+      "wave": 1,
+      "depends_on": [],
+      "hypothesis_or_question": "Is this a credible different design region under the same external power/current/bus constraints?",
+      "allowed_change": {
+        "topology": "two-phase interleaved bridge boost",
+        "screen_only": true
+      },
+      "method": [
+        "Select one manufacturer reference whose low-line power/current envelope is relevant; up to three source candidates may be screened.",
+        "Draw named switching states and component current paths, specifying controller and exact device classes/parts where supported.",
+        "Map phase-current sharing, ripple cancellation, per-phase magnetics, extra conduction/drive/control and startup/inrush/OVP/OCP/fail-off obligations.",
+        "Compare complete assembly terms and physical footprint/cooling implications; report unknowns.",
+        "Identify what the current Rust model cannot represent and define the smallest independent reference/model needed."
+      ],
+      "required_specific_deliverable": "State/current-path diagrams, source-bound feasibility table, complete incremental BOM/complexity ledger and next discriminating experiment.",
+      "stop_rule": "Do not force this topology through the existing one-switch model; no numerical efficiency ranking from unmatched reference headlines.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "A-BRIDGELESS",
+      "kind": "architecture_feasibility",
+      "wave": 1,
+      "depends_on": [],
+      "hypothesis_or_question": "Is this a credible different design region under the same external power/current/bus constraints?",
+      "allowed_change": {
+        "topology": "one explicitly chosen conventional bridgeless boost topology",
+        "screen_only": true
+      },
+      "method": [
+        "Select one manufacturer reference whose low-line power/current envelope is relevant; up to three source candidates may be screened.",
+        "Draw named switching states and component current paths, specifying controller and exact device classes/parts where supported.",
+        "Map line-polarity current paths, common-mode behavior, recovery, sensing and rectifier replacement and startup/inrush/OVP/OCP/fail-off obligations.",
+        "Compare complete assembly terms and physical footprint/cooling implications; report unknowns.",
+        "Identify what the current Rust model cannot represent and define the smallest independent reference/model needed."
+      ],
+      "required_specific_deliverable": "State/current-path diagrams, source-bound feasibility table, complete incremental BOM/complexity ledger and next discriminating experiment.",
+      "stop_rule": "Do not force this topology through the existing one-switch model; no numerical efficiency ranking from unmatched reference headlines.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "A-TOTEM",
+      "kind": "architecture_feasibility",
+      "wave": 1,
+      "depends_on": [],
+      "hypothesis_or_question": "Is this a credible different design region under the same external power/current/bus constraints?",
+      "allowed_change": {
+        "topology": "totem-pole PFC",
+        "screen_only": true
+      },
+      "method": [
+        "Select one manufacturer reference whose low-line power/current envelope is relevant; up to three source candidates may be screened.",
+        "Draw named switching states and component current paths, specifying controller and exact device classes/parts where supported.",
+        "Map fast/line-frequency leg commutation, zero-crossing behavior, dead time, sensing, drive and EMI and startup/inrush/OVP/OCP/fail-off obligations.",
+        "Compare complete assembly terms and physical footprint/cooling implications; report unknowns.",
+        "Identify what the current Rust model cannot represent and define the smallest independent reference/model needed."
+      ],
+      "required_specific_deliverable": "State/current-path diagrams, source-bound feasibility table, complete incremental BOM/complexity ledger and next discriminating experiment.",
+      "stop_rule": "Do not force this topology through the existing one-switch model; no numerical efficiency ranking from unmatched reference headlines.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "L-BRIDGE",
+      "kind": "assembly_loss_research",
+      "wave": 1,
+      "depends_on": [],
+      "hypothesis_or_question": "Could this unclosed assembly term overturn the ranking of switch-only candidates?",
+      "allowed_change": {
+        "focus": "GBJ rectifier conduction, commutation and installed thermal path",
+        "external_contract": "C1"
+      },
+      "method": [
+        "Trace the exact active circuit and part identity before extracting curves.",
+        "Use current/voltage/temperature conditions applicable to this component.",
+        "Compare up to three exact alternatives only when they serve the same declared function.",
+        "Separate measured/source-bound/assumed contributions and accounting overlaps.",
+        "Report a supported bound only if the source justifies it; otherwise report sensitivity plus unknown."
+      ],
+      "required_specific_deliverable": "Reusable source record/term model proposal, non-overlap map, size/cooling/auxiliary implications and strongest remaining uncertainty.",
+      "stop_rule": "No invented remainder term or subtraction of a removed component without replacement-system accounting.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "L-DIODE",
+      "kind": "assembly_loss_research",
+      "wave": 1,
+      "depends_on": [],
+      "hypothesis_or_question": "Could this unclosed assembly term overturn the ranking of switch-only candidates?",
+      "allowed_change": {
+        "focus": "boost diode forward, capacitive/recovery and thermal loss",
+        "external_contract": "C1"
+      },
+      "method": [
+        "Trace the exact active circuit and part identity before extracting curves.",
+        "Use current/voltage/temperature conditions applicable to this component.",
+        "Compare up to three exact alternatives only when they serve the same declared function.",
+        "Separate measured/source-bound/assumed contributions and accounting overlaps.",
+        "Report a supported bound only if the source justifies it; otherwise report sensitivity plus unknown."
+      ],
+      "required_specific_deliverable": "Reusable source record/term model proposal, non-overlap map, size/cooling/auxiliary implications and strongest remaining uncertainty.",
+      "stop_rule": "No invented remainder term or subtraction of a removed component without replacement-system accounting.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "L-AUX",
+      "kind": "assembly_loss_research",
+      "wave": 1,
+      "depends_on": [],
+      "hypothesis_or_question": "Could this unclosed assembly term overturn the ranking of switch-only candidates?",
+      "allowed_change": {
+        "focus": "controller/driver rail generation, static versus gate-load loss, fail-off and cooling electrical load",
+        "external_contract": "C1"
+      },
+      "method": [
+        "Trace the exact active circuit and part identity before extracting curves.",
+        "Use current/voltage/temperature conditions applicable to this component.",
+        "Compare up to three exact alternatives only when they serve the same declared function.",
+        "Separate measured/source-bound/assumed contributions and accounting overlaps.",
+        "Report a supported bound only if the source justifies it; otherwise report sensitivity plus unknown."
+      ],
+      "required_specific_deliverable": "Reusable source record/term model proposal, non-overlap map, size/cooling/auxiliary implications and strongest remaining uncertainty.",
+      "stop_rule": "No invented remainder term or subtraction of a removed component without replacement-system accounting.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 60,
+      "solver_invocation_limit": 0
+    },
+    {
+      "id": "X1",
+      "kind": "interaction",
+      "wave": 3,
+      "depends_on": [
+        "G0",
+        "R0",
+        "SHORTLIST_FREEZE"
+      ],
+      "hypothesis_or_question": "Do two individually promising compatible changes retain their benefit when combined?",
+      "allowed_change": "Coordinator selects exactly two binary design changes and freezes baseline/A/B/A+B; same external contract.",
+      "method": [
+        "Do not select your own favorable combination.",
+        "Run all four combinations at three full-load line points; matched power or explicitly derated groups.",
+        "Carry source/magnetic/driver applicability and uncertainty through each combined case.",
+        "Compute interaction delta = loss(A+B)-loss(A)-loss(B)+loss(base) only for the same complete accounting scope.",
+        "If totals are incomplete, report interaction of the named subtotal only."
+      ],
+      "required_specific_deliverable": "Twelve declared operating cases plus controls/refinements within budget; interaction table with applicability.",
+      "stop_rule": "Do not add isolated wattage savings; unsupported combinations remain gaps.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    },
+    {
+      "id": "V0",
+      "kind": "independent_verification",
+      "wave": 4,
+      "depends_on": [
+        "G0",
+        "R0",
+        "SHORTLIST_FREEZE",
+        "X1"
+      ],
+      "hypothesis_or_question": "Can an independently prepared control/finalist comparison reproduce the claim and survive source/physics review?",
+      "allowed_change": "No design changes; up to three finalists plus baseline frozen by coordinator.",
+      "method": [
+        "Reconstruct inputs from primary source bytes without copying workers summary values.",
+        "Use independent analytical/solver anchors where applicable, identifying any shared equations/libraries or missing physical oracle.",
+        "Replay full retained results; independently evaluate nominal and worst-stress cases for each finalist.",
+        "Reveal the coordinator-sealed verification inputs frozen before optimization, verify their hashes and evaluate them within the invocation budget; no post-result tuning.",
+        "Check lost/failed cases, fair power contract, dominant unknowns and topology coverage.",
+        "Keep physical qualification open without separately authorized hardware evidence."
+      ],
+      "required_specific_deliverable": "Coordinator-facing independent acceptance/rejection/gap receipt for every finalist and baseline, with exact discrepancies.",
+      "stop_rule": "Shared-model agreement is not independent physics validation. A common defect quarantines all affected tasks, not just this finalist.",
+      "candidate_parts": [],
+      "worker_status": "NOT_DISPATCHED",
+      "budget_minutes": 90,
+      "solver_invocation_limit": 48
+    }
+  ]
+}

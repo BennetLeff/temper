@@ -1,0 +1,39 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "B-TI",
+  "attempt_id": "attempt-001",
+  "note": "SHA-256 of every produced file except manifest.json itself.",
+  "files": [
+    {
+      "path": "raw/TIDUBE1D.pdf",
+      "sha256": "1f2abaf8f7460ec110186d59f3d01624bdbd260d57ae7b7b698d0754c717d465",
+      "bytes": 1028819
+    },
+    {
+      "path": "raw/TIDUBE1D.sha256",
+      "sha256": "3db19db3c1b4657d567b854f87b5d2ac0d2cb9adb4dc6f2ebd6efaa85c0e8f8c",
+      "bytes": 65
+    },
+    {
+      "path": "raw/TIDUBE1D.pdftotext.txt",
+      "sha256": "407c852a04e0ab709a5c6f5dcc0e4a60f3250fa893d5627ae2b1ff32a75e4259",
+      "bytes": 59850
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "1e81526acf881f449f913aa7adc4a0ff73c9c96f45b77ce1b7ee917ce8007c50",
+      "bytes": 32858
+    },
+    {
+      "path": "result.json",
+      "sha256": "50f1e32dc4685bb9718a3bf8df711e348bf2c2b1a7e256ff9d7f52c22bb7d6ed",
+      "bytes": 10634
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "56226879cd9a1b3019964b089334288f287a6d5f2eb48051e0c28d4c1f9942d2",
+      "bytes": 8173
+    }
+  ]
+}

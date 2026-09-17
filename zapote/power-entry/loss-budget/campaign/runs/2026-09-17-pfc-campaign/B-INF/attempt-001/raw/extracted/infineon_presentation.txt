@@ -1,0 +1,263 @@
+EVAL_2.5KW_CCM_4PIN
+2.5 kW PFC evaluation board with
+CCM PFC Controller ICE3PCS01G
+Table of content
+
+ I    General description
+
+ II   Test results
+
+III   Summary
+Table of content
+
+ I    General description
+
+ II   Test results
+
+III   Summary
+General
+Description:
+
+The “EVAL_2.5KW_CCM_4PIN” - Evaluation Board 2.5KW CCM with 600V CoolMOS™ C7 in TO-247
+4pin package is designed to evaluate the performance of the CoolMOS™ C7 in TO-247 4pin. The board
+is developed for the laboratories use only and does not serve for any commercial purpose!
+
+The aim of this evaluation board is to help the customers to get familiar with Infineon products and to
+evaluate different behavior of conventional 3pin devices compared to the high performance CoolMOS™
+C7 devices in TO-247 4pin within a PFC application.
+
+Summary of features:
+›   Input voltage: 85–265 VAC
+
+›   Output voltage: 400 V
+
+›   Output power: 2.5 kW @ V(IN) = 230 VAC
+
+                  1 kW @ V (IN) = 90 VAC
+
+›   Variable switching frequency: 40-200 kHz
+
+›   Peak Efficiency: <98%
+
+
+
+The following variants are available:
+›   Evaluation board 2.5KW CCM with 600V CoolMOS™ C7
+
+
+
+
+12.10.2015                          Copyright © Infineon Technologies AG 2014. All rights reserved.   Page 4
+Introduction I
+Board components:
+
+IPZ60R040C7 - High voltage Power MOSFET 600V CoolMOS™ C7
+
+IDH16G65C5 - 650V thinQ!™ SiC Schottky Diodes Generation 5
+
+ICE3PCS01G - CCM PFC Controller
+
+1EDI60N12AF - Gate Driver IC EiceDRIVER™
+
+ICE3RBR4765JZ - CoolSET™
+
+IFX91041 - Buck Controller
+
+
+
+
+                                                                  IDH16G65C5                     ICE3PCS01G
+                                   ICE3RBR4765JZ                          1EDI60N12AF          IPZ60R040C7
+
+set date                     Copyright © Infineon Technologies AG 2015. All rights reserved.                  5
+Introduction II
+›    This evaluation board is designed to evaluate the performance of the TO-247 4pin
+     CoolMOSTM C7 family. The board is developed for laboratory use only and does not serve any
+     commercial purpose! Before operating the evaluation board, please read the general safety
+     instruction section!
+
+›    The aim of this document is to help the customers to get familiar with the evaluation board
+     EVAL_2.5kW_CCM_4pin, to investigate the different behavior of conventional 3pin devices
+     compared to the high performance TO-247 4pin CoolMOSTM devices within a PFC application.
+
+›    The following table gives the main technical specifications of the evaluation board:
+
+       Technical specifications
+       Input voltage                                                  85 VAC~265 VAC
+
+       Input current                                                  14 Aeff
+
+       Input frequency                                                47~63 Hz
+
+       Output voltage and current                                     400 VDC, 6.25 A
+
+       Output power                                                   ~ 2.5 kW (at Vin=230 VAC)
+
+       Average efficiency                                             >95% at 115 VAC
+
+       Switching frequency                                            Possible range: 40 kHz~250 kHz;
+                                                                      Board frequency is set to 65 kHz;
+                                                                      Changeable by R20
+       Power switch                                                   4pin and 3pin MOSFET
+
+set date                            Copyright © Infineon Technologies AG 2015. All rights reserved.       6
+Schematic
+
+
+
+
+set date    Copyright © Infineon Technologies AG 2015. All rights reserved.   7
+Table of content
+
+ I    General description
+
+ II   Test results
+
+III   Summary
+Efficiency I
+›    For the efficiency test it is important to take the voltage sensing on the input and output
+     power with the Vin_sense and Vout_sense right beside the power connections.
+
+
+                                 Efficiency high line (230 VAC)
+
+                      98,3
+                                                                                                     4pin_100kHz
+                      98,2
+                                                                                                     3pin_100kHz
+                      98,1                                                                           4pin_65kHz
+                       98                                                                            3pin_65kHz
+            eta [%]
+
+
+
+
+                      97,9
+
+                      97,8
+
+                      97,7
+
+                      97,6
+
+                      97,5
+
+                      97,4
+                             0   500              1000                1500                2000        2500         3000
+                                                                   Pout [W]
+
+
+*All test conditions are based on 60°C heat sink temperature.
+
+
+
+set date                           Copyright © Infineon Technologies AG 2015. All rights reserved.                        9
+Efficiency II
+›    For the efficiency test it is important to take the voltage sensing on the input and output
+     power with the Vin_sense and Vout_sense right beside the power connections.
+
+
+                                   Efficiency low line (85 VAC)
+
+                      96,5
+                                                                                                          4pin_100kHz
+                       96
+                                                                                                          3pin_100kHz
+                      95,5                                                                                4pin_65kHz
+                                                                                                          3pin_65kHz
+                       95
+            eta [%]
+
+
+
+
+                      94,5
+
+                       94
+
+                      93,5
+
+                       93
+
+                      92,5
+                             0   200             400              600              800             1000      1200       1400
+                                                                        Pout [W]
+
+
+*All test conditions are based on 60°C heat sink temperature.
+
+
+
+set date                               Copyright © Infineon Technologies AG 2015. All rights reserved.                         10
+Conductive EMI test
+›    EMI is a very important quality factor for a power supply. The EMI data includes the whole
+     spectrum of the SMPS behavior and is split into radiated and conductive EMI. It is most
+     important to investigate on the conducted EMI behavior, for the described evaluation PFC
+     board, since it is the input stage of any SMPS below a certain power range.
+
+
+
+
+*Conductive EMI measurement of the evaluation board at 100 kHz with a resistive load (4 pin configuration)
+
+
+
+set date                         Copyright © Infineon Technologies AG 2015. All rights reserved.      11
+Startup behavior
+›    During power up, when the VOUT is less than 96% of the rated level, internal
+     voltage loop of the IC increases from the initial voltage under the soft-start
+     control. This results in a controlled linear increase of the input current from 0 A,
+     thus reducing the current stress in the power components as can be seen on the
+     yellow wave shape.
+
+
+
+
+*Soft startup at low line with 1 kW output power
+
+
+
+set date                         Copyright © Infineon Technologies AG 2015. All rights reserved.   12
+Table of content
+
+ I    General description
+
+ II   Test results
+
+III   Summary
+Summary I
+›    The present 2.5 kW evaluation board is
+     a great example of a full Infineon
+     solution, including PFC Controller,
+     MOSFET Driver and Silicon Carbide
+     Diode in order to evaluate the 4pin
+     functionality with its advantages for
+     efficiency and signal quality.
+
+
+
+›    Furthermore, the reader will get
+     additional information how to use the
+     evaluation board. Beside this he will get
+     the information how the 600 V
+     CoolMOS™ C7 behaves in this PFC board
+     and what benefits will be achieved by
+     the usage of the TO-247 4pin package.
+
+
+
+
+set date                       Copyright © Infineon Technologies AG 2015. All rights reserved.   14
+Summary II
+›    The 2.5 kW PFC evaluation board described in this document is aimed at analyzing the
+     switching performance of different variants of packages in a very common used PFC
+     topology. It helps to understand the switching behavior and parasitic influences. With the
+     various option settings via “solder jumper” it is possible to modify the circuit without
+     changing any layout. Therefore, the evaluation board offers plenty investigation variants.
+     Furthermore, it shows how to boost the efficiency in a standard PFC topology.
+
+
+
+
+set date                       Copyright © Infineon Technologies AG 2015. All rights reserved.   15
+

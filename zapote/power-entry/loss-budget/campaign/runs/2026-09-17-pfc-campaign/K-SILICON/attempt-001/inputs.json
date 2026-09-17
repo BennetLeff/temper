@@ -1,0 +1,156 @@
+{
+  "schema": "pfc-campaign-source-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "K-SILICON",
+  "attempt_id": "attempt-001",
+  "source_only": true,
+  "captured_utc": "2026-09-17T21:22:25Z",
+  "part_identity": {
+    "manufacturer": "Infineon Technologies AG",
+    "mpn_order_code": "IPZ60R040C7",
+    "opn_ordering_part_number": "IPZ60R040C7XKSA1",
+    "opn_note": "OPN read from the manufacturer product page HTML (https://www.infineon.com/part/IPZ60R040C7), captured at raw/product-page-IPZ60R040C7.html. This is an ordering-code observation, not device performance; the datasheet itself lists only Type/Ordering Code IPZ60R040C7.",
+    "package": "PG-TO247-4 (TO247 4-pin, through-hole)",
+    "marking": "60C7040",
+    "kelvin_source": {
+      "present": true,
+      "description": "4-pin Kelvin-source concept; gate loop is returned through a dedicated driver-source pin, physically separate from the power source pin.",
+      "pinout": {
+        "pin_1": "Drain",
+        "pin_2": "Power Source",
+        "pin_3": "Driver Source (Kelvin source return)",
+        "pin_4": "Gate"
+      },
+      "pinout_source": "Datasheet page 2, PG-TO 247-4 package figure + schematic inset"
+    },
+    "technology": "CoolMOS C7 superjunction, 600 V N-channel"
+  },
+  "document_identity": {
+    "title": "600V CoolMOS C7 Power Transistor IPZ60R040C7 Data Sheet",
+    "revision": "Rev. 2.0, Final, 2015-05-08",
+    "pdf_metadata_subject": "Datasheet IPZ60R040C7 Rev. 2.0",
+    "pdf_metadata_author": "Infineon Technologies Austria AG",
+    "pdf_metadata_creation_date": "2015-05-08T09:26:59-05:00",
+    "page_count": 15,
+    "source_url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipz60r040c7-datasheet-en.pdf",
+    "url_effective": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipz60r040c7-datasheet-en.pdf",
+    "http_status": 200,
+    "http_content_type": "application/pdf",
+    "http_content_length": 1553797,
+    "http_last_modified": "Mon, 08 Jun 2026 12:16:42 GMT",
+    "server": "CloudFront (Infineon ROW vhost)",
+    "pdf_local_path": "raw/IPZ60R040C7-infineon.pdf",
+    "pdf_bytes": 1553797,
+    "pdf_file_header": "%PDF-1.7",
+    "pdf_sha256": "b1ea13f87f17a27336ea5a25ef01bad2d154c54140d8a4b1307e5f0289d6c089",
+    "verification": "file(1) reports 'PDF document, version 1.7'; first bytes are 255044462d312e37 (%PDF-1.7); pdftotext and pdfinfo parse all 15 pages. Not HTML, not a JS wall, not a login page."
+  },
+  "device_ratings": {
+    "vds_v": {
+      "value": 600,
+      "basis": "V(BR)DSS min = 600 V, VGS=0 V, ID=1 mA, Tj=25 degC",
+      "page_figure": "p.6 Table 4",
+      "note": "Table 1 (p.2) separately lists 'VDS @ Tj,max = 650 V', the breakdown voltage at maximum junction temperature. The 600 V rating is the 25 degC V(BR)DSS minimum."
+    },
+    "id_continuous_a": {
+      "tc_25c": 50,
+      "tc_100c": 32,
+      "tj_below_150c": 73,
+      "page_figure": "p.4 Table 2 (50/32 A); p.2 Table 1 (73 A)"
+    },
+    "id_pulse_a": { "value": 211, "condition": "TC=25 degC", "page_figure": "p.4 Table 2" },
+    "vgs_static_max_v": 20,
+    "vgs_static_min_v": -20,
+    "vgs_dynamic_max_v": 30,
+    "vgs_dynamic_note": "AC (f>1 Hz)",
+    "vgs_page_figure": "p.4 Table 2",
+    "ptot_w": { "value": 227, "condition": "TC=25 degC", "page_figure": "p.4 Table 2" },
+    "tj_range_c": [-55, 150],
+    "rthjc_k_per_w": 0.55,
+    "rthja_k_per_w": 62
+  },
+  "gate_bias_applicability": {
+    "gate_charge_test_bias": "VGS = 0 to 10 V",
+    "rds_on_test_bias": "VGS = 10 V",
+    "verdict": "NOT APPLICABLE at -5/+18 V; NOT DIRECTLY APPLICABLE at 0/+15 V without qualification.",
+    "reason": "Qg (107 nC), Qgd (36 nC) and Vplateau (5.0 V) are specified only at VGS=0 to 10 V, and RDS(on) only at VGS=10 V. The datasheet publishes no gate charge, plateau or switching-energy figures at 0/+15 V or -5/+18 V. Driving at 0/+15 V would move more charge than the 0/+10 V numbers; the difference is not quantified in this document and must not be inferred. Eoss is a function of VDS only (VGS=0), so it is gate-bias independent.",
+    "accepted_use": "The six values are applicable as-is only for a 0/+10 V (or lower-Vgs) drive, or as a documented conservative/typical anchor when the campaign explicitly labels the 0/+15 V mismatch."
+  },
+  "parameters": [
+    {
+      "name": "qg_c",
+      "value": 1.07e-7,
+      "value_as_published": 107,
+      "unit": "C",
+      "unit_as_published": "nC",
+      "condition": "VDD=400 V, ID=24.9 A, VGS=0 to 10 V; Tj=25 degC unless otherwise specified",
+      "page_figure": "p.6 Table 6 (Gate charge characteristics), symbol Qg; corroborated by p.2 Table 1 'Qg.typ 107 nC'",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "IPZ60R040C7 Rev. 2.0, Table 6 / Table 1"
+    },
+    {
+      "name": "qgd_c",
+      "value": 3.6e-8,
+      "value_as_published": 36,
+      "unit": "C",
+      "unit_as_published": "nC",
+      "condition": "VDD=400 V, ID=24.9 A, VGS=0 to 10 V; Tj=25 degC unless otherwise specified",
+      "page_figure": "p.6 Table 6 (Gate charge characteristics), symbol Qgd",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "IPZ60R040C7 Rev. 2.0, Table 6"
+    },
+    {
+      "name": "plateau_v",
+      "value": 5.0,
+      "value_as_published": 5.0,
+      "unit": "V",
+      "unit_as_published": "V",
+      "condition": "VDD=400 V, ID=24.9 A, VGS=0 to 10 V; Tj=25 degC unless otherwise specified",
+      "page_figure": "p.6 Table 6 (Gate charge characteristics), symbol Vplateau; curve family p.10 Diagram 10 (VGS=f(Qgate), ID=24.9 A pulsed, parameter VDD)",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "IPZ60R040C7 Rev. 2.0, Table 6 / Diagram 10"
+    },
+    {
+      "name": "intrinsic_gate_r_ohm",
+      "value": 0.77,
+      "value_as_published": 0.77,
+      "unit": "ohm",
+      "unit_as_published": "ohm",
+      "condition": "f=1 MHz, open drain; Tj=25 degC unless otherwise specified",
+      "page_figure": "p.6 Table 4 (Static characteristics), symbol RG",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "IPZ60R040C7 Rev. 2.0, Table 4"
+    },
+    {
+      "name": "eoss_j",
+      "value": 1.26e-5,
+      "value_as_published": 12.6,
+      "unit": "J",
+      "unit_as_published": "uJ",
+      "condition": "VDS=400 V (Eoss@400V); related Co(er)=158 pF typical at VGS=0 V, VDS=0...400 V",
+      "page_figure": "p.2 Table 1 'Eoss@400V 12.6 uJ'; curve p.11 Diagram 15 'Typ. Coss stored energy, Eoss=f(VDS)' reads ~12.6 uJ at 400 V",
+      "typical_or_guaranteed": "typical",
+      "source_ref": "IPZ60R040C7 Rev. 2.0, Table 1 / Diagram 15"
+    },
+    {
+      "name": "rds_max_ohm",
+      "value": 0.040,
+      "value_as_published": 0.040,
+      "unit": "ohm",
+      "unit_as_published": "ohm",
+      "condition": "VGS=10 V, ID=24.9 A, Tj=25 degC",
+      "page_figure": "p.6 Table 4 (Static characteristics), RDS(on) Max column; corroborated by p.2 Table 1 'RDS(on),max 40 mOhm'",
+      "typical_or_guaranteed": "guaranteed (Max column)",
+      "source_ref": "IPZ60R040C7 Rev. 2.0, Table 4 / Table 1",
+      "hot_rds_note": "At Tj=150 degC the datasheet gives RDS(on) typical only (0.077 ohm), no maximum, and no 25 degC-to-hot guarantee factor. Do not use 0.040 as a hot guaranteed value."
+    }
+  ],
+  "source_failures": [],
+  "source_failure_note": "The primary Infineon CDN PDF was captured successfully on the first attempt (HTTP 200, application/pdf, 1553797 bytes, %PDF-1.7). No mirror was needed. One secondary HTML fetch of the manufacturer product page also succeeded and is retained for the ordering code only.",
+  "extraction_tooling": {
+    "pdfinfo": "poppler pdfinfo (macOS homebrew)",
+    "pdftotext": "poppler pdftotext -layout / -raw",
+    "render": "poppler pdftoppm -r 200 -png (pages 2, 6, 11)",
+    "hashing": "shasum -a 256"
+  }
+}

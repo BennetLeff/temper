@@ -1,0 +1,71 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "K-SILICON",
+  "attempt_id": "attempt-001",
+  "note": "SHA-256 of every file this attempt produced, except manifest.json itself.",
+  "files": [
+    {
+      "path": "raw/IPZ60R040C7-infineon.pdf",
+      "bytes": 1553797,
+      "sha256": "b1ea13f87f17a27336ea5a25ef01bad2d154c54140d8a4b1307e5f0289d6c089"
+    },
+    {
+      "path": "raw/headers-infineon.txt",
+      "bytes": 9798,
+      "sha256": "0e2df6eb466a40255082e39443652edf4ba18bbdb136021669583ed2d955353a"
+    },
+    {
+      "path": "raw/product-page-IPZ60R040C7.html",
+      "bytes": 2446403,
+      "sha256": "430fe02a6d4b8063095a15740707ff8ce599b896a982582a6b45efea1be1e61f"
+    },
+    {
+      "path": "raw/sha256.txt",
+      "bytes": 91,
+      "sha256": "11ddb520b046cb33725a19ad3ca6f7bec74d5feec82bba3aa300dd842b250aae"
+    },
+    {
+      "path": "derived/IPZ60R040C7-infineon.txt",
+      "bytes": 40668,
+      "sha256": "8005157ed002cc693ebd01f85c89a70fb8dbbd9120de70db7e319b4fe8fade47"
+    },
+    {
+      "path": "derived/page11-11.png",
+      "bytes": 168998,
+      "sha256": "5e2dde18c07af7d3960cfed23cfa8062cc27964af9ef69f30577469e080ce96b"
+    },
+    {
+      "path": "derived/page2-02.png",
+      "bytes": 515613,
+      "sha256": "5ca79cf4eb5619c9b9515a6ddf60fbeb012f79796f8dafab9371754e42d4ff41"
+    },
+    {
+      "path": "derived/page6-06.png",
+      "bytes": 440513,
+      "sha256": "157f8f856ac3b7dd34001c05d5313ae9e1e2899a14f332993ca9c75c09aee333"
+    },
+    {
+      "path": "inputs.json",
+      "bytes": 7818,
+      "sha256": "e1177ef3a9f504a7688b90767cd145c55251b55adf6968c5636afda97269748b"
+    },
+    {
+      "path": "result.json",
+      "bytes": 14134,
+      "sha256": "3c0878aaaa3cd48929b76585f3f98546c117350d6cc7beb82cad345e4ecd7090"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 6291,
+      "sha256": "aa37100a567f6fe6c981f21f969e9e500043ca5c1c08be940f465354059f7fdf"
+    }
+  ],
+  "input_files": [
+    {
+      "path": "dispatch.json",
+      "role": "coordinator dispatch packet",
+      "sha256": "5e58f3e9b88e765517bdc479465acaee189ab594304fda74bef11ae853872524"
+    }
+  ]
+}

@@ -1,0 +1,807 @@
+Public
+IMZA65R048M1H
+Final datasheet
+
+    CoolSiC™ M1                                                                                          PG‑TO247‑4
+    CoolSiC™ MOSFET 650 V G1                                                                                           tab
+
+
+    The 650 V CoolSiC™ is built over the solid silicon carbide technology
+    developed in Infineon in more than 20 years. Leveraging the wide bandgap
+    SiC material characteristics, the 650V CoolSiC™ MOSFET offers a unique
+    combination of performance, reliability and ease of use. Suitable for high
+    temperature and harsh operations, it enables the simplified and cost                 1
+                                                                                             2
+    effective deployment of the highest system efficiency.
+                                                                                                 3
+                                                                                                     4
+
+
+
+
+    Features                                                                                                         Drain
+     • Optimized switching behavior at higher currents                                                             Pin 1, Tab
+
+     • Commutation robust fast body diode with low Qfr
+     • Superior gate oxide reliability                                                                                       *1
+
+     • Tj,max=175°C and excellent thermal behavior                                        Gate
+                                                                                          Pin 4
+     • Lower RDS(on) and pulse current dependency on temperature                                         Driver
+     • Increased avalanche capability                                                                    Source
+                                                                                                                    Power
+                                                                                                          Pin 3
+     • Compatible with standard drivers                                                                             Source
+     • Kelvin source provides up to 4 times lower switching losses                     *1: Internal body diode       Pin 2
+
+
+    Benefits
+     • Unique combination of high performance, high reliability and ease of use
+     • Ease of use and integration
+     • Suitable for topologies with continuous hard commutation
+     • Higher robustness and system reliability
+     • Efficiency improvement
+     • Reduced system size leading to higher power density
+
+    Potential applications
+     • SMPS
+     • UPS (uninterruptable power supplies)
+     • Solar PV inverters
+     • EV charging infrastructure
+     • Energy storage and battery formation
+     • Class D amplifiers
+
+    Product validation
+    Fully qualified according to JEDEC for Industrial Applications
+    Please note: The source and driver source pins are not exchangeable. Their
+    exchange might lead to malfunction.
+    Table 1        Key performance parameters
+    Parameter                 Value                       Unit
+    VDS @ TJ = 25 °C          650                         V
+    RDS(on),typ               48                          mΩ
+    RDS(on),max               64                          mΩ
+    QG,typ                    33                          nC
+    IDM,max                   100                         A
+    Qoss @ 400 V              78                          nC
+    Eoss @ 400 V              11.7                        μJ
+
+
+    Part number                                  Package                     Marking                              Related links
+    IMZA65R048M1H                                PG‑TO247‑4                65R048M1                          see Appendix A
+
+
+  Datasheet                                                                                                                       Revision 2.2
+  https://www.infineon.com                            1                                                                            2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ Table of contents
+
+ Description . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+ Maximum ratings . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+ Thermal characteristics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+ Operating range . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+ Electrical characteristics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+ Electrical characteristics diagrams . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+ Test circuits . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+ Package outlines . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+ Appendix A . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+ Revision history . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+ Trademarks . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+ Disclaimer . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+
+
+
+
+Datasheet                                                                                                                                                              Revision 2.2
+https://www.infineon.com                                                          2                                                                                     2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ 1 Maximum ratings
+ at Tj = 25 °C, unless otherwise specified.
+
+ Note: for optimum lifetime and reliability, Infineon recommends operating conditions that do not exceed
+ 80% of the maximum ratings stated in this datasheet.
+
+ Table 2            Maximum ratings
+                                                                      Values
+ Parameter                                     Symbol                                    Unit Note / Test condition
+                                                               Min.       Typ.    Max.
+                                                                                 40             Tc = 25 °C
+ Continuous DC drain current 1)                IDDC        ‑          ‑                  A
+                                                                                 28             Tc = 100 °C
+ Peak drain current 2)                         IDM         ‑          ‑          100     A      Tc = 25 °C, VGS = 18 V
+ Avalanche energy, single pulse                EAS         ‑          ‑          171     mJ
+                                                                                                ID = 6.4 A, VDD = 50 V; see table 11
+ Avalanche energy, repetitive                  EAR         ‑          ‑          0.85    mJ
+ Avalanche current, single pulse               IAS         ‑          ‑          6.4     A      ‑
+ MOSFET dv/dt ruggedness                       dv/dt       ‑          ‑          200     V/ns VDS= 0...400 V
+ Gate source voltage (static) 3)               VGS         ‑5         ‑          23      V      ‑
+ Gate source voltage (transient)               VGS         ‑7         ‑          25      V      tpulse ≤ 1% duty cycle/fsw
+ Power dissipation                             Ptot        ‑          ‑          150     W      Tc = 25 °C
+ Storage temperature                           Tstg        ‑55        ‑          150     °C
+                                                                                                ‑
+ Operating junction temperature                Tj          ‑55        ‑          175     °C
+ Mounting torque                               ‑           ‑          ‑          60      Ncm M3 and M3.5 screws
+                                                                                 40             VGS = 18 V, Tc = 25 °C
+ Continuous reverse drain current 1)           ISDC        ‑          ‑                  A
+                                                                                 26             VGS = 0 V, Tc = 25 °C
+ Peak reverse drain current 2)                 ISM         ‑          ‑          100     A      Tc = 25 °C, tp ≤ 250 ns
+ Insulation withstand voltage                  VISO        ‑          ‑          n.a.    V      Vrms, Tc = 25 °C, t = 1 min
+ 1)   Limited by Tj,max
+ 2)   Pulse width tpulse limited by Tj,max.
+ 3)   The maximum gate‑source voltage in the application design should be in accordance to IPC‑9592B.
+
+
+
+
+Datasheet                                                                                                                 Revision 2.2
+https://www.infineon.com                                       3                                                           2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ 2 Thermal characteristics
+ Table 3        Thermal characteristics
+                                                             Values
+ Parameter                             Symbol                                      Unit Note / Test condition
+                                                      Min.       Typ.       Max.
+ Thermal resistance, junction ‑ case   Rth(j‑c)   ‑          ‑          1.0        °C/W ‑
+ Thermal resistance, junction ‑
+                                       Rth(j‑a)   ‑          ‑          62         °C/W Leaded
+ ambient
+ Thermal resistance, junction ‑
+                                       Rth(j‑a)   ‑          ‑          ‑          °C/W n.a.
+ ambient, SMD version
+ Soldering temperature,                                                                 1.6mm (0.063 in.) from case for
+                                     T            ‑          ‑          260        °C
+ wavesoldering only allowed at leads sold                                               10s
+
+
+
+
+Datasheet                                                                                                       Revision 2.2
+https://www.infineon.com                              4                                                          2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ 3 Operating range
+ Table 4        Operating range
+                                                           Values
+ Parameter                           Symbol                                      Unit Note / Test condition
+                                                    Min.       Typ.       Max.
+ Gate‑source voltage operating
+                                     VGS        ‑2         ‑          20         V
+ range including undershoots 4)
+                                                                                      ‑
+ Recommended turn‑on voltage         VGS(on)    ‑          18         ‑          V
+ Recommended turn‑off voltage        VGS(off)   ‑          0          ‑          V
+ 4)
+
+ Important notice: If the gate source voltage of the device in application exceeds the operating range
+ (Table 4), the device RDS,on and VGS(th) might exceed the maximum value stated in the datasheet at the
+ end of the lifetime of the device. In order to ensure sound operation of the device over the planned
+ lifetime, the maximum ratings (Table 2) and the CoolSiC TM MOSFET 650V M1 trench power device
+ application note AN_1907_PL52_1911_144109 must be considered.
+
+
+
+
+Datasheet                                                                                                     Revision 2.2
+https://www.infineon.com                            5                                                          2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ 4 Electrical characteristics
+ at Tj = 25 °C, unless otherwise specified
+
+ Table 5           Static characteristics
+                                                                            Values
+ Parameter                                         Symbol                                         Unit Note / Test condition
+                                                                    Min.       Typ.       Max.
+ Drain‑source voltage                              VDSS         650        ‑          ‑          V       VGS = 0 V, ID = 0.6 mA
+ Gate threshold voltage 5)                         VGS(th)      3.5        4.5        5.7        V       VDS = VGS, ID = 6 mA
+                                                                           1          100                VDS = 650 V, VGS = 0 V, Tj = 25 °C
+ Zero gate voltage drain current                   IDSS         ‑                                μA
+                                                                           3          ‑                  VDS = 650 V, VGS = 0 V, Tj = 175 °C
+ Gate‑source leakage current                       IGSS         ‑          ‑          100        nA      VGS = 20 V, VDS = 0 V
+                                                                           48         64                 VGS = 18 V, ID = 20.1 A, Tj = 25 °C
+ Drain‑source on‑state resistance                  RDS(on)      ‑                                mΩ
+                                                                           67         ‑                  VGS = 18 V, ID = 20.1 A, Tj =175 °C
+ Internal gate resistance                          RG,int       ‑          6.0        ‑          Ω       f = 1 MHz
+ 5)   Tested after 1 ms pulse at V GS= +20 V
+
+ Table 6           Dynamic characteristics
+                                                                            Values
+ Parameter                                         Symbol                                         Unit Note / Test condition
+                                                                    Min.       Typ.       Max.
+ Input capacitance                                 Ciss         ‑          1118       ‑          pF
+ Reverse transfer capacitance                      Crss         ‑          13         ‑          pF      VGS = 0 V, VDS = 400 V, f = 250 kHz
+ Output capacitance 6)                             Coss         ‑          129        168        pF
+
+ Output charge 6)                                  Qoss         ‑          78         101        nC      calculation based on Coss
+ Effective output capacitance,                                                                           VGS = 0 V,
+                                                   Co(er)       ‑          146        ‑          pF
+ energy related 7)                                                                                       VDS = 0...400 V
+ Effective output capacitance,                                                                           ID = constant, VGS = 0 V, VDS = 0...
+                                                   Co(tr)       ‑          194        ‑          pF
+ time related 8)                                                                                         400 V
+ Turn‑on delay time                                td(on)       ‑          14.8       ‑          ns
+                                                                                                         VDD = 400 V, VGS = 0/18 V,
+ Rise time                                         tr           ‑          12.6       ‑          ns
+                                                                                                         ID = 20.1 A, RG,ext = 1.8 Ω;
+ Turn‑off delay time                               td(off)      ‑          17         ‑          ns
+                                                                                                         see table 10
+ Fall time                                         tf           ‑          13         ‑          ns
+ 6)   Maximum specification is defined by calculated six sigma upper confidence bound
+ 7)   Co(er) is a fixed capacitance that gives the same stored energy as Coss while VDS is rising from 0 to 400 V.
+ 8)   Co(tr) is a fixed capacitance that gives the same charging time as Coss while VDS is rising from 0 to 400 V.
+
+
+
+
+Datasheet                                                                                                                           Revision 2.2
+https://www.infineon.com                                            6                                                                2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ Table 7           Gate charge characteristics
+                                                            Values
+ Parameter                            Symbol                                      Unit Note / Test condition
+                                                     Min.       Typ.       Max.
+ Plateau gate to source charge        QGS(pl)    ‑          9          ‑          nC
+                                                                                       VDD = 400 V, ID = 20.1 A,
+ Gate to drain charge                 QGD        ‑          8          ‑          nC
+                                                                                       VGS = 0 to 18 V
+ Total gate charge                    QG         ‑          33         ‑          nC
+
+ Table 8           Reverse diode characteristics
+                                                            Values
+ Parameter                            Symbol                                      Unit Note / Test condition
+                                                     Min.       Typ.       Max.
+ Drain‑source reverse voltage         VSD        ‑          4.0        ‑          V    VGS = 0 V, IS = 20.1 A, Tj = 25 °C
+ MOSFET forward recovery time         tfr        ‑          68         ‑          ns
+ MOSFET forward recovery charge 9) Qfr           ‑          125        ‑          nC   VDD = 400 V, IS = 20.1 A,
+ MOSFET peak forward recovery                                                          diS/dt = 1000 A/μs; see table 9
+                                      Ifrm       ‑          8.4        ‑          A
+ current
+ 9)   Qfr includes Qoss
+
+
+
+
+Datasheet                                                                                                          Revision 2.2
+https://www.infineon.com                             7                                                              2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ 5 Electrical characteristics diagrams
+
+ Diagram 1: Power dissipation                                                   Diagram 2: Safe operating area
+             175                                                                                       103
+
+             150                                                                                       102                                                  1 µs
+
+             125                                                                                                                                            10 µs
+                                                                                                       101
+                                                                                                                                                            100 µs
+             100
+  Ptot [W]
+
+
+
+
+                                                                                IDS [A]
+                                                                                                       100
+                                                                                                                                                            1 ms
+              75
+                                                                                                                                                            10 ms
+                                                                                                      10 1                                                   DC
+              50
+
+                                                                                                      10 2
+              25
+
+               0                                                                                      10 3
+                    0     25   50         75   100     125     150        175                                100                101                   102                103
+                                          TC [°C]                                                                                       VDS [V]
+ Ptot=f(TC)                                                                     IDS=f(VDS); TC=25 °C; D=0; parameter: tp
+
+
+ Diagram 3: Safe operating area                                                 Diagram 4: Max. transient thermal impedance
+      103                                                                            101
+
+
+              102
+                                                             1 µs
+
+              101                                            10 µs                                     100
+                                                                                Zth(j c), max [K/W]
+
+
+
+
+                                                                                                                   0.5
+  IDS [A]
+
+
+
+
+                                                             100 µs
+              100
+                                                                                                                   0.2
+                                                             1 ms                                          0.1
+             10 1                                                                                     10 1 0.05
+                                                             10 ms
+                                                              DC
+             10 2                                                                                            0.02
+                                                                                                             0.01
+                                                                                                         single pulse
+             10 3                                                                                     10 2
+                    100             101              102                  103                            10 5            10 4         10 3        10 2        10 1       100
+                                           VDS [V]                                                                                           tp [s]
+ IDS=f(VDS); TC=80 °C; D=0; parameter: tp                                       Zth(j‑c),max=f(tP); parameter: D=tp/T
+
+
+
+
+Datasheet                                                                                                                                                       Revision 2.2
+https://www.infineon.com                                              8                                                                                          2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+
+
+ Diagram 5: Typ. output characteristics                                                   Diagram 6: Typ. output characteristics
+                175                                                                                              175
+                                                                            20 V
+                150                                                                                              150
+                                                                                                                                                                         20 V
+                                                                            18 V
+                125                                                                                              125
+                                                                                                                                                                         18 V
+
+                100                                                                                              100
+  IDS [A]
+
+
+
+
+                                                                                          IDS [A]
+                                                                            15 V                                                                                         15 V
+                75                                                                                                75
+
+                50                                                                                                50                                                     12 V
+                                                                            12 V
+                                                                                                                                                                         10 V
+                25                                                          10 V                                  25
+                                                                                                                                                                         8V
+                                                                            8V
+                  0                                                                                                0
+                       0               5               10            15             20                                 0             5             10           15              20
+                                                  VDS [V]                                                                                     VDS [V]
+ IDS=f(VDS); Tj=25 °C; parameter: VGS                                                     IDS=f(VDS); Tj=175 °C; parameter: VGS
+
+
+ Diagram 7: Typ. drain‑source on‑state resistance                                         Diagram 8: Drain‑source on‑state resistance
+      0.20                                                                                    2.0
+
+
+
+                                                                                                                 1.5
+                           10 V 12 V            15 V              18 V
+                                                                                          RDS(on) [normalized]
+
+
+
+
+                0.15
+  RDS(on) [ ]
+
+
+
+
+                                                                          20 V
+                                                                                                                 1.0
+
+
+                0.10
+                                                                                                                 0.5
+
+
+
+                0.05                                                                                             0.0
+                       0       25          50     75        100    125    150       175                                50   25   0       25   50        75   100 125 150 175
+                                                   IDS [A]                                                                                    Tj [°C]
+ RDS(on)=f(IDS); Tj=125 °C; parameter: VGS                                                RDS(on)=f(Tj); ID=20.1 A; VGS=18 V
+
+
+
+
+Datasheet                                                                                                                                                            Revision 2.2
+https://www.infineon.com                                                        9                                                                                     2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+
+
+ Diagram 9: Typ. transfer characteristics                                                              Diagram 10: Typ. gate charge
+            200                                                                                                  20
+                                                                                                                 18
+                                                                                                                 16
+            150                                                                          25 °C
+                                                                                                                 14
+
+                                                                                         175 °C                  12
+
+
+
+
+                                                                                                       VGS [V]
+  IDS [A]
+
+
+
+
+            100                                                                                                  10                             400 V
+                                                                                                                  8
+                                                                                                                  6
+             50
+                                                                                                                  4
+                                                                                                                  2
+              0                                                                                                   0
+                   0     2         4         6    8      10      12     14         16    18      20                   0           5      10     15       20       25    30       35     40
+                                                       VGS [V]                                                                                       QG [nC]
+ IDS=f(VGS); VDS=20V; parameter: Tj                                                                    VGS=f(QG); ID=20.1 A pulsed; parameter: VDD
+
+
+ Diagram 11: Typ. reverse drain current characteristics                                                Diagram 12: Typ. reverse drain current characteristics
+      102                                                                                                   102
+
+
+
+                                       175 °C                                                                                   25 °C
+             101                                                                                                  101
+                                                        25 °C                                                                         175 °C
+  ISD [A]
+
+
+
+
+                                                                                                       ISD [A]
+
+
+
+
+             100                                                                                                  100
+
+
+
+
+            10 1                                                                                                 10 1
+                   0.0       1.0       2.0       3.0     4.0      5.0        6.0        7.0      8.0                      0.0     0.5     1.0    1.5      2.0     2.5   3.0     3.5    4.0
+                                                       VSD [V]                                                                                          VSD [V]
+ ISD=f(VSD); VGS=0 V; parameter: Tj                                                                    ISD=f(VSD); VGS=18 V; parameter: Tj
+
+
+
+
+Datasheet                                                                                                                                                                     Revision 2.2
+https://www.infineon.com                                                                  10                                                                                   2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+
+
+ Diagram 13: Avalanche energy                                                     Diagram 14: Drain‑source breakdown voltage
+             200                                                                              690
+
+
+                                                                                              680
+             150
+                                                                                              670
+  EAS [mJ]
+
+
+
+
+                                                                                  VDSS [V]
+             100                                                                              660
+
+
+                                                                                              650
+              50
+                                                                                              640
+
+
+               0                                                                              630
+                   25    50     75          100         125     150         175                        50   25    0         25    50    75    100 125 150 175
+                                       Tj [°C]                                                                                     Tj [°C]
+ EAS=f(Tj); ID=6.4 A; VDD=50 V                                                    VDSS=f(Tj); ID=0.6 mA
+
+
+ Diagram 15: Typ. capacitances                                                    Diagram 16: Typ. Coss stored energy
+     104                                                                              30
+
+
+                                                                                              25
+
+
+             103                     Ciss                                                     20
+                                                                                  Eoss [µJ]
+  C [pF]
+
+
+
+
+                                                                                              15
+
+                                     Coss
+             102                                                                              10
+
+
+                                                                                              5
+
+                                     Crss
+             101                                                                              0
+                   0    100   200    300          400     500    600        700                    0        100       200        300    400    500    600     700
+                                      VDS [V]                                                                                     VDS [V]
+ C=f(VDS); VGS=0 V; f=250 kHz                                                     Eoss=f(VDS)
+
+
+
+
+Datasheet                                                                                                                                            Revision 2.2
+https://www.infineon.com                                               11                                                                             2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+
+
+ Diagram 17: Typ. Qoss output charge
+              120
+              110
+              100
+              90
+              80
+              70
+  Qoss [nC]
+
+
+
+
+              60
+              50
+              40
+              30
+              20
+              10
+               0
+                    0   100   200   300   400   500   600        700
+                                     VDS [V]
+ Qoss=f(VDS)
+
+
+
+
+Datasheet                                                              Revision 2.2
+https://www.infineon.com                                    12          2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ 6 Test circuits
+ Table 9           Body diode characteristics
+         Test circuit for body diode characteristics                       Body diode recovery waveform
+
+                                                                                                                VDS
+                           +
+                                                                    VDD
+
+             RG2           VDS
+                                                                                  IS
+                           -                                          Is
+                                                                    ISO                            tfr
+                   IS
+                                                       VDD
+                                                                           dIs / dt
+
+             RG1                                                                                                         Ifrm
+                                                                                                         Qfr
+
+                                                                    Ifrm
+
+
+
+
+ Table 10            Switching times
+
+        Switching times test circuit for inductive load                          Switching times waveform
+
+                                                                   VDS
+                                                                                       90%
+
+
+
+
+                  VDS                                        VDD                10%
+                                                                   VGS
+                   VGS
+                                                                                        td(on)      tr         td(off)          tf
+             RG
+                                                                                             ton                         toff
+
+
+
+
+ Table 11            Unclamped inductive load
+
+            Unclamped inductive load test circuit                            Unclamped inductive waveform
+
+                                                                                                                           VDSS
+
+
+                                                       VDD
+                    ID
+                               VDS
+
+                                                                   VDS                                                               VDS
+                                                                               ID
+
+
+
+
+Datasheet                                                                                                                             Revision 2.2
+https://www.infineon.com                                     13                                                                        2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ 7 Package outlines
+
+
+
+
+               PACKAGE - GROUP
+               NUMBER:           PG-TO247-4-U02
+                                    MILLIMETERS                      MILLIMETERS
+                DIMENSIONS                            DIMENSIONS
+                                 MIN.        MAX.                  MIN.       MAX.
+                       A          4.90        5.10         E       15.70      15.90
+                      A1          2.31        2.51         E1      13.10      13.50
+                      A2         1.90         2.10         E2       2.40       2.60
+                      A3          0.05        0.25          e            5.08
+                       b         1.10        1.30           e1           2.79
+                      b1          0.65        0.79          e2           2.54
+                      b2          ---         0.20         N               4
+                      b3         1.34        1.44          L       19.80      20.10
+                       c          0.58        0.66         øP       3.50       3.70
+                      D          20.90       21.10         øP1      7.00       7.40
+                      D1         16.25       16.85         øP2      2.40       2.60
+                      D2         1.05        1.35          Q        5.60       6.00
+                      D3          24.97       25.27        S             6.15
+                      D4          4.90        5.10         T        9.80      10.20
+                                                           U        6.00       6.40
+
+
+
+
+ Figure 1 Outline PG‑TO247‑4, dimensions in mm
+
+
+
+
+Datasheet                                                                             Revision 2.2
+https://www.infineon.com                                            14                 2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ 8 Appendix A
+ Table 12        Related links
+
+         IFX CoolSiC CoolSiC™ MOSFET 650 V G1 Webpage
+
+         IFX CoolSiC CoolSiC™ MOSFET 650 V G1 Application Note
+
+         IFX CoolSiC CoolSiC™ MOSFET 650 V G1 Simulation Model
+
+         IFX Design tools
+
+
+
+
+Datasheet                                                        Revision 2.2
+https://www.infineon.com                          15              2025‑01‑20
+Public
+CoolSiC™ MOSFET 650 V G1
+IMZA65R048M1H
+
+
+ Revision history
+ IMZA65R048M1H
+
+ Revision 2025‑01‑20, Rev. 2.2
+ Previous revisions
+ Revision Date                  Subjects (major changes since last revision)
+ 2.0          2019‑12‑16 Release of final version
+ 2.1          2024‑08‑26 VGS specs update ,Tj,max update , IDSS update, nomenclature update, datasheet
+                         layout update.
+ 2.2          2025‑01‑20 Corrected Is value in test condition of parameter Vsd.
+
+
+
+
+ Trademarks
+ All referenced product or service names and trademarks are the property of their respective owners.
+
+
+
+ We Listen to Your Comments Any information within this document that you feel is wrong, unclear or missing at all? Your feedback will help us to
+ continuously improve the quality of this document. Please send your proposal (including a reference to this document) to: erratum@infineon.com
+
+ Published by
+ Infineon Technologies AG
+ 81726 München, Germany
+ © 2025 Infineon Technologies AG
+ All Rights Reserved.
+
+ Legal Disclaimer
+ The information given in this document shall in no event be regarded as a guarantee of conditions or characteristics (“Beschaffenheitsgarantie”) .
+ With respect to any examples, hints or any typical values stated herein and/or any information regarding the application of the product, Infineon
+ Technologies hereby disclaims any and all warranties and liabilities of any kind, including without limitation warranties of non‑infringement of
+ intellectual property rights of any third party.
+
+ In addition, any information given in this document is subject to customer’s compliance with its obligations stated in this document and any
+ applicable legal requirements, norms and standards concerning customer’s products and any use of the product of Infineon Technologies in
+ customer’s applications.
+
+ The data contained in this document is exclusively intended for technically trained staff. It is the responsibility of customer’s technical
+ departments to evaluate the suitability of the product for the intended application and the completeness of the product information given in this
+ document with respect to such application.
+
+ Information
+ For further information on technology, delivery terms and conditions and prices please contact your nearest Infineon Technologies Office (www.
+ infineon.com).
+
+ Warnings
+ Due to technical requirements, components may contain dangerous substances. For information on the types in question, please contact the
+ nearest Infineon Technologies Office.
+ The Infineon Technologies component described in this Data Sheet may be used in life‑support devices or systems and/or automotive, aviation
+ and aerospace applications or systems only with the express written approval of Infineon Technologies, if a failure of such components can
+ reasonably be expected to cause the failure of that life‑support, automotive, aviation and aerospace device or system or to affect the safety or
+ effectiveness of that device or system. Life support devices or systems are intended to be implanted in the human body or to support and/or
+ maintain and sustain and/or protect human life. If they fail, it is reasonable to assume that the health of the user or other persons may be
+ endangered.
+
+
+
+
+Datasheet                                                                                                                                       Revision 2.2
+https://www.infineon.com                                              16                                                                         2025‑01‑20
+

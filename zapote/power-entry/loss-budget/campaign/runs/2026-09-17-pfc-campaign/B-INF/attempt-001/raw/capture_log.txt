@@ -1,0 +1,22 @@
+# B-INF primary-source capture log
+# campaign 2026-09-17-pfc-campaign ; task B-INF ; attempt-001
+# captured with curl -sS -L -A "<browser UA>"
+# a capture is treated as a document ONLY if its first bytes are %PDF-
+
+ATTEMPT 1  OK       url=https://www.infineon.com/assets/row/public/documents/24/63/infineon-presentation-2.5kw-pfc-evaluation-board-ap-en.pdf?fileId=5546d462503812bb01505c35f63b1614
+                    http_code=200 bytes=1226653 ctype=application/pdf -> infineon_presentation.pdf (magic %PDF-1.5)
+
+ATTEMPT 2  OK       url=https://static.chipdip.ru/lib/493/DOC011493046.pdf
+                    http_code=200 bytes=1496871 ctype=application/pdf -> chipdip_appnote.pdf (magic %PDF-1.5)
+                    Content identified inside the file as Infineon AN_201408_PL11_027 Rev 1.2, 2015-11-02, 31 pages.
+
+ATTEMPT 3  FAIL     url=https://www.mouser.com/datasheet/2/196/Infineon_ApplicationNote_EVAL_2_5KW_CCM_4PIN_Appli-3132085.pdf
+                    http_code=200 bytes=13897 ctype=text/html -> mouser_appnote.html
+                    JS/consent wall returned HTML, NOT a PDF. Retained as a failure capture; not hashed as a document.
+
+ATTEMPT 4  FAIL     url=https://www.infineon.com/dgdl/Infineon-AN_201408_PL11_027_EVAL_2.5kW_CCM_4PIN-ApplicationNotes-v01_02-EN.pdf?fileId=5546d462503812bb01505c35f63b1614
+                    http_code=404 bytes=1523888 ctype=text/html -> infineon_appnote_attempt_404.html
+                    Guessed canonical Infineon dgdl path does not resolve; HTML 404 body returned. Retained as failure capture.
+
+NOTE: no further mirrors attempted (budget: at most one alternate mirror per failed URL).
+PRIMARY DOCUMENTS RETAINED: 2 (chipdip_appnote.pdf, infineon_presentation.pdf).

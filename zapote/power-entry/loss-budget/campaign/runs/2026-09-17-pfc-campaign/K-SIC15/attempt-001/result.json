@@ -1,0 +1,104 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "template_only": false,
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "K-SIC15",
+  "attempt_id": "attempt-001",
+  "contract_sha256": "3bf1125fe37e8df6a493449ec5edfa01082fdd9e40a8d5d724147b388737f183",
+  "source_revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+  "model_source_sha256": null,
+  "model_source_sha256_note": "not_applicable: source-only task; no solver invoked and no model edited",
+  "binary_sha256": null,
+  "checker_sha256": null,
+  "checker_sha256_note": "not_applicable: G0 checker unimplemented; task dispatch marks checker_revision not_applicable",
+  "dirty_state": "untracked_only",
+  "dirty_state_note": "HEAD == source_revision 1e0d8132d66e16027bbe4f6b21844b2d208b87d2. `git status --porcelain` shows only untracked files (campaign planner docs and this run's outputs); no tracked file was modified.",
+  "requested_model": null,
+  "requested_model_note": "not specified in the dispatch packet; worker-agent task, no model selection issued",
+  "served_model_receipt": null,
+  "task_completion": "FINISHED",
+  "evidence_status": "NOT_REVIEWED",
+  "numerical_status": "NOT_RUN",
+  "physical_applicability": "INDETERMINATE",
+  "assembly_completeness": "INCOMPLETE",
+  "hardware_qualification": "NOT_PERFORMED",
+  "hypothesis": "An exact Kelvin-source SiC device (NTH4L060N065SC1) plus its required drive/thermal assembly can be evaluated against the common reference once its model parameters are extracted from the retained manufacturer PDF at the task's 0/+15 V bias.",
+  "actual_changed_variables": [],
+  "actual_changed_variables_note": "source-only; no design variable changed",
+  "controls": [],
+  "case_census": {
+    "expected": null,
+    "expected_note": "not_applicable: source-only task, no solver case grid issued",
+    "attempted": 0,
+    "valid": 0,
+    "failed": 0,
+    "unsupported": 0,
+    "unrun": null,
+    "unrun_note": "not_applicable: source-only task",
+    "case_ids": []
+  },
+  "cases": [],
+  "case_record_instructions": "Source-only task; no solver cases. Parameter extraction is in inputs.json.",
+  "supported_subtotals": [],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+  "assembly_cost": {
+    "value": null,
+    "currency": null,
+    "quantity_basis": null,
+    "observation_date": null,
+    "coverage": []
+  },
+  "assembly_volume_mm3": null,
+  "temperature_predictions": [],
+  "constraint_findings": [],
+  "unsupported_cases": [],
+  "source_failures": [],
+  "tool_failures": [],
+  "source_notes": [
+    "Retained primary PDF verified genuine and byte-identical across two in-repo paths.",
+    "The datasheet's switching energies and gate charges are measured at -5/+18 V; the task bias is 0/+15 V. Recorded as SOURCE_CONDITION_MISMATCH, not transferred.",
+    "plateau_v and eoss_j are not published as parameters and are null; deriving them would require graph digitization/fitting, which is forbidden."
+  ],
+  "raw_artifacts": [
+    {
+      "path": "raw/NTH4L060N065SC1-Rev3-2023-01.pdf",
+      "sha256": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4",
+      "description": "byte-identical copy of the retained onsemi Rev. 3 datasheet"
+    },
+    {
+      "path": "raw/NTH4L060N065SC1-Rev3-2023-01.pdf.sha256",
+      "sha256": "816d8a6d06e8b23fc91baf769933c178a957f792ce9971e0c843dabaa061d5e6",
+      "description": "shasum -a 256 record of the raw copy"
+    },
+    {
+      "path": "raw/datasheet-layout.txt",
+      "sha256": "cc446489b48f741202fc3a50b8534eecdb63af800388b986b8b9c0a29662689a",
+      "description": "pdftotext -layout extraction used for the values (glyph-drop noted)"
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "3b297b0c6532f124353a9c48f28653415e8614051da9540fc248a50f56e0b768",
+      "description": "part/document identity, PDF paths+hashes, parameter table, source notes"
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "c90d1e6aa20993d47cc536afe48022e6a484cbc1fd1d199ef67879a840bc5394",
+      "description": "human-readable summary"
+    }
+  ],
+  "manifest_sha256": null,
+  "manifest_sha256_note": "manifest.json hashes every produced file except itself, including this result.json; embedding a hash of that manifest here would be circular. manifest.json is the artifact-identity authority.",
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+  "next_discriminating_observation": "Matched double-pulse switching-energy capture of this exact device at 0/+15 V, RG=2.2 ohm, 400 V bus, at the instantaneous drain currents present at the PFC switching instants and at 25/100/125 C, with an explicit statement of whether Eoss is included. This is the single missing observation most likely to change the decision: without it the candidate's switching loss at the proposed bias is unknown. Source-only fallback: an onsemi-authored 0/+15 V Eon/Eoff/Eoss dataset or a validated SPICE model (none retained).",
+  "budget": {
+    "deadline_utc": "2026-09-17T22:30:00Z",
+    "elapsed_seconds": null,
+    "elapsed_seconds_note": "wall time was not instrumented at session start; the task completed well inside the deadline",
+    "solver_invocations": 0,
+    "remaining_invocations": 0
+  }
+}
