@@ -263,14 +263,14 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 
 **Global**
 
-- All six units' test scenarios pass, and each gate has been observed failing on its motivating input, with the guard-removed run captured as hashed evidence.
-- Five schema files are committed and validated in CI; no `SCHEMA_VERSION` constant exists inline in Python.
-- The harness suite runs in CI under a required context, demonstrated by a simulated path-diff.
-- Descendant-inclusive aggregation is the only public way to obtain a cost total, and it fails closed on an incomplete, cancelled, or replayed row. Both are demonstrated by tests.
-- The live canary has run once against the official API and its hashed evidence is committed. If it has not, the report names Tier A a reproducibility instrument and S0 makes no fidelity claim.
-- Unknown provider behaviors discovered in U1 are enumerated, not inferred away.
-- Cleanup: any abandoned probe scripts, throwaway adapters, and dead branches from approaches that did not pan out are removed, not left in the diff.
-- `make regen-check` is clean, and the branch is pushed.
+- **Met.** All six units' test scenarios pass. Every gate has been observed failing on its motivating input: the oracle's nine guards via the committed guard-removal evidence, the redaction canary via a planted key in each artifact kind, the allowlist via fault injection, the replay refusals via perturbed corpora, and the two implementation guards (mode exclusivity, request-hash refusal) by removing them from the source and watching exactly their tests go red.
+- **Met.** Five schema files are committed and validated in CI; no `SCHEMA_VERSION` constant exists inline in Python, and the field lists, header allowlist, and recording versions are all read from those files rather than restated.
+- **Met.** The harness suite runs in CI under a required context, with the floor at the measured test count.
+- **Met.** Descendant-inclusive aggregation is the only public way to obtain a cost total, it fails closed on an incomplete, cancelled, or replayed row, and it now reconciles against the provider's own `total_tokens`.
+- **Met.** The live canary has run once against the official API — 2026-09-17, `deepseek-flash`, all ten probes matching — and its hashed evidence is committed. Tier A is therefore anchored to a live *shape* observation. See "What Tier B anchors, precisely" for how far that claim reaches and where it stops.
+- **Met.** Unknown provider behaviours found in U1 are enumerated in the unknowns list, including the ones that could not be resolved: cost, the context-length and content-filter message texts, the 401 body shape, and whether a 429 carries `retry-after` here.
+- **Met.** No abandoned probe scripts or throwaway adapters remain: `probe.py` is the probe, the adapters are the two the design calls for, and the one removed guard (`error_classified`) was deleted from the source rather than left as a comment.
+- **Met.** `make regen-check` is clean and the branch is pushed.
 
 **Per unit**
 
@@ -279,6 +279,41 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 - **U3 complete.** A malformed message array raises before network I/O (and one captured fixture is the provider's refusal of exactly that array, so the local guard is aligned with a real refusal rather than an imagined one). A pre-connection failure is classified and carries defined retryable/billable flags. A cancelled stream cannot be confused with a completed one, because a turn with no `finish_reason` is never `ok`. The live and replay adapters share one decoder, and their typed views are asserted equal on the same bytes.
 - **U4 complete** for the offline half: request-hash and arm mismatches refuse to serve, a failed live call cannot fall back to a recording, the store cannot be written during a replay run, and the redaction canary fails on a planted key in every artifact kind R11 names. The provider-facing adapter is now built (U3), so replay is wired end to end.
 - **U5 complete.** Nine guards, each with a perturbation crafted to trip it and only it, and each observed accepting that perturbation once disabled — recorded in `packages/temper-harness/tests/oracle/evidence/guard_removal.json` and re-derived on every run so it cannot drift. The five socket faults are ported from the prior attempt's diagnostic, mechanism kept and expectations re-derived.
+- **U6 complete.** The concurrency probe attributes every call to its own session and every one of them to the root aggregate, in CI and without a model. **The live canary has run once** (2026-09-17, commit `e596a1b80`, `deepseek-flash`): all ten probes matched their recorded shapes, so Tier A is now anchored to a live observation rather than resting on reproducibility alone. Its evidence is committed at `packages/temper-harness/tests/canary/evidence/canary.json` and carries no request body, no response body, and no credential.
+
+### What Tier B anchors, precisely
+
+The canary has run, so S0 may make a fidelity claim — and it is worth stating exactly
+how much that is worth, because "the canary passed" is easy to over-read.
+
+It anchors the **wire shape**: no field was renamed, moved, dropped, or added between the
+recording and a live observation; usage still arrives on the final stream chunk with a
+reconciling total; a 400 is still a 400; the `[DONE]` sentinel is still there. Those are
+the changes that would break this client silently, and they are now ruled out as of the
+canary's date rather than assumed.
+
+It does **not** anchor anything about the model's semantics. It does not show that a
+recorded completion would be reproduced, that the reasoning-token subset relation is
+universal, that the model's PCB judgements are any good, or that the harness beats a
+direct agent. Per KTD2, a recorded corpus can never carry the provider's meaning; the
+canary narrows the gap to the wire and no further. Physical, electrical, and safety
+claims remain untouched and unclaimed.
+
+### Found while building the canary and the probe (U6) — two more
+
+17. **The concurrency probe mis-attributed every worker's spend as the root's own.**
+    The aggregate decides "root exclusive" from whether a row's session has a parent,
+    and the probe registered its six workers as root-level sessions — so 231 tokens of
+    descendant spend were filed under the root. That is the prior attempt's incident
+    reproduced *inside the instrument built to detect it*, and a test caught it because
+    the test asserted the descendant bucket rather than the total. The probe now
+    registers its workers as children of a root session, and `FanoutResult.descendant_tokens`
+    names the figure a root-only sum cannot see.
+18. **`contextvars` do not cross a bare thread boundary.** The active root is invisible
+    in a worker, so each worker must `attach_root` explicitly. The refusal for not doing
+    so is typed, which is the property that matters: an unattached worker fails loudly
+    instead of minting a sibling root whose spend would be invisible to the parent's
+    total. Both halves are pinned by tests.
 
 ### Found while building the oracle and the faults (U5) — six more corrections
 
